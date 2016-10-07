@@ -1,0 +1,14 @@
+---
+layout: layout
+---
+
+main[ng-controller="MainController as mainCtrl"]
+	header
+		nav
+			a[ng-repeat="menu in mainCtrl.menus" ng-href="{{ menu.path }}" ng-bind="menu.title" ng-class="menu.cssClass"]
+		aside
+			button.discard[ng-click="mainCtrl.discardChanges()" ng-bind="'#{ data.strings[:main][:discard] }'"]
+			button.save[ng-click="mainCtrl.saveChanges()"]
+	p.progress-indicator[progress-model="mainCtrl.loadProgress"]
+	p.progress-indicator[progress-model="mainCtrl.menuProgress"]
+	div[ng-view ng-if="!mainCtrl.loadProgress.isInProgress"]

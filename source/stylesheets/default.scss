@@ -1,0 +1,478 @@
+/* Screen sizes */
+
+$screen-huge: 1280px;
+$screen-big: 992px;
+$screen-mid: 768px;
+$screen-small: 480px;
+$screen-tiny: 360px;
+$screen-minimum: 320px;
+
+/* Media Queries */
+
+@mixin media-above($value) {
+
+	@media only screen and (min-width: $value + 1) {
+		@content;
+	}
+}
+
+@mixin media-below($value) {
+
+	@media only screen and (max-width: $value - 1) {
+		@content;
+	}
+}
+
+@mixin media-above-inclusive($value) {
+
+	@media only screen and (min-width: $value) {
+		@content;
+	}
+}
+
+@mixin media-below-inclusive($value) {
+
+	@media only screen and (max-width: $value) {
+		@content;
+	}
+}
+
+@mixin media-above-height($value) {
+
+	@media only screen and (min-height: $value + 1) {
+		@content;
+	}
+}
+
+@mixin media-below-height($value) {
+
+	@media only screen and (max-height: $value + 1) {
+		@content;
+	}
+}
+
+@mixin media-above-height-inclusive($value) {
+
+	@media only screen and (min-height: $value) {
+		@content;
+	}
+}
+
+@mixin media-below-height-inclusive($value) {
+
+	@media only screen and (max-height: $value) {
+		@content;
+	}
+}
+
+@mixin media-above-huge {
+	@include media-above($screen-huge) {
+		@content;
+	};
+}
+
+@mixin media-above-big {
+	@include media-above($screen-big) {
+		@content;
+	};
+}
+
+@mixin media-above-mid {
+	@include media-above($screen-mid) {
+		@content;
+	};
+}
+
+@mixin media-above-small {
+	@include media-above($screen-small) {
+		@content;
+	};
+}
+
+@mixin media-above-tiny {
+	@include media-above($screen-tiny) {
+		@content;
+	};
+}
+
+@mixin media-below-huge {
+	@include media-below($screen-huge) {
+		@content;
+	};
+}
+
+@mixin media-below-big {
+	@include media-below($screen-big) {
+		@content;
+	};
+}
+
+@mixin media-below-mid {
+	@include media-below($screen-mid) {
+		@content;
+	};
+}
+
+@mixin media-below-small {
+	@include media-below($screen-small) {
+		@content;
+	};
+}
+
+@mixin media-below-tiny {
+	@include media-below($screen-tiny) {
+		@content;
+	};
+}
+
+@mixin media-above-inclusive-huge {
+	@include media-above-inclusive($screen-huge) {
+		@content;
+	};
+}
+
+@mixin media-above-inclusive-big {
+	@include media-above-inclusive($screen-big) {
+		@content;
+	};
+}
+
+@mixin media-above-inclusive-mid {
+	@include media-above-inclusive($screen-mid) {
+		@content;
+	};
+}
+
+@mixin media-above-inclusive-small {
+	@include media-above-inclusive($screen-small) {
+		@content;
+	};
+}
+
+@mixin media-above-inclusive-tiny {
+	@include media-above-inclusive($screen-tiny) {
+		@content;
+	};
+}
+
+@mixin media-below-inclusive-huge {
+	@include media-below-inclusive($screen-huge) {
+		@content;
+	};
+}
+
+@mixin media-below-inclusive-big {
+	@include media-below-inclusive($screen-big) {
+		@content;
+	};
+}
+
+@mixin media-below-inclusive-mid {
+	@include media-below-inclusive($screen-mid) {
+		@content;
+	};
+}
+
+@mixin media-below-inclusive-small {
+	@include media-below-inclusive($screen-small) {
+		@content;
+	};
+}
+
+@mixin media-below-inclusive-tiny {
+	@include media-below-inclusive($screen-tiny) {
+		@content;
+	};
+}
+
+/* Attributes */
+
+@mixin display-flex {
+	display: flex;
+	display: -webkit-flex;
+}
+
+@mixin display-inline-flex {
+	display: inline-flex;
+	display: -webkit-inline-flex;
+}
+
+@mixin flex($value) {
+	flex: $value;
+	-ms-flex: $value;
+	-moz-flex: $value;
+	-webkit-flex: $value;
+}
+
+@mixin flex-direction($value) {
+	flex-direction: $value;
+	-moz-flex-direction: $value;
+	-webkit-flex-direction: $value;
+}
+
+@mixin flex-grow($value) {
+	flex-grow: $value;
+	-moz-flex-grow: $value;
+	-webkit-flex-grow: $value;
+}
+
+@mixin flex-shrink($value) {
+	flex-shrink: $value;
+	-moz-flex-shrink: $value;
+	-webkit-flex-shrink: $value;
+}
+
+@mixin justify-content($value) {
+	justify-content: $value;
+	-moz-justify-content: $value;
+	-webkit-justify-content: $value;
+}
+
+@mixin align-items($value) {
+	align-items: $value;
+	-webkit-align-items: $value;
+}
+
+@mixin align-self($value) {
+	align-self: $value;
+	-webkit-align-self: $value;
+}
+
+@mixin flex-wrap($value) {
+	flex-wrap: $value;
+	-moz-flex-wrap: $value;
+	-webkit-flex-wrap: $value;
+}
+
+@mixin flex-basis($value) {
+	flex-basis: $value;
+	-moz-flex-basis: $value;
+	-webkit-flex-basis: $value;
+}
+
+@mixin order($value) {
+	order: $value;
+	-moz-order: $value;
+	-webkit-order: $value;
+}
+
+@mixin position($position: null, $top: null, $right: null, $bottom: null, $left: null) {
+
+	@if ($position) {
+		position: $position;
+	}
+
+	@if ($top) {
+		top: $top;
+	}
+
+	@if ($right) {
+		right: $right;
+	}
+
+	@if ($bottom) {
+		bottom: $bottom;
+	}
+
+	@if ($left) {
+		left: $left;
+	}
+}
+
+@mixin size($width, $height: $width) {
+	width: $width;
+	height: $height;
+}
+
+@mixin min-size($width, $height: $width) {
+	min-width: $width;
+	min-height: $height;
+}
+
+@mixin max-size($width, $height: $width) {
+	max-width: $width;
+	max-height: $height;
+}
+
+@mixin box-sizing($value) {
+	box-sizing: $value;
+	-moz-box-sizing: $value;
+	-webkit-box-sizing: $value;
+}
+
+@mixin margin-x($value) {
+	margin-left: $value;
+	margin-right: $value;
+}
+
+@mixin margin-y($value) {
+	margin-top: $value;
+	margin-bottom: $value;
+}
+
+@mixin border-x($value) {
+	border-left: $value;
+	border-right: $value;
+}
+
+@mixin border-y($value) {
+	border-top: $value;
+	border-bottom: $value;
+}
+
+@mixin border-radius($value) {
+	border-radius: $value;
+	-moz-border-radius: $value;
+	-webkit-border-radius: $value;
+}
+
+@mixin border-top-left-radius($value) {
+	border-top-left-radius: $value;
+	-moz-border-top-left-radius: $value;
+	-webkit-border-top-left-radius: $value;
+}
+
+@mixin border-top-right-radius($value) {
+	border-top-right-radius: $value;
+	-moz-border-top-right-radius: $value;
+	-webkit-border-top-right-radius: $value;
+}
+
+@mixin border-bottom-left-radius($value) {
+	border-bottom-left-radius: $value;
+	-moz-border-bottom-left-radius: $value;
+	-webkit-border-bottom-left-radius: $value;
+}
+
+@mixin border-bottom-right-radius($value) {
+	border-bottom-right-radius: $value;
+	-moz-border-bottom-right-radius: $value;
+	-webkit-border-bottom-right-radius: $value;
+}
+
+@mixin padding-x($value) {
+	padding-left: $value;
+	padding-right: $value;
+}
+
+@mixin padding-y($value) {
+	padding-top: $value;
+	padding-bottom: $value;
+}
+
+@mixin box-shadow($value) {
+	box-shadow: $value;
+	-moz-box-shadow: $value;
+	-webkit-box-shadow: $value;
+}
+
+@mixin appearance($value) {
+	appearance: $value;
+	-moz-appearance: $value;
+	-webkit-appearance: $value;
+}
+
+@mixin ellipsis-oneliner {
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+}
+
+@mixin column-count($value) {
+	-webkit-column-count: $value;
+	-moz-column-count: $value;
+	column-count: $value;
+}
+
+@mixin column-gap($value) {
+	-webkit-column-gap: $value;
+	-moz-column-gap: $value;
+	column-gap: $value;
+}
+
+@mixin column-rule($value) {
+	-webkit-column-rule: $value;
+	-moz-column-rule: $value;
+	column-rule: $value;
+}
+
+@mixin column-break-inside($value) {
+	-webkit-column-break-inside: $value;
+	page-break-inside: $value;
+	break-inside: $value;
+}
+
+@mixin transform($translate_value: 0, $rotate_value: 0, $scale_value: 1) {
+	transform: translate($translate_value) rotate($rotate_value) scale($scale_value);
+	-o-transform: -o-translate($translate_value) -o-rotate($rotate_value) -o-scale($scale_value);
+	-ms-transform: -ms-translate($translate_value) -ms-rotate($rotate_value) -ms-scale($scale_value);
+	-moz-transform: -moz-translate($translate_value) -moz-rotate($rotate_value) -moz-scale($scale_value);
+	-webkit-transform: -webkit-translate($translate_value) -webkit-rotate($rotate_value) -webkit-scale($scale_value);
+}
+
+@mixin transform-origin($value) {
+	transform-origin: $value;
+	-o-transform-origin: $value;
+	-ms-transform-origin: $value;
+	-moz-transform-origin: $value;
+	-webkit-transform-origin: $value;
+}
+
+@mixin transition($values...) {
+	transition: $values;
+	-o-transition: $values;
+	-moz-transition: $values;
+	-webkit-transition: $values;
+}
+
+@mixin transition-duration($value) {
+	transition-duration: $value;
+	-o-transition-duration: $value;
+	-moz-transition-duration: $value;
+	-webkit-transition-duration: $value;
+}
+
+@mixin transition-delay($value) {
+	transition-delay: $value;
+	-o-transition-delay: $value;
+	-moz-transition-delay: $value;
+	-webkit-transition-delay: $value;
+}
+
+@mixin animation($value) {
+	animation: $value;
+	-o-animation: $value;
+	-moz-animation: $value;
+	-webkit-animation: $value;
+}
+
+@mixin keyframes($animation_name) {
+	@keyframes #{$animation_name} {
+		@content;
+	}
+
+	@-o-keyframes #{$animation_name} {
+		@content;
+	}
+
+	@-moz-keyframes #{$animation_name} {
+		@content;
+	}
+
+	@-webkit-keyframes #{$animation_name} {
+		@content;
+	}
+}
+
+/* Selectors */
+
+@mixin readonly {
+
+	&:read-only {
+		@content;
+	}
+
+	&:-moz-read-only {
+		@content;
+	}
+}

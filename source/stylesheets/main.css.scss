@@ -1,0 +1,50 @@
+@import "default";
+@import "constants";
+
+// Major layouts
+
+@import "index";
+
+// Basic settings
+
+:focus {
+	outline: none;
+}
+
+html {
+	@include size(100%);
+}
+
+body {
+	@include display-flex;
+	@include flex-direction(column);
+	@include size(100%);
+	@include min-size($screen-minimum, $screen-small);
+	margin: 0;
+}
+
+button, input[type="submit"] {
+	cursor: pointer;
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}
+
+button {
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	background-color: transparent;
+}
+
+input[type="submit"] {
+	@include appearance(none);
+}
+
+// Common classes
+
+.uppercase {
+	text-transform: uppercase;
+}

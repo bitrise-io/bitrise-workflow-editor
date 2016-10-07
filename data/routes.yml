@@ -1,0 +1,9 @@
+editor: editor
+code_signing: code_signing
+secrets: secrets
+env_vars: env_vars
+triggers: triggers
+yml: yml
+app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
+app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
+devcenter_step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs

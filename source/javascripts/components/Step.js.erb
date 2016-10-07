@@ -1,0 +1,140 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
+
+	var Step = function(id) {
+		this.id = id;
+		this.cvs;
+		this.steplibSourceURL;
+		this.version;
+		this.title;
+		this.description;
+		this.sourceURL;
+		this.iconURL;
+		this.inputs;
+		this.outputs;
+		this.stepConfigs = [];
+	};
+
+	Step.createFromStepConfig = function(stepConfig) {
+		var step = new Step();
+		step.appendStepConfig(stepConfig);
+
+		return step;
+	};
+
+	Step.prototype.appendStepConfig = function(stepConfig) {
+		if (_.isEmpty(stepConfig)) {
+			return;
+		}
+
+		var temporaryVariableStore = {};
+		_.each([stepConfig.inputs, stepConfig.outputs], function(variableConfigs) {
+			if (variableConfigs) {
+				try {
+					temporaryVariableStore[variableConfigs == stepConfig.inputs ? "inputs" : "outputs"] = _.map(variableConfigs, Variable.createFromVariableConfig);
+				}
+				catch (error) {
+					throw new Error("<%= data.strings.step.append_error_prefix %>" + error.message);
+				}
+			}
+		});
+		this.inputs = temporaryVariableStore.inputs ? temporaryVariableStore.inputs : [];
+		this.outputs = temporaryVariableStore.outputs ? temporaryVariableStore.outputs : [];
+
+		if (stepConfig.title !== undefined) {
+			this.title = stepConfig.title;
+		}
+
+		if (stepConfig.description !== undefined) {
+			this.description = stepConfig.description;
+		}
+
+		if (stepConfig.source_code_url !== undefined) {
+			this.sourceURL = stepConfig.source_code_url;
+		}
+
+		if (stepConfig.asset_urls) {
+			if (stepConfig.asset_urls["icon.svg"]) {
+				this.iconURL = stepConfig.asset_urls["icon.svg"];
+			}
+			else if (stepConfig.asset_urls["icon.png"]) {
+				this.iconURL = stepConfig.asset_urls["icon.png"];
+			}
+		}
+
+		if (stepConfig.is_always_run !== undefined) {
+			this.isAlwaysRun = stepConfig.is_always_run;
+		}
+
+		this.stepConfigs.push(stepConfig);
+	};
+
+	Step.prototype.clear = function() {
+		this.title = undefined;
+		this.iconURL = undefined;
+		this.stepConfigs = [];
+	};
+
+	Step.prototype.isVerified = function() {
+		if (this.sourceURL === undefined) {
+			return undefined;
+		}
+
+		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
+
+		return regexpForVerifiedStepSourceURL.test(this.sourceURL);
+	};
+
+	Step.prototype.requestedVersion = function() {
+		if (this.cvs.indexOf("@") == -1) {
+			return null;
+		}
+
+		return this.version;
+	};
+
+	return Step;
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("stepIconURLBackgroundImagePropertyValue", function() {
+
+	return function(step) {
+		if (step && step.iconURL) {
+			return step.iconURL;
+		}
+
+		return "<%= image_path('step/icon-default.svg') %>";
+	};
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() {
+
+	return function(step) {
+		if (step && step.sourceURL) {
+			var regexpForGithubStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/.+");
+			if (regexpForGithubStepSourceURL.test(step.sourceURL)) {
+				return "github";
+			}
+
+			var regexpForBitbucketStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?bitbucket\.(?:com|org)\/.+");
+			if (regexpForBitbucketStepSourceURL.test(step.sourceURL)) {
+				return "bitbucket";
+			}
+			
+			var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
+			if (regexpForGitlabStepSourceURL.test(step.sourceURL)) {
+				return "gitlab";
+			}
+		}
+
+		return "unknown";
+	};
+
+});
+
+})();

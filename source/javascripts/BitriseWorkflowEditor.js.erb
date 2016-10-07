@@ -1,0 +1,85 @@
+(function() {
+
+"use strict";
+
+var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
+	"ngRoute",
+	"ngSanitize",
+	"ngAnimate"
+]);
+
+BitriseWorkflowEditor.config(function($compileProvider) {
+	$compileProvider.debugInfoEnabled(false);
+});
+
+BitriseWorkflowEditor.config(function($animateProvider) {
+	$animateProvider.classNameFilter(/angular-animated/);
+});
+
+BitriseWorkflowEditor.config(function($locationProvider) {
+	$locationProvider.html5Mode(true);
+});
+
+BitriseWorkflowEditor.config(function($routeProvider) {
+
+	var routes = [{
+		endpoints: ["", "/"],
+		configuration: {
+			redirectTo: "/editor"
+		}
+	}, {
+		endpoints: ["/editor"],
+		configuration: {
+			templateUrl: "templates/editor"
+		}
+	}, {
+		endpoints: ["/code_signing"],
+		configuration: {
+			templateUrl: "templates/code_signing",
+			controller: "CodeSigningController",
+			controllerAs: "codeSigningCtrl"
+		}
+	}, {
+		endpoints: ["/secrets"],
+		configuration: {
+			templateUrl: "templates/secrets",
+			controller: "SecretsController",
+			controllerAs: "secretsCtrl"
+		}
+	}, {
+		endpoints: ["/env_vars"],
+		configuration: {
+			templateUrl: "templates/env_vars",
+			controller: "EnvVarsController",
+			controllerAs: "envVarsCtrl"
+		}
+	}, {
+		endpoints: ["/triggers"],
+		configuration: {
+			templateUrl: "templates/triggers",
+			controller: "TriggersController",
+			controllerAs: "triggersCtrl"
+		}
+	}, {
+		endpoints: ["/yml"],
+		configuration: {
+			templateUrl: "templates/yml",
+			controller: "YMLController",
+			controllerAs: "ymlCtrl"
+		}
+	}];
+
+	var defaultRoute = routes[0];
+	var defaultEndpoint = routes[0].endpoints[0];
+
+	_.each(routes, function(aRoute) {
+		_.each(aRoute.endpoints, function(anEndpoint) {
+			$routeProvider.when(anEndpoint, aRoute.configuration);
+		});
+	});
+
+	$routeProvider.otherwise(defaultEndpoint, defaultRoute.configuration);
+
+});
+
+})();

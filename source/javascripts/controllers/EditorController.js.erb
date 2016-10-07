@@ -1,0 +1,169 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, communicationHelper, bitriseSteplibService, Progress, Workflow) {
+
+	var viewModel = this;
+
+	$scope.bitriseSteplibService = bitriseSteplibService;
+
+	viewModel.appConfig;
+	viewModel.workflows;
+	viewModel.selectedWorkflow = null;
+	viewModel.selectedStep = null;
+	viewModel.buildEnvironmentPreparePseudoStep = {
+		title: "Preparing the Build Environment"
+	};
+	viewModel.virtualMachineCleanupPseudoStep = {
+		title: "Cleaning up the Virtual Machine"
+	};
+
+	viewModel.loadWorkflowsProgress = new Progress();
+
+	viewModel.renamedStep = null;
+	viewModel.renamedStepTitle;
+
+	viewModel.shouldShowStepDescription = false;
+
+	viewModel.selectedStepRequestedVersion;
+
+	viewModel.selectedInput = null;
+
+	viewModel.workflowSelected = function(workflow) {
+		viewModel.selectedWorkflow = workflow;
+	};
+
+	function loadWorkflows() {
+		viewModel.loadWorkflowsProgress.start("<%= data.strings.editor.load_workflows_progress.in_progress %>");
+		communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
+			viewModel.appConfig = appConfig;
+
+			try {
+				var allWorkflowsLoadedCallbacks = [];
+
+				viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+					var workflow = new Workflow(aWorkflowID);
+					allWorkflowsLoadedCallbacks.push(workflow.configureWithWorkflowConfig(aWorkflowConfig));
+
+					return workflow;
+				});
+
+				_.each(allWorkflowsLoadedCallbacks, function(aCallback) {
+					aCallback(viewModel.workflows);
+				});
+
+				viewModel.loadWorkflowsProgress.success();
+
+				if (!viewModel.selectedWorkflow) {
+					viewModel.selectedWorkflow = _.first(viewModel.workflows);
+				}
+			}
+			catch (error) {
+				viewModel.workflows = undefined;
+				console.log(error);
+				viewModel.loadWorkflowsProgress.error(new Error("<%= data.strings.editor.load_workflows_progress.error %>"));
+			}
+		});
+	}
+
+	viewModel.addWorkflowSelected = function() {
+		console.log("viewModel.addWorkflowSelected called");
+		// TODO: implement
+	};
+
+	viewModel.manageWorkflowEnvVarsSelected = function() {
+		console.log("viewModel.manageWorkflowEnvVarsSelected called");
+		// TODO: implement
+	};
+
+	viewModel.addWorkflowAfterSelected = function() {
+		console.log("viewModel.addWorkflowAfterSelected called");
+		// TODO: implement
+	};
+
+	viewModel.addWorkflowBeforeSelected = function() {
+		console.log("viewModel.addWorkflowBeforeSelected called");
+		// TODO: implement
+	};
+
+	viewModel.deleteWorkflowSelected = function() {
+		console.log("viewModel.deleteWorkflowSelected called");
+		// TODO: implement
+	};
+
+	viewModel.stepsIncludingPseudoSteps = function() {
+		return _.union([viewModel.buildEnvironmentPreparePseudoStep], viewModel.selectedWorkflow.steps, [viewModel.virtualMachineCleanupPseudoStep]);
+	};
+
+	viewModel.isPseudoStep = function(step) {
+		return step == viewModel.buildEnvironmentPreparePseudoStep || step == viewModel.virtualMachineCleanupPseudoStep;
+	};
+
+	viewModel.stepSelected = function(step) {
+		if (viewModel.renamedStep) {
+			viewModel.renamedStepCancelled();
+		}
+
+		if (viewModel.shouldShowStepDescription) {
+			viewModel.shouldShowStepDescription = false;
+		}
+
+		if (viewModel.selectedInput) {
+			viewModel.selectedInput = null;
+		}
+
+		viewModel.selectedStep = step;
+		viewModel.selectedStepRequestedVersion = step && !viewModel.isPseudoStep(step) ? step.requestedVersion() : undefined;
+	};
+
+	viewModel.addStepSelected = function() {
+		console.log("viewModel.addStepSelected called");
+		// TODO: implement
+	};
+
+	viewModel.renameStepSelected = function() {
+		viewModel.renamedStep = viewModel.selectedStep;
+		viewModel.renamedStepTitle = viewModel.renamedStep.title ? viewModel.renamedStep.title : viewModel.renamedStep.id;
+	};
+
+	viewModel.renameStepConfirmed = function() {
+		viewModel.renamedStep.title = viewModel.renamedStepTitle;
+		viewModel.renamedStep = null;
+	};
+
+	viewModel.renamedStepCancelled = function() {
+		viewModel.renamedStepTitle = undefined;
+		viewModel.renamedStep = null;
+	};
+
+	viewModel.cloneStepSelected = function() {
+		var index = _.indexOf(viewModel.selectedWorkflow.steps, viewModel.selectedStep);
+		var clonedStep = angular.copy(viewModel.selectedStep);
+		viewModel.selectedWorkflow.steps.splice(index + 1, 0, clonedStep);
+
+		viewModel.stepSelected(clonedStep);
+	};
+
+	viewModel.deleteStepSelected = function() {
+		var index = _.indexOf(viewModel.selectedWorkflow.steps, viewModel.selectedStep);
+
+		viewModel.stepSelected(null);
+
+		viewModel.selectedWorkflow.steps.splice(index, 1);
+	};
+
+	viewModel.inputSelected = function(input) {
+		viewModel.selectedInput = input;
+	};
+
+	viewModel.insertVariableSelectedForInput = function(input) {
+		console.log("viewModel.insertVariableSelectedForInput called");
+		// TODO: implement
+	};
+
+	loadWorkflows();
+
+});
+
+})();

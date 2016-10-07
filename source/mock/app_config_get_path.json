@@ -1,0 +1,106 @@
+{
+  "format_version": "1.1.0",
+  "default_step_lib_source": "https://github.com/bitrise-io/bitrise-steplib.git",
+  "app": {
+    "envs": [
+      {
+        "BITRISE_PROJECT_PATH": "ios-simple-objc/ios-simple-objc.xcodeproj",
+        "opts": {
+          "is_expand": false
+        }
+      },
+      {
+        "BITRISE_SCHEME": "ios-simple-objc",
+        "opts": {
+          "is_expand": false
+        }
+      }
+    ]
+  },
+  "trigger_map": [
+    {
+      "push_branch": "*",
+      "workflow": "primary"
+    },
+    {
+      "pull_request_source_branch": "*",
+      "workflow": "primary"
+    }
+  ],
+  "workflows": {
+    "primary": {
+      "steps": [
+        {
+          "select-xcode-version@2.3.0": {
+          }
+        },
+        {
+          "git-clone@3.1.0": {
+          }
+        },
+        {
+          "cocoapods-install@1.0.3": {
+          }
+        },
+        {
+          "certificate-and-profile-installer@1.3.0": {
+          }
+        },
+        {
+          "xcode-test@1.7.0": {
+            "title": "Xcode: Unit Test"
+          }
+        },
+        {
+          "xcode-archive@1.5.0": {
+            "title": "Xcode: Create Archive",
+            "inputs": [
+              {
+                "output_dir": "${BITRISE_DEPLOY_DIR}"
+              }
+            ]
+          }
+        },
+        {
+          "deploy-to-bitrise-io@1.2.0": {
+          }
+        }
+      ]
+    },
+    "secondary": {
+      "steps": [
+        {
+          "script": {
+          }
+        }
+      ]
+    },
+    "has_before_runs": {
+      "before_run": [
+        "primary",
+        "secondary"
+      ],
+      "steps": [
+        {
+          "script": {
+          }
+        }
+      ]
+    },
+    "has_runs": {
+      "before_run": [
+        "primary",
+        "secondary"
+      ],
+      "after_run": [
+        "has_before_runs"
+      ],
+      "steps": [
+        {
+          "script": {
+          }
+        }
+      ]
+    }
+  }
+}

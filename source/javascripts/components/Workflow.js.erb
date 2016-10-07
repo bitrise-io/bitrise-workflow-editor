@@ -1,0 +1,46 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseSteplibService, Step) {
+
+	var Workflow = function(id) {
+		this.id = id;
+		this.beforeRunWorkflows;
+		this.afterRunWorkflows;
+		this.envVars;
+		this.steps;
+	};
+
+	Workflow.prototype.configureWithWorkflowConfig = function(workflowConfig) {
+		this.steps = _.map(workflowConfig.steps, function(aStepConfig) {
+			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aStepConfig))));
+
+			return bitriseSteplibService.stepFromCVS(stepCVS);
+		});
+
+		var self = this;
+
+		return function allWorkflowsLoadedCallback(allWorkflows) {
+			self.beforeRunWorkflows = [];
+			self.afterRunWorkflows = [];
+
+			_.each(_.union(workflowConfig.before_run, workflowConfig.after_run), function(aWorkflowID, index, workflowIDs) {
+				var anOtherWorkflow = _.find(allWorkflows, {
+					id: aWorkflowID
+				});
+
+				if (!anOtherWorkflow) {
+					throw "Workflow not found with ID: " + aWorkflowID;
+				}
+
+				(workflowIDs == workflowConfig.before_run ? self.beforeRunWorkflows : self.afterRunWorkflows).push(anOtherWorkflow);
+			});
+		}
+	}
+
+	return Workflow;
+
+});
+
+})();

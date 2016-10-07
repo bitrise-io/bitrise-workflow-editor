@@ -1,0 +1,23 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").service("routeHelper", function() {
+
+	var routeHelper = {};
+
+	routeHelper.replacedRoute = function(route, replacements) {
+		_.each(replacements, function(aValue, aKey) {
+			var regexpForParam = new RegExp("([^\<]*)\<" + aKey + "\>(.*)")
+
+			route = route.replace(regexpForParam, "$1" + aValue + "$2");
+		});
+
+		return route;
+	};
+
+	return routeHelper;
+
+});
+
+})();

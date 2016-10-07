@@ -1,0 +1,101 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Variable", function() {
+
+	var Variable = function(key) {
+		this.key = key;
+		this.value;
+		this.title;
+		this.description;
+		this.isExpand;
+		this.variableConfigs = [];
+	};
+
+	Variable.createFromVariableConfig = function(variableConfig) {
+		var key = Variable.keyFromVariableConfig(variableConfig);
+
+		var variable = new Variable(key);
+		variable.appendVariableConfig(variableConfig);
+
+		return variable;
+	};
+
+	Variable.prototype.appendVariableConfig = function(variableConfig) {
+		if (_.isEmpty(variableConfig)) {
+			return;
+		}
+
+		try {
+			var key = Variable.keyFromVariableConfig(variableConfig);
+
+			if (key != this.key) {
+				throw new Error("<%= data.strings.variable.main_key_mismatch %>");
+			}
+		}
+		catch (error) {
+			throw new Error("<%= data.strings.variable.append_error_prefix %>" + error.message);
+		}
+
+		if (variableConfig[this.key] !== undefined) {
+			this.value = variableConfig[this.key];
+		}
+
+		if (!variableConfig.opts) {
+			return;
+		}
+
+		if (variableConfig.opts.title !== undefined) {
+			this.title = variableConfig.opts.title;
+		}
+
+		if (variableConfig.opts.description !== undefined) {
+			this.description = variableConfig.opts.description;
+		}
+
+		if (variableConfig.opts.is_expand !== undefined) {
+			this.isExpand = variableConfig.opts.is_expand;
+		}
+
+		this.variableConfigs.push(variableConfig);
+	};
+
+	Variable.keyFromVariableConfig = function(variableConfig) {
+		var keys = _.keys(angular.fromJson(angular.toJson(variableConfig)));
+
+		switch (_.size(keys)) {
+			case 0:
+				throw new Error("<%= data.strings.variable.no_main_key_found %>");
+			case 1:
+				if (_.first(keys) == "opts") {
+					throw new Error("<%= data.strings.variable.no_main_key_found %>");
+				}
+			case 2:
+				break;
+			default:
+				throw new Error("<%= data.strings.variable.only_main_key_and_opts_are_allowed %>");
+		}
+
+		return _.find(_.keys(angular.fromJson(angular.toJson(variableConfig))), function(aKey) {
+			return aKey != "opts";
+		});
+	};
+
+	return Variable;
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function() {
+
+	return function(variable) {
+		if (!variable || !variable.key) {
+			return undefined;
+		}
+
+		return "$" + variable.key.toUpperCase();
+	};
+
+});
+
+})();

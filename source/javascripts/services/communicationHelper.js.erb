@@ -1,0 +1,62 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").service("communicationHelper", function($q) {
+
+	var communicationHelper = {
+		messages: {},
+		messagePromiseResolvers: {}
+	};
+
+	communicationHelper.addMessage = function(message, messageParameter) {
+		if (messageParameter === undefined) {
+			messageParameter = null;
+		}
+
+		this.messages[message] = messageParameter;
+
+		_.each(this.messagePromiseResolvers[message], function(aResolver, index, messagePromiseResolvers) {
+			aResolver(message);
+			messagePromiseResolvers[index] = undefined;
+		});
+
+		this.messagePromiseResolvers[message] = _.compact(this.messagePromiseResolvers[message]);
+	};
+
+	communicationHelper.removeMessage = function(message) {
+		this.messages[message] = undefined;
+		this.messagePromiseResolvers[message] = undefined;
+	};
+
+	communicationHelper.readMessage = function(message, shouldWaitForMessage) {
+		if (shouldWaitForMessage === undefined) {
+			shouldWaitForMessage = true;
+		}
+
+		var self = this;
+
+		return $q(function(resolve, reject) {
+			if (self.messages[message] !== undefined) {
+				resolve(self.messages[message]);
+			}
+			else {
+				if (shouldWaitForMessage) {
+					if (!self.messagePromiseResolvers[message]) {
+						self.messagePromiseResolvers[message] = [];
+					}
+
+					self.messagePromiseResolvers[message].push(resolve);
+				}
+				else {
+					reject();
+				}
+			}
+		});
+	};
+
+	return communicationHelper;
+
+});
+
+})();
