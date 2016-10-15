@@ -100,14 +100,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 
 });
 
-angular.module("BitriseWorkflowEditor").filter("stepIconURLBackgroundImagePropertyValue", function() {
+angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function() {
 
 	return function(step) {
-		if (step && step.iconURL) {
-			return step.iconURL;
-		}
-
-		return "<%= image_path('step/icon-default.svg') %>";
+		return step && step.iconURL ? step.iconURL : "<%= image_path('step/icon-default.svg') %>";
 	};
 
 });

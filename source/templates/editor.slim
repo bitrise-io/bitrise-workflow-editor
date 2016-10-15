@@ -28,7 +28,7 @@ article[ng-controller="EditorController as editorCtrl"]
 					button.add-step[ng-click="editorCtrl.addStepSelected()" ng-if="!$first"]
 						== data[:strings][:editor][:steps][:add]
 					button.step[ng-click="editorCtrl.stepSelected(step)"]
-						span.icon[ng-style="editorCtrl.isPseudoStep(step) ? {} : {'background-image': (step.iconURL | stepIconURLBackgroundImagePropertyValue)}"]
+						span.icon[ng-style="editorCtrl.isPseudoStep(step) ? {} : {'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 						span.info
 							span.title[ng-bind="step.title"]
 							span[ng-if="!editorCtrl.isPseudoStep(step)"]
