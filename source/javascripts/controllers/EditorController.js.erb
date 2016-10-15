@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, communicationHelper, bitriseSteplibService, Progress, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, communicationHelper, bitriseSteplibService, Progress, Popup, Workflow) {
 
 	var viewModel = this;
 
@@ -11,6 +11,9 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.appConfig;
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
+
+	viewModel.workflowEnvVarsPopup = new Popup();
+
 	viewModel.selectedStep = null;
 	viewModel.buildEnvironmentPreparePseudoStep = {
 		title: "Preparing the Build Environment"
@@ -75,6 +78,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.manageWorkflowEnvVarsSelected = function() {
 		console.log("viewModel.manageWorkflowEnvVarsSelected called");
 		// TODO: implement
+		viewModel.workflowEnvVarsPopup.isVisible = true;
 	};
 
 	viewModel.addWorkflowAfterSelected = function() {

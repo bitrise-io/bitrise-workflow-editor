@@ -1,0 +1,35 @@
+.popup {
+	$transitionduration: 0.3s;
+
+	z-index: $def-zindex-popup;
+	@include position(fixed, 0, 0);
+	@include display-flex;
+	@include flex-direction(column);
+	@include justify-content(center);
+	@include align-items(center);
+	@include size(100%);
+	background-color: rgba(black, 0.5);
+
+	&.ng-hide {
+		background-color: rgba(black, 0);
+
+		&:not(.ninja) > * {
+			top: 100%;
+		}
+	}
+
+	&.ng-animate {
+		@include transition(background-color $transitionduration ease);
+
+		&:not(.ninja) > * {
+			@include transition(top $transitionduration ease);
+		}
+	}
+
+	&:not(.ninja) > * {
+		position: relative;
+		top: 0%;
+		width: 600px;
+		@include max-size(90%);
+	}
+}

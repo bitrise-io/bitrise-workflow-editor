@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseSteplibService, Step) {
+angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseSteplibService, Step, Variable) {
 
 	var Workflow = function(id) {
 		this.id = id;
@@ -13,11 +13,32 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseStep
 	};
 
 	Workflow.prototype.configureWithWorkflowConfig = function(workflowConfig) {
-		this.steps = _.map(workflowConfig.steps, function(aStepConfig) {
-			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aStepConfig))));
+		var temporaryEnvVarStore = [];
+		if (workflowConfig.envs) {
+			try {
+				temporaryEnvVarStore = _.map(workflowConfig.envs, Variable.createFromVariableConfig);
+			}
+			catch (error) {
+				throw new Error("<%= data.strings.workflow.configure_error_prefix %>" + error.message);
+			}
+		}
 
-			return bitriseSteplibService.stepFromCVS(stepCVS);
-		});
+		var temporaryStepStore = [];
+		if (workflowConfig.steps) {
+			try {
+				temporaryStepStore = _.map(workflowConfig.steps, function(aStepConfig) {
+					var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aStepConfig))));
+
+					return bitriseSteplibService.stepFromCVS(stepCVS);
+				});
+			}
+			catch (error) {
+				throw new Error("<%= data.strings.workflow.configure_error_prefix %>" + error.message);
+			}
+		}
+
+		this.envVars = temporaryEnvVarStore;
+		this.steps = temporaryStepStore;
 
 		var self = this;
 

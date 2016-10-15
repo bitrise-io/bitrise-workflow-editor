@@ -29,6 +29,20 @@
   ],
   "workflows": {
     "primary": {
+      "envs": [
+        {
+          "env-var-a": "env-var-a-value",
+          "opts": {
+            "is_expand": false
+          }
+        },
+        {
+          "env-var-b": "env-var-b-value",
+          "opts": {
+            "is_expand": false
+          }
+        }
+      ],
       "steps": [
         {
           "select-xcode-version@2.3.0": {
