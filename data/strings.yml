@@ -18,10 +18,13 @@ editor:
   load_workflows_progress:
     in_progress: Loading workflows...
     error: Failed to load workflows.
+  run_workflows:
+    postfix: workflow
+    select: "Select a Workflow from the list below:"
   before_run_workflows:
-    postfix: workflow
+    no_other_workflows: No other Workflows to run before selected Workflow.
   after_run_workflows:
-    postfix: workflow
+    no_other_workflows: No other Workflows to run after selected Workflow.
   add_workflow: + Workflow
   manage_workflow_env_vars: Manage Env Vars
   add_workflow_after: Add Workflow after

@@ -14,6 +14,8 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.workflowEnvVarsPopup = new Popup();
 
+	viewModel.addRunWorkflowPopup = new Popup();
+
 	viewModel.selectedStep = null;
 	viewModel.buildEnvironmentPreparePseudoStep = {
 		title: "Preparing the Build Environment"
@@ -81,14 +83,20 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.workflowEnvVarsPopup.isVisible = true;
 	};
 
-	viewModel.addWorkflowAfterSelected = function() {
-		console.log("viewModel.addWorkflowAfterSelected called");
-		// TODO: implement
+	viewModel.addRunWorkflowSelected = function(isBeforeRunMode) {
+		viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode = isBeforeRunMode;
+		viewModel.addRunWorkflowPopup.isVisible = true;
 	};
 
-	viewModel.addWorkflowBeforeSelected = function() {
-		console.log("viewModel.addWorkflowBeforeSelected called");
-		// TODO: implement
+	viewModel.runWorkflowSelected = function(workflow) {
+		viewModel.selectedWorkflow[viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? "beforeRunWorkflows" : "afterRunWorkflows"].push(workflow);
+		viewModel.addRunWorkflowPopup.isVisible = false;
+	};
+
+	viewModel.availableRunWorkflows = function() {
+		return _.filter(viewModel.workflows, function(aWorkflow) {
+			return aWorkflow.isLoopSafeRunForWorkflow(viewModel.selectedWorkflow);
+		});
 	};
 
 	viewModel.deleteWorkflowSelected = function() {

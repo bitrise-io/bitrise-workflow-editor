@@ -4,8 +4,9 @@
 
 angular.module("BitriseWorkflowEditor").factory("Popup", function() {
 
-	var Popup = function() {
+	var Popup = function(parameters) {
 		this.isVisible = false;
+		this.parameters = parameters !== undefined ? parameters : {};
 		this.beforeAppearCallback = undefined;
 		this.afterAppearCallback = undefined;
 		this.beforeDismissCallback = undefined;

@@ -58,7 +58,25 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseStep
 				(workflowIDs == workflowConfig.before_run ? self.beforeRunWorkflows : self.afterRunWorkflows).push(anOtherWorkflow);
 			});
 		}
-	}
+	};
+
+	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow) {
+		if (this == workflow) {
+			return false;
+		}
+
+		if (_.contains(this.beforeRunWorkflows, workflow) || _.contains(this.afterRunWorkflows, workflow)) {
+			return false;
+		}
+
+		if (_.isEmpty(this.beforeRunWorkflows) && _.isEmpty(this.afterRunWorkflows)) {
+			return true;
+		}
+
+		return _.every(_.union(this.beforeRunWorkflows, this.afterRunWorkflows), function(aWorkflow) {
+			return aWorkflow.isLoopSafeRunForWorkflow(workflow);
+		});
+	};
 
 	return Workflow;
 
