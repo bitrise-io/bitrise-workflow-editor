@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $filter, communicationHelper, bitriseSteplibService, Progress, Popup, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, communicationHelper, bitriseSteplibService, Progress, Popup, Workflow) {
 
 	var viewModel = this;
 
@@ -41,11 +41,13 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.addStepPopup = new Popup({
 		titleFilter: "",
-		tagFilters: []
+		typeTagFilters: undefined
 	});
 	viewModel.addStepPopup.afterDismissCallback = function() {
 		viewModel.addStepPopup.parameters.titleFilter = "";
-		viewModel.addStepPopup.parameters.tagFilters = [];
+		_.each(viewModel.addStepPopup.parameters.typeTagFilters, function(isTypeTagFilterSelected, aTypeTagFilterID, typeTagFilters) {
+			typeTagFilters[aTypeTagFilterID] = false;
+		});
 	};
 
 	viewModel.selectedInput = null;
@@ -56,13 +58,14 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	function loadWorkflows() {
 		viewModel.loadWorkflowsProgress.start("<%= data.strings.editor.load_workflows_progress.in_progress %>");
-		communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
-			viewModel.appConfig = appConfig;
 
+		$q.all([communicationHelper.readMessage("bitriseSteplibLoaded"), communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
+			viewModel.appConfig = appConfig;
+		})]).then(function() {
 			try {
 				var allWorkflowsLoadedCallbacks = [];
 
-				viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+				viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 					var workflow = new Workflow(aWorkflowID);
 					allWorkflowsLoadedCallbacks.push(workflow.configureWithWorkflowConfig(aWorkflowConfig));
 
@@ -168,7 +171,25 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.addStepPopup.isVisible = true;
 	};
 
+	function loadTypeTagFilters() {
+		communicationHelper.readMessage("bitriseSteplibLoaded").then(function() {
+			viewModel.addStepPopup.parameters.typeTagFilters = {};
+
+			_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
+				return bitriseSteplibService.steps[stepID][aStepVersion];
+			}), function(aStep) {
+				_.each(aStep.typeTags, function(aTypeTag) {
+					viewModel.addStepPopup.parameters.typeTagFilters[aTypeTag] = false;
+				});
+			});
+		});
+	}
+
 	viewModel.filteredSteps = function() {
+		if (!bitriseSteplibService.steps) {
+			return;
+		}
+
 		return _.reject(_.map(bitriseSteplibService.steps, function(aStep, stepID) {
 			return aStep[bitriseSteplibService.latestStepVersions[stepID]];
 		}), function(aStep) {
@@ -176,8 +197,10 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 				return true;
 			}
 
-			if (_.any(viewModel.addStepPopup.parameters.tagFilters, function(aTagFilter) {
-				return !_.contains(aStep.typeTags, aTagFilter);
+			if (_.any(_.pick(viewModel.addStepPopup.parameters.typeTagFilters, function(isTypeTagFilterSelected) {
+				return isTypeTagFilterSelected;
+			}), function(isTypeTagFilterSelected, aTypeTagFilterID) {
+				return !_.contains(aStep.typeTags, aTypeTagFilterID);
 			})) {
 				return true;
 			}
@@ -232,6 +255,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	loadWorkflows();
+	loadTypeTagFilters();
 
 });
 

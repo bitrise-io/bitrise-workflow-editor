@@ -44,11 +44,16 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function load() {
 		viewModel.loadProgress.start("<%= data.strings.main.load_progress.loading %>");
 
-		return $q.all([bitriseSteplibService.load(), loadAppConfig()]).then(function() {
-			communicationHelper.addMessage("appConfigLoaded", appConfig);
+		return $q.all([loadBitriseSteplib(), loadAppConfig()]).then(function() {
 			viewModel.loadProgress.success();
 		}, function(error) {
 			viewModel.loadProgress.error(error);
+		});
+	}
+
+	function loadBitriseSteplib() {
+		return bitriseSteplibService.load().then(function() {
+			communicationHelper.addMessage("bitriseSteplibLoaded", appConfig);
 		});
 	}
 
@@ -82,6 +87,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				default:
 					resolve();
 			}
+		}).then(function() {
+			communicationHelper.addMessage("appConfigLoaded", appConfig);
 		});
 	}
 
