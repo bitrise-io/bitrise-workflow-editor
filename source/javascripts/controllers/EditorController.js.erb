@@ -41,13 +41,12 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.addStepPopup = new Popup({
 		titleFilter: "",
-		typeTagFilters: undefined
+		availableTypeTagFilters: undefined,
+		typeTagFilter: null
 	});
 	viewModel.addStepPopup.afterDismissCallback = function() {
 		viewModel.addStepPopup.parameters.titleFilter = "";
-		_.each(viewModel.addStepPopup.parameters.typeTagFilters, function(isTypeTagFilterSelected, aTypeTagFilterID, typeTagFilters) {
-			typeTagFilters[aTypeTagFilterID] = false;
-		});
+		viewModel.addStepPopup.parameters.typeTagFilter = null;
 	};
 
 	viewModel.selectedInput = null;
@@ -173,15 +172,15 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	function loadTypeTagFilters() {
 		communicationHelper.readMessage("bitriseSteplibLoaded").then(function() {
-			viewModel.addStepPopup.parameters.typeTagFilters = {};
+			viewModel.addStepPopup.parameters.availableTypeTagFilters = [];
 
 			_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
 				return bitriseSteplibService.steps[stepID][aStepVersion];
 			}), function(aStep) {
-				_.each(aStep.typeTags, function(aTypeTag) {
-					viewModel.addStepPopup.parameters.typeTagFilters[aTypeTag] = false;
-				});
+				viewModel.addStepPopup.parameters.availableTypeTagFilters = _.union(viewModel.addStepPopup.parameters.availableTypeTagFilters, aStep.typeTags);
 			});
+
+			viewModel.addStepPopup.parameters.availableTypeTagFilters = _.uniq(viewModel.addStepPopup.parameters.availableTypeTagFilters);
 		});
 	}
 
@@ -197,11 +196,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 				return true;
 			}
 
-			if (_.any(_.pick(viewModel.addStepPopup.parameters.typeTagFilters, function(isTypeTagFilterSelected) {
-				return isTypeTagFilterSelected;
-			}), function(isTypeTagFilterSelected, aTypeTagFilterID) {
-				return !_.contains(aStep.typeTags, aTypeTagFilterID);
-			})) {
+			if (viewModel.addStepPopup.parameters.typeTagFilter && !_.contains(aStep.typeTags, viewModel.addStepPopup.parameters.typeTagFilter)) {
 				return true;
 			}
 		});

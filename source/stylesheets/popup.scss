@@ -32,4 +32,8 @@
 		width: 600px;
 		@include max-size(90%);
 	}
+
+	.white {
+		background-color: white;
+	}
 }

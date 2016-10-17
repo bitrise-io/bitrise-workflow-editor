@@ -41,7 +41,8 @@ editor:
       select: "Select a step from the list below:"
       filter_by_title: "Filter steps by name:"
       title_filter_placeholder: Step name, e. g. 'script'
-      filter_by_type_tag: "Filter steps by type tags:"
+      filter_by_type_tag: "Filter steps by type tag:"
+      clear_type_tag_filter: Clear type tag filter
       no_steps_matching_filter: No matching steps found.
     verified: Verified
     rename_confirm: OK

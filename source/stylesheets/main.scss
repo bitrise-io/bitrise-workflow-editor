@@ -4,6 +4,7 @@
 // Major layouts
 
 @import "index";
+@import "editor";
 
 // Common elements
 
@@ -51,4 +52,8 @@ input[type="submit"] {
 
 .uppercase {
 	text-transform: uppercase;
+}
+
+.vertical-scroll {
+	overflow-y: auto;
 }

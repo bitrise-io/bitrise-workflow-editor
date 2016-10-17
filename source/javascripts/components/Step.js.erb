@@ -10,6 +10,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 		this.steplibSourceURL;
 		this.version;
 		this.title;
+		this.summary;
 		this.description;
 		this.sourceURL;
 		this.iconURL;
@@ -47,6 +48,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 
 		if (stepConfig.title !== undefined) {
 			this.title = stepConfig.title;
+		}
+
+		if (stepConfig.summary !== undefined) {
+			this.summary = stepConfig.summary;
 		}
 
 		if (stepConfig.description !== undefined) {

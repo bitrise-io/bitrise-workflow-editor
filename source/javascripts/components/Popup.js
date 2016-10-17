@@ -28,7 +28,6 @@ angular.module("BitriseWorkflowEditor").directive("popup", function($animate, $d
 		link: function(scope, element, attrs, ctrl, transcludeFn) {
 			var clickHandler;
 			var keyupHandler;
-			var closeClickHandler;
 			var windowVerticalScrollPositionOnPopupOpen;
 
 			function scrollPreventHandler() {
@@ -85,11 +84,6 @@ angular.module("BitriseWorkflowEditor").directive("popup", function($animate, $d
 						return;
 					}
 
-					popup.isVisible = false;
-					scope.$apply();
-				};
-
-				closeClickHandler = function() {
 					popup.isVisible = false;
 					scope.$apply();
 				};
