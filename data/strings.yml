@@ -25,7 +25,10 @@ editor:
     no_other_workflows: No other Workflows to run before selected Workflow.
   after_run_workflows:
     no_other_workflows: No other Workflows to run after selected Workflow.
-  add_workflow: + Workflow
+  add_workflow:
+    action: + Workflow
+    specify_id: "Specify a unique ID for the new Workflow:"
+    new_workflow_info: "Note: configuration of the new Workflow will be copied from the currently selected Workflow"
   manage_workflow_env_vars: Manage Env Vars
   add_workflow_after: Add Workflow after
   add_workflow_before: Add Workflow before

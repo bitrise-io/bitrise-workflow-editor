@@ -11,8 +11,16 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.appConfig;
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
+	viewModel.loadWorkflowsProgress = new Progress();
 
 	viewModel.workflowEnvVarsPopup = new Popup();
+
+	viewModel.addWorkflowPopup = new Popup({
+		workflowID: ""
+	});
+	viewModel.addWorkflowPopup.afterDismissCallback = function() {
+		viewModel.addWorkflowPopup.parameters.workflowID = "";
+	};
 
 	viewModel.addRunWorkflowPopup = new Popup();
 
@@ -23,8 +31,6 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.virtualMachineCleanupPseudoStep = {
 		title: "Cleaning up the Virtual Machine"
 	};
-
-	viewModel.loadWorkflowsProgress = new Progress();
 
 	viewModel.renamedStep = null;
 	viewModel.renamedStepTitle;
@@ -73,8 +79,16 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	}
 
 	viewModel.addWorkflowSelected = function() {
-		console.log("viewModel.addWorkflowSelected called");
-		// TODO: implement
+		viewModel.addWorkflowPopup.isVisible = true;
+	};
+
+	viewModel.addWorkflow = function() {
+		var newWorkflow = angular.copy(viewModel.selectedWorkflow);
+		newWorkflow.id = viewModel.addWorkflowPopup.parameters.workflowID;
+		viewModel.workflows.push(newWorkflow);
+
+		viewModel.addWorkflowPopup.isVisible = false;
+		viewModel.workflowSelected(newWorkflow);
 	};
 
 	viewModel.manageWorkflowEnvVarsSelected = function() {
