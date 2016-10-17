@@ -61,7 +61,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 				viewModel.loadWorkflowsProgress.success();
 
 				if (!viewModel.selectedWorkflow) {
-					viewModel.selectedWorkflow = _.first(viewModel.workflows);
+					viewModel.workflowSelected(_.first(viewModel.workflows));
 				}
 			}
 			catch (error) {
@@ -100,8 +100,19 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	viewModel.deleteWorkflowSelected = function() {
-		console.log("viewModel.deleteWorkflowSelected called");
-		// TODO: implement
+		_.each(viewModel.workflows, function(aWorkflow) {
+			_.each([aWorkflow.beforeRunWorkflows, aWorkflow.afterRunWorkflows], function(aRunWorkflows) {
+				if (aRunWorkflows) {
+					var runWorkflowIndex = _.indexOf(aRunWorkflows, viewModel.selectedWorkflow);
+					aRunWorkflows.splice(runWorkflowIndex, 1);
+				}
+			});
+		});
+
+		var index = _.indexOf(viewModel.workflows, viewModel.selectedWorkflow);
+		viewModel.workflows.splice(index, 1);
+
+		viewModel.workflowSelected(_.first(viewModel.workflows));
 	};
 
 	viewModel.stepsIncludingPseudoSteps = function() {
@@ -159,10 +170,9 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.deleteStepSelected = function() {
 		var index = _.indexOf(viewModel.selectedWorkflow.steps, viewModel.selectedStep);
+		viewModel.selectedWorkflow.steps.splice(index, 1);
 
 		viewModel.stepSelected(null);
-
-		viewModel.selectedWorkflow.steps.splice(index, 1);
 	};
 
 	viewModel.inputSelected = function(input) {

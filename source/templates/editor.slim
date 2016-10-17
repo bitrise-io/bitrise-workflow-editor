@@ -12,7 +12,7 @@ article[ng-controller="EditorController as editorCtrl"]
 			button[ng-click="editorCtrl.manageWorkflowEnvVarsSelected()"] == data[:strings][:editor][:manage_workflow_env_vars]
 			button[ng-click="editorCtrl.addRunWorkflowSelected(false)"] == data[:strings][:editor][:add_workflow_after]
 			button[ng-click="editorCtrl.addRunWorkflowSelected(true)"] == data[:strings][:editor][:add_workflow_before]
-			button[ng-click="editorCtrl.deleteWorkflowSelected()"] == data[:strings][:editor][:delete_workflow]
+			button[ng-click="editorCtrl.deleteWorkflowSelected()" ng-disabled="editorCtrl.workflows.length == 1"] == data[:strings][:editor][:delete_workflow]
 		section.manage-workflow
 			ul.steps
 				li[ng-repeat="step in editorCtrl.stepsIncludingPseudoSteps()" ng-class="{'selected': step == editorCtrl.selectedStep, 'pseudo-step': editorCtrl.isPseudoStep(step)}"]
