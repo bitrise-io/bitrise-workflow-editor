@@ -36,7 +36,12 @@ editor:
   env_vars:
     no_env_vars: No Env Vars for this Workflow yet
   steps:
-    add: Add step
+    add:
+      action: Add step
+      select: "Select a step from the list below:"
+      filter_by_title: "Filter steps by name:"
+      title_filter_placeholder: Step name, e. g. 'Script'
+      no_steps_matching_filter: No matching steps found.
     verified: Verified
     rename_confirm: OK
     rename_cancel: Cancel

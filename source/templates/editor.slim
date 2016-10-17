@@ -16,7 +16,7 @@ article[ng-controller="EditorController as editorCtrl"]
 		section.manage-workflow
 			ul.steps
 				li[ng-repeat="step in editorCtrl.stepsIncludingPseudoSteps()" ng-class="{'selected': step == editorCtrl.selectedStep, 'pseudo-step': editorCtrl.isPseudoStep(step)}"]
-					button.add-step[ng-click="editorCtrl.addStepSelected()" ng-if="!$first"] == data[:strings][:editor][:steps][:add]
+					button.add-step[ng-click="editorCtrl.addStepSelectedAtIndex($index)" ng-if="!$first"] == data[:strings][:editor][:steps][:add][:action]
 					button.step[ng-click="editorCtrl.stepSelected(step)"]
 						span.icon[ng-style="editorCtrl.isPseudoStep(step) ? {} : {'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 						span.info
@@ -95,4 +95,15 @@ article[ng-controller="EditorController as editorCtrl"]
 			ul
 				li[ng-repeat="workflow in editorCtrl.availableRunWorkflows()"]
 					button[ng-bind="workflow.id" ng-click="editorCtrl.runWorkflowSelected(workflow)"]
+	popup.add-step[model="editorCtrl.addStepPopup"]
+		p == data[:strings][:editor][:steps][:add][:select]
+		label[for="add-step-popup-title-filter"] == data[:strings][:editor][:steps][:add][:filter_by_title]
+		input#add-step-popup-title-filter[ng-model="editorCtrl.addStepPopup.parameters.titleFilter" placeholder="#{ data[:strings][:editor][:steps][:add][:title_filter_placeholder] }"]
+		p[ng-if="editorCtrl.filteredSteps().length == 0"] == data[:strings][:editor][:steps][:add][:no_steps_matching_filter]
+		ul
+			li[ng-repeat="step in editorCtrl.filteredSteps()"]
+				button[ng-click="editorCtrl.addStep(step)"]
+					span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
+					strong.id[ng-bind="step.id"]
+					span.description[ng-if="step.description !== undefined" ng-bind="step.description"]
 

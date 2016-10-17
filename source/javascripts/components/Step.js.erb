@@ -13,6 +13,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 		this.description;
 		this.sourceURL;
 		this.iconURL;
+		this.typeTags;
 		this.inputs;
 		this.outputs;
 		this.stepConfigs = [];
@@ -67,6 +68,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 
 		if (stepConfig.is_always_run !== undefined) {
 			this.isAlwaysRun = stepConfig.is_always_run;
+		}
+
+		if (stepConfig.type_tags !== undefined) {
+			this.typeTags = stepConfig.type_tags;
 		}
 
 		this.stepConfigs.push(stepConfig);
