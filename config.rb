@@ -18,7 +18,11 @@ configure :development do
 	end
 
 	def default_outputs_get_path
-		return "mock/default_step_outputs_get_path.json"
+		return "mock/default_outputs_get_path.json"
+	end
+
+	def secrets_get_path
+		return "mock/secrets_get_path.json"
 	end
 
 end
@@ -34,7 +38,11 @@ configure :build do
 	end
 
 	def default_outputs_get_path
-		return data[:routes][:default_step_outputs_get]
+		return data[:routes][:default_outputs_get]
+	end
+
+	def secrets_get_path
+		return data[:routes][:secrets_get]
 	end
 	
 end

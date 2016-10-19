@@ -68,7 +68,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.insertVariablePopup = new Popup({
 		targetInput: undefined,
 		insertPosition: undefined,
-		loadDefaultOutputsProgress: new Progress(),
+		loadInsertableVariablesProgress: new Progress(),
 		insertableVariablesForAllWorkflows: [{
 			source: {
 				id: "from_bitriseio",
@@ -103,11 +103,29 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		insertableVariables: undefined
 	});
 	viewModel.insertVariablePopup.beforeAppearCallback = function() {
-		if (!_.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-			return variablesOfSource.source.id == "from_bitriseio";
-		}).variables) {
-			loadDefaultOutputs();
-		}
+		viewModel.insertVariablePopup.parameters.loadInsertableVariablesProgress.start("<%= data.strings.editor.insertable_variables.load_progress %>");
+
+		$q.all([function() {
+			if (!_.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_bitriseio";
+			}).variables) {
+				return loadDefaultOutputs();
+			}
+
+			return $q.when();
+		}(), function() {
+			if (!_.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_secrets";
+			}).variables) {
+				return loadSecrets();
+			}
+
+			return $q.when();
+		}()]).then(function() {
+			viewModel.insertVariablePopup.parameters.loadInsertableVariablesProgress.success();
+		}, function(error) {
+			viewModel.insertVariablePopup.parameters.loadInsertableVariablesProgress.error(error)
+		});
 
 		var appEnvVarsBySource = _.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
 			return variablesOfSource.source.id == "from_app_env_vars";
@@ -138,9 +156,6 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		});
 
 		viewModel.insertVariablePopup.parameters.insertableVariables =  _.union(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, outputsOfStepsBeforeSelectedInput);
-	};
-	viewModel.insertVariablePopup.afterDismissCallback = function() {
-		viewModel.insertVariablePopup.parameters.insertPosition = undefined;
 	};
 
 	viewModel.workflowSelected = function(workflow) {
@@ -328,8 +343,6 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	function loadDefaultOutputs() {
-		viewModel.insertVariablePopup.parameters.loadDefaultOutputsProgress.start("<%= data.strings.editor.default_outputs.load_progress %>");
-
 		var appSlug = $location.search().app_slug;
 		var apiToken = $location.search().api_token;
 		var requestURL = routeHelper.replacedRoute("<%= default_outputs_get_path %>", {
@@ -337,7 +350,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 			api_token: apiToken
 		});
 
-		$q(function(resolve, reject) {
+		return $q(function(resolve, reject) {
 			$http.get(requestURL).then(function(response) {
 				_.each(response.data, function(defaultOutputConfigs, sourceID) {
 					var defaultOutputsOfSource = _.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
@@ -361,10 +374,39 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 				reject(new Error("<%= data.strings.editor.default_outputs.load_error_prefix %> " + response.data));
 			});
-		}).then(function() {
-			viewModel.insertVariablePopup.parameters.loadDefaultOutputsProgress.success();
-		}, function(error) {
-			viewModel.insertVariablePopup.parameters.loadDefaultOutputsProgress.error(error)
+		});
+	};
+
+	function loadSecrets() {
+		var appSlug = $location.search().app_slug;
+		var apiToken = $location.search().api_token;
+		var requestURL = routeHelper.replacedRoute("<%= secrets_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				var secretsBySource = _.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+					return variablesOfSource.source.id == "from_secrets";
+				});
+
+				secretsBySource.variables = [];
+				_.each(response.data.envs, function(aSecretConfig) {
+					var secret = Variable.createFromVariableConfig(aSecretConfig);
+					secretsBySource.variables.push(secret);
+				});
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data.strings.secrets.load_default_error %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data.strings.secrets.load_error_prefix %> " + response.data));
+			});
 		});
 	};
 

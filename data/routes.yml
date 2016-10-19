@@ -6,5 +6,6 @@ triggers: triggers
 yml: yml
 app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
 app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
-default_step_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
+default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
+secrets_get: /api/app/<app_slug>/secrets.json?api_token=<api_token>
 devcenter_step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
