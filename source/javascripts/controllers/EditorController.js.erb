@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, communicationHelper, bitriseSteplibService, Progress, Popup, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, $http, $location, $filter, communicationHelper, routeHelper, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
 
 	var viewModel = this;
 
@@ -44,12 +44,44 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		availableTypeTagFilters: undefined,
 		typeTagFilter: null
 	});
+	viewModel.addStepPopup.beforeAppearCallback = function() {
+		if (viewModel.addStepPopup.parameters.availableTypeTagFilters) {
+			return;
+		}
+
+		viewModel.addStepPopup.parameters.availableTypeTagFilters = [];
+
+		_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
+			return bitriseSteplibService.steps[stepID][aStepVersion];
+		}), function(aStep) {
+			viewModel.addStepPopup.parameters.availableTypeTagFilters = _.union(viewModel.addStepPopup.parameters.availableTypeTagFilters, aStep.typeTags);
+		});
+
+		viewModel.addStepPopup.parameters.availableTypeTagFilters = _.uniq(viewModel.addStepPopup.parameters.availableTypeTagFilters);
+	};
 	viewModel.addStepPopup.afterDismissCallback = function() {
 		viewModel.addStepPopup.parameters.titleFilter = "";
 		viewModel.addStepPopup.parameters.typeTagFilter = null;
 	};
 
 	viewModel.selectedInput = null;
+	viewModel.insertVariablePopup = new Popup({
+		targetInput: undefined,
+		insertPosition: undefined,
+		loadDefaultOutputsProgress: new Progress(),
+		defaultOutputsBySource: undefined
+	});
+	viewModel.insertVariablePopup.beforeAppearCallback = function() {
+		if (viewModel.insertVariablePopup.parameters.defaultOutputsBySource) {
+			return;
+		}
+
+		loadDefaultOutputs();
+	};
+	viewModel.insertVariablePopup.afterDismissCallback = function() {
+		viewModel.insertVariablePopup.parameters.targetInput = undefined;
+		viewModel.insertVariablePopup.parameters.insertPosition = undefined;
+	};
 
 	viewModel.workflowSelected = function(workflow) {
 		viewModel.selectedWorkflow = workflow;
@@ -170,20 +202,6 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.addStepPopup.isVisible = true;
 	};
 
-	function loadTypeTagFilters() {
-		communicationHelper.readMessage("bitriseSteplibLoaded").then(function() {
-			viewModel.addStepPopup.parameters.availableTypeTagFilters = [];
-
-			_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
-				return bitriseSteplibService.steps[stepID][aStepVersion];
-			}), function(aStep) {
-				viewModel.addStepPopup.parameters.availableTypeTagFilters = _.union(viewModel.addStepPopup.parameters.availableTypeTagFilters, aStep.typeTags);
-			});
-
-			viewModel.addStepPopup.parameters.availableTypeTagFilters = _.uniq(viewModel.addStepPopup.parameters.availableTypeTagFilters);
-		});
-	}
-
 	viewModel.filteredSteps = function() {
 		if (!bitriseSteplibService.steps) {
 			return;
@@ -244,13 +262,77 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.selectedInput = input;
 	};
 
-	viewModel.insertVariableSelectedForInput = function(input) {
-		console.log("viewModel.insertVariableSelectedForInput called");
-		// TODO: implement
+	viewModel.insertVariableSelectedForInput = function(targetInput, insertPosition) {
+		viewModel.insertVariablePopup.parameters.targetInput = targetInput;
+		viewModel.insertVariablePopup.parameters.insertPosition = targetInput;
+		viewModel.insertVariablePopup.isVisible = true;
+	};
+
+	viewModel.insertableVariablesBySourceForInput = function(input) {
+		return viewModel.insertVariablePopup.parameters.defaultOutputsBySource;
+	};
+
+	function loadDefaultOutputs() {
+		viewModel.insertVariablePopup.parameters.loadDefaultOutputsProgress.start("<%= data.strings.editor.default_outputs.load_progress %>");
+
+		var appSlug = $location.search().app_slug;
+		var apiToken = $location.search().api_token;
+		var requestURL = routeHelper.replacedRoute("<%= default_outputs_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		$q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				viewModel.insertVariablePopup.parameters.defaultOutputsBySource = [{
+					source: {
+						id: "from_bitriseio",
+						title: "from bitrise.io"
+					},
+					variables: []
+				}, {
+					source: {
+						id: "from_bitrise_cli",
+						title: "from bitrise CLI"
+					},
+					variables: []
+				}];
+
+				_.each(response.data, function(variableConfigs, sourceID) {
+					var targetOutputsOfSource = _.find(viewModel.insertVariablePopup.parameters.defaultOutputsBySource, function(defaultOutputsOfSource) {
+						return defaultOutputsOfSource.source.id == sourceID;
+					});
+
+					_.each(variableConfigs, function(aVariableConfig) {
+						var defaultOutput = Variable.createFromVariableConfig(aVariableConfig);
+						targetOutputsOfSource.variables.push(defaultOutput);
+					});
+				});
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data.strings.editor.default_outputs.load_default_error %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data.strings.editor.default_outputs.load_error_prefix %> " + response.data));
+			});
+		}).then(function() {
+			viewModel.insertVariablePopup.parameters.loadDefaultOutputsProgress.success();
+		}, function(error) {
+			viewModel.insertVariablePopup.parameters.loadDefaultOutputsProgress.error(error)
+		});
+	};
+
+	viewModel.insertVariable = function(variable) {
+		var oldValue = viewModel.insertVariablePopup.parameters.targetInput.value;
+		viewModel.insertVariablePopup.parameters.targetInput.value = oldValue.slice(0, viewModel.insertVariablePopup.parameters.insertPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(viewModel.insertVariablePopup.parameters.insertPosition);
+		viewModel.insertVariablePopup.isVisible = false;
 	};
 
 	loadWorkflows();
-	loadTypeTagFilters();
 
 });
 

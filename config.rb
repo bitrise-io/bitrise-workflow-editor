@@ -17,6 +17,10 @@ configure :development do
 		return "mock/app_config_post_path.json"
 	end
 
+	def default_outputs_get_path
+		return "mock/default_step_outputs_get_path.json"
+	end
+
 end
 
 configure :build do
@@ -27,6 +31,10 @@ configure :build do
 
 	def app_config_post_path
 		return data[:routes][:app_config_post]
+	end
+
+	def default_outputs_get_path
+		return data[:routes][:default_step_outputs_get]
 	end
 	
 end
