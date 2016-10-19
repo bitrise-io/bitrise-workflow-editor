@@ -1,0 +1,174 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($q, $http, $timeout, $location, routeHelper, Progress, Popup, Variable) {
+
+	var viewModel = this;
+
+	viewModel.insertableVariablesForAllWorkflows = [{
+		source: {
+			id: "from_bitriseio",
+			title: "from bitrise.io"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_bitrise_cli",
+			title: "from bitrise CLI"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_secrets",
+			title: "from secrets"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_app_env_vars",
+			title: "from app env vars"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_workflow_env_vars",
+			title: "from workflow env vars"
+		},
+		variables: undefined
+	}];
+	viewModel.insertableVariables;
+
+	viewModel.keyFilter = "";
+	viewModel.loadInsertableVariablesProgress = new Progress();
+	viewModel.popup;
+
+	$timeout(function() {
+		viewModel.popup.beforeAppearCallback = function() {
+			viewModel.loadInsertableVariablesProgress.start("<%= data.strings.editor.insertable_variables.load_progress %>");
+
+			$q.all([function() {
+				if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+					return variablesOfSource.source.id == "from_bitriseio";
+				}).variables) {
+					return loadDefaultOutputs();
+				}
+
+				return $q.when();
+			}(), function() {
+				if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+					return variablesOfSource.source.id == "from_secrets";
+				}).variables) {
+					return loadSecrets();
+				}
+
+				return $q.when();
+			}()]).then(function() {
+				viewModel.loadInsertableVariablesProgress.success();
+			}, function(error) {
+				viewModel.loadInsertableVariablesProgress.error(error)
+			});
+
+			var appEnvVarsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_app_env_vars";
+			});
+			if (!appEnvVarsBySource.variables) {
+				appEnvVarsBySource.variables = _.map(viewModel.popup.parameters.appConfig.app.envs, function(aVariableConfig) {
+					return Variable.createFromVariableConfig(aVariableConfig);
+				});
+			}
+
+			_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_workflow_env_vars";
+			}).variables = viewModel.popup.parameters.selectedWorkflow.envVars;
+
+			var outputsOfStepsBeforeSelectedInput = [];
+			_.any(viewModel.popup.parameters.selectedWorkflow.steps, function(aStep, index) {
+				if (aStep == viewModel.popup.parameters.selectedStep) {
+					return true;
+				}
+
+				outputsOfStepsBeforeSelectedInput.push({
+					source: {
+						id: index,
+						title: "output of step: " + aStep.title
+					},
+					variables: aStep.outputs
+				});
+			});
+
+			viewModel.insertableVariables =  _.union(viewModel.insertableVariablesForAllWorkflows, outputsOfStepsBeforeSelectedInput);
+		};
+	}, 0);
+
+	function loadDefaultOutputs() {
+		var appSlug = $location.search().app_slug;
+		var apiToken = $location.search().api_token;
+		var requestURL = routeHelper.replacedRoute("<%= default_outputs_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				_.each(response.data, function(defaultOutputConfigs, sourceID) {
+					var defaultOutputsOfSource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+						return variablesOfSource.source.id == sourceID;
+					});
+
+					defaultOutputsOfSource.variables = [];
+					_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
+						var defaultOutput = Variable.createFromVariableConfig(aDefaultOutputConfig);
+						defaultOutputsOfSource.variables.push(defaultOutput);
+					});
+				});
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data.strings.editor.default_outputs.load_default_error %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data.strings.editor.default_outputs.load_error_prefix %> " + response.data));
+			});
+		});
+	};
+
+	function loadSecrets() {
+		var appSlug = $location.search().app_slug;
+		var apiToken = $location.search().api_token;
+		var requestURL = routeHelper.replacedRoute("<%= secrets_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				var secretsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+					return variablesOfSource.source.id == "from_secrets";
+				});
+
+				secretsBySource.variables = [];
+				_.each(response.data.envs, function(aSecretConfig) {
+					var secret = Variable.createFromVariableConfig(aSecretConfig);
+					secretsBySource.variables.push(secret);
+				});
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data.strings.secrets.load_default_error %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data.strings.secrets.load_error_prefix %> " + response.data));
+			});
+		});
+	};
+
+});
+
+})();
