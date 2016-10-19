@@ -69,17 +69,77 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		targetInput: undefined,
 		insertPosition: undefined,
 		loadDefaultOutputsProgress: new Progress(),
-		defaultOutputsBySource: undefined
+		insertableVariablesForAllWorkflows: [{
+			source: {
+				id: "from_bitriseio",
+				title: "from bitrise.io"
+			},
+			variables: undefined
+		}, {
+			source: {
+				id: "from_bitrise_cli",
+				title: "from bitrise CLI"
+			},
+			variables: undefined
+		}, {
+			source: {
+				id: "from_secrets",
+				title: "from secrets"
+			},
+			variables: undefined
+		}, {
+			source: {
+				id: "from_app_env_vars",
+				title: "from app env vars"
+			},
+			variables: undefined
+		}, {
+			source: {
+				id: "from_workflow_env_vars",
+				title: "from workflow env vars"
+			},
+			variables: undefined
+		}],
+		insertableVariables: undefined
 	});
 	viewModel.insertVariablePopup.beforeAppearCallback = function() {
-		if (viewModel.insertVariablePopup.parameters.defaultOutputsBySource) {
-			return;
+		if (!_.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_bitriseio";
+		}).variables) {
+			loadDefaultOutputs();
 		}
 
-		loadDefaultOutputs();
+		var appEnvVarsBySource = _.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_app_env_vars";
+		});
+		if (!appEnvVarsBySource.variables) {
+			appEnvVarsBySource.variables = _.map(viewModel.appConfig.app.envs, function(aVariableConfig) {
+				return Variable.createFromVariableConfig(aVariableConfig);
+			});
+		}
+
+		_.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_workflow_env_vars";
+		}).variables = viewModel.selectedWorkflow.envVars;
+
+		var outputsOfStepsBeforeSelectedInput = [];
+		_.any(viewModel.selectedWorkflow.steps, function(aStep, index) {
+			if (aStep == viewModel.selectedStep) {
+				return true;
+			}
+
+			outputsOfStepsBeforeSelectedInput.push({
+				source: {
+					id: index,
+					title: "output of step: " + aStep.title
+				},
+				variables: aStep.outputs
+			});
+		});
+
+		viewModel.insertVariablePopup.parameters.insertableVariables =  _.union(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, outputsOfStepsBeforeSelectedInput);
 	};
 	viewModel.insertVariablePopup.afterDismissCallback = function() {
-		viewModel.insertVariablePopup.parameters.targetInput = undefined;
 		viewModel.insertVariablePopup.parameters.insertPosition = undefined;
 	};
 
@@ -262,14 +322,9 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.selectedInput = input;
 	};
 
-	viewModel.insertVariableSelectedForInput = function(targetInput, insertPosition) {
-		viewModel.insertVariablePopup.parameters.targetInput = targetInput;
-		viewModel.insertVariablePopup.parameters.insertPosition = targetInput;
+	viewModel.insertVariableSelected = function(insertPosition) {
+		viewModel.insertVariablePopup.parameters.insertPosition = insertPosition;
 		viewModel.insertVariablePopup.isVisible = true;
-	};
-
-	viewModel.insertableVariablesBySourceForInput = function(input) {
-		return viewModel.insertVariablePopup.parameters.defaultOutputsBySource;
 	};
 
 	function loadDefaultOutputs() {
@@ -284,28 +339,15 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 		$q(function(resolve, reject) {
 			$http.get(requestURL).then(function(response) {
-				viewModel.insertVariablePopup.parameters.defaultOutputsBySource = [{
-					source: {
-						id: "from_bitriseio",
-						title: "from bitrise.io"
-					},
-					variables: []
-				}, {
-					source: {
-						id: "from_bitrise_cli",
-						title: "from bitrise CLI"
-					},
-					variables: []
-				}];
-
-				_.each(response.data, function(variableConfigs, sourceID) {
-					var targetOutputsOfSource = _.find(viewModel.insertVariablePopup.parameters.defaultOutputsBySource, function(defaultOutputsOfSource) {
-						return defaultOutputsOfSource.source.id == sourceID;
+				_.each(response.data, function(defaultOutputConfigs, sourceID) {
+					var defaultOutputsOfSource = _.find(viewModel.insertVariablePopup.parameters.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+						return variablesOfSource.source.id == sourceID;
 					});
 
-					_.each(variableConfigs, function(aVariableConfig) {
-						var defaultOutput = Variable.createFromVariableConfig(aVariableConfig);
-						targetOutputsOfSource.variables.push(defaultOutput);
+					defaultOutputsOfSource.variables = [];
+					_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
+						var defaultOutput = Variable.createFromVariableConfig(aDefaultOutputConfig);
+						defaultOutputsOfSource.variables.push(defaultOutput);
 					});
 				});
 
@@ -327,8 +369,8 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	viewModel.insertVariable = function(variable) {
-		var oldValue = viewModel.insertVariablePopup.parameters.targetInput.value;
-		viewModel.insertVariablePopup.parameters.targetInput.value = oldValue.slice(0, viewModel.insertVariablePopup.parameters.insertPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(viewModel.insertVariablePopup.parameters.insertPosition);
+		var oldValue = viewModel.selectedInput.value;
+		viewModel.selectedInput.value = oldValue.slice(0, viewModel.insertVariablePopup.parameters.insertPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(viewModel.insertVariablePopup.parameters.insertPosition);
 		viewModel.insertVariablePopup.isVisible = false;
 	};
 
