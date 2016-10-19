@@ -70,7 +70,8 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		selectedWorkflow: undefined,
 		selectedStep: undefined,
 		targetInput: undefined,
-		insertPosition: undefined
+		insertStartPosition: undefined,
+		insertEndPosition: undefined
 	});
 
 	viewModel.workflowSelected = function(workflow) {
@@ -250,20 +251,26 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.inputSelected = function(input) {
 		viewModel.selectedInput = input;
+		viewModel.insertVariablePopup.parameters.insertStartPosition = viewModel.insertVariablePopup.parameters.insertEndPosition = viewModel.selectedInput.value.length;
 	};
 
-	viewModel.insertVariableSelected = function(insertPosition) {
+	viewModel.inputBlurred = function(event) {
+		viewModel.insertVariablePopup.parameters.insertStartPosition = event.target.selectionStart;
+		viewModel.insertVariablePopup.parameters.insertEndPosition = event.target.selectionEnd;
+	};
+
+	viewModel.insertVariableSelected = function() {
 		viewModel.insertVariablePopup.parameters.appConfig = viewModel.appConfig;
 		viewModel.insertVariablePopup.parameters.selectedWorkflow = viewModel.selectedWorkflow;
 		viewModel.insertVariablePopup.parameters.selectedStep = viewModel.selectedStep;
 		viewModel.insertVariablePopup.parameters.targetInput = viewModel.selectedInput;
-		viewModel.insertVariablePopup.parameters.insertPosition = insertPosition;
 		viewModel.insertVariablePopup.isVisible = true;
 	};
 
 	viewModel.insertVariable = function(variable) {
 		var oldValue = viewModel.selectedInput.value;
-		viewModel.selectedInput.value = oldValue.slice(0, viewModel.insertVariablePopup.parameters.insertPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(viewModel.insertVariablePopup.parameters.insertPosition);
+		viewModel.selectedInput.value = oldValue.slice(0, viewModel.insertVariablePopup.parameters.insertStartPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(viewModel.insertVariablePopup.parameters.insertEndPosition);
+		viewModel.insertVariablePopup.parameters.insertStartPosition = viewModel.insertVariablePopup.parameters.insertEndPosition = viewModel.selectedInput.value.length;
 		viewModel.insertVariablePopup.isVisible = false;
 	};
 
