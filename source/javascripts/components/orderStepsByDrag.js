@@ -13,6 +13,7 @@ angular.module("BitriseWorkflowEditor").directive("orderStepsByDrag", function()
 
 				var selectedStepElement;
 				var cursorPositionYOnLastStableOrder;
+				var isMousemoveInProgress;
 
 				function mousedownHandler(event) {
 					for (selectedStepElement = event.target; !_.contains($(element).children(":not(.pseudo-step)"), selectedStepElement); selectedStepElement = selectedStepElement.parentNode);
@@ -25,6 +26,13 @@ angular.module("BitriseWorkflowEditor").directive("orderStepsByDrag", function()
 				}
 
 				function mousemoveHandler(event) {
+					if (!isMousemoveInProgress) {
+						isMousemoveInProgress = true;
+
+						$(selectedStepElement).insertAfter($(selectedStepElement).next());
+						$($(selectedStepElement).prev()).insertAfter(selectedStepElement);
+					}
+					
 					var moveOffsetY = event.pageY - cursorPositionYOnLastStableOrder;
 					$(selectedStepElement).css("top", moveOffsetY + "px");
 
@@ -67,6 +75,7 @@ angular.module("BitriseWorkflowEditor").directive("orderStepsByDrag", function()
 				}
 
 				function mouseupHandler(event) {
+					isMousemoveInProgress = false;
 					$(selectedStepElement).css("top", "");
 
 					$(document).off("mousemove", mousemoveHandler);
