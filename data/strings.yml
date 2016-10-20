@@ -45,6 +45,7 @@ editor:
       clear_type_tag_filter: Clear type tag filter
       no_steps_matching_filter: No matching steps found.
     verified: Verified
+    rename: Rename
     rename_confirm: OK
     rename_cancel: Cancel
     clone: Clone

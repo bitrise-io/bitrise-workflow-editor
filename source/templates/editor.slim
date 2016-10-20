@@ -14,7 +14,7 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 			button[ng-click="editorCtrl.addRunWorkflowSelected(true)"] == data[:strings][:editor][:add_workflow_before]
 			button[ng-click="editorCtrl.deleteWorkflowSelected()" ng-disabled="editorCtrl.workflows.length == 1"] == data[:strings][:editor][:delete_workflow]
 		section.manage-workflow
-			ul.steps
+			ul.steps[order-steps-by-drag]
 				li[ng-repeat="step in editorCtrl.stepsIncludingPseudoSteps()" ng-class="{'selected': step == editorCtrl.selectedStep, 'pseudo-step': editorCtrl.isPseudoStep(step)}"]
 					button.add-step[ng-click="editorCtrl.addStepSelectedAtIndex($index)" ng-if="!$first"] == data[:strings][:editor][:steps][:add][:action]
 					button.step[ng-click="editorCtrl.stepSelected(step)"]
@@ -30,9 +30,10 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 					/ TODO: Add pseudo-step content here
 				div.regular-step-details[ng-if="!editorCtrl.isPseudoStep(step)"]
 					header.manage-step
-						button[ng-if="!editorCtrl.renamedStep" ng-click="editorCtrl.renameStepSelected()"]
-							span.title[ng-bind="step.title ? step.title : step.id"]
+						div[ng-if="!editorCtrl.renamedStep"]
+							h2.title[ng-bind="step.title ? step.title : step.id"]
 							strong.verified[ng-if="step.isVerified()"] == data[:strings][:editor][:steps][:verified]
+							button[ng-click="editorCtrl.renameStepSelected()"] == data[:strings][:editor][:steps][:rename]
 						div[ng-if="editorCtrl.renamedStep"]
 							input[type="text" ng-model="editorCtrl.renamedStepTitle"]
 							button[ng-click="editorCtrl.renameStepConfirmed()"] == data[:strings][:editor][:steps][:rename_confirm]

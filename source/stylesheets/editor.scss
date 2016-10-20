@@ -3,6 +3,10 @@
 
 article.editor {
 
+	ul.steps[order-steps-by-drag] > li {
+		position: relative;
+		top: 0;
+	}
 }
 
 .popup-body-add-step {
