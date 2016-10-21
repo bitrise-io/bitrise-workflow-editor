@@ -1,0 +1,8 @@
+.env-var-editor[ng-controller="EnvVarsController as envVarsCtrl"]
+	p.notification[ng-if="envVarsCtrl.notification" ng-bind="envVarsCtrl.notification"]
+	h2[ng-bind="envVarsCtrl.title"]
+	ul.env-vars
+		li[ng-repeat="envVar in envVarsCtrl.envVars" ng-class="{'selected': envVar == envVarsCtrl.selectedEnvVar}"]
+			button[ng-bind="envVar | prettifiedVariableKey" ng-click="envVarsCtrl.envVarSelected(envVar)"]
+	button.add[ng-click="envVarsCtrl.addNewSelected()"] == data[:strings][:env_var_editor][:add_new]
+	article.env-var-edit[ng-if="envVarsCtrl.selectedEnvVar"]

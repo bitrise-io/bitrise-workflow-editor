@@ -78,11 +78,8 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 					button[ng-click="editorCtrl.deleteStepSelected()"] == data[:strings][:editor][:steps][:delete]
 		popup[model="editorCtrl.workflowEnvVarsPopup"]
 			.popup-body-manage-workflow-env-vars.vertical-scroll.white
-				p[ng-if="editorCtrl.selectedWorkflow.envVars.length == 0"] == data[:strings][:editor][:env_vars][:no_env_vars]
-				ul[ng-if="editorCtrl.selectedWorkflow.envVars.length > 0"]
-					li[ng-repeat="envVar in editorCtrl.selectedWorkflow.envVars"]
-						strong[ng-bind="envVar | prettifiedVariableKey"]
-						span<[ng-bind="envVar.value"]
+				p.progress-indicator[progress-model="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress"]
+				ng-include[ng-if="editorCtrl.workflowEnvVarsPopup.isVisible" src="'#{ data[:routes][:env_var_editor_template] }'" onload="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress.success()"]
 		popup[model="editorCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:editor][:add_workflow][:specify_id]

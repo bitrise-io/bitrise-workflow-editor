@@ -2,9 +2,44 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function() {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function(communicationHelper, Variable) {
 
 	var viewModel = this;
+
+	viewModel.envVars;
+	viewModel.selectedEnvVar;
+	viewModel.title;
+	viewModel.notification;
+
+	viewModel.envVarSelected = function(envVar) {
+		viewModel.selectedEnvVar = envVar;
+	};
+
+	viewModel.addNewSelected = function() {
+		var envVar = new Variable();
+		viewModel.envVars.push(envVar);
+		viewModel.envVarSelected(envVar);
+	};
+
+	communicationHelper.readMessage("configureEnvVarsController").then(function(parameters) {
+		switch (parameters.source) {
+			case "secrets":
+				viewModel.title = "<%= data[:strings][:env_var_editor][:secrets][:title] %>";
+				viewModel.notification = "<%= data[:strings][:env_var_editor][:secrets][:notification] %>";
+				
+				break;
+			case "app-env-vars":
+				viewModel.title = "<%= data[:strings][:env_var_editor][:app_env_vars][:title] %>";
+				viewModel.notification = "<%= data[:strings][:env_var_editor][:app_env_vars][:notification] %>";
+				
+				break;
+			case "workflow-env-vars":
+				viewModel.title = "<%= data[:strings][:env_var_editor][:workflow_env_vars][:title] %>";
+				viewModel.envVars = parameters.envVars;
+				
+				break;
+		}
+	});
 
 });
 

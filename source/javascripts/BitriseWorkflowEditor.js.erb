@@ -28,42 +28,42 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 			redirectTo: "/editor"
 		}
 	}, {
-		endpoints: ["/editor"],
+		endpoints: ["<%= data[:routes][:editor] %>"],
 		configuration: {
-			templateUrl: "templates/editor"
+			templateUrl: "<%= data[:routes][:editor_template] %>"
 		}
 	}, {
-		endpoints: ["/code_signing"],
+		endpoints: ["<%= data[:routes][:code_signing] %>"],
 		configuration: {
-			templateUrl: "templates/code_signing",
+			templateUrl: "<%= data[:routes][:code_signing_template] %>",
 			controller: "CodeSigningController",
 			controllerAs: "codeSigningCtrl"
 		}
 	}, {
-		endpoints: ["/secrets"],
+		endpoints: ["<%= data[:routes][:secrets] %>"],
 		configuration: {
-			templateUrl: "templates/secrets",
+			templateUrl: "<%= data[:routes][:secrets_template] %>",
 			controller: "SecretsController",
 			controllerAs: "secretsCtrl"
 		}
 	}, {
-		endpoints: ["/env_vars"],
+		endpoints: ["<%= data[:routes][:env_vars] %>"],
 		configuration: {
-			templateUrl: "templates/env_vars",
+			templateUrl: "<%= data[:routes][:env_vars_template] %>",
 			controller: "EnvVarsController",
 			controllerAs: "envVarsCtrl"
 		}
 	}, {
-		endpoints: ["/triggers"],
+		endpoints: ["<%= data[:routes][:triggers] %>"],
 		configuration: {
-			templateUrl: "templates/triggers",
+			templateUrl: "<%= data[:routes][:triggers_template] %>",
 			controller: "TriggersController",
 			controllerAs: "triggersCtrl"
 		}
 	}, {
-		endpoints: ["/yml"],
+		endpoints: ["<%= data[:routes][:yml] %>"],
 		configuration: {
-			templateUrl: "templates/yml",
+			templateUrl: "<%= data[:routes][:yml_template] %>",
 			controller: "YMLController",
 			controllerAs: "ymlCtrl"
 		}

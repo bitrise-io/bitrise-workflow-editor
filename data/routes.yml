@@ -4,6 +4,13 @@ secrets: secrets
 env_vars: env_vars
 triggers: triggers
 yml: yml
+editor_template: /templates/editor
+code_signing_template: /templates/code_signing
+secrets_template: /templates/secrets
+env_vars_template: /templates/env_vars
+triggers_template: /templates/triggers
+yml_template: /templates/yml
+env_var_editor_template: /templates/env_var_editor
 app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
 app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
 default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>

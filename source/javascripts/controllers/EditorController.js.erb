@@ -14,6 +14,17 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.loadWorkflowsProgress = new Progress();
 
 	viewModel.workflowEnvVarsPopup = new Popup();
+	viewModel.workflowEnvVarsPopup.beforeAppearCallback = function() {
+		if (!viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress) {
+			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress = new Progress();
+			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress.start("Loading, wait a sec...");
+		}
+
+		communicationHelper.addMessage("configureEnvVarsController", {
+			source: "workflow-env-vars",
+			envVars: viewModel.selectedWorkflow.envVars
+		});
+	};
 
 	viewModel.addWorkflowPopup = new Popup({
 		workflowID: ""
@@ -126,8 +137,6 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	viewModel.manageWorkflowEnvVarsSelected = function() {
-		console.log("viewModel.manageWorkflowEnvVarsSelected called");
-		// TODO: implement
 		viewModel.workflowEnvVarsPopup.isVisible = true;
 	};
 

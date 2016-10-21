@@ -88,6 +88,16 @@ variable:
   no_main_key_found: No main key found.
   only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
   main_key_mismatch: Main key mismatch.
+env_var_editor:
+  add_new: Add new
+  secrets:
+    title: Secret Environment Variables
+    notification: "Note: Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
+  app_env_vars:
+    title: App Environment Variables
+    notification: "Warning: App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
+  workflow_env_vars:
+    title: Workflow Environment Variables
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.
