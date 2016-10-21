@@ -6,9 +6,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 	var viewModel = this;
 
+	var selectedEnvVarLastValidKey;
+
 	viewModel.envVars;
 	viewModel.selectedEnvVar = null;
-	viewModel.editedEnvVar = null;
 	viewModel.title;
 	viewModel.notification;
 
@@ -33,56 +34,33 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	});
 
 	viewModel.envVarSelected = function(envVar) {
-		handleEnvVarEditFinishIfNeccessary();
-
-		viewModel.selectedEnvVar = envVar;
-		viewModel.editedEnvVar = angular.copy(viewModel.selectedEnvVar);
-	};
-
-	viewModel.addNewSelected = function() {
-		viewModel.envVarSelected(new Variable());
-	};
-
-	viewModel.deleteEditedEnvVar = function() {
-		var index = _.indexOf(viewModel.envVars, viewModel.selectedEnvVar);
-		if (index != -1) {
-			viewModel.envVars.splice(index, 1);
-		}
-		
-		viewModel.selectedEnvVar = null;
-		viewModel.editedEnvVar = null;
-	};
-
-	viewModel.envVarError = function(envVar) {
-		if (viewModel.editedEnvVar.key.length == 0) {
-			return new Error("<%= data[:strings][:env_var_editor][:warning_not_fully_specified]");
-		}
-
-		if (_.find(_.without(viewModel.envVars, envVar), {
-			key: envVar.key
-		})) {
-			return new Error("<%= data[:strings][:env_var_editor][:warning_id_not_unique]");
-		}
-
-		return null;
-	};
-
-	function handleEnvVarEditFinishIfNeccessary() {
-		if (!viewModel.editedEnvVar || viewModel.envVarError(viewModel.editedEnvVar)) {
+		if (envVar == viewModel.selectedEnvVar) {
 			return;
 		}
 
+		if (viewModel.selectedEnvVar && viewModel.selectedEnvVar.key.length == 0) {
+			viewModel.selectedEnvVar.key = selectedEnvVarLastValidKey;
+		}
+
+		viewModel.selectedEnvVar = envVar;
+		selectedEnvVarLastValidKey = viewModel.selectedEnvVar ? viewModel.selectedEnvVar.key : null;
+	};
+
+	viewModel.addNewSelected = function() {
+		var newEnvVar = new Variable("<%= data[:strings][:env_var_editor][:new_default_key] %>", "");
+		viewModel.envVars.push(newEnvVar);
+
+		viewModel.envVarSelected(newEnvVar);
+	};
+
+	viewModel.deleteSelectedEnvVar = function() {
 		var index = _.indexOf(viewModel.envVars, viewModel.selectedEnvVar);
-		if (index != -1) {
-			viewModel.envVars.splice(index, 1, viewModel.editedEnvVar);
-		}
-		else {
-			viewModel.envVars.push(viewModel.editedEnvVar);
-		}
-	}
+		
+		viewModel.selectedEnvVar = null;
+	};
 
 	$scope.$on("$destroy", function() {
-		handleEnvVarEditFinishIfNeccessary();
+		viewModel.envVarSelected(null);
 	});
 
 });

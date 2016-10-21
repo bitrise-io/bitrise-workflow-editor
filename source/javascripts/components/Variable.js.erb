@@ -4,9 +4,9 @@
 
 angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 
-	var Variable = function(key) {
+	var Variable = function(key, value) {
 		this.key = key;
-		this.value;
+		this.value = value;
 		this.title;
 		this.description;
 		this.isExpand;
@@ -93,7 +93,7 @@ angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function
 			return undefined;
 		}
 
-		return "$" + variable.key.toUpperCase();
+		return "$" + variable.key;
 	};
 
 });

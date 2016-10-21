@@ -86,6 +86,10 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	});
 
 	viewModel.workflowSelected = function(workflow) {
+		if (workflow == viewModel.selectedWorkflow) {
+			return;
+		}
+		
 		viewModel.selectedWorkflow = workflow;
 	};
 
@@ -181,6 +185,10 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	viewModel.stepSelected = function(step) {
+		if (step == viewModel.selectedStep) {
+			return;
+		}
+
 		if (viewModel.renamedStep) {
 			viewModel.renamedStepCancelled();
 		}

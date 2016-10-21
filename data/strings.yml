@@ -91,9 +91,10 @@ variable:
   main_key_mismatch: Main key mismatch.
 env_var_editor:
   add_new: Add new
+  new_default_key: "KEY"
   edit_variable: Edit Environment Variable
-  warning_not_fully_specified: "Warning: This Environment Variable is not fully specified"
-  warning_id_not_unique: "Warning: This key is already taken"
+  no_key: "No key"
+  no_key_warning: "Warning: No key set for the Environment Variable"
   key_label: "Key:"
   key_placeholder: "Key"
   value_label: "Value:"
