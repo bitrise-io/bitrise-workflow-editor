@@ -91,6 +91,17 @@ variable:
   main_key_mismatch: Main key mismatch.
 env_var_editor:
   add_new: Add new
+  edit_variable: Edit Environment Variable
+  warning_not_fully_specified: "Warning: This Environment Variable is not fully specified"
+  warning_id_not_unique: "Warning: This key is already taken"
+  key_label: "Key:"
+  key_placeholder: "Key"
+  value_label: "Value:"
+  value_placeholder: "Value"
+  replace_variables_label: "Replace variables in inputs?"
+  replace_variables_description: "Enable this if you want to replace Environment Variables in your input with the variable's assigned value."
+  replace_variables_more_info: "More info"
+  delete_env_var: "Delete"
   secrets:
     title: Secret Environment Variables
     notification: "Note: Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
