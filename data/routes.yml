@@ -1,9 +1,9 @@
-editor: editor
-code_signing: code_signing
-secrets: secrets
-env_vars: env_vars
-triggers: triggers
-yml: yml
+editor: /editor
+code_signing: /code_signing
+secrets: /secrets
+env_vars: /env_vars
+triggers: /triggers
+yml: /yml
 editor_template: /templates/editor
 code_signing_template: /templates/code_signing
 secrets_template: /templates/secrets
