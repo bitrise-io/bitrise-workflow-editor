@@ -2,15 +2,13 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").directive("orderStepsByDrag", function() {
+angular.module("BitriseWorkflowEditor").directive("orderStepsByDrag", function($timeout) {
 	return {
 		restrict: "A",
 		link: function(scope, element, attrs) {
 			scope.$watch(function() {
 				return $(element).children().length;
 			}, function() {
-				$(document).off("mousedown", mousedownHandler);
-
 				var selectedStepElement;
 				var cursorPositionYOnLastStableOrder;
 				var isMousemoveInProgress;
@@ -83,12 +81,15 @@ angular.module("BitriseWorkflowEditor").directive("orderStepsByDrag", function()
 					$(selectedStepElement).on("mousedown", mousedownHandler);
 				}
 
-				_.each($(element).children(":not(.pseudo-step)"), function(aChild) {
-					$(aChild).off("mousedown", mousedownHandler).on("mousedown", mousedownHandler);
+				$timeout(function() {
+					_.each($(element).children(":not(.pseudo-step)"), function(aChild) {
+						$(aChild).off("mousedown", mousedownHandler).on("mousedown", mousedownHandler);
+					});
 				});
 
 				scope.$on("destroy", function() {
-					element.off("mousedown", mousedownHandler);
+					$(document).off("mousemove", mousemoveHandler);
+					$(document).off("mouseup", mouseupHandler);
 				});
 			});
 		}
