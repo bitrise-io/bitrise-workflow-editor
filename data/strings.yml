@@ -5,7 +5,7 @@ main:
   - Editor
   - Code Signing
   - Secrets
-  - Env Vars
+  - App Env Vars
   - Triggers
   - bitrise.yml
   discard: Discard

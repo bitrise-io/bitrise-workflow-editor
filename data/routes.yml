@@ -1,13 +1,13 @@
 editor: /editor
 code_signing: /code_signing
 secrets: /secrets
-env_vars: /env_vars
+app_env_vars: /app_env_vars
 triggers: /triggers
 yml: /yml
 editor_template: /templates/editor
 code_signing_template: /templates/code_signing
 secrets_template: /templates/secrets
-env_vars_template: /templates/env_vars
+app_env_vars_template: /templates/app_env_vars
 triggers_template: /templates/triggers
 yml_template: /templates/yml
 env_var_editor_template: /templates/env_var_editor

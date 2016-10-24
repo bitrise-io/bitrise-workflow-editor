@@ -43,15 +43,11 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 		endpoints: ["<%= data[:routes][:secrets] %>"],
 		configuration: {
 			templateUrl: "<%= data[:routes][:secrets_template] %>",
-			controller: "SecretsController",
-			controllerAs: "secretsCtrl"
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:env_vars] %>"],
+		endpoints: ["<%= data[:routes][:app_env_vars] %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:env_vars_template] %>",
-			controller: "EnvVarsController",
-			controllerAs: "envVarsCtrl"
+			templateUrl: "<%= data[:routes][:app_env_vars_template] %>",
 		}
 	}, {
 		endpoints: ["<%= data[:routes][:triggers] %>"],

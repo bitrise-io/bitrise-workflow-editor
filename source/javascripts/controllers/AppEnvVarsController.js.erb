@@ -1,0 +1,27 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function(communicationHelper, Progress, Variable) {
+
+	var viewModel = this;
+
+	viewModel.appEnvVars;
+
+	viewModel.loadAppEnvVarsProgress = new Progress();
+	viewModel.loadTemplateProgress = new Progress();
+
+	communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
+		viewModel.appEnvVars = _.map(appConfig.app.envs, Variable.createFromVariableConfig);
+
+		communicationHelper.addMessage("configureEnvVarsController", {
+			source: "app-env-vars",
+			envVars: viewModel.appEnvVars
+		});
+	});
+
+	viewModel.loadTemplateProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
+
+});
+
+})();

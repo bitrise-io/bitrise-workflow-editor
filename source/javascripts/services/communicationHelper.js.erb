@@ -18,7 +18,7 @@ angular.module("BitriseWorkflowEditor").service("communicationHelper", function(
 
 		_.each(this.messagePromiseResolvers[message], function(aResolver, index, messagePromiseResolvers) {
 			aResolver(messageParameter);
-			messagePromiseResolvers[index] = undefined;
+			delete messagePromiseResolvers[index];
 		});
 
 		this.messagePromiseResolvers[message] = _.compact(this.messagePromiseResolvers[message]);
@@ -26,7 +26,7 @@ angular.module("BitriseWorkflowEditor").service("communicationHelper", function(
 
 	communicationHelper.removeMessage = function(message) {
 		delete this.messages[message];
-		this.messagePromiseResolvers[message] = undefined;
+		delete this.messagePromiseResolvers[message];
 	};
 
 	communicationHelper.readMessage = function(message, shouldWaitForMessage) {
