@@ -36,6 +36,7 @@ editor:
   delete_workflow: Delete Workflow
   env_vars:
     no_env_vars: No Env Vars for this Workflow yet
+    title: Workflow Environment Variables
   steps:
     add:
       action: Add step
@@ -78,8 +79,15 @@ editor:
     load_default_error: Error loading default outputs.
     load_error_prefix: "Error loading default outputs:"
 secrets:
-  load_default_error: Error loading secrets.
-  load_error_prefix: "Error loading secrets:"
+  title: Secret Environment Variables
+  load_progress:
+    loading: Loading secrets, wait a sec...
+    default_error: Error loading secrets.
+    error_prefix: "Error loading secrets:"
+  notification: "Note: Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
+app_env_vars:
+  title: App Environment Variables
+  notification: "Warning: App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
 workflow:
   configure_error_prefix: "Error configuring Workflow: "
 step:
@@ -90,6 +98,7 @@ variable:
   only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
   main_key_mismatch: Main key mismatch.
 env_var_editor:
+  template_load_inprogress: Loading, wait a sec...
   add_new: Add new
   new_default_key: "KEY"
   edit_variable: Edit Environment Variable
@@ -103,14 +112,6 @@ env_var_editor:
   replace_variables_description: "Enable this if you want to replace Environment Variables in your input with the variable's assigned value."
   replace_variables_more_info: "More info"
   delete_env_var: "Delete"
-  secrets:
-    title: Secret Environment Variables
-    notification: "Note: Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
-  app_env_vars:
-    title: App Environment Variables
-    notification: "Warning: App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
-  workflow_env_vars:
-    title: Workflow Environment Variables
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

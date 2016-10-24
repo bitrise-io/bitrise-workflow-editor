@@ -159,12 +159,12 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 				resolve();
 			}, function(response) {
 				if (!response || !response.data) {
-					reject(new Error("<%= data.strings.secrets.load_default_error %>"));
+					reject(new Error("<%= data[:strings][:secrets][:load_progress][:default_error] %>"));
 
 					return;
 				}
 
-				reject(new Error("<%= data.strings.secrets.load_error_prefix %> " + response.data));
+				reject(new Error("<%= data[:strings][:secrets][:load_progress][:error_prefix] %> " + response.data));
 			});
 		});
 	};

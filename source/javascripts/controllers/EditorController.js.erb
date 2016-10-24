@@ -17,7 +17,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.workflowEnvVarsPopup.beforeAppearCallback = function() {
 		if (!viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress) {
 			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress = new Progress();
-			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress.start("Loading, wait a sec...");
+			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
 		}
 
 		communicationHelper.addMessage("configureEnvVarsController", {

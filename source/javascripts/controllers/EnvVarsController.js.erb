@@ -16,21 +16,24 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	communicationHelper.readMessage("configureEnvVarsController").then(function(parameters) {
 		switch (parameters.source) {
 			case "secrets":
-				viewModel.title = "<%= data[:strings][:env_var_editor][:secrets][:title] %>";
-				viewModel.notification = "<%= data[:strings][:env_var_editor][:secrets][:notification] %>";
+				viewModel.title = "<%= data[:strings][:secrets][:title] %>";
+				viewModel.notification = "<%= data[:strings][:secrets][:notification] %>";
 				
 				break;
 			case "app-env-vars":
-				viewModel.title = "<%= data[:strings][:env_var_editor][:app_env_vars][:title] %>";
-				viewModel.notification = "<%= data[:strings][:env_var_editor][:app_env_vars][:notification] %>";
+				viewModel.title = "<%= data[:strings][:app_env_vars][:title] %>";
+				viewModel.notification = "<%= data[:strings][:app_env_vars][:notification] %>";
 				
 				break;
 			case "workflow-env-vars":
-				viewModel.title = "<%= data[:strings][:env_var_editor][:workflow_env_vars][:title] %>";
-				viewModel.envVars = parameters.envVars;
+				viewModel.title = "<%= data[:strings][:editor][:env_vars][:title] %>";
 				
 				break;
 		}
+
+		viewModel.envVars = parameters.envVars;
+
+		communicationHelper.removeMessage("configureEnvVarsController");
 	});
 
 	viewModel.envVarSelected = function(envVar) {
