@@ -14,7 +14,7 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 			button[ng-click="editorCtrl.addRunWorkflowSelected(true)"] == data[:strings][:editor][:add_workflow_before]
 			button[ng-click="editorCtrl.deleteWorkflowSelected()" ng-disabled="editorCtrl.workflows.length == 1"] == data[:strings][:editor][:delete_workflow]
 		section.manage-workflow
-			ul.steps[order-steps-by-drag]
+			ul.steps[order-by-drag="{models: editorCtrl.selectedWorkflow.steps, draggableSelector: ':not(.pseudo-step)'}"]
 				li[ng-repeat="step in editorCtrl.stepsIncludingPseudoSteps()" ng-class="{'selected': step == editorCtrl.selectedStep, 'pseudo-step': editorCtrl.isPseudoStep(step)}"]
 					button.add-step[ng-click="editorCtrl.addStepSelectedAtIndex($index)" ng-if="!$first"] == data[:strings][:editor][:steps][:add][:action]
 					button.step[ng-click="editorCtrl.stepSelected(step)"]

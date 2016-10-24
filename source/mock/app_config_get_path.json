@@ -41,6 +41,18 @@
           "opts": {
             "is_expand": false
           }
+        },
+        {
+          "env-var-c": "env-var-c-value",
+          "opts": {
+            "is_expand": false
+          }
+        },
+        {
+          "env-var-d": "env-var-d-value",
+          "opts": {
+            "is_expand": false
+          }
         }
       ],
       "steps": [
