@@ -85,13 +85,21 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		insertEndPosition: undefined
 	});
 
-	viewModel.workflowSelected = function(workflow) {
+	viewModel.workflowSelectedGetterSetter = function(workflow) {
+		return workflow === undefined ? viewModel.selectedWorkflow : workflowSelected(workflow);
+	};
+
+	function workflowSelected(workflow) {
 		if (workflow == viewModel.selectedWorkflow) {
 			return;
 		}
+
+		if (viewModel.selectedStep) {
+			viewModel.stepSelected(null);
+		}
 		
 		viewModel.selectedWorkflow = workflow;
-	};
+	}
 
 	function loadWorkflows() {
 		viewModel.loadWorkflowsProgress.start("<%= data.strings.editor.load_workflows_progress.in_progress %>");
@@ -116,7 +124,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 				viewModel.loadWorkflowsProgress.success();
 
 				if (!viewModel.selectedWorkflow) {
-					viewModel.workflowSelected(_.first(viewModel.workflows));
+					workflowSelected(_.first(viewModel.workflows));
 				}
 			}
 			catch (error) {
@@ -137,7 +145,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.workflows.push(newWorkflow);
 
 		viewModel.addWorkflowPopup.isVisible = false;
-		viewModel.workflowSelected(newWorkflow);
+		workflowSelected(newWorkflow);
 	};
 
 	viewModel.manageWorkflowEnvVarsSelected = function() {
@@ -173,7 +181,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		var index = _.indexOf(viewModel.workflows, viewModel.selectedWorkflow);
 		viewModel.workflows.splice(index, 1);
 
-		viewModel.workflowSelected(_.first(viewModel.workflows));
+		workflowSelected(_.first(viewModel.workflows));
 	};
 
 	viewModel.stepsIncludingPseudoSteps = function() {
