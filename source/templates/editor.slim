@@ -7,7 +7,7 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 					span.uppercase[ng-bind="workflow.id"]
 					span< == data[:strings][:editor][:run_workflows][:postfix]
 		section.manage-workflows
-			select[ng-options="workflow.id for workflow in editorCtrl.workflows" ng-model="editorCtrl.selectedWorkflow"]
+			select[ng-options="workflow.id for workflow in editorCtrl.workflows" ng-model="editorCtrl.workflowSelectedGetterSetter" ng-model-options="{getterSetter: true}"]
 			button[ng-click="editorCtrl.addWorkflowSelected()"] == data[:strings][:editor][:add_workflow][:action]
 			button[ng-click="editorCtrl.manageWorkflowEnvVarsSelected()"] == data[:strings][:editor][:manage_workflow_env_vars]
 			button[ng-click="editorCtrl.addRunWorkflowSelected(false)"] == data[:strings][:editor][:add_workflow_after]
