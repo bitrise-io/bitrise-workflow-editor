@@ -53,8 +53,6 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 		endpoints: ["<%= data[:routes][:triggers] %>"],
 		configuration: {
 			templateUrl: "<%= data[:routes][:triggers_template] %>",
-			controller: "TriggersController",
-			controllerAs: "triggersCtrl"
 		}
 	}, {
 		endpoints: ["<%= data[:routes][:yml] %>"],
