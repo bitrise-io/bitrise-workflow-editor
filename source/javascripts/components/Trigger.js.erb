@@ -4,12 +4,79 @@
 
 angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 
-	var Trigger = function() {
-		
+	var Trigger = function(type) {
+		if (type === undefined) {
+			type = "push";
+		}
+
+		this.workflow;
+		this.type = type;
+		this.pushBranchPattern;
+		this.pullRequestSourceBranchPattern;
+		this.pullRequestTargetBranchPattern;
+		this.tagPattern;
+
+		switch (this.type) {
+			case "push":
+				this.pushBranchPattern = "";
+
+				break;
+			case "pull-request":
+				this.pullRequestSourceBranchPattern = "";
+				this.pullRequestTargetBranchPattern = "";
+
+				break;
+			case "tag":
+				this.tagPattern = "";
+
+				break;
+		}
+	};
+
+	Trigger.createFromTriggerConfig = function(triggerConfig, workflows) {
+		var trigger = new Trigger();
+
+		trigger.workflow = _.find(workflows, {
+			id: triggerConfig.workflow
+		});
+
+		if (triggerConfig.push_branch !== undefined) {
+			trigger.type = "push";
+			trigger.pushBranchPattern = triggerConfig.push_branch;
+		}
+		else if (triggerConfig.pull_request_source_branch !== undefined || triggerConfig.pull_request_target_branch !== undefined) {
+			trigger.type = "pull-request";
+			trigger.pullRequestSourceBranchPattern = triggerConfig.pull_request_source_branch;
+			trigger.pullRequestTargetBranchPattern = triggerConfig.pull_request_target_branch;
+		}
+		else if (triggerConfig.tag !== undefined) {
+			trigger.type = "tag";
+			trigger.tagPattern = triggerConfig.tag;
+		}
+		else {
+			throw new Error("<%= data[:strings][:triggers][:configure_error_prefix] %>" + "<%= data[:strings][:triggers][:missing_type] %>");
+		}
+
+		return trigger;
 	};
 
 	return Trigger;
 
 });
+
+angular.module("BitriseWorkflowEditor").filter("displayNameForTriggerType", function() {
+
+	return function(triggerType) {
+		switch (triggerType) {
+			case "push":
+				return "<%= data[:strings][:triggers][:types][:push] %>";
+			case "pull-request":
+				return "<%= data[:strings][:triggers][:types][:pull_request] %>";
+			case "tag":
+				return "<%= data[:strings][:triggers][:types][:tag] %>";
+		}
+	};
+
+})
 
 })();

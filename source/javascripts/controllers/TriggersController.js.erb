@@ -2,9 +2,81 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function(Trigger) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function(communicationHelper, Trigger, Workflow) {
 
 	var viewModel = this;
+
+	viewModel.workflows;
+	viewModel.triggers;
+	viewModel.selectedTrigger = null;
+	var savedSelectedTrigger;
+
+	communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
+		viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+			return new Workflow(aWorkflowID);
+		});
+
+		viewModel.triggers = _.map(appConfig.trigger_map, function(triggerConfig) {
+			var trigger = Trigger.createFromTriggerConfig(triggerConfig, viewModel.workflows);
+
+			return trigger;
+		});
+	});
+
+	viewModel.triggerSelected = function(trigger) {
+		viewModel.selectedTrigger = trigger;
+		savedSelectedTrigger = trigger ? angular.copy(viewModel.selectedTrigger) : undefined;
+	};
+
+	viewModel.deleteTriggerSelected = function(trigger) {
+		var index = _.indexOf(viewModel.triggers, trigger);
+		viewModel.triggers.splice(index, 1);
+
+		viewModel.triggerSelected(null);
+	};
+
+	viewModel.addTriggerSelectedAtIndex = function(index) {
+		var newTrigger = new Trigger();
+		newTrigger.pushBranchPattern = "*";
+		viewModel.triggers.splice(index, 0, newTrigger);
+
+		viewModel.selectedTrigger = newTrigger;
+		savedSelectedTrigger = null;
+	};
+
+	viewModel.triggerTypeChanged = function() {
+		viewModel.selectedTrigger.pushBranchPattern = undefined;
+		viewModel.selectedTrigger.pullRequestSourceBranchPattern = undefined;
+		viewModel.selectedTrigger.pullRequestTargetBranchPattern = undefined;
+		viewModel.selectedTrigger.tagPattern = undefined;
+
+		switch (viewModel.selectedTrigger.type) {
+			case "push":
+				viewModel.selectedTrigger.pushBranchPattern = "";
+
+				break;
+			case "pull-request":
+				viewModel.selectedTrigger.pullRequestSourceBranchPattern = "";
+				viewModel.selectedTrigger.pullRequestTargetBranchPattern = "";
+
+				break;
+			case "tag":
+				viewModel.selectedTrigger.tagPattern = "";
+
+				break;
+		}
+	};
+
+	viewModel.triggerEditFinished = function() {
+		viewModel.triggerSelected(null);
+	};
+
+	viewModel.triggerEditCancelled = function() {
+		var index = _.indexOf(viewModel.triggers, viewModel.selectedTrigger);
+		viewModel.triggers.splice(index, 1, savedSelectedTrigger ? savedSelectedTrigger : undefined);
+
+		viewModel.triggerSelected(null);
+	};
 
 });
 
