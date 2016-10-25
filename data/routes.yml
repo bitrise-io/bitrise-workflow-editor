@@ -14,9 +14,13 @@ env_var_editor_template: /templates/env_var_editor
 app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
 app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
 default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
+all_stacks_get: /api/app/<app_slug>/all_stack_info.json?api_token=<api_token>
 secrets_get: /api/app/<app_slug>/secrets.json?api_token=<api_token>
 yml_get:  /api/app/<app_slug>/config.yml?api_token=<api_token>
 yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
 devcenter_step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
 devcenter_trigger_map: https://bitrise-io.github.io/devcenter/webhooks/trigger-map/
 devcenter_bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
+devcenter_codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
+devcenter_xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
+devcenter_apk: https://bitrise-io.github.io/devcenter/tutorials/create-signed-apk-on-bitrise/

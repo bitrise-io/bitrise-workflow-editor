@@ -2,9 +2,85 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function() {
+angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, $http, $location, routeHelper, Progress) {
 
 	var viewModel = this;
+
+	viewModel.loadSupportedPlatforms = new Progress();
+
+	var stackID;
+	var availableStacks;
+	viewModel.supportedPlatforms;
+
+	function loadSupportedPlatforms() {
+		viewModel.loadSupportedPlatforms.start("<%= data[:strings][:code_signing][:load_supported_platforms_progress][:loading] %>");
+
+		$q.all([getAllStacks(), getStack()]).then(function() {
+			viewModel.supportedPlatforms = availableStacks[stackID];
+
+			viewModel.loadSupportedPlatforms.success();
+		}, function(error) {
+			viewModel.loadSupportedPlatforms.error(error);
+		});
+	}
+
+	function getAllStacks() {
+		var appSlug = $location.search().app_slug;
+		var apiToken = $location.search().api_token;
+		var requestURL = routeHelper.replacedRoute("<%= all_stacks_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				availableStacks = _.mapObject(response.data.available_stacks, function(aStackData) {
+					return aStackData["project-types"];
+				});
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data[:strings][:code_signing][:load_all_stacks_progress][:default_error] %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data[:strings][:code_signing][:load_all_stacks_progress][:error_prefix] %>" + response.data));
+			});
+		});
+	}
+
+	function getStack() {
+		var appSlug = $location.search().app_slug;
+		var apiToken = $location.search().api_token;
+		var requestURL = routeHelper.replacedRoute("<%= stack_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				stackID = response.data.id;
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data[:strings][:code_signing][:load_stack_progress][:default_error] %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data[:strings][:code_signing][:load_stack_progress][:error_prefix] %>" + response.data));
+			});
+		});
+	}
+
+	viewModel.isSupportedPlatform = function(platformID) {
+		return _.contains(viewModel.supportedPlatforms, platformID);
+	};
+
+	loadSupportedPlatforms();
 
 });
 

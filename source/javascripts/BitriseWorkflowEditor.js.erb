@@ -35,9 +35,7 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 	}, {
 		endpoints: ["<%= data[:routes][:code_signing] %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:code_signing_template] %>",
-			controller: "CodeSigningController",
-			controllerAs: "codeSigningCtrl"
+			templateUrl: "<%= data[:routes][:code_signing_template] %>"
 		}
 	}, {
 		endpoints: ["<%= data[:routes][:secrets] %>"],

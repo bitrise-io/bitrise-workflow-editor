@@ -21,6 +21,18 @@ configure :development do
 		return "mock/default_outputs_get_path.json"
 	end
 
+	def all_stacks_get_path
+		return "mock/all_stacks_get_path.json"
+	end
+
+	def all_stacks_get_path
+		return "mock/all_stacks_get_path.json"
+	end
+
+	def stack_get_path
+		return "mock/stack_get_path.json"
+	end
+
 	def secrets_get_path
 		return "mock/secrets_get_path.json"
 	end
@@ -47,6 +59,18 @@ configure :build do
 
 	def default_outputs_get_path
 		return data[:routes][:default_outputs_get]
+	end
+
+	def all_stacks_get_path
+		return data[:routes][:all_stacks_get]
+	end
+
+	def all_stacks_get_path
+		return "mock/all_stacks_get_path.json"
+	end
+
+	def stack_get_path
+		return data[:routes][:stack_get]
 	end
 
 	def secrets_get_path

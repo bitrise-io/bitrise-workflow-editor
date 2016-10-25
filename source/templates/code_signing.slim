@@ -1,0 +1,19 @@
+article.code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
+	p.progress-indicator[progress-model="codeSigningCtrl.loadSupportedPlatforms"]
+	div[ng-if="codeSigningCtrl.loadSupportedPlatforms.isIdle"]
+		div[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('ios')"]
+			section
+				h2 == data[:strings][:code_signing][:hints][:ios][:title]
+				p == string_with_urls(data[:strings][:code_signing][:hints][:ios][:description], [data[:routes][:devcenter_codesigndoc]])
+			section
+				p == data[:strings][:code_signing][:hints][:ios][:dont_forget]
+		section[ng-if="codeSigningCtrl.isSupportedPlatform('xamarin')"]
+			h2 == data[:strings][:code_signing][:hints][:xamarin][:title]
+			p == string_with_urls(data[:strings][:code_signing][:hints][:xamarin][:description], [data[:routes][:devcenter_xamarin_code_signing]])
+		section[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('android')"]
+			h2 == data[:strings][:code_signing][:hints][:android][:title]
+			p == string_with_urls(data[:strings][:code_signing][:hints][:android][:description], [data[:routes][:devcenter_apk]])
+		div[ng-if="codeSigningCtrl.isSupportedPlatform('xamarin') || codeSigningCtrl.isSupportedPlatform('ios')"]
+			section.provisioning-profile
+			section.certificate
+		section.android-keystore-generic-file
