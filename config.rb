@@ -25,6 +25,14 @@ configure :development do
 		return "mock/secrets_get_path.json"
 	end
 
+	def yml_get_path
+		return "mock/yml_get_path.yml"
+	end
+
+	def yml_download_path
+		return "mock/yml_get_path.yml"
+	end
+
 end
 
 configure :build do
@@ -43,6 +51,14 @@ configure :build do
 
 	def secrets_get_path
 		return data[:routes][:secrets_get]
+	end
+
+	def yml_get_path
+		return data[:routes][:yml_get]
+	end
+
+	def yml_download_path
+		return data[:routes][:yml_download]
 	end
 	
 end

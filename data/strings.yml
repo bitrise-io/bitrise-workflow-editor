@@ -104,6 +104,15 @@ triggers:
   delete: Delete
   done: Done
   cancel: Cancel
+yml:
+  title: bitrise.yml editor
+  info_1: "You can edit your current config in YAML format:"
+  info_2: You can download this YML and run it directly with <a href='<url>' target='_blank'>bitrise CLI</a> on your own Mac
+  download: Download currently saved config
+  load_progress:
+    loading: Loading, wait a sec...
+    default_error: Error loading YML.
+    error_prefix: "Error loading YML:"
 workflow:
   configure_error_prefix: "Error configuring Workflow: "
 step:

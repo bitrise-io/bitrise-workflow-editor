@@ -1,0 +1,9 @@
+article.triggers[ng-controller="YMLController as ymlCtrl"]
+	h2 == data[:strings][:yml][:title]
+	p == data[:strings][:yml][:info_1]
+	p
+		em == string_with_urls(data[:strings][:yml][:info_2], [data[:routes][:devcenter_bitrise_cli]])
+	p.progress-indicator[progress-model="ymlCtrl.loadAppConfigYMLProgress"]
+	p.progress-indicator[progress-model="ymlCtrl.saveAppConfigYMLProgress"]
+	textarea[ng-model="ymlCtrl.appConfigYML" ng-if="ymlCtrl.loadAppConfigYMLProgress.isIdle && !ymlCtrl.saveAppConfigYMLProgress.isInProgress"]
+	a[href="{{ ymlCtrl.downloadAppConfigYMLPath }}"] == data[:strings][:yml][:download]

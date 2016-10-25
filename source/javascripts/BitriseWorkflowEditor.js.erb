@@ -57,9 +57,7 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 	}, {
 		endpoints: ["<%= data[:routes][:yml] %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:yml_template] %>",
-			controller: "YMLController",
-			controllerAs: "ymlCtrl"
+			templateUrl: "<%= data[:routes][:yml_template] %>"
 		}
 	}];
 

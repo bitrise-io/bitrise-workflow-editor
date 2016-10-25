@@ -1,6 +1,6 @@
 article.triggers[ng-controller="TriggersController as triggersCtrl"]
 	h2
-		span = data[:strings][:triggers][:title]
+		span == data[:strings][:triggers][:title]
 		a<[href="#{ data[:routes][:devcenter_trigger_map] }" target="_blank"] == data[:strings][:triggers][:trigger_guide]
 	ul[order-by-drag="{models: triggersCtrl.triggers, draggableSelector: ':not(.no-trigger)'}"]
 		li[ng-repeat="trigger in triggersCtrl.triggers.concat(null)" ng-class="{'no-trigger': trigger == null}"]
