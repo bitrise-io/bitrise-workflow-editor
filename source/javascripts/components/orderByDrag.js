@@ -15,7 +15,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 			var cursorPositionYOnLastStableOrder;
 
 			function mousedownHandler(event) {
-				for (selectedElement = event.target; !_.contains($(element).children(draggableSelector), selectedElement); selectedElement = selectedElement.parentNode);
+				for (selectedElement = event.target; selectedElement && !_.contains($(element).children(draggableSelector), selectedElement); selectedElement = selectedElement.parentNode);
 				$(selectedElement).off("mousedown", mousedownHandler);
 
 				cursorPositionYOnLastStableOrder = event.pageY;
