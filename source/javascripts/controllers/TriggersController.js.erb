@@ -9,7 +9,8 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.workflows;
 	viewModel.triggers;
 	viewModel.selectedTrigger = null;
-	var savedSelectedTrigger;
+	viewModel.editedTrigger;
+	viewModel.newTriggerIndex;
 
 	communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
 		viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
@@ -24,8 +25,9 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	});
 
 	viewModel.triggerSelected = function(trigger) {
+		viewModel.newTriggerIndex = undefined;
 		viewModel.selectedTrigger = trigger;
-		savedSelectedTrigger = trigger ? angular.copy(viewModel.selectedTrigger) : undefined;
+		viewModel.editedTrigger = viewModel.selectedTrigger ? angular.copy(viewModel.selectedTrigger) : undefined;
 	};
 
 	viewModel.deleteTriggerSelected = function(trigger) {
@@ -38,43 +40,47 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.addTriggerSelectedAtIndex = function(index) {
 		var newTrigger = new Trigger();
 		newTrigger.pushBranchPattern = "*";
-		viewModel.triggers.splice(index, 0, newTrigger);
 
-		viewModel.selectedTrigger = newTrigger;
-		savedSelectedTrigger = null;
+		viewModel.editedTrigger = newTrigger;
+		viewModel.newTriggerIndex = index;
 	};
 
 	viewModel.triggerTypeChanged = function() {
-		viewModel.selectedTrigger.pushBranchPattern = undefined;
-		viewModel.selectedTrigger.pullRequestSourceBranchPattern = undefined;
-		viewModel.selectedTrigger.pullRequestTargetBranchPattern = undefined;
-		viewModel.selectedTrigger.tagPattern = undefined;
+		viewModel.editedTrigger.pushBranchPattern = undefined;
+		viewModel.editedTrigger.pullRequestSourceBranchPattern = undefined;
+		viewModel.editedTrigger.pullRequestTargetBranchPattern = undefined;
+		viewModel.editedTrigger.tagPattern = undefined;
 
-		switch (viewModel.selectedTrigger.type) {
+		switch (viewModel.editedTrigger.type) {
 			case "push":
-				viewModel.selectedTrigger.pushBranchPattern = "";
+				viewModel.editedTrigger.pushBranchPattern = "";
 
 				break;
 			case "pull-request":
-				viewModel.selectedTrigger.pullRequestSourceBranchPattern = "";
-				viewModel.selectedTrigger.pullRequestTargetBranchPattern = "";
+				viewModel.editedTrigger.pullRequestSourceBranchPattern = "";
+				viewModel.editedTrigger.pullRequestTargetBranchPattern = "";
 
 				break;
 			case "tag":
-				viewModel.selectedTrigger.tagPattern = "";
+				viewModel.editedTrigger.tagPattern = "";
 
 				break;
 		}
 	};
 
 	viewModel.triggerEditFinished = function() {
+		if (viewModel.selectedTrigger) {
+			var index = _.indexOf(viewModel.triggers, viewModel.selectedTrigger);
+			viewModel.triggers.splice(index, 1, viewModel.editedTrigger);
+		}
+		else {
+			viewModel.triggers.splice(viewModel.newTriggerIndex, 0, viewModel.editedTrigger);
+		}
+
 		viewModel.triggerSelected(null);
 	};
 
 	viewModel.triggerEditCancelled = function() {
-		var index = _.indexOf(viewModel.triggers, viewModel.selectedTrigger);
-		viewModel.triggers.splice(index, 1, savedSelectedTrigger ? savedSelectedTrigger : undefined);
-
 		viewModel.triggerSelected(null);
 	};
 
