@@ -32,11 +32,11 @@ angular.module("BitriseWorkflowEditor").factory("Progress", function() {
 
 	Progress.prototype.success = function(statusMessage) {
 		if (statusMessage === undefined) {
-			statusMessage = null;
+			return this.reset();
 		}
 
 		this.statusMessage = statusMessage;
-		this.isIdle = statusMessage == null;
+		this.isIdle = true;
 		this.isInProgress = false;
 		this.isError = false;
 		this.cssClass = "success";
@@ -60,7 +60,14 @@ angular.module("BitriseWorkflowEditor").directive("progressModel", function() {
 		restrict: "A",
 		replace: true,
 		template: function(tElement, tAttrs) {
-			tElement.attr("ng-if", "!" + tAttrs.progressModel + ".isIdle");
+			var ngIfValue = tAttrs.ngIf;
+			if (!ngIfValue) {
+				ngIfValue = "true";
+			}
+
+			ngIfValue = "(" + ngIfValue + ") && (" + tAttrs.progressModel + ".statusMessage.length > 0)"
+
+			tElement.attr("ng-if", ngIfValue);
 			tElement.attr("ng-class", tAttrs.progressModel + ".cssClass");
 			tElement.attr("ng-bind-html", tAttrs.progressModel + ".statusMessage");
 			tElement.removeAttr("progressModel");

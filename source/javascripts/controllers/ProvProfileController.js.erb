@@ -1,0 +1,186 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($q, $location, $http, $timeout, routeHelper, Progress, ProvProfile) {
+
+	var loadProvProfilesIntervalInSeconds = 1;
+
+	var viewModel = this;
+	var appSlug = $location.search().app_slug;
+	var apiToken = $location.search().api_token;
+
+	viewModel.isAddMode = false;
+	viewModel.loadProvProfilesProgress = new Progress();
+	viewModel.uploadProvProfileProgress = new Progress();
+	viewModel.deleteAllProvProfileProgress = new Progress();
+	viewModel.provProfileActionProgress = new Progress();
+	viewModel.provProfiles;
+	viewModel.selectedProvProfile = null;
+
+	function loadProvProfiles() {
+		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
+
+		var requestURL = routeHelper.replacedRoute("<%= prov_profiles_get_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		$q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				if (!viewModel.provProfiles) {
+					viewModel.provProfiles = _.map(response.data.prov_profile_documents, function(aProvProfileData) {
+						var provProfile = new ProvProfile();
+						provProfile.isProcessed = aProvProfileData.processed;
+						provProfile.expiringDownloadURL = aProvProfileData.expiring_url;
+
+						return provProfile;
+					});
+				}
+				else {
+					_.each(response.data.prov_profile_documents, function(aProvProfileData, index) {
+						provProfile = viewModel.provProfiles[index];
+						if (!provProfile || provProfile.id != aProvProfileData.id) {
+							return;
+						}
+
+						provProfile.isProcessed = aProvProfileData.processed;
+					});
+				}
+
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:default_error] %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:error_prefix] %> " + response.data));
+			});
+		}).then(function() {
+			if (_.find(viewModel.provProfiles, {
+				isProcessed: false
+			})) {
+				$timeout(loadProvProfiles, loadProvProfilesIntervalInSeconds * 1000);
+			}
+
+			viewModel.loadProvProfilesProgress.success();
+		}, function(error) {
+			viewModel.loadProvProfilesProgress.error(error);
+		});
+	}
+
+	viewModel.downloadProvProfile = function(provProfile) {
+		viewModel.provProfileActionProgress.start("<%= data[:strings][:code_signing][:prov_profile][:download_progress][:in_progress] %>");
+
+		viewModel.selectedProvProfile = provProfile;
+
+		var requestURL = routeHelper.replacedRoute("<%= prov_profile_download_path %>", {
+			prov_profile_id: provProfile.id,
+			api_token: apiToken
+		});
+
+		$q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				viewModel.provProfileActionProgress.success();
+
+				resolve(response.data.expiring_url);
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:download_progress][:default_error] %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:download_progress][:error_prefix] %> " + response.data));
+
+				resolve(response.data.expiring_url);
+			});
+		}).then(function(expiringDownloadURL) {
+			viewModel.selectedProvProfile = null;
+
+			window.location = provProfile.expiringDownloadURL = expiringDownloadURL;
+		});
+	};
+
+	viewModel.deleteProvProfile = function(provProfile) {
+		viewModel.provProfileActionProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>");
+
+		viewModel.selectedProvProfile = provProfile;
+
+		var requestURL = routeHelper.replacedRoute("<%= prov_profile_delete_path %>", {
+			prov_profile_id: provProfile.id,
+			api_token: apiToken
+		});
+
+		$q(function(resolve, reject) {
+			$http.delete(requestURL).then(function(response) {
+				resolve(response.data.expiring_url);
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:default_error] %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:error_prefix] %> " + response.data));
+			});
+		}).then(function() {
+			viewModel.selectedProvProfile = null;
+
+			viewModel.provProfileActionProgress.success();
+
+			loadProvProfiles();
+		}, function(error) {
+			viewModel.provProfileActionProgress.error(error);
+		});
+	};
+
+	viewModel.addProvProfileSelected = function() {
+		viewModel.isAddMode = true;
+	};
+
+	viewModel.uploadProvProfile = function() {
+		viewModel.uploadProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:in_progress] %>");
+
+		// TODO: implement
+		console.log("uploadProvProfile called");
+
+		viewModel.uploadProvProfileProgress.success("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:success] %>");
+	};
+
+	viewModel.deleteAllProvProfilesSelected = function() {
+		viewModel.deleteAllProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
+
+		var requestURL = routeHelper.replacedRoute("<%= prov_profiles_delete_path %>", {
+			app_slug: appSlug,
+			api_token: apiToken
+		});
+
+		$q(function(resolve, reject) {
+			$http.delete(requestURL).then(function(response) {
+				resolve();
+			}, function(response) {
+				if (!response || !response.data) {
+					reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:default_error] %>"));
+
+					return;
+				}
+
+				reject(new Error("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:error_prefix] %> " + response.data));
+			});
+		}).then(function() {
+			viewModel.deleteAllProvProfileProgress.success();
+
+			loadProvProfiles();
+		}, function(error) {
+			viewModel.deleteAllProvProfileProgress.error(error);
+		});
+	};
+
+	loadProvProfiles();
+
+});
+
+})();

@@ -25,12 +25,24 @@ configure :development do
 		return "mock/all_stacks_get_path.json"
 	end
 
-	def all_stacks_get_path
-		return "mock/all_stacks_get_path.json"
-	end
-
 	def stack_get_path
 		return "mock/stack_get_path.json"
+	end
+
+	def prov_profiles_get_path
+		return "mock/prov_profiles_get_path.json"
+	end
+
+	def prov_profiles_delete_path
+		return "mock/prov_profiles_delete_path.json"
+	end
+
+	def prov_profile_download_path
+		return "mock/prov_profile_download_path.json"
+	end
+
+	def prov_profile_delete_path
+		return "mock/prov_profile_delete_path.json"
 	end
 
 	def secrets_get_path
@@ -65,12 +77,24 @@ configure :build do
 		return data[:routes][:all_stacks_get]
 	end
 
-	def all_stacks_get_path
-		return "mock/all_stacks_get_path.json"
-	end
-
 	def stack_get_path
 		return data[:routes][:stack_get]
+	end
+
+	def prov_profiles_get_path
+		return data[:routes][:prov_profiles_get]
+	end
+
+	def prov_profiles_delete_path
+		return data[:routes][:prov_profiles_delete]
+	end
+
+	def prov_profile_download_path
+		return data[:routes][:prov_profile_download]
+	end
+
+	def prov_profile_delete_path
+		return data[:routes][:prov_profile_delete]
 	end
 
 	def secrets_get_path

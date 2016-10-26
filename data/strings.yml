@@ -98,6 +98,35 @@ code_signing:
     android:
       title: Hey, let me help with code signing!
       description: We've prepared a handy guide to help you with the signing of your Android app. Be glad that it's not as painful as for the iOS folks, but still, we like to look out for you. Hit the purple button on the right to teleport you to the tutorial! <a href='<url>' target="_blank">Check tutorial</a>
+  file_name: "Filename: "
+  prov_profile:
+    title: Provisioning Profile
+    load_progress:
+      in_progress: Loading, wait a sec...
+      default_error: Error loading Provisioning Profiles!
+      error_prefix: "Error loading Provisioning Profiles: "
+    download_progress:
+      in_progress: Preparing download, wait a sec...
+      default_error: Error downloading Provisioning Profile!
+      error_prefix: "Error downloading Provisioning Profile: "
+    delete_progress:
+      in_progress: Deleting, wait a sec...
+      default_error: Error deleting Provisioning Profile!
+      error_prefix: "Error deleting Provisioning Profile: "
+    no_filename: No title for Provisioning Profile
+    download: Download
+    delete: Delete
+    add: + Add Provisioning Profile
+    delete_all: Delete all
+    upload: "Upload the Provisioning Profile:"
+    upload_instructions: Click here or Drag&Drop to upload
+    upload_progress:
+      in_progress: "Uploading, wait a sec..."
+      success: "Provisioning Profile uploaded!"
+    delete_all_progress:
+      in_progress: Deleting, wait a sec...
+      default_error: Error deleting Provisioning Profiles!
+      error_prefix: "Error deleting Provisioning Profiles: "
 secrets:
   title: Secret Environment Variables
   load_progress:
