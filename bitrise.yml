@@ -1,55 +1,102 @@
-format_version: 1.3.1
+format_version: 1.3.0
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
-app:
-  envs: []
-
-trigger_map:
-- pattern: test**
-  is_pull_request_allowed: true
-  workflow: test
-- pattern: "*"
-  is_pull_request_allowed: true
-  workflow: fallback
-
 workflows:
+  ci:
+    before_run:
+    - _install_test_tools
+    - test
+
+  install:
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            go install
+
+  deps-update:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            rm -rf ./vendor
+            rm -rf ./Godeps
+            go get -u github.com/tools/godep
+            godep version
+            go get -t -d ./...
+            go get github.com/Sirupsen/logrus
+            go get golang.org/x/sys/unix
+            go get github.com/bitrise-io/envman/models
+            go get github.com/bitrise-io/stepman/models
+            go get github.com/ryanuber/go-glob
+            godep save ./...
+
+  assets-precompile:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            go get github.com/GeertJohan/go.rice/rice
+            cd ./editor
+            rice embed-go
+
+  _install_test_tools:
+    steps:
+    - script:
+        title: Install required testing tools
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # Check for unhandled errors
+            go get -u github.com/kisielk/errcheck
+            # Go lint
+            go get -u github.com/golang/lint/golint
+
   test:
-    description: |-
-      You can use this workflow by running: bitrise run test
-      Or by triggering: bitrise trigger test
-      If you use trigger, you can trigger it with any pattern
-        which starts with 'test', like: bitrise trigger test-1
-        or: bitrise trigger test/1
-      You can define the mapping between trigger patterns and
-        workflows in the 'trigger_map' section.
     steps:
-    - timestamp:
-        outputs:
-        - UNIX_TIMESTAMP:
-        - ISO_DATETIME:
     - script:
-        title: Hello Bitrise!
+        title: GOLIST_WITHOUT_VENDOR
+        inputs:
+        - content: |-
+            set -ex
+            no_vendor_paths="$(go list ./... | grep -v vendor)"
+            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
+    - script:
+        title: Go Test
         inputs:
         - content: |-
             #!/bin/bash
-            echo "Welcome to Bitrise!"
-            echo "Current time is: ${ISO_DATETIME}"
-            echo
-            echo "Your specified Project Title is: ${BITRISE_APP_TITLE}"
-            echo " and the primary development branch is: ${BITRISE_DEV_BRANCH}"
-  fallback:
-    description: |-
-      This is a fallback workflow. As defined in the 'trigger_map' section
-      this workflow will be selected in any case if you run 'bitrise trigger'
-      with any pattern which does not match any other in
-      the 'tigger_map' definition. For example 'bitrise trigger my-custom-pattern'
-      or 'bitrise trigger my/custom/pattern' will both select this workflow.
-    steps:
+            set -ex
+            # go test $GOLIST_WITHOUT_VENDOR
+            go test ./...
     - script:
-        title: Fallback
+        title: Go Vet
         inputs:
         - content: |-
             #!/bin/bash
-            echo "This is a the fallback workflow, used"
-            echo " if you 'bitrise trigger' a build but the pattern"
-            echo " does not match any other pattern in the trigger_map"
+            set -ex
+            go vet $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Err check
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Go Lint
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # lint
+            while read -r line; do
+              golint -set_exit_status $line
+            done <<< "$GOLIST_WITHOUT_VENDOR"
