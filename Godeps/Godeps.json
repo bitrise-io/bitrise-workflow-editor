@@ -1,0 +1,68 @@
+{
+	"ImportPath": "github.com/bitrise-io/bitrise-workflow-editor",
+	"GoVersion": "go1.7",
+	"GodepVersion": "v74",
+	"Packages": [
+		"./..."
+	],
+	"Deps": [
+		{
+			"ImportPath": "github.com/Sirupsen/logrus",
+			"Comment": "v0.10.0-38-g3ec0642",
+			"Rev": "3ec0642a7fb6488f65b06f9040adc67e3990296a"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/bitrise/models",
+			"Comment": "1.4.3",
+			"Rev": "447b82d1967b5fdab339b2e00d3d495cba90202b"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/envman/models",
+			"Comment": "1.1.1",
+			"Rev": "d1c4f5bdab06ba1927460f9cbbac6eab5d337912"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
+			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/httputil",
+			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/parseutil",
+			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/pathutil",
+			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/pointers",
+			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/stepman/models",
+			"Comment": "0.9.25",
+			"Rev": "e846365e3da66b3c985f610bc61e9c4e8d3f4d3f"
+		},
+		{
+			"ImportPath": "github.com/gorilla/mux",
+			"Comment": "v1.1-27-g757bef9",
+			"Rev": "757bef944d0f21880861c2dd9c871ca543023cba"
+		},
+		{
+			"ImportPath": "github.com/ryanuber/go-glob",
+			"Comment": "v0.1",
+			"Rev": "572520ed46dbddaed19ea3d9541bdd0494163693"
+		},
+		{
+			"ImportPath": "golang.org/x/sys/unix",
+			"Rev": "c200b10b5d5e122be351b67af224adc6128af5bf"
+		},
+		{
+			"ImportPath": "gopkg.in/yaml.v2",
+			"Rev": "a5b47d31c556af34a302ce5d659e6fea44d90de0"
+		}
+	]
+}
