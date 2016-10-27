@@ -1,20 +1,24 @@
 package apiserver
 
 import (
+	"encoding/json"
 	"fmt"
 	"log"
 	"net/http"
 	"os"
 	"time"
 
+	yaml "gopkg.in/yaml.v2"
+
 	"io/ioutil"
 
+	"github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/httputil"
 	"github.com/gorilla/mux"
 )
 
-const defaultPort = "3654"
+const defaultPort = "3645"
 
 // SimpleResponse ...
 type SimpleResponse struct {
@@ -36,9 +40,39 @@ func loadBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 	contStr, err := fileutil.ReadStringFromFile("./bitrise.yml")
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
+		return
 	}
 
 	respondWithJSON(w, 200, LoadBitriseYMLModel{BitriseYML: contStr})
+}
+
+func loadBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println()
+	log.Println("=> Request")
+	if r.Method != "GET" {
+		respondWithErrorMessage(w, "Invalid method, only GET is accepted")
+		return
+	}
+
+	type LoadBitriseYMLModel struct {
+		BitriseYML models.BitriseDataModel `json:"bitrise_yml"`
+	}
+
+	contStr, err := fileutil.ReadBytesFromFile("./bitrise.yml")
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
+		return
+	}
+
+	var yamlContObj models.BitriseDataModel
+	if err := yaml.Unmarshal(contStr, &yamlContObj); err != nil {
+		respondWithErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	log.Printf("yamlContObj: %#v", yamlContObj)
+
+	respondWithJSON(w, 200, LoadBitriseYMLModel{BitriseYML: yamlContObj})
 }
 
 func saveBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
@@ -69,6 +103,43 @@ func saveBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
 }
 
+func saveBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
+	fmt.Println()
+	log.Println("=> Request")
+	if r.Method != "POST" {
+		respondWithErrorMessage(w, "Invalid method, only POST is accepted")
+		return
+	}
+
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Println(" [!] Failed to close request body, error: ", err)
+		}
+	}()
+
+	type RequestModel struct {
+		BitriseYML models.BitriseDataModel `json:"bitrise_yml"`
+	}
+	var reqObj RequestModel
+	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
+		respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
+		return
+	}
+
+	contAsYAML, err := yaml.Marshal(reqObj.BitriseYML)
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
+		return
+	}
+
+	if err := fileutil.WriteBytesToFile("./bitrise.yml", contAsYAML); err != nil {
+		respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
+}
+
 // LaunchServer ...
 func LaunchServer() error {
 	port := envString("PORT", defaultPort)
@@ -87,8 +158,12 @@ func setupRoutes() {
 	//
 	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(loadBitriseYMLHandler)).
 		Methods("GET")
+	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(loadBitriseYMLAsJSONHandler)).
+		Methods("GET")
 	//
 	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(saveBitriseYMLHandler)).
+		Methods("POST")
+	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(saveBitriseYMLFromJSONHandler)).
 		Methods("POST")
 	//
 	r.HandleFunc("/", WrapHandlerFunc(rootHandler)).
