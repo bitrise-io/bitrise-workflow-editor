@@ -79,7 +79,7 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 		popup[model="editorCtrl.workflowEnvVarsPopup"]
 			.popup-body-manage-workflow-env-vars.vertical-scroll.white
 				p.progress-indicator[progress-model="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress"]
-				ng-include[ng-if="editorCtrl.workflowEnvVarsPopup.isVisible" src="'#{ data[:routes][:env_var_editor_template] }'" onload="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress.success()"]
+				ng-include[ng-if="editorCtrl.workflowEnvVarsPopup.isVisible" src="'#{ environment_dependent_path(data[:routes][:env_var_editor_template]) }'" onload="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress.success()"]
 		popup[model="editorCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:editor][:add_workflow][:specify_id]

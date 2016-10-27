@@ -27,7 +27,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 	function getAllStacks() {
 		var appSlug = $location.search().app_slug;
 		var apiToken = $location.search().api_token;
-		var requestURL = routeHelper.replacedRoute("<%= all_stacks_get_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:all_stacks_get] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});
@@ -54,7 +54,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 	function getStack() {
 		var appSlug = $location.search().app_slug;
 		var apiToken = $location.search().api_token;
-		var requestURL = routeHelper.replacedRoute("<%= stack_get_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:stack_get] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});

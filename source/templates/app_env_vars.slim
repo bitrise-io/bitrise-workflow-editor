@@ -1,4 +1,4 @@
 article.app-env-vars[ng-controller="AppEnvVarsController as appEnvVarsCtrl"]
 	p.progress-indicator[progress-model="appEnvVarsCtrl.loadAppEnvVarsProgress"]
 	p.progress-indicator[progress-model="appEnvVarsCtrl.loadTemplateProgress"]
-	ng-include[ng-show="appEnvVarsCtrl.loadTemplateProgress.isIdle" src="'#{ data[:routes][:env_var_editor_template] }'" onload="appEnvVarsCtrl.loadTemplateProgress.success()"]
+	ng-include[ng-show="appEnvVarsCtrl.loadTemplateProgress.isIdle" src="'#{ environment_dependent_path(data[:routes][:env_var_editor_template]) }'" onload="appEnvVarsCtrl.loadTemplateProgress.success()"]

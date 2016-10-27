@@ -10,27 +10,27 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.menus = [{
 		title: "<%= data.strings[:main][:menus][0] %>",
-		path: "<%= data[:routes][:editor] %>",
+		path: "<%= environment_dependent_path(data[:routes][:editor]) %>",
 		cssClass: "editor"
 	}, {
 		title: "<%= data.strings[:main][:menus][1] %>",
-		path: "<%= data[:routes][:code_signing] %>",
+		path: "<%= environment_dependent_path(data[:routes][:code_signing]) %>",
 		cssClass: "code-signing"
 	}, {
 		title: "<%= data.strings[:main][:menus][2] %>",
-		path: "<%= data[:routes][:secrets] %>",
+		path: "<%= environment_dependent_path(data[:routes][:secrets]) %>",
 		cssClass: "secrets"
 	}, {
 		title: "<%= data.strings[:main][:menus][3] %>",
-		path: "<%= data[:routes][:app_env_vars] %>",
+		path: "<%= environment_dependent_path(data[:routes][:app_env_vars]) %>",
 		cssClass: "env-vars"
 	}, {
 		title: "<%= data.strings[:main][:menus][4] %>",
-		path: "<%= data[:routes][:triggers] %>",
+		path: "<%= environment_dependent_path(data[:routes][:triggers]) %>",
 		cssClass: "triggers"
 	}, {
 		title: "<%= data.strings[:main][:menus][5] %>",
-		path: "<%= data.routes.yml %>",
+		path: "<%= environment_dependent_path(data[:routes][:yml]) %>",
 		cssClass: "yml"
 	}];
 	viewModel.selectedMenu;
@@ -63,7 +63,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "website":
 					var appSlug = $location.search().app_slug;
 					var apiToken = $location.search().api_token;
-					var requestURL = routeHelper.replacedRoute("<%= app_config_get_path %>", {
+					var requestURL = routeHelper.replacedRoute("<%= data[:routes][:app_config_get] %>", {
 						app_slug: appSlug,
 						api_token: apiToken
 					});

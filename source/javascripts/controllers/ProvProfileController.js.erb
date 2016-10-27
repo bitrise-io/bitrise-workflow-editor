@@ -21,7 +21,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	function loadProvProfiles() {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
 
-		var requestURL = routeHelper.replacedRoute("<%= prov_profiles_get_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profiles_get] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});
@@ -76,7 +76,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 		viewModel.selectedProvProfile = provProfile;
 
-		var requestURL = routeHelper.replacedRoute("<%= prov_profile_download_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profile_download] %>", {
 			prov_profile_id: provProfile.id,
 			api_token: apiToken
 		});
@@ -109,7 +109,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 		viewModel.selectedProvProfile = provProfile;
 
-		var requestURL = routeHelper.replacedRoute("<%= prov_profile_delete_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profile_delete] %>", {
 			prov_profile_id: provProfile.id,
 			api_token: apiToken
 		});
@@ -153,7 +153,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.deleteAllProvProfilesSelected = function() {
 		viewModel.deleteAllProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
 
-		var requestURL = routeHelper.replacedRoute("<%= prov_profiles_delete_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profiles_delete] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});
