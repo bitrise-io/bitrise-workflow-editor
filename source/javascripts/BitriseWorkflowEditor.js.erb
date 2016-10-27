@@ -22,53 +22,42 @@ BitriseWorkflowEditor.config(function($locationProvider) {
 
 BitriseWorkflowEditor.config(function($routeProvider) {
 
-	var routes = [{
-		endpoints: ["", "/"],
-		configuration: {
-			redirectTo: "/editor"
-		}
-	}, {
-		endpoints: ["<%= environment_dependent_path(data[:routes][:editor]) %>"],
-		configuration: {
-			templateUrl: "<%= environment_dependent_path(data[:routes][:editor_template]) %>"
-		}
-	}, {
-		endpoints: ["<%= environment_dependent_path(data[:routes][:code_signing]) %>"],
-		configuration: {
-			templateUrl: "<%= environment_dependent_path(data[:routes][:code_signing_template]) %>"
-		}
-	}, {
-		endpoints: ["<%= environment_dependent_path(data[:routes][:secrets]) %>"],
-		configuration: {
-			templateUrl: "<%= environment_dependent_path(data[:routes][:secrets_template]) %>",
-		}
-	}, {
-		endpoints: ["<%= environment_dependent_path(data[:routes][:app_env_vars]) %>"],
-		configuration: {
-			templateUrl: "<%= environment_dependent_path(data[:routes][:app_env_vars_template]) %>",
-		}
-	}, {
-		endpoints: ["<%= environment_dependent_path(data[:routes][:triggers]) %>"],
-		configuration: {
-			templateUrl: "<%= environment_dependent_path(data[:routes][:triggers_template]) %>",
-		}
-	}, {
-		endpoints: ["<%= environment_dependent_path(data[:routes][:yml]) %>"],
-		configuration: {
-			templateUrl: "<%= environment_dependent_path(data[:routes][:yml_template]) %>"
-		}
-	}];
-
-	var defaultRoute = routes[0];
-	var defaultEndpoint = routes[0].endpoints[0];
-
-	_.each(routes, function(aRoute) {
-		_.each(aRoute.endpoints, function(anEndpoint) {
-			$routeProvider.when(anEndpoint, aRoute.configuration);
-		});
+	$routeProvider.when("", {
+		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>"
 	});
 
-	$routeProvider.otherwise(defaultEndpoint, defaultRoute.configuration);
+	$routeProvider.when("/", {
+		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>"
+	});
+
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:editor]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:editor]) %>"
+	});
+
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:code_signing]) %>"
+	});
+
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:secrets]) %>",
+	});
+
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:app_env_vars]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:app_env_vars]) %>",
+	});
+
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:triggers]) %>",
+	});
+
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:yml]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:yml]) %>"
+	});
+
+
+	$routeProvider.otherwise("", {
+		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>"
+	});
 
 });
 

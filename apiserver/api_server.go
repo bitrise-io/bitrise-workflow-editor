@@ -5,6 +5,8 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"net/http/httputil"
+	"net/url"
 	"os"
 	"time"
 
@@ -14,11 +16,12 @@ import (
 
 	"github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/fileutil"
-	"github.com/bitrise-io/go-utils/httputil"
+	bitriseHTTPUtil "github.com/bitrise-io/go-utils/httputil"
 	"github.com/gorilla/mux"
 )
 
 const defaultPort = "3645"
+const defaultFrontendPort = "4567"
 
 // SimpleResponse ...
 type SimpleResponse struct {
@@ -26,63 +29,111 @@ type SimpleResponse struct {
 }
 
 func loadBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println()
-	log.Println("=> Request")
-	if r.Method != "GET" {
-		respondWithErrorMessage(w, "Invalid method, only GET is accepted")
-		return
-	}
-
-	type LoadBitriseYMLModel struct {
-		BitriseYML string `json:"bitrise_yml"`
-	}
-
 	contStr, err := fileutil.ReadStringFromFile("./bitrise.yml")
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
 		return
 	}
 
-	respondWithJSON(w, 200, LoadBitriseYMLModel{BitriseYML: contStr})
+	w.Header().Set("Content-Type", "text/yaml")
+	w.WriteHeader(200)
+	if _, err := w.Write([]byte(contStr)); err != nil {
+		log.Println(" [!] Exception: Failed to write YAML response: Error: ", err)
+	}
 }
 
 func loadBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println()
-	log.Println("=> Request")
-	if r.Method != "GET" {
-		respondWithErrorMessage(w, "Invalid method, only GET is accepted")
-		return
-	}
-
 	type LoadBitriseYMLModel struct {
 		BitriseYML models.BitriseDataModel `json:"bitrise_yml"`
 	}
 
-	contStr, err := fileutil.ReadBytesFromFile("./bitrise.yml")
+	contBytes, err := fileutil.ReadBytesFromFile("./bitrise.yml")
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
 		return
 	}
 
 	var yamlContObj models.BitriseDataModel
-	if err := yaml.Unmarshal(contStr, &yamlContObj); err != nil {
+	if err := yaml.Unmarshal(contBytes, &yamlContObj); err != nil {
 		respondWithErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
 		return
 	}
 
-	log.Printf("yamlContObj: %#v", yamlContObj)
-
 	respondWithJSON(w, 200, LoadBitriseYMLModel{BitriseYML: yamlContObj})
 }
 
-func saveBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println()
-	log.Println("=> Request")
-	if r.Method != "POST" {
-		respondWithErrorMessage(w, "Invalid method, only POST is accepted")
+func defaultOutputsHandler(w http.ResponseWriter, r *http.Request) {
+	type EnvItmModel map[string]string
+
+	type ResponseModel struct {
+		FromBitriseCLI []EnvItmModel `json:"from_bitrise_cli"`
+	}
+
+	respondWithJSON(w, 200, ResponseModel{
+		FromBitriseCLI: []EnvItmModel{
+			{"BITRISE_SOURCE_DIR": ""},
+			{"BITRISE_DEPLOY_DIR": ""},
+			{"BITRISE_BUILD_STATUS": ""},
+			{"BITRISE_TRIGGERED_WORKFLOW_ID": ""},
+			{"BITRISE_TRIGGERED_WORKFLOW_TITLE": ""},
+			{"CI": ""},
+			{"PR": ""},
+		},
+	})
+}
+
+// EnvItmModel ...
+type EnvItmModel map[string]string
+
+// SecretsModel ...
+type SecretsModel struct {
+	Envs []EnvItmModel `json:"envs"`
+}
+
+func loadSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
+	contBytes, err := fileutil.ReadBytesFromFile("./.bitrise.secrets.yml")
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to read content of .bitrise.secrets.yml file, error: %s", err)
 		return
 	}
 
+	var respObj SecretsModel
+	if err := yaml.Unmarshal(contBytes, &respObj); err != nil {
+		respondWithErrorMessage(w, "Failed to parse the content of .bitrise.secrets.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, respObj)
+}
+
+func saveSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Println(" [!] Failed to close request body, error: ", err)
+		}
+	}()
+
+	var reqObj SecretsModel
+	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
+		respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
+		return
+	}
+
+	contAsYAML, err := yaml.Marshal(reqObj)
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
+		return
+	}
+
+	if err := fileutil.WriteBytesToFile("./.bitrise.secrets.yml", contAsYAML); err != nil {
+		respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
+}
+
+func saveBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 	defer func() {
 		if err := r.Body.Close(); err != nil {
 			log.Println(" [!] Failed to close request body, error: ", err)
@@ -104,13 +155,6 @@ func saveBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func saveBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Println()
-	log.Println("=> Request")
-	if r.Method != "POST" {
-		respondWithErrorMessage(w, "Invalid method, only POST is accepted")
-		return
-	}
-
 	defer func() {
 		if err := r.Body.Close(); err != nil {
 			log.Println(" [!] Failed to close request body, error: ", err)
@@ -166,10 +210,23 @@ func setupRoutes() {
 	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(saveBitriseYMLFromJSONHandler)).
 		Methods("POST")
 	//
-	r.HandleFunc("/", WrapHandlerFunc(rootHandler)).
+	r.HandleFunc("/api/default-outputs", WrapHandlerFunc(defaultOutputsHandler)).
 		Methods("GET")
 	//
-	r.NotFoundHandler = http.HandlerFunc(WrapHandlerFunc(routeNotFoundHandler))
+	r.HandleFunc("/api/secrets", WrapHandlerFunc(loadSecretsAsJSONHandler)).
+		Methods("GET")
+	//
+	r.HandleFunc("/api/secrets", WrapHandlerFunc(saveSecretsYMLFromJSONHandler)).
+		Methods("POST")
+	//
+
+	//
+	// Anything else: pass to the frontend
+	frontendServerPort := envString("FRONTEND_PORT", defaultFrontendPort)
+	log.Printf("Starting reverse proxy for frontend => http://localhost:%s", frontendServerPort)
+	u, _ := url.Parse("http://localhost:" + frontendServerPort + "/")
+	r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
+
 	//
 	http.Handle("/", r)
 }
@@ -183,7 +240,7 @@ func routeNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func getContentTypeFromHeader(header http.Header) string {
-	contentType, err := httputil.GetSingleValueFromHeader("Content-Type", header)
+	contentType, err := bitriseHTTPUtil.GetSingleValueFromHeader("Content-Type", header)
 	if err != nil {
 		return ""
 	}

@@ -62,7 +62,7 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 									input[type="checkbox" ng-model="input.isExpand" id="{{ id }}"]
 									label[for="{{ id }}"]
 										span == data[:strings][:editor][:inputs][:replace_variables_in_input]
-										em == string_with_urls(data[:strings][:editor][:inputs][:replace_variables_in_input_learn_more], [data[:routes][:devcenter_step_inputs]])
+										em == string_with_urls(data[:strings][:editor][:inputs][:replace_variables_in_input_learn_more], [data[:routes][:devcenter][:step_inputs]])
 								button[ng-if="input != editorCtrl.selectedInput" ng-click="editorCtrl.inputSelected(input)"]
 									span.title[ng-bind="input.title + ':'"]
 									span.key[ng-bind="input | prettifiedVariableKey"]
@@ -79,7 +79,7 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 		popup[model="editorCtrl.workflowEnvVarsPopup"]
 			.popup-body-manage-workflow-env-vars.vertical-scroll.white
 				p.progress-indicator[progress-model="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress"]
-				ng-include[ng-if="editorCtrl.workflowEnvVarsPopup.isVisible" src="'#{ environment_dependent_path(data[:routes][:env_var_editor_template]) }'" onload="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress.success()"]
+				ng-include[ng-if="editorCtrl.workflowEnvVarsPopup.isVisible" src="'#{ template_path(data[:routes][:templates][:env_var_editor]) }'" onload="editorCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress.success()"]
 		popup[model="editorCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:editor][:add_workflow][:specify_id]

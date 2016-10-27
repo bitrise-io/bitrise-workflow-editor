@@ -162,18 +162,6 @@ yml:
     loading: Loading, wait a sec...
     default_error: Error loading YML.
     error_prefix: "Error loading YML:"
-workflow:
-  configure_error_prefix: "Error configuring Workflow: "
-step:
-  append_error_prefix: "Error configuring Step: "
-variable:
-  append_error_prefix: "Error configuring variable: "
-  no_main_key_found: No main key found.
-  only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
-  main_key_mismatch: Main key mismatch.
-trigger:
-  configure_error_prefix: "Error configuring Trigger: "
-  missing_type: "Trigger type missing."
 env_var_editor:
   template_load_inprogress: Loading, wait a sec...
   add_new: Add new
@@ -189,6 +177,20 @@ env_var_editor:
   replace_variables_description: "Enable this if you want to replace Environment Variables in your input with the variable's assigned value."
   replace_variables_more_info: "More info"
   delete_env_var: "Delete"
+workflow:
+  configure_error_prefix: "Error configuring Workflow: "
+step:
+  append_error_prefix: "Error configuring Step: "
+variable:
+  append_error_prefix: "Error configuring variable: "
+  no_main_key_found: No main key found.
+  only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
+  main_key_mismatch: Main key mismatch.
+trigger:
+  configure_error_prefix: "Error configuring Trigger: "
+  missing_type: "Trigger type missing."
+mode_service:
+  invalid_mode: Invalid mode!
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

@@ -17,5 +17,5 @@
 		input#env-var-editor-key-input[type="checkbox" ng-model="envVarsCtrl.selectedEnvVar.isExpand" placeholder="#{ data[:strings][:env_var_editor][:value_placeholder] }"]
 		p
 			span == data[:strings][:env_var_editor][:replace_variables_description]
-			a<[href="#{ data[:routes][:devcenter_step_inputs] }" target="_blank"] == data[:strings][:env_var_editor][:replace_variables_more_info]
+			a<[href="#{ data[:routes][:devcenter][:step_inputs] }" target="_blank"] == data[:strings][:env_var_editor][:replace_variables_more_info]
 		button.delete-env-var[ng-click="envVarsCtrl.deleteSelectedEnvVar()"] == data[:strings][:env_var_editor][:delete_env_var]

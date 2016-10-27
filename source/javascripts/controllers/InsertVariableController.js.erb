@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($q, $http, $timeout, $location, routeHelper, Progress, Popup, Variable) {
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($q, $timeout, Progress, Popup, Variable) {
 
 	var viewModel = this;
 
@@ -102,69 +102,31 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 	}, 0);
 
 	function loadDefaultOutputs() {
-		var appSlug = $location.search().app_slug;
-		var apiToken = $location.search().api_token;
-		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:default_outputs_get] %>", {
-			app_slug: appSlug,
-			api_token: apiToken
-		});
-
-		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
-				_.each(response.data, function(defaultOutputConfigs, sourceID) {
-					var defaultOutputsOfSource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-						return variablesOfSource.source.id == sourceID;
-					});
-
-					defaultOutputsOfSource.variables = [];
-					_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
-						var defaultOutput = Variable.createFromVariableConfig(aDefaultOutputConfig);
-						defaultOutputsOfSource.variables.push(defaultOutput);
-					});
+		return requestService.getDefaultOutputs().then(function(defaultOutputConfigsBySource) {
+			_.each(defaultOutputConfigsBySource, function(defaultOutputConfigs, sourceID) {
+				var defaultOutputsOfSource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+					return variablesOfSource.source.id == sourceID;
 				});
 
-				resolve();
-			}, function(response) {
-				if (!response || !response.data) {
-					reject(new Error("<%= data.strings.editor.default_outputs.load_default_error %>"));
-
-					return;
-				}
-
-				reject(new Error("<%= data.strings.editor.default_outputs.load_error_prefix %> " + response.data));
+				defaultOutputsOfSource.variables = [];
+				_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
+					var defaultOutput = Variable.createFromVariableConfig(aDefaultOutputConfig);
+					defaultOutputsOfSource.variables.push(defaultOutput);
+				});
 			});
 		});
 	};
 
 	function loadSecrets() {
-		var appSlug = $location.search().app_slug;
-		var apiToken = $location.search().api_token;
-		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:secrets_get] %>", {
-			app_slug: appSlug,
-			api_token: apiToken
-		});
+		return requestService.getSecrets().then(function(secretConfigs) {
+			var secretsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_secrets";
+			});
 
-		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
-				var secretsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-					return variablesOfSource.source.id == "from_secrets";
-				});
-
-				secretsBySource.variables = [];
-				_.each(response.data.envs, function(aSecretConfig) {
-					var secret = Variable.createFromVariableConfig(aSecretConfig);
-					secretsBySource.variables.push(secret);
-				});
-
-				resolve();
-			}, function(response) {
-				if (!response || !response.data) {
-					reject(new Error("<%= data[:strings][:secrets][:load_progress][:default_error] %>"));
-
-					return;
-				}
-
-				reject(new Error("<%= data[:strings][:secrets][:load_progress][:error_prefix] %> " + response.data));
+			secretsBySource.variables = [];
+			_.each(secretConfigs, function(aSecretConfig) {
+				var secret = Variable.createFromVariableConfig(aSecretConfig);
+				secretsBySource.variables.push(secret);
 			});
 		});
 	};

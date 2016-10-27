@@ -1,30 +1,38 @@
-editor: /editor
-code_signing: /code_signing
-secrets: /secrets
-app_env_vars: /app_env_vars
-triggers: /triggers
-yml: /yml
-editor_template: /templates/editor
-code_signing_template: /templates/code_signing
-secrets_template: /templates/secrets
-app_env_vars_template: /templates/app_env_vars
-triggers_template: /templates/triggers
-yml_template: /templates/yml
-env_var_editor_template: /templates/env_var_editor
-app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
-app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
-default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
-all_stacks_get: /api/app/<app_slug>/all_stack_info.json?api_token=<api_token>
-secrets_get: /api/app/<app_slug>/secrets.json?api_token=<api_token>
-prov_profiles_get: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
-prov_profiles_delete: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
-prov_profile_download:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
-prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
-yml_get:  /api/app/<app_slug>/config.yml?api_token=<api_token>
-yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
-devcenter_step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
-devcenter_trigger_map: https://bitrise-io.github.io/devcenter/webhooks/trigger-map/
-devcenter_bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
-devcenter_codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
-devcenter_xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
-devcenter_apk: https://bitrise-io.github.io/devcenter/tutorials/create-signed-apk-on-bitrise/
+endpoints:
+  editor: /editor
+  code_signing: /code_signing
+  secrets: /secrets
+  app_env_vars: /app_env_vars
+  triggers: /triggers
+  yml: /yml
+templates:
+  editor: /templates/editor
+  code_signing: /templates/code_signing
+  secrets: /templates/secrets
+  app_env_vars: /templates/app_env_vars
+  triggers: /templates/triggers
+  yml: /templates/yml
+  env_var_editor: /templates/env_var_editor
+website:
+  app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
+  app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
+  default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
+  all_stacks_get: /api/app/<app_slug>/all_stack_info.json?api_token=<api_token>
+  secrets_get: /api/app/<app_slug>/secrets.json?api_token=<api_token>
+  prov_profiles_get: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
+  prov_profiles_delete: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
+  prov_profile_download:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
+  prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
+  yml_get:  /api/app/<app_slug>/config.yml?api_token=<api_token>
+  yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
+local_server:
+  app_config_get: /api/bitrise-yml.json
+  default_outputs_get: /api/default-outputs
+  secrets_get: /api/secrets
+devcenter:
+  step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
+  trigger_map: https://bitrise-io.github.io/devcenter/webhooks/trigger-map/
+  bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
+  codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
+  xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
+  apk: https://bitrise-io.github.io/devcenter/tutorials/create-signed-apk-on-bitrise/

@@ -2,35 +2,33 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $location, $q, $http, routeHelper, communicationHelper, bitriseSteplibService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $q, $http, requestService, communicationHelper, bitriseSteplibService, Progress, Popup) {
 
 	var viewModel = this;
 
-	viewModel.mode = $location.search().mode;
-
 	viewModel.menus = [{
-		title: "<%= data.strings[:main][:menus][0] %>",
-		path: "<%= environment_dependent_path(data[:routes][:editor]) %>",
+		title: "<%= data[:strings][:main][:menus][0] %>",
+		path: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>",
 		cssClass: "editor"
 	}, {
-		title: "<%= data.strings[:main][:menus][1] %>",
-		path: "<%= environment_dependent_path(data[:routes][:code_signing]) %>",
+		title: "<%= data[:strings][:main][:menus][1] %>",
+		path: "<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>",
 		cssClass: "code-signing"
 	}, {
-		title: "<%= data.strings[:main][:menus][2] %>",
-		path: "<%= environment_dependent_path(data[:routes][:secrets]) %>",
+		title: "<%= data[:strings][:main][:menus][2] %>",
+		path: "<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>",
 		cssClass: "secrets"
 	}, {
-		title: "<%= data.strings[:main][:menus][3] %>",
-		path: "<%= environment_dependent_path(data[:routes][:app_env_vars]) %>",
+		title: "<%= data[:strings][:main][:menus][3] %>",
+		path: "<%= endpoint_path(data[:routes][:endpoints][:app_env_vars]) %>",
 		cssClass: "env-vars"
 	}, {
-		title: "<%= data.strings[:main][:menus][4] %>",
-		path: "<%= environment_dependent_path(data[:routes][:triggers]) %>",
+		title: "<%= data[:strings][:main][:menus][4] %>",
+		path: "<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>",
 		cssClass: "triggers"
 	}, {
-		title: "<%= data.strings[:main][:menus][5] %>",
-		path: "<%= environment_dependent_path(data[:routes][:yml]) %>",
+		title: "<%= data[:strings][:main][:menus][5] %>",
+		path: "<%= endpoint_path(data[:routes][:endpoints][:yml]) %>",
 		cssClass: "yml"
 	}];
 	viewModel.selectedMenu;
@@ -42,9 +40,18 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.loadProgress = new Progress();
 
 	function load() {
-		viewModel.loadProgress.start("<%= data.strings.main.load_progress.loading %>");
+		viewModel.loadProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		return $q.all([loadBitriseSteplib(), loadAppConfig()]).then(function() {
+		try {
+			requestService.configureMode();
+		}
+		catch (error) {
+			viewModel.loadProgress.error(error);
+
+			return;
+		}
+
+		$q.all([loadBitriseSteplib(), loadAppConfig()]).then(function() {
 			viewModel.loadProgress.success();
 		}, function(error) {
 			viewModel.loadProgress.error(error);
@@ -58,36 +65,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	}
 
 	function loadAppConfig() {
-		return $q(function(resolve, reject) {
-			switch (viewModel.mode) {
-				case "website":
-					var appSlug = $location.search().app_slug;
-					var apiToken = $location.search().api_token;
-					var requestURL = routeHelper.replacedRoute("<%= data[:routes][:app_config_get] %>", {
-						app_slug: appSlug,
-						api_token: apiToken
-					});
-
-					$http.get(requestURL).then(function(response) {
-						appConfig = response.data;
-						savedAppConfig = angular.copy(appConfig);
-
-						resolve();
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data.strings.main.app_config.load_default_error %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data.strings.main.app_config.load_error_prefix %> " + response.data));
-					});
-
-					break;
-				default:
-					resolve();
-			}
-		}).then(function() {
+		return requestService.getAppConfig().then(function(_appConfig) {
+			appConfig = _appConfig;
+			savedAppConfig = angular.copy(appConfig);
 			communicationHelper.addMessage("appConfigLoaded", appConfig);
 		});
 	}
@@ -105,6 +85,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	});
 
 	viewModel.discardChanges = function() {
+		// TODO: implement
+		console.log("discardChanges called");
 		appConfig = angular.copy(savedAppConfig);
 	};
 

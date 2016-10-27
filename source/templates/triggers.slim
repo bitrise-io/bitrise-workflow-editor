@@ -1,7 +1,7 @@
 article.triggers[ng-controller="TriggersController as triggersCtrl"]
 	h2
 		span == data[:strings][:triggers][:title]
-		a<[href="#{ data[:routes][:devcenter_trigger_map] }" target="_blank"] == data[:strings][:triggers][:trigger_guide]
+		a<[href="#{ data[:routes][:devcenter][:trigger_map] }" target="_blank"] == data[:strings][:triggers][:trigger_guide]
 	ul[order-by-drag="{models: triggersCtrl.triggers, draggableSelector: ':not(.no-trigger)'}"]
 		li[ng-repeat="trigger in triggersCtrl.triggers.concat(null)" ng-class="{'no-trigger': trigger == null}"]
 			button.add-trigger[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index)" ng-if="triggersCtrl.newTriggerIndex !== $index"] == data[:strings][:triggers][:add]
