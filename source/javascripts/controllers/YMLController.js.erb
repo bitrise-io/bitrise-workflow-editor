@@ -11,7 +11,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($q,
 
 	viewModel.appConfigYML;
 	viewModel.loadAppConfigYMLProgress = new Progress();
-	viewModel.downloadAppConfigYMLPath = routeHelper.replacedRoute("<%= yml_download_path %>", {
+	viewModel.downloadAppConfigYMLPath = routeHelper.replacedRoute("<%= data[:routes][:yml_download] %>", {
 		app_slug: appSlug,
 		api_token: apiToken
 	});
@@ -19,7 +19,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($q,
 	function loadAppConfigYML() {
 		viewModel.loadAppConfigYMLProgress.start("<%= data[:strings][:yml][:load_progress][:loading] %>");
 
-		var requestURL = routeHelper.replacedRoute("<%= yml_get_path %>", {
+		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:yml_get] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});

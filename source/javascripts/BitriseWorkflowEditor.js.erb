@@ -28,34 +28,34 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 			redirectTo: "/editor"
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:editor] %>"],
+		endpoints: ["<%= environment_dependent_path(data[:routes][:editor]) %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:editor_template] %>"
+			templateUrl: "<%= environment_dependent_path(data[:routes][:editor_template]) %>"
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:code_signing] %>"],
+		endpoints: ["<%= environment_dependent_path(data[:routes][:code_signing]) %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:code_signing_template] %>"
+			templateUrl: "<%= environment_dependent_path(data[:routes][:code_signing_template]) %>"
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:secrets] %>"],
+		endpoints: ["<%= environment_dependent_path(data[:routes][:secrets]) %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:secrets_template] %>",
+			templateUrl: "<%= environment_dependent_path(data[:routes][:secrets_template]) %>",
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:app_env_vars] %>"],
+		endpoints: ["<%= environment_dependent_path(data[:routes][:app_env_vars]) %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:app_env_vars_template] %>",
+			templateUrl: "<%= environment_dependent_path(data[:routes][:app_env_vars_template]) %>",
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:triggers] %>"],
+		endpoints: ["<%= environment_dependent_path(data[:routes][:triggers]) %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:triggers_template] %>",
+			templateUrl: "<%= environment_dependent_path(data[:routes][:triggers_template]) %>",
 		}
 	}, {
-		endpoints: ["<%= data[:routes][:yml] %>"],
+		endpoints: ["<%= environment_dependent_path(data[:routes][:yml]) %>"],
 		configuration: {
-			templateUrl: "<%= data[:routes][:yml_template] %>"
+			templateUrl: "<%= environment_dependent_path(data[:routes][:yml_template]) %>"
 		}
 	}];
 
