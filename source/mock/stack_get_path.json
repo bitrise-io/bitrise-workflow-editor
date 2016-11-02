@@ -1,6 +1,0 @@
-{
-	"id": "osx-xcode-7.3",
-	"title": "Xcode 7.3.1, on OS X 10.11 (El Capitan) - LTS Stack",
-	"description_url": "https://github.com/bitrise-io/bitrise.io/blob/master/system_reports/osx-xcode-7.3.log",
-	"pre_installed_tools_url": "https://github.com/bitrise-io/bitrise.io/blob/master/system_reports/osx-xcode-7.3.log"
-}
