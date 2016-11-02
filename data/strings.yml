@@ -12,9 +12,6 @@ main:
   save: Save
   load_progress:
     loading: Loading, wait a sec...
-  app_config:
-    load_default_error: Error loading app config.
-    load_error_prefix: "Error loading app config:"
 editor:
   load_workflows_progress:
     in_progress: Loading workflows...
@@ -75,9 +72,6 @@ editor:
     no_description: No description for this output variable
   insertable_variables:
     load_progress: Loading insertable variables, wait a sec...
-  default_outputs:
-    load_default_error: Error loading default outputs.
-    load_error_prefix: "Error loading default outputs:"
 code_signing:
   load_supported_platforms_progress:
     loading: Loading, wait a sec...
@@ -129,10 +123,7 @@ code_signing:
       error_prefix: "Error deleting Provisioning Profiles: "
 secrets:
   title: Secret Environment Variables
-  load_progress:
-    loading: Loading secrets, wait a sec...
-    default_error: Error loading secrets.
-    error_prefix: "Error loading secrets:"
+  loading: Loading secrets, wait a sec...
   notification: "Note: Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
 app_env_vars:
   title: App Environment Variables
@@ -189,8 +180,17 @@ variable:
 trigger:
   configure_error_prefix: "Error configuring Trigger: "
   missing_type: "Trigger type missing."
-mode_service:
+request_service:
   invalid_mode: Invalid mode!
+  load_app_config:
+    default_error: Error loading app config.
+    error_prefix: "Error loading app config:"
+  load_default_outputs:
+    default_error: Error loading default outputs.
+    error_prefix: "Error loading default outputs:"
+  load_secrets:
+    default_error: Error loading secrets.
+    error_prefix: "Error loading secrets:"
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

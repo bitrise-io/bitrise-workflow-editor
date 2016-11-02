@@ -2,43 +2,20 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function($q, $http, $location, routeHelper, Progress) {
+angular.module("BitriseWorkflowEditor").controller("YMLController", function(requestService, Progress) {
 
 	var viewModel = this;
 
-	var appSlug = $location.search().app_slug;
-	var apiToken = $location.search().api_token;
-
 	viewModel.appConfigYML;
 	viewModel.loadAppConfigYMLProgress = new Progress();
-	viewModel.downloadAppConfigYMLPath = routeHelper.replacedRoute("<%= data[:routes][:yml_download] %>", {
-		app_slug: appSlug,
-		api_token: apiToken
-	});
+	viewModel.downloadAppConfigYMLPath = requestService.appConfigYMLDownloadPath();
 
 	function loadAppConfigYML() {
 		viewModel.loadAppConfigYMLProgress.start("<%= data[:strings][:yml][:load_progress][:loading] %>");
 
-		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:yml_get] %>", {
-			app_slug: appSlug,
-			api_token: apiToken
-		});
+		requestService.getAppConfigYML().then(function(appConfigYML) {
+			viewModel.appConfigYML = appConfigYML;
 
-		$q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
-				viewModel.appConfigYML = response.data;
-
-				resolve();
-			}, function(response) {
-				if (!response || !response.data) {
-					reject(new Error("<%= data[:strings][:yml][:load_progress][:default_error] %>"));
-
-					return;
-				}
-
-				reject(new Error("<%= data[:strings][:yml][:load_progress][:error_prefix] %>" + response.data));
-			});
-		}).then(function() {
 			viewModel.loadAppConfigYMLProgress.success();
 		}, function(error) {
 			viewModel.loadAppConfigYMLProgress.error(error);

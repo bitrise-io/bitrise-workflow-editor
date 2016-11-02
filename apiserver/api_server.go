@@ -43,10 +43,6 @@ func loadBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 }
 
 func loadBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
-	type LoadBitriseYMLModel struct {
-		BitriseYML models.BitriseDataModel `json:"bitrise_yml"`
-	}
-
 	contBytes, err := fileutil.ReadBytesFromFile("./bitrise.yml")
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
@@ -59,7 +55,7 @@ func loadBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	respondWithJSON(w, 200, LoadBitriseYMLModel{BitriseYML: yamlContObj})
+	respondWithJSON(w, 200, yamlContObj)
 }
 
 func defaultOutputsHandler(w http.ResponseWriter, r *http.Request) {

@@ -37,129 +37,136 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			default:
 				this.mode = null;
 
-				throw new Error("<%= data[:strings][:mode_service][:invalid_mode] %>");
+				throw new Error("<%= data[:strings][:request_service][:invalid_mode] %>");
 		}
 	};
 
 	requestService.getAppConfig = function() {
+		var requestURL;
+
 		switch (this.mode) {
 			case "website":
-				var requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:app_config_get]) %>", {
+				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:app_config_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
 
-				return $q(function(resolve, reject) {
-					$http.get(requestURL).then(function(response) {
-						resolve(response.data);
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data[:strings][:main][:app_config][:load_default_error] %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data[:strings][:main][:app_config][:load_error_prefix] %> " + response.data));
-					});
-				});
+				break;
 			case "cli":
-				var requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_get]) %>";
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_get]) %>";
 
-				return $q(function(resolve, reject) {
-					$http.get(requestURL).then(function(response) {
-						resolve(response.data.bitrise_yml);
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data[:strings][:main][:app_config][:load_default_error] %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data[:strings][:main][:app_config][:load_error_prefix] %> " + response.data));
-					});
-				});
+				break;
 		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
 	};
 
 	requestService.getDefaultOutputs = function() {
+		var requestURL;
+
 		switch (this.mode) {
 			case "website":
-				var requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:default_outputs_get]) %>", {
+				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:default_outputs_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
 
-				return $q(function(resolve, reject) {
-					$http.get(requestURL).then(function(response) {
-						resolve(response.data);
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data[:strings][:editor][:default_outputs][:load_default_error] %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data[:strings][:editor][:default_outputs][:load_error_prefix] %> " + response.data));
-					});
-				});
+				break;
 			case "cli":
-				var requestURL = "<%= local_server_path(data[:routes][:local_server][:default_outputs_get]) %>";
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:default_outputs_get]) %>";
 
-				return $q(function(resolve, reject) {
-					$http.get(requestURL).then(function(response) {
-						resolve(response.data);
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data[:strings][:editor][:default_outputs][:load_default_error] %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data[:strings][:editor][:default_outputs][:load_error_prefix] %> " + response.data));
-					});
-				});
+				break;
 		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
 	};
 
 	requestService.getSecrets = function() {
+		var requestURL;
+
 		switch (this.mode) {
 			case "website":
-				var requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:secrets_get]) %>", {
+				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:secrets_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
 
-				return $q(function(resolve, reject) {
-					$http.get(requestURL).then(function(response) {
-						resolve(response.data.envs);
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data[:strings][:main][:app_config][:load_default_error] %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data[:strings][:main][:app_config][:load_error_prefix] %> " + response.data));
-					});
-				});
+				break;
 			case "cli":
-				var requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_get]) %>";
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_get]) %>";
 
-				return $q(function(resolve, reject) {
-					$http.get(requestURL).then(function(response) {
-						resolve(response.data.bitrise_yml);
-					}, function(response) {
-						if (!response || !response.data) {
-							reject(new Error("<%= data[:strings][:main][:app_config][:load_default_error] %>"));
-
-							return;
-						}
-
-						reject(new Error("<%= data[:strings][:main][:app_config][:load_error_prefix] %> " + response.data));
-					});
-				});
+				break;
 		}
-	}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				resolve(response.data.envs);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					reject(new Error("<%= data[:strings][:request_service][:load_secrets][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:load_secrets][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.getAppConfigYML = function() {
+		var requestURL;
+
+		switch (this.mode) {
+			case "website":
+				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:yml_get]) %>", {
+					app_slug: this.appSlug,
+					api_token: this.apiToken
+				});
+
+				break;
+			case "cli":
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_get]) %>";
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.appConfigYMLDownloadPath = function() {
+		return routeWithParameters("<%= webserver_path(data[:routes][:website][:yml_download]) %>", {
+			app_slug: this.appSlug,
+			api_token: this.apiToken
+		});
+	};
 
 	return requestService;
 
