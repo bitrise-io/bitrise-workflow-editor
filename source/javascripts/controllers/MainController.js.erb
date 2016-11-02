@@ -6,31 +6,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	var viewModel = this;
 
-	viewModel.menus = [{
-		title: "<%= data[:strings][:main][:menus][0] %>",
-		path: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>",
-		cssClass: "editor"
-	}, {
-		title: "<%= data[:strings][:main][:menus][1] %>",
-		path: "<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>",
-		cssClass: "code-signing"
-	}, {
-		title: "<%= data[:strings][:main][:menus][2] %>",
-		path: "<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>",
-		cssClass: "secrets"
-	}, {
-		title: "<%= data[:strings][:main][:menus][3] %>",
-		path: "<%= endpoint_path(data[:routes][:endpoints][:app_env_vars]) %>",
-		cssClass: "env-vars"
-	}, {
-		title: "<%= data[:strings][:main][:menus][4] %>",
-		path: "<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>",
-		cssClass: "triggers"
-	}, {
-		title: "<%= data[:strings][:main][:menus][5] %>",
-		path: "<%= endpoint_path(data[:routes][:endpoints][:yml]) %>",
-		cssClass: "yml"
-	}];
 	viewModel.selectedMenu;
 	viewModel.menuProgress = new Progress();
 
@@ -50,6 +25,32 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 			return;
 		}
+
+		viewModel.menus = _.compact([{
+			title: "<%= data[:strings][:main][:menus][0] %>",
+			path: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>",
+			cssClass: "editor"
+		}, (requestService.mode == "website" ? {
+			title: "<%= data[:strings][:main][:menus][1] %>",
+			path: "<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>",
+			cssClass: "code-signing"
+		} : null), {
+			title: "<%= data[:strings][:main][:menus][2] %>",
+			path: "<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>",
+			cssClass: "secrets"
+		}, {
+			title: "<%= data[:strings][:main][:menus][3] %>",
+			path: "<%= endpoint_path(data[:routes][:endpoints][:app_env_vars]) %>",
+			cssClass: "env-vars"
+		}, {
+			title: "<%= data[:strings][:main][:menus][4] %>",
+			path: "<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>",
+			cssClass: "triggers"
+		}, {
+			title: "<%= data[:strings][:main][:menus][5] %>",
+			path: "<%= endpoint_path(data[:routes][:endpoints][:yml]) %>",
+			cssClass: "yml"
+		}]);
 
 		$q.all([loadBitriseSteplib(), loadAppConfig()]).then(function() {
 			viewModel.loadProgress.success();

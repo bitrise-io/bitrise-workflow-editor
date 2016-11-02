@@ -8,7 +8,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function(req
 
 	viewModel.appConfigYML;
 	viewModel.loadAppConfigYMLProgress = new Progress();
-	viewModel.downloadAppConfigYMLPath = requestService.appConfigYMLDownloadPath();
+	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
 	function loadAppConfigYML() {
 		viewModel.loadAppConfigYMLProgress.start("<%= data[:strings][:yml][:load_progress][:loading] %>");
