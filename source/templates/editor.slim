@@ -63,11 +63,11 @@ article.editor[ng-controller="EditorController as editorCtrl"]
 									label[for="{{ id }}"]
 										span == data[:strings][:editor][:inputs][:replace_variables_in_input]
 										em == string_with_urls(data[:strings][:editor][:inputs][:replace_variables_in_input_learn_more], [data[:routes][:devcenter][:step_inputs]])
+									button[ng-click="editorCtrl.inputSelected(null)"] == data[:strings][:editor][:inputs][:close]
 								button[ng-if="input != editorCtrl.selectedInput" ng-click="editorCtrl.inputSelected(input)"]
 									span.title[ng-bind="input.title + ':'"]
 									span.key[ng-bind="input | prettifiedVariableKey"]
 									span.uppercase == data[:strings][:editor][:inputs][:change]
-									button[ng-click="editorCtrl.inputSelected(null)"] == data[:strings][:editor][:inputs][:close]
 					section.outputs
 						h3 == data[:strings][:editor][:outputs][:header]
 						p[ng-if="step.outputs.length == 0"] == data[:strings][:editor][:outputs][:no_outputs]

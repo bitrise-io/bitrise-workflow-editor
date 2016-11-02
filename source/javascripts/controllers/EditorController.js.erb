@@ -276,7 +276,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.inputSelected = function(input) {
 		viewModel.selectedInput = input;
-		viewModel.insertVariablePopup.parameters.insertStartPosition = viewModel.insertVariablePopup.parameters.insertEndPosition = viewModel.selectedInput.value.length;
+		viewModel.insertVariablePopup.parameters.insertStartPosition = viewModel.insertVariablePopup.parameters.insertEndPosition = viewModel.selectedInput ? viewModel.selectedInput.value.length : 0;
 	};
 
 	viewModel.inputBlurred = function(event) {
