@@ -2,25 +2,33 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function(communicationHelper, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function($scope, $q, Progress, Variable) {
 
 	var viewModel = this;
 
 	viewModel.appEnvVars;
+	var appConfigLoadDeferred = $q.defer();
 
 	viewModel.loadAppEnvVarsProgress = new Progress();
 	viewModel.loadTemplateProgress = new Progress();
 
-	communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
+	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		viewModel.appEnvVars = _.map(appConfig.app.envs, Variable.createFromVariableConfig);
+		appConfigLoadDeferred.resolve();
+	});
 
-		communicationHelper.addMessage("configureEnvVarsController", {
-			source: "app-env-vars",
-			envVars: viewModel.appEnvVars
+	$scope.$on("EnvVarsController::loadedAndReady", function() {
+		appConfigLoadDeferred.promise.then(function() {
+			$scope.$broadcast("EnvVarsController::configure", {
+				source: "app-env-vars",
+				envVars: viewModel.appEnvVars
+			});
 		});
 	});
 
 	viewModel.loadTemplateProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
+
+	$scope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

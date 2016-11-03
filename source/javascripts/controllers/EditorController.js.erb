@@ -2,13 +2,14 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, $filter, communicationHelper, bitriseSteplibService, Progress, Popup, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow) {
 
 	var viewModel = this;
 
 	$scope.bitriseSteplibService = bitriseSteplibService;
 
 	viewModel.appConfig;
+	var appConfigLoadDeferred = $q.defer();
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
 	viewModel.loadWorkflowsProgress = new Progress();
@@ -20,9 +21,13 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
 		}
 
-		communicationHelper.addMessage("configureEnvVarsController", {
-			source: "workflow-env-vars",
-			envVars: viewModel.selectedWorkflow.envVars
+		$scope.$on("EnvVarsController::loadedAndReady", function() {
+			appConfigLoadDeferred.promise.then(function() {
+				$scope.$broadcast("EnvVarsController::configure", {
+					source: "workflow-env-vars",
+					envVars: viewModel.selectedWorkflow.envVars
+				});
+			});
 		});
 	};
 
@@ -101,12 +106,15 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.selectedWorkflow = workflow;
 	}
 
+	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+		viewModel.appConfig = appConfig;
+		appConfigLoadDeferred.resolve();
+	});
+
 	function loadWorkflows() {
 		viewModel.loadWorkflowsProgress.start("<%= data.strings.editor.load_workflows_progress.in_progress %>");
 
-		$q.all([communicationHelper.readMessage("bitriseSteplibLoaded"), communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
-			viewModel.appConfig = appConfig;
-		})]).then(function() {
+		$q.all([bitriseSteplibService.load(), appConfigLoadDeferred.promise]).then(function() {
 			try {
 				var allWorkflowsLoadedCallbacks = [];
 
@@ -300,6 +308,8 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	};
 
 	loadWorkflows();
+
+	$scope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function(communicationHelper, Trigger, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, Trigger, Workflow) {
 
 	var viewModel = this;
 
@@ -12,7 +12,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.editedTrigger;
 	viewModel.newTriggerIndex;
 
-	communicationHelper.readMessage("appConfigLoaded").then(function(appConfig) {
+	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 			return new Workflow(aWorkflowID);
 		});
@@ -83,6 +83,8 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.triggerEditCancelled = function() {
 		viewModel.triggerSelected(null);
 	};
+
+	$scope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

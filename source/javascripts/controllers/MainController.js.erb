@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $q, requestService, communicationHelper, bitriseSteplibService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $q, requestService, Progress, Popup) {
 
 	var viewModel = this;
 
@@ -11,6 +11,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	var appConfig;
 	var savedAppConfig;
+	var appConfigLoadDeferrer = $q.defer();
 
 	viewModel.loadProgress = new Progress();
 
@@ -52,24 +53,21 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			cssClass: "yml"
 		}]);
 
-		$q.all([loadBitriseSteplib(), loadAppConfig()]).then(function() {
+		loadAppConfig().then(function() {
 			viewModel.loadProgress.success();
 		}, function(error) {
 			viewModel.loadProgress.error(error);
 		});
 	}
 
-	function loadBitriseSteplib() {
-		return bitriseSteplibService.load().then(function() {
-			communicationHelper.addMessage("bitriseSteplibLoaded", appConfig);
-		});
-	}
-
 	function loadAppConfig() {
+		appConfigLoadDeferrer = $q.defer();
+
 		return requestService.getAppConfig().then(function(_appConfig) {
 			appConfig = _appConfig;
 			savedAppConfig = angular.copy(appConfig);
-			communicationHelper.addMessage("appConfigLoaded", appConfig);
+
+			appConfigLoadDeferrer.resolve();
 		});
 	}
 
@@ -96,6 +94,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		console.log("saveChanges called");
 		savedAppConfig = angular.copy(appConfig);
 	};
+
+	$scope.$on("MainController::menuContentIsLoadedAndReady", function() {
+		appConfigLoadDeferrer.promise.then(function() {
+			$scope.$broadcast("MainController::appConfigLoaded", appConfig);
+		});
+	});
 
 	load();
 
