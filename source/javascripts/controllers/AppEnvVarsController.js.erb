@@ -7,24 +7,31 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 	var viewModel = this;
 
 	viewModel.appEnvVars;
-	var appConfigLoadDeferred = $q.defer();
+	var appEnvVarsLoadDeferred = $q.defer();
 
 	viewModel.loadAppEnvVarsProgress = new Progress();
 	viewModel.loadTemplateProgress = new Progress();
 
 	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		viewModel.appEnvVars = _.map(appConfig.app.envs, Variable.createFromVariableConfig);
-		appConfigLoadDeferred.resolve();
+		appEnvVarsLoadDeferred.resolve(appConfig);
+	});
+
+	$scope.$on("MainController::discardChanges", function(event, appConfig) {
+		viewModel.appEnvVars = _.map(appConfig.app.envs, Variable.createFromVariableConfig);
+		configureEnvVarsController();
 	});
 
 	$scope.$on("EnvVarsController::loadedAndReady", function() {
-		appConfigLoadDeferred.promise.then(function() {
-			$scope.$broadcast("EnvVarsController::configure", {
-				source: "app-env-vars",
-				envVars: viewModel.appEnvVars
-			});
-		});
+		appEnvVarsLoadDeferred.promise.then(configureEnvVarsController);
 	});
+
+	function configureEnvVarsController() {
+		$scope.$broadcast("EnvVarsController::configure", {
+			source: "app-env-vars",
+			envVars: viewModel.appEnvVars
+		});
+	}
 
 	viewModel.loadTemplateProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
 

@@ -32,6 +32,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		}
 
 		viewModel.envVars = parameters.envVars;
+		viewModel.envVarSelected(null);
 	});
 
 	viewModel.envVarSelected = function(envVar) {

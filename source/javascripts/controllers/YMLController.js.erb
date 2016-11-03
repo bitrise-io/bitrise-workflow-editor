@@ -2,11 +2,12 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function(requestService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, requestService, Progress) {
 
 	var viewModel = this;
 
 	viewModel.appConfigYML;
+	var savedAppConfigYML;
 	viewModel.loadAppConfigYMLProgress = new Progress();
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
@@ -15,12 +16,17 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function(req
 
 		requestService.getAppConfigYML().then(function(appConfigYML) {
 			viewModel.appConfigYML = appConfigYML;
+			savedAppConfigYML = appConfigYML;
 
 			viewModel.loadAppConfigYMLProgress.success();
 		}, function(error) {
 			viewModel.loadAppConfigYMLProgress.error(error);
 		});
 	}
+
+	$scope.$on("MainController::discardChanges", function() {
+		viewModel.appConfigYML = savedAppConfigYML;
+	});
 
 	loadAppConfigYML();
 

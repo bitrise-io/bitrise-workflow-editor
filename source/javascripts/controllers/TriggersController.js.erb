@@ -13,6 +13,15 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.newTriggerIndex;
 
 	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+		configureTriggers(appConfig);
+	});
+
+	$scope.$on("MainController::discardChanges", function(event, appConfig) {
+		viewModel.triggerSelected(null);
+		configureTriggers(appConfig);
+	});
+
+	function configureTriggers(appConfig) {
 		viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 			return new Workflow(aWorkflowID);
 		});
@@ -22,7 +31,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 			return trigger;
 		});
-	});
+	}
 
 	viewModel.triggerSelected = function(trigger) {
 		viewModel.newTriggerIndex = undefined;

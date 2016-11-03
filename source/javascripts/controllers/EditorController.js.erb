@@ -111,6 +111,12 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		appConfigLoadDeferred.resolve();
 	});
 
+	$scope.$on("MainController::discardChanges", function(event, appConfig) {
+		viewModel.selectedWorkflow = null;
+		viewModel.appConfig = appConfig;
+		loadWorkflows();
+	});
+
 	function loadWorkflows() {
 		viewModel.loadWorkflowsProgress.start("<%= data.strings.editor.load_workflows_progress.in_progress %>");
 
