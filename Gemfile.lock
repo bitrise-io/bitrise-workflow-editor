@@ -129,9 +129,9 @@ PLATFORMS
 DEPENDENCIES
   angularjs-rails
   jquery-middleman
-  middleman (~> 3)
+  middleman
   slim
   underscore-rails
 
 BUNDLED WITH
-   1.11.2
+   1.13.6

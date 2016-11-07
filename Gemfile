@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "middleman", "~>3"
+gem "middleman"
 gem "slim"
 gem "underscore-rails"
 gem "jquery-middleman"
