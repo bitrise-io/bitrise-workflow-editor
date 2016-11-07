@@ -82,6 +82,36 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		});
 	};
 
+	Variable.prototype.strippedConfig = function(defaultConfig) {
+		var mergedConfig = {};
+		mergedConfig[this.key] = {};
+
+		var self = this;
+		_.each(this.variableConfigs, function(aVariableConfig) {
+			mergedConfig[self.key] = aVariableConfig[self.key];
+
+			_.each(aVariableConfig.opts, function(anOption, anOptionID) {
+				if (!mergedConfig.opts) {
+					mergedConfig.opts = {};
+				}
+
+				mergedConfig.opts[anOptionID] = angular.copy(anOption);
+			});
+		});
+
+
+		var strippedConfig = {};
+		strippedConfig[this.key] = mergedConfig[this.key] != defaultConfig[this.key] ? mergedConfig[this.key] : undefined;
+		var strippedOpts = _.filter(mergedConfig.opts, function(anOption, anOptionID) {
+			return !angular.equals(anOption, defaultConfig.opts[anOptionID]);
+		});
+		if (!_.isEmpty(strippedOpts)) {
+			strippedConfig.opts = strippedOpts;
+		}
+
+		return strippedConfig;
+	};
+
 	return Variable;
 
 });
