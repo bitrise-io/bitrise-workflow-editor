@@ -63,7 +63,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
-					reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
+					return reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
 				}
 
 				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
@@ -93,7 +93,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
-					reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:default_error] %>"));
+					return reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:default_error] %>"));
 				}
 
 				reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:error_prefix] %> " + response.data.error_msg));
@@ -123,7 +123,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(response.data.envs);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
-					reject(new Error("<%= data[:strings][:request_service][:load_secrets][:default_error] %>"));
+					return reject(new Error("<%= data[:strings][:request_service][:load_secrets][:default_error] %>"));
 				}
 
 				reject(new Error("<%= data[:strings][:request_service][:load_secrets][:error_prefix] %> " + response.data.error_msg));
@@ -153,7 +153,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
-					reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
+					return reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
 				}
 
 				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
