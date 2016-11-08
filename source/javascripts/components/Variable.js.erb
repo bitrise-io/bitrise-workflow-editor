@@ -42,20 +42,18 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 			this.value = variableConfig[this.key];
 		}
 
-		if (!variableConfig.opts) {
-			return;
-		}
+		if (variableConfig.opts) {
+			if (variableConfig.opts.title !== undefined) {
+				this.title = variableConfig.opts.title;
+			}
 
-		if (variableConfig.opts.title !== undefined) {
-			this.title = variableConfig.opts.title;
-		}
+			if (variableConfig.opts.description !== undefined) {
+				this.description = variableConfig.opts.description;
+			}
 
-		if (variableConfig.opts.description !== undefined) {
-			this.description = variableConfig.opts.description;
-		}
-
-		if (variableConfig.opts.is_expand !== undefined) {
-			this.isExpand = variableConfig.opts.is_expand;
+			if (variableConfig.opts.is_expand !== undefined) {
+				this.isExpand = variableConfig.opts.is_expand;
+			}
 		}
 
 		this.variableConfigs.push(variableConfig);
