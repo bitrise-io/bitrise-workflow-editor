@@ -7,6 +7,8 @@ config[:layout] = false
 
 activate :directory_indexes
 
+activate :jasmine
+
 helpers do
 
 	# path helpers

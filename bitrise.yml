@@ -27,6 +27,19 @@ workflows:
             #!/bin/bash
             set -ex
             bundle exec middleman server
+  up-middleman-jasmine:
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle exec middleman build
+            mkdir -p ./spec/javascripts/main/
+            cp -f ./build/javascripts/main.js ./spec/javascripts/main/
+            rm -rf ./build
+            bundle exec middleman server
+            rm -rf ./spec/javascripts/main/
 
   ci:
     before_run:

@@ -4,6 +4,7 @@
 //= require angular-route
 //= require angular-sanitize
 //= require angular-animate
+//= require angular-mocks
 
 //= require BitriseWorkflowEditor
 //= require_tree ./services/
