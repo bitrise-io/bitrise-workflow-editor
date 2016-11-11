@@ -8,9 +8,57 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		this.key = key;
 		this.value = value;
 		this.title;
+		this.summary;
 		this.description;
 		this.isExpand;
+		this.skipIfEmpty;
+		this.isRequired;
+		this.isDontChangeValue;
+		this.isTemplate;
+		this.valueOptions;
+
 		this.variableConfigs = [];
+	};
+
+	Variable.validateVariableConfig = function(variableConfig) {
+		if (!_.isObject(variableConfig) || angular.isArray(variableConfig)) {
+			throw new TypeError("<%= data.strings.variable.variable_config_not_object %>");
+		}
+
+		if (_.without(_.keys(variableConfig), "opts").length == 0) {
+			throw new Error("<%= data.strings.variable.no_main_key_found %>");
+		}
+
+		if (_.without(_.keys(variableConfig), "opts").length > 1) {
+			throw new Error("<%= data.strings.variable.only_main_key_and_opts_are_allowed %>");		
+		}
+
+		var value = variableConfig[Variable.keyFromVariableConfig(variableConfig)];
+		if (typeof value != "boolean" && typeof value != "number" && typeof value != "string" && !_.isObject(value)) {
+			throw new TypeError("<%= data.strings.variable.invalid_value_format %>")
+		}
+
+		if (variableConfig.opts) {
+			if (!_.isObject(variableConfig.opts) || angular.isArray(variableConfig.opts)) {
+				throw new TypeError("<%= data.strings.variable.opts_not_object %>");
+			}
+
+			var stringOptionKeys = ["title", "summary", "description"];
+			var booleanOptionKeys = ["is_expand", "skip_if_empty", "is_required", "is_dont_change_value", "is_template"];
+			var arrayOptionKeys = ["value_options"]
+
+			_.each(variableConfig.opts, function(anOptionValue, anOptionKey) {
+				if (_.contains(stringOptionKeys, anOptionKey) && typeof anOptionValue != "string") {
+					throw new TypeError("<%= data.strings.variable.opt_value_not_string %>");
+				}
+				else if (_.contains(booleanOptionKeys, anOptionKey) && typeof anOptionValue != "boolean") {
+					throw new TypeError("<%= data.strings.variable.opt_value_not_boolean %>");
+				}
+				else if (_.contains(arrayOptionKeys, anOptionKey) && !angular.isArray(anOptionValue)) {
+					throw new TypeError("<%= data.strings.variable.opt_value_not_array %>");
+				}
+			});
+		}
 	};
 
 	Variable.createFromVariableConfig = function(variableConfig) {
@@ -23,28 +71,19 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	};
 
 	Variable.prototype.appendVariableConfig = function(variableConfig) {
-		if (_.isEmpty(variableConfig)) {
-			return;
+		if (Variable.keyFromVariableConfig(variableConfig) != this.key) {
+			throw new Error("<%= data.strings.variable.main_key_mismatch %>");
 		}
 
-		try {
-			var key = Variable.keyFromVariableConfig(variableConfig);
-
-			if (key != this.key) {
-				throw new Error("<%= data.strings.variable.main_key_mismatch %>");
-			}
-		}
-		catch (error) {
-			throw new Error("<%= data.strings.variable.append_error_prefix %>" + error.message);
-		}
-
-		if (variableConfig[this.key] !== undefined) {
-			this.value = variableConfig[this.key];
-		}
+		this.value = variableConfig[this.key];
 
 		if (variableConfig.opts) {
 			if (variableConfig.opts.title !== undefined) {
 				this.title = variableConfig.opts.title;
+			}
+
+			if (variableConfig.opts.summary !== undefined) {
+				this.summary = variableConfig.opts.summary;
 			}
 
 			if (variableConfig.opts.description !== undefined) {
@@ -54,30 +93,33 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 			if (variableConfig.opts.is_expand !== undefined) {
 				this.isExpand = variableConfig.opts.is_expand;
 			}
+
+			if (variableConfig.opts.skip_if_empty !== undefined) {
+				this.skipIfEmpty = variableConfig.opts.skip_if_empty;
+			}
+
+			if (variableConfig.opts.is_required !== undefined) {
+				this.isRequired = variableConfig.opts.is_required;
+			}
+
+			if (variableConfig.opts.is_dont_change_value !== undefined) {
+				this.isDontChangeValue = variableConfig.opts.is_dont_change_value;
+			}
+
+			if (variableConfig.opts.is_template !== undefined) {
+				this.isTemplate = variableConfig.opts.is_template;
+			}
+
+			if (variableConfig.opts.value_options !== undefined) {
+				this.valueOptions = angular.copy(variableConfig.opts.value_options);
+			}
 		}
 
 		this.variableConfigs.push(variableConfig);
 	};
 
 	Variable.keyFromVariableConfig = function(variableConfig) {
-		var keys = _.keys(angular.fromJson(angular.toJson(variableConfig)));
-
-		switch (_.size(keys)) {
-			case 0:
-				throw new Error("<%= data.strings.variable.no_main_key_found %>");
-			case 1:
-				if (_.first(keys) == "opts") {
-					throw new Error("<%= data.strings.variable.no_main_key_found %>");
-				}
-			case 2:
-				break;
-			default:
-				throw new Error("<%= data.strings.variable.only_main_key_and_opts_are_allowed %>");
-		}
-
-		return _.find(_.keys(angular.fromJson(angular.toJson(variableConfig))), function(aKey) {
-			return aKey != "opts";
-		});
+		return _.first(_.without(_.keys(variableConfig), "opts"));
 	};
 
 	Variable.prototype.strippedConfig = function(defaultConfig) {

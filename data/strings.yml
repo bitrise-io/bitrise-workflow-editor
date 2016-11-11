@@ -174,8 +174,14 @@ step:
   append_error_prefix: "Error configuring Step: "
 variable:
   append_error_prefix: "Error configuring variable: "
+  variable_config_not_object: Variable config is not an object.
   no_main_key_found: No main key found.
   only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
+  invalid_value_format: Invalid value format.
+  opts_not_object: Options should be object.
+  opt_value_not_string: Option value should be string.
+  opt_value_not_boolean: Option value should be boolean.
+  opt_value_not_array: Option value should be array.
   main_key_mismatch: Main key mismatch.
 trigger:
   configure_error_prefix: "Error configuring Trigger: "
