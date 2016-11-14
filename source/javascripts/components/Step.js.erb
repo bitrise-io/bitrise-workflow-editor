@@ -173,7 +173,15 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 
 	Step.prototype.clear = function() {
 		this.title = undefined;
+		this.summary = undefined;
+		this.description = undefined;
+		this.sourceURL = undefined;
 		this.iconURL = undefined;
+		this.isAlwaysRun = undefined;
+		this.typeTags = undefined;
+		this.inputs = undefined;
+		this.outputs = undefined;
+
 		this.stepConfigs = [];
 	};
 

@@ -314,4 +314,32 @@ describe("Step", function() {
 
     });
 
+    describe("clear", function() {
+
+        it("should clear step", function() {
+            step = Step.createFromStepConfig({
+                title: "Red title"
+            });
+
+            step.appendStepConfig({
+                title: "Green title",
+                description: "Green description"
+            });
+
+            step.appendStepConfig({
+                asset_urls: {
+                    "icon.svg": "icon-svg-url"
+                }
+            });
+
+            step.clear();
+
+            expect(step.title).toBeUndefined();
+            expect(step.description).toBeUndefined();
+            expect(step.iconURL).toBeUndefined();
+            expect(step.stepConfigs.length).toBe(0);
+        });
+
+    });
+
 });
