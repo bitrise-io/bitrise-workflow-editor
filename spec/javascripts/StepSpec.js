@@ -407,3 +407,59 @@ describe("Step", function() {
     });
 
 });
+
+describe("normalizedStepIconURL", function() {
+
+    var $filter;
+    var Step;
+
+    beforeEach(module("BitriseWorkflowEditor"));
+    beforeEach(inject(function (_$filter_, _Step_) {
+        $filter = _$filter_;
+        Step = _Step_;
+    }));
+
+    it("should not return undefined", function() {
+        var step = new Step();
+
+        expect($filter("normalizedStepIconURL")(step)).not.toBeUndefined();
+
+        step.iconURL = "icon-url";
+
+        expect($filter("normalizedStepIconURL")(step)).not.toBeUndefined();
+        expect($filter("normalizedStepIconURL")(step)).toBe("icon-url");
+    });
+
+});
+
+describe("stepSourceCSSClass", function() {
+
+    var $filter;
+    var Step;
+
+    beforeEach(module("BitriseWorkflowEditor"));
+    beforeEach(inject(function (_$filter_, _Step_) {
+        $filter = _$filter_;
+        Step = _Step_;
+    }));
+
+    it("should return unknown", function() {
+        var step = new Step();
+
+        expect($filter("stepSourceCSSClass")(step)).toBe("unknown");
+    });
+
+    it("should return a provider ID", function() {
+        var step = new Step();
+
+        step.sourceURL = "https://www.github.com/red-step"
+        expect($filter("stepSourceCSSClass")(step)).toBe("github");
+
+        step.sourceURL = "https://bitbucket.com/red-step"
+        expect($filter("stepSourceCSSClass")(step)).toBe("bitbucket");
+
+        step.sourceURL = "gitlab.com/red-step"
+        expect($filter("stepSourceCSSClass")(step)).toBe("gitlab");
+    });
+
+});
