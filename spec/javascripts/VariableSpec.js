@@ -194,7 +194,7 @@ describe("Variable", function() {
             expect(variable.value).toBe("NEW-RED-VALUE");
         });
 
-        it("should change overridden option, keep otherwise", function() {
+        it("should change overridden option, keep others", function() {
             variable.appendVariableConfig({
                 KEY: "VALUE",
                 opts: {
