@@ -49,27 +49,33 @@ describe("Variable", function() {
 
         it("should throw error", function() {
             expect(function() {
-                Variable.validateVariableConfig(null)
+                Variable.validateVariableConfig(null);
             }).toThrow();
+
             expect(function() {
-                Variable.validateVariableConfig(undefined)
+                Variable.validateVariableConfig(undefined);
             }).toThrow();
+
             expect(function() {
-                Variable.validateVariableConfig(true)
+                Variable.validateVariableConfig(true);
             }).toThrow();
+
             expect(function() {
-                Variable.validateVariableConfig(1)
+                Variable.validateVariableConfig(1);
             }).toThrow();
+
             expect(function() {
-                Variable.validateVariableConfig("invalid")
+                Variable.validateVariableConfig("invalid");
             }).toThrow();
+
             expect(function() {
-                Variable.validateVariableConfig([1, 2])
+                Variable.validateVariableConfig([1, 2]);
             }).toThrow();
 
             expect(function() {
                 Variable.validateVariableConfig({})
             }).toThrow();
+
             expect(function() {
                 Variable.validateVariableConfig({
                     opts: {
@@ -77,6 +83,7 @@ describe("Variable", function() {
                     }
                 });
             }).toThrow();
+
             expect(function() {
                 Variable.validateVariableConfig({
                     KEY: "RED-VALUE",
