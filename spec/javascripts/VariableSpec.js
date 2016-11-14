@@ -227,4 +227,63 @@ describe("Variable", function() {
 
     });
 
+    describe("strippedVariableConfig", function() {
+
+        var variable;
+        var defaultVariableConfig = {
+            KEY: "RED-VALUE",
+            opts: {
+                title: "Red title",
+                summary: "Red summary",
+                description: "Red variable description",
+                is_expand: true,
+                is_required: true
+            }
+        };
+        var strippedVariableConfig;
+
+        it("should return stripped variable config", function() {
+            variable = Variable.createFromVariableConfig({
+                KEY: "GREEN-VALUE",
+                opts: {
+                    title: "Green title",
+                    is_expand: false,
+                    is_required: true,
+                    unknown_opt: "unknown-opt-value"
+                }
+            });
+
+            variable.appendVariableConfig({
+                KEY: "BLUE-VALUE",
+                opts: {
+                    summary: "Blue summary",
+                    is_expand: true,
+                    is_required: false,
+                    value_options: [
+                        "option-a",
+                        "option-b"
+                    ]
+                }
+            });
+
+            strippedVariableConfig = variable.strippedVariableConfig(defaultVariableConfig);
+
+            expect(strippedVariableConfig.KEY).toBe("BLUE-VALUE");
+            expect(strippedVariableConfig.opts.title).toBe("Green title");
+            expect(strippedVariableConfig.opts.summary).toBe("Blue summary");
+            expect(strippedVariableConfig.opts.description).toBeUndefined();
+            expect(strippedVariableConfig.opts.is_expand).toBeUndefined();
+            expect(strippedVariableConfig.opts.is_required).not.toBeUndefined();
+            expect(strippedVariableConfig.opts.is_required).toBe(false);
+            expect(strippedVariableConfig.opts.unknown_opt).not.toBeUndefined();
+            expect(strippedVariableConfig.opts.unknown_opt).toBe("unknown-opt-value");
+            expect(strippedVariableConfig.opts.value_options).not.toBeUndefined();
+            expect(strippedVariableConfig.opts.value_options).toEqual([
+                "option-a",
+                "option-b"
+            ]);
+        });
+
+    });
+
 });
