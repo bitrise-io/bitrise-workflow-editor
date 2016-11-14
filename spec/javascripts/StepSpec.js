@@ -342,4 +342,48 @@ describe("Step", function() {
 
     });
 
+    describe("isVerified", function() {
+
+        it("should return undefined if source is not defined", function() {
+            step = Step.createFromStepConfig({
+                title: "Red title"
+            });
+
+            expect(step.isVerified()).toBeUndefined();
+        });
+
+        it("should return true", function() {
+            step = new Step();
+
+            step.sourceURL = "https://www.github.com/bitrise-io/red-step";
+            expect(step.isVerified()).toBe(true);
+
+            step.sourceURL = "https://github.com/bitrise-io/red-step";
+            expect(step.isVerified()).toBe(true);
+
+            step.sourceURL = "www.github.com/bitrise-io/red-step";
+            expect(step.isVerified()).toBe(true);
+
+            step.sourceURL = "github.com/bitrise-io/red-step";
+            expect(step.isVerified()).toBe(true);
+
+            step.sourceURL = "https://www.github.com/bitrise-steplib/red-step";
+            expect(step.isVerified()).toBe(true);
+        });
+
+        it("should return false", function() {
+            step = new Step();
+
+            step.sourceURL = "https://www.github.com/red-user/red-step";
+            expect(step.isVerified()).toBe(false);
+
+            step.sourceURL = "https://www.red.com/bitrise-io/red-step";
+            expect(step.isVerified()).toBe(false);
+
+            step.sourceURL = "https://www.github.com/bitrise-io";
+            expect(step.isVerified()).toBe(false);
+        });
+
+    })
+
 });
