@@ -119,6 +119,19 @@ describe("Variable", function() {
                     }
                 });
             }).toThrow();
+
+            expect(function() {
+                Variable.validateVariableConfig({
+                    KEY: "RED-VALUE",
+                    opts: {
+                        value_options: [{
+                            option_a: "option_a"
+                        }, {
+                            option_b: "option_b"
+                        }]
+                    }
+                });
+            }).toThrow();
         });
 
     });

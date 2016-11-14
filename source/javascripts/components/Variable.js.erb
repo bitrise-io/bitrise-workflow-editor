@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Variable", function() {
+angular.module("BitriseWorkflowEditor").factory("Variable", function(stringService) {
 
 	var Variable = function(key, value) {
 		this.key = key;
@@ -45,17 +45,32 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 
 			var stringOptionKeys = ["title", "summary", "description"];
 			var booleanOptionKeys = ["is_expand", "skip_if_empty", "is_required", "is_dont_change_value", "is_template"];
-			var arrayOptionKeys = ["value_options"]
+			var arrayOptionKeys = ["value_options"];
+			var arrayOfStringsOptionKeys = ["value_options"];
 
 			_.each(variableConfig.opts, function(anOptionValue, anOptionKey) {
+				var stringReplaceParameters = {
+					key: anOptionKey
+				};
+				
 				if (_.contains(stringOptionKeys, anOptionKey) && typeof anOptionValue != "string") {
-					throw new TypeError("<%= data.strings.variable.opt_value_not_string %>");
+					throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_string %>", stringReplaceParameters));
 				}
 				else if (_.contains(booleanOptionKeys, anOptionKey) && typeof anOptionValue != "boolean") {
-					throw new TypeError("<%= data.strings.variable.opt_value_not_boolean %>");
+					throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_boolean %>", stringReplaceParameters));
 				}
-				else if (_.contains(arrayOptionKeys, anOptionKey) && !angular.isArray(anOptionValue)) {
-					throw new TypeError("<%= data.strings.variable.opt_value_not_array %>");
+				else if (_.contains(arrayOptionKeys, anOptionKey)) {
+					if (!angular.isArray(anOptionValue)) {
+						throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_array %>", stringReplaceParameters));
+					}
+
+					if (_.contains(arrayOfStringsOptionKeys, anOptionKey)) {
+						_.each(anOptionValue, function(arrayValue) {
+							if (typeof arrayValue != "string") {
+								throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_array_of_strings %>", stringReplaceParameters));
+							}
+						});
+					}
 				}
 			});
 		}

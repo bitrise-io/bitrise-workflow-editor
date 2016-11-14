@@ -171,6 +171,16 @@ env_var_editor:
 workflow:
   configure_error_prefix: "Error configuring Workflow: "
 step:
+  step_config_not_object: Step config is not an object.
+  value_not_string: <key> should be string.
+  value_not_boolean: <key> should be boolean.
+  value_not_date: <key> should be date.
+  value_not_object: <key> should be object.
+  value_not_array: <key> should be array.
+  value_not_array_of_strings: <key> should be array of strings.
+  invalid_source: Invalid source.
+  invalid_asset_urls: Invalid asset URLs.
+  input_error_prefix: "Error configuring a Step's variable: "
   append_error_prefix: "Error configuring Step: "
 variable:
   append_error_prefix: "Error configuring variable: "
@@ -179,9 +189,10 @@ variable:
   only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
   invalid_value_format: Invalid value format.
   opts_not_object: Options should be object.
-  opt_value_not_string: Option value should be string.
-  opt_value_not_boolean: Option value should be boolean.
-  opt_value_not_array: Option value should be array.
+  opt_value_not_string: <key> should be string.
+  opt_value_not_boolean: <key> should be boolean.
+  opt_value_not_array: <key> should be array.
+  opt_value_not_array_of_strings: <key> should be array of strings.
   main_key_mismatch: Main key mismatch.
 trigger:
   configure_error_prefix: "Error configuring Trigger: "

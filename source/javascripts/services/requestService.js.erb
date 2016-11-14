@@ -2,22 +2,12 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("requestService", function($q, $location, $http) {
+angular.module("BitriseWorkflowEditor").service("requestService", function($q, $location, $http, stringService) {
 
 	var requestService = {
 		mode: undefined,
 		appSlug: undefined,
 		apiToken: undefined
-	};
-
-	function routeWithParameters(route, parameters) {
-		_.each(parameters, function(aValue, aKey) {
-			var regexpForParameter = new RegExp("([^\<]*)\<" + aKey + "\>(.*)")
-
-			route = route.replace(regexpForParameter, "$1" + aValue + "$2");
-		});
-
-		return route;
 	};
 
 	requestService.configureMode = function() {
@@ -46,7 +36,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (this.mode) {
 			case "website":
-				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:app_config_get]) %>", {
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_config_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
@@ -76,7 +66,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (this.mode) {
 			case "website":
-				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:default_outputs_get]) %>", {
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:default_outputs_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
@@ -106,7 +96,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (this.mode) {
 			case "website":
-				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:secrets_get]) %>", {
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:secrets_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
@@ -136,7 +126,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (this.mode) {
 			case "website":
-				requestURL = routeWithParameters("<%= webserver_path(data[:routes][:website][:yml_get]) %>", {
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_get]) %>", {
 					app_slug: this.appSlug,
 					api_token: this.apiToken
 				});
@@ -162,7 +152,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	};
 
 	requestService.appConfigYMLDownloadPath = function() {
-		return routeWithParameters("<%= webserver_path(data[:routes][:website][:yml_download]) %>", {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_download]) %>", {
 			app_slug: this.appSlug,
 			api_token: this.apiToken
 		});
