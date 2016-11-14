@@ -3,7 +3,7 @@ describe("Variable", function() {
     var Variable;
 
     beforeEach(module("BitriseWorkflowEditor"));
-    beforeEach(inject(function (_Variable_) {
+    beforeEach(inject(function(_Variable_) {
         Variable = _Variable_;
     }));
 
@@ -284,6 +284,28 @@ describe("Variable", function() {
             ]);
         });
 
+    });
+
+});
+
+describe("prettifiedVariableKey", function() {
+
+    var $filter;
+    var Variable;
+
+    beforeEach(module("BitriseWorkflowEditor"));
+    beforeEach(inject(function (_$filter_, _Variable_) {
+        $filter = _$filter_;
+        Variable = _Variable_;
+    }));
+
+    it("should return undefined", function() {
+        expect($filter("prettifiedVariableKey")(undefined)).toBeUndefined();
+        expect($filter("prettifiedVariableKey")(new Variable())).toBeUndefined();
+    });
+
+    it("should return prettified variable key", function() {
+        expect($filter("prettifiedVariableKey")(new Variable("RED-KEY"))).toBe("$RED-KEY");
     });
 
 });
