@@ -317,7 +317,7 @@ describe("Step", function() {
     describe("clear", function() {
 
         it("should clear step", function() {
-            step = Step.createFromStepConfig({
+            var step = Step.createFromStepConfig({
                 title: "Red title"
             });
 
@@ -345,7 +345,7 @@ describe("Step", function() {
     describe("isVerified", function() {
 
         it("should return undefined if source is not defined", function() {
-            step = Step.createFromStepConfig({
+            var step = Step.createFromStepConfig({
                 title: "Red title"
             });
 
@@ -353,7 +353,7 @@ describe("Step", function() {
         });
 
         it("should return true", function() {
-            step = new Step();
+            var step = new Step();
 
             step.sourceURL = "https://www.github.com/bitrise-io/red-step";
             expect(step.isVerified()).toBe(true);
@@ -372,7 +372,7 @@ describe("Step", function() {
         });
 
         it("should return false", function() {
-            step = new Step();
+            var step = new Step();
 
             step.sourceURL = "https://www.github.com/red-user/red-step";
             expect(step.isVerified()).toBe(false);
@@ -384,6 +384,26 @@ describe("Step", function() {
             expect(step.isVerified()).toBe(false);
         });
 
-    })
+    });
+
+    describe("requestedVersion", function() {
+
+        it("should return null", function() {
+            var step = new Step();
+            step.cvs = "red-step";
+            step.version = "1.1";
+
+            expect(step.requestedVersion()).toBeNull();
+        });
+
+        it("should return version of step", function() {
+            var step = new Step();
+            step.cvs = "red-step@1.0";
+            step.version = "1.0";
+
+            expect(step.requestedVersion()).toBe("1.0");
+        });
+
+    });
 
 });
