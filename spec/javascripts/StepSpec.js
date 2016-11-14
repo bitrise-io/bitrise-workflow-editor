@@ -208,7 +208,36 @@ describe("Step", function() {
                     }]
                 });
             }).toThrow();
-        })
+        });
+
+    });
+
+    describe("createFromStepConfig", function() {
+
+        it("should return step", function() {
+            var step = Step.createFromStepConfig({
+                title: "Red title"
+            });
+
+            expect(step).toEqual(jasmine.any(Step));
+            expect(step.id).toBeUndefined();
+            expect(step.title).toBe("Red title");
+            expect(step.description).toBeUndefined();
+            expect(step.stepConfigs.length).toBe(1);
+        });
+
+        it("should return step without ID and version", function() {
+            var step = Step.createFromStepConfig({
+                id: "red-step-id",
+                version: "1.0",
+                description: "Red step description"
+            });
+
+            expect(step.id).toBeUndefined();
+            expect(step.version).toBeUndefined();
+            expect(step.stepConfigs.length).toBe(1);
+            expect(step.stepConfigs[0].id).toBe("red-step-id");
+        });
 
     });
 
