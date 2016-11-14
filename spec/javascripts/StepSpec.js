@@ -447,6 +447,9 @@ describe("stepSourceCSSClass", function() {
         var step = new Step();
 
         expect($filter("stepSourceCSSClass")(step)).toBe("unknown");
+
+        step.sourceURL = "https://www.red.com/red-step"
+        expect($filter("stepSourceCSSClass")(step)).toBe("unknown");
     });
 
     it("should return a provider ID", function() {
