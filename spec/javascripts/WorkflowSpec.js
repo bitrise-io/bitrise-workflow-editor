@@ -271,4 +271,50 @@ describe("Workflow", function() {
 
     });
 
+    describe("isLoopSafeRunForWorkflow", function() {
+
+        var redWorkflow;
+        var greenWorkflow;
+        var blueWorkflow;
+        beforeEach(function() {
+            redWorkflow = new Workflow("red-workflow");
+            redWorkflow.beforeRunWorkflows = [];
+            redWorkflow.afterRunWorkflows = [];
+            greenWorkflow = new Workflow("green-workflow");
+            greenWorkflow.beforeRunWorkflows = [];
+            greenWorkflow.afterRunWorkflows = [];
+            blueWorkflow = new Workflow("blue-workflow");
+            blueWorkflow.beforeRunWorkflows = [];
+            blueWorkflow.afterRunWorkflows = [];
+        });
+
+        it("should return false if Workflow references self", function() {
+            expect(redWorkflow.isLoopSafeRunForWorkflow(redWorkflow)).toBe(false);
+            expect(greenWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(false);
+            expect(blueWorkflow.isLoopSafeRunForWorkflow(blueWorkflow)).toBe(false);
+        });
+
+        it("should return false if Workflow references self through another Workflow", function() {
+            redWorkflow.afterRunWorkflows.push(greenWorkflow);
+
+            expect(redWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(false);
+        });
+
+        it("should return false if Workflow references self through multiple Workflows", function() {
+            redWorkflow.afterRunWorkflows.push(blueWorkflow);
+            blueWorkflow.afterRunWorkflows.push(greenWorkflow);
+
+            expect(redWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(false);
+        });
+
+        it("should return true if Workflow not references self", function() {
+            redWorkflow.afterRunWorkflows.push(greenWorkflow);
+            greenWorkflow.afterRunWorkflows.push(blueWorkflow);
+
+            expect(blueWorkflow.isLoopSafeRunForWorkflow(redWorkflow)).toBe(true);
+            expect(greenWorkflow.isLoopSafeRunForWorkflow(redWorkflow)).toBe(true);
+            expect(blueWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(true);
+        });
+    });
+
 });
