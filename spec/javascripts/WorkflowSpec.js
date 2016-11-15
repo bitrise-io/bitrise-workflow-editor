@@ -208,4 +208,67 @@ describe("Workflow", function() {
 
     });
 
+    describe("configureWithWorkflowConfig", function() {
+
+        it("should allow custom keys", function() {
+            var workflow = new Workflow("red-workflow");
+            workflow.configureWithWorkflowConfig({
+                unknown_key: "unknown-value",
+                envs: []
+            });
+        });
+
+        it("should not change workflow ID", function() {
+            var workflow = new Workflow("red-workflow");
+            workflow.configureWithWorkflowConfig({
+                id: "blue-workflow",
+                envs: []
+            });
+        });
+
+        it("should configure Workflow", function() {
+            var workflow = new Workflow("red-workflow");
+            workflow.configureWithWorkflowConfig({
+                before_run: [
+                    "green-workflow",
+                    "blue-workflow"
+                ],
+                after_run: [
+                    "blue-workflow"
+                ],
+                envs: [{
+                    "RED-ENV-VAR": "RED-ENV-VAR-VALUE"
+                }, {
+                    "GREEN-ENV-VAR": "GREEN-ENV-VAR-VALUE"
+                }],
+                steps: [{
+                    "red-step": {
+                        title: "Red step"
+                    }
+                }]
+            });
+
+            expect(workflow.envVars.length).toBe(2);
+            expect(workflow.envVars[0].key).toBe("RED-ENV-VAR");
+        });
+
+        it("should not add before & after run Workflows, just return with callback", function() {
+            var workflow = new Workflow("red-workflow");
+            var callback = workflow.configureWithWorkflowConfig({
+                before_run: [
+                    "green-workflow",
+                    "blue-workflow"
+                ],
+                after_run: [
+                    "blue-workflow"
+                ]
+            });
+
+            expect(workflow.beforeRunWorkflows).toBeUndefined();
+            expect(workflow.afterRunWorkflows).toBeUndefined();
+            expect(typeof callback).toBe("function");
+        });
+
+    });
+
 });
