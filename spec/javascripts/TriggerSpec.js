@@ -179,3 +179,22 @@ describe("Trigger", function() {
     });
 
 });
+
+describe("displayNameForTriggerType", function() {
+
+    var $filter;
+    var Trigger;
+
+    beforeEach(module("BitriseWorkflowEditor"));
+    beforeEach(inject(function (_$filter_, _Trigger_) {
+        $filter = _$filter_;
+        Trigger = _Trigger_;
+    }));
+
+    it("should return trigger type display name", function() {
+        expect($filter("displayNameForTriggerType")("push")).toBe("Push");
+        expect($filter("displayNameForTriggerType")("pull-request")).toBe("PR");
+        expect($filter("displayNameForTriggerType")("tag")).toBe("Tag");
+    });
+
+});
