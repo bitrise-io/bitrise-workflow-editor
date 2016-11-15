@@ -196,11 +196,14 @@ variable:
   main_key_mismatch: Main key mismatch.
 trigger:
   validation_error_prefix: "Invalid Trigger: "
-  trigger_config_not_object: "Trigger config is not an object."
-  missing_type: "Trigger type missing."
-  multiple_types: "Multiple types defined."
-  missing_pull_request_target_branch: "Trigger pull request target branch not defined."
-  value_not_string: "<key> should be string."
+  workflow_not_defined: Workflow not defined.
+  invalid_workflow_id: Invalid Workflow ID.
+  workflow_not_found: Workflow not found.
+  trigger_config_not_object: Trigger config is not an object.
+  missing_type: Trigger type missing.
+  multiple_types: Multiple types defined.
+  missing_pull_request_target_branch: Trigger pull request target branch not defined.
+  value_not_string: <key> should be string.
 request_service:
   invalid_mode: Invalid mode!
   load_app_config:
