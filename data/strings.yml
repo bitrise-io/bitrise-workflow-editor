@@ -171,6 +171,7 @@ env_var_editor:
 workflow:
   configure_error_prefix: "Error configuring Workflow: "
 step:
+  validation_error_prefix: "Invalid Step: "
   step_config_not_object: Step config is not an object.
   value_not_string: <key> should be string.
   value_not_boolean: <key> should be boolean.
@@ -181,9 +182,8 @@ step:
   invalid_source: Invalid source.
   invalid_asset_urls: Invalid asset URLs.
   input_error_prefix: "Error configuring a Step's variable: "
-  append_error_prefix: "Error configuring Step: "
 variable:
-  append_error_prefix: "Error configuring variable: "
+  validation_error_prefix: "Invalid Variable: "
   variable_config_not_object: Variable config is not an object.
   no_main_key_found: No main key found.
   only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
@@ -195,8 +195,12 @@ variable:
   opt_value_not_array_of_strings: <key> should be array of strings.
   main_key_mismatch: Main key mismatch.
 trigger:
-  configure_error_prefix: "Error configuring Trigger: "
+  validation_error_prefix: "Invalid Trigger: "
+  trigger_config_not_object: "Trigger config is not an object."
   missing_type: "Trigger type missing."
+  multiple_types: "Multiple types defined."
+  missing_pull_request_target_branch: "Trigger pull request target branch not defined."
+  value_not_string: "<key> should be string."
 request_service:
   invalid_mode: Invalid mode!
   load_app_config:

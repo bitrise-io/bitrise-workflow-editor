@@ -22,25 +22,25 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(stringServi
 
 	Variable.validateVariableConfig = function(variableConfig) {
 		if (!_.isObject(variableConfig) || angular.isArray(variableConfig)) {
-			throw new TypeError("<%= data.strings.variable.variable_config_not_object %>");
+			throw new TypeError("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:variable_config_not_object] %>");
 		}
 
 		if (_.without(_.keys(variableConfig), "opts").length == 0) {
-			throw new Error("<%= data.strings.variable.no_main_key_found %>");
+			throw new Error("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:no_main_key_found] %>");
 		}
 
 		if (_.without(_.keys(variableConfig), "opts").length > 1) {
-			throw new Error("<%= data.strings.variable.only_main_key_and_opts_are_allowed %>");		
+			throw new Error("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:only_main_key_and_opts_are_allowed] %>");		
 		}
 
 		var value = variableConfig[Variable.keyFromVariableConfig(variableConfig)];
 		if (typeof value != "boolean" && typeof value != "number" && typeof value != "string" && !_.isObject(value)) {
-			throw new TypeError("<%= data.strings.variable.invalid_value_format %>")
+			throw new TypeError("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:invalid_value_format] %>")
 		}
 
 		if (variableConfig.opts) {
 			if (!_.isObject(variableConfig.opts) || angular.isArray(variableConfig.opts)) {
-				throw new TypeError("<%= data.strings.variable.opts_not_object %>");
+				throw new TypeError("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:opts_not_object] %>");
 			}
 
 			var stringOptionKeys = ["title", "summary", "description"];
@@ -54,20 +54,20 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(stringServi
 				};
 				
 				if (_.contains(stringOptionKeys, anOptionKey) && typeof anOptionValue != "string") {
-					throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_string %>", stringReplaceParameters));
+					throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:opt_value_not_string] %>", stringReplaceParameters));
 				}
 				else if (_.contains(booleanOptionKeys, anOptionKey) && typeof anOptionValue != "boolean") {
-					throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_boolean %>", stringReplaceParameters));
+					throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:opt_value_not_boolean] %>", stringReplaceParameters));
 				}
 				else if (_.contains(arrayOptionKeys, anOptionKey)) {
 					if (!angular.isArray(anOptionValue)) {
-						throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_array %>", stringReplaceParameters));
+						throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:opt_value_not_array] %>", stringReplaceParameters));
 					}
 
 					if (_.contains(arrayOfStringsOptionKeys, anOptionKey)) {
 						_.each(anOptionValue, function(arrayValue) {
 							if (typeof arrayValue != "string") {
-								throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.variable.opt_value_not_array_of_strings %>", stringReplaceParameters));
+								throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:variable][:validation_error_prefix] %><%= data[:strings][:variable][:opt_value_not_array_of_strings] %>", stringReplaceParameters));
 							}
 						});
 					}
@@ -87,7 +87,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(stringServi
 
 	Variable.prototype.appendVariableConfig = function(variableConfig) {
 		if (Variable.keyFromVariableConfig(variableConfig) != this.key) {
-			throw new Error("<%= data.strings.variable.main_key_mismatch %>");
+			throw new Error("<%= data[:strings][:variable][:main_key_mismatch] %>");
 		}
 
 		this.value = variableConfig[this.key];

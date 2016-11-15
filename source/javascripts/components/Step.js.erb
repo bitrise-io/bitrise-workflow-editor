@@ -22,7 +22,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 
 	Step.validateStepConfig = function(stepConfig) {
 		if (!_.isObject(stepConfig) || angular.isArray(stepConfig)) {
-			throw new TypeError("<%= data.strings.step.step_config_not_object %>");
+			throw new TypeError("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:step_config_not_object] %>");
 		}
 
 		var stringKeys = ["title", "summary", "description", "website", "source_code_url", "support_url", "run_if"];
@@ -38,10 +38,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 			};
 
 			if (_.contains(stringKeys, aKey) && typeof aValue != "string") {
-				throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.step.value_not_string %>", stringReplaceParameters));
+				throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_string] %>", stringReplaceParameters));
 			}
 			else if (_.contains(booleanKeys, aKey) && typeof aValue != "boolean") {
-				throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.step.value_not_boolean %>", stringReplaceParameters));
+				throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_boolean] %>", stringReplaceParameters));
 			}
 			else if (_.contains(dateKeys, aKey)) {
 				try {
@@ -52,21 +52,21 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 					}
 				}
 				catch (date) {
-					throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.step.value_not_date %>", stringReplaceParameters));
+					throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_date] %>", stringReplaceParameters));
 				}
 			}
 			else if (_.contains(objectKeys, aKey) && (!_.isObject(aValue) || angular.isArray(aValue))) {
-				throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.step.value_not_object %>", stringReplaceParameters));
+				throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_object] %>", stringReplaceParameters));
 			}
 			else if (_.contains(arrayKeys, aKey)) {
 				if (!angular.isArray(aValue)) {
-					throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.step.value_not_array %>", stringReplaceParameters));
+					throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_array] %>", stringReplaceParameters));
 				}
 
 				if (_.contains(arrayOfStringsKeys, aKey)) {
 					_.each(aValue, function(arrayValue) {
 						if (typeof arrayValue != "string") {
-							throw new TypeError(stringService.stringReplacedWithParameters("<%= data.strings.step.value_not_array_of_strings %>", stringReplaceParameters));
+							throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_array_of_strings] %>", stringReplaceParameters));
 						}
 					});
 				}
@@ -75,16 +75,16 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 
 		if (stepConfig.source) {
 			if (stepConfig.source.git && (typeof stepConfig.source.git != "string" || !stepConfig.source.commit || typeof stepConfig.source.commit != "string")) {
-				throw new TypeError("<%= data.strings.step.invalid_source %>");
+				throw new TypeError("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:invalid_source] %>");
 			}
 		}
 
 		if (stepConfig.asset_urls) {
 			if (stepConfig.asset_urls["icon.svg"] && typeof stepConfig.asset_urls["icon.svg"] != "string") {
-				throw new TypeError("<%= data.strings.step.invalid_asset_urls %>");
+				throw new TypeError("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:invalid_asset_urls] %>");
 			}
 			if (stepConfig.asset_urls["icon.png"] && typeof stepConfig.asset_urls["icon.png"] != "string") {
-				throw new TypeError("<%= data.strings.step.invalid_asset_urls %>");
+				throw new TypeError("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:invalid_asset_urls] %>");
 			}
 		}
 
@@ -94,7 +94,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 			}
 			catch (error) {
 				var stepError = angular.copy(error);
-				stepError.message = "<%= data.strings.step.append_input_error_prefix %>" + stepError.message;
+				stepError.message = "<%= data[:strings][:step][:input_error_prefix] %>" + stepError.message;
 
 				throw stepError;
 			}
