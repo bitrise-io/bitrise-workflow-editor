@@ -48,10 +48,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 					var date = new Date(aValue);
 
 					if (isNaN(date.getTime())) {
-						throw date;
+						throw new Error();
 					}
 				}
-				catch (date) {
+				catch (error) {
 					throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:step][:validation_error_prefix] %><%= data[:strings][:step][:value_not_date] %>", stringReplaceParameters));
 				}
 			}
