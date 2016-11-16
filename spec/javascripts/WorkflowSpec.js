@@ -9,7 +9,7 @@ describe("Workflow", function() {
         bitriseSteplibService = _bitriseSteplibService_;
         bitriseSteplibService.stepFromCVS = function(cvs) {
             if (!_.contains(["red-step", "green-step", "blue-step"], cvs)) {
-                throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:id_not_found] %>");
+                throw new Error("Step not found.");
             }
         }
     }));
