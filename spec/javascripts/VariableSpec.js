@@ -118,46 +118,87 @@ describe("Variable", function() {
         };
         var strippedVariableConfig;
 
-        it("should return stripped variable config", function() {
+        it("should keep value", function() {
+            variable = Variable.createFromVariableConfig({
+                KEY: "GREEN-VALUE"
+            });
+
+            expect(variable.strippedVariableConfig(defaultVariableConfig).KEY).toBe("GREEN-VALUE");
+        });
+
+        it("should keep value, even if it matches default value", function() {
+            variable = Variable.createFromVariableConfig({
+                KEY: "RED-VALUE"
+            });
+
+            expect(variable.strippedVariableConfig(defaultVariableConfig).KEY).toBe("RED-VALUE");
+        });
+
+        it("should strip options which matches the default value", function() {
+            variable = Variable.createFromVariableConfig({
+                KEY: "RED-VALUE",
+                opts: {
+                    title: "Red title"
+                }
+            });
+
+            expect(variable.strippedVariableConfig(defaultVariableConfig).opts.title).toBeUndefined();
+        });
+
+        it("should keep options which differs from the default value", function() {
+            variable = Variable.createFromVariableConfig({
+                KEY: "RED-VALUE",
+                opts: {
+                    title: "Green title"
+                }
+            });
+
+            expect(variable.strippedVariableConfig(defaultVariableConfig).opts.title).toBe("Green title");
+        });
+
+        it("should keep options not found in default config", function() {
+            variable = Variable.createFromVariableConfig({
+                KEY: "GREEN-VALUE",
+                opts: {
+                    unknown_opt: "unknown-opt-value"
+                }
+            });
+
+            strippedVariableConfig = variable.strippedVariableConfig(defaultVariableConfig);
+
+            expect(strippedVariableConfig.opts.unknown_opt).not.toBeUndefined();
+            expect(strippedVariableConfig.opts.unknown_opt).toBe("unknown-opt-value");
+        });
+
+        it("should keep & strip based on sum of appended configs and UI edit when comparing", function() {
             variable = Variable.createFromVariableConfig({
                 KEY: "GREEN-VALUE",
                 opts: {
                     title: "Green title",
                     is_expand: false,
-                    is_required: true,
-                    unknown_opt: "unknown-opt-value"
+                    is_required: true
                 }
             });
 
             variable.appendVariableConfig({
                 KEY: "BLUE-VALUE",
                 opts: {
-                    summary: "Blue summary",
                     is_expand: true,
-                    is_required: false,
-                    value_options: [
-                        "option-a",
-                        "option-b"
-                    ]
+                    is_required: false
                 }
             });
+
+            variable.description = "Green variable description";
 
             strippedVariableConfig = variable.strippedVariableConfig(defaultVariableConfig);
 
             expect(strippedVariableConfig.KEY).toBe("BLUE-VALUE");
             expect(strippedVariableConfig.opts.title).toBe("Green title");
-            expect(strippedVariableConfig.opts.summary).toBe("Blue summary");
-            expect(strippedVariableConfig.opts.description).toBeUndefined();
             expect(strippedVariableConfig.opts.is_expand).toBeUndefined();
             expect(strippedVariableConfig.opts.is_required).not.toBeUndefined();
             expect(strippedVariableConfig.opts.is_required).toBe(false);
-            expect(strippedVariableConfig.opts.unknown_opt).not.toBeUndefined();
-            expect(strippedVariableConfig.opts.unknown_opt).toBe("unknown-opt-value");
-            expect(strippedVariableConfig.opts.value_options).not.toBeUndefined();
-            expect(strippedVariableConfig.opts.value_options).toEqual([
-                "option-a",
-                "option-b"
-            ]);
+            expect(strippedVariableConfig.opts.description).not.toBeUndefined();
+            expect(strippedVariableConfig.opts.description).toBe("Green variable description");
         });
 
     });

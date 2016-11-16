@@ -78,26 +78,38 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(stringServi
 	};
 
 	Variable.prototype.strippedVariableConfig = function(defaultVariableConfig) {
-		var strippedVariableConfig = {};
+		var strippedVariableConfig = {
+			opts: {}
+		};
 
 		var self = this;
 		_.each(this.variableConfigs, function(aVariableConfig) {
 			strippedVariableConfig[self.key] = aVariableConfig[self.key];
 
 			_.each(aVariableConfig.opts, function(anOption, anOptionID) {
-				if (!strippedVariableConfig.opts) {
-					strippedVariableConfig.opts = {};
-				}
-
 				strippedVariableConfig.opts[anOptionID] = angular.copy(anOption);
 			});
 		});
+
+		strippedVariableConfig.opts.title = this.title;
+		strippedVariableConfig.opts.summary = this.summary;
+		strippedVariableConfig.opts.description = this.description;
+		strippedVariableConfig.opts.is_expand = this.isExpand;
+		strippedVariableConfig.opts.skip_if_empty = this.skipIfEmpty;
+		strippedVariableConfig.opts.is_required = this.isRequired;
+		strippedVariableConfig.opts.is_dont_change_value = this.isDontChangeValue;
+		strippedVariableConfig.opts.is_template = this.isTemplate;
+		strippedVariableConfig.opts.value_options = angular.copy(this.valueOptions);
 
 		_.each(_.pick(strippedVariableConfig.opts, function(anOption, anOptionID) {
 			return angular.equals(anOption, defaultVariableConfig.opts[anOptionID]);
 		}), function(anOption, anOptionID) {
 			delete strippedVariableConfig.opts[anOptionID];
 		});
+
+		if (_.isEmpty(strippedVariableConfig.opts)) {
+			delete strippedVariableConfig["opts"];
+		}
 
 		return strippedVariableConfig;
 	};
