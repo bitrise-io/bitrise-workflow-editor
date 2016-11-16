@@ -56,16 +56,6 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 	};
 
 	bitriseSteplibService.stepFromCVS = function(cvs) {
-		if (!cvs) {
-			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.no_cvs %>");
-		}
-
-		if (!this.steps) {
-			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.not_loaded %>");
-		}
-
-		cvs = cvs + "";
-
 		var cvsSplitBySteplibSource = cvs.split("::");
 		if (cvsSplitBySteplibSource.length > 2) {
 			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.multiple_sources %>");
@@ -109,10 +99,6 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 	};
 
 	bitriseSteplibService.changeStepToVersion = function(step, version) {
-		if (!bitriseSteplibService.isBitriseSteplibStep(step)) {
-			throw new ReferenceError("<%= data.strings.bitrise_steplib_service.not_a_bitrise_steplib_step %>");
-		}
-
 		var stepConfigs = step.stepConfigs;
 
 		step.clear();
@@ -133,28 +119,16 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 	};
 
 	bitriseSteplibService.updateStepToLatestVersion = function(step) {
-		if (!bitriseSteplibService.isBitriseSteplibStep(step)) {
-			throw new ReferenceError("<%= data.strings.bitrise_steplib_service.not_a_bitrise_steplib_step %>");
-		}
-
 		var latestVersion = this.latestStepVersions[step.id];
 
 		this.changeStepToVersion(step, latestVersion);
 	};
 
 	bitriseSteplibService.versionsOfStep = function(step) {
-		if (!bitriseSteplibService.isBitriseSteplibStep(step)) {
-			return undefined;
-		}
-
 		return _.keys(this.steps[step.id]);
 	}
 
 	bitriseSteplibService.isStepLatestVersion = function(step) {
-		if (!bitriseSteplibService.isBitriseSteplibStep(step)) {
-			return undefined;
-		}
-
 		return step.version == this.latestStepVersions[step.id];
 	};
 

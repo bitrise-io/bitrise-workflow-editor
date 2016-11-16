@@ -33,52 +33,6 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function(stringServic
 		}
 	};
 
-	Trigger.validateTriggerConfig = function(triggerConfig, workflows) {
-		if (!_.isObject(triggerConfig) || angular.isArray(triggerConfig)) {
-			throw new TypeError("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:trigger_config_not_object] %>");
-		}
-
-		if (triggerConfig.workflow === undefined) {
-			throw new Error("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:workflow_not_defined] %>");
-		}
-		if (typeof triggerConfig.workflow != "string") {
-			throw new Error("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:invalid_workflow_id] %>");
-		}
-		if (!_.find(workflows, {
-			id: triggerConfig.workflow
-		})) {
-			throw new Error("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:workflow_not_found] %>");
-		}
-
-		var isTypeDefined = false;
-
-		_.each(["push_branch", "pull_request_source_branch", "tag"], function(aTriggerConfigParameterKey) {
-			if (triggerConfig[aTriggerConfigParameterKey] === undefined) {
-				return;
-			}
-
-			if (typeof triggerConfig[aTriggerConfigParameterKey] != "string") {
-				throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:value_not_string] %>", {
-					key: aTriggerConfigParameterKey
-				}));
-			}
-
-			if (isTypeDefined) {
-				throw new Error("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:multiple_types] %>");
-			}
-
-			isTypeDefined = true;
-		});
-
-		if (!isTypeDefined) {
-			throw new Error("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:missing_type] %>");
-		}
-
-		if (triggerConfig.pull_request_source_branch !== undefined && typeof triggerConfig.pull_request_target_branch != "string") {
-			throw new Error("<%= data[:strings][:trigger][:validation_error_prefix] %><%= data[:strings][:trigger][:missing_pull_request_target_branch] %>");
-		}
-	};
-
 	Trigger.createFromTriggerConfig = function(triggerConfig, workflows) {
 		var trigger;
 

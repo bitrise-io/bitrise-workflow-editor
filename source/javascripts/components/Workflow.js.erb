@@ -12,58 +12,6 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(stringServi
 		this.steps;
 	};
 
-	Workflow.validateWorkflowConfig = function(workflowConfig) {
-		if (!_.isObject(workflowConfig) || angular.isArray(workflowConfig)) {
-			throw new TypeError("<%= data[:strings][:workflow][:validation_error_prefix] %><%= data[:strings][:workflow][:workflow_config_not_object] %>");
-		}
-
-		_.each(["after_run", "before_run", "envs", "steps"], function(aKey) {
-			if (workflowConfig[aKey] !== undefined && !angular.isArray(workflowConfig[aKey])) {
-				throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:workflow][:validation_error_prefix] %><%= data[:strings][:workflow][:value_not_array] %>", {
-					key: aKey
-				}));
-			}
-		});
-
-		_.each(_.union(workflowConfig.before_run, workflowConfig.after_run), function(aWorkflowID, id, list) {
-			if (typeof aWorkflowID != "string") {
-				throw new TypeError(stringService.stringReplacedWithParameters("<%= data[:strings][:workflow][:validation_error_prefix] %><%= data[:strings][:workflow][:workflow_id_not_string] %>", {
-					workflow_id_source: list == workflowConfig.before_run ? "before_run" : "after_run"
-				}));
-			}
-		});
-
-		_.each(workflowConfig.envs, function(anEnvVarConfig) {
-			try {
-				Variable.validateVariableConfig(anEnvVarConfig);
-			}
-			catch (error) {
-				var workflowError = angular.copy(error);
-				workflowError.message = "<%= data[:strings][:workflow][:env_var_error_prefix] %>" + workflowError.message;
-
-				throw workflowError;
-			}
-		});
-
-		_.each(workflowConfig.steps, function(aStepConfig) {
-			if (!_.isObject(aStepConfig) || angular.isArray(aStepConfig) || _.keys(aStepConfig).length != 1 || typeof _.first(_.keys(aStepConfig)) != "string") {
-				throw new TypeError("<%= data[:strings][:workflow][:step_error_prefix] %><%= data[:strings][:workflow][:step_config_format_error] %>");
-			}
-			var stepCVS = _.first(_.keys(aStepConfig));
-
-			try {
-				bitriseSteplibService.stepFromCVS(stepCVS);
-				Step.validateStepConfig(aStepConfig[stepCVS]);
-			}
-			catch (error) {
-				var workflowError = angular.copy(error);
-				workflowError.message = "<%= data[:strings][:workflow][:step_error_prefix] %>" + workflowError.message;
-
-				throw workflowError;
-			}
-		});
-	};
-
 	Workflow.prototype.configureWithWorkflowConfig = function(workflowConfig) {
 		if (workflowConfig.envs) {
 			this.envVars = _.map(workflowConfig.envs, Variable.createFromVariableConfig);
@@ -73,7 +21,15 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(stringServi
 			this.steps = _.map(workflowConfig.steps, function(aStepConfig) {
 				var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aStepConfig))));
 
-				return bitriseSteplibService.stepFromCVS(stepCVS);
+				try {
+					return bitriseSteplibService.stepFromCVS(stepCVS);
+				}
+				catch (error) {
+					var step = Step.createFromStepConfig(aStepConfig);
+					step.cvs = stepCVS;
+
+					return step;
+				}
 			});
 		}
 
@@ -84,15 +40,9 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(stringServi
 			self.afterRunWorkflows = [];
 
 			_.each(_.union(workflowConfig.before_run, workflowConfig.after_run), function(aWorkflowID, index, workflowIDs) {
-				var anOtherWorkflow = _.find(allWorkflows, {
+				(workflowIDs == workflowConfig.before_run ? self.beforeRunWorkflows : self.afterRunWorkflows).push(_.find(allWorkflows, {
 					id: aWorkflowID
-				});
-
-				if (!anOtherWorkflow) {
-					throw "Workflow not found with ID: " + aWorkflowID;
-				}
-
-				(workflowIDs == workflowConfig.before_run ? self.beforeRunWorkflows : self.afterRunWorkflows).push(anOtherWorkflow);
+				}));
 			});
 		}
 	};

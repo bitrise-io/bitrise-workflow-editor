@@ -35,6 +35,10 @@ editor:
     no_env_vars: No Env Vars for this Workflow yet
     title: Workflow Environment Variables
   steps:
+    pseudo_preparing: Preparing the Build Environment
+    pseudo_cleaning: Cleaning up the Virtual Machine
+    cvs_error: Error loading step from provided identifier.
+    non_bitrise_steplib_step_info: This step is not from the Bitrise Steplib, thus editing via the Workflow Editor is not available.
     add:
       action: Add step
       select: "Select a step from the list below:"
@@ -168,47 +172,6 @@ env_var_editor:
   replace_variables_description: "Enable this if you want to replace Environment Variables in your input with the variable's assigned value."
   replace_variables_more_info: "More info"
   delete_env_var: "Delete"
-workflow:
-  validation_error_prefix: "Invalid Workflow: "
-  workflow_config_not_object: Workflow config is not an object.
-  workflow_id_not_string: "<workflow_id_source> can only contain strings."
-  env_var_error_prefix: "Error configuring a Workflow Environment Variable: "
-  step_error_prefix: "Error configuring a Step: "
-  step_config_format_error: "Invalid Step config format."
-step:
-  validation_error_prefix: "Invalid Step: "
-  step_config_not_object: Step config is not an object.
-  value_not_string: <key> should be string.
-  value_not_boolean: <key> should be boolean.
-  value_not_date: <key> should be date.
-  value_not_object: <key> should be object.
-  value_not_array: <key> should be array.
-  value_not_array_of_strings: <key> should be array of strings.
-  invalid_source: Invalid source.
-  invalid_asset_urls: Invalid asset URLs.
-  input_error_prefix: "Error configuring a Step's variable: "
-variable:
-  validation_error_prefix: "Invalid Variable: "
-  variable_config_not_object: Variable config is not an object.
-  no_main_key_found: No main key found.
-  only_main_key_and_opts_are_allowed: Only one arbitrary key (main key) and 'opts' are allowed.
-  invalid_value_format: Invalid value format.
-  opts_not_object: Options should be object.
-  opt_value_not_string: <key> should be string.
-  opt_value_not_boolean: <key> should be boolean.
-  opt_value_not_array: <key> should be array.
-  opt_value_not_array_of_strings: <key> should be array of strings.
-  main_key_mismatch: Main key mismatch.
-trigger:
-  validation_error_prefix: "Invalid Trigger: "
-  workflow_not_defined: Workflow not defined.
-  invalid_workflow_id: Invalid Workflow ID.
-  workflow_not_found: Workflow not found.
-  trigger_config_not_object: Trigger config is not an object.
-  missing_type: Trigger type missing.
-  multiple_types: Multiple types defined.
-  missing_pull_request_target_branch: Trigger pull request target branch not defined.
-  value_not_string: <key> should be string.
 request_service:
   invalid_mode: Invalid mode!
   load_app_config:
@@ -223,14 +186,11 @@ request_service:
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.
-    error_prefix: "Error loading Bitrise steplib:"
+    error_prefix: "Error loading Bitrise steplib: "
   step_from_cvs:
-    no_cvs: No CVS specified.
-    not_loaded: Bitrise steplib not loaded.
     multiple_sources: Multiple steplib sources specified.
     multiple_versions: Multiple versions specified.
     no_id: Step ID not specified.
     id_not_found: Step ID not found in Bitrise steplib.
     no_version: Step version not specified.
     version_not_found: Step ID not found in Bitrise steplib.
-  not_a_bitrise_steplib_step: Not a Bitrise steplib step.

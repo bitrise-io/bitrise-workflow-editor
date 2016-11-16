@@ -202,8 +202,35 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		return _.union([viewModel.buildEnvironmentPreparePseudoStep], viewModel.selectedWorkflow.steps, [viewModel.virtualMachineCleanupPseudoStep]);
 	};
 
-	viewModel.isPseudoStep = function(step) {
-		return step == viewModel.buildEnvironmentPreparePseudoStep || step == viewModel.virtualMachineCleanupPseudoStep;
+	viewModel.stepType = function(step) {
+		if (step == viewModel.buildEnvironmentPreparePseudoStep || step == viewModel.virtualMachineCleanupPseudoStep) {
+			return "pseudo-step";
+		}
+		if (step.id === undefined) {
+			return "errorous-step";
+		}
+		if (bitriseSteplibService.isBitriseSteplibStep(step)) {
+			return "bitrise-steplib-step";
+		}
+
+		return "non-bitrise-steplib-step";
+	}
+
+	viewModel.stepDisplayName = function(step) {
+		if (step == viewModel.buildEnvironmentPreparePseudoStep) {
+			return "<%= data[:strings][:editor][:steps][:pseudo_preparing] %>";
+		}
+		if (step == viewModel.virtualMachineCleanupPseudoStep) {
+			return "<%= data[:strings][:editor][:steps][:pseudo_cleaning] %>";
+		}
+		if (step.id === undefined) {
+			return step.cvs;
+		}
+		if (bitriseSteplibService.isBitriseSteplibStep(step)) {
+			return step.title;
+		}
+
+		return step.id;
 	};
 
 	viewModel.stepSelected = function(step) {
@@ -224,7 +251,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		}
 
 		viewModel.selectedStep = step;
-		viewModel.selectedStepRequestedVersion = step && !viewModel.isPseudoStep(step) ? step.requestedVersion() : undefined;
+		viewModel.selectedStepRequestedVersion = step && viewModel.stepType(step) == "bitrise-steplib-step" ? step.requestedVersion() : undefined;
 	};
 
 	viewModel.addStepSelectedAtIndex = function(index) {
