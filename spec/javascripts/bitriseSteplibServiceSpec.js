@@ -11,40 +11,59 @@ describe("bitriseSteplibService", function() {
 		Variable = _Variable_;
 	}));
 
-	describe("stepFromCVS", function() {
-
-		beforeEach(function() {
-			bitriseSteplibService.specs = {
-				steps: {
-					"red-step": {
-						versions: {
-							"1.1": {
-								title: "Red step 1.1"
-							},
-							"1.0": {
-								title: "Red step 1.0"
-							}
+	beforeEach(function() {
+		bitriseSteplibService.specs = {
+			steps: {
+				"red-step": {
+					versions: {
+						"1.1": {
+							title: "Red step 1.1"
 						},
-						latest_version_number: 1.1
+						"1.0": {
+							title: "Red step 1.0",
+							summary: "Red summary",
+							description: "Red description",
+							is_always_run: true,
+							inputs: [{
+								red_input: "red-input-value",
+								opts: {
+									title: "Red input title"
+								}
+							}, {
+								green_input: "green-input-value",
+								opts: {
+									title: "Green input title"
+								}
+							}, {
+								blue_input: "blue-input-value",
+								opts: {
+									title: "Blue input title"
+								}
+							}]
+						}
 					},
-					"green-step": {
-						versions: {
-							"1.1": {
-								title: "Green step 1.1"
-							},
-							"1.0": {
-								title: "Green step 1.0"
-							}
+					latest_version_number: 1.1
+				},
+				"green-step": {
+					versions: {
+						"1.1": {
+							title: "Green step 1.1"
 						},
-						latest_version_number: 1.1
-					}
+						"1.0": {
+							title: "Green step 1.0"
+						}
+					},
+					latest_version_number: 1.1
 				}
 			}
+		}
 
-			bitriseSteplibService.latestStepVersions = _.mapObject(bitriseSteplibService.specs.steps, function(versionsOfStep, aStepID) {
-				return bitriseSteplibService.specs.steps[aStepID].latest_version_number;
-			});
+		bitriseSteplibService.latestStepVersions = _.mapObject(bitriseSteplibService.specs.steps, function(versionsOfStep, aStepID) {
+			return bitriseSteplibService.specs.steps[aStepID].latest_version_number;
 		});
+	});
+
+	describe("stepFromCVS", function() {
 
 		it("should create step as Bitrise steplib step", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step@1.0"))).toBe(true);
@@ -110,49 +129,46 @@ describe("bitriseSteplibService", function() {
 		});
 	});
 
+	describe("isBitriseSteplibStep", function() {
+
+		it("should return true if cvs specifies Bitrise steplib source URL", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("https://bitrise-steplib-collection.s3.amazonaws.com/spec.json::red-step"))).toBe(true);
+		});
+
+		it("should return true if cvs has no source specified", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step"))).toBe(true);
+		});
+
+		it("should return true if cvs has empty source specified", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("::red-step"))).toBe(true);
+		});
+
+		it("should return false if cvs has 'git' specified", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("git::red-step.git"))).toBe(false);
+		});
+
+		it("should return false if cvs has '_' specified", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("_::red-step"))).toBe(false);
+		});
+
+		it("should return false if cvs has source URL specified", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("source-url.git::red-step"))).toBe(false);
+		});
+		
+	});
+
 	describe("strippedStepConfigOfStep", function() {
 
 		var step;
 
 		beforeEach(function() {
-			bitriseSteplibService.specs = {
-				steps: {
-					"red-step": {
-						versions: {
-							"1.0": {
-								title: "Red step",
-								summary: "Red summary",
-								description: "Red description",
-								is_always_run: true,
-								inputs: [{
-									red_input: "red-input-value",
-									opts: {
-										title: "Red input title"
-									}
-								}, {
-									green_input: "green-input-value",
-									opts: {
-										title: "Green input title"
-									}
-								}, {
-									blue_input: "blue-input-value",
-									opts: {
-										title: "Blue input title"
-									}
-								}]
-							}
-						}
-					}
-				}
-			}
-
 			step = new Step("red-step");
 			step.version = "1.0";
 		});
 
 		it("should strip parameters which match the default", function() {
 			step.appendStepConfig({
-				title: "Red step"
+				title: "Red step 1.0"
 			});
 
 			expect(bitriseSteplibService.strippedStepConfigOfStep(step).title).toBeUndefined();
@@ -186,7 +202,7 @@ describe("bitriseSteplibService", function() {
 			});
 
 			step.appendStepConfig({
-				title: "Red step",
+				title: "Red step 1.0",
 				summary: "Green summary",
 				is_always_run: false
 			});

@@ -78,11 +78,13 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 		}
 
 		var version = cvsSplitByVersion.length > 1 ? _.last(cvsSplitByVersion) : (isBitriseSteplibStep ? this.latestStepVersions[id] : null);
-		if (!version || version.length == 0) {
-			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.no_version %>");
-		}
-		if (isBitriseSteplibStep && (!this.specs.steps[id].versions || !this.specs.steps[id].versions[version])) {
-			throw new ReferenceError("<%= data.strings.bitrise_steplib_service.step_from_cvs.version_not_found %>");
+		if (isBitriseSteplibStep) {
+			if (!version || version.length == 0) {
+				throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.no_version %>");
+			}
+			if (!this.specs.steps[id].versions || !this.specs.steps[id].versions[version]) {
+				throw new ReferenceError("<%= data.strings.bitrise_steplib_service.step_from_cvs.version_not_found %>");
+			}
 		}
 
 		var step = isBitriseSteplibStep ? Step.createFromStepConfig(this.specs.steps[id].versions[version]) : new Step();
