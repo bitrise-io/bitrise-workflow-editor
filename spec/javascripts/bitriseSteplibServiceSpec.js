@@ -11,6 +11,105 @@ describe("bitriseSteplibService", function() {
 		Variable = _Variable_;
 	}));
 
+	describe("stepFromCVS", function() {
+
+		beforeEach(function() {
+			bitriseSteplibService.specs = {
+				steps: {
+					"red-step": {
+						versions: {
+							"1.1": {
+								title: "Red step 1.1"
+							},
+							"1.0": {
+								title: "Red step 1.0"
+							}
+						},
+						latest_version_number: 1.1
+					},
+					"green-step": {
+						versions: {
+							"1.1": {
+								title: "Green step 1.1"
+							},
+							"1.0": {
+								title: "Green step 1.0"
+							}
+						},
+						latest_version_number: 1.1
+					}
+				}
+			}
+
+			bitriseSteplibService.latestStepVersions = _.mapObject(bitriseSteplibService.specs.steps, function(versionsOfStep, aStepID) {
+				return bitriseSteplibService.specs.steps[aStepID].latest_version_number;
+			});
+		});
+
+		it("should create step as Bitrise steplib step", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step@1.0"))).toBe(true);
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step"))).toBe(true);
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("::red-step@1.0"))).toBe(true);
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("https://bitrise-steplib-collection.s3.amazonaws.com/spec.json::red-step@1.0"))).toBe(true);
+		});
+
+		it("should create step as not Bitrise steplib step", function() {
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("custom-source::custom-step@1.0"))).toBe(false);
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("git::custom-step.git@1.0"))).toBe(false);
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("_::custom-step@1.0"))).toBe(false);
+			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("custom-source::red-step@1.0"))).toBe(false);
+		});
+
+		it("should configure step with default values if it is a Bitrise steplib step", function() {
+			expect(bitriseSteplibService.stepFromCVS("red-step@1.0").title).toBe("Red step 1.0");
+			expect(bitriseSteplibService.stepFromCVS("green-step").title).toBe("Green step 1.1");
+		});
+
+		it("should throw error if cvs has multiple '::'", function() {
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("source::source::red-step@1.0").toThrow();
+			});
+		});
+
+		it("should throw error if cvs has multiple '@'", function() {
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("source::red-step@1.0@1.1").toThrow();
+			});
+		});
+
+		it("should throw error if no ID specified", function() {
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("source::@1.0").toThrow();
+			});
+
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("source::").toThrow();
+			});
+		});
+
+		it("should throw error if is Bitrise steplib step, but ID not found in Bitrise steplib", function() {
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("::blue-step@1.0").toThrow();
+			});
+
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("blue-step@1.0").toThrow();
+			});
+		});
+
+		it("should throw error if has '@', but no version specified", function() {
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("source::red-step@").toThrow();
+			});
+		});
+
+		it("should throw error if is Bitrise steplib step, but version not found in Bitrise steplib", function() {
+			expect(function() {
+				bitriseSteplibService.stepFromCVS("red-step@1.2").toThrow();
+			});
+		});
+	});
+
 	describe("strippedStepConfigOfStep", function() {
 
 		var step;

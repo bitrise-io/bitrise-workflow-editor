@@ -188,8 +188,8 @@ bitrise_steplib_service:
     default_error: Error loading Bitrise steplib.
     error_prefix: "Error loading Bitrise steplib: "
   step_from_cvs:
-    multiple_sources: Multiple steplib sources specified.
-    multiple_versions: Multiple versions specified.
+    multiple_source_separators: "Multiple source separators specified."
+    multiple_version_separators: Multiple version separators specified.
     no_id: Step ID not specified.
     id_not_found: Step ID not found in Bitrise steplib.
     no_version: Step version not specified.
