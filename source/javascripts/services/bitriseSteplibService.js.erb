@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, Step) {
+angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, Step, Variable) {
 
 	var bitriseSteplibService = {
 		sourceURL: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json",
@@ -130,6 +130,94 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 
 	bitriseSteplibService.isStepLatestVersion = function(step) {
 		return step.version == this.latestStepVersions[step.id];
+	};
+
+	bitriseSteplibService.strippedStepConfigOfStep = function(step) {
+		var defaultStepConfig = this.specs.steps[step.id].versions[step.version];
+		var strippedStepConfig = {};
+
+		_.each(step.stepConfigs, function(aStepConfig) {
+			_.each(aStepConfig, function(aParameter, aParameterID) {
+				strippedStepConfig[aParameterID] = angular.copy(aParameter);
+			});
+		});
+
+		strippedStepConfig.title = step.title;
+		strippedStepConfig.summary = step.summary;
+		strippedStepConfig.description = step.description;
+		strippedStepConfig.source_code_url = step.sourceURL;
+		strippedStepConfig.is_always_run = step.isAlwaysRun;
+		strippedStepConfig.type_tags = angular.copy(step.typeTags);
+
+		_.each(_.pick(strippedStepConfig, function(aParameter, aParameterID) {
+			if (aParameterID == "inputs" || aParameterID == "outputs") {
+				return true;
+			}
+
+			return angular.equals(aParameter, defaultStepConfig[aParameterID]);
+		}), function(aParameter, aParameterID) {
+			delete strippedStepConfig[aParameterID];
+		});
+
+		var self = this;
+		_.each(["inputs", "outputs"], function(aVariableSource) {
+			var variables = step[aVariableSource];
+
+			strippedStepConfig[aVariableSource] = []
+
+			_.each(variables, function(aVariable) {
+				var defaultVariableConfig = _.find(self.specs.steps[step.id].versions[step.version][aVariableSource], function(aVariableConfig) {
+					return Variable.keyFromVariableConfig(aVariableConfig) == aVariable.key;
+				});
+
+				var strippedVariableConfig = bitriseSteplibService.strippedVariableConfigOfVariable(aVariable, defaultVariableConfig);
+				if (aVariable.value != defaultVariableConfig[aVariable.key] || strippedVariableConfig.opts !== undefined) {
+					strippedStepConfig[aVariableSource].push(strippedVariableConfig);
+				}
+			});
+
+			if (_.isEmpty(strippedStepConfig[aVariableSource])) {
+				delete strippedStepConfig[aVariableSource];
+			}
+		});
+
+		return strippedStepConfig;
+	};
+
+	bitriseSteplibService.strippedVariableConfigOfVariable = function(variable, defaultVariableConfig) {
+		var strippedVariableConfig = {
+			opts: {}
+		};
+
+		_.each(variable.variableConfigs, function(aVariableConfig) {
+			strippedVariableConfig[variable.key] = aVariableConfig[variable.key];
+
+			_.each(aVariableConfig.opts, function(anOption, anOptionID) {
+				strippedVariableConfig.opts[anOptionID] = angular.copy(anOption);
+			});
+		});
+
+		strippedVariableConfig.opts.title = variable.title;
+		strippedVariableConfig.opts.summary = variable.summary;
+		strippedVariableConfig.opts.description = variable.description;
+		strippedVariableConfig.opts.is_expand = variable.isExpand;
+		strippedVariableConfig.opts.skip_if_empty = variable.skipIfEmpty;
+		strippedVariableConfig.opts.is_required = variable.isRequired;
+		strippedVariableConfig.opts.is_dont_change_value = variable.isDontChangeValue;
+		strippedVariableConfig.opts.is_template = variable.isTemplate;
+		strippedVariableConfig.opts.value_options = angular.copy(variable.valueOptions);
+
+		_.each(_.pick(strippedVariableConfig.opts, function(anOption, anOptionID) {
+			return anOption === undefined || angular.equals(anOption, defaultVariableConfig.opts[anOptionID]);
+		}), function(anOption, anOptionID) {
+			delete strippedVariableConfig.opts[anOptionID];
+		});
+
+		if (_.isEmpty(strippedVariableConfig.opts)) {
+			delete strippedVariableConfig["opts"];
+		}
+
+		return strippedVariableConfig;
 	};
 
 	return bitriseSteplibService;

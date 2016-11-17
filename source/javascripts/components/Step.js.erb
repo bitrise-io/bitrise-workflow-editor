@@ -58,7 +58,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 		}
 
 		if (stepConfig.type_tags !== undefined) {
-			this.typeTags = stepConfig.type_tags;
+			this.typeTags = angular.copy(stepConfig.type_tags);
 		}
 
 		var self = this;
