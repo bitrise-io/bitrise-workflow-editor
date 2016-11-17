@@ -171,7 +171,7 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 				});
 
 				var strippedVariableConfig = bitriseSteplibService.strippedVariableConfigOfVariable(aVariable, defaultVariableConfig);
-				if (aVariable.value != defaultVariableConfig[aVariable.key] || strippedVariableConfig.opts !== undefined) {
+				if (!defaultVariableConfig || aVariable.value != defaultVariableConfig[aVariable.key] || strippedVariableConfig.opts !== undefined) {
 					strippedStepConfig[aVariableSource].push(strippedVariableConfig);
 				}
 			});
@@ -208,7 +208,7 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 		strippedVariableConfig.opts.value_options = angular.copy(variable.valueOptions);
 
 		_.each(_.pick(strippedVariableConfig.opts, function(anOption, anOptionID) {
-			return anOption === undefined || angular.equals(anOption, defaultVariableConfig.opts[anOptionID]);
+			return anOption === undefined || (defaultVariableConfig && angular.equals(anOption, defaultVariableConfig.opts[anOptionID]));
 		}), function(anOption, anOptionID) {
 			delete strippedVariableConfig.opts[anOptionID];
 		});
