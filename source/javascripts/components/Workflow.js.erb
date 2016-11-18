@@ -14,22 +14,26 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(stringServi
 
 	Workflow.prototype.configureWithWorkflowConfig = function(workflowConfig) {
 		if (workflowConfig.envs) {
-			this.envVars = _.map(workflowConfig.envs, Variable.createFromVariableConfig);
+			this.envVars = _.map(workflowConfig.envs, function(anEnvVarConfig) {
+				return new Variable(anEnvVarConfig);
+			});
 		}
 
 		if (workflowConfig.steps) {
-			this.steps = _.map(workflowConfig.steps, function(aStepConfig) {
-				var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aStepConfig))));
+			this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
+				var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
+				var step;
+				var userStepConfig = aWrappedUserStepConfig[stepCVS];
 
 				try {
-					return bitriseSteplibService.stepFromCVS(stepCVS);
+					step = bitriseSteplibService.stepFromCVS(stepCVS);
+					step.userStepConfig = userStepConfig;
 				}
 				catch (error) {
-					var step = Step.createFromStepConfig(aStepConfig);
-					step.cvs = stepCVS;
-
-					return step;
+					step = new Step(stepCVS, userStepConfig);
 				}
+
+				return step;
 			});
 		}
 

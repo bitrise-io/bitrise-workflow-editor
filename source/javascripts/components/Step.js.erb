@@ -2,116 +2,71 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, Variable) {
+angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 
-	var Step = function(id) {
-		this.id = id;
-		this.cvs;
+	var Step = function(cvs, userStepConfig, defaultStepConfig) {
+		this.cvs = cvs;
 		this.steplibSourceURL;
+		this.id;
 		this.version;
-		this.title;
-		this.summary;
-		this.description;
-		this.sourceURL;
-		this.iconURL;
-		this.typeTags;
-		this.inputs;
-		this.outputs;
-		this.stepConfigs = [];
+		this.userStepConfig = userStepConfig ? userStepConfig : {};
+		this.defaultStepConfig = defaultStepConfig;
 	};
 
-	Step.createFromStepConfig = function(stepConfig) {
-		var step = new Step();
-		step.appendStepConfig(stepConfig);
-
-		return step;
+	Step.prototype.title = function(newTitle) {
+		parameterGetterSetter(this, "title", newTitle);
 	};
 
-	Step.prototype.appendStepConfig = function(stepConfig) {
-		if (stepConfig.title !== undefined) {
-			this.title = stepConfig.title;
-		}
+	Step.prototype.summary = function(newSummary) {
+		parameterGetterSetter(this, "summary", newSummary);
+	};
 
-		if (stepConfig.summary !== undefined) {
-			this.summary = stepConfig.summary;
-		}
+	Step.prototype.description = function(newDescription) {
+		parameterGetterSetter(this, "description", newDescription);
+	};
 
-		if (stepConfig.description !== undefined) {
-			this.description = stepConfig.description;
-		}
+	Step.prototype.sourceURL = function(newSourceURL) {
+		parameterGetterSetter(this, "source_url", newSourceURL);
+	};
 
-		if (stepConfig.source_code_url !== undefined) {
-			this.sourceURL = stepConfig.source_code_url;
-		}
+	Step.prototype.iconURL = function(newIconURL) {
+		parameterGetterSetter(this, "icon_url", newIconURL);
+	};
 
-		if (stepConfig.asset_urls) {
-			if (stepConfig.asset_urls["icon.svg"]) {
-				this.iconURL = stepConfig.asset_urls["icon.svg"];
-			}
-			else if (stepConfig.asset_urls["icon.png"]) {
-				this.iconURL = stepConfig.asset_urls["icon.png"];
-			}
-		}
+	Step.prototype.typeTags = function(newTypeTags) {
+		parameterGetterSetter(this, "type_tags", newTypeTags);
+	};
 
-		if (stepConfig.is_always_run !== undefined) {
-			this.isAlwaysRun = stepConfig.is_always_run;
-		}
-
-		if (stepConfig.type_tags !== undefined) {
-			this.typeTags = angular.copy(stepConfig.type_tags);
-		}
-
+	Step.prototype.inputs = function() {
 		var self = this;
-		_.each([stepConfig.inputs, stepConfig.outputs], function(aVariableConfigs) {
-			var variablesTargetKey = aVariableConfigs == stepConfig.inputs ? "inputs" : "outputs";
 
-			if (aVariableConfigs !== undefined) {
-				if (self[variablesTargetKey] === undefined) {
-					self[variablesTargetKey] = [];
-				}
+		return _.map(this.defaultStepConfig.input, function(aDefaultInputConfig) {
+			var defaultKey = Variable.keyFromVariableConfig(aDefaultInputConfig);
 
-				_.each(aVariableConfigs, function(aVariableConfig) {
-					var variable = Variable.createFromVariableConfig(aVariableConfig);
+			var userInputConfig = _.find(self.userStepConfig.inputs, function(aUserInputConfig) {
+				var key = Variable.keyFromVariableConfig(aUserInputConfig);
 
-					var indexOfVariableInStep = _.findIndex(self[variablesTargetKey], {
-						key: variable.key
-					});
+				return key == defaultKey;
+			});
 
-					if (indexOfVariableInStep == -1) {
-						self[variablesTargetKey].push(variable);
-					}
-					else {
-						self[variablesTargetKey].splice(indexOfVariableInStep, 1, variable);
-					}
-				});
-			}
+			return new Variable(userInputConfig, aDefaultInputConfig);
 		});
-
-		this.stepConfigs.push(stepConfig);
 	};
 
-	Step.prototype.clear = function() {
-		this.title = undefined;
-		this.summary = undefined;
-		this.description = undefined;
-		this.sourceURL = undefined;
-		this.iconURL = undefined;
-		this.isAlwaysRun = undefined;
-		this.typeTags = undefined;
-		this.inputs = undefined;
-		this.outputs = undefined;
-
-		this.stepConfigs = [];
+	Step.prototype.outputs = function() {
+		return this.defaultStepConfig.outputs;
 	};
 
 	Step.prototype.isVerified = function() {
-		if (this.sourceURL === undefined) {
+		var sourceURL = this.sourceURL();
+
+		if (sourceURL === undefined) {
 			return undefined;
 		}
 
 		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
 
-		return regexpForVerifiedStepSourceURL.test(this.sourceURL);
+		return regexpForVerifiedStepSourceURL.test(sourceURL);
 	};
 
 	Step.prototype.requestedVersion = function() {
@@ -122,6 +77,21 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 		return this.version;
 	};
 
+	function parameterGetterSetter(step, parameterKey, parameterValue) {
+		if (parameterValue === undefined) {
+			return step[step.userStepConfig ? "userStepConfig" : "defaultStepConfig"][parameterKey];
+		}
+
+		if (!step.defaultStepConfig || parameterValue != step.defaultStepConfig[parameterKey]) {
+			step.userStepConfig[parameterKey] = parameterValue;
+		}
+		else if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
+			delete step.userStepConfig[parameterKey];
+		}
+
+		return parameterValue;
+	}
+
 	return Step;
 
 });
@@ -129,7 +99,15 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(stringService, 
 angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function() {
 
 	return function(step) {
-		return step && step.iconURL ? step.iconURL : "<%= image_path('step/icon-default.svg') %>";
+		var defaultStepIconURL = "<%= image_path('step/icon-default.svg') %>";
+
+		if (!step) {
+			return defaultStepIconURL;
+		}
+
+		var stepIconURL = step.iconURL();
+
+		return stepIconURL ? stepIconURL : defaultStepIconURL;
 	};
 
 });

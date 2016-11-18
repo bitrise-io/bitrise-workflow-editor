@@ -2,80 +2,155 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Variable", function(stringService) {
+angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 
-	var Variable = function(key, value) {
-		this.key = key;
-		this.value = value;
-		this.title;
-		this.summary;
-		this.description;
-		this.isExpand;
-		this.skipIfEmpty;
-		this.isRequired;
-		this.isDontChangeValue;
-		this.isTemplate;
-		this.valueOptions;
-
-		this.variableConfigs = [];
+	var Variable = function(userVariableConfig, defaultVariableConfig) {
+		this.userVariableConfig = userVariableConfig;
+		this.defaultVariableConfig = defaultVariableConfig;
 	};
 
-	Variable.createFromVariableConfig = function(variableConfig) {
-		var key = Variable.keyFromVariableConfig(variableConfig);
+	Variable.prototype.key = function(newKey) {
+		var keySourceVariableConfig = this[this.userVariableConfig ? "userVariableConfig" : "defaultVariableConfig"];
+		var oldKey = keyFromVariableConfig(keySourceVariableConfig, "opts");
 
-		var variable = new Variable(key);
-		variable.appendVariableConfig(variableConfig);
+		if (newKey === undefined) {
+			return oldKey;
+		}
 
-		return variable;
-	};
+		var oldValue = keySourceVariableConfig[oldKey];
 
-	Variable.prototype.appendVariableConfig = function(variableConfig) {
-		this.value = variableConfig[this.key];
-
-		if (variableConfig.opts) {
-			if (variableConfig.opts.title !== undefined) {
-				this.title = variableConfig.opts.title;
+		if (!this.defaultVariableConfig || newKey != keyFromVariableConfig(this.defaultVariableConfig, "opts")) {
+			if (!this.userVariableConfig) {
+				this.userVariableConfig = {};
+			}
+			else {
+				delete this.userVariableConfig[oldKey];
 			}
 
-			if (variableConfig.opts.summary !== undefined) {
-				this.summary = variableConfig.opts.summary;
+			this.userVariableConfig[newKey] = oldValue;
+		}
+		else if (this.userVariableConfig) {
+			if (this.userVariableConfig.opts) {
+				delete this.userVariableConfig[oldKey];
+				this.userVariableConfig[newKey] = oldValue;
 			}
-
-			if (variableConfig.opts.description !== undefined) {
-				this.description = variableConfig.opts.description;
-			}
-
-			if (variableConfig.opts.is_expand !== undefined) {
-				this.isExpand = variableConfig.opts.is_expand;
-			}
-
-			if (variableConfig.opts.skip_if_empty !== undefined) {
-				this.skipIfEmpty = variableConfig.opts.skip_if_empty;
-			}
-
-			if (variableConfig.opts.is_required !== undefined) {
-				this.isRequired = variableConfig.opts.is_required;
-			}
-
-			if (variableConfig.opts.is_dont_change_value !== undefined) {
-				this.isDontChangeValue = variableConfig.opts.is_dont_change_value;
-			}
-
-			if (variableConfig.opts.is_template !== undefined) {
-				this.isTemplate = variableConfig.opts.is_template;
-			}
-
-			if (variableConfig.opts.value_options !== undefined) {
-				this.valueOptions = angular.copy(variableConfig.opts.value_options);
+			else {
+				this.userVariableConfig = undefined;
 			}
 		}
 
-		this.variableConfigs.push(variableConfig);
+		return newKey;
 	};
 
-	Variable.keyFromVariableConfig = function(variableConfig) {
-		return _.first(_.without(_.keys(variableConfig), "opts"));
+	Variable.prototype.value = function(newValue) {
+		var key = this.key();
+		var defaultKey = keyFromVariableConfig(this.defaultVariableConfig);
+
+		if (newValue === undefined) {
+			return this.userVariableConfig ? this.userVariableConfig[key] : this.defaultVariableConfig[defaultKey];
+		}
+
+		if (!this.defaultVariableConfig || newValue != this.defaultVariableConfig[defaultKey]) {
+			if (!this.userVariableConfig) {
+				this.userVariableConfig = {};
+			}
+
+			this.userVariableConfig[key] = newValue;
+		}
+		else if (this.userVariableConfig) {
+			if (this.userVariableConfig.opts || key != defaultKey) {
+				this.userVariableConfig[key] = newValue;
+			}
+			else {
+				this.userVariableConfig = undefined;
+			}
+		}
+
+		return newValue;
 	};
+
+	Variable.prototype.title = function(newValue) {
+		return optionGetterSetter(this, "title", newValue);
+	};
+
+	Variable.prototype.summary = function(newValue) {
+		return optionGetterSetter(this, "summary", newValue);
+	};
+
+	Variable.prototype.description = function(newValue) {
+		return optionGetterSetter(this, "description", newValue);
+	};
+
+	Variable.prototype.isExpand = function(newValue) {
+		return optionGetterSetter(this, "is_expand", newValue);
+	};
+
+	Variable.prototype.skipIfEmpty = function(newValue) {
+		return optionGetterSetter(this, "skip_if_empty", newValue);
+	};
+
+	Variable.prototype.isRequired = function(newValue) {
+		return optionGetterSetter(this, "is_required", newValue);
+	};
+
+	Variable.prototype.isDontChangeValue = function(newValue) {
+		return optionGetterSetter(this, "is_dont_change_value", newValue);
+	};
+
+	Variable.prototype.isTemplate = function(newValue) {
+		return optionGetterSetter(this, "is_template", newValue);
+	};
+
+	Variable.prototype.valueOptions = function(newValue) {
+		return optionGetterSetter(this, "value_options", newValue);
+	};
+
+	Variable.prototype.keyFromVariableConfig = function(variableConfig) {
+		return _.first(_.without(_.keys(variableConfig), "opts"));
+	}
+
+	function optionGetterSetter(variable, optionKey, optionValue) {
+		var optionSource = variable.userVariableConfig.opts && variable.userVariableConfig.opts[optionKey] !== undefined ? variable.userVariableConfig.opts : variable.defaultVariableConfig.opts;
+
+		if (optionValue === undefined) {
+			return optionSource[optionKey];
+		}
+
+		var key = variable.key();
+		var defaultKey = keyFromVariableConfig(variable.defaultVariableConfig);
+		var defaultValue = variable.defaultVariableConfig ? variable.defaultVariableConfig[defaultKey] : undefined;
+
+		if (!variable.defaultVariableConfig || optionValue != variable.defaultVariableConfig.opts[optionKey]) {
+			if (!variable.userVariableConfig) {
+				variable.userVariableConfig = {};
+
+				if (variable.defaultVariableConfig) {
+					variable.userVariableConfig[key] = defaultValue;
+				}
+			}
+
+			if (!variable.userVariableConfig.opts) {
+				variable.userVariableConfig.opts = {};
+			}
+
+			variable.userVariableConfig.opts[optionKey] = optionValue;
+		}
+		else if (variable.userVariableConfig && variable.userVariableConfig.opts) {
+			if (variable.userVariableConfig.opts[optionKey] !== undefined) {
+				delete variable.userVariableConfig.opts[optionKey];
+			}
+
+			if (_.isEmpty(variable.userVariableConfig.opts)) {
+				delete variable.userVariableConfig["opts"];
+
+				if (key == defaultKey && variable.userVariableConfig[key] == defaultValue) {
+					variable.userVariableConfig = undefined;
+				}
+			}
+		}
+
+		return optionValue;
+	}
 
 	return Variable;
 
@@ -84,11 +159,17 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(stringServi
 angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function() {
 
 	return function(variable) {
-		if (!variable || !variable.key) {
+		if (!variable) {
 			return undefined;
 		}
 
-		return "$" + variable.key;
+		var key = variable.key();
+
+		if (key === undefined) {
+			return undefined;
+		}
+
+		return "$" + key;
 	};
 
 });

@@ -40,12 +40,12 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			return;
 		}
 
-		if (viewModel.selectedEnvVar && viewModel.selectedEnvVar.key.length == 0) {
-			viewModel.selectedEnvVar.key = selectedEnvVarLastValidKey;
+		if (viewModel.selectedEnvVar && viewModel.selectedEnvVar.key().length == 0) {
+			viewModel.selectedEnvVar.key(selectedEnvVarLastValidKey);
 		}
 
 		viewModel.selectedEnvVar = envVar;
-		selectedEnvVarLastValidKey = viewModel.selectedEnvVar ? viewModel.selectedEnvVar.key : null;
+		selectedEnvVarLastValidKey = viewModel.selectedEnvVar ? viewModel.selectedEnvVar.key() : null;
 	};
 
 	viewModel.addNewSelected = function() {

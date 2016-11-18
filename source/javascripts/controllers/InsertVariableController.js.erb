@@ -74,7 +74,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 			});
 			if (!appEnvVarsBySource.variables) {
 				appEnvVarsBySource.variables = _.map(viewModel.popup.parameters.appConfig.app.envs, function(aVariableConfig) {
-					return Variable.createFromVariableConfig(aVariableConfig);
+					return new Variable(aVariableConfig);
 				});
 			}
 
@@ -110,7 +110,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 				defaultOutputsOfSource.variables = [];
 				_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
-					var defaultOutput = Variable.createFromVariableConfig(aDefaultOutputConfig);
+					var defaultOutput = new Variable(aDefaultOutputConfig);
 					defaultOutputsOfSource.variables.push(defaultOutput);
 				});
 			});
@@ -125,7 +125,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 			secretsBySource.variables = [];
 			_.each(secretConfigs, function(aSecretConfig) {
-				var secret = Variable.createFromVariableConfig(aSecretConfig);
+				var secret = new Variable(aSecretConfig);
 				secretsBySource.variables.push(secret);
 			});
 		});
