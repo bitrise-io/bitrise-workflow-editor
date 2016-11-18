@@ -42,7 +42,7 @@ describe("bitriseSteplibService", function() {
 							}]
 						}
 					},
-					latest_version_number: 1.1
+					latest_version_number: "1.1"
 				},
 				"green-step": {
 					versions: {
@@ -53,7 +53,7 @@ describe("bitriseSteplibService", function() {
 							title: "Green step 1.0"
 						}
 					},
-					latest_version_number: 1.1
+					latest_version_number: "1.1"
 				}
 			}
 		}
@@ -127,6 +127,7 @@ describe("bitriseSteplibService", function() {
 				bitriseSteplibService.stepFromCVS("red-step@1.2").toThrow();
 			});
 		});
+
 	});
 
 	describe("isBitriseSteplibStep", function() {
@@ -154,7 +155,41 @@ describe("bitriseSteplibService", function() {
 		it("should return false if cvs has source URL specified", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("source-url.git::red-step"))).toBe(false);
 		});
-		
+
+	});
+
+	describe("changeStepToVersion", function() {
+
+		it("should change to specified version", function() {
+			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			bitriseSteplibService.changeStepToVersion(step, "1.1");
+
+			expect(step.version).toBe("1.1");
+			expect(step.cvs).toBe("red-step@1.1");
+		});
+
+		it("should change to latest version", function() {
+			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			bitriseSteplibService.changeStepToVersion(step, null);
+
+			expect(step.version).toBe("1.1");
+			expect(step.cvs).toBe("red-step");
+		});
+
+		it("should change parameters to those of the new version", function() {
+			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			bitriseSteplibService.changeStepToVersion(step, "1.1");
+
+			expect(step.title).toBe("Red step 1.1");
+		});
+
+		it("should keep parameters which are not defined in the new version", function() {
+			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			bitriseSteplibService.changeStepToVersion(step, "1.1");
+
+			expect(step.summary).toBe("Red summary");
+		});
+
 	});
 
 	describe("strippedStepConfigOfStep", function() {
@@ -297,6 +332,7 @@ describe("bitriseSteplibService", function() {
 			expect(strippedStepConfig.inputs[0].unknown_input).toBe("unknown-input-value");
 			expect(strippedStepConfig.inputs[0].opts.title).toBe("Unknown input");
 		});
+
 	});
 
 	describe("strippedVariableConfigOfVariable", function() {

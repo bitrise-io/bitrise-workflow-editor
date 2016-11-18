@@ -114,8 +114,9 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 			step.version = version;
 		}
 
-		step.appendStepConfig(this.specs.steps[step.id].versions[version]);
-		_.each(stepConfigs, function(aStepConfig) {
+		step.appendStepConfig(_.first(stepConfigs));
+		step.appendStepConfig(this.specs.steps[step.id].versions[step.version]);
+		_.each(_.without(stepConfigs, _.first(stepConfigs)), function(aStepConfig) {
 			step.appendStepConfig(aStepConfig);
 		});
 	};
