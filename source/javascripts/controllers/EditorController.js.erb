@@ -70,7 +70,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
 			return bitriseSteplibService.steps[stepID][aStepVersion];
 		}), function(aStep) {
-			viewModel.addStepPopup.parameters.availableTypeTagFilters = _.union(viewModel.addStepPopup.parameters.availableTypeTagFilters, aStep.typeTags);
+			viewModel.addStepPopup.parameters.availableTypeTagFilters = _.union(viewModel.addStepPopup.parameters.availableTypeTagFilters, aStep.typeTags());
 		});
 
 		viewModel.addStepPopup.parameters.availableTypeTagFilters = _.uniq(viewModel.addStepPopup.parameters.availableTypeTagFilters);
@@ -267,11 +267,11 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		return _.reject(_.map(bitriseSteplibService.steps, function(aStep, stepID) {
 			return aStep[bitriseSteplibService.latestStepVersions[stepID]];
 		}), function(aStep) {
-			if (viewModel.addStepPopup.parameters.titleFilter.length > 0 && aStep.title.toLowerCase().indexOf(viewModel.addStepPopup.parameters.titleFilter.toLowerCase()) == -1) {
+			if (viewModel.addStepPopup.parameters.titleFilter.length > 0 && aStep.title().toLowerCase().indexOf(viewModel.addStepPopup.parameters.titleFilter.toLowerCase()) == -1) {
 				return true;
 			}
 
-			if (viewModel.addStepPopup.parameters.typeTagFilter && !_.contains(aStep.typeTags, viewModel.addStepPopup.parameters.typeTagFilter)) {
+			if (viewModel.addStepPopup.parameters.typeTagFilter && !_.contains(aStep.typeTags(), viewModel.addStepPopup.parameters.typeTagFilter)) {
 				return true;
 			}
 		});
@@ -279,6 +279,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.addStep = function(step) {
 		var newStep = angular.copy(step);
+		newStep.userStepConfig = {};
 		viewModel.selectedWorkflow.steps.splice(viewModel.addStepPopup.parameters.newStepIndex - 1, 0, newStep);
 
 		viewModel.addStepPopup.isVisible = false;

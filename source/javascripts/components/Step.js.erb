@@ -9,52 +9,67 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 		this.steplibSourceURL;
 		this.id;
 		this.version;
-		this.userStepConfig = userStepConfig ? userStepConfig : {};
+		this.userStepConfig = userStepConfig;
 		this.defaultStepConfig = defaultStepConfig;
 	};
 
 	Step.prototype.title = function(newTitle) {
-		parameterGetterSetter(this, "title", newTitle);
+		return parameterGetterSetter(this, "title", newTitle);
 	};
 
 	Step.prototype.summary = function(newSummary) {
-		parameterGetterSetter(this, "summary", newSummary);
+		return parameterGetterSetter(this, "summary", newSummary);
 	};
 
 	Step.prototype.description = function(newDescription) {
-		parameterGetterSetter(this, "description", newDescription);
+		return parameterGetterSetter(this, "description", newDescription);
 	};
 
 	Step.prototype.sourceURL = function(newSourceURL) {
-		parameterGetterSetter(this, "source_url", newSourceURL);
+		return parameterGetterSetter(this, "source_url", newSourceURL);
 	};
 
 	Step.prototype.iconURL = function(newIconURL) {
-		parameterGetterSetter(this, "icon_url", newIconURL);
+		return parameterGetterSetter(this, "icon_url", newIconURL);
 	};
 
 	Step.prototype.typeTags = function(newTypeTags) {
-		parameterGetterSetter(this, "type_tags", newTypeTags);
+		return parameterGetterSetter(this, "type_tags", newTypeTags);
 	};
 
 	Step.prototype.inputs = function() {
-		var self = this;
+		if (this.defaultStepConfig) {
+			var self = this;
 
-		return _.map(this.defaultStepConfig.input, function(aDefaultInputConfig) {
-			var defaultKey = Variable.keyFromVariableConfig(aDefaultInputConfig);
+			return _.map(this.defaultStepConfig.inputs, function(aDefaultInputConfig) {
+				var defaultKey = Variable.keyFromVariableConfig(aDefaultInputConfig);
 
-			var userInputConfig = _.find(self.userStepConfig.inputs, function(aUserInputConfig) {
-				var key = Variable.keyFromVariableConfig(aUserInputConfig);
+				var userInputConfig = self.userStepConfig ? _.find(self.userStepConfig.inputs, function(aUserInputConfig) {
+					var key = Variable.keyFromVariableConfig(aUserInputConfig);
 
-				return key == defaultKey;
+					return key == defaultKey;
+				}) : undefined;
+
+				return new Variable(userInputConfig, aDefaultInputConfig);
 			});
+		}
+		else if (this.userStepConfig) {
+			return _.map(this.userStepConfig.inputs, function(aUserInputConfig) {
+				return new Variable(aUserInputConfig);
+			});
+		}
 
-			return new Variable(userInputConfig, aDefaultInputConfig);
-		});
+		return undefined;
 	};
 
 	Step.prototype.outputs = function() {
-		return this.defaultStepConfig.outputs;
+		if (!this.defaultStepConfig) {
+			return undefined;
+		}
+
+		return _.map(this.defaultStepConfig.outputs, function(aUserInputConfig) {
+			return new Variable(aUserInputConfig);
+		});
 	};
 
 	Step.prototype.isVerified = function() {
@@ -79,10 +94,18 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 
 	function parameterGetterSetter(step, parameterKey, parameterValue) {
 		if (parameterValue === undefined) {
-			return step[step.userStepConfig ? "userStepConfig" : "defaultStepConfig"][parameterKey];
+			if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
+				return step.userStepConfig[parameterKey];
+			}
+
+			return step.defaultStepConfig ? step.defaultStepConfig[parameterKey] : undefined;
 		}
 
 		if (!step.defaultStepConfig || parameterValue != step.defaultStepConfig[parameterKey]) {
+			if (!step.userStepConfig) {
+				step.userStepConfig = {};
+			}
+
 			step.userStepConfig[parameterKey] = parameterValue;
 		}
 		else if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
@@ -99,12 +122,11 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function() {
 
 	return function(step) {
-		var defaultStepIconURL = "<%= image_path('step/icon-default.svg') %>";
-
 		if (!step) {
-			return defaultStepIconURL;
+			return undefined;
 		}
 
+		var defaultStepIconURL = "<%= image_path('step/icon-default.svg') %>";
 		var stepIconURL = step.iconURL();
 
 		return stepIconURL ? stepIconURL : defaultStepIconURL;
@@ -115,21 +137,25 @@ angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function
 angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() {
 
 	return function(step) {
-		if (step && step.sourceURL) {
-			var regexpForGithubStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/.+");
-			if (regexpForGithubStepSourceURL.test(step.sourceURL)) {
-				return "github";
-			}
+		if (!step) {
+			return undefined;
+		}
 
-			var regexpForBitbucketStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?bitbucket\.(?:com|org)\/.+");
-			if (regexpForBitbucketStepSourceURL.test(step.sourceURL)) {
-				return "bitbucket";
-			}
-			
-			var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
-			if (regexpForGitlabStepSourceURL.test(step.sourceURL)) {
-				return "gitlab";
-			}
+		var sourceURL = step.sourceURL();
+
+		var regexpForGithubStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/.+");
+		if (regexpForGithubStepSourceURL.test(sourceURL)) {
+			return "github";
+		}
+
+		var regexpForBitbucketStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?bitbucket\.(?:com|org)\/.+");
+		if (regexpForBitbucketStepSourceURL.test(sourceURL)) {
+			return "bitbucket";
+		}
+		
+		var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
+		if (regexpForGitlabStepSourceURL.test(sourceURL)) {
+			return "gitlab";
 		}
 
 		return "unknown";
