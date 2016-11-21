@@ -53,7 +53,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 				return new Variable(userInputConfig, aDefaultInputConfig);
 			});
 		}
-		else if (this.userStepConfig) {
+		else if (this.userStepConfig && this.userStepConfig.inputs) {
 			return _.map(this.userStepConfig.inputs, function(aUserInputConfig) {
 				return new Variable(aUserInputConfig);
 			});
@@ -63,13 +63,11 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 	};
 
 	Step.prototype.outputs = function() {
-		if (!this.defaultStepConfig) {
-			return undefined;
-		}
+		var outputsSourceStepConfig = this.defaultStepConfig ? this.defaultStepConfig.outputs : (this.userStepConfig ? this.userStepConfig.outputs : undefined);
 
-		return _.map(this.defaultStepConfig.outputs, function(aUserInputConfig) {
+		return outputsSourceStepConfig ? _.map(outputsSourceStepConfig, function(aUserInputConfig) {
 			return new Variable(aUserInputConfig);
-		});
+		}) : undefined;
 	};
 
 	Step.prototype.isVerified = function() {

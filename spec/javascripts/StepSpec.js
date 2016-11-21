@@ -40,7 +40,11 @@ describe("Step", function() {
 			expect(step.title()).toBe("Default title");
 		});
 
-		it("should return undefined if no default nor user defines title", function() {
+		it("should return undefined if nor default nor user defines title", function() {
+			step.defaultStepConfig = {
+				description: "Default description"
+			};
+
 			expect(step.title()).toBeUndefined();
 		});
 
@@ -48,9 +52,8 @@ describe("Step", function() {
 			step.defaultStepConfig = defaultStepConfig;
 			step.userStepConfig = {};
 
-			step.title("New title");
-
-			expect(step.title()).toBe("New title");
+			expect(step.title("New title")).toBe("New title");
+			expect(step.userStepConfig.title).toBe("New title");
 		});
 
 		it("should set user step config if not defined yet", function() {
@@ -59,16 +62,16 @@ describe("Step", function() {
 			step.title("New title");
 
 			expect(step.userStepConfig).not.toBeUndefined();
-			expect(step.title()).toBe("New title");
+			expect(step.userStepConfig.title).toBe("New title");
 		});
 
 		it("should remove title from user config if new is default", function() {
 			step.defaultStepConfig = defaultStepConfig;
-			step.title("New title");
-			step.title("Default title");
 
+			expect(step.title("New title")).toBe("New title");
+			expect(step.title("Default title")).toBe("Default title");
 			expect(step.userStepConfig.title).toBeUndefined();
-			expect(step.title()).toBe("Default title");
+			expect(step.defaultStepConfig.title).toBe("Default title");
 		});
 
 	});
@@ -160,7 +163,7 @@ describe("Step", function() {
 			expect(step.inputs()[0].value()).toBe("new_green_value");
 		});
 
-		it("should return undefined if no default nor user defined config is set", function() {
+		it("should return undefined if no default nor user defines inputs", function() {
 			expect(step.inputs()).toBeUndefined();
 		});
 

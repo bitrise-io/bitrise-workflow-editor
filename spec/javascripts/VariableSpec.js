@@ -7,18 +7,177 @@ describe("Variable", function() {
 		Variable = _Variable_;
 	}));
 
+	describe("key", function() {
+
+		it("should return user defined key if is defined", function() {
+			var variable = new Variable({
+				blue_key: "blue_variable"
+			}, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.key()).toBe("blue_key");
+		});
+
+		it("should return default if no user variable config is defined", function() {
+			var variable = new Variable(undefined, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.key()).toBe("red_key");
+		});
+
+		it("should change key", function() {
+			var variable = new Variable(undefined, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.key("blue_key")).toBe("blue_key");
+			expect(variable.userVariableConfig.blue_key).toBe("red_variable");
+		});
+
+		it("should delete old key from user variable config if it was defined", function() {
+			var variable = new Variable(undefined, {
+				red_key: "red_variable"
+			});
+
+			variable.key("green_key");
+			variable.key("blue_key")
+
+			expect(variable.userVariableConfig.blue_key).toBe("red_variable");
+			expect(variable.userVariableConfig.green_key).toBeUndefined();
+		});
+
+		it("should keep key in user variable config if it is the default and options are defined", function() {
+			var variable = new Variable({
+				new_red_key: "red_variable",
+				opts: {
+					title: "New red title"
+				}
+			}, {
+				red_key: "red_variable",
+				opts: {
+					title: "Red title"
+				}
+			});
+
+			expect(variable.key("red_key")).toBe("red_key");
+			expect(variable.userVariableConfig).not.toBeUndefined();
+			expect(variable.userVariableConfig.red_key).toBe("red_variable");
+		});
+
+		it("should clear user variable config if key is the default and options are not defined", function() {
+			var variable = new Variable({
+				new_red_key: "red_variable"
+			}, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.key("red_key")).toBe("red_key");
+			expect(variable.userVariableConfig).toEqual({});
+		});
+
+	});
+
+	describe("value", function() {
+
+		it("should return user defined value if is defined", function() {
+			var variable = new Variable({
+				blue_key: "blue_variable"
+			}, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.value()).toBe("blue_variable");
+		});
+
+		it("should return default if no user variable config is defined", function() {
+			var variable = new Variable(undefined, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.value()).toBe("red_variable");
+		});
+
+		it("should change value", function() {
+			var variable = new Variable({
+				red_key: "green_variable"
+			}, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.value("blue_variable")).toBe("blue_variable");
+			expect(variable.userVariableConfig.red_key).toBe("blue_variable");
+		});
+
+		it("should create user variable config if not defined", function() {
+			var variable = new Variable(undefined, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.value("blue_variable")).toBe("blue_variable");
+			expect(variable.userVariableConfig).not.toBeUndefined();
+		});
+
+		it("should keep value in user variable config if it is the default and options are defined", function() {
+			var variable = new Variable({
+				red_key: "new_red_variable",
+				opts: {
+					title: "New red title"
+				}
+			}, {
+				red_key: "red_variable",
+				opts: {
+					title: "Red title"
+				}
+			});
+
+			expect(variable.value("red_variable")).toBe("red_variable");
+			expect(variable.userVariableConfig).not.toBeUndefined();
+			expect(variable.userVariableConfig.red_key).toBe("red_variable");
+		});
+
+		it("should clear user variable config if value is the default and options are not defined", function() {
+			var variable = new Variable({
+				red_key: "new_red_variable"
+			}, {
+				red_key: "red_variable"
+			});
+
+			expect(variable.value("red_variable")).toBe("red_variable");
+			expect(variable.userVariableConfig).toEqual({});
+		});
+
+	});
+
+	describe("title", function() {
+
+	});
+
 	describe("keyFromVariableConfig", function() {
 
-		it("should return key", function() {
+		it("should return key if only key is specified", function() {
 			expect(Variable.keyFromVariableConfig({
 				KEY: "RED-VALUE"
 			})).toBe("KEY");
+		});
+
+		it("should return key if key and opts are specified", function() {
 			expect(Variable.keyFromVariableConfig({
 				KEY: "RED-VALUE",
 				opts: {
 					title: "Red title"
 				}
 			})).toBe("KEY");
+		});
+
+		it("should return undefined if key is not specified", function() {
+			expect(Variable.keyFromVariableConfig({})).toBeUndefined();
+			expect(Variable.keyFromVariableConfig({
+				opts: {
+					title: "Red title"
+				}
+			})).toBeUndefined();
 		});
 
 	});
@@ -36,13 +195,24 @@ describe("prettifiedVariableKey", function() {
 		Variable = _Variable_;
 	}));
 
-	it("should return undefined", function() {
+	it("should return undefined if variable is not defined", function() {
 		expect($filter("prettifiedVariableKey")(undefined)).toBeUndefined();
+	});
+
+	it("should return undefined if variable key is not defined", function() {
 		expect($filter("prettifiedVariableKey")(new Variable())).toBeUndefined();
 	});
 
-	it("should return prettified variable key", function() {
+	it("should return prettified variable key if is defined in user variable config", function() {
 		var variable = new Variable({
+			"RED-KEY": "RED-VALUE"
+		});
+
+		expect($filter("prettifiedVariableKey")(variable)).toBe("$RED-KEY");
+	});
+
+	it("should return prettified variable key if is defined in default variable config", function() {
+		var variable = new Variable(undefined, {
 			"RED-KEY": "RED-VALUE"
 		});
 

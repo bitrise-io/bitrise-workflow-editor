@@ -10,7 +10,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	};
 
 	Variable.prototype.key = function(newKey) {
-		var keySourceVariableConfig = this[this.userVariableConfig ? "userVariableConfig" : "defaultVariableConfig"];
+		var keySourceVariableConfig = this.userVariableConfig ? this.userVariableConfig : this.defaultVariableConfig;
 		var oldKey = Variable.keyFromVariableConfig(keySourceVariableConfig, "opts");
 
 		if (newKey === undefined) {
@@ -35,7 +35,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				this.userVariableConfig[newKey] = oldValue;
 			}
 			else {
-				this.userVariableConfig = undefined;
+				this.userVariableConfig = {};
 			}
 		}
 
@@ -47,11 +47,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		var defaultKey = Variable.keyFromVariableConfig(this.defaultVariableConfig);
 
 		if (newValue === undefined) {
-			if (this.userVariableConfig) {
-				return this.userVariableConfig[key];
-			}
-
-			return this.defaultVariableConfig ? this.defaultVariableConfig[defaultKey] : undefined;
+			return this.userVariableConfig ? this.userVariableConfig[key] : this.defaultVariableConfig[defaultKey];
 		}
 
 		if (!this.defaultVariableConfig || newValue != this.defaultVariableConfig[defaultKey]) {
@@ -66,7 +62,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				this.userVariableConfig[key] = newValue;
 			}
 			else {
-				this.userVariableConfig = undefined;
+				this.userVariableConfig = {};
 			}
 		}
 
@@ -148,7 +144,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				delete variable.userVariableConfig["opts"];
 
 				if (key == defaultKey && variable.userVariableConfig[key] == defaultValue) {
-					variable.userVariableConfig = undefined;
+					variable.userVariableConfig = {};
 				}
 			}
 		}
