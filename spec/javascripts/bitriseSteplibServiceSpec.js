@@ -1,18 +1,20 @@
 describe("bitriseSteplibService", function() {
 
+	var $httpBackend;
 	var bitriseSteplibService;
 	var Step;
 	var Variable;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function(_bitriseSteplibService_, _Step_, _Variable_) {
+	beforeEach(inject(function(_$httpBackend_, _bitriseSteplibService_, _Step_, _Variable_) {
+		$httpBackend = _$httpBackend_;
 		bitriseSteplibService = _bitriseSteplibService_;
 		Step = _Step_;
 		Variable = _Variable_;
 	}));
 
-	beforeEach(function() {
-		bitriseSteplibService.specs = {
+	beforeEach(function(done) {
+		$httpBackend.when("GET", bitriseSteplibService.sourceURL).respond({
 			steps: {
 				"red-step": {
 					versions: {
@@ -70,23 +72,43 @@ describe("bitriseSteplibService", function() {
 					latest_version_number: "1.1"
 				}
 			}
-		}
-
-		bitriseSteplibService.latestStepVersions = _.mapObject(bitriseSteplibService.specs.steps, function(versionsOfStep, aStepID) {
-			return bitriseSteplibService.specs.steps[aStepID].latest_version_number;
 		});
+
+		$httpBackend.expectGET(bitriseSteplibService.sourceURL);
+
+		bitriseSteplibService.load().then(done, function(errorMessage) {
+			done.fail("Bitrise Steplib failed to load");
+		});
+
+		$httpBackend.flush();
+	}, 8000);
+
+	describe("load", function() {
+
+		it("should have specs set", function() {
+			expect(bitriseSteplibService.specs).not.toBeUndefined();
+		});
+
+		it("should have steps set", function() {
+			expect(bitriseSteplibService.steps).not.toBeUndefined();
+		});
+
+		it("should have latest step versions set", function() {
+			expect(bitriseSteplibService.latestStepVersions).not.toBeUndefined();
+		});
+
 	});
 
 	describe("stepFromCVS", function() {
 
-		it("should create step as Bitrise steplib step", function() {
+		it("should create step as Bitrise steplib step if defined so in the step CVS", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step@1.0"))).toBe(true);
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step"))).toBe(true);
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("::red-step@1.0"))).toBe(true);
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("https://bitrise-steplib-collection.s3.amazonaws.com/spec.json::red-step@1.0"))).toBe(true);
 		});
 
-		it("should create step as not Bitrise steplib step", function() {
+		it("should create step as not Bitrise steplib step if defined so in the step CVS", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("custom-source::custom-step@1.0"))).toBe(false);
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("git::custom-step.git@1.0"))).toBe(false);
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("_::custom-step@1.0"))).toBe(false);
@@ -98,13 +120,13 @@ describe("bitriseSteplibService", function() {
 			expect(bitriseSteplibService.stepFromCVS("green-step").title()).toBe("Green step 1.1");
 		});
 
-		it("should throw error if cvs has multiple '::'", function() {
+		it("should throw error if CVS has multiple '::'", function() {
 			expect(function() {
 				bitriseSteplibService.stepFromCVS("source::source::red-step@1.0").toThrow();
 			});
 		});
 
-		it("should throw error if cvs has multiple '@'", function() {
+		it("should throw error if CVS has multiple '@'", function() {
 			expect(function() {
 				bitriseSteplibService.stepFromCVS("source::red-step@1.0@1.1").toThrow();
 			});
@@ -146,27 +168,27 @@ describe("bitriseSteplibService", function() {
 
 	describe("isBitriseSteplibStep", function() {
 
-		it("should return true if cvs specifies Bitrise steplib source URL", function() {
+		it("should return true if CVS specifies Bitrise steplib source URL", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("https://bitrise-steplib-collection.s3.amazonaws.com/spec.json::red-step"))).toBe(true);
 		});
 
-		it("should return true if cvs has no source specified", function() {
+		it("should return true if CVS has no source specified", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("red-step"))).toBe(true);
 		});
 
-		it("should return true if cvs has empty source specified", function() {
+		it("should return true if CVS has empty source specified", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("::red-step"))).toBe(true);
 		});
 
-		it("should return false if cvs has 'git' specified", function() {
+		it("should return false if CVS has 'git' specified", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("git::red-step.git"))).toBe(false);
 		});
 
-		it("should return false if cvs has '_' specified", function() {
+		it("should return false if CVS has '_' specified", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("_::red-step"))).toBe(false);
 		});
 
-		it("should return false if cvs has source URL specified", function() {
+		it("should return false if CVS has source URL specified", function() {
 			expect(bitriseSteplibService.isBitriseSteplibStep(bitriseSteplibService.stepFromCVS("source-url.git::red-step"))).toBe(false);
 		});
 
@@ -197,25 +219,47 @@ describe("bitriseSteplibService", function() {
 			expect(step.title()).toBe("Red step 1.1");
 		});
 
-		it("should keep parameters which are not defined in the new version", function() {
+		it("should keep not default parameters which are not defined in the new version", function() {
 			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			step.userStepConfig = {
+				summary: "New red summary"
+			};
+
 			bitriseSteplibService.changeStepToVersion(step, "1.1");
 
-			expect(step.summary()).toBe("Red summary");
+			expect(step.summary()).toBe("New red summary");
 		});
 
-		it("should keep inputs which are not defined in the new version, add inputs which are not defined in the old version", function() {
+		it("should keep not default inputs which are not defined in the new version, add inputs which are not defined in the old version", function() {
 			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			step.userStepConfig = {
+				inputs: [{
+					yellow_input: "new-yellow-input-value"
+				}]
+			};
+
 			bitriseSteplibService.changeStepToVersion(step, "1.1");
 
-			expect(step.inputs().length).toBe(4);
+			expect(step.userStepConfig.inputs.length).toBe(1);
 		});
 
-		it("should keep input options which are not defined in the same input of the new version", function() {
+		it("should keep not default input options which are not defined in the same input of the new version", function() {
 			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
+			step.userStepConfig = {
+				inputs: [{
+					red_input: "red-input-value",
+					opts: {
+						description: "New red input description"
+					}
+				}]
+			};
+
 			bitriseSteplibService.changeStepToVersion(step, "1.1");
 
-			expect(step.inputs()[0].description()).not.toBeUndefined();
+			expect(step.userStepConfig).not.toBeUndefined();
+			expect(step.userStepConfig.inputs).not.toBeUndefined();
+			expect(step.userStepConfig.inputs[0].opts).not.toBeUndefined();
+			expect(step.userStepConfig.inputs[0].opts.description).toBe("New red input description");
 		});
 
 		it("should overwrite input value and options with new version's", function() {

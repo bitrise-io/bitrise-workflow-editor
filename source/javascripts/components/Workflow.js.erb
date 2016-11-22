@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Workflow", function(stringService, bitriseSteplibService, Step, Variable) {
+angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseSteplibService, Step, Variable) {
 
 	var Workflow = function(id) {
 		this.id = id;

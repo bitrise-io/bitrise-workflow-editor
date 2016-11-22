@@ -16,7 +16,7 @@ describe("Workflow", function() {
 
 	describe("configureWithWorkflowConfig", function() {
 
-		it("should allow custom keys", function() {
+		it("should allow custom keys in workflow config", function() {
 			var workflow = new Workflow("red-workflow");
 			workflow.configureWithWorkflowConfig({
 				unknown_key: "unknown-value",
@@ -24,7 +24,7 @@ describe("Workflow", function() {
 			});
 		});
 
-		it("should not change workflow ID", function() {
+		it("should not change workflow ID if ID is passed in workflow config", function() {
 			var workflow = new Workflow("red-workflow");
 			workflow.configureWithWorkflowConfig({
 				id: "blue-workflow",
@@ -55,7 +55,7 @@ describe("Workflow", function() {
 			});
 
 			expect(workflow.envVars.length).toBe(2);
-			expect(workflow.envVars[0].key).toBe("RED-ENV-VAR");
+			expect(workflow.envVars[0].key()).toBe("RED-ENV-VAR");
 		});
 
 		it("should not add before & after run Workflows, just return with callback", function() {
