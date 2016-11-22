@@ -12,6 +12,7 @@ main:
   save: Save
   load_progress:
     loading: Loading, wait a sec...
+    saving: Saving, wait a sec...
 editor:
   load_workflows_progress:
     in_progress: Loading workflows...
@@ -183,6 +184,9 @@ request_service:
   load_secrets:
     default_error: Error loading secrets.
     error_prefix: "Error loading secrets:"
+  save_app_config:
+    default_error: Error saving app config.
+    error_prefix: "Error saving app config:"
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

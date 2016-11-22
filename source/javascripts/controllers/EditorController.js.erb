@@ -106,12 +106,37 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		viewModel.appConfig = appConfig;
 		appConfigLoadDeferred.resolve();
+		loadWorkflows();
 	});
 
 	$scope.$on("MainController::discardChanges", function(event, appConfig) {
 		viewModel.selectedWorkflow = null;
 		viewModel.appConfig = appConfig;
 		loadWorkflows();
+	});
+
+	$scope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
+		viewModel.appConfig.workflows = {};
+
+		_.each(viewModel.workflows, function(aWorkflow) {
+			viewModel.appConfig.workflows[aWorkflow.id] = {
+				envs: _.map(aWorkflow.envVars, function(anEnvVar) {
+					return anEnvVar.userVariableConfig;
+				}),
+				steps: _.map(aWorkflow.steps, function(aStep) {
+					var wrappedUserStepConfig = {};
+					wrappedUserStepConfig[aStep.cvs] = aStep.userStepConfig;
+					
+					return wrappedUserStepConfig;
+				}),
+				before_run: _.map(aWorkflow.beforeRunWorkflows, function(aWorkflow) {
+					return aWorkflow.id;
+				}),
+				after_run: _.map(aWorkflow.afterRunWorkflows, function(aWorkflow) {
+					return aWorkflow.id;
+				})
+			};
+		});
 	});
 
 	function loadWorkflows() {
@@ -359,6 +384,10 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		return input;
 	};
 
+	viewModel.outputFromDefaultOutputConfig = function(defaultOutputConfig) {
+		return new Variable(undefined, defaultOutputConfig);
+	};
+
 	viewModel.inputSelected = function(input) {
 		viewModel.selectedInput = input;
 		viewModel.insertVariablePopup.parameters.insertStartPosition = viewModel.insertVariablePopup.parameters.insertEndPosition = viewModel.selectedInput ? viewModel.selectedInput.value.length : 0;
@@ -383,8 +412,6 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.insertVariablePopup.parameters.insertStartPosition = viewModel.insertVariablePopup.parameters.insertEndPosition = viewModel.selectedInput.value.length;
 		viewModel.insertVariablePopup.isVisible = false;
 	};
-
-	loadWorkflows();
 
 	$scope.$emit("MainController::menuContentIsLoadedAndReady");
 

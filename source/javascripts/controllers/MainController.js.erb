@@ -89,9 +89,19 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.saveChanges = function() {
-		// TODO: implement
-		console.log("saveChanges called");
-		savedAppConfig = angular.copy(appConfig);
+		viewModel.loadProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+		$scope.$broadcast("MainController::requestingAppConfigUpdateBeforeSave");
+
+		requestService.postAppConfig(appConfig).then(requestService.getAppConfig).then(function(_appConfig) {
+			appConfig = _appConfig;
+			savedAppConfig = angular.copy(appConfig);
+
+			viewModel.loadProgress.success();
+			$scope.$broadcast("MainController::appConfigLoaded", appConfig);
+		}, function(error) {
+			viewModel.loadProgress.error(error);
+		});
 	};
 
 	$scope.$on("MainController::menuContentIsLoadedAndReady", function() {

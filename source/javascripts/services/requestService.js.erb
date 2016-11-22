@@ -11,21 +11,21 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	};
 
 	requestService.configureMode = function() {
-		this.mode = $location.search().mode;
-		if (this.mode === undefined) {
-			this.mode = "cli";
+		requestService.mode = $location.search().mode;
+		if (requestService.mode === undefined) {
+			requestService.mode = "cli";
 		}
 
-		switch (this.mode) {
+		switch (requestService.mode) {
 			case "website":
-				this.appSlug = $location.search().app_slug;
-				this.apiToken = $location.search().api_token;
+				requestService.appSlug = $location.search().app_slug;
+				requestService.apiToken = $location.search().api_token;
 
 				break;
 			case "cli":
 				break;
 			default:
-				this.mode = null;
+				requestService.mode = null;
 
 				throw new Error("<%= data[:strings][:request_service][:invalid_mode] %>");
 		}
@@ -34,11 +34,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	requestService.getAppConfig = function() {
 		var requestURL;
 
-		switch (this.mode) {
+		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_config_get]) %>", {
-					app_slug: this.appSlug,
-					api_token: this.apiToken
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
 				});
 
 				break;
@@ -64,11 +64,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	requestService.getDefaultOutputs = function() {
 		var requestURL;
 
-		switch (this.mode) {
+		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:default_outputs_get]) %>", {
-					app_slug: this.appSlug,
-					api_token: this.apiToken
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
 				});
 
 				break;
@@ -94,11 +94,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	requestService.getSecrets = function() {
 		var requestURL;
 
-		switch (this.mode) {
+		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:secrets_get]) %>", {
-					app_slug: this.appSlug,
-					api_token: this.apiToken
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
 				});
 
 				break;
@@ -124,11 +124,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	requestService.getAppConfigYML = function() {
 		var requestURL;
 
-		switch (this.mode) {
+		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_get]) %>", {
-					app_slug: this.appSlug,
-					api_token: this.apiToken
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
 				});
 
 				break;
@@ -153,10 +153,43 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.appConfigYMLDownloadPath = function() {
 		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_download]) %>", {
-			app_slug: this.appSlug,
-			api_token: this.apiToken
+			app_slug: requestService.appSlug,
+			api_token: requestService.apiToken
 		});
 	};
+
+	requestService.postAppConfig = function(appConfig) {
+		var requestURL;
+		var requestData = {
+			bitrise_yml: appConfig
+		};
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_config_post]) %>", {
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
+				});
+
+				break;
+			case "cli":
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_post]) %>";
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:save_app_config][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	}
 
 	return requestService;
 
