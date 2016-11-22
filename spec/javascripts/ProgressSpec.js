@@ -10,7 +10,7 @@ describe("Progress", function() {
 
     beforeEach(function() {
         progress = new Progress();
-    })
+    });
 
     describe("lifecycle", function() {
 
