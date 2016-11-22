@@ -41,12 +41,8 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	viewModel.addRunWorkflowPopup = new Popup();
 
 	viewModel.selectedStep = null;
-	viewModel.buildEnvironmentPreparePseudoStep = {
-		title: "Preparing the Build Environment"
-	};
-	viewModel.virtualMachineCleanupPseudoStep = {
-		title: "Cleaning up the Virtual Machine"
-	};
+	viewModel.buildEnvironmentPreparePseudoStep = {};
+	viewModel.virtualMachineCleanupPseudoStep = {};
 
 	viewModel.renamedStep = null;
 	viewModel.renamedStepTitle;
@@ -227,7 +223,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 			return step.cvs;
 		}
 		if (bitriseSteplibService.isBitriseSteplibStep(step)) {
-			return step.title;
+			return step.title();
 		}
 
 		return step.id;
@@ -288,11 +284,11 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.renameStepSelected = function() {
 		viewModel.renamedStep = viewModel.selectedStep;
-		viewModel.renamedStepTitle = viewModel.renamedStep.title ? viewModel.renamedStep.title : viewModel.renamedStep.id;
+		viewModel.renamedStepTitle = viewModel.renamedStep.title() ? viewModel.renamedStep.title() : viewModel.renamedStep.id;
 	};
 
 	viewModel.renameStepConfirmed = function() {
-		viewModel.renamedStep.title = viewModel.renamedStepTitle;
+		viewModel.renamedStep.title(viewModel.renamedStepTitle);
 		viewModel.renamedStep = null;
 	};
 
