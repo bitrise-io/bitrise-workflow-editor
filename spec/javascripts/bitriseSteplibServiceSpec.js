@@ -272,4 +272,32 @@ describe("bitriseSteplibService", function() {
 
 	});
 
+	describe("versionsOfStep", function() {
+
+		it("should return array of versions", function() {
+			var step = bitriseSteplibService.stepFromCVS("red-step");
+
+			expect(bitriseSteplibService.versionsOfStep(step)).not.toBeUndefined();
+			expect(bitriseSteplibService.versionsOfStep(step)[0]).toBe("1.1");
+			expect(bitriseSteplibService.versionsOfStep(step)[1]).toBe("1.0");
+		});
+
+	});
+
+	describe("isStepLatestVersion", function() {
+
+		it("should return true if requested version is latest", function() {
+			expect(bitriseSteplibService.isStepLatestVersion(bitriseSteplibService.stepFromCVS("red-step@1.1"))).toBe(true);
+		});
+
+		it("should return true if no version is requested", function() {
+			expect(bitriseSteplibService.isStepLatestVersion(bitriseSteplibService.stepFromCVS("red-step"))).toBe(true);
+		});
+
+		it("should return false if requested version is not latest", function() {
+			expect(bitriseSteplibService.isStepLatestVersion(bitriseSteplibService.stepFromCVS("red-step@1.0"))).toBe(false);
+		});
+
+	});
+
 });
