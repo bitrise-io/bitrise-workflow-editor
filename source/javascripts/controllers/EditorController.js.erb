@@ -2,11 +2,12 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
 
 	var viewModel = this;
 
 	$scope.bitriseSteplibService = bitriseSteplibService;
+	$scope.Variable = Variable;
 
 	viewModel.appConfig;
 	var appConfigLoadDeferred = $q.defer();
@@ -310,6 +311,52 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.selectedWorkflow.steps.splice(index, 1);
 
 		viewModel.stepSelected(null);
+	};
+
+	viewModel.inputFromStepDefaultInputConfig = function(step, defaultInputConfig) {
+		var userInputConfig = step.userStepConfig ? _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
+			return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(defaultInputConfig);
+		}) : undefined;
+
+		var input = new Variable(userInputConfig, defaultInputConfig);
+
+		$scope.$on("$destroy", $scope.$watch(function() {
+			return !input.userInputConfig || _.isEmpty(input.userInputConfig);
+		}, function(newValue, oldValue) {
+			if (newValue === true && oldValue === false) {
+				if (!step.userStepConfig || !step.userStepConfig.inputs) {
+					return;
+				}
+
+				var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+					return Variable.keyFromVariableConfig(aUserInputConfig) == input.key();
+				});
+
+				step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+			}
+
+			if (newValue === false && oldValue === true) {
+				if (!step.userStepConfig) {
+					step.userStepConfig = {};
+				}
+
+				if (!step.userStepConfig.inputs) {
+					step.userStepConfig.inputs = [];
+				}
+
+				var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+					return Variable.keyFromVariableConfig(aUserInputConfig) == input.key();
+				});
+
+				if (indexOfUserInputConfig != -1) {
+					step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+				}
+
+				step.userStepConfig.inputs.push(input.userInputConfig);
+			}
+		}));
+
+		return input;
 	};
 
 	viewModel.inputSelected = function(input) {
