@@ -152,6 +152,108 @@ describe("Variable", function() {
 
 	describe("title", function() {
 
+		var defaultVariableConfig = {
+			key: "value",
+			opts: {
+				title: "Red title"
+			}
+		};
+
+		it("should get title from user variable config", function() {
+			var variable = new Variable({
+				key: "value",
+				opts: {
+					title: "Blue title"
+				}
+			}, defaultVariableConfig);
+
+			expect(variable.title()).toBe("Blue title");
+		});
+
+		it("should get title from default variable config if user variable config is not defined", function() {
+			var variable = new Variable(undefined, defaultVariableConfig);
+
+			expect(variable.title()).toBe("Red title");
+		});
+
+		it("should get title from default variable config if user variable config opts is not defined", function() {
+			var variable = new Variable({
+				key: "new-value"
+			}, defaultVariableConfig);
+
+			expect(variable.title()).toBe("Red title");
+		});
+
+		it("should get title from default variable config if is not defined in user variable config", function() {
+			var variable = new Variable({
+				key: "value",
+				opts: {
+					title: "Blue title"
+				}
+			}, defaultVariableConfig);
+
+			expect(variable.title()).toBe("Blue title");
+		});
+
+		it("should override title", function() {
+
+			var variable = new Variable({
+				key: "new-value"
+			}, defaultVariableConfig);
+
+			expect(variable.title("Blue title")).toBe("Blue title");
+			expect(variable.userVariableConfig.opts.title).toBe("Blue title");
+		});
+
+		it("should create user variable config (and add key-value) during override if it's not defined yet", function() {
+			var variable = new Variable(undefined, defaultVariableConfig);
+			variable.title("Blue title");
+
+			expect(variable.userVariableConfig).not.toBeUndefined();
+			expect(variable.userVariableConfig.key).toBe("value");
+			expect(variable.userVariableConfig.opts.title).toBe("Blue title");
+		});
+
+		it("should clear user variable config title if set back to default", function() {
+			var variable = new Variable({
+				key: "new-value",
+				opts: {
+					title: "Blue title",
+					description: "Blue description"
+				}
+			}, defaultVariableConfig);
+
+			variable.title("Red title");
+
+			expect(variable.userVariableConfig.opts.title).toBeUndefined();
+		});
+
+		it("should clear user variable config options if all set back to default", function() {
+			var variable = new Variable({
+				key: "new-value",
+				opts: {
+					title: "Blue title",
+				}
+			}, defaultVariableConfig);
+
+			variable.title("Red title");
+
+			expect(variable.userVariableConfig.opts).toBeUndefined();
+		});
+
+		it("should clear user variable config if options set back to default and key-value is default", function() {
+			var variable = new Variable({
+				key: "value",
+				opts: {
+					title: "Blue title",
+				}
+			}, defaultVariableConfig);
+
+			variable.title("Red title");
+
+			expect(variable.userVariableConfig).toEqual({});
+		});
+
 	});
 
 	describe("keyFromVariableConfig", function() {
