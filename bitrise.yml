@@ -11,6 +11,9 @@ app:
 
 workflows:
   up-api:
+    envs:
+      - BITRISE_CONFIG: "custom_yml/app_config.yml"
+      - BITRISE_SECRETS: "custom_yml/secrets.yml"
     steps:
     - script:
         inputs:
