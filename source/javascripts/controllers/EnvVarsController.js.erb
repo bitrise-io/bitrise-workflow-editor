@@ -6,6 +6,12 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 	var viewModel = this;
 
+	var defaultEnvVarConfig = {
+		opts: {
+			is_expand: true
+		}
+	};
+
 	var selectedEnvVarLastValidKey;
 
 	viewModel.envVars;
@@ -32,6 +38,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		}
 
 		viewModel.envVars = parameters.envVars;
+		_.each(viewModel.envVars, function(anEnvVar) {
+			anEnvVar.defaultVariableConfig = defaultEnvVarConfig;
+		});
+		
 		viewModel.envVarSelected(null);
 	});
 
@@ -49,7 +59,9 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	};
 
 	viewModel.addNewSelected = function() {
-		var newEnvVar = new Variable("<%= data[:strings][:env_var_editor][:new_default_key] %>", "");
+		var newEnvVar = new Variable({
+			"<%= data[:strings][:env_var_editor][:new_default_key] %>": ""
+		}, defaultEnvVarConfig);
 		viewModel.envVars.push(newEnvVar);
 
 		viewModel.envVarSelected(newEnvVar);

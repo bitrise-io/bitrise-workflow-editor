@@ -27,6 +27,16 @@ describe("Variable", function() {
 			expect(variable.key()).toBe("red_key");
 		});
 
+		it("should return undefined if no user variable config is defined and default variable config has no key defined", function() {
+			var variable = new Variable(undefined, {
+				opts: {
+					title: "Red title"
+				}
+			});
+
+			expect(variable.key()).toBeUndefined();
+		});
+
 		it("should change key", function() {
 			var variable = new Variable(undefined, {
 				red_key: "red_variable"

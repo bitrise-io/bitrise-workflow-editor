@@ -7,11 +7,15 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	var Variable = function(userVariableConfig, defaultVariableConfig) {
 		this.userVariableConfig = userVariableConfig;
 		this.defaultVariableConfig = defaultVariableConfig;
+
+		if (this.userVariableConfig.opts && _.isEmpty(this.userVariableConfig.opts)) {
+			delete this.userVariableConfig["opts"];
+		}
 	};
 
 	Variable.prototype.key = function(newKey) {
 		var keySourceVariableConfig = this.userVariableConfig ? this.userVariableConfig : this.defaultVariableConfig;
-		var oldKey = Variable.keyFromVariableConfig(keySourceVariableConfig, "opts");
+		var oldKey = Variable.keyFromVariableConfig(keySourceVariableConfig);
 
 		if (newKey === undefined) {
 			return oldKey;
@@ -19,7 +23,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 
 		var oldValue = keySourceVariableConfig[oldKey];
 
-		if (!this.defaultVariableConfig || newKey != Variable.keyFromVariableConfig(this.defaultVariableConfig, "opts")) {
+		if (!this.defaultVariableConfig || newKey !== Variable.keyFromVariableConfig(this.defaultVariableConfig)) {
 			if (!this.userVariableConfig) {
 				this.userVariableConfig = {};
 			}
@@ -47,10 +51,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		var defaultKey = Variable.keyFromVariableConfig(this.defaultVariableConfig);
 
 		if (newValue === undefined) {
-			return this.userVariableConfig ? this.userVariableConfig[key] : this.defaultVariableConfig[defaultKey];
+			return this.userVariableConfig ? this.userVariableConfig[key] : defaultKey ? this.defaultVariableConfig[defaultKey] : undefined;
 		}
 
-		if (!this.defaultVariableConfig || newValue != this.defaultVariableConfig[defaultKey]) {
+		if (!this.defaultVariableConfig || !defaultKey || newValue !== this.defaultVariableConfig[defaultKey]) {
 			if (!this.userVariableConfig) {
 				this.userVariableConfig = {};
 			}
@@ -107,24 +111,31 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 
 	Variable.keyFromVariableConfig = function(variableConfig) {
 		return _.first(_.without(_.keys(variableConfig), "opts"));
-	}
+	};
 
 	function optionGetterSetter(variable, optionKey, optionValue) {
-		var optionSource = variable.userVariableConfig && variable.userVariableConfig.opts && variable.userVariableConfig.opts[optionKey] !== undefined ? variable.userVariableConfig.opts : variable.defaultVariableConfig.opts;
+		var optionSource;
+
+		if (variable.userVariableConfig && variable.userVariableConfig.opts && variable.userVariableConfig.opts[optionKey] !== undefined) {
+			optionSource = variable.userVariableConfig.opts;
+		}
+		else if (variable.defaultVariableConfig && variable.defaultVariableConfig.opts && variable.defaultVariableConfig.opts[optionKey]) {
+			optionSource = variable.defaultVariableConfig.opts;
+		}
 
 		if (optionValue === undefined) {
-			return optionSource[optionKey];
+			return optionSource ? optionSource[optionKey] : undefined;
 		}
 
 		var key = variable.key();
 		var defaultKey = Variable.keyFromVariableConfig(variable.defaultVariableConfig);
 		var defaultValue = variable.defaultVariableConfig ? variable.defaultVariableConfig[defaultKey] : undefined;
 
-		if (!variable.defaultVariableConfig || optionValue != variable.defaultVariableConfig.opts[optionKey]) {
+		if (!variable.defaultVariableConfig || !variable.defaultVariableConfig.opts || optionValue !== variable.defaultVariableConfig.opts[optionKey]) {
 			if (!variable.userVariableConfig) {
 				variable.userVariableConfig = {};
 
-				if (variable.defaultVariableConfig) {
+				if (defaultValue) {
 					variable.userVariableConfig[key] = defaultValue;
 				}
 			}
