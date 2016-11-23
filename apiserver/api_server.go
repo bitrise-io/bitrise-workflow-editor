@@ -60,6 +60,11 @@ func getLoadBitriseYMLAsJSONHandler(bitriseConfigPth string) func(w http.Respons
 			return
 		}
 
+		if err := yamlContObj.Normalize(); err != nil {
+			respondWithErrorMessage(w, "Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
+			return
+		}
+
 		respondWithJSON(w, 200, yamlContObj)
 	}
 }
