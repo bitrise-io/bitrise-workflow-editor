@@ -41,16 +41,16 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 				}
 				catch (error) {
 					console.log(error);
-					reject(new Error("<%= data.strings.bitrise_steplib_service.load.default_error %>"));
+					reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:default_error] %>"));
 				}
 			}, function(response) {
 				if (!response || !response.data) {
-					reject(new Error("<%= data.strings.bitrise_steplib_service.load.default_error %>"));
+					reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:default_error] %>"));
 
 					return;
 				}
 
-				reject(new Error("<%= data.strings.bitrise_steplib_service.load.error_prefix %>" + response.data));
+				reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:error_prefix] %>" + response.data));
 			});
 		});
 	};
@@ -58,7 +58,7 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 	bitriseSteplibService.stepFromCVS = function(cvs) {
 		var cvsSplitBySteplibSource = cvs.split("::");
 		if (cvsSplitBySteplibSource.length > 2) {
-			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.multiple_source_separators %>");
+			throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:multiple_source_separators] %>");
 		}
 
 		var steplibSourceURL = cvsSplitBySteplibSource.length > 1 && _.first(cvsSplitBySteplibSource).length > 0 ? _.first(cvsSplitBySteplibSource) : this.sourceURL;
@@ -66,24 +66,24 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 
 		var cvsSplitByVersion = _.last(cvsSplitBySteplibSource).split("@");
 		if (cvsSplitByVersion.length > 2) {
-			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.multiple_version_separators %>");
+			throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:multiple_version_separators] %>");
 		}
 
 		var id = _.first(cvsSplitByVersion);
 		if (id.length == 0) {
-			throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.no_id %>");
+			throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:no_id] %>");
 		}
 		if (isBitriseSteplibStep && !this.specs.steps[id]) {
-			throw new ReferenceError("<%= data.strings.bitrise_steplib_service.step_from_cvs.id_not_found %>");
+			throw new ReferenceError("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:id_not_found] %>");
 		}
 
 		var version = cvsSplitByVersion.length > 1 ? _.last(cvsSplitByVersion) : (isBitriseSteplibStep ? this.latestStepVersions[id] : null);
 		if (isBitriseSteplibStep) {
 			if (!version || version.length == 0) {
-				throw new Error("<%= data.strings.bitrise_steplib_service.step_from_cvs.no_version %>");
+				throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:no_version] %>");
 			}
 			if (!this.specs.steps[id].versions || !this.specs.steps[id].versions[version]) {
-				throw new ReferenceError("<%= data.strings.bitrise_steplib_service.step_from_cvs.version_not_found %>");
+				throw new ReferenceError("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:version_not_found] %>");
 			}
 		}
 

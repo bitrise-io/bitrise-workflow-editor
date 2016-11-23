@@ -2,7 +2,7 @@ meta:
   title: Bitrise Workflow editor
 main:
   menus:
-  - Editor
+  - Workflows
   - Code Signing
   - Secrets
   - App Env Vars
@@ -13,7 +13,7 @@ main:
   load_progress:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...
-editor:
+workflows:
   load_workflows_progress:
     in_progress: Loading workflows...
     error: Failed to load workflows.

@@ -23,15 +23,15 @@ BitriseWorkflowEditor.config(function($locationProvider) {
 BitriseWorkflowEditor.config(function($routeProvider) {
 
 	$routeProvider.when("", {
-		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>"
+		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>"
 	});
 
 	$routeProvider.when("/", {
-		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>"
+		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>"
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:editor]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:editor]) %>"
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:workflows]) %>"
 	});
 
 	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>", {
@@ -56,7 +56,7 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 
 
 	$routeProvider.otherwise("", {
-		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>"
+		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>"
 	});
 
 });

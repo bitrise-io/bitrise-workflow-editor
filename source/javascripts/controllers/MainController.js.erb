@@ -29,8 +29,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 		viewModel.menus = _.compact([{
 			title: "<%= data[:strings][:main][:menus][0] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:editor]) %>",
-			cssClass: "editor"
+			path: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>",
+			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			title: "<%= data[:strings][:main][:menus][1] %>",
 			path: "<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>",

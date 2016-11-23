@@ -1,12 +1,12 @@
 endpoints:
-  editor: /editor
+  workflows: /workflows
   code_signing: /code_signing
   secrets: /secrets
   app_env_vars: /app_env_vars
   triggers: /triggers
   yml: /yml
 templates:
-  editor: /templates/editor
+  workflows: /templates/workflows
   code_signing: /templates/code_signing
   secrets: /templates/secrets
   app_env_vars: /templates/app_env_vars

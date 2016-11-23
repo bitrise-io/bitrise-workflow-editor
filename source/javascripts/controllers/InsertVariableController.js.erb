@@ -45,7 +45,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 	$timeout(function() {
 		viewModel.popup.beforeAppearCallback = function() {
-			viewModel.loadInsertableVariablesProgress.start("<%= data.strings.editor.insertable_variables.load_progress %>");
+			viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:insertable_variables][:load_progress] %>");
 
 			$q.all([function() {
 				if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {

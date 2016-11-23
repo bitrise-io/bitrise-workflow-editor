@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
 
 	var viewModel = this;
 
@@ -140,7 +140,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 	});
 
 	function loadWorkflows() {
-		viewModel.loadWorkflowsProgress.start("<%= data.strings.editor.load_workflows_progress.in_progress %>");
+		viewModel.loadWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
 
 		$q.all([bitriseSteplibService.load(), appConfigLoadDeferred.promise]).then(function() {
 			try {
@@ -166,7 +166,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 			catch (error) {
 				viewModel.workflows = undefined;
 				console.log(error);
-				viewModel.loadWorkflowsProgress.error(new Error("<%= data.strings.editor.load_workflows_progress.error %>"));
+				viewModel.loadWorkflowsProgress.error(new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>"));
 			}
 		});
 	}
@@ -240,10 +240,10 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 	viewModel.stepDisplayName = function(step) {
 		if (step == viewModel.buildEnvironmentPreparePseudoStep) {
-			return "<%= data[:strings][:editor][:steps][:pseudo_preparing] %>";
+			return "<%= data[:strings][:workflows][:steps][:pseudo_preparing] %>";
 		}
 		if (step == viewModel.virtualMachineCleanupPseudoStep) {
-			return "<%= data[:strings][:editor][:steps][:pseudo_cleaning] %>";
+			return "<%= data[:strings][:workflows][:steps][:pseudo_cleaning] %>";
 		}
 		if (step.id === undefined) {
 			return step.cvs;
