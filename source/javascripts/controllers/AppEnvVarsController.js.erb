@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function($scope, $q, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function($rootScope, $q, Progress, Variable) {
 
 	var viewModel = this;
 
@@ -12,7 +12,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 	viewModel.loadAppEnvVarsProgress = new Progress();
 	viewModel.loadTemplateProgress = new Progress();
 
-	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		viewModel.appEnvVars = _.map(appConfig.app.envs, function(anAppEnvVarConfig) {
 			return new Variable(anAppEnvVarConfig);
 		});
@@ -20,7 +20,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 		appEnvVarsLoadDeferred.resolve(appConfig);
 	});
 
-	$scope.$on("MainController::discardChanges", function(event, appConfig) {
+	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
 		viewModel.appEnvVars = _.map(appConfig.app.envs, function(anAppEnvVarConfig) {
 			return new Variable(anAppEnvVarConfig);
 		});
@@ -28,12 +28,12 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 		configureEnvVarsController();
 	});
 
-	$scope.$on("EnvVarsController::loadedAndReady", function() {
+	$rootScope.$on("EnvVarsController::loadedAndReady", function() {
 		appEnvVarsLoadDeferred.promise.then(configureEnvVarsController);
 	});
 
 	function configureEnvVarsController() {
-		$scope.$broadcast("EnvVarsController::configure", {
+		$rootScope.$emit("EnvVarsController::configure", {
 			source: "app-env-vars",
 			envVars: viewModel.appEnvVars
 		});
@@ -41,7 +41,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 
 	viewModel.loadTemplateProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
 
-	$scope.$emit("MainController::menuContentIsLoadedAndReady");
+	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

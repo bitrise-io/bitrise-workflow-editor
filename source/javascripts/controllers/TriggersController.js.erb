@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, Trigger, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($rootScope, Trigger, Workflow) {
 
 	var viewModel = this;
 
@@ -12,11 +12,11 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.editedTrigger;
 	viewModel.newTriggerIndex;
 
-	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		configureTriggers(appConfig);
 	});
 
-	$scope.$on("MainController::discardChanges", function(event, appConfig) {
+	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
 		viewModel.triggerSelected(null);
 		configureTriggers(appConfig);
 	});
@@ -93,7 +93,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		viewModel.triggerSelected(null);
 	};
 
-	$scope.$emit("MainController::menuContentIsLoadedAndReady");
+	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

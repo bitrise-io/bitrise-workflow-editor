@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, Variable) {
 
 	var viewModel = this;
 
@@ -13,7 +13,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.title;
 	viewModel.notification;
 
-	$scope.$on("EnvVarsController::configure", function(event, parameters) {
+	$rootScope.$on("EnvVarsController::configure", function(event, parameters) {
 		switch (parameters.source) {
 			case "secrets":
 				viewModel.title = "<%= data[:strings][:secrets][:title] %>";
@@ -65,7 +65,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		viewModel.envVarSelected(null);
 	});
 
-	$scope.$emit("EnvVarsController::loadedAndReady");
+	$rootScope.$emit("EnvVarsController::loadedAndReady");
 
 });
 

@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EditorController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
 
 	var viewModel = this;
 
@@ -22,9 +22,9 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
 		}
 
-		$scope.$on("EnvVarsController::loadedAndReady", function() {
+		$rootScope.$on("EnvVarsController::loadedAndReady", function() {
 			appConfigLoadDeferred.promise.then(function() {
-				$scope.$broadcast("EnvVarsController::configure", {
+				$rootScope.$emit("EnvVarsController::configure", {
 					source: "workflow-env-vars",
 					envVars: viewModel.selectedWorkflow.envVars
 				});
@@ -103,19 +103,19 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.selectedWorkflow = workflow;
 	}
 
-	$scope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		viewModel.appConfig = appConfig;
 		appConfigLoadDeferred.resolve();
 		loadWorkflows();
 	});
 
-	$scope.$on("MainController::discardChanges", function(event, appConfig) {
+	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
 		viewModel.selectedWorkflow = null;
 		viewModel.appConfig = appConfig;
 		loadWorkflows();
 	});
 
-	$scope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
+	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
 		viewModel.appConfig.workflows = {};
 
 		_.each(viewModel.workflows, function(aWorkflow) {
@@ -347,8 +347,8 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 
 		$scope.$on("$destroy", $scope.$watch(function() {
 			return !input.userInputConfig || _.isEmpty(input.userInputConfig);
-		}, function(newValue, oldValue) {
-			if (newValue === true && oldValue === false) {
+		}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
+			if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
 				if (!step.userStepConfig || !step.userStepConfig.inputs) {
 					return;
 				}
@@ -360,7 +360,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 				step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 			}
 
-			if (newValue === false && oldValue === true) {
+			if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
 				if (!step.userStepConfig) {
 					step.userStepConfig = {};
 				}
@@ -413,7 +413,7 @@ angular.module("BitriseWorkflowEditor").controller("EditorController", function(
 		viewModel.insertVariablePopup.isVisible = false;
 	};
 
-	$scope.$emit("MainController::menuContentIsLoadedAndReady");
+	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

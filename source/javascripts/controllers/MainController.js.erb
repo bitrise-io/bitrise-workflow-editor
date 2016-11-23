@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $q, requestService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, requestService, Progress, Popup) {
 
 	var viewModel = this;
 
@@ -85,28 +85,28 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.discardChanges = function() {
 		appConfig = angular.copy(savedAppConfig);
-		$scope.$broadcast("MainController::discardChanges", appConfig);
+		$rootScope.$emit("MainController::discardChanges", appConfig);
 	};
 
 	viewModel.saveChanges = function() {
 		viewModel.loadProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-		$scope.$broadcast("MainController::requestingAppConfigUpdateBeforeSave");
+		$rootScope.$emit("MainController::requestingAppConfigUpdateBeforeSave");
 
 		requestService.postAppConfig(appConfig).then(requestService.getAppConfig).then(function(_appConfig) {
 			appConfig = _appConfig;
 			savedAppConfig = angular.copy(appConfig);
 
 			viewModel.loadProgress.success();
-			$scope.$broadcast("MainController::appConfigLoaded", appConfig);
+			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
 		}, function(error) {
 			viewModel.loadProgress.error(error);
 		});
 	};
 
-	$scope.$on("MainController::menuContentIsLoadedAndReady", function() {
+	$rootScope.$on("MainController::menuContentIsLoadedAndReady", function() {
 		appConfigLoadDeferrer.promise.then(function() {
-			$scope.$broadcast("MainController::appConfigLoaded", appConfig);
+			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
 		});
 	});
 
