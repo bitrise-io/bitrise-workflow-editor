@@ -37,39 +37,6 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 		return parameterGetterSetter(this, "type_tags", newTypeTags);
 	};
 
-	Step.prototype.inputs = function() {
-		if (this.defaultStepConfig) {
-			var self = this;
-
-			return _.map(this.defaultStepConfig.inputs, function(aDefaultInputConfig) {
-				var defaultKey = Variable.keyFromVariableConfig(aDefaultInputConfig);
-
-				var userInputConfig = self.userStepConfig ? _.find(self.userStepConfig.inputs, function(aUserInputConfig) {
-					var key = Variable.keyFromVariableConfig(aUserInputConfig);
-
-					return key == defaultKey;
-				}) : undefined;
-
-				return new Variable(userInputConfig, aDefaultInputConfig);
-			});
-		}
-		else if (this.userStepConfig && this.userStepConfig.inputs) {
-			return _.map(this.userStepConfig.inputs, function(aUserInputConfig) {
-				return new Variable(aUserInputConfig);
-			});
-		}
-
-		return undefined;
-	};
-
-	Step.prototype.outputs = function() {
-		var outputsSourceStepConfig = this.defaultStepConfig ? this.defaultStepConfig.outputs : (this.userStepConfig ? this.userStepConfig.outputs : undefined);
-
-		return outputsSourceStepConfig ? _.map(outputsSourceStepConfig, function(aUserInputConfig) {
-			return new Variable(aUserInputConfig);
-		}) : undefined;
-	};
-
 	Step.prototype.isVerified = function() {
 		var sourceURL = this.sourceURL();
 

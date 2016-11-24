@@ -8,7 +8,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		this.userVariableConfig = userVariableConfig;
 		this.defaultVariableConfig = defaultVariableConfig;
 
-		if (this.userVariableConfig.opts && _.isEmpty(this.userVariableConfig.opts)) {
+		if (this.userVariableConfig && this.userVariableConfig.opts && _.isEmpty(angular.copy(this.userVariableConfig.opts))) {
 			delete this.userVariableConfig["opts"];
 		}
 	};
@@ -39,7 +39,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				this.userVariableConfig[newKey] = oldValue;
 			}
 			else {
-				this.userVariableConfig = {};
+				this.userVariableConfig = null;
 			}
 		}
 
@@ -66,7 +66,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				this.userVariableConfig[key] = newValue;
 			}
 			else {
-				this.userVariableConfig = {};
+				this.userVariableConfig = null;
 			}
 		}
 
@@ -110,7 +110,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	};
 
 	Variable.keyFromVariableConfig = function(variableConfig) {
-		return _.first(_.without(_.keys(variableConfig), "opts"));
+		return _.first(_.without(_.keys(angular.copy(variableConfig)), "opts"));
 	};
 
 	function optionGetterSetter(variable, optionKey, optionValue) {
@@ -151,11 +151,11 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				delete variable.userVariableConfig.opts[optionKey];
 			}
 
-			if (_.isEmpty(variable.userVariableConfig.opts)) {
+			if (_.isEmpty(angular.copy(variable.userVariableConfig.opts))) {
 				delete variable.userVariableConfig["opts"];
 
 				if (key == defaultKey && variable.userVariableConfig[key] == defaultValue) {
-					variable.userVariableConfig = {};
+					variable.userVariableConfig = null;
 				}
 			}
 		}
@@ -184,5 +184,20 @@ angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function
 	};
 
 });
+
+angular.module("BitriseWorkflowEditor").filter("variablesfilteredByKey", function(stringService) {
+
+
+	return function(variables, keyFilter) {
+		if (!variables) {
+			return undefined;
+		}
+
+		return _.filter(variables, function(aVariable) {
+			return stringService.isStringMatchingFilter(aVariable.key(), keyFilter);
+		})
+	};
+
+})
 
 })();

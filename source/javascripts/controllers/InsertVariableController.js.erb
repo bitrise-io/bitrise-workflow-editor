@@ -2,9 +2,20 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($q, $timeout, requestService, Progress, Popup, Variable) {
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($rootScope, $q, $filter, requestService, Progress, Popup, Variable) {
 
 	var viewModel = this;
+
+	viewModel.popup = new Popup();
+	viewModel.popup.beforeAppearCallback = function() {
+		loadInsertableVariables();
+	};
+	viewModel.popup.afterDismissCallback = function() {
+		viewModel.keyFilter = "";
+		targetInput = undefined;
+		insertStartPosition = undefined;
+		insertEndPosition = undefined;
+	};
 
 	viewModel.insertableVariablesForAllWorkflows = [{
 		source: {
@@ -38,68 +49,101 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 		variables: undefined
 	}];
 	viewModel.insertableVariables;
+	viewModel.loadInsertableVariablesProgress = new Progress();
 
 	viewModel.keyFilter = "";
-	viewModel.loadInsertableVariablesProgress = new Progress();
-	viewModel.popup;
 
-	$timeout(function() {
-		viewModel.popup.beforeAppearCallback = function() {
-			viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:insertable_variables][:load_progress] %>");
+	var appConfig;
+	var selectedWorkflow;
+	var selectedStep;
+	var targetInput;
+	var insertStartPosition;
+	var insertEndPosition;
 
-			$q.all([function() {
-				if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-					return variablesOfSource.source.id == "from_bitriseio";
-				}).variables) {
-					return loadDefaultOutputs();
-				}
+	$rootScope.$on("InsertVariableController::showInsertVariablePopupForTargetInput", function(event, _targetInput) {
+		targetInput = _targetInput;
+		$rootScope.$emit("InsertVariableController::requestingParametersForInsertVariable");
 
-				return $q.when();
-			}(), function() {
-				if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-					return variablesOfSource.source.id == "from_secrets";
-				}).variables) {
-					return loadSecrets();
-				}
+		if (insertStartPosition === undefined) {
+			insertStartPosition = targetInput.value.length;
+		}
+		if (insertEndPosition === undefined) {
+			insertEndPosition = targetInput.value.length;
+		}
 
-				return $q.when();
-			}()]).then(function() {
-				viewModel.loadInsertableVariablesProgress.success();
-			}, function(error) {
-				viewModel.loadInsertableVariablesProgress.error(error)
-			});
+		viewModel.popup.isVisible = true;
+	});
 
-			var appEnvVarsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-				return variablesOfSource.source.id == "from_app_env_vars";
-			});
-			if (!appEnvVarsBySource.variables) {
-				appEnvVarsBySource.variables = _.map(viewModel.popup.parameters.appConfig.app.envs, function(aVariableConfig) {
-					return new Variable(aVariableConfig);
-				});
+	$rootScope.$on("InsertVariableController::configureInsertVariableWithParameters", function(event, _appConfig, _selectedWorkflow, _selectedStep) {
+		appConfig = _appConfig;
+		selectedWorkflow = _selectedWorkflow;
+		selectedStep = _selectedStep;
+	});
+
+	$rootScope.$on("InsertVariableController::setInsertStartEndPosition", function(event, _insertStartPosition, _insertEndPosition) {
+		insertStartPosition = _insertStartPosition;
+		insertEndPosition = _insertEndPosition;
+	});
+
+	function loadInsertableVariables() {
+		viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:insertable_variables][:load_progress] %>");
+
+		$q.all([function() {
+			if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_bitriseio";
+			}).variables && !_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_bitrise_cli";
+			}).variables) {
+				return loadDefaultOutputs();
 			}
 
-			_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
-				return variablesOfSource.source.id == "from_workflow_env_vars";
-			}).variables = viewModel.popup.parameters.selectedWorkflow.envVars;
+			return $q.when();
+		}(), function() {
+			if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_secrets";
+			}).variables) {
+				return loadSecrets();
+			}
 
-			var outputsOfStepsBeforeSelectedInput = [];
-			_.any(viewModel.popup.parameters.selectedWorkflow.steps, function(aStep, index) {
-				if (aStep == viewModel.popup.parameters.selectedStep) {
-					return true;
-				}
+			return $q.when();
+		}()]).then(function() {
+			viewModel.loadInsertableVariablesProgress.success();
+		}, function(error) {
+			viewModel.loadInsertableVariablesProgress.error(error)
+		});
 
-				outputsOfStepsBeforeSelectedInput.push({
-					source: {
-						id: index,
-						title: "output of step: " + aStep.title
-					},
-					variables: aStep.outputs
-				});
+		var appEnvVarsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_app_env_vars";
+		});
+		if (!appEnvVarsBySource.variables) {
+			appEnvVarsBySource.variables = _.map(appConfig.app.envs, function(aVariableConfig) {
+				return new Variable(aVariableConfig);
 			});
+		}
 
-			viewModel.insertableVariables =  _.union(viewModel.insertableVariablesForAllWorkflows, outputsOfStepsBeforeSelectedInput);
-		};
-	}, 0);
+		_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_workflow_env_vars";
+		}).variables = selectedWorkflow.envVars;
+
+		var outputsOfStepsBeforeSelectedInput = [];
+		_.any(selectedWorkflow.steps, function(aStep, index) {
+			if (aStep == selectedStep) {
+				return true;
+			}
+
+			outputsOfStepsBeforeSelectedInput.push({
+				source: {
+					id: index,
+					title: "output of step: " + aStep.title
+				},
+				variables: _.map(aStep.outputs, function(anOutputConfig) {
+					return new Variable(undefined, anOutputConfig);
+				})
+			});
+		});
+
+		viewModel.insertableVariables =  _.union(viewModel.insertableVariablesForAllWorkflows, outputsOfStepsBeforeSelectedInput);
+	}
 
 	function loadDefaultOutputs() {
 		return requestService.getDefaultOutputs().then(function(defaultOutputConfigsBySource) {
@@ -110,8 +154,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 				defaultOutputsOfSource.variables = [];
 				_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
-					var defaultOutput = new Variable(aDefaultOutputConfig);
-					defaultOutputsOfSource.variables.push(defaultOutput);
+					defaultOutputsOfSource.variables.push(new Variable(undefined, aDefaultOutputConfig));
 				});
 			});
 		});
@@ -125,10 +168,15 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 			secretsBySource.variables = [];
 			_.each(secretConfigs, function(aSecretConfig) {
-				var secret = new Variable(aSecretConfig);
-				secretsBySource.variables.push(secret);
+				secretsBySource.variables.push(new Variable(aSecretConfig));
 			});
 		});
+	};
+
+	viewModel.insertVariable = function(variable) {
+		var oldValue = targetInput.value();
+		targetInput.value(oldValue.slice(0, insertStartPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(insertEndPosition));
+		viewModel.popup.isVisible = false;
 	};
 
 });

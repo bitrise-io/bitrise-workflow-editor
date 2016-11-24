@@ -13,29 +13,25 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseStep
 	};
 
 	Workflow.prototype.configureWithWorkflowConfig = function(workflowConfig) {
-		if (workflowConfig.envs) {
-			this.envVars = _.map(workflowConfig.envs, function(anEnvVarConfig) {
-				return new Variable(anEnvVarConfig);
-			});
-		}
+		this.envVars = _.map(workflowConfig.envs, function(anEnvVarConfig) {
+			return new Variable(anEnvVarConfig);
+		});
 
-		if (workflowConfig.steps) {
-			this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
-				var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
-				var step;
-				var userStepConfig = aWrappedUserStepConfig[stepCVS];
+		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
+			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
+			var step;
+			var userStepConfig = aWrappedUserStepConfig[stepCVS];
 
-				try {
-					step = bitriseSteplibService.stepFromCVS(stepCVS);
-					step.userStepConfig = userStepConfig;
-				}
-				catch (error) {
-					step = new Step(stepCVS, userStepConfig);
-				}
+			try {
+				step = bitriseSteplibService.stepFromCVS(stepCVS);
+				step.userStepConfig = userStepConfig;
+			}
+			catch (error) {
+				step = new Step(stepCVS, userStepConfig);
+			}
 
-				return step;
-			});
-		}
+			return step;
+		});
 
 		var self = this;
 
@@ -60,7 +56,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseStep
 			return false;
 		}
 
-		if (_.isEmpty(this.beforeRunWorkflows) && _.isEmpty(this.afterRunWorkflows)) {
+		if (_.isEmpty(angular.copy(this.beforeRunWorkflows)) && _.isEmpty(angular.copy(this.afterRunWorkflows))) {
 			return true;
 		}
 
