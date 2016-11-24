@@ -143,7 +143,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 				viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 					var workflow = new Workflow(aWorkflowID);
-					allWorkflowsLoadedCallbacks.push(workflow.configureWithWorkflowConfig(aWorkflowConfig));
+					allWorkflowsLoadedCallbacks.push(workflow.configureWithWorkflowConfig(angular.copy(aWorkflowConfig)));
 
 					return workflow;
 				});
