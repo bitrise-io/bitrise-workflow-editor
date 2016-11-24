@@ -6,26 +6,41 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 
 	var viewModel = this;
 
+	var appConfig;
 	viewModel.appEnvVars;
 	var appEnvVarsLoadDeferred = $q.defer();
 
 	viewModel.loadAppEnvVarsProgress = new Progress();
 	viewModel.loadTemplateProgress = new Progress();
 
-	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
-		viewModel.appEnvVars = _.map(appConfig.app.envs, function(anAppEnvVarConfig) {
-			return new Variable(anAppEnvVarConfig);
+	$rootScope.$on("MainController::appConfigLoaded", function(event, _appConfig) {
+		appConfig = _appConfig;
+
+		viewModel.appEnvVars = _.map(_appConfig.app.envs, function(anAppEnvVarConfig) {
+			return new Variable(angular.copy(anAppEnvVarConfig));
 		});
 
-		appEnvVarsLoadDeferred.resolve(appConfig);
+		appEnvVarsLoadDeferred.resolve(_appConfig);
 	});
 
-	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
-		viewModel.appEnvVars = _.map(appConfig.app.envs, function(anAppEnvVarConfig) {
-			return new Variable(anAppEnvVarConfig);
+	$rootScope.$on("MainController::discardChanges", function(event, _appConfig) {
+		appConfig = _appConfig;
+
+		viewModel.appEnvVars = _.map(_appConfig.app.envs, function(anAppEnvVarConfig) {
+			return new Variable(angular.copy(anAppEnvVarConfig));
 		});
 		
 		configureEnvVarsController();
+	});
+
+	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
+		if (!appConfig.app) {
+			appConfig.app = {};
+		}
+
+		appConfig.app.envs = _.map(viewModel.appEnvVars, function(anEnvVar) {
+			return anEnvVar.userVariableConfig;
+		});
 	});
 
 	$rootScope.$on("EnvVarsController::loadedAndReady", function() {
