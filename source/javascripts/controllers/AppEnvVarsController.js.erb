@@ -8,7 +8,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 
 	var appConfig;
 	viewModel.appEnvVars;
-	var appEnvVarsLoadDeferred = $q.defer();
+	var envVarEditorLoadedAndReadyDeferred = $q.defer();
 
 	viewModel.loadAppEnvVarsProgress = new Progress();
 	viewModel.loadTemplateProgress = new Progress();
@@ -20,7 +20,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 			return new Variable(angular.copy(anAppEnvVarConfig));
 		});
 
-		appEnvVarsLoadDeferred.resolve(_appConfig);
+		envVarEditorLoadedAndReadyDeferred.promise.then(configureEnvVarsController);
 	});
 
 	$rootScope.$on("MainController::discardChanges", function(event, _appConfig) {
@@ -30,10 +30,18 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 			return new Variable(angular.copy(anAppEnvVarConfig));
 		});
 		
-		configureEnvVarsController();
+		envVarEditorLoadedAndReadyDeferred.promise.then(configureEnvVarsController);
 	});
 
 	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
+		if (_.any(viewModel.appEnvVars, function(anAppEnvVar) {
+			return anAppEnvVar.key().length == 0;
+		})) {
+			$rootScope.$emit("MainController::appConfigSaveError", new Error("<%= data[:strings][:env_var_editor][:env_var_without_key] %>"));
+
+			return;
+		}
+
 		if (!appConfig.app) {
 			appConfig.app = {};
 		}
@@ -44,7 +52,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 	});
 
 	$rootScope.$on("EnvVarsController::loadedAndReady", function() {
-		appEnvVarsLoadDeferred.promise.then(configureEnvVarsController);
+		envVarEditorLoadedAndReadyDeferred.resolve();
 	});
 
 	function configureEnvVarsController() {

@@ -14,6 +14,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	var appConfigLoadDeferrer = $q.defer();
 
 	viewModel.loadProgress = new Progress();
+	viewModel.saveProgress = new Progress();
 
 	function load() {
 		viewModel.loadProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
@@ -89,18 +90,30 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.saveChanges = function() {
-		viewModel.loadProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+		var error;
+		var unwatchError = $rootScope.$on("MainController::appConfigSaveError", function(event, _error) {
+			error = _error;
+		});
 
 		$rootScope.$emit("MainController::requestingAppConfigUpdateBeforeSave");
+		unwatchError();
+
+		if (error) {
+			viewModel.saveProgress.error(error);
+
+			return;
+		}
 
 		requestService.postAppConfig(appConfig).then(requestService.getAppConfig).then(function(_appConfig) {
 			appConfig = _appConfig;
 			savedAppConfig = angular.copy(appConfig);
 
-			viewModel.loadProgress.success();
+			viewModel.saveProgress.success();
 			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
 		}, function(error) {
-			viewModel.loadProgress.error(error);
+			viewModel.saveProgress.error(error);
 		});
 	};
 

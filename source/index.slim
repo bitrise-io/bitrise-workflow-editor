@@ -7,8 +7,9 @@ main[ng-controller="MainController as mainCtrl"]
 		nav
 			a[ng-repeat="menu in mainCtrl.menus" ng-href="{{ menu.path }}" ng-bind="menu.title" ng-class="menu.cssClass"]
 		aside
-			button.discard[ng-click="mainCtrl.discardChanges()" ng-disabled="!mainCtrl.loadProgress.isIdle"] == data[:strings][:main][:discard]
-			button.save[ng-click="mainCtrl.saveChanges()" ng-disabled="!mainCtrl.loadProgress.isIdle"] == data[:strings][:main][:save]
+			button.discard[ng-click="mainCtrl.discardChanges()" ng-disabled="!mainCtrl.loadProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
+			button.save[ng-click="mainCtrl.saveChanges()" ng-disabled="!mainCtrl.loadProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:save]
 	p.progress-indicator[progress-model="mainCtrl.loadProgress"]
+	p.progress-indicator[progress-model="mainCtrl.saveProgress"]
 	p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 	div[ng-view ng-if="!mainCtrl.loadProgress.isInProgress"]

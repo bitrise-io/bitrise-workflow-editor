@@ -173,6 +173,7 @@ env_var_editor:
   replace_variables_description: "Enable this if you want to replace Environment Variables in your input with the variable's assigned value."
   replace_variables_more_info: "More info"
   delete_env_var: "Delete"
+  env_var_without_key: "One or more Environment Variable does not have key."
 request_service:
   invalid_mode: Invalid mode!
   load_app_config:
