@@ -1,0 +1,56 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("StepController", function($scope, $rootScope, bitriseSteplibService, Variable) {
+
+	var viewModel = this;
+
+	$scope.bitriseSteplibService = bitriseSteplibService;
+
+	viewModel.step;
+	viewModel.renamedStep;
+	viewModel.renamedStepTitle;
+	viewModel.shouldShowDescription;
+	viewModel.requestedVersion;
+	viewModel.selectedInput;
+
+	viewModel.configureWithStep = function(_step) {
+		viewModel.step = _step;
+		viewModel.renamedStep = null;
+		viewModel.renamedStepTitle = undefined;
+		viewModel.shouldShowDescription = false;
+		viewModel.requestedVersion = viewModel.step && viewModel.step.type() == "bitrise-steplib-step" ? viewModel.step.requestedVersion() : undefined;
+		viewModel.selectedInput = null;
+	};
+
+	$rootScope.$on("StepController::configureWithStep", function(event, _step) {
+		viewModel.configureWithStep(_step);
+	});
+
+	viewModel.renameStepSelected = function() {
+		viewModel.renamedStep = viewModel.step;
+		viewModel.renamedStepTitle = viewModel.renamedStep.title() ? viewModel.renamedStep.title() : viewModel.renamedStep.id;
+	};
+
+	viewModel.renameStepConfirmed = function() {
+		viewModel.renamedStep.title(viewModel.renamedStepTitle);
+		viewModel.renamedStep = null;
+	};
+
+	viewModel.renamedStepCancelled = function() {
+		viewModel.renamedStep = null;
+		viewModel.renamedStepTitle = undefined;
+	};
+
+	viewModel.inputSelected = function(input) {
+		viewModel.selectedInput = input;
+	};
+
+	viewModel.outputFromDefaultOutputConfig = function(defaultOutputConfig) {
+		return new Variable(undefined, defaultOutputConfig);
+	};
+
+});
+
+})();

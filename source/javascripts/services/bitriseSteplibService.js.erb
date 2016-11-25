@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, Step, Variable) {
+angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, $injector, Variable) {
 
 	var bitriseSteplibService = {
 		sourceURL: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json",
@@ -87,6 +87,7 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 			}
 		}
 
+		var Step = $injector.get("Step");
 		var step = new Step(cvs, undefined, isBitriseSteplibStep ? this.specs.steps[id].versions[version] : undefined);
 		step.steplibSourceURL = steplibSourceURL;
 		step.id = id;

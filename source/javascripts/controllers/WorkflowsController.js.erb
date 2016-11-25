@@ -2,12 +2,9 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, bitriseSteplibService, Progress, Popup, Workflow) {
 
 	var viewModel = this;
-
-	$scope.bitriseSteplibService = bitriseSteplibService;
-	$scope.Variable = Variable;
 
 	viewModel.appConfig;
 	viewModel.workflows;
@@ -33,15 +30,22 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.addRunWorkflowPopup = new Popup();
 
 	viewModel.selectedStep = null;
-	viewModel.buildEnvironmentPreparePseudoStep = {};
-	viewModel.virtualMachineCleanupPseudoStep = {};
-
-	viewModel.renamedStep = null;
-	viewModel.renamedStepTitle;
-
-	viewModel.shouldShowStepDescription = false;
-
-	viewModel.selectedStepRequestedVersion;
+	viewModel.buildEnvironmentPreparePseudoStep = {
+		type: function() {
+			return "pseudo-step";
+		},
+		displayName: function() {
+			return "<%= data[:strings][:workflows][:steps][:pseudo_preparing] %>";
+		}
+	};
+	viewModel.virtualMachineCleanupPseudoStep = {
+		type: function() {
+			return "pseudo-step";
+		},
+		displayName: function() {
+			return "<%= data[:strings][:workflows][:steps][:pseudo_cleaning] %>";
+		}
+	};
 
 	viewModel.addStepPopup = new Popup({
 		titleFilter: "",
@@ -224,56 +228,14 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		return _.union([viewModel.buildEnvironmentPreparePseudoStep], viewModel.selectedWorkflow.steps, [viewModel.virtualMachineCleanupPseudoStep]);
 	};
 
-	viewModel.stepType = function(step) {
-		if (step == viewModel.buildEnvironmentPreparePseudoStep || step == viewModel.virtualMachineCleanupPseudoStep) {
-			return "pseudo-step";
-		}
-		if (step.id === undefined) {
-			return "errorous-step";
-		}
-		if (bitriseSteplibService.isBitriseSteplibStep(step)) {
-			return "bitrise-steplib-step";
-		}
-
-		return "non-bitrise-steplib-step";
-	}
-
-	viewModel.stepDisplayName = function(step) {
-		if (step == viewModel.buildEnvironmentPreparePseudoStep) {
-			return "<%= data[:strings][:workflows][:steps][:pseudo_preparing] %>";
-		}
-		if (step == viewModel.virtualMachineCleanupPseudoStep) {
-			return "<%= data[:strings][:workflows][:steps][:pseudo_cleaning] %>";
-		}
-		if (step.id === undefined) {
-			return step.cvs;
-		}
-		if (bitriseSteplibService.isBitriseSteplibStep(step)) {
-			return step.title();
-		}
-
-		return step.id;
-	};
-
 	viewModel.stepSelected = function(step) {
 		if (step == viewModel.selectedStep) {
 			return;
 		}
 
-		if (viewModel.renamedStep) {
-			viewModel.renamedStepCancelled();
-		}
-
-		if (viewModel.shouldShowStepDescription) {
-			viewModel.shouldShowStepDescription = false;
-		}
-
-		if (viewModel.selectedInput) {
-			viewModel.selectedInput = null;
-		}
-
 		viewModel.selectedStep = step;
-		viewModel.selectedStepRequestedVersion = step && viewModel.stepType(step) == "bitrise-steplib-step" ? step.requestedVersion() : undefined;
+
+		$rootScope.$emit("StepController::configureWithStep", viewModel.selectedStep);
 	};
 
 	viewModel.addStepSelectedAtIndex = function(index) {
@@ -308,21 +270,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.stepSelected(newStep);
 	};
 
-	viewModel.renameStepSelected = function() {
-		viewModel.renamedStep = viewModel.selectedStep;
-		viewModel.renamedStepTitle = viewModel.renamedStep.title() ? viewModel.renamedStep.title() : viewModel.renamedStep.id;
-	};
-
-	viewModel.renameStepConfirmed = function() {
-		viewModel.renamedStep.title(viewModel.renamedStepTitle);
-		viewModel.renamedStep = null;
-	};
-
-	viewModel.renamedStepCancelled = function() {
-		viewModel.renamedStepTitle = undefined;
-		viewModel.renamedStep = null;
-	};
-
 	viewModel.cloneStepSelected = function() {
 		var index = _.indexOf(viewModel.selectedWorkflow.steps, viewModel.selectedStep);
 		var clonedStep = angular.copy(viewModel.selectedStep);
@@ -336,14 +283,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.selectedWorkflow.steps.splice(index, 1);
 
 		viewModel.stepSelected(null);
-	};
-
-	viewModel.inputSelected = function(input) {
-		viewModel.selectedInput = input;
-	};
-
-	viewModel.outputFromDefaultOutputConfig = function(defaultOutputConfig) {
-		return new Variable(undefined, defaultOutputConfig);
 	};
 
 	$rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
