@@ -13,7 +13,7 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 	viewModel.loadAppEnvVarsProgress = new Progress();
 	viewModel.loadTemplateProgress = new Progress();
 
-	$rootScope.$on("MainController::appConfigLoaded", function(event, _appConfig) {
+	function configureAppEnvVarsWithAppConfig(_appConfig) {
 		appConfig = _appConfig;
 
 		viewModel.appEnvVars = _.map(_appConfig.app.envs, function(anAppEnvVarConfig) {
@@ -21,16 +21,14 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 		});
 
 		envVarEditorLoadedAndReadyDeferred.promise.then(configureEnvVarsController);
+	}
+
+	$rootScope.$on("MainController::appConfigLoaded", function(event, _appConfig) {
+		configureAppEnvVarsWithAppConfig(_appConfig);
 	});
 
 	$rootScope.$on("MainController::discardChanges", function(event, _appConfig) {
-		appConfig = _appConfig;
-
-		viewModel.appEnvVars = _.map(_appConfig.app.envs, function(anAppEnvVarConfig) {
-			return new Variable(angular.copy(anAppEnvVarConfig));
-		});
-		
-		envVarEditorLoadedAndReadyDeferred.promise.then(configureEnvVarsController);
+		configureAppEnvVarsWithAppConfig(_appConfig);
 	});
 
 	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {

@@ -62,10 +62,6 @@ angular.module("BitriseWorkflowEditor").controller("InputController", function($
 		}));
 	};
 
-	viewModel.inputSelected = function(input) {
-		$rootScope.$emit("InputController::inputSelected", input);
-	};
-
 	viewModel.inputValueBlurred = function(event) {
 		$rootScope.$emit("InsertVariableController::setInsertStartEndPosition", event.target.selectionStart, event.target.selectionEnd);
 	};

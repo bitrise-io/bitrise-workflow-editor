@@ -10,11 +10,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.Variable = Variable;
 
 	viewModel.appConfig;
-	var appConfigLoadDeferred = $q.defer();
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
 	var envVarEditorLoadedAndReadyDeferred = $q.defer();
-	viewModel.loadWorkflowsProgress = new Progress();
+	viewModel.configureWorkflowsProgress = new Progress();
 
 	viewModel.workflowEnvVarsPopup = new Popup();
 	viewModel.workflowEnvVarsPopup.beforeAppearCallback = function() {
@@ -70,59 +69,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.selectedInput = null;
-	$rootScope.$on("InputController::inputSelected", function(event, input) {
-		viewModel.selectedInput = input;
-	});
-
-	viewModel.workflowSelectedGetterSetter = function(workflow) {
-		return workflow === undefined ? viewModel.selectedWorkflow : workflowSelected(workflow);
-	};
-
-	function workflowSelected(workflow) {
-		if (workflow == viewModel.selectedWorkflow) {
-			return;
-		}
-
-		if (viewModel.selectedStep) {
-			viewModel.stepSelected(null);
-		}
-		
-		viewModel.selectedWorkflow = workflow;
-	}
 
 	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
-		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
-
-		viewModel.appConfig = appConfig;
-		appConfigLoadDeferred.resolve();
-		loadWorkflows().then(function() {
-			var selectedWorkflow = _.find(viewModel.workflows, function(aWorkflow) {
-				return aWorkflow.id == previouslySelectedWorkflowID;
-			});
-
-			if (!selectedWorkflow) {
-				selectedWorkflow = _.first(viewModel.workflows);
-			}
-
-			workflowSelected(selectedWorkflow);
-		});
+		configureWorkflowsFromAppConfig(appConfig);
 	});
 
 	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
-		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
-
-		viewModel.appConfig = appConfig;
-		loadWorkflows().then(function() {
-			var selectedWorkflow = _.find(viewModel.workflows, function(aWorkflow) {
-				return aWorkflow.id == previouslySelectedWorkflowID;
-			});
-
-			if (!selectedWorkflow) {
-				selectedWorkflow = _.first(viewModel.workflows);
-			}
-
-			workflowSelected(selectedWorkflow);
-		});
+		configureWorkflowsFromAppConfig(appConfig);
 	});
 
 	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
@@ -149,10 +102,14 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	});
 
-	function loadWorkflows() {
-		viewModel.loadWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
+	function configureWorkflowsFromAppConfig(appConfig) {
+		viewModel.configureWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
 
-		return $q.all([bitriseSteplibService.load(), appConfigLoadDeferred.promise]).then(function() {
+		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
+
+		viewModel.appConfig = appConfig;
+
+		bitriseSteplibService.load().then(function() {
 			try {
 				var allWorkflowsLoadedCallbacks = [];
 
@@ -167,15 +124,41 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 					aCallback(viewModel.workflows);
 				});
 
-				viewModel.loadWorkflowsProgress.success();
+				var selectedWorkflow = _.find(viewModel.workflows, function(aWorkflow) {
+					return aWorkflow.id == previouslySelectedWorkflowID;
+				});
+
+				if (!selectedWorkflow) {
+					selectedWorkflow = _.first(viewModel.workflows);
+				}
+
+				viewModel.workflowSelected(selectedWorkflow);
+
+				viewModel.configureWorkflowsProgress.success();
 			}
 			catch (error) {
 				viewModel.workflows = undefined;
 				console.log(error);
-				viewModel.loadWorkflowsProgress.error(new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>"));
+				viewModel.configureWorkflowsProgress.error(new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>"));
 			}
 		});
 	}
+
+	viewModel.workflowSelected = function(workflow) {
+		if (workflow === undefined) {
+			return viewModel.selectedWorkflow;
+		}
+
+		if (workflow == viewModel.selectedWorkflow) {
+			return;
+		}
+
+		if (viewModel.selectedStep) {
+			viewModel.stepSelected(null);
+		}
+		
+		viewModel.selectedWorkflow = workflow;
+	};
 
 	viewModel.addWorkflowSelected = function() {
 		viewModel.addWorkflowPopup.isVisible = true;
@@ -187,16 +170,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.workflows.push(newWorkflow);
 
 		viewModel.addWorkflowPopup.isVisible = false;
-		workflowSelected(newWorkflow);
+		viewModel.workflowSelected(newWorkflow);
 	};
 
 	viewModel.manageWorkflowEnvVarsSelected = function() {
 		viewModel.workflowEnvVarsPopup.isVisible = true;
 
-		$q.all([
-			appConfigLoadDeferred.promise,
-			envVarEditorLoadedAndReadyDeferred.promise
-		]).then(function() {
+		envVarEditorLoadedAndReadyDeferred.promise.then(function() {
 			$rootScope.$emit("EnvVarsController::configure", {
 				source: "workflow-env-vars",
 				envVars: viewModel.selectedWorkflow.envVars
@@ -237,7 +217,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		var index = _.indexOf(viewModel.workflows, viewModel.selectedWorkflow);
 		viewModel.workflows.splice(index, 1);
 
-		workflowSelected(_.first(viewModel.workflows));
+		viewModel.workflowSelected(_.first(viewModel.workflows));
 	};
 
 	viewModel.stepsIncludingPseudoSteps = function() {
@@ -356,6 +336,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.selectedWorkflow.steps.splice(index, 1);
 
 		viewModel.stepSelected(null);
+	};
+
+	viewModel.inputSelected = function(input) {
+		viewModel.selectedInput = input;
 	};
 
 	viewModel.outputFromDefaultOutputConfig = function(defaultOutputConfig) {

@@ -17,7 +17,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	});
 
 	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
-		viewModel.triggerSelected(null);
 		configureTriggers(appConfig);
 	});
 
@@ -31,6 +30,8 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 			return trigger;
 		});
+
+		viewModel.triggerSelected(null);
 	}
 
 	viewModel.triggerSelected = function(trigger) {

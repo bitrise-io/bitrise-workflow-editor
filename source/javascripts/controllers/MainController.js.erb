@@ -2,28 +2,28 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, requestService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, requestService, Progress, Popup) {
 
 	var viewModel = this;
 
+	viewModel.configureModeProgress = new Progress();
+
+	viewModel.menus;
 	viewModel.selectedMenu;
 	viewModel.menuProgress = new Progress();
 
 	var appConfig;
 	var savedAppConfig;
-	var appConfigLoadDeferrer = $q.defer();
+	viewModel.loadAppConfigProgress = new Progress();
 
-	viewModel.loadProgress = new Progress();
 	viewModel.saveProgress = new Progress();
 
-	function load() {
-		viewModel.loadProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-
+	function configureMode() {
 		try {
 			requestService.configureMode();
 		}
 		catch (error) {
-			viewModel.loadProgress.error(error);
+			viewModel.configureModeProgress.error(error);
 
 			return;
 		}
@@ -53,23 +53,19 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			path: "<%= endpoint_path(data[:routes][:endpoints][:yml]) %>",
 			cssClass: "yml"
 		}]);
-
-		loadAppConfig().then(function() {
-			viewModel.loadProgress.success();
-		}, function(error) {
-			viewModel.loadProgress.error(error);
-		});
 	}
 
 	function loadAppConfig() {
-		appConfigLoadDeferrer = $q.defer();
+		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		return requestService.getAppConfig().then(function(_appConfig) {
+		requestService.getAppConfig().then(function(_appConfig) {
 			appConfig = _appConfig;
 			savedAppConfig = angular.copy(appConfig);
 
-			appConfigLoadDeferrer.resolve();
-		});
+			viewModel.loadAppConfigProgress.success();
+
+			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
+		}, viewModel.loadAppConfigProgress.error);
 	}
 
 	$scope.$on("$routeChangeStart", function() {
@@ -106,24 +102,18 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			return;
 		}
 
-		requestService.postAppConfig(appConfig).then(requestService.getAppConfig).then(function(_appConfig) {
-			appConfig = _appConfig;
-			savedAppConfig = angular.copy(appConfig);
-
+		requestService.postAppConfig(appConfig).then(function() {
 			viewModel.saveProgress.success();
-			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
-		}, function(error) {
-			viewModel.saveProgress.error(error);
-		});
+
+			loadAppConfig();
+		}, viewModel.saveProgress.error);
 	};
 
 	$rootScope.$on("MainController::menuContentIsLoadedAndReady", function() {
-		appConfigLoadDeferrer.promise.then(function() {
-			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
-		});
+		loadAppConfig();
 	});
 
-	load();
+	configureMode();
 
 });
 
