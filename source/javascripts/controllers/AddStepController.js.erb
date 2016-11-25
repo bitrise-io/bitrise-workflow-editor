@@ -1,0 +1,61 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("AddStepController", function($rootScope, bitriseSteplibService, Popup) {
+
+	var viewModel = this;
+
+	viewModel.popup = new Popup();
+	viewModel.popup.beforeAppearCallback = function() {
+		if (viewModel.availableTypeTagFilters) {
+			return;
+		}
+
+		viewModel.availableTypeTagFilters = [];
+
+		_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
+			return bitriseSteplibService.steps[stepID][aStepVersion];
+		}), function(aStep) {
+			viewModel.availableTypeTagFilters = _.union(viewModel.availableTypeTagFilters, aStep.typeTags());
+		});
+
+		viewModel.availableTypeTagFilters = _.uniq(viewModel.availableTypeTagFilters);
+	};
+	viewModel.popup.afterDismissCallback = function() {
+		viewModel.titleFilter = "";
+		viewModel.typeTagFilter = null;
+	};
+
+	viewModel.insertIndex;
+	viewModel.titleFilter = "";
+	viewModel.typeTagFilter = null;
+	viewModel.availableTypeTagFilters;
+
+	$rootScope.$on("AddStepController::showAddStepPopupWithInsertIndex", function(event, insertIndex) {
+		viewModel.insertIndex = insertIndex;
+		viewModel.popup.isVisible = true;
+	});
+
+	viewModel.addStep = function(step) {
+		$rootScope.$emit("AddStepController::addStepAtIndex", step, viewModel.insertIndex);
+		viewModel.popup.isVisible = false;
+	};
+
+	viewModel.filteredSteps = function() {
+		return _.reject(_.map(bitriseSteplibService.steps, function(aStep, stepID) {
+			return aStep[bitriseSteplibService.latestStepVersions[stepID]];
+		}), function(aStep) {
+			if (viewModel.titleFilter.length > 0 && aStep.title().toLowerCase().indexOf(viewModel.titleFilter.toLowerCase()) == -1) {
+				return true;
+			}
+
+			if (viewModel.typeTagFilter && !_.contains(aStep.typeTags(), viewModel.typeTagFilter)) {
+				return true;
+			}
+		});
+	};
+
+});
+
+})();

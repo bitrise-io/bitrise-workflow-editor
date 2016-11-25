@@ -99,24 +99,24 @@ article.workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 					ul
 						li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
 							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelected(workflow)"]
-		popup[model="workflowsCtrl.addStepPopup"]
-			.popup-body-add-step.vertical-scroll.white
-				p == data[:strings][:workflows][:steps][:add][:select]
-				label[for="add-step-popup-title-filter"] == data[:strings][:workflows][:steps][:add][:filter_by_title]
-				input#add-step-popup-title-filter[type="text" ng-model="workflowsCtrl.addStepPopup.parameters.titleFilter" placeholder="#{ data[:strings][:workflows][:steps][:add][:title_filter_placeholder] }"]
-				button[ng-if="workflowsCtrl.addStepPopup.parameters.typeTagFilter" ng-click="workflowsCtrl.addStepPopup.parameters.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
-				fieldset
-					legend == data[:strings][:workflows][:steps][:add][:filter_by_type_tag]
-					.type-tag-filter[ng-repeat="typeTagFilter in workflowsCtrl.addStepPopup.parameters.availableTypeTagFilters"]
-						input[type="radio" ng-model="workflowsCtrl.addStepPopup.parameters.typeTagFilter" id="{{ typeTagFilter }}" ng-value="typeTagFilter"]
-						label[for="{{ typeTagFilter }}" ng-bind="typeTagFilter"]
-				p[ng-if="workflowsCtrl.filteredSteps().length == 0"] == data[:strings][:workflows][:steps][:add][:no_steps_matching_filter]
-				ul
-					li[ng-repeat="step in workflowsCtrl.filteredSteps()"]
-						button[ng-click="workflowsCtrl.addStep(step)"]
-							span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
-							strong.id[ng-bind="step.id"]
-							span.summary[ng-bind="step.summary"]
+popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
+	.popup-body-add-step.vertical-scroll.white
+		p == data[:strings][:workflows][:steps][:add][:select]
+		label[for="add-step-popup-title-filter"] == data[:strings][:workflows][:steps][:add][:filter_by_title]
+		input#add-step-popup-title-filter[type="text" ng-model="addStepCtrl.titleFilter" placeholder="#{ data[:strings][:workflows][:steps][:add][:title_filter_placeholder] }"]
+		button[ng-if="addStepCtrl.typeTagFilter" ng-click="addStepCtrl.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
+		fieldset
+			legend == data[:strings][:workflows][:steps][:add][:filter_by_type_tag]
+			.type-tag-filter[ng-repeat="typeTagFilter in addStepCtrl.availableTypeTagFilters"]
+				input[type="radio" ng-model="addStepCtrl.typeTagFilter" id="{{ typeTagFilter }}" ng-value="typeTagFilter"]
+				label[for="{{ typeTagFilter }}" ng-bind="typeTagFilter"]
+		p[ng-if="addStepCtrl.filteredSteps().length == 0"] == data[:strings][:workflows][:steps][:add][:no_steps_matching_filter]
+		ul
+			li[ng-repeat="step in addStepCtrl.filteredSteps()"]
+				button[ng-click="addStepCtrl.addStep(step)"]
+					span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
+					strong.id[ng-bind="step.id"]
+					span.summary[ng-bind="step.summary()"]
 popup[model="insertVariableCtrl.popup" ng-controller="InsertVariableController as insertVariableCtrl"]
 	.popup-body-insert-variable.vertical-scroll.white
 		h2 == data[:strings][:workflows][:inputs][:insert_variable][:select]
