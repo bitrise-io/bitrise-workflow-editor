@@ -266,8 +266,8 @@ describe("bitriseSteplibService", function() {
 			step = bitriseSteplibService.stepFromCVS("red-step@1.0");
 			bitriseSteplibService.changeStepToVersion(step, "1.1");
 
-			expect(step.inputs()[0].value()).toBe("new-red-input-value");
-			expect(step.inputs()[0].summary()).toBe("Red input summary 1.1");
+			expect(step.defaultStepConfig.inputs[0].red_input).toBe("new-red-input-value");
+			expect(step.defaultStepConfig.inputs[0].opts.summary).toBe("Red input summary 1.1");
 		});
 
 	});

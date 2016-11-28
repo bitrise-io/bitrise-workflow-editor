@@ -16,16 +16,16 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 		return string;
 	};
 
-	stringService.isStringMatchingFilter = function(string, filter) {
-		if (string === undefined || filter === undefined) {
+	stringService.isStringMatchingTerm = function(string, term) {
+		if (string === undefined || term === undefined) {
 			return undefined
 		}
 
-		if (filter.length == 0) {
+		if (term.length == 0) {
 			return true;
 		}
 
-		return string.toLowerCase().indexOf(filter.toLowerCase()) != -1;
+		return string.toLowerCase().indexOf(term.toLowerCase()) != -1;
 	};
 
 	return stringService;

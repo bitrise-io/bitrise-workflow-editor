@@ -84,7 +84,7 @@ describe("Variable", function() {
 			});
 
 			expect(variable.key("red_key")).toBe("red_key");
-			expect(variable.userVariableConfig).toEqual({});
+			expect(variable.userVariableConfig).toBeNull();
 		});
 
 	});
@@ -155,7 +155,7 @@ describe("Variable", function() {
 			});
 
 			expect(variable.value("red_variable")).toBe("red_variable");
-			expect(variable.userVariableConfig).toEqual({});
+			expect(variable.userVariableConfig).toBeNull();
 		});
 
 	});
@@ -261,7 +261,7 @@ describe("Variable", function() {
 
 			variable.title("Red title");
 
-			expect(variable.userVariableConfig).toEqual({});
+			expect(variable.userVariableConfig).toBeNull();
 		});
 
 	});

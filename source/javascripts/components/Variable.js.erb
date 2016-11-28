@@ -194,7 +194,7 @@ angular.module("BitriseWorkflowEditor").filter("variablesfilteredByKey", functio
 		}
 
 		return _.filter(variables, function(aVariable) {
-			return stringService.isStringMatchingFilter(aVariable.key(), keyFilter);
+			return stringService.isStringMatchingTerm(aVariable.key(), keyFilter);
 		})
 	};
 
