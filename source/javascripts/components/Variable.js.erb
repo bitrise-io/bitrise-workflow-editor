@@ -7,10 +7,6 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	var Variable = function(userVariableConfig, defaultVariableConfig) {
 		this.userVariableConfig = userVariableConfig;
 		this.defaultVariableConfig = defaultVariableConfig;
-
-		if (this.userVariableConfig && this.userVariableConfig.opts && _.isEmpty(angular.copy(this.userVariableConfig.opts))) {
-			delete this.userVariableConfig["opts"];
-		}
 	};
 
 	Variable.prototype.key = function(newKey) {

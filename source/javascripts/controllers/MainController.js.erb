@@ -60,12 +60,45 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 		requestService.getAppConfig().then(function(_appConfig) {
 			appConfig = _appConfig;
-			savedAppConfig = angular.copy(appConfig);
+			savedAppConfig = angular.copy(_appConfig);
+			minimizeAppConfig(appConfig);
 
 			viewModel.loadAppConfigProgress.success();
 
 			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
 		}, viewModel.loadAppConfigProgress.error);
+	}
+
+	function minimizeAppConfig(_appConfig) {
+		var variableConfigs = [];
+
+		if (_appConfig.app && _appConfig.app.envs) {
+			variableConfigs = _.union(variableConfigs, _appConfig.app.envs);
+		}
+
+		if (_appConfig.workflows) {
+			_.each(_appConfig.workflows, function(aWorkflowConfig) {
+				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
+
+				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+					var stepConfig = aWrappedUserStepConfig[_.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))))];
+
+					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
+						delete stepConfig["source"];
+					}
+
+					if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
+						delete stepConfig["deps"];
+					}
+				});
+			});
+		}
+
+		_.each(variableConfigs, function(aVariableConfig) {
+			if (aVariableConfig.opts && _.isEmpty(aVariableConfig.opts)) {
+				delete aVariableConfig["opts"];
+			}
+		});
 	}
 
 	$scope.$on("$routeChangeStart", function() {
@@ -82,6 +115,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.discardChanges = function() {
 		appConfig = angular.copy(savedAppConfig);
+		minimizeAppConfig(appConfig);
+
 		$rootScope.$emit("MainController::discardChanges", appConfig);
 	};
 
