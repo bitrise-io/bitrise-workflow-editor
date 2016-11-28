@@ -6,7 +6,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 	return {
 		restrict: "A",
 		link: function(scope, element, attrs) {
-			var draggableSelector = $parse(attrs.orderByDrag)(scope).draggableSelector;
+			var draggableSelector = $parse(attrs.draggableSelector)(scope);
 			if (draggableSelector === undefined) {
 				draggableSelector = "*";
 			}
@@ -40,7 +40,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 					var offsetYBetweenSiblings = $(selectedElement).offset().top - $(nextElement).offset().top;
 					if (offsetYBetweenSiblings > 0) {
 						var index = $(element).children(draggableSelector).index(selectedElement);
-						var models = $parse(attrs.orderByDrag)(scope).models;
+						var models = $parse(attrs.models)(scope);
 						var model = models[index];
 						models.splice(index, 1);
 						if (_.last(models) == model) {
@@ -52,6 +52,8 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 						$(selectedElement).insertAfter(nextElement);
 						$(selectedElement).css("top", offsetYBetweenSiblings + "px");
 						cursorPositionYOnLastStableOrder = event.pageY - offsetYBetweenSiblings;
+
+						scope.$apply();
 					}
 				}
 				else {
@@ -67,7 +69,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 					var offsetYBetweenSiblings = $(selectedElement).offset().top - $(previousElement).offset().top;
 					if (offsetYBetweenSiblings < 0) {
 						var index = $(element).children(draggableSelector).index(selectedElement);
-						var models = $parse(attrs.orderByDrag)(scope).models;
+						var models = $parse(attrs.models)(scope);
 						var model = models[index];
 						models.splice(index, 1);
 						if (_.first(models) == model) {
@@ -79,6 +81,8 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 						$(selectedElement).insertBefore(previousElement);
 						$(selectedElement).css("top", offsetYBetweenSiblings + "px");
 						cursorPositionYOnLastStableOrder = event.pageY - offsetYBetweenSiblings;
+
+						scope.$apply();
 					}
 				}
 			}
@@ -90,16 +94,10 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 				$(document).off("mouseup", mouseupHandler);
 				$(selectedElement).on("mousedown", mousedownHandler);
 
-				scope.$digest();
+				scope.$apply();
 			}
 
-			scope.$watch(function() {
-				return $(element).children().length;
-			}, function(newChildrenLength) {
-				if (newChildrenLength === undefined || newChildrenLength == 0) {
-					return;
-				}
-
+			scope.$watchCollection(attrs.models, function() {
 				_.each($(element).children(draggableSelector), function(aChild) {
 					$(aChild).off("mousedown", mousedownHandler).on("mousedown", mousedownHandler);
 				});

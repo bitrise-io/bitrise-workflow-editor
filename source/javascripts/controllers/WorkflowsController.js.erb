@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, bitriseSteplibService, Progress, Popup, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
 
 	var viewModel = this;
 
@@ -29,8 +29,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	viewModel.addRunWorkflowPopup = new Popup();
 
-	viewModel.selectedStep = null;
-	viewModel.buildEnvironmentPreparePseudoStep = {
+	viewModel.selectedWorkflowSteps;
+	var buildEnvironmentPreparePseudoStep = {
 		type: function() {
 			return "pseudo-step";
 		},
@@ -38,7 +38,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return "<%= data[:strings][:workflows][:steps][:pseudo_preparing] %>";
 		}
 	};
-	viewModel.virtualMachineCleanupPseudoStep = {
+	var virtualMachineCleanupPseudoStep = {
 		type: function() {
 			return "pseudo-step";
 		},
@@ -46,8 +46,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return "<%= data[:strings][:workflows][:steps][:pseudo_cleaning] %>";
 		}
 	};
-
-	viewModel.selectedInput = null;
+	viewModel.selectedStep = null;
 
 	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		configureWorkflowsFromAppConfig(appConfig);
@@ -58,27 +57,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	});
 
 	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
-		viewModel.appConfig.workflows = {};
 
-		_.each(viewModel.workflows, function(aWorkflow) {
-			viewModel.appConfig.workflows[aWorkflow.id] = {
-				envs: _.map(aWorkflow.envVars, function(anEnvVar) {
-					return anEnvVar.userVariableConfig;
-				}),
-				steps: _.map(aWorkflow.steps, function(aStep) {
-					var wrappedUserStepConfig = {};
-					wrappedUserStepConfig[aStep.cvs] = aStep.userStepConfig;
-					
-					return wrappedUserStepConfig;
-				}),
-				before_run: _.map(aWorkflow.beforeRunWorkflows, function(aWorkflow) {
-					return aWorkflow.id;
-				}),
-				after_run: _.map(aWorkflow.afterRunWorkflows, function(aWorkflow) {
-					return aWorkflow.id;
-				})
-			};
-		});
 	});
 
 	function configureWorkflowsFromAppConfig(appConfig) {
@@ -93,14 +72,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				var allWorkflowsLoadedCallbacks = [];
 
 				viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
-					var workflow = new Workflow(aWorkflowID);
-					allWorkflowsLoadedCallbacks.push(workflow.configureWithWorkflowConfig(angular.copy(aWorkflowConfig)));
-
-					return workflow;
-				});
-
-				_.each(allWorkflowsLoadedCallbacks, function(aCallback) {
-					aCallback(viewModel.workflows);
+					return new Workflow(aWorkflowID, aWorkflowConfig);
 				});
 
 				var selectedWorkflow = _.find(viewModel.workflows, function(aWorkflow) {
@@ -137,6 +109,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 		
 		viewModel.selectedWorkflow = workflow;
+		configureSelectedWorkflowSteps();
+	};
+
+	viewModel.workflowSelectedWithID = function(workflowID) {
+		viewModel.workflowSelected(_.find(viewModel.workflows, {
+			id: workflowID
+		}));
 	};
 
 	viewModel.addWorkflowSelected = function() {
@@ -144,12 +123,15 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.addWorkflow = function() {
-		var newWorkflow = angular.copy(viewModel.selectedWorkflow);
-		newWorkflow.id = viewModel.addWorkflowPopup.parameters.workflowID;
-		viewModel.workflows.push(newWorkflow);
+		viewModel.appConfig.workflows[viewModel.addWorkflowPopup.parameters.workflowID] = angular.copy(viewModel.selectedWorkflow.workflowConfig);
 
 		viewModel.addWorkflowPopup.isVisible = false;
-		viewModel.workflowSelected(newWorkflow);
+
+		configureWorkflowsFromAppConfig(viewModel.appConfig);
+
+		viewModel.workflowSelected(_.find(viewModel.workflows, {
+			id: viewModel.addWorkflowPopup.parameters.workflowID
+		}));
 	};
 
 	viewModel.manageWorkflowEnvVarsSelected = function() {
@@ -158,7 +140,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		envVarEditorLoadedAndReadyDeferred.promise.then(function() {
 			$rootScope.$emit("EnvVarsController::configure", {
 				source: "workflow-env-vars",
-				envVars: viewModel.selectedWorkflow.envVars
+				envVars: _.map(viewModel.selectedWorkflow.workflowConfig.envs, function(anEnvVarConfig) {
+					return new Variable(anEnvVarConfig);
+				})
 			});
 		});
 	};
@@ -173,35 +157,57 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.runWorkflowSelected = function(workflow) {
-		viewModel.selectedWorkflow[viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? "beforeRunWorkflows" : "afterRunWorkflows"].push(workflow);
+		var runWorkflowKey = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? "before_run" : "after_run";
+		if (!viewModel.selectedWorkflow.workflowConfig[runWorkflowKey]) {
+			viewModel.selectedWorkflow.workflowConfig[runWorkflowKey] = [];
+		}
+
+		viewModel.selectedWorkflow.workflowConfig[runWorkflowKey].push(workflow.id);
 		viewModel.addRunWorkflowPopup.isVisible = false;
 	};
 
 	viewModel.availableRunWorkflows = function() {
 		return _.filter(viewModel.workflows, function(aWorkflow) {
-			return aWorkflow.isLoopSafeRunForWorkflow(viewModel.selectedWorkflow);
+			return aWorkflow.isLoopSafeRunForWorkflow(viewModel.selectedWorkflow, viewModel.workflows);
 		});
 	};
 
 	viewModel.deleteWorkflowSelected = function() {
 		_.each(viewModel.workflows, function(aWorkflow) {
-			_.each([aWorkflow.beforeRunWorkflows, aWorkflow.afterRunWorkflows], function(aRunWorkflows) {
+			_.each([aWorkflow.before_run, aWorkflow.after_run], function(aRunWorkflows) {
 				if (aRunWorkflows) {
-					var runWorkflowIndex = _.indexOf(aRunWorkflows, viewModel.selectedWorkflow);
+					var runWorkflowIndex = _.indexOf(aRunWorkflows, viewModel.selectedWorkflow.id);
 					aRunWorkflows.splice(runWorkflowIndex, 1);
 				}
 			});
 		});
 
-		var index = _.indexOf(viewModel.workflows, viewModel.selectedWorkflow);
-		viewModel.workflows.splice(index, 1);
+		delete viewModel.appConfig.workflows[viewModel.selectedWorkflow.id];
 
-		viewModel.workflowSelected(_.first(viewModel.workflows));
+		configureWorkflowsFromAppConfig(viewModel.appConfig);
 	};
 
-	viewModel.stepsIncludingPseudoSteps = function() {
-		return _.union([viewModel.buildEnvironmentPreparePseudoStep], viewModel.selectedWorkflow.steps, [viewModel.virtualMachineCleanupPseudoStep]);
-	};
+	function configureSelectedWorkflowSteps() {
+		if (!viewModel.selectedWorkflow) {
+			return undefined;
+		}
+
+		viewModel.selectedWorkflowSteps = _.union([buildEnvironmentPreparePseudoStep], _.map(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
+			var step;
+			var userStepConfig = aWrappedUserStepConfig[stepCVS];
+
+			try {
+				step = bitriseSteplibService.stepFromCVS(stepCVS);
+				step.userStepConfig = userStepConfig;
+			}
+			catch (error) {
+				step = new Step(stepCVS, userStepConfig);
+			}
+
+			return step;
+		}), [virtualMachineCleanupPseudoStep]);
+	}
 
 	viewModel.stepSelected = function(step) {
 		if (step == viewModel.selectedStep) {
@@ -213,28 +219,54 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		$rootScope.$emit("StepController::configureWithStep", viewModel.selectedStep);
 	};
 
-	viewModel.addStepSelectedAtIndex = function(index) {
+	viewModel.addStepSelectedBeforeStep = function(step) {
+		var index = step == virtualMachineCleanupPseudoStep ? viewModel.selectedWorkflowSteps.length : _.findIndex(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+			return aWrappedUserStepConfig[step.cvs] == step.userStepConfig;
+		});
+
 		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", index);
 	};
 
 	$rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
-		var newStep = angular.copy(step);
-		newStep.userStepConfig = {};
-		viewModel.selectedWorkflow.steps.splice(index - 1, 0, newStep);
-		viewModel.stepSelected(newStep);
+		var wrappedUserStepConfig = {};
+		wrappedUserStepConfig[step.cvs] = {};
+
+		if (!viewModel.selectedWorkflow.workflowConfig.steps) {
+			viewModel.selectedWorkflow.workflowConfig.steps = [];
+		}
+		viewModel.selectedWorkflow.workflowConfig.steps.splice(index - 1, 0, wrappedUserStepConfig);
+
+		configureSelectedWorkflowSteps();
+
+		viewModel.stepSelected(_.find(viewModel.selectedWorkflowSteps, function(aStep) {
+			return aStep.userStepConfig == wrappedUserStepConfig[step.cvs];
+		}));
 	});
 
 	viewModel.cloneStepSelected = function() {
-		var index = _.indexOf(viewModel.selectedWorkflow.steps, viewModel.selectedStep);
-		var clonedStep = angular.copy(viewModel.selectedStep);
-		viewModel.selectedWorkflow.steps.splice(index + 1, 0, clonedStep);
+		var wrappedUserStepConfig = {};
+		wrappedUserStepConfig[viewModel.selectedStep.cvs] = angular.copy(viewModel.selectedStep.userStepConfig);
+		var index = _.findIndex(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+			return aWrappedUserStepConfig[viewModel.selectedStep.cvs] == viewModel.selectedStep.userStepConfig;
+		});
 
-		viewModel.stepSelected(clonedStep);
+		viewModel.selectedWorkflow.workflowConfig.steps.splice(index + 1, 0, wrappedUserStepConfig);
+
+		configureSelectedWorkflowSteps();
+
+		viewModel.stepSelected(_.find(viewModel.selectedWorkflowSteps, function(aStep) {
+			return aStep.userStepConfig == wrappedUserStepConfig[aStep.cvs];
+		}));
 	};
 
 	viewModel.deleteStepSelected = function() {
-		var index = _.indexOf(viewModel.selectedWorkflow.steps, viewModel.selectedStep);
-		viewModel.selectedWorkflow.steps.splice(index, 1);
+		var index = _.findIndex(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+			return aWrappedUserStepConfig[viewModel.selectedStep.cvs] == viewModel.selectedStep.userStepConfig;
+		});
+
+		viewModel.selectedWorkflow.workflowConfig.steps.splice(index, 1);
+
+		configureSelectedWorkflowSteps();
 
 		viewModel.stepSelected(null);
 	};

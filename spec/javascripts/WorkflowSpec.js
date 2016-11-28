@@ -14,27 +14,28 @@ describe("Workflow", function() {
 		}
 	}));
 
-	describe("configureWithWorkflowConfig", function() {
+	describe("create", function() {
 
 		it("should allow custom keys in workflow config", function() {
-			var workflow = new Workflow("red-workflow");
-			workflow.configureWithWorkflowConfig({
+			var workflow = new Workflow("red-workflow", {
 				unknown_key: "unknown-value",
 				envs: []
 			});
+
+			expect(workflow.workflowConfig.unknown_key).toBe("unknown-value");
 		});
 
 		it("should not change workflow ID if ID is passed in workflow config", function() {
-			var workflow = new Workflow("red-workflow");
-			workflow.configureWithWorkflowConfig({
+			var workflow = new Workflow("red-workflow", {
 				id: "blue-workflow",
 				envs: []
 			});
+
+			expect(workflow.id).toBe("red-workflow");
 		});
 
 		it("should configure Workflow", function() {
-			var workflow = new Workflow("red-workflow");
-			workflow.configureWithWorkflowConfig({
+			var workflow = new Workflow("red-workflow", {
 				before_run: [
 					"green-workflow",
 					"blue-workflow"
@@ -54,25 +55,8 @@ describe("Workflow", function() {
 				}]
 			});
 
-			expect(workflow.envVars.length).toBe(2);
-			expect(workflow.envVars[0].key()).toBe("RED-ENV-VAR");
-		});
-
-		it("should not add before & after run Workflows, just return with callback", function() {
-			var workflow = new Workflow("red-workflow");
-			var callback = workflow.configureWithWorkflowConfig({
-				before_run: [
-					"green-workflow",
-					"blue-workflow"
-				],
-				after_run: [
-					"blue-workflow"
-				]
-			});
-
-			expect(workflow.beforeRunWorkflows).toBeUndefined();
-			expect(workflow.afterRunWorkflows).toBeUndefined();
-			expect(typeof callback).toBe("function");
+			expect(workflow.workflowConfig.envs.length).toBe(2);
+			expect(workflow.workflowConfig.envs[0]["RED-ENV-VAR"]).toBe("RED-ENV-VAR-VALUE");
 		});
 
 	});
@@ -83,43 +67,46 @@ describe("Workflow", function() {
 		var greenWorkflow;
 		var blueWorkflow;
 		beforeEach(function() {
-			redWorkflow = new Workflow("red-workflow");
-			redWorkflow.beforeRunWorkflows = [];
-			redWorkflow.afterRunWorkflows = [];
-			greenWorkflow = new Workflow("green-workflow");
-			greenWorkflow.beforeRunWorkflows = [];
-			greenWorkflow.afterRunWorkflows = [];
-			blueWorkflow = new Workflow("blue-workflow");
-			blueWorkflow.beforeRunWorkflows = [];
-			blueWorkflow.afterRunWorkflows = [];
+			redWorkflow = new Workflow("red-workflow", {
+				before_run: [],
+				after_run: []
+			});
+			greenWorkflow = new Workflow("green-workflow", {
+				before_run: [],
+				after_run: []
+			});
+			blueWorkflow = new Workflow("blue-workflow", {
+				before_run: [],
+				after_run: []
+			});
 		});
 
 		it("should return false if Workflow references self", function() {
-			expect(redWorkflow.isLoopSafeRunForWorkflow(redWorkflow)).toBe(false);
-			expect(greenWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(false);
-			expect(blueWorkflow.isLoopSafeRunForWorkflow(blueWorkflow)).toBe(false);
+			expect(redWorkflow.isLoopSafeRunForWorkflow(redWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(false);
+			expect(greenWorkflow.isLoopSafeRunForWorkflow(greenWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(false);
+			expect(blueWorkflow.isLoopSafeRunForWorkflow(blueWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(false);
 		});
 
 		it("should return false if Workflow references self through another Workflow", function() {
-			redWorkflow.afterRunWorkflows.push(greenWorkflow);
+			redWorkflow.workflowConfig.after_run.push(greenWorkflow.id);
 
-			expect(redWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(false);
+			expect(redWorkflow.isLoopSafeRunForWorkflow(greenWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(false);
 		});
 
 		it("should return false if Workflow references self through multiple Workflows", function() {
-			redWorkflow.afterRunWorkflows.push(blueWorkflow);
-			blueWorkflow.afterRunWorkflows.push(greenWorkflow);
+			redWorkflow.workflowConfig.after_run.push(blueWorkflow.id);
+			blueWorkflow.workflowConfig.after_run.push(greenWorkflow.id);
 
-			expect(redWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(false);
+			expect(redWorkflow.isLoopSafeRunForWorkflow(greenWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(false);
 		});
 
 		it("should return true if Workflow not references self", function() {
-			redWorkflow.afterRunWorkflows.push(greenWorkflow);
-			greenWorkflow.afterRunWorkflows.push(blueWorkflow);
+			redWorkflow.workflowConfig.after_run.push(greenWorkflow.id);
+			greenWorkflow.workflowConfig.after_run.push(blueWorkflow.id);
 
-			expect(blueWorkflow.isLoopSafeRunForWorkflow(redWorkflow)).toBe(true);
-			expect(greenWorkflow.isLoopSafeRunForWorkflow(redWorkflow)).toBe(true);
-			expect(blueWorkflow.isLoopSafeRunForWorkflow(greenWorkflow)).toBe(true);
+			expect(blueWorkflow.isLoopSafeRunForWorkflow(redWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(true);
+			expect(greenWorkflow.isLoopSafeRunForWorkflow(redWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(true);
+			expect(blueWorkflow.isLoopSafeRunForWorkflow(greenWorkflow, [redWorkflow, greenWorkflow, blueWorkflow])).toBe(true);
 		});
 	});
 

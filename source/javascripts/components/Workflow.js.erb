@@ -4,63 +4,33 @@
 
 angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseSteplibService, Step, Variable) {
 
-	var Workflow = function(id) {
+	var Workflow = function(id, workflowConfig) {
 		this.id = id;
-		this.beforeRunWorkflows;
-		this.afterRunWorkflows;
-		this.envVars;
-		this.steps;
+		this.workflowConfig = workflowConfig;
 	};
 
-	Workflow.prototype.configureWithWorkflowConfig = function(workflowConfig) {
-		this.envVars = _.map(workflowConfig.envs, function(anEnvVarConfig) {
-			return new Variable(anEnvVarConfig);
-		});
-
-		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
-			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
-			var step;
-			var userStepConfig = aWrappedUserStepConfig[stepCVS];
-
-			try {
-				step = bitriseSteplibService.stepFromCVS(stepCVS);
-				step.userStepConfig = userStepConfig;
-			}
-			catch (error) {
-				step = new Step(stepCVS, userStepConfig);
-			}
-
-			return step;
-		});
-
-		var self = this;
-
-		return function allWorkflowsLoadedCallback(allWorkflows) {
-			self.beforeRunWorkflows = [];
-			self.afterRunWorkflows = [];
-
-			_.each(_.union(workflowConfig.before_run, workflowConfig.after_run), function(aWorkflowID, index, workflowIDs) {
-				(workflowIDs == workflowConfig.before_run ? self.beforeRunWorkflows : self.afterRunWorkflows).push(_.find(allWorkflows, {
-					id: aWorkflowID
-				}));
-			});
-		}
-	};
-
-	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow) {
+	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow, allWorkflows) {
 		if (this == workflow) {
 			return false;
 		}
 
-		if (_.contains(this.beforeRunWorkflows, workflow) || _.contains(this.afterRunWorkflows, workflow)) {
+		if (!this.workflowConfig) {
+			return undefined;
+		}
+
+		if (_.contains(this.workflowConfig.before_run, workflow.id) || _.contains(this.workflowConfig.after_run, workflow.id)) {
 			return false;
 		}
 
-		if (_.isEmpty(angular.copy(this.beforeRunWorkflows)) && _.isEmpty(angular.copy(this.afterRunWorkflows))) {
+		if (_.isEmpty(this.workflowConfig.before_run) && _.isEmpty(this.workflowConfig.after_run)) {
 			return true;
 		}
 
-		return _.every(_.union(this.beforeRunWorkflows, this.afterRunWorkflows), function(aWorkflow) {
+		return _.every(_.union(this.workflowConfig.before_run, this.workflowConfig.after_run), function(aWorkflowID) {
+			var aWorkflow = _.find(allWorkflows, {
+				id: aWorkflowID
+			});
+
 			return aWorkflow.isLoopSafeRunForWorkflow(workflow);
 		});
 	};
