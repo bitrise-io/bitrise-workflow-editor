@@ -19,12 +19,14 @@ website:
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
   all_stacks_get: /api/app/<app_slug>/all_stack_info.json?api_token=<api_token>
   secrets_get: /api/app/<app_slug>/secrets.json?api_token=<api_token>
+  secrets_post: /api/app/<app_slug>/secrets.json?api_token=<api_token>
   prov_profiles_get: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
   prov_profiles_delete: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
   prov_profile_download:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
   prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
   yml_get:  /api/app/<app_slug>/config.yml?api_token=<api_token>
   yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
+  yml_post: /api/app/<app_slug>/config.json?api_token=<api_token>
 local_server:
   app_config_get: /api/bitrise-yml.json
   app_config_post: /api/bitrise-yml.json

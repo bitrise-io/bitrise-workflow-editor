@@ -189,7 +189,77 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				reject(new Error("<%= data[:strings][:request_service][:save_app_config][:error_prefix] %> " + response.data.error_msg));
 			});
 		});
-	}
+	};
+
+	requestService.postSecrets = function(secrets) {
+		var requestURL;
+		var requestData = {
+			envs: _.map(secrets, function(aSecret) {
+				return aSecret.userVariableConfig
+			})
+		};
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:secrets_post]) %>", {
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
+				});
+
+				break;
+			case "cli":
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_post]) %>";
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:save_secrets][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:save_secrets][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.postAppConfigYML = function(appConfigYML) {
+		var requestURL;
+		var requestData;
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_post]) %>", {
+					app_slug: requestService.appSlug,
+					api_token: requestService.apiToken
+				});
+				requestData = {
+					app_config_datastore_yaml: appConfigYML
+				};
+
+				break;
+			case "cli":
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_post]) %>";
+				requestData = appConfigYML;
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:save_secrets][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:save_secrets][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
 
 	return requestService;
 

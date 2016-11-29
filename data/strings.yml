@@ -82,10 +82,10 @@ code_signing:
     loading: Loading, wait a sec...
   load_all_stacks_progress:
     default_error: Error loading stacks.
-    error_prefix: "Error loading stacks:"
+    error_prefix: "Error loading stacks: "
   load_stack_progress:
     default_error: Error loading app stack.
-    error_prefix: "Error loading app stack:"
+    error_prefix: "Error loading app stack: "
   hints:
     ios:
       title: Psst... You should use our friendly neighborhood iOS Code Signing Doctor!
@@ -157,8 +157,6 @@ yml:
   download: Download currently saved config
   load_progress:
     loading: Loading, wait a sec...
-    default_error: Error loading YML.
-    error_prefix: "Error loading YML:"
 env_var_editor:
   template_load_inprogress: Loading, wait a sec...
   add_new: Add new
@@ -179,16 +177,19 @@ request_service:
   invalid_mode: Invalid mode!
   load_app_config:
     default_error: Error loading app config.
-    error_prefix: "Error loading app config:"
+    error_prefix: "Error loading app config: "
   load_default_outputs:
     default_error: Error loading default outputs.
-    error_prefix: "Error loading default outputs:"
+    error_prefix: "Error loading default outputs: "
   load_secrets:
     default_error: Error loading secrets.
-    error_prefix: "Error loading secrets:"
+    error_prefix: "Error loading secrets: "
   save_app_config:
     default_error: Error saving app config.
-    error_prefix: "Error saving app config:"
+    error_prefix: "Error saving app config: "
+  save_secrets:
+    default_error: Error saving secrets.
+    error_prefix: "Error saving secrets: "
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

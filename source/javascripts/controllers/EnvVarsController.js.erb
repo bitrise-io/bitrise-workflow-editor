@@ -18,7 +18,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.selectedEnvVar = null;
 
 	$scope.$on("$destroy", $rootScope.$on("EnvVarsController::configure", function(event, parameters) {
-		console.log(parameters.envVars);
 		switch (parameters.source) {
 			case "secrets":
 				viewModel.title = "<%= data[:strings][:secrets][:title] %>";
