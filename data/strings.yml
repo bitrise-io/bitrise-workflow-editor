@@ -9,7 +9,6 @@ main:
   - Triggers
   - bitrise.yml
   discard: Discard
-  save: Save
   load_progress:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...

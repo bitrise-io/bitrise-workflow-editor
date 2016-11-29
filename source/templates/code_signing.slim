@@ -1,4 +1,4 @@
-article.code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
+.code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
 	p.progress-indicator[progress-model="codeSigningCtrl.loadSupportedPlatforms"]
 	div[ng-if="codeSigningCtrl.loadSupportedPlatforms.isIdle"]
 		div[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('ios')"]

@@ -1,4 +1,4 @@
-article.workflows[ng-controller="WorkflowsController as workflowsCtrl"]
+.workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
 	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
 		ul.run-workflows[ng-repeat="runWorkflows in [workflowsCtrl.selectedWorkflow.workflowConfig.before_run, workflowsCtrl.selectedWorkflow.workflowConfig.after_run] track by $index" ng-class="$first ? 'before-run' : 'after-run'"]

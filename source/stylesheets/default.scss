@@ -412,6 +412,15 @@ $screen-minimum: 320px;
 	border-radius: $value;
 }
 
+@mixin border-top-radius($value) {
+	-webkit-border-top-left-radius: $value;
+	-moz-border-top-left-radius: $value;
+	border-top-left-radius: $value;
+	-webkit-border-top-right-radius: $value;
+	-moz-border-top-right-radius: $value;
+	border-top-right-radius: $value;
+}
+
 @mixin border-top-left-radius($value) {
 	-webkit-border-top-left-radius: $value;
 	-moz-border-top-left-radius: $value;
@@ -422,6 +431,15 @@ $screen-minimum: 320px;
 	-webkit-border-top-right-radius: $value;
 	-moz-border-top-right-radius: $value;
 	border-top-right-radius: $value;
+}
+
+@mixin border-bottom-radius($value) {
+	-webkit-border-bottom-left-radius: $value;
+	-moz-border-bottom-left-radius: $value;
+	border-bottom-left-radius: $value;
+	-webkit-border-bottom-right-radius: $value;
+	-moz-border-bottom-right-radius: $value;
+	border-bottom-right-radius: $value;
 }
 
 @mixin border-bottom-left-radius($value) {
@@ -521,6 +539,13 @@ $screen-minimum: 320px;
 	-moz-transition: $values;
 	-o-transition: $values;
 	transition: $values;
+}
+
+@mixin transition-property($values...) {
+	-webkit-transition-property: $values;
+	-moz-transition-property: $values;
+	-o-transition-property: $values;
+	transition-property: $values;
 }
 
 @mixin transition-duration($value) {

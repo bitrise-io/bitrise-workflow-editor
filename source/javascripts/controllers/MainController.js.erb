@@ -10,6 +10,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
+	viewModel.currentMenu;
 
 	var appConfig;
 	var savedAppConfig;
@@ -114,6 +115,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	$scope.$on("$routeChangeSuccess", function() {
 		viewModel.menuProgress.success();
+
+		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
+			return $location.path() == aMenu.path;
+		});
 	});
 
 	$scope.$on("$routeChangeError", function() {
@@ -145,7 +150,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}
 
 		$q(function(resolve, reject) {
-			switch (selectedMenu().id) {
+			switch (viewModel.currentMenu.id) {
 				case "secrets": {
 					$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
 
@@ -176,12 +181,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	});
 
 	configureMode();
-
-	function selectedMenu() {
-		return _.find(viewModel.menus, function(aMenu) {
-			return $location.path() == aMenu.path;
-		});
-	}
 
 });
 

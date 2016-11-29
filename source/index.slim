@@ -5,12 +5,13 @@ layout: layout
 main[ng-controller="MainController as mainCtrl"]
 	header
 		nav
-			a[ng-repeat="menu in mainCtrl.menus" ng-href="{{ menu.path }}" ng-bind="menu.title" ng-class="menu.cssClass"]
+			a[ng-repeat="menu in mainCtrl.menus" ng-href="{{ menu.path }}" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}"]
+				span.title[ng-bind="menu.title"]
 		aside
 			button.discard[ng-click="mainCtrl.discardChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
-			button.save[ng-click="mainCtrl.saveChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:save]
+			button.save[ng-click="mainCtrl.saveChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"]
 	p.progress-indicator[progress-model="mainCtrl.configureModeProgress"]
 	p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 	p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
 	p.progress-indicator[progress-model="mainCtrl.saveProgress"]
-	div[ng-view ng-if="!mainCtrl.menuProgress.configureModeProgress.isError || !mainCtrl.menuProgress.isError || !mainCtrl.loadAppConfigProgress.isError || !mainCtrl.saveProgress.isInProgress"]
+	article[ng-view ng-if="!mainCtrl.menuProgress.configureModeProgress.isError || !mainCtrl.menuProgress.isError || !mainCtrl.loadAppConfigProgress.isError || !mainCtrl.saveProgress.isInProgress"]

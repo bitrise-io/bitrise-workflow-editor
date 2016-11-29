@@ -1,2 +1,100 @@
 @import "default";
 @import "constants";
+
+main {
+	background-color: $def-ultralightgrey;
+
+	header {
+		$menubutton_verticalpadding: 12px;
+
+		@include display-flex;
+		padding-top: 20px;
+		@include padding-x(27px);
+
+		nav {
+			@include display-flex;
+			margin-right: auto;
+
+			a {
+				$border_width: 4px;
+
+				border-top: $border_width solid transparent;
+				@include border-top-radius($border_width);
+				padding: $menubutton_verticalpadding 30px;
+				font-size: 14px;
+				font-weight: 300;
+				color: $def-mediumdarkgrey;
+				text-decoration: none;
+
+				span.title {
+
+				}
+			}
+
+			a:hover:not(.current) {
+				color: $def-green;
+			}
+
+			a:not(.current) {
+				@include transition(color $def-transition_duration);
+			}
+
+			a.current {
+				border-top-color: $def-green;
+				background-color: white;
+				color: black;
+			}
+		}
+
+		aside {
+			$margin: 10px;
+
+			@include display-flex;
+			margin: - $margin / 2;
+			padding-bottom: $menubutton_verticalpadding;
+
+			button {
+				margin: $margin / 2;
+				@include border-radius($def-button-border_radius);
+				@include padding-y(8px);
+				@include transition-duration($def-transition_duration);
+			}
+
+			button.discard {
+				$color: $def-mediumlightgrey;
+
+				border: 1px solid $color;
+				@include padding-x(14px);
+				@include transition-property(border-color, color);
+				font-size: 12px;
+				color: $color;
+			}
+
+			button.discard:hover {
+				$color: $def-grey;
+
+				border-color: $color;
+				color: $color;
+			}
+
+			button.save {
+				@include padding-x(55px);
+				@include transition-property(background-color);
+				background-color: $def-green;
+				color: white;
+
+				&:before {
+					content: "\2713";
+				}
+			}
+
+			button.save:hover {
+				background-color: $def-green-shade;
+			}
+		}
+	}
+
+	article {
+		background-color: white;
+	}
+}
