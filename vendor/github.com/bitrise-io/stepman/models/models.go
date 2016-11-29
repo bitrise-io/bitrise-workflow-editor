@@ -86,7 +86,7 @@ type StepModel struct {
 	SupportURL    *string `json:"support_url,omitempty" yaml:"support_url,omitempty"`
 	// auto-generated at share
 	PublishedAt *time.Time        `json:"published_at,omitempty" yaml:"published_at,omitempty"`
-	Source      StepSourceModel   `json:"source,omitempty" yaml:"source,omitempty"`
+	Source      *StepSourceModel  `json:"source,omitempty" yaml:"source,omitempty"`
 	AssetURLs   map[string]string `json:"asset_urls,omitempty" yaml:"asset_urls,omitempty"`
 	//
 	HostOsTags          []string          `json:"host_os_tags,omitempty" yaml:"host_os_tags,omitempty"`
@@ -94,7 +94,7 @@ type StepModel struct {
 	TypeTags            []string          `json:"type_tags,omitempty" yaml:"type_tags,omitempty"`
 	Dependencies        []DependencyModel `json:"dependencies,omitempty" yaml:"dependencies,omitempty"`
 	Toolkit             *StepToolkitModel `json:"toolkit,omitempty" yaml:"toolkit,omitempty"`
-	Deps                DepsModel         `json:"deps,omitempty" yaml:"deps,omitempty"`
+	Deps                *DepsModel        `json:"deps,omitempty" yaml:"deps,omitempty"`
 	IsRequiresAdminUser *bool             `json:"is_requires_admin_user,omitempty" yaml:"is_requires_admin_user,omitempty"`
 	// IsAlwaysRun : if true then this step will always run,
 	//  even if a previous step fails.
@@ -104,7 +104,8 @@ type StepModel struct {
 	//  steps will run which are marked with IsAlwaysRun.
 	IsSkippable *bool `json:"is_skippable,omitempty" yaml:"is_skippable,omitempty"`
 	// RunIf : only run the step if the template example evaluates to true
-	RunIf *string `json:"run_if,omitempty" yaml:"run_if,omitempty"`
+	RunIf   *string `json:"run_if,omitempty" yaml:"run_if,omitempty"`
+	Timeout *int    `json:"timeout,omitempty" yaml:"timeout,omitempty"`
 	//
 	Inputs  []envmanModels.EnvironmentItemModel `json:"inputs,omitempty" yaml:"inputs,omitempty"`
 	Outputs []envmanModels.EnvironmentItemModel `json:"outputs,omitempty" yaml:"outputs,omitempty"`

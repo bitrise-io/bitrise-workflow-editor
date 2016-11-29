@@ -18,6 +18,8 @@ const (
 	DefaultIsRequiresAdminUser = false
 	// DefaultIsSkippable ...
 	DefaultIsSkippable = false
+	// DefaultTimeout ...
+	DefaultTimeout = 0
 )
 
 // CreateFromJSON ...
@@ -112,6 +114,10 @@ func (step StepModel) AuditBeforeShare() error {
 		return errors.New("Invalid step: missing or empty required 'website' property")
 	}
 
+	if step.Timeout != nil && *step.Timeout < 0 {
+		return errors.New("Invalid step: timeout less then 0")
+	}
+
 	if err := step.ValidateInputAndOutputEnvs(true); err != nil {
 		return err
 	}
@@ -127,6 +133,9 @@ func (step StepModel) Audit() error {
 
 	if step.PublishedAt == nil || (*step.PublishedAt).Equal(time.Time{}) {
 		return errors.New("Invalid step: missing or empty required 'PublishedAt' property")
+	}
+	if step.Source == nil {
+		return errors.New("Invalid step: missing or empty required 'Source' property")
 	}
 	if err := step.Source.validateSource(); err != nil {
 		return err
@@ -166,6 +175,9 @@ func (step *StepModel) FillMissingDefaults() error {
 	}
 	if step.RunIf == nil {
 		step.RunIf = pointers.NewStringPtr("")
+	}
+	if step.Timeout == nil {
+		step.Timeout = pointers.NewIntPtr(DefaultTimeout)
 	}
 
 	for _, input := range step.Inputs {
@@ -214,6 +226,10 @@ func (collection StepCollectionModel) GetDownloadLocations(id, version string) (
 	step, found := collection.GetStep(id, version)
 	if found == false {
 		return []DownloadLocationModel{}, fmt.Errorf("Collection (%s) doesn't contains step %s (%s)", collection.SteplibSource, id, version)
+	}
+
+	if step.Source == nil {
+		return []DownloadLocationModel{}, errors.New("Missing Source property")
 	}
 
 	locations := []DownloadLocationModel{}
