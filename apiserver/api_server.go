@@ -1,6 +1,7 @@
 package apiserver
 
 import (
+	"encoding/base64"
 	"encoding/json"
 	"fmt"
 	"log"
@@ -14,7 +15,10 @@ import (
 
 	"io/ioutil"
 
+	"strings"
+
 	"github.com/bitrise-io/bitrise/models"
+	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
 	bitriseHTTPUtil "github.com/bitrise-io/go-utils/httputil"
 	"github.com/gorilla/mux"
@@ -292,4 +296,53 @@ func envString(env, fallback string) string {
 		return fallback
 	}
 	return e
+}
+
+// validateBitriseConfigAndSecret - `bitriseConfig` and `secretsConfig` can be
+// either YML or JSON, both are accepted
+func validateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) error {
+	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
+	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
+
+	validateCmd := cmdex.NewCommand("bitrise",
+		"-l=panic", "validate", "--format=json",
+		"--config-base64", bitriseConfigBase64,
+		"--inventory-base64", secretsConfigBase64)
+
+	combinedOut, cmdErr := validateCmd.RunAndReturnTrimmedCombinedOutput()
+
+	type BitriseCLIValidateItemModel struct {
+		IsValid bool   `json:"is_valid"`
+		Error   string `json:"error"`
+	}
+	type BitriseCLIValidateOutputModel struct {
+		Config  BitriseCLIValidateItemModel `json:"config"`
+		Secrets BitriseCLIValidateItemModel `json:"secrets"`
+	}
+
+	var validationOutput BitriseCLIValidateOutputModel
+	if outputParseErr := json.NewDecoder(strings.NewReader(combinedOut)).Decode(&validationOutput); outputParseErr != nil {
+		if cmdErr != nil {
+			return fmt.Errorf("Failed to run bitrise validate command, error: %s | 'bitrise validate' command output: %s", cmdErr, combinedOut)
+		}
+		return fmt.Errorf("Failed to parse bitrise validate output, error: %s | 'bitrise validate' command output: %s", outputParseErr, combinedOut)
+	}
+
+	errorStrs := []string{}
+	if !validationOutput.Config.IsValid {
+		errorStrs = append(errorStrs, "Config validation error: "+validationOutput.Config.Error)
+	}
+	if !validationOutput.Secrets.IsValid {
+		errorStrs = append(errorStrs, "Secret validation error: "+validationOutput.Secrets.Error)
+	}
+
+	if len(errorStrs) > 0 {
+		return fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
+	}
+
+	if cmdErr != nil {
+		return fmt.Errorf("bitrise validation command failed, error: %s", cmdErr)
+	}
+
+	return nil
 }
