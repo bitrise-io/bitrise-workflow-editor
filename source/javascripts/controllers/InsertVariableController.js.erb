@@ -60,7 +60,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 	var insertStartPosition;
 	var insertEndPosition;
 
-	$rootScope.$on("InsertVariableController::showInsertVariablePopupForTargetInput", function(event, _targetInput) {
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::showInsertVariablePopupForTargetInput", function(event, _targetInput) {
 		targetInput = _targetInput;
 		$rootScope.$emit("InsertVariableController::requestingParametersForInsertVariable");
 
@@ -72,18 +72,18 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 		}
 
 		viewModel.popup.isVisible = true;
-	});
+	}));
 
-	$rootScope.$on("InsertVariableController::configureInsertVariableWithParameters", function(event, _appConfig, _selectedWorkflow, _selectedStep) {
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::configureInsertVariableWithParameters", function(event, _appConfig, _selectedWorkflow, _selectedStep) {
 		appConfig = _appConfig;
 		selectedWorkflow = _selectedWorkflow;
 		selectedStep = _selectedStep;
-	});
+	}));
 
-	$rootScope.$on("InsertVariableController::setInsertStartEndPosition", function(event, _insertStartPosition, _insertEndPosition) {
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::setInsertStartEndPosition", function(event, _insertStartPosition, _insertEndPosition) {
 		insertStartPosition = _insertStartPosition;
 		insertEndPosition = _insertEndPosition;
-	});
+	}));
 
 	function loadInsertableVariables() {
 		viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:insertable_variables][:load_progress] %>");

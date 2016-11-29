@@ -17,7 +17,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.envVars;
 	viewModel.selectedEnvVar = null;
 
-	$rootScope.$on("EnvVarsController::configure", function(event, parameters) {
+	$scope.$on("$destroy", $rootScope.$on("EnvVarsController::configure", function(event, parameters) {
+		console.log(parameters.envVars);
 		switch (parameters.source) {
 			case "secrets":
 				viewModel.title = "<%= data[:strings][:secrets][:title] %>";
@@ -41,7 +42,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		});
 		
 		viewModel.envVarSelected(null);
-	});
+	}));
 
 	viewModel.envVarSelected = function(envVar) {
 		if (envVar == viewModel.selectedEnvVar) {
@@ -67,6 +68,14 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		
 		viewModel.selectedEnvVar = null;
 	};
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
+		if (_.any(viewModel.envVars, function(anEnvVar) {
+			return anEnvVar.key().length == 0;
+		})) {
+			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:env_var_editor][:env_var_without_key] %>"));
+		}
+	}));
 
 	$scope.$on("$destroy", function() {
 		viewModel.envVarSelected(null);

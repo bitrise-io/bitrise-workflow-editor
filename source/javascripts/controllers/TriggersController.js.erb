@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function($rootScope, Trigger, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, Trigger, Workflow) {
 
 	var viewModel = this;
 
@@ -12,13 +12,13 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.editedTrigger;
 	viewModel.newTriggerIndex;
 
-	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		configureTriggers(appConfig);
-	});
+	}));
 
-	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, appConfig) {
 		configureTriggers(appConfig);
-	});
+	}));
 
 	function configureTriggers(appConfig) {
 		viewModel.workflows = _.map(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
@@ -93,6 +93,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.triggerEditCancelled = function() {
 		viewModel.triggerSelected(null);
 	};
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
+		// TODO: implement validation
+	});
 
 	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 

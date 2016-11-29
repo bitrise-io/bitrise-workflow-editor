@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function($rootScope, $q, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", function($scope, $rootScope, $q, Progress, Variable) {
 
 	var viewModel = this;
 
@@ -23,35 +23,17 @@ angular.module("BitriseWorkflowEditor").controller("AppEnvVarsController", funct
 		envVarEditorLoadedAndReadyDeferred.promise.then(configureEnvVarsController);
 	}
 
-	$rootScope.$on("MainController::appConfigLoaded", function(event, _appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, _appConfig) {
 		configureAppEnvVarsWithAppConfig(_appConfig);
-	});
+	}));
 
-	$rootScope.$on("MainController::discardChanges", function(event, _appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, _appConfig) {
 		configureAppEnvVarsWithAppConfig(_appConfig);
-	});
+	}));
 
-	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
-		if (_.any(viewModel.appEnvVars, function(anAppEnvVar) {
-			return anAppEnvVar.key().length == 0;
-		})) {
-			$rootScope.$emit("MainController::appConfigSaveError", new Error("<%= data[:strings][:env_var_editor][:env_var_without_key] %>"));
-
-			return;
-		}
-
-		if (!appConfig.app) {
-			appConfig.app = {};
-		}
-
-		appConfig.app.envs = _.map(viewModel.appEnvVars, function(anEnvVar) {
-			return anEnvVar.userVariableConfig;
-		});
-	});
-
-	$rootScope.$on("EnvVarsController::loadedAndReady", function() {
+	$scope.$on("$destroy", $rootScope.$on("EnvVarsController::loadedAndReady", function() {
 		envVarEditorLoadedAndReadyDeferred.resolve();
-	});
+	}));
 
 	function configureEnvVarsController() {
 		$rootScope.$emit("EnvVarsController::configure", {

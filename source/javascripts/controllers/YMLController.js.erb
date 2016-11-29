@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function($rootScope, requestService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, requestService, Progress) {
 
 	var viewModel = this;
 
@@ -24,9 +24,9 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($ro
 		});
 	}
 
-	$rootScope.$on("MainController::discardChanges", function() {
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
 		viewModel.appConfigYML = savedAppConfigYML;
-	});
+	}));
 
 	loadAppConfigYML();
 

@@ -24,9 +24,9 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 		viewModel.selectedInput = null;
 	};
 
-	$rootScope.$on("StepController::configureWithStep", function(event, _step) {
+	$scope.$on("$destroy", $rootScope.$on("StepController::configureWithStep", function(event, _step) {
 		viewModel.configureWithStep(_step);
-	});
+	}));
 
 	viewModel.renameStepSelected = function() {
 		viewModel.renamedStep = viewModel.step;

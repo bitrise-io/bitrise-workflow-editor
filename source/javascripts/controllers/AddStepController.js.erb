@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("AddStepController", function($rootScope, bitriseSteplibService, Popup) {
+angular.module("BitriseWorkflowEditor").controller("AddStepController", function($scope, $rootScope, bitriseSteplibService, Popup) {
 
 	var viewModel = this;
 
@@ -32,10 +32,10 @@ angular.module("BitriseWorkflowEditor").controller("AddStepController", function
 	viewModel.typeTagFilter = null;
 	viewModel.availableTypeTagFilters;
 
-	$rootScope.$on("AddStepController::showAddStepPopupWithInsertIndex", function(event, insertIndex) {
+	$scope.$on("$destroy", $rootScope.$on("AddStepController::showAddStepPopupWithInsertIndex", function(event, insertIndex) {
 		viewModel.insertIndex = insertIndex;
 		viewModel.popup.isVisible = true;
-	});
+	}));
 
 	viewModel.addStep = function(step) {
 		$rootScope.$emit("AddStepController::addStepAtIndex", step, viewModel.insertIndex);

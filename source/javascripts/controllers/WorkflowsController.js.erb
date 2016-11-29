@@ -48,17 +48,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 	viewModel.selectedStep = null;
 
-	$rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
 		configureWorkflowsFromAppConfig(appConfig);
-	});
+	}));
 
-	$rootScope.$on("MainController::discardChanges", function(event, appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, appConfig) {
 		configureWorkflowsFromAppConfig(appConfig);
-	});
-
-	$rootScope.$on("MainController::requestingAppConfigUpdateBeforeSave", function() {
-
-	});
+	}));
 
 	function configureWorkflowsFromAppConfig(appConfig) {
 		viewModel.configureWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
@@ -147,9 +143,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	};
 
-	$rootScope.$on("EnvVarsController::loadedAndReady", function() {
+	$scope.$on("$destroy", $rootScope.$on("EnvVarsController::loadedAndReady", function() {
 		envVarEditorLoadedAndReadyDeferred.resolve();
-	});
+	}));
 
 	viewModel.addRunWorkflowSelected = function(isBeforeRunMode) {
 		viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode = isBeforeRunMode;
@@ -227,7 +223,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", index);
 	};
 
-	$rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
+	$scope.$on("$destroy", $rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
 		var wrappedUserStepConfig = {};
 		wrappedUserStepConfig[step.cvs] = {};
 
@@ -241,7 +237,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.stepSelected(_.find(viewModel.selectedWorkflowSteps, function(aStep) {
 			return aStep.userStepConfig == wrappedUserStepConfig[step.cvs];
 		}));
-	});
+	}));
 
 	viewModel.cloneStepSelected = function() {
 		var wrappedUserStepConfig = {};
@@ -271,9 +267,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.stepSelected(null);
 	};
 
-	$rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
 		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", viewModel.appConfig, viewModel.selectedWorkflow, viewModel.selectedStep);
-	});
+	}));
 
 	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 

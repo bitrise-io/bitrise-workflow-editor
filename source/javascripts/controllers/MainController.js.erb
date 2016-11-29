@@ -124,11 +124,11 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
 		var error;
-		var unwatchError = $rootScope.$on("MainController::appConfigSaveError", function(event, _error) {
+		var unwatchError = $rootScope.$on("MainController::validationError", function(event, _error) {
 			error = _error;
 		});
 
-		$rootScope.$emit("MainController::requestingAppConfigUpdateBeforeSave");
+		$rootScope.$emit("MainController::requestValidationBeforeSave");
 		unwatchError();
 
 		if (error) {
