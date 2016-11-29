@@ -70,11 +70,12 @@ workflows:
             go get -u github.com/tools/godep
             godep version
             go get -t -d ./...
-            go get github.com/Sirupsen/logrus
             go get golang.org/x/sys/unix
             go get github.com/bitrise-io/envman/models
             go get github.com/bitrise-io/stepman/models
             go get github.com/ryanuber/go-glob
+            go get github.com/davecgh/go-spew/spew
+            go get github.com/pmezard/go-difflib/difflib
             godep save ./...
 
   assets-precompile:
