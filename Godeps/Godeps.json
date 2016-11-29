@@ -8,8 +8,8 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "1.4.5-5-ga0e962c",
-			"Rev": "a0e962c09264146030b29912b0ec87024a33e296"
+			"Comment": "1.4.5-7-g21708e5",
+			"Rev": "21708e57f02aaadd4c60d059c9eb075bce9e8826"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
@@ -26,6 +26,10 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
+			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
+		},
+		{
+			"ImportPath": "github.com/bitrise-io/go-utils/freezable",
 			"Rev": "f9155f8d01013ec098cba431327cbeb063dacea7"
 		},
 		{

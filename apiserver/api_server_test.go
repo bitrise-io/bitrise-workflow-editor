@@ -8,9 +8,8 @@ import (
 )
 
 func Test_validateBitriseConfigAndSecret(t *testing.T) {
-	minimalValidConfig := "format_version: 1.3.0"
 	validConfigs := []string{
-		minimalValidConfig,
+		minimalValidBitriseYML,
 		//
 		`format_version: 1.3.0
 app:
@@ -22,7 +21,6 @@ workflows:
 `,
 		//
 	}
-	minimalValidSecrets := "{}"
 	validSecrets := []string{
 		minimalValidSecrets,
 		" ",
@@ -104,20 +102,20 @@ workflows:
 	t.Log("Invalid secrets - empty")
 	{
 		{
-			validationErr := validateBitriseConfigAndSecret(minimalValidConfig, "")
+			validationErr := validateBitriseConfigAndSecret(minimalValidBitriseYML, "")
 			require.EqualError(t, validationErr, "Validation failed: Secret validation error: ")
 		}
 	}
 
 	t.Log("Invalid secrets - envs as empty hash")
 	{
-		validationErr := validateBitriseConfigAndSecret(minimalValidConfig, "envs: {}")
+		validationErr := validateBitriseConfigAndSecret(minimalValidBitriseYML, "envs: {}")
 		require.EqualError(t, validationErr, "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!map into []models.EnvironmentItemModel")
 	}
 
 	t.Log("Invalid secrets - envs as hash with value")
 	{
-		validationErr := validateBitriseConfigAndSecret(minimalValidConfig, `envs:
+		validationErr := validateBitriseConfigAndSecret(minimalValidBitriseYML, `envs:
   KEY_ONE: value one`)
 		require.EqualError(t, validationErr, "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!map into []models.EnvironmentItemModel")
 	}

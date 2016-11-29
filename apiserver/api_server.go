@@ -20,57 +20,79 @@ import (
 	"github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/freezable"
 	bitriseHTTPUtil "github.com/bitrise-io/go-utils/httputil"
 	"github.com/gorilla/mux"
 )
 
-const defaultPort = "3645"
-const defaultFrontendPort = "4567"
-const defaultBitriseConfigPth = "bitrise.yml"
-const defaultBitriseSecretsPth = ".bitrise.secrets.yml"
+const (
+	defaultPort         = "3645"
+	defaultFrontendPort = "4567"
+	//
+	minimalValidSecrets    = "{}"
+	minimalValidBitriseYML = "format_version: 1.3.0"
+)
+
+var (
+	bitriseYMLPath freezable.String
+	secretsYMLPath freezable.String
+)
 
 // SimpleResponse ...
 type SimpleResponse struct {
 	Message string `json:"message"`
 }
 
-func getLoadBitriseYMLHandler(bitriseConfigPth string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		contStr, err := fileutil.ReadStringFromFile(bitriseConfigPth)
-		if err != nil {
-			respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
-			return
-		}
+// ErrorWithYMLResponse ...
+type ErrorWithYMLResponse struct {
+	Error      error  `json:"error"`
+	BitriseYML string `json:"bitrise_yml"`
+}
 
-		w.Header().Set("Content-Type", "text/yaml")
-		w.WriteHeader(200)
-		if _, err := w.Write([]byte(contStr)); err != nil {
-			log.Println(" [!] Exception: Failed to write YAML response: Error: ", err)
-		}
+func loadBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
+	contStr, err := fileutil.ReadStringFromFile(bitriseYMLPath.Get())
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
+		return
+	}
+
+	if err := validateBitriseConfigAndSecret(contStr, minimalValidSecrets); err != nil {
+		respondWithError(w, ErrorWithYMLResponse{Error: err, BitriseYML: contStr})
+		return
+	}
+
+	w.Header().Set("Content-Type", "text/yaml")
+	w.WriteHeader(200)
+	if _, err := w.Write([]byte(contStr)); err != nil {
+		log.Println(" [!] Exception: Failed to write YAML response: Error: ", err)
 	}
 }
 
-func getLoadBitriseYMLAsJSONHandler(bitriseConfigPth string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		contBytes, err := fileutil.ReadBytesFromFile(bitriseConfigPth)
-		if err != nil {
-			respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
-			return
-		}
+func loadBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 
-		var yamlContObj models.BitriseDataModel
-		if err := yaml.Unmarshal(contBytes, &yamlContObj); err != nil {
-			respondWithErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
-			return
-		}
-
-		if err := yamlContObj.Normalize(); err != nil {
-			respondWithErrorMessage(w, "Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
-			return
-		}
-
-		respondWithJSON(w, 200, yamlContObj)
+	contBytes, err := fileutil.ReadBytesFromFile(bitriseYMLPath.Get())
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
+		return
 	}
+
+	if err := validateBitriseConfigAndSecret(string(contBytes), minimalValidSecrets); err != nil {
+		respondWithError(w, ErrorWithYMLResponse{Error: err, BitriseYML: string(contBytes)})
+		return
+	}
+
+	var yamlContObj models.BitriseDataModel
+	if err := yaml.Unmarshal(contBytes, &yamlContObj); err != nil {
+		respondWithErrorMessage(w, "Failed to parse the content of bitrise.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	if err := yamlContObj.Normalize(); err != nil {
+		respondWithErrorMessage(w, "Failed to normalize the content of bitrise.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, yamlContObj)
 }
 
 func defaultOutputsHandler(w http.ResponseWriter, r *http.Request) {
@@ -101,106 +123,120 @@ type SecretsModel struct {
 	Envs []EnvItmModel `json:"envs"`
 }
 
-func getLoadSecretsAsJSONHandler(bitriseSecretsPth string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		contBytes, err := fileutil.ReadBytesFromFile(bitriseSecretsPth)
-		if err != nil {
-			respondWithErrorMessage(w, "Failed to read content of .bitrise.secrets.yml file, error: %s", err)
-			return
-		}
-
-		var respObj SecretsModel
-		if err := yaml.Unmarshal(contBytes, &respObj); err != nil {
-			respondWithErrorMessage(w, "Failed to parse the content of .bitrise.secrets.yml file (invalid YML), error: %s", err)
-			return
-		}
-
-		respondWithJSON(w, 200, respObj)
+func loadSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
+	contBytes, err := fileutil.ReadBytesFromFile(bitriseYMLPath.Get())
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to read content of .bitrise.secrets.yml file, error: %s", err)
+		return
 	}
+
+	if err := validateBitriseConfigAndSecret(minimalValidBitriseYML, string(contBytes)); err != nil {
+		respondWithErrorMessage(w, "Invalid secrets: %s", err)
+		return
+	}
+
+	var respObj SecretsModel
+	if err := yaml.Unmarshal(contBytes, &respObj); err != nil {
+		respondWithErrorMessage(w, "Failed to parse the content of .bitrise.secrets.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, respObj)
 }
 
-func getSaveSecretsYMLFromJSONHandler(bitriseSecretsPth string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := r.Body.Close(); err != nil {
-				log.Println(" [!] Failed to close request body, error: ", err)
-			}
-		}()
-
-		var reqObj SecretsModel
-		if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
-			respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
-			return
+func saveSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Println(" [!] Failed to close request body, error: ", err)
 		}
+	}()
 
-		contAsYAML, err := yaml.Marshal(reqObj)
-		if err != nil {
-			respondWithErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
-			return
-		}
-
-		if err := fileutil.WriteBytesToFile(bitriseSecretsPth, contAsYAML); err != nil {
-			respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
-			return
-		}
-
-		respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
+	var reqObj SecretsModel
+	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
+		respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
+		return
 	}
+
+	contAsYAML, err := yaml.Marshal(reqObj)
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
+		return
+	}
+
+	if err := validateBitriseConfigAndSecret(minimalValidBitriseYML, string(contAsYAML)); err != nil {
+		respondWithErrorMessage(w, "Invalid secrets: %s", err)
+		return
+	}
+
+	if err := fileutil.WriteBytesToFile(secretsYMLPath.Get(), contAsYAML); err != nil {
+		respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
 }
 
-func getSaveBitriseYMLHandler(bitriseConfigPth string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := r.Body.Close(); err != nil {
-				log.Println(" [!] Failed to close request body, error: ", err)
-			}
-		}()
+func saveBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 
-		content, err := ioutil.ReadAll(r.Body)
-		if err != nil {
-			respondWithErrorMessage(w, "Failed to read content, error: %s", err)
-			return
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Println(" [!] Failed to close request body, error: ", err)
 		}
+	}()
 
-		if err := fileutil.WriteBytesToFile(bitriseConfigPth, content); err != nil {
-			respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
-			return
-		}
-
-		respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
+	content, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to read content, error: %s", err)
+		return
 	}
+
+	if err := validateBitriseConfigAndSecret(string(content), minimalValidSecrets); err != nil {
+		respondWithError(w, ErrorWithYMLResponse{Error: err, BitriseYML: string(content)})
+		return
+	}
+
+	if err := fileutil.WriteBytesToFile(bitriseYMLPath.Get(), content); err != nil {
+		respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
 }
 
-func getSaveBitriseYMLFromJSONHandler(bitriseConfigPth string) func(w http.ResponseWriter, r *http.Request) {
-	return func(w http.ResponseWriter, r *http.Request) {
-		defer func() {
-			if err := r.Body.Close(); err != nil {
-				log.Println(" [!] Failed to close request body, error: ", err)
-			}
-		}()
+func saveBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 
-		type RequestModel struct {
-			BitriseYML models.BitriseDataModel `json:"bitrise_yml"`
+	defer func() {
+		if err := r.Body.Close(); err != nil {
+			log.Println(" [!] Failed to close request body, error: ", err)
 		}
-		var reqObj RequestModel
-		if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
-			respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
-			return
-		}
+	}()
 
-		contAsYAML, err := yaml.Marshal(reqObj.BitriseYML)
-		if err != nil {
-			respondWithErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
-			return
-		}
-
-		if err := fileutil.WriteBytesToFile(bitriseConfigPth, contAsYAML); err != nil {
-			respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
-			return
-		}
-
-		respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
+	type RequestModel struct {
+		BitriseYML models.BitriseDataModel `json:"bitrise_yml"`
 	}
+	var reqObj RequestModel
+	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
+		respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
+		return
+	}
+
+	contAsYAML, err := yaml.Marshal(reqObj.BitriseYML)
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)
+		return
+	}
+
+	if err := validateBitriseConfigAndSecret(string(contAsYAML), minimalValidSecrets); err != nil {
+		respondWithError(w, ErrorWithYMLResponse{Error: err, BitriseYML: string(contAsYAML)})
+		return
+	}
+
+	if err := fileutil.WriteBytesToFile(bitriseYMLPath.Get(), contAsYAML); err != nil {
+		respondWithErrorMessage(w, "Failed to write content into file, error: %s", err)
+		return
+	}
+
+	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
 }
 
 // LaunchServer ...
@@ -208,10 +244,17 @@ func LaunchServer() error {
 	port := envString("PORT", defaultPort)
 	log.Printf("Starting API server at http://localhost:%s", port)
 
-	bitriseConfigPth := envString("BITRISE_CONFIG", defaultBitriseConfigPth)
-	bitriseSecretsPth := envString("BITRISE_SECRETS", defaultBitriseSecretsPth)
+	if err := bitriseYMLPath.Set(envString("BITRISE_CONFIG", "bitrise.yml")); err != nil {
+		return fmt.Errorf("Failed to set bitriseYMLPath, error: %s", err)
+	}
+	bitriseYMLPath.Freeze()
 
-	setupRoutes(bitriseConfigPth, bitriseSecretsPth)
+	if err := secretsYMLPath.Set(envString("BITRISE_SECRETS", ".bitrise.secrets.yml")); err != nil {
+		return fmt.Errorf("Failed to set secretsYMLPath, error: %s", err)
+	}
+	secretsYMLPath.Freeze()
+
+	setupRoutes()
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		return fmt.Errorf("Can't start HTTP listener: %v", err)
@@ -219,26 +262,26 @@ func LaunchServer() error {
 	return nil
 }
 
-func setupRoutes(bitriseConfigPth, bitriseSecretsPth string) {
+func setupRoutes() {
 	r := mux.NewRouter()
 	//
-	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(getLoadBitriseYMLHandler(bitriseConfigPth))).
+	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(loadBitriseYMLHandler)).
 		Methods("GET")
-	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(getLoadBitriseYMLAsJSONHandler(bitriseConfigPth))).
+	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(loadBitriseYMLAsJSONHandler)).
 		Methods("GET")
 	//
-	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(getSaveBitriseYMLHandler(bitriseConfigPth))).
+	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(saveBitriseYMLHandler)).
 		Methods("POST")
-	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(getSaveBitriseYMLFromJSONHandler(bitriseConfigPth))).
+	r.HandleFunc("/api/bitrise-yml.json", WrapHandlerFunc(saveBitriseYMLFromJSONHandler)).
 		Methods("POST")
 	//
 	r.HandleFunc("/api/default-outputs", WrapHandlerFunc(defaultOutputsHandler)).
 		Methods("GET")
 	//
-	r.HandleFunc("/api/secrets", WrapHandlerFunc(getLoadSecretsAsJSONHandler(bitriseSecretsPth))).
+	r.HandleFunc("/api/secrets", WrapHandlerFunc(loadSecretsAsJSONHandler)).
 		Methods("GET")
 	//
-	r.HandleFunc("/api/secrets", WrapHandlerFunc(getSaveSecretsYMLFromJSONHandler(bitriseSecretsPth))).
+	r.HandleFunc("/api/secrets", WrapHandlerFunc(saveSecretsYMLFromJSONHandler)).
 		Methods("POST")
 	//
 

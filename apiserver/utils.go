@@ -21,6 +21,10 @@ func respondWithErrorMessage(w http.ResponseWriter, format string, v ...interfac
 	})
 }
 
+func respondWithError(w http.ResponseWriter, obj interface{}) {
+	respondWithJSON(w, 400, obj)
+}
+
 func respondWithSuccessMessage(w http.ResponseWriter, format string, v ...interface{}) {
 	respondWithSuccess(w, SimpleResponse{
 		Message: fmt.Sprintf(format, v...),
