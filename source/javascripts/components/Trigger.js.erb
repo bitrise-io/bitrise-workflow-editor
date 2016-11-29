@@ -4,60 +4,112 @@
 
 angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 
-	var Trigger = function(type) {
-		if (type === undefined) {
-			type = "push";
+	var Trigger = function(triggerConfig) {
+		this.triggerConfig = triggerConfig ? triggerConfig : {};
+	};
+
+	Trigger.prototype.type = function(type) {
+		if (type !== undefined) {
+			delete this.triggerConfig["push_branch"];
+			delete this.triggerConfig["pull_request_source_branch"];
+			delete this.triggerConfig["pull_request_target_branch"];
+			delete this.triggerConfig["tag"];
+
+			switch (type) {
+				case "push":
+					this.triggerConfig.push_branch = "";
+
+					break;
+				case "pull-request":
+					this.triggerConfig.pull_request_source_branch = "";
+					this.triggerConfig.pull_request_target_branch = "";
+
+					break;
+				case "tag":
+					this.triggerConfig.tag = "";
+
+					break;
+			}
 		}
 
-		this.workflow;
-		this.type = type;
-		this.pushBranchPattern;
-		this.pullRequestSourceBranchPattern;
-		this.pullRequestTargetBranchPattern;
-		this.tagPattern;
+		if (this.triggerConfig.push_branch !== undefined) {
+			return "push";
+		}
 
-		switch (this.type) {
-			case "push":
-				this.pushBranchPattern = "";
+		if (this.triggerConfig.pull_request_source_branch !== undefined) {
+			return "pull-request";
+		}
 
-				break;
-			case "pull-request":
-				this.pullRequestSourceBranchPattern = "";
-				this.pullRequestTargetBranchPattern = "";
-
-				break;
-			case "tag":
-				this.tagPattern = "";
-
-				break;
+		if (this.triggerConfig.tag !== undefined) {
+			return "tag";
 		}
 	};
 
-	Trigger.createFromTriggerConfig = function(triggerConfig, workflows) {
-		var trigger;
-
-		if (triggerConfig.push_branch !== undefined) {
-			trigger = new Trigger("push");
-			trigger.pushBranchPattern = triggerConfig.push_branch;
-		}
-		else if (triggerConfig.pull_request_source_branch !== undefined || triggerConfig.pull_request_target_branch !== undefined) {
-			trigger = new Trigger("pull-request");
-			trigger.pullRequestSourceBranchPattern = triggerConfig.pull_request_source_branch;
-			trigger.pullRequestTargetBranchPattern = triggerConfig.pull_request_target_branch;
-		}
-		else if (triggerConfig.tag !== undefined) {
-			trigger = new Trigger("tag");
-			trigger.tagPattern = triggerConfig.tag;
+	Trigger.prototype.workflowID = function(workflowID) {
+		if (workflowID !== undefined) {
+			this.triggerConfig.workflow = workflowID;
 		}
 
-		trigger.workflow = _.find(workflows, {
-			id: triggerConfig.workflow
-		});
+		return this.triggerConfig.workflow;
+	};
 
-		return trigger;
+	Trigger.prototype.pushBranchPattern = function(pushBranchPattern) {
+		if (pushBranchPattern !== undefined) {
+			if (this.type() != "push") {
+				this.type("push");
+			}
+
+			this.triggerConfig.push_branch = pushBranchPattern;
+		}
+
+		return this.triggerConfig.push_branch;
+	};
+
+	Trigger.prototype.pullRequestSourceBranchPattern = function(pullRequestSourceBranchPattern) {
+		if (pullRequestSourceBranchPattern !== undefined) {
+			if (this.type() != "pull-request") {
+				this.type("pull-request");
+			}
+
+			this.triggerConfig.pull_request_source_branch = pullRequestSourceBranchPattern;
+		}
+
+		return this.triggerConfig.pull_request_source_branch;
+	};
+
+	Trigger.prototype.pullRequestTargetBranchPattern = function(pullRequestTargetBranchPattern) {
+		if (pullRequestTargetBranchPattern !== undefined) {
+			if (this.type() != "pull-request") {
+				this.type("pull-request");
+			}
+
+			this.triggerConfig.pull_request_target_branch = pullRequestTargetBranchPattern;
+		}
+
+		return this.triggerConfig.pull_request_target_branch;
+	};
+
+	Trigger.prototype.tagPattern = function(tagPattern) {
+		if (tagPattern !== undefined) {
+			if (this.type() != "tag") {
+				this.type("tag");
+			}
+
+			this.triggerConfig.tag = tagPattern;
+		}
+
+		return this.triggerConfig.tag;
 	};
 
 	return Trigger;
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("prettifiedTriggerPattern", function() {
+
+	return function(triggerPattern) {
+		return triggerPattern.length > 0 ? triggerPattern : "*";
+	};
 
 });
 
@@ -74,6 +126,6 @@ angular.module("BitriseWorkflowEditor").filter("displayNameForTriggerType", func
 		}
 	};
 
-})
+});
 
 })();

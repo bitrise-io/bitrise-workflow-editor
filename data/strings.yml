@@ -149,6 +149,7 @@ triggers:
   delete: Delete
   done: Done
   cancel: Cancel
+  trigger_with_invalid_workflow: A trigger has invalid workflow set.
 yml:
   title: bitrise.yml editor
   info_1: "You can edit your current config in YAML format:"
