@@ -1,3 +1,9 @@
+/* Functions */
+
+@function contains($list, $element) {
+	@return not not index($list, $element);
+}
+
 /* Screen sizes */
 
 $screen-huge: 1280px;
@@ -188,72 +194,152 @@ $screen-minimum: 320px;
 /* Attributes */
 
 @mixin display-flex {
-	display: flex;
+	display: -webkit-box;
+	display: -moz-box;
+	display: -ms-flexbox;
 	display: -webkit-flex;
+	display: flex;
 }
 
 @mixin display-inline-flex {
-	display: inline-flex;
 	display: -webkit-inline-flex;
+	display: inline-flex;
 }
 
 @mixin flex($value) {
-	flex: $value;
-	-ms-flex: $value;
-	-moz-flex: $value;
+	-webkit-box-flex: $value;
+	-moz-box-flex: $value;
 	-webkit-flex: $value;
+	-ms-flex: $value;
+	flex: $value;
 }
 
 @mixin flex-direction($value) {
-	flex-direction: $value;
-	-moz-flex-direction: $value;
+	@if ($value == row or $value == row-reverse) {
+		-webkit-box-orient: horizontal;
+		-moz-box-orient: horizontal;
+		box-orient: horizontal;
+
+		@if ($value == row-reverse) {
+			-webkit-box-orient: reverse;
+			-moz-box-orient: reverse;
+			box-orient: reverse;			
+		}
+		@else {
+			-webkit-box-orient: normal;
+			-moz-box-orient: normal;
+			box-orient: normal;
+		}
+	}
+
+	@if ($value == column or $value == column-reverse) {
+		-webkit-box-orient: vertical;
+		-moz-box-orient: vertical;
+		box-orient: vertical;
+
+		@if ($value == column-reverse) {
+			-webkit-box-orient: reverse;
+			-moz-box-orient: reverse;
+			box-orient: reverse;			
+		}
+		@else {
+			-webkit-box-orient: normal;
+			-moz-box-orient: normal;
+			box-orient: normal;
+		}
+	}
+
 	-webkit-flex-direction: $value;
+	-moz-flex-direction: $value;
+	flex-direction: $value;
 }
 
 @mixin flex-grow($value) {
-	flex-grow: $value;
-	-moz-flex-grow: $value;
 	-webkit-flex-grow: $value;
+	-moz-flex-grow: $value;
+	flex-grow: $value;
 }
 
 @mixin flex-shrink($value) {
-	flex-shrink: $value;
-	-moz-flex-shrink: $value;
 	-webkit-flex-shrink: $value;
+	-moz-flex-shrink: $value;
+	flex-shrink: $value;
 }
 
 @mixin justify-content($value) {
-	justify-content: $value;
-	-moz-justify-content: $value;
+	@if ($value == flex-start) {
+		-webkit-box-pack: start;
+		-moz-box-pack: start;
+		box-pack: start;
+	}
+
+	@if ($value == flex-end) {
+		-webkit-box-pack: end;
+		-moz-box-pack: end;
+		box-pack: end;
+	}
+
+	@if ($value == center) {
+		-webkit-box-pack: center;
+		-moz-box-pack: center;
+		box-pack: center;
+	}
+
+	@if ($value == space-between) {
+		-webkit-box-pack: justify;
+		-moz-box-pack: justify;
+		box-pack: justify;
+	}
+
 	-webkit-justify-content: $value;
+	-moz-justify-content: $value;
+	justify-content: $value;
 }
 
 @mixin align-items($value) {
-	align-items: $value;
+	@if ($value == center or $value == baseline or $value == stretch) {
+		-webkit-box-align: $value;
+		-moz-box-align: $value;
+		box-align: $value;
+	}
+	@if ($value == flex-start) {
+		-webkit-box-align: start;
+		-moz-box-align: start;
+		box-align: start;
+	}
+	@if ($value == flex-end) {
+		-webkit-box-align: end;
+		-moz-box-align: end;
+		box-align: end;
+	}
+
 	-webkit-align-items: $value;
+	align-items: $value;
 }
 
 @mixin align-self($value) {
-	align-self: $value;
 	-webkit-align-self: $value;
+	align-self: $value;
 }
 
 @mixin flex-wrap($value) {
-	flex-wrap: $value;
-	-moz-flex-wrap: $value;
 	-webkit-flex-wrap: $value;
+	-moz-flex-wrap: $value;
+	flex-wrap: $value;
 }
 
 @mixin flex-basis($value) {
-	flex-basis: $value;
-	-moz-flex-basis: $value;
 	-webkit-flex-basis: $value;
+	-moz-flex-basis: $value;
+	flex-basis: $value;
 }
 
 @mixin order($value) {
-	order: $value;
-	-moz-order: $value;
+	-webkit-box-ordinal-group: $value;
+	-moz-box-ordinal-group: $value;
+	-ms-flex-order: $value;
 	-webkit-order: $value;
+	order: $value;
 }
 
 @mixin position($position: null, $top: null, $right: null, $bottom: null, $left: null) {
@@ -295,9 +381,9 @@ $screen-minimum: 320px;
 }
 
 @mixin box-sizing($value) {
-	box-sizing: $value;
-	-moz-box-sizing: $value;
 	-webkit-box-sizing: $value;
+	-moz-box-sizing: $value;
+	box-sizing: $value;
 }
 
 @mixin margin-x($value) {
@@ -321,33 +407,33 @@ $screen-minimum: 320px;
 }
 
 @mixin border-radius($value) {
-	border-radius: $value;
-	-moz-border-radius: $value;
 	-webkit-border-radius: $value;
+	-moz-border-radius: $value;
+	border-radius: $value;
 }
 
 @mixin border-top-left-radius($value) {
-	border-top-left-radius: $value;
-	-moz-border-top-left-radius: $value;
 	-webkit-border-top-left-radius: $value;
+	-moz-border-top-left-radius: $value;
+	border-top-left-radius: $value;
 }
 
 @mixin border-top-right-radius($value) {
-	border-top-right-radius: $value;
-	-moz-border-top-right-radius: $value;
 	-webkit-border-top-right-radius: $value;
+	-moz-border-top-right-radius: $value;
+	border-top-right-radius: $value;
 }
 
 @mixin border-bottom-left-radius($value) {
-	border-bottom-left-radius: $value;
-	-moz-border-bottom-left-radius: $value;
 	-webkit-border-bottom-left-radius: $value;
+	-moz-border-bottom-left-radius: $value;
+	border-bottom-left-radius: $value;
 }
 
 @mixin border-bottom-right-radius($value) {
-	border-bottom-right-radius: $value;
-	-moz-border-bottom-right-radius: $value;
 	-webkit-border-bottom-right-radius: $value;
+	-moz-border-bottom-right-radius: $value;
+	border-bottom-right-radius: $value;
 }
 
 @mixin padding-x($value) {
@@ -361,15 +447,15 @@ $screen-minimum: 320px;
 }
 
 @mixin box-shadow($value) {
-	box-shadow: $value;
-	-moz-box-shadow: $value;
 	-webkit-box-shadow: $value;
+	-moz-box-shadow: $value;
+	box-shadow: $value;
 }
 
 @mixin appearance($value) {
-	appearance: $value;
-	-moz-appearance: $value;
 	-webkit-appearance: $value;
+	-moz-appearance: $value;
+	appearance: $value;
 }
 
 @mixin ellipsis-oneliner {
@@ -402,56 +488,72 @@ $screen-minimum: 320px;
 	break-inside: $value;
 }
 
-@mixin transform($translate_value: 0, $rotate_value: 0, $scale_value: 1) {
-	transform: translate($translate_value) rotate($rotate_value) scale($scale_value);
-	-o-transform: -o-translate($translate_value) -o-rotate($rotate_value) -o-scale($scale_value);
-	-ms-transform: -ms-translate($translate_value) -ms-rotate($rotate_value) -ms-scale($scale_value);
-	-moz-transform: -moz-translate($translate_value) -moz-rotate($rotate_value) -moz-scale($scale_value);
-	-webkit-transform: -webkit-translate($translate_value) -webkit-rotate($rotate_value) -webkit-scale($scale_value);
+@mixin transform($values...) {
+	-webkit-transform: $values;
+	-moz-transform: $values;
+	-ms-transform: $values;
+	-o-transform: $values;
+	transform: $values;
 }
 
 @mixin transform-origin($value) {
-	transform-origin: $value;
-	-o-transform-origin: $value;
-	-ms-transform-origin: $value;
-	-moz-transform-origin: $value;
 	-webkit-transform-origin: $value;
+	-moz-transform-origin: $value;
+	-ms-transform-origin: $value;
+	-o-transform-origin: $value;
+	transform-origin: $value;
 }
 
 @mixin transition($values...) {
-	transition: $values;
-	-o-transition: $values;
-	-moz-transition: $values;
+	@each $value in $values {
+		$transform_index: str-index("#{ $value }", "transform");
+		$contains_transform: $transform_index != null;
+		
+		@if $contains_transform {
+			$additional_parameters: unquote(str-slice("#{ $value }", $transform_index + str-length("transform") + 1));
+			-webkit-transition: -webkit-transform $additional_parameters;
+			-moz-transition: -moz-transform $additional_parameters;
+			-o-transition: -o-transform $additional_parameters;
+		}
+	}
+
 	-webkit-transition: $values;
+	-moz-transition: $values;
+	-o-transition: $values;
+	transition: $values;
 }
 
 @mixin transition-duration($value) {
-	transition-duration: $value;
-	-o-transition-duration: $value;
-	-moz-transition-duration: $value;
 	-webkit-transition-duration: $value;
+	-moz-transition-duration: $value;
+	-o-transition-duration: $value;
+	transition-duration: $value;
 }
 
 @mixin transition-delay($value) {
-	transition-delay: $value;
-	-o-transition-delay: $value;
-	-moz-transition-delay: $value;
 	-webkit-transition-delay: $value;
+	-moz-transition-delay: $value;
+	-o-transition-delay: $value;
+	transition-delay: $value;
 }
 
 @mixin animation($value) {
-	animation: $value;
-	-o-animation: $value;
-	-moz-animation: $value;
 	-webkit-animation: $value;
+	-moz-animation: $value;
+	-o-animation: $value;
+	animation: $value;
+}
+
+@mixin animation-duration($value) {
+	-webkit-animation-duration: $value;
+	-moz-animation-duration: $value;
+	-o-animation-duration: $value;
+	animation-duration: $value;
 }
 
 @mixin keyframes($animation_name) {
-	@keyframes #{$animation_name} {
-		@content;
-	}
 
-	@-o-keyframes #{$animation_name} {
+	@-webkit-keyframes #{$animation_name} {
 		@content;
 	}
 
@@ -459,12 +561,16 @@ $screen-minimum: 320px;
 		@content;
 	}
 
-	@-webkit-keyframes #{$animation_name} {
+	@-o-keyframes #{$animation_name} {
+		@content;
+	}
+
+	@keyframes #{$animation_name} {
 		@content;
 	}
 }
 
-/* Selectors */
+/* Others */
 
 @mixin readonly {
 
@@ -475,4 +581,14 @@ $screen-minimum: 320px;
 	&:-moz-read-only {
 		@content;
 	}
+}
+
+@mixin no-focus-styling {
+	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+	-webkit-focus-ring-color:  rgba(0, 0, 0, 0);
+	outline: none;
+}
+
+.no-transition {
+	@include transition(none !important);
 }
