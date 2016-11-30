@@ -5,7 +5,13 @@ layout: layout
 main[ng-controller="MainController as mainCtrl"]
 	header
 		nav
-			a[ng-repeat="menu in mainCtrl.menus" ng-href="{{ menu.path }}" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}"]
+			a[ng-repeat="menu in mainCtrl.menus" ng-href="{{ menu.path }}" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
+				span.icon[ng-if="menu.cssClass == 'workflows'"] == svg("main/menuicon-workflows")
+				span.icon[ng-if="menu.cssClass == 'code-signing'"] == svg("main/menuicon-code_signing")
+				span.icon[ng-if="menu.cssClass == 'secrets'"] == svg("main/menuicon-secrets")
+				span.icon[ng-if="menu.cssClass == 'app-env-vars'"] == svg("main/menuicon-app_env_vars")
+				span.icon[ng-if="menu.cssClass == 'triggers'"] == svg("main/menuicon-triggers")
+				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
 		aside
 			button.discard[ng-click="mainCtrl.discardChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]

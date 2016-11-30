@@ -18,6 +18,8 @@ main {
 			a {
 				$border_width: 4px;
 
+				@include display-flex;
+				@include align-items(center);
 				border-top: $border_width solid transparent;
 				@include border-top-radius($border_width);
 				padding: $menubutton_verticalpadding 30px;
@@ -26,38 +28,95 @@ main {
 				color: $def-mediumdarkgrey;
 				text-decoration: none;
 
+				span.icon {
+					@include display-flex;
+					@include align-items(center);
+					margin-right: 8px;
+
+					svg {
+						width: auto;
+						fill: $def-mediumdarkgrey;
+					}
+				}
+
 				span.title {
 
 				}
 			}
 
-			a:hover:not(.current) {
-				color: $def-green;
+			a:hover:not(.current), a:focus:not(.current) {
+				$color: $def-green;
+
+				color: $color;
+
+				span.icon svg {
+					fill: $color;
+				}
 			}
 
 			a:not(.current) {
-				@include transition(color $def-transition_duration);
+				$transition_duration: $def-transition_duration;
+
+				@include transition(color $transition_duration);
+
+				span.icon svg {
+					@include transition(fill $transition_duration);
+				}
 			}
 
 			a.current {
+				$color: black;
+
 				border-top-color: $def-green;
 				background-color: white;
-				color: black;
+				color: $color;
+
+				span.icon svg {
+					fill: $color;
+				}
 			}
+
+			a.workflows span.icon svg {
+				height: 12px;
+				margin-top: -2px;
+			}
+
+			a.code-signing span.icon svg {
+				height: 15px;
+			}
+
+			a.secrets span.icon svg {
+				height: 13px;
+				margin-top: -2px;
+			}
+
+			a.app-env-vars span.icon svg {
+				height: 16px;
+				margin-top: -2px;
+			}
+
+			a.triggers span.icon svg {
+				height: 16px;
+			}
+
+			a.yml span.icon svg {
+				height: 9px;
+			}
+
 		}
 
 		aside {
-			$margin: 10px;
-
 			@include display-flex;
-			margin: - $margin / 2;
 			padding-bottom: $menubutton_verticalpadding;
 
 			button {
-				margin: $margin / 2;
 				@include border-radius($def-button-border_radius);
 				@include padding-y(8px);
 				@include transition-duration($def-transition_duration);
+			}
+
+			button:not(:last-child) {
+				margin-right: 10px;
 			}
 
 			button.discard {
@@ -70,7 +129,7 @@ main {
 				color: $color;
 			}
 
-			button.discard:hover {
+			button.discard:hover, button.discard:focus {
 				$color: $def-grey;
 
 				border-color: $color;
@@ -88,7 +147,7 @@ main {
 				}
 			}
 
-			button.save:hover {
+			button.save:hover, button.save:focus {
 				background-color: $def-green-shade;
 			}
 		}

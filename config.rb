@@ -65,4 +65,13 @@ helpers do
 		return string
 	end
 
+	# asset helpers
+
+	def svg(filename)
+		root = Middleman::Application.root
+		file_path = "#{root}/source/images/#{filename}.svg"
+		return File.read(file_path) if File.exists?(file_path)
+		return "(svg not found)"
+	end
+
 end
