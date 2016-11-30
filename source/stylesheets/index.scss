@@ -34,6 +34,7 @@ main {
 					margin-right: 8px;
 
 					svg {
+						position: relative;
 						width: auto;
 						fill: $def-mediumdarkgrey;
 					}
@@ -77,29 +78,32 @@ main {
 			}
 
 			a.workflows span.icon svg {
+				top: -1px;
 				height: 12px;
-				margin-top: -2px;
 			}
 
 			a.code-signing span.icon svg {
+				top: 0px;
 				height: 15px;
 			}
 
 			a.secrets span.icon svg {
+				top: -1px;
 				height: 13px;
-				margin-top: -2px;
 			}
 
 			a.app-env-vars span.icon svg {
+				top: -1px;
 				height: 16px;
-				margin-top: -2px;
 			}
 
 			a.triggers span.icon svg {
+				top: -1px;
 				height: 16px;
 			}
 
 			a.yml span.icon svg {
+				top: 0px;
 				height: 9px;
 			}
 
@@ -149,6 +153,71 @@ main {
 
 			button.save:hover, button.save:focus {
 				background-color: $def-green-shade;
+			}
+		}
+
+		@include media-below($screen-big) {
+			@include flex-direction(column);
+
+			nav {
+				@include order(2);
+				margin-right: 0;
+
+				a {
+					@include flex-grow(1);
+				}
+			}
+
+			aside {
+				@include order(1);
+				@include align-self(flex-end);
+			}
+		}
+
+		@include media-below($screen-mid) {
+			@include padding-x(15px);
+
+			nav {
+
+				a {
+					@include flex-direction(column);
+					@include padding-x(15px);
+
+					span.icon {
+						height: 16px;
+						margin-right: 0;
+						margin-bottom: 5px;
+					}
+				}
+			}
+		}
+
+		@include media-below($screen-small) {
+			
+
+			nav {
+
+				a {
+					span.icon {
+						margin-bottom: 0;
+					}
+
+					span.title {
+						display: none;
+					}
+				}
+			}
+
+			aside {
+				@include align-self(stretch);
+
+				button.discard {
+					@include flex-grow(1);
+				}
+
+				button.save {
+					@include flex-grow(2);
+				}
 			}
 		}
 	}
