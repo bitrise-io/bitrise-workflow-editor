@@ -1,12 +1,21 @@
 $def-transition_duration: 0.2s;
 
+$def-green-light: #c8e7e2;
 $def-green: #3bc3a3;
 $def-green-shade: #3aa792;
+$def-danger: #f0741f;
+$def-danger-light: #f4dfd1;
+$def-purple: #8151a8;
+$def-purple-light: #ebdef6;
+$def-darkgrey: #6a6a6a;
 $def-mediumdarkgrey: #959595;
 $def-grey: #aaaaaa;
 $def-mediumlightgrey: #cccccc;
+$def-verylightgrey: #ebebeb;
 $def-ultralightgrey: #f4f4f4;
 
-$def-button-border_radius: 3px;
+$def-radius: 3px;
+$def-button-border_radius: $def-radius;
+$def-progress_indicator-radius: $def-radius;
 
 $def-zindex-popup: 100;

@@ -40,7 +40,6 @@ workflows:
     cvs_error: Error loading step from provided identifier.
     non_bitrise_steplib_step_info: This step is not from the Bitrise Steplib, thus editing via the Workflow Editor is not available.
     add:
-      action: Add step
       select: "Select a step from the list below:"
       filter_by_title: "Filter steps by name:"
       title_filter_placeholder: Step name, e. g. 'script'

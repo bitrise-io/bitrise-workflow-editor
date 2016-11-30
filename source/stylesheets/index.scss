@@ -2,14 +2,24 @@
 @import "constants";
 
 main {
+	@include display-flex;
+	@include flex-direction(column);
 	background-color: $def-ultralightgrey;
 
-	header {
+	header.menu, article.menu-content {
+		@include padding-x(27px);
+
+		@include media-below-mid {
+			@include padding-x(15px);
+		}
+	}
+
+	header.menu {
 		$menubutton_verticalpadding: 12px;
 
+		@include flex-shrink(0);
 		@include display-flex;
 		padding-top: 20px;
-		@include padding-x(27px);
 
 		nav {
 			@include display-flex;
@@ -156,7 +166,7 @@ main {
 			}
 		}
 
-		@include media-below($screen-big) {
+		@include media-below-big {
 			@include flex-direction(column);
 
 			nav {
@@ -174,8 +184,7 @@ main {
 			}
 		}
 
-		@include media-below($screen-mid) {
-			@include padding-x(15px);
+		@include media-below-mid {
 
 			nav {
 
@@ -192,8 +201,7 @@ main {
 			}
 		}
 
-		@include media-below($screen-small) {
-			
+		@include media-below-small {
 
 			nav {
 
@@ -222,7 +230,8 @@ main {
 		}
 	}
 
-	article {
+	article.menu-content {
+		@include flex-grow(1);
 		background-color: white;
 	}
 }

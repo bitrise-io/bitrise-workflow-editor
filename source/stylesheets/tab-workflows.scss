@@ -1,0 +1,133 @@
+@import "default";
+@import "constants";
+
+.tab-workflows {
+
+	section.manage-workflow {
+		@include display-flex;
+
+		ul.steps {
+			margin-right: 12px;
+			padding-left: 0;
+			list-style: none;
+			@include flex-shrink(0);
+
+			li {
+				$icon_size: 52px;
+				$margin: 8px;
+
+				width: 100%;
+				margin-bottom: $margin;
+
+				button.add-step {
+					width: $icon_size;
+					margin-bottom: $margin;
+					@include border-radius($def-radius);
+					@include transition(color $def-transition_duration, background-color $def-transition_duration);
+					color: white;
+					background-color: $def-mediumlightgrey;
+
+					&:before {
+						content: "+";
+					}
+				}
+
+				button.add-step:hover, button.add-step:focus {
+					color: white;
+					background-color: $def-darkgrey;
+				}
+
+				button.step {
+					@include display-flex;
+					@include align-items(stretch);
+
+					span.icon {
+						@include size($icon_size);
+						@include border-radius($def-radius);
+						background-size: cover;
+					}
+
+					span.info {
+						@include display-flex;
+						@include flex-direction(column);
+						@include justify-content(center);
+						@include align-items(flex-start);
+						width: 280px;
+						border: 1px solid $def-mediumlightgrey;
+						@include border-radius($def-radius);
+						@include padding-x(20px);
+						@include transition(color $def-transition_duration, background-color $def-transition_duration);
+						background-color: $def-verylightgrey;
+
+						strong {
+							@include display-flex;
+							@include align-items(center);
+							font-size: 14px;
+							font-weight: 600;
+
+							span.title {
+								@include flex-shrink(1);
+								@include ellipsis-oneliner;
+							}
+
+							span.verified {
+								$radius: 5px;
+
+								@include flex-shrink(0);
+								@include size($radius * 2);
+								line-height: ($radius * 2) + 1px;
+								margin-left: 5px;
+								@include border-radius($radius);
+								text-transform: uppercase;
+								font-size: 8px;
+								color: white;
+								background-color: $def-green;
+
+								&:before {
+									content: "v";
+								}
+							}
+						}
+
+						em.version {
+							display: block;
+							@include ellipsis-oneliner;
+							font-size: 12px;
+							font-style: normal;
+							font-weight: 100;
+							color: $def-grey;
+						}
+
+						@include media-below-big {
+							width: 220px;
+						}
+
+						@include media-below-mid {
+							display: none;
+						}
+					}
+
+					span.icon + span.info {
+						margin-left: $margin;
+					}
+				}
+
+				button.step:hover span.info, button.step:focus span.info, button.step.selected span.info {
+					color: white;
+					background-color: $def-darkgrey;
+				}
+			}
+		}
+
+		aside.step-details {
+			@include flex-grow(1);
+		}
+	}
+}
+
+.popup-body-add-step {
+
+	.type-tag-filter {
+		display: inline-block;
+	}
+}

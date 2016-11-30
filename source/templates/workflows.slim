@@ -1,4 +1,4 @@
-.workflows[ng-controller="WorkflowsController as workflowsCtrl"]
+.tab-workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
 	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
 		ul.run-workflows[ng-repeat="runWorkflows in [workflowsCtrl.selectedWorkflow.workflowConfig.before_run, workflowsCtrl.selectedWorkflow.workflowConfig.after_run] track by $index" ng-class="$first ? 'before-run' : 'after-run'"]
@@ -16,14 +16,14 @@
 		section.manage-workflow
 			ul.steps[order-by-drag models="workflowsCtrl.selectedWorkflow.workflowConfig.steps" draggable-selector="':not(.pseudo-step)'"]
 				li[ng-repeat="step in workflowsCtrl.selectedWorkflowSteps" ng-class="{'selected': step == workflowsCtrl.selectedStep, 'pseudo-step': step.type() == 'pseudo-step'}"]
-					button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-if="!$first"] == data[:strings][:workflows][:steps][:add][:action]
+					button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-if="!$first"]
 					button.step[ng-click="workflowsCtrl.stepSelected(step)"]
 						span.icon[ng-style="step.type() == 'pseudo-step' ? {} : {'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 						span.info
-							span.title[ng-bind="step.displayName()"]
-							span[ng-if="step.type() == 'bitrise-steplib-step'"]
-								strong.verified[ng-if="step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
-								em.version[ng-bind="step.version"]
+							strong
+								span.title[ng-bind="step.displayName()"]
+								span.verified[ng-if="step.isVerified()"]
+							em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
 			aside.step-details[ng-if="workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
 				div.pseudo-step-details[ng-if="stepCtrl.step.type() == 'pseudo-step'"]
 					h2.title[ng-bind="stepCtrl.step.displayName()"]
