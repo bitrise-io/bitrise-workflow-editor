@@ -154,10 +154,10 @@ main {
 				@include padding-x(55px);
 				@include transition-property(background-color);
 				background-color: $def-green;
-				color: white;
 
-				&:before {
-					content: "\2713";
+				svg {
+					@include size(14px, auto);
+					fill: white;
 				}
 			}
 

@@ -16,13 +16,13 @@
 		section.manage-workflow
 			ul.steps[order-by-drag models="workflowsCtrl.selectedWorkflow.workflowConfig.steps" draggable-selector="':not(.pseudo-step)'"]
 				li[ng-repeat="step in workflowsCtrl.selectedWorkflowSteps" ng-class="{'selected': step == workflowsCtrl.selectedStep, 'pseudo-step': step.type() == 'pseudo-step'}"]
-					button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-if="!$first"]
+					button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-if="step != workflowsCtrl.buildEnvironmentPreparePseudoStep"] = svg("plus")
 					button.step[ng-click="workflowsCtrl.stepSelected(step)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
 						span.icon[ng-style="step.type() == 'pseudo-step' ? {} : {'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 						span.info
 							strong
 								span.title[ng-bind="step.displayName()"]
-								span.verified[ng-if="step.isVerified()"]
+								span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 							em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
 			aside.step-details[ng-if="workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
 				div.pseudo-step-details[ng-if="stepCtrl.step.type() == 'pseudo-step'"]
@@ -32,11 +32,10 @@
 				p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
 				div.bitrise-steplib-step-details[ng-if="stepCtrl.step.type() == 'bitrise-steplib-step'"]
 					header.manage-step
-						div[ng-if="!stepCtrl.renamedStep"]
-							h2.title[ng-bind="stepCtrl.step.title()"]
+						.title[ng-if="!stepCtrl.renamedStep"]
+							button.rename[ng-bind="stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
 							strong.verified[ng-if="stepCtrl.step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
-							button[ng-click="stepCtrl.renameStepSelected()"] == data[:strings][:workflows][:steps][:rename]
-						div[ng-if="stepCtrl.renamedStep"]
+						.rename-title[ng-if="stepCtrl.renamedStep"]
 							input[type="text" ng-model="stepCtrl.renamedStepTitle"]
 							button[ng-click="stepCtrl.renameStepConfirmed()"] == data[:strings][:workflows][:steps][:rename_confirm]
 							button[ng-click="stepCtrl.renamedStepCancelled()"] == data[:strings][:workflows][:steps][:rename_cancel]

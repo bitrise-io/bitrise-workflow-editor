@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, requestService, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
 
 	var viewModel = this;
 
@@ -30,20 +30,20 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.addRunWorkflowPopup = new Popup();
 
 	viewModel.selectedWorkflowSteps;
-	var buildEnvironmentPreparePseudoStep = {
+	viewModel.buildEnvironmentPreparePseudoStep = {
 		type: function() {
 			return "pseudo-step";
 		},
 		displayName: function() {
-			return "<%= data[:strings][:workflows][:steps][:pseudo_preparing] %>";
+			return requestService.mode == "website" ? "<%= data[:strings][:workflows][:steps][:pseudo_preparing] %>" : "<%= data[:strings][:workflows][:steps][:start] %>";
 		}
 	};
-	var virtualMachineCleanupPseudoStep = {
+	viewModel.virtualMachineCleanupPseudoStep = {
 		type: function() {
 			return "pseudo-step";
 		},
 		displayName: function() {
-			return "<%= data[:strings][:workflows][:steps][:pseudo_cleaning] %>";
+			return requestService.mode == "website" ? "<%= data[:strings][:workflows][:steps][:pseudo_cleaning] %>" : "<%= data[:strings][:workflows][:steps][:end] %>";
 		}
 	};
 	viewModel.selectedStep = null;
@@ -188,7 +188,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return undefined;
 		}
 
-		viewModel.selectedWorkflowSteps = _.union([buildEnvironmentPreparePseudoStep], _.map(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+		viewModel.selectedWorkflowSteps = _.map(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
 			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
 			var step;
 			var userStepConfig = aWrappedUserStepConfig[stepCVS];
@@ -202,7 +202,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			}
 
 			return step;
-		}), [virtualMachineCleanupPseudoStep]);
+		});
+
+		viewModel.selectedWorkflowSteps.unshift(viewModel.buildEnvironmentPreparePseudoStep);
+		viewModel.selectedWorkflowSteps.push(viewModel.virtualMachineCleanupPseudoStep);
 	}
 
 	viewModel.stepSelected = function(step) {
@@ -216,7 +219,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.addStepSelectedBeforeStep = function(step) {
-		var index = step == virtualMachineCleanupPseudoStep ? viewModel.selectedWorkflowSteps.length : _.findIndex(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+		var index = step == viewModel.virtualMachineCleanupPseudoStep ? viewModel.selectedWorkflowSteps.length : _.findIndex(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
 			return aWrappedUserStepConfig[step.cvs] == step.userStepConfig;
 		});
 

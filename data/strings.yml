@@ -37,6 +37,8 @@ workflows:
   steps:
     pseudo_preparing: Preparing the Build Environment
     pseudo_cleaning: Cleaning up the Virtual Machine
+    start: "Start"
+    end: "End"
     cvs_error: Error loading step from provided identifier.
     non_bitrise_steplib_step_info: This step is not from the Bitrise Steplib, thus editing via the Workflow Editor is not available.
     add:
@@ -47,7 +49,6 @@ workflows:
       clear_type_tag_filter: Clear type tag filter
       no_steps_matching_filter: No matching steps found.
     verified: Verified
-    rename: Rename
     rename_confirm: OK
     rename_cancel: Cancel
     clone: Clone

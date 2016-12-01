@@ -4,16 +4,18 @@
 .tab-workflows {
 
 	section.manage-workflow {
+		$icon_size: 52px;
+
 		@include display-flex;
 
 		ul.steps {
+			margin-top: 0;
 			margin-right: 12px;
 			padding-left: 0;
 			list-style: none;
 			@include flex-shrink(0);
 
 			li {
-				$icon_size: 52px;
 				$margin: 8px;
 
 				width: 100%;
@@ -23,12 +25,13 @@
 					width: $icon_size;
 					margin-bottom: $margin;
 					@include border-radius($def-radius);
-					@include transition(color $def-transition_duration, background-color $def-transition_duration);
-					color: white;
+					@include padding-y(4px);
+					@include transition(background-color $def-transition_duration);
 					background-color: $def-mediumlightgrey;
 
-					&:before {
-						content: "+";
+					svg {
+						@include size(12px, auto);
+						fill: white;
 					}
 				}
 
@@ -43,6 +46,7 @@
 
 					span.icon {
 						@include size($icon_size);
+						border: 1px solid $def-lightgrey;
 						@include border-radius($def-radius);
 						background-size: cover;
 					}
@@ -56,14 +60,15 @@
 						border: 1px solid $def-mediumlightgrey;
 						@include border-radius($def-radius);
 						@include padding-x(20px);
-						@include transition(color $def-transition_duration, background-color $def-transition_duration);
+						@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
 						background-color: $def-verylightgrey;
 
 						strong {
 							@include display-flex;
 							@include align-items(center);
+							max-width: 100%;
 							font-size: 14px;
-							font-weight: 600;
+							font-weight: 400;
 
 							span.title {
 								@include flex-shrink(1);
@@ -71,20 +76,11 @@
 							}
 
 							span.verified {
-								$radius: 5px;
-
-								@include flex-shrink(0);
-								@include size($radius * 2);
-								line-height: ($radius * 2) + 1px;
 								margin-left: 5px;
-								@include border-radius($radius);
-								text-transform: uppercase;
-								font-size: 8px;
-								color: white;
-								background-color: $def-green;
 
-								&:before {
-									content: "v";
+								svg {
+									width: 10px;
+									height: auto;
 								}
 							}
 						}
@@ -105,8 +101,11 @@
 				}
 
 				button.step:hover span.info, button.step:focus span.info, button.step.selected span.info {
+					$color: $def-darkgrey;
+
+					border-color: $color;
 					color: white;
-					background-color: $def-darkgrey;
+					background-color: $color;
 				}
 
 				@include media-below-big {
@@ -152,7 +151,52 @@
 		}
 
 		aside.step-details {
+			$horizontalpadding: 25px;
+
 			@include flex-grow(1);
+
+			.bitrise-steplib-step-details {
+
+				header.manage-step {
+					@include display-flex;
+					@include box-sizing(border-box);
+					height: $icon_size;
+					border: 1px solid $def-mediumlightgrey;
+					@include border-radius($def-radius);
+					background-color: $def-verylightgrey;
+
+					.title {
+						@include flex-grow(1);
+						@include display-flex;
+						@include padding-x($horizontalpadding);
+
+						button.rename {
+							font-size: 14px;
+							font-weight: 400;
+							color: $def-darkgrey;
+						}
+
+						strong.verified {
+							$radius: 8px;
+
+							@include align-self(center);
+							line-height: 2 * $radius;
+							margin-left: 15px;
+							@include border-radius($radius);
+							@include padding-x(10px);
+							font-size: 9px;
+							font-weight: 200;
+							text-transform: uppercase;
+							color: white;
+							background-color: $def-green;
+						}
+					}
+
+					.rename-title {
+						@include flex-grow(1);
+					}
+				}
+			}
 		}
 	}
 }
