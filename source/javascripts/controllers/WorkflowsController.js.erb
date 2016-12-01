@@ -254,7 +254,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		configureSelectedWorkflowSteps();
 
 		viewModel.stepSelected(_.find(viewModel.selectedWorkflowSteps, function(aStep) {
-			return aStep.userStepConfig == wrappedUserStepConfig[aStep.cvs];
+			return aStep.cvs && aStep.userStepConfig == wrappedUserStepConfig[aStep.cvs];
 		}));
 	};
 

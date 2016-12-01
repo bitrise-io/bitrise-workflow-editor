@@ -102,14 +102,6 @@
 					}
 				}
 
-				button.step:hover span.info, button.step:focus span.info, button.step.selected span.info {
-					$color: $def-darkgrey;
-
-					border-color: $color;
-					color: white;
-					background-color: $color;
-				}
-
 				@include media-below-big {
 					
 					button.step span.info {
@@ -134,6 +126,14 @@
 						@include size($icon_size_small);
 					}
 				}
+			}
+
+			li button.step:hover span.info, li button.step:focus span.info, li.selected button.step span.info {
+				$color: $def-darkgrey;
+
+				border-color: $color;
+				color: white;
+				background-color: $color;
 			}
 		}
 
