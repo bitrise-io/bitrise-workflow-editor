@@ -37,12 +37,11 @@
 							strong.verified[ng-if="stepCtrl.step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
 						.rename-title[ng-if="stepCtrl.renamedStep"]
 							input[type="text" ng-model="stepCtrl.renamedStepTitle"]
-							button[ng-click="stepCtrl.renameStepConfirmed()"] == data[:strings][:workflows][:steps][:rename_confirm]
-							button[ng-click="stepCtrl.renamedStepCancelled()"] == data[:strings][:workflows][:steps][:rename_cancel]
+							button.ok[ng-click="stepCtrl.renameStepConfirmed()"] == data[:strings][:workflows][:steps][:rename_confirm]
 						aside
-							button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] == data[:strings][:workflows][:steps][:clone]
-							a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] == data[:strings][:workflows][:steps][:source]
-							button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] == data[:strings][:workflows][:steps][:delete]
+							button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
+							a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
+							button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
 					section.description[ng-if="stepCtrl.step.description() !== undefined" ng-class="{'open': stepCtrl.shouldShowDescription}"]
 						p[ng-bind-html="stepCtrl.step.description()"]
 						button[ng-click="stepCtrl.shouldShowDescription = true"] == data[:strings][:workflows][:steps][:show_description]

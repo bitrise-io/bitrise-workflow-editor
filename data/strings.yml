@@ -50,7 +50,6 @@ workflows:
       no_steps_matching_filter: No matching steps found.
     verified: Verified
     rename_confirm: OK
-    rename_cancel: Cancel
     clone: Clone
     source: Source
     delete: Delete

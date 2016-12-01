@@ -5,6 +5,7 @@
 
 	section.manage-workflow {
 		$icon_size: 52px;
+		$icon_size_small: 36px;
 
 		@include display-flex;
 
@@ -45,6 +46,7 @@
 					@include align-items(stretch);
 
 					span.icon {
+						@include box-sizing(border-box);
 						@include size($icon_size);
 						border: 1px solid $def-lightgrey;
 						@include border-radius($def-radius);
@@ -123,7 +125,6 @@
 				}
 
 				@include media-below-small {
-					$icon_size_small: 36px;
 
 					button.add-step {
 						width: $icon_size_small;
@@ -154,26 +155,39 @@
 			$horizontalpadding: 25px;
 
 			@include flex-grow(1);
+			overflow: hidden;
 
 			.bitrise-steplib-step-details {
+				$border: 1px solid $def-mediumlightgrey;
+
+				@include box-sizing(border-box);
+				border: $border;
+				@include border-radius($def-radius);
+				overflow: hidden;
 
 				header.manage-step {
 					@include display-flex;
 					@include box-sizing(border-box);
 					height: $icon_size;
-					border: 1px solid $def-mediumlightgrey;
-					@include border-radius($def-radius);
+					border-bottom: $border;
 					background-color: $def-verylightgrey;
 
 					.title {
 						@include flex-grow(1);
 						@include display-flex;
 						@include padding-x($horizontalpadding);
+						overflow: hidden;
 
 						button.rename {
+							@include ellipsis-oneliner;
 							font-size: 14px;
 							font-weight: 400;
 							color: $def-darkgrey;
+							@include transition(color $def-transition_duration);
+						}
+
+						button.rename:focus {
+							color: black;
 						}
 
 						strong.verified {
@@ -194,6 +208,136 @@
 
 					.rename-title {
 						@include flex-grow(1);
+						@include display-flex;
+						padding: 6px $horizontalpadding;
+
+						input {
+							width: 60%;
+							border: 1px solid $def-lightgrey;
+							@include border-radius($def-radius);
+							@include padding-x(8px);
+							font-size: 14px;
+						}
+
+						button.ok {
+							margin-left: 6px;
+							@include border-radius($def-radius);
+							@include padding-x(8px);
+							font-size: 12px;
+							font-weight: 200;
+							color: white;
+							background-color: $def-green;
+						}
+					}
+
+					aside {
+						@include display-flex;
+
+						button, a {
+							$transition_duration: $def-transition_duration;
+
+							@include display-flex;
+							@include justify-content(center);
+							@include box-sizing(border-box);
+							width: $icon_size;
+							border-left: $border;
+							@include transition(background-color $transition_duration);
+
+							svg {
+								height: auto;
+								fill: $def-grey;
+								@include transition(fill $transition_duration);
+							}
+						}
+
+						button.clone svg {
+							width: 18px;
+						}
+
+						a.source svg {
+							width: 19px;
+						}
+
+						button.delete svg {
+							width: 17px;
+						}
+
+						button.clone:focus, button.clone:hover, a.source:focus, a.source:hover {
+
+							svg {
+								fill: $def-verydarkgrey;
+							}
+						}
+
+						button.delete:focus, button.delete:hover {
+							background-color: $def-danger-light;
+
+							svg {
+								fill: $def-danger;
+							}
+						}
+					}
+
+					@include media-below-big {
+
+						.title, .rename-title {
+							@include padding-x(12px);
+						}
+
+						.title {
+							@include flex-direction(column);
+							@include justify-content(center);
+
+							strong.verified {
+								margin-top: 4px;
+								margin-left: 0;
+								@include align-self(flex-start);
+							}
+						}
+					}
+
+					@include media-below-mid {
+						@include flex-direction(column);
+						height: auto;
+
+						.title, .rename-title {
+							height: $icon_size;
+							border-bottom: $border;
+							@include box-sizing(border-box);
+						}
+
+						.title {
+							@include padding-x(20px);
+
+							button.rename {
+								font-size: 12px;
+							}
+
+							strong.verified {
+								$radius: 6px;
+
+								line-height: 2 * $radius;
+								@include border-radius($radius);
+								font-size: 8px;
+							}
+						}
+
+						.rename-title input {
+							@include flex-grow(1);
+							font-size: 12px;
+						}
+
+						aside {
+							height: 42px;
+
+							button, a {
+								@include flex-grow(1);
+							}
+
+							button:first-child, a:first-child {
+								border-left: none;
+							}
+						}
 					}
 				}
 			}

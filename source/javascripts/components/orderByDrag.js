@@ -30,7 +30,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 			}
 
 			function mousemoveHandler(event) {
-				if (!isDragInProgress) {
+				if (!isDragInProgress && $(selectedElement).is(draggableSelector)) {
 					$(element).addClass("drag-in-progress");
 					$(selectedElement).addClass("dragged-element");
 					isDragInProgress = true;
