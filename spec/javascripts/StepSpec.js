@@ -76,6 +76,176 @@ describe("Step", function() {
 
 	});
 
+	describe("iconURL", function() {
+		var step;
+
+		beforeEach(function() {
+			step = new Step();
+		});
+
+		it("should return default svg if no user step config is defined", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+
+			expect(step.iconURL()).toBe("red-icon.svg");
+		});
+
+		it("should return default png if no svg and user step config is defined", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.png": "red-icon.png"
+				}
+			};
+
+			expect(step.iconURL()).toBe("red-icon.png");
+		});
+
+		it("should return default svg even if default png is also defined", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg",
+					"icon.png": "blue-icon.png"
+				}
+			};
+
+			expect(step.iconURL()).toBe("red-icon.svg");
+		});
+
+		it("should return user defined svg if defined", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.svg": "blue-icon.svg"
+				}
+			}
+
+			expect(step.iconURL()).toBe("blue-icon.svg");
+		});
+
+		it("should return user defined png if defined", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.png": "blue-icon.png"
+				}
+			}
+
+			expect(step.iconURL()).toBe("blue-icon.png");
+		});
+
+		it("should set icon URL svg if no default nor user step config is defined", function() {
+			expect(step.iconURL("red-icon.svg")).toBe("red-icon.svg");
+			expect(step.defaultStepConfig).toBeUndefined();
+			expect(step.userStepConfig).not.toBeUndefined();
+			expect(step.userStepConfig.asset_urls).not.toBeUndefined();
+			expect(step.userStepConfig.asset_urls["icon.svg"]).toBe("red-icon.svg");
+			expect(step.userStepConfig.asset_urls["icon.png"]).toBeUndefined();
+		});
+
+		it("should change icon URL svg", function() {
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+
+			step.iconURL("blue-icon.svg");
+
+			expect(step.userStepConfig.asset_urls["icon.svg"]).toBe("blue-icon.svg");
+		});
+
+		it("should keep png, add svg", function() {
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.png": "red-icon.png"
+				}
+			};
+
+			step.iconURL("blue-icon.svg");
+
+			expect(step.userStepConfig.asset_urls["icon.svg"]).toBe("blue-icon.svg");
+			expect(step.userStepConfig.asset_urls["icon.png"]).toBe("red-icon.png");
+		});
+
+		it("should not change anything if icon type is not supported", function() {
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+
+			step.iconURL("blue-icon.bmp");
+
+			expect(step.userStepConfig.asset_urls["icon.svg"]).toBe("red-icon.svg");
+			expect(step.userStepConfig.asset_urls["icon.bmp"]).toBeUndefined();
+		});
+
+		it("should clear svg if is set to default", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.svg": "blue-icon.svg",
+					"icon.png": "blue-icon.png"
+				}
+			};
+
+			step.iconURL("red-icon.svg");
+
+			expect(step.userStepConfig.asset_urls["icon.svg"]).toBeUndefined();
+		});
+
+		it("should clear asset URLs if all icon URLs are set to default", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+			step.userStepConfig = {
+				title: "red-title",
+				asset_urls: {
+					"icon.svg": "blue-icon.svg"
+				}
+			};
+
+			step.iconURL("red-icon.svg");
+
+			expect(step.userStepConfig.asset_urls).toBeUndefined();
+		});
+
+		it("should clear user step config if all is set to default", function() {
+			step.defaultStepConfig = {
+				asset_urls: {
+					"icon.svg": "red-icon.svg"
+				}
+			};
+			step.userStepConfig = {
+				asset_urls: {
+					"icon.svg": "blue-icon.svg",
+				}
+			};
+
+			step.iconURL("red-icon.svg");
+
+			expect(step.userStepConfig).toBeNull();
+		});
+
+	});
+
 	describe("isVerified", function() {
 
 		var step;
@@ -160,12 +330,20 @@ describe("normalizedStepIconURL", function() {
 		expect($filter("normalizedStepIconURL")(step)).not.toBeUndefined();
 	});
 
-	it("should return set icon", function() {
+	it("should return set icon svg", function() {
 		var step = new Step();
 
-		step.iconURL("icon-url");
+		step.iconURL("icon-url.svg");
 
-		expect($filter("normalizedStepIconURL")(step)).toBe("icon-url");
+		expect($filter("normalizedStepIconURL")(step)).toBe("icon-url.svg");
+	});
+
+	it("should return set icon png", function() {
+		var step = new Step();
+
+		step.iconURL("icon-url.png");
+
+		expect($filter("normalizedStepIconURL")(step)).toBe("icon-url.png");
 	});
 
 });
