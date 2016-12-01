@@ -4,7 +4,7 @@
 .popup {
 	$transitionduration: 0.3s;
 
-	z-index: $def-zindex-popup;
+	z-index: $zindex-popup;
 	@include position(fixed, 0, 0);
 	@include display-flex;
 	@include flex-direction(column);

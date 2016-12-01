@@ -13,12 +13,13 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 
 			var selectedElement;
 			var cursorPositionYOnLastStableOrder;
+			var isDragInProgress = false;
 
 			function mousedownHandler(event) {
 				if (event.which != 1) {
 					return;
 				}
-				
+
 				for (selectedElement = event.target; selectedElement && !_.contains($(element).children(draggableSelector), selectedElement); selectedElement = selectedElement.parentNode);
 				$(selectedElement).off("mousedown", mousedownHandler);
 
@@ -29,6 +30,12 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 			}
 
 			function mousemoveHandler(event) {
+				if (!isDragInProgress) {
+					$(element).addClass("drag-in-progress");
+					$(selectedElement).addClass("dragged-element");
+					isDragInProgress = true;
+				}
+
 				var moveOffsetY = event.pageY - cursorPositionYOnLastStableOrder;
 
 				if (moveOffsetY > 0) {
@@ -94,10 +101,14 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 			function mouseupHandler(event) {
 				$(selectedElement).css("top", "");
 
+				$(element).removeClass("drag-in-progress");
+				$(selectedElement).removeClass("dragged-element");
+
 				$(document).off("mousemove", mousemoveHandler);
 				$(document).off("mouseup", mouseupHandler);
 				$(selectedElement).on("mousedown", mousedownHandler);
 
+				isDragInProgress = false;
 				scope.$apply();
 			}
 

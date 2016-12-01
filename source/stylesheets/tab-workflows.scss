@@ -97,14 +97,6 @@
 							font-weight: 100;
 							color: $def-grey;
 						}
-
-						@include media-below-big {
-							width: 220px;
-						}
-
-						@include media-below-mid {
-							display: none;
-						}
 					}
 
 					span.icon + span.info {
@@ -116,6 +108,46 @@
 					color: white;
 					background-color: $def-darkgrey;
 				}
+
+				@include media-below-big {
+					
+					button.step span.info {
+						width: 220px;
+					}
+				}
+
+				@include media-below-mid {
+					
+					button.step span.info {
+						display: none;
+					}
+				}
+
+				@include media-below-small {
+					$icon_size_small: 36px;
+
+					button.add-step {
+						width: $icon_size_small;
+					}
+					
+					button.step span.icon {
+						@include size($icon_size_small);
+					}
+				}
+			}
+		}
+
+		ul.steps.drag-in-progress {
+
+			li {
+
+				button.add-step {
+					visibility: hidden;
+				}
+			}
+
+			li.dragged-element {
+				z-index: $zindex-dragged_element;
 			}
 		}
 
