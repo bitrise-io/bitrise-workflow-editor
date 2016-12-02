@@ -118,6 +118,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(bitriseSteplibS
 		return parameterGetterSetter(this, "type_tags", newTypeTags);
 	};
 
+	Step.prototype.isAlwaysRun = function(newIsAlwaysRun) {
+		return parameterGetterSetter(this, "is_always_run", newIsAlwaysRun);
+	}
+
 	Step.prototype.isVerified = function() {
 		var sourceURL = this.sourceURL();
 

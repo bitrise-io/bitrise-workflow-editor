@@ -153,6 +153,7 @@
 
 		aside.step-details {
 			$horizontalpadding: 25px;
+			$horizontalpadding_small: 12px;
 
 			@include flex-grow(1);
 			overflow: hidden;
@@ -179,6 +180,7 @@
 						overflow: hidden;
 
 						button.rename {
+							text-align: left;
 							@include ellipsis-oneliner;
 							font-size: 14px;
 							font-weight: 400;
@@ -281,7 +283,7 @@
 					@include media-below-big {
 
 						.title, .rename-title {
-							@include padding-x(12px);
+							@include padding-x($horizontalpadding_small);
 						}
 
 						.title {
@@ -307,7 +309,6 @@
 						}
 
 						.title {
-							@include padding-x(20px);
 
 							button.rename {
 								font-size: 12px;
@@ -338,6 +339,98 @@
 								border-left: none;
 							}
 						}
+					}
+				}
+
+				section.description, section.version, section.always-run {
+					@include display-flex;
+					border-bottom: $border;
+					padding: 18px $horizontalpadding;
+					font-size: 12px;
+					font-weight: 100;
+					color: $def-darkgrey;
+
+					span.icon {
+						@include flex-shrink(0);
+						@include display-flex;
+						@include align-items(center);
+						width: 20px;
+						margin-right: 10px;
+
+						svg {
+							fill: $def-grey;
+						}
+					}
+				}
+
+				section.description {
+					@include align-items(flex-start);
+					cursor: pointer;
+
+					span.icon svg {
+						@include size(16px, auto);
+					}
+
+					p {
+						@include margin-y(0);
+					}
+
+					span.toggle-visibility {
+						margin-left: 10px;
+
+						svg {
+							@include size(10px, auto);
+							fill: $def-grey;
+							@include transition(transform $def-transition_duration);
+						}
+					}
+				}
+
+				section.description:not(.open) {
+
+					p {
+						@include ellipsis-oneliner;
+					}
+				}
+
+				section.description.open {
+
+					span.toggle-visibility {
+
+						svg {
+							@include transform(rotate(-180deg));
+						}
+					}
+				}
+
+				section.version {
+
+					span.icon:before {
+						$radius: 5px;
+
+						content: "";
+						@include position(relative, -1px);
+						display: inline-block;
+						@include size(2 * $radius);
+						@include border-radius($radius);
+						background-color: $def-grey;
+					}
+
+					select {
+						@include flex-grow(1);
+						max-width: 50%;
+						margin-left: auto;
+					}
+				}
+
+				section.always-run {
+
+					span.icon svg {
+						@include size(9px, auto);
+					}
+
+					input[type="checkbox"] {
+						margin-left: auto;
 					}
 				}
 			}

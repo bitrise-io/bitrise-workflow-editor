@@ -42,13 +42,18 @@
 							button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
 							a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
 							button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
-					section.description[ng-if="stepCtrl.step.description() !== undefined" ng-class="{'open': stepCtrl.shouldShowDescription}"]
+					section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}" ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
+						span.icon
+							= svg("step/description")
 						p[ng-bind-html="stepCtrl.step.description()"]
-						button[ng-click="stepCtrl.shouldShowDescription = true"] == data[:strings][:workflows][:steps][:show_description]
+						span.toggle-visibility = svg("arrow-down")
 					section.version
+						span.icon
 						label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
 						select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(bitriseSteplibService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="bitriseSteplibService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion)"]
 					section.always-run[ng-if="stepCtrl.step.isAlwaysRun() !== undefined"]
+						span.icon
+							= svg("step/is_always_run")
 						label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
 						input#selected-step-is-always-run-checkbox[type="checkbox" ng-model="stepCtrl.step.isAlwaysRun" ng-model-options="{getterSetter: true}"]
 					section.inputs

@@ -55,7 +55,6 @@ workflows:
     delete: Delete
     version: Version
     always_latest: Always latest
-    show_description: More
     is_always_run: Run if previous Step failed
   inputs:
     header: Input variables
