@@ -44,7 +44,7 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 	};
 
 	viewModel.inputSelected = function(input) {
-		viewModel.selectedInput = input;
+		viewModel.selectedInput = input == viewModel.selectedInput ? null : input;
 	};
 
 	viewModel.outputFromDefaultOutputConfig = function(defaultOutputConfig) {

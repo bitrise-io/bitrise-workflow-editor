@@ -361,6 +361,10 @@
 							fill: $def-grey;
 						}
 					}
+
+					@include media-below-big {
+						@include padding-x($horizontalpadding_small);
+					}
 				}
 
 				section.description {
@@ -431,6 +435,171 @@
 
 					input[type="checkbox"] {
 						margin-left: auto;
+					}
+				}
+
+				section.inputs {
+
+					h3 {
+						@include margin-y(0);
+						border-bottom: $border;
+						padding: 10px $horizontalpadding;
+						font-size: 12px;
+						font-weight: 300;
+						color: $def-darkgrey;
+						background-color: $def-verylightgrey;
+					}
+
+					ul {
+						@include margin-y(0);
+						padding-left: 0;
+						list-style: none;
+
+						li {
+							@include display-flex;
+							border-bottom: $border;
+							padding: 20px $horizontalpadding;
+							background-color: $def-ultralightgrey;
+
+							.input-info {
+								@include flex-grow(1);
+
+								h4.title {
+									display: block;
+									margin-top: 0;
+									margin-bottom: 4px;
+									@include ellipsis-oneliner;
+									font-size: 12px;
+									font-weight: 200;
+									color: $def-darkgrey;
+									@include transition(color $def-transition_duration);
+								}
+
+								strong.key {
+									display: block;
+									@include ellipsis-oneliner;
+									font-size: 14px;
+									font-weight: 100;
+								}
+
+								.manage-input {
+									position: relative;
+									margin-top: 18px;
+
+									button.insert-variable {
+										$color: $def-green-shade;
+
+										@include position(absolute, null, 0px, 100%);
+										margin-bottom: 8px;
+										border: 1px solid $color;
+										@include border-radius($def-radius);
+										padding: 5px;
+										font-size: 12px;
+										color: $color;
+										background-color: $def-green-light;
+									}
+
+									textarea {
+										display: block;
+										@include box-sizing(border-box);
+										@include size(100%, 42px);
+										border: $border;
+										@include border-radius($def-radius);
+										padding: 8px;
+										font-size: 12px;
+										font-weight: 100;
+										color: $def-darkgrey;
+										background-color: $def-verylightgrey;
+									}
+
+									.is-expand {
+										@include display-flex;
+										@include align-items(center);
+										margin-top: 18px;
+
+										label {
+											margin-left: 14px;
+											font-size: 12px;
+											color: $def-darkgrey;
+
+											strong {
+												display: block;
+												font-weight: 600;
+												color: $def-verydarkgrey;
+											}
+
+											em {
+												display: block;
+												font-style: normal;
+												font-weight: 100;
+
+												a {
+													text-decoration: none;
+													color: $def-green;
+												}
+											}
+										}
+									}
+								}
+							}
+
+							button.change {
+								$color: $def-grey;
+								$transition_duration: $def-transition_duration;
+
+								@include display-flex;
+								@include align-items(center);
+								padding-left: 10px;
+								font-size: 10px;
+								text-transform: uppercase;
+								color: $color;
+								@include transition(color $transition_duration);
+
+								svg {
+									@include size(10px, auto);
+									margin-left: 10px;
+									fill: $color;
+									@include transition(transform $transition_duration, fill $transition_duration);
+								}
+							}
+
+							button.change:hover, button.change:focus {
+								color: black;
+
+								svg {
+									fill: black;
+								}
+							}
+						}
+
+						li.selected {
+							background-color: white;
+
+							.input-info {
+
+								h4.title {
+									color: black;
+								}
+							}
+
+							button.change {
+
+								span {
+									display: none;
+								}
+
+								svg {
+									@include transform(rotate(-180deg));
+								}
+							}
+						}
+					}
+
+					@include media-below-big {
+
+						h3, ul li {
+							@include padding-x($horizontalpadding_small);
+						}
 					}
 				}
 			}
