@@ -232,6 +232,8 @@ main {
 
 	article.menu-content {
 		@include flex-grow(1);
+		padding-top: 20px;
+		padding-bottom: 50px;
 		background-color: white;
 	}
 }

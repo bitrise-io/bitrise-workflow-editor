@@ -1,7 +1,7 @@
 .tab-workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
 	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
-		ul.run-workflows[ng-repeat="runWorkflows in [workflowsCtrl.selectedWorkflow.workflowConfig.before_run, workflowsCtrl.selectedWorkflow.workflowConfig.after_run] track by $index" ng-class="$first ? 'before-run' : 'after-run'"]
+		ul.run-workflows[ng-repeat="runWorkflows in [workflowsCtrl.selectedWorkflow.workflowConfig.before_run, workflowsCtrl.selectedWorkflow.workflowConfig.after_run] track by $index" ng-if="runWorkflows.length > 0" ng-class="$first ? 'before-run' : 'after-run'"]
 			li[ng-repeat="workflowID in runWorkflows track by $index + '-' + workflowID"]
 				button[ng-click="workflowsCtrl.workflowSelectedWithID(workflowID)"]
 					span.uppercase[ng-bind="workflowID"]
@@ -42,11 +42,13 @@
 							button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
 							a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
 							button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
-					section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}" ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
+					section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}"]
 						span.icon
 							= svg("step/description")
 						p[ng-bind-html="stepCtrl.step.description()"]
-						span.toggle-visibility = svg("arrow-down")
+						span.toggle-visibility
+							button[ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
+							= svg("arrow-down")
 					section.version
 						span.icon
 						label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
@@ -61,10 +63,11 @@
 						ul
 							li[ng-repeat="defaultInputConfig in stepCtrl.step.defaultStepConfig.inputs" ng-controller="InputController as inputCtrl" ng-init="inputCtrl.init(stepCtrl.step, defaultInputConfig); id = inputCtrl.input.key()" ng-class="{'selected': inputCtrl.input == stepCtrl.selectedInput}"]
 								.input-info
-									h4.title[ng-bind="inputCtrl.input.title()"]
+									h4
+										span.title[ng-bind="inputCtrl.input.title()"]
+										button.insert-variable[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 									strong.key[ng-bind="inputCtrl.input | prettifiedVariableKey" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
 									.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
-										button.insert-variable[ng-click="inputCtrl.insertVariableSelected()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 										textarea[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)"]
 										.is-expand
 											input[type="checkbox" ng-model="inputCtrl.input.isExpand" ng-model-options="{getterSetter: true}" id="{{ id }}"]
@@ -76,12 +79,12 @@
 									= svg("arrow-down")
 					section.outputs
 						h3 == data[:strings][:workflows][:outputs][:header]
-						p[ng-if="!stepCtrl.step.defaultStepConfig.outputs"] == data[:strings][:workflows][:outputs][:no_outputs]
-						ul[ng-if="stepCtrl.step.defaultStepConfig.outputs"]
-							li[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
-								strong[ng-bind="output | prettifiedVariableKey"]
-								p[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
-					button[ng-click="workflowsCtrl.deleteStepSelected()"] == data[:strings][:workflows][:steps][:delete]
+						p.no-outputs[ng-if="!stepCtrl.step.defaultStepConfig.outputs"] == data[:strings][:workflows][:outputs][:no_outputs]
+						table[ng-if="stepCtrl.step.defaultStepConfig.outputs"]
+							tr[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
+								td.key[ng-bind="output | prettifiedVariableKey"]
+								td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
+				button.delete-step[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
 		popup[model="workflowsCtrl.workflowEnvVarsPopup"]
 			.popup-body-manage-workflow-env-vars.vertical-scroll.white
 				p.progress-indicator[progress-model="workflowsCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress"]

@@ -52,7 +52,7 @@ workflows:
     rename_confirm: OK
     clone: Clone
     source: Source
-    delete: Delete
+    delete: "Delete Step: <step_title>"
     version: Version
     always_latest: Always latest
     is_always_run: Run if previous Step failed

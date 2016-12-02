@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("StepController", function($scope, $rootScope, bitriseSteplibService, Variable) {
+angular.module("BitriseWorkflowEditor").controller("StepController", function($scope, $rootScope, stringService, bitriseSteplibService, Variable) {
 
 	var viewModel = this;
 
@@ -49,6 +49,12 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 
 	viewModel.outputFromDefaultOutputConfig = function(defaultOutputConfig) {
 		return new Variable(undefined, defaultOutputConfig);
+	};
+
+	viewModel.deleteStepButtonText = function() {
+		return stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:steps][:delete] %>", {
+			step_title: viewModel.step.displayName()
+		});
 	};
 
 });

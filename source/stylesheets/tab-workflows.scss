@@ -154,6 +154,7 @@
 		aside.step-details {
 			$horizontalpadding: 25px;
 			$horizontalpadding_small: 12px;
+			$delete_step_color: $def-danger;
 
 			@include flex-grow(1);
 			overflow: hidden;
@@ -229,6 +230,11 @@
 							font-weight: 200;
 							color: white;
 							background-color: $def-green;
+							@include transition(background-color $def-transition_duration);
+						}
+
+						button.ok:hover, button.ok:focus {
+							background-color: $def-green-shade;
 						}
 					}
 
@@ -344,11 +350,14 @@
 
 				section.description, section.version, section.always-run {
 					@include display-flex;
-					border-bottom: $border;
 					padding: 18px $horizontalpadding;
 					font-size: 12px;
 					font-weight: 100;
 					color: $def-darkgrey;
+
+					&:not(:first-of-type) {
+						border-top: $border;
+					}
 
 					span.icon {
 						@include flex-shrink(0);
@@ -369,7 +378,7 @@
 
 				section.description {
 					@include align-items(flex-start);
-					cursor: pointer;
+					position: relative;
 
 					span.icon svg {
 						@include size(16px, auto);
@@ -382,10 +391,20 @@
 					span.toggle-visibility {
 						margin-left: 10px;
 
+						button {
+							@include position(absolute, 0, 0);
+							@include size(100%);
+							opacity: 0;
+						}
+
 						svg {
 							@include size(10px, auto);
 							fill: $def-grey;
-							@include transition(transform $def-transition_duration);
+							@include transition(fill $def-transition_duration, transform $def-transition_duration);
+						}
+
+						button:hover + svg, button:focus + svg {
+							fill: black;
 						}
 					}
 				}
@@ -442,7 +461,7 @@
 
 					h3 {
 						@include margin-y(0);
-						border-bottom: $border;
+						@include border-y($border);
 						padding: 10px $horizontalpadding;
 						font-size: 12px;
 						font-weight: 300;
@@ -457,26 +476,53 @@
 
 						li {
 							@include display-flex;
-							border-bottom: $border;
 							padding: 20px $horizontalpadding;
 							background-color: $def-ultralightgrey;
 
 							.input-info {
 								@include flex-grow(1);
+								overflow: hidden;
 
-								h4.title {
-									display: block;
-									margin-top: 0;
-									margin-bottom: 4px;
-									@include ellipsis-oneliner;
-									font-size: 12px;
-									font-weight: 200;
-									color: $def-darkgrey;
-									@include transition(color $def-transition_duration);
+								h4 {
+									@include display-flex;
+									@include align-items(center);
+									@include margin-y(0);
+
+									span.title {
+										display: block;
+										max-width: 100%;
+										margin-right: auto;
+										@include ellipsis-oneliner;
+										font-size: 12px;
+										font-weight: 200;
+										color: $def-darkgrey;
+										@include transition(color $def-transition_duration);
+									}
+
+									button.insert-variable {
+										$color: $def-green-shade;
+
+										margin-left: 6px;
+										border: 1px solid $color;
+										@include border-radius($def-radius);
+										padding: 5px;
+										font-size: 12px;
+										font-weight: 100;
+										color: $color;
+										background-color: $def-green-light;
+										@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
+									}
+
+									button.insert-variable:hover, button.insert-variable:focus {
+										border-color: $def-green;
+										color: white;
+										background-color: $def-green;
+									}
 								}
 
 								strong.key {
 									display: block;
+									margin-top: 4px;
 									@include ellipsis-oneliner;
 									font-size: 14px;
 									font-weight: 100;
@@ -484,20 +530,7 @@
 
 								.manage-input {
 									position: relative;
-									margin-top: 18px;
-
-									button.insert-variable {
-										$color: $def-green-shade;
-
-										@include position(absolute, null, 0px, 100%);
-										margin-bottom: 8px;
-										border: 1px solid $color;
-										@include border-radius($def-radius);
-										padding: 5px;
-										font-size: 12px;
-										color: $color;
-										background-color: $def-green-light;
-									}
+									margin-top: 10px;
 
 									textarea {
 										display: block;
@@ -537,6 +570,10 @@
 													text-decoration: none;
 													color: $def-green;
 												}
+
+												a:hover, a:focus {
+													text-decoration: underline;
+												}
 											}
 										}
 									}
@@ -572,14 +609,22 @@
 							}
 						}
 
+						li:not(:last-child) {
+							border-bottom: $border;
+						}
+
+						li:not(.selected) {
+
+							.input-info h4 span.title:after {
+								content: ":";
+							}
+						}
+
 						li.selected {
 							background-color: white;
 
-							.input-info {
-
-								h4.title {
-									color: black;
-								}
+							.input-info h4 span.title {
+								color: black;
 							}
 
 							button.change {
@@ -600,8 +645,121 @@
 						h3, ul li {
 							@include padding-x($horizontalpadding_small);
 						}
+
+						ul li .input-info h4 {
+							@include flex-direction(column);
+							@include align-items(flex-start);
+
+							button.insert-variable {
+								@include align-self(flex-end);
+								margin-left: 0;
+								margin-top: 4px;
+							}
+						}
 					}
 				}
+
+				section.outputs {
+
+					h3 {
+						@include margin-y(0);
+						@include border-y($border);
+						padding: 10px $horizontalpadding;
+						font-size: 12px;
+						font-weight: 300;
+						color: $def-darkgrey;
+						background-color: $def-verylightgrey;
+					}
+
+					p.no-outputs {
+						@include margin-y(16px);
+						@include padding-x($horizontalpadding);
+						font-size: 12px;
+					}
+
+					table {
+						$table_border: 1px solid $def-mediumlightgrey;
+
+						table-layout: fixed;
+						width: 100%;
+						@include margin-y(0);
+						border-collapse: collapse;
+						padding-left: 0;
+						list-style: none;
+
+						tr {
+							font-size: 12px;
+
+							td {
+								width: 50%;
+								@include ellipsis-oneliner;
+								padding: 12px $horizontalpadding;
+							}
+
+							td.key {
+								font-weight: 300;
+								color: $def-purple;
+							}
+
+							td.description {
+								font-weight: 100;
+								color: $def-grey;
+							}
+						}
+
+						tr:not(:first-child) {
+							border-top: $table_border;
+						}
+
+						td:not(:first-child) {
+							border-left: $table_border;
+						}
+					}
+
+					@include media-below-big {
+
+						h3 {
+							@include padding-x($horizontalpadding_small);
+						}
+
+						p.no-outputs {
+							@include padding-x($horizontalpadding_small);
+						}
+
+						table tr td {
+							@include padding-x($horizontalpadding_small);
+						}
+					}
+
+					@include media-below-mid {
+
+						table tr td.description {
+							display: none;
+						}
+					}
+				}
+			}
+
+			button.delete-step {
+				width: 100%;
+				margin-top: 15px;
+				border: 1px solid $delete_step_color;
+				@include border-radius($def-radius);
+				padding: 12px $horizontalpadding;
+				@include ellipsis-oneliner;
+				font-size: 14px;
+				font-weight: 100;
+				color: $delete_step_color;
+				@include transition(color $def-transition_duration, background-color $def-transition_duration);
+
+				@include media-below-big {
+					@include padding-x($horizontalpadding_small);
+				}
+			}
+
+			button.delete-step:hover, button.delete-step:focus {
+				background-color: $delete_step_color;
+				color: white;
 			}
 		}
 	}
