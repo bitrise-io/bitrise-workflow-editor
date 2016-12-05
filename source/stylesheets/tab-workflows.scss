@@ -418,16 +418,20 @@
 					}
 
 					span.toggle-visibility {
+						z-index: $zindex-step_description_open;
 						@include flex-shrink(0);
 						margin-left: 10px;
 
 						button {
+							z-index: $zindex-step_description_open;
 							@include position(absolute, 0, 0);
 							@include size(100%);
 							opacity: 0;
 						}
 
 						svg {
+							position: relative;
+							z-index: -1;
 							@include size(10px, 7px);
 							fill: $def-grey;
 							@include transition(fill $def-transition_duration, transform $def-transition_duration);
@@ -449,6 +453,7 @@
 				section.description.open {
 
 					span.toggle-visibility {
+						position: relative;
 
 						svg {
 							@include transform(rotate(-180deg));
