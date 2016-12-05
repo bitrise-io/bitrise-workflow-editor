@@ -3,6 +3,7 @@ $def-transition_duration: 0.2s;
 $def-green-light: #c8e7e2;
 $def-green: #3bc3a3;
 $def-green-shade: #3aa792;
+$def-danger-shade: #e16e1f;
 $def-danger: #f0741f;
 $def-danger-light: #f4dfd1;
 $def-purple: #8151a8;
@@ -20,5 +21,6 @@ $def-radius: 3px;
 $def-button-border_radius: $def-radius;
 $def-progress_indicator-radius: $def-radius;
 
+$zindex-checkbox: 0;
 $zindex-popup: 100;
 $zindex-dragged_element: 20;

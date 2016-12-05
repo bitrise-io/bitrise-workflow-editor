@@ -57,7 +57,7 @@
 						span.icon
 							= svg("step/is_always_run")
 						label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
-						input#selected-step-is-always-run-checkbox[type="checkbox" ng-model="stepCtrl.step.isAlwaysRun" ng-model-options="{getterSetter: true}"]
+						checkbox[ng-model="stepCtrl.step.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
 					section.inputs[ng-if="stepCtrl.step.defaultStepConfig.inputs.length > 0"]
 						h3 == data[:strings][:workflows][:inputs][:header]
 						ul
@@ -70,7 +70,7 @@
 									.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
 										textarea[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)"]
 										.is-expand
-											input[type="checkbox" ng-model="inputCtrl.input.isExpand" ng-model-options="{getterSetter: true}" id="{{ id }}"]
+											checkbox[ng-model="inputCtrl.input.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="id"]
 											label[for="{{ id }}"]
 												strong == data[:strings][:workflows][:inputs][:replace_variables_in_input]
 												em == string_with_urls(data[:strings][:workflows][:inputs][:replace_variables_in_input_learn_more], [data[:routes][:devcenter][:step_inputs]])
