@@ -33,6 +33,7 @@ main {
 				border-top: $border_width solid transparent;
 				@include border-top-radius($border_width);
 				padding: $menubutton_verticalpadding 30px;
+				text-align: center;
 				font-size: 14px;
 				font-weight: 300;
 				color: $def-mediumdarkgrey;
@@ -45,7 +46,6 @@ main {
 
 					svg {
 						position: relative;
-						width: auto;
 						fill: $def-mediumdarkgrey;
 					}
 				}
@@ -89,32 +89,33 @@ main {
 
 			a.workflows span.icon svg {
 				top: -1px;
-				height: 12px;
+				@include size(18px, 12px);
 			}
 
 			a.code-signing span.icon svg {
 				top: 0px;
-				height: 15px;
+				// TODO: size width
+				@include size(auto, 15px);
 			}
 
 			a.secrets span.icon svg {
 				top: -1px;
-				height: 13px;
+				@include size(11px, 13px);
 			}
 
 			a.app-env-vars span.icon svg {
 				top: -1px;
-				height: 16px;
+				@include size(9px, 16px);
 			}
 
 			a.triggers span.icon svg {
 				top: -1px;
-				height: 16px;
+				@include size(7px, 16px);
 			}
 
 			a.yml span.icon svg {
 				top: 0px;
-				height: 9px;
+				@include size(15px, 9px);
 			}
 
 		}
@@ -156,7 +157,7 @@ main {
 				background-color: $def-green;
 
 				svg {
-					@include size(14px, auto);
+					@include size(14px, 13px);
 					fill: white;
 				}
 			}

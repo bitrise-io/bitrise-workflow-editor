@@ -31,7 +31,7 @@
 					background-color: $def-mediumlightgrey;
 
 					svg {
-						@include size(12px, auto);
+						@include size(12px, 12px);
 						fill: white;
 					}
 				}
@@ -44,6 +44,7 @@
 				button.step {
 					position: relative;
 					display: block;
+					text-align: left;
 
 					span.icon {
 						@include position(absolute, 0, null, null, 0);
@@ -84,8 +85,7 @@
 								margin-left: 5px;
 
 								svg {
-									width: 10px;
-									height: auto;
+									@include size(10px);
 								}
 							}
 						}
@@ -200,6 +200,7 @@
 						strong.verified {
 							$radius: 8px;
 
+							@include flex-shrink(0);
 							@include align-self(center);
 							line-height: 2 * $radius;
 							margin-left: 15px;
@@ -243,11 +244,13 @@
 					}
 
 					aside {
+						@include flex-shrink(0);
 						@include display-flex;
 
 						button, a {
 							$transition_duration: $def-transition_duration;
 
+							@include flex-shrink(0);
 							@include box-sizing(border-box);
 							width: $icon_size;
 							line-height: $icon_size;
@@ -255,7 +258,6 @@
 							@include transition(background-color $transition_duration);
 
 							svg {
-								height: auto;
 								fill: $def-grey;
 								@include transition(fill $transition_duration);
 							}
@@ -263,7 +265,7 @@
 
 						button.clone svg {
 							@include position(relative, 2px);
-							width: 18px;
+							@include size(18px, 18px);
 						}
 
 						a.source {
@@ -271,13 +273,13 @@
 
 							svg {
 								@include position(relative, 2px);
-								width: 19px;
+								@include size(19px, 19px);
 							}
 						}
 
 						button.delete svg {
 							@include position(relative, 1px);
-							width: 17px;
+							@include size(17px, 18px);
 						}
 
 						button.clone:focus, button.clone:hover, a.source:focus, a.source:hover {
@@ -395,7 +397,7 @@
 					position: relative;
 
 					span.icon svg {
-						@include size(16px, auto);
+						@include size(16px, 13px);
 					}
 
 					p {
@@ -403,6 +405,7 @@
 					}
 
 					span.toggle-visibility {
+						@include flex-shrink(0);
 						margin-left: 10px;
 
 						button {
@@ -412,7 +415,7 @@
 						}
 
 						svg {
-							@include size(10px, auto);
+							@include size(10px, 7px);
 							fill: $def-grey;
 							@include transition(fill $def-transition_duration, transform $def-transition_duration);
 						}
@@ -483,7 +486,7 @@
 				section.always-run {
 
 					span.icon svg {
-						@include size(9px, auto);
+						@include size(9px, 17px);
 					}
 
 					.checkbox {
@@ -626,7 +629,7 @@
 								@include transition(color $transition_duration);
 
 								svg {
-									@include size(10px, auto);
+									@include size(10px, 7px);
 									margin-left: 10px;
 									fill: $color;
 									@include transition(transform $transition_duration, fill $transition_duration);

@@ -28,7 +28,8 @@ select:-moz-focusring {
 }
 
 html {
-	@include size(100%);
+	width: 100%;
+	min-height: 100%;
 }
 
 body {
@@ -49,6 +50,7 @@ button, input[type="submit"] {
 }
 
 button {
+	margin: 0;
 	border: none;
 	padding: 0;
 	font: inherit;
@@ -103,13 +105,13 @@ select {
 		}
 
 		svg[check] {
-			@include size(12px, auto);
+			@include size(12px, 11px);
 			top: 5px;
 			left: 6px;
 		}
 
 		svg[cross] {
-			@include size(10px, auto);
+			@include size(10px, 10px);
 			top: 6px;
 			left: 7px;
 		}
