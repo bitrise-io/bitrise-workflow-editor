@@ -42,10 +42,11 @@
 				}
 
 				button.step {
-					@include display-flex;
-					@include align-items(stretch);
+					position: relative;
+					display: block;
 
 					span.icon {
+						@include position(absolute, 0, null, null, 0);
 						@include box-sizing(border-box);
 						@include size($icon_size);
 						border: 1px solid $def-lightgrey;
@@ -58,7 +59,9 @@
 						@include flex-direction(column);
 						@include justify-content(center);
 						@include align-items(flex-start);
-						width: 280px;
+						@include box-sizing(border-box);
+						@include size(280px, $icon_size);
+						margin-left: $icon_size + $margin;
 						border: 1px solid $def-mediumlightgrey;
 						@include border-radius($def-radius);
 						@include padding-x(20px);
@@ -96,10 +99,6 @@
 							color: $def-grey;
 						}
 					}
-
-					span.icon + span.info {
-						margin-left: $margin;
-					}
 				}
 
 				@include media-below-big {
@@ -110,6 +109,11 @@
 				}
 
 				@include media-below-mid {
+
+					button.step span.icon {
+						position: static;
+						display: block;
+					}
 					
 					button.step span.info {
 						display: none;
@@ -244,10 +248,9 @@
 						button, a {
 							$transition_duration: $def-transition_duration;
 
-							@include display-flex;
-							@include justify-content(center);
 							@include box-sizing(border-box);
 							width: $icon_size;
+							line-height: $icon_size;
 							border-left: $border;
 							@include transition(background-color $transition_duration);
 
@@ -259,14 +262,21 @@
 						}
 
 						button.clone svg {
+							@include position(relative, 2px);
 							width: 18px;
 						}
 
-						a.source svg {
-							width: 19px;
+						a.source {
+							text-align: center;
+
+							svg {
+								@include position(relative, 2px);
+								width: 19px;
+							}
 						}
 
 						button.delete svg {
+							@include position(relative, 1px);
 							width: 17px;
 						}
 
@@ -335,10 +345,13 @@
 						}
 
 						aside {
-							height: 42px;
+							$height: 42px;
+
+							height: $height;
 
 							button, a {
 								@include flex-grow(1);
+								line-height: $height;
 							}
 
 							button:first-child, a:first-child {
@@ -584,8 +597,7 @@
 								$color: $def-grey;
 								$transition_duration: $def-transition_duration;
 
-								@include display-flex;
-								@include align-items(center);
+								@include flex-shrink(0);
 								padding-left: 10px;
 								font-size: 10px;
 								text-transform: uppercase;
