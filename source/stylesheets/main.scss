@@ -18,6 +18,15 @@
 	outline: none;
 }
 
+input::-moz-focus-inner, button::-moz-focus-inner {
+	border: 0;
+}
+
+select:-moz-focusring {
+	color: rgba(0, 0, 0, 0);
+	text-shadow: 0 0 0 black;
+}
+
 html {
 	@include size(100%);
 }
@@ -49,6 +58,10 @@ button {
 
 input[type="submit"] {
 	@include appearance(none);
+}
+
+select {
+	cursor: pointer;
 }
 
 .checkbox {
