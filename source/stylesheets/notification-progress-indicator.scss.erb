@@ -37,6 +37,10 @@
 	}
 }
 
+.notification {
+	@include notification_styling($def-blue-shade, $def-blue-light, '<%= svg("bulb") %>', 20px);
+}
+
 .progress-indicator.in-progress {
 	@include notification_styling($def-purple, $def-purple-light, '<%= svg("in_progress") %>', 20px);
 
@@ -60,8 +64,4 @@
 
 .notification.success, .progress-indicator.success {
 	@include notification_styling($def-green-shade, $def-green-light, '<%= svg("check") %>', 14px);
-}
-
-.notification.notice {
-	@include notification_styling($def-blue-shade, $def-blue-light, '<%= svg("bulb") %>', 20px);
 }

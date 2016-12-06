@@ -28,7 +28,7 @@
 				div.pseudo-step-details[ng-if="stepCtrl.step.type() == 'pseudo-step'"]
 					h2.title[ng-bind="stepCtrl.step.displayName()"]
 					/ TODO: Add pseudo-step content here
-				p.notification.notice[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
+				p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
 				p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
 				div.bitrise-steplib-step-details[ng-if="stepCtrl.step.type() == 'bitrise-steplib-step'"]
 					header.manage-step
