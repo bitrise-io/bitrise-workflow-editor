@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $rootScope, $q, $filter, requestService, Progress, Popup, Variable) {
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $rootScope, $q, $filter, requestService, bitriseSteplibService, Progress, Popup, Step, Variable) {
 
 	var viewModel = this;
 
@@ -126,17 +126,26 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 		}).variables = selectedWorkflow.envVars;
 
 		var outputsOfStepsBeforeSelectedInput = [];
-		_.any(selectedWorkflow.steps, function(aStep, index) {
-			if (aStep == selectedStep) {
+		_.any(selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig, index) {
+			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+			var userStepConfig = aWrappedUserStepConfig[stepCVS];
+			if (userStepConfig == selectedStep.userStepConfig) {
 				return true;
 			}
+
+			var step = bitriseSteplibService.stepFromCVS(stepCVS);
+			if (!step.defaultStepConfig || !step.defaultStepConfig.outputs) {
+				return false;
+			}
+
+			step.userStepConfig = userStepConfig;
 
 			outputsOfStepsBeforeSelectedInput.push({
 				source: {
 					id: index,
-					title: "output of step: " + aStep.title
+					title: "output of step: " + step.displayName()
 				},
-				variables: _.map(aStep.outputs, function(anOutputConfig) {
+				variables: _.map(step.defaultStepConfig.outputs, function(anOutputConfig) {
 					return new Variable(undefined, anOutputConfig);
 				})
 			});
@@ -175,6 +184,10 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 	viewModel.insertVariable = function(variable) {
 		var oldValue = targetInput.value();
+		if (oldValue === null) {
+			oldValue = "";
+		}
+		
 		targetInput.value(oldValue.slice(0, insertStartPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(insertEndPosition));
 		viewModel.popup.isVisible = false;
 	};

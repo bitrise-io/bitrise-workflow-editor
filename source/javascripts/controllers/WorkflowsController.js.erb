@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, requestService, bitriseSteplibService, Progress, Popup, Workflow, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, requestService, bitriseSteplibService, Progress, Popup, Workflow, Step, Variable) {
 
 	var viewModel = this;
 
@@ -189,7 +189,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 
 		viewModel.selectedWorkflowSteps = _.map(viewModel.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
-			var stepCVS = _.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))));
+			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
 			var step;
 			var userStepConfig = aWrappedUserStepConfig[stepCVS];
 

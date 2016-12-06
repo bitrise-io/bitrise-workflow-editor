@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step) {
 
 	var viewModel = this;
 
@@ -89,7 +89,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
 				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
-					var stepConfig = aWrappedUserStepConfig[_.first(_.keys(angular.fromJson(angular.toJson(aWrappedUserStepConfig))))];
+					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+					var stepConfig = aWrappedUserStepConfig[stepCVS];
 
 					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
 						delete stepConfig["source"];

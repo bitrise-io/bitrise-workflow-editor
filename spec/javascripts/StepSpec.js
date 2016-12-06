@@ -307,6 +307,18 @@ describe("Step", function() {
 
 	});
 
+	describe("cvsFromWrappedStepConfig", function() {
+
+		it("should return CVS", function() {
+			expect(Step.cvsFromWrappedStepConfig({
+				"red-source::green-step@1.0": {
+					title: "Green step"
+				}
+			})).toBe("red-source::green-step@1.0");
+		});
+
+	})
+
 });
 
 describe("normalizedStepIconURL", function() {

@@ -142,6 +142,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(bitriseSteplibS
 		return this.version;
 	};
 
+	Step.cvsFromWrappedStepConfig = function(wrappedStepConfig) {
+		return _.first(_.keys(angular.fromJson(angular.toJson(wrappedStepConfig))));
+	};
+
 	function parameterGetterSetter(step, parameterKey, parameterValue) {
 		if (parameterValue === undefined) {
 			if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
