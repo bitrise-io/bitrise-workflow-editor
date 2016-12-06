@@ -65,10 +65,11 @@
 								.input-info
 									h4
 										span.title[ng-bind="inputCtrl.input.title()"]
-										button.insert-variable[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-									strong.value[ng-bind="inputCtrl.input.value()" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
+										button.insert-variable[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+									strong.value[ng-bind="inputCtrl.input.value() ? inputCtrl.input.value() : '#{ data[:strings][:workflows][:inputs][:empty_value] }'" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
 									.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
-										textarea[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)"]
+										textarea[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)" ng-if="!inputCtrl.input.valueOptions()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+										select[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-if="inputCtrl.input.valueOptions()" ng-options="valueOption for valueOption in inputCtrl.input.valueOptions()"]
 										.is-expand
 											checkbox[ng-model="inputCtrl.input.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="id"]
 											label[for="{{ id }}"]

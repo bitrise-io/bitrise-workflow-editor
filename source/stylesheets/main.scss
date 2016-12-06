@@ -63,7 +63,27 @@ input[type="submit"] {
 }
 
 select {
+	$select-horizontalpadding: 12px;
+	$arrow_width: 8px;
+
+	@include appearance(none);
+	border: 1px solid $def-mediumlightgrey;
+	@include border-radius($def-radius);
+	padding: 7px $select-horizontalpadding;
+	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding;
+	font-family: Verdana;
+	font-size: 14px;
+	@include transition(background-color $def-transition_duration);
+	background-color: white;
+	background-image: image-url("arrow-down.svg");
+	background-size: $arrow_width auto;
+	background-position: right $select-horizontalpadding center;
+	background-repeat: no-repeat;
 	cursor: pointer;
+}
+
+select:hover, select:focus {
+	background-color: $def-verylightgrey;
 }
 
 .checkbox {

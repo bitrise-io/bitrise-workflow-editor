@@ -484,29 +484,9 @@
 					}
 
 					select {
-						$select-horizontalpadding: 12px;
-						$arrow_width: 8px;
-
 						@include flex-grow(1);
-						@include appearance(none);
 						max-width: 50%;
 						margin-left: auto;
-						border: 1px solid $def-mediumlightgrey;
-						@include border-radius($def-radius);
-						padding: 7px $select-horizontalpadding;
-						padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding;
-						font-family: Verdana;
-						font-size: 14px;
-						@include transition(background-color $def-transition_duration);
-						background-color: white;
-						background-image: image-url("arrow-down.svg");
-						background-size: $arrow_width auto;
-						background-position: right $select-horizontalpadding center;
-						background-repeat: no-repeat;
-					}
-
-					select:hover, select:focus {
-						background-color: $def-verylightgrey;
 					}
 				}
 
@@ -600,10 +580,14 @@
 									position: relative;
 									margin-top: 10px;
 
-									textarea {
+									textarea, select {
 										display: block;
+										width: 100%;
+									}
+
+									textarea {
 										@include box-sizing(border-box);
-										@include size(100%, 42px);
+										height: 42px;
 										border: $border;
 										@include border-radius($def-radius);
 										padding: 8px;
@@ -617,6 +601,10 @@
 										@include display-flex;
 										@include align-items(center);
 										margin-top: 18px;
+
+										.checkbox {
+											@include flex-shrink(0);
+										}
 
 										label {
 											margin-left: 14px;
