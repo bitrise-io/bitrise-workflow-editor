@@ -66,7 +66,7 @@
 									h4
 										span.title[ng-bind="inputCtrl.input.title()"]
 										button.insert-variable[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-									strong.key[ng-bind="inputCtrl.input | prettifiedVariableKey" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
+									strong.value[ng-bind="inputCtrl.input.value()" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
 									.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
 										textarea[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)"]
 										.is-expand

@@ -156,7 +156,9 @@
 		}
 
 		aside.step-details {
-			$horizontalpadding: 25px;
+			$trashicon_width: 17px;
+			$leftpadding: 25px;
+			$rightpadding: ($icon_size - $trashicon_width) / 2 + 3px;
 			$horizontalpadding_small: 12px;
 			$delete_step_color: $def-danger;
 
@@ -186,14 +188,18 @@
 					.title {
 						@include flex-grow(1);
 						@include display-flex;
-						@include padding-x($horizontalpadding);
+						padding-left: $leftpadding;
+						padding-right: $rightpadding;
 						overflow: hidden;
 
 						button.rename {
+							$renamebutton-horizontalpadding: 6px;
+
 							@include align-self(center);
 							border: 1px solid transparent;
 							@include border-radius($def-radius);
-							padding: 4px 6px;
+							margin-left: -$renamebutton-horizontalpadding;
+							padding: 4px $renamebutton-horizontalpadding;
 							text-align: left;
 							@include ellipsis-oneliner;
 							font-size: 14px;
@@ -212,7 +218,7 @@
 							@include flex-shrink(0);
 							@include align-self(center);
 							line-height: 2 * $radius;
-							margin-left: 15px;
+							margin-left: 10px;
 							@include border-radius($radius);
 							@include padding-x(10px);
 							font-size: 9px;
@@ -226,7 +232,9 @@
 					.rename-title {
 						@include flex-grow(1);
 						@include display-flex;
-						padding: 6px $horizontalpadding;
+						@include padding-y(6px);
+						padding-left: $leftpadding;
+						padding-right: $rightpadding;
 
 						input {
 							width: 60%;
@@ -288,7 +296,7 @@
 
 						button.delete svg {
 							@include position(relative, 1px);
-							@include size(17px, 18px);
+							@include size($trashicon_width, 18px);
 						}
 
 						button.clone:focus, button.clone:hover, a.source:focus, a.source:hover {
@@ -322,7 +330,6 @@
 							}
 
 							strong.verified {
-								margin-top: 4px;
 								margin-left: 0;
 								@include align-self(flex-start);
 							}
@@ -379,7 +386,9 @@
 				section.description, section.version, section.always-run {
 					@include display-flex;
 					@include align-items(center);
-					padding: 18px $horizontalpadding;
+					@include padding-y(18px);
+					padding-left: $leftpadding;
+					padding-right: $rightpadding;
 					font-size: 12px;
 					font-weight: 100;
 					color: $def-darkgrey;
@@ -517,7 +526,9 @@
 					h3 {
 						@include margin-y(0);
 						@include border-y($border);
-						padding: 10px $horizontalpadding;
+						@include padding-y(10px);
+						padding-left: $leftpadding;
+						padding-right: $rightpadding;
 						font-size: 12px;
 						font-weight: 300;
 						color: $def-darkgrey;
@@ -531,7 +542,9 @@
 
 						li {
 							@include display-flex;
-							padding: 20px $horizontalpadding;
+							@include padding-y(20px);
+							padding-left: $leftpadding;
+							padding-right: $rightpadding;
 							background-color: $def-ultralightgrey;
 
 							.input-info {
@@ -575,10 +588,10 @@
 									}
 								}
 
-								strong.key {
+								strong.value {
 									display: block;
 									margin-top: 4px;
-									@include ellipsis-oneliner;
+									white-space: pre-wrap;
 									font-size: 14px;
 									font-weight: 100;
 								}
@@ -718,7 +731,9 @@
 					h3 {
 						@include margin-y(0);
 						@include border-y($border);
-						padding: 10px $horizontalpadding;
+						@include padding-y(10px);
+						padding-left: $leftpadding;
+						padding-right: $rightpadding;
 						font-size: 12px;
 						font-weight: 300;
 						color: $def-darkgrey;
@@ -727,7 +742,8 @@
 
 					p.no-outputs {
 						@include margin-y(16px);
-						@include padding-x($horizontalpadding);
+						padding-left: $leftpadding;
+						padding-right: $rightpadding;
 						font-size: 12px;
 					}
 
@@ -747,7 +763,9 @@
 							td {
 								width: 50%;
 								@include ellipsis-oneliner;
-								padding: 12px $horizontalpadding;
+								@include padding-y(12px);
+								padding-left: $leftpadding;
+								padding-right: $rightpadding;
 							}
 
 							td.key {
@@ -798,7 +816,7 @@
 				width: 100%;
 				border: 1px solid $delete_step_color;
 				@include border-radius($def-radius);
-				padding: 12px $horizontalpadding;
+				padding: 12px 25px;
 				@include ellipsis-oneliner;
 				font-size: 14px;
 				font-weight: 100;
@@ -806,7 +824,7 @@
 				@include transition(color $def-transition_duration, background-color $def-transition_duration);
 
 				@include media-below-big {
-					@include padding-x($horizontalpadding_small);
+					@include padding-x(15px);
 				}
 			}
 
