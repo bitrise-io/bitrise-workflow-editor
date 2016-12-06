@@ -1,0 +1,67 @@
+@import "default";
+@import "constants";
+
+.notification, .progress-indicator {
+	$padding: 10px;
+	$icon-reserved_size: 20px;
+
+	position: relative;
+	border: 1px solid;
+	@include border-radius($def-progress_indicator-radius);
+	padding: $padding;
+	padding-left: $padding + $icon-reserved_size + $padding;
+	font-size: 14px;
+
+	&:before {
+		content: "";
+		@include position(absolute, 50%, null, null, $padding);
+		background-position: center;
+		background-size: contain;
+		background-repeat: no-repeat;
+	}
+}
+
+@mixin notification_styling($color, $background_color, $svg_content, $icon_size) {
+	$svg_content_with_attributes: svg_content_with_attributes($svg_content, (
+		fill: $color
+	));
+
+	border-color: $color;
+	color: $color;
+	background-color: $background_color;
+
+	&:before {
+		background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+		@include size($icon_size);
+		margin-top: - $icon_size / 2;
+	}
+}
+
+.progress-indicator.in-progress {
+	@include notification_styling($def-purple, $def-purple-light, '<%= svg("in_progress") %>', 20px);
+
+	&:before {
+		@include keyframes(rotate) {
+			from {
+				@include transform(rotate(0deg));
+			}
+			to {
+				@include transform(rotate(360deg));
+			}
+		};
+
+		@include animation(rotate 1s linear infinite);
+	}
+}
+
+.notification.error, .progress-indicator.error {
+	@include notification_styling($def-danger, $def-danger-light, '<%= svg("cross") %>', 10px);
+}
+
+.notification.success, .progress-indicator.success {
+	@include notification_styling($def-green-shade, $def-green-light, '<%= svg("check") %>', 14px);
+}
+
+.notification.notice {
+	@include notification_styling($def-blue-shade, $def-blue-light, '<%= svg("bulb") %>', 20px);
+}

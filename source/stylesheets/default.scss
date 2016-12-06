@@ -4,6 +4,26 @@
 	@return not not index($list, $element);
 }
 
+@function string_replace($string, $search, $replace: "") {
+	$index: str-index($string, $search);
+
+	@if $index {
+		@return str-slice($string, 1, $index - 1) + $replace + string_replace(str-slice($string, $index + str-length($search)), $search, $replace);
+	}
+
+	@return $string;
+}
+
+@function svg_content_with_attributes($svg_content, $attributes) {
+	$attributes_string: "";
+
+	@each $key, $value in $attributes {
+		$attributes_string: "#{ $attributes_string } #{ $key }=\"#{ $value }\"";
+	}
+
+	@return string_replace($svg_content, "<svg", "<svg" + $attributes_string);
+}
+
 /* Screen sizes */
 
 $screen-huge: 1280px;

@@ -70,8 +70,10 @@ helpers do
 	def svg(filename)
 		root = Middleman::Application.root
 		file_path = "#{root}/source/images/#{filename}.svg"
-		return File.read(file_path) if File.exists?(file_path)
-		return "(svg not found)"
+
+		return "(svg not found)" unless File.exists?(file_path)
+
+		return File.read(file_path).gsub!("\n", "").gsub!("\r", "").gsub!("\t", "")
 	end
 
 end
