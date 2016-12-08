@@ -38,7 +38,6 @@ local_server:
   yml_post: /api/bitrise-yml
 devcenter:
   step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
-  trigger_map: https://bitrise-io.github.io/devcenter/webhooks/trigger-map/
   bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
   codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
   xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing

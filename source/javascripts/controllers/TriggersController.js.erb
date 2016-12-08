@@ -8,7 +8,19 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 	viewModel.appConfig;
 	viewModel.workflows;
-	viewModel.triggers;
+
+	$scope.triggerTypes = [{
+		id: 'push',
+		triggers: undefined
+	}, {
+		id: 'pull-request',
+		triggers: undefined
+	}, {
+		id: 'tag',
+		triggers: undefined
+	}];
+	viewModel.selectedTriggerType;
+
 	viewModel.selectedTrigger = null;
 	viewModel.editedTrigger;
 	viewModel.newTriggerIndex;
@@ -21,21 +33,53 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		configureWithAppConfig(appConfig);
 	}));
 
+	$scope.$on("$destroy", $scope.$watch("triggerTypes", function(triggerTypes) {
+		if (!viewModel.appConfig) {
+			return;
+		}
+
+		viewModel.appConfig.trigger_map = [];
+
+		_.each(triggerTypes, function(aTriggerType) {
+			_.each(aTriggerType.triggers, function(aTrigger) {
+				viewModel.appConfig.trigger_map.push(aTrigger.triggerConfig);
+			});
+		});
+
+		if (_.isEmpty(viewModel.appConfig.trigger_map)) {
+			delete viewModel.appConfig["triggers"];
+		}
+	}, true));
+
 	function configureWithAppConfig(appConfig) {
 		viewModel.appConfig = appConfig;
 		viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, workflowID) {
 			return new Workflow(workflowID, aWorkflowConfig);
 		});
-		syncTriggersWithAppConfig();
 
-		viewModel.triggerSelected(null);
+		_.each($scope.triggerTypes, function(aTriggerType) {
+			aTriggerType.triggers = [];
+		});
+
+		_.each(viewModel.appConfig.trigger_map, function(triggerConfig) {
+			var trigger = new Trigger(triggerConfig);
+
+			_.find($scope.triggerTypes, {
+				id: trigger.type()
+			}).triggers.push(trigger);
+		});
+
+		viewModel.triggerTypeSelected(_.first($scope.triggerTypes));
 	}
 
-	function syncTriggersWithAppConfig() {
-		viewModel.triggers = viewModel.appConfig.trigger_map ? _.map(viewModel.appConfig.trigger_map, function(triggerConfig) {
-			return new Trigger(triggerConfig);
-		}) : [];
-	}
+	viewModel.triggerTypeSelected = function(triggerType) {
+		if (triggerType !== undefined) {
+			viewModel.selectedTriggerType = triggerType;
+			viewModel.triggerSelected(null);
+		}
+
+		return viewModel.selectedTriggerType;
+	};
 
 	viewModel.triggerSelected = function(trigger) {
 		viewModel.newTriggerIndex = undefined;
@@ -44,37 +88,37 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	};
 
 	viewModel.deleteTriggerSelected = function(trigger) {
-		var index = _.indexOf(viewModel.triggers, trigger);
-		viewModel.appConfig.trigger_map.splice(index, 1);
-		if (_.isEmpty(viewModel.appConfig.trigger_map)) {
-			delete viewModel.appConfig["trigger_map"];
-		}
-		syncTriggersWithAppConfig();
+		var index = _.indexOf(viewModel.selectedTriggerType.triggers, trigger);
+		viewModel.selectedTriggerType.triggers.splice(index, 1);
 
 		viewModel.triggerSelected(null);
 	};
 
 	viewModel.addTriggerSelectedAtIndex = function(index) {
 		var newTrigger = new Trigger();
-		newTrigger.type("push");
+		newTrigger.type(viewModel.selectedTriggerType.id);
 
 		viewModel.editedTrigger = newTrigger;
 		viewModel.newTriggerIndex = index;
 	};
 
 	viewModel.triggerEditFinished = function() {
-		if (!viewModel.appConfig.trigger_map) {
-			viewModel.appConfig.trigger_map = [];
-		}
+		var triggerType = _.find($scope.triggerTypes, {
+			id: viewModel.editedTrigger.type()
+		});
+
+		var index;
 
 		if (viewModel.selectedTrigger) {
-			var index = _.indexOf(viewModel.triggers, viewModel.selectedTrigger);
-			viewModel.appConfig.trigger_map.splice(index, 1, viewModel.editedTrigger.triggerConfig);
+			index = _.contains(triggerType.triggers, viewModel.selectedTrigger) ? _.indexOf(triggerType.triggers, viewModel.selectedTrigger) : triggerType.triggers.length;
+
+			viewModel.selectedTriggerType.triggers.splice(_.indexOf(viewModel.selectedTriggerType.triggers, viewModel.selectedTrigger), 1);
 		}
 		else {
-			viewModel.appConfig.trigger_map.splice(viewModel.newTriggerIndex, 0, viewModel.editedTrigger.triggerConfig);
+			index = viewModel.newTriggerIndex;
 		}
-		syncTriggersWithAppConfig();
+
+		triggerType.triggers.splice(index, 0, viewModel.editedTrigger);
 
 		viewModel.triggerSelected(null);
 	};
@@ -84,9 +128,11 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
-		if (_.any(viewModel.triggers, function(aTrigger) {
-			return !_.find(viewModel.workflows, function(aWorkflow) {
-				return aWorkflow.id == aTrigger.workflowID();
+		if (_.any(viewModel.triggerTypes, function(aTriggerType) {
+			return _.any(viewModel.triggerType.triggers, function(aTrigger) {
+				return !_.find(viewModel.workflows, {
+					id: aTrigger.workflowID()
+				});
 			});
 		})) {
 			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:triggers][:trigger_with_invalid_workflow] %>"));
