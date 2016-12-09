@@ -132,7 +132,7 @@ app_env_vars:
   title: App Environment Variables
   notification: "Warning: App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
 triggers:
-  add: + Add trigger
+  add: Add trigger
   push_branch: Push branch
   source_branch: Source branch
   target_branch: Target branch
@@ -140,7 +140,7 @@ triggers:
   workflow: Workflow
   types:
     push: Push
-    pull_request: PR
+    pull_request: Pull request
     tag: Tag
   delete: Delete
   done: Done

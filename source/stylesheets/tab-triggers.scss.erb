@@ -1,0 +1,226 @@
+@import "default";
+@import "constants";
+
+.tab-triggers {
+
+	.type-filter {
+		$border: 1px solid $def-green;
+
+		@include display-flex;
+		border: $border;
+		@include border-radius($def-radius);
+
+		.type {
+			@include flex-grow(1);
+			position: relative;
+			color: $def-green;
+
+			input[type="radio"] {
+				@include position(absolute, 0, 0);
+				@include size(100%);
+				margin: 0;
+				opacity: 0;
+			}
+
+			label {
+				display: block;
+				padding: 12px 15px;
+				text-align: center;
+				font-size: 14px;
+				font-weight: 200;
+				color: $def-green;
+				text-transform: uppercase;
+				@include transition(color $def-transition_duration, background-color $def-transition_duration);
+			}
+
+			input[type="radio"]:checked + label, input[type="radio"]:hover + label, input[type="radio"]:focus + label {
+				background-color: $def-green;
+				color: white;
+			}
+		}
+
+		.type:not(:first-child) {
+			border-left: $border;
+		}
+	}
+
+	ul {
+		$entry_height: 62px;
+		$deletebutton_size: $entry_height;
+		$spacing: 10px;
+
+		padding-left: 0;
+		list-style: none;
+
+		li {
+			position: relative;
+			padding-right: $deletebutton_size;
+
+			button.add-trigger {
+				border: 1px solid $def-green;
+				@include border-radius($def-radius);
+				padding: 6px;
+				font-size: 12px;
+				font-weight: 200;
+				color: $def-green;
+				text-transform: uppercase;
+				@include transition(color $def-transition_duration, background-color $def-transition_duration);
+				background-color: $def-green-verylight;
+
+				&:before {
+					content: "+";
+					margin-right: 8px;
+				}
+			}
+
+			button.add-trigger:hover, button.add-trigger:focus {
+				color: white;
+				background-color: $def-green;
+			}
+
+			button.add-trigger, .trigger button.select-trigger span.trigger-info {
+				@include box-sizing(border-box);
+				width: 50%;
+			}
+
+			.add-trigger + .trigger {
+				margin-top: $spacing;
+			}
+
+			.trigger {
+
+				button.select-trigger {
+					$transition_duration: $def-transition_duration;
+
+					width: 100%;
+					background-color: $def-lightgrey;
+					@include transition(background-color $transition_duration);
+
+					span.trigger-info {
+						@include display-inline-flex;
+						@include flex-direction(column);
+						@include justify-content(center);
+						@include box-sizing(border-box);
+						height: $entry_height;
+						vertical-align: middle;
+						@include padding-x(15px);
+						text-align: left;
+						@include transition(background-color $transition_duration);
+
+						strong.value {
+							@include ellipsis-oneliner;
+						}
+
+						&:before {
+							@include transition(background-color $transition_duration);
+						}
+					}
+
+					span.pattern {
+						$icon_size: 40px;
+
+						position: relative;
+						padding-left: $icon_size;
+						background-color: $def-verylightgrey;
+
+						&:before {
+							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
+								fill: $def-darkgrey
+							));
+
+							content: "";
+							@include position(absolute, 0, null, null, 0);
+							@include size($icon_size, 100%);
+							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+							background-size: auto 25px;
+							background-repeat: no-repeat;
+							background-position: center;
+						}
+					}
+
+					span.pull-request {
+
+						span.source, span.target {
+							@include display-flex;
+
+							span.label {
+								@include flex-shrink(0);
+								@include box-sizing(border-box);
+								width: 120px;
+								margin-right: 5px;
+								@include border-radius($def-radius);
+								@include padding-y(2px);
+								text-align: center;
+								font-size: 12px;
+								text-transform: uppercase;
+								font-weight: 100;
+								background-color: $def-green;
+								color: white;
+							}
+						}
+
+						span.source + span.target {
+							margin-top: 2px;
+						}
+					}
+
+					svg {
+						$width: 16px;
+
+						@include margin-x(0.5 * ($entry_height - $width));
+						@include size($width, 10px);
+					}
+
+					span.workflow {
+						margin-left: - $entry_height;
+						border-left: $entry_height solid transparent;
+						background-color: $def-green-verylight;
+						background-clip: padding-box;
+					}
+				}
+
+				button.select-trigger:hover, button.select-trigger:focus {
+					background-color: $def-grey;
+
+					.pattern {
+						background-color: $def-lightgrey;
+					}
+
+					.workflow {
+						background-color: $def-green-light;
+
+						&:before {
+							background-color: $def-grey;
+						}
+					}
+				}
+
+				button.delete {
+					@include position(absolute, null, 0, 0);
+					@include size($entry_height);
+
+					svg {
+						@include size(18px, 19px);
+						fill: $def-grey;
+						@include transition(fill $def-transition_duration);
+					}
+				}
+
+				button.delete:hover, button.delete:focus {
+
+					svg {
+						fill: $def-danger;
+					}
+				}
+			}
+		}
+
+		li:not(:last-child) {
+			margin-bottom: $spacing;
+		}
+	}
+
+	ul.drag-in-progress li button.add-trigger {
+		visibility: hidden;
+	}
+}

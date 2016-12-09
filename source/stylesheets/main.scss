@@ -42,7 +42,7 @@ body {
 	margin: 0;
 }
 
-button, input[type="submit"] {
+button, input[type="submit"], input[type="radio"] {
 	cursor: pointer;
 
 	&:disabled {

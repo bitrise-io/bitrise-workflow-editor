@@ -110,8 +110,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		var index;
 
 		if (viewModel.selectedTrigger) {
-			index = _.contains(triggerType.triggers, viewModel.selectedTrigger) ? _.indexOf(triggerType.triggers, viewModel.selectedTrigger) : triggerType.triggers.length;
-
+			index = _.indexOf(triggerType.triggers, viewModel.selectedTrigger);
 			viewModel.selectedTriggerType.triggers.splice(_.indexOf(viewModel.selectedTriggerType.triggers, viewModel.selectedTrigger), 1);
 		}
 		else {
