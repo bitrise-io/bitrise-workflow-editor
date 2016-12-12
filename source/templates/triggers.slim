@@ -1,7 +1,7 @@
 .tab-triggers[ng-controller="TriggersController as triggersCtrl"]
 	.type-filter
 		.type[ng-repeat="triggerType in triggerTypes" ng-init="id = 'trigger-type-filter-' + triggerType.id"]
-			input[type="radio" ng-model="triggersCtrl.triggerTypeSelected" ng-model-options="{getterSetter: true}" id="{{ id }}" ng-value="triggerType"]
+			input[type="radio" ng-model="triggersCtrl.triggerTypeSelected" ng-model-options="{getterSetter: true}" id="{{ id }}" ng-value="triggerType" tabindex="{{ triggerType == triggersCtrl.selectedTriggerType ? '-1' : '0' }}"]
 			label[for="{{ id }}" ng-bind="triggerType.id | displayNameForTriggerType"]
 	ul[order-by-drag models="triggersCtrl.selectedTriggerType.triggers" draggable-selector="':not(.no-trigger)'"]
 		li[ng-repeat="trigger in triggersCtrl.selectedTriggerType.triggers.concat(null)" ng-class="{'no-trigger': trigger == null}"]

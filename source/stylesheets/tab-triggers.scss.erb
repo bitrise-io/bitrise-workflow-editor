@@ -88,6 +88,7 @@
 			}
 
 			.trigger {
+				@include display-flex;
 
 				button.select-trigger {
 					$transition_duration: $def-transition_duration;
@@ -124,17 +125,38 @@
 						background-color: $def-verylightgrey;
 
 						&:before {
+							content: "";
+							@include position(absolute, 0, null, null, 0);
+							@include size($icon_size, 100%);
+							background-repeat: no-repeat;
+							background-position: center;
+						}
+
+						&.push:before {
 							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
 								fill: $def-darkgrey
 							));
 
-							content: "";
-							@include position(absolute, 0, null, null, 0);
-							@include size($icon_size, 100%);
 							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
-							background-size: auto 25px;
-							background-repeat: no-repeat;
-							background-position: center;
+							background-size: auto 24px;
+						}
+
+						&.pull-request:before {
+							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-pull_request") %>', (
+								fill: $def-darkgrey
+							));
+
+							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+							background-size: auto 22px;
+						}
+
+						&.tag:before {
+							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-tag") %>', (
+								fill: $def-darkgrey
+							));
+
+							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+							background-size: auto 20px;
 						}
 					}
 
@@ -164,11 +186,13 @@
 						}
 					}
 
-					svg {
-						$width: 16px;
+					&:not(.ninja) > svg {
+						$width: 25px;
 
+						@include size($width, 15px);
 						@include margin-x(0.5 * ($entry_height - $width));
-						@include size($width, 10px);
+						vertical-align: middle;
+						fill: $def-darkgrey;
 					}
 
 					span.workflow {
@@ -196,8 +220,11 @@
 				}
 
 				button.delete {
-					@include position(absolute, null, 0, 0);
-					@include size($entry_height);
+					$width: $deletebutton_size;
+
+					@include position(relative, null, 0, 0, $width);
+					width: $width;
+					margin-left: - $width;
 
 					svg {
 						@include size(18px, 19px);
@@ -213,6 +240,35 @@
 					}
 				}
 			}
+
+			@include media-below-mid {
+
+				button.add-trigger {
+					width: 100%;
+				}
+
+				.trigger {
+
+					button.select-trigger {
+
+						span.trigger-info {
+							@include display-flex;
+							width: auto;
+						}
+
+						&:not(.ninja) > svg {
+							display: block;
+							margin: 15px auto;
+							@include transform(rotate(90deg));
+						}
+
+						span.workflow {
+							margin-left: 0;
+							border-left: none;
+						}
+					}
+				}
+			}
 		}
 
 		li:not(:last-child) {
@@ -220,7 +276,21 @@
 		}
 	}
 
-	ul.drag-in-progress li button.add-trigger {
-		visibility: hidden;
+	ul.drag-in-progress li {
+
+		button.add-trigger {
+			visibility: hidden;
+		}
+
+		.trigger {
+
+			button.delete {
+				visibility: hidden;
+			}
+		}
+	}
+
+	ul.drag-in-progress li.dragged-element {
+		z-index: $zindex-dragged_element;
 	}
 }
