@@ -53,6 +53,9 @@
 		list-style: none;
 
 		li {
+			$manage_trigger-border: 1px solid $def-lightgrey;
+			$manage_trigger-border_radius: $def-radius;
+
 			position: relative;
 			padding-right: $deletebutton_size;
 
@@ -111,22 +114,19 @@
 				}
 
 				.manage-trigger {
-					$border: 1px solid $def-lightgrey;
-					$border_radius: $def-radius;
-
 					@include display-flex;
 					@include align-items(center);
-					@include border-radius($border_radius);
+					@include border-radius($manage_trigger-border_radius);
 					overflow: hidden;
 
-					span.pattern {
+					.pattern {
 						@include flex-shrink(0);
-						border: $border;
+						border: $manage_trigger-border;
 						border-right: none;
-						@include border-left-radius($border_radius);
+						@include border-left-radius($manage_trigger-border_radius);
 					}
 
-					span.pattern.push, span.pattern.tag {
+					.pattern.push, .pattern.tag {
 						@include display-inline-flex;
 						@include align-items(center);
 						background-color: white;
@@ -149,7 +149,7 @@
 						}
 					}
 
-					span.pattern.pull-request {
+					.pattern.pull-request {
 						display: inline-block;
 					}
 
@@ -158,10 +158,10 @@
 					}
 
 					select.workflow {
-						border: $border;
+						border: $manage_trigger-border;
 						border-left: none;
 						@include border-left-radius(0);
-						@include border-right-radius($border_radius);
+						@include border-right-radius($manage_trigger-border_radius);
 					}
 				}
 
@@ -313,10 +313,9 @@
 
 				.trigger {
 
-					button.select-trigger {
+					.manage-trigger, button.select-trigger {
 
-						span.trigger-info {
-							@include display-flex;
+						.trigger-info {
 							width: auto;
 						}
 
@@ -324,6 +323,32 @@
 							display: block;
 							margin: 15px auto;
 							@include transform(rotate(90deg));
+						}
+					}
+
+					.manage-trigger {
+						@include flex-direction(column);
+						@include align-items(stretch);
+
+						.pattern {
+							border: $manage_trigger-border;
+							border-bottom: none;
+							@include border-top-radius($manage_trigger-border_radius);
+							@include border-bottom-radius(0);
+						}
+
+						select.workflow {
+							border: $manage_trigger-border;
+							border-top: none;
+							@include border-top-radius(0);
+							@include border-bottom-radius($manage_trigger-border_radius);
+						}
+					}
+
+					button.select-trigger {
+
+						span.trigger-info {
+							@include display-flex;
 						}
 
 						span.workflow {

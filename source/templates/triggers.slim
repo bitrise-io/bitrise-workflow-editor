@@ -8,17 +8,17 @@
 			button.add-trigger[ng-if="triggersCtrl.newTriggerIndex !== $index" ng-click="triggersCtrl.addTriggerSelectedAtIndex($index)" ng-disabled="triggersCtrl.editedTrigger"] == data[:strings][:triggers][:add]
 			.trigger[ng-if="trigger != null"]
 				.manage-trigger[ng-if="(trigger == triggersCtrl.selectedTrigger) || (triggersCtrl.newTriggerIndex === $index)" ng-switch="trigger.type()"]
-					span.trigger-info.pattern.push[ng-switch-when="push"]
+					.trigger-info.pattern.push[ng-switch-when="push"]
 						label == data[:strings][:triggers][:push_branch]
 						input.value[type="text" ng-model="trigger.pushBranchPattern" ng-model-options="{getterSetter: true}"]
-					span.trigger-info.pattern.pull-request[ng-switch-when="pull-request"]
-						span.source
+					.trigger-info.pattern.pull-request[ng-switch-when="pull-request"]
+						.source
 							label == data[:strings][:triggers][:source_branch]
 							input.value[type="text" ng-model="trigger.pullRequestSourceBranchPattern" ng-model-options="{getterSetter: true}"]
-						span.target
+						.target
 							label == data[:strings][:triggers][:target_branch]
 							input.value[type="text" ng-model="trigger.pullRequestTargetBranchPattern" ng-model-options="{getterSetter: true}"]
-					span.trigger-info.pattern.tag[ng-switch-when="tag"]
+					.trigger-info.pattern.tag[ng-switch-when="tag"]
 						label == data[:strings][:triggers][:tag]
 						input.value[type="text" ng-model="trigger.tagPattern" ng-model-options="{getterSetter: true}"]
 					= svg("arrow_tailed_slim-down")
