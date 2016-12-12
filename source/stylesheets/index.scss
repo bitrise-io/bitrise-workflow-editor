@@ -26,18 +26,29 @@ main {
 			margin-right: auto;
 
 			a {
-				$border_width: 4px;
 
+				&:before {
+					$border_width: 4px;
+					
+					content: "";
+					@include position(absolute, 100%, 0);
+					@include size(100%);
+					border-top: $border_width solid $def-green;
+					@include border-top-radius($border_width);
+					background-color: white;
+					@include transition(top $def-transition_duration);
+				}
+
+				position: relative;
 				@include display-flex;
 				@include align-items(center);
-				border-top: $border_width solid transparent;
-				@include border-top-radius($border_width);
 				padding: $menubutton_verticalpadding 30px;
 				text-align: center;
 				font-size: 14px;
 				font-weight: 300;
 				color: $def-mediumdarkgrey;
 				text-decoration: none;
+				overflow: hidden;
 
 				span.icon {
 					@include display-flex;
@@ -51,7 +62,7 @@ main {
 				}
 
 				span.title {
-
+					position: relative;
 				}
 			}
 
@@ -78,9 +89,11 @@ main {
 			a.current {
 				$color: black;
 
-				border-top-color: $def-green;
-				background-color: white;
 				color: $color;
+
+				&:before {
+					top: 0;
+				}
 
 				span.icon svg {
 					fill: $color;
