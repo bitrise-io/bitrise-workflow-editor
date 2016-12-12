@@ -69,7 +69,9 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			}).triggers.push(trigger);
 		});
 
-		viewModel.triggerTypeSelected(_.first($scope.triggerTypes));
+		if (!viewModel.selectedTriggerType) {
+			viewModel.triggerTypeSelected(_.first($scope.triggerTypes));
+		}
 	}
 
 	viewModel.triggerTypeSelected = function(triggerType) {
@@ -84,7 +86,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.triggerSelected = function(trigger) {
 		viewModel.newTriggerIndex = undefined;
 		viewModel.selectedTrigger = trigger;
-		viewModel.editedTrigger = viewModel.selectedTrigger;
+		viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
 	};
 
 	viewModel.deleteTriggerSelected = function(trigger) {
@@ -97,38 +99,48 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.addTriggerSelectedAtIndex = function(index) {
 		var newTrigger = new Trigger();
 		newTrigger.type(viewModel.selectedTriggerType.id);
+		newTrigger.workflowID(_.first(viewModel.workflows).id);
 
-		viewModel.editedTrigger = newTrigger;
+		viewModel.selectedTriggerType.triggers.splice(index, 0, newTrigger);
+
+		viewModel.triggerSelected(newTrigger);
 		viewModel.newTriggerIndex = index;
 	};
 
 	viewModel.triggerEditFinished = function() {
-		var triggerType = _.find($scope.triggerTypes, {
-			id: viewModel.editedTrigger.type()
-		});
+		viewModel.selectedTrigger.workflowID(viewModel.editedTrigger.workflowID());
 
-		var index;
+		switch (viewModel.selectedTrigger.type()) {
+			case "push":
+				viewModel.selectedTrigger.pushBranchPattern(viewModel.editedTrigger.pushBranchPattern());
 
-		if (viewModel.selectedTrigger) {
-			index = _.indexOf(triggerType.triggers, viewModel.selectedTrigger);
-			viewModel.selectedTriggerType.triggers.splice(_.indexOf(viewModel.selectedTriggerType.triggers, viewModel.selectedTrigger), 1);
+				break;
+			case "pull-request":
+				viewModel.selectedTrigger.pullRequestSourceBranchPattern(viewModel.editedTrigger.pullRequestSourceBranchPattern());
+				viewModel.selectedTrigger.pullRequestTargetBranchPattern(viewModel.editedTrigger.pullRequestTargetBranchPattern());
+
+				break;
+			case "tag":
+				viewModel.selectedTrigger.tagPattern(viewModel.editedTrigger.tagPattern());
+
+				break;
 		}
-		else {
-			index = viewModel.newTriggerIndex;
-		}
-
-		triggerType.triggers.splice(index, 0, viewModel.editedTrigger);
-
+		
 		viewModel.triggerSelected(null);
 	};
 
 	viewModel.triggerEditCancelled = function() {
-		viewModel.triggerSelected(null);
+		if (viewModel.newTriggerIndex !== undefined) {
+			viewModel.deleteTriggerSelected(viewModel.selectedTrigger);
+		}
+		else {
+			viewModel.triggerSelected(null);
+		}
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
 		if (_.any(viewModel.triggerTypes, function(aTriggerType) {
-			return _.any(viewModel.triggerType.triggers, function(aTrigger) {
+			return _.any(aTriggerType.triggers, function(aTrigger) {
 				return !_.find(viewModel.workflows, {
 					id: aTrigger.workflowID()
 				});

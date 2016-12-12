@@ -45,7 +45,7 @@
 	}
 
 	ul {
-		$entry_height: 56px;
+		$entry_height: 60px;
 		$deletebutton_size: $entry_height;
 		$spacing: 10px;
 
@@ -76,6 +76,10 @@
 				}
 			}
 
+			button.add-trigger:disabled {
+				visibility: hidden;
+			}
+
 			button.add-trigger:hover, button.add-trigger:focus {
 				color: white;
 				background-color: $def-green;
@@ -95,7 +99,7 @@
 
 				@include display-flex;
 
-				.manage-trigger, button.select-trigger {
+				.manage-trigger .trigger-infos, button.select-trigger {
 					background-color: $def-lightgrey;
 
 					.trigger-info {
@@ -114,54 +118,113 @@
 				}
 
 				.manage-trigger {
-					@include display-flex;
-					@include align-items(center);
-					@include border-radius($manage_trigger-border_radius);
-					overflow: hidden;
+					width: 100%;
 
-					.pattern {
-						@include flex-shrink(0);
-						border: $manage_trigger-border;
-						border-right: none;
-						@include border-left-radius($manage_trigger-border_radius);
-					}
-
-					.pattern.push, .pattern.tag {
-						@include display-inline-flex;
+					.trigger-infos {
+						@include display-flex;
 						@include align-items(center);
-						background-color: white;
+						@include border-radius($manage_trigger-border_radius);
+						overflow: hidden;
 
-						label {
-							font-size: 12px;
-							text-transform: uppercase;
-							color: $def-grey;
+						.pattern {
+							@include flex-shrink(0);
+							border: $manage_trigger-border;
+							border-right: none;
+							@include border-left-radius($manage_trigger-border_radius);
+							background-color: white;
 
-							&:after {
-								content: ":";
-								margin-right: 15px;
+							label {
+								font-size: 12px;
+								text-transform: uppercase;
+								color: $def-grey;
+
+								&:after {
+									content: ":";
+									margin-right: 15px;
+								}
+							}
+
+							input.value {
+								@include flex-grow(1);
+								@include align-self(stretch);
+								border: none;
 							}
 						}
 
-						input.value {
-							@include flex-grow(1);
-							@include align-self(stretch);
-							border: none;
+						.pattern.push, .pattern.tag {
+							@include display-inline-flex;
+							@include align-items(center);
+						}
+
+						.pattern.pull-request {
+							@include display-inline-flex;
+							@include flex-direction(column);
+							@include padding-x(0);
+
+							.source, .target {
+								@include flex-grow(1);
+								@include display-flex;
+								@include align-items(center);
+								@include padding-x(20px);
+
+								label {
+									width: 130px;
+								}
+							}
+
+							&:not(.ninja) > :not(:last-child) {
+								border-bottom: $manage_trigger-border;
+							}
+						}
+
+						&:not(.ninja) > svg {
+							@include flex-shrink(0);
+						}
+
+						select.workflow {
+							border: $manage_trigger-border;
+							border-left: none;
+							@include border-left-radius(0);
+							@include border-right-radius($manage_trigger-border_radius);
 						}
 					}
 
-					.pattern.pull-request {
-						display: inline-block;
-					}
+					.actions {
+						@include display-flex;
+						width: 50%;
+						margin-top: $spacing;
 
-					&:not(.ninja) > svg {
-						@include flex-shrink(0);
-					}
+						button {
+							@include flex-grow(1);
 
-					select.workflow {
-						border: $manage_trigger-border;
-						border-left: none;
-						@include border-left-radius(0);
-						@include border-right-radius($manage_trigger-border_radius);
+							@include border-radius($def-radius);
+							padding: 10px;
+							font-size: 12px;
+							font-weight: 100;
+							@include transition(background-color $def-transition_duration);
+						}
+
+						button:not(:last-child) {
+							margin-right: $spacing;
+						}
+
+						button.done {
+							background-color: $def-green;
+							color: white;
+						}
+
+						button.done:hover {
+							background-color: $def-green-shade;
+						}
+
+						button.cancel {
+							background-color: $def-grey;
+							color: white;
+						}
+
+						button.cancel:hover {
+							background-color: $def-mediumdarkgrey;
+						}
 					}
 				}
 
@@ -313,7 +376,7 @@
 
 				.trigger {
 
-					.manage-trigger, button.select-trigger {
+					.manage-trigger .trigger-infos, button.select-trigger {
 
 						.trigger-info {
 							width: auto;
@@ -327,21 +390,28 @@
 					}
 
 					.manage-trigger {
-						@include flex-direction(column);
-						@include align-items(stretch);
 
-						.pattern {
-							border: $manage_trigger-border;
-							border-bottom: none;
-							@include border-top-radius($manage_trigger-border_radius);
-							@include border-bottom-radius(0);
+						.trigger-infos {
+							@include flex-direction(column);
+							@include align-items(stretch);
+
+							.pattern {
+								border: $manage_trigger-border;
+								border-bottom: none;
+								@include border-top-radius($manage_trigger-border_radius);
+								@include border-bottom-radius(0);
+							}
+
+							select.workflow {
+								border: $manage_trigger-border;
+								border-top: none;
+								@include border-top-radius(0);
+								@include border-bottom-radius($manage_trigger-border_radius);
+							}
 						}
 
-						select.workflow {
-							border: $manage_trigger-border;
-							border-top: none;
-							@include border-top-radius(0);
-							@include border-bottom-radius($manage_trigger-border_radius);
+						.actions {
+							width: auto;
 						}
 					}
 
