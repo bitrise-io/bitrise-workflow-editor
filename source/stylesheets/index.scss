@@ -122,6 +122,7 @@ main {
 
 		aside {
 			@include display-flex;
+			margin-left: 10px;
 			padding-bottom: $menubutton_verticalpadding;
 
 			button {
@@ -182,6 +183,7 @@ main {
 			aside {
 				@include order(1);
 				@include align-self(flex-end);
+				margin-left: 0;
 			}
 		}
 
