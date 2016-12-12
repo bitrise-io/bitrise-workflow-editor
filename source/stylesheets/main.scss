@@ -19,9 +19,9 @@
 	outline: none;
 }
 
-input::-moz-focus-inner, button::-moz-focus-inner {
+input::-moz-focus-inner, button::-moz-focus-inner, select::-moz-focus-inner {
 	border: 0;
-	padding:0
+	padding: 0;
 }
 
 select:-moz-focusring {
@@ -72,7 +72,7 @@ select {
 	border: 1px solid $def-mediumlightgrey;
 	@include border-radius($def-radius);
 	padding: 7px $select-horizontalpadding;
-	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding;
+	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
 	font-family: Verdana;
 	font-size: 14px;
 	@include transition(background-color $def-transition_duration);

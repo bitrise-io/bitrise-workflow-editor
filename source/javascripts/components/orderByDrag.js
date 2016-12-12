@@ -20,6 +20,10 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 					return;
 				}
 
+				if (attrs.disableOrderOn && $parse(attrs.disableOrderOn)(scope)) {
+					return;
+				}
+
 				for (selectedElement = event.target; selectedElement && !_.contains($(element).children(draggableSelector), selectedElement); selectedElement = selectedElement.parentNode);
 				$(selectedElement).off("mousedown", mousedownHandler);
 

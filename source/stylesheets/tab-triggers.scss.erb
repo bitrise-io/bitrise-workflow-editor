@@ -45,7 +45,7 @@
 	}
 
 	ul {
-		$entry_height: 62px;
+		$entry_height: 56px;
 		$deletebutton_size: $entry_height;
 		$spacing: 10px;
 
@@ -78,7 +78,7 @@
 				background-color: $def-green;
 			}
 
-			button.add-trigger, .trigger button.select-trigger span.trigger-info {
+			button.add-trigger, .trigger .trigger-info {
 				@include box-sizing(border-box);
 				width: 50%;
 			}
@@ -88,13 +88,89 @@
 			}
 
 			.trigger {
+				$arrow-reserved_width: 80px;
+
 				@include display-flex;
+
+				.manage-trigger, button.select-trigger {
+					background-color: $def-lightgrey;
+
+					.trigger-info {
+						height: $entry_height;
+						@include padding-x(15px);
+					}
+
+					&:not(.ninja) > svg {
+						$width: 16px;
+
+						@include size($width, 10px);
+						@include margin-x(0.5 * ($arrow-reserved_width - $width));
+						vertical-align: middle;
+						fill: $def-darkgrey;
+					}
+				}
+
+				.manage-trigger {
+					$border: 1px solid $def-lightgrey;
+					$border_radius: $def-radius;
+
+					@include display-flex;
+					@include align-items(center);
+					@include border-radius($border_radius);
+					overflow: hidden;
+
+					span.pattern {
+						@include flex-shrink(0);
+						border: $border;
+						border-right: none;
+						@include border-left-radius($border_radius);
+					}
+
+					span.pattern.push, span.pattern.tag {
+						@include display-inline-flex;
+						@include align-items(center);
+						background-color: white;
+
+						label {
+							font-size: 12px;
+							text-transform: uppercase;
+							color: $def-grey;
+
+							&:after {
+								content: ":";
+								margin-right: 15px;
+							}
+						}
+
+						input.value {
+							@include flex-grow(1);
+							@include align-self(stretch);
+							border: none;
+						}
+					}
+
+					span.pattern.pull-request {
+						display: inline-block;
+					}
+
+					&:not(.ninja) > svg {
+						@include flex-shrink(0);
+					}
+
+					select.workflow {
+						border: $border;
+						border-left: none;
+						@include border-left-radius(0);
+						@include border-right-radius($border_radius);
+					}
+				}
 
 				button.select-trigger {
 					$transition_duration: $def-transition_duration;
 
 					width: 100%;
-					background-color: $def-lightgrey;
+					overflow: hidden;
+					@include border-radius($def-radius);
 					@include transition(background-color $transition_duration);
 
 					span.trigger-info {
@@ -102,18 +178,13 @@
 						@include flex-direction(column);
 						@include justify-content(center);
 						@include box-sizing(border-box);
-						height: $entry_height;
+						
 						vertical-align: middle;
-						@include padding-x(15px);
 						text-align: left;
 						@include transition(background-color $transition_duration);
 
 						strong.value {
 							@include ellipsis-oneliner;
-						}
-
-						&:before {
-							@include transition(background-color $transition_duration);
 						}
 					}
 
@@ -130,6 +201,7 @@
 							@include size($icon_size, 100%);
 							background-repeat: no-repeat;
 							background-position: center;
+							@include transition(background-color $transition_duration);
 						}
 
 						&.push:before {
@@ -186,18 +258,9 @@
 						}
 					}
 
-					&:not(.ninja) > svg {
-						$width: 25px;
-
-						@include size($width, 15px);
-						@include margin-x(0.5 * ($entry_height - $width));
-						vertical-align: middle;
-						fill: $def-darkgrey;
-					}
-
 					span.workflow {
-						margin-left: - $entry_height;
-						border-left: $entry_height solid transparent;
+						margin-left: - $arrow-reserved_width;
+						border-left: $arrow-reserved_width solid transparent;
 						background-color: $def-green-verylight;
 						background-clip: padding-box;
 					}
@@ -223,6 +286,7 @@
 					$width: $deletebutton_size;
 
 					@include position(relative, null, 0, 0, $width);
+					@include flex-shrink(0);
 					width: $width;
 					margin-left: - $width;
 
