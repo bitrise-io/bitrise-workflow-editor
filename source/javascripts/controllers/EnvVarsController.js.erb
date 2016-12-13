@@ -52,7 +52,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				type: "secrets",
 				notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
 				envVars: _.map(secretConfigs, function(aSecretConfig) {
-					return new Variable(aSecretConfig);
+					return new Variable(aSecretConfig, defaultEnvVarConfig);
 				})
 			}];
 
@@ -76,7 +76,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 						type: "app",
 						warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
 						envVars: _.map(appConfig.app.envs, function(anAppEnvVarConfig) {
-							return new Variable(anAppEnvVarConfig);
+							return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
 						})
 					});
 				}
@@ -87,7 +87,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 						workflowID: aWorkflowID,
 						notification: "<%= data[:strings][:env_vars][:workflow][:notification] %>",
 						envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-							return new Variable(anEnvVarConfig);
+							return new Variable(anEnvVarConfig, defaultEnvVarConfig);
 						})
 					});
 				});
