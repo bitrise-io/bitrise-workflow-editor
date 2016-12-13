@@ -251,7 +251,7 @@ describe("displayNameForTriggerType", function() {
 
 	it("should return trigger type display name", function() {
 		expect($filter("displayNameForTriggerType")("push")).toBe("Push");
-		expect($filter("displayNameForTriggerType")("pull-request")).toBe("PR");
+		expect($filter("displayNameForTriggerType")("pull-request")).toBe("Pull request");
 		expect($filter("displayNameForTriggerType")("tag")).toBe("Tag");
 	});
 

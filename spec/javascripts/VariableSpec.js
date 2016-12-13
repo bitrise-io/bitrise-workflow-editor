@@ -294,6 +294,33 @@ describe("Variable", function() {
 
 	});
 
+	describe("minimizeVariableConfig", function() {
+
+		it("should remove opts if empty", function() {
+			var variable = new Variable({
+				opts: {}
+			});
+
+			Variable.minimizeVariableConfig(variable.userVariableConfig);
+
+			expect(variable.opts).toBeUndefined();
+		});
+
+		it("should leave variable untouched", function() {
+			var variable = new Variable({
+				opts: {
+					title: "Red title"
+				}
+			});
+
+			Variable.minimizeVariableConfig(variable.userVariableConfig);
+
+			expect(variable.userVariableConfig.opts).not.toBeUndefined();
+			expect(variable.userVariableConfig.opts.title).toBe("Red title");
+		});
+
+	});
+
 });
 
 describe("prettifiedVariableKey", function() {

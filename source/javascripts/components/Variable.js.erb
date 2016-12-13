@@ -159,12 +159,12 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		return optionValue;
 	}
 
-	Variable.minimizeConfig = function(secretConfig) {
-		if (aSecretConfig.opts && _.isEmpty(aSecretConfig.opts)) {
-			delete aSecretConfig["opts"];
+	Variable.minimizeVariableConfig = function(variableConfig) {
+		if (variableConfig.opts && _.isEmpty(angular.copy(variableConfig.opts))) {
+			delete variableConfig["opts"];
 		}
 
-		return secretConfig;
+		return variableConfig;
 	};
 
 	return Variable;

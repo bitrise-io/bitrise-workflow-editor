@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step, Variable) {
 
 	var viewModel = this;
 
@@ -103,11 +103,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			});
 		}
 
-		_.each(variableConfigs, function(aVariableConfig) {
-			if (aVariableConfig.opts && _.isEmpty(aVariableConfig.opts)) {
-				delete aVariableConfig["opts"];
-			}
-		});
+		_.each(variableConfigs, Variable.minimizeVariableConfig);
 	}
 
 	$scope.$on("$routeChangeStart", function() {
