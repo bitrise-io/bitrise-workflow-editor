@@ -12,7 +12,6 @@ templates:
   env_vars: /templates/env_vars
   triggers: /templates/triggers
   yml: /templates/yml
-  env_var_editor: /templates/env_var_editor
 website:
   app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
   app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>

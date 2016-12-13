@@ -100,7 +100,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 	viewModel.addToEnvVars = function(envVars) {
 		var newEnvVar = new Variable({
-			"<%= data[:strings][:env_var_editor][:new_default_key] %>": ""
+			"<%= data[:strings][:env_vars][:new_default_key] %>": ""
 		}, defaultEnvVarConfig);
 
 		envVars.push(newEnvVar);
@@ -118,7 +118,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				return anEnvVar.key().length == 0;
 			});
 		})) {
-			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:env_var_editor][:env_var_without_key] %>"));
+			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:env_vars][:env_var_without_key] %>"));
 		};
 	}));
 

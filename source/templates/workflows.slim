@@ -9,7 +9,6 @@
 		section.manage-workflows
 			select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
 			button[ng-click="workflowsCtrl.addWorkflowSelected()"] == data[:strings][:workflows][:add_workflow][:action]
-			button[ng-click="workflowsCtrl.manageWorkflowEnvVarsSelected()"] == data[:strings][:workflows][:manage_workflow_env_vars]
 			button[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"] == data[:strings][:workflows][:add_workflow_after]
 			button[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"] == data[:strings][:workflows][:add_workflow_before]
 			button[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"] == data[:strings][:workflows][:delete_workflow]

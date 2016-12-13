@@ -9,16 +9,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.appConfig;
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
-	var envVarEditorLoadedAndReadyDeferred = $q.defer();
 	viewModel.configureWorkflowsProgress = new Progress();
-
-	viewModel.workflowEnvVarsPopup = new Popup();
-	viewModel.workflowEnvVarsPopup.beforeAppearCallback = function() {
-		if (!viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress) {
-			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress = new Progress();
-			viewModel.workflowEnvVarsPopup.parameters.templateLoadProgress.start("<%= data[:strings][:env_var_editor][:template_load_inprogress] %>");
-		}
-	};
 
 	viewModel.addWorkflowPopup = new Popup({
 		workflowID: ""
@@ -129,23 +120,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			id: viewModel.addWorkflowPopup.parameters.workflowID
 		}));
 	};
-
-	viewModel.manageWorkflowEnvVarsSelected = function() {
-		viewModel.workflowEnvVarsPopup.isVisible = true;
-
-		envVarEditorLoadedAndReadyDeferred.promise.then(function() {
-			$rootScope.$emit("EnvVarsController::configure", {
-				source: "workflow-env-vars",
-				envVars: _.map(viewModel.selectedWorkflow.workflowConfig.envs, function(anEnvVarConfig) {
-					return new Variable(anEnvVarConfig);
-				})
-			});
-		});
-	};
-
-	$scope.$on("$destroy", $rootScope.$on("EnvVarsController::loadedAndReady", function() {
-		envVarEditorLoadedAndReadyDeferred.resolve();
-	}));
 
 	viewModel.addRunWorkflowSelected = function(isBeforeRunMode) {
 		viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode = isBeforeRunMode;

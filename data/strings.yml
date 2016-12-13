@@ -27,7 +27,6 @@ workflows:
     action: + Workflow
     specify_id: "Specify a unique ID for the new Workflow:"
     new_workflow_info: "Note: configuration of the new Workflow will be copied from the currently selected Workflow"
-  manage_workflow_env_vars: Manage Env Vars
   add_workflow_after: Add Workflow after
   add_workflow_before: Add Workflow before
   delete_workflow: Delete Workflow
@@ -128,7 +127,13 @@ env_vars:
   load_progress:
     in_progress: Loading, wait a sec...
   warning: Warning!
+  add_new: Add new
+  replace_variables_label: "Replace variables in inputs?"
   delete_env_var: "Delete"
+  new_default_key: "KEY"
+  env_var_without_key: "One or more Environment Variable does not have key."
+  key_placeholder: "Key"
+  value_placeholder: "Value"
   secrets:
     title: Secret Environment Variables
     notification: "Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
@@ -160,22 +165,6 @@ yml:
   download: Download currently saved config
   load_progress:
     loading: Loading, wait a sec...
-env_var_editor:
-  template_load_inprogress: Loading, wait a sec...
-  add_new: Add new
-  new_default_key: "KEY"
-  edit_variable: Edit Environment Variable
-  no_key: "No key"
-  no_key_warning: "Warning: No key set for the Environment Variable"
-  key_label: "Key:"
-  key_placeholder: "Key"
-  value_label: "Value:"
-  value_placeholder: "Value"
-  replace_variables_label: "Replace variables in inputs?"
-  replace_variables_description: "Enable this if you want to replace Environment Variables in your input with the variable's assigned value."
-  replace_variables_more_info: "More info"
-  delete_env_var: "Delete"
-  env_var_without_key: "One or more Environment Variable does not have key."
 request_service:
   invalid_mode: Invalid mode!
   load_app_config:
