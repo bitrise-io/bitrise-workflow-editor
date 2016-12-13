@@ -5,6 +5,7 @@
 
 @import "index";
 @import "tab-workflows";
+@import "tab-secrets-env_vars";
 @import "tab-triggers";
 
 // Common elements
@@ -155,13 +156,28 @@ select:hover, select:focus {
 	input[type="checkbox"]:not(:checked):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):focus + .checkbox-svg-wrapper {
 		background-color: $def-danger-shade;
 	}
+
+	&.small {
+		@include size(36px, 16px);
+
+		.checkbox-svg-wrapper {
+
+			svg[check] {
+				@include size(10px, 9px);
+				top: 3px;
+				left: 4px;
+			}
+
+			svg[cross] {
+				@include size(8px, 8px);
+				top: 4px;
+				left: 5px;
+			}
+		}
+	}
 }
 
 // Common classes
-
-.uppercase {
-	text-transform: uppercase;
-}
 
 .vertical-scroll {
 	overflow-y: auto;

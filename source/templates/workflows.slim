@@ -4,7 +4,7 @@
 		ul.run-workflows[ng-repeat="runWorkflows in [workflowsCtrl.selectedWorkflow.workflowConfig.before_run, workflowsCtrl.selectedWorkflow.workflowConfig.after_run] track by $index" ng-if="runWorkflows.length > 0" ng-class="$first ? 'before-run' : 'after-run'"]
 			li[ng-repeat="workflowID in runWorkflows track by $index + '-' + workflowID"]
 				button[ng-click="workflowsCtrl.workflowSelectedWithID(workflowID)"]
-					span.uppercase[ng-bind="workflowID"]
+					span.workflow-id[ng-bind="workflowID"]
 					span< == data[:strings][:workflows][:run_workflows][:postfix]
 		section.manage-workflows
 			select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
