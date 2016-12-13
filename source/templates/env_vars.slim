@@ -17,8 +17,8 @@
 			ul.env-vars[order-by-drag models="envVarsOfSource.envVars"]
 				li[ng-repeat="envVar in envVarsOfSource.envVars"]
 					.key-value-delete
-						input.key[type="text" id="env-var-editor-key-input-{{ $index }}" ng-model="envVar.key" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
-						textarea.value[id="env-var-editor-value-textarea-{{ $index }}" ng-model="envVar.value" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
+						input.key[type="text" ng-model="envVar.key" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
+						textarea.value[ng-model="envVar.value" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
 						button.delete[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] = svg("cross")
 					.is-expand
 						checkbox.small[ng-model="envVar.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
