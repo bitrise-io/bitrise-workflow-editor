@@ -124,7 +124,7 @@ type SecretsModel struct {
 }
 
 func loadSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
-	contBytes, err := fileutil.ReadBytesFromFile(bitriseYMLPath.Get())
+	contBytes, err := fileutil.ReadBytesFromFile(secretsYMLPath.Get())
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to read content of .bitrise.secrets.yml file, error: %s", err)
 		return
