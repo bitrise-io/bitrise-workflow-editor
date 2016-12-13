@@ -85,10 +85,6 @@
 								td.key[ng-bind="output | prettifiedVariableKey"]
 								td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
 				button.delete-step[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
-		popup[model="workflowsCtrl.workflowEnvVarsPopup"]
-			.popup-body-manage-workflow-env-vars.vertical-scroll.white
-				p.progress-indicator[progress-model="workflowsCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress"]
-				ng-include[ng-if="workflowsCtrl.workflowEnvVarsPopup.isVisible" src="'#{ template_path(data[:routes][:templates][:env_var_editor]) }'" onload="workflowsCtrl.workflowEnvVarsPopup.parameters.templateLoadProgress.success()"]
 		popup[model="workflowsCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:workflows][:add_workflow][:specify_id]
