@@ -44,10 +44,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			path: "<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>",
 			cssClass: "secrets"
 		}, {
-			id: "app-env-vars",
+			id: "env-vars",
 			title: "<%= data[:strings][:main][:menus][3] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:app_env_vars]) %>",
-			cssClass: "app-env-vars"
+			path: "<%= endpoint_path(data[:routes][:endpoints][:env_vars]) %>",
+			cssClass: "env-vars"
 		}, {
 			id: "triggers",
 			title: "<%= data[:strings][:main][:menus][4] %>",

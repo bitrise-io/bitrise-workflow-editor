@@ -1,9 +1,18 @@
-.env-vars[ng-controller="EnvVarsController as envVarsCtrl" ng-init="envVarsCtrl.configureWithMode('secrets')"]
+.env-vars[ng-controller="EnvVarsController as envVarsCtrl" ng-init="envVarsCtrl.configureWithMode('env-vars')"]
 	p.progress-indicator[progress-model="envVarsCtrl.loadEnvVarsProgress"]
 	section.card[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
-		header
-			h2 == data[:strings][:env_vars][:secrets][:title]
-			p[ng-bind="envVarsOfSource.notification"]
+		div[ng-switch="envVarsOfSource.type"]
+			header[ng-switch-when="app"]
+				h2 == data[:strings][:env_vars][:app][:title]
+			header[ng-switch-when="workflow"]
+				h2
+					span[ng-bind="envVarsOfSource.workflowID"]
+					em == data[:strings][:env_vars][:workflow][:title_postfix]
+				p[ng-bind="envVarsOfSource.notification"]
+		p.notification.warning.no-icon[ng-if="envVarsOfSource.warning"]
+			strong == data[:strings][:env_vars][:warning]
+			br
+			span[ng-bind="envVarsOfSource.warning"]
 		ul.env-vars[order-by-drag="{models: envVarsOfSource.envVars}"]
 			li[ng-repeat="envVar in envVarsOfSource.envVars"]
 				input#env-var-editor-key-input[type="text" ng-model="envVar.key" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:env_var_editor][:key_placeholder] }"]

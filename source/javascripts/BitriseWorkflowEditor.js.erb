@@ -42,8 +42,8 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 		templateUrl: "<%= template_path(data[:routes][:templates][:secrets]) %>",
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:app_env_vars]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:app_env_vars]) %>",
+	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:env_vars]) %>", {
+		templateUrl: "<%= template_path(data[:routes][:templates][:env_vars]) %>",
 	});
 
 	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>", {

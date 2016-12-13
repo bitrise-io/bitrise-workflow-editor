@@ -3,21 +3,25 @@
 
 .notification, .progress-indicator {
 	$padding: 10px;
-	$icon-reserved_size: 20px;
 
 	position: relative;
 	border: 1px solid;
 	@include border-radius($def-progress_indicator-radius);
 	padding: $padding;
-	padding-left: $padding + $icon-reserved_size + $padding;
 	font-size: 14px;
 
-	&:before {
-		content: "";
-		@include position(absolute, 50%, null, null, $padding);
-		background-position: left center;
-		background-size: contain;
-		background-repeat: no-repeat;
+	&:not(.no-icon) {
+		$icon-reserved_size: 20px;
+		
+		padding-left: $padding + $icon-reserved_size + $padding;
+
+		&:before {
+			content: "";
+			@include position(absolute, 50%, null, null, $padding);
+			background-position: left center;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
 	}
 }
 
@@ -58,7 +62,7 @@
 	}
 }
 
-.notification.error, .progress-indicator.error {
+.notification.error, .notification.warning, .progress-indicator.error {
 	@include notification_styling($def-danger, $def-danger-light, '<%= svg("cross") %>', 12px);
 }
 
