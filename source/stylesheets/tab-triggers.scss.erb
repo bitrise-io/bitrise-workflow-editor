@@ -269,7 +269,7 @@
 
 						&.push:before {
 							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
-								fill: $def-darkgrey
+								fill: rgba($def-darkgrey, 0.99)
 							));
 
 							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
@@ -278,7 +278,7 @@
 
 						&.pull-request:before {
 							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-pull_request") %>', (
-								fill: $def-darkgrey
+								fill: rgba($def-darkgrey, 0.99)
 							));
 
 							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
@@ -287,7 +287,7 @@
 
 						&.tag:before {
 							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-tag") %>', (
-								fill: $def-darkgrey
+								fill: rgba($def-darkgrey, 0.99)
 							));
 
 							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
