@@ -2,3 +2,6 @@
 .gows.user.yml
 gin-bin
 custom_yml/
+apiserver/www
+build/
+.bundle/

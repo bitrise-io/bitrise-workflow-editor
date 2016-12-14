@@ -17,6 +17,7 @@ import (
 
 	"strings"
 
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
@@ -244,6 +245,11 @@ func LaunchServer() error {
 	port := envString("PORT", defaultPort)
 	log.Printf("Starting API server at http://localhost:%s", port)
 
+	isServeFilesThroughMiddlemanServer := (envString("USE_MIDDLEMAN_SERVER", "false") == "true")
+	if isServeFilesThroughMiddlemanServer {
+		log.Println(" (!) Serving non api resources through middleman server!")
+	}
+
 	if err := bitriseYMLPath.Set(envString("BITRISE_CONFIG", "bitrise.yml")); err != nil {
 		return fmt.Errorf("Failed to set bitriseYMLPath, error: %s", err)
 	}
@@ -254,7 +260,7 @@ func LaunchServer() error {
 	}
 	secretsYMLPath.Freeze()
 
-	setupRoutes()
+	setupRoutes(isServeFilesThroughMiddlemanServer)
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		return fmt.Errorf("Can't start HTTP listener: %v", err)
@@ -262,7 +268,7 @@ func LaunchServer() error {
 	return nil
 }
 
-func setupRoutes() {
+func setupRoutes(isServeFilesThroughMiddlemanServer bool) {
 	r := mux.NewRouter()
 	//
 	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(loadBitriseYMLHandler)).
@@ -287,10 +293,15 @@ func setupRoutes() {
 
 	//
 	// Anything else: pass to the frontend
-	frontendServerPort := envString("FRONTEND_PORT", defaultFrontendPort)
-	log.Printf("Starting reverse proxy for frontend => http://localhost:%s", frontendServerPort)
-	u, _ := url.Parse("http://localhost:" + frontendServerPort + "/")
-	r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
+	if isServeFilesThroughMiddlemanServer {
+		frontendServerPort := envString("FRONTEND_PORT", defaultFrontendPort)
+		log.Printf("Starting reverse proxy for frontend => http://localhost:%s", frontendServerPort)
+		u, _ := url.Parse("http://localhost:" + frontendServerPort + "/")
+		r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
+	} else {
+		box := rice.MustFindBox("www")
+		r.NotFoundHandler = http.FileServer(box.HTTPBox())
+	}
 
 	//
 	http.Handle("/", r)
