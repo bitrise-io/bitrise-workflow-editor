@@ -33,7 +33,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		configureWithAppConfig(appConfig);
 	}));
 
-	$scope.$on("$destroy", $scope.$watch("triggerTypes", function(triggerTypes) {
+	$scope.$watch("triggerTypes", function(triggerTypes) {
 		if (!viewModel.appConfig) {
 			return;
 		}
@@ -49,7 +49,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		if (_.isEmpty(viewModel.appConfig.trigger_map)) {
 			delete viewModel.appConfig["triggers"];
 		}
-	}, true));
+	}, true);
 
 	function configureWithAppConfig(appConfig) {
 		viewModel.appConfig = appConfig;

@@ -21,7 +21,7 @@ angular.module("BitriseWorkflowEditor").controller("InputController", function($
 
 		viewModel.input = new Variable(userInputConfig, defaultInputConfig);
 
-		$scope.$on("$destroy", $scope.$watch(function() {
+		$scope.$watch(function() {
 			return !viewModel.input.userVariableConfig || _.isEmpty(angular.copy(viewModel.input.userVariableConfig));
 		}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
 			if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
@@ -59,7 +59,7 @@ angular.module("BitriseWorkflowEditor").controller("InputController", function($
 
 				selectedStep.userStepConfig.inputs.push(viewModel.input.userVariableConfig);
 			}
-		}));
+		});
 	};
 
 	viewModel.inputValueBlurred = function(event) {

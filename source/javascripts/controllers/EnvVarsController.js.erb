@@ -12,7 +12,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			is_expand: true
 		}
 	};
+	var envVarsWatchers;
 
+	viewModel.secretConfigs;
+	viewModel.appConfig;
 	viewModel.loadEnvVarsProgress = new Progress();
 	viewModel.envVarsBySource;
 
@@ -48,6 +51,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		viewModel.loadEnvVarsProgress.start("<%= data[:strings][:env_vars][:load_progress][:in_progress] %>");
 
 		requestService.getSecrets().then(function(secretConfigs) {
+			viewModel.secretConfigs = secretConfigs;
+
 			viewModel.envVarsBySource = [{
 				type: "secrets",
 				notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
@@ -57,6 +62,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			}];
 
 			_.first(viewModel.envVarsBySource).savedEnvVars = angular.copy(_.first(viewModel.envVarsBySource).envVars);
+
+			configureEnvVarsWatchers();
 
 			viewModel.loadEnvVarsProgress.success();
 		}, function(error) {
@@ -69,6 +76,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			case "secrets":
 				break;
 			case "env-vars":
+				viewModel.appConfig = appConfig;
 				viewModel.envVarsBySource = [];
 
 				if (appConfig.app.envs) {
@@ -92,10 +100,76 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 					});
 				});
 
+				configureEnvVarsWatchers();
+
 				break;
 		}
 
 		viewModel.loadEnvVarsProgress.success();
+	}
+
+	function configureEnvVarsWatchers() {
+		if (envVarsWatchers) {
+			_.each(envVarsWatchers, function(anEnvVarsWatcher) {
+				anEnvVarsWatcher();
+			});
+		}
+
+		envVarsWatchers = _.map(viewModel.envVarsBySource, function(envVarsOfSource) {
+			return $scope.$watch(function() {
+				return envVarsOfSource;
+			}, function(envVarsOfSource) {
+				switch (envVarsOfSource.type) {
+					case "secrets":
+						if (!viewModel.secretConfigs) {
+							return;
+						}
+
+						viewModel.secretConfigs.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+							return anEnvVar.userVariableConfig;
+						});
+
+						break;
+					case "app":
+						if (!viewModel.appConfig) {
+							return;
+						}
+
+						if (!viewModel.appConfig.app) {
+							viewModel.appConfig.app = {};
+						}
+
+						viewModel.appConfig.app.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+							return anEnvVar.userVariableConfig;
+						});
+
+						if (_.isEmpty(viewModel.appConfig.app.envs)) {
+							delete viewModel.appConfig.app["envs"];
+						}
+
+						if (_.isEmpty(viewModel.appConfig.app)) {
+							delete viewModel.appConfig["app"];
+						}
+
+						break;
+					case "workflow": {
+						if (!viewModel.appConfig) {
+							return;
+						}
+
+						viewModel.appConfig.workflows[envVarsOfSource.workflowID].envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+							return anEnvVar.userVariableConfig;
+						});
+
+						if (_.isEmpty(viewModel.appConfig.workflows[envVarsOfSource.workflowID].envs)) {
+							delete viewModel.appConfig.workflows[envVarsOfSource.workflowID]["envs"];
+						}
+
+						break;
+					}
+				}
+			}, true);
+		});
 	}
 
 	viewModel.addToEnvVars = function(envVars) {
