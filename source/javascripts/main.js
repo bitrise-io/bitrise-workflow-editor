@@ -5,9 +5,9 @@
 //= require angular-sanitize
 //= require angular-animate
 //= require angular-mocks
-//= require elastic
+//= require _elastic
 
-//= require BitriseWorkflowEditor
+//= require _BitriseWorkflowEditor
 //= require_tree ./services/
 //= require_tree ./factories/
 //= require_tree ./filters/

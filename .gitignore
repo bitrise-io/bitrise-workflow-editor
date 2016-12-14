@@ -5,3 +5,4 @@ custom_yml/
 apiserver/www
 build/
 .bundle/
+rice-box.go
