@@ -1,6 +1,4 @@
-# bitrise-workflow-editor
-
-Bitrise Workflow Editor
+# Bitrise Workflow Editor
 
 
 ## Development
