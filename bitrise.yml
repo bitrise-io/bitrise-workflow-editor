@@ -12,8 +12,9 @@ app:
 workflows:
   up-api:
     envs:
-      - BITRISE_CONFIG: "custom_yml/app_config.yml"
-      - BITRISE_SECRETS: "custom_yml/secrets.yml"
+      - TEST_BITRISE_CONFIG_PATH: "$TEST_BITRISE_CONFIG_PATH"
+      - TEST_BITRISE_SECRETS_PATH: "$TEST_BITRISE_SECRETS_PATH"
+      - USE_MIDDLEMAN_SERVER: "true"
     steps:
     - script:
         inputs:
@@ -22,7 +23,40 @@ workflows:
             set -ex
             go get github.com/codegangsta/gin
             gin --port $API_SERVER_PORT
+
+  setup-middleman:
+    steps:
+    - script:
+        deps:
+          apt_get:
+          - name: ruby
+          - name: ruby-dev
+          - name: build-essential
+          - name: nodejs
+          # for nokogiri
+          - name: patch
+          - name: zlib1g-dev
+          - name: liblzma-dev
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle install --path .bundle/inst
+
+  middleman-build:
+    before_run:
+    - setup-middleman
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle exec middleman build --clean --verbose
+
   up-middleman-server:
+    before_run:
+    - setup-middleman
     steps:
     - script:
         inputs:
@@ -30,7 +64,10 @@ workflows:
             #!/bin/bash
             set -ex
             bundle exec middleman server
+
   up-middleman-jasmine:
+    before_run:
+    - setup-middleman
     steps:
     - script:
         inputs:
@@ -47,9 +84,12 @@ workflows:
   ci:
     before_run:
     - _install_test_tools
+    - middleman-build
     - test
 
-  install:
+  go-install:
+    before_run:
+    - assets-precompile
     steps:
     - script:
         inputs:
@@ -79,6 +119,8 @@ workflows:
             godep save ./...
 
   assets-precompile:
+    before_run:
+    - middleman-build
     steps:
     - script:
         inputs:
@@ -86,7 +128,9 @@ workflows:
             #!/bin/bash
             set -ex
             go get github.com/GeertJohan/go.rice/rice
-            cd ./editor
+            rm -rf ./apiserver/www/
+            mv ./build/ ./apiserver/www/
+            cd ./apiserver
             rice embed-go
 
   _install_test_tools:
