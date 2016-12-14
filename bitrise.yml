@@ -155,6 +155,12 @@ workflows:
             set -ex
             no_vendor_paths="$(go list ./... | grep -v vendor)"
             envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
+          opts:
+            # opts, for bitrise.yml parsing test in the workflow editor
+            is_expand: true
+            title: The Script Content - test title
+            is_required: true
+            is_dont_change_value: false
     - script:
         title: Go Test
         inputs:

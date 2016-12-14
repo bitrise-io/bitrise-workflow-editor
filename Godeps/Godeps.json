@@ -21,8 +21,8 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
-			"Comment": "1.1.2-1-g8c4944e",
-			"Rev": "8c4944e61db658e8127766fd7352913732bdf461"
+			"Comment": "1.1.2-5-g0507a11",
+			"Rev": "0507a1109a151ca1b82afe2d1a6109522ddd8298"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/cmdex",
