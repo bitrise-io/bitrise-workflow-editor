@@ -134,9 +134,12 @@
 							background-color: white;
 
 							label {
+								@include order(1);
+								@include flex-shrink(0);
 								font-size: 12px;
 								text-transform: uppercase;
 								color: $def-grey;
+								@include transition(color $def-transition_duration);
 
 								&:after {
 									content: ":";
@@ -145,9 +148,14 @@
 							}
 
 							input.value {
+								@include order(2);
 								@include flex-grow(1);
 								@include align-self(stretch);
 								border: none;
+							}
+
+							input.value.ng-not-empty + label {
+								color: $def-green;
 							}
 						}
 
@@ -424,6 +432,32 @@
 						span.workflow {
 							margin-left: 0;
 							border-left: none;
+						}
+					}
+				}
+			}
+
+			@include media-below-small {
+
+				.trigger {
+
+					.manage-trigger {
+
+						.trigger-infos {
+
+							.pattern.push, .pattern.tag, .pattern.pull-request .source, .pattern.pull-request .target {
+								@include flex-direction(column);
+								@include align-items(flex-start);
+								@include padding-y(12px);
+
+								input.value {
+									height: 32px;
+								}
+							}
+
+							.pattern {
+								height: auto;
+							}
 						}
 					}
 				}

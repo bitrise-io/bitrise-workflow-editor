@@ -14,11 +14,11 @@
 							input.value[type="text" ng-model="triggersCtrl.editedTrigger.pushBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
 						.trigger-info.pattern.pull-request[ng-switch-when="pull-request"]
 							.source
-								label == data[:strings][:triggers][:source_branch]
 								input.value[type="text" ng-model="triggersCtrl.editedTrigger.pullRequestSourceBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+								label == data[:strings][:triggers][:source_branch]
 							.target
-								label == data[:strings][:triggers][:target_branch]
 								input.value[type="text" ng-model="triggersCtrl.editedTrigger.pullRequestTargetBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+								label == data[:strings][:triggers][:target_branch]
 						.trigger-info.pattern.tag[ng-switch-when="tag"]
 							label == data[:strings][:triggers][:tag]
 							input.value[type="text" ng-model="triggersCtrl.editedTrigger.tagPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
