@@ -260,7 +260,9 @@ func LaunchServer() error {
 	}
 	secretsYMLPath.Freeze()
 
-	setupRoutes(isServeFilesThroughMiddlemanServer)
+	if err := setupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
+		return fmt.Errorf("Failed to setup routes, error: %s", err)
+	}
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
 		return fmt.Errorf("Can't start HTTP listener: %v", err)
@@ -268,7 +270,7 @@ func LaunchServer() error {
 	return nil
 }
 
-func setupRoutes(isServeFilesThroughMiddlemanServer bool) {
+func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 	r := mux.NewRouter()
 	//
 	r.HandleFunc("/api/bitrise-yml", WrapHandlerFunc(loadBitriseYMLHandler)).
@@ -296,7 +298,10 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) {
 	if isServeFilesThroughMiddlemanServer {
 		frontendServerPort := envString("FRONTEND_PORT", defaultFrontendPort)
 		log.Printf("Starting reverse proxy for frontend => http://localhost:%s", frontendServerPort)
-		u, _ := url.Parse("http://localhost:" + frontendServerPort + "/")
+		u, err := url.Parse("http://localhost:" + frontendServerPort + "/")
+		if err != nil {
+			return fmt.Errorf("Failed to initialize frontend proxy URL, error: %s", err)
+		}
 		r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
 	} else {
 		box := rice.MustFindBox("www")
