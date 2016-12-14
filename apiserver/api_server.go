@@ -310,6 +310,8 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 
 	//
 	http.Handle("/", r)
+
+	return nil
 }
 
 func rootHandler(w http.ResponseWriter, r *http.Request) {
