@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, Progress, Variable) {
 
 	var viewModel = this;
 
@@ -101,7 +101,9 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 					viewModel.envVarsBySource.push({
 						type: "workflow",
 						workflowID: aWorkflowID,
-						notification: "<%= data[:strings][:env_vars][:workflow][:notification] %>",
+						notification: stringService.stringReplacedWithParameters("<%= data[:strings][:env_vars][:workflow][:notification] %>", {
+							workflow_id: aWorkflowID
+						}),
 						envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
 							return new Variable(anEnvVarConfig, defaultEnvVarConfig);
 						})

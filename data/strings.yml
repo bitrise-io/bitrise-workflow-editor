@@ -141,8 +141,8 @@ env_vars:
     title: App Environment Variables
     warning: "App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
   workflow:
-    title_postfix: Environment Variables
-    notification: "You can specify Env Vars which will only be available for the steps in your Primary Workflow."
+    title_postfix: Workflow Environment Variables
+    notification: "You can specify Env Vars which will only be available for the steps in your <workflow_id> Workflow."
 triggers:
   add: Add trigger
   push_branch: Push branch
