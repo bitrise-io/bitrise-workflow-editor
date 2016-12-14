@@ -11,7 +11,7 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 		latestStepVersions: undefined,
 	};
 
-	bitriseSteplibService.load = function() {
+	bitriseSteplibService.load = function(requestConfig) {
 		if (this.steps) {
 			return $q.when();
 		}
@@ -19,7 +19,7 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 		var self = this;
 
 		return $q(function(resolve, reject) {
-			$http.get(self.sourceURL).then(function(response) {
+			$http.get(self.sourceURL, requestConfig).then(function(response) {
 				try {
 					self.specs = response.data;
 

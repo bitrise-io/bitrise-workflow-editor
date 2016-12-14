@@ -31,7 +31,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 	};
 
-	requestService.getAppConfig = function() {
+	requestService.getAppConfig = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
@@ -49,7 +49,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
@@ -61,7 +61,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.getDefaultOutputs = function() {
+	requestService.getDefaultOutputs = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
@@ -79,7 +79,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
@@ -91,7 +91,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.getSecrets = function() {
+	requestService.getSecrets = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
@@ -109,7 +109,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data.envs);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
@@ -121,7 +121,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.getAppConfigYML = function() {
+	requestService.getAppConfigYML = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
@@ -139,7 +139,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
@@ -158,7 +158,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.postAppConfig = function(appConfig) {
+	requestService.postAppConfig = function(appConfig, requestConfig) {
 		var requestURL;
 		var requestData = {
 			bitrise_yml: appConfig
@@ -179,7 +179,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.post(requestURL, requestData).then(function(response) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
@@ -191,7 +191,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.postSecrets = function(secrets) {
+	requestService.postSecrets = function(secrets, requestConfig) {
 		var requestURL;
 		var requestData = {
 			envs: _.map(secrets, function(aSecret) {
@@ -214,7 +214,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.post(requestURL, requestData).then(function(response) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
@@ -226,7 +226,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.postAppConfigYML = function(appConfigYML) {
+	requestService.postAppConfigYML = function(appConfigYML, requestConfig) {
 		var requestURL;
 		var requestData;
 
@@ -249,7 +249,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 
 		return $q(function(resolve, reject) {
-			$http.post(requestURL, requestData).then(function(response) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {

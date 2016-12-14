@@ -50,11 +50,19 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	function configureWorkflowsFromAppConfig(appConfig) {
 		viewModel.configureWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
 
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
 
 		viewModel.appConfig = appConfig;
 
-		bitriseSteplibService.load().then(function() {
+		bitriseSteplibService.load({
+			timeout: canceler.promise
+		}).then(function() {
 			try {
 				var allWorkflowsLoadedCallbacks = [];
 

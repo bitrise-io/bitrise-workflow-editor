@@ -21,13 +21,21 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	function loadProvProfiles() {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
 
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profiles_get] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});
 
 		$q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			$http.get(requestURL, {
+				timeout: canceler.promise
+			}).then(function(response) {
 				if (!viewModel.provProfiles) {
 					viewModel.provProfiles = _.map(response.data.prov_profile_documents, function(aProvProfileData) {
 						var provProfile = new ProvProfile();
@@ -74,6 +82,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.downloadProvProfile = function(provProfile) {
 		viewModel.provProfileActionProgress.start("<%= data[:strings][:code_signing][:prov_profile][:download_progress][:in_progress] %>");
 
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		viewModel.selectedProvProfile = provProfile;
 
 		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profile_download] %>", {
@@ -82,7 +96,9 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 
 		$q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			$http.get(requestURL, {
+				timeout: canceler.promise
+			}).then(function(response) {
 				viewModel.provProfileActionProgress.success();
 
 				resolve(response.data.expiring_url);
@@ -107,6 +123,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.deleteProvProfile = function(provProfile) {
 		viewModel.provProfileActionProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>");
 
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		viewModel.selectedProvProfile = provProfile;
 
 		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profile_delete] %>", {
@@ -115,7 +137,9 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 
 		$q(function(resolve, reject) {
-			$http.delete(requestURL).then(function(response) {
+			$http.delete(requestURL, {
+				timeout: canceler.promise
+			}).then(function(response) {
 				resolve(response.data.expiring_url);
 			}, function(response) {
 				if (!response || !response.data) {
@@ -153,13 +177,21 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.deleteAllProvProfilesSelected = function() {
 		viewModel.deleteAllProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
 
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:prov_profiles_delete] %>", {
 			app_slug: appSlug,
 			api_token: apiToken
 		});
 
 		$q(function(resolve, reject) {
-			$http.delete(requestURL).then(function(response) {
+			$http.delete(requestURL, {
+				timeout: canceler.promise
+			}).then(function(response) {
 				resolve();
 			}, function(response) {
 				if (!response || !response.data) {

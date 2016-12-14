@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, requestService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, $q, requestService, Progress) {
 
 	var viewModel = this;
 
@@ -14,7 +14,15 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	function loadAppConfigYML() {
 		viewModel.loadAppConfigYMLProgress.start("<%= data[:strings][:yml][:load_progress][:loading] %>");
 
-		requestService.getAppConfigYML().then(function(appConfigYML) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.getAppConfigYML({
+			timeout: canceler.promise
+		}).then(function(appConfigYML) {
 			viewModel.appConfigYML = appConfigYML;
 			savedAppConfigYML = appConfigYML;
 
@@ -25,7 +33,15 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	}
 
 	$scope.$on("$destroy", $rootScope.$on("YMLController::saveAppConfigYML", function(event, resolve, reject) {
-		requestService.postAppConfigYML(viewModel.appConfigYML).then(function(appConfigYML) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.postAppConfigYML(viewModel.appConfigYML, {
+			timeout: canceler.promise
+		}).then(function(appConfigYML) {
 			resolve();
 
 			loadAppConfigYML();

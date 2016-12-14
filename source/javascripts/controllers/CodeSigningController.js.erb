@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, $http, $location, routeHelper, Progress) {
+angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($scope, $q, $http, $location, routeHelper, Progress) {
 
 	var viewModel = this;
 
@@ -33,7 +33,15 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		});
 
 		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			var canceler = $q.defer();
+
+			$scope.$on("$destroy", function() {
+				canceler.resolve();
+			});
+
+			$http.get(requestURL, {
+				timeout: canceler.promise
+			}).then(function(response) {
 				availableStacks = _.mapObject(response.data.available_stacks, function(aStackData) {
 					return aStackData["project-types"];
 				});
@@ -60,7 +68,15 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		});
 
 		return $q(function(resolve, reject) {
-			$http.get(requestURL).then(function(response) {
+			var canceler = $q.defer();
+
+			$scope.$on("$destroy", function() {
+				canceler.resolve();
+			});
+
+			$http.get(requestURL, {
+				timeout: canceler.promise
+			}).then(function(response) {
 				stackID = response.data.id;
 
 				resolve();

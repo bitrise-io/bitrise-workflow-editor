@@ -155,7 +155,15 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 	}
 
 	function loadDefaultOutputs() {
-		return requestService.getDefaultOutputs().then(function(defaultOutputConfigsBySource) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		return requestService.getDefaultOutputs({
+			timeout: canceler.promise
+		}).then(function(defaultOutputConfigsBySource) {
 			_.each(defaultOutputConfigsBySource, function(defaultOutputConfigs, sourceID) {
 				var defaultOutputsOfSource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
 					return variablesOfSource.source.id == sourceID;
@@ -170,7 +178,15 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 	};
 
 	function loadSecrets() {
-		return requestService.getSecrets().then(function(secretConfigs) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		return requestService.getSecrets({
+			timeout: canceler.promise
+		}).then(function(secretConfigs) {
 			var secretsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
 				return variablesOfSource.source.id == "from_secrets";
 			});

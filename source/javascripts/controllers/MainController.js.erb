@@ -64,7 +64,15 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function loadAppConfig() {
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		requestService.getAppConfig().then(function(_appConfig) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.getAppConfig({
+			timeout: canceler.promise
+		}).then(function(_appConfig) {
 			appConfig = _appConfig;
 			savedAppConfig = angular.copy(_appConfig);
 			minimizeAppConfig(appConfig);
@@ -132,6 +140,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.saveChanges = function() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		var error;
 		var unwatchError = $rootScope.$on("MainController::validationError", function(event, _error) {
 			error = _error;
@@ -159,7 +173,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 				}
 				default: {
-					requestService.postAppConfig(appConfig).then(resolve, reject);
+					requestService.postAppConfig(appConfig, {
+						timeout: canceler.promise
+					}).then(resolve, reject);
 
 					break;
 				}

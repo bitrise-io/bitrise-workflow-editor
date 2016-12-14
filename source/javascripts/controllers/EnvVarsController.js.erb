@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, requestService, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, Progress, Variable) {
 
 	var viewModel = this;
 
@@ -50,7 +50,15 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	function loadSecrets() {
 		viewModel.loadEnvVarsProgress.start("<%= data[:strings][:env_vars][:load_progress][:in_progress] %>");
 
-		requestService.getSecrets().then(function(secretConfigs) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.getSecrets({
+			timeout: canceler.promise
+		}).then(function(secretConfigs) {
 			viewModel.secretConfigs = secretConfigs;
 
 			viewModel.envVarsBySource = [{
@@ -197,9 +205,17 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
 		requestService.postSecrets(_.find(viewModel.envVarsBySource, {
 			type: "secrets"
-		}).envVars).then(function() {
+		}).envVars, {
+			timeout: canceler.reject
+		}).then(function() {
 			resolve();
 
 			loadSecrets();
