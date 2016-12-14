@@ -1,7 +1,4 @@
 require "slim"
-require './serve_root'
-
-use ServeRoot
 
 config[:layout] = false
 
@@ -12,34 +9,6 @@ activate :jasmine
 helpers do
 
 	# path helpers
-
-	def stylesheet_path(path)
-		case environment
-		when :development then asset_path(:css, path)
-		when :build then "#{ENV['BITRISE_WORKFLOW_EDITOR_ROOT_PATH_ON_WEBSITE']}/stylesheets/" + path + ".css"
-		end
-	end
-
-	def javascripts_path(path)
-		case environment
-		when :development then asset_path(:js, path)
-		when :build then "#{ENV['BITRISE_WORKFLOW_EDITOR_ROOT_PATH_ON_WEBSITE']}/javascripts/" + path + ".js"
-		end
-	end
-
-	def template_path(path)
-		case environment
-		when :development then path
-		when :build then "#{ENV['BITRISE_WORKFLOW_EDITOR_ROOT_PATH_ON_WEBSITE']}" + path
-		end
-	end
-
-	def endpoint_path(path)
-		case environment
-		when :development then path
-		when :build then "#{ENV['BITRISE_WORKFLOW_EDITOR_ROOT_PATH_ON_WEBSITE']}" + path
-		end
-	end
 
 	def webserver_path(path)
 		case environment

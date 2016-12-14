@@ -31,32 +31,32 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menus = _.compact([{
 			id: "workflows",
 			title: "<%= data[:strings][:main][:menus][0] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>",
+			path: "<%= data[:routes][:endpoints][:workflows] %>",
 			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			id: "code-signing",
 			title: "<%= data[:strings][:main][:menus][1] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>",
+			path: "<%= data[:routes][:endpoints][:code_signing] %>",
 			cssClass: "code-signing"
 		} : null), {
 			id: "secrets",
 			title: "<%= data[:strings][:main][:menus][2] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>",
+			path: "<%= data[:routes][:endpoints][:secrets] %>",
 			cssClass: "secrets"
 		}, {
 			id: "env-vars",
 			title: "<%= data[:strings][:main][:menus][3] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:env_vars]) %>",
+			path: "<%= data[:routes][:endpoints][:env_vars] %>",
 			cssClass: "env-vars"
 		}, {
 			id: "triggers",
 			title: "<%= data[:strings][:main][:menus][4] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>",
+			path: "<%= data[:routes][:endpoints][:triggers] %>",
 			cssClass: "triggers"
 		}, {
 			id: "yml",
 			title: "<%= data[:strings][:main][:menus][5] %>",
-			path: "<%= endpoint_path(data[:routes][:endpoints][:yml]) %>",
+			path: "<%= data[:routes][:endpoints][:yml] %>",
 			cssClass: "yml"
 		}]);
 	}
@@ -122,7 +122,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menuProgress.success();
 
 		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
-			return $location.path() == aMenu.path;
+			return $location.path() == "/" + aMenu.path;
 		});
 	});
 

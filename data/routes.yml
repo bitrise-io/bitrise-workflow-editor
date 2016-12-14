@@ -1,10 +1,10 @@
 endpoints:
-  workflows: /workflows
-  code_signing: /code_signing
-  secrets: /secrets
-  env_vars: /env_vars
-  triggers: /triggers
-  yml: /yml
+  workflows: workflows
+  code_signing: code_signing
+  secrets: secrets
+  env_vars: env_vars
+  triggers: triggers
+  yml: yml
 templates:
   workflows: /templates/workflows
   code_signing: /templates/code_signing

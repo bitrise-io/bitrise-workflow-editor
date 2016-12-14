@@ -17,47 +17,38 @@ BitriseWorkflowEditor.config(function($animateProvider) {
 	$animateProvider.classNameFilter(/angular-animated/);
 });
 
-BitriseWorkflowEditor.config(function($locationProvider) {
-	$locationProvider.html5Mode(true);
-});
-
 BitriseWorkflowEditor.config(function($routeProvider) {
 
 	$routeProvider.when("", {
-		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>"
+		redirectTo: "<%= data[:routes][:endpoints][:workflows] %>"
 	});
 
 	$routeProvider.when("/", {
-		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>"
+		redirectTo: "<%= data[:routes][:endpoints][:workflows] %>"
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:workflows]) %>"
+	$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
+		templateUrl: "<%= data[:routes][:templates][:workflows] %>"
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:code_signing]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:code_signing]) %>"
+	$routeProvider.when("/<%= data[:routes][:endpoints][:code_signing] %>", {
+		templateUrl: "<%= data[:routes][:templates][:code_signing] %>"
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:secrets]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:secrets]) %>",
+	$routeProvider.when("/<%= data[:routes][:endpoints][:secrets] %>", {
+		templateUrl: "<%= data[:routes][:templates][:secrets] %>",
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:env_vars]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:env_vars]) %>",
+	$routeProvider.when("/<%= data[:routes][:endpoints][:env_vars] %>", {
+		templateUrl: "<%= data[:routes][:templates][:env_vars] %>",
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:triggers]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:triggers]) %>",
+	$routeProvider.when("/<%= data[:routes][:endpoints][:triggers] %>", {
+		templateUrl: "<%= data[:routes][:templates][:triggers] %>",
 	});
 
-	$routeProvider.when("<%= endpoint_path(data[:routes][:endpoints][:yml]) %>", {
-		templateUrl: "<%= template_path(data[:routes][:templates][:yml]) %>"
-	});
-
-
-	$routeProvider.otherwise("", {
-		redirectTo: "<%= endpoint_path(data[:routes][:endpoints][:workflows]) %>"
+	$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
+		templateUrl: "<%= data[:routes][:templates][:yml] %>"
 	});
 
 });
