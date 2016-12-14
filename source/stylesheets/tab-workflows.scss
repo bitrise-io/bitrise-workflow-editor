@@ -587,7 +587,6 @@
 
 									textarea {
 										@include box-sizing(border-box);
-										height: 42px;
 										border: $border;
 										@include border-radius($def-radius);
 										padding: 8px;

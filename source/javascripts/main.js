@@ -5,6 +5,7 @@
 //= require angular-sanitize
 //= require angular-animate
 //= require angular-mocks
+//= require elastic
 
 //= require BitriseWorkflowEditor
 //= require_tree ./services/
