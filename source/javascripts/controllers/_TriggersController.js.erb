@@ -2,9 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, Trigger, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, Progress, Trigger, Workflow) {
 
 	var viewModel = this;
+
+	var addTriggerProgress = new Progress();
 
 	viewModel.appConfig;
 	viewModel.workflows;
@@ -84,7 +86,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	};
 
 	viewModel.triggerSelected = function(trigger) {
-		viewModel.newTriggerIndex = undefined;
+		if (addTriggerProgress.isInProgress) {
+			viewModel.triggerEditCancelled();
+		}
+
 		viewModel.selectedTrigger = trigger;
 		viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
 	};
@@ -97,6 +102,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	};
 
 	viewModel.addTriggerSelectedAtIndex = function(index) {
+		console.log(index);
 		var newTrigger = new Trigger();
 		newTrigger.type(viewModel.selectedTriggerType.id);
 		newTrigger.workflowID(_.first(viewModel.workflows).id);
@@ -104,7 +110,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		viewModel.selectedTriggerType.triggers.splice(index, 0, newTrigger);
 
 		viewModel.triggerSelected(newTrigger);
-		viewModel.newTriggerIndex = index;
+		addTriggerProgress.start();
 	};
 
 	viewModel.triggerEditFinished = function() {
@@ -125,12 +131,17 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 				break;
 		}
+
+		if (addTriggerProgress.isInProgress) {
+			addTriggerProgress.success();
+		}
 		
 		viewModel.triggerSelected(null);
 	};
 
 	viewModel.triggerEditCancelled = function() {
-		if (viewModel.newTriggerIndex !== undefined) {
+		if (addTriggerProgress.isInProgress) {
+			addTriggerProgress.reset();
 			viewModel.deleteTriggerSelected(viewModel.selectedTrigger);
 		}
 		else {

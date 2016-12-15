@@ -58,7 +58,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 
 					var offsetYBetweenSiblings = $(selectedElement).offset().top - $(nextElement).offset().top;
 					if (offsetYBetweenSiblings > 0) {
-						var index = $(element).children(draggableSelector).index(selectedElement);
+						var index = $(element).children().index(selectedElement);
 						var models = $parse(attrs.models)(scope);
 						var model = models[index];
 						models.splice(index, 1);
@@ -87,7 +87,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 					
 					var offsetYBetweenSiblings = $(selectedElement).offset().top - $(previousElement).offset().top;
 					if (offsetYBetweenSiblings < 0) {
-						var index = $(element).children(draggableSelector).index(selectedElement);
+						var index = $(element).children().index(selectedElement);
 						var models = $parse(attrs.models)(scope);
 						var model = models[index];
 						models.splice(index, 1);

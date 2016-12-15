@@ -222,22 +222,6 @@ describe("Trigger", function() {
 
 });
 
-describe("prettifiedTriggerPattern", function() {
-
-	var $filter;
-
-	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function (_$filter_) {
-		$filter = _$filter_;
-	}));
-
-	it("should return prettified trigger pattern", function() {
-		expect($filter("prettifiedTriggerPattern")("red")).toBe("red");
-		expect($filter("prettifiedTriggerPattern")("")).toBe("*");
-	});
-
-});
-
 describe("displayNameForTriggerType", function() {
 
 	var $filter;

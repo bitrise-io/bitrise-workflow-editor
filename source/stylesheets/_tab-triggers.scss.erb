@@ -56,6 +56,8 @@
 			$manage_trigger-border: 1px solid $def-lightgrey;
 			$manage_trigger-border_radius: $def-radius;
 
+			@include display-flex;
+			@include flex-direction(column);
 			position: relative;
 			padding-right: $deletebutton_size;
 
@@ -76,6 +78,14 @@
 				}
 			}
 
+			button.add-trigger.before {
+				@include order(1);
+			}
+
+			button.add-trigger.after {
+				@include order(3);
+			}
+
 			button.add-trigger:disabled {
 				visibility: hidden;
 			}
@@ -90,13 +100,14 @@
 				width: 50%;
 			}
 
-			.add-trigger + .trigger {
+			.add-trigger.before ~ .trigger, .add-trigger.after {
 				margin-top: $spacing;
 			}
 
 			.trigger {
 				$arrow-reserved_width: 80px;
 
+				@include order(2);
 				@include display-flex;
 
 				.manage-trigger .trigger-infos, button.select-trigger {
