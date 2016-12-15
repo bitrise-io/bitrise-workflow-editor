@@ -50,49 +50,6 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
-	Workflow.prototype.cloneStep = function(step) {
-		var newStep = angular.copy(step);
-
-		var stepIndex = _.indexOf(this.steps, step);
-		this.steps.splice(stepIndex + 1, 0, newStep);
-
-		var stepWrappedUserStepConfigIndex = _.findIndex(this.workflowConfig.steps, function(aWrappedUserStepConfig) {
-			return aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] == step.userStepConfig;
-		});
-		this.workflowConfig.steps.splice(stepWrappedUserStepConfigIndex + 1, 0, newStep.wrappedUserStepConfig());
-
-		return newStep;
-	};
-
-	Workflow.prototype.addStepAtIndex = function(step, index) {
-		if (!this.steps) {
-			this.steps = [];
-		}
-		if (!this.workflowConfig.steps) {
-			this.workflowConfig.steps = [];
-		}
-
-		var referenceAfterStep =  _.isEmpty(this.workflowConfig.steps) ? undefined : this.steps[index];
-		this.steps.splice(index, 0, step);
-
-		var stepWrappedUserStepConfigIndex = referenceAfterStep ? _.findIndex(this.workflowConfig.steps, function(aWrappedUserStepConfig) {
-			return referenceAfterStep.wrappedUserStepConfig() == aWrappedUserStepConfig;
-		}) - 1 : 0;
-		this.workflowConfig.steps.splice(stepWrappedUserStepConfigIndex, 0, step.wrappedUserStepConfig());
-
-		return step;
-	};
-
-	Workflow.prototype.removeStep = function(step) {
-		var stepIndex = _.indexOf(this.steps, step);
-		this.steps.splice(stepIndex, 1);
-
-		var stepWrappedUserStepConfigIndex = _.findIndex(this.workflowConfig.steps, function(aWrappedUserStepConfig) {
-			return aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] == step.userStepConfig;
-		});
-		this.workflowConfig.steps.splice(stepWrappedUserStepConfigIndex, 1);
-	};
-
 	return Workflow;
 
 });

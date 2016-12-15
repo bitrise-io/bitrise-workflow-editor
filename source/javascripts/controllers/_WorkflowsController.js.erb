@@ -183,7 +183,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 		viewModel.selectedStep = step;
 
-		$rootScope.$emit("StepController::configureWithStep", viewModel.selectedStep);
+		if (step) {
+			$rootScope.$emit("StepController::configureWithStep", viewModel.selectedStep);
+		}
 	};
 
 	viewModel.addStepSelectedBeforeStep = function(step) {
@@ -191,17 +193,28 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
-		var addedStep = $scope.selectedWorkflow.addStepAtIndex(angular.copy(step), index);
+		if (!$scope.selectedWorkflow.steps) {
+			$scope.selectedWorkflow.steps = [];
+		}
+
+		var addedStep = angular.copy(step);
+		$scope.selectedWorkflow.steps.splice(index, 0, addedStep);
+
 		viewModel.stepSelected(addedStep);
 	}));
 
 	viewModel.cloneStepSelected = function() {
-		var clonedStep = $scope.selectedWorkflow.cloneStep(viewModel.selectedStep);
+		var clonedStep = angular.copy(viewModel.selectedStep);
+		var index = _.indexOf($scope.selectedWorkflow.steps, viewModel.selectedStep);
+		$scope.selectedWorkflow.steps.splice(index + 1, 0, clonedStep);
+
 		viewModel.stepSelected(clonedStep);
 	};
 
 	viewModel.deleteStepSelected = function() {
-		$scope.selectedWorkflow.removeStep(viewModel.selectedStep);
+		var index = _.indexOf($scope.selectedWorkflow.steps, viewModel.selectedStep);
+		$scope.selectedWorkflow.steps.splice(index, 1);
+
 		viewModel.stepSelected(null);
 	};
 

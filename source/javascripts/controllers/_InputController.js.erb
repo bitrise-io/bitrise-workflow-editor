@@ -6,61 +6,75 @@ angular.module("BitriseWorkflowEditor").controller("InputController", function($
 
 	var viewModel = this;
 
-	var selectedStep;
+	var step;
 	var defaultInputConfig;
+	var unwatchPreviousUserInputConfig;
 
 	viewModel.input;
 
-	viewModel.init = function(_selectedStep, _defaultInputConfig) {
-		selectedStep = _selectedStep;
+	viewModel.init = function(_step, _defaultInputConfig) {
 		defaultInputConfig = _defaultInputConfig;
 
-		var userInputConfig = selectedStep.userStepConfig ? _.find(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+		viewModel.configureWithStep(_step);
+	};
+
+	viewModel.configureWithStep = function(_step) {
+		if (unwatchPreviousUserInputConfig) {
+			unwatchPreviousUserInputConfig();
+		}
+
+		step = _step;
+
+		var userInputConfig = step.userStepConfig ? _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
 			return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(defaultInputConfig);
 		}) : null;
 
 		viewModel.input = new Variable(userInputConfig, defaultInputConfig);
 
-		$scope.$watch(function() {
+		unwatchPreviousUserInputConfig = $scope.$watch(function() {
 			return !viewModel.input.userVariableConfig || _.isEmpty(angular.copy(viewModel.input.userVariableConfig));
 		}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
 			if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
-				var indexOfUserInputConfig = _.findIndex(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+				var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 					return Variable.keyFromVariableConfig(aUserInputConfig) == viewModel.input.key();
 				});
 
-				selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+				step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 
-				if (_.isEmpty(angular.copy(selectedStep.userStepConfig.inputs))) {
-					delete selectedStep.userStepConfig["inputs"];
+				if (_.isEmpty(angular.copy(step.userStepConfig.inputs))) {
+					delete step.userStepConfig["inputs"];
 				}
 
-				if (_.isEmpty(angular.copy(selectedStep.userStepConfig))) {
-					selectedStep.userStepConfig = null;
+				if (_.isEmpty(angular.copy(step.userStepConfig))) {
+					step.userStepConfig = null;
 				}
 			}
 
 			if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
-				if (!selectedStep.userStepConfig) {
-					selectedStep.userStepConfig = {};
+				if (!step.userStepConfig) {
+					step.userStepConfig = {};
 				}
 
-				if (!selectedStep.userStepConfig.inputs) {
-					selectedStep.userStepConfig.inputs = [];
+				if (!step.userStepConfig.inputs) {
+					step.userStepConfig.inputs = [];
 				}
 
-				var indexOfUserInputConfig = _.findIndex(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+				var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 					return Variable.keyFromVariableConfig(aUserInputConfig) == viewModel.input.key();
 				});
 
 				if (indexOfUserInputConfig != -1) {
-					selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+					step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 				}
 
-				selectedStep.userStepConfig.inputs.push(viewModel.input.userVariableConfig);
+				step.userStepConfig.inputs.push(viewModel.input.userVariableConfig);
 			}
 		});
 	};
+
+	$scope.$on("$destroy", $rootScope.$on("InputController::configureWithStep", function(event, _step) {
+		viewModel.configureWithStep(_step);
+	}));
 
 	viewModel.inputValueBlurred = function(event) {
 		$rootScope.$emit("InsertVariableController::setInsertStartEndPosition", event.target.selectionStart, event.target.selectionEnd);
