@@ -18,6 +18,8 @@ import (
 
 	"strings"
 
+	"runtime"
+
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/cmdex"
@@ -263,6 +265,18 @@ func LaunchServer() error {
 
 	if err := setupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
 		return fmt.Errorf("Failed to setup routes, error: %s", err)
+	}
+
+	{
+		openCmd := "open"
+		if runtime.GOOS == "linux" {
+			openCmd = "xdg-open"
+		}
+		workflowEditorURL := fmt.Sprintf("http://localhost:%s", port)
+		log.Println("Open workflow editor in browser ...")
+		if err := cmdex.NewCommandWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
+			log.Printf(" [!] Failed to open workflow editor in browser, error: %s", err)
+		}
 	}
 
 	if err := http.ListenAndServe(":"+port, nil); err != nil {
