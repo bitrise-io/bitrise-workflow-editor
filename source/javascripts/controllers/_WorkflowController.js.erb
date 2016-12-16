@@ -11,8 +11,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowController", functio
 	viewModel.selectedStep = null;
 
 	viewModel.workflowEditSelected = function() {
-		viewModel.isEditMode = true;
-
 		$rootScope.$emit("WorkflowController::workflowEditSelected", $scope.workflow);
 	};
 
@@ -45,6 +43,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowController", functio
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
+		if (!viewModel.isEditMode) {
+			return;
+		}
+		
 		if (!$scope.workflow.steps) {
 			$scope.workflow.steps = [];
 		}
@@ -81,6 +83,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowController", functio
 	});
 
 	$scope.$on("$destroy", $rootScope.$on("StepController::stepVersionChanged", function() {
+		if (!viewModel.isEditMode) {
+			return;
+		}
+
 		var index = _.findIndex($scope.workflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
 			return aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] == viewModel.selectedStep.userStepConfig;
 		});
@@ -89,6 +95,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowController", functio
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
+		if (!viewModel.isEditMode) {
+			return;
+		}
+
 		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", viewModel.appConfig, $scope.workflow, viewModel.selectedStep);
 	}));
 

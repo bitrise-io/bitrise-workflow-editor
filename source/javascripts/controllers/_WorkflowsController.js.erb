@@ -98,6 +98,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				viewModel.selectedWorkflowChain.push(aWorkflow);
 			}
 		});
+
+		$rootScope.$emit("WorkflowController::workflowEditSelected", workflow);
 	};
 
 	viewModel.addWorkflowSelected = function() {

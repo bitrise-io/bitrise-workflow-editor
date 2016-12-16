@@ -8,12 +8,18 @@
 			button[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"] == data[:strings][:workflows][:add_workflow_before]
 			button[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"] == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl"]
-				header[ng-bind="workflow.id"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
+				header.workflow-header
+					h2
+						.run-workflow
+							span.icon[ng-if="workflowsCtrl.selectedWorkflow.workflowConfig.before_run.indexOf(workflow.id) != -1"] = svg("workflow/icon-before_run")
+							span.icon[ng-if="workflowsCtrl.selectedWorkflow.workflowConfig.after_run.indexOf(workflow.id) != -1"] = svg("workflow/icon-after_run")
+							span.workflow-name[ng-bind="workflow.id"]
+						button.remove = svg("cross")
 				article
 					ul.steps[order-by-drag models="workflow.steps"]
 						li[ng-repeat="step in workflow.steps" ng-class="{'selected': step == workflowCtrl.selectedStep}"]
-							button.add-step[ng-click="workflowCtrl.addStepSelectedBeforeStep(step)"] = svg("plus")
+							button.add-step[ng-click="workflowCtrl.addStepSelectedBeforeStep(step)" ng-disabled="!workflowCtrl.isEditMode"] = svg("plus")
 							button.step[ng-click="workflowCtrl.stepSelected(step)" tabindex="{{ step == workflowCtrl.selectedStep ? '-1' : '0' }}"]
 								span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 								span.info

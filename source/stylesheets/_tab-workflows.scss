@@ -3,44 +3,135 @@
 
 .tab-workflows {
 
+	p.progress-indicator {
+		margin: $main-verticalpadding $main-horizontalpadding;
+
+		@include media-below-mid {
+			@include margin-x($main-horizontalpadding_small);
+		}
+	}
+
 	.workflows {
 
 		section.workflow {
+			$icon-size: 52px;
+			$icon-size_small: 36px;
+			$spacing: 8px;
+			$steptitle-width: 280px;
+			$steptitle-width_small: 220px;
 
-			header {
+			border-top: 1px dashed $def-grey;
+			padding: $main-verticalpadding $main-horizontalpadding;
+			background-color: white;
+			@include transition(background-color $def-transition_duration);
 
+			header.workflow-header {
+				@include display-flex;
+				margin-bottom: 14px;
+
+				&:before {
+					$arrowtail_width: 15px;
+					$arrow_color: $def-darkgrey;
+
+					content: "";
+					@include flex-shrink(0);
+					@include box-sizing(border-box);
+					width: $arrowtail_width;
+					@include margin-x(($icon-size - $arrowtail_width) / 2);
+					border-top: 1px solid $arrow_color;
+					@include padding-x(($arrowtail_width - 1px) / 2);
+					background-color: $arrow_color;
+					background-clip: content-box;
+				}
+
+				h2 {
+					$color: $def-mediumdarkgrey;
+
+					@include flex-grow(1);
+					@include display-flex;
+					@include align-items(center);
+					@include box-sizing(border-box);
+					max-width: $steptitle-width;
+					@include margin-y(0);
+					margin-left: $spacing;
+					border: 1px solid $color;
+					@include border-radius($def-radius);
+					font-size: 14px;
+					font-weight: 300;
+					color: $color;
+
+					.run-workflow {
+						@include display-flex;
+						padding: 6px 8px;
+						overflow: hidden;
+
+						span.icon {
+							@include flex-shrink(0);
+							margin-right: 6px;
+
+							svg {
+								@include size(12px, 11px);
+								fill: $color;
+							}
+						}
+
+						span.workflow-name {
+							@include ellipsis-oneliner;
+						}
+					}
+
+					button.remove {
+						@include flex-shrink(0);
+						@include align-self(stretch);
+						margin-left: auto;
+						padding: 8px 14px;
+						background-color: $color;
+						@include transition(background-color $def-transition_duration);
+
+						svg {
+							@include size(8px);
+							fill: white;
+						}
+					}
+
+					button.remove:focus, button.remove:hover {
+						background-color: $def-darkgrey;
+					}
+				}
 			}
 
 			article {
-				$icon_size: 52px;
-				$icon_size_small: 36px;
 
 				@include display-flex;
 
 				ul.steps {
 					margin-top: 0;
-					margin-right: 12px;
+					margin-right: $spacing;
 					padding-left: 0;
 					list-style: none;
 					@include flex-shrink(0);
 
 					li {
-						$margin: 8px;
-
 						width: 100%;
-						margin-bottom: $margin;
+						margin-bottom: $spacing;
 
 						button.add-step {
-							width: $icon_size;
-							margin-bottom: $margin;
+							$transition_duration: $def-transition_duration;
+
+							display: block;
+							width: $icon-size;
+							margin-bottom: $spacing;
 							@include border-radius($def-radius);
 							@include padding-y(4px);
-							@include transition(background-color $def-transition_duration);
+							@include transition(margin-bottom $transition_duration, padding-top $transition_duration, padding-bottom $transition_duration, background-color $transition_duration);
 							background-color: $def-mediumlightgrey;
 
 							svg {
+								display: block;
 								@include size(12px, 12px);
+								@include margin-x(auto);
 								fill: white;
+								@include transition(width $transition_duration, height $transition_duration);
 							}
 						}
 
@@ -49,15 +140,25 @@
 							background-color: $def-darkgrey;
 						}
 
+						button.add-step:disabled {
+							margin-bottom: 0;
+							@include padding-y(0);
+
+							svg {
+								@include size(0);
+							}
+						}
+
 						button.step {
 							position: relative;
 							display: block;
 							text-align: left;
+							@include transition(opacity $def-transition_duration);
 
 							span.icon {
 								@include position(absolute, 0, null, null, 0);
 								@include box-sizing(border-box);
-								@include size($icon_size);
+								@include size($icon-size);
 								border: 1px solid $def-lightgrey;
 								@include border-radius($def-radius);
 								background-size: cover;
@@ -69,8 +170,8 @@
 								@include justify-content(center);
 								@include align-items(flex-start);
 								@include box-sizing(border-box);
-								@include size(280px, $icon_size);
-								margin-left: $icon_size + $margin;
+								@include size($steptitle-width, $icon-size);
+								margin-left: $icon-size + $spacing;
 								border: 1px solid $def-mediumlightgrey;
 								@include border-radius($def-radius);
 								@include padding-x(20px);
@@ -108,36 +209,6 @@
 								}
 							}
 						}
-
-						@include media-below-big {
-							
-							button.step span.info {
-								width: 220px;
-							}
-						}
-
-						@include media-below-mid {
-
-							button.step span.icon {
-								position: static;
-								display: block;
-							}
-							
-							button.step span.info {
-								display: none;
-							}
-						}
-
-						@include media-below-small {
-
-							button.add-step {
-								width: $icon_size_small;
-							}
-							
-							button.step span.icon {
-								@include size($icon_size_small);
-							}
-						}
 					}
 
 					li button.step:hover span.info, li button.step:focus span.info, li.selected button.step span.info {
@@ -166,7 +237,7 @@
 				aside.step-details {
 					$trashicon_width: 17px;
 					$leftpadding: 25px;
-					$rightpadding: ($icon_size - $trashicon_width) / 2 + 3px;
+					$rightpadding: ($icon-size - $trashicon_width) / 2 + 3px;
 					$horizontalpadding_small: 12px;
 					$delete_step_color: $def-danger;
 
@@ -189,7 +260,7 @@
 						header.manage-step {
 							@include display-flex;
 							@include box-sizing(border-box);
-							height: $icon_size;
+							height: $icon-size;
 							border-bottom: $border;
 							background-color: $def-verylightgrey;
 
@@ -277,8 +348,8 @@
 
 									@include flex-shrink(0);
 									@include box-sizing(border-box);
-									width: $icon_size;
-									line-height: $icon_size;
+									width: $icon-size;
+									line-height: $icon-size;
 									border-left: $border;
 									@include transition(background-color $transition_duration);
 
@@ -349,7 +420,7 @@
 								height: auto;
 
 								.title, .rename-title {
-									height: $icon_size;
+									height: $icon-size;
 									border-bottom: $border;
 									@include box-sizing(border-box);
 								}
@@ -826,6 +897,83 @@
 					button.delete-step:hover, button.delete-step:focus {
 						background-color: $delete_step_color;
 						color: white;
+					}
+				}
+			}
+
+			@include media-below-mid {
+				@include padding-x($main-horizontalpadding_small);
+			}
+
+			@include media-below-big {
+
+				header.workflow-header {
+
+					h2 {
+						max-width: $steptitle-width_small;
+					}
+				}
+				
+				article ul.steps li {
+
+					button.step span.info {
+						width: $steptitle-width_small;
+					}
+				}
+			}
+
+			@include media-below-mid {
+
+				header.workflow-header {
+
+					h2 {
+						overflow: hidden;
+						max-width: none;
+					}
+				}
+
+				article ul.steps li {
+
+					button.step span.icon {
+						position: static;
+						display: block;
+					}
+				
+					button.step span.info {
+						display: none;
+					}
+				}
+			}
+
+			@include media-below-small {
+
+				article ul.steps li {
+
+					button.add-step {
+						width: $icon-size_small;
+					}
+					
+					button.step span.icon {
+						@include size($icon-size_small);
+					}
+				}
+			}
+		}
+
+		section.workflow:not(.edited) {
+			$inactive_opacity: 0.7;
+
+			background-color: $def-ultralightgrey;
+
+			article {
+
+				ul.steps {
+
+					li {
+
+						button.step:not(:hover):not(:focus) {
+							opacity: $inactive_opacity;
+						}
 					}
 				}
 			}
