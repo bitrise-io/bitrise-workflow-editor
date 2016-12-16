@@ -8,20 +8,20 @@
 			button[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"] == data[:strings][:workflows][:add_workflow_before]
 			button[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"] == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflow == editedWorkflow}"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl"]
 				header[ng-bind="workflow.id"]
 				article
 					ul.steps[order-by-drag models="workflow.steps"]
-						li[ng-repeat="step in workflow.steps" ng-class="{'selected': step == workflowsCtrl.selectedStep}"]
-							button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)"] = svg("plus")
-							button.step[ng-click="workflowsCtrl.stepSelected(step)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
+						li[ng-repeat="step in workflow.steps" ng-class="{'selected': step == workflowCtrl.selectedStep}"]
+							button.add-step[ng-click="workflowCtrl.addStepSelectedBeforeStep(step)"] = svg("plus")
+							button.step[ng-click="workflowCtrl.stepSelected(step)" tabindex="{{ step == workflowCtrl.selectedStep ? '-1' : '0' }}"]
 								span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 								span.info
 									strong
 										span.title[ng-bind="step.displayName()"]
 										span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 									em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
-					aside.step-details[ng-if="workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
+					aside.step-details[ng-if="workflowCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowCtrl.selectedStep)"]
 						p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
 						p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
 						div.bitrise-steplib-step-details[ng-if="stepCtrl.step.type() == 'bitrise-steplib-step'"]
@@ -33,9 +33,9 @@
 									input[type="text" ng-model="stepCtrl.renamedStepTitle"]
 									button.ok[ng-click="stepCtrl.renameStepConfirmed()"] == data[:strings][:workflows][:steps][:rename_confirm]
 								aside
-									button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
+									button.clone[ng-click="workflowCtrl.cloneStepSelected()"] = svg("step/clone")
 									a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
-									button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
+									button.delete[ng-click="workflowCtrl.deleteStepSelected()"] = svg("trash")
 							section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}"]
 								span.icon
 									= svg("step/description")
@@ -79,7 +79,7 @@
 									tr[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
 										td.key[ng-bind="output | prettifiedVariableKey"]
 										td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
-						button.delete-step[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
+						button.delete-step[ng-click="workflowCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
 		popup[model="workflowsCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:workflows][:add_workflow][:specify_id]
