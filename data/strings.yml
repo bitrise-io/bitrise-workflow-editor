@@ -34,8 +34,6 @@ workflows:
     no_env_vars: No Env Vars for this Workflow yet
     title: Workflow Environment Variables
   steps:
-    pseudo_preparing: Preparing the Build Environment
-    pseudo_cleaning: Cleaning up the Virtual Machine
     start: "Start"
     end: "End"
     cvs_error: Error loading step from provided identifier.
