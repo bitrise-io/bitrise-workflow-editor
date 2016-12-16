@@ -4,7 +4,7 @@
 
 angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, bitriseSteplibService, Step, Variable) {
 
-	var Workflow = function(id, workflowConfig, scope) {
+	var Workflow = function(id, workflowConfig) {
 		this.id = id;
 		this.workflowConfig = workflowConfig;
 		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {

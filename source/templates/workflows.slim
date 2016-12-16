@@ -51,7 +51,7 @@
 					section.version
 						span.icon
 						label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
-						select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(bitriseSteplibService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="bitriseSteplibService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion)"]
+						select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(bitriseSteplibService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="bitriseSteplibService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
 					section.always-run[ng-if="stepCtrl.step.isAlwaysRun() !== undefined"]
 						span.icon
 							= svg("step/is_always_run")

@@ -232,6 +232,14 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	});
 
+	$scope.$on("$destroy", $rootScope.$on("StepController::stepVersionChanged", function() {
+		var index = _.findIndex($scope.selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+			return aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] == viewModel.selectedStep.userStepConfig;
+		});
+
+		$scope.selectedWorkflow.workflowConfig.steps.splice(index, 1, viewModel.selectedStep.wrappedUserStepConfig());
+	}));
+
 	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
 		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", viewModel.appConfig, $scope.selectedWorkflow, viewModel.selectedStep);
 	}));

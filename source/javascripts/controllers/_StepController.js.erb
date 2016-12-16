@@ -59,6 +59,10 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 		});
 	};
 
+	viewModel.stepVersionChanged = function() {
+		$rootScope.$emit("StepController::stepVersionChanged");
+	};
+
 });
 
 })();
