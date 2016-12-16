@@ -11,6 +11,7 @@ import (
 	"os"
 	"time"
 
+	envmanModels "github.com/bitrise-io/envman/models"
 	yaml "gopkg.in/yaml.v2"
 
 	"io/ioutil"
@@ -119,11 +120,6 @@ func defaultOutputsHandler(w http.ResponseWriter, r *http.Request) {
 // EnvItmModel ...
 type EnvItmModel map[string]string
 
-// SecretsModel ...
-type SecretsModel struct {
-	Envs []EnvItmModel `json:"envs"`
-}
-
 func loadSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	contBytes, err := fileutil.ReadBytesFromFile(secretsYMLPath.Get())
 	if err != nil {
@@ -136,9 +132,14 @@ func loadSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	var respObj SecretsModel
+	var respObj envmanModels.EnvsSerializeModel
 	if err := yaml.Unmarshal(contBytes, &respObj); err != nil {
 		respondWithErrorMessage(w, "Failed to parse the content of .bitrise.secrets.yml file (invalid YML), error: %s", err)
+		return
+	}
+
+	if err := respObj.Normalize(); err != nil {
+		respondWithErrorMessage(w, "Failed to normalize the content of .bitrise.secrets.yml file (invalid YML), error: %s", err)
 		return
 	}
 
@@ -152,7 +153,7 @@ func saveSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	var reqObj SecretsModel
+	var reqObj envmanModels.EnvsSerializeModel
 	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
 		respondWithErrorMessage(w, "Failed to read JSON input, error: %s", err)
 		return
