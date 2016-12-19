@@ -19,35 +19,32 @@
 			$spacing: 8px;
 			$steptitle-width: 280px;
 			$steptitle-width_small: 220px;
+			$arrow-color: $def-darkgrey;
+			$arrow-width: 1px;
+			$arrowend-width: 15px;
+			$arrow-overflow_height: 40px;
 
 			border-top: 1px dashed $def-grey;
-			padding: $main-verticalpadding $main-horizontalpadding;
+			@include padding-x($main-horizontalpadding);
 			background-color: white;
 			@include transition(background-color $def-transition_duration);
 
 			header.workflow-header {
 				@include display-flex;
-				margin-bottom: 14px;
+				margin-bottom: $spacing;
 
 				&:before {
-					$arrowtail_width: 15px;
-					$arrow_color: $def-darkgrey;
-
 					content: "";
 					@include flex-shrink(0);
-					@include box-sizing(border-box);
-					width: $arrowtail_width;
-					@include margin-x(($icon-size - $arrowtail_width) / 2);
-					border-top: 1px solid $arrow_color;
-					@include padding-x(($arrowtail_width - 1px) / 2);
-					background-color: $arrow_color;
-					background-clip: content-box;
+					width: $arrowend-width;
+					@include margin-x(($icon-size - $arrowend-width) / 2);
 				}
 
 				h2 {
 					$color: $def-mediumdarkgrey;
 
 					@include flex-grow(1);
+					@include align-self(flex-end);
 					@include display-flex;
 					@include align-items(center);
 					@include box-sizing(border-box);
@@ -59,6 +56,7 @@
 					font-size: 14px;
 					font-weight: 300;
 					color: $color;
+					@include transition(top $def-transition_duration, background-color $def-transition_duration);
 
 					.run-workflow {
 						@include display-flex;
@@ -84,7 +82,7 @@
 						@include flex-shrink(0);
 						@include align-self(stretch);
 						margin-left: auto;
-						padding: 8px 14px;
+						@include padding-x(12px);
 						background-color: $color;
 						@include transition(background-color $def-transition_duration);
 
@@ -100,12 +98,54 @@
 				}
 			}
 
+			&:first-child header.workflow-header {
+
+				&:before {
+					@include box-sizing(border-box);
+					border-top: $arrow-width solid $arrow-color;
+					@include padding-x(($arrowend-width - $arrow-width) / 2);
+					background-color: $arrow-color;
+					background-clip: content-box;
+				}
+			}
+
+			&:not(:first-child) header.workflow-header {
+
+				&:before {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
+						fill: rgba($arrow-color, 0.99)
+					));
+
+					height: $arrow-overflow_height;
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: contain;
+					background-position: center bottom;
+					background-repeat: no-repeat;
+				}
+
+				h2 {
+					position: relative;
+					top: 0;
+				}
+			}
+
+			&:not(:first-child).edited header.workflow-header {
+
+				h2 {
+					top: -26px;
+				}
+			}
+
 			article {
+				$add_step-size: 20px;
+				$add_step-iconsize: 12px;
 
 				@include display-flex;
 
 				ul.steps {
-					margin-top: 0;
+					@include display-flex;
+					@include flex-direction(column);
+					@include margin-y(0);
 					margin-right: $spacing;
 					padding-left: 0;
 					list-style: none;
@@ -122,13 +162,13 @@
 							width: $icon-size;
 							margin-bottom: $spacing;
 							@include border-radius($def-radius);
-							@include padding-y(4px);
+							@include padding-y(($add_step-size - $add_step-iconsize) / 2);
 							@include transition(margin-bottom $transition_duration, padding-top $transition_duration, padding-bottom $transition_duration, background-color $transition_duration);
 							background-color: $def-mediumlightgrey;
 
 							svg {
 								display: block;
-								@include size(12px, 12px);
+								@include size($add_step-iconsize);
 								@include margin-x(auto);
 								fill: white;
 								@include transition(width $transition_duration, height $transition_duration);
@@ -218,6 +258,11 @@
 						color: white;
 						background-color: $color;
 					}
+
+					&:after {
+						content: "";
+						display: block;
+					}
 				}
 
 				ul.steps.drag-in-progress {
@@ -242,6 +287,7 @@
 					$delete_step_color: $def-danger;
 
 					@include flex-grow(1);
+					margin-top: $add_step-size + $spacing;
 					overflow: hidden;
 
 					&:not(.ninja) > * {
@@ -901,6 +947,38 @@
 				}
 			}
 
+			&:not(:last-child):after, &:not(:last-child) ul.steps:after {
+				width: $arrow-width;
+				@include margin-x(($icon-size - $arrow-width) / 2);
+				background-color: $arrow-color;
+			}
+
+			&:not(:last-child):after {
+				content: "";
+				display: block;
+				position: relative;
+				height: 30px + $arrow-overflow_height;
+				margin-bottom: - $arrow-overflow_height;
+			}
+
+			&:not(:last-child) ul.steps:after {
+				@include flex-grow(1);
+			}
+
+			&:last-child ul.steps {
+				padding-bottom: 60px;
+
+				&:after {
+					@include box-sizing(border-box);
+					@include size($arrowend-width, 60px);
+					@include margin-x(($icon-size - $arrowend-width) / 2);
+					border-bottom: $arrow-width solid $arrow-color;
+					@include padding-x(($arrowend-width - $arrow-width) / 2);
+					background-color: $arrow-color;
+					background-clip: content-box;
+				}
+			}
+
 			@include media-below-mid {
 				@include padding-x($main-horizontalpadding_small);
 			}
@@ -946,6 +1024,23 @@
 			}
 
 			@include media-below-small {
+				$arrowend-width_small: 11px;
+
+				header.workflow-header {
+
+					&:before {
+
+						width: $arrowend-width_small;
+						@include margin-x(($icon-size_small - $arrowend-width_small) / 2);
+					}
+				}
+
+				&:first-child header.workflow-header {
+
+					&:before {
+						@include padding-x(($arrowend-width_small - $arrow-width) / 2);
+					}
+				}
 
 				article ul.steps li {
 
@@ -957,6 +1052,30 @@
 						@include size($icon-size_small);
 					}
 				}
+
+				&:not(:last-child):after, &:not(:last-child) ul.steps:after {
+					@include margin-x(($icon-size_small - $arrow-width) / 2);
+				}
+
+				&:last-child ul.steps:after {
+					width: $arrowend-width_small;
+					@include margin-x(($icon-size_small - $arrowend-width_small) / 2);
+					@include padding-x(($arrowend-width_small - $arrow-width) / 2);
+				}
+			}
+		}
+
+		section.workflow:first-child {
+			padding-top: 30px;
+		}
+
+		section.workflow.edited {
+
+			header {
+
+				h2 {
+					background-color: white;
+				}
 			}
 		}
 
@@ -964,6 +1083,13 @@
 			$inactive_opacity: 0.7;
 
 			background-color: $def-ultralightgrey;
+
+			header {
+
+				h2 {
+					background-color: $def-ultralightgrey;
+				}
+			}
 
 			article {
 

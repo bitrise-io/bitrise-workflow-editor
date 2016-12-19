@@ -15,7 +15,7 @@
 							span.icon[ng-if="workflowsCtrl.selectedWorkflow.workflowConfig.before_run.indexOf(workflow.id) != -1"] = svg("workflow/icon-before_run")
 							span.icon[ng-if="workflowsCtrl.selectedWorkflow.workflowConfig.after_run.indexOf(workflow.id) != -1"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]
-						button.remove = svg("cross")
+						button.remove[ng-if="workflow != workflowsCtrl.selectedWorkflow"] = svg("cross")
 				article
 					ul.steps[order-by-drag models="workflow.steps"]
 						li[ng-repeat="step in workflow.steps" ng-class="{'selected': step == workflowCtrl.selectedStep}"]
