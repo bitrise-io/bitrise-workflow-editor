@@ -61,6 +61,7 @@ func loadBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if err := validateBitriseConfigAndSecret(contStr, minimalValidSecrets); err != nil {
+		log.Printf(" [!] Validation error: %s", err)
 		respondWithError(w, ErrorWithYMLResponse{Error: err, BitriseYML: contStr})
 		return
 	}
@@ -391,9 +392,13 @@ func validateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) error {
 		IsValid bool   `json:"is_valid"`
 		Error   string `json:"error"`
 	}
-	type BitriseCLIValidateOutputModel struct {
+	type BitriseCLIValidateDataModel struct {
 		Config  BitriseCLIValidateItemModel `json:"config"`
 		Secrets BitriseCLIValidateItemModel `json:"secrets"`
+	}
+	type BitriseCLIValidateOutputModel struct {
+		Data  BitriseCLIValidateDataModel `json:"data"`
+		Error string                      `json:"error"`
 	}
 
 	var validationOutput BitriseCLIValidateOutputModel
@@ -405,15 +410,19 @@ func validateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) error {
 	}
 
 	errorStrs := []string{}
-	if !validationOutput.Config.IsValid {
-		errorStrs = append(errorStrs, "Config validation error: "+validationOutput.Config.Error)
+	if !validationOutput.Data.Config.IsValid {
+		errorStrs = append(errorStrs, "Config validation error: "+validationOutput.Data.Config.Error)
 	}
-	if !validationOutput.Secrets.IsValid {
-		errorStrs = append(errorStrs, "Secret validation error: "+validationOutput.Secrets.Error)
+	if !validationOutput.Data.Secrets.IsValid {
+		errorStrs = append(errorStrs, "Secret validation error: "+validationOutput.Data.Secrets.Error)
 	}
 
 	if len(errorStrs) > 0 {
 		return fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
+	}
+
+	if len(validationOutput.Error) > 0 {
+		return fmt.Errorf("bitrise validation command failed, error: %s", validationOutput.Error)
 	}
 
 	if cmdErr != nil {
