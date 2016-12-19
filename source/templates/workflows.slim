@@ -2,11 +2,24 @@
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
 	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
 		section.manage-workflows
-			select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
-			button[ng-click="workflowsCtrl.addWorkflowSelected()"] == data[:strings][:workflows][:add_workflow][:action]
-			button[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"] == data[:strings][:workflows][:add_workflow_after]
-			button[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"] == data[:strings][:workflows][:add_workflow_before]
-			button[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"] == data[:strings][:workflows][:delete_workflow]
+			.select-workflow
+				select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
+			button.add-workflow[ng-click="workflowsCtrl.addWorkflowSelected()"]
+				= svg("plus")
+				span == data[:strings][:workflows][:add_workflow][:action]
+			button.add-before-run-workflow[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
+				= svg("workflow/icon-before_run")
+				span == data[:strings][:workflows][:add_workflow_before]
+			button.add-after-run-workflow[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
+				= svg("workflow/icon-after_run")
+				span == data[:strings][:workflows][:add_workflow_after]
+			button.rearrange
+				= svg("arrow_tailed-down")
+				= svg("arrow_tailed-down")
+				span == data[:strings][:workflows][:rearrange]
+			button.delete-workflow[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
+				= svg("cross")
+				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
 			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain track by $index" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
 				header.workflow-header

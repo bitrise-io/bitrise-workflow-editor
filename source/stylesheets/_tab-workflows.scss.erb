@@ -2,6 +2,11 @@
 @import "constants";
 
 .tab-workflows {
+	$icon-size: 52px;
+	$icon-size_small: 36px;
+	$spacing: 8px;
+	$steptitle-width: 280px;
+	$steptitle-width_small: 220px;
 
 	p.progress-indicator {
 		margin: $main-verticalpadding $main-horizontalpadding;
@@ -11,14 +16,171 @@
 		}
 	}
 
+	section.manage-workflows {
+		$button-spacing: 8px;
+
+		@include display-flex;
+		@include flex-wrap(wrap);
+		padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
+
+		&:not(.ninja) > * {
+			margin: $button-spacing / 2;
+		}
+
+		.select-workflow {
+			$placeholder-width: 100px;
+			$color: $def-mediumdarkgrey;
+
+			@include display-flex;
+			border: 1px solid $color;
+			@include border-radius($def-radius);
+			font-size: 12px;
+			background-color: $color;
+
+			&:before {
+				content: "<%= data[:strings][:workflows][:select_workflow_placeholder] %>";
+				@include flex-shrink(0);
+				@include align-self(center);
+				width: $placeholder-width;
+				text-align: center;
+				font-weight: 100;
+				text-transform: uppercase;
+				color: white;
+			}
+
+			select {
+				@include flex-grow(1);
+				width: $icon-size + $spacing + $steptitle-width - $placeholder-width;
+				@include border-left-radius(0);
+				border: none;
+				color: $color;
+
+				@include media-below-big {
+					width: $icon-size + $spacing + $steptitle-width_small - $placeholder-width;
+				}
+
+				@include media-below(580px) {
+					width: 100%;
+				}
+			}
+		}
+
+		button {
+			font-size: 12px;
+		}
+
+		button.add-workflow, button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
+			@include flex-grow(1);
+			border: 1px solid $def-mediumlightgrey;
+			@include border-radius($def-radius);
+			padding: 8px;
+			@include transition(color $def-transition_duration, background-color $def-transition_duration);
+
+			svg {
+				@include transition(fill $def-transition_duration);
+			}
+
+			svg:last-of-type {
+				margin-right: 8px;
+			}
+
+			@include media-below-mid {
+
+				svg:last-of-type {
+					margin-right: 0;
+				}
+
+				span {
+					display: none;
+				}
+			}
+		}
+
+		button.add-workflow {
+			$color: $def-green;
+
+			border-color: $color;
+			color: $color;
+			background-color: $def-green-light;
+
+			svg {
+				@include size(10px, 10px);
+				fill: $color;
+			}
+
+			&:hover, &:focus {
+				color: white;
+				background-color: $color;
+
+				svg {
+					fill: white;
+				}
+			}
+		}
+
+		button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
+			background-color: $def-verylightgrey;
+
+			&:hover, &:focus {
+				background-color: $def-mediumlightgrey;
+			}
+		}
+
+		button.add-before-run-workflow {
+
+			svg {
+				@include size(10px, 10px);
+			}
+		}
+
+		button.add-after-run-workflow {
+
+			svg {
+				@include size(10px, 10px);
+			}
+		}
+
+		button.rearrange {
+
+			svg {
+				@include size(8px, 13px);
+			}
+
+			svg:first-of-type {
+				@include transform(rotate(180deg));
+			}
+		}
+
+		button.delete-workflow {
+			$color: $def-danger;
+
+			border-color: $color;
+			color: $color;
+			background-color: $def-danger-light;
+
+			svg {
+				@include size(8px, 8px);
+				fill: $color;
+			}
+
+			&:hover, &:focus {
+				color: white;
+				background-color: $color;
+
+				svg {
+					fill: white;
+				}
+			}
+		}
+
+		@include media-below-mid {
+			@include padding-x($main-horizontalpadding_small - ($button-spacing / 2));
+		}
+	}
+
 	.workflows {
 
 		section.workflow {
-			$icon-size: 52px;
-			$icon-size_small: 36px;
-			$spacing: 8px;
-			$steptitle-width: 280px;
-			$steptitle-width_small: 220px;
 			$arrow-color: $def-darkgrey;
 			$arrow-width: 1px;
 			$arrowend-width: 15px;
