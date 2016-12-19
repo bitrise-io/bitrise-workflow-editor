@@ -8,14 +8,14 @@
 			button[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"] == data[:strings][:workflows][:add_workflow_before]
 			button[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"] == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain track by $index" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
 				header.workflow-header
 					h2
 						.run-workflow
-							span.icon[ng-if="workflowsCtrl.selectedWorkflow.workflowConfig.before_run.indexOf(workflow.id) != -1"] = svg("workflow/icon-before_run")
-							span.icon[ng-if="workflowsCtrl.selectedWorkflow.workflowConfig.after_run.indexOf(workflow.id) != -1"] = svg("workflow/icon-after_run")
+							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) > $index"] = svg("workflow/icon-before_run")
+							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) < $index"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]
-						button.remove[ng-if="workflow != workflowsCtrl.selectedWorkflow"] = svg("cross")
+						button.remove[ng-if="workflow != workflowsCtrl.selectedWorkflow" ng-click="workflowsCtrl.workflowAtIndexInChainSelectedForRemove($index)"] = svg("cross")
 				article
 					ul.steps[order-by-drag models="workflow.steps"]
 						li[ng-repeat="step in workflow.steps" ng-class="{'selected': step == workflowCtrl.selectedStep}"]
@@ -102,7 +102,7 @@
 					p == data[:strings][:workflows][:run_workflows][:select]
 					ul
 						li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
-							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelected(workflow)"]
+							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
 popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
 	.popup-body-add-step.vertical-scroll.white
 		p == data[:strings][:workflows][:steps][:add][:select]

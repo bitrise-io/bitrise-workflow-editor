@@ -83,24 +83,32 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		
 		viewModel.selectedWorkflow = workflow;
 
-		viewModel.selectedWorkflowChain = [];
-
-		_.each(viewModel.workflows, function(aWorkflow) {
-			if (_.contains(workflow.workflowConfig.before_run, aWorkflow.id)) {
-				viewModel.selectedWorkflowChain.push(aWorkflow);
-			}
-		});
-
-		viewModel.selectedWorkflowChain.push(workflow);
-
-		_.each(viewModel.workflows, function(aWorkflow) {
-			if (_.contains(workflow.workflowConfig.after_run, aWorkflow.id)) {
-				viewModel.selectedWorkflowChain.push(aWorkflow);
-			}
-		});
+		updateSelectedWorkflowChain();
 
 		$rootScope.$emit("WorkflowController::workflowEditSelected", workflow);
 	};
+
+	function updateSelectedWorkflowChain() {
+		viewModel.selectedWorkflowChain = [];
+
+		_.each(viewModel.selectedWorkflow.workflowConfig.before_run, function(aWorkflowID) {
+			var beforeRunWorkflow = _.find(viewModel.workflows, {
+				id: aWorkflowID
+			});
+			beforeRunWorkflow = new Workflow(beforeRunWorkflow.id, beforeRunWorkflow.workflowConfig);
+			viewModel.selectedWorkflowChain.push(beforeRunWorkflow);
+		});
+
+		viewModel.selectedWorkflowChain.push(viewModel.selectedWorkflow);
+
+		_.each(viewModel.selectedWorkflow.workflowConfig.after_run, function(aWorkflowID) {
+			var afterRunWorkflow = _.find(viewModel.workflows, {
+				id: aWorkflowID
+			});
+			afterRunWorkflow = new Workflow(afterRunWorkflow.id, afterRunWorkflow.workflowConfig);
+			viewModel.selectedWorkflowChain.push(afterRunWorkflow);
+		});
+	}
 
 	viewModel.addWorkflowSelected = function() {
 		viewModel.addWorkflowPopup.isVisible = true;
@@ -123,14 +131,30 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.addRunWorkflowPopup.isVisible = true;
 	};
 
-	viewModel.runWorkflowSelected = function(workflow) {
+	viewModel.runWorkflowSelectedForAdd = function(workflow) {
 		var runWorkflowKey = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? "before_run" : "after_run";
 		if (!viewModel.selectedWorkflow.workflowConfig[runWorkflowKey]) {
 			viewModel.selectedWorkflow.workflowConfig[runWorkflowKey] = [];
 		}
 
 		viewModel.selectedWorkflow.workflowConfig[runWorkflowKey].push(workflow.id);
+		updateSelectedWorkflowChain();
+
 		viewModel.addRunWorkflowPopup.isVisible = false;
+	};
+
+	viewModel.workflowAtIndexInChainSelectedForRemove = function(index) {
+		var selectedWorkflowIndex = _.indexOf(viewModel.selectedWorkflowChain, viewModel.selectedWorkflow);
+		if (index < selectedWorkflowIndex) {
+			var beforeRunIndex = index;
+			viewModel.selectedWorkflow.workflowConfig.before_run.splice(beforeRunIndex, 1);
+		}
+		else {
+			var afterRunIndex = index - selectedWorkflowIndex - 1;
+			viewModel.selectedWorkflow.workflowConfig.after_run.splice(afterRunIndex, 1);
+		}
+
+		updateSelectedWorkflowChain();
 	};
 
 	viewModel.availableRunWorkflows = function() {
