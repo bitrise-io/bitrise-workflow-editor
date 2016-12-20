@@ -13,7 +13,7 @@
 			button.add-after-run-workflow[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
 				= svg("workflow/icon-after_run")
 				span == data[:strings][:workflows][:add_workflow_after]
-			button.rearrange[ng-click="workflowsCtrl.rearrangeWorkflowChainPopup.isVisible = true"]
+			button.rearrange[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
 				= svg("arrow_tailed-down")
 				= svg("arrow_tailed-down")
 				span == data[:strings][:workflows][:rearrange][:action]
@@ -21,26 +21,26 @@
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain track by workflowsCtrl.selectedWorkflow.id + '-' + $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex}"]
 				header.workflow-header
 					h2
 						.run-workflow
-							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) > $index"] = svg("workflow/icon-before_run")
-							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) < $index"] = svg("workflow/icon-after_run")
+							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) > workflowIndex"] = svg("workflow/icon-before_run")
+							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) < workflowIndex"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]
-						button.remove[ng-if="workflow != workflowsCtrl.selectedWorkflow" ng-click="workflowsCtrl.workflowAtIndexInChainSelectedForRemove($index)"] = svg("cross")
+						button.remove[ng-if="workflow != workflowsCtrl.selectedWorkflow" ng-click="workflowsCtrl.deleteRunWorkflowAtIndex(workflowIndex)"] = svg("cross")
 				article
 					ul.steps[order-by-drag models="workflow.steps"]
-						li[ng-repeat="step in workflow.steps" ng-class="{'selected': step == workflowCtrl.selectedStep}"]
-							button.add-step[ng-click="workflowCtrl.addStepSelectedBeforeStep(step)" ng-disabled="!workflowCtrl.isEditMode"] = svg("plus")
-							button.step[ng-click="workflowCtrl.stepSelected(step)" tabindex="{{ step == workflowCtrl.selectedStep ? '-1' : '0' }}"]
+						li[ng-repeat="step in workflow.steps" ng-class="{'selected': workflowIndex == workflowsCtrl.editedWorkflowIndex && step == workflowsCtrl.selectedStep}"]
+							button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-disabled="workflowIndex !== workflowsCtrl.editedWorkflowIndex"] = svg("plus")
+							button.step[ng-click="workflowsCtrl.stepSelected(step, workflowIndex)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
 								span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 								span.info
 									strong
 										span.title[ng-bind="step.displayName()"]
 										span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 									em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
-					aside.step-details[ng-if="workflowCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowCtrl.selectedStep)"]
+					aside.step-details[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
 						p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
 						p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
 						div.bitrise-steplib-step-details[ng-if="stepCtrl.step.type() == 'bitrise-steplib-step'"]
@@ -52,9 +52,9 @@
 									input[type="text" ng-model="stepCtrl.renamedStepTitle"]
 									button.ok[ng-click="stepCtrl.renameStepConfirmed()"] == data[:strings][:workflows][:steps][:rename_confirm]
 								aside
-									button.clone[ng-click="workflowCtrl.cloneStepSelected()"] = svg("step/clone")
+									button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
 									a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
-									button.delete[ng-click="workflowCtrl.deleteStepSelected()"] = svg("trash")
+									button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
 							section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}"]
 								span.icon
 									= svg("step/description")
@@ -98,7 +98,7 @@
 									tr[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
 										td.key[ng-bind="output | prettifiedVariableKey"]
 										td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
-						button.delete-step[ng-click="workflowCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
+						button.delete-step[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
 		popup[model="workflowsCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:workflows][:add_workflow][:specify_id]
@@ -116,15 +116,15 @@
 					ul
 						li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
 							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
-		popup[model="workflowsCtrl.rearrangeWorkflowChainPopup"]
+		popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
 			.popup-body-rearrange-workflow-chain
 				h2 == data[:strings][:workflows][:rearrange][:heading]
 				article.vertical-scroll
-					ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain"]
-						li[ng-repeat="workflow in workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain" ng-bind="workflow.id" ng-class="{'before-run': workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflow) < workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflow) > workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': workflow == workflowsCtrl.selectedWorkflow}"]
+					ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain"]
+						li[ng-repeat="workflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain track by ($index + '-' + workflow.id)" ng-bind="workflow.id" ng-class="{'before-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) < workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) > workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': workflow == workflowsCtrl.selectedWorkflow}"]
 				footer
-					button.done[ng-click="workflowsCtrl.rearrangeWorkflowChainFinished()"] == data[:strings][:workflows][:rearrange][:done]
-					button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowChainPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
+					button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
+					button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
 popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
 	.popup-body-add-step.vertical-scroll.white
 		p == data[:strings][:workflows][:steps][:add][:select]
