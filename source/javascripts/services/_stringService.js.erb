@@ -1,0 +1,35 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").service("stringService", function() {
+
+	var stringService = {};
+
+	stringService.stringReplacedWithParameters = function(string, parameters) {
+		_.each(parameters, function(aValue, aKey) {
+			var regexpForParameter = new RegExp("([^\<]*)\<" + aKey + "\>(.*)")
+
+			string = string.replace(regexpForParameter, "$1" + aValue + "$2");
+		});
+
+		return string;
+	};
+
+	stringService.isStringMatchingTerm = function(string, term) {
+		if (string === undefined || term === undefined) {
+			return undefined
+		}
+
+		if (term.length == 0) {
+			return true;
+		}
+
+		return string.toLowerCase().indexOf(term.toLowerCase()) != -1;
+	};
+
+	return stringService;
+
+});
+
+})();

@@ -1,0 +1,57 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, bitriseSteplibService, Step, Variable) {
+
+	var Workflow = function(id, workflowConfig) {
+		this.id = id;
+		this.workflowConfig = workflowConfig;
+		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
+			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+			var step;
+			var userStepConfig = aWrappedUserStepConfig[stepCVS];
+
+			try {
+				step = bitriseSteplibService.stepFromCVS(stepCVS);
+				step.userStepConfig = userStepConfig;
+			}
+			catch (error) {
+				step = new Step(stepCVS, userStepConfig);
+			}
+
+			return step;
+		});
+	};
+
+	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow, allWorkflows) {
+		if (this == workflow) {
+			return false;
+		}
+
+		if (!this.workflowConfig) {
+			return undefined;
+		}
+
+		if (_.contains(this.workflowConfig.before_run, workflow.id) || _.contains(this.workflowConfig.after_run, workflow.id)) {
+			return false;
+		}
+
+		if (_.isEmpty(this.workflowConfig.before_run) && _.isEmpty(this.workflowConfig.after_run)) {
+			return true;
+		}
+
+		return _.every(_.union(this.workflowConfig.before_run, this.workflowConfig.after_run), function(aWorkflowID) {
+			var aWorkflow = _.find(allWorkflows, {
+				id: aWorkflowID
+			});
+
+			return aWorkflow.isLoopSafeRunForWorkflow(workflow, allWorkflows);
+		});
+	};
+
+	return Workflow;
+
+});
+
+})();

@@ -1,0 +1,184 @@
+@import "default";
+@import "constants";
+
+// Major layouts
+
+@import "index";
+@import "tab-workflows";
+@import "tab-secrets-env_vars";
+@import "tab-triggers";
+
+// Common elements
+
+@import "popup";
+@import "notification-progress-indicator";
+@import "order-by-drag";
+
+// Basic settings
+
+:focus {
+	outline: none;
+}
+
+input::-moz-focus-inner, button::-moz-focus-inner, select::-moz-focus-inner {
+	border: 0;
+	padding: 0;
+}
+
+select:-moz-focusring {
+	color: rgba(0, 0, 0, 0);
+	text-shadow: 0 0 0 black;
+}
+
+html {
+	width: 100%;
+	min-height: 100%;
+}
+
+body {
+	@include display-flex;
+	@include flex-direction(column);
+	@include size(100%);
+	@include min-size($screen-minimum, $screen-small);
+	font-family: Verdana;
+	margin: 0;
+}
+
+button, input[type="submit"], input[type="radio"] {
+	cursor: pointer;
+
+	&:disabled {
+		cursor: not-allowed;
+	}
+}
+
+button {
+	margin: 0;
+	border: none;
+	padding: 0;
+	font: inherit;
+	color: inherit;
+	background-color: transparent;
+}
+
+input[type="submit"] {
+	@include appearance(none);
+}
+
+select {
+	$select-horizontalpadding: 12px;
+	$arrow_width: 8px;
+
+	@include appearance(none);
+	border: 1px solid $def-mediumlightgrey;
+	@include border-radius($def-radius);
+	padding: 7px $select-horizontalpadding;
+	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
+	font-family: Verdana;
+	font-size: 14px;
+	@include transition(background-color $def-transition_duration);
+	background-color: white;
+	background-image: image-url("arrow-down.svg");
+	background-size: $arrow_width auto;
+	background-position: right $select-horizontalpadding center;
+	background-repeat: no-repeat;
+	cursor: pointer;
+}
+
+select:hover, select:focus {
+	background-color: $def-verylightgrey;
+}
+
+.checkbox {
+	$transition_duration: $def-transition_duration;
+
+	z-index: $zindex-checkbox;
+	position: relative;
+	@include size(46px, 22px);
+	@include border-radius($def-radius);
+	overflow: hidden;
+
+	&:before {
+		z-index: -2;
+		content: "";
+		@include position(absolute, 0, 0);
+		@include size(100%);
+		background-color: $def-lightgrey;
+	}
+
+	input[type="checkbox"] {
+		@include size(100%);
+		@include appearance(none);
+		margin: 0;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	.checkbox-svg-wrapper {
+		z-index: -1;
+		@include position(absolute, 0, 0);
+		@include size(50%, 100%);
+		@include transition(right $transition_duration, background-color $transition_duration);
+		background-color: $def-green;
+
+		svg[check], svg[cross] {
+			position: absolute;
+			@include transition(opacity $transition_duration);
+			fill: white;
+		}
+
+		svg[check] {
+			@include size(12px, 11px);
+			top: 5px;
+			left: 6px;
+		}
+
+		svg[cross] {
+			@include size(10px, 10px);
+			top: 6px;
+			left: 7px;
+		}
+	}
+
+	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
+		right: 50%;
+		background-color: $def-danger;
+	}
+
+	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper svg[check], input[type="checkbox"]:checked + .checkbox-svg-wrapper svg[cross] {
+		opacity: 0;
+	}
+
+	input[type="checkbox"]:checked:hover + .checkbox-svg-wrapper, input[type="checkbox"]:checked:focus + .checkbox-svg-wrapper {
+		background-color: $def-green-shade;
+	}
+
+	input[type="checkbox"]:not(:checked):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):focus + .checkbox-svg-wrapper {
+		background-color: $def-danger-shade;
+	}
+
+	&.small {
+		@include size(36px, 16px);
+
+		.checkbox-svg-wrapper {
+
+			svg[check] {
+				@include size(10px, 9px);
+				top: 3px;
+				left: 4px;
+			}
+
+			svg[cross] {
+				@include size(8px, 8px);
+				top: 4px;
+				left: 5px;
+			}
+		}
+	}
+}
+
+// Common classes
+
+.vertical-scroll {
+	overflow-y: auto;
+}

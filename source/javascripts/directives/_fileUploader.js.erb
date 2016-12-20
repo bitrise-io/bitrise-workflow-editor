@@ -1,0 +1,39 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").directive("fileUploader", function() {
+
+	return {
+		restrict: "E",
+		replace: true,
+		transclude: true,
+		template: function(tElement, tAttrs) {
+			var formElement = angular.element("<form></form");
+			$(formElement).attr("ng-submit", tAttrs.onupload);
+			$(formElement).addClass("file-uploader");
+
+			var contentElement = angular.element("<div></div>");
+			contentElement.attr("ng-transclude", "");
+			$(formElement).append(contentElement);
+
+			var fileInputElement = angular.element("<input>");
+			fileInputElement.attr("type", "file");
+			$(formElement).append(fileInputElement);
+
+			var submitInputElement = angular.element("<input>");
+			submitInputElement.attr("type", "submit");
+			$(formElement).append(submitInputElement);
+
+			return formElement.prop("outerHTML");
+		},
+		link: function(scope, element, attrs) {
+			$(element).find("input[type='file']").change(function() {
+				$(element).find("input[type='submit']").click();
+			});
+		}
+	};
+
+});
+
+})();

@@ -1,0 +1,227 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Step", function(bitriseSteplibService, Variable) {
+
+	var Step = function(cvs, userStepConfig, defaultStepConfig) {
+		this.cvs = cvs;
+		this.steplibSourceURL;
+		this.id;
+		this.version;
+		this.userStepConfig = userStepConfig;
+		this.defaultStepConfig = defaultStepConfig;
+	};
+
+	Step.prototype.type = function() {
+		if (this.id === undefined) {
+			return "errorous-step";
+		}
+
+		if (bitriseSteplibService.isBitriseSteplibStep(this)) {
+			return "bitrise-steplib-step";
+		}
+
+		return "non-bitrise-steplib-step";
+	};
+
+	Step.prototype.displayName = function() {
+		if (this.id === undefined) {
+			return this.cvs;
+		}
+
+		if (bitriseSteplibService.isBitriseSteplibStep(this)) {
+			return this.title();
+		}
+
+		return this.id;
+	};
+
+	Step.prototype.title = function(newTitle) {
+		return parameterGetterSetter(this, "title", newTitle);
+	};
+
+	Step.prototype.summary = function(newSummary) {
+		return parameterGetterSetter(this, "summary", newSummary);
+	};
+
+	Step.prototype.description = function(newDescription) {
+		return parameterGetterSetter(this, "description", newDescription);
+	};
+
+	Step.prototype.sourceURL = function(newSourceURL) {
+		return parameterGetterSetter(this, "source_code_url", newSourceURL);
+	};
+
+	Step.prototype.iconURL = function(newIconURL) {
+		if (newIconURL !== undefined) {
+			var regexpForIconType = new RegExp("^.*\.(svg|png)");
+			var iconType;
+			var iconTypeKey;
+
+			if (regexpForIconType.test(newIconURL) && regexpForIconType.exec(newIconURL)[1]) {
+				iconType = regexpForIconType.exec(newIconURL)[1];
+				iconTypeKey = "icon." + iconType;
+			}
+			else {
+				return this.iconURL();
+			}
+
+			if (this.defaultStepConfig && this.defaultStepConfig.asset_urls[iconTypeKey] && this.defaultStepConfig.asset_urls[iconTypeKey] == newIconURL) {
+				if (this.userStepConfig && this.userStepConfig.asset_urls) {
+					delete this.userStepConfig.asset_urls[iconTypeKey];
+
+					if (_.isEmpty(this.userStepConfig.asset_urls)) {
+						delete this.userStepConfig["asset_urls"];
+					}
+
+					if (_.isEmpty(this.userStepConfig)) {
+						this.userStepConfig = null;
+					}
+				}
+			}
+			else {
+				if (!this.userStepConfig) {
+					this.userStepConfig = {};
+				}
+
+				if (!this.userStepConfig.asset_urls) {
+					this.userStepConfig.asset_urls = [];
+				}
+
+				this.userStepConfig.asset_urls[iconTypeKey] = newIconURL;
+			}
+		}
+
+		if (this.userStepConfig && this.userStepConfig.asset_urls) {
+			if (this.userStepConfig.asset_urls["icon.svg"]) {
+				return this.userStepConfig.asset_urls["icon.svg"];
+			}
+
+			if (this.userStepConfig.asset_urls["icon.png"]) {
+				return this.userStepConfig.asset_urls["icon.png"];
+			}
+		}
+
+		if (this.defaultStepConfig && this.defaultStepConfig.asset_urls) {
+			if (this.defaultStepConfig.asset_urls["icon.svg"]) {
+				return this.defaultStepConfig.asset_urls["icon.svg"];
+			}
+
+			return this.defaultStepConfig.asset_urls["icon.png"];
+		}
+
+		return undefined;
+	};
+
+	Step.prototype.typeTags = function(newTypeTags) {
+		return parameterGetterSetter(this, "type_tags", newTypeTags);
+	};
+
+	Step.prototype.isAlwaysRun = function(newIsAlwaysRun) {
+		return parameterGetterSetter(this, "is_always_run", newIsAlwaysRun);
+	}
+
+	Step.prototype.isVerified = function() {
+		var sourceURL = this.sourceURL();
+
+		if (sourceURL === undefined) {
+			return undefined;
+		}
+
+		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
+
+		return regexpForVerifiedStepSourceURL.test(sourceURL);
+	};
+
+	Step.prototype.requestedVersion = function() {
+		if (this.cvs.indexOf("@") == -1) {
+			return null;
+		}
+
+		return this.version;
+	};
+
+	Step.cvsFromWrappedStepConfig = function(wrappedStepConfig) {
+		return _.first(_.keys(angular.fromJson(angular.toJson(wrappedStepConfig))));
+	};
+
+	Step.prototype.wrappedUserStepConfig = function() {
+		var wrappedUserStepConfig = {};
+		wrappedUserStepConfig[this.cvs] = this.userStepConfig ? this.userStepConfig : {};
+
+		return wrappedUserStepConfig;
+	};
+
+	function parameterGetterSetter(step, parameterKey, parameterValue) {
+		if (parameterValue === undefined) {
+			if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
+				return step.userStepConfig[parameterKey];
+			}
+
+			return step.defaultStepConfig ? step.defaultStepConfig[parameterKey] : undefined;
+		}
+
+		if (!step.defaultStepConfig || parameterValue != step.defaultStepConfig[parameterKey]) {
+			if (!step.userStepConfig) {
+				step.userStepConfig = {};
+			}
+
+			step.userStepConfig[parameterKey] = parameterValue;
+		}
+		else if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
+			delete step.userStepConfig[parameterKey];
+		}
+
+		return parameterValue;
+	}
+
+	return Step;
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function() {
+
+	return function(step) {
+		if (!step) {
+			return undefined;
+		}
+
+		var defaultStepIconURL = "<%= image_path('step/icon-default.svg') %>";
+		var stepIconURL = step.iconURL();
+
+		return stepIconURL ? stepIconURL : defaultStepIconURL;
+	};
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() {
+
+	return function(step) {
+		if (!step) {
+			return undefined;
+		}
+
+		var sourceURL = step.sourceURL();
+
+		var regexpForGithubStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/.+");
+		if (regexpForGithubStepSourceURL.test(sourceURL)) {
+			return "github";
+		}
+
+		var regexpForBitbucketStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?bitbucket\.(?:com|org)\/.+");
+		if (regexpForBitbucketStepSourceURL.test(sourceURL)) {
+			return "bitbucket";
+		}
+		
+		var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
+		if (regexpForGitlabStepSourceURL.test(sourceURL)) {
+			return "gitlab";
+		}
+
+		return "unknown";
+	};
+
+});
+
+})();

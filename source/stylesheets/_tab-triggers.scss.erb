@@ -1,0 +1,500 @@
+@import "default";
+@import "constants";
+
+.tab-triggers {
+
+	.type-filter {
+		$border: 1px solid $def-green;
+
+		@include display-flex;
+		border: $border;
+		@include border-radius($def-radius);
+
+		.type {
+			@include flex-grow(1);
+			position: relative;
+			color: $def-green;
+
+			input[type="radio"] {
+				@include position(absolute, 0, 0);
+				@include size(100%);
+				margin: 0;
+				opacity: 0;
+			}
+
+			label {
+				display: block;
+				padding: 12px 15px;
+				text-align: center;
+				font-size: 14px;
+				font-weight: 200;
+				color: $def-green;
+				text-transform: uppercase;
+				@include transition(color $def-transition_duration, background-color $def-transition_duration);
+			}
+
+			input[type="radio"]:checked + label, input[type="radio"]:hover + label, input[type="radio"]:focus + label {
+				background-color: $def-green;
+				color: white;
+			}
+		}
+
+		.type:not(:first-child) {
+			border-left: $border;
+		}
+	}
+
+	ul {
+		$entry_height: 60px;
+		$deletebutton_size: $entry_height;
+		$spacing: 10px;
+
+		padding-left: 0;
+		list-style: none;
+
+		li {
+			$manage_trigger-border: 1px solid $def-lightgrey;
+			$manage_trigger-border_radius: $def-radius;
+
+			@include display-flex;
+			@include flex-direction(column);
+			position: relative;
+			padding-right: $deletebutton_size;
+
+			button.add-trigger {
+				border: 1px solid $def-green;
+				@include border-radius($def-radius);
+				padding: 6px;
+				font-size: 12px;
+				font-weight: 200;
+				color: $def-green;
+				text-transform: uppercase;
+				@include transition(color $def-transition_duration, background-color $def-transition_duration);
+				background-color: $def-green-verylight;
+
+				&:before {
+					content: "+";
+					margin-right: 8px;
+				}
+			}
+
+			button.add-trigger.before {
+				@include order(1);
+			}
+
+			button.add-trigger.after {
+				@include order(3);
+			}
+
+			button.add-trigger:disabled {
+				visibility: hidden;
+			}
+
+			button.add-trigger:hover, button.add-trigger:focus {
+				color: white;
+				background-color: $def-green;
+			}
+
+			button.add-trigger, .trigger .trigger-info {
+				@include box-sizing(border-box);
+				width: 50%;
+			}
+
+			.add-trigger.before ~ .trigger, .add-trigger.after {
+				margin-top: $spacing;
+			}
+
+			.trigger {
+				$arrow-reserved_width: 80px;
+
+				@include order(2);
+				@include display-flex;
+
+				.manage-trigger .trigger-infos, button.select-trigger {
+					background-color: $def-lightgrey;
+
+					.trigger-info {
+						height: $entry_height;
+						@include padding-x(15px);
+					}
+
+					&:not(.ninja) > svg {
+						$width: 16px;
+
+						@include size($width, 10px);
+						@include margin-x(0.5 * ($arrow-reserved_width - $width));
+						vertical-align: middle;
+						fill: $def-darkgrey;
+					}
+				}
+
+				.manage-trigger {
+					width: 100%;
+
+					.trigger-infos {
+						@include display-flex;
+						@include align-items(center);
+						@include border-radius($manage_trigger-border_radius);
+						overflow: hidden;
+
+						.pattern {
+							@include flex-shrink(0);
+							border: $manage_trigger-border;
+							border-right: none;
+							@include border-left-radius($manage_trigger-border_radius);
+							background-color: white;
+
+							label {
+								@include order(1);
+								@include flex-shrink(0);
+								font-size: 12px;
+								text-transform: uppercase;
+								color: $def-grey;
+								@include transition(color $def-transition_duration);
+
+								&:after {
+									content: ":";
+									margin-right: 15px;
+								}
+							}
+
+							input.value {
+								@include order(2);
+								@include flex-grow(1);
+								@include align-self(stretch);
+								border: none;
+							}
+
+							input.value.ng-not-empty + label {
+								color: $def-green;
+							}
+						}
+
+						.pattern.push, .pattern.tag {
+							@include display-inline-flex;
+							@include align-items(center);
+						}
+
+						.pattern.pull-request {
+							@include display-inline-flex;
+							@include flex-direction(column);
+							@include padding-x(0);
+
+							.source, .target {
+								@include flex-grow(1);
+								@include display-flex;
+								@include align-items(center);
+								@include padding-x(20px);
+
+								label {
+									width: 130px;
+								}
+							}
+
+							&:not(.ninja) > :not(:last-child) {
+								border-bottom: $manage_trigger-border;
+							}
+						}
+
+						&:not(.ninja) > svg {
+							@include flex-shrink(0);
+						}
+
+						select.workflow {
+							border: $manage_trigger-border;
+							border-left: none;
+							@include border-left-radius(0);
+							@include border-right-radius($manage_trigger-border_radius);
+						}
+					}
+
+					.actions {
+						@include display-flex;
+						width: 50%;
+						margin-top: $spacing;
+
+						button {
+							@include flex-grow(1);
+
+							@include border-radius($def-radius);
+							padding: 10px;
+							font-size: 12px;
+							font-weight: 100;
+							@include transition(background-color $def-transition_duration);
+						}
+
+						button:not(:last-child) {
+							margin-right: $spacing;
+						}
+
+						button.done {
+							background-color: $def-green;
+							color: white;
+						}
+
+						button.done:hover {
+							background-color: $def-green-shade;
+						}
+
+						button.cancel {
+							background-color: $def-grey;
+							color: white;
+						}
+
+						button.cancel:hover {
+							background-color: $def-mediumdarkgrey;
+						}
+					}
+				}
+
+				button.select-trigger {
+					$transition_duration: $def-transition_duration;
+
+					width: 100%;
+					overflow: hidden;
+					@include border-radius($def-radius);
+					@include transition(background-color $transition_duration);
+
+					span.trigger-info {
+						@include display-inline-flex;
+						@include flex-direction(column);
+						@include justify-content(center);
+						@include box-sizing(border-box);
+						
+						vertical-align: middle;
+						text-align: left;
+						@include transition(background-color $transition_duration);
+
+						strong.value {
+							@include ellipsis-oneliner;
+						}
+					}
+
+					span.pattern {
+						$icon_size: 40px;
+
+						position: relative;
+						padding-left: $icon_size;
+						background-color: $def-verylightgrey;
+
+						&:before {
+							content: "";
+							@include position(absolute, 0, null, null, 0);
+							@include size($icon_size, 100%);
+							background-repeat: no-repeat;
+							background-position: center;
+							@include transition(background-color $transition_duration);
+						}
+
+						&.push:before {
+							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
+								fill: rgba($def-darkgrey, 0.99)
+							));
+
+							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+							background-size: auto 24px;
+						}
+
+						&.pull-request:before {
+							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-pull_request") %>', (
+								fill: rgba($def-darkgrey, 0.99)
+							));
+
+							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+							background-size: auto 22px;
+						}
+
+						&.tag:before {
+							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-tag") %>', (
+								fill: rgba($def-darkgrey, 0.99)
+							));
+
+							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+							background-size: auto 20px;
+						}
+					}
+
+					span.pull-request {
+
+						span.source, span.target {
+							@include display-flex;
+
+							span.label {
+								@include flex-shrink(0);
+								@include box-sizing(border-box);
+								width: 120px;
+								margin-right: 5px;
+								@include border-radius($def-radius);
+								@include padding-y(2px);
+								text-align: center;
+								font-size: 12px;
+								text-transform: uppercase;
+								font-weight: 100;
+								background-color: $def-green;
+								color: white;
+							}
+						}
+
+						span.source + span.target {
+							margin-top: 2px;
+						}
+					}
+
+					span.workflow {
+						margin-left: - $arrow-reserved_width;
+						border-left: $arrow-reserved_width solid transparent;
+						background-color: $def-green-verylight;
+						background-clip: padding-box;
+					}
+				}
+
+				button.select-trigger:hover, button.select-trigger:focus {
+					background-color: $def-grey;
+
+					.pattern {
+						background-color: $def-lightgrey;
+					}
+
+					.workflow {
+						background-color: $def-green-light;
+
+						&:before {
+							background-color: $def-grey;
+						}
+					}
+				}
+
+				button.delete {
+					$width: $deletebutton_size;
+
+					@include position(relative, null, 0, 0, $width);
+					@include flex-shrink(0);
+					width: $width;
+					margin-left: - $width;
+
+					svg {
+						@include size(18px, 19px);
+						fill: $def-grey;
+						@include transition(fill $def-transition_duration);
+					}
+				}
+
+				button.delete:hover, button.delete:focus {
+
+					svg {
+						fill: $def-danger;
+					}
+				}
+			}
+
+			@include media-below-mid {
+
+				button.add-trigger {
+					width: 100%;
+				}
+
+				.trigger {
+
+					.manage-trigger .trigger-infos, button.select-trigger {
+
+						.trigger-info {
+							width: auto;
+						}
+
+						&:not(.ninja) > svg {
+							display: block;
+							margin: 15px auto;
+							@include transform(rotate(90deg));
+						}
+					}
+
+					.manage-trigger {
+
+						.trigger-infos {
+							@include flex-direction(column);
+							@include align-items(stretch);
+
+							.pattern {
+								border: $manage_trigger-border;
+								border-bottom: none;
+								@include border-top-radius($manage_trigger-border_radius);
+								@include border-bottom-radius(0);
+							}
+
+							select.workflow {
+								border: $manage_trigger-border;
+								border-top: none;
+								@include border-top-radius(0);
+								@include border-bottom-radius($manage_trigger-border_radius);
+							}
+						}
+
+						.actions {
+							width: auto;
+						}
+					}
+
+					button.select-trigger {
+
+						span.trigger-info {
+							@include display-flex;
+						}
+
+						span.workflow {
+							margin-left: 0;
+							border-left: none;
+						}
+					}
+				}
+			}
+
+			@include media-below-small {
+
+				.trigger {
+
+					.manage-trigger {
+
+						.trigger-infos {
+
+							.pattern.push, .pattern.tag, .pattern.pull-request .source, .pattern.pull-request .target {
+								@include flex-direction(column);
+								@include align-items(flex-start);
+								@include padding-y(12px);
+
+								input.value {
+									height: 32px;
+								}
+							}
+
+							.pattern {
+								height: auto;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		li:not(:last-child) {
+			margin-bottom: $spacing;
+		}
+	}
+
+	ul.drag-in-progress li {
+
+		button.add-trigger {
+			visibility: hidden;
+		}
+
+		.trigger {
+
+			button.delete {
+				visibility: hidden;
+			}
+		}
+	}
+
+	ul.drag-in-progress li.dragged-element {
+		z-index: $zindex-dragged_element;
+	}
+}

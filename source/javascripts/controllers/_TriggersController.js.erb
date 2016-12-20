@@ -1,0 +1,168 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, Progress, Trigger, Workflow) {
+
+	var viewModel = this;
+
+	var addTriggerProgress = new Progress();
+
+	viewModel.appConfig;
+	viewModel.workflows;
+
+	$scope.triggerTypes = [{
+		id: 'push',
+		triggers: undefined
+	}, {
+		id: 'pull-request',
+		triggers: undefined
+	}, {
+		id: 'tag',
+		triggers: undefined
+	}];
+	viewModel.selectedTriggerType;
+
+	viewModel.selectedTrigger = null;
+	viewModel.editedTrigger;
+	viewModel.newTriggerIndex;
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
+		configureWithAppConfig(appConfig);
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, appConfig) {
+		configureWithAppConfig(appConfig);
+	}));
+
+	$scope.$watch("triggerTypes", function(triggerTypes) {
+		if (!viewModel.appConfig) {
+			return;
+		}
+
+		viewModel.appConfig.trigger_map = [];
+
+		_.each(triggerTypes, function(aTriggerType) {
+			_.each(aTriggerType.triggers, function(aTrigger) {
+				viewModel.appConfig.trigger_map.push(aTrigger.triggerConfig);
+			});
+		});
+
+		if (_.isEmpty(viewModel.appConfig.trigger_map)) {
+			delete viewModel.appConfig["triggers"];
+		}
+	}, true);
+
+	function configureWithAppConfig(appConfig) {
+		viewModel.appConfig = appConfig;
+		viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, workflowID) {
+			return new Workflow(workflowID, aWorkflowConfig);
+		});
+
+		_.each($scope.triggerTypes, function(aTriggerType) {
+			aTriggerType.triggers = [];
+		});
+
+		_.each(viewModel.appConfig.trigger_map, function(triggerConfig) {
+			var trigger = new Trigger(triggerConfig);
+
+			_.find($scope.triggerTypes, {
+				id: trigger.type()
+			}).triggers.push(trigger);
+		});
+
+		if (!viewModel.selectedTriggerType) {
+			viewModel.triggerTypeSelected(_.first($scope.triggerTypes));
+		}
+	}
+
+	viewModel.triggerTypeSelected = function(triggerType) {
+		if (triggerType !== undefined) {
+			viewModel.selectedTriggerType = triggerType;
+			viewModel.triggerSelected(null);
+		}
+
+		return viewModel.selectedTriggerType;
+	};
+
+	viewModel.triggerSelected = function(trigger) {
+		if (addTriggerProgress.isInProgress) {
+			viewModel.triggerEditCancelled();
+		}
+
+		viewModel.selectedTrigger = trigger;
+		viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
+	};
+
+	viewModel.deleteTriggerSelected = function(trigger) {
+		var index = _.indexOf(viewModel.selectedTriggerType.triggers, trigger);
+		viewModel.selectedTriggerType.triggers.splice(index, 1);
+
+		viewModel.triggerSelected(null);
+	};
+
+	viewModel.addTriggerSelectedAtIndex = function(index) {
+		console.log(index);
+		var newTrigger = new Trigger();
+		newTrigger.type(viewModel.selectedTriggerType.id);
+		newTrigger.workflowID(_.first(viewModel.workflows).id);
+
+		viewModel.selectedTriggerType.triggers.splice(index, 0, newTrigger);
+
+		viewModel.triggerSelected(newTrigger);
+		addTriggerProgress.start();
+	};
+
+	viewModel.triggerEditFinished = function() {
+		viewModel.selectedTrigger.workflowID(viewModel.editedTrigger.workflowID());
+
+		switch (viewModel.selectedTrigger.type()) {
+			case "push":
+				viewModel.selectedTrigger.pushBranchPattern(viewModel.editedTrigger.pushBranchPattern());
+
+				break;
+			case "pull-request":
+				viewModel.selectedTrigger.pullRequestSourceBranchPattern(viewModel.editedTrigger.pullRequestSourceBranchPattern());
+				viewModel.selectedTrigger.pullRequestTargetBranchPattern(viewModel.editedTrigger.pullRequestTargetBranchPattern());
+
+				break;
+			case "tag":
+				viewModel.selectedTrigger.tagPattern(viewModel.editedTrigger.tagPattern());
+
+				break;
+		}
+
+		if (addTriggerProgress.isInProgress) {
+			addTriggerProgress.success();
+		}
+		
+		viewModel.triggerSelected(null);
+	};
+
+	viewModel.triggerEditCancelled = function() {
+		if (addTriggerProgress.isInProgress) {
+			addTriggerProgress.reset();
+			viewModel.deleteTriggerSelected(viewModel.selectedTrigger);
+		}
+		else {
+			viewModel.triggerSelected(null);
+		}
+	};
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
+		if (_.any(viewModel.triggerTypes, function(aTriggerType) {
+			return _.any(aTriggerType.triggers, function(aTrigger) {
+				return !_.find(viewModel.workflows, {
+					id: aTrigger.workflowID()
+				});
+			});
+		})) {
+			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:triggers][:trigger_with_invalid_workflow] %>"));
+		}
+	}));
+
+	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
+
+});
+
+})();

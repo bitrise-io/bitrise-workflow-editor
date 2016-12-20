@@ -1,0 +1,200 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step, Variable) {
+
+	var viewModel = this;
+
+	viewModel.configureModeProgress = new Progress();
+
+	viewModel.menus;
+	viewModel.menuProgress = new Progress();
+	viewModel.currentMenu;
+
+	var appConfig;
+	var savedAppConfig;
+	viewModel.loadAppConfigProgress = new Progress();
+
+	viewModel.saveProgress = new Progress();
+
+	function configureMode() {
+		try {
+			requestService.configureMode();
+		}
+		catch (error) {
+			viewModel.configureModeProgress.error(error);
+
+			return;
+		}
+
+		viewModel.menus = _.compact([{
+			id: "workflows",
+			title: "<%= data[:strings][:main][:menus][0] %>",
+			path: "<%= data[:routes][:endpoints][:workflows] %>",
+			cssClass: "workflows"
+		}, (requestService.mode == "website" ? {
+			id: "code-signing",
+			title: "<%= data[:strings][:main][:menus][1] %>",
+			path: "<%= data[:routes][:endpoints][:code_signing] %>",
+			cssClass: "code-signing"
+		} : null), {
+			id: "secrets",
+			title: "<%= data[:strings][:main][:menus][2] %>",
+			path: "<%= data[:routes][:endpoints][:secrets] %>",
+			cssClass: "secrets"
+		}, {
+			id: "env-vars",
+			title: "<%= data[:strings][:main][:menus][3] %>",
+			path: "<%= data[:routes][:endpoints][:env_vars] %>",
+			cssClass: "env-vars"
+		}, {
+			id: "triggers",
+			title: "<%= data[:strings][:main][:menus][4] %>",
+			path: "<%= data[:routes][:endpoints][:triggers] %>",
+			cssClass: "triggers"
+		}, {
+			id: "yml",
+			title: "<%= data[:strings][:main][:menus][5] %>",
+			path: "<%= data[:routes][:endpoints][:yml] %>",
+			cssClass: "yml"
+		}]);
+	}
+
+	function loadAppConfig() {
+		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.getAppConfig({
+			timeout: canceler.promise
+		}).then(function(_appConfig) {
+			appConfig = _appConfig;
+			savedAppConfig = angular.copy(_appConfig);
+			minimizeAppConfig(appConfig);
+
+			viewModel.loadAppConfigProgress.success();
+
+			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
+		}, function(error) {
+			viewModel.loadAppConfigProgress.error(error);
+		});
+	}
+
+	function minimizeAppConfig(_appConfig) {
+		var variableConfigs = [];
+
+		if (_appConfig.app && _appConfig.app.envs) {
+			variableConfigs = _.union(variableConfigs, _appConfig.app.envs);
+		}
+
+		if (_appConfig.workflows) {
+			_.each(_appConfig.workflows, function(aWorkflowConfig) {
+				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
+
+				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+					var stepConfig = aWrappedUserStepConfig[stepCVS];
+
+					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
+						delete stepConfig["source"];
+					}
+
+					if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
+						delete stepConfig["deps"];
+					}
+				});
+			});
+		}
+
+		_.each(variableConfigs, Variable.minimizeVariableConfig);
+	}
+
+	$scope.$on("$routeChangeStart", function() {
+		viewModel.menuProgress.start("Loading, wait a sec...");
+	});
+
+	$scope.$on("$routeChangeSuccess", function() {
+		viewModel.menuProgress.success();
+
+		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
+			return $location.path() == "/" + aMenu.path;
+		});
+	});
+
+	$scope.$on("$routeChangeError", function() {
+		viewModel.menuProgress.error(new Error("Failed to load menu."));
+	});
+
+	viewModel.discardChanges = function() {
+		appConfig = angular.copy(savedAppConfig);
+		minimizeAppConfig(appConfig);
+
+		$rootScope.$emit("MainController::discardChanges", appConfig);
+	};
+
+	viewModel.saveChanges = function() {
+		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		var error;
+		var unwatchError = $rootScope.$on("MainController::validationError", function(event, _error) {
+			error = _error;
+		});
+
+		$rootScope.$emit("MainController::requestValidationBeforeSave");
+		unwatchError();
+
+		if (error) {
+			viewModel.saveProgress.error(error);
+
+			return;
+		}
+
+		$q(function(resolve, reject) {
+			switch (viewModel.currentMenu.id) {
+				case "secrets": {
+					$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
+
+					break;
+				}
+				case "yml": {
+					$rootScope.$emit("YMLController::saveAppConfigYML", resolve, reject);
+
+					break;
+				}
+				default: {
+					requestService.postAppConfig(appConfig, {
+						timeout: canceler.promise
+					}).then(resolve, reject);
+
+					break;
+				}
+			}
+		}).then(function() {
+			viewModel.saveProgress.success();
+
+			loadAppConfig();
+		}, function(error) {
+			viewModel.saveProgress.error(error)
+		});
+	};
+
+	$rootScope.$on("MainController::menuContentIsLoadedAndReady", function() {
+		loadAppConfig();
+	});
+
+	configureMode();
+
+});
+
+})();

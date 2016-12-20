@@ -1,0 +1,89 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("InputController", function($scope, $rootScope, Variable) {
+
+	var viewModel = this;
+
+	var step;
+	var defaultInputConfig;
+	var unwatchPreviousUserInputConfig;
+
+	viewModel.input;
+
+	viewModel.init = function(_step, _defaultInputConfig) {
+		defaultInputConfig = _defaultInputConfig;
+
+		viewModel.configureWithStep(_step);
+	};
+
+	viewModel.configureWithStep = function(_step) {
+		if (unwatchPreviousUserInputConfig) {
+			unwatchPreviousUserInputConfig();
+		}
+
+		step = _step;
+
+		var userInputConfig = step.userStepConfig ? _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
+			return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(defaultInputConfig);
+		}) : null;
+
+		viewModel.input = new Variable(userInputConfig, defaultInputConfig);
+
+		unwatchPreviousUserInputConfig = $scope.$watch(function() {
+			return !viewModel.input.userVariableConfig || _.isEmpty(angular.copy(viewModel.input.userVariableConfig));
+		}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
+			if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
+				var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+					return Variable.keyFromVariableConfig(aUserInputConfig) == viewModel.input.key();
+				});
+
+				step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+
+				if (_.isEmpty(angular.copy(step.userStepConfig.inputs))) {
+					delete step.userStepConfig["inputs"];
+				}
+
+				if (_.isEmpty(angular.copy(step.userStepConfig))) {
+					step.userStepConfig = null;
+				}
+			}
+
+			if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
+				if (!step.userStepConfig) {
+					step.userStepConfig = {};
+				}
+
+				if (!step.userStepConfig.inputs) {
+					step.userStepConfig.inputs = [];
+				}
+
+				var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+					return Variable.keyFromVariableConfig(aUserInputConfig) == viewModel.input.key();
+				});
+
+				if (indexOfUserInputConfig != -1) {
+					step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+				}
+
+				step.userStepConfig.inputs.push(viewModel.input.userVariableConfig);
+			}
+		});
+	};
+
+	$scope.$on("$destroy", $rootScope.$on("InputController::configureWithStep", function(event, _step) {
+		viewModel.configureWithStep(_step);
+	}));
+
+	viewModel.inputValueBlurred = function(event) {
+		$rootScope.$emit("InsertVariableController::setInsertStartEndPosition", event.target.selectionStart, event.target.selectionEnd);
+	};
+
+	viewModel.insertVariableSelected = function() {
+		$rootScope.$emit("InsertVariableController::showInsertVariablePopupForTargetInput", viewModel.input);
+	};
+
+});
+
+})();

@@ -1,0 +1,213 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $rootScope, $q, $filter, requestService, bitriseSteplibService, Progress, Popup, Step, Variable) {
+
+	var viewModel = this;
+
+	viewModel.popup = new Popup();
+	viewModel.popup.beforeAppearCallback = function() {
+		loadInsertableVariables();
+	};
+	viewModel.popup.afterDismissCallback = function() {
+		viewModel.keyFilter = "";
+		targetInput = undefined;
+		insertStartPosition = undefined;
+		insertEndPosition = undefined;
+	};
+
+	viewModel.insertableVariablesForAllWorkflows = [{
+		source: {
+			id: "from_bitriseio",
+			title: "from bitrise.io"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_bitrise_cli",
+			title: "from bitrise CLI"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_secrets",
+			title: "from secrets"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_app_env_vars",
+			title: "from app env vars"
+		},
+		variables: undefined
+	}, {
+		source: {
+			id: "from_workflow_env_vars",
+			title: "from workflow env vars"
+		},
+		variables: undefined
+	}];
+	viewModel.insertableVariables;
+	viewModel.loadInsertableVariablesProgress = new Progress();
+
+	viewModel.keyFilter = "";
+
+	var appConfig;
+	var selectedWorkflow;
+	var selectedStep;
+	var targetInput;
+	var insertStartPosition;
+	var insertEndPosition;
+
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::showInsertVariablePopupForTargetInput", function(event, _targetInput) {
+		targetInput = _targetInput;
+		$rootScope.$emit("InsertVariableController::requestingParametersForInsertVariable");
+
+		if (insertStartPosition === undefined) {
+			insertStartPosition = targetInput.value.length;
+		}
+		if (insertEndPosition === undefined) {
+			insertEndPosition = targetInput.value.length;
+		}
+
+		viewModel.popup.isVisible = true;
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::configureInsertVariableWithParameters", function(event, _appConfig, _selectedWorkflow, _selectedStep) {
+		appConfig = _appConfig;
+		selectedWorkflow = _selectedWorkflow;
+		selectedStep = _selectedStep;
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::setInsertStartEndPosition", function(event, _insertStartPosition, _insertEndPosition) {
+		insertStartPosition = _insertStartPosition;
+		insertEndPosition = _insertEndPosition;
+	}));
+
+	function loadInsertableVariables() {
+		viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:insertable_variables][:load_progress] %>");
+
+		$q.all([function() {
+			if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_bitriseio";
+			}).variables && !_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_bitrise_cli";
+			}).variables) {
+				return loadDefaultOutputs();
+			}
+
+			return $q.when();
+		}(), function() {
+			if (!_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_secrets";
+			}).variables) {
+				return loadSecrets();
+			}
+
+			return $q.when();
+		}()]).then(function() {
+			viewModel.loadInsertableVariablesProgress.success();
+		}, function(error) {
+			viewModel.loadInsertableVariablesProgress.error(error)
+		});
+
+		var appEnvVarsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_app_env_vars";
+		});
+		if (!appEnvVarsBySource.variables) {
+			appEnvVarsBySource.variables = _.map(appConfig.app.envs, function(aVariableConfig) {
+				return new Variable(aVariableConfig);
+			});
+		}
+
+		_.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+			return variablesOfSource.source.id == "from_workflow_env_vars";
+		}).variables = selectedWorkflow.envVars;
+
+		var outputsOfStepsBeforeSelectedInput = [];
+		_.any(selectedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig, index) {
+			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+			var userStepConfig = aWrappedUserStepConfig[stepCVS];
+			if (userStepConfig == selectedStep.userStepConfig) {
+				return true;
+			}
+
+			var step = bitriseSteplibService.stepFromCVS(stepCVS);
+			if (!step.defaultStepConfig || !step.defaultStepConfig.outputs) {
+				return false;
+			}
+
+			step.userStepConfig = userStepConfig;
+
+			outputsOfStepsBeforeSelectedInput.push({
+				source: {
+					id: index,
+					title: "output of step: " + step.displayName()
+				},
+				variables: _.map(step.defaultStepConfig.outputs, function(anOutputConfig) {
+					return new Variable(undefined, anOutputConfig);
+				})
+			});
+		});
+
+		viewModel.insertableVariables =  _.union(viewModel.insertableVariablesForAllWorkflows, outputsOfStepsBeforeSelectedInput);
+	}
+
+	function loadDefaultOutputs() {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		return requestService.getDefaultOutputs({
+			timeout: canceler.promise
+		}).then(function(defaultOutputConfigsBySource) {
+			_.each(defaultOutputConfigsBySource, function(defaultOutputConfigs, sourceID) {
+				var defaultOutputsOfSource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+					return variablesOfSource.source.id == sourceID;
+				});
+
+				defaultOutputsOfSource.variables = [];
+				_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
+					defaultOutputsOfSource.variables.push(new Variable(undefined, aDefaultOutputConfig));
+				});
+			});
+		});
+	};
+
+	function loadSecrets() {
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		return requestService.getSecrets({
+			timeout: canceler.promise
+		}).then(function(secretConfigs) {
+			var secretsBySource = _.find(viewModel.insertableVariablesForAllWorkflows, function(variablesOfSource) {
+				return variablesOfSource.source.id == "from_secrets";
+			});
+
+			secretsBySource.variables = [];
+			_.each(secretConfigs, function(aSecretConfig) {
+				secretsBySource.variables.push(new Variable(aSecretConfig));
+			});
+		});
+	};
+
+	viewModel.insertVariable = function(variable) {
+		var oldValue = targetInput.value();
+		if (oldValue === null) {
+			oldValue = "";
+		}
+		
+		targetInput.value(oldValue.slice(0, insertStartPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(insertEndPosition));
+		viewModel.popup.isVisible = false;
+	};
+
+});
+
+})();
