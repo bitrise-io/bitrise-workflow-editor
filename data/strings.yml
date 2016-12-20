@@ -30,7 +30,11 @@ workflows:
     new_workflow_info: "Note: configuration of the new Workflow will be copied from the currently selected Workflow"
   add_workflow_after: Add Workflow after
   add_workflow_before: Add Workflow before
-  rearrange: Rearrange
+  rearrange:
+    action: Rearrange
+    heading: Drag & drop to rearrange Workflows
+    done: Done
+    cancel: Cancel
   delete_workflow: Delete Workflow
   env_vars:
     no_env_vars: No Env Vars for this Workflow yet

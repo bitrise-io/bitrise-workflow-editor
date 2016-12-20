@@ -1275,3 +1275,108 @@
 		display: inline-block;
 	}
 }
+
+.popup-body-rearrange-workflow-chain {
+	@include border-radius($popup-radius);
+	overflow: hidden;
+
+	h2 {
+		@include margin-y(0);
+		@include padding-y(18px);
+		text-align: center;
+		background-color: $def-verylightgrey;
+		font-size: 16px;
+		font-weight: 300;
+	}
+
+	article {
+		background-color: white;
+
+		ul {
+			$padding: 8px;
+			$icon-size: 12px;
+
+			padding: 30px 50px;
+			list-style: none;
+
+			li {
+				padding: $padding;
+				padding-left: $padding + $icon-size + $padding;
+				@include ellipsis-oneliner;
+				font-size: 14px;
+				font-weight: 200;
+				background-repeat: no-repeat;
+				background-position: left $padding center;
+				cursor: move;
+			}
+
+			li.before-run, li.after-run {
+				background-color: $def-verylightgrey;
+			}
+
+			li.before-run {
+				background-image: image-url("workflow/icon-before_run.svg");
+				background-size: $icon-size auto;
+			}
+
+			li.selected {
+				@include margin-y(10px);
+				border: 1px solid $def-grey;
+				background-image: image-url("workflow/icon-current.svg");
+				background-size: $icon-size auto;
+				background-color: white;
+			}
+
+			li.after-run {
+				background-image: image-url("workflow/icon-after_run.svg");
+				background-size: $icon-size auto;
+			}
+
+			li.dragged-element {
+				position: relative;
+				z-index: $zindex-dragged_element;
+				border: 1px solid $def-grey;
+			}
+
+			li.before-run + li.before-run:not(.dragged-element), li.after-run + li.after-run:not(.dragged-element) {
+				border-top: 1px solid $def-grey;
+			}
+		}
+
+		ul.drag-in-progress {
+
+			* {
+				@include user-select(none);
+			}
+		}
+	}
+
+	footer {
+		@include display-flex;
+
+		button {
+			width: 50%;
+			@include padding-y(18px);
+			font-size: 16px;
+			font-weight: 300;
+			color: white;
+			@include transition(background-color $def-transition_duration);
+		}
+
+		button.done {
+			background-color: $def-green;
+		}
+
+		button.done:hover, button.done:focus {
+			background-color: $def-green-shade;
+		}
+
+		button.cancel {
+			background-color: $def-danger;
+		}
+
+		button.cancel:hover, button.cancel:focus {
+			background-color: $def-danger-shade;
+		}
+	}
+}

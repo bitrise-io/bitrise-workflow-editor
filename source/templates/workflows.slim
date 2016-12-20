@@ -13,15 +13,15 @@
 			button.add-after-run-workflow[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
 				= svg("workflow/icon-after_run")
 				span == data[:strings][:workflows][:add_workflow_after]
-			button.rearrange
+			button.rearrange[ng-click="workflowsCtrl.rearrangeWorkflowChainPopup.isVisible = true"]
 				= svg("arrow_tailed-down")
 				= svg("arrow_tailed-down")
-				span == data[:strings][:workflows][:rearrange]
+				span == data[:strings][:workflows][:rearrange][:action]
 			button.delete-workflow[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain track by $index" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain" ng-class="{'edited': workflowCtrl.isEditMode}" ng-controller="WorkflowController as workflowCtrl" ng-init="workflow == workflowsCtrl.selectedWorkflow ? workflowCtrl.workflowEditSelected() : null"]
 				header.workflow-header
 					h2
 						.run-workflow
@@ -116,6 +116,15 @@
 					ul
 						li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
 							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
+		popup[model="workflowsCtrl.rearrangeWorkflowChainPopup"]
+			.popup-body-rearrange-workflow-chain
+				h2 == data[:strings][:workflows][:rearrange][:heading]
+				article.vertical-scroll
+					ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain"]
+						li[ng-repeat="workflow in workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain" ng-bind="workflow.id" ng-class="{'before-run': workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflow) < workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflow) > workflowsCtrl.rearrangeWorkflowChainPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': workflow == workflowsCtrl.selectedWorkflow}"]
+				footer
+					button.done[ng-click="workflowsCtrl.rearrangeWorkflowChainFinished()"] == data[:strings][:workflows][:rearrange][:done]
+					button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowChainPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
 popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
 	.popup-body-add-step.vertical-scroll.white
 		p == data[:strings][:workflows][:steps][:add][:select]
