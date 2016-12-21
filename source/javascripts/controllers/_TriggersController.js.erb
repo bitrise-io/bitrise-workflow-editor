@@ -102,7 +102,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	};
 
 	viewModel.addTriggerSelectedAtIndex = function(index) {
-		console.log(index);
 		var newTrigger = new Trigger();
 		newTrigger.type(viewModel.selectedTriggerType.id);
 		newTrigger.workflowID(_.first(viewModel.workflows).id);
