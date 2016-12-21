@@ -494,17 +494,10 @@
 
 								button.ok {
 									margin-left: 6px;
-									@include border-radius($def-radius);
-									@include padding-x(8px);
-									font-size: 12px;
-									font-weight: 200;
-									color: white;
-									background-color: $def-green;
-									@include transition(background-color $def-transition_duration);
-								}
 
-								button.ok:hover, button.ok:focus {
-									background-color: $def-green-shade;
+									svg {
+										@include size(12px, 11px);
+									}
 								}
 							}
 
@@ -1206,10 +1199,11 @@
 }
 
 .popup-body-rearrange-workflow-chain {
-	@include border-radius($popup-radius);
-	overflow: hidden;
+	@include display-flex;
+	@include flex-direction(column);
 
 	h2 {
+		@include flex-shrink(0);
 		@include margin-y(0);
 		@include padding-y(18px);
 		text-align: center;
@@ -1219,12 +1213,12 @@
 	}
 
 	article {
-		background-color: white;
 
 		ul {
 			$padding: 8px;
 			$icon-size: 12px;
 
+			@include margin-y(0);
 			padding: 30px 50px;
 			list-style: none;
 
@@ -1281,6 +1275,7 @@
 	}
 
 	footer {
+		@include flex-shrink(0);
 		@include display-flex;
 
 		button {

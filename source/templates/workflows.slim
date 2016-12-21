@@ -50,7 +50,7 @@
 									strong.verified[ng-if="stepCtrl.step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
 								.rename-title[ng-if="stepCtrl.renamedStep"]
 									input[type="text" ng-model="stepCtrl.renamedStepTitle"]
-									button.ok[ng-click="stepCtrl.renameStepConfirmed()"] == data[:strings][:workflows][:steps][:rename_confirm]
+									button.ok.rebo.green[ng-click="stepCtrl.renameStepConfirmed()"] = svg("check")
 								aside
 									button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
 									a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
@@ -116,7 +116,7 @@
 					ul
 						li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
 							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
-		popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
+		popup.round.white[model="workflowsCtrl.rearrangeWorkflowsPopup"]
 			.popup-body-rearrange-workflow-chain
 				h2 == data[:strings][:workflows][:rearrange][:heading]
 				article.vertical-scroll

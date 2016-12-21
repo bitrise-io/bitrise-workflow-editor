@@ -5,7 +5,7 @@
 	@include box-sizing(border-box);
 	@include border-radius($def-radius);
 	border: 1px solid;
-	padding: 10px 14px;
+	padding: 10px 12px;
 	font-size: 12px;
 	font-weight: 200;
 	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
