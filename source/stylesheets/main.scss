@@ -70,6 +70,7 @@ select {
 	$arrow_width: 8px;
 
 	@include appearance(none);
+	margin: 0;
 	border: 1px solid $def-mediumlightgrey;
 	@include border-radius($def-radius);
 	padding: 7px $select-horizontalpadding;

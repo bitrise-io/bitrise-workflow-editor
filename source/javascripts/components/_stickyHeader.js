@@ -10,17 +10,17 @@ angular.module("BitriseWorkflowEditor").directive("stickyHeader", function() {
 			function scrollHandler() {
 				var elementIsAlreadySticking = $(element).hasClass("sticking");
 
-				$(element).removeClass("sticking");
-
-				if ($(window).scrollTop() > $(element).position().top) {
+				if ($(window).scrollTop() > $(element).parent().position().top) {
 					if (!elementIsAlreadySticking) {
-						$(element).next().css("margin-top", $(element).outerHeight() + "px");
+						$(element).next().css("padding-top", $(element).outerHeight() + "px");
+						$(element).addClass("sticking");
 					}
-
-					$(element).addClass("sticking");
 				}
-				else if (elementIsAlreadySticking) {
-					$(element).next().css("margin-top", "0");
+				else {
+					if (elementIsAlreadySticking) {
+						$(element).next().css("padding-top", "0");
+						$(element).removeClass("sticking");
+					}
 				}
 			}
 
