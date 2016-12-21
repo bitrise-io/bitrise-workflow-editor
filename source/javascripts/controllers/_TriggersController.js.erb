@@ -105,11 +105,41 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		var newTrigger = new Trigger();
 		newTrigger.type(viewModel.selectedTriggerType.id);
 		newTrigger.workflowID(_.first(viewModel.workflows).id);
+		switch (newTrigger.type()) {
+			case "push":
+				newTrigger.pushBranchPattern("");
+
+				break;
+			case "pull-request":
+				newTrigger.pullRequestSourceBranchPattern("");
+				newTrigger.pullRequestTargetBranchPattern("");
+
+				break;
+			case "tag":
+				newTrigger.tagPattern("");
+
+				break;
+		}
 
 		viewModel.selectedTriggerType.triggers.splice(index, 0, newTrigger);
 
 		viewModel.triggerSelected(newTrigger);
 		addTriggerProgress.start();
+	};
+
+	viewModel.triggerIsInvalid = function() {
+		return _.any(_.without(viewModel.selectedTriggerType.triggers, viewModel.selectedTrigger), function(aTrigger) {
+			switch (viewModel.editedTrigger.type()) {
+				case "push":
+					return aTrigger.pushBranchPattern() == viewModel.editedTrigger.pushBranchPattern();
+				case "pull-request":
+					return aTrigger.pullRequestSourceBranchPattern() == viewModel.editedTrigger.pullRequestSourceBranchPattern() && aTrigger.pullRequestTargetBranchPattern() == viewModel.editedTrigger.pullRequestTargetBranchPattern();
+
+					break;
+				case "tag":
+					return aTrigger.tagPattern() == viewModel.editedTrigger.tagPattern();
+			}
+		});
 	};
 
 	viewModel.triggerEditFinished = function() {
