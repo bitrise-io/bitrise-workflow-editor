@@ -1,0 +1,1382 @@
+@import "default";
+@import "constants";
+
+.tab-workflows {
+	$icon-size: 52px;
+	$icon-size_small: 36px;
+	$spacing: 8px;
+	$steptitle-width: 280px;
+	$steptitle-width_small: 220px;
+
+	p.progress-indicator {
+		margin: $main-verticalpadding $main-horizontalpadding;
+
+		@include media-below-mid {
+			@include margin-x($main-horizontalpadding_small);
+		}
+	}
+
+	section.manage-workflows {
+		$button-spacing: 8px;
+
+		@include display-flex;
+		@include flex-wrap(wrap);
+		padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
+
+		&:not(.ninja) > * {
+			margin: $button-spacing / 2;
+		}
+
+		.select-workflow {
+			$placeholder-width: 100px;
+			$color: $def-mediumdarkgrey;
+
+			@include display-flex;
+			border: 1px solid $color;
+			@include border-radius($def-radius);
+			font-size: 12px;
+			background-color: $color;
+
+			&:before {
+				content: "<%= data[:strings][:workflows][:select_workflow_placeholder] %>";
+				@include flex-shrink(0);
+				@include align-self(center);
+				width: $placeholder-width;
+				text-align: center;
+				font-weight: 100;
+				text-transform: uppercase;
+				color: white;
+			}
+
+			select {
+				@include flex-grow(1);
+				width: $icon-size + $spacing + $steptitle-width - $placeholder-width;
+				@include border-left-radius(0);
+				border: none;
+				color: $color;
+
+				@include media-below-big {
+					width: $icon-size + $spacing + $steptitle-width_small - $placeholder-width;
+				}
+
+				@include media-below(580px) {
+					width: 100%;
+				}
+			}
+		}
+
+		button {
+			font-size: 12px;
+		}
+
+		button.add-workflow, button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
+			@include flex-grow(1);
+			border: 1px solid $def-mediumlightgrey;
+			@include border-radius($def-radius);
+			padding: 8px;
+			@include transition(color $def-transition_duration, background-color $def-transition_duration);
+
+			svg {
+				@include transition(fill $def-transition_duration);
+			}
+
+			svg:last-of-type {
+				margin-right: 8px;
+			}
+
+			@include media-below-mid {
+
+				svg:last-of-type {
+					margin-right: 0;
+				}
+
+				span {
+					display: none;
+				}
+			}
+		}
+
+		button.add-workflow {
+			$color: $def-green;
+
+			border-color: $color;
+			color: $color;
+			background-color: $def-green-light;
+
+			svg {
+				@include size(10px, 10px);
+				fill: $color;
+			}
+
+			&:hover, &:focus {
+				color: white;
+				background-color: $color;
+
+				svg {
+					fill: white;
+				}
+			}
+		}
+
+		button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
+			background-color: $def-verylightgrey;
+
+			&:hover, &:focus {
+				background-color: $def-mediumlightgrey;
+			}
+		}
+
+		button.add-before-run-workflow {
+
+			svg {
+				@include size(10px, 10px);
+			}
+		}
+
+		button.add-after-run-workflow {
+
+			svg {
+				@include size(10px, 10px);
+			}
+		}
+
+		button.rearrange {
+
+			svg {
+				@include size(8px, 13px);
+			}
+
+			svg:first-of-type {
+				@include transform(rotate(180deg));
+			}
+		}
+
+		button.delete-workflow {
+			$color: $def-danger;
+
+			border-color: $color;
+			color: $color;
+			background-color: $def-danger-light;
+
+			svg {
+				@include size(8px, 8px);
+				fill: $color;
+			}
+
+			&:hover, &:focus {
+				color: white;
+				background-color: $color;
+
+				svg {
+					fill: white;
+				}
+			}
+		}
+
+		@include media-below-mid {
+			@include padding-x($main-horizontalpadding_small - ($button-spacing / 2));
+		}
+	}
+
+	.workflows {
+
+		section.workflow {
+			$arrow-color: $def-darkgrey;
+			$arrow-width: 1px;
+			$arrowend-width: 15px;
+			$arrow-overflow_height: 40px;
+
+			border-top: 1px dashed $def-grey;
+			@include padding-x($main-horizontalpadding);
+			background-color: white;
+			@include transition(background-color $def-transition_duration);
+
+			header.workflow-header {
+				@include display-flex;
+				margin-bottom: $spacing;
+
+				&:before {
+					content: "";
+					@include flex-shrink(0);
+					width: $arrowend-width;
+					@include margin-x(($icon-size - $arrowend-width) / 2);
+				}
+
+				h2 {
+					$color: $def-mediumdarkgrey;
+
+					@include flex-grow(1);
+					@include align-self(flex-end);
+					@include display-flex;
+					@include align-items(center);
+					@include box-sizing(border-box);
+					max-width: $steptitle-width;
+					@include margin-y(0);
+					margin-left: $spacing;
+					border: 1px solid $color;
+					@include border-radius($def-radius);
+					font-size: 14px;
+					font-weight: 300;
+					color: $color;
+					@include transition(top $def-transition_duration, background-color $def-transition_duration);
+
+					.run-workflow {
+						@include display-flex;
+						padding: 6px 8px;
+						overflow: hidden;
+
+						span.icon {
+							@include flex-shrink(0);
+							margin-right: 6px;
+
+							svg {
+								@include size(12px, 11px);
+								fill: $color;
+							}
+						}
+
+						span.workflow-name {
+							@include ellipsis-oneliner;
+						}
+					}
+
+					button.remove {
+						@include flex-shrink(0);
+						@include align-self(stretch);
+						margin-left: auto;
+						@include padding-x(12px);
+						background-color: $color;
+						@include transition(background-color $def-transition_duration);
+
+						svg {
+							@include size(8px);
+							fill: white;
+						}
+					}
+
+					button.remove:focus, button.remove:hover {
+						background-color: $def-darkgrey;
+					}
+				}
+			}
+
+			&:first-child header.workflow-header {
+
+				&:before {
+					@include box-sizing(border-box);
+					border-top: $arrow-width solid $arrow-color;
+					@include padding-x(($arrowend-width - $arrow-width) / 2);
+					background-color: $arrow-color;
+					background-clip: content-box;
+				}
+			}
+
+			&:not(:first-child) header.workflow-header {
+
+				&:before {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
+						fill: rgba($arrow-color, 0.99)
+					));
+
+					height: $arrow-overflow_height;
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: contain;
+					background-position: center bottom;
+					background-repeat: no-repeat;
+				}
+
+				h2 {
+					position: relative;
+					top: 0;
+				}
+			}
+
+			&:not(:first-child).edited header.workflow-header {
+
+				h2 {
+					top: -26px;
+				}
+			}
+
+			article {
+				$add_step-size: 20px;
+				$add_step-iconsize: 12px;
+
+				@include display-flex;
+
+				ul.steps {
+					@include display-flex;
+					@include flex-direction(column);
+					@include margin-y(0);
+					margin-right: $spacing;
+					padding-left: 0;
+					list-style: none;
+					@include flex-shrink(0);
+
+					li {
+						width: 100%;
+						margin-bottom: $spacing;
+
+						button.add-step {
+							$transition_duration: $def-transition_duration;
+
+							display: block;
+							width: $icon-size;
+							margin-bottom: $spacing;
+							@include border-radius($def-radius);
+							@include padding-y(($add_step-size - $add_step-iconsize) / 2);
+							@include transition(margin-bottom $transition_duration, padding-top $transition_duration, padding-bottom $transition_duration, background-color $transition_duration);
+							background-color: $def-mediumlightgrey;
+
+							svg {
+								display: block;
+								@include size($add_step-iconsize);
+								@include margin-x(auto);
+								fill: white;
+								@include transition(width $transition_duration, height $transition_duration);
+							}
+						}
+
+						button.add-step:hover, button.add-step:focus {
+							color: white;
+							background-color: $def-darkgrey;
+						}
+
+						button.add-step:disabled {
+							margin-bottom: 0;
+							@include padding-y(0);
+
+							svg {
+								@include size(0);
+							}
+						}
+
+						button.step {
+							position: relative;
+							display: block;
+							text-align: left;
+							@include transition(opacity $def-transition_duration);
+
+							span.icon {
+								@include position(absolute, 0, null, null, 0);
+								@include box-sizing(border-box);
+								@include size($icon-size);
+								border: 1px solid $def-lightgrey;
+								@include border-radius($def-radius);
+								background-size: cover;
+							}
+
+							span.info {
+								@include display-flex;
+								@include flex-direction(column);
+								@include justify-content(center);
+								@include align-items(flex-start);
+								@include box-sizing(border-box);
+								@include size($steptitle-width, $icon-size);
+								margin-left: $icon-size + $spacing;
+								border: 1px solid $def-mediumlightgrey;
+								@include border-radius($def-radius);
+								@include padding-x(20px);
+								@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
+								background-color: $def-verylightgrey;
+
+								strong {
+									@include display-flex;
+									@include align-items(center);
+									max-width: 100%;
+									font-size: 14px;
+									font-weight: 400;
+
+									span.title {
+										@include flex-shrink(1);
+										@include ellipsis-oneliner;
+									}
+
+									span.verified {
+										margin-left: 5px;
+
+										svg {
+											@include size(10px);
+										}
+									}
+								}
+
+								em.version {
+									display: block;
+									@include ellipsis-oneliner;
+									font-size: 12px;
+									font-style: normal;
+									font-weight: 100;
+									color: $def-grey;
+								}
+							}
+						}
+					}
+
+					li button.step:hover span.info, li button.step:focus span.info, li.selected button.step span.info {
+						$color: $def-darkgrey;
+
+						border-color: $color;
+						color: white;
+						background-color: $color;
+					}
+
+					&:after {
+						content: "";
+						display: block;
+					}
+				}
+
+				ul.steps.drag-in-progress {
+
+					li {
+
+						button.add-step {
+							visibility: hidden;
+						}
+					}
+
+					li.dragged-element {
+						z-index: $zindex-dragged_element;
+					}
+				}
+
+				aside.step-details {
+					$trashicon_width: 17px;
+					$leftpadding: 25px;
+					$rightpadding: ($icon-size - $trashicon_width) / 2 + 3px;
+					$horizontalpadding_small: 12px;
+					$delete_step_color: $def-danger;
+
+					@include flex-grow(1);
+					margin-top: $add_step-size + $spacing;
+					overflow: hidden;
+
+					&:not(.ninja) > * {
+						margin-top: 0;
+						margin-bottom: 15px;
+					}
+
+					.bitrise-steplib-step-details {
+						$border: 1px solid $def-mediumlightgrey;
+
+						@include box-sizing(border-box);
+						border: $border;
+						@include border-radius($def-radius);
+						overflow: hidden;
+
+						header.manage-step {
+							@include display-flex;
+							@include box-sizing(border-box);
+							height: $icon-size;
+							border-bottom: $border;
+							background-color: $def-verylightgrey;
+
+							.title {
+								@include flex-grow(1);
+								@include display-flex;
+								padding-left: $leftpadding;
+								padding-right: $rightpadding;
+								overflow: hidden;
+
+								button.rename {
+									$renamebutton-horizontalpadding: 6px;
+
+									@include align-self(center);
+									border: 1px solid transparent;
+									@include border-radius($def-radius);
+									margin-left: -$renamebutton-horizontalpadding;
+									padding: 4px $renamebutton-horizontalpadding;
+									text-align: left;
+									@include ellipsis-oneliner;
+									font-size: 14px;
+									font-weight: 400;
+									color: $def-darkgrey;
+									@include transition(border-color $def-transition_duration);
+								}
+
+								button.rename:hover, button.rename:focus {
+									border-color: $def-grey;
+								}
+
+								strong.verified {
+									$radius: 8px;
+
+									@include flex-shrink(0);
+									@include align-self(center);
+									line-height: 2 * $radius;
+									margin-left: 10px;
+									@include border-radius($radius);
+									@include padding-x(10px);
+									font-size: 9px;
+									font-weight: 200;
+									text-transform: uppercase;
+									color: white;
+									background-color: $def-green;
+								}
+							}
+
+							.rename-title {
+								@include flex-grow(1);
+								@include display-flex;
+								@include padding-y(6px);
+								padding-left: $leftpadding;
+								padding-right: $rightpadding;
+
+								input {
+									width: 60%;
+									border: 1px solid $def-lightgrey;
+									@include border-radius($def-radius);
+									@include padding-x(8px);
+									font-size: 14px;
+								}
+
+								button.ok {
+									margin-left: 6px;
+									@include border-radius($def-radius);
+									@include padding-x(8px);
+									font-size: 12px;
+									font-weight: 200;
+									color: white;
+									background-color: $def-green;
+									@include transition(background-color $def-transition_duration);
+								}
+
+								button.ok:hover, button.ok:focus {
+									background-color: $def-green-shade;
+								}
+							}
+
+							aside {
+								@include flex-shrink(0);
+								@include display-flex;
+
+								button, a {
+									$transition_duration: $def-transition_duration;
+
+									@include flex-shrink(0);
+									@include box-sizing(border-box);
+									width: $icon-size;
+									line-height: $icon-size;
+									border-left: $border;
+									@include transition(background-color $transition_duration);
+
+									svg {
+										fill: $def-grey;
+										@include transition(fill $transition_duration);
+									}
+								}
+
+								button.clone svg {
+									@include position(relative, 2px);
+									@include size(18px, 18px);
+								}
+
+								a.source {
+									text-align: center;
+
+									svg {
+										@include position(relative, 2px);
+										@include size(19px, 19px);
+									}
+								}
+
+								button.delete svg {
+									@include position(relative, 1px);
+									@include size($trashicon_width, 18px);
+								}
+
+								button.clone:focus, button.clone:hover, a.source:focus, a.source:hover {
+
+									svg {
+										fill: $def-verydarkgrey;
+									}
+								}
+
+								button.delete:focus, button.delete:hover {
+									background-color: $def-danger-light;
+
+									svg {
+										fill: $def-danger;
+									}
+								}
+							}
+
+							@include media-below-big {
+
+								.title, .rename-title {
+									@include padding-x($horizontalpadding_small);
+								}
+
+								.title {
+									@include flex-direction(column);
+									@include justify-content(center);
+
+									button.rename {
+										@include align-self(stretch);
+									}
+
+									strong.verified {
+										margin-left: 0;
+										@include align-self(flex-start);
+									}
+								}
+							}
+
+							@include media-below-mid {
+								@include flex-direction(column);
+								height: auto;
+
+								.title, .rename-title {
+									height: $icon-size;
+									border-bottom: $border;
+									@include box-sizing(border-box);
+								}
+
+								.title {
+
+									button.rename {
+										font-size: 12px;
+									}
+
+									strong.verified {
+										$radius: 6px;
+
+										line-height: 2 * $radius;
+										@include border-radius($radius);
+										font-size: 8px;
+									}
+								}
+
+								.rename-title input {
+									@include flex-grow(1);
+									font-size: 12px;
+								}
+
+								aside {
+									$height: 42px;
+
+									height: $height;
+
+									button, a {
+										@include flex-grow(1);
+										line-height: $height;
+									}
+
+									button:first-child, a:first-child {
+										border-left: none;
+									}
+								}
+							}
+						}
+
+						section.description, section.version, section.always-run {
+							@include display-flex;
+							@include align-items(center);
+							@include padding-y(18px);
+							padding-left: $leftpadding;
+							padding-right: $rightpadding;
+							font-size: 12px;
+							font-weight: 100;
+							color: $def-darkgrey;
+
+							&:not(:first-of-type) {
+								border-top: $border;
+							}
+
+							span.icon {
+								@include flex-shrink(0);
+								@include display-flex;
+								@include align-items(center);
+								width: 20px;
+								margin-right: 10px;
+
+								svg {
+									fill: $def-grey;
+								}
+							}
+
+							@include media-below-big {
+								@include padding-x($horizontalpadding_small);
+							}
+						}
+
+						section.description {
+							@include align-items(flex-start);
+							position: relative;
+
+							span.icon svg {
+								@include size(16px, 13px);
+							}
+
+							p {
+								@include margin-y(0);
+							}
+
+							span.toggle-visibility {
+								z-index: $zindex-step_description_open;
+								@include flex-shrink(0);
+								margin-left: 10px;
+
+								button {
+									z-index: $zindex-step_description_open;
+									@include position(absolute, 0, 0);
+									@include size(100%);
+									opacity: 0;
+								}
+
+								svg {
+									position: relative;
+									z-index: -1;
+									@include size(10px, 7px);
+									fill: $def-grey;
+									@include transition(fill $def-transition_duration, transform $def-transition_duration);
+								}
+
+								button:hover + svg, button:focus + svg {
+									fill: black;
+								}
+							}
+						}
+
+						section.description:not(.open) {
+
+							p {
+								@include ellipsis-oneliner;
+							}
+						}
+
+						section.description.open {
+
+							span.toggle-visibility {
+								position: relative;
+
+								svg {
+									@include transform(rotate(-180deg));
+								}
+							}
+						}
+
+						section.version {
+
+							span.icon:before {
+								$radius: 5px;
+
+								content: "";
+								@include position(relative, -1px);
+								display: inline-block;
+								@include size(2 * $radius);
+								@include border-radius($radius);
+								background-color: $def-grey;
+							}
+
+							select {
+								@include flex-grow(1);
+								max-width: 50%;
+								margin-left: auto;
+							}
+						}
+
+						section.always-run {
+
+							span.icon svg {
+								@include size(9px, 17px);
+							}
+
+							.checkbox {
+								margin-left: auto;
+							}
+						}
+
+						section.inputs {
+
+							h3 {
+								@include margin-y(0);
+								@include border-y($border);
+								@include padding-y(10px);
+								padding-left: $leftpadding;
+								padding-right: $rightpadding;
+								font-size: 12px;
+								font-weight: 300;
+								color: $def-darkgrey;
+								background-color: $def-verylightgrey;
+							}
+
+							ul {
+								@include margin-y(0);
+								padding-left: 0;
+								list-style: none;
+
+								li {
+									@include display-flex;
+									@include padding-y(20px);
+									padding-left: $leftpadding;
+									padding-right: $rightpadding;
+									background-color: $def-ultralightgrey;
+
+									.input-info {
+										@include flex-grow(1);
+										overflow: hidden;
+
+										h4 {
+											@include display-flex;
+											@include align-items(center);
+											@include margin-y(0);
+
+											span.title {
+												display: block;
+												max-width: 100%;
+												margin-right: auto;
+												@include ellipsis-oneliner;
+												font-size: 12px;
+												font-weight: 200;
+												color: $def-darkgrey;
+												@include transition(color $def-transition_duration);
+											}
+
+											button.insert-variable {
+												$color: $def-green-shade;
+
+												margin-left: 6px;
+												border: 1px solid $color;
+												@include border-radius($def-radius);
+												padding: 5px;
+												font-size: 12px;
+												font-weight: 100;
+												color: $color;
+												background-color: $def-green-light;
+												@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
+											}
+
+											button.insert-variable:hover, button.insert-variable:focus {
+												border-color: $def-green;
+												color: white;
+												background-color: $def-green;
+											}
+										}
+
+										strong.value {
+											display: block;
+											margin-top: 4px;
+											white-space: pre-wrap;
+											font-size: 14px;
+											font-weight: 100;
+										}
+
+										.manage-input {
+											position: relative;
+											margin-top: 10px;
+
+											textarea, select {
+												display: block;
+												width: 100%;
+											}
+
+											textarea {
+												@include box-sizing(border-box);
+												border: $border;
+												@include border-radius($def-radius);
+												padding: 8px;
+												font-size: 12px;
+												font-weight: 100;
+												color: $def-darkgrey;
+												background-color: $def-verylightgrey;
+											}
+
+											.is-expand {
+												@include display-flex;
+												@include align-items(center);
+												margin-top: 18px;
+
+												.checkbox {
+													@include flex-shrink(0);
+												}
+
+												label {
+													margin-left: 14px;
+													font-size: 12px;
+													color: $def-darkgrey;
+
+													strong {
+														display: block;
+														font-weight: 600;
+														color: $def-verydarkgrey;
+													}
+
+													em {
+														display: block;
+														font-style: normal;
+														font-weight: 100;
+
+														a {
+															text-decoration: none;
+															color: $def-green;
+														}
+
+														a:hover, a:focus {
+															text-decoration: underline;
+														}
+													}
+												}
+											}
+										}
+									}
+
+									button.change {
+										$color: $def-grey;
+										$transition_duration: $def-transition_duration;
+
+										@include flex-shrink(0);
+										padding-left: 10px;
+										font-size: 10px;
+										text-transform: uppercase;
+										color: $color;
+										@include transition(color $transition_duration);
+
+										svg {
+											@include size(10px, 7px);
+											margin-left: 10px;
+											fill: $color;
+											@include transition(transform $transition_duration, fill $transition_duration);
+										}
+									}
+
+									button.change:hover, button.change:focus {
+										color: black;
+
+										svg {
+											fill: black;
+										}
+									}
+								}
+
+								li:not(:last-child) {
+									border-bottom: $border;
+								}
+
+								li:not(.selected) {
+
+									.input-info h4 span.title:after {
+										content: ":";
+									}
+								}
+
+								li.selected {
+									background-color: white;
+
+									.input-info h4 span.title {
+										color: black;
+									}
+
+									button.change {
+
+										span {
+											display: none;
+										}
+
+										svg {
+											@include transform(rotate(-180deg));
+										}
+									}
+								}
+							}
+
+							@include media-below-big {
+
+								h3, ul li {
+									@include padding-x($horizontalpadding_small);
+								}
+
+								ul li .input-info h4 {
+									@include flex-direction(column);
+									@include align-items(flex-start);
+
+									button.insert-variable {
+										@include align-self(flex-end);
+										margin-left: 0;
+										margin-top: 4px;
+									}
+								}
+							}
+						}
+
+						section.outputs {
+
+							h3 {
+								@include margin-y(0);
+								@include border-y($border);
+								@include padding-y(10px);
+								padding-left: $leftpadding;
+								padding-right: $rightpadding;
+								font-size: 12px;
+								font-weight: 300;
+								color: $def-darkgrey;
+								background-color: $def-verylightgrey;
+							}
+
+							p.no-outputs {
+								@include margin-y(16px);
+								padding-left: $leftpadding;
+								padding-right: $rightpadding;
+								font-size: 12px;
+							}
+
+							table {
+								$table_border: 1px solid $def-mediumlightgrey;
+
+								table-layout: fixed;
+								width: 100%;
+								@include margin-y(0);
+								border-collapse: collapse;
+								padding-left: 0;
+								list-style: none;
+
+								tr {
+									font-size: 12px;
+
+									td {
+										width: 50%;
+										@include ellipsis-oneliner;
+										@include padding-y(12px);
+										padding-left: $leftpadding;
+										padding-right: $rightpadding;
+									}
+
+									td.key {
+										font-weight: 300;
+										color: $def-purple;
+									}
+
+									td.description {
+										font-weight: 100;
+										color: $def-grey;
+									}
+								}
+
+								tr:not(:first-child) {
+									border-top: $table_border;
+								}
+
+								td:not(:first-child) {
+									border-left: $table_border;
+								}
+							}
+
+							@include media-below-big {
+
+								h3 {
+									@include padding-x($horizontalpadding_small);
+								}
+
+								p.no-outputs {
+									@include padding-x($horizontalpadding_small);
+								}
+
+								table tr td {
+									@include padding-x($horizontalpadding_small);
+								}
+							}
+
+							@include media-below-mid {
+
+								table tr td.description {
+									display: none;
+								}
+							}
+						}
+					}
+
+					button.delete-step {
+						width: 100%;
+						border: 1px solid $delete_step_color;
+						@include border-radius($def-radius);
+						padding: 12px 25px;
+						@include ellipsis-oneliner;
+						font-size: 14px;
+						font-weight: 100;
+						color: $delete_step_color;
+						@include transition(color $def-transition_duration, background-color $def-transition_duration);
+
+						@include media-below-big {
+							@include padding-x(15px);
+						}
+					}
+
+					button.delete-step:hover, button.delete-step:focus {
+						background-color: $delete_step_color;
+						color: white;
+					}
+				}
+			}
+
+			&:not(:last-child):after, &:not(:last-child) ul.steps:after {
+				width: $arrow-width;
+				@include margin-x(($icon-size - $arrow-width) / 2);
+				background-color: $arrow-color;
+			}
+
+			&:not(:last-child):after {
+				content: "";
+				display: block;
+				position: relative;
+				height: 30px + $arrow-overflow_height;
+				margin-bottom: - $arrow-overflow_height;
+			}
+
+			&:not(:last-child) ul.steps:after {
+				@include flex-grow(1);
+			}
+
+			&:last-child ul.steps {
+				padding-bottom: 60px;
+
+				&:after {
+					@include box-sizing(border-box);
+					@include size($arrowend-width, 60px);
+					@include margin-x(($icon-size - $arrowend-width) / 2);
+					border-bottom: $arrow-width solid $arrow-color;
+					@include padding-x(($arrowend-width - $arrow-width) / 2);
+					background-color: $arrow-color;
+					background-clip: content-box;
+				}
+			}
+
+			@include media-below-mid {
+				@include padding-x($main-horizontalpadding_small);
+			}
+
+			@include media-below-big {
+
+				header.workflow-header {
+
+					h2 {
+						max-width: $steptitle-width_small;
+					}
+				}
+				
+				article ul.steps li {
+
+					button.step span.info {
+						width: $steptitle-width_small;
+					}
+				}
+			}
+
+			@include media-below-mid {
+
+				header.workflow-header {
+
+					h2 {
+						overflow: hidden;
+						max-width: none;
+					}
+				}
+
+				article ul.steps li {
+
+					button.step span.icon {
+						position: static;
+						display: block;
+					}
+				
+					button.step span.info {
+						display: none;
+					}
+				}
+			}
+
+			@include media-below-small {
+				$arrowend-width_small: 11px;
+
+				header.workflow-header {
+
+					&:before {
+
+						width: $arrowend-width_small;
+						@include margin-x(($icon-size_small - $arrowend-width_small) / 2);
+					}
+				}
+
+				&:first-child header.workflow-header {
+
+					&:before {
+						@include padding-x(($arrowend-width_small - $arrow-width) / 2);
+					}
+				}
+
+				article ul.steps li {
+
+					button.add-step {
+						width: $icon-size_small;
+					}
+					
+					button.step span.icon {
+						@include size($icon-size_small);
+					}
+				}
+
+				&:not(:last-child):after, &:not(:last-child) ul.steps:after {
+					@include margin-x(($icon-size_small - $arrow-width) / 2);
+				}
+
+				&:last-child ul.steps:after {
+					width: $arrowend-width_small;
+					@include margin-x(($icon-size_small - $arrowend-width_small) / 2);
+					@include padding-x(($arrowend-width_small - $arrow-width) / 2);
+				}
+			}
+		}
+
+		section.workflow:first-child {
+			padding-top: 30px;
+		}
+
+		section.workflow.edited {
+
+			header {
+
+				h2 {
+					background-color: white;
+				}
+			}
+		}
+
+		section.workflow:not(.edited) {
+			$inactive_opacity: 0.7;
+
+			background-color: $def-ultralightgrey;
+
+			header {
+
+				h2 {
+					background-color: $def-ultralightgrey;
+				}
+			}
+
+			article {
+
+				ul.steps {
+
+					li {
+
+						button.step:not(:hover):not(:focus) {
+							opacity: $inactive_opacity;
+						}
+					}
+				}
+			}
+		}
+	}
+}
+
+.popup-body-add-step {
+
+	.type-tag-filter {
+		display: inline-block;
+	}
+}
+
+.popup-body-rearrange-workflow-chain {
+	@include border-radius($popup-radius);
+	overflow: hidden;
+
+	h2 {
+		@include margin-y(0);
+		@include padding-y(18px);
+		text-align: center;
+		background-color: $def-verylightgrey;
+		font-size: 16px;
+		font-weight: 300;
+	}
+
+	article {
+		background-color: white;
+
+		ul {
+			$padding: 8px;
+			$icon-size: 12px;
+
+			padding: 30px 50px;
+			list-style: none;
+
+			li {
+				padding: $padding;
+				padding-left: $padding + $icon-size + $padding;
+				@include ellipsis-oneliner;
+				font-size: 14px;
+				font-weight: 200;
+				background-repeat: no-repeat;
+				background-position: left $padding center;
+				cursor: move;
+			}
+
+			li.before-run, li.after-run {
+				background-color: $def-verylightgrey;
+			}
+
+			li.before-run {
+				background-image: image-url("workflow/icon-before_run.svg");
+				background-size: $icon-size auto;
+			}
+
+			li.selected {
+				@include margin-y(10px);
+				border: 1px solid $def-grey;
+				background-image: image-url("workflow/icon-current.svg");
+				background-size: $icon-size auto;
+				background-color: white;
+			}
+
+			li.after-run {
+				background-image: image-url("workflow/icon-after_run.svg");
+				background-size: $icon-size auto;
+			}
+
+			li.dragged-element {
+				position: relative;
+				z-index: $zindex-dragged_element;
+				border: 1px solid $def-grey;
+			}
+
+			li.before-run + li.before-run:not(.dragged-element), li.after-run + li.after-run:not(.dragged-element) {
+				border-top: 1px solid $def-grey;
+			}
+		}
+
+		ul.drag-in-progress {
+
+			* {
+				@include user-select(none);
+			}
+		}
+	}
+
+	footer {
+		@include display-flex;
+
+		button {
+			width: 50%;
+			@include padding-y(18px);
+			font-size: 16px;
+			font-weight: 300;
+			color: white;
+			@include transition(background-color $def-transition_duration);
+		}
+
+		button.done {
+			background-color: $def-green;
+		}
+
+		button.done:hover, button.done:focus {
+			background-color: $def-green-shade;
+		}
+
+		button.cancel {
+			background-color: $def-danger;
+		}
+
+		button.cancel:hover, button.cancel:focus {
+			background-color: $def-danger-shade;
+		}
+	}
+}

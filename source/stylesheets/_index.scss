@@ -6,11 +6,11 @@ main {
 	@include flex-direction(column);
 	background-color: $def-ultralightgrey;
 
-	header.menu, article.menu-content {
-		@include padding-x(27px);
+	header.menu {
+		@include padding-x($main-horizontalpadding);
 
 		@include media-below-mid {
-			@include padding-x(15px);
+			@include padding-x($main-horizontalpadding_small);
 		}
 	}
 
@@ -248,8 +248,22 @@ main {
 
 	article.menu-content {
 		@include flex-grow(1);
-		padding-top: 20px;
-		padding-bottom: 50px;
 		background-color: white;
+
+		&:not(.ninja) > p.progress-indicator {
+			margin: $main-verticalpadding $main-horizontalpadding;
+
+			@include media-below-mid {
+				@include margin-x($main-horizontalpadding_small);
+			}
+		}
+
+		.menu-content-padding {
+			padding: $main-verticalpadding $main-horizontalpadding;
+
+			@include media-below-mid {
+				@include padding-x($main-horizontalpadding_small);
+			}
+		}
 	}
 }

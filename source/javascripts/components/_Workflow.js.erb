@@ -2,11 +2,26 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Workflow", function(bitriseSteplibService, Step, Variable) {
+angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, bitriseSteplibService, Step, Variable) {
 
 	var Workflow = function(id, workflowConfig) {
 		this.id = id;
 		this.workflowConfig = workflowConfig;
+		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
+			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+			var step;
+			var userStepConfig = aWrappedUserStepConfig[stepCVS];
+
+			try {
+				step = bitriseSteplibService.stepFromCVS(stepCVS);
+				step.userStepConfig = userStepConfig;
+			}
+			catch (error) {
+				step = new Step(stepCVS, userStepConfig);
+			}
+
+			return step;
+		});
 	};
 
 	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow, allWorkflows) {

@@ -22,6 +22,8 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 		viewModel.shouldShowDescription = false;
 		viewModel.requestedVersion = viewModel.step && viewModel.step.type() == "bitrise-steplib-step" ? viewModel.step.requestedVersion() : undefined;
 		viewModel.selectedInput = null;
+
+		$rootScope.$emit("InputController::configureWithStep", viewModel.step);
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("StepController::configureWithStep", function(event, _step) {
@@ -55,6 +57,10 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 		return stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:steps][:delete] %>", {
 			step_title: viewModel.step.displayName()
 		});
+	};
+
+	viewModel.stepVersionChanged = function() {
+		$rootScope.$emit("StepController::stepVersionChanged");
 	};
 
 });
