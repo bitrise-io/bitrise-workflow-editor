@@ -60,15 +60,7 @@
 			padding-right: $deletebutton_size;
 
 			button.add-trigger {
-				border: 1px solid $def-green;
-				@include border-radius($def-radius);
-				padding: 6px;
-				font-size: 12px;
-				font-weight: 200;
-				color: $def-green;
 				text-transform: uppercase;
-				@include transition(color $def-transition_duration, background-color $def-transition_duration);
-				background-color: $def-green-verylight;
 
 				&:before {
 					content: "+";
@@ -78,11 +70,6 @@
 
 			button.add-trigger:disabled {
 				visibility: hidden;
-			}
-
-			button.add-trigger:hover, button.add-trigger:focus {
-				color: white;
-				background-color: $def-green;
 			}
 
 			button.add-trigger, .trigger .trigger-info {
@@ -204,34 +191,10 @@
 
 						button {
 							@include flex-grow(1);
-
-							@include border-radius($def-radius);
-							padding: 10px;
-							font-size: 12px;
-							font-weight: 100;
-							@include transition(background-color $def-transition_duration);
 						}
 
 						button:not(:last-child) {
 							margin-right: $spacing;
-						}
-
-						button.done {
-							background-color: $def-green;
-							color: white;
-						}
-
-						button.done:hover {
-							background-color: $def-green-shade;
-						}
-
-						button.cancel {
-							background-color: $def-grey;
-							color: white;
-						}
-
-						button.cancel:hover {
-							background-color: $def-mediumdarkgrey;
 						}
 					}
 				}

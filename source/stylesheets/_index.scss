@@ -134,6 +134,7 @@ main {
 		}
 
 		aside {
+			@include align-self(flex-end);
 			@include display-flex;
 			margin-left: 10px;
 			padding-bottom: $menubutton_verticalpadding;

@@ -54,6 +54,21 @@
 	}
 }
 
+.rebo.grey {
+	border-color: $def-grey;
+	color: white;
+	background-color: $def-grey;
+
+	svg {
+		fill: white;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-mediumdarkgrey;
+		background-color: $def-mediumdarkgrey;
+	}
+}
+
 .rebo.light.green {
 	border-color: $def-green;
 	color: $def-green;
@@ -104,6 +119,7 @@
 	}
 
 	&:hover, &:focus {
+		border-color: $def-mediumlightgrey;
 		background-color: $def-mediumlightgrey;
 	}
 }
@@ -111,6 +127,7 @@
 .rebo.hollow.grey {
 	border-color: $def-mediumlightgrey;
 	color: $def-mediumlightgrey;
+	background-color: transparent;
 
 	svg {
 		fill: $def-mediumlightgrey;
