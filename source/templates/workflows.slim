@@ -4,20 +4,20 @@
 		section.manage-workflows[sticky-header]
 			.select-workflow
 				select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
-			button.add-workflow[ng-click="workflowsCtrl.addWorkflowSelected()"]
+			button.add-workflow.rebo.light.green[ng-click="workflowsCtrl.addWorkflowSelected()"]
 				= svg("plus")
 				span == data[:strings][:workflows][:add_workflow][:action]
-			button.add-before-run-workflow[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
+			button.add-before-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
 				= svg("workflow/icon-before_run")
 				span == data[:strings][:workflows][:add_workflow_before]
-			button.add-after-run-workflow[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
+			button.add-after-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
 				= svg("workflow/icon-after_run")
 				span == data[:strings][:workflows][:add_workflow_after]
-			button.rearrange[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
+			button.rearrange.rebo.light.grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
 				= svg("arrow_tailed-down")
 				= svg("arrow_tailed-down")
 				span == data[:strings][:workflows][:rearrange][:action]
-			button.delete-workflow[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
+			button.delete-workflow.rebo.light.danger[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
@@ -78,7 +78,7 @@
 										.input-info
 											h4
 												span.title[ng-bind="inputCtrl.input.title()"]
-												button.insert-variable[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+												button.insert-variable.rebo.small.light.green[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 											strong.value[ng-bind="inputCtrl.input.value() ? inputCtrl.input.value() : '#{ data[:strings][:workflows][:inputs][:empty_value] }'" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
 											.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
 												textarea[msd-elastic ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)" ng-if="!inputCtrl.input.valueOptions()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
@@ -98,7 +98,7 @@
 									tr[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
 										td.key[ng-bind="output | prettifiedVariableKey"]
 										td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
-						button.delete-step[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
+						button.delete-step.rebo.big.hollow.danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
 		popup[model="workflowsCtrl.addWorkflowPopup"]
 			.popup-body-add-workflow.vertical-scroll.white
 				p == data[:strings][:workflows][:add_workflow][:specify_id]

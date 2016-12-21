@@ -14,8 +14,8 @@ main[ng-controller="MainController as mainCtrl"]
 				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
 		aside
-			button.discard[ng-click="mainCtrl.discardChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
-			button.save[ng-click="mainCtrl.saveChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"]  == svg("check")
+			button.discard.rebo.hollow.grey[ng-click="mainCtrl.discardChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
+			button.save.rebo.green[ng-click="mainCtrl.saveChanges()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"]  == svg("check")
 	article.menu-content
 		p.progress-indicator[progress-model="mainCtrl.configureModeProgress"]
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]

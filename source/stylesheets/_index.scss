@@ -148,36 +148,12 @@ main {
 				margin-right: 10px;
 			}
 
-			button.discard {
-				$color: $def-mediumlightgrey;
-
-				border: 1px solid $color;
-				@include padding-x(14px);
-				@include transition-property(border-color, color);
-				font-size: 12px;
-				color: $color;
-			}
-
-			button.discard:hover, button.discard:focus {
-				$color: $def-grey;
-
-				border-color: $color;
-				color: $color;
-			}
-
 			button.save {
 				@include padding-x(55px);
-				@include transition-property(background-color);
-				background-color: $def-green;
 
 				svg {
 					@include size(14px, 13px);
-					fill: white;
 				}
-			}
-
-			button.save:hover, button.save:focus {
-				background-color: $def-green-shade;
 			}
 		}
 

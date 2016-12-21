@@ -1,0 +1,146 @@
+@import "default";
+@import "constants";
+
+.rebo {
+	@include box-sizing(border-box);
+	@include border-radius($def-radius);
+	border: 1px solid;
+	padding: 10px 14px;
+	font-size: 12px;
+	font-weight: 200;
+	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
+
+	svg {
+		@include transition(fill $def-transition_duration);
+	}
+}
+
+.rebo.big {
+	padding: 12px 15px;
+	font-size: 14px;
+}
+
+.rebo.small {
+	padding: 5px;
+}
+
+.rebo.green {
+	border-color: $def-green;
+	color: white;
+	background-color: $def-green;
+
+	svg {
+		fill: white;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-green-shade;
+		background-color: $def-green-shade;
+	}
+}
+
+.rebo.danger {
+	border-color: $def-danger;
+	color: white;
+	background-color: $def-danger;
+
+	svg {
+		fill: white;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-danger-shade;
+		background-color: $def-danger-shade;
+	}
+}
+
+.rebo.light.green {
+	border-color: $def-green;
+	color: $def-green;
+	background-color: $def-green-light;
+
+	svg {
+		fill: $def-green;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-green;
+		color: white;
+		background-color: $def-green;
+
+		svg {
+			fill: white;
+		}
+	}
+}
+
+.rebo.light.danger {
+	border-color: $def-danger;
+	color: $def-danger;
+	background-color: $def-danger-light;
+
+	svg {
+		fill: $def-danger;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-danger;
+		color: white;
+		background-color: $def-danger;
+
+		svg {
+			fill: white;
+		}
+	}
+}
+
+.rebo.light.grey {
+	border-color: $def-mediumlightgrey;
+	color: black;
+	background-color: $def-verylightgrey;
+
+	svg {
+		fill: black;
+	}
+
+	&:hover, &:focus {
+		background-color: $def-mediumlightgrey;
+	}
+}
+
+.rebo.hollow.grey {
+	border-color: $def-mediumlightgrey;
+	color: $def-mediumlightgrey;
+
+	svg {
+		fill: $def-mediumlightgrey;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-grey;
+		color: $def-grey;
+
+		svg {
+			fill: $def-grey;
+		}
+	}
+}
+
+.rebo.hollow.danger {
+	color: $def-danger;
+	background-color: transparent;
+
+	svg {
+		fill: $def-danger;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-danger;
+		background-color: $def-danger;
+		color: white;
+
+		svg {
+			fill: white;
+		}
+	}
+}
