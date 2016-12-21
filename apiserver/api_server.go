@@ -25,7 +25,7 @@ import (
 	"github.com/bitrise-io/go-utils/cmdex"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/freezable"
-	bitriseHTTPUtil "github.com/bitrise-io/go-utils/httputil"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/gorilla/mux"
 )
 
@@ -124,7 +124,16 @@ func defaultOutputsHandler(w http.ResponseWriter, r *http.Request) {
 type EnvItmModel map[string]string
 
 func loadSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
-	contBytes, err := fileutil.ReadBytesFromFile(secretsYMLPath.Get())
+	secretsYMLPth := secretsYMLPath.Get()
+	if isExist, err := pathutil.IsPathExists(secretsYMLPth); err != nil {
+		respondWithErrorMessage(w, "Failed to check .bitrise.secrets.yml file, error: %s", err)
+		return
+	} else if !isExist {
+		respondWithJSON(w, 200, envmanModels.EnvsSerializeModel{})
+		return
+	}
+
+	contBytes, err := fileutil.ReadBytesFromFile(secretsYMLPth)
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to read content of .bitrise.secrets.yml file, error: %s", err)
 		return
@@ -338,20 +347,12 @@ func routeNotFoundHandler(w http.ResponseWriter, r *http.Request) {
 	RespondWithNotFoundError(w, "Not Found")
 }
 
-func getContentTypeFromHeader(header http.Header) string {
-	contentType, err := bitriseHTTPUtil.GetSingleValueFromHeader("Content-Type", header)
-	if err != nil {
-		return ""
-	}
-	return contentType
-}
-
 // WrapHandlerFunc ...
 func WrapHandlerFunc(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
 	requestWrap := func(w http.ResponseWriter, req *http.Request) {
 		startTime := time.Now()
 		h(w, req)
-		log.Printf(" => %s: %s - %s (%s)", req.Method, req.RequestURI, time.Since(startTime), getContentTypeFromHeader(req.Header))
+		log.Printf(" => %s: %s - %s (%s)", req.Method, req.RequestURI, time.Since(startTime), req.Header.Get("Content-Type"))
 	}
 	return requestWrap
 }
