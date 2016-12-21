@@ -1,7 +1,7 @@
 .tab-workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
 	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
-		section.manage-workflows
+		section.manage-workflows[sticky-header]
 			.select-workflow
 				select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
 			button.add-workflow[ng-click="workflowsCtrl.addWorkflowSelected()"]

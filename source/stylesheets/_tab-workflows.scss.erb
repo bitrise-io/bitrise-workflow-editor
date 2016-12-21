@@ -22,6 +22,7 @@
 		@include display-flex;
 		@include flex-wrap(wrap);
 		padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
+		background-color: white;
 
 		&:not(.ninja) > * {
 			margin: $button-spacing / 2;
@@ -176,6 +177,13 @@
 		@include media-below-mid {
 			@include padding-x($main-horizontalpadding_small - ($button-spacing / 2));
 		}
+	}
+
+	section.manage-workflows[sticky-header].sticking {
+		@include position(fixed, 0, 0);
+		z-index: $zindex-sticky_header-manage_workflows;
+		@include box-sizing(border-box);
+		width: 100%;
 	}
 
 	.workflows {
