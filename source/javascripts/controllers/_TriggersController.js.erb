@@ -148,18 +148,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		}
 	};
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
-		if (_.any(viewModel.triggerTypes, function(aTriggerType) {
-			return _.any(aTriggerType.triggers, function(aTrigger) {
-				return !_.find(viewModel.workflows, {
-					id: aTrigger.workflowID()
-				});
-			});
-		})) {
-			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:triggers][:trigger_with_invalid_workflow] %>"));
-		}
-	}));
-
 	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
