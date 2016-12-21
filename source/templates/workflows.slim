@@ -21,12 +21,12 @@
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.selectedWorkflowChain track by workflowsCtrl.selectedWorkflow.id + '-' + $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex}"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.workflowChain track by workflowsCtrl.selectedWorkflow.id + '-' + $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex}"]
 				header.workflow-header
 					h2
 						.run-workflow
-							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) > workflowIndex"] = svg("workflow/icon-before_run")
-							span.icon[ng-if="workflowsCtrl.selectedWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) < workflowIndex"] = svg("workflow/icon-after_run")
+							span.icon[ng-if="workflowsCtrl.workflowChain.indexOf(workflowsCtrl.selectedWorkflow) > workflowIndex"] = svg("workflow/icon-before_run")
+							span.icon[ng-if="workflowsCtrl.workflowChain.indexOf(workflowsCtrl.selectedWorkflow) < workflowIndex"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]
 						button.remove[ng-if="workflow != workflowsCtrl.selectedWorkflow" ng-click="workflowsCtrl.deleteRunWorkflowAtIndex(workflowIndex)"] = svg("cross")
 				article
