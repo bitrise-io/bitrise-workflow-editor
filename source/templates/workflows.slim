@@ -21,7 +21,7 @@
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			section.workflow[ng-repeat="workflow in workflowsCtrl.workflowChain track by workflowsCtrl.selectedWorkflow.id + '-' + $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex}"]
+			section.workflow[ng-repeat="workflow in workflowsCtrl.workflowChain track by workflowsCtrl.selectedWorkflow.id + '-' + $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 				header.workflow-header
 					h2
 						.run-workflow

@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, imageService, Progress, Popup, Workflow, Step) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, imageService, scrollService, Progress, Popup, Workflow, Step) {
 
 	var viewModel = this;
 
@@ -270,9 +270,19 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.stepSelected = function(step, workflowIndexToEdit) {
+		var workflowIsAlreadyEdited = false;
+
 		if (workflowIndexToEdit !== undefined) {
+			workflowIsAlreadyEdited = viewModel.editedWorkflowIndex == workflowIndexToEdit;
+
 			$scope.editedWorkflow = viewModel.workflowChain[workflowIndexToEdit];
 			viewModel.editedWorkflowIndex = workflowIndexToEdit;
+		}
+
+		if (!workflowIsAlreadyEdited) {
+			setTimeout(function() {
+				scrollService.scrollToTarget();
+			}, 300);
 		}
 
 		if (step == viewModel.selectedStep) {
