@@ -26,6 +26,8 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 			viewModel.appConfigYML = appConfigYML;
 			savedAppConfigYML = appConfigYML;
 
+			configureACE();
+
 			viewModel.loadAppConfigYMLProgress.success();
 		}, function(error) {
 			viewModel.loadAppConfigYMLProgress.error(error);
@@ -53,6 +55,33 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
 		viewModel.appConfigYML = savedAppConfigYML;
 	}));
+
+	function configureACE() {
+		var editor = ace.edit("yml-editor");
+		var session = editor.getSession();
+		var renderer = editor.renderer;
+
+		editor.setTheme('ace/theme/monokai');
+		session.setMode('ace/mode/yaml');
+
+		editor.setReadOnly(false);
+		editor.setShowPrintMargin(false);
+		editor.setShowInvisibles(false);
+		editor.$blockScrolling = Infinity;
+		editor.setOptions({
+			vScrollBarAlwaysVisible: true,
+			tabSize: 2
+		});
+		editor.setValue(viewModel.appConfigYML);
+		editor.focus();
+		editor.gotoLine(1);
+
+		session.setUndoManager(new ace.UndoManager());
+		session.setUseWrapMode(true);
+		session.setUseSoftTabs(true);
+
+		renderer.setShowGutter(true);
+	}
 
 	loadAppConfigYML();
 

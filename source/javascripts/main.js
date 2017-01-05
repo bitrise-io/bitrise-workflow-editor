@@ -3,11 +3,15 @@
 //= require angular
 //= require angular-route
 //= require angular-sanitize
+//= require angular-ui-ace
 //= require angular-animate
 //= require angular-mocks
 //= require _elastic
 //= require showdown
 //= require markdown
+//= require ace
+//= require mode-yaml
+//= require theme-monokai
 
 //= require _BitriseWorkflowEditor
 //= require_tree ./services/

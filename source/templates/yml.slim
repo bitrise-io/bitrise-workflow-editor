@@ -1,8 +1,8 @@
-.yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
+.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
 	h2 == data[:strings][:yml][:title]
 	p == data[:strings][:yml][:info_1]
 	p[ng-if="ymlCtrl.downloadAppConfigYMLPath"]
 		em == string_with_urls(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 	p.progress-indicator[progress-model="ymlCtrl.loadAppConfigYMLProgress"]
-	textarea[ng-model="ymlCtrl.appConfigYML" ng-if="ymlCtrl.loadAppConfigYMLProgress.isIdle"]
+	#yml-editor[ng-model="ymlCtrl.appConfigYML" ng-show="ymlCtrl.loadAppConfigYMLProgress.isIdle" ui-ace ng-trim="true"]
 	a[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
