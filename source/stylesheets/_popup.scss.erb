@@ -1,0 +1,137 @@
+@import "default";
+@import "constants";
+
+.popup {
+	$transitionduration: 0.3s;
+
+	z-index: $zindex-popup;
+	@include position(fixed, 0, 0);
+	@include display-flex;
+	@include flex-direction(column);
+	@include justify-content(center);
+	@include align-items(center);
+	@include size(100%);
+	background-color: rgba(black, 0.5);
+
+	&.ng-hide {
+		background-color: rgba(black, 0);
+
+		&:not(.ninja) > * {
+			top: 100%;
+		}
+	}
+
+	&.ng-animate {
+		@include transition(background-color $transitionduration ease);
+
+		&:not(.ninja) > * {
+			@include transition(top $transitionduration ease);
+		}
+	}
+
+	&:not(.ninja) > * {
+		position: relative;
+		top: 0%;
+		width: 600px;
+		@include max-size(90%);
+		overflow: hidden;
+	}
+
+	&.round > * {
+		@include border-radius(6px);
+	}
+
+	&.white > * {
+		background-color: white;
+	}
+
+	.popup-body-alert {
+		overflow: visible;
+		text-align: center;
+
+		&:before {
+			$size: 68px;
+
+			content: "";
+			position: relative;
+			display: block;
+			@include size($size);
+			margin-bottom: - $size / 2;
+			@include margin-x(auto);
+			@include border-radius($size / 2);
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+
+		article {
+			@include border-top-radius(6px);
+			padding: 25px 15px;
+			padding-top: 55px;
+			overflow: hidden;
+			background-color: white;
+
+			h2 {
+				@include margin-y(0);
+				font-size: 16px;
+				font-weight: 600;
+			}
+
+			h2:not(:last-child) {
+				margin-bottom: 20px;
+			}
+
+			p {
+				@include margin-y(0);
+				font-size: 12px;
+				font-weight: 200;
+				color: $def-grey;
+			}
+		}
+
+		footer {
+			@include display-flex;
+			@include border-bottom-radius(6px);
+			overflow: hidden;
+
+			button {
+				@include flex-grow(1);
+				padding: 20px 10px;
+				font-size: 16px;
+				font-weight: 300;
+				color: white;
+				@include transition(background-color $def-transition_duration);
+			}
+		}
+	}
+
+	.popup-body-alert.error {
+
+		&:before {
+			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("cross") %>', (
+				fill: rgba(white, 0.99)
+			));
+
+			background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+			background-size: auto 16px;
+			background-color: $def-danger;
+		}
+
+		article {
+
+			h2 {
+				color: $def-danger;
+			}
+		}
+
+		footer {
+
+			button {
+				background-color: $def-danger;
+			}
+
+			button:hover, button:focus {
+				background-color: $def-danger-shade;
+			}
+		}
+	}
+}

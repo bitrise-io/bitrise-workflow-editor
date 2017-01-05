@@ -12,6 +12,10 @@ main:
   load_progress:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...
+    save_error: Error saving
+alert_popup:
+  ok: OK
+  cancel: Cancel
 workflows:
   load_workflows_progress:
     in_progress: Loading workflows...

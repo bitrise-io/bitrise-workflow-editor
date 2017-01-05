@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Popup", function() {
+angular.module("BitriseWorkflowEditor").factory("Popup", function($rootScope, $q) {
 
 	var Popup = function(parameters) {
 		this.isVisible = false;
@@ -11,6 +11,18 @@ angular.module("BitriseWorkflowEditor").factory("Popup", function() {
 		this.afterAppearCallback = undefined;
 		this.beforeDismissCallback = undefined;
 		this.afterDismissCallback = undefined;
+	};
+
+	Popup.showErrorPopup = function(title, details, okTitle, cancelTitle) {
+		return showAlertPopup("error", title, details, okTitle, cancelTitle);
+	};
+
+	function showAlertPopup(typeID, title, details, okTitle, cancelTitle) {
+		var deferer = $q.defer();
+
+		$rootScope.$emit("DefaultPopupController::showAlertPopup", typeID, title, details, okTitle, cancelTitle, deferer);
+
+		return deferer.promise;
 	};
 
 	return Popup;

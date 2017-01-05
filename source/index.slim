@@ -22,3 +22,11 @@ main[ng-controller="MainController as mainCtrl"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
 		p.progress-indicator[progress-model="mainCtrl.saveProgress"]
 		div[ng-view ng-if="!mainCtrl.menuProgress.configureModeProgress.isError && !mainCtrl.menuProgress.isError && !mainCtrl.loadAppConfigProgress.isError && !mainCtrl.saveProgress.isInProgress"]
+aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
+	popup[model="defaultPopupCtrl.alertPopup"]
+		.popup-body-alert[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
+			article.vertical-scroll
+				h2[ng-bind="defaultPopupCtrl.alertPopup.parameters.title"]
+				p[ng-if="defaultPopupCtrl.alertPopup.parameters.details" ng-bind="defaultPopupCtrl.alertPopup.parameters.details"]
+			footer
+				button[ng-click="defaultPopupCtrl.alertPopup.isVisible = false" ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"]
