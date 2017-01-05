@@ -96,6 +96,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 					viewModel.workflowSelected(selectedWorkflow);
 				}, function() {
 					viewModel.configureWorkflowsProgress.success();
+
+					viewModel.workflowSelected(selectedWorkflow);
 				});
 			}
 			catch (error) {
