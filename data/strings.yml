@@ -12,7 +12,7 @@ main:
   load_progress:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...
-    save_error: Error saving
+    save_error: Error saving!
 alert_popup:
   ok: OK
   cancel: Cancel
