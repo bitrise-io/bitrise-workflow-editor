@@ -107,6 +107,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
 						delete stepConfig["deps"];
 					}
+
+					variableConfigs = _.union(variableConfigs, stepConfig.inputs);
 				});
 			});
 		}
