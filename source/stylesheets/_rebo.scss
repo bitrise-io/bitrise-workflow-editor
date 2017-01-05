@@ -6,6 +6,7 @@
 	@include border-radius($def-radius);
 	border: 1px solid;
 	padding: 10px 12px;
+	text-align: center;
 	font-size: 12px;
 	font-weight: 200;
 	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
@@ -13,6 +14,11 @@
 	svg {
 		@include transition(fill $def-transition_duration);
 	}
+}
+
+a.rebo {
+	display: inline-block;
+	text-decoration: none;
 }
 
 .rebo.big {

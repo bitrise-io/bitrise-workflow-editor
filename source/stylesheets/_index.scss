@@ -41,6 +41,7 @@ main {
 
 				position: relative;
 				@include display-flex;
+				@include justify-content(center);
 				@include align-items(center);
 				padding: $menubutton_verticalpadding 30px;
 				text-align: center;

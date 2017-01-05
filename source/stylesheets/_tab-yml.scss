@@ -6,4 +6,33 @@
 	.ace_editor {
 		height: 640px;
 	}
+
+	section {
+		margin-bottom: 20px;
+	}
+
+	section.cardo {
+
+		&:not(.ninja) > p.notification {
+			@include margin-y(0);
+			@include border-x(none);
+			@include border-radius(0);
+			padding: $cardo-verticalpadding $cardo-horizontalpadding;
+		}
+
+		article {
+			padding: 0;
+
+			p.progress-indicator {
+				@include margin-y(0);
+				@include border-x(none);
+				border-bottom: none;
+				@include border-radius(0);
+			}
+		}
+	}
+
+	a.download-app-config {
+		display: block;
+	}
 }

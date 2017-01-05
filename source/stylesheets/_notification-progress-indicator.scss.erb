@@ -23,6 +23,15 @@
 			background-repeat: no-repeat;
 		}
 	}
+
+	a {
+		font-weight: 600;
+		color: inherit;
+	}
+
+	a:not(:hover):not(:focus) {
+		text-decoration: none;
+	}
 }
 
 @mixin notification_styling($color, $background_color, $svg_content, $icon_size) {
