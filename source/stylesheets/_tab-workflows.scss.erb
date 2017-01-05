@@ -664,8 +664,8 @@
 								@include size(16px, 13px);
 							}
 
-							p {
-								@include margin-y(0);
+							.markdown {
+
 							}
 
 							span.toggle-visibility {
@@ -696,12 +696,46 @@
 
 						section.description:not(.open) {
 
-							p {
+							.markdown {
 								@include ellipsis-oneliner;
+
+								* {
+									display: inline;
+									white-space: nowrap;
+									font-size: inherit;
+									font-weight: inherit;
+									color: inherit;
+									text-decoration: none;
+								}
 							}
 						}
 
 						section.description.open {
+
+							.markdown {
+								
+								p {
+									margin-top: 0;
+								}
+
+								a {
+									color: $def-green;
+								}
+
+								a:not(:hover):not(:focus) {
+									text-decoration: none;
+								}
+
+								code {
+									color: black;
+									background-color: $def-verylightgrey;
+								}
+
+								pre code {
+									display: block;
+									padding: 6px 10px;
+								}
+							}
 
 							span.toggle-visibility {
 								position: relative;

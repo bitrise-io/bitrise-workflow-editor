@@ -6,6 +6,8 @@
 //= require angular-animate
 //= require angular-mocks
 //= require _elastic
+//= require showdown
+//= require markdown
 
 //= require _BitriseWorkflowEditor
 //= require_tree ./services/

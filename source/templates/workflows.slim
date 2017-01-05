@@ -58,7 +58,7 @@
 							section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}"]
 								span.icon
 									= svg("step/description")
-								p[ng-bind-html="stepCtrl.step.description()"]
+								.markdown[btf-markdown="stepCtrl.step.description()"]
 								span.toggle-visibility
 									button[ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
 									= svg("arrow-down")
