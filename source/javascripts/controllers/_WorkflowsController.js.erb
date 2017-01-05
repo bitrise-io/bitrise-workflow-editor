@@ -300,6 +300,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", _.indexOf($scope.editedWorkflow.steps, step));
 	};
 
+	viewModel.addStepSelectedAtEnd = function() {
+		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", $scope.editedWorkflow.steps.length);
+	};
+
 	$scope.$on("$destroy", $rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
 		if (!$scope.editedWorkflow.steps) {
 			$scope.editedWorkflow.steps = [];

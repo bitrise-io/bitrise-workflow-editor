@@ -276,6 +276,11 @@
 					list-style: none;
 					@include flex-shrink(0);
 
+					ul {
+						list-style: none;
+						padding-left: 0;
+					}
+
 					li {
 						width: 100%;
 						margin-bottom: $spacing;
@@ -390,18 +395,15 @@
 					}
 				}
 
-				ul.steps.drag-in-progress {
+				ul.drag-in-progress li, ul.drag-in-progress + li {
 
-					li {
-
-						button.add-step {
-							visibility: hidden;
-						}
+					button.add-step {
+						visibility: hidden;
 					}
+				}
 
-					li.dragged-element {
-						z-index: $zindex-dragged_element;
-					}
+				ul.drag-in-progress li.dragged-element {
+					z-index: $zindex-dragged_element;
 				}
 
 				aside.step-details {
