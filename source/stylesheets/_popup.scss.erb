@@ -81,10 +81,18 @@
 			}
 
 			p {
-				@include margin-y(0);
+				margin-top: 0;
 				font-size: 12px;
 				font-weight: 200;
 				color: $def-grey;
+
+				a {
+					color: $def-green;
+				}
+
+				a:not(:hover):not(:focus) {
+					text-decoration: none;
+				}
 			}
 		}
 
@@ -131,6 +139,37 @@
 
 			button:hover, button:focus {
 				background-color: $def-danger-shade;
+			}
+		}
+	}
+
+	.popup-body-alert.notice {
+
+		&:before {
+			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("bulb") %>', (
+				fill: rgba(white, 0.99)
+			));
+
+			background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+			background-size: auto 20px;
+			background-color: $def-blue;
+		}
+
+		article {
+
+			h2 {
+				color: $def-blue;
+			}
+		}
+
+		footer {
+
+			button {
+				background-color: $def-blue;
+			}
+
+			button:hover, button:focus {
+				background-color: $def-blue-shade;
 			}
 		}
 	}

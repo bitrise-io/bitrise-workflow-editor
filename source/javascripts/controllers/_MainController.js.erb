@@ -2,9 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step, Variable, Trigger) {
 
 	var viewModel = this;
+
+	var loadAppConfigCanceler;
 
 	viewModel.configureModeProgress = new Progress();
 
@@ -64,22 +66,69 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function loadAppConfig() {
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		var canceler = $q.defer();
+		if (loadAppConfigCanceler) {
+			loadAppConfigCanceler.resolve();
+		}
+		
+		loadAppConfigCanceler = $q.defer();
 
 		$scope.$on("$destroy", function() {
-			canceler.resolve();
+			loadAppConfigCanceler.resolve();
 		});
 
 		requestService.getAppConfig({
-			timeout: canceler.promise
+			timeout: loadAppConfigCanceler.promise
 		}).then(function(_appConfig) {
 			appConfig = _appConfig;
 			savedAppConfig = angular.copy(_appConfig);
 			minimizeAppConfig(appConfig);
 
-			viewModel.loadAppConfigProgress.success();
+			var appConfigContainsDeprecatedTriggers = false;
+			var updatedTriggerMap = [];
+			_.each(appConfig.trigger_map, function(aTriggerConfig) {
+				if (aTriggerConfig.pattern === undefined) {
+					updatedTriggerMap.push(aTriggerConfig);
 
-			$rootScope.$emit("MainController::appConfigLoaded", appConfig);
+					return;
+				}
+
+				appConfigContainsDeprecatedTriggers = true;
+
+				var pushTriggerConfig = {
+					workflow: aTriggerConfig.workflow,
+					push_branch: aTriggerConfig.pattern
+				};
+				updatedTriggerMap.push(pushTriggerConfig);
+
+				if (aTriggerConfig.is_pull_request_allowed) {
+					var pullRequestTriggerConfig = {
+						workflow: aTriggerConfig.workflow,
+						pull_request_source_branch: aTriggerConfig.pattern,
+						pull_request_target_branch: "*"
+					};
+					updatedTriggerMap.push(pullRequestTriggerConfig);
+				}
+			});
+
+			$q(function(resolve, reject) {
+				if (appConfigContainsDeprecatedTriggers) {
+					appConfig.trigger_map = updatedTriggerMap;
+
+					Popup.showNoticePopup("Triggers are changing for the better", ["We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs.<p></p><p>You don't have to worry, though, everything you've set so far will work the same!", "For more information, please check the <a href='http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html'>blogpost</a>!"]).then(resolve, resolve);
+				}
+				else {
+					resolve();
+				}
+			}).then(function() {
+				if (appConfigContainsDeprecatedTriggers) {
+					viewModel.saveChanges();
+				}
+				else {
+					viewModel.loadAppConfigProgress.success();
+
+					$rootScope.$emit("MainController::appConfigLoaded", appConfig);
+				}
+			});
 		}, function(error) {
 			viewModel.loadAppConfigProgress.error(error);
 		});

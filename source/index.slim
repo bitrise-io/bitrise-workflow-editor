@@ -27,6 +27,6 @@ aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 		.popup-body-alert[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
 			article.vertical-scroll
 				h2[ng-bind="defaultPopupCtrl.alertPopup.parameters.title"]
-				p[ng-if="defaultPopupCtrl.alertPopup.parameters.details" ng-bind="defaultPopupCtrl.alertPopup.parameters.details"]
+				p[ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details" ng-bind-html="detail"]
 			footer
 				button[ng-click="defaultPopupCtrl.alertPopup.isVisible = false" ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"]

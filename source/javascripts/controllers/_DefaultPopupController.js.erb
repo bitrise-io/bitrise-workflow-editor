@@ -9,6 +9,9 @@ angular.module("BitriseWorkflowEditor").controller("DefaultPopupController", fun
 	var types = [{
 		id: "error",
 		cssClass: "error"
+	}, {
+		id: "notice",
+		cssClass: "notice"
 	}];
 
 	viewModel.alertPopup = new Popup({
@@ -24,7 +27,7 @@ angular.module("BitriseWorkflowEditor").controller("DefaultPopupController", fun
 			id: typeID ? typeID : "error"
 		});
 		viewModel.alertPopup.parameters.title = title;
-		viewModel.alertPopup.parameters.details = details;
+		viewModel.alertPopup.parameters.details = typeof details == "string" ? [details] : details;
 		viewModel.alertPopup.parameters.okTitle = okTitle ? okTitle : "<%= data[:strings][:alert_popup][:ok] %>";
 
 		if (deferer && deferer.resolve) {
