@@ -2,11 +2,9 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, Progress, Popup, Step, Variable, Trigger) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, appService, Progress, Popup) {
 
 	var viewModel = this;
-
-	var loadAppConfigCanceler;
 
 	viewModel.configureModeProgress = new Progress();
 
@@ -14,10 +12,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
 
-	var appConfig;
-	var savedAppConfig;
 	viewModel.loadAppConfigProgress = new Progress();
-
 	viewModel.saveProgress = new Progress();
 
 	function configureMode() {
@@ -66,129 +61,39 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function loadAppConfig() {
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		if (loadAppConfigCanceler) {
-			loadAppConfigCanceler.resolve();
-		}
-		
-		loadAppConfigCanceler = $q.defer();
+		var canceler = $q.defer();
 
 		$scope.$on("$destroy", function() {
-			loadAppConfigCanceler.resolve();
+			canceler.resolve();
 		});
 
-		requestService.getAppConfig({
-			timeout: loadAppConfigCanceler.promise
-		}).then(function(_appConfig) {
-			appConfig = _appConfig;
-			savedAppConfig = angular.copy(_appConfig);
-			minimizeAppConfig(appConfig);
-
-			var appConfigContainsDeprecatedTriggers = false;
-			var updatedTriggerMap = [];
-			_.each(appConfig.trigger_map, function(aTriggerConfig) {
-				if (aTriggerConfig.pattern === undefined) {
-					updatedTriggerMap.push(aTriggerConfig);
-
-					return;
-				}
-
-				appConfigContainsDeprecatedTriggers = true;
-
-				var pushTriggerConfig = {
-					workflow: aTriggerConfig.workflow,
-					push_branch: aTriggerConfig.pattern
-				};
-				updatedTriggerMap.push(pushTriggerConfig);
-
-				if (aTriggerConfig.is_pull_request_allowed) {
-					var pullRequestTriggerConfig = {
-						workflow: aTriggerConfig.workflow,
-						pull_request_source_branch: aTriggerConfig.pattern,
-						pull_request_target_branch: "*"
-					};
-					updatedTriggerMap.push(pullRequestTriggerConfig);
-				}
-			});
+		appService.getAppConfig({
+			timeout: canceler.promise
+		}).then(function() {
+			var appConfighasDeprecatedTriggerMap = appService.appConfigHasDeprecatedTriggerMap();
 
 			$q(function(resolve, reject) {
-				if (appConfigContainsDeprecatedTriggers) {
-					appConfig.trigger_map = updatedTriggerMap;
+				if (appConfighasDeprecatedTriggerMap) {
+					appService.updateDeprecatedTriggerMap();
 
-					Popup.showNoticePopup("Triggers are changing for the better", ["We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs.<p></p><p>You don't have to worry, though, everything you've set so far will work the same!", "For more information, please check the <a href='http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html'>blogpost</a>!"]).then(resolve, resolve);
+					Popup.showNoticePopup("Triggers are changing for the better", ["We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs.<p></p><p>You don't have to worry, though, everything you've set so far will work the same!", "For more information, please check the <a href='http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html'>blogpost</a>!"]).then(save).then(resolve, reject);
 				}
 				else {
 					resolve();
 				}
 			}).then(function() {
-				if (appConfigContainsDeprecatedTriggers) {
-					viewModel.saveChanges();
-				}
-				else {
-					viewModel.loadAppConfigProgress.success();
+				viewModel.loadAppConfigProgress.success();
 
-					$rootScope.$emit("MainController::appConfigLoaded", appConfig);
-				}
+				$rootScope.$emit("MainController::appConfigLoaded");
+			}, function(error) {
+				viewModel.loadAppConfigProgress.error(error);
 			});
 		}, function(error) {
 			viewModel.loadAppConfigProgress.error(error);
 		});
 	}
 
-	function minimizeAppConfig(_appConfig) {
-		var variableConfigs = [];
-
-		if (_appConfig.app && _appConfig.app.envs) {
-			variableConfigs = _.union(variableConfigs, _appConfig.app.envs);
-		}
-
-		if (_appConfig.workflows) {
-			_.each(_appConfig.workflows, function(aWorkflowConfig) {
-				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
-
-				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
-					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
-					var stepConfig = aWrappedUserStepConfig[stepCVS];
-
-					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
-						delete stepConfig["source"];
-					}
-
-					if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
-						delete stepConfig["deps"];
-					}
-
-					variableConfigs = _.union(variableConfigs, stepConfig.inputs);
-				});
-			});
-		}
-
-		_.each(variableConfigs, Variable.minimizeVariableConfig);
-	}
-
-	$scope.$on("$routeChangeStart", function() {
-		viewModel.menuProgress.start("Loading, wait a sec...");
-	});
-
-	$scope.$on("$routeChangeSuccess", function() {
-		viewModel.menuProgress.success();
-
-		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
-			return $location.path() == "/" + aMenu.path;
-		});
-	});
-
-	$scope.$on("$routeChangeError", function() {
-		viewModel.menuProgress.error(new Error("Failed to load menu."));
-	});
-
-	viewModel.discardChanges = function() {
-		appConfig = angular.copy(savedAppConfig);
-		minimizeAppConfig(appConfig);
-
-		$rootScope.$emit("MainController::discardChanges", appConfig);
-	};
-
-	viewModel.saveChanges = function() {
+	function save() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
 		var canceler = $q.defer();
@@ -212,7 +117,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			return;
 		}
 
-		$q(function(resolve, reject) {
+		return $q(function(resolve, reject) {
 			switch (viewModel.currentMenu.id) {
 				case "secrets": {
 					$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
@@ -225,7 +130,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 				}
 				default: {
-					requestService.postAppConfig(appConfig, {
+					appService.saveAppConfig({
 						timeout: canceler.promise
 					}).then(resolve, reject);
 
@@ -234,15 +139,43 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 		}).then(function() {
 			viewModel.saveProgress.success();
-
-			loadAppConfig();
 		}, function(error) {
 			viewModel.saveProgress.error(error)
 		});
+	}
+
+	$scope.$on("$routeChangeStart", function() {
+		viewModel.menuProgress.start("Loading, wait a sec...");
+	});
+
+	$scope.$on("$routeChangeSuccess", function() {
+		viewModel.menuProgress.success();
+
+		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
+			return $location.path() == "/" + aMenu.path;
+		});
+	});
+
+	$scope.$on("$routeChangeError", function() {
+		viewModel.menuProgress.error(new Error("Failed to load menu."));
+	});
+
+	viewModel.discardChangesSelected = function() {
+		appService.discardChanges();
+		$rootScope.$emit("MainController::discardChanges");
+	};
+
+	viewModel.saveChangesSelected = function() {
+		save().then(loadAppConfig);
 	};
 
 	$rootScope.$on("MainController::menuContentIsLoadedAndReady", function() {
-		loadAppConfig();
+		if (!appService.appConfig) {
+			loadAppConfig();
+		}
+		else {
+			$rootScope.$emit("MainController::appConfigLoaded");
+		}
 	});
 
 	configureMode();

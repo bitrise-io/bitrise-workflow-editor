@@ -2,11 +2,10 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, imageService, scrollService, Progress, Popup, Workflow, Step) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
 
 	var viewModel = this;
 
-	viewModel.appConfig;
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
 	viewModel.workflowChain;
@@ -44,15 +43,15 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	};
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
-		configureWorkflowsFromAppConfig(appConfig);
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
+		configureWorkflowsWithAppConfig();
 	}));
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, appConfig) {
-		configureWorkflowsFromAppConfig(appConfig);
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
+		configureWorkflowsWithAppConfig();
 	}));
 
-	function configureWorkflowsFromAppConfig(appConfig) {
+	function configureWorkflowsWithAppConfig() {
 		viewModel.configureWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
 
 		var canceler = $q.defer();
@@ -63,15 +62,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
 
-		viewModel.appConfig = appConfig;
-
 		bitriseSteplibService.load({
 			timeout: canceler.promise
 		}).then(function() {
 			try {
 				var allWorkflowsLoadedCallbacks = [];
 
-				viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+				viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 					return new Workflow(aWorkflowID, aWorkflowConfig);
 				});
 
@@ -152,9 +149,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.addWorkflow = function() {
-		viewModel.appConfig.workflows[viewModel.addWorkflowPopup.parameters.workflowID] = angular.copy(viewModel.selectedWorkflow.workflowConfig);
+		appService.appConfig.workflows[viewModel.addWorkflowPopup.parameters.workflowID] = angular.copy(viewModel.selectedWorkflow.workflowConfig);
 
-		configureWorkflowsFromAppConfig(viewModel.appConfig);
+		configureWorkflowsWithAppConfig();
 
 		viewModel.workflowSelected(_.find(viewModel.workflows, {
 			id: viewModel.addWorkflowPopup.parameters.workflowID
@@ -257,18 +254,18 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			});
 		});
 
-		var triggerConfigsToRemove = _.filter(viewModel.appConfig.trigger_map, {
+		var triggerConfigsToRemove = _.filter(appService.appConfig.trigger_map, {
 			workflow: viewModel.selectedWorkflow.id
 		});
 		_.each(triggerConfigsToRemove, function(aTriggerConfigToRemove) {
-			var index = _.indexOf(viewModel.appConfig.trigger_map, aTriggerConfigToRemove);
+			var index = _.indexOf(appService.appConfig.trigger_map, aTriggerConfigToRemove);
 
-			viewModel.appConfig.trigger_map.splice(index, 1);
+			appService.appConfig.trigger_map.splice(index, 1);
 		});
 
-		delete viewModel.appConfig.workflows[viewModel.selectedWorkflow.id];
+		delete appService.appConfig.workflows[viewModel.selectedWorkflow.id];
 
-		configureWorkflowsFromAppConfig(viewModel.appConfig);
+		configureWorkflowsWithAppConfig();
 	};
 
 	viewModel.stepSelected = function(step, workflowIndexToEdit) {
@@ -355,7 +352,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return;
 		}
 
-		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", viewModel.appConfig, $scope.editedWorkflow, viewModel.selectedStep);
+		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", $scope.editedWorkflow, viewModel.selectedStep);
 	}));
 
 	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");

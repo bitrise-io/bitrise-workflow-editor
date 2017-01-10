@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable) {
 
 	var viewModel = this;
 
@@ -15,22 +15,26 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	var envVarsWatchers;
 
 	viewModel.secretConfigs;
-	viewModel.appConfig;
 	viewModel.loadEnvVarsProgress = new Progress();
 	viewModel.envVarsBySource;
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
-		configureWithAppConfig(appConfig);
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
+		switch (mode) {
+			case "secrets":
+				return;
+			case "env-vars":
+				configureWithAppConfig();
+		}
 	}));
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, appConfig) {
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
 		switch (mode) {
 			case "secrets":
 				_.first(viewModel.envVarsBySource).envVars = angular.copy(_.first(viewModel.envVarsBySource).savedEnvVars);
 
 				break;
 			case "env-vars":
-				configureWithAppConfig(appConfig);
+				configureWithAppConfig();
 
 				break;
 		}
@@ -45,6 +49,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 				break;
 		}
+
+		$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 	};
 
 	function loadSecrets() {
@@ -79,43 +85,33 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		});
 	}
 
-	function configureWithAppConfig(appConfig) {
-		switch (mode) {
-			case "secrets":
-				break;
-			case "env-vars":
-				viewModel.appConfig = appConfig;
-				viewModel.envVarsBySource = [];
+	function configureWithAppConfig() {
+		viewModel.envVarsBySource = [];
 
-				if (appConfig.app.envs) {
-					viewModel.envVarsBySource.push({
-						type: "app",
-						warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
-						envVars: _.map(appConfig.app.envs, function(anAppEnvVarConfig) {
-							return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
-						})
-					});
-				}
-
-				_.each(appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
-					viewModel.envVarsBySource.push({
-						type: "workflow",
-						workflowID: aWorkflowID,
-						notification: stringService.stringReplacedWithParameters("<%= data[:strings][:env_vars][:workflow][:notification] %>", {
-							workflow_id: aWorkflowID
-						}),
-						envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-							return new Variable(anEnvVarConfig, defaultEnvVarConfig);
-						})
-					});
-				});
-
-				configureEnvVarsWatchers();
-
-				break;
+		if (appService.appConfig.app.envs) {
+			viewModel.envVarsBySource.push({
+				type: "app",
+				warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
+				envVars: _.map(appService.appConfig.app.envs, function(anAppEnvVarConfig) {
+					return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
+				})
+			});
 		}
 
-		viewModel.loadEnvVarsProgress.success();
+		_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+			viewModel.envVarsBySource.push({
+				type: "workflow",
+				workflowID: aWorkflowID,
+				notification: stringService.stringReplacedWithParameters("<%= data[:strings][:env_vars][:workflow][:notification] %>", {
+					workflow_id: aWorkflowID
+				}),
+				envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
+					return new Variable(anEnvVarConfig, defaultEnvVarConfig);
+				})
+			});
+		});
+
+		configureEnvVarsWatchers();
 	}
 
 	function configureEnvVarsWatchers() {
@@ -141,38 +137,38 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 						break;
 					case "app":
-						if (!viewModel.appConfig) {
+						if (!appService.appConfig) {
 							return;
 						}
 
-						if (!viewModel.appConfig.app) {
-							viewModel.appConfig.app = {};
+						if (!appService.appConfig.app) {
+							appService.appConfig.app = {};
 						}
 
-						viewModel.appConfig.app.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+						appService.appConfig.app.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
 							return anEnvVar.userVariableConfig;
 						});
 
-						if (_.isEmpty(viewModel.appConfig.app.envs)) {
-							delete viewModel.appConfig.app["envs"];
+						if (_.isEmpty(appService.appConfig.app.envs)) {
+							delete appService.appConfig.app["envs"];
 						}
 
-						if (_.isEmpty(viewModel.appConfig.app)) {
-							delete viewModel.appConfig["app"];
+						if (_.isEmpty(appService.appConfig.app)) {
+							delete appService.appConfig["app"];
 						}
 
 						break;
 					case "workflow": {
-						if (!viewModel.appConfig) {
+						if (!appService.appConfig) {
 							return;
 						}
 
-						viewModel.appConfig.workflows[envVarsOfSource.workflowID].envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+						appService.appConfig.workflows[envVarsOfSource.workflowID].envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
 							return anEnvVar.userVariableConfig;
 						});
 
-						if (_.isEmpty(viewModel.appConfig.workflows[envVarsOfSource.workflowID].envs)) {
-							delete viewModel.appConfig.workflows[envVarsOfSource.workflowID]["envs"];
+						if (_.isEmpty(appService.appConfig.workflows[envVarsOfSource.workflowID].envs)) {
+							delete appService.appConfig.workflows[envVarsOfSource.workflowID]["envs"];
 						}
 
 						break;
@@ -225,8 +221,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			reject(error)
 		});
 	}));
-
-	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 
 });
 

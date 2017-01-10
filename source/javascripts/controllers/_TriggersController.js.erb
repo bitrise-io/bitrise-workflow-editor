@@ -2,13 +2,12 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, Progress, Trigger, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, appService, Progress, Trigger, Workflow) {
 
 	var viewModel = this;
 
 	var addTriggerProgress = new Progress();
 
-	viewModel.appConfig;
 	viewModel.workflows;
 
 	$scope.triggerTypes = [{
@@ -27,35 +26,34 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.editedTrigger;
 	viewModel.newTriggerIndex;
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function(event, appConfig) {
-		configureWithAppConfig(appConfig);
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
+		configureWithAppConfig();
 	}));
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function(event, appConfig) {
-		configureWithAppConfig(appConfig);
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
+		configureWithAppConfig();
 	}));
 
 	$scope.$watch("triggerTypes", function(triggerTypes) {
-		if (!viewModel.appConfig) {
+		if (!appService.appConfig) {
 			return;
 		}
 
-		viewModel.appConfig.trigger_map = [];
+		appService.appConfig.trigger_map = [];
 
 		_.each(triggerTypes, function(aTriggerType) {
 			_.each(aTriggerType.triggers, function(aTrigger) {
-				viewModel.appConfig.trigger_map.push(aTrigger.triggerConfig);
+				appService.appConfig.trigger_map.push(aTrigger.triggerConfig);
 			});
 		});
 
-		if (_.isEmpty(viewModel.appConfig.trigger_map)) {
-			delete viewModel.appConfig["triggers"];
+		if (_.isEmpty(appService.appConfig.trigger_map)) {
+			delete appService.appConfig["triggers"];
 		}
 	}, true);
 
-	function configureWithAppConfig(appConfig) {
-		viewModel.appConfig = appConfig;
-		viewModel.workflows = _.map(viewModel.appConfig.workflows, function(aWorkflowConfig, workflowID) {
+	function configureWithAppConfig() {
+		viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, workflowID) {
 			return new Workflow(workflowID, aWorkflowConfig);
 		});
 
@@ -63,7 +61,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			aTriggerType.triggers = [];
 		});
 
-		_.each(viewModel.appConfig.trigger_map, function(triggerConfig) {
+		_.each(appService.appConfig.trigger_map, function(triggerConfig) {
 			var trigger = new Trigger(triggerConfig);
 
 			_.find($scope.triggerTypes, {
