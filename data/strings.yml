@@ -30,13 +30,16 @@ workflows:
     no_other_workflows: No other Workflows to run after selected Workflow.
   add_workflow:
     action: Workflow
-    specify_id: "Specify a unique ID for the new Workflow:"
-    new_workflow_info: "Note: configuration of the new Workflow will be copied from the currently selected Workflow"
+    add_new_workflow: Add new workflow
+    workflow_name_placeholder: Workflow name
+    based_on: "Based on:"
+    empty_workflow: Empty workflow
+    done: Done
   add_workflow_after: Add Workflow after
   add_workflow_before: Add Workflow before
   rearrange:
     action: Rearrange
-    heading: Drag & drop to rearrange Workflows
+    drag_n_drop: Drag & drop to rearrange Workflows
     done: Done
     cancel: Cancel
   delete_workflow: Delete Workflow

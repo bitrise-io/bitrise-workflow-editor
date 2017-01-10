@@ -37,11 +37,11 @@
 		overflow: hidden;
 	}
 
-	&.round > * {
+	&:not(.ninja) > .round {
 		@include border-radius(6px);
 	}
 
-	&.white > * {
+	&:not(.ninja) > .white {
 		background-color: white;
 	}
 

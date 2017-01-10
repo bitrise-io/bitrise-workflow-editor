@@ -1228,6 +1228,56 @@
 	}
 }
 
+.popup-body-add-workflow {
+	width: 480px !important;
+	@include margin-y(18px);
+	text-align: center;
+	background-color: white;
+
+	header {
+		padding-top: 16px;
+		font-size: 16px;
+		font-weight: 400;
+	}
+
+	article {
+		padding: 20px 15px;
+		text-align: left;
+
+		input, select {
+			display: block;
+			@include box-sizing(border-box);
+			width: 100%;
+			@include border-radius($def-radius);
+			border: 1px solid $def-mediumlightgrey;
+			padding: 12px;
+			font-size: 14px;
+			font-weight: 200;
+		}
+
+		input {
+			margin-bottom: 20px;
+		}
+
+		label {
+			display: block;
+			margin-bottom: 10px;
+			font-size: 12px;
+			font-weight: 500;
+			text-transform: uppercase;
+		}
+	}
+
+	footer {
+
+		button {
+			display: block;
+			width: 100%;
+			@include border-radius(0);
+		}
+	}
+}
+
 .popup-body-add-step {
 
 	.type-tag-filter {

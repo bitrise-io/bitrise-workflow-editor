@@ -4,7 +4,7 @@
 		section.manage-workflows[sticky-header]
 			.select-workflow
 				select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
-			button.add-workflow.rebo.light.green[ng-click="workflowsCtrl.addWorkflowSelected()"]
+			button.add-workflow.rebo.light.green[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
 				= svg("plus")
 				span == data[:strings][:workflows][:add_workflow][:action]
 			button.add-before-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
@@ -102,32 +102,34 @@
 										td.key[ng-bind="output | prettifiedVariableKey"]
 										td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
 						button.delete-step.rebo.big.hollow.danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
-		popup[model="workflowsCtrl.addWorkflowPopup"]
-			.popup-body-add-workflow.vertical-scroll.white
-				p == data[:strings][:workflows][:add_workflow][:specify_id]
-				input[type="text" ng-model="workflowsCtrl.addWorkflowPopup.parameters.workflowID"]
-				p
-					em == data[:strings][:workflows][:add_workflow][:new_workflow_info]
-				button[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="workflowsCtrl.addWorkflowPopup.parameters.workflowID.length == 0 || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowPopup.parameters.workflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:action]
-		popup[model="workflowsCtrl.addRunWorkflowPopup"]
-			.popup-body-add-run-workflow.vertical-scroll.white
-				p[ng-if="workflowsCtrl.availableRunWorkflows().length == 0"]
-					span[ng-if="workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:before_run_workflows][:no_other_workflows]
-					span[ng-if="!workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:after_run_workflows][:no_other_workflows]
-				div[ng-if="workflowsCtrl.availableRunWorkflows().length > 0"]
-					p == data[:strings][:workflows][:run_workflows][:select]
-					ul
-						li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
-							button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
-		popup.round.white[model="workflowsCtrl.rearrangeWorkflowsPopup"]
-			.popup-body-rearrange-workflow-chain
-				h2 == data[:strings][:workflows][:rearrange][:heading]
-				article.vertical-scroll
-					ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain"]
-						li[ng-repeat="workflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain track by ($index + '-' + workflow.id)" ng-bind="workflow.id" ng-class="{'before-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) < workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) > workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': workflow == workflowsCtrl.selectedWorkflow}"]
-				footer
-					button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
-					button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
+	popup[model="workflowsCtrl.addWorkflowPopup"]
+		.popup-body-add-workflow.vertical-scroll.round.white
+			header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
+			article
+				input[type="text" ng-model="workflowsCtrl.addWorkflowPopup.parameters.workflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
+				label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
+				select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowPopup.parameters.basedOnWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
+			footer
+				button.rebo.big.green[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="workflowsCtrl.addWorkflowPopup.parameters.workflowID.length == 0 || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowPopup.parameters.workflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:done]
+	popup.white[model="workflowsCtrl.addRunWorkflowPopup"]
+		.popup-body-add-run-workflow.vertical-scroll
+			p[ng-if="workflowsCtrl.availableRunWorkflows().length == 0"]
+				span[ng-if="workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:before_run_workflows][:no_other_workflows]
+				span[ng-if="!workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:after_run_workflows][:no_other_workflows]
+			div[ng-if="workflowsCtrl.availableRunWorkflows().length > 0"]
+				p == data[:strings][:workflows][:run_workflows][:select]
+				ul
+					li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
+						button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
+	popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
+		.popup-body-rearrange-workflow-chain.round.white
+			h2 == data[:strings][:workflows][:rearrange][:drag_n_drop]
+			article.vertical-scroll
+				ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain"]
+					li[ng-repeat="workflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain track by ($index + '-' + workflow.id)" ng-bind="workflow.id" ng-class="{'before-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) < workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) > workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': workflow == workflowsCtrl.selectedWorkflow}"]
+			footer
+				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
+				button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
 popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
 	.popup-body-add-step.vertical-scroll.white
 		p == data[:strings][:workflows][:steps][:add][:select]
