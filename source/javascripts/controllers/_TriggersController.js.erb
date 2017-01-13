@@ -126,6 +126,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	};
 
 	viewModel.triggerIsInvalid = function() {
+		if (viewModel.editedTrigger.workflowID()[0] == "_") {
+			return true;
+		}
+
 		return _.any(_.without(viewModel.selectedTriggerType.triggers, viewModel.selectedTrigger), function(aTrigger) {
 			switch (viewModel.editedTrigger.type()) {
 				case "push":
