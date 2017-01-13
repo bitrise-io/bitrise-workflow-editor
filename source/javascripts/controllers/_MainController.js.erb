@@ -114,7 +114,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.saveProgress.reset();
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
-			return;
+			return $q.reject(error.message);
 		}
 
 		return $q(function(resolve, reject) {

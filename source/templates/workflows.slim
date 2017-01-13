@@ -103,7 +103,7 @@
 										td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
 						button.delete-step.rebo.big.hollow.danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
-		.popup-body-add-workflow.vertical-scroll.round.white
+		.popup-body.snowflake#add-workflow-popup-body.vertical-scroll
 			header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
 			article
 				input[type="text" ng-model="workflowsCtrl.addWorkflowPopup.parameters.workflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
@@ -112,7 +112,7 @@
 			footer
 				button.rebo.big.green[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="workflowsCtrl.addWorkflowPopup.parameters.workflowID.length == 0 || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowPopup.parameters.workflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:done]
 	popup[model="workflowsCtrl.addRunWorkflowPopup"]
-		.popup-body-add-run-workflow.vertical-scroll.white
+		.popup-body#add-run-workflow-popup-body.vertical-scroll
 			p[ng-if="workflowsCtrl.availableRunWorkflows().length == 0"]
 				span[ng-if="workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:before_run_workflows][:no_other_workflows]
 				span[ng-if="!workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:after_run_workflows][:no_other_workflows]
@@ -122,7 +122,7 @@
 					li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
 						button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
 	popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
-		.popup-body-rearrange-workflow-chain.round.white
+		.popup-body#rearrange-workflow-chain-popup-body
 			h2 == data[:strings][:workflows][:rearrange][:drag_n_drop]
 			article.vertical-scroll
 				ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain"]
@@ -131,7 +131,7 @@
 				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
 				button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
 popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
-	.popup-body-add-step.vertical-scroll.white
+	.popup-body#add-step-popup-body.vertical-scroll
 		p == data[:strings][:workflows][:steps][:add][:select]
 		label[for="add-step-popup-title-filter"] == data[:strings][:workflows][:steps][:add][:filter_by_title]
 		input#add-step-popup-title-filter[type="text" ng-model="addStepCtrl.titleFilter" placeholder="#{ data[:strings][:workflows][:steps][:add][:title_filter_placeholder] }"]
@@ -149,11 +149,13 @@ popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"
 					strong.id[ng-bind="step.id"]
 					span.summary[ng-bind="step.summary()"]
 popup[model="insertVariableCtrl.popup" ng-controller="InsertVariableController as insertVariableCtrl"]
-	.popup-body-insert-variable.white.round
-		h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
-		input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
+	.popup-body.snowflake#insert-variable-popup-body
+		header
+			h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
+			input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
 		article.vertical-scroll
-			.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
-				button[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter" ng-click="insertVariableCtrl.insertVariable(variable)"]
-					strong[ng-bind="variable | prettifiedVariableKey"]
-					em[ng-bind="variablesOfSource.source.title"]
+			ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
+				li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter"]
+					button[ng-click="insertVariableCtrl.insertVariable(variable)"]
+						strong[ng-bind="variable | prettifiedVariableKey"]
+						em[ng-bind="variablesOfSource.source.title"]

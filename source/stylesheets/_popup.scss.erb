@@ -16,7 +16,7 @@
 	&.ng-hide {
 		background-color: rgba(black, 0);
 
-		&:not(.ninja) > * {
+		.popup-body {
 			top: 100%;
 		}
 	}
@@ -24,12 +24,12 @@
 	&.ng-animate {
 		@include transition(background-color $transitionduration ease);
 
-		&:not(.ninja) > * {
+		.popup-body {
 			@include transition(top $transitionduration ease);
 		}
 	}
 
-	&:not(.ninja) > * {
+	.popup-body {
 		position: relative;
 		top: 0%;
 		width: 600px;
@@ -37,15 +37,42 @@
 		overflow: hidden;
 	}
 
-	&:not(.ninja) > .round {
+	.popup-body.snowflake {
+		$padding: 16px 14px;
+
+		@include display-flex;
+		@include flex-direction(column);
 		@include border-radius(6px);
-	}
-
-	&:not(.ninja) > .white {
+		text-align: center;
 		background-color: white;
+
+		header {
+			padding: $padding;
+			font-size: 16px;
+			font-weight: 400;
+		}
+
+		header + article {
+			padding-top: 0;
+		}
+
+		article {
+			@include flex-grow(1);
+			padding: $padding;
+			text-align: left;
+		}
+
+		footer {
+			@include display-flex;
+
+			button, a {
+				@include flex-grow(1);
+				@include border-radius(0);
+			}
+		}
 	}
 
-	.popup-body-alert {
+	.popup-body#default-alert-popup-body {
 		overflow: visible;
 		text-align: center;
 
@@ -112,7 +139,7 @@
 		}
 	}
 
-	.popup-body-alert.error {
+	.popup-body#default-alert-popup-body.error {
 
 		&:before {
 			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("cross") %>', (
@@ -143,7 +170,7 @@
 		}
 	}
 
-	.popup-body-alert.notice {
+	.popup-body#default-alert-popup-body.notice {
 
 		&:before {
 			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("bulb") %>', (
