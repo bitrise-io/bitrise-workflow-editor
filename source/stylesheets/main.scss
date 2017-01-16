@@ -68,7 +68,7 @@ input[type="submit"] {
 	@include appearance(none);
 }
 
-select {
+select, .mak {
 	$select-horizontalpadding: 12px;
 	$arrow_width: 8px;
 
@@ -78,6 +78,7 @@ select {
 	@include border-radius($def-radius);
 	padding: 7px $select-horizontalpadding;
 	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
+	text-align: left;
 	font-family: Verdana;
 	font-size: 14px;
 	@include transition(background-color $def-transition_duration);
@@ -89,7 +90,7 @@ select {
 	cursor: pointer;
 }
 
-select:hover, select:focus {
+select:hover, select:focus, .mak:hover, .mak:focus {
 	background-color: $def-verylightgrey;
 }
 

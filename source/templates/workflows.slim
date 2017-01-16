@@ -2,22 +2,33 @@
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
 	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
 		section.manage-workflows[sticky-header]
-			.select-workflow
-				select[ng-options="workflow.id for workflow in workflowsCtrl.workflows" ng-model="workflowsCtrl.workflowSelected" ng-model-options="{getterSetter: true}"]
-			button.add-workflow.rebo.light.green[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
+			.workflow-selector[floating-menu toggle="workflowsCtrl.workflowSelectorIsVisible"]
+				.selected-workflow
+					button.mak[ng-bind="workflowsCtrl.selectedWorkflow.id" ng-click="workflowsCtrl.workflowSelectorIsVisible = !workflowsCtrl.workflowSelectorIsVisible"]
+				ul.angular-animated[ng-show="workflowsCtrl.workflowSelectorIsVisible"]
+					li[ng-repeat="workflow in workflowsCtrl.workflows" ng-class="{'selected': workflow == workflowsCtrl.selectedWorkflow, 'rename-in-progress': workflow == workflowsCtrl.renamedWorkflow}"]
+						.workflow
+							= svg("check")
+							span.workflow-id[ng-bind="workflow.id"]
+							button.select-workflow[ng-click="workflowsCtrl.workflowSelected(workflow)" ng-bind="workflow.id"]
+							button.rename-workflow[ng-click="workflowsCtrl.renameWorkflowSelected(workflow)"]
+						.workflow-rename
+							input[type="text" ng-model="workflowsCtrl.renamedWorkflowID"]
+							button.ok.rebo.no-border-radius.green[ng-click="workflowsCtrl.renameWorkflowConfirmed()"] = svg("check")
+			button.manage-button.add-workflow.rebo.light.green[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
 				= svg("plus")
 				span == data[:strings][:workflows][:add_workflow][:action]
-			button.add-before-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
+			button.manage-button.add-before-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
 				= svg("workflow/icon-before_run")
 				span == data[:strings][:workflows][:add_workflow_before]
-			button.add-after-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
+			button.manage-button.add-after-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
 				= svg("workflow/icon-after_run")
 				span == data[:strings][:workflows][:add_workflow_after]
-			button.rearrange.rebo.light.grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
+			button.manage-button.rearrange.rebo.light.grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
 				= svg("arrow_tailed-down")
 				= svg("arrow_tailed-down")
 				span == data[:strings][:workflows][:rearrange][:action]
-			button.delete-workflow.rebo.light.danger[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
+			button.manage-button.delete-workflow.rebo.light.danger[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows

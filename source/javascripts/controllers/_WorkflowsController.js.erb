@@ -8,6 +8,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
+	viewModel.workflowSelectorIsVisible = false;
+	viewModel.renamedWorkflow = null;
+	viewModel.renamedWorkflowID = "";
 	viewModel.workflowChain;
 	$scope.editedWorkflow = null;
 	viewModel.editedWorkflowIndex;
@@ -122,6 +125,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		if (workflow == viewModel.selectedWorkflow) {
 			return;
 		}
+
+		viewModel.workflowSelectorIsVisible = false;
+		viewModel.renamedWorkflow = null;
+		viewModel.renamedWorkflowID = "";
 		
 		viewModel.selectedWorkflow = workflow;
 
@@ -152,6 +159,33 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.workflowChain.push(afterRunWorkflow);
 		});
 	}
+
+	viewModel.renameWorkflowSelected = function(workflow) {
+		viewModel.renamedWorkflow = workflow;
+		viewModel.renamedWorkflowID = workflow.id;
+	};
+
+	viewModel.renameWorkflowConfirmed = function() {
+		var oldWorkflowID = viewModel.selectedWorkflow.id;
+		viewModel.selectedWorkflow.id = viewModel.renamedWorkflowID;
+
+		viewModel.renamedWorkflow = null;
+		viewModel.renamedWorkflowID = "";
+
+		if (oldWorkflowID == viewModel.renamedWorkflowID) {
+			return;
+		}
+
+		delete appService.appConfig.workflows[oldWorkflowID];
+		appService.appConfig.workflows[viewModel.selectedWorkflow.id] = viewModel.selectedWorkflow.workflowConfig;
+		_.each(appService.appConfig.trigger_map, function(aTriggerConfig) {
+			if (aTriggerConfig.workflow != oldWorkflowID) {
+				return;
+			}
+
+			aTriggerConfig.workflow = viewModel.selectedWorkflow.id;
+		});
+	};
 
 	viewModel.addWorkflow = function() {
 		appService.appConfig.workflows[viewModel.addWorkflowPopup.parameters.workflowID] = viewModel.addWorkflowPopup.parameters.basedOnWorkflow ? angular.copy(viewModel.addWorkflowPopup.parameters.basedOnWorkflow.workflowConfig) : {};

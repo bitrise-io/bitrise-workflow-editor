@@ -3,7 +3,6 @@
 
 .rebo {
 	@include box-sizing(border-box);
-	@include border-radius($def-radius);
 	border: 1px solid;
 	padding: 10px 12px;
 	text-align: center;
@@ -28,6 +27,10 @@ a.rebo {
 
 .rebo.small {
 	padding: 5px;
+}
+
+.rebo:not(.no-border-radius) {
+	@include border-radius($def-radius);
 }
 
 .rebo.green:not(:disabled) {
