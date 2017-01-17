@@ -158,7 +158,7 @@ popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"
 				li[ng-repeat="step in addStepCtrl.filteredSteps()"]
 					button[ng-click="addStepCtrl.addStep(step)"]
 						span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
-						strong.id[ng-bind="step.id"]
+						strong.title[ng-bind="step.title()"]
 						span.summary[ng-bind="step.summary()"]
 popup[model="insertVariableCtrl.popup" ng-controller="InsertVariableController as insertVariableCtrl"]
 	.popup-body.snowflake#insert-variable-popup-body

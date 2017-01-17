@@ -61,6 +61,57 @@ describe("Workflow", function() {
 
 	});
 
+	describe("workflowChain", function() {
+
+		var redWorkflow;
+		var greenWorkflow;
+		var blueWorkflow;
+		beforeEach(function() {
+			redWorkflow = new Workflow("red-workflow", {
+				before_run: [],
+				after_run: []
+			});
+			greenWorkflow = new Workflow("green-workflow", {
+				before_run: [],
+				after_run: []
+			});
+			blueWorkflow = new Workflow("blue-workflow", {
+				before_run: [],
+				after_run: []
+			});
+		});
+
+		it("should include before and after workflows", function() {
+			redWorkflow.workflowConfig.before_run.push(greenWorkflow.id);
+			redWorkflow.workflowConfig.after_run.push(blueWorkflow.id);
+
+			expect(redWorkflow.workflowChain([redWorkflow, greenWorkflow, blueWorkflow])).toContain(greenWorkflow);
+			expect(redWorkflow.workflowChain([redWorkflow, greenWorkflow, blueWorkflow])).toContain(blueWorkflow);
+		});
+
+		it("should include before and after workflows recursively", function() {
+			redWorkflow.workflowConfig.before_run.push(greenWorkflow.id);
+			greenWorkflow.workflowConfig.before_run.push(blueWorkflow.id);
+
+			expect(redWorkflow.workflowChain([redWorkflow, greenWorkflow, blueWorkflow])).toContain(blueWorkflow);
+
+			yellowWorkflow = new Workflow("yellow-workflow", {
+				before_run: [],
+				after_run: []
+			});
+			blueWorkflow.workflowConfig.before_run.push(yellowWorkflow.id);
+
+			expect(redWorkflow.workflowChain([redWorkflow, greenWorkflow, blueWorkflow, yellowWorkflow])).toContain(yellowWorkflow);
+		});
+
+		it("should not include all workflows", function() {
+			redWorkflow.workflowConfig.after_run.push(blueWorkflow.id);
+
+			expect(redWorkflow.workflowChain([redWorkflow, greenWorkflow, blueWorkflow])).not.toContain(greenWorkflow);
+		});
+
+	});
+
 	describe("isLoopSafeRunForWorkflow", function() {
 
 		var redWorkflow;

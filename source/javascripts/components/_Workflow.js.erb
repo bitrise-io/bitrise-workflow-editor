@@ -7,6 +7,11 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 	var Workflow = function(id, workflowConfig) {
 		this.id = id;
 		this.workflowConfig = workflowConfig;
+
+		if (!this.workflowConfig) {
+			return;
+		}
+
 		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
 			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
 			var step;
@@ -24,30 +29,32 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
-	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow, allWorkflows) {
-		if (this == workflow) {
-			return false;
-		}
+	Workflow.prototype.workflowChain = function(allWorkflows) {
+		var workflows = [];
 
-		if (!this.workflowConfig) {
-			return undefined;
-		}
-
-		if (_.contains(this.workflowConfig.before_run, workflow.id) || _.contains(this.workflowConfig.after_run, workflow.id)) {
-			return false;
-		}
-
-		if (_.isEmpty(this.workflowConfig.before_run) && _.isEmpty(this.workflowConfig.after_run)) {
-			return true;
-		}
-
-		return _.every(_.union(this.workflowConfig.before_run, this.workflowConfig.after_run), function(aWorkflowID) {
-			var aWorkflow = _.find(allWorkflows, {
+		_.each(this.workflowConfig.before_run, function(aWorkflowID) {
+			var beforeRunWorkflow = _.find(allWorkflows, {
 				id: aWorkflowID
 			});
 
-			return aWorkflow.isLoopSafeRunForWorkflow(workflow, allWorkflows);
+			workflows = workflows.concat(beforeRunWorkflow.workflowChain(allWorkflows));
 		});
+
+		workflows.push(this);
+
+		_.each(this.workflowConfig.after_run, function(aWorkflowID) {
+			var afterRunWorkflow = _.find(allWorkflows, {
+				id: aWorkflowID
+			});
+
+			workflows = workflows.concat(afterRunWorkflow.workflowChain(allWorkflows));
+		});
+
+		return workflows;
+	};
+
+	Workflow.prototype.isLoopSafeRunForWorkflow = function(workflow, allWorkflows) {
+		return !_.contains(this.workflowChain(allWorkflows), workflow);
 	};
 
 	return Workflow;

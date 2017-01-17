@@ -141,23 +141,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	function updateSelectedWorkflowChain() {
-		viewModel.workflowChain = [];
-
-		_.each(viewModel.selectedWorkflow.workflowConfig.before_run, function(aWorkflowID) {
-			var beforeRunWorkflow = _.find(viewModel.workflows, {
-				id: aWorkflowID
-			});
-			viewModel.workflowChain.push(beforeRunWorkflow);
-		});
-
-		viewModel.workflowChain.push(viewModel.selectedWorkflow);
-
-		_.each(viewModel.selectedWorkflow.workflowConfig.after_run, function(aWorkflowID) {
-			var afterRunWorkflow = _.find(viewModel.workflows, {
-				id: aWorkflowID
-			});
-			viewModel.workflowChain.push(afterRunWorkflow);
-		});
+		viewModel.workflowChain = viewModel.selectedWorkflow.workflowChain(viewModel.workflows);
 	}
 
 	viewModel.renameWorkflowSelected = function(workflow) {
