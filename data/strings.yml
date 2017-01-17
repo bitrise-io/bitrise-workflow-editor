@@ -53,7 +53,6 @@ workflows:
     non_bitrise_steplib_step_info: This step is not from the Bitrise Steplib, thus editing via the Workflow Editor is not available.
     add:
       select: "Select a step from the list below:"
-      filter_by_title: "Filter steps by name:"
       title_filter_placeholder: Step name, e. g. 'script'
       filter_by_type_tag: "Filter steps by type tag:"
       clear_type_tag_filter: Clear type tag filter

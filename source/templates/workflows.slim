@@ -142,23 +142,24 @@
 				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
 				button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
 popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
-	.popup-body#add-step-popup-body.vertical-scroll
-		p == data[:strings][:workflows][:steps][:add][:select]
-		label[for="add-step-popup-title-filter"] == data[:strings][:workflows][:steps][:add][:filter_by_title]
-		input#add-step-popup-title-filter[type="text" ng-model="addStepCtrl.titleFilter" placeholder="#{ data[:strings][:workflows][:steps][:add][:title_filter_placeholder] }"]
-		button[ng-if="addStepCtrl.typeTagFilter" ng-click="addStepCtrl.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
-		fieldset
-			legend == data[:strings][:workflows][:steps][:add][:filter_by_type_tag]
-			.type-tag-filter[ng-repeat="typeTagFilter in addStepCtrl.availableTypeTagFilters"]
-				input[type="radio" ng-model="addStepCtrl.typeTagFilter" id="{{ typeTagFilter }}" ng-value="typeTagFilter"]
-				label[for="{{ typeTagFilter }}" ng-bind="typeTagFilter"]
-		p[ng-if="addStepCtrl.filteredSteps().length == 0"] == data[:strings][:workflows][:steps][:add][:no_steps_matching_filter]
-		ul
-			li[ng-repeat="step in addStepCtrl.filteredSteps()"]
-				button[ng-click="addStepCtrl.addStep(step)"]
-					span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
-					strong.id[ng-bind="step.id"]
-					span.summary[ng-bind="step.summary()"]
+	.popup-body.snowflake#add-step-popup-body.vertical-scroll
+		header
+			h2 == data[:strings][:workflows][:steps][:add][:select]
+			input.title-filter[type="text" ng-model="addStepCtrl.titleFilter" placeholder="#{ data[:strings][:workflows][:steps][:add][:title_filter_placeholder] }"]
+			fieldset
+				legend == data[:strings][:workflows][:steps][:add][:filter_by_type_tag]
+				.type-tag-filter[ng-repeat="typeTagFilter in addStepCtrl.availableTypeTagFilters"]
+					input[type="radio" ng-model="addStepCtrl.typeTagFilter" id="{{ typeTagFilter }}" ng-value="typeTagFilter"]
+					label[for="{{ typeTagFilter }}" ng-bind="typeTagFilter"]
+			button.rebo.small.danger[ng-if="addStepCtrl.typeTagFilter" ng-click="addStepCtrl.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
+		article.vertical-scroll
+			p[ng-if="addStepCtrl.filteredSteps().length == 0"] == data[:strings][:workflows][:steps][:add][:no_steps_matching_filter]
+			ul
+				li[ng-repeat="step in addStepCtrl.filteredSteps()"]
+					button[ng-click="addStepCtrl.addStep(step)"]
+						span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
+						strong.id[ng-bind="step.id"]
+						span.summary[ng-bind="step.summary()"]
 popup[model="insertVariableCtrl.popup" ng-controller="InsertVariableController as insertVariableCtrl"]
 	.popup-body.snowflake#insert-variable-popup-body
 		header

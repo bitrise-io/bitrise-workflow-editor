@@ -1416,8 +1416,90 @@
 
 .popup-body#add-step-popup-body {
 
-	.type-tag-filter {
-		display: inline-block;
+	header {
+
+		input.title-filter {
+			display: block;
+			width: 100%;
+			@include box-sizing(border-box);
+			margin-bottom: 12px;
+		}
+
+		fieldset {
+			margin: 0;
+			border: 1px solid $def-grey;
+			padding: 6px;
+
+			legend {
+				font-size: 12px;
+			}
+
+			.type-tag-filter {
+				position: relative;
+				display: inline-block;
+				margin: 2px;
+
+				input[type="radio"] {
+					@include position(absolute, 0, 0);
+					@include size(100%);
+					opacity: 0;
+				}
+
+				label {
+					font-size: 10px;
+					color: $def-green;
+				}
+
+				input[type="radio"]:checked + label, input[type="radio"]:hover + label, input[type="radio"]:focus + label {
+					text-decoration: underline;
+				}
+			}
+		}
+	}
+
+	article {
+
+		ul {
+			margin: 0;
+			padding-left: 0;
+			list-style: none;
+
+			li {
+				margin-bottom: 6px;
+
+				button {
+					width: 100%;
+					border: 1px solid $def-mediumlightgrey;
+					@include border-radius($def-radius);
+					text-align: left;
+					@include transition(background-color $def-transition_duration);
+
+					span.icon {
+						display: block;
+						float: left;
+						@include size(52px);
+						border-right: 1px solid $def-mediumlightgrey;
+						background-size: contain;
+					}
+
+					strong.id {
+						display: block;
+						@include ellipsis-oneliner;
+					}
+
+					span.summary {
+						display: block;
+						@include ellipsis-oneliner;
+						font-size: 10px;
+						color: $def-mediumlightgrey;
+					}
+				}
+
+				button:hover, button:focus {
+					background-color: $def-ultralightgrey;
+				}
+			}
+		}
 	}
 }
 
