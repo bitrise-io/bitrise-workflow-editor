@@ -92,6 +92,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				catch (error) {
 					reject(error);
 				}
+			}, function(error) {
+				reject(error);
 			});
 		}).then(function() {
 			viewModel.configureWorkflowsProgress.success();
