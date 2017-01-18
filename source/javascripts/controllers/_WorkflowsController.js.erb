@@ -210,18 +210,18 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.runWorkflowSelectedForAdd = function(workflow) {
 		viewModel.stepSelected(null);
 
-		var runWorkflowKey = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? "before_run" : "after_run";
-		if (!viewModel.selectedWorkflow.workflowConfig[runWorkflowKey]) {
-			viewModel.selectedWorkflow.workflowConfig[runWorkflowKey] = [];
+		var runKey = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? "before_run" : "after_run";
+		if (!viewModel.selectedWorkflow.workflowConfig[runKey]) {
+			viewModel.selectedWorkflow.workflowConfig[runKey] = [];
 		}
 
-		viewModel.selectedWorkflow.workflowConfig[runWorkflowKey].push(workflow.id);
+		viewModel.selectedWorkflow.workflowConfig[runKey].push(workflow.id);
 
 		updateWorkflowChain();
 
-		viewModel.editedDirectWorkflow = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? _.findIndex(viewModel.directWorkflowChain, viewModel.selectedWorkflow) - 1 : viewModel.directWorkflowChain.length - 1;
+		viewModel.editedDirectWorkflow = viewModel.directWorkflowChain[viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? _.findIndex(viewModel.directWorkflowChain, viewModel.selectedWorkflow) - 1 : viewModel.directWorkflowChain.length - 1];
 		viewModel.editedDirectWorkflowIndex = _.indexOf(viewModel.directWorkflowChain, viewModel.editedDirectWorkflow);
-		viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedWorkflow.workflowChain(viewModel.workflows);
+		viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedDirectWorkflow.workflowChain(viewModel.workflows);
 		$scope.editedWorkflow = workflow;
 		viewModel.editedWorkflowIndex = _.indexOf(viewModel.workflowChainOfEditedDirectWorkflow, workflow);
 
@@ -231,21 +231,17 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.rearrangeWorkflowsFinished = function() {
 		viewModel.stepSelected(null);
 
-		_.each(viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain, function(aWorkflowChain, index) {
-			if (aWorkflowChain.workflow == viewModel.selectedWorkflow) {
+		viewModel.selectedWorkflow.workflowConfig["before_run"] = [];
+		viewModel.selectedWorkflow.workflowConfig["after_run"] = [];
+		_.each(viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain, function(aWorkflow, index) {
+			if (aWorkflow == viewModel.selectedWorkflow) {
 				return;
 			}
 
-			var isBeforeRun = index < _.findIndex(viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain, {
-				workflow: viewModel.selectedWorkflow
-			});
+			var isBeforeRun = index < _.findIndex(viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain, viewModel.selectedWorkflow);
 			var runKey = isBeforeRun ? "before_run" : "after_run";
 
-			if (!viewModel.selectedWorkflow.workflowConfig[runKey]) {
-				viewModel.selectedWorkflow.workflowConfig[runKey] = [];
-			}
-
-			viewModel.selectedWorkflow.workflowConfig[runKey].push(aWorkflowChain.workflow);
+			viewModel.selectedWorkflow.workflowConfig[runKey].push(aWorkflow.id);
 		});
 
 		updateWorkflowChain();

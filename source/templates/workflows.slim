@@ -134,11 +134,12 @@
 					li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
 						button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
 	popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
-		.popup-body#rearrange-workflow-chain-popup-body
-			h2 == data[:strings][:workflows][:rearrange][:drag_n_drop]
+		.popup-body.snowflake#rearrange-workflow-chain-popup-body
+			header == data[:strings][:workflows][:rearrange][:drag_n_drop]
 			article.vertical-scroll
-				ul[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain"]
-					li[ng-repeat="workflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain track by ($index + '-' + workflow.id)" ng-bind="workflow.id" ng-class="{'before-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) < workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflow) > workflowsCtrl.rearrangeWorkflowsPopup.parameters.workflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': workflow == workflowsCtrl.selectedWorkflow}"]
+				ul.direct-workflow-chain[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain"]
+					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain track by $index + '_' + directWorkflow.id"]
+						li[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : directWorkflow.workflowChain(workflowsCtrl.workflows) track by $index + '_' + workflow.id" ng-bind="workflow.id"]
 			footer
 				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
 				button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]

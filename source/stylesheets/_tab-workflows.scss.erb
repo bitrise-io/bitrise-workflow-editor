@@ -1499,74 +1499,67 @@
 }
 
 .popup-body#rearrange-workflow-chain-popup-body {
-	@include display-flex;
-	@include flex-direction(column);
-
-	h2 {
-		@include flex-shrink(0);
-		@include margin-y(0);
-		@include padding-y(18px);
-		text-align: center;
-		background-color: $def-verylightgrey;
-		font-size: 16px;
-		font-weight: 300;
-	}
 
 	article {
 
-		ul {
-			$padding: 8px;
-			$icon-size: 12px;
-
+		ul.direct-workflow-chain {
 			@include margin-y(0);
-			padding: 30px 50px;
+			@include padding-y(40px);
 			list-style: none;
 
-			li {
-				padding: $padding;
-				padding-left: $padding + $icon-size + $padding;
-				@include ellipsis-oneliner;
-				font-size: 14px;
-				font-weight: 200;
-				background-repeat: no-repeat;
-				background-position: left $padding center;
-				cursor: move;
-			}
+			ul.chain-of-direct-workflow {
+				$border: 1px solid $def-grey;
+				$padding: 8px;
+				$icon-size: 12px;
 
-			li.before-run, li.after-run {
-				background-color: $def-verylightgrey;
-			}
-
-			li.before-run {
-				background-image: image-url("workflow/icon-before_run.svg");
-				background-size: $icon-size auto;
-			}
-
-			li.selected {
 				@include margin-y(10px);
-				border: 1px solid $def-grey;
-				background-image: image-url("workflow/icon-current.svg");
-				background-size: $icon-size auto;
-				background-color: white;
+				margin-left: 20px;
+				border: $border;
+				@include border-radius($def-radius);
+				padding-left: 0;
+				cursor: move;
+
+				li {
+					padding: $padding;
+					padding-left: $padding + $icon-size + $padding;
+					@include ellipsis-oneliner;
+					font-size: 14px;
+					font-weight: 200;
+					background-repeat: no-repeat;
+					background-position: left $padding center;
+				}
+
+				li.before-run, li.after-run {
+					background-color: $def-verylightgrey;
+				}
+
+				li.before-run {
+					background-image: image-url("workflow/icon-before_run.svg");
+					background-size: $icon-size auto;
+				}
+
+				li.selected {
+					background-image: image-url("workflow/icon-current.svg");
+					background-size: $icon-size auto;
+					background-color: white;
+				}
+
+				li.after-run {
+					background-image: image-url("workflow/icon-after_run.svg");
+					background-size: $icon-size auto;
+				}
+
+				li:not(:last-child) {
+					border-bottom: 1px solid $def-grey;
+				}
 			}
 
-			li.after-run {
-				background-image: image-url("workflow/icon-after_run.svg");
-				background-size: $icon-size auto;
-			}
-
-			li.dragged-element {
-				position: relative;
+			ul.chain-of-direct-workflow.dragged-element {
 				z-index: $zindex-dragged_element;
-				border: 1px solid $def-grey;
-			}
-
-			li.before-run + li.before-run:not(.dragged-element), li.after-run + li.after-run:not(.dragged-element) {
-				border-top: 1px solid $def-grey;
 			}
 		}
 
-		ul.drag-in-progress {
+		ul.direct-workflow-chain.drag-in-progress {
 
 			* {
 				@include user-select(none);
