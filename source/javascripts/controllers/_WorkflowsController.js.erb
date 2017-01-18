@@ -11,9 +11,15 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.workflowSelectorIsVisible = false;
 	viewModel.renamedWorkflow = null;
 	viewModel.renamedWorkflowID = "";
-	viewModel.workflowChain;
-	$scope.editedWorkflow = null;
-	viewModel.editedWorkflowIndex;
+
+	viewModel.directWorkflowChain = undefined;
+	viewModel.workflowChainsOfDirectWorkflowChain = undefined;
+	viewModel.editedDirectWorkflow = undefined;
+	viewModel.editedDirectWorkflowIndex = undefined;
+	viewModel.workflowChainOfEditedDirectWorkflow = undefined;
+	$scope.editedWorkflow = undefined;
+	viewModel.editedWorkflowIndex = undefined;
+
 	viewModel.selectedStep = null;
 	viewModel.configureWorkflowsProgress = new Progress();
 
@@ -35,19 +41,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		workflowChain: undefined
 	});
 	viewModel.rearrangeWorkflowsPopup.beforeAppearCallback = function() {
-		viewModel.rearrangeWorkflowsPopup.parameters.workflowChain = [viewModel.selectedWorkflow];
-
-		_.each(viewModel.workflowChain, function(aWorkflow, index) {
-			if (aWorkflow == viewModel.selectedWorkflow) {
-				return;
-			}
-
-			if (index > _.indexOf(viewModel.workflowChain, viewModel.selectedWorkflow)) {
-				viewModel.rearrangeWorkflowsPopup.parameters.workflowChain.push(aWorkflow);
-			}
-			else {
-				viewModel.rearrangeWorkflowsPopup.parameters.workflowChain.splice(_.indexOf(viewModel.rearrangeWorkflowsPopup.parameters.workflowChain, viewModel.selectedWorkflow), 0, aWorkflow);
-			}
+		viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain = _.map(viewModel.directWorkflowChain, function(aDirectWorkflow) {
+			return aDirectWorkflow;
 		});
 	};
 
@@ -132,16 +127,30 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		
 		viewModel.selectedWorkflow = workflow;
 
-		updateSelectedWorkflowChain();
+		updateWorkflowChain();
 
+		viewModel.editedDirectWorkflow = _.find(viewModel.directWorkflowChain, {
+			workflow: workflow
+		});
+		viewModel.editedDirectWorkflowIndex = _.findIndex(viewModel.directWorkflowChain, {
+			workflow: workflow
+		});
+		viewModel.workflowChainOfEditedDirectWorkflow = workflow.workflowChain(viewModel.workflows);
 		$scope.editedWorkflow = workflow;
-		viewModel.editedWorkflowIndex = _.indexOf(viewModel.workflowChain, workflow);
+		viewModel.editedWorkflowIndex = 0;
 
 		viewModel.stepSelected(null);
 	};
 
-	function updateSelectedWorkflowChain() {
-		viewModel.workflowChain = viewModel.selectedWorkflow.workflowChain(viewModel.workflows);
+	function updateWorkflowChain() {
+		viewModel.directWorkflowChain = _.map(viewModel.selectedWorkflow.workflowConfig.before_run.concat([viewModel.selectedWorkflow.id]).concat(viewModel.selectedWorkflow.workflowConfig.after_run), function(aWorkflowID) {
+			return _.find(viewModel.workflows, {
+				id: aWorkflowID
+			});
+		});
+		viewModel.workflowChainsOfDirectWorkflowChain = _.map(viewModel.directWorkflowChain, function(aWorkflow) {
+			return aWorkflow.workflowChain(viewModel.workflows);
+		});
 	}
 
 	viewModel.renameWorkflowSelected = function(workflow) {
@@ -159,6 +168,14 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		if (oldWorkflowID == viewModel.renamedWorkflowID) {
 			return;
 		}
+
+		_.each(viewModel.workflows, function(aWorkflow) {
+			_.each([aWorkflow.workflowConfig.before_run, aWorkflow.workflowConfig.after_run], function(runWorkflowIDs) {
+				while (_.contains(runWorkflowIDs, oldWorkflowID)) {
+					runWorkflowIDs.splice(_.findIndex(runWorkflowIDs, oldWorkflowID), 1, viewModel.selectedWorkflow.id);
+				}
+			});
+		});
 
 		delete appService.appConfig.workflows[oldWorkflowID];
 		appService.appConfig.workflows[viewModel.selectedWorkflow.id] = viewModel.selectedWorkflow.workflowConfig;
@@ -198,9 +215,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 		viewModel.selectedWorkflow.workflowConfig[runWorkflowKey].push(workflow.id);
 
-		updateSelectedWorkflowChain();
+		updateWorkflowChain();
+
+		viewModel.editedDirectWorkflow = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? _.findIndex(viewModel.directWorkflowChain, viewModel.selectedWorkflow) - 1 : viewModel.directWorkflowChain.length - 1;
+		viewModel.editedDirectWorkflowIndex = _.indexOf(viewModel.directWorkflowChain, viewModel.editedDirectWorkflow);
+		viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedWorkflow.workflowChain(viewModel.workflows);
 		$scope.editedWorkflow = workflow;
-		viewModel.editedWorkflowIndex = viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? _.indexOf(viewModel.workflowChain, viewModel.selectedWorkflow) - 1 : viewModel.workflowChain.length - 1;
+		viewModel.editedWorkflowIndex = _.indexOf(viewModel.workflowChainOfEditedDirectWorkflow, workflow);
 
 		viewModel.addRunWorkflowPopup.isVisible = false;
 	};
@@ -208,52 +229,52 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.rearrangeWorkflowsFinished = function() {
 		viewModel.stepSelected(null);
 
-		viewModel.selectedWorkflow.workflowConfig.before_run = _.map(_.filter(viewModel.rearrangeWorkflowsPopup.parameters.workflowChain, function(aWorkflow, index) {
-			return index < _.indexOf(viewModel.rearrangeWorkflowsPopup.parameters.workflowChain, viewModel.selectedWorkflow);
-		}), function(aWorkflow) {
-			return aWorkflow.id;
+		_.each(viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain, function(aWorkflowChain, index) {
+			if (aWorkflowChain.workflow == viewModel.selectedWorkflow) {
+				return;
+			}
+
+			var isBeforeRun = index < _.findIndex(viewModel.rearrangeWorkflowsPopup.parameters.directWorkflowChain, {
+				workflow: viewModel.selectedWorkflow
+			});
+			var runKey = isBeforeRun ? "before_run" : "after_run";
+
+			if (!viewModel.selectedWorkflow.workflowConfig[runKey]) {
+				viewModel.selectedWorkflow.workflowConfig[runKey] = [];
+			}
+
+			viewModel.selectedWorkflow.workflowConfig[runKey].push(aWorkflowChain.workflow);
 		});
 
-		viewModel.selectedWorkflow.workflowConfig.after_run = _.map(_.filter(viewModel.rearrangeWorkflowsPopup.parameters.workflowChain, function(aWorkflow, index) {
-			return index > _.indexOf(viewModel.rearrangeWorkflowsPopup.parameters.workflowChain, viewModel.selectedWorkflow);
-		}), function(aWorkflow) {
-			return aWorkflow.id;
-		});
+		updateWorkflowChain();
 
-		updateSelectedWorkflowChain();
+		viewModel.editedDirectWorkflow = null;
+		viewModel.editedDirectWorkflowIndex = null;
+		viewModel.workflowChainOfEditedDirectWorkflow = null;
 		$scope.editedWorkflow = null;
 		viewModel.editedWorkflowIndex = null;
 
 		viewModel.rearrangeWorkflowsPopup.isVisible = false;
 	};
 
-	viewModel.deleteRunWorkflowAtIndex = function(index) {
+	viewModel.deleteWorkflowAtDirectWorkflowIndex = function(index) {
 		viewModel.stepSelected(null);
 
-		var selectedWorkflowIndex = _.indexOf(viewModel.workflowChain, viewModel.selectedWorkflow);
-		if (index < selectedWorkflowIndex) {
-			var beforeRunIndex = index;
-			viewModel.selectedWorkflow.workflowConfig.before_run.splice(beforeRunIndex, 1);
-		}
-		else {
-			var afterRunIndex = index - selectedWorkflowIndex - 1;
-			viewModel.selectedWorkflow.workflowConfig.after_run.splice(afterRunIndex, 1);
+		var isBeforeRun = index < _.findIndex(viewModel.directWorkflowChain, viewModel.selectedWorkflow);
+
+		if (!isBeforeRun) {
+			index -= _.findIndex(viewModel.directWorkflowChain, viewModel.selectedWorkflow) + 1;
 		}
 
-		updateSelectedWorkflowChain();
+		viewModel.selectedWorkflow.workflowConfig[isBeforeRun ? "before_run" : "after_run"].splice(index, 1);
 
-		if (viewModel.editedWorkflowIndex === index) {
-			$scope.editedWorkflow = null;
-			viewModel.editedWorkflowIndex = null;
-		}
-		else if ($scope.editedWorkflow && viewModel.editedWorkflowIndex > index) {
-			viewModel.editedWorkflowIndex--;
-		}
+		updateWorkflowChain();
 
-		if (viewModel.workflowChain.length == 1) {
-			$scope.editedWorkflow = _.first(viewModel.workflowChain);
-			viewModel.editedWorkflowIndex = 0;
-		}
+		viewModel.editedDirectWorkflow = null;
+		viewModel.editedDirectWorkflowIndex = null;
+		viewModel.workflowChainOfEditedDirectWorkflow = null;
+		$scope.editedWorkflow = null;
+		viewModel.editedWorkflowIndex = null;
 	};
 
 	viewModel.availableRunWorkflows = function() {
@@ -295,13 +316,16 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		configureWorkflowsWithAppConfig();
 	};
 
-	viewModel.stepSelected = function(step, workflowIndexToEdit) {
+	viewModel.stepSelected = function(step, workflowIndexToEdit, directWorkflowIndexToEdit) {
 		var workflowIsAlreadyEdited = false;
 
 		if (workflowIndexToEdit !== undefined) {
-			workflowIsAlreadyEdited = viewModel.editedWorkflowIndex !== undefined && viewModel.editedWorkflowIndex == workflowIndexToEdit;
+			workflowIsAlreadyEdited = (viewModel.editedDirectWorkflowIndex !== undefined && viewModel.editedDirectWorkflowIndex == directWorkflowIndexToEdit) && (viewModel.editedWorkflowIndex !== undefined && viewModel.editedWorkflowIndex == workflowIndexToEdit);
 
-			$scope.editedWorkflow = viewModel.workflowChain[workflowIndexToEdit];
+			viewModel.editedDirectWorkflow = viewModel.directWorkflowChain[directWorkflowIndexToEdit];
+			viewModel.editedDirectWorkflowIndex = directWorkflowIndexToEdit;
+			viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedDirectWorkflow.workflowChain(viewModel.workflows);
+			$scope.editedWorkflow = viewModel.workflowChainsOfDirectWorkflowChain[directWorkflowIndexToEdit][workflowIndexToEdit];
 			viewModel.editedWorkflowIndex = workflowIndexToEdit;
 		}
 
