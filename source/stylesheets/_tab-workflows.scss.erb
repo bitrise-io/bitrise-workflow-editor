@@ -431,6 +431,7 @@
 					padding-left: 0;
 					list-style: none;
 					@include flex-shrink(0);
+					@include transition(opacity $def-transition_duration);
 
 					ul {
 						list-style: none;
@@ -479,7 +480,6 @@
 							position: relative;
 							display: block;
 							text-align: left;
-							@include transition(opacity $def-transition_duration);
 
 							span.icon {
 								@include position(absolute, 0, null, null, 0);
@@ -584,6 +584,7 @@
 						border: $border;
 						@include border-radius($def-radius);
 						overflow: hidden;
+						background-color: white;
 
 						header.manage-step {
 							@include display-flex;
@@ -1346,7 +1347,7 @@
 			padding-top: 30px;
 		}
 
-		section.workflow.edited {
+		section.workflow.selected {
 
 			header {
 
@@ -1356,7 +1357,7 @@
 			}
 		}
 
-		section.workflow:not(.edited) {
+		section.workflow:not(.selected) {
 			$inactive_opacity: 0.7;
 
 			background-color: $def-ultralightgrey;
@@ -1371,13 +1372,7 @@
 			article {
 
 				ul.steps {
-
-					li {
-
-						button.step:not(:hover):not(:focus) {
-							opacity: $inactive_opacity;
-						}
-					}
+					opacity: $inactive_opacity;
 				}
 			}
 		}
