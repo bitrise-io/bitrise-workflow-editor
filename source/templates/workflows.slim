@@ -20,10 +20,10 @@
 				span == data[:strings][:workflows][:add_workflow][:action]
 			button.manage-button.add-before-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
 				= svg("workflow/icon-before_run")
-				span == data[:strings][:workflows][:add_workflow_before]
+				span == data[:strings][:workflows][:add_run_workflow][:before_run][:action]
 			button.manage-button.add-after-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
 				= svg("workflow/icon-after_run")
-				span == data[:strings][:workflows][:add_workflow_after]
+				span == data[:strings][:workflows][:add_run_workflow][:after_run][:action]
 			button.manage-button.rearrange.rebo.light.grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
 				= svg("arrow_tailed-down")
 				= svg("arrow_tailed-down")
@@ -124,15 +124,19 @@
 			footer
 				button.rebo.big.green[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="workflowsCtrl.addWorkflowPopup.parameters.workflowID.length == 0 || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowPopup.parameters.workflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:done]
 	popup[model="workflowsCtrl.addRunWorkflowPopup"]
-		.popup-body#add-run-workflow-popup-body.vertical-scroll
-			p[ng-if="workflowsCtrl.availableRunWorkflows().length == 0"]
-				span[ng-if="workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:before_run_workflows][:no_other_workflows]
-				span[ng-if="!workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:after_run_workflows][:no_other_workflows]
-			div[ng-if="workflowsCtrl.availableRunWorkflows().length > 0"]
-				p == data[:strings][:workflows][:run_workflows][:select]
-				ul
-					li[ng-repeat="workflow in workflowsCtrl.availableRunWorkflows()"]
-						button[ng-bind="workflow.id" ng-click="workflowsCtrl.runWorkflowSelectedForAdd(workflow)"]
+		.popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
+			header
+				span[ng-if="workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:add_run_workflow][:before_run][:action_prefix]
+				span[ng-if="!workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:add_run_workflow][:after_run][:action_prefix]
+				strong<[ng-bind="workflowsCtrl.selectedWorkflow.id"]
+			article.vertical-scroll
+				ul.direct-workflow-chain
+					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.addRunWorkflowPopup.parameters.directWorkflowChain track by $index + '_' + directWorkflow.id" ng-class="{'before-run': $index < workflowsCtrl.addRunWorkflowPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': $index > workflowsCtrl.addRunWorkflowPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': directWorkflow == workflowsCtrl.selectedWorkflow}"]
+						li[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : directWorkflow.workflowChain(workflowsCtrl.workflows) track by $index + '_' + workflow.id" ng-bind="workflow.id"]
+					select.run-workflow-selector[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflows()" ng-model="workflowsCtrl.addRunWorkflowPopup.parameters.selectedRunWorkflow" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode, 'after-run': !workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode}"]
+			footer
+				button.done[ng-click="workflowsCtrl.runWorkflowSelectFinished()" ng-disabled="!workflowsCtrl.addRunWorkflowPopup.parameters.selectedRunWorkflow"] == data[:strings][:workflows][:add_run_workflow][:done]
+				button.cancel[ng-click="workflowsCtrl.addRunWorkflowPopup.isVisible = false"] == data[:strings][:workflows][:add_run_workflow][:cancel]
 	popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
 		.popup-body.snowflake#rearrange-workflow-chain-popup-body
 			header == data[:strings][:workflows][:rearrange][:drag_n_drop]

@@ -1498,7 +1498,7 @@
 	}
 }
 
-.popup-body#rearrange-workflow-chain-popup-body {
+.popup-body#rearrange-workflow-chain-popup-body, .popup-body#add-run-workflow-popup-body {
 
 	header {
 		background-color: $def-ultralightgrey;
@@ -1508,45 +1508,29 @@
 
 		ul.direct-workflow-chain {
 			$icon-size: 12px;
+			$workflow-padding: 8px;
+			$fontsize: 14px;
 			$color: $def-darkgrey;
 
+			@include display-flex;
+			@include flex-direction(column);
 			@include margin-y(0);
-			@include padding-y(40px);
+			@include padding-y(30px);
 			padding-left: 0;
 			list-style: none;
 
 			ul.chain-of-direct-workflow {
 				$border: 1px solid $def-grey;
-				$drag_handle-reservedspace: 20px;
 
-				@include margin-y(10px);
-				margin-left: $drag_handle-reservedspace;
 				border: $border;
 				@include border-radius($def-radius);
 				padding-left: 0;
-				cursor: move;
-
-				&:before {
-					$drag_handle-svg_content_with_attributes: svg_content_with_attributes('<%= svg("drag_handle") %>', (
-						fill: rgba($color, 0.99)
-					));
-
-					@include position(absolute, 0, null, null, -$drag_handle-reservedspace);
-					content: "";
-					@include size($drag_handle-reservedspace, 100%);
-					background-position: center;
-					background-image: url('data:image/svg+xml;utf8, #{ $drag_handle-svg_content_with_attributes }');
-					background-size: 4px auto;
-					background-repeat: no-repeat;
-				}
 
 				li {
-					$workflow-padding: 8px;
-
 					padding: $workflow-padding;
 					padding-left: $workflow-padding + $icon-size + $workflow-padding;
 					@include ellipsis-oneliner;
-					font-size: 14px;
+					font-size: $fontsize;
 					font-weight: 200;
 					background-repeat: no-repeat;
 					background-position: left $workflow-padding center;
@@ -1563,6 +1547,7 @@
 			}
 
 			ul.chain-of-direct-workflow.before-run {
+				@include order(1);
 
 				li {
 					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
@@ -1575,6 +1560,7 @@
 			}
 
 			ul.chain-of-direct-workflow.after-run {
+				@include order(5);
 
 				li {
 					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-after_run") %>', (
@@ -1587,6 +1573,7 @@
 			}
 
 			ul.chain-of-direct-workflow.selected {
+				@include order(3);
 				background-color: white;
 
 				li {
@@ -1601,6 +1588,71 @@
 
 			ul.chain-of-direct-workflow.dragged-element {
 				z-index: $zindex-dragged_element;
+			}
+
+			&[order-by-drag] ul.chain-of-direct-workflow {
+				$drag_handle-reservedspace: 20px;
+
+				margin-left: $drag_handle-reservedspace;
+				cursor: move;
+
+				&:before {
+					$drag_handle-svg_content_with_attributes: svg_content_with_attributes('<%= svg("drag_handle") %>', (
+						fill: rgba($color, 0.99)
+					));
+
+					@include position(absolute, 0, null, null, -$drag_handle-reservedspace);
+					content: "";
+					@include size($drag_handle-reservedspace, 100%);
+					background-position: center;
+					background-image: url('data:image/svg+xml;utf8, #{ $drag_handle-svg_content_with_attributes }');
+					background-size: 4px auto;
+					background-repeat: no-repeat;
+				}
+			}
+
+			ul.chain-of-direct-workflow, select.run-workflow-selector {
+				@include margin-y(5px);
+			}
+
+			select.run-workflow-selector {
+				width: 100%;
+				border: none;
+				padding: $workflow-padding;
+				padding-left: $workflow-padding + $icon-size + $workflow-padding;
+				@include ellipsis-oneliner;
+				font-size: $fontsize;
+				font-weight: 200;
+				background-repeat: no-repeat;
+				background-position: left $workflow-padding center, right $workflow-padding center;
+				background-color: $def-green;
+				color: white;
+			}
+
+			$arrow-svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow-down") %>', (
+				fill: rgba(white, 0.99)
+			));
+
+			select.run-workflow-selector.before-run {
+				@include order(2);
+
+				$run_workflow_icon-svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
+					fill: rgba($def-green-light, 0.99)
+				));
+
+				background-image: url('data:image/svg+xml;utf8, #{ $run_workflow_icon-svg_content_with_attributes }'), url('data:image/svg+xml;utf8, #{ $arrow-svg_content_with_attributes }');
+				background-size: $icon-size auto, 8px auto;
+			}
+
+			select.run-workflow-selector.after-run {
+				@include order(5);
+
+				$run_workflow_icon-svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-after_run") %>', (
+					fill: rgba($def-green-light, 0.99)
+				));
+
+				background-image: url('data:image/svg+xml;utf8, #{ $run_workflow_icon-svg_content_with_attributes }'), url('data:image/svg+xml;utf8, #{ $arrow-svg_content_with_attributes }');
+				background-size: $icon-size auto, 8px auto;
 			}
 		}
 
