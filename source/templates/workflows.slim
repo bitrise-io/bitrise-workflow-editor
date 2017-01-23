@@ -138,7 +138,7 @@
 			header == data[:strings][:workflows][:rearrange][:drag_n_drop]
 			article.vertical-scroll
 				ul.direct-workflow-chain[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain"]
-					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain track by $index + '_' + directWorkflow.id"]
+					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain track by $index + '_' + directWorkflow.id" ng-class="{'before-run': $index < workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': $index > workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': directWorkflow == workflowsCtrl.selectedWorkflow}"]
 						li[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : directWorkflow.workflowChain(workflowsCtrl.workflows) track by $index + '_' + workflow.id" ng-bind="workflow.id"]
 			footer
 				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
