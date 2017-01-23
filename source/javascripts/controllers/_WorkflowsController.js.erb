@@ -145,7 +145,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	function updateWorkflowChain() {
-		viewModel.directWorkflowChain = _.map(viewModel.selectedWorkflow.workflowConfig.before_run.concat([viewModel.selectedWorkflow.id]).concat(viewModel.selectedWorkflow.workflowConfig.after_run), function(aWorkflowID) {
+		viewModel.directWorkflowChain = _.map((viewModel.selectedWorkflow.workflowConfig.before_run ? viewModel.selectedWorkflow.workflowConfig.before_run : []).concat([viewModel.selectedWorkflow.id]).concat((viewModel.selectedWorkflow.workflowConfig.after_run ? viewModel.selectedWorkflow.workflowConfig.after_run : [])), function(aWorkflowID) {
 			return _.find(viewModel.workflows, {
 				id: aWorkflowID
 			});
