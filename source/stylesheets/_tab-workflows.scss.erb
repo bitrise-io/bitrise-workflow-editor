@@ -369,6 +369,7 @@
 			article {
 				$add_step-size: 20px;
 				$add_step-iconsize: 12px;
+				$add_step-borderwidth: 1px;
 
 				@include display-flex;
 
@@ -397,14 +398,16 @@
 							display: block;
 							width: $icon-size;
 							margin-bottom: $spacing;
-							border: 1px solid $def-darkgrey;
+							border: $add_step-borderwidth solid $def-darkgrey;
 							@include border-radius($def-radius);
-							@include padding-y(($add_step-size - $add_step-iconsize) / 2);
-							line-height: 100%;
+							@include padding-y(($add_step-size - $add_step-iconsize) / 2 - $add_step-borderwidth);
+							line-height: $add_step-iconsize;
 							@include transition(margin-bottom $transition_duration, border-width $transition_duration, padding-top $transition_duration, padding-bottom $transition_duration, background-color $transition_duration);
 
 							&:before {
 								content: "+";
+								display: block;
+								height: $add_step-iconsize;
 								font-size: 14px;
 								color: $def-darkgrey;
 							}
