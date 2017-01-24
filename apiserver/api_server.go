@@ -259,7 +259,7 @@ func loadSpecHandler(w http.ResponseWriter, r *http.Request) {
 	cmd := command.New("bitrise", "stepman", "collections", "--format", "json")
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
-		respondWithErrorMessage(w, "Failed to get steplib spec, error: %s", err)
+		respondWithErrorMessage(w, "Failed to get steplib spec, output: %s, error: %s", out, err)
 		return
 	}
 
