@@ -32,7 +32,7 @@
 				= svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
-			div[ng-repeat="directWorkflow in workflowsCtrl.directWorkflowChain track by $index + '-' + directWorkflow.id" ng-init="directWorkflowIndex = $index" ]
+			.workflow-chain[ng-repeat="directWorkflow in workflowsCtrl.directWorkflowChain track by $index + '-' + directWorkflow.id" ng-init="directWorkflowIndex = $index" ]
 				section.workflow[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : workflowsCtrl.workflowChainsOfDirectWorkflowChain[directWorkflowIndex] track by $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 					header.workflow-header
 						h2
@@ -54,7 +54,7 @@
 												span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 											em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
 							li
-								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd()" ng-disabled="workflowIndex !== workflowsCtrl.editedWorkflowIndex"] = svg("plus")
+								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd()" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex === workflowsCtrl.editedWorkflowIndex)"] = svg("plus")
 						aside.step-details[ng-if="directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
 							p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
 							p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
