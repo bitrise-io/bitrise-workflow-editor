@@ -24,10 +24,6 @@ workflows:
   run_workflows:
     postfix: workflow
     select: "Select a Workflow from the list below:"
-  before_run_workflows:
-    no_other_workflows: No other Workflows to run before selected Workflow.
-  after_run_workflows:
-    no_other_workflows: No other Workflows to run after selected Workflow.
   add_workflow:
     action: Workflow
     add_new_workflow: Add new workflow
@@ -35,8 +31,16 @@ workflows:
     based_on: "Based on:"
     empty_workflow: Empty workflow
     done: Done
-  add_workflow_after: Add Workflow after
-  add_workflow_before: Add Workflow before
+  add_run_workflow:
+    before_run:
+      action: Add Workflow before
+      action_prefix: Add workflow before
+    after_run:
+      action: Add Workflow after
+      action_prefix: Add workflow after
+    placeholder: Select workflow
+    done: Done
+    cancel: Cancel
   rearrange:
     action: Rearrange
     drag_n_drop: Drag & drop to rearrange Workflows

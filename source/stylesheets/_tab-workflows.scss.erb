@@ -2,11 +2,6 @@
 @import "constants";
 
 .tab-workflows {
-	$icon-size: 52px;
-	$icon-size_small: 36px;
-	$spacing: 8px;
-	$steptitle-width: 280px;
-	$steptitle-width_small: 220px;
 
 	p.progress-indicator {
 		margin: $main-verticalpadding $main-horizontalpadding;
@@ -32,7 +27,6 @@
 			position: relative;
 
 			.selected-workflow {
-				$placeholder-width: 100px;
 				$color: $def-mediumdarkgrey;
 
 				@include display-flex;
@@ -48,7 +42,7 @@
 					content: "<%= data[:strings][:workflows][:select_workflow_placeholder] %>";
 					@include flex-shrink(0);
 					@include align-self(center);
-					width: $placeholder-width;
+					@include padding-x(15px);
 					text-align: center;
 					font-weight: 100;
 					text-transform: uppercase;
@@ -57,7 +51,7 @@
 
 				button {
 					@include flex-grow(1);
-					width: $icon-size + $spacing + $steptitle-width - $placeholder-width;
+					width: 160px;
 					@include border-left-radius(0);
 					border: none;
 					// @include padding-x(12px);
@@ -66,7 +60,7 @@
 					// background-color: white;
 
 					@include media-below-big {
-						width: $icon-size + $spacing + $steptitle-width_small - $placeholder-width;
+						width: 180px;
 					}
 				}
 			}
@@ -298,13 +292,13 @@
 	}
 
 	.workflows {
+		$spacing: 8px;
+		$icon-size: 52px;
+		$icon-size_small: 36px;
+		$steptitle-width: 280px;
+		$steptitle-width_small: 220px;
 
 		section.workflow {
-			$arrow-color: $def-darkgrey;
-			$arrow-width: 1px;
-			$arrowend-width: 15px;
-			$arrow-overflow_height: 40px;
-
 			border-top: 1px dashed $def-grey;
 			@include padding-x($main-horizontalpadding);
 			background-color: white;
@@ -313,13 +307,6 @@
 			header.workflow-header {
 				@include display-flex;
 				margin-bottom: $spacing;
-
-				&:before {
-					content: "";
-					@include flex-shrink(0);
-					width: $arrowend-width;
-					@include margin-x(($icon-size - $arrowend-width) / 2);
-				}
 
 				h2 {
 					$color: $def-mediumdarkgrey;
@@ -337,7 +324,7 @@
 					font-size: 14px;
 					font-weight: 300;
 					color: $color;
-					@include transition(top $def-transition_duration, background-color $def-transition_duration);
+					@include transition(background-color $def-transition_duration);
 
 					.run-workflow {
 						@include display-flex;
@@ -376,44 +363,6 @@
 					button.remove:focus, button.remove:hover {
 						background-color: $def-darkgrey;
 					}
-				}
-			}
-
-			&:first-child header.workflow-header {
-
-				&:before {
-					@include box-sizing(border-box);
-					border-top: $arrow-width solid $arrow-color;
-					@include padding-x(($arrowend-width - $arrow-width) / 2);
-					background-color: $arrow-color;
-					background-clip: content-box;
-				}
-			}
-
-			&:not(:first-child) header.workflow-header {
-
-				&:before {
-					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
-						fill: rgba($arrow-color, 0.99)
-					));
-
-					height: $arrow-overflow_height;
-					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
-					background-size: contain;
-					background-position: center bottom;
-					background-repeat: no-repeat;
-				}
-
-				h2 {
-					position: relative;
-					top: 0;
-				}
-			}
-
-			&:not(:first-child).edited header.workflow-header {
-
-				h2 {
-					top: -26px;
 				}
 			}
 
@@ -543,11 +492,6 @@
 						border-color: $color;
 						color: white;
 						background-color: $color;
-					}
-
-					&:after {
-						content: "";
-						display: block;
 					}
 				}
 
@@ -1225,38 +1169,6 @@
 				}
 			}
 
-			&:not(:last-child):after, &:not(:last-child) ul.steps:after {
-				width: $arrow-width;
-				@include margin-x(($icon-size - $arrow-width) / 2);
-				background-color: $arrow-color;
-			}
-
-			&:not(:last-child):after {
-				content: "";
-				display: block;
-				position: relative;
-				height: 30px + $arrow-overflow_height;
-				margin-bottom: - $arrow-overflow_height;
-			}
-
-			&:not(:last-child) ul.steps:after {
-				@include flex-grow(1);
-			}
-
-			&:last-child ul.steps {
-				padding-bottom: 60px;
-
-				&:after {
-					@include box-sizing(border-box);
-					@include size($arrowend-width, 60px);
-					@include margin-x(($icon-size - $arrowend-width) / 2);
-					border-bottom: $arrow-width solid $arrow-color;
-					@include padding-x(($arrowend-width - $arrow-width) / 2);
-					background-color: $arrow-color;
-					background-clip: content-box;
-				}
-			}
-
 			@include media-below-mid {
 				@include padding-x($main-horizontalpadding_small);
 			}
@@ -1302,23 +1214,6 @@
 			}
 
 			@include media-below-small {
-				$arrowend-width_small: 11px;
-
-				header.workflow-header {
-
-					&:before {
-
-						width: $arrowend-width_small;
-						@include margin-x(($icon-size_small - $arrowend-width_small) / 2);
-					}
-				}
-
-				&:first-child header.workflow-header {
-
-					&:before {
-						@include padding-x(($arrowend-width_small - $arrow-width) / 2);
-					}
-				}
 
 				article ul.steps li {
 
@@ -1330,21 +1225,7 @@
 						@include size($icon-size_small);
 					}
 				}
-
-				&:not(:last-child):after, &:not(:last-child) ul.steps:after {
-					@include margin-x(($icon-size_small - $arrow-width) / 2);
-				}
-
-				&:last-child ul.steps:after {
-					width: $arrowend-width_small;
-					@include margin-x(($icon-size_small - $arrowend-width_small) / 2);
-					@include padding-x(($arrowend-width_small - $arrow-width) / 2);
-				}
 			}
-		}
-
-		section.workflow:first-child {
-			padding-top: 30px;
 		}
 
 		section.workflow.selected {
@@ -1373,6 +1254,114 @@
 
 				ul.steps {
 					opacity: $inactive_opacity;
+				}
+			}
+		}
+
+		// Workflow chain arrow
+
+		$arrow-width: 1px;
+		$arrow_end-width: 15px;
+		$arrow-color: $def-darkgrey;
+
+		section.workflow {
+
+			header.workflow-header {
+
+				&:before {
+					content: "";
+					@include box-sizing(border-box);
+					width: $arrow_end-width;
+					@include margin-x(($icon-size - $arrow_end-width) / 2);
+					@include padding-x(($arrow_end-width - $arrow-width) / 2);
+					background-color: $arrow-color;
+					background-clip: border-box, content-box;
+
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
+						fill: rgba($arrow-color, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }'), none;
+					background-size: contain;
+					background-position: center bottom;
+					background-repeat: no-repeat;
+
+					@include media-below-small {
+						@include margin-x(($icon-size_small - $arrow_end-width) / 2);
+					}
+				}
+			}
+
+			article {
+
+				ul.steps {
+					@include flex-grow(1);
+
+					&:after {
+						content: "";
+						@include flex-grow(1);
+						@include box-sizing(border-box);
+						width: $arrow_end-width;
+						min-height: 30px;
+						@include margin-x(($icon-size - $arrow_end-width) / 2);
+						@include padding-x(($arrow_end-width - $arrow-width) / 2);
+						background-color: $arrow-color;
+						background-clip: content-box;
+
+						@include media-below-small {
+							@include margin-x(($icon-size_small - $arrow_end-width) / 2);
+						}
+					}
+				}
+			}
+		}
+
+		.workflow-chain:first-child > section.workflow:first-child {
+
+			header.workflow-header {
+				margin-top: 35px;
+
+				&:before {
+					border-top: $arrow-width solid $arrow-color;
+					background-image: none, none;
+				}
+
+				h2 {
+					margin-top: 0;
+				}
+			}
+		}
+
+		.workflow-chain:last-child > section.workflow:last-child {
+			padding-bottom: 50px;
+
+			article {
+
+				ul.steps {
+
+					&:after {
+						border-bottom: $arrow-width solid $arrow-color;
+					}
+				}
+			}
+		}
+
+		section.workflow.selected {
+
+			header.workflow-header {
+
+				h2 {
+					@include position(relative, -15px);
+				}
+			}
+		}
+
+		section.workflow:not(.selected) {
+
+			header.workflow-header {
+
+				h2 {
+					margin-top: 20px;
 				}
 			}
 		}
@@ -1498,75 +1487,170 @@
 	}
 }
 
-.popup-body#rearrange-workflow-chain-popup-body {
-	@include display-flex;
-	@include flex-direction(column);
+.popup-body#rearrange-workflow-chain-popup-body, .popup-body#add-run-workflow-popup-body {
 
-	h2 {
-		@include flex-shrink(0);
-		@include margin-y(0);
-		@include padding-y(18px);
-		text-align: center;
-		background-color: $def-verylightgrey;
-		font-size: 16px;
-		font-weight: 300;
+	header {
+		background-color: $def-ultralightgrey;
 	}
 
 	article {
 
-		ul {
-			$padding: 8px;
+		ul.direct-workflow-chain {
 			$icon-size: 12px;
+			$workflow-padding: 8px;
+			$fontsize: 14px;
+			$color: $def-darkgrey;
 
+			@include display-flex;
+			@include flex-direction(column);
 			@include margin-y(0);
-			padding: 30px 50px;
+			@include padding-y(30px);
+			padding-left: 0;
 			list-style: none;
 
-			li {
-				padding: $padding;
-				padding-left: $padding + $icon-size + $padding;
-				@include ellipsis-oneliner;
-				font-size: 14px;
-				font-weight: 200;
-				background-repeat: no-repeat;
-				background-position: left $padding center;
-				cursor: move;
+			ul.chain-of-direct-workflow {
+				$border: 1px solid $def-grey;
+
+				border: $border;
+				@include border-radius($def-radius);
+				padding-left: 0;
+
+				li {
+					padding: $workflow-padding;
+					padding-left: $workflow-padding + $icon-size + $workflow-padding;
+					@include ellipsis-oneliner;
+					font-size: $fontsize;
+					font-weight: 200;
+					background-repeat: no-repeat;
+					background-position: left $workflow-padding center;
+					color: $color;
+				}
+
+				li:not(:last-child) {
+					border-bottom: 1px solid $def-grey;
+				}
 			}
 
-			li.before-run, li.after-run {
+			ul.chain-of-direct-workflow.before-run, ul.chain-of-direct-workflow.after-run {
 				background-color: $def-verylightgrey;
 			}
 
-			li.before-run {
-				background-image: image-url("workflow/icon-before_run.svg");
-				background-size: $icon-size auto;
+			ul.chain-of-direct-workflow.before-run {
+				@include order(1);
+
+				li {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
+						fill: rgba($color, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: $icon-size auto;
+				}
 			}
 
-			li.selected {
-				@include margin-y(10px);
-				border: 1px solid $def-grey;
-				background-image: image-url("workflow/icon-current.svg");
-				background-size: $icon-size auto;
+			ul.chain-of-direct-workflow.after-run {
+				@include order(5);
+
+				li {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-after_run") %>', (
+						fill: rgba($color, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: $icon-size auto;
+				}
+			}
+
+			ul.chain-of-direct-workflow.selected {
+				@include order(3);
 				background-color: white;
+
+				li {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-current") %>', (
+						fill: rgba($color, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: $icon-size auto;
+				}
 			}
 
-			li.after-run {
-				background-image: image-url("workflow/icon-after_run.svg");
-				background-size: $icon-size auto;
-			}
-
-			li.dragged-element {
-				position: relative;
+			ul.chain-of-direct-workflow.dragged-element {
 				z-index: $zindex-dragged_element;
-				border: 1px solid $def-grey;
 			}
 
-			li.before-run + li.before-run:not(.dragged-element), li.after-run + li.after-run:not(.dragged-element) {
-				border-top: 1px solid $def-grey;
+			&[order-by-drag] ul.chain-of-direct-workflow {
+				$drag_handle-reservedspace: 20px;
+
+				margin-left: $drag_handle-reservedspace;
+				cursor: move;
+
+				&:before {
+					$drag_handle-svg_content_with_attributes: svg_content_with_attributes('<%= svg("drag_handle") %>', (
+						fill: rgba($color, 0.99)
+					));
+
+					@include position(absolute, 0, null, null, -$drag_handle-reservedspace);
+					content: "";
+					@include size($drag_handle-reservedspace, 100%);
+					background-position: center;
+					background-image: url('data:image/svg+xml;utf8, #{ $drag_handle-svg_content_with_attributes }');
+					background-size: 4px auto;
+					background-repeat: no-repeat;
+				}
+			}
+
+			ul.chain-of-direct-workflow, select.run-workflow-selector {
+				@include margin-y(5px);
+			}
+
+			select.run-workflow-selector {
+				width: 100%;
+				border: none;
+				padding: $workflow-padding;
+				padding-left: $workflow-padding + $icon-size + $workflow-padding;
+				@include ellipsis-oneliner;
+				font-size: $fontsize;
+				font-weight: 200;
+				background-repeat: no-repeat;
+				background-position: left $workflow-padding center, right $workflow-padding center;
+				background-color: $def-green;
+				color: white;
+				@include transition(background-color $def-transition_duration);
+			}
+
+			select.run-workflow-selector:hover, select.run-workflow-selector:focus {
+				background-color: $def-green-shade;
+			}
+
+			$arrow-svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow-down") %>', (
+				fill: rgba(white, 0.99)
+			));
+
+			select.run-workflow-selector.before-run {
+				@include order(2);
+
+				$run_workflow_icon-svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
+					fill: rgba($def-green-light, 0.99)
+				));
+
+				background-image: url('data:image/svg+xml;utf8, #{ $run_workflow_icon-svg_content_with_attributes }'), url('data:image/svg+xml;utf8, #{ $arrow-svg_content_with_attributes }');
+				background-size: $icon-size auto, 8px auto;
+			}
+
+			select.run-workflow-selector.after-run {
+				@include order(5);
+
+				$run_workflow_icon-svg_content_with_attributes: svg_content_with_attributes('<%= svg("workflow/icon-after_run") %>', (
+					fill: rgba($def-green-light, 0.99)
+				));
+
+				background-image: url('data:image/svg+xml;utf8, #{ $run_workflow_icon-svg_content_with_attributes }'), url('data:image/svg+xml;utf8, #{ $arrow-svg_content_with_attributes }');
+				background-size: $icon-size auto, 8px auto;
 			}
 		}
 
-		ul.drag-in-progress {
+		ul.direct-workflow-chain.drag-in-progress {
 
 			* {
 				@include user-select(none);
