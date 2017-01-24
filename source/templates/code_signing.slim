@@ -1,0 +1,37 @@
+.code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
+	p.progress-indicator[progress-model="codeSigningCtrl.loadSupportedPlatforms"]
+	div[ng-if="codeSigningCtrl.loadSupportedPlatforms.isIdle"]
+		div[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('ios')"]
+			section
+				h2 == data[:strings][:code_signing][:hints][:ios][:title]
+				p == string_with_urls(data[:strings][:code_signing][:hints][:ios][:description], [data[:routes][:devcenter][:codesigndoc]])
+			section
+				p == data[:strings][:code_signing][:hints][:ios][:dont_forget]
+		section[ng-if="codeSigningCtrl.isSupportedPlatform('xamarin')"]
+			h2 == data[:strings][:code_signing][:hints][:xamarin][:title]
+			p == string_with_urls(data[:strings][:code_signing][:hints][:xamarin][:description], [data[:routes][:devcenter][:xamarin_code_signing]])
+		section[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('android')"]
+			h2 == data[:strings][:code_signing][:hints][:android][:title]
+			p == string_with_urls(data[:strings][:code_signing][:hints][:android][:description], [data[:routes][:devcenter][:apk]])
+		div[ng-if="codeSigningCtrl.isSupportedPlatform('xamarin') || codeSigningCtrl.isSupportedPlatform('ios')"]
+			section.provisioning-profile[ng-controller="ProvProfileController as provProfileCtrl"]
+				header == data[:strings][:code_signing][:prov_profile][:title]
+				article
+					section[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
+						h2
+							span == data[:strings][:code_signing][:file_name]
+							span[ng-bind="provProfile | displayNameForProvProfile"]
+						p.progress-indicator[progress-model="provProfileCtrl.provProfileActionProgress" ng-if="provProfile == provProfileCtrl.selectedProvProfile"]
+						div[ng-if="!provProfileCtrl.provProfileActionProgress.isInProgress"]
+							button[ng-click="provProfileCtrl.downloadProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:download]
+							button[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:delete]
+					section.actions
+						div[ng-if="!provProfileCtrl.isAddMode"]
+							button.add[ng-click="provProfileCtrl.addProvProfileSelected()" ] == data[:strings][:code_signing][:prov_profile][:add]
+							button.delete[ng-click="provProfileCtrl.deleteAllProvProfilesSelected()"] == data[:strings][:code_signing][:prov_profile][:delete_all]
+						div[ng-if="provProfileCtrl.isAddMode && provProfileCtrl.provProfiles.length > 1"]
+							p == data[:strings][:code_signing][:prov_profile][:upload]
+							p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfileProgress"]
+							file-uploader[onupload="provProfileCtrl.uploadProvProfile()"] == data[:strings][:code_signing][:prov_profile][:upload_instructions]
+			section.certificate
+		section.android-keystore-generic-file

@@ -1,0 +1,29 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").service("imageService", function($q) {
+
+	var imageService = {};
+
+	imageService.loadImageWithURL = function(url) {
+		var image = $("<img />");
+		image.attr("src", url);
+
+		return $q(function(resolve, reject) {
+			image.on("load", function() {
+				if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
+					reject("broken image");
+				}
+				else {
+					resolve();
+				}
+			});
+		});
+	};
+
+	return imageService;
+	
+});
+
+})();

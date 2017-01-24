@@ -1,0 +1,39 @@
+@import "default";
+@import "constants";
+
+.cardo {
+	border: 1px solid $def-mediumlightgrey;
+	@include border-radius(6px);
+	overflow: hidden;
+
+	header {
+		padding: $cardo-verticalpadding $cardo-horizontalpadding;
+		background-color: $def-verylightgrey;
+
+		h2 {
+			@include margin-y(0);
+			font-size: 14px;
+			font-weight: 600;
+
+			em {
+				font-style: normal;
+				font-weight: 100;
+			}
+		}
+
+		h2:not(:last-child) {
+			margin-bottom: 8px;
+		}
+
+		p {
+			@include margin-y(0);
+			font-size: 12px;
+			font-weight: 100;
+			color: $def-darkgrey;
+		}
+	}
+
+	article {
+		padding: $cardo-verticalpadding $cardo-horizontalpadding;
+	}
+}

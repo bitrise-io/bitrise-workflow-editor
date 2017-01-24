@@ -1,0 +1,80 @@
+@import "default";
+@import "constants";
+
+.notification, .progress-indicator {
+	$padding: 10px;
+
+	position: relative;
+	border: 1px solid;
+	@include border-radius($def-progress_indicator-radius);
+	padding: $padding;
+	font-size: 14px;
+
+	&:not(.no-icon) {
+		$icon-reserved_size: 20px;
+		
+		padding-left: $padding + $icon-reserved_size + $padding;
+
+		&:before {
+			content: "";
+			@include position(absolute, 50%, null, null, $padding);
+			background-position: left center;
+			background-size: contain;
+			background-repeat: no-repeat;
+		}
+	}
+
+	a {
+		font-weight: 600;
+		color: inherit;
+	}
+
+	a:not(:hover):not(:focus) {
+		text-decoration: none;
+	}
+}
+
+@mixin notification_styling($color, $background_color, $svg_content, $icon_size) {
+	$svg_content_with_attributes: svg_content_with_attributes($svg_content, (
+		fill: rgba($color, 0.99)
+	));
+
+	border-color: $color;
+	color: $color;
+	background-color: $background_color;
+
+	&:before {
+		background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+		@include size($icon_size);
+		margin-top: - $icon_size / 2;
+	}
+}
+
+.notification {
+	@include notification_styling($def-blue-shade, $def-blue-light, '<%= svg("bulb") %>', 20px);
+}
+
+.progress-indicator.in-progress {
+	@include notification_styling($def-purple, $def-purple-light, '<%= svg("in_progress") %>', 20px);
+
+	&:before {
+		@include keyframes(rotate) {
+			from {
+				@include transform(rotate(0deg));
+			}
+			to {
+				@include transform(rotate(360deg));
+			}
+		};
+
+		@include animation(rotate 1s linear infinite);
+	}
+}
+
+.notification.error, .notification.warning, .progress-indicator.error {
+	@include notification_styling($def-danger, $def-danger-light, '<%= svg("cross") %>', 12px);
+}
+
+.notification.success, .progress-indicator.success {
+	@include notification_styling($def-green-shade, $def-green-light, '<%= svg("check") %>', 14px);
+}

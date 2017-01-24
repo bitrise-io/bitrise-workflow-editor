@@ -1,0 +1,179 @@
+.tab-workflows[ng-controller="WorkflowsController as workflowsCtrl"]
+	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
+	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
+		section.manage-workflows[sticky-header]
+			.workflow-selector[floating-menu toggle="workflowsCtrl.workflowSelectorIsVisible"]
+				.selected-workflow
+					button.mak[ng-bind="workflowsCtrl.selectedWorkflow.id" ng-click="workflowsCtrl.workflowSelectorIsVisible = !workflowsCtrl.workflowSelectorIsVisible"]
+				ul.angular-animated[ng-show="workflowsCtrl.workflowSelectorIsVisible"]
+					li[ng-repeat="workflow in workflowsCtrl.workflows" ng-class="{'selected': workflow == workflowsCtrl.selectedWorkflow, 'rename-in-progress': workflow == workflowsCtrl.renamedWorkflow}"]
+						.workflow
+							= svg("check")
+							span.workflow-id[ng-bind="workflow.id"]
+							button.select-workflow[ng-click="workflowsCtrl.workflowSelected(workflow)" ng-bind="workflow.id"]
+							button.rename-workflow[ng-click="workflowsCtrl.renameWorkflowSelected(workflow)"]
+						.workflow-rename
+							input[type="text" ng-model="workflowsCtrl.renamedWorkflowID"]
+							button.ok.rebo.no-border-radius.green[ng-click="workflowsCtrl.renameWorkflowConfirmed()"] = svg("check")
+			button.manage-button.add-workflow.rebo.light.green[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
+				= svg("plus")
+				span == data[:strings][:workflows][:add_workflow][:action]
+			button.manage-button.add-before-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(true)"]
+				= svg("workflow/icon-before_run")
+				span == data[:strings][:workflows][:add_run_workflow][:before_run][:action]
+			button.manage-button.add-after-run-workflow.rebo.light.grey[ng-click="workflowsCtrl.addRunWorkflowSelected(false)"]
+				= svg("workflow/icon-after_run")
+				span == data[:strings][:workflows][:add_run_workflow][:after_run][:action]
+			button.manage-button.rearrange.rebo.light.grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true"]
+				= svg("arrow_tailed-down")
+				= svg("arrow_tailed-down")
+				span == data[:strings][:workflows][:rearrange][:action]
+			button.manage-button.delete-workflow.rebo.light.danger[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-disabled="workflowsCtrl.workflows.length == 1"]
+				= svg("cross")
+				span == data[:strings][:workflows][:delete_workflow]
+		.workflows
+			.workflow-chain[ng-repeat="directWorkflow in workflowsCtrl.directWorkflowChain track by $index + '-' + directWorkflow.id" ng-init="directWorkflowIndex = $index" ]
+				section.workflow[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : workflowsCtrl.workflowChainsOfDirectWorkflowChain[directWorkflowIndex] track by $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
+					header.workflow-header
+						h2
+							.run-workflow
+								span.icon[ng-if="workflowsCtrl.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) > directWorkflowIndex"] = svg("workflow/icon-before_run")
+								span.icon[ng-if="workflowsCtrl.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow) < directWorkflowIndex"] = svg("workflow/icon-after_run")
+								span.workflow-name[ng-bind="workflow.id"]
+							button.remove[ng-if="workflowIndex == 0 && workflow != workflowsCtrl.selectedWorkflow" ng-click="workflowsCtrl.deleteWorkflowAtDirectWorkflowIndex(directWorkflowIndex)"] = svg("cross")
+					article
+						ul.steps
+							ul[order-by-drag models="workflow.steps"]
+								li[ng-repeat="step in workflow.steps" ng-class="{'selected': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && step == workflowsCtrl.selectedStep}"]
+									button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex)"] = svg("plus")
+									button.step[ng-click="workflowsCtrl.stepSelected(step, workflowIndex, directWorkflowIndex)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
+										span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
+										span.info
+											strong
+												span.title[ng-bind="step.displayName()"]
+												span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
+											em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
+							li
+								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd()" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex === workflowsCtrl.editedWorkflowIndex)"] = svg("plus")
+						aside.step-details[ng-if="directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
+							p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
+							p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
+							div.bitrise-steplib-step-details[ng-if="stepCtrl.step.type() == 'bitrise-steplib-step'"]
+								header.manage-step
+									.title[ng-if="!stepCtrl.renamedStep"]
+										button.rename[ng-bind="stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
+										strong.verified[ng-if="stepCtrl.step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
+									.rename-title[ng-if="stepCtrl.renamedStep"]
+										input[type="text" ng-model="stepCtrl.renamedStepTitle"]
+										button.ok.rebo.green[ng-click="stepCtrl.renameStepConfirmed()"] = svg("check")
+									aside
+										button.clone[ng-click="workflowsCtrl.cloneStepSelected()"] = svg("step/clone")
+										a.source[href="{{ stepCtrl.step.sourceURL() }}" target="_blank" ng-class="stepCtrl.step | stepSourceCSSClass"] = svg("logo/github")
+										button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
+								section.description[ng-if="stepCtrl.step.description() !== undefined && stepCtrl.step.description().length > 0" ng-class="{'open': stepCtrl.shouldShowDescription}"]
+									span.icon
+										= svg("step/description")
+									.markdown[btf-markdown="stepCtrl.step.description()"]
+									span.toggle-visibility
+										button[ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
+										= svg("arrow-down")
+								section.version
+									span.icon
+									label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
+									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(bitriseSteplibService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="bitriseSteplibService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
+								section.always-run[ng-if="stepCtrl.step.isAlwaysRun() !== undefined"]
+									span.icon
+										= svg("step/is_always_run")
+									label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
+									checkbox[ng-model="stepCtrl.step.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
+								section.inputs[ng-if="stepCtrl.step.defaultStepConfig.inputs.length > 0"]
+									h3 == data[:strings][:workflows][:inputs][:header]
+									ul
+										li[ng-repeat="defaultInputConfig in stepCtrl.step.defaultStepConfig.inputs" ng-controller="InputController as inputCtrl" ng-init="inputCtrl.init(stepCtrl.step, defaultInputConfig); id = inputCtrl.input.key()" ng-class="{'selected': inputCtrl.input == stepCtrl.selectedInput}"]
+											.input-info
+												h4
+													span.title[ng-bind="inputCtrl.input.title()"]
+													button.insert-variable.rebo.small.light.green[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+												strong.value[ng-bind="inputCtrl.input.value() ? inputCtrl.input.value() : '#{ data[:strings][:workflows][:inputs][:empty_value] }'" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
+												.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
+													textarea[msd-elastic ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)" ng-if="!inputCtrl.input.valueOptions()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+													select[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-if="inputCtrl.input.valueOptions()" ng-options="valueOption for valueOption in inputCtrl.input.valueOptions()"]
+													.is-expand
+														checkbox[ng-model="inputCtrl.input.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="id"]
+														label[for="{{ id }}"]
+															strong == data[:strings][:workflows][:inputs][:replace_variables_in_input]
+															em == string_with_urls(data[:strings][:workflows][:inputs][:replace_variables_in_input_learn_more], [data[:routes][:devcenter][:step_inputs]])
+											button.change[ng-click="stepCtrl.inputSelected(inputCtrl.input)"]
+												span == data[:strings][:workflows][:inputs][:change]
+												= svg("arrow-down")
+								section.outputs
+									h3 == data[:strings][:workflows][:outputs][:header]
+									p.no-outputs[ng-if="!stepCtrl.step.defaultStepConfig.outputs"] == data[:strings][:workflows][:outputs][:no_outputs]
+									table[ng-if="stepCtrl.step.defaultStepConfig.outputs"]
+										tr[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
+											td.key[ng-bind="output | prettifiedVariableKey"]
+											td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
+							button.delete-step.rebo.big.hollow.danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="stepCtrl.deleteStepButtonText()"]
+	popup[model="workflowsCtrl.addWorkflowPopup"]
+		.popup-body.snowflake#add-workflow-popup-body.vertical-scroll
+			header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
+			article
+				input[type="text" ng-model="workflowsCtrl.addWorkflowPopup.parameters.workflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
+				label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
+				select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowPopup.parameters.basedOnWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
+			footer
+				button.rebo.big.green[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="workflowsCtrl.addWorkflowPopup.parameters.workflowID.length == 0 || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowPopup.parameters.workflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:done]
+	popup[model="workflowsCtrl.addRunWorkflowPopup"]
+		.popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
+			header
+				span[ng-if="workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:add_run_workflow][:before_run][:action_prefix]
+				span[ng-if="!workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode"] == data[:strings][:workflows][:add_run_workflow][:after_run][:action_prefix]
+				strong<[ng-bind="workflowsCtrl.selectedWorkflow.id"]
+			article.vertical-scroll
+				ul.direct-workflow-chain
+					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.directWorkflowChain track by $index + '_' + directWorkflow.id" ng-class="{'before-run': $index < workflowsCtrl.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': $index > workflowsCtrl.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': directWorkflow == workflowsCtrl.selectedWorkflow}"]
+						li[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : directWorkflow.workflowChain(workflowsCtrl.workflows) track by $index + '_' + workflow.id" ng-bind="workflow.id"]
+					select.run-workflow-selector[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflows()" ng-model="workflowsCtrl.addRunWorkflowPopup.parameters.selectedRunWorkflow" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode, 'after-run': !workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode}"]
+			footer
+				button.done[ng-click="workflowsCtrl.runWorkflowSelectFinished()" ng-disabled="!workflowsCtrl.addRunWorkflowPopup.parameters.selectedRunWorkflow"] == data[:strings][:workflows][:add_run_workflow][:done]
+				button.cancel[ng-click="workflowsCtrl.addRunWorkflowPopup.isVisible = false"] == data[:strings][:workflows][:add_run_workflow][:cancel]
+	popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
+		.popup-body.snowflake#rearrange-workflow-chain-popup-body
+			header == data[:strings][:workflows][:rearrange][:drag_n_drop]
+			article.vertical-scroll
+				ul.direct-workflow-chain[order-by-drag models="workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain"]
+					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain track by $index + '_' + directWorkflow.id" ng-class="{'before-run': $index < workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': $index > workflowsCtrl.rearrangeWorkflowsPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': directWorkflow == workflowsCtrl.selectedWorkflow}"]
+						li[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : directWorkflow.workflowChain(workflowsCtrl.workflows) track by $index + '_' + workflow.id" ng-bind="workflow.id"]
+			footer
+				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
+				button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
+popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"]
+	.popup-body.snowflake#add-step-popup-body.vertical-scroll
+		header
+			h2 == data[:strings][:workflows][:steps][:add][:select]
+			input.title-filter[type="text" ng-model="addStepCtrl.titleFilter" placeholder="#{ data[:strings][:workflows][:steps][:add][:title_filter_placeholder] }"]
+			fieldset
+				legend == data[:strings][:workflows][:steps][:add][:filter_by_type_tag]
+				.type-tag-filter[ng-repeat="typeTagFilter in addStepCtrl.availableTypeTagFilters"]
+					input[type="radio" ng-model="addStepCtrl.typeTagFilter" id="{{ typeTagFilter }}" ng-value="typeTagFilter"]
+					label[for="{{ typeTagFilter }}" ng-bind="typeTagFilter"]
+			button.rebo.small.danger[ng-if="addStepCtrl.typeTagFilter" ng-click="addStepCtrl.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
+		article.vertical-scroll
+			p[ng-if="addStepCtrl.filteredSteps().length == 0"] == data[:strings][:workflows][:steps][:add][:no_steps_matching_filter]
+			ul
+				li[ng-repeat="step in addStepCtrl.filteredSteps()"]
+					button[ng-click="addStepCtrl.addStep(step)"]
+						span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
+						strong.title[ng-bind="step.title()"]
+						span.summary[ng-bind="step.summary()"]
+popup[model="insertVariableCtrl.popup" ng-controller="InsertVariableController as insertVariableCtrl"]
+	.popup-body.snowflake#insert-variable-popup-body
+		header
+			h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
+			input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
+		article.vertical-scroll
+			ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
+				li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter"]
+					button[ng-click="insertVariableCtrl.insertVariable(variable)"]
+						strong[ng-bind="variable | prettifiedVariableKey"]
+						em[ng-bind="variablesOfSource.source.title"]

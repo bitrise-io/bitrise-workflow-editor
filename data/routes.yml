@@ -1,0 +1,43 @@
+endpoints:
+  workflows: workflows
+  code_signing: code_signing
+  secrets: secrets
+  env_vars: env_vars
+  triggers: triggers
+  yml: yml
+templates:
+  workflows: /templates/workflows
+  code_signing: /templates/code_signing
+  secrets: /templates/secrets
+  env_vars: /templates/env_vars
+  triggers: /templates/triggers
+  yml: /templates/yml
+website:
+  app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
+  app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
+  default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
+  all_stacks_get: /api/app/<app_slug>/all_stack_info.json?api_token=<api_token>
+  secrets_get: /api/app/<app_slug>/secrets.json?api_token=<api_token>
+  secrets_post: /api/app/<app_slug>/secrets.json?api_token=<api_token>
+  prov_profiles_get: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
+  prov_profiles_delete: /app/<app_slug>/prov_profile_documents.json?api_token=<api_token>
+  prov_profile_download:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
+  prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json?api_token=<api_token>
+  yml_get:  /api/app/<app_slug>/config.yml?api_token=<api_token>
+  yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
+  yml_post: /api/app/<app_slug>/config.json?api_token=<api_token>
+local_server:
+  app_config_get: /api/bitrise-yml.json
+  app_config_post: /api/bitrise-yml.json
+  default_outputs_get: /api/default-outputs
+  secrets_get: /api/secrets
+  secrets_post: /api/secrets
+  yml_get: /api/bitrise-yml
+  yml_download: /api/bitrise-yml?is_download=1
+  yml_post: /api/bitrise-yml
+devcenter:
+  step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
+  bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
+  codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
+  xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
+  apk: https://bitrise-io.github.io/devcenter/tutorials/create-signed-apk-on-bitrise/
