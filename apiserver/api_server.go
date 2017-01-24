@@ -256,7 +256,7 @@ func saveBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 
 func loadSpecHandler(w http.ResponseWriter, r *http.Request) {
 	// Load steplib spec
-	cmd := command.New("stepman", "collections", "--format", "json")
+	cmd := command.New("bitrise", "stepman", "collections", "--format", "json")
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
 		respondWithErrorMessage(w, "Failed to get steplib spec, error: %s", err)
