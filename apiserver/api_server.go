@@ -22,10 +22,11 @@ import (
 
 	rice "github.com/GeertJohan/go.rice"
 	"github.com/bitrise-io/bitrise/models"
-	"github.com/bitrise-io/go-utils/cmdex"
+	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/freezable"
 	"github.com/bitrise-io/go-utils/pathutil"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 	"github.com/gorilla/mux"
 )
 
@@ -253,6 +254,39 @@ func saveBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 	respondWithJSON(w, 200, SimpleResponse{Message: "OK"})
 }
 
+func loadSpecHandler(w http.ResponseWriter, r *http.Request) {
+	// Load steplib spec
+	cmd := command.New("stepman", "collections", "--format", "json")
+	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	if err != nil {
+		respondWithErrorMessage(w, "Failed to get steplib spec, error: %s", err)
+		return
+	}
+
+	type OutputModel struct {
+		Data  *([]stepmanModels.SteplibInfoModel) `json:"data,omitempty" yaml:"data,omitempty"`
+		Error string                              `json:"error,omitempty" yaml:"error,omitempty"`
+	}
+
+	var output OutputModel
+	if err := yaml.Unmarshal([]byte(out), &output); err != nil {
+		respondWithErrorMessage(w, "Failed to parse the output of stepman (%s), error: %s", out, err)
+		return
+	}
+
+	if output.Error != "" {
+		respondWithErrorMessage(w, "Failed to get steplib spec, error: %s", output.Error)
+		return
+	}
+
+	if output.Data == nil {
+		respondWithErrorMessage(w, "Missing output data, error: %s", output.Error)
+		return
+	}
+
+	respondWithJSON(w, 200, *output.Data)
+}
+
 // LaunchServer ...
 func LaunchServer() error {
 	port := envString("PORT", defaultPort)
@@ -284,7 +318,7 @@ func LaunchServer() error {
 		}
 		workflowEditorURL := fmt.Sprintf("http://localhost:%s", port)
 		log.Println("Open workflow editor in browser ...")
-		if err := cmdex.NewCommandWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
+		if err := command.NewWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
 			log.Printf(" [!] Failed to open workflow editor in browser, error: %s", err)
 		}
 	}
@@ -316,6 +350,9 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 	//
 	r.HandleFunc("/api/secrets", WrapHandlerFunc(saveSecretsYMLFromJSONHandler)).
 		Methods("POST")
+	//
+	r.HandleFunc("/api/spec", WrapHandlerFunc(loadSpecHandler)).
+		Methods("GET")
 	//
 
 	//
@@ -382,7 +419,7 @@ func validateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) error {
 	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
 	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
 
-	validateCmd := cmdex.NewCommand("bitrise",
+	validateCmd := command.New("bitrise",
 		"-l=panic", "validate", "--format=json",
 		"--config-base64", bitriseConfigBase64,
 		"--inventory-base64", secretsConfigBase64)
