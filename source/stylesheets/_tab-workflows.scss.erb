@@ -1402,16 +1402,26 @@
 
 	header {
 
+		h2 {
+			margin-top: 0;
+		}
+
 		input.title-filter {
 			display: block;
 			width: 100%;
 			@include box-sizing(border-box);
 			margin-bottom: 12px;
+			border: 1px solid $def-mediumlightgrey;
+			@include border-radius($def-radius);
+			padding: 8px;
+			font-size: 14px;
+			font-weight: 100;
 		}
 
 		fieldset {
 			margin: 0;
 			border: 1px solid $def-grey;
+			@include border-radius($def-radius);
 			padding: 6px;
 
 			legend {
@@ -1439,6 +1449,10 @@
 				}
 			}
 		}
+
+		button.clear-type-tag-filter {
+			margin-top: 10px;
+		}
 	}
 
 	article {
@@ -1455,6 +1469,7 @@
 					width: 100%;
 					border: 1px solid $def-mediumlightgrey;
 					@include border-radius($def-radius);
+					padding-right: 8px;
 					text-align: left;
 					@include transition(background-color $def-transition_duration);
 
@@ -1462,12 +1477,14 @@
 						display: block;
 						float: left;
 						@include size(52px);
+						margin-right: 8px;
 						border-right: 1px solid $def-mediumlightgrey;
 						background-size: contain;
 					}
 
 					strong.title {
 						display: block;
+						margin-top: 8px;
 						@include ellipsis-oneliner;
 					}
 

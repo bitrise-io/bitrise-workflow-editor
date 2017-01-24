@@ -157,7 +157,7 @@ popup[model="addStepCtrl.popup" ng-controller="AddStepController as addStepCtrl"
 				.type-tag-filter[ng-repeat="typeTagFilter in addStepCtrl.availableTypeTagFilters"]
 					input[type="radio" ng-model="addStepCtrl.typeTagFilter" id="{{ typeTagFilter }}" ng-value="typeTagFilter"]
 					label[for="{{ typeTagFilter }}" ng-bind="typeTagFilter"]
-			button.rebo.small.danger[ng-if="addStepCtrl.typeTagFilter" ng-click="addStepCtrl.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
+			button.clear-type-tag-filter.rebo.small.danger[ng-if="addStepCtrl.typeTagFilter" ng-click="addStepCtrl.typeTagFilter = null"] == data[:strings][:workflows][:steps][:add][:clear_type_tag_filter]
 		article.vertical-scroll
 			p[ng-if="addStepCtrl.filteredSteps().length == 0"] == data[:strings][:workflows][:steps][:add][:no_steps_matching_filter]
 			ul
