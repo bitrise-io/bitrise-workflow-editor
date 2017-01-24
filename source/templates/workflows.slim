@@ -131,7 +131,7 @@
 				strong<[ng-bind="workflowsCtrl.selectedWorkflow.id"]
 			article.vertical-scroll
 				ul.direct-workflow-chain
-					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.addRunWorkflowPopup.parameters.directWorkflowChain track by $index + '_' + directWorkflow.id" ng-class="{'before-run': $index < workflowsCtrl.addRunWorkflowPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': $index > workflowsCtrl.addRunWorkflowPopup.parameters.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': directWorkflow == workflowsCtrl.selectedWorkflow}"]
+					ul.chain-of-direct-workflow[ng-repeat="directWorkflow in workflowsCtrl.directWorkflowChain track by $index + '_' + directWorkflow.id" ng-class="{'before-run': $index < workflowsCtrl.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'after-run': $index > workflowsCtrl.directWorkflowChain.indexOf(workflowsCtrl.selectedWorkflow), 'selected': directWorkflow == workflowsCtrl.selectedWorkflow}"]
 						li[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : directWorkflow.workflowChain(workflowsCtrl.workflows) track by $index + '_' + workflow.id" ng-bind="workflow.id"]
 					select.run-workflow-selector[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflows()" ng-model="workflowsCtrl.addRunWorkflowPopup.parameters.selectedRunWorkflow" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode, 'after-run': !workflowsCtrl.addRunWorkflowPopup.parameters.isBeforeRunMode}"]
 			footer

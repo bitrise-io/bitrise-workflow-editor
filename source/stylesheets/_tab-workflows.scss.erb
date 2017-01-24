@@ -1627,6 +1627,11 @@
 				background-position: left $workflow-padding center, right $workflow-padding center;
 				background-color: $def-green;
 				color: white;
+				@include transition(background-color $def-transition_duration);
+			}
+
+			select.run-workflow-selector:hover, select.run-workflow-selector:focus {
+				background-color: $def-green-shade;
 			}
 
 			$arrow-svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow-down") %>', (

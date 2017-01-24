@@ -36,13 +36,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.addRunWorkflowPopup = new Popup({
-		directWorkflowChain: undefined,
 		selectedRunWorkflow: null
 	});
 	viewModel.addRunWorkflowPopup.beforeAppearCallback = function() {
-		viewModel.addRunWorkflowPopup.parameters.directWorkflowChain = _.map(viewModel.directWorkflowChain, function(aDirectWorkflow) {
-			return aDirectWorkflow;
-		});
 		viewModel.addRunWorkflowPopup.parameters.selectedRunWorkflow = null;
 	};
 
