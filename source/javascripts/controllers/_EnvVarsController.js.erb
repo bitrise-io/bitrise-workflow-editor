@@ -192,14 +192,19 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		envVars.splice(index, 1);
 	};
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function() {
+	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function(event, validationConfig) {
+		validationConfig.isValidating = true;
+
 		if (_.any(viewModel.envVarsBySource, function(envVarsOfSource) {
 			return _.any(envVarsOfSource.envVars, function(anEnvVar) {
 				return anEnvVar.key().length == 0;
 			});
 		})) {
-			$rootScope.$emit("MainController::validationError", new Error("<%= data[:strings][:env_vars][:env_var_without_key] %>"));
-		};
+			validationConfig.validationDeferer.reject(new Error("<%= data[:strings][:env_vars][:env_var_without_key] %>"));
+		}
+		else {
+			validationConfig.validationDeferer.resolve();
+		}
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {

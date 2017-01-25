@@ -96,52 +96,62 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function save() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-		var canceler = $q.defer();
+		var validationDeferer = $q.defer();
+		var saveDeferer = $q.defer();
 
 		$scope.$on("$destroy", function() {
-			canceler.resolve();
+			validationDeferer.resolve();
+			saveDeferer.resolve();
 		});
+		
+		validationDeferer.promise.then(function() {
+			$q(function(resolve, reject) {
+				switch (viewModel.currentMenu.id) {
+					case "secrets": {
+						$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
 
-		var error;
-		var unwatchError = $rootScope.$on("MainController::validationError", function(event, _error) {
-			error = _error;
-		});
+						break;
+					}
+					case "yml": {
+						$rootScope.$emit("YMLController::saveAppConfigYML", resolve, reject);
 
-		$rootScope.$emit("MainController::requestValidationBeforeSave");
-		unwatchError();
+						break;
+					}
+					default: {
+						appService.saveAppConfig({
+							timeout: saveDeferer.promise
+						}).then(resolve, reject);
 
-		if (error) {
+						break;
+					}
+				}
+			}).then(function() {
+				viewModel.saveProgress.success();
+
+				saveDeferer.resolve();
+			}, function(error) {
+				viewModel.saveProgress.error(error);
+
+				saveDeferer.reject(error);
+			});
+		}, function(error) {
 			viewModel.saveProgress.reset();
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
-			return $q.reject(error.message);
+			saveDeferer.reject(error);
+		});
+
+		var validationConfig = {
+			validationDeferer: validationDeferer,
+			isValidating: false
+		};
+		$rootScope.$emit("MainController::requestValidationBeforeSave", validationConfig);
+
+		if (!validationConfig.isValidating) {
+			validationDeferer.resolve();
 		}
 
-		return $q(function(resolve, reject) {
-			switch (viewModel.currentMenu.id) {
-				case "secrets": {
-					$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
-
-					break;
-				}
-				case "yml": {
-					$rootScope.$emit("YMLController::saveAppConfigYML", resolve, reject);
-
-					break;
-				}
-				default: {
-					appService.saveAppConfig({
-						timeout: canceler.promise
-					}).then(resolve, reject);
-
-					break;
-				}
-			}
-		}).then(function() {
-			viewModel.saveProgress.success();
-		}, function(error) {
-			viewModel.saveProgress.error(error)
-		});
+		return saveDeferer.promise;
 	}
 
 	$scope.$on("$routeChangeStart", function() {
