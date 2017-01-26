@@ -22,7 +22,7 @@ func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to check .bitrise.secrets.yml file, error: %s", err)
 		return
 	} else if !isExist {
-		log.Errorf(".bitrise.secrets.yml does not exist, error: %s", err)
+		log.Errorf(".bitrise.secrets.yml does not exist")
 		RespondWithJSON(w, 200, envmanModels.EnvsSerializeModel{})
 		return
 	}
