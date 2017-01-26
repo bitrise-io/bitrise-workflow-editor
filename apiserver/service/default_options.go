@@ -10,7 +10,7 @@ func GetDefaultOutputsHandler(w http.ResponseWriter, r *http.Request) {
 		FromBitriseCLI []EnvItmModel `json:"from_bitrise_cli"`
 	}
 
-	respondWithJSON(w, 200, ResponseModel{
+	RespondWithJSON(w, 200, ResponseModel{
 		FromBitriseCLI: []EnvItmModel{
 			{"BITRISE_SOURCE_DIR": ""},
 			{"BITRISE_DEPLOY_DIR": ""},
