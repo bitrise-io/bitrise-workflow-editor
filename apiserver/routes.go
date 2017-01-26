@@ -2,7 +2,6 @@ package apiserver
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"net/http/httputil"
 	"net/url"
@@ -12,6 +11,7 @@ import (
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/service"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
+	"github.com/bitrise-io/go-utils/log"
 	"github.com/gorilla/mux"
 )
 
@@ -32,7 +32,9 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
 		frontendServerPort := utility.EnvString("FRONTEND_PORT", config.DefaultFrontendPort)
+
 		log.Printf("Starting reverse proxy for frontend => http://localhost:%s", frontendServerPort)
+
 		u, err := url.Parse("http://localhost:" + frontendServerPort + "/")
 		if err != nil {
 			return fmt.Errorf("Failed to initialize frontend proxy URL, error: %s", err)
@@ -53,6 +55,7 @@ func wrapHandlerFunc(h func(http.ResponseWriter, *http.Request)) func(http.Respo
 	requestWrap := func(w http.ResponseWriter, req *http.Request) {
 		startTime := time.Now()
 		h(w, req)
+
 		log.Printf(" => %s: %s - %s (%s)", req.Method, req.RequestURI, time.Since(startTime), req.Header.Get("Content-Type"))
 	}
 	return requestWrap

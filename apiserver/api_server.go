@@ -2,13 +2,13 @@ package apiserver
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 	"runtime"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/log"
 )
 
 // LaunchServer ...
@@ -18,7 +18,7 @@ func LaunchServer() error {
 
 	isServeFilesThroughMiddlemanServer := (utility.EnvString("USE_MIDDLEMAN_SERVER", "false") == "true")
 	if isServeFilesThroughMiddlemanServer {
-		log.Println(" (!) Serving non api resources through middleman server!")
+		log.Printf(" (!) Serving non api resources through middleman server!")
 	}
 
 	if err := config.BitriseYMLPath.Set(utility.EnvString("BITRISE_CONFIG", "bitrise.yml")); err != nil {
@@ -41,7 +41,7 @@ func LaunchServer() error {
 			openCmd = "xdg-open"
 		}
 		workflowEditorURL := fmt.Sprintf("http://localhost:%s", port)
-		log.Println("Open workflow editor in browser ...")
+		log.Printf("Open workflow editor in browser ...")
 		if err := command.NewWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
 			log.Printf(" [!] Failed to open workflow editor in browser, error: %s", err)
 		}

@@ -2,14 +2,12 @@ package service
 
 import (
 	"bytes"
+	"encoding/json"
 	"net/http"
 	"net/http/httptest"
+	"os"
 	"path/filepath"
 	"testing"
-
-	"encoding/json"
-
-	"os"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise/models"

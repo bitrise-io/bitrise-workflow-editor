@@ -5,9 +5,8 @@ import (
 	"net/http"
 	"net/http/httptest"
 	"os"
-	"testing"
-
 	"path/filepath"
+	"testing"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/go-utils/fileutil"

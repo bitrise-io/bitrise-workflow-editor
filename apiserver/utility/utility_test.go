@@ -1,4 +1,4 @@
-package apiserver
+package utility
 
 import (
 	"strings"
@@ -9,7 +9,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func Test_validateBitriseConfigAndSecret(t *testing.T) {
+func TestValidateBitriseConfigAndSecret(t *testing.T) {
 	validConfigs := []string{
 		config.MinimalValidBitriseYML,
 		//

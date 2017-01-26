@@ -3,8 +3,9 @@ package service
 import (
 	"encoding/json"
 	"fmt"
-	"log"
 	"net/http"
+
+	"github.com/bitrise-io/go-utils/log"
 )
 
 // Response ...
@@ -41,7 +42,7 @@ func RespondWithJSON(w http.ResponseWriter, httpStatusCode int, respModel interf
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(httpStatusCode)
 	if err := json.NewEncoder(w).Encode(&respModel); err != nil {
-		log.Println(" [!] Exception: RespondWith: Error: ", err)
+		log.Errorf("Exception: RespondWith: Error: %s", err)
 	}
 }
 
