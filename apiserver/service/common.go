@@ -1,4 +1,4 @@
-package apiserver
+package service
 
 import (
 	"encoding/json"
@@ -6,6 +6,17 @@ import (
 	"log"
 	"net/http"
 )
+
+// SimpleResponse ...
+type SimpleResponse struct {
+	Message string `json:"message"`
+}
+
+// ErrorWithYMLResponse ...
+type ErrorWithYMLResponse struct {
+	Error      error  `json:"error"`
+	BitriseYML string `json:"bitrise_yml"`
+}
 
 func respondWithJSON(w http.ResponseWriter, httpStatusCode int, respModel interface{}) {
 	w.Header().Set("Content-Type", "application/json")
@@ -88,4 +99,12 @@ func RespondWithErrorJSON(w http.ResponseWriter, httpErrCode int, respModel inte
 	if err := json.NewEncoder(w).Encode(&respModel); err != nil {
 		log.Println(" [!] Exception: RespondWithErrorJSON: Error: ", err)
 	}
+}
+
+func rootHandler(w http.ResponseWriter, r *http.Request) {
+	respondWithJSON(w, 200, SimpleResponse{Message: "Hi! API is ready to serve!"})
+}
+
+func routeNotFoundHandler(w http.ResponseWriter, r *http.Request) {
+	RespondWithNotFoundError(w, "Not Found")
 }

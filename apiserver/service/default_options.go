@@ -1,0 +1,24 @@
+package service
+
+import "net/http"
+
+// GetDefaultOutputsHandler ...
+func GetDefaultOutputsHandler(w http.ResponseWriter, r *http.Request) {
+	type EnvItmModel map[string]string
+
+	type ResponseModel struct {
+		FromBitriseCLI []EnvItmModel `json:"from_bitrise_cli"`
+	}
+
+	respondWithJSON(w, 200, ResponseModel{
+		FromBitriseCLI: []EnvItmModel{
+			{"BITRISE_SOURCE_DIR": ""},
+			{"BITRISE_DEPLOY_DIR": ""},
+			{"BITRISE_BUILD_STATUS": ""},
+			{"BITRISE_TRIGGERED_WORKFLOW_ID": ""},
+			{"BITRISE_TRIGGERED_WORKFLOW_TITLE": ""},
+			{"CI": ""},
+			{"PR": ""},
+		},
+	})
+}
