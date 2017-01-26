@@ -5,7 +5,6 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/stretchr/testify/require"
 )
 
@@ -47,7 +46,7 @@ workflows:
 			for _, aValidSecret := range validSecrets {
 				t.Log("Config: ", aValidConfig)
 				t.Log("Secret: ", aValidSecret)
-				require.NoError(t, utility.ValidateBitriseConfigAndSecret(aValidConfig, aValidSecret))
+				require.NoError(t, ValidateBitriseConfigAndSecret(aValidConfig, aValidSecret))
 			}
 		}
 	}
@@ -56,12 +55,12 @@ workflows:
 	{
 		{
 			require.EqualError(t,
-				utility.ValidateBitriseConfigAndSecret(``, config.MinimalValidSecrets),
+				ValidateBitriseConfigAndSecret(``, config.MinimalValidSecrets),
 				"Validation failed: Config validation error: ")
 		}
 
 		{
-			err := utility.ValidateBitriseConfigAndSecret(`{}`, config.MinimalValidSecrets)
+			err := ValidateBitriseConfigAndSecret(`{}`, config.MinimalValidSecrets)
 			require.True(t,
 				strings.HasPrefix(
 					err.Error(),
@@ -73,7 +72,7 @@ workflows:
 
 	t.Log("Invalid configs - 1")
 	{
-		validationErr := utility.ValidateBitriseConfigAndSecret(`format_version: 1.3.0
+		validationErr := ValidateBitriseConfigAndSecret(`format_version: 1.3.0
 app:
   envs:
   - A
@@ -85,7 +84,7 @@ app:
 
 	t.Log("Invalid configs - missing format_version")
 	{
-		validationErr := utility.ValidateBitriseConfigAndSecret(`
+		validationErr := ValidateBitriseConfigAndSecret(`
 app:
   envs:
   - KEY_ONE: value one
@@ -105,20 +104,20 @@ workflows:
 	t.Log("Invalid secrets - empty")
 	{
 		{
-			validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, "")
+			validationErr := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, "")
 			require.EqualError(t, validationErr, "Validation failed: Secret validation error: ")
 		}
 	}
 
 	t.Log("Invalid secrets - envs as empty hash")
 	{
-		validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, "envs: {}")
+		validationErr := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, "envs: {}")
 		require.EqualError(t, validationErr, "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 1: cannot unmarshal !!map into []models.EnvironmentItemModel")
 	}
 
 	t.Log("Invalid secrets - envs as hash with value")
 	{
-		validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, `envs:
+		validationErr := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, `envs:
   KEY_ONE: value one`)
 		require.EqualError(t, validationErr, "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!map into []models.EnvironmentItemModel")
 	}
