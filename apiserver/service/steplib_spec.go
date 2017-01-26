@@ -12,7 +12,6 @@ import (
 
 // GetSpecHandler ...
 func GetSpecHandler(w http.ResponseWriter, r *http.Request) {
-	// Load steplib spec
 	cmd := command.New("bitrise", "stepman", "collections", "--format", "json")
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
