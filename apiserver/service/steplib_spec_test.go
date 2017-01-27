@@ -8,6 +8,7 @@ import (
 	"encoding/json"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/stepman/models"
 	"github.com/stretchr/testify/require"
 )
@@ -35,6 +36,10 @@ func TestGetSpecHandler(t *testing.T) {
 		if steplibInfo.URI == defaultSteplib {
 			found = true
 		}
+
+		exist, err := pathutil.IsPathExists(steplibInfo.SpecPath)
+		require.NoError(t, err)
+		require.Equal(t, true, exist)
 	}
 
 	require.Equal(t, true, found)
