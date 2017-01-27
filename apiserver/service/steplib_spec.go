@@ -15,8 +15,8 @@ func GetSpecHandler(w http.ResponseWriter, r *http.Request) {
 	cmd := command.New("bitrise", "stepman", "collections", "--format", "json")
 	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
 	if err != nil {
-		log.Errorf("Failed to get steplib spec, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to get steplib spec, error: %s", err)
+		log.Errorf("Failed to get steplib spec, out: %s, error: %s", out, err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to get steplib spec, out: %s, error: %s", out, err)
 		return
 	}
 
@@ -27,8 +27,8 @@ func GetSpecHandler(w http.ResponseWriter, r *http.Request) {
 
 	var output OutputModel
 	if err := yaml.Unmarshal([]byte(out), &output); err != nil {
-		log.Errorf("Failed to parse the output of stepman (%s), error: %s", out, err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the output of stepman (%s), error: %s", out, err)
+		log.Errorf("Failed to parse the output (%s), error: %s", out, err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to parse the output (%s), error: %s", out, err)
 		return
 	}
 
@@ -39,8 +39,8 @@ func GetSpecHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if output.Data == nil {
-		log.Errorf("Missing output data, error: %s", output.Error)
-		RespondWithJSONBadRequestErrorMessage(w, "Missing output data, error: %s", output.Error)
+		log.Errorf("Missing output data")
+		RespondWithJSONBadRequestErrorMessage(w, "Missing output data")
 		return
 	}
 
