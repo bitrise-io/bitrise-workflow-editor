@@ -5,9 +5,10 @@ import (
 	"net/http/httptest"
 	"testing"
 
-	"strings"
+	"encoding/json"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/stepman/models"
 	"github.com/stretchr/testify/require"
 )
 
@@ -25,5 +26,16 @@ func TestGetSpecHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
-	require.Equal(t, true, strings.Contains(rr.Body.String(), defaultSteplib))
+
+	var steplibInfos []models.SteplibInfoModel
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &steplibInfos))
+
+	found := false
+	for _, steplibInfo := range steplibInfos {
+		if steplibInfo.URI == defaultSteplib {
+			found = true
+		}
+	}
+
+	require.Equal(t, true, found)
 }
