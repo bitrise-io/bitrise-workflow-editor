@@ -353,7 +353,15 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", _.indexOf($scope.editedWorkflow.steps, step));
 	};
 
-	viewModel.addStepSelectedAtEnd = function() {
+	viewModel.addStepSelectedAtEnd = function(directWorkflowIndex, workflowIndex) {
+		if (directWorkflowIndex != viewModel.editedDirectWorkflowIndex || workflowIndex != viewModel.editedWorkflowIndex) {
+			viewModel.editedDirectWorkflow = viewModel.directWorkflowChain[directWorkflowIndex];
+			viewModel.editedDirectWorkflowIndex = directWorkflowIndex;
+			viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedDirectWorkflow.workflowChain(viewModel.workflows);
+			$scope.editedWorkflow = viewModel.workflowChainsOfDirectWorkflowChain[directWorkflowIndex][workflowIndex];
+			viewModel.editedWorkflowIndex = workflowIndex;
+		}
+
 		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", $scope.editedWorkflow.steps.length);
 	};
 

@@ -54,7 +54,7 @@
 												span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 											em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
 							li
-								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd()" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex === workflowsCtrl.editedWorkflowIndex)"]
+								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd(directWorkflowIndex, workflowIndex)" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex === workflowsCtrl.editedWorkflowIndex) && workflow.steps.length > 0"]
 						aside.step-details[ng-if="directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
 							p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
 							p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
