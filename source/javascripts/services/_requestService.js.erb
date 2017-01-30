@@ -243,7 +243,9 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_post]) %>";
-				requestData = appConfigYML;
+				requestData = {
+					bitrise_yml: appConfigYML
+				};
 
 				break;
 		}
