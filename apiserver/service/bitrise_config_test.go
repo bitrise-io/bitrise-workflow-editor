@@ -49,13 +49,20 @@ func TestPostBitriseYMLHandler(t *testing.T) {
 	}()
 
 	bitriseConfigPth := filepath.Join(tmpDir, "bitrise.yml")
-	bitriseConfigContent := `{
-	"format_version": "1.3.1",
-	"default_step_lib_source": "https://github.com/bitrise-io/bitrise-steplib.git"
-}`
+	type RequestModel struct {
+		BitriseYML string `json:"bitrise_yml"`
+	}
+	bitriseConfigContent := `format_version: "1.3.1"
+default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"`
+	body := RequestModel{
+		BitriseYML: bitriseConfigContent,
+	}
+	bodyBytes, err := json.Marshal(body)
+	require.NoError(t, err)
+
 	require.NoError(t, config.BitriseYMLPath.Set(bitriseConfigPth))
 
-	req, err := http.NewRequest("POST", "/api/bitrise-yml", bytes.NewBuffer([]byte(bitriseConfigContent)))
+	req, err := http.NewRequest("POST", "/api/bitrise-yml", bytes.NewBuffer([]byte(bodyBytes)))
 	require.NoError(t, err)
 
 	rr := httptest.NewRecorder()
