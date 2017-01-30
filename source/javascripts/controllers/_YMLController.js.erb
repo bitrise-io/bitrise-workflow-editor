@@ -35,20 +35,12 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	}
 
 	$scope.$on("$destroy", $rootScope.$on("YMLController::saveAppConfigYML", function(event, resolve, reject) {
-		var canceler = $q.defer();
-
-		$scope.$on("$destroy", function() {
-			canceler.resolve();
-		});
-
-		requestService.postAppConfigYML(viewModel.appConfigYML, {
-			timeout: canceler.promise
-		}).then(function(appConfigYML) {
+		requestService.postAppConfigYML(viewModel.appConfigYML).then(function(appConfigYML) {
 			resolve();
 
 			loadAppConfigYML();
 		}, function(error) {
-			reject(error)
+			reject(error);
 		});
 	}));
 

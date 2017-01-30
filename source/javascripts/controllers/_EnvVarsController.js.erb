@@ -208,17 +208,9 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {
-		var canceler = $q.defer();
-
-		$scope.$on("$destroy", function() {
-			canceler.resolve();
-		});
-
 		requestService.postSecrets(_.find(viewModel.envVarsBySource, {
 			type: "secrets"
-		}).envVars, {
-			timeout: canceler.reject
-		}).then(function() {
+		}).envVars).then(function() {
 			resolve();
 
 			loadSecrets();
