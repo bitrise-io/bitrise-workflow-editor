@@ -8,8 +8,7 @@ import (
 	"encoding/json"
 
 	"github.com/bitrise-io/go-utils/command"
-	"github.com/bitrise-io/go-utils/pathutil"
-	"github.com/bitrise-io/stepman/models"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 	"github.com/stretchr/testify/require"
 )
 
@@ -28,18 +27,19 @@ func TestGetSpecHandler(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
 
-	var steplibInfos []models.SteplibInfoModel
-	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &steplibInfos))
+	type ResponseItemModel struct {
+		URI  string                            `json:"uri,omitempty"`
+		Spec stepmanModels.StepCollectionModel `json:"spec,omitempty"`
+	}
+	var response []ResponseItemModel
+
+	require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &response))
 
 	found := false
-	for _, steplibInfo := range steplibInfos {
-		if steplibInfo.URI == defaultSteplib {
+	for _, responseItem := range response {
+		if responseItem.URI == defaultSteplib {
 			found = true
 		}
-
-		exist, err := pathutil.IsPathExists(steplibInfo.SpecPath)
-		require.NoError(t, err)
-		require.Equal(t, true, exist)
 	}
 
 	require.Equal(t, true, found)
