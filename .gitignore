@@ -6,3 +6,4 @@ apiserver/www
 build/
 .bundle/
 rice-box.go
+_bin/

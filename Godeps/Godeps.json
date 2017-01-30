@@ -108,6 +108,11 @@
 			"Rev": "2402e8e7a02fc811447d11f881aa9746cdc57983"
 		},
 		{
+			"ImportPath": "github.com/urfave/cli",
+			"Comment": "v1.18.0-67-gd53eb99",
+			"Rev": "d53eb991652b1d438abdd34ce4bfa3ef1539108e"
+		},
+		{
 			"ImportPath": "gopkg.in/yaml.v2",
 			"Rev": "31c299268d302dd0aa9a0dcf765a3d58971ac83f"
 		}
