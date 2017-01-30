@@ -2,7 +2,7 @@ package service
 
 import (
 	"encoding/json"
-	"io/ioutil"
+	"fmt"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -50,20 +50,25 @@ func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
-	content, err := ioutil.ReadAll(r.Body)
-	if err != nil {
-		log.Errorf("Failed to read content, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to read content, error: %s", err)
+	type RequestModel struct {
+		BitriseYML string `json:"bitrise_yml"`
+	}
+	var reqObj RequestModel
+	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
+		log.Errorf("Failed to read JSON input, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to read JSON input, error: %s", err)
 		return
 	}
 
-	if err := utility.ValidateBitriseConfigAndSecret(string(content), config.MinimalValidSecrets); err != nil {
+	fmt.Printf("reqObj.BitriseYML: %s\n", reqObj.BitriseYML)
+
+	if err := utility.ValidateBitriseConfigAndSecret(reqObj.BitriseYML, config.MinimalValidSecrets); err != nil {
 		log.Errorf("Validation error: %s", err)
-		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(string(content), err.Error()))
+		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(reqObj.BitriseYML, err.Error()))
 		return
 	}
 
-	if err := fileutil.WriteBytesToFile(config.BitriseYMLPath.Get(), content); err != nil {
+	if err := fileutil.WriteStringToFile(config.BitriseYMLPath.Get(), reqObj.BitriseYML); err != nil {
 		log.Errorf("Failed to write content into file, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to write content into file, error: %s", err)
 		return
