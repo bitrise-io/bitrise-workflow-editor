@@ -1,0 +1,123 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, $injector, requestService, Variable) {
+
+	var bitriseSteplibService = {
+		sourceURL: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json",
+		specs: undefined,
+		steps: undefined,
+		latestStepVersions: undefined,
+	};
+
+	bitriseSteplibService.load = function(requestConfig) {
+		if (this.steps) {
+			return $q.when();
+		}
+
+		var self = this;
+
+		return $q(function(resolve, reject) {
+			requestService.getSpec(requestConfig).then(function(specs) {
+				try {
+					self.specs = specs;
+
+					var stepIDs = _.keys(specs.steps).sort();
+
+					self.steps = {};
+					self.latestStepVersions = {};
+					_.each(stepIDs, function(aStepID) {
+						self.steps[aStepID] = {};
+						self.latestStepVersions[aStepID] = self.specs.steps[aStepID].latest_version_number;
+						self.steps[aStepID] = _.mapObject(self.specs.steps[aStepID].versions, function(aStepConfig, version) {
+							var cvs = aStepID + "@" + version;
+
+							return self.stepFromCVS(cvs);
+						});
+					});
+
+					resolve();
+				}
+				catch (error) {
+					console.log(error);
+					reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:default_error] %>"));
+				}
+			}, function(error) {
+				console.log(error);
+				reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:error_prefix] %>" + error.message));
+			});
+		});
+	};
+
+	bitriseSteplibService.stepFromCVS = function(cvs) {
+		var cvsSplitBySteplibSource = cvs.split("::");
+		if (cvsSplitBySteplibSource.length > 2) {
+			throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:multiple_source_separators] %>");
+		}
+
+		var steplibSourceURL = cvsSplitBySteplibSource.length > 1 && _.first(cvsSplitBySteplibSource).length > 0 ? _.first(cvsSplitBySteplibSource) : this.sourceURL;
+		var isBitriseSteplibStep = steplibSourceURL == this.sourceURL;
+
+		var cvsSplitByVersion = _.last(cvsSplitBySteplibSource).split("@");
+		if (cvsSplitByVersion.length > 2) {
+			throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:multiple_version_separators] %>");
+		}
+
+		var id = _.first(cvsSplitByVersion);
+		if (id.length == 0) {
+			throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:no_id] %>");
+		}
+		if (isBitriseSteplibStep && !this.specs.steps[id]) {
+			throw new ReferenceError("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:id_not_found] %>");
+		}
+
+		var version = cvsSplitByVersion.length > 1 ? _.last(cvsSplitByVersion) : (isBitriseSteplibStep ? this.latestStepVersions[id] : null);
+		if (isBitriseSteplibStep) {
+			if (!version || version.length == 0) {
+				throw new Error("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:no_version] %>");
+			}
+			if (!this.specs.steps[id].versions || !this.specs.steps[id].versions[version]) {
+				throw new ReferenceError("<%= data[:strings][:bitrise_steplib_service][:step_from_cvs][:version_not_found] %>");
+			}
+		}
+
+		var Step = $injector.get("Step");
+		var step = new Step(cvs, undefined, isBitriseSteplibStep ? this.specs.steps[id].versions[version] : undefined);
+		step.steplibSourceURL = steplibSourceURL;
+		step.id = id;
+		step.version = version;
+
+		return step;
+	};
+
+	bitriseSteplibService.isBitriseSteplibStep = function(step) {
+		return step.steplibSourceURL == this.sourceURL;
+	};
+
+	bitriseSteplibService.changeStepToVersion = function(step, version) {
+		if (version === null) {
+			step.cvs = _.first(step.cvs.split("@"));
+			step.version = this.latestStepVersions[step.id];
+		}
+		else {
+			step.cvs = _.first(step.cvs.split("@")) + "@" + version;
+			step.version = version;
+		}
+
+		step.defaultStepConfig = this.specs.steps[step.id].versions[step.version];
+	};
+
+	bitriseSteplibService.versionsOfStep = function(step) {
+		return _.keys(this.steps[step.id]);
+	}
+
+	bitriseSteplibService.isStepLatestVersion = function(step) {
+		return step.version == this.latestStepVersions[step.id];
+	};
+
+	return bitriseSteplibService;
+
+});
+
+})();

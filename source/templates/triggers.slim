@@ -1,0 +1,51 @@
+.tab-triggers.menu-content-padding[ng-controller="TriggersController as triggersCtrl"]
+	.type-filter
+		.type[ng-repeat="triggerType in triggerTypes" ng-init="id = 'trigger-type-filter-' + triggerType.id"]
+			input[type="radio" ng-model="triggersCtrl.triggerTypeSelected" ng-model-options="{getterSetter: true}" id="{{ id }}" ng-value="triggerType" tabindex="{{ triggerType == triggersCtrl.selectedTriggerType ? '-1' : '0' }}"]
+			label[for="{{ id }}" ng-bind="triggerType.id | displayNameForTriggerType"]
+	ul
+		li
+			button.add-trigger.rebo.small.light.green[ng-click="triggersCtrl.addTriggerSelectedAtIndex(0)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]
+		ul[order-by-drag models="triggersCtrl.selectedTriggerType.triggers" disable-order-on="triggersCtrl.selectedTrigger"]
+			li[ng-repeat="trigger in triggersCtrl.selectedTriggerType.triggers"]
+				.trigger
+					.manage-trigger[ng-if="trigger == triggersCtrl.selectedTrigger" ng-switch="triggersCtrl.selectedTrigger.type()"]
+						.trigger-infos
+							.trigger-info.pattern.push[ng-switch-when="push"]
+								label == data[:strings][:triggers][:push_branch]
+								input.value[type="text" ng-model="triggersCtrl.editedTrigger.pushBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+							.trigger-info.pattern.pull-request[ng-switch-when="pull-request"]
+								.source
+									input.value[type="text" ng-model="triggersCtrl.editedTrigger.pullRequestSourceBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+									label == data[:strings][:triggers][:source_branch]
+								.target
+									input.value[type="text" ng-model="triggersCtrl.editedTrigger.pullRequestTargetBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+									label == data[:strings][:triggers][:target_branch]
+							.trigger-info.pattern.tag[ng-switch-when="tag"]
+								label == data[:strings][:triggers][:tag]
+								input.value[type="text" ng-model="triggersCtrl.editedTrigger.tagPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+							= svg("arrow_tailed_slim-down")
+							select.trigger-info.workflow[ng-model="triggersCtrl.editedTrigger.workflowID" ng-model-options="{getterSetter: true}" ng-options="workflow.id as workflow.id for workflow in triggersCtrl.workflows"]
+						.actions
+							button.done.rebo.green[ng-click="triggersCtrl.triggerEditFinished()" ng-disabled="triggersCtrl.triggerIsInvalid()"] == data[:strings][:triggers][:done]
+							button.cancel.rebo.grey[ng-click="triggersCtrl.triggerEditCancelled()"] == data[:strings][:triggers][:cancel]
+					button.select-trigger[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.triggerSelected(trigger)" ng-switch="trigger.type()"]
+						span.trigger-info.pattern.push[ng-switch-when="push"]
+							span.label == data[:strings][:triggers][:push_branch]
+							strong.value[ng-bind="trigger.pushBranchPattern()"]
+						span.trigger-info.pattern.pull-request[ng-switch-when="pull-request"]
+							span.source
+								span.label == data[:strings][:triggers][:source_branch]
+								strong.value[ng-bind="trigger.pullRequestSourceBranchPattern()"]
+							span.target
+								span.label == data[:strings][:triggers][:target_branch]
+								strong.value[ng-bind="trigger.pullRequestTargetBranchPattern()"]
+						span.trigger-info.pattern.tag[ng-switch-when="tag"]
+							span.label == data[:strings][:triggers][:tag]
+							strong.value[ng-bind="trigger.tagPattern()"]
+						= svg("arrow_tailed_slim-down")
+						span.trigger-info.workflow
+							span.label == data[:strings][:triggers][:workflow]
+							strong.value[ng-bind="trigger.workflowID()"]
+					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTriggerSelected(trigger)"] == svg("trash")
+				button.add-trigger.rebo.small.light.green[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]

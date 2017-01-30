@@ -1,0 +1,82 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, $q, requestService, Progress) {
+
+	var viewModel = this;
+
+	viewModel.appConfigYML;
+	var savedAppConfigYML;
+	viewModel.loadAppConfigYMLProgress = new Progress();
+	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
+
+	function loadAppConfigYML() {
+		viewModel.loadAppConfigYMLProgress.start("<%= data[:strings][:yml][:load_progress][:loading] %>");
+
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.getAppConfigYML({
+			timeout: canceler.promise
+		}).then(function(appConfigYML) {
+			viewModel.appConfigYML = appConfigYML;
+			savedAppConfigYML = appConfigYML;
+
+			configureACE();
+
+			viewModel.loadAppConfigYMLProgress.success();
+		}, function(error) {
+			viewModel.loadAppConfigYMLProgress.error(error);
+		});
+	}
+
+	$scope.$on("$destroy", $rootScope.$on("YMLController::saveAppConfigYML", function(event, resolve, reject) {
+		requestService.postAppConfigYML(viewModel.appConfigYML).then(function(appConfigYML) {
+			resolve();
+
+			loadAppConfigYML();
+		}, function(error) {
+			reject(error);
+		});
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
+		viewModel.appConfigYML = savedAppConfigYML;
+	}));
+
+	function configureACE() {
+		var editor = ace.edit("yml-editor");
+		var session = editor.getSession();
+		var renderer = editor.renderer;
+
+		editor.setTheme('ace/theme/monokai');
+		session.setMode('ace/mode/yaml');
+
+		editor.setReadOnly(false);
+		editor.setShowPrintMargin(false);
+		editor.setShowInvisibles(false);
+		editor.$blockScrolling = Infinity;
+		editor.setOptions({
+			vScrollBarAlwaysVisible: true,
+			tabSize: 2
+		});
+		editor.setValue(viewModel.appConfigYML);
+		editor.focus();
+		editor.gotoLine(1);
+
+		session.setUndoManager(new ace.UndoManager());
+		session.setUseWrapMode(true);
+		session.setUseSoftTabs(true);
+
+		renderer.setShowGutter(true);
+	}
+
+	loadAppConfigYML();
+
+});
+
+})();

@@ -1,0 +1,81 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Progress", function() {
+
+	var Progress = function() {
+		this.statusMessage;
+		this.isInProgress;
+		this.isError;
+		this.isIdle;
+		this.cssClass;
+
+		this.reset();
+	};
+
+	Progress.prototype.start = function(statusMessage) {
+		this.statusMessage = statusMessage;
+		this.isIdle = false;
+		this.isInProgress = true;
+		this.isError = false;
+		this.cssClass = "in-progress";
+	};
+
+	Progress.prototype.error = function(error) {
+		this.statusMessage = error.message;
+		this.isIdle = false;
+		this.isInProgress = false;
+		this.isError = true;
+		this.cssClass = "error";
+	};
+
+	Progress.prototype.success = function(statusMessage) {
+		if (statusMessage === undefined) {
+			return this.reset();
+		}
+
+		this.statusMessage = statusMessage;
+		this.isIdle = true;
+		this.isInProgress = false;
+		this.isError = false;
+		this.cssClass = "success";
+	};
+
+	Progress.prototype.reset = function(statusMessage) {
+		this.statusMessage = null;
+		this.isIdle = true;
+		this.isInProgress = false;
+		this.isError = false;
+		this.cssClass = null;
+	};
+
+	return Progress;
+
+});
+
+angular.module("BitriseWorkflowEditor").directive("progressModel", function() {
+
+	return {
+		restrict: "A",
+		replace: true,
+		template: function(tElement, tAttrs) {
+			var ngIfValue = tAttrs.ngIf;
+			if (!ngIfValue) {
+				ngIfValue = "true";
+			}
+
+			ngIfValue = "(" + ngIfValue + ") && (" + tAttrs.progressModel + ".statusMessage.length > 0)"
+
+			tElement.attr("ng-if", ngIfValue);
+			tElement.attr("ng-class", tAttrs.progressModel + ".cssClass");
+			tElement.attr("ng-bind-html", tAttrs.progressModel + ".statusMessage");
+			tElement.removeAttr("progressModel");
+
+			return tElement.prop("outerHTML");
+		}
+	};
+
+});
+
+})();

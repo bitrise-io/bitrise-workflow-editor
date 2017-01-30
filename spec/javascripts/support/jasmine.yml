@@ -1,0 +1,4 @@
+spec_files:
+  - 'spec.js'
+spec_dir: spec/javascripts
+spec_helper: spec/support/jasmine_helper.rb

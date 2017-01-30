@@ -1,0 +1,224 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable) {
+
+	var viewModel = this;
+
+	var mode;
+	var defaultEnvVarConfig = {
+		opts: {
+			is_expand: true
+		}
+	};
+	var envVarsWatchers;
+
+	viewModel.secretConfigs;
+	viewModel.loadEnvVarsProgress = new Progress();
+	viewModel.envVarsBySource;
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
+		switch (mode) {
+			case "secrets":
+				return;
+			case "env-vars":
+				configureWithAppConfig();
+		}
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
+		switch (mode) {
+			case "secrets":
+				_.first(viewModel.envVarsBySource).envVars = angular.copy(_.first(viewModel.envVarsBySource).savedEnvVars);
+
+				break;
+			case "env-vars":
+				configureWithAppConfig();
+
+				break;
+		}
+	}));
+
+	viewModel.configureWithMode = function(_mode) {
+		mode = _mode;
+
+		switch (mode) {
+			case "secrets":
+				loadSecrets();
+
+				break;
+		}
+
+		$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
+	};
+
+	function loadSecrets() {
+		viewModel.loadEnvVarsProgress.start("<%= data[:strings][:env_vars][:load_progress][:in_progress] %>");
+
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		requestService.getSecrets({
+			timeout: canceler.promise
+		}).then(function(secretConfigs) {
+			viewModel.secretConfigs = secretConfigs;
+
+			viewModel.envVarsBySource = [{
+				type: "secrets",
+				notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
+				envVars: _.map(secretConfigs, function(aSecretConfig) {
+					return new Variable(aSecretConfig, defaultEnvVarConfig);
+				})
+			}];
+
+			_.first(viewModel.envVarsBySource).savedEnvVars = angular.copy(_.first(viewModel.envVarsBySource).envVars);
+
+			configureEnvVarsWatchers();
+
+			viewModel.loadEnvVarsProgress.success();
+		}, function(error) {
+			viewModel.loadEnvVarsProgress.error(error);
+		});
+	}
+
+	function configureWithAppConfig() {
+		viewModel.envVarsBySource = [];
+
+		if (appService.appConfig.app.envs) {
+			viewModel.envVarsBySource.push({
+				type: "app",
+				warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
+				envVars: _.map(appService.appConfig.app.envs, function(anAppEnvVarConfig) {
+					return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
+				})
+			});
+		}
+
+		_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+			viewModel.envVarsBySource.push({
+				type: "workflow",
+				workflowID: aWorkflowID,
+				notification: stringService.stringReplacedWithParameters("<%= data[:strings][:env_vars][:workflow][:notification] %>", {
+					workflow_id: aWorkflowID
+				}),
+				envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
+					return new Variable(anEnvVarConfig, defaultEnvVarConfig);
+				})
+			});
+		});
+
+		configureEnvVarsWatchers();
+	}
+
+	function configureEnvVarsWatchers() {
+		if (envVarsWatchers) {
+			_.each(envVarsWatchers, function(anEnvVarsWatcher) {
+				anEnvVarsWatcher();
+			});
+		}
+
+		envVarsWatchers = _.map(viewModel.envVarsBySource, function(envVarsOfSource) {
+			return $scope.$watch(function() {
+				return envVarsOfSource;
+			}, function(envVarsOfSource) {
+				switch (envVarsOfSource.type) {
+					case "secrets":
+						if (!viewModel.secretConfigs) {
+							return;
+						}
+
+						viewModel.secretConfigs.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+							return anEnvVar.userVariableConfig;
+						});
+
+						break;
+					case "app":
+						if (!appService.appConfig) {
+							return;
+						}
+
+						if (!appService.appConfig.app) {
+							appService.appConfig.app = {};
+						}
+
+						appService.appConfig.app.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+							return anEnvVar.userVariableConfig;
+						});
+
+						if (_.isEmpty(appService.appConfig.app.envs)) {
+							delete appService.appConfig.app["envs"];
+						}
+
+						if (_.isEmpty(appService.appConfig.app)) {
+							delete appService.appConfig["app"];
+						}
+
+						break;
+					case "workflow": {
+						if (!appService.appConfig) {
+							return;
+						}
+
+						appService.appConfig.workflows[envVarsOfSource.workflowID].envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+							return anEnvVar.userVariableConfig;
+						});
+
+						if (_.isEmpty(appService.appConfig.workflows[envVarsOfSource.workflowID].envs)) {
+							delete appService.appConfig.workflows[envVarsOfSource.workflowID]["envs"];
+						}
+
+						break;
+					}
+				}
+			}, true);
+		});
+	}
+
+	viewModel.addToEnvVars = function(envVars) {
+		var newEnvVar = new Variable({
+			"<%= data[:strings][:env_vars][:new_default_key] %>": ""
+		}, defaultEnvVarConfig);
+
+		envVars.push(newEnvVar);
+	};
+
+	viewModel.removeEnvVarFromEnvVars = function(envVar, envVars) {
+		var index = _.indexOf(envVars, envVar);
+
+		envVars.splice(index, 1);
+	};
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function(event, validationConfig) {
+		validationConfig.isValidating = true;
+
+		if (_.any(viewModel.envVarsBySource, function(envVarsOfSource) {
+			return _.any(envVarsOfSource.envVars, function(anEnvVar) {
+				return anEnvVar.key().length == 0;
+			});
+		})) {
+			validationConfig.validationDeferer.reject(new Error("<%= data[:strings][:env_vars][:env_var_without_key] %>"));
+		}
+		else {
+			validationConfig.validationDeferer.resolve();
+		}
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {
+		requestService.postSecrets(_.find(viewModel.envVarsBySource, {
+			type: "secrets"
+		}).envVars).then(function() {
+			resolve();
+
+			loadSecrets();
+		}, function(error) {
+			reject(error)
+		});
+	}));
+
+});
+
+})();

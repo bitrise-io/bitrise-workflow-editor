@@ -1,0 +1,247 @@
+@import "default";
+@import "constants";
+
+main {
+	@include display-flex;
+	@include flex-direction(column);
+	background-color: $def-ultralightgrey;
+
+	header.menu {
+		@include padding-x($main-horizontalpadding);
+
+		@include media-below-mid {
+			@include padding-x($main-horizontalpadding_small);
+		}
+	}
+
+	header.menu {
+		$menubutton_verticalpadding: 12px;
+
+		@include flex-shrink(0);
+		@include display-flex;
+		padding-top: 20px;
+
+		nav {
+			@include display-flex;
+			margin-right: auto;
+
+			a {
+
+				&:before {
+					$border_width: 4px;
+					
+					content: "";
+					@include position(absolute, 100%, 0);
+					@include size(100%);
+					border-top: $border_width solid $def-green;
+					@include border-top-radius($border_width);
+					background-color: white;
+					@include transition(top $def-transition_duration);
+				}
+
+				position: relative;
+				@include display-flex;
+				@include justify-content(center);
+				@include align-items(center);
+				padding: $menubutton_verticalpadding 30px;
+				text-align: center;
+				font-size: 14px;
+				font-weight: 300;
+				color: $def-mediumdarkgrey;
+				text-decoration: none;
+				overflow: hidden;
+
+				span.icon {
+					@include display-flex;
+					@include align-items(center);
+					margin-right: 8px;
+
+					svg {
+						position: relative;
+						fill: $def-mediumdarkgrey;
+					}
+				}
+
+				span.title {
+					position: relative;
+				}
+			}
+
+			a:hover:not(.current), a:focus:not(.current) {
+				$color: $def-green;
+
+				color: $color;
+
+				span.icon svg {
+					fill: $color;
+				}
+			}
+
+			a:not(.current) {
+				$transition_duration: $def-transition_duration;
+
+				@include transition(color $transition_duration);
+
+				span.icon svg {
+					@include transition(fill $transition_duration);
+				}
+			}
+
+			a.current {
+				$color: black;
+
+				color: $color;
+
+				&:before {
+					top: 0;
+				}
+
+				span.icon svg {
+					fill: $color;
+				}
+			}
+
+			a.workflows span.icon svg {
+				top: -1px;
+				@include size(18px, 12px);
+			}
+
+			a.code-signing span.icon svg {
+				top: 0px;
+				// TODO: size width
+				@include size(auto, 15px);
+			}
+
+			a.secrets span.icon svg {
+				top: -1px;
+				@include size(11px, 13px);
+			}
+
+			a.env-vars span.icon svg {
+				top: -1px;
+				@include size(9px, 16px);
+			}
+
+			a.triggers span.icon svg {
+				top: -1px;
+				@include size(9px, 17px);
+			}
+
+			a.yml span.icon svg {
+				top: 0px;
+				@include size(15px, 9px);
+			}
+
+		}
+
+		aside {
+			@include align-self(flex-end);
+			@include display-flex;
+			margin-left: 10px;
+			padding-bottom: $menubutton_verticalpadding;
+
+			button {
+				@include border-radius($def-button-border_radius);
+				@include padding-y(8px);
+				@include transition-duration($def-transition_duration);
+			}
+
+			button:not(:last-child) {
+				margin-right: 10px;
+			}
+
+			button.save {
+				@include padding-x(55px);
+
+				svg {
+					@include size(14px, 13px);
+				}
+			}
+		}
+
+		@include media-below-big {
+			@include flex-direction(column);
+
+			nav {
+				@include order(2);
+				margin-right: 0;
+
+				a {
+					@include flex-grow(1);
+				}
+			}
+
+			aside {
+				@include order(1);
+				@include align-self(flex-end);
+				margin-left: 0;
+			}
+		}
+
+		@include media-below-mid {
+
+			nav {
+
+				a {
+					@include flex-direction(column);
+					@include padding-x(15px);
+
+					span.icon {
+						height: 16px;
+						margin-right: 0;
+						margin-bottom: 5px;
+					}
+				}
+			}
+		}
+
+		@include media-below-small {
+
+			nav {
+
+				a {
+					span.icon {
+						margin-bottom: 0;
+					}
+
+					span.title {
+						display: none;
+					}
+				}
+			}
+
+			aside {
+				@include align-self(stretch);
+
+				button.discard {
+					@include flex-grow(1);
+				}
+
+				button.save {
+					@include flex-grow(2);
+				}
+			}
+		}
+	}
+
+	article.menu-content {
+		@include flex-grow(1);
+		background-color: white;
+
+		&:not(.ninja) > p.progress-indicator {
+			margin: $main-verticalpadding $main-horizontalpadding;
+
+			@include media-below-mid {
+				@include margin-x($main-horizontalpadding_small);
+			}
+		}
+
+		.menu-content-padding {
+			padding: $main-verticalpadding $main-horizontalpadding;
+
+			@include media-below-mid {
+				@include padding-x($main-horizontalpadding_small);
+			}
+		}
+	}
+}

@@ -1,0 +1,195 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, appService, Progress, Popup) {
+
+	var viewModel = this;
+
+	viewModel.configureModeProgress = new Progress();
+
+	viewModel.menus;
+	viewModel.menuProgress = new Progress();
+	viewModel.currentMenu;
+
+	viewModel.loadAppConfigProgress = new Progress();
+	viewModel.saveProgress = new Progress();
+
+	function configureMode() {
+		try {
+			requestService.configureMode();
+		}
+		catch (error) {
+			viewModel.configureModeProgress.error(error);
+
+			return;
+		}
+
+		viewModel.menus = _.compact([{
+			id: "workflows",
+			title: "<%= data[:strings][:main][:menus][0] %>",
+			path: "<%= data[:routes][:endpoints][:workflows] %>",
+			cssClass: "workflows"
+		}, (requestService.mode == "website" ? {
+			id: "code-signing",
+			title: "<%= data[:strings][:main][:menus][1] %>",
+			path: "<%= data[:routes][:endpoints][:code_signing] %>",
+			cssClass: "code-signing"
+		} : null), {
+			id: "secrets",
+			title: "<%= data[:strings][:main][:menus][2] %>",
+			path: "<%= data[:routes][:endpoints][:secrets] %>",
+			cssClass: "secrets"
+		}, {
+			id: "env-vars",
+			title: "<%= data[:strings][:main][:menus][3] %>",
+			path: "<%= data[:routes][:endpoints][:env_vars] %>",
+			cssClass: "env-vars"
+		}, {
+			id: "triggers",
+			title: "<%= data[:strings][:main][:menus][4] %>",
+			path: "<%= data[:routes][:endpoints][:triggers] %>",
+			cssClass: "triggers"
+		}, {
+			id: "yml",
+			title: "<%= data[:strings][:main][:menus][5] %>",
+			path: "<%= data[:routes][:endpoints][:yml] %>",
+			cssClass: "yml"
+		}]);
+	}
+
+	function loadAppConfig() {
+		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+
+		var canceler = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		appService.getAppConfig({
+			timeout: canceler.promise
+		}).then(function() {
+			var appConfighasDeprecatedTriggerMap = appService.appConfigHasDeprecatedTriggerMap();
+
+			$q(function(resolve, reject) {
+				if (appConfighasDeprecatedTriggerMap) {
+					appService.updateDeprecatedTriggerMap();
+
+					Popup.showNoticePopup("Triggers are changing for the better", ["We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs.<p></p><p>You don't have to worry, though, everything you've set so far will work the same!", "For more information, please check the <a href='http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html'>blogpost</a>!"]).then(save).then(resolve, reject);
+				}
+				else {
+					resolve();
+				}
+			}).then(function() {
+				viewModel.loadAppConfigProgress.success();
+
+				$rootScope.$emit("MainController::appConfigLoaded");
+			}, function(error) {
+				viewModel.loadAppConfigProgress.error(error);
+			});
+		}, function(error) {
+			viewModel.loadAppConfigProgress.error(error);
+		});
+	}
+
+	function save() {
+		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+		var validationDeferer = $q.defer();
+		var saveDeferer = $q.defer();
+
+		$scope.$on("$destroy", function() {
+			validationDeferer.resolve();
+			saveDeferer.resolve();
+		});
+		
+		validationDeferer.promise.then(function() {
+			$q(function(resolve, reject) {
+				switch (viewModel.currentMenu.id) {
+					case "secrets": {
+						$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
+
+						break;
+					}
+					case "yml": {
+						$rootScope.$emit("YMLController::saveAppConfigYML", resolve, reject);
+
+						break;
+					}
+					default: {
+						appService.saveAppConfig({
+							timeout: saveDeferer.promise
+						}).then(resolve, reject);
+
+						break;
+					}
+				}
+			}).then(function() {
+				viewModel.saveProgress.success();
+
+				saveDeferer.resolve();
+			}, function(error) {
+				viewModel.saveProgress.error(error);
+
+				saveDeferer.reject(error);
+			});
+		}, function(error) {
+			viewModel.saveProgress.reset();
+			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+
+			saveDeferer.reject(error);
+		});
+
+		var validationConfig = {
+			validationDeferer: validationDeferer,
+			isValidating: false
+		};
+		$rootScope.$emit("MainController::requestValidationBeforeSave", validationConfig);
+
+		if (!validationConfig.isValidating) {
+			validationDeferer.resolve();
+		}
+
+		return saveDeferer.promise;
+	}
+
+	$scope.$on("$routeChangeStart", function() {
+		viewModel.menuProgress.start("Loading, wait a sec...");
+	});
+
+	$scope.$on("$routeChangeSuccess", function() {
+		viewModel.menuProgress.success();
+
+		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
+			return $location.path() == "/" + aMenu.path;
+		});
+	});
+
+	$scope.$on("$routeChangeError", function() {
+		viewModel.menuProgress.error(new Error("Failed to load menu."));
+	});
+
+	viewModel.discardChangesSelected = function() {
+		appService.discardChanges();
+		$rootScope.$emit("MainController::discardChanges");
+	};
+
+	viewModel.saveChangesSelected = function() {
+		save().then(loadAppConfig);
+	};
+
+	$rootScope.$on("MainController::menuContentIsLoadedAndReady", function() {
+		if (!appService.appConfig) {
+			loadAppConfig();
+		}
+		else {
+			$rootScope.$emit("MainController::appConfigLoaded");
+		}
+	});
+
+	configureMode();
+
+});
+
+})();

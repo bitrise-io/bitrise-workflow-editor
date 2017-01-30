@@ -1,0 +1,58 @@
+(function() {
+
+"use strict";
+
+var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
+	"ngRoute",
+	"ngSanitize",
+	"ngAnimate",
+	"monospaced.elastic",
+	"btford.markdown",
+	"ui.ace"
+]);
+
+BitriseWorkflowEditor.config(function($compileProvider) {
+	$compileProvider.debugInfoEnabled(false);
+});
+
+BitriseWorkflowEditor.config(function($animateProvider) {
+	$animateProvider.classNameFilter(/angular-animated/);
+});
+
+BitriseWorkflowEditor.config(function($routeProvider) {
+
+	$routeProvider.when("", {
+		redirectTo: "<%= data[:routes][:endpoints][:workflows] %>"
+	});
+
+	$routeProvider.when("/", {
+		redirectTo: "<%= data[:routes][:endpoints][:workflows] %>"
+	});
+
+	$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
+		templateUrl: "<%= data[:routes][:templates][:workflows] %>"
+	});
+
+	$routeProvider.when("/<%= data[:routes][:endpoints][:code_signing] %>", {
+		templateUrl: "<%= data[:routes][:templates][:code_signing] %>"
+	});
+
+	$routeProvider.when("/<%= data[:routes][:endpoints][:secrets] %>", {
+		templateUrl: "<%= data[:routes][:templates][:secrets] %>",
+	});
+
+	$routeProvider.when("/<%= data[:routes][:endpoints][:env_vars] %>", {
+		templateUrl: "<%= data[:routes][:templates][:env_vars] %>",
+	});
+
+	$routeProvider.when("/<%= data[:routes][:endpoints][:triggers] %>", {
+		templateUrl: "<%= data[:routes][:templates][:triggers] %>",
+	});
+
+	$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
+		templateUrl: "<%= data[:routes][:templates][:yml] %>"
+	});
+
+});
+
+})();

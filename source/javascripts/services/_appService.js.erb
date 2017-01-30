@@ -1,0 +1,102 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").service("appService", function(requestService, Step, Variable) {
+
+	var appService = {
+		appConfig: undefined,
+		savedAppConfig: undefined
+	};
+
+	appService.getAppConfig = function(requestConfig) {
+		var self = this;
+
+		return requestService.getAppConfig(requestConfig).then(function(appConfig) {
+			self.appConfig = appConfig;
+			self.minimizeAppConfig();
+
+			self.savedAppConfig = angular.copy(self.appConfig);
+		});
+	};
+
+	appService.minimizeAppConfig = function() {
+		var variableConfigs = [];
+
+		if (this.appConfig.app && this.appConfig.app.envs) {
+			variableConfigs = _.union(variableConfigs, this.appConfig.app.envs);
+		}
+
+		if (this.appConfig.workflows) {
+			_.each(this.appConfig.workflows, function(aWorkflowConfig) {
+				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
+
+				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+					var stepConfig = aWrappedUserStepConfig[stepCVS];
+
+					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
+						delete stepConfig["source"];
+					}
+
+					if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
+						delete stepConfig["deps"];
+					}
+
+					variableConfigs = _.union(variableConfigs, stepConfig.inputs);
+				});
+			});
+		}
+
+		_.each(variableConfigs, Variable.minimizeVariableConfig);
+	};
+
+	appService.appConfigHasDeprecatedTriggerMap = function() {
+		return _.any(this.appConfig.trigger_map, function(aTriggerConfig) {
+			return aTriggerConfig.pattern !== undefined;
+		});
+	};
+
+	appService.updateDeprecatedTriggerMap = function() {
+		var updatedTriggerMap = [];
+		_.each(this.appConfig.trigger_map, function(aTriggerConfig) {
+			if (aTriggerConfig.pattern === undefined) {
+				updatedTriggerMap.push(aTriggerConfig);
+
+				return;
+			}
+
+			appConfigContainsDeprecatedTriggers = true;
+
+			var pushTriggerConfig = {
+				workflow: aTriggerConfig.workflow,
+				push_branch: aTriggerConfig.pattern
+			};
+			updatedTriggerMap.push(pushTriggerConfig);
+
+			if (aTriggerConfig.is_pull_request_allowed) {
+				var pullRequestTriggerConfig = {
+					workflow: aTriggerConfig.workflow,
+					pull_request_source_branch: aTriggerConfig.pattern,
+					pull_request_target_branch: "*"
+				};
+				updatedTriggerMap.push(pullRequestTriggerConfig);
+			}
+		});
+
+		this.appConfig.trigger_map = updatedTriggerMap;
+	};
+
+	appService.saveAppConfig = function(requestConfig) {
+		return requestService.postAppConfig(this.appConfig, requestConfig);
+	};
+
+	appService.discardChanges = function() {
+		this.appConfig = angular.copy(this.savedAppConfig);
+	};
+
+	return appService;
+
+});
+
+})();
