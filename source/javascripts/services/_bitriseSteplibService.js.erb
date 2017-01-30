@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, $injector, Variable) {
+angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", function($http, $q, $injector, requestService, Variable) {
 
 	var bitriseSteplibService = {
 		sourceURL: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json",
@@ -19,11 +19,11 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 		var self = this;
 
 		return $q(function(resolve, reject) {
-			$http.get(self.sourceURL, requestConfig).then(function(response) {
+			requestService.getSpec(requestConfig).then(function(specs) {
 				try {
-					self.specs = response.data;
+					self.specs = specs;
 
-					var stepIDs = _.keys(response.data.steps).sort();
+					var stepIDs = _.keys(specs.steps).sort();
 
 					self.steps = {};
 					self.latestStepVersions = {};
@@ -43,14 +43,9 @@ angular.module("BitriseWorkflowEditor").factory("bitriseSteplibService", functio
 					console.log(error);
 					reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:default_error] %>"));
 				}
-			}, function(response) {
-				if (!response || !response.data) {
-					reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:default_error] %>"));
-
-					return;
-				}
-
-				reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:error_prefix] %>" + response.data));
+			}, function(error) {
+				console.log(error);
+				reject(new Error("<%= data[:strings][:bitrise_steplib_service][:load][:error_prefix] %>" + error.message));
 			});
 		});
 	};

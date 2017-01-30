@@ -177,6 +177,9 @@ yml:
     loading: Loading, wait a sec...
 request_service:
   invalid_mode: Invalid mode!
+  get_spec:
+    default_error: Error loading steplib specs.
+    error_prefix: "Error loading steplib specs: "
   load_app_config:
     default_error: Error loading app config.
     error_prefix: "Error loading app config: "
