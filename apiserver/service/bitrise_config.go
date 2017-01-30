@@ -2,7 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"fmt"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -59,8 +58,6 @@ func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to read JSON input, error: %s", err)
 		return
 	}
-
-	fmt.Printf("reqObj.BitriseYML: %s\n", reqObj.BitriseYML)
 
 	if err := utility.ValidateBitriseConfigAndSecret(reqObj.BitriseYML, config.MinimalValidSecrets); err != nil {
 		log.Errorf("Validation error: %s", err)
