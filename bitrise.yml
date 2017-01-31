@@ -222,6 +222,8 @@ workflows:
     title: Create binaries
     description: |
         Creates Linux and Darwin binaries
+    before_run:
+    - assets-precompile
     steps:
     - script:
         title: Create binaries
