@@ -1,16 +1,18 @@
-package cli
+package cmd
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"runtime"
 
-	"fmt"
-
 	ver "github.com/bitrise-io/bitrise-workflow-editor/version"
 	flog "github.com/bitrise-io/go-utils/log"
-	"github.com/urfave/cli"
+	"github.com/spf13/cobra"
 )
+
+var fullVersion bool
+var format string
 
 // VersionOutputModel ...
 type VersionOutputModel struct {
@@ -52,54 +54,35 @@ func (version VersionOutputModel) JSON() string {
 	return fmt.Sprintf(`"%s"`+"\n", version.Version)
 }
 
-var versionCmd = cli.Command{
-	Name:  "version",
-	Usage: "Prints version info",
-	Action: func(c *cli.Context) error {
-		if err := versionPrint(c); err != nil {
-			flog.Errorf(err.Error())
+// versionCmd represents the version command
+var versionCmd = &cobra.Command{
+	Use:   "version",
+	Short: "Prints version info",
+	Run: func(cmd *cobra.Command, args []string) {
+		var log flog.Logger
+		if format == "raw" {
+			log = flog.NewDefaultRawLogger()
+		} else if format == "json" {
+			log = flog.NewDefaultJSONLoger()
+		} else {
+			flog.Errorf("Invalid format: %s\n", format)
 			os.Exit(1)
 		}
-		return nil
-	},
-	Flags: []cli.Flag{
-		cli.StringFlag{
-			Name:  "format",
-			Usage: "Output format. Accepted: json, yml",
-		},
-		cli.BoolFlag{
-			Name:  "full",
-			Usage: "Prints the build number and commit as well.",
-		},
+
+		versionOutput := VersionOutputModel{}
+		versionOutput.Version = ver.VERSION
+		versionOutput.OS = fmt.Sprintf("%s (%s)", runtime.GOOS, runtime.GOARCH)
+		versionOutput.GO = runtime.Version()
+		versionOutput.BuildNumber = ver.BuildNumber
+		versionOutput.Commit = ver.Commit
+		versionOutput.FullVersion = fullVersion
+
+		log.Print(versionOutput)
 	},
 }
 
-func versionPrint(c *cli.Context) error {
-	fullVersion := c.Bool("full")
-	format := c.String("format")
-	if format == "" {
-		format = "raw"
-	}
-
-	var log flog.Logger
-	if format == "raw" {
-		log = flog.NewDefaultRawLogger()
-	} else if format == "json" {
-		log = flog.NewDefaultJSONLoger()
-	} else {
-		flog.Errorf("Invalid format: %s\n", format)
-		os.Exit(1)
-	}
-
-	versionOutput := VersionOutputModel{}
-	versionOutput.Version = ver.VERSION
-	versionOutput.OS = fmt.Sprintf("%s (%s)", runtime.GOOS, runtime.GOARCH)
-	versionOutput.GO = runtime.Version()
-	versionOutput.BuildNumber = ver.BuildNumber
-	versionOutput.Commit = ver.Commit
-	versionOutput.FullVersion = fullVersion
-
-	log.Print(versionOutput)
-
-	return nil
+func init() {
+	RootCmd.AddCommand(versionCmd)
+	versionCmd.Flags().StringVarP(&format, "format", "", "raw", "Output format. Accepted: raw, json")
+	versionCmd.Flags().BoolVarP(&fullVersion, "full", "", false, "Prints the build number and commit as well")
 }
