@@ -88,15 +88,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	function configureWithAppConfig() {
 		viewModel.envVarsBySource = [];
 
-		if (appService.appConfig.app.envs) {
-			viewModel.envVarsBySource.push({
-				type: "app",
-				warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
-				envVars: _.map(appService.appConfig.app.envs, function(anAppEnvVarConfig) {
-					return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
-				})
-			});
-		}
+		viewModel.envVarsBySource.push({
+			type: "app",
+			warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
+			envVars: _.map(appService.appConfig.app && appService.appConfig.app.envs ? appService.appConfig.app.envs : [], function(anAppEnvVarConfig) {
+				return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
+			})
+		});
 
 		_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 			viewModel.envVarsBySource.push({
