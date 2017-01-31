@@ -84,6 +84,10 @@
 			"Rev": "757bef944d0f21880861c2dd9c871ca543023cba"
 		},
 		{
+			"ImportPath": "github.com/inconshreveable/mousetrap",
+			"Rev": "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
+		},
+		{
 			"ImportPath": "github.com/kardianos/osext",
 			"Rev": "c2c54e542fb797ad986b31721e1baedf214ca413"
 		},
@@ -98,6 +102,14 @@
 			"Rev": "572520ed46dbddaed19ea3d9541bdd0494163693"
 		},
 		{
+			"ImportPath": "github.com/spf13/cobra",
+			"Rev": "35136c09d8da66b901337c6e86fd8e88a1a255bd"
+		},
+		{
+			"ImportPath": "github.com/spf13/pflag",
+			"Rev": "9ff6c6923cfffbcd502984b8e0c80539a94968b7"
+		},
+		{
 			"ImportPath": "github.com/stretchr/testify/assert",
 			"Comment": "v1.1.4-25-g2402e8e",
 			"Rev": "2402e8e7a02fc811447d11f881aa9746cdc57983"
@@ -106,11 +118,6 @@
 			"ImportPath": "github.com/stretchr/testify/require",
 			"Comment": "v1.1.4-25-g2402e8e",
 			"Rev": "2402e8e7a02fc811447d11f881aa9746cdc57983"
-		},
-		{
-			"ImportPath": "github.com/urfave/cli",
-			"Comment": "v1.18.0-67-gd53eb99",
-			"Rev": "d53eb991652b1d438abdd34ce4bfa3ef1539108e"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
