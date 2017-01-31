@@ -61,15 +61,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function loadAppConfig() {
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		var canceler = $q.defer();
-
-		$scope.$on("$destroy", function() {
-			canceler.resolve();
-		});
-
-		appService.getAppConfig({
-			timeout: canceler.promise
-		}).then(function() {
+		appService.getAppConfig().then(function() {
 			var appConfighasDeprecatedTriggerMap = appService.appConfigHasDeprecatedTriggerMap();
 
 			$q(function(resolve, reject) {
@@ -98,11 +90,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 		var validationDeferer = $q.defer();
 		var saveDeferer = $q.defer();
-
-		$scope.$on("$destroy", function() {
-			validationDeferer.resolve();
-			saveDeferer.resolve();
-		});
 		
 		validationDeferer.promise.then(function() {
 			$q(function(resolve, reject) {
