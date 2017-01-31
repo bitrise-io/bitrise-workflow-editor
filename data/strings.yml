@@ -195,6 +195,13 @@ request_service:
   save_secrets:
     default_error: Error saving secrets.
     error_prefix: "Error saving secrets: "
+step_source_service:
+  step_info_from_cvs:
+    multiple_source_separators: "Multiple source separators specified."
+    multiple_version_separators: Multiple version separators specified.
+    no_path: Path not specified.
+    no_git_url: Git URL not specified.
+    no_id: Step ID not specified.
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

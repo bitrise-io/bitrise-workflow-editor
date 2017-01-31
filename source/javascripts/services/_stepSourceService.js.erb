@@ -1,0 +1,81 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("stepSourceService", function() {
+
+	var stepSourceService = {
+		defaultCollectionURL: undefined,
+		collections: []
+	};
+
+	stepSourceService.stepInfoFromCVS = function(cvs) {
+		var cvsSplitBySteplibSource = cvs.split("::");
+		if (cvsSplitBySteplibSource.length > 2) {
+			throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:multiple_source_separators] %>");
+		}
+
+		if (cvsSplitBySteplibSource.length == 2 && cvsSplitBySteplibSource[0] == "path") {
+			var path = _.last(cvsSplitBySteplibSource);
+			if (cvsSplitBySteplibSource.length == 1 || path.length == 0) {
+				throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_path] %>");
+			}
+
+			return {
+				sourceType: "local",
+				path: path
+			};
+		}
+
+		var cvsSplitByVersion = _.last(cvsSplitBySteplibSource).split("@");
+		if (cvsSplitByVersion.length > 2) {
+			throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:multiple_version_separators] %>");
+		}
+
+		if (cvsSplitBySteplibSource.length == 2 && cvsSplitBySteplibSource[0] == "git") {
+			var gitURL = _.first(cvsSplitByVersion);
+
+			if (cvsSplitBySteplibSource.length == 1 || gitURL.length == 0) {
+				throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_git_url] %>");
+			}
+
+			var version = null;
+			if (cvsSplitByVersion.length > 1 && _.last(cvsSplitByVersion).length > 0) {
+				version = _.last(cvsSplitByVersion);
+			}
+
+			return {
+				sourceType: "git",
+				gitURL: gitURL,
+				version: version
+			};
+		}
+
+		var collectionURL = this.defaultCollectionURL;
+		if (cvsSplitBySteplibSource.length > 1 && _.first(cvsSplitBySteplibSource).length > 0) {
+			collectionURL = _.first(cvsSplitBySteplibSource);
+		}
+
+		var id = _.first(cvsSplitByVersion);
+		if (id.length == 0) {
+			throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_id] %>");
+		}
+
+		var version = null;
+		if (cvsSplitByVersion.length > 1 && _.last(cvsSplitByVersion).length > 0) {
+			version = _.last(cvsSplitByVersion);
+		}
+
+		return {
+			sourceType: "collection",
+			collectionURL: collectionURL,
+			id: id,
+			version: version
+		};
+	};
+
+	return stepSourceService;
+
+});
+
+})();

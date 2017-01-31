@@ -6,8 +6,10 @@ describe("bitriseSteplibService", function() {
 	var Variable;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function(_$httpBackend_, _bitriseSteplibService_, _Step_, _Variable_) {
+	beforeEach(inject(function(_$httpBackend_, _requestService_, _bitriseSteplibService_, _Step_, _Variable_) {
 		$httpBackend = _$httpBackend_;
+		requestService = _requestService_;
+		requestService.mode = "website";
 		bitriseSteplibService = _bitriseSteplibService_;
 		Step = _Step_;
 		Variable = _Variable_;
