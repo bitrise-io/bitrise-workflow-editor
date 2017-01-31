@@ -1,7 +1,15 @@
 package main
 
-import "github.com/bitrise-io/bitrise-workflow-editor/cli"
+import (
+	"os"
+
+	"github.com/bitrise-io/bitrise-workflow-editor/cmd"
+	"github.com/bitrise-io/go-utils/log"
+)
 
 func main() {
-	cli.Run()
+	if err := cmd.RootCmd.Execute(); err != nil {
+		log.Errorf(err.Error())
+		os.Exit(1)
+	}
 }
