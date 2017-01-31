@@ -4,10 +4,40 @@ release:
 changelog:
   path: CHANGELOG.md
   content_template: |-
-    {{range .ContentItems}}### {{.EndTaggedCommit.Tag}} ({{.EndTaggedCommit.Date.Format "2006 Jan 02"}})
+    {{range .ContentItems}}## {{.EndTaggedCommit.Tag}} ({{.EndTaggedCommit.Date.Format "2006 Jan 02"}})
 
-    {{range .Commits}}* [{{firstChars .Hash 7}}] {{.Message}}
+    ### Release Notes
+
+    * __BREAKING__ : change 1
+    * change 2
+
+    ### Install or upgrade
+
+    To install this version, run the following commands (in a bash shell):
+
+    ```
+    bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git
+    ```
+
+    To update the already installed plugin to the latest version:
+
+    ```
+    bitrise plugin update workflow-editor
+    ```
+
+    That's all, you're ready to go!
+
+    To run the workflow editor plugin call:
+
+    ```
+    bitrise :workflow-editor
+    ```
+
+    ### Release Commits - {{.StartTaggedCommit.Tag}} -> {{.EndTaggedCommit.Tag}}
+
+    {{range .Commits}}* [{{firstChars .Hash 7}}] {{.Author}} - {{.Message}} ({{.Date.Format "2006 Jan 02"}})
     {{end}}
+
     {{end}}
   header_template: '## Changelog (Current version: {{.Version}})'
   footer_template: 'Updated: {{.CurrentDate.Format "2006 Jan 02"}}'
