@@ -2,41 +2,29 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Step", function(bitriseSteplibService, Variable) {
+angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 
 	var Step = function(cvs, userStepConfig, defaultStepConfig) {
 		this.cvs = cvs;
 		this.localPath;
 		this.gitURL;
-		this.steplibSourceURL;
+		this.libraryURL;
 		this.id;
 		this.version;
 		this.userStepConfig = userStepConfig;
 		this.defaultStepConfig = defaultStepConfig;
 	};
 
-	Step.prototype.type = function() {
-		if (this.id === undefined) {
-			return "errorous-step";
-		}
-
-		if (bitriseSteplibService.isBitriseSteplibStep(this)) {
-			return "bitrise-steplib-step";
-		}
-
-		return "non-bitrise-steplib-step";
-	};
-
 	Step.prototype.displayName = function() {
-		if (this.id === undefined) {
-			return this.cvs;
-		}
-
-		if (bitriseSteplibService.isBitriseSteplibStep(this)) {
+		if (this.title() !== undefined) {
 			return this.title();
 		}
 
-		return this.id;
+		if (this.id !== undefined) {
+			return this.id;
+		}
+
+		return this.cvs;
 	};
 
 	Step.prototype.title = function(newTitle) {

@@ -2,9 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("AddStepController", function($scope, $rootScope, bitriseSteplibService, Popup) {
+angular.module("BitriseWorkflowEditor").controller("AddStepController", function($scope, $rootScope, stepSourceService, Popup) {
 
 	var viewModel = this;
+
+	var steps;
 
 	viewModel.popup = new Popup();
 	viewModel.popup.beforeAppearCallback = function() {
@@ -14,9 +16,16 @@ angular.module("BitriseWorkflowEditor").controller("AddStepController", function
 
 		viewModel.availableTypeTagFilters = [];
 
-		_.each(_.map(bitriseSteplibService.latestStepVersions, function(aStepVersion, stepID) {
-			return bitriseSteplibService.steps[stepID][aStepVersion];
-		}), function(aStep) {
+		steps = [];
+		steps = steps.concat(stepSourceService.localSteps);
+		steps = steps.concat(stepSourceService.gitSteps);
+		_.each(stepSourceService.libraries, function(aLibrary) {
+			steps = steps.concat(_.map(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
+				return aLibrary.steps[stepID][aStepVersion];
+			}));
+		});
+
+		_.each(steps, function(aStep) {
 			viewModel.availableTypeTagFilters = _.union(viewModel.availableTypeTagFilters, aStep.typeTags());
 		});
 
@@ -43,8 +52,12 @@ angular.module("BitriseWorkflowEditor").controller("AddStepController", function
 	};
 
 	viewModel.filteredSteps = function() {
-		return _.reject(_.map(bitriseSteplibService.steps, function(aStep, stepID) {
-			return aStep[bitriseSteplibService.latestStepVersions[stepID]];
+		return _.reject(_.map(steps, function(aStep, stepID) {
+			var library = _.find(stepSourceService.libraries, {
+				url: aStep.libraryURL
+			});
+			
+			return aStep[library.latestStepVersions[stepID]];
 		}), function(aStep) {
 			if (viewModel.titleFilter.length > 0 && aStep.title().toLowerCase().indexOf(viewModel.titleFilter.toLowerCase()) == -1) {
 				return true;

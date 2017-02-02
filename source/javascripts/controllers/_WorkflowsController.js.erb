@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, stepSourceService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
 
 	var viewModel = this;
 
@@ -71,9 +71,18 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
 
 		return $q(function(resolve, reject) {
-			bitriseSteplibService.load({
-				timeout: canceler.promise
-			}).then(function() {
+			var stepLoadDeferers = [];
+			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+					var cvs = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+
+					stepLoadDeferers.push(stepSourceService.loadStepWithCVS(cvs, {
+						timeout: canceler.promise
+					});
+				});
+			});
+
+			$q.all(stepLoadDeferers).then(function() {
 				try {
 					var allWorkflowsLoadedCallbacks = [];
 

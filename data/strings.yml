@@ -53,8 +53,6 @@ workflows:
   steps:
     start: "Start"
     end: "End"
-    cvs_error: Error loading step from provided identifier.
-    non_bitrise_steplib_step_info: This step is not from the Bitrise Steplib, thus editing via the Workflow Editor is not available.
     add:
       select: "Select a step from the list below:"
       title_filter_placeholder: Step name, e. g. 'script'
@@ -183,9 +181,9 @@ request_service:
   get_git_step:
     default_error: Error loading git step
     error_prefix: "Error loading git step: "
-  get_collection:
-    default_error: Error loading collection
-    error_prefix: "Error loading collection: "
+  get_library:
+    default_error: Error loading library
+    error_prefix: "Error loading library: "
   load_app_config:
     default_error: Error loading app config.
     error_prefix: "Error loading app config: "
@@ -203,18 +201,17 @@ request_service:
     error_prefix: "Error saving secrets: "
 step_source_service:
   step_info_from_cvs:
-    multiple_source_separators: "Multiple source separators specified."
-    multiple_version_separators: Multiple version separators specified.
     no_path: Path not specified.
     no_git_url: Git URL not specified.
+    no_library: Step library not specified.
     no_id: Step ID not specified.
   load_local_step:
     error_prefix: "Error loading local step:"
   load_git_step:
     error_prefix: "Error loading git step:"
-  load_collection:
-    default_error: Error loading collection.
-    error_prefix: "Error loading collection: "
+  load_library:
+    default_error: Error loading library.
+    error_prefix: "Error loading library: "
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.

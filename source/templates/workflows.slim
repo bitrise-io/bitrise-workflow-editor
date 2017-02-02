@@ -55,10 +55,8 @@
 											em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
 							li
 								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd(directWorkflowIndex, workflowIndex)" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex === workflowsCtrl.editedWorkflowIndex) && workflow.steps.length > 0"]
-						aside.step-details[ng-if="directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
-							p.notification[ng-if="stepCtrl.step.type() == 'non-bitrise-steplib-step'"] == data[:strings][:workflows][:steps][:non_bitrise_steplib_step_info]
-							p.notification.error[ng-if="stepCtrl.step.type() == 'errorous-step'"] == data[:strings][:workflows][:steps][:cvs_error]
-							div.bitrise-steplib-step-details[ng-if="stepCtrl.step.type() == 'bitrise-steplib-step'"]
+						aside.selected-step[ng-if="directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
+							.step-details
 								header.manage-step
 									.title[ng-if="!stepCtrl.renamedStep"]
 										button.rename[ng-bind="stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
@@ -80,7 +78,7 @@
 								section.version
 									span.icon
 									label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
-									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(bitriseSteplibService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="bitriseSteplibService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
+									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(stepSourceService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="stepSourceService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
 								section.always-run[ng-if="stepCtrl.step.isAlwaysRun() !== undefined"]
 									span.icon
 										= svg("step/is_always_run")

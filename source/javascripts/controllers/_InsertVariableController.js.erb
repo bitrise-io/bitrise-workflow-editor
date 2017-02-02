@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $rootScope, $q, $filter, requestService, bitriseSteplibService, appService, Progress, Popup, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $rootScope, $q, $filter, requestService, stepSourceService, appService, Progress, Popup, Step, Variable) {
 
 	var viewModel = this;
 
@@ -131,7 +131,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 				return true;
 			}
 
-			var step = bitriseSteplibService.stepFromCVS(stepCVS);
+			var step = stepSourceService.stepFromCVS(stepCVS);
 			if (!step.defaultStepConfig || !step.defaultStepConfig.outputs) {
 				return false;
 			}

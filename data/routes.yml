@@ -15,7 +15,7 @@ templates:
 website:
   local_step_get: # TODO: specify
   git_step_get: # TODO: specify
-  collection_get: # TODO: specify
+  library_get: # TODO: specify
   app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
   app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
@@ -32,7 +32,7 @@ website:
 local_server:
   local_step_get: # TODO: specify
   git_step_get: # TODO: specify
-  collection_get: # TODO: specify
+  library_get: # TODO: specify
   app_config_get: /api/bitrise-yml.json
   app_config_post: /api/bitrise-yml.json
   default_outputs_get: /api/default-outputs

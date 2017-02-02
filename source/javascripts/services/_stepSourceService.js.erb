@@ -5,78 +5,140 @@
 angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q, requestService, Step) {
 
 	var stepSourceService = {
-		defaultCollectionURL: undefined,
-		collections: [],
+		defaultLibraryURL: undefined,
+		libraries: [],
 		localSteps: [],
 		gitSteps: []
 	};
 
 	stepSourceService.stepInfoFromCVS = function(cvs) {
-		var cvsSplitBySteplibSource = cvs.split("::");
-		if (cvsSplitBySteplibSource.length > 2) {
-			throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:multiple_source_separators] %>");
+		var idStartIndex = cvs.indexOf("::") != -1 ? cvs.indexOf("::") + 2 : 0;
+		var versionStartIndex = cvs.lastIndexOf("@") != -1 ? cvs.lastIndexOf("@") + 1 : -1;
+
+		var source = idStartIndex > 0 && cvs.slice(0, idStartIndex - 2).length > 0 ? cvs.slice(0, idStartIndex - 2) : null;
+		var id = cvs.slice(idStartIndex, versionStartIndex != -1 ? versionStartIndex - 1 : undefined);
+		var version = versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : null;
+
+		switch (source) {
+			case "path":
+				if (id.length == 0) {
+					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_path] %>");
+				}
+
+				return {
+					sourceType: "local",
+					path: id
+				}
+			case "git":
+				if (id.length == 0) {
+					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_git_url] %>");
+				}
+
+				return {
+					sourceType: "git",
+					gitURL: id,
+					version: version
+				}
+			default:
+				if (!source && !this.defaultLibraryURL) {
+					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_library] %>");
+				}
+
+				if (id.length == 0) {
+					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_id] %>");
+				}
+
+				return {
+					sourceType: "library",
+					libraryURL: source != null ? source : this.defaultLibraryURL,
+					id: id,
+					version: version
+				}
 		}
-
-		if (cvsSplitBySteplibSource.length == 2 && cvsSplitBySteplibSource[0] == "path") {
-			var path = _.last(cvsSplitBySteplibSource);
-			if (cvsSplitBySteplibSource.length == 1 || path.length == 0) {
-				throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_path] %>");
-			}
-
-			return {
-				sourceType: "local",
-				path: path
-			};
-		}
-
-		var cvsSplitByVersion = _.last(cvsSplitBySteplibSource).split("@");
-		if (cvsSplitByVersion.length > 2) {
-			throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:multiple_version_separators] %>");
-		}
-		var version = null;
-
-		if (cvsSplitBySteplibSource.length == 2 && cvsSplitBySteplibSource[0] == "git") {
-			var gitURL = _.first(cvsSplitByVersion);
-
-			if (cvsSplitBySteplibSource.length == 1 || gitURL.length == 0) {
-				throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_git_url] %>");
-			}
-
-			if (cvsSplitByVersion.length > 1 && _.last(cvsSplitByVersion).length > 0) {
-				version = _.last(cvsSplitByVersion);
-			}
-
-			return {
-				sourceType: "git",
-				gitURL: gitURL,
-				version: version
-			};
-		}
-
-		var collectionURL = this.defaultCollectionURL;
-		if (cvsSplitBySteplibSource.length > 1 && _.first(cvsSplitBySteplibSource).length > 0) {
-			collectionURL = _.first(cvsSplitBySteplibSource);
-		}
-
-		var id = _.first(cvsSplitByVersion);
-		if (id.length == 0) {
-			throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_id] %>");
-		}
-
-		
-		if (cvsSplitByVersion.length > 1 && _.last(cvsSplitByVersion).length > 0) {
-			version = _.last(cvsSplitByVersion);
-		}
-
-		return {
-			sourceType: "collection",
-			collectionURL: collectionURL,
-			id: id,
-			version: version
-		};
 	};
 
-	stepSourceService.loadLocalStepWithCVS = function(cvs, requestConfig) {
+	stepSourceService.stepFromCVS = function(cvs) {
+		var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
+		var step = new Step(cvs);
+
+		switch (source) {
+			case "path":
+				step.localPath = stepInfo.path;
+
+				break;
+			case "git":
+				step.gitURL = stepInfo.gitURL;
+				step.version = stepInfo.version;
+
+				break;
+			default:
+				step.libraryURL = stepInfo.libraryURL;
+				step.id = stepInfo.id;
+				step.version = stepInfo.version;
+
+				var library = _.find(stepSourceService.liraries, {
+					url: step.libraryURL
+				});
+
+				if (library) {
+					step.defaultStepConfig = library.specs.steps[step.id].versions[step.version];
+				}
+
+				break;
+		}
+
+		return step;
+	};
+
+	stepSourceService.versionsOfStep = function(step) {
+		var library = _.find(stepSourceService.liraries, {
+			url: step.libraryURL
+		});
+
+		if (!library) {
+			return undefined;
+		}
+
+		return _.keys(library.steps[step.id]);
+	};
+
+	stepSourceService.changeStepToVersion = function(step, version) {
+		var library = _.find(stepSourceService.liraries, {
+			url: step.libraryURL
+		});
+
+		if (!library) {
+			return undefined;
+		}
+
+		var indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") != -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
+		if (indexOfVersionInCurrentCVS != -1) {
+			step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
+		}
+
+		if (version !== null) {
+			step.cvs += version;
+			step.version = version;
+		}
+		else {
+			step.version = library.latestStepVersions[step.id];
+		}
+
+		step.defaultStepConfig = library.specs.steps[step.id].versions[step.version];
+	};
+
+	stepSourceService.loadStepWithCVS = function(cvs, requestConfig) {
+		switch (source) {
+			case "path":
+				return loadLocalStepWithCVS(cvs, requestConfig);
+			case "git":
+				return loadGitStepWithCVS(cvs, requestConfig);
+			case "library":
+				return loadLibraryStepWithCVS(cvs, requestConfig);
+		}
+	}
+
+	function loadLocalStepWithCVS(cvs, requestConfig) {
 		return $q(function(resolve, reject) {
 			var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
 
@@ -99,9 +161,9 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				reject(new Error("<%= data[:strings][:step_source_service][:load_local_step][:error_prefix] %>" + error.message));
 			});
 		});
-	};
+	}
 
-	stepSourceService.loadGitStepWithCVS = function(cvs, requestConfig) {
+	function loadGitStepWithCVS(cvs, requestConfig) {
 		return $q(function(resolve, reject) {
 			var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
 
@@ -123,68 +185,60 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				reject(new Error("<%= data[:strings][:step_source_service][:load_git_step][:error_prefix] %>" + error.message));
 			});
 		});
-	};
+	}
 
-	stepSourceService.loadNeccessaryCollectionsFromCVSs = function(CVSs, requestConfig) {
-		return $q.all(_.each(CVSs, function(aCVS) {
-			var stepInfo = stepSourceService.stepInfoFromCVS(aCVS);
-
-			if (stepInfo.sourceType != "collection") {
-				return $q.when();
-			}
-
-			if (_.find(stepSourceService.collections, {
-				url: stepInfo.collectionURL
-			})) {
-				return $q.when();
-			}
-
-			return loadCollectionWithURL(stepInfo.collectionURL, requestConfig);
-		}));
-	};
-
-	function loadCollectionWithURL(collectionURL, requestConfig) {
+	function loadLibraryStepWithCVS(cvs, requestConfig) {
 		return $q(function(resolve, reject) {
-			requestService.getCollection(collectionURL, requestConfig).then(function(specs) {
+			var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
+			
+			if (_.find(stepSourceService.libraries, {
+				url: stepInfo.libraryURL
+			})) {
+				resolve();
+
+				return;
+			}
+
+			requestService.getLibrary(libraryURL, requestConfig).then(function(specs) {
 				try {
-					var collection = {
-						url: collectionURL
+					var library = {
+						url: libraryURL
 					};
 
-					collection.specs = specs;
+					library.specs = specs;
 
 					var stepIDs = _.keys(specs.steps).sort();
 
-					collection.steps = {};
-					collection.latestStepVersions = {};
+					library.steps = {};
+					library.latestStepVersions = {};
 					_.each(stepIDs, function(aStepID) {
-						collection.steps[aStepID] = {};
-						collection.latestStepVersions[aStepID] = collection.specs.steps[aStepID].latest_version_number;
-						collection.steps[aStepID] = _.mapObject(collection.specs.steps[aStepID].versions, function(aStepConfig, version) {
+						library.steps[aStepID] = {};
+						library.latestStepVersions[aStepID] = library.specs.steps[aStepID].latest_version_number;
+						library.steps[aStepID] = _.mapObject(library.specs.steps[aStepID].versions, function(aStepConfig, version) {
 							var cvs = aStepID + "@" + version;
 
 							return new Step(cvs, undefined, aStepConfig);
 						});
 					});
 
-					var indexOfCollection = _.findIndex(stepSourceService.collections, {
-						url: collectionURL
+					var indexOfLibrary = _.findIndex(stepSourceService.libraries, {
+						url: libraryURL
 					});
 
-					if (indexOfCollection != -1) {
-						stepSourceService.collections.splice(indexOfCollection, 1);
+					if (indexOfLibrary != -1) {
+						stepSourceService.libraries.splice(indexOfLibrary, 1);
 					}
-					stepSourceService.collections.push(collection);
+					stepSourceService.libraries.push(library);
 
 					resolve();
 				}
 				catch (error) {
 					console.log(error);
-					reject(new Error("<%= data[:strings][:step_source_service][:load_collection][:default_error] %>"));
+					reject(new Error("<%= data[:strings][:step_source_service][:load_library][:default_error] %>"));
 				}
 			}, function(error) {
 				console.log(error);
-				reject(new Error("<%= data[:strings][:step_source_service][:load_collection][:error_prefix] %>" + error.message));
+				reject(new Error("<%= data[:strings][:step_source_service][:load_library][:error_prefix] %>" + error.message));
 			});
 		});
 	}

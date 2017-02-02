@@ -1,13 +1,13 @@
 describe("Workflow", function() {
 
 	var Workflow;
-	var bitriseSteplibService;
+	var stepSourceService;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function(_Workflow_, _bitriseSteplibService_) {
+	beforeEach(inject(function(_Workflow_, _stepSourceService_) {
 		Workflow = _Workflow_;
-		bitriseSteplibService = _bitriseSteplibService_;
-		bitriseSteplibService.stepFromCVS = function(cvs) {
+		stepSourceService = _stepSourceService_;
+		stepSourceService.stepFromCVS = function(cvs) {
 			if (!_.contains(["red-step", "green-step", "blue-step"], cvs)) {
 				throw new Error("Step not found.");
 			}

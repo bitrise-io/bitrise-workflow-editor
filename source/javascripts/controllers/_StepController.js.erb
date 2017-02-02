@@ -2,11 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("StepController", function($scope, $rootScope, stringService, bitriseSteplibService, Variable) {
+angular.module("BitriseWorkflowEditor").controller("StepController", function($scope, $rootScope, stringService, stepSourceService, Variable) {
 
 	var viewModel = this;
 
-	$scope.bitriseSteplibService = bitriseSteplibService;
+	$scope.stepSourceService = stepSourceService;
 
 	viewModel.step;
 	viewModel.renamedStep;
@@ -20,7 +20,7 @@ angular.module("BitriseWorkflowEditor").controller("StepController", function($s
 		viewModel.renamedStep = null;
 		viewModel.renamedStepTitle = undefined;
 		viewModel.shouldShowDescription = false;
-		viewModel.requestedVersion = viewModel.step && viewModel.step.type() == "bitrise-steplib-step" ? viewModel.step.requestedVersion() : undefined;
+		viewModel.requestedVersion = viewModel.step.requestedVersion();
 		viewModel.selectedInput = null;
 
 		$rootScope.$emit("InputController::configureWithStep", viewModel.step);
