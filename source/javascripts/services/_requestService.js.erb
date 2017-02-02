@@ -31,46 +31,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 	};
 
-	requestService.getSpec = function(requestConfig) {
-		var requestURL;
-
-		switch (requestService.mode) {
-			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:spec_get]) %>";
-
-				break;
-			case "cli":
-				requestURL = "<%= local_server_path(data[:routes][:local_server][:spec_get]) %>";
-
-				break;
-		}
-
-		return $q(function(resolve, reject) {
-			$http.get(requestURL, requestConfig).then(function(response) {
-				var data;
-
-				switch (requestService.mode) {
-					case "website":
-						data = response.data;
-
-						break;
-					case "cli":
-						data = response.data[0].spec;
-
-						break;
-				}
-
-				resolve(data);
-			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:get_spec][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:get_spec][:error_prefix] %> " + response.data.error_msg));
-			});
-		});
-	};
-
 	requestService.getAppConfig = function(requestConfig) {
 		var requestURL;
 
@@ -97,6 +57,71 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				}
 
 				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.getLocalStepConfig = function(path, requestConfig) {
+		var requestURL = "<%= local_server_path(data[:routes][:local_server][:local_step_get]) %>";
+		var requestData = {
+			path: path
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:get_local_step][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:get_local_step][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.getGitStepConfig = function(gitURL, requestConfig) {
+		var requestURL = "<%= local_server_path(data[:routes][:local_server][:git_step_get]) %>";
+		var requestData = {
+			gitURL: gitURL
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:get_git_step][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:get_git_step][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.getCollection = function(collectionURL, requestConfig) {
+		var requestURL;
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = "<%= webserver_path(data[:routes][:website][:collection_get]) %>";
+
+				break;
+			case "cli":
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:collection_get]) %>";
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:get_collection][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:get_collection][:error_prefix] %> " + response.data.error_msg));
 			});
 		});
 	};

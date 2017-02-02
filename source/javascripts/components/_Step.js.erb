@@ -6,6 +6,8 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(bitriseSteplibS
 
 	var Step = function(cvs, userStepConfig, defaultStepConfig) {
 		this.cvs = cvs;
+		this.localPath;
+		this.gitURL;
 		this.steplibSourceURL;
 		this.id;
 		this.version;

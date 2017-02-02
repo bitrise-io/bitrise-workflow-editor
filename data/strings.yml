@@ -177,9 +177,15 @@ yml:
     loading: Loading, wait a sec...
 request_service:
   invalid_mode: Invalid mode!
-  get_spec:
-    default_error: Error loading steplib specs.
-    error_prefix: "Error loading steplib specs: "
+  get_local_step:
+    default_error: Error loading local step
+    error_prefix: "Error loading local step: "
+  get_git_step:
+    default_error: Error loading git step
+    error_prefix: "Error loading git step: "
+  get_collection:
+    default_error: Error loading collection
+    error_prefix: "Error loading collection: "
   load_app_config:
     default_error: Error loading app config.
     error_prefix: "Error loading app config: "
@@ -202,6 +208,13 @@ step_source_service:
     no_path: Path not specified.
     no_git_url: Git URL not specified.
     no_id: Step ID not specified.
+  load_local_step:
+    error_prefix: "Error loading local step:"
+  load_git_step:
+    error_prefix: "Error loading git step:"
+  load_collection:
+    default_error: Error loading collection.
+    error_prefix: "Error loading collection: "
 bitrise_steplib_service:
   load:
     default_error: Error loading Bitrise steplib.
