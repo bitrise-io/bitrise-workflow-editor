@@ -8,6 +8,10 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		this.id = id;
 		this.workflowConfig = workflowConfig;
 
+		if (!this.workflowConfig) {
+			return;
+		}
+
 		this.steps = _.map(workflowConfig.steps, function(aWrappedUserStepConfig) {
 			var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
 			var step;

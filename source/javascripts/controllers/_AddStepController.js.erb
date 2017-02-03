@@ -21,7 +21,14 @@ angular.module("BitriseWorkflowEditor").controller("AddStepController", function
 		steps = steps.concat(stepSourceService.gitSteps);
 		_.each(stepSourceService.libraries, function(aLibrary) {
 			steps = steps.concat(_.map(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
-				return aLibrary.steps[stepID][aStepVersion];
+				var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
+
+				if (aLibrary.url != stepSourceService.defaultLibraryURL) {
+					step.libraryURL = aLibrary.url;
+					step.cvs = step.libraryURL + "::" + step.cvs;
+				}
+
+				return step;
 			}));
 		});
 

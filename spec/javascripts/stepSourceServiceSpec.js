@@ -48,6 +48,10 @@ describe("stepSourceService", function() {
 			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").libraryURL).toBe("library-url.git");
 			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").id).toBe("step-id");
 			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").version).toBe("1.0");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").libraryURL).toBe("git@library-url.git");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").id).toBe("step-id");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").version).toBe("1.0");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id").version).toBeNull();
 			expect(stepSourceService.stepFromCVS("step-id@1.0").libraryURL).toBe("default-library-url.git");
 			expect(stepSourceService.stepFromCVS("::step-id@1.0").libraryURL).toBe("default-library-url.git");
 			expect(stepSourceService.stepFromCVS("library-url.git::step-id").version).toBeNull();
