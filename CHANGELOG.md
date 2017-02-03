@@ -1,6 +1,40 @@
-## Changelog (Current version: 0.9.1)
+## Changelog (Current version: 0.9.2)
 
 -----------------
+
+## 0.9.2 (2017 Feb 03)
+
+### Release Notes
+
+* update plugin definition to use the current binary
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.1 -> 0.9.2
+
+* [1da2d1e] Krisztian Godrei - prepare for 0.9.2 (2017 Feb 03)
+* [fa4dbfe] Krisztian Godrei - update plugin definition (2017 Feb 03)
+
 
 ## 0.9.1 (2017 Feb 03)
 
