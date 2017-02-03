@@ -214,6 +214,8 @@ workflows:
             #!/bin/bash
             set -ex
 
+            go get github.com/bitrise-tools/releaseman
+
             export CI=true
             releaseman create \
               --version $RELEASE_VERSION \
