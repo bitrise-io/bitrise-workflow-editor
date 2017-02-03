@@ -105,24 +105,24 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:library_fetch]) %>";
+				requestURL = "<%= webserver_path(data[:routes][:website][:libraries_fetch]) %>";
 
 				break;
 			case "cli":
-				requestURL = "<%= local_server_path(data[:routes][:local_server][:library_fetch]) %>";
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:libraries_fetch]) %>";
 
 				break;
 		}
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
-				resolve(response.data);
+				resolve(response.data.library_map);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:library_fetch][:default_error] %>"));
+					return reject(new Error("<%= data[:strings][:request_service][:libraries_fetch][:default_error] %>"));
 				}
 
-				reject(new Error("<%= data[:strings][:request_service][:library_fetch][:error_prefix] %> " + response.data.error_msg));
+				reject(new Error("<%= data[:strings][:request_service][:libraries_fetch][:error_prefix] %> " + response.data.error_msg));
 			});
 		});
 	};

@@ -48,13 +48,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_id] %>");
 				}
 
-				return {
-					sourceType: "library",
-					libraryURL: source != null ? source : this.defaultLibraryURL,
-					id: id,
-					version: version
-				}
-
 				step.libraryURL = source != null ? source : this.defaultLibraryURL;
 				step.id = id;
 				step.version = version;
@@ -123,8 +116,17 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 		var loadPromises = [];
 		var libraryURLs = [];
-		_.each(CVSs, function(aCVS) {
-			var step = new Step(aCVS);
+		var cvsError;
+		_.every(CVSs, function(aCVS) {
+			var step;
+			try {
+				step = stepSourceService.stepFromCVS(aCVS);
+			}
+			catch (error) {
+				cvsError = error;
+
+				return false;
+			}
 
 			if (step.libraryURL === undefined) {
 				loadPromises.push(loadStepWithCVS(aCVS, requestConfig));
@@ -132,40 +134,41 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 			else {
 				libraryURLs.push(step.libraryURL);
 			}
+
+			return true;
 		});
+
+		if (cvsError) {
+			return $q.reject(cvsError);
+		}
+
 		loadPromises.push(loadLibrariesWithURLs(libraryURLs, requestConfig));
 
 		return $q.all(loadPromises);
 	}
 
 	function loadStepWithCVS(cvs, requestConfig) {
-		return $q(function(resolve, reject) {
-			var step;
-			try {
-				step = stepSourceService.stepFromCVS(aCVS);
+		var step;
+		try {
+			step = stepSourceService.stepFromCVS(cvs);
+		}
+		catch (error) {
+			return $q.reject(error);
+		}
+
+		return requestService.stepConfigFetch(step, requestConfig).then(function(defaultStepConfig) {
+			step.defaultStepConfig = defaultStepConfig;
+			if (step.localPath) {
+				stepSourceService.localSteps.push(step);
 			}
-			catch (error) {
-				reject(error);
-
-				return;
+			else if (step.gitURL) {
+				stepSourceService.gitSteps.push(step);
+			}
+			else {
+				// TODO: implement single library step load if neccessary
 			}
 
-			requestService.stepConfigFetch(step, requestConfig).then(function(defaultStepConfig) {
-				step.defaultStepConfig = defaultStepConfig;
-				if (step.localPath) {
-					stepSourceService.localSteps.push(step);
-				}
-				else if (step.gitURL) {
-					stepSourceService.gitSteps.push(step);
-				}
-				else {
-					// TODO: implement single library step load if neccessary
-				}
-
-				resolve();
-			}, function(error) {
-				reject(error);
-			});
+			resolve();
 		});
 	}
 
@@ -177,7 +180,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				});
 			});
 
-			return requestService.postLibraryFetch(notLoadedLibraryURLs, requestConfig).then(function(data) {
+			return requestService.libraryFetch(notLoadedLibraryURLs, requestConfig).then(function(data) {
 				_.each(data, function(aLibraryData, aLibraryURL) {
 					try {
 						var library = {
@@ -194,7 +197,10 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 							library.steps[aStepID] = _.mapObject(aLibraryData.steps[aStepID].versions, function(aStepConfig, version) {
 								var cvs = aStepID + "@" + version;
 
-								return new Step(cvs, undefined, aStepConfig);
+								var step = stepSourceService.stepFromCVS(cvs);
+								step.defaultStepConfig = aStepConfig;
+
+								return step;
 							});
 						});
 

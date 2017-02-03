@@ -52,12 +52,10 @@ angular.module("BitriseWorkflowEditor").controller("AddStepController", function
 	};
 
 	viewModel.filteredSteps = function() {
-		return _.reject(_.map(steps, function(aStep, stepID) {
-			var library = _.find(stepSourceService.libraries, {
+		return _.reject(_.filter(steps, function(aStep) {
+			return _.find(stepSourceService.libraries, {
 				url: aStep.libraryURL
 			});
-			
-			return aStep[library.latestStepVersions[stepID]];
 		}), function(aStep) {
 			if (viewModel.titleFilter.length > 0 && aStep.title().toLowerCase().indexOf(viewModel.titleFilter.toLowerCase()) == -1) {
 				return true;

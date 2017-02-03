@@ -178,10 +178,7 @@ request_service:
   step_config_fetch:
     default_error: Error loading local step
     error_prefix: "Error loading local step: "
-  git_step_fetch:
-    default_error: Error loading git step
-    error_prefix: "Error loading git step: "
-  library_fetch:
+  libraries_fetch:
     default_error: Error loading library
     error_prefix: "Error loading library: "
   load_app_config:
