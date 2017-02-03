@@ -123,7 +123,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.workflowSelected(selectedWorkflow);
 		}, function(error) {
 			viewModel.workflows = undefined;
-			console.log(error);
+			console.log(error.message);
 			viewModel.configureWorkflowsProgress.error(new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>"));
 		});
 	}

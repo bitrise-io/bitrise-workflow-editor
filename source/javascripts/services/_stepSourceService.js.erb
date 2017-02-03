@@ -24,7 +24,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		switch (source) {
 			case "path":
 				if (id.length == 0) {
-					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_path] %>");
+					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_path] %>");
 				}
 
 				step.localPath = id;
@@ -32,7 +32,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				break;
 			case "git":
 				if (id.length == 0) {
-					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_git_url] %>");
+					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_git_url] %>");
 				}
 
 				step.gitURL = id;
@@ -41,11 +41,11 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				break;
 			default:
 				if (!source && !this.defaultLibraryURL) {
-					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_library] %>");
+					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_library] %>");
 				}
 
 				if (id.length == 0) {
-					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_id] %>");
+					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_id] %>");
 				}
 
 				step.libraryURL = source != null ? source : this.defaultLibraryURL;
@@ -57,7 +57,17 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				});
 
 				if (library) {
-					step.defaultStepConfig = library.steps[step.id][step.version].defaultStepConfig;
+					if (!library.steps[step.id]) {
+						throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>"+ step.id);
+					}
+
+					var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
+
+					if (!library.steps[step.id][requestedVersion]) {
+						throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_version_error_prefix] %>"+ requestedVersion);
+					}
+
+					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
 				}
 		}
 
@@ -91,7 +101,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		}
 
 		if (version !== null) {
-			step.cvs += version;
+			step.cvs += "@" + version;
 			step.version = version;
 		}
 		else {
@@ -209,7 +219,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 						resolve();
 					}
 					catch (error) {
-						console.log(error);
+						console.log(error.message);
 						reject(new Error("<%= data[:strings][:step_source_service][:load_library][:default_error] %>"));
 					}
 				});

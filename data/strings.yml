@@ -197,10 +197,12 @@ request_service:
     default_error: Error saving secrets.
     error_prefix: "Error saving secrets: "
 step_source_service:
-  step_info_from_cvs:
+  step_from_cvs:
     no_path: Path not specified.
     no_git_url: Git URL not specified.
     no_library: Step library not specified.
     no_id: Step ID not specified.
+    no_step_with_id_error_prefix: "Step with ID not found in library: "
+    no_step_with_version_error_prefix: "Step with version not found in library: "
   load_library:
     default_error: Error loading library.
