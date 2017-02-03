@@ -61,10 +61,23 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.postLocalStepConfigFetch = function(path, requestConfig) {
-		var requestURL = "<%= local_server_path(data[:routes][:local_server][:local_step_fetch]) %>";
-		var requestData = {
-			path: path
+	requestService.stepConfigFetch = function(step, requestConfig) {
+		var requestURL = "<%= local_server_path(data[:routes][:local_server][:step_config_fetch]) %>";
+		var requestData = {};
+
+		if (step.localPath) {
+			requestData.library = "path";
+			requestData.id = step.localPath;
+		}
+		else if (step.gitURL) {
+			requestData.library = "git";
+			requestData.id = step.gitURL;
+			requestData.version = step.version;
+		}
+		else {
+			requestData.library = step.libraryURL;
+			requestData.id = step.id;
+			requestData.version = step.version;
 		}
 
 		return $q(function(resolve, reject) {
@@ -72,37 +85,22 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(response.data);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:local_step_fetch][:default_error] %>"));
+					return reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"));
 				}
 
-				reject(new Error("<%= data[:strings][:request_service][:local_step_fetch][:error_prefix] %> " + response.data.error_msg));
+				reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %> " + response.data.error_msg));
 			});
 		});
 	};
 
-	requestService.postGitStepConfigFetch = function(gitURL, requestConfig) {
-		var requestURL = "<%= local_server_path(data[:routes][:local_server][:git_step_fetch]) %>";
-		var requestData = {
-			git_url: gitURL
-		}
-
-		return $q(function(resolve, reject) {
-			$http.post(requestURL, requestData, requestConfig).then(function(response) {
-				resolve(response.data);
-			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:git_step_fetch][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:git_step_fetch][:error_prefix] %> " + response.data.error_msg));
-			});
-		});
-	};
-
-	requestService.postLibraryFetch = function(libraryURL, requestConfig) {
+	requestService.libraryFetch = function(libraryURLs, requestConfig) {
 		var requestURL;
-		var requestData = {
-			library_url: libraryURL
+		var requestData;
+
+		if (libraryURLs) {
+			requestData = {
+				libraries: libraryURLs
+			};
 		}
 
 		switch (requestService.mode) {

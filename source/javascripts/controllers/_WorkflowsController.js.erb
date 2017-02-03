@@ -73,18 +73,16 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		stepSourceService.defaultLibraryURL = appService.appConfig.default_step_lib_source;
 
 		return $q(function(resolve, reject) {
-			var stepLoadPromises = [];
+			var CVSs = [];
 			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
 				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
-					var cvs = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
-
-					stepLoadPromises.push(stepSourceService.loadStepWithCVS(cvs, {
-						timeout: canceler.promise
-					}));
+					CVSs.push(Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig));
 				});
 			});
 
-			$q.all(stepLoadPromises).then(function() {
+			stepSourceService.loadStepsWithCVSs(CVSs, {
+				timeout: canceler.promise
+			}).then(function() {
 				try {
 					var allWorkflowsLoadedCallbacks = [];
 

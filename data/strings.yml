@@ -175,7 +175,7 @@ yml:
     loading: Loading, wait a sec...
 request_service:
   invalid_mode: Invalid mode!
-  local_step_fetch:
+  step_config_fetch:
     default_error: Error loading local step
     error_prefix: "Error loading local step: "
   git_step_fetch:
@@ -205,21 +205,5 @@ step_source_service:
     no_git_url: Git URL not specified.
     no_library: Step library not specified.
     no_id: Step ID not specified.
-  load_local_step:
-    error_prefix: "Error loading local step:"
-  load_git_step:
-    error_prefix: "Error loading git step:"
   load_library:
     default_error: Error loading library.
-    error_prefix: "Error loading library: "
-bitrise_steplib_service:
-  load:
-    default_error: Error loading Bitrise steplib.
-    error_prefix: "Error loading Bitrise steplib: "
-  step_from_cvs:
-    multiple_source_separators: "Multiple source separators specified."
-    multiple_version_separators: Multiple version separators specified.
-    no_id: Step ID not specified.
-    id_not_found: Step ID not found in Bitrise steplib.
-    no_version: Step version not specified.
-    version_not_found: Step ID not found in Bitrise steplib.
