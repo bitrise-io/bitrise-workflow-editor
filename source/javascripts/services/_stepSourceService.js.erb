@@ -11,7 +11,9 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		gitSteps: []
 	};
 
-	stepSourceService.stepInfoFromCVS = function(cvs) {
+	stepSourceService.stepFromCVS = function(cvs) {
+		var step = new Step(cvs);
+
 		var idStartIndex = cvs.indexOf("::") != -1 ? cvs.indexOf("::") + 2 : 0;
 		var versionStartIndex = cvs.lastIndexOf("@") != -1 ? cvs.lastIndexOf("@") + 1 : -1;
 
@@ -25,20 +27,18 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_path] %>");
 				}
 
-				return {
-					sourceType: "local",
-					path: id
-				}
+				step.localPath = id;
+
+				break;
 			case "git":
 				if (id.length == 0) {
 					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_git_url] %>");
 				}
 
-				return {
-					sourceType: "git",
-					gitURL: id,
-					version: version
-				}
+				step.gitURL = id;
+				step.version = version;
+
+				break;
 			default:
 				if (!source && !this.defaultLibraryURL) {
 					throw new Error("<%= data[:strings][:step_source_service][:step_info_from_cvs][:no_library] %>");
@@ -54,44 +54,25 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					id: id,
 					version: version
 				}
-		}
-	};
 
-	stepSourceService.stepFromCVS = function(cvs) {
-		var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
-		var step = new Step(cvs);
+				step.libraryURL = source != null ? source : this.defaultLibraryURL;
+				step.id = id;
+				step.version = version;
 
-		switch (source) {
-			case "path":
-				step.localPath = stepInfo.path;
-
-				break;
-			case "git":
-				step.gitURL = stepInfo.gitURL;
-				step.version = stepInfo.version;
-
-				break;
-			default:
-				step.libraryURL = stepInfo.libraryURL;
-				step.id = stepInfo.id;
-				step.version = stepInfo.version;
-
-				var library = _.find(stepSourceService.liraries, {
+				var library = _.find(stepSourceService.libraries, {
 					url: step.libraryURL
 				});
 
 				if (library) {
 					step.defaultStepConfig = library.specs.steps[step.id].versions[step.version];
 				}
-
-				break;
 		}
 
 		return step;
 	};
 
 	stepSourceService.versionsOfStep = function(step) {
-		var library = _.find(stepSourceService.liraries, {
+		var library = _.find(stepSourceService.libraries, {
 			url: step.libraryURL
 		});
 
@@ -103,7 +84,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 	};
 
 	stepSourceService.changeStepToVersion = function(step, version) {
-		var library = _.find(stepSourceService.liraries, {
+		var library = _.find(stepSourceService.libraries, {
 			url: step.libraryURL
 		});
 

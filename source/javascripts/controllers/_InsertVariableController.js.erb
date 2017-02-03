@@ -131,7 +131,14 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 				return true;
 			}
 
-			var step = stepSourceService.stepFromCVS(stepCVS);
+			var step;
+			try {
+				step = stepSourceService.stepFromCVS(stepCVS);
+			}
+			catch (error) {
+				return false;
+			}
+
 			if (!step.defaultStepConfig || !step.defaultStepConfig.outputs) {
 				return false;
 			}

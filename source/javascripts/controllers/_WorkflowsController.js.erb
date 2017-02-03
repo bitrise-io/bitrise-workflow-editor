@@ -80,7 +80,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 					stepLoadPromises.push(stepSourceService.loadStepWithCVS(cvs, {
 						timeout: canceler.promise
-					});
+					}));
 				});
 			});
 
