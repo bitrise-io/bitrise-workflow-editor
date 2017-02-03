@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, bitriseSteplibService, Step, Variable) {
+angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, stepSourceService, Step, Variable) {
 
 	var Workflow = function(id, workflowConfig) {
 		this.id = id;
@@ -18,10 +18,11 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 			var userStepConfig = aWrappedUserStepConfig[stepCVS];
 
 			try {
-				step = bitriseSteplibService.stepFromCVS(stepCVS);
+				step = stepSourceService.stepFromCVS(stepCVS);
 				step.userStepConfig = userStepConfig;
 			}
 			catch (error) {
+				console.log(error.message);
 				step = new Step(stepCVS, userStepConfig);
 			}
 

@@ -31,46 +31,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 	};
 
-	requestService.getSpec = function(requestConfig) {
-		var requestURL;
-
-		switch (requestService.mode) {
-			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:spec_get]) %>";
-
-				break;
-			case "cli":
-				requestURL = "<%= local_server_path(data[:routes][:local_server][:spec_get]) %>";
-
-				break;
-		}
-
-		return $q(function(resolve, reject) {
-			$http.get(requestURL, requestConfig).then(function(response) {
-				var data;
-
-				switch (requestService.mode) {
-					case "website":
-						data = response.data;
-
-						break;
-					case "cli":
-						data = response.data[0].spec;
-
-						break;
-				}
-
-				resolve(data);
-			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:get_spec][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:get_spec][:error_prefix] %> " + response.data.error_msg));
-			});
-		});
-	};
-
 	requestService.getAppConfig = function(requestConfig) {
 		var requestURL;
 
@@ -97,6 +57,72 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				}
 
 				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.stepConfigFetch = function(step, requestConfig) {
+		var requestURL = "<%= local_server_path(data[:routes][:local_server][:step_config_fetch]) %>";
+		var requestData = {};
+
+		if (step.localPath) {
+			requestData.library = "path";
+			requestData.id = step.localPath;
+		}
+		else if (step.gitURL) {
+			requestData.library = "git";
+			requestData.id = step.gitURL;
+			requestData.version = step.version;
+		}
+		else {
+			requestData.library = step.libraryURL;
+			requestData.id = step.id;
+			requestData.version = step.version;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %> " + response.data.error_msg));
+			});
+		});
+	};
+
+	requestService.libraryFetch = function(libraryURLs, requestConfig) {
+		var requestURL;
+		var requestData;
+
+		if (libraryURLs) {
+			requestData = {
+				libraries: libraryURLs
+			};
+		}
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = "<%= webserver_path(data[:routes][:website][:libraries_fetch]) %>";
+
+				break;
+			case "cli":
+				requestURL = "<%= local_server_path(data[:routes][:local_server][:libraries_fetch]) %>";
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve(response.data.library_map);
+			}, function(response) {
+				if (!response || !response.data || !response.data.error_msg) {
+					return reject(new Error("<%= data[:strings][:request_service][:libraries_fetch][:default_error] %>"));
+				}
+
+				reject(new Error("<%= data[:strings][:request_service][:libraries_fetch][:error_prefix] %> " + response.data.error_msg));
 			});
 		});
 	};

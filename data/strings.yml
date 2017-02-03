@@ -53,8 +53,6 @@ workflows:
   steps:
     start: "Start"
     end: "End"
-    cvs_error: Error loading step from provided identifier.
-    non_bitrise_steplib_step_info: This step is not from the Bitrise Steplib, thus editing via the Workflow Editor is not available.
     add:
       select: "Select a step from the list below:"
       title_filter_placeholder: Step name, e. g. 'script'
@@ -177,9 +175,12 @@ yml:
     loading: Loading, wait a sec...
 request_service:
   invalid_mode: Invalid mode!
-  get_spec:
-    default_error: Error loading steplib specs.
-    error_prefix: "Error loading steplib specs: "
+  step_config_fetch:
+    default_error: Error loading local step
+    error_prefix: "Error loading local step: "
+  libraries_fetch:
+    default_error: Error loading library
+    error_prefix: "Error loading library: "
   load_app_config:
     default_error: Error loading app config.
     error_prefix: "Error loading app config: "
@@ -195,14 +196,13 @@ request_service:
   save_secrets:
     default_error: Error saving secrets.
     error_prefix: "Error saving secrets: "
-bitrise_steplib_service:
-  load:
-    default_error: Error loading Bitrise steplib.
-    error_prefix: "Error loading Bitrise steplib: "
+step_source_service:
   step_from_cvs:
-    multiple_source_separators: "Multiple source separators specified."
-    multiple_version_separators: Multiple version separators specified.
+    no_path: Path not specified.
+    no_git_url: Git URL not specified.
+    no_library: Step library not specified.
     no_id: Step ID not specified.
-    id_not_found: Step ID not found in Bitrise steplib.
-    no_version: Step version not specified.
-    version_not_found: Step ID not found in Bitrise steplib.
+    no_step_with_id_error_prefix: "Step with ID not found in library: "
+    no_step_with_version_error_prefix: "Step with version not found in library: "
+  load_library:
+    default_error: Error loading library.

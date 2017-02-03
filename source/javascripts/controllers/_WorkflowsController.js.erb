@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, bitriseSteplibService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, stepSourceService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
 
 	var viewModel = this;
 
@@ -70,8 +70,17 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
 
+		stepSourceService.defaultLibraryURL = appService.appConfig.default_step_lib_source;
+
 		return $q(function(resolve, reject) {
-			bitriseSteplibService.load({
+			var CVSs = [];
+			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+					CVSs.push(Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig));
+				});
+			});
+
+			stepSourceService.loadStepsWithCVSs(CVSs, {
 				timeout: canceler.promise
 			}).then(function() {
 				try {
@@ -114,7 +123,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.workflowSelected(selectedWorkflow);
 		}, function(error) {
 			viewModel.workflows = undefined;
-			console.log(error);
+			console.log(error.message);
 			viewModel.configureWorkflowsProgress.error(new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>"));
 		});
 	}
