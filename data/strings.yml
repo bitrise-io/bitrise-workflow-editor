@@ -175,13 +175,13 @@ yml:
     loading: Loading, wait a sec...
 request_service:
   invalid_mode: Invalid mode!
-  get_local_step:
+  local_step_fetch:
     default_error: Error loading local step
     error_prefix: "Error loading local step: "
-  get_git_step:
+  git_step_fetch:
     default_error: Error loading git step
     error_prefix: "Error loading git step: "
-  get_library:
+  library_fetch:
     default_error: Error loading library
     error_prefix: "Error loading library: "
   load_app_config:

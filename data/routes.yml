@@ -13,9 +13,9 @@ templates:
   triggers: /templates/triggers
   yml: /templates/yml
 website:
-  local_step_get: # TODO: specify
-  git_step_get: # TODO: specify
-  library_get: # TODO: specify
+  local_step_fetch: # TODO: specify
+  git_step_fetch: # TODO: specify
+  library_fetch: # TODO: specify
   app_config_get: /api/app/<app_slug>/config/download?api_token=<api_token>
   app_config_post: /api/app/<app_slug>/config/upload?api_token=<api_token>
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json?api_token=<api_token>
@@ -30,9 +30,9 @@ website:
   yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
   yml_post: /api/app/<app_slug>/config.json?api_token=<api_token>
 local_server:
-  local_step_get: # TODO: specify
-  git_step_get: # TODO: specify
-  library_get: # TODO: specify
+  local_step_fetch: # TODO: specify
+  git_step_fetch: # TODO: specify
+  library_fetch: # TODO: specify
   app_config_get: /api/bitrise-yml.json
   app_config_post: /api/bitrise-yml.json
   default_outputs_get: /api/default-outputs

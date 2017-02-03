@@ -123,7 +123,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		return $q(function(resolve, reject) {
 			var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
 
-			requestService.getLocalStepConfig(stepInfo.path, requestConfig).then(function(stepConfig) {
+			requestService.postLocalStepConfigFetch(stepInfo.path, requestConfig).then(function(stepConfig) {
 				var step = new Step(cvs, stepConfig);
 				step.localPath = stepInfo.path;
 
@@ -148,7 +148,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		return $q(function(resolve, reject) {
 			var stepInfo = stepSourceService.stepInfoFromCVS(cvs);
 
-			requestService.getGitStepConfig(stepInfo.gitURL, requestConfig).then(function(stepConfig) {
+			requestService.postGitStepConfigFetch(stepInfo.gitURL, requestConfig).then(function(stepConfig) {
 				var step = new Step(cvs, stepConfig);
 				step.gitURL = stepInfo.gitURL;
 				step.version = stepInfo.version;
@@ -180,7 +180,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				return;
 			}
 
-			requestService.getLibrary(libraryURL, requestConfig).then(function(specs) {
+			requestService.postLibraryFetch(libraryURL, requestConfig).then(function(specs) {
 				try {
 					var library = {
 						url: libraryURL
