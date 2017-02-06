@@ -205,6 +205,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		}
 	}));
 
+	$scope.$on("$destroy", $rootScope.$on("SecretsController::checkUnsavedChanges", function(event, changeCheckDeferer) {
+		changeCheckDeferer.resolve(!angular.equals(_.first(viewModel.envVarsBySource).savedEnvVars, _.first(viewModel.envVarsBySource).envVars));
+	}));
+
 	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {
 		requestService.postSecrets(_.find(viewModel.envVarsBySource, {
 			type: "secrets"

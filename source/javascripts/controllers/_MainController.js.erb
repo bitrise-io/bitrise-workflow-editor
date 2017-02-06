@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, appService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, appService, stringService, Progress, Popup) {
 
 	var viewModel = this;
 
@@ -58,6 +58,19 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}]);
 	}
 
+	function selectInitialMenu() {
+		var initialPath = $location.path();
+		if (!initialPath) {
+			initialPath = "/" + _.find(viewModel.menus, {
+				id: "workflows"
+			}).path;
+		}
+
+		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
+			return "/" + aMenu.path == initialPath;
+		});
+	}
+
 	function loadAppConfig() {
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
@@ -66,7 +79,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				if (appService.appConfigHasDeprecatedTriggerMap()) {
 					appService.updateDeprecatedTriggerMap();
 
-					Popup.showNoticePopup("Triggers are changing for the better", ["We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs.<p></p><p>You don't have to worry, though, everything you've set so far will work the same!", "For more information, please check the <a href='http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html'>blogpost</a>!"]).then(save).then(resolve, reject);
+					Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:triggers][:update_deprecated_popup][:details_2] %>", {
+						url: "<%= data[:routes][:blog][:new_triggers] %>"
+					})]).then(save).then(resolve, reject);
 				}
 				else {
 					resolve();
@@ -82,6 +97,72 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.loadAppConfigProgress.error(error);
 		});
 	}
+
+	viewModel.menuSelected = function(menu) {
+		viewModel.menuProgress.start("Loading, wait a sec...");
+
+		$q(function(resolve, reject) {
+			if (!viewModel.currentMenu) {
+				resolve();
+
+				return;
+			}
+
+			var changeCheckDeferer = $q.defer();
+
+			switch (viewModel.currentMenu.id) {
+				case "workflows":
+				case "env-vars":
+				case "triggers":
+					if (_.contains(["workflows", "env-vars", "triggers"], menu.id)) {
+						resolve();
+
+						return;
+					}
+
+					changeCheckDeferer.resolve(!angular.equals(appService.appConfig, appService.savedAppConfig));
+
+					break;
+				case "secrets":
+					$rootScope.$emit("SecretsController::checkUnsavedChanges", changeCheckDeferer);
+
+					break;
+				case "yml":
+					$rootScope.$emit("YMLController::checkUnsavedChanges", changeCheckDeferer);
+
+					break;
+			}
+
+			changeCheckDeferer.promise.then(function(hasUnsavedChanges) {
+				if (!hasUnsavedChanges) {
+					resolve();
+
+					return;
+				}
+
+				Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
+					save().then(function() {
+						resolve();
+					}, function() {
+						reject();
+					});
+				}, function() {
+					reject();
+				});
+			});
+		}).then(function() {
+			viewModel.currentMenu = menu;
+			$location.path("/" + menu.path);
+
+			viewModel.menuProgress.success();
+		}, function() {
+			viewModel.menuProgress.success();
+		});
+	};
+
+	$scope.$on("$routeChangeError", function() {
+		viewModel.menuProgress.error(new Error("Failed to load menu."));
+	});
 
 	function save() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
@@ -139,22 +220,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		return saveDeferer.promise;
 	}
 
-	$scope.$on("$routeChangeStart", function() {
-		viewModel.menuProgress.start("Loading, wait a sec...");
-	});
-
-	$scope.$on("$routeChangeSuccess", function() {
-		viewModel.menuProgress.success();
-
-		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
-			return $location.path() == "/" + aMenu.path;
-		});
-	});
-
-	$scope.$on("$routeChangeError", function() {
-		viewModel.menuProgress.error(new Error("Failed to load menu."));
-	});
-
 	viewModel.discardChangesSelected = function() {
 		appService.discardChanges();
 		$rootScope.$emit("MainController::discardChanges");
@@ -174,6 +239,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	});
 
 	configureMode();
+	selectInitialMenu();
 
 });
 

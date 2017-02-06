@@ -78,7 +78,7 @@
 		}
 	}
 
-	.popup-body#default-alert-popup-body {
+	.popup-body#default-alert-popup-body, .popup-body#default-confirm-popup-body {
 		overflow: visible;
 		text-align: center;
 
@@ -145,7 +145,7 @@
 		}
 	}
 
-	.popup-body#default-alert-popup-body.error {
+	.popup-body#default-alert-popup-body.error, .popup-body#default-confirm-popup-body {
 
 		&:before {
 			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("cross") %>', (
@@ -204,6 +204,24 @@
 			button:hover, button:focus {
 				background-color: $def-blue-shade;
 			}
+		}
+	}
+
+	.popup-body#default-confirm-popup-body {
+		button.yes {
+			background-color: $def-green;
+		}
+
+		button.yes:hover, button.yes:focus {
+			background-color: $def-green-shade;
+		}
+
+		button.no {
+			background-color: $def-danger;
+		}
+
+		button.no:hover, button.no:focus {
+			background-color: $def-danger-shade;
 		}
 	}
 }

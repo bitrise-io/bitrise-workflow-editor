@@ -29,6 +29,14 @@ angular.module("BitriseWorkflowEditor").factory("Popup", function($rootScope, $q
 		return deferer.promise;
 	};
 
+	Popup.showConfirmPopup = function(title, details, yesTitle, noTitle, yesCallback, noCallback) {
+		var deferer = $q.defer();
+
+		$rootScope.$emit("DefaultPopupController::showConfirmPopup", title, details, yesTitle, noTitle, yesCallback, noCallback, deferer);
+
+		return deferer.promise;
+	};
+
 	return Popup;
 
 });
