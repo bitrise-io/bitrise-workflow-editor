@@ -18,6 +18,7 @@ main:
     details: You need to save your unsaved changes before leaving this tab.
     save: Save
     cancel: Cancel
+  tab_close_confirm_message: You have unsaved changes. Press OK to confirm, or Cancel to stay on the current page.
 alert_popup:
   ok: OK
   cancel: Cancel

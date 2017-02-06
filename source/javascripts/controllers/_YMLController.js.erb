@@ -2,12 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, $q, requestService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, $q, appService, requestService, Progress) {
 
 	var viewModel = this;
 
-	viewModel.appConfigYML;
-	var savedAppConfigYML;
+	viewModel.appService = appService;
 	viewModel.loadAppConfigYMLProgress = new Progress();
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
@@ -20,12 +19,9 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 			canceler.resolve();
 		});
 
-		requestService.getAppConfigYML({
+		appService.getAppConfigYML({
 			timeout: canceler.promise
-		}).then(function(appConfigYML) {
-			viewModel.appConfigYML = appConfigYML;
-			savedAppConfigYML = appConfigYML;
-
+		}).then(function() {
 			configureACE();
 
 			viewModel.loadAppConfigYMLProgress.success();
@@ -35,7 +31,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	}
 
 	$scope.$on("$destroy", $rootScope.$on("YMLController::saveAppConfigYML", function(event, resolve, reject) {
-		requestService.postAppConfigYML(viewModel.appConfigYML).then(function(appConfigYML) {
+		appService.saveAppConfigYML().then(function() {
 			resolve();
 
 			loadAppConfigYML();
@@ -45,11 +41,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
-		viewModel.appConfigYML = savedAppConfigYML;
-	}));
-
-	$scope.$on("$destroy", $rootScope.$on("YMLController::checkUnsavedChanges", function(event, changeCheckDeferer) {
-		changeCheckDeferer.resolve(!angular.equals(viewModel.appConfigYML, savedAppConfigYML));
+		appService.discardAppConfigYMLChanges();
 	}));
 
 	function configureACE() {
@@ -68,7 +60,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 			vScrollBarAlwaysVisible: true,
 			tabSize: 2
 		});
-		editor.setValue(viewModel.appConfigYML);
+		editor.setValue(appService.appConfigYML);
 		editor.focus();
 		editor.gotoLine(1);
 

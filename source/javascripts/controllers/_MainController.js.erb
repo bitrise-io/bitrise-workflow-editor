@@ -108,47 +108,26 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return;
 			}
 
-			var changeCheckDeferer = $q.defer();
+			if (_.contains(["workflows", "env-vars", "triggers"], viewModel.currentMenu.id) && _.contains(["workflows", "env-vars", "triggers"], menu.id)) {
+				resolve();
 
-			switch (viewModel.currentMenu.id) {
-				case "workflows":
-				case "env-vars":
-				case "triggers":
-					if (_.contains(["workflows", "env-vars", "triggers"], menu.id)) {
-						resolve();
-
-						return;
-					}
-
-					changeCheckDeferer.resolve(!angular.equals(appService.appConfig, appService.savedAppConfig));
-
-					break;
-				case "secrets":
-					$rootScope.$emit("SecretsController::checkUnsavedChanges", changeCheckDeferer);
-
-					break;
-				case "yml":
-					$rootScope.$emit("YMLController::checkUnsavedChanges", changeCheckDeferer);
-
-					break;
+				return;
 			}
 
-			changeCheckDeferer.promise.then(function(hasUnsavedChanges) {
-				if (!hasUnsavedChanges) {
+			if (!hasUnsavedChanges()) {
+				resolve();
+
+				return;
+			}
+
+			Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
+				save().then(function() {
 					resolve();
-
-					return;
-				}
-
-				Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
-					save().then(function() {
-						resolve();
-					}, function() {
-						reject();
-					});
 				}, function() {
 					reject();
 				});
+			}, function() {
+				reject();
 			});
 		}).then(function() {
 			viewModel.currentMenu = menu;
@@ -162,6 +141,25 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	$scope.$on("$routeChangeError", function() {
 		viewModel.menuProgress.error(new Error("Failed to load menu."));
+	});
+
+	function hasUnsavedChanges() {
+		switch (viewModel.currentMenu.id) {
+			case "workflows":
+			case "env-vars":
+			case "triggers":
+				return !angular.equals(appService.appConfig, appService.savedAppConfig);
+			case "secrets":
+				return !angular.equals(appService.secrets, appService.savedSecrets);
+			case "yml":
+				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
+		}
+	}
+
+	$(window).on("beforeunload", function() {
+		if (hasUnsavedChanges()) {
+			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
+		}
 	});
 
 	function save() {
@@ -221,7 +219,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	}
 
 	viewModel.discardChangesSelected = function() {
-		appService.discardChanges();
+		appService.discardAppConfigChanges();
 		$rootScope.$emit("MainController::discardChanges");
 	};
 

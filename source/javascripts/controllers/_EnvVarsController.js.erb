@@ -7,14 +7,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	var viewModel = this;
 
 	var mode;
-	var defaultEnvVarConfig = {
-		opts: {
-			is_expand: true
-		}
-	};
 	var envVarsWatchers;
 
-	viewModel.secretConfigs;
 	viewModel.loadEnvVarsProgress = new Progress();
 	viewModel.envVarsBySource;
 
@@ -30,7 +24,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
 		switch (mode) {
 			case "secrets":
-				_.first(viewModel.envVarsBySource).envVars = angular.copy(_.first(viewModel.envVarsBySource).savedEnvVars);
+				appService.discardSecretsChanges();
+				_.first(viewModel.envVarsBySource).envVars = appService.secrets;
 
 				break;
 			case "env-vars":
@@ -62,20 +57,14 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			canceler.resolve();
 		});
 
-		requestService.getSecrets({
+		appService.getSecrets({
 			timeout: canceler.promise
-		}).then(function(secretConfigs) {
-			viewModel.secretConfigs = secretConfigs;
-
+		}).then(function() {
 			viewModel.envVarsBySource = [{
 				type: "secrets",
 				notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
-				envVars: _.map(secretConfigs, function(aSecretConfig) {
-					return new Variable(aSecretConfig, defaultEnvVarConfig);
-				})
+				envVars: appService.secrets
 			}];
-
-			_.first(viewModel.envVarsBySource).savedEnvVars = angular.copy(_.first(viewModel.envVarsBySource).envVars);
 
 			configureEnvVarsWatchers();
 
@@ -92,7 +81,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			type: "app",
 			warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
 			envVars: _.map(appService.appConfig.app && appService.appConfig.app.envs ? appService.appConfig.app.envs : [], function(anAppEnvVarConfig) {
-				return new Variable(anAppEnvVarConfig, defaultEnvVarConfig);
+				return new Variable(anAppEnvVarConfig, Variable.defaultVariableConfig());
 			})
 		});
 
@@ -104,7 +93,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 					workflow_id: aWorkflowID
 				}),
 				envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-					return new Variable(anEnvVarConfig, defaultEnvVarConfig);
+					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 				})
 			});
 		});
@@ -124,16 +113,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				return envVarsOfSource;
 			}, function(envVarsOfSource) {
 				switch (envVarsOfSource.type) {
-					case "secrets":
-						if (!viewModel.secretConfigs) {
-							return;
-						}
-
-						viewModel.secretConfigs.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
-							return anEnvVar.userVariableConfig;
-						});
-
-						break;
 					case "app":
 						if (!appService.appConfig) {
 							return;
@@ -179,7 +158,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.addToEnvVars = function(envVars) {
 		var newEnvVar = new Variable({
 			"<%= data[:strings][:env_vars][:new_default_key] %>": ""
-		}, defaultEnvVarConfig);
+		}, Variable.defaultVariableConfig());
 
 		envVars.push(newEnvVar);
 	};
@@ -205,19 +184,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		}
 	}));
 
-	$scope.$on("$destroy", $rootScope.$on("SecretsController::checkUnsavedChanges", function(event, changeCheckDeferer) {
-		changeCheckDeferer.resolve(!angular.equals(_.first(viewModel.envVarsBySource).savedEnvVars, _.first(viewModel.envVarsBySource).envVars));
-	}));
-
 	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {
-		requestService.postSecrets(_.find(viewModel.envVarsBySource, {
-			type: "secrets"
-		}).envVars).then(function() {
+		appService.saveSecrets().then(function() {
 			resolve();
 
 			loadSecrets();
 		}, function(error) {
-			reject(error)
+			reject(error);
 		});
 	}));
 

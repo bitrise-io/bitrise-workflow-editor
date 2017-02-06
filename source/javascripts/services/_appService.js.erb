@@ -6,7 +6,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 
 	var appService = {
 		appConfig: undefined,
-		savedAppConfig: undefined
+		savedAppConfig: undefined,
+		secrets: undefined,
+		savedSecrets: undefined,
+		appConfigYML: undefined,
+		savedAppConfigYML: undefined
 	};
 
 	appService.getAppConfig = function(requestConfig) {
@@ -86,11 +90,52 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 	appService.saveAppConfig = function(requestConfig) {
 		return requestService.postAppConfig(this.appConfig, requestConfig).then(function() {
 			appService.savedAppConfig = angular.copy(appService.appConfig);
+			appService.appConfigYML = undefined;
+			appService.savedAppConfigYML = undefined;
 		});
 	};
 
-	appService.discardChanges = function() {
+	appService.discardAppConfigChanges = function() {
 		this.appConfig = angular.copy(this.savedAppConfig);
+	};
+
+	appService.getSecrets = function(requestConfig) {
+		return requestService.getSecrets(requestConfig).then(function(secretConfigs) {
+			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
+				return new Variable(aSecretConfig, Variable.defaultVariableConfig());
+			});
+
+			appService.savedSecrets = angular.copy(appService.secrets);
+		});
+	};
+
+	appService.saveSecrets = function() {
+		return requestService.postSecrets(appService.secrets).then(function() {
+			appService.savedSecrets = angular.copy(appService.secrets);
+		});
+	};
+
+	appService.discardSecretsChanges = function() {
+		appService.secrets = angular.copy(appService.savedSecrets);
+	};
+
+	appService.getAppConfigYML = function(requestConfig) {
+		return requestService.getAppConfigYML(requestConfig).then(function(appConfigYML) {
+			appService.appConfigYML = appConfigYML;
+			appService.savedAppConfigYML = appConfigYML;
+		});
+	};
+
+	appService.saveAppConfigYML = function() {
+		return requestService.postAppConfigYML(appService.appConfigYML).then(function(appConfigYML) {
+			appService.appConfig = undefined;
+			appService.savedAppConfig = undefined;
+			appService.savedAppConfigYML = appService.appConfigYML;
+		});
+	};
+
+	appService.discardAppConfigYMLChanges = function() {
+		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 	};
 
 	return appService;

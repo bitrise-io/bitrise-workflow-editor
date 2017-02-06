@@ -9,6 +9,14 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		this.defaultVariableConfig = defaultVariableConfig;
 	};
 
+	Variable.defaultVariableConfig = function() {
+		return {
+			opts: {
+				is_expand: true
+			}
+		};
+	};
+
 	Variable.prototype.key = function(newKey) {
 		var keySourceVariableConfig = this.userVariableConfig ? this.userVariableConfig : this.defaultVariableConfig;
 		var oldKey = Variable.keyFromVariableConfig(keySourceVariableConfig);
