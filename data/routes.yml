@@ -45,3 +45,5 @@ devcenter:
   codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
   xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
   apk: https://bitrise-io.github.io/devcenter/tutorials/create-signed-apk-on-bitrise/
+blog:
+  new_triggers: http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html

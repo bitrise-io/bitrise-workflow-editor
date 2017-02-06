@@ -13,6 +13,11 @@ main:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...
     save_error: Error saving!
+  confirm_tab_change_save_popup:
+    title: Unsaved changes
+    details: You need to save your unsaved changes before leaving this tab.
+    save: Save
+    cancel: Cancel
 alert_popup:
   ok: OK
   cancel: Cancel
@@ -156,6 +161,10 @@ env_vars:
     title_postfix: Workflow Environment Variables
     notification: "You can specify Env Vars which will only be available for the steps in your <workflow_id> Workflow."
 triggers:
+  update_deprecated_popup:
+    title: Triggers are changing for the better
+    details_1: We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs. You don't have to worry, though, everything you've set so far will work the same!
+    details_2: For more information, please check the <a href='<url>' target='_blank'>blogpost</a>!
   add: Add trigger
   push_branch: Push branch
   source_branch: Source branch

@@ -18,7 +18,7 @@ angular.module("BitriseWorkflowEditor").factory("Popup", function($rootScope, $q
 	};
 
 	Popup.showNoticePopup = function(title, details, okTitle) {
-		return showAlertPopup("error", title, details, okTitle);
+		return showAlertPopup("notice", title, details, okTitle);
 	};
 
 	function showAlertPopup(typeID, title, details, okTitle) {
