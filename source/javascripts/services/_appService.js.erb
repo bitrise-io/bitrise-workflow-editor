@@ -66,8 +66,6 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 				return;
 			}
 
-			appConfigContainsDeprecatedTriggers = true;
-
 			var pushTriggerConfig = {
 				workflow: aTriggerConfig.workflow,
 				push_branch: aTriggerConfig.pattern

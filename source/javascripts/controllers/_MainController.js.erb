@@ -62,10 +62,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
 		appService.getAppConfig().then(function() {
-			var appConfighasDeprecatedTriggerMap = appService.appConfigHasDeprecatedTriggerMap();
-
 			$q(function(resolve, reject) {
-				if (appConfighasDeprecatedTriggerMap) {
+				if (appService.appConfigHasDeprecatedTriggerMap()) {
 					appService.updateDeprecatedTriggerMap();
 
 					Popup.showNoticePopup("Triggers are changing for the better", ["We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs.<p></p><p>You don't have to worry, though, everything you've set so far will work the same!", "For more information, please check the <a href='http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html'>blogpost</a>!"]).then(save).then(resolve, reject);
