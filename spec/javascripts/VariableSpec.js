@@ -89,6 +89,42 @@ describe("Variable", function() {
 
 	});
 
+	describe("isValidKey", function() {
+
+		it("should return undefined if key is not defined", function() {
+			expect(Variable.isValidKey(undefined)).toBeUndefined();
+		});
+
+		it("should return false if key is empty", function() {
+			expect(Variable.isValidKey("")).toBeFalsy();
+		});
+
+		it("should return false if key starts with number", function() {
+			expect(Variable.isValidKey("1")).toBeFalsy();
+			expect(Variable.isValidKey("1ABC")).toBeFalsy();
+		});
+
+		it("should return true if key contains number, but does not start with it", function() {
+			expect(Variable.isValidKey("ABC1")).toBeTruthy();
+			expect(Variable.isValidKey("AB1C")).toBeTruthy();
+		});
+
+		it("should return false if key contains something other than numbers, letters, or underscore", function() {
+			expect(Variable.isValidKey("ABC-123")).toBeFalsy();
+			expect(Variable.isValidKey("ABC?123")).toBeFalsy();
+			expect(Variable.isValidKey("ABC.123")).toBeFalsy();
+			expect(Variable.isValidKey("ABC-123")).toBeFalsy();
+		});
+
+		it("should return true even if key contains small letters, or underscore", function() {
+			expect(Variable.isValidKey("ABC1def")).toBeTruthy();
+			expect(Variable.isValidKey("abc1DEF")).toBeTruthy();
+			expect(Variable.isValidKey("ABC_DEF")).toBeTruthy();
+			expect(Variable.isValidKey("_ABC_DEF_")).toBeTruthy();
+		});
+
+	});
+
 	describe("value", function() {
 
 		it("should return user defined value if is defined", function() {

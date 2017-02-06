@@ -140,7 +140,7 @@ env_vars:
   replace_variables_label: "Replace variables in inputs?"
   delete_env_var: "Delete"
   new_default_key: "KEY"
-  env_var_without_key: "One or more Environment Variable does not have key."
+  invalid_env_var_key: "One or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
   key_placeholder: "Key"
   value_placeholder: "Value"
   secrets:

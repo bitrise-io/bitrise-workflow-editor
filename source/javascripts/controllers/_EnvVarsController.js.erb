@@ -195,10 +195,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 		if (_.any(viewModel.envVarsBySource, function(envVarsOfSource) {
 			return _.any(envVarsOfSource.envVars, function(anEnvVar) {
-				return anEnvVar.key().length == 0;
+				return !Variable.isValidKey(anEnvVar.key());
 			});
 		})) {
-			validationConfig.validationDeferer.reject(new Error("<%= data[:strings][:env_vars][:env_var_without_key] %>"));
+			validationConfig.validationDeferer.reject(new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>"));
 		}
 		else {
 			validationConfig.validationDeferer.resolve();
