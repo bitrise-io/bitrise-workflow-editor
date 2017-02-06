@@ -18,13 +18,21 @@ angular.module("BitriseWorkflowEditor").factory("Popup", function($rootScope, $q
 	};
 
 	Popup.showNoticePopup = function(title, details, okTitle) {
-		return showAlertPopup("notice", title, details, okTitle);
+		return showAlertPopup("error", title, details, okTitle);
 	};
 
 	function showAlertPopup(typeID, title, details, okTitle) {
 		var deferer = $q.defer();
 
 		$rootScope.$emit("DefaultPopupController::showAlertPopup", typeID, title, details, okTitle, deferer);
+
+		return deferer.promise;
+	};
+
+	Popup.showConfirmPopup = function(title, details, yesTitle, noTitle, yesCallback, noCallback) {
+		var deferer = $q.defer();
+
+		$rootScope.$emit("DefaultPopupController::showConfirmPopup", title, details, yesTitle, noTitle, yesCallback, noCallback, deferer);
 
 		return deferer.promise;
 	};

@@ -5,7 +5,7 @@ layout: layout
 main[ng-controller="MainController as mainCtrl"]
 	header.menu
 		nav
-			a[ng-repeat="menu in mainCtrl.menus" ng-href="\#{{ menu.path }}" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
+			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
 				span.icon[ng-if="menu.cssClass == 'workflows'"] == svg("main/menuicon-workflows")
 				span.icon[ng-if="menu.cssClass == 'code-signing'"] == svg("main/menuicon-code_signing")
 				span.icon[ng-if="menu.cssClass == 'secrets'"] == svg("main/menuicon-secrets")
@@ -30,3 +30,11 @@ aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 				p[ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details" ng-bind-html="detail"]
 			footer
 				button[ng-click="defaultPopupCtrl.alertPopup.isVisible = false" ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"]
+	popup[model="defaultPopupCtrl.confirmPopup"]
+		.popup-body#default-confirm-popup-body
+			article.vertical-scroll
+				h2[ng-bind="defaultPopupCtrl.confirmPopup.parameters.title"]
+				p[ng-repeat="detail in defaultPopupCtrl.confirmPopup.parameters.details" ng-bind-html="detail"]
+			footer
+				button.yes[ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle"]
+				button.no[ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle"]

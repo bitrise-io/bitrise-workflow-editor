@@ -16,6 +16,9 @@ main:
 alert_popup:
   ok: OK
   cancel: Cancel
+confirm_popup:
+  "yes": "Yes"
+  "no": "No"
 workflows:
   load_workflows_progress:
     in_progress: Loading workflows...

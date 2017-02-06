@@ -25,7 +25,7 @@ main {
 			@include display-flex;
 			margin-right: auto;
 
-			a {
+			button.tab {
 
 				&:before {
 					$border_width: 4px;
@@ -67,7 +67,7 @@ main {
 				}
 			}
 
-			a:hover:not(.current), a:focus:not(.current) {
+			button.tab:hover:not(.current), button.tab:focus:not(.current) {
 				$color: $def-green;
 
 				color: $color;
@@ -77,7 +77,7 @@ main {
 				}
 			}
 
-			a:not(.current) {
+			button.tab:not(.current) {
 				$transition_duration: $def-transition_duration;
 
 				@include transition(color $transition_duration);
@@ -87,7 +87,7 @@ main {
 				}
 			}
 
-			a.current {
+			button.tab.current {
 				$color: black;
 
 				color: $color;
@@ -101,33 +101,33 @@ main {
 				}
 			}
 
-			a.workflows span.icon svg {
+			button.tab.workflows span.icon svg {
 				top: -1px;
 				@include size(18px, 12px);
 			}
 
-			a.code-signing span.icon svg {
+			button.tab.code-signing span.icon svg {
 				top: 0px;
 				// TODO: size width
 				@include size(auto, 15px);
 			}
 
-			a.secrets span.icon svg {
+			button.tab.secrets span.icon svg {
 				top: -1px;
 				@include size(11px, 13px);
 			}
 
-			a.env-vars span.icon svg {
+			button.tab.env-vars span.icon svg {
 				top: -1px;
 				@include size(9px, 16px);
 			}
 
-			a.triggers span.icon svg {
+			button.tab.triggers span.icon svg {
 				top: -1px;
 				@include size(9px, 17px);
 			}
 
-			a.yml span.icon svg {
+			button.tab.yml span.icon svg {
 				top: 0px;
 				@include size(15px, 9px);
 			}

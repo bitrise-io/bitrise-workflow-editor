@@ -10,13 +10,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 	};
 
 	appService.getAppConfig = function(requestConfig) {
-		var self = this;
-
 		return requestService.getAppConfig(requestConfig).then(function(appConfig) {
-			self.appConfig = appConfig;
-			self.minimizeAppConfig();
+			appService.appConfig = appConfig;
+			appService.minimizeAppConfig();
 
-			self.savedAppConfig = angular.copy(self.appConfig);
+			appService.savedAppConfig = angular.copy(appService.appConfig);
 		});
 	};
 
@@ -86,7 +84,9 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 	};
 
 	appService.saveAppConfig = function(requestConfig) {
-		return requestService.postAppConfig(this.appConfig, requestConfig);
+		return requestService.postAppConfig(this.appConfig, requestConfig).then(function() {
+			appService.savedAppConfig = angular.copy(appService.appConfig);
+		});
 	};
 
 	appService.discardChanges = function() {

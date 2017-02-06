@@ -48,6 +48,10 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 		viewModel.appConfigYML = savedAppConfigYML;
 	}));
 
+	$scope.$on("$destroy", $rootScope.$on("YMLController::checkUnsavedChanges", function(event, changeCheckDeferer) {
+		changeCheckDeferer.resolve(!angular.equals(viewModel.appConfigYML, savedAppConfigYML));
+	}));
+
 	function configureACE() {
 		var editor = ace.edit("yml-editor");
 		var session = editor.getSession();
