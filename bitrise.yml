@@ -219,7 +219,7 @@ workflows:
             export CI=true
             releaseman create \
               --version $RELEASE_VERSION \
-              --set-version-script "bash _scripts/set_version.sh version/version.go"
+              --set-version-script "bash _scripts/set_version.sh version/version.go bitrise-plugin.yml"
 
   create-binaries:
     title: Create binaries
