@@ -9,23 +9,12 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	var mode;
 	var envVarsWatchers;
 
-	viewModel.loadEnvVarsProgress = new Progress();
 	viewModel.envVarsBySource;
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
+	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		switch (mode) {
 			case "secrets":
-				return;
-			case "env-vars":
-				configureWithAppConfig();
-		}
-	}));
-
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
-		switch (mode) {
-			case "secrets":
-				appService.discardSecretsChanges();
-				_.first(viewModel.envVarsBySource).envVars = appService.secrets;
+				configureWithSecrets();
 
 				break;
 			case "env-vars":
@@ -40,38 +29,24 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 		switch (mode) {
 			case "secrets":
-				loadSecrets();
+				configureWithSecrets();
+
+				break;
+			case "env-vars":
+				configureWithAppConfig();
 
 				break;
 		}
-
-		$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
 	};
 
-	function loadSecrets() {
-		viewModel.loadEnvVarsProgress.start("<%= data[:strings][:env_vars][:load_progress][:in_progress] %>");
+	function configureWithSecrets() {
+		viewModel.envVarsBySource = [{
+			type: "secrets",
+			notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
+			envVars: appService.secrets
+		}];
 
-		var canceler = $q.defer();
-
-		$scope.$on("$destroy", function() {
-			canceler.resolve();
-		});
-
-		appService.getSecrets({
-			timeout: canceler.promise
-		}).then(function() {
-			viewModel.envVarsBySource = [{
-				type: "secrets",
-				notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
-				envVars: appService.secrets
-			}];
-
-			configureEnvVarsWatchers();
-
-			viewModel.loadEnvVarsProgress.success();
-		}, function(error) {
-			viewModel.loadEnvVarsProgress.error(error);
-		});
+		configureEnvVarsWatchers();
 	}
 
 	function configureWithAppConfig() {
@@ -168,31 +143,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 		envVars.splice(index, 1);
 	};
-
-	$scope.$on("$destroy", $rootScope.$on("MainController::requestValidationBeforeSave", function(event, validationConfig) {
-		validationConfig.isValidating = true;
-
-		if (_.any(viewModel.envVarsBySource, function(envVarsOfSource) {
-			return _.any(envVarsOfSource.envVars, function(anEnvVar) {
-				return !Variable.isValidKey(anEnvVar.key());
-			});
-		})) {
-			validationConfig.validationDeferer.reject(new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>"));
-		}
-		else {
-			validationConfig.validationDeferer.resolve();
-		}
-	}));
-
-	$scope.$on("$destroy", $rootScope.$on("SecretsController::saveSecrets", function(event, resolve, reject) {
-		appService.saveSecrets().then(function() {
-			resolve();
-
-			loadSecrets();
-		}, function(error) {
-			reject(error);
-		});
-	}));
 
 });
 

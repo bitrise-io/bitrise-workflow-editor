@@ -51,11 +51,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	};
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
-		configureWorkflowsWithAppConfig();
-	}));
-
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
+	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		configureWorkflowsWithAppConfig();
 	}));
 
@@ -426,7 +422,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", $scope.editedWorkflow, viewModel.selectedStep);
 	}));
 
-	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
+	configureWorkflowsWithAppConfig();
 
 });
 

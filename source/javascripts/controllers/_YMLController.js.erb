@@ -7,42 +7,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	var viewModel = this;
 
 	viewModel.appService = appService;
-	viewModel.loadAppConfigYMLProgress = new Progress();
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
-
-	function loadAppConfigYML() {
-		viewModel.loadAppConfigYMLProgress.start("<%= data[:strings][:yml][:load_progress][:loading] %>");
-
-		var canceler = $q.defer();
-
-		$scope.$on("$destroy", function() {
-			canceler.resolve();
-		});
-
-		appService.getAppConfigYML({
-			timeout: canceler.promise
-		}).then(function() {
-			configureACE();
-
-			viewModel.loadAppConfigYMLProgress.success();
-		}, function(error) {
-			viewModel.loadAppConfigYMLProgress.error(error);
-		});
-	}
-
-	$scope.$on("$destroy", $rootScope.$on("YMLController::saveAppConfigYML", function(event, resolve, reject) {
-		appService.saveAppConfigYML().then(function() {
-			resolve();
-
-			loadAppConfigYML();
-		}, function(error) {
-			reject(error);
-		});
-	}));
-
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
-		appService.discardAppConfigYMLChanges();
-	}));
 
 	function configureACE() {
 		var editor = ace.edit("yml-editor");
@@ -71,7 +36,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 		renderer.setShowGutter(true);
 	}
 
-	loadAppConfigYML();
+	configureACE();
 
 });
 

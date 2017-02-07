@@ -26,11 +26,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.editedTrigger;
 	viewModel.newTriggerIndex;
 
-	$scope.$on("$destroy", $rootScope.$on("MainController::appConfigLoaded", function() {
-		configureWithAppConfig();
-	}));
-
-	$scope.$on("$destroy", $rootScope.$on("MainController::discardChanges", function() {
+	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		configureWithAppConfig();
 	}));
 
@@ -180,7 +176,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		}
 	};
 
-	$rootScope.$emit("MainController::menuContentIsLoadedAndReady");
+	configureWithAppConfig();
 
 });
 

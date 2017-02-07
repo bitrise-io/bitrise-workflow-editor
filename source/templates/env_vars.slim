@@ -1,5 +1,4 @@
 .tab-env-vars.menu-content-padding[ng-controller="EnvVarsController as envVarsCtrl" ng-init="envVarsCtrl.configureWithMode('env-vars')"]
-	p.progress-indicator[progress-model="envVarsCtrl.loadEnvVarsProgress"]
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
 		div[ng-switch="envVarsOfSource.type"]
 			header[ng-switch-when="app"]

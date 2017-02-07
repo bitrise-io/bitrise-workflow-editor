@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("appService", function(requestService, Step, Variable) {
+angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, Step, Variable) {
 
 	var appService = {
 		appConfig: undefined,
@@ -16,21 +16,21 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 	appService.getAppConfig = function(requestConfig) {
 		return requestService.getAppConfig(requestConfig).then(function(appConfig) {
 			appService.appConfig = appConfig;
-			appService.minimizeAppConfig();
+			minimizeAppConfig();
 
 			appService.savedAppConfig = angular.copy(appService.appConfig);
 		});
 	};
 
-	appService.minimizeAppConfig = function() {
+	function minimizeAppConfig() {
 		var variableConfigs = [];
 
-		if (this.appConfig.app && this.appConfig.app.envs) {
-			variableConfigs = _.union(variableConfigs, this.appConfig.app.envs);
+		if (appService.appConfig.app && appService.appConfig.app.envs) {
+			variableConfigs = _.union(variableConfigs, appService.appConfig.app.envs);
 		}
 
-		if (this.appConfig.workflows) {
-			_.each(this.appConfig.workflows, function(aWorkflowConfig) {
+		if (appService.appConfig.workflows) {
+			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
 				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
 				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
@@ -51,17 +51,30 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 		}
 
 		_.each(variableConfigs, Variable.minimizeVariableConfig);
-	};
+	}
+
+	function validateVariables(variables) {
+		return $q(function(resolve, reject) {
+			if (_.any(variables, function(aVariable) {
+				return !Variable.isValidKey(aVariable.key());
+			})) {
+				reject(new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>"));
+			}
+			else {
+				resolve();
+			}
+		});
+	}
 
 	appService.appConfigHasDeprecatedTriggerMap = function() {
-		return _.any(this.appConfig.trigger_map, function(aTriggerConfig) {
+		return _.any(appService.appConfig.trigger_map, function(aTriggerConfig) {
 			return aTriggerConfig.pattern !== undefined;
 		});
 	};
 
 	appService.updateDeprecatedTriggerMap = function() {
 		var updatedTriggerMap = [];
-		_.each(this.appConfig.trigger_map, function(aTriggerConfig) {
+		_.each(appService.appConfig.trigger_map, function(aTriggerConfig) {
 			if (aTriggerConfig.pattern === undefined) {
 				updatedTriggerMap.push(aTriggerConfig);
 
@@ -84,11 +97,27 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 			}
 		});
 
-		this.appConfig.trigger_map = updatedTriggerMap;
+		appService.appConfig.trigger_map = updatedTriggerMap;
 	};
 
 	appService.saveAppConfig = function(requestConfig) {
-		return requestService.postAppConfig(this.appConfig, requestConfig).then(function() {
+		var variables = [];
+		if (appService.appConfig.app && appService.appConfig.app.envs) {
+			variables = variables.concat(_.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
+				return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+			}));
+		}
+		if (appService.appConfig.workflows) {
+			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+				variables = variables.concat(_.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
+					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+				}));
+			});
+		}
+
+		return validateVariables(variables).then(function() {
+			return requestService.postAppConfig(appService.appConfig, requestConfig);
+		}).then(function() {
 			appService.savedAppConfig = angular.copy(appService.appConfig);
 			appService.appConfigYML = undefined;
 			appService.savedAppConfigYML = undefined;
@@ -96,7 +125,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 	};
 
 	appService.discardAppConfigChanges = function() {
-		this.appConfig = angular.copy(this.savedAppConfig);
+		appService.appConfig = angular.copy(appService.savedAppConfig);
 	};
 
 	appService.getSecrets = function(requestConfig) {
@@ -110,7 +139,9 @@ angular.module("BitriseWorkflowEditor").service("appService", function(requestSe
 	};
 
 	appService.saveSecrets = function() {
-		return requestService.postSecrets(appService.secrets).then(function() {
+		return validateVariables(appService.secrets).then(function() {
+			return requestService.postSecrets(appService.secrets);
+		}).then(function() {
 			appService.savedSecrets = angular.copy(appService.secrets);
 		});
 	};

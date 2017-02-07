@@ -71,35 +71,56 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		});
 	}
 
-	function loadAppConfig() {
+	function load() {
 		viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
-		appService.getAppConfig().then(function() {
-			$q(function(resolve, reject) {
-				if (appService.appConfigHasDeprecatedTriggerMap()) {
-					appService.updateDeprecatedTriggerMap();
+		$q(function(resolve, reject) {
+			switch (viewModel.currentMenu.id) {
+				case "workflows":
+				case "env-vars":
+				case "triggers":
+					appService.getAppConfig().then(function() {
+						$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
+							if (appService.appConfigHasDeprecatedTriggerMap()) {
+								appService.updateDeprecatedTriggerMap();
 
-					Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:triggers][:update_deprecated_popup][:details_2] %>", {
-						url: "<%= data[:routes][:blog][:new_triggers] %>"
-					})]).then(save).then(resolve, reject);
-				}
-				else {
-					resolve();
-				}
-			}).then(function() {
-				viewModel.loadAppConfigProgress.success();
+								Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:triggers][:update_deprecated_popup][:details_2] %>", {
+									url: "<%= data[:routes][:blog][:new_triggers] %>"
+								})]).then(save).then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
+							}
+							else {
+								deprecatedTriggerCheckResolve();
+							}
+						}).then(function() {
+							resolve();
+						}, function(error) {
+							reject(error);
+						});
+					}, function(error) {
+						reject(error);
+					});
 
-				$rootScope.$emit("MainController::appConfigLoaded");
-			}, function(error) {
-				viewModel.loadAppConfigProgress.error(error);
-			});
+					break;
+				case "secrets":
+					appService.getSecrets().then(resolve, reject);
+
+					break;
+				case "yml":
+					appService.getAppConfigYML().then(resolve, reject);
+
+					break;
+			}
+		}).then(function() {
+			viewModel.loadAppConfigProgress.success();
 		}, function(error) {
 			viewModel.loadAppConfigProgress.error(error);
-		});
+		})
 	}
 
 	viewModel.menuSelected = function(menu) {
 		viewModel.menuProgress.start("Loading, wait a sec...");
+
+		var shouldCallLoadAfterMenuChange = true;
 
 		$q(function(resolve, reject) {
 			if (!viewModel.currentMenu) {
@@ -108,7 +129,19 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return;
 			}
 
-			if (_.contains(["workflows", "env-vars", "triggers"], viewModel.currentMenu.id) && _.contains(["workflows", "env-vars", "triggers"], menu.id)) {
+			var menuIDsByHandledSource = [
+				["workflows", "env-vars", "triggers"],
+				["secrets"],
+				["yml"]
+			];
+
+			if (_.find(menuIDsByHandledSource, function(menuIDsOfSource) {
+				return _.contains(menuIDsOfSource, viewModel.currentMenu.id);
+			}) == _.find(menuIDsByHandledSource, function(menuIDsOfSource) {
+				return _.contains(menuIDsOfSource, menu.id);
+			})) {
+				shouldCallLoadAfterMenuChange = false;
+
 				resolve();
 
 				return;
@@ -123,7 +156,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
 				save().then(function() {
 					resolve();
-				}, function() {
+				}, function(error) {
 					reject();
 				});
 			}, function() {
@@ -133,9 +166,13 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.currentMenu = menu;
 			$location.path("/" + menu.path);
 
+			if (shouldCallLoadAfterMenuChange) {
+				load();
+			}
+
 			viewModel.menuProgress.success();
 		}, function() {
-			viewModel.menuProgress.success();
+			viewModel.menuProgress.reset();
 		});
 	};
 
@@ -165,79 +202,61 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	function save() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-		var validationDeferer = $q.defer();
-		var saveDeferer = $q.defer();
-		
-		validationDeferer.promise.then(function() {
-			$q(function(resolve, reject) {
-				switch (viewModel.currentMenu.id) {
-					case "secrets": {
-						$rootScope.$emit("SecretsController::saveSecrets", resolve, reject);
+		return $q(function(resolve, reject) {
+			switch (viewModel.currentMenu.id) {
+				case "workflows":
+				case "env-vars":
+				case "triggers":
+					appService.saveAppConfig().then(resolve, reject);
 
-						break;
-					}
-					case "yml": {
-						$rootScope.$emit("YMLController::saveAppConfigYML", resolve, reject);
+					break;
+				case "secrets":
+					appService.saveSecrets().then(resolve, reject);
 
-						break;
-					}
-					default: {
-						appService.saveAppConfig({
-							timeout: saveDeferer.promise
-						}).then(resolve, reject);
+					break;
+				case "yml":
+					appService.saveAppConfigYML().then(resolve, reject);
 
-						break;
-					}
-				}
-			}).then(function() {
-				viewModel.saveProgress.success();
-
-				saveDeferer.resolve();
-			}, function(error) {
-				viewModel.saveProgress.error(error);
-
-				saveDeferer.reject(error);
-			});
+					break;
+			}
+		}).then(function() {
+			viewModel.saveProgress.success();
 		}, function(error) {
 			viewModel.saveProgress.reset();
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
-			saveDeferer.reject(error);
+			return $q.reject(error);
 		});
-
-		var validationConfig = {
-			validationDeferer: validationDeferer,
-			isValidating: false
-		};
-		$rootScope.$emit("MainController::requestValidationBeforeSave", validationConfig);
-
-		if (!validationConfig.isValidating) {
-			validationDeferer.resolve();
-		}
-
-		return saveDeferer.promise;
 	}
 
 	viewModel.discardChangesSelected = function() {
-		appService.discardAppConfigChanges();
-		$rootScope.$emit("MainController::discardChanges");
+		switch (viewModel.currentMenu.id) {
+			case "workflows":
+			case "env-vars":
+			case "triggers":
+				appService.discardAppConfigChanges();
+
+				break;
+			case "secrets":
+				appService.discardSecretsChanges();
+
+				break;
+			case "yml":
+				appService.discardAppConfigYMLChanges();
+
+				break;
+		}
+
+		$rootScope.$emit("MainController::changesDiscarded");
 	};
 
 	viewModel.saveChangesSelected = function() {
-		save().then(loadAppConfig);
+		save().then(load);
 	};
-
-	$rootScope.$on("MainController::menuContentIsLoadedAndReady", function() {
-		if (!appService.appConfig) {
-			loadAppConfig();
-		}
-		else {
-			$rootScope.$emit("MainController::appConfigLoaded");
-		}
-	});
 
 	configureMode();
 	selectInitialMenu();
+	load();
 
 });
 

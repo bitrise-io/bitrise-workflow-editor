@@ -5,7 +5,6 @@
 			p == data[:strings][:yml][:info_1]
 		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath"] == string_with_urls(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article
-			p.progress-indicator[progress-model="ymlCtrl.loadAppConfigYMLProgress"]
-			#yml-editor[ng-model="ymlCtrl.appService.appConfigYML" ng-show="ymlCtrl.loadAppConfigYMLProgress.isIdle" ui-ace ng-trim="true"]
+			#yml-editor[ng-model="ymlCtrl.appService.appConfigYML" ui-ace ng-trim="true"]
 	section
 		a.rebo.big.green.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
