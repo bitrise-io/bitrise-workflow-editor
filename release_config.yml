@@ -16,7 +16,7 @@ changelog:
     To install this version, run the following commands (in a bash shell):
 
     ```
-    bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git
+    bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version {{.EndTaggedCommit.Tag}}
     ```
 
     To update the already installed plugin to the latest version:
