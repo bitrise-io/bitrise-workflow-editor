@@ -201,14 +201,9 @@ workflows:
   # ----------------------------------------------------------------
   # --- workflows for Releasing
   create-release:
-    title: Create Release version
-    description: |
-        Creates new version with specified $RELEASE_VERSION environment
-    after_run:
-    - create-binaries
     steps:
     - script:
-        title: Create CHANGELOG and git release
+        title: Set new version & create CHANGELOG
         inputs:
         - content: |-
             #!/bin/bash
@@ -217,10 +212,10 @@ workflows:
             go get github.com/bitrise-tools/releaseman
 
             export CI=true
-            releaseman create \
-              --version $RELEASE_VERSION \
-              --set-version-script "bash _scripts/set_version.sh version/version.go"
 
+            releaseman create-changelog \
+              --version $RELEASE_VERSION \
+              --set-version-script "bash _scripts/set_version.sh version/version.go bitrise-plugin.yml"
   create-binaries:
     title: Create binaries
     description: |
