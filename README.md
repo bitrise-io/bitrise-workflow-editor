@@ -22,3 +22,4 @@ bitrise run go-install
 - In terminal, run `chmod +x <path to generated binary> && <path to generated binary> version --full`
 - After finish and double-checking build number and commit hash on Bitrise, run <path to generated binary> to check if binary is working
 - On GitHub, attach the binaries, then select *Publish release*
+- On discuss.bitrise.io, in *Changelog* category, create a topic called **Offline Workflow Editor / Workflow Editor v2 vX.X.X released**. Description should include the changelog and a link to the installation instructions.
