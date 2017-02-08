@@ -13,6 +13,10 @@ angular.module("BitriseWorkflowEditor").factory("Popup", function($rootScope, $q
 		this.afterDismissCallback = undefined;
 	};
 
+	Popup.showSuccessPopup = function(title, details, okTitle) {
+		return showAlertPopup("success", title, details, okTitle);
+	};
+
 	Popup.showErrorPopup = function(title, details, okTitle) {
 		return showAlertPopup("error", title, details, okTitle);
 	};

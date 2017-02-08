@@ -5,8 +5,8 @@ html
 		title = data[:strings][:meta][:title]
 		meta[name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"]
         base[href="/"]
-        = stylesheet_link_tag "main"
-		= javascript_include_tag "main"
+        link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }"]
+        script[src="#{ mode_dependant_asset_path('javascripts/main.js') }"]
 		== favicon_tag "favicon.ico"
 		== favicon_tag "apple-touch-icon.png", href: image_path("apple-touch-icon.png"), rel: 'apple-touch-icon', type: 'image/png'
 		== favicon_tag "apple-touch-icon-76x76.png", href: image_path("apple-touch-icon-76x76.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "76x76"

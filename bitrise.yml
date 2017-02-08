@@ -8,9 +8,7 @@ app:
   
   - API_SERVER_PORT: "3321"
   - FRONTEND_PORT: "4567"
-  # define in your .bitrise.secrets.yml
-  - BITRISE_WORKFLOW_EDITOR_ROOT_PATH_ON_WEBSITE: "$BITRISE_WORKFLOW_EDITOR_ROOT_PATH_ON_WEBSITE"
-  - WEBSITE_DEVELOPMENT_WEBSERVER_ROOT_PATH: "$WEBSITE_DEVELOPMENT_WEBSERVER_ROOT_PATH"
+  - MODE: "CLI"
 
 workflows:
   up-api:
@@ -56,6 +54,12 @@ workflows:
             #!/bin/bash
             set -ex
             bundle exec middleman build --clean --verbose
+
+  middleman-build-for-bitrise-io:
+    envs:
+      - MODE: "WEBSITE"
+    after_run:
+    - middleman-build
 
   up-middleman-server:
     before_run:

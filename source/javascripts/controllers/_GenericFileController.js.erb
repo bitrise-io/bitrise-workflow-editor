@@ -1,0 +1,127 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("GenericFileController", function($q, $timeout, $filter, requestService, stringService, Popup, Progress, GenericFile) {
+
+	var viewModel = this;
+
+	var maximumFileSizeInMegabytes = 5;
+	var genericFilesReloadIntervalInSeconds = 2;
+
+	viewModel.genericFiles;
+	viewModel.loadGenericFilesProgress = new Progress();
+	viewModel.uploadGenericFileProgress = new Progress();
+	viewModel.deleteGenericFileProgress = new Progress();
+	viewModel.uploadInstruction = stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:generic_file][:upload_action] %>", {
+		maximum_file_size_in_megabytes: maximumFileSizeInMegabytes
+	});
+	viewModel.uploadedGenericFile = new GenericFile("");
+	viewModel.genericFileUploader;
+
+	function loadGenericFiles(shouldClearPreviousLoad) {
+		viewModel.loadGenericFilesProgress.start("<%= data[:strings][:code_signing][:generic_file][:load_progress][:in_progress] %>");
+		if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
+			viewModel.uploadGenericFileProgress.reset();
+		}
+
+		if (shouldClearPreviousLoad === undefined) {
+			shouldClearPreviousLoad = false;
+		}
+
+		if (shouldClearPreviousLoad) {
+			viewModel.genericFiles = undefined;
+		}
+
+		requestService.getGenericFiles().then(function(genericFileDatas) {
+			viewModel.genericFiles = _.map(genericFileDatas, function(aGenericFileData) {
+				var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
+
+				genericFile.databaseID = aGenericFileData.databaseID;
+				genericFile.isProcessed = aGenericFileData.isProcessed;
+				genericFile.expiringDownloadURL = aGenericFileData.expiringDownloadURL;
+
+				return genericFile;
+			});
+
+			viewModel.loadGenericFilesProgress.success();
+
+			if (_.find(viewModel.genericFiles, {
+				isProcessed: false
+			})) {
+				$timeout(function() {
+					loadGenericFiles();
+				}, genericFilesReloadIntervalInSeconds * 1000);
+			}
+		}, function(error) {
+			viewModel.loadGenericFilesProgress.error(error);
+		});
+	};
+
+	viewModel.downloadURLEnvVarKeyPrettifiedPreview = function() {
+		if (viewModel.uploadedGenericFile.envVarPartialID.length == 0) {
+			return $filter("prettifiedKey")("BITRISEIO_<%= data[:strings][:code_signing][:generic_file][:id_specified] %>_URL");
+		}
+
+		if (viewModel.uploadedGenericFileErrorMessage()) {
+			return "<%= data[:strings][:code_signing][:generic_file][:invalid_id_preview_placeholder] %>";
+		}
+
+		return $filter("prettifiedKey")(viewModel.uploadedGenericFile.downloadURLEnvVarKey());
+	};
+
+	viewModel.uploadedGenericFileErrorMessage = function() {
+		if (viewModel.uploadedGenericFile.validationError()) {
+			return viewModel.uploadedGenericFile.validationError().message;
+		}
+
+		if (_.find(viewModel.genericFiles, {
+			envVarPartialID: viewModel.uploadedGenericFile.envVarPartialID
+		})) {
+			return "<%= data[:strings][:code_signing][:generic_file][:id_not_unique] %>";
+		}
+
+		return null;
+	};
+
+	viewModel.uploadGenericFile = function() {
+		viewModel.uploadGenericFileProgress.start("<%= data[:strings][:code_signing][:generic_file][:upload_progress][:in_progress] %>");
+
+		$q(function(resolve, reject) {
+			viewModel.uploadedGenericFile.upload().then(function() {
+				resolve();
+			}, function(error) {
+				reject(error);
+			});
+		}).then(function() {
+			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:generic_file][:upload_progress][:success] %>");
+			viewModel.uploadGenericFileProgress.success();
+
+			viewModel.uploadedGenericFile = new GenericFile("");
+			loadGenericFiles(true);
+		}, function(error) {
+			viewModel.uploadGenericFileProgress.error(error);
+		});
+	};
+
+	viewModel.deleteGenericFile = function(genericFile) {
+		viewModel.deleteGenericFileProgress.start("<%= data[:strings][:code_signing][:generic_file][:delete_progress][:in_progress] %>");
+		if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
+			viewModel.uploadGenericFileProgress.reset();
+		}
+
+		genericFile.delete().then(function() {
+			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:generic_file][:delete_progress][:success] %>");
+			viewModel.deleteGenericFileProgress.success();
+
+			loadGenericFiles(true);
+		}, function(error) {
+			viewModel.deleteGenericFileProgress.error(error);
+		});
+	};
+
+	loadGenericFiles();
+
+});
+
+})();

@@ -118,6 +118,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					});
 
 					break;
+				case "code-signing":
+					resolve();
 				case "secrets":
 					appService.getSecrets().then(resolve, reject);
 

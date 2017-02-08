@@ -5,6 +5,7 @@
 
 @import "index";
 @import "tab-workflows";
+@import "tab-code_signing";
 @import "tab-secrets-env_vars";
 @import "tab-triggers";
 @import "tab-yml";
@@ -13,6 +14,7 @@
 
 @import "rebo";
 @import "cardo";
+@import "furto";
 @import "popup";
 @import "notification-progress-indicator";
 @import "order-by-drag";

@@ -95,54 +95,110 @@ workflows:
   insertable_variables:
     load_progress: Loading insertable variables, wait a sec...
 code_signing:
-  load_supported_platforms_progress:
-    loading: Loading, wait a sec...
-  load_all_stacks_progress:
-    default_error: Error loading stacks.
-    error_prefix: "Error loading stacks: "
-  load_stack_progress:
-    default_error: Error loading app stack.
-    error_prefix: "Error loading app stack: "
-  hints:
-    ios:
-      title: Psst... You should use our friendly neighborhood iOS Code Signing Doctor!
-      description: After running a simple command... <pre><code>bash -l -c "$(curl -sfL https://raw.githubusercontent.com/bitrise-tools/codesigndoc/master/_scripts/install_wrap.sh)"</code></pre>...you'll have all the code signing files (.p12 Identity file including the Certificate and Private Key, and the required Provisioning Profiles), ready for upload. <a href='<url>' target="_blank">More info!</a>
-      dont_forget: Don't forget to add the Certificate and Provisioning Profile Installer step to your workflow to make code signing work for your project!
-    xamarin:
-      title: Hey, let me help with code signing!
-      description: We've prepared a handy guide to help you with the signing of your Xamarin app, because we're looking out for you.  And don't worry, it's not that long. Hit the purple button on the right to teleport you to the tutorial! <a href='<url>' target="_blank">Check tutorial</a>
-    android:
-      title: Hey, let me help with code signing!
-      description: We've prepared a handy guide to help you with the signing of your Android app. Be glad that it's not as painful as for the iOS folks, but still, we like to look out for you. Hit the purple button on the right to teleport you to the tutorial! <a href='<url>' target="_blank">Check tutorial</a>
-  file_name: "Filename: "
+  available_project_types_load: Loading, wait a sec...
+  certificate_help:
+    codesigndoc:
+      title: Export your code signing files with Codesigndoc
+      details: Paste this script into your terminal and follow the instructions
+      code: bash -l -c "$(curl -sfL https://raw.githubusercontent.com/bitrise-tools/codesigndoc/master/_scripts/install_wrap.sh)"
+    upload:
+      title: Upload all exported files below
+      details: You'll have the .p12 Identity file including the Certificate and Private Key, and the required Provisioning Profiles ready for upload. More info
+    add_step:
+      title: Don't forget to add the Certificate and Provisioning Profile Installer step
+      details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
-    title: Provisioning Profile
+    header: Provisioning profile
+    upload_action: Add Provisioning Profile
+    upload_instructions: Click here or Drag & Drop to upload
+    no_name_for_file: No name for file
+    no_prov_profiles_added_yet: No provisioning profiles added yet.
+    invalid_file_type: Invalid file type! Select a .provisionprofile or .mobileprovision file.
     load_progress:
       in_progress: Loading, wait a sec...
-      default_error: Error loading Provisioning Profiles!
-      error_prefix: "Error loading Provisioning Profiles: "
-    download_progress:
-      in_progress: Preparing download, wait a sec...
-      default_error: Error downloading Provisioning Profile!
-      error_prefix: "Error downloading Provisioning Profile: "
-    delete_progress:
-      in_progress: Deleting, wait a sec...
-      default_error: Error deleting Provisioning Profile!
-      error_prefix: "Error deleting Provisioning Profile: "
-    no_filename: No title for Provisioning Profile
-    download: Download
-    delete: Delete
-    add: + Add Provisioning Profile
-    delete_all: Delete all
-    upload: "Upload the Provisioning Profile:"
-    upload_instructions: Click here or Drag&Drop to upload
     upload_progress:
       in_progress: "Uploading, wait a sec..."
       success: "Provisioning Profile uploaded!"
-    delete_all_progress:
+    delete_progress:
       in_progress: Deleting, wait a sec...
-      default_error: Error deleting Provisioning Profiles!
-      error_prefix: "Error deleting Provisioning Profiles: "
+      success: "Provisioning profile removed!"
+  certificate:
+    header: Code Signing Identity
+    upload_action: Add the private key (.p12) for signing
+    upload_instructions: Click here or Drag & Drop to upload
+    no_name_for_file: No name for file
+    no_certificates_added_yet: No certificates added yet.
+    invalid_file_type: Invalid file type! Select a .p12 file.
+    load_progress:
+      in_progress: Loading, wait a sec...
+    upload_progress:
+      in_progress: "Uploading, wait a sec..."
+      success: "Certificate uploaded!"
+    delete_progress:
+      in_progress: Deleting, wait a sec...
+      success: "Certificate removed!"
+    show_password: Show password
+    change_password_ok: OK
+    change_password_cancel: Cancel
+    change_password_progress:
+      in_progress: Change password, wait a sec...
+  generic_file:
+    header: Generic File Storage
+    upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
+    upload_instructions: Click here or Drag & Drop to upload
+    no_files_added_yet: No files added yet.
+    download_url_available_as: Download URL available as
+    id_specified: the ID you specify
+    uploaded_file_placeholder: Enter a unique ID
+    no_name_for_file: No name for file
+    load_progress:
+      in_progress: Loading, wait a sec...
+    env_var_details: "Download URL will be available as the Environment Variable:"
+    id_not_unique: "Specified ID is not unique."
+    invalid_id_preview_placeholder: "<Invalid ID>"
+    invalid_id_characters: Invalid ID. Only 'a-z', 'A-Z', '0-9' and '_' characters are allowed.
+    id_not_specified: ID not specified. Enter a unique ID.
+    id_reserved_for_keystore: This ID is reserved for the Android Keystore file upload.
+    enter_id: "Enter an ID for the file's download URL."
+    upload_progress:
+      in_progress: "Uploading, wait a sec..."
+      success: "File uploaded!"
+    delete_progress:
+      in_progress: Deleting, wait a sec...
+      success: "File removed!"
+  android_keystore:
+    header: Android Keystore file
+    no_keystore_file: "No keystore file added yet."
+    download_url_available_as: Download URL available as
+    no_name_for_file: No name for file
+    upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
+    upload_instructions: Click here or Drag & Drop to upload
+    load_progress:
+      in_progress: Loading, wait a sec...
+    upload_progress:
+      in_progress: "Uploading, wait a sec..."
+      success: "File uploaded!"
+    delete_progress:
+      in_progress: Deleting, wait a sec...
+      success: "File removed!"
+    keystore_password_as: Keystore password will be available as Environment Variable
+    keystore_alias_as: Keystore alias will be available as Environment Variable
+    private_key_password_as: Private key password will be available as Environment Variable
+    show_password: Show password?
+    show_alias: Show alias?
+    show_private_key_password: Show private key password?
+    password_placeholder: Enter password
+    alias_placeholder: Enter alias
+    private_key_password_placeholder: Enter private key password
+    save_metadata: Save metadata
+    reset_to_saved: Reset to saved
+    metadata_invalid_or_not_specified: Metadata invalid or not fully specified.
+    password_not_specified: password not specified
+    alias_not_specified: alias not specified
+    private_key_password_not_specified: private key password not specified
+    save_metadata_progress:
+      in_progress: "Saving metadata, wait a sec..."
+      success: "Keystore metadata successfully saved!"
 env_vars:
   load_progress:
     in_progress: Loading, wait a sec...
@@ -208,9 +264,68 @@ request_service:
   save_app_config:
     default_error: Error saving app config.
     error_prefix: "Error saving app config: "
+  load_prov_profiles:
+    default_error: Error loading provisioning profiles.
+    error_prefix: "Error loading provisioning profiles: "
+  load_certificates:
+    default_error: Error loading certificates.
+    error_prefix: "Error loading certificates: "
+  load_generic_files:
+    default_error: Error loading files.
+    error_prefix: "Error loading files: "
+  load_keystore_file:
+    default_error: Error loading files.
+    error_prefix: "Error loading files: "
+  create_prov_profile:
+    default_error: Error uploading provisioning profile.
+    error_prefix: "Error uploading provisioning profile: "
+  create_certificate:
+    default_error: Error uploading certificate.
+    error_prefix: "Error uploading certificate: "
+  create_generic_file:
+    default_error: Error uploading file.
+    error_prefix: "Error uploading file: "
+  create_keystore_file:
+    default_error: Error uploading file.
+    error_prefix: "Error uploading file: "
+  finalize_prov_profile_upload:
+    default_error: Error finalizing provisioning profile upload.
+    error_prefix: "Error finalizing provisioning profile upload: "
+  finalize_certificate_upload:
+    default_error: Error finalizing certificate upload.
+    error_prefix: "Error finalizing certificate upload: "
+  finalize_generic_file_upload:
+    default_error: Error finalizing file upload.
+    error_prefix: "Error finalizing file upload: "
+  finalize_keystore_file_upload:
+    default_error: Error finalizing file upload.
+    error_prefix: "Error finalizing file upload: "
+  save_keystore_file_metadata:
+    default_error: "Error saving metadata."
+    error_prefix: "Error saving metadata: "
+  upload_file_to_storage:
+    default_error: Error uploading file to storage.
+  delete_prov_profile:
+    default_error: Error removing provisioning profile.
+    error_prefix: "Error removing provisioning profile: "
+  delete_certificate:
+    default_error: Error removing certificate.
+    error_prefix: "Error removing certificate: "
+  delete_generic_file:
+    default_error: Error removing file.
+    error_prefix: "Error removing file: "
+  delete_keystore_file:
+    default_error: Error removing file.
+    error_prefix: "Error removing file: "
+  save_certificate_password:
+    default_error: Error saving certificate password.
+    error_prefix: "Error saving certificate password: "
   save_secrets:
     default_error: Error saving secrets.
     error_prefix: "Error saving secrets: "
+  get_app_available_project_types:
+    default_error: Error loading app available project types.
+    error_prefix: "Error loading app available project types: "
 step_source_service:
   step_from_cvs:
     no_path: Path not specified.

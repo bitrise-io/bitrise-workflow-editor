@@ -145,6 +145,35 @@
 		}
 	}
 
+	.popup-body#default-alert-popup-body.success {
+
+		&:before {
+			background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
+				fill: rgba(white, 0.99)
+			));
+			background-size: auto 16px;
+			background-color: $def-green;
+		}
+
+		article {
+
+			h2 {
+				color: $def-green;
+			}
+		}
+
+		footer {
+
+			button {
+				background-color: $def-green;
+			}
+
+			button:hover, button:focus {
+				background-color: $def-green-shade;
+			}
+		}
+	}
+
 	.popup-body#default-alert-popup-body.error, .popup-body#default-confirm-popup-body {
 
 		&:before {

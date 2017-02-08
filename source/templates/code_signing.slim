@@ -1,37 +1,142 @@
-.code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
-	p.progress-indicator[progress-model="codeSigningCtrl.loadSupportedPlatforms"]
-	div[ng-if="codeSigningCtrl.loadSupportedPlatforms.isIdle"]
-		div[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('ios')"]
-			section
-				h2 == data[:strings][:code_signing][:hints][:ios][:title]
-				p == string_with_urls(data[:strings][:code_signing][:hints][:ios][:description], [data[:routes][:devcenter][:codesigndoc]])
-			section
-				p == data[:strings][:code_signing][:hints][:ios][:dont_forget]
-		section[ng-if="codeSigningCtrl.isSupportedPlatform('xamarin')"]
-			h2 == data[:strings][:code_signing][:hints][:xamarin][:title]
-			p == string_with_urls(data[:strings][:code_signing][:hints][:xamarin][:description], [data[:routes][:devcenter][:xamarin_code_signing]])
-		section[ng-if="!codeSigningCtrl.isSupportedPlatform('xamarin') && codeSigningCtrl.isSupportedPlatform('android')"]
-			h2 == data[:strings][:code_signing][:hints][:android][:title]
-			p == string_with_urls(data[:strings][:code_signing][:hints][:android][:description], [data[:routes][:devcenter][:apk]])
-		div[ng-if="codeSigningCtrl.isSupportedPlatform('xamarin') || codeSigningCtrl.isSupportedPlatform('ios')"]
-			section.provisioning-profile[ng-controller="ProvProfileController as provProfileCtrl"]
-				header == data[:strings][:code_signing][:prov_profile][:title]
-				article
-					section[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
-						h2
-							span == data[:strings][:code_signing][:file_name]
-							span[ng-bind="provProfile | displayNameForProvProfile"]
-						p.progress-indicator[progress-model="provProfileCtrl.provProfileActionProgress" progress-ng-if="provProfile == provProfileCtrl.selectedProvProfile"]
-						div[ng-if="!provProfileCtrl.provProfileActionProgress.isInProgress"]
-							button[ng-click="provProfileCtrl.downloadProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:download]
-							button[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:delete]
-					section.actions
-						div[ng-if="!provProfileCtrl.isAddMode"]
-							button.add[ng-click="provProfileCtrl.addProvProfileSelected()" ] == data[:strings][:code_signing][:prov_profile][:add]
-							button.delete[ng-click="provProfileCtrl.deleteAllProvProfilesSelected()"] == data[:strings][:code_signing][:prov_profile][:delete_all]
-						div[ng-if="provProfileCtrl.isAddMode && provProfileCtrl.provProfiles.length > 1"]
-							p == data[:strings][:code_signing][:prov_profile][:upload]
-							p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfileProgress"]
-							file-uploader[onupload="provProfileCtrl.uploadProvProfile()"] == data[:strings][:code_signing][:prov_profile][:upload_instructions]
-			section.certificate
-		section.android-keystore-generic-file
+.tab-code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
+	section.progress-indicator[progress-model="codeSigningCtrl.loadProgress"]
+	section.certificate-help[ng-if="codeSigningCtrl.shouldShowCodeSigningHints"]
+		ul
+			li.codesigndoc
+				div
+					h2 == data[:strings][:code_signing][:certificate_help][:codesigndoc][:title]
+					p == data[:strings][:code_signing][:certificate_help][:codesigndoc][:details]
+					code == data[:strings][:code_signing][:certificate_help][:codesigndoc][:code]
+			li.upload
+				div
+					h2 == data[:strings][:code_signing][:certificate_help][:upload][:title]
+					p == data[:strings][:code_signing][:certificate_help][:upload][:details]
+			li.add-step
+				div
+					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
+					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
+		button.hide[ng-click="codeSigningCtrl.shouldShowCodeSigningHints = false"] = svg("cross_slim")
+	section.cardo.uppercase.slim.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
+		header
+			h2 == data[:strings][:code_signing][:prov_profile][:header]
+		article
+			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
+			p.progress-indicator[progress-model="provProfileCtrl.deleteProvProfileProgress"]
+			div[ng-if="provProfileCtrl.loadProvProfilesProgress.isIdle && !provProfileCtrl.deleteProvProfileProgress.isInProgress"]
+				p.notification.no-icon[ng-if="provProfileCtrl.provProfiles.length == 0"] == data[:strings][:code_signing][:prov_profile][:no_prov_profiles_added_yet]
+				ul.uploaded-files
+					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
+						.details[ng-bind="provProfile.displayName()"]
+						.actions
+							a.furto.download[href="{{ provProfile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
+				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfileProgress"]
+				.file-upload[ng-if="!provProfileCtrl.uploadProvProfileProgress.isInProgress"]
+					file-uploader[onupload="provProfileCtrl.uploadProvProfile()" model="provProfileCtrl.provProfileUploader" on-file-change="$files.length > 0 ? provProfileCtrl.uploadedProvProfile.updateFile($files[0]) : null"]
+						strong == data[:strings][:code_signing][:prov_profile][:upload_action]
+						em == data[:strings][:code_signing][:prov_profile][:upload_instructions]
+	section.cardo.uppercase.slim.code-signing-identities[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
+		header
+			h2 == data[:strings][:code_signing][:certificate][:header]
+		article
+			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
+			p.progress-indicator[progress-model="certificateCtrl.certificateActionProgress"]
+			div[ng-if="certificateCtrl.loadCertificatesProgress.isIdle && !certificateCtrl.certificateActionProgress.isInProgress"]
+				p.notification.no-icon[ng-if="certificateCtrl.certificates.length == 0"] == data[:strings][:code_signing][:certificate][:no_certificates_added_yet]
+				ul.uploaded-files
+					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
+						.details[ng-bind="certificate.displayName()"]
+						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
+							.password
+								input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+								.change-password-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
+									button.ok.rebo.small.green[ng-click="certificateCtrl.changePassword()"] == data[:strings][:code_signing][:certificate][:change_password_ok]
+									button.cancel.rebo.small.danger[ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
+							.show-password
+								checkbox.small[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
+								label[for="'code-signin-certificate-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:show_password]
+						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
+							a.furto.download[href="{{ certificate.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							button.furto.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] = svg("cross")
+				p.progress-indicator[progress-model="certificateCtrl.uploadCertificateProgress"]
+				.file-upload[ng-if="!certificateCtrl.uploadCertificateProgress.isInProgress"]
+					file-uploader[onupload="certificateCtrl.uploadCertificate()" model="certificateCtrl.certificateUploader" on-file-change="$files.length > 0 ? certificateCtrl.uploadedCertificate.updateFile($files[0]) : null"]
+						strong == data[:strings][:code_signing][:certificate][:upload_action]
+						em == data[:strings][:code_signing][:certificate][:upload_instructions]
+	section.cardo.uppercase.slim.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])"]
+		header
+			h2 == data[:strings][:code_signing][:android_keystore][:header]
+		article
+			p.progress-indicator[progress-model="androidKeystoreCtrl.loadProgress"]
+			p.progress-indicator[progress-model="androidKeystoreCtrl.actionProgress"]
+			div[ng-if="androidKeystoreCtrl.loadProgress.isIdle && !androidKeystoreCtrl.actionProgress.isInProgress"]
+				p.notification.no-icon[ng-if="!androidKeystoreCtrl.keystoreFile"] == data[:strings][:code_signing][:android_keystore][:no_keystore_file]
+				div[ng-if="androidKeystoreCtrl.keystoreFile"]
+					.uploaded-file
+						.details
+							span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
+							em.download-url-env-var-key
+								span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
+								code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
+						.actions
+							a.furto.download[href="{{ androidKeystoreCtrl.keystoreFile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							button.furto.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] = svg("cross")
+					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()"]
+						section
+							p
+								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
+								code.env-var[ng-bind="KeystoreFile.androidKeystorePasswordEnvVarKey | prettifiedKey"]
+							input.env-var[type="{{ androidKeystoreCtrl.showPassword ? 'text' : 'password' }}" name="password" required ng-model="androidKeystoreCtrl.keystoreFile.password" placeholder="#{ data[:strings][:code_signing][:android_keystore][:password_placeholder] }"]
+							.show-password
+								checkbox.small[ng-model="androidKeystoreCtrl.showPassword" checkbox-id-expression="'code-signin-android-keystore-show-password-checkbox-' + $index"]
+								label[for="'code-signin-android-keystore-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_password]
+						section
+							p
+								span> == data[:strings][:code_signing][:android_keystore][:keystore_alias_as]
+								code.env-var[ng-bind="KeystoreFile.androidKeystoreAliasEnvVarKey | prettifiedKey"]
+							input.env-var[type="{{ androidKeystoreCtrl.showAlias ? 'text' : 'password' }}" name="alias" required ng-model="androidKeystoreCtrl.keystoreFile.alias" placeholder="#{ data[:strings][:code_signing][:android_keystore][:alias_placeholder] }"]
+							.show-password
+								checkbox.small[ng-model="androidKeystoreCtrl.showAlias" checkbox-id-expression="'code-signin-android-keystore-show-alias-checkbox-' + $index"]
+								label[for="'code-signin-android-keystore-show-alias-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_alias]
+						section
+							p
+								span> == data[:strings][:code_signing][:android_keystore][:private_key_password_as]
+								code.env-var[ng-bind="KeystoreFile.androidKeystorePrivateKeyPasswordEnvVarKey | prettifiedKey"]
+							input.env-var[type="{{ androidKeystoreCtrl.showPrivateKeyPassword ? 'text' : 'password' }}" name="privateKeyPassword" required ng-model="androidKeystoreCtrl.keystoreFile.privateKeyPassword" placeholder="#{ data[:strings][:code_signing][:android_keystore][:private_key_password_placeholder] }"]
+							.show-password
+								checkbox.small[ng-model="androidKeystoreCtrl.showPrivateKeyPassword" checkbox-id-expression="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"]
+								label[for="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_private_key_password]
+						input.rebo.big.green.save[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
+						button.rebo.big.grey.reset[type="button" ng-click="androidKeystoreCtrl.resetMetadata()"] == data[:strings][:code_signing][:android_keystore][:reset_to_saved]
+			.file-upload[ng-if="!androidKeystoreCtrl.keystoreFile && !androidKeystoreCtrl.actionProgress.isInProgress"]
+				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
+					strong[ng-bind="androidKeystoreCtrl.uploadInstruction"]
+					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
+	section.cardo.uppercase.slim.generic-files[ng-controller="GenericFileController as genericFileCtrl"]
+		header
+			h2 == data[:strings][:code_signing][:generic_file][:header]
+		article
+			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
+			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
+			div[ng-if="genericFileCtrl.loadGenericFilesProgress.isIdle && !genericFileCtrl.deleteGenericFileProgress.isInProgress"]
+				p.notification.no-icon[ng-if="genericFileCtrl.genericFiles.length == 0"] == data[:strings][:code_signing][:generic_file][:no_files_added_yet]
+				ul.uploaded-files
+					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
+						.details
+							span.name[ng-bind="genericFile.displayName()"]
+							em.download-url-env-var-key
+								span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
+								code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
+						.actions
+							a.furto.download[href="{{ genericFile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							button.furto.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] = svg("cross")
+				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]
+				.file-upload[ng-if="!genericFileCtrl.uploadGenericFileProgress.isInProgress"]
+					p == data[:strings][:code_signing][:generic_file][:env_var_details]
+					code.env-var[ng-bind="genericFileCtrl.downloadURLEnvVarKeyPrettifiedPreview()"]
+					input.env-var[type="text" ng-model="genericFileCtrl.uploadedGenericFile.envVarPartialID" placeholder="#{ data[:strings][:code_signing][:generic_file][:uploaded_file_placeholder] }"]
+					p.progress-indicator.error[ng-if="genericFileCtrl.uploadedGenericFileErrorMessage() && genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0" ng-bind="genericFileCtrl.uploadedGenericFileErrorMessage()"]
+					file-uploader[onupload="genericFileCtrl.uploadGenericFile()" model="genericFileCtrl.genericFileUploader" on-file-change="$files.length > 0 ? genericFileCtrl.uploadedGenericFile.updateFile($files[0]) : null" ng-disabled="genericFileCtrl.uploadedGenericFileErrorMessage()"]
+						strong[ng-bind="genericFileCtrl.uploadInstruction"]
+						em[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0"] == data[:strings][:code_signing][:generic_file][:upload_instructions]
+						em[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length == 0"] == data[:strings][:code_signing][:generic_file][:enter_id]
