@@ -7,11 +7,11 @@
 //= require angular-animate
 //= require angular-mocks
 //= require _elastic
-//= require showdown
-//= require markdown
-//= require ace
-//= require mode-yaml
-//= require theme-monokai
+//= require _showdown
+//= require _markdown
+//= require _ace
+//= require _mode-yaml
+//= require _theme-monokai
 
 //= require _BitriseWorkflowEditor
 //= require_tree ./services/
