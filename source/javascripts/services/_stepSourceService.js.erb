@@ -192,6 +192,12 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				});
 			});
 
+			if (notLoadedLibraryURLs.length == 0) {
+				resolve();
+
+				return;
+			}
+
 			return requestService.libraryFetch(notLoadedLibraryURLs, requestConfig).then(function(data) {
 				_.each(data, function(aLibraryData, aLibraryURL) {
 					try {
