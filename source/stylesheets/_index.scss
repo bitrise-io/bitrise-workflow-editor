@@ -166,7 +166,7 @@ main {
 				@include order(2);
 				margin-right: 0;
 
-				a {
+				button.tab {
 					@include flex-grow(1);
 				}
 			}
@@ -182,7 +182,7 @@ main {
 
 			nav {
 
-				a {
+				button.tab {
 					@include flex-direction(column);
 					@include padding-x(15px);
 
@@ -199,7 +199,7 @@ main {
 
 			nav {
 
-				a {
+				button.tab {
 					span.icon {
 						margin-bottom: 0;
 					}
