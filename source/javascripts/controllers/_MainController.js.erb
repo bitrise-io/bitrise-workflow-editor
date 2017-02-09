@@ -229,6 +229,17 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		});
 	}
 
+	viewModel.saveChangesSelected = function() {
+		save().then(load);
+	};
+
+	$(document).on("keydown", function(event) {
+		if ((event.ctrlKey || event.metaKey) && event.which == 83) {
+			event.preventDefault();
+			viewModel.saveChangesSelected();
+		}
+	});
+
 	viewModel.discardChangesSelected = function() {
 		switch (viewModel.currentMenu.id) {
 			case "workflows":
@@ -248,10 +259,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}
 
 		$rootScope.$emit("MainController::changesDiscarded");
-	};
-
-	viewModel.saveChangesSelected = function() {
-		save().then(load);
 	};
 
 	configureMode();
