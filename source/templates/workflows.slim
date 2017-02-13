@@ -59,7 +59,7 @@
 							.step-details
 								header.manage-step
 									.title[ng-if="!stepCtrl.renamedStep"]
-										button.rename[ng-bind="stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
+										button.rename[ng-bind="stepCtrl.step.title() === undefined ? stepCtrl.step.displayName() : stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
 										strong.verified[ng-if="stepCtrl.step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
 									.rename-title[ng-if="stepCtrl.renamedStep"]
 										input[type="text" ng-model="stepCtrl.renamedStepTitle"]
@@ -75,7 +75,7 @@
 									span.toggle-visibility
 										button[ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
 										= svg("arrow-down")
-								section.version
+								section.version[ng-if="stepCtrl.step.version !== undefined"]
 									span.icon
 									label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
 									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(stepSourceService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="stepSourceService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
@@ -106,7 +106,7 @@
 												= svg("arrow-down")
 								section.outputs
 									h3 == data[:strings][:workflows][:outputs][:header]
-									p.no-outputs[ng-if="!stepCtrl.step.defaultStepConfig.outputs"] == data[:strings][:workflows][:outputs][:no_outputs]
+									p.no-outputs[ng-if="!stepCtrl.step.defaultStepConfig.outputs || stepCtrl.step.defaultStepConfig.outputs.length == 0"] == data[:strings][:workflows][:outputs][:no_outputs]
 									table[ng-if="stepCtrl.step.defaultStepConfig.outputs"]
 										tr[ng-repeat="defaultOutputConfig in stepCtrl.step.defaultStepConfig.outputs" ng-init="output = stepCtrl.outputFromDefaultOutputConfig(defaultOutputConfig);"]
 											td.key[ng-bind="output | prettifiedVariableKey"]
