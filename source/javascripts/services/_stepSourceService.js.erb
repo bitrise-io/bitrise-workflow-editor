@@ -85,7 +85,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 			return undefined;
 		}
 
-		return _.keys(library.steps[step.id]);
+		return _.keys(library.steps[step.id]).reverse();
 	};
 
 	stepSourceService.changeStepToVersion = function(step, version) {
