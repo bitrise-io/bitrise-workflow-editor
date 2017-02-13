@@ -26,15 +26,15 @@ angular.module("BitriseWorkflowEditor").service("stickyService", function() {
 
 });
 
-angular.module("BitriseWorkflowEditor").directive("stickyHeader", function(stickyService) {
+angular.module("BitriseWorkflowEditor").directive("stickyHeader", function(stickyService, $parse) {
 	return {
 		restrict: "A",
-		link: function(scope, element) {
+		link: function(scope, element, attrs) {
 
 			function scrollHandler() {
 				var elementIsAlreadySticking = $(element).hasClass("sticking");
 
-				if (stickyService.shouldBeSticking()) {
+				if (stickyService.shouldBeSticking() && !$parse(attrs.skipStickyness)(scope)) {
 					if (!elementIsAlreadySticking) {
 						$(element).next().css("padding-top", $(element).outerHeight() + "px");
 						$(element).addClass("sticking");
