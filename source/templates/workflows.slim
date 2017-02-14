@@ -33,7 +33,7 @@
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
 			.workflow-chain[ng-repeat="directWorkflow in workflowsCtrl.directWorkflowChain track by $index + '-' + directWorkflow.id" ng-init="directWorkflowIndex = $index" ]
-				section.workflow[ng-repeat="workflow in directWorkflow == workflowsCtrl.selectedWorkflow ? [workflowsCtrl.selectedWorkflow] : workflowsCtrl.workflowChainsOfDirectWorkflowChain[directWorkflowIndex] track by $index + '-' + workflow.id" ng-init="workflowIndex = $index" ng-class="{'edited': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
+				section.workflow[ng-repeat="workflow in workflowsCtrl.workflowChainsOfDirectWorkflowChain[directWorkflowIndex] track by $index + '-' + workflow.id" ng-if="directWorkflow != workflowsCtrl.selectedWorkflow || workflowsCtrl.workflowChainsOfDirectWorkflowChain[directWorkflowIndex][$index] == workflowsCtrl.selectedWorkflow" ng-init="workflowIndex = $index" ng-class="{'edited': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 					header.workflow-header
 						h2
 							.run-workflow
