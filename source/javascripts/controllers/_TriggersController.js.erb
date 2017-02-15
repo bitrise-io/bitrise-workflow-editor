@@ -44,7 +44,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		});
 
 		if (_.isEmpty(appService.appConfig.trigger_map)) {
-			delete appService.appConfig["triggers"];
+			delete appService.appConfig["trigger_map"];
 		}
 	}, true);
 
