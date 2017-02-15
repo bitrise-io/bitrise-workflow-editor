@@ -44,7 +44,7 @@
 					article
 						ul.steps
 							ul[order-by-drag models="workflow.steps"]
-								li[ng-repeat="step in workflow.steps" ng-class="{'selected': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && step == workflowsCtrl.selectedStep}"]
+								li[ng-repeat="step in workflow.steps" ng-class="{'selected': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && step == workflowsCtrl.selectedStep}" ng-mousedown="workflowsCtrl.setStepOrderedWorkflow(workflow)"]
 									button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex)"]
 									button.step[ng-click="workflowsCtrl.stepSelected(step, workflowIndex, directWorkflowIndex)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
 										span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]

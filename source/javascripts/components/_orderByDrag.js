@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse, $timeout) {
+angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse) {
 	return {
 		restrict: "A",
 		link: function(scope, element, attrs) {
