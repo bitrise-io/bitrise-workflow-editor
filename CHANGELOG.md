@@ -1,6 +1,52 @@
-## Changelog (Current version: 0.9.3)
+## Changelog (Current version: 0.9.4)
 
 -----------------
+
+## 0.9.4 (2017 Feb 15)
+
+### Release Notes
+
+* Step delete bug fixed
+* Ctrl+S key command for save added
+* Workflow selector dropdown scroll issue fixed
+* Step versions are now in descending order
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.4
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.3 -> 0.9.4
+
+* [b465db5] erosdome - v0.9.4 (2017 Feb 15)
+* [65077cb] erosdome - delete step bug fixed (2017 Feb 14)
+* [c4465ab] erosdome - versions - in descending order (2017 Feb 13)
+* [13f06de] erosdome - sticky header should not stick if workflow selector dropdown is open (2017 Feb 13)
+* [3ba38b3] erosdome - if no step title, start rename from step's cvs (2017 Feb 13)
+* [f4a9d07] erosdome - ctrl+s triggers save (2017 Feb 09)
+* [e0de53d] erosdome - only start library fetch request if there are any libraries not already loaded (2017 Feb 08)
+* [11618bb] erosdome - top tabmenu css fix (2017 Feb 08)
+* [0b2bf22] erosdome - unneccessary js files excluded from rendered page (2017 Feb 08)
+* [c2639ce] erosdome - readme updated (2017 Feb 07)
+* [dd11e5c] erosdome - communication between tabs simplified (2017 Feb 07)
+
 
 ## 0.9.3 (2017 Feb 07)
 
@@ -118,4 +164,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Feb 07
+Updated: 2017 Feb 15
