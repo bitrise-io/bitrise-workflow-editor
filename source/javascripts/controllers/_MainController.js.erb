@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, appService, stringService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, appService, stringService, Progress, Popup) {
 
 	var viewModel = this;
 
@@ -94,7 +94,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 								Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:triggers][:update_deprecated_popup][:details_2] %>", {
 									url: "<%= data[:routes][:blog][:new_triggers] %>"
-								})]).then(save).then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
+								})]).then(viewModel.save).then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 							}
 							else {
 								deprecatedTriggerCheckResolve();
@@ -164,7 +164,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 
 			Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
-				save().then(function() {
+				viewModel.save().then(function() {
 					resolve();
 				}, function(error) {
 					reject();
@@ -219,7 +219,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}
 	});
 
-	function save() {
+	viewModel.save = function() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
 		return $q(function(resolve, reject) {
@@ -240,23 +240,23 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
-			viewModel.saveProgress.success();
+			viewModel.saveProgress.success("<%= data[:strings][:main][:load_progress][:save_success] %>");
+
+			$timeout(function() {
+				viewModel.saveProgress.reset();
+			}, 2000);
 		}, function(error) {
 			viewModel.saveProgress.reset();
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
 			return $q.reject(error);
 		});
-	}
-
-	viewModel.saveChangesSelected = function() {
-		save().then(load);
 	};
 
 	$(document).on("keydown", function(event) {
 		if ((event.ctrlKey || event.metaKey) && event.which == 83) {
 			event.preventDefault();
-			viewModel.saveChangesSelected();
+			viewModel.save();
 
 			return false;
 		}

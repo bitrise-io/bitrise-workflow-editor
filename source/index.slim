@@ -15,13 +15,14 @@ main[ng-controller="MainController as mainCtrl"]
 				span.title[ng-bind="menu.title"]
 		aside
 			button.discard.rebo.hollow.grey[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
-			button.save.rebo.green[ng-click="mainCtrl.saveChangesSelected()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"]  == svg("check")
+			button.save.rebo.green[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"]  == svg("check")
 	article.menu-content
 		p.progress-indicator[progress-model="mainCtrl.configureModeProgress"]
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
-		p.progress-indicator[progress-model="mainCtrl.saveProgress"]
-		div[ng-view ng-if="!mainCtrl.configureModeProgress.isError && !mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle && !mainCtrl.saveProgress.isInProgress"]
+		p.progress-indicator[progress-model="mainCtrl.saveProgress" progress-ng-if="mainCtrl.saveProgress.isError"]
+		div[ng-view ng-if="!mainCtrl.configureModeProgress.isError && !mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle"]
+	aside.save-indicator[progress-model="mainCtrl.saveProgress" progress-ng-if="mainCtrl.saveProgress.isInProgress || mainCtrl.saveProgress.isIdle"]
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
