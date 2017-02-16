@@ -21,7 +21,7 @@
 						h2
 							span == data[:strings][:code_signing][:file_name]
 							span[ng-bind="provProfile | displayNameForProvProfile"]
-						p.progress-indicator[progress-model="provProfileCtrl.provProfileActionProgress" ng-if="provProfile == provProfileCtrl.selectedProvProfile"]
+						p.progress-indicator[progress-model="provProfileCtrl.provProfileActionProgress" progress-ng-if="provProfile == provProfileCtrl.selectedProvProfile"]
 						div[ng-if="!provProfileCtrl.provProfileActionProgress.isInProgress"]
 							button[ng-click="provProfileCtrl.downloadProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:download]
 							button[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:delete]

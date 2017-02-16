@@ -244,4 +244,26 @@ main {
 			}
 		}
 	}
+
+	aside.save-indicator {
+		@include position(fixed, null, 10px, 10px);
+		z-index: $zindex-save_indicator;
+		border: 1px solid;
+		@include border-radius($def-radius);
+		padding: 6px 10px;
+		font-size: 14px;
+		font-weight: 200;
+	}
+
+	aside.save-indicator.in-progress {
+		border-color: $def-purple;
+		background-color: $def-purple-light;
+		color: $def-purple;
+	}
+
+	aside.save-indicator.success {
+		border-color: $def-green;
+		background-color: $def-green-light;
+		color: $def-green;
+	}
 }

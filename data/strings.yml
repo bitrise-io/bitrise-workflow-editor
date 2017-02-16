@@ -13,6 +13,7 @@ main:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...
     save_error: Error saving!
+    save_success: Save successful!
   confirm_tab_change_save_popup:
     title: Unsaved changes
     details: You need to save your unsaved changes before leaving this tab.

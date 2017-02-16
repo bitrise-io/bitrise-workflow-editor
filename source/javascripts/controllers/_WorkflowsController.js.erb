@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, stepSourceService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $location, $cookies, $q, $filter, stepSourceService, imageService, scrollService, appService, Progress, Popup, Workflow, Step) {
 
 	var viewModel = this;
 
@@ -65,8 +65,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			canceler.resolve();
 		});
 
-		var previouslySelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
-
 		stepSourceService.defaultLibraryURL = appService.appConfig.default_step_lib_source;
 
 		return $q(function(resolve, reject) {
@@ -109,10 +107,14 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}).then(function() {
 			viewModel.configureWorkflowsProgress.success();
 
-			var selectedWorkflow = _.find(viewModel.workflows, function(aWorkflow) {
-				return aWorkflow.id == previouslySelectedWorkflowID;
+			var selectedWorkflow = _.find(viewModel.workflows, {
+				id: $location.search().workflow_id
 			});
-
+			if (!selectedWorkflow) {
+				selectedWorkflow = _.find(viewModel.workflows, {
+					id: $cookies.get("last_selected_workflow_id")
+				});
+			}
 			if (!selectedWorkflow) {
 				selectedWorkflow = _.first(viewModel.workflows);
 			}
@@ -139,6 +141,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.renamedWorkflowID = "";
 		
 		viewModel.selectedWorkflow = workflow;
+		$location.search("workflow_id", workflow.id);
+		$cookies.put("last_selected_workflow_id", workflow.id, {
+			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+		});
 
 		updateWorkflowChain();
 

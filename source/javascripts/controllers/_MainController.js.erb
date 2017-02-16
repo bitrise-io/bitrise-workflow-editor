@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, requestService, appService, stringService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $cookies, $q, $location, $timeout, requestService, appService, stringService, Progress, Popup) {
 
 	var viewModel = this;
 
@@ -27,48 +27,65 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 		viewModel.menus = _.compact([{
 			id: "workflows",
+			cookieValue: "workflows",
 			title: "<%= data[:strings][:main][:menus][0] %>",
 			path: "<%= data[:routes][:endpoints][:workflows] %>",
+			possibleURLParameterKeys: ["workflow_id"],
 			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			id: "code-signing",
+			cookieValue: "code-signing",
 			title: "<%= data[:strings][:main][:menus][1] %>",
 			path: "<%= data[:routes][:endpoints][:code_signing] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "code-signing"
 		} : null), {
 			id: "secrets",
+			cookieValue: "secrets",
 			title: "<%= data[:strings][:main][:menus][2] %>",
 			path: "<%= data[:routes][:endpoints][:secrets] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "secrets"
 		}, {
 			id: "env-vars",
+			cookieValue: "env-vars",
 			title: "<%= data[:strings][:main][:menus][3] %>",
 			path: "<%= data[:routes][:endpoints][:env_vars] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "env-vars"
 		}, {
 			id: "triggers",
+			cookieValue: "triggers",
 			title: "<%= data[:strings][:main][:menus][4] %>",
 			path: "<%= data[:routes][:endpoints][:triggers] %>",
+			possibleURLParameterKeys: ["trigger_type"],
 			cssClass: "triggers"
 		}, {
 			id: "yml",
+			cookieValue: "yml",
 			title: "<%= data[:strings][:main][:menus][5] %>",
 			path: "<%= data[:routes][:endpoints][:yml] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "yml"
 		}]);
 	}
 
 	function selectInitialMenu() {
-		var initialPath = $location.path();
-		if (!initialPath) {
-			initialPath = "/" + _.find(viewModel.menus, {
+		var initialMenu = _.find(viewModel.menus, function(aMenu) {
+			return "/" + aMenu.path == $location.path()
+		});
+		if (!initialMenu) {
+			initialMenu = _.find(viewModel.menus, {
+				cookieValue: $cookies.get("last_selected_menu")
+			});
+		}
+		if (!initialMenu) {
+			initialMenu = _.find(viewModel.menus, {
 				id: "workflows"
-			}).path;
+			});
 		}
 
-		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
-			return "/" + aMenu.path == initialPath;
-		});
+		viewModel.menuSelected(initialMenu);
 	}
 
 	function load() {
@@ -86,7 +103,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 								Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:triggers][:update_deprecated_popup][:details_2] %>", {
 									url: "<%= data[:routes][:blog][:new_triggers] %>"
-								})]).then(save).then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
+								})]).then(viewModel.save).then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 							}
 							else {
 								deprecatedTriggerCheckResolve();
@@ -154,7 +171,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 
 			Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
-				save().then(function() {
+				viewModel.save().then(function() {
 					resolve();
 				}, function(error) {
 					reject();
@@ -163,6 +180,18 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				reject();
 			});
 		}).then(function() {
+			_.each(_.without(viewModel.menus, menu), function(aMenu) {
+				_.each(aMenu.possibleURLParameterKeys, function(aMenuURLParameterKey) {
+					if (!_.contains(menu.possibleURLParameterKeys, aMenuURLParameterKey)) {
+						$location.search(aMenuURLParameterKey, null);
+					}
+				});
+			});
+
+			$cookies.put("last_selected_menu", menu.cookieValue, {
+				expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+			});
+
 			viewModel.currentMenu = menu;
 			$location.path("/" + menu.path);
 
@@ -199,7 +228,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}
 	});
 
-	function save() {
+	viewModel.save = function() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
 		return $q(function(resolve, reject) {
@@ -220,23 +249,23 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
-			viewModel.saveProgress.success();
+			viewModel.saveProgress.success("<%= data[:strings][:main][:load_progress][:save_success] %>");
+
+			$timeout(function() {
+				viewModel.saveProgress.reset();
+			}, 2000);
 		}, function(error) {
 			viewModel.saveProgress.reset();
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
 			return $q.reject(error);
 		});
-	}
-
-	viewModel.saveChangesSelected = function() {
-		save().then(load);
 	};
 
 	$(document).on("keydown", function(event) {
 		if ((event.ctrlKey || event.metaKey) && event.which == 83) {
 			event.preventDefault();
-			viewModel.saveChangesSelected();
+			viewModel.save();
 
 			return false;
 		}
@@ -265,7 +294,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	configureMode();
 	selectInitialMenu();
-	load();
 
 });
 

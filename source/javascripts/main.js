@@ -5,6 +5,7 @@
 //= require angular-sanitize
 //= require angular-ui-ace
 //= require angular-animate
+//= require angular-cookies
 //= require angular-mocks
 //= require _elastic
 //= require _showdown

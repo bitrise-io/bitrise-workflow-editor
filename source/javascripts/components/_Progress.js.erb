@@ -60,12 +60,12 @@ angular.module("BitriseWorkflowEditor").directive("progressModel", function() {
 		restrict: "A",
 		replace: true,
 		template: function(tElement, tAttrs) {
-			var ngIfValue = tAttrs.ngIf;
-			if (!ngIfValue) {
-				ngIfValue = "true";
+			var progressNgIfValue = tAttrs.progressNgIf;
+			if (!progressNgIfValue) {
+				progressNgIfValue = "true";
 			}
 
-			ngIfValue = "(" + ngIfValue + ") && (" + tAttrs.progressModel + ".statusMessage.length > 0)"
+			var ngIfValue = "(" + progressNgIfValue + ") && (" + tAttrs.progressModel + ".statusMessage.length > 0)";
 
 			tElement.attr("ng-if", ngIfValue);
 			tElement.attr("ng-class", tAttrs.progressModel + ".cssClass");
