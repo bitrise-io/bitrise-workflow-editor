@@ -6,6 +6,7 @@ var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
 	"ngRoute",
 	"ngSanitize",
 	"ngAnimate",
+	"ngCookies",
 	"monospaced.elastic",
 	"btford.markdown",
 	"ui.ace"
@@ -20,14 +21,6 @@ BitriseWorkflowEditor.config(function($animateProvider) {
 });
 
 BitriseWorkflowEditor.config(function($routeProvider) {
-
-	$routeProvider.when("", {
-		redirectTo: "<%= data[:routes][:endpoints][:workflows] %>"
-	});
-
-	$routeProvider.when("/", {
-		redirectTo: "<%= data[:routes][:endpoints][:workflows] %>"
-	});
 
 	$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
 		templateUrl: "<%= data[:routes][:templates][:workflows] %>",
