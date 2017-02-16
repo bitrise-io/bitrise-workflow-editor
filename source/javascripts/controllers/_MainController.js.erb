@@ -29,31 +29,37 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			id: "workflows",
 			title: "<%= data[:strings][:main][:menus][0] %>",
 			path: "<%= data[:routes][:endpoints][:workflows] %>",
+			possibleURLParameterKeys: ["workflow_id"],
 			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			id: "code-signing",
 			title: "<%= data[:strings][:main][:menus][1] %>",
 			path: "<%= data[:routes][:endpoints][:code_signing] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "code-signing"
 		} : null), {
 			id: "secrets",
 			title: "<%= data[:strings][:main][:menus][2] %>",
 			path: "<%= data[:routes][:endpoints][:secrets] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "secrets"
 		}, {
 			id: "env-vars",
 			title: "<%= data[:strings][:main][:menus][3] %>",
 			path: "<%= data[:routes][:endpoints][:env_vars] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "env-vars"
 		}, {
 			id: "triggers",
 			title: "<%= data[:strings][:main][:menus][4] %>",
 			path: "<%= data[:routes][:endpoints][:triggers] %>",
+			possibleURLParameterKeys: ["type"],
 			cssClass: "triggers"
 		}, {
 			id: "yml",
 			title: "<%= data[:strings][:main][:menus][5] %>",
 			path: "<%= data[:routes][:endpoints][:yml] %>",
+			possibleURLParameterKeys: [],
 			cssClass: "yml"
 		}]);
 	}
@@ -69,6 +75,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.currentMenu = _.find(viewModel.menus, function(aMenu) {
 			return "/" + aMenu.path == initialPath;
 		});
+
+		clearPreviousURLParametersForNextMenu(viewModel.currentMenu);
 	}
 
 	function load() {
@@ -119,6 +127,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.menuSelected = function(menu) {
 		viewModel.menuProgress.start("Loading, wait a sec...");
+
+		clearPreviousURLParametersForNextMenu(menu);
 
 		var shouldCallLoadAfterMenuChange = true;
 
@@ -175,6 +185,16 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.menuProgress.reset();
 		});
 	};
+
+	function clearPreviousURLParametersForNextMenu(menu) {
+		_.each(_.without(viewModel.menus, menu), function(aMenu) {
+			_.each(aMenu.possibleURLParameterKeys, function(aMenuURLParameterKey) {
+				if (!_.contains(menu.possibleURLParameterKeys, aMenuURLParameterKey)) {
+					$location.search(aMenuURLParameterKey, null);
+				}
+			});
+		})
+	}
 
 	$scope.$on("$routeChangeError", function() {
 		viewModel.menuProgress.error(new Error("Failed to load menu."));

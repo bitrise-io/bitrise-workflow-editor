@@ -48,6 +48,7 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 
 	$routeProvider.when("/<%= data[:routes][:endpoints][:triggers] %>", {
 		templateUrl: "<%= data[:routes][:templates][:triggers] %>",
+		reloadOnSearch: false
 	});
 
 	$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {

@@ -110,7 +110,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			var selectedWorkflow = _.find(viewModel.workflows, {
 				id: $location.search().workflow_id
 			});
-
 			if (!selectedWorkflow) {
 				selectedWorkflow = _.first(viewModel.workflows);
 			}
