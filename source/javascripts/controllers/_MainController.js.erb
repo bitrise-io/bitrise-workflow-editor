@@ -237,6 +237,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		if ((event.ctrlKey || event.metaKey) && event.which == 83) {
 			event.preventDefault();
 			viewModel.saveChangesSelected();
+
+			return false;
 		}
 	});
 
