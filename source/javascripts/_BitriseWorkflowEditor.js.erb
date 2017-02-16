@@ -30,7 +30,8 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 	});
 
 	$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
-		templateUrl: "<%= data[:routes][:templates][:workflows] %>"
+		templateUrl: "<%= data[:routes][:templates][:workflows] %>",
+		reloadOnSearch: false
 	});
 
 	$routeProvider.when("/<%= data[:routes][:endpoints][:code_signing] %>", {
