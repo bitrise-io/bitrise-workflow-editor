@@ -1,6 +1,47 @@
-## Changelog (Current version: 0.9.4)
+## Changelog (Current version: 0.9.5)
 
 -----------------
+
+## 0.9.5 (2017 Feb 16)
+
+### Release Notes
+
+* Selected workflow, selected trigger type stored in URL
+* Last selected tab, workflow, trigger type stored in cookie
+* Ctrl+S key command now working on Linux
+* Bug when leaving triggers tab and save prompt showing incorrectly fixed
+* Step ordering bug fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.5
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.4 -> 0.9.5
+
+* [ce2d4ba] erosdome - v0.9.5. (2017 Feb 16)
+* [5022822] erosdome - Improved ui reload (#61) (2017 Feb 16)
+* [32904fe] erosdome - save key combination fix try #1 (2017 Feb 16)
+* [01f19ac] erosdome - inactive workflow step ordering fixed (2017 Feb 15)
+* [79b358b] erosdome - triggers tab change bug fixed (2017 Feb 15)
+
 
 ## 0.9.4 (2017 Feb 15)
 
@@ -164,4 +205,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Feb 15
+Updated: 2017 Feb 16
