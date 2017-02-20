@@ -1,6 +1,43 @@
-## Changelog (Current version: 0.9.5)
+## Changelog (Current version: 0.9.6)
 
 -----------------
+
+## 0.9.6 (2017 Feb 20)
+
+### Release Notes
+
+* Open Sans set as default font for editor
+* Change added step bug fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.6
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.5 -> 0.9.6
+
+* [5da44e9] erosdome - v0.9.6. (2017 Feb 20)
+* [cac4e12] erosdome - bug when immediately editin step after adding it - fixed (2017 Feb 20)
+* [2ac992b] erosdome - font set to open sans (2017 Feb 20)
+* [e91b8dc] erosdome - readme updated (2017 Feb 16)
+
 
 ## 0.9.5 (2017 Feb 16)
 
@@ -205,4 +242,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Feb 16
+Updated: 2017 Feb 20
