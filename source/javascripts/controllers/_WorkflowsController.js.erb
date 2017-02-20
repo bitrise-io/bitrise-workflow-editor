@@ -17,7 +17,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.editedDirectWorkflow = undefined;
 	viewModel.editedDirectWorkflowIndex = undefined;
 	viewModel.workflowChainOfEditedDirectWorkflow = undefined;
-	var editedWorkflow = undefined;
+	$scope.editedWorkflow = undefined;
 	viewModel.editedWorkflowIndex = undefined;
 	$scope.stepOrderedWorkflow;
 
@@ -29,7 +29,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		basedOnWorkflow: undefined
 	});
 	viewModel.addWorkflowPopup.beforeAppearCallback = function() {
-		viewModel.addWorkflowPopup.parameters.basedOnWorkflow = editedWorkflow;
+		viewModel.addWorkflowPopup.parameters.basedOnWorkflow = $scope.editedWorkflow;
 	};
 	viewModel.addWorkflowPopup.afterDismissCallback = function() {
 		viewModel.addWorkflowPopup.parameters.workflowID = "";
@@ -155,7 +155,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			workflow: workflow
 		});
 		viewModel.workflowChainOfEditedDirectWorkflow = workflow.workflowChain(viewModel.workflows);
-		editedWorkflow = workflow;
+		$scope.editedWorkflow = workflow;
 		viewModel.editedWorkflowIndex = 0;
 
 		viewModel.stepSelected(null);
@@ -249,7 +249,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.editedDirectWorkflow = viewModel.directWorkflowChain[viewModel.addRunWorkflowPopup.parameters.isBeforeRunMode ? _.findIndex(viewModel.directWorkflowChain, viewModel.selectedWorkflow) - 1 : viewModel.directWorkflowChain.length - 1];
 		viewModel.editedDirectWorkflowIndex = _.indexOf(viewModel.directWorkflowChain, viewModel.editedDirectWorkflow);
 		viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedDirectWorkflow.workflowChain(viewModel.workflows);
-		editedWorkflow = viewModel.addRunWorkflowPopup.parameters.selectedRunWorkflow;
+		$scope.editedWorkflow = viewModel.addRunWorkflowPopup.parameters.selectedRunWorkflow;
 		viewModel.editedWorkflowIndex = _.indexOf(viewModel.workflowChainOfEditedDirectWorkflow, viewModel.addRunWorkflowPopup.parameters.selectedRunWorkflow);
 
 		viewModel.addRunWorkflowPopup.isVisible = false;
@@ -276,7 +276,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.editedDirectWorkflow = null;
 		viewModel.editedDirectWorkflowIndex = null;
 		viewModel.workflowChainOfEditedDirectWorkflow = null;
-		editedWorkflow = null;
+		$scope.editedWorkflow = null;
 		viewModel.editedWorkflowIndex = null;
 
 		viewModel.rearrangeWorkflowsPopup.isVisible = false;
@@ -298,7 +298,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.editedDirectWorkflow = null;
 		viewModel.editedDirectWorkflowIndex = null;
 		viewModel.workflowChainOfEditedDirectWorkflow = null;
-		editedWorkflow = null;
+		$scope.editedWorkflow = null;
 		viewModel.editedWorkflowIndex = null;
 	};
 
@@ -340,7 +340,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.editedDirectWorkflow = viewModel.directWorkflowChain[directWorkflowIndexToEdit];
 			viewModel.editedDirectWorkflowIndex = directWorkflowIndexToEdit;
 			viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedDirectWorkflow.workflowChain(viewModel.workflows);
-			editedWorkflow = viewModel.workflowChainsOfDirectWorkflowChain[directWorkflowIndexToEdit][workflowIndexToEdit];
+			$scope.editedWorkflow = viewModel.workflowChainsOfDirectWorkflowChain[directWorkflowIndexToEdit][workflowIndexToEdit];
 			viewModel.editedWorkflowIndex = workflowIndexToEdit;
 		}
 
@@ -362,7 +362,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.addStepSelectedBeforeStep = function(step) {
-		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", _.indexOf(editedWorkflow.steps, step));
+		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", _.indexOf($scope.editedWorkflow.steps, step));
 	};
 
 	viewModel.addStepSelectedAtEnd = function(directWorkflowIndex, workflowIndex) {
@@ -370,35 +370,36 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.editedDirectWorkflow = viewModel.directWorkflowChain[directWorkflowIndex];
 			viewModel.editedDirectWorkflowIndex = directWorkflowIndex;
 			viewModel.workflowChainOfEditedDirectWorkflow = viewModel.editedDirectWorkflow.workflowChain(viewModel.workflows);
-			editedWorkflow = viewModel.workflowChainsOfDirectWorkflowChain[directWorkflowIndex][workflowIndex];
+			$scope.editedWorkflow = viewModel.workflowChainsOfDirectWorkflowChain[directWorkflowIndex][workflowIndex];
 			viewModel.editedWorkflowIndex = workflowIndex;
 		}
 
-		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", editedWorkflow.steps.length);
+		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", $scope.editedWorkflow.steps.length);
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
-		if (!editedWorkflow.steps) {
-			editedWorkflow.steps = [];
+		if (!$scope.editedWorkflow.steps) {
+			$scope.editedWorkflow.steps = [];
 		}
 
 		var addedStep = angular.copy(step);
-		editedWorkflow.steps.splice(index, 0, addedStep);
+		addedStep.userStepConfig = {};
+		$scope.editedWorkflow.steps.splice(index, 0, addedStep);
 
 		viewModel.stepSelected(addedStep);
 	}));
 
 	viewModel.cloneStepSelected = function() {
 		var clonedStep = angular.copy(viewModel.selectedStep);
-		var index = _.indexOf(editedWorkflow.steps, viewModel.selectedStep);
-		editedWorkflow.steps.splice(index + 1, 0, clonedStep);
+		var index = _.indexOf($scope.editedWorkflow.steps, viewModel.selectedStep);
+		$scope.editedWorkflow.steps.splice(index + 1, 0, clonedStep);
 
 		viewModel.stepSelected(clonedStep);
 	};
 
 	viewModel.deleteStepSelected = function() {
-		var index = _.indexOf(editedWorkflow.steps, viewModel.selectedStep);
-		editedWorkflow.steps.splice(index, 1);
+		var index = _.indexOf($scope.editedWorkflow.steps, viewModel.selectedStep);
+		$scope.editedWorkflow.steps.splice(index, 1);
 
 		viewModel.stepSelected(null);
 	};
@@ -408,21 +409,28 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	$scope.$watchCollection("stepOrderedWorkflow.steps", function(newSteps) {
-		if (!$scope.stepOrderedWorkflow) {
+		stepsWatcher($scope.stepOrderedWorkflow, newSteps);
+	});
+	$scope.$watchCollection("editedWorkflow.steps", function(newSteps) {
+		stepsWatcher($scope.editedWorkflow, newSteps);
+	});
+
+	function stepsWatcher(workflow, steps) {
+		if (!workflow) {
 			return;
 		}
 
-		$scope.stepOrderedWorkflow.workflowConfig.steps = _.map(newSteps, function(aStep) {
+		workflow.workflowConfig.steps = _.map(steps, function(aStep) {
 			return aStep.wrappedUserStepConfig();
 		});
-	});
+	}
 
 	$scope.$on("$destroy", $rootScope.$on("StepController::stepVersionChanged", function() {
-		var index = _.findIndex(editedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
+		var index = _.findIndex($scope.editedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
 			return aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] == viewModel.selectedStep.userStepConfig;
 		});
 
-		editedWorkflow.workflowConfig.steps.splice(index, 1, viewModel.selectedStep.wrappedUserStepConfig());
+		$scope.editedWorkflow.workflowConfig.steps.splice(index, 1, viewModel.selectedStep.wrappedUserStepConfig());
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
@@ -430,7 +438,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return;
 		}
 
-		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", editedWorkflow, viewModel.selectedStep);
+		$rootScope.$emit("InsertVariableController::configureInsertVariableWithParameters", $scope.editedWorkflow, viewModel.selectedStep);
 	}));
 
 	configureWorkflowsWithAppConfig();
