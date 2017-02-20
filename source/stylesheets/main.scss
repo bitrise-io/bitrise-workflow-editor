@@ -43,7 +43,7 @@ body {
 	@include flex-direction(column);
 	@include size(100%);
 	@include min-size($screen-minimum, $screen-small);
-	font-family: Verdana;
+	@include OpenSansWithFallback;
 	margin: 0;
 }
 

@@ -39,3 +39,7 @@ $main-verticalpadding: 20px;
 
 $cardo-horizontalpadding: 18px;
 $cardo-verticalpadding: 12px;
+
+@mixin OpenSansWithFallback {
+	font-family: 'Open Sans', sans-serif;
+}
