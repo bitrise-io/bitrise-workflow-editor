@@ -1,5 +1,14 @@
 # Bitrise Workflow Editor
 
+## Usage
+
+```
+brew update && brew install bitrise
+bitrise setup
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git
+bitrise plugin update workflow-editor
+bitrise :workflow-editor
+```
 
 ## Development
 
