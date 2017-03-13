@@ -24,6 +24,14 @@
 	@return string_replace($svg_content, "<svg", "<svg" + $attributes_string);
 }
 
+@function background_image_from_svg_content($svg_content) {
+	@return url('data:image/svg+xml;utf8, #{ $svg_content }');
+}
+
+@function background_image_from_svg_content_with_attributes($svg_content, $attributes) {
+	@return background_image_from_svg_content(svg_content_with_attributes($svg_content, $attributes));
+}
+
 /* Screen sizes */
 
 $screen-huge: 1280px;
@@ -659,8 +667,4 @@ $screen-minimum: 320px;
 	-webkit-tap-highlight-color: rgba(0, 0, 0, 0);
 	-webkit-focus-ring-color:  rgba(0, 0, 0, 0);
 	outline: none;
-}
-
-.no-transition {
-	@include transition(none !important);
 }

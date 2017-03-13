@@ -35,16 +35,14 @@
 }
 
 @mixin notification_styling($color, $background_color, $svg_content, $icon_size) {
-	$svg_content_with_attributes: svg_content_with_attributes($svg_content, (
-		fill: rgba($color, 0.99)
-	));
-
 	border-color: $color;
 	color: $color;
 	background-color: $background_color;
 
 	&:before {
-		background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+		background-image: background_image_from_svg_content_with_attributes($svg_content, (
+			fill: rgba($color, 0.99)
+		));
 		@include size($icon_size);
 		margin-top: - $icon_size / 2;
 	}

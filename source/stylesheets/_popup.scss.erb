@@ -148,11 +148,9 @@
 	.popup-body#default-alert-popup-body.error, .popup-body#default-confirm-popup-body {
 
 		&:before {
-			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("cross") %>', (
+			background-image: background_image_from_svg_content_with_attributes('<%= svg("cross") %>', (
 				fill: rgba(white, 0.99)
 			));
-
-			background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
 			background-size: auto 16px;
 			background-color: $def-danger;
 		}
@@ -179,11 +177,9 @@
 	.popup-body#default-alert-popup-body.notice {
 
 		&:before {
-			$svg_content_with_attributes: svg_content_with_attributes('<%= svg("bulb") %>', (
+			background-image: background_image_from_svg_content_with_attributes('<%= svg("bulb") %>', (
 				fill: rgba(white, 0.99)
 			));
-
-			background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
 			background-size: auto 34px;
 			background-color: $def-blue;
 		}
