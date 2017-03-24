@@ -16,6 +16,34 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 		return string;
 	};
 
+	stringService.joinedStringsWithJoiner = function(strings, joiner, shouldLeaveSpaceAfterJoiner) {
+		var joinedString = "";
+
+		if (joiner === undefined) {
+			joiner = "";
+		}
+
+		if (shouldLeaveSpaceAfterJoiner === undefined) {
+			if (joiner == ",") {
+				shouldLeaveSpaceAfterJoiner = true;
+			}
+		}
+
+		_.each(strings, function(aString, index) {
+			if (index > 0) {
+				joinedString += joiner;
+
+				if (shouldLeaveSpaceAfterJoiner) {
+					joinedString += " ";
+				}
+			}
+
+			joinedString += aString;
+		});
+
+		return joinedString;
+	};
+
 	stringService.isStringMatchingTerm = function(string, term) {
 		if (string === undefined || term === undefined) {
 			return undefined

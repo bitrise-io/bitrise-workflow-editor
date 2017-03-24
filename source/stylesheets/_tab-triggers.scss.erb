@@ -239,29 +239,23 @@
 						}
 
 						&.push:before {
-							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
+							background-image: background_image_from_svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
 								fill: rgba($def-darkgrey, 0.99)
 							));
-
-							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
 							background-size: auto 24px;
 						}
 
 						&.pull-request:before {
-							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-pull_request") %>', (
+							background-image: background_image_from_svg_content_with_attributes('<%= svg("trigger/icon-pull_request") %>', (
 								fill: rgba($def-darkgrey, 0.99)
 							));
-
-							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
 							background-size: auto 22px;
 						}
 
 						&.tag:before {
-							$svg_content_with_attributes: svg_content_with_attributes('<%= svg("trigger/icon-tag") %>', (
+							background-image: background_image_from_svg_content_with_attributes('<%= svg("trigger/icon-tag") %>', (
 								fill: rgba($def-darkgrey, 0.99)
 							));
-
-							background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
 							background-size: auto 20px;
 						}
 

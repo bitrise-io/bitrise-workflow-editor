@@ -69,6 +69,7 @@ workflows:
       filter_by_type_tag: "Filter steps by type tag:"
       clear_type_tag_filter: Clear type tag filter
       no_steps_matching_filter: No matching steps found.
+      inputs_removed_popup_title: "The following inputs are not available in this version:"
     verified: Verified
     clone: Clone
     source: Source
