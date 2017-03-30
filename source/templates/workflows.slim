@@ -78,7 +78,7 @@
 								section.version[ng-if="stepCtrl.step.version !== undefined"]
 									span.icon
 									label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
-									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in [null].concat(stepSourceService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="stepSourceService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
+									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (stepCtrl.step.libraryURL !== undefined ? [null] : []).concat(stepSourceService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="stepSourceService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
 								section.always-run[ng-if="stepCtrl.step.isAlwaysRun() !== undefined"]
 									span.icon
 										= svg("step/is_always_run")
