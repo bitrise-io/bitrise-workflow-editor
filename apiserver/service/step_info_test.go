@@ -26,7 +26,7 @@ func TestPostStepInfoHandler(t *testing.T) {
 		var response Response
 		require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &response))
 
-		require.Equal(t, "empty body", response.ErrorMessage, rr.Body.String())
+		require.Equal(t, "Empty body", response.ErrorMessage, rr.Body.String())
 	}
 
 	t.Log("invalid body - not a json")

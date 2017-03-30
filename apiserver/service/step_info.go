@@ -18,7 +18,8 @@ type PostStepInfoRequestBodyModel struct {
 // PostStepInfoHandler ...
 func PostStepInfoHandler(w http.ResponseWriter, r *http.Request) {
 	if r.Body == nil {
-		RespondWithJSONBadRequestErrorMessage(w, "empty body")
+		log.Errorf("Empty body")
+		RespondWithJSONBadRequestErrorMessage(w, "Empty body")
 		return
 	}
 
