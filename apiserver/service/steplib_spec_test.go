@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/require"
 )
 
-func TestGetSpecHandler(t *testing.T) {
+func TestPostSpecHandler(t *testing.T) {
 	t.Log("empty request body")
 	{
 		req, err := http.NewRequest("POST", "/api/spec", nil)
