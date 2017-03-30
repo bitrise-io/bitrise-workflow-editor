@@ -82,7 +82,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
-				resolve(response.data);
+				resolve(response.data.step);
 			}, function(response) {
 				if (!response || !response.data || !response.data.error_msg) {
 					return reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"));

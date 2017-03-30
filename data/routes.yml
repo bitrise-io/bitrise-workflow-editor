@@ -29,7 +29,7 @@ website:
   yml_download:  /api/app/<app_slug>/config.yml?api_token=<api_token>?is_download=1
   yml_post: /api/app/<app_slug>/config.json?api_token=<api_token>
 local_server:
-  step_config_fetch: /api/step_info
+  step_config_fetch: /api/step-info
   libraries_fetch: /api/spec
   app_config_get: /api/bitrise-yml.json
   app_config_post: /api/bitrise-yml.json
