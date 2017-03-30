@@ -29,6 +29,14 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 				step.localPath = id;
 
+				var localStep = _.find(stepSourceService.localSteps, {
+					localPath: step.localPath
+				});
+
+				if (localStep) {
+					step.defaultStepConfig = localStep.defaultStepConfig;
+				}
+
 				break;
 			case "git":
 				if (id.length == 0) {
@@ -37,6 +45,14 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 				step.gitURL = id;
 				step.version = version;
+
+				var gitStep = _.find(stepSourceService.gitSteps, {
+					gitURL: step.gitURL
+				});
+
+				if (gitStep) {
+					step.defaultStepConfig = gitStep.defaultStepConfig;
+				}
 
 				break;
 			default:
@@ -179,8 +195,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 			else {
 				// TODO: implement single library step load if neccessary
 			}
-
-			resolve();
 		});
 	}
 
