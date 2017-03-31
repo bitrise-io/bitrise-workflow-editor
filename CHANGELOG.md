@@ -1,6 +1,48 @@
-## Changelog (Current version: 0.9.6)
+## Changelog (Current version: 0.9.7)
 
 -----------------
+
+## 0.9.7 (2017 Mar 31)
+
+### Release Notes
+
+* Git step handling added
+* Local step handling added
+* On step version change, warning added about inputs not available in the new version
+* Minor UX bugfixes (fixing issue #63)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.7
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.6 -> 0.9.7
+
+* [ee8f1f9] erosdome - v0.9.7 (2017 Mar 31)
+* [f0396dd] erosdome - Workflows tab bugfix (#72) (2017 Mar 31)
+* [5db9cbb] erosdome - local steps, git steps - version handling, caching updated (2017 Mar 30)
+* [088b389] erosdome - steps specified by git URL - implemented; (#71) (2017 Mar 30)
+* [869f8fb] Krisztián Gödrei - step-info api endpoint (#70) (2017 Mar 30)
+* [c1d6a3d] Krisztián Gödrei - api server test fix (#69) (2017 Mar 29)
+* [1d665ac] erosdome - Enhancements (#67) (2017 Mar 24)
+
 
 ## 0.9.6 (2017 Feb 20)
 
@@ -242,4 +284,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Feb 20
+Updated: 2017 Mar 31

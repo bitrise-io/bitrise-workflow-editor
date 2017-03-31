@@ -13,9 +13,10 @@ bitrise run go-install
 
 - Ensure clean git
 - Bump `RELEASE_VERSION` in `bitrise.yml`
-- Push changes
+- Commit changes
 - Call `bitrise run create-release`
-- Update & push changelog in `CHANGELOG.md`
+- Update changelog in `CHANGELOG.md`
+- Commit changes, then squash both to a commit with message `vX.X.X`, push it
 - On GitHub, create new release with title and tag `X.X.X`, description from changelog, starting with *Release Notes*, up to but not including *Release Commits*
 - Wait for the `create-release` workflow to finish successfully on Bitrise
 - Download the generated artifacts from Bitrise
