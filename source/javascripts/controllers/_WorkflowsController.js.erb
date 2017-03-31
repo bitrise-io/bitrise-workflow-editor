@@ -212,9 +212,11 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 		viewModel.addWorkflowPopup.isVisible = false;
 
+		var addedWorkflowID = viewModel.addWorkflowPopup.parameters.workflowID;
+
 		configureWorkflowsWithAppConfig().then(function() {
 			viewModel.workflowSelected(_.find(viewModel.workflows, {
-				id: viewModel.addWorkflowPopup.parameters.workflowID
+				id: addedWorkflowID
 			}));
 		});
 	};
