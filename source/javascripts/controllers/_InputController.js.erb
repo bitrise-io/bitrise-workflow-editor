@@ -44,17 +44,9 @@ angular.module("BitriseWorkflowEditor").controller("InputController", function($
 				if (_.isEmpty(angular.copy(step.userStepConfig.inputs))) {
 					delete step.userStepConfig["inputs"];
 				}
-
-				if (_.isEmpty(angular.copy(step.userStepConfig))) {
-					step.userStepConfig = null;
-				}
 			}
 
 			if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
-				if (!step.userStepConfig) {
-					step.userStepConfig = {};
-				}
-
 				if (!step.userStepConfig.inputs) {
 					step.userStepConfig.inputs = [];
 				}
