@@ -1,5 +1,6 @@
 $def-transition_duration: 0.2s;
 
+$def-green-ultralight: #f5fefb;
 $def-green-verylight: #d2f7f1;
 $def-green-light: #c8e7e2;
 $def-green: #3bc3a3;
@@ -27,6 +28,7 @@ $def-progress_indicator-radius: $def-radius;
 
 $zindex-checkbox: 0;
 $zindex-step_description_open: 0;
+$zindex-file_uploader_input: 10;
 $zindex-dragged_element: 20;
 $zindex-sticky_header-manage_workflows: 50;
 $zindex-save_indicator: 62;

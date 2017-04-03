@@ -2,13 +2,52 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("requestService", function($q, $location, $http, stringService) {
+angular.module("BitriseWorkflowEditor").service("requestService", function($q, $injector, $location, $http, stringService) {
 
 	var requestService = {
 		mode: undefined,
 		appSlug: undefined,
-		apiToken: undefined
+		jobID: undefined
 	};
+
+	function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
+		if (response && (response.status == -1 || response.status == 408)) {
+			return new Error(response.config.method.toUpperCase() + " " + response.config.url + " - Request aborted");
+		}
+
+		var error = new Error(defaultErrorMessage);
+
+		if (response && response.data) {
+			if (response.data.error_msg) {
+				error.message = response.data.error_msg;
+			}
+			else if (response.data.message) {
+				error.message = response.data.message;
+			}
+			else if (response.data.errors) {
+				var errorMessages;
+
+				if (angular.isArray(response.data.errors)) {
+					errorMessages = response.data.errors;
+				}
+				else if (angular.isObject(response.data.errors)) {
+					errorMessages = _.flatten(_.values(response.data.errors));
+				}
+
+				var errors = _.map(errorMessages, function(anErrorMessage) {
+					return new Error(anErrorMessage);
+				});
+
+				error.message = stringService.errorMessageFromErrors(errors);
+			}
+		}
+
+		if (errorMessagePrefix && (error.message != defaultErrorMessage)) {
+			error.message = errorMessagePrefix += error.message;
+		}
+
+		return error;
+	}
 
 	requestService.configureMode = function() {
 		requestService.mode = $location.search().mode;
@@ -19,7 +58,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				requestService.appSlug = $location.search().app_slug;
-				requestService.apiToken = $location.search().api_token;
+				requestService.jobID = $location.search().job_id;
 
 				break;
 			case "cli":
@@ -37,8 +76,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_config_get]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
 
 				break;
@@ -52,11 +90,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_app_config][:default_error] %>", "<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"));
 			});
 		});
 	};
@@ -84,16 +118,13 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data.step);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %> " + response.data.error_msg));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>", "<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %>"));
 			});
 		});
 	};
 
 	requestService.libraryFetch = function(libraryURLs, requestConfig) {
+		var requestMethod;
 		var requestURL;
 		var requestData;
 
@@ -105,24 +136,34 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:libraries_fetch]) %>";
+				requestMethod = "get";
+				requestURL = "<%= webserver_path(data[:routes][:website][:bitrise_steplib_get]) %>";
 
 				break;
 			case "cli":
+				requestMethod = "post";
 				requestURL = "<%= local_server_path(data[:routes][:local_server][:libraries_fetch]) %>";
 
 				break;
 		}
 
 		return $q(function(resolve, reject) {
-			$http.post(requestURL, requestData, requestConfig).then(function(response) {
-				resolve(response.data.library_map);
-			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:libraries_fetch][:default_error] %>"));
-				}
+			$http[requestMethod](requestURL, requestData, requestConfig).then(function(response) {
+				switch (requestService.mode) {
+					case "website":
+						var libraryMap = {};
+						libraryMap[response.data.steplib_source] = response.data;
 
-				reject(new Error("<%= data[:strings][:request_service][:libraries_fetch][:error_prefix] %> " + response.data.error_msg));
+						resolve(libraryMap);
+
+						break;
+					case "cli":
+						resolve(response.data.library_map);
+
+						break;
+				}
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:libraries_fetch][:default_error] %>", "<%= data[:strings][:request_service][:libraries_fetch][:error_prefix] %>"));
 			});
 		});
 	};
@@ -133,8 +174,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:default_outputs_get]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
 
 				break;
@@ -148,11 +188,108 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:default_error] %>"));
-				}
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_default_outputs][:default_error] %>", "<%= data[:strings][:request_service][:load_default_outputs][:error_prefix] %>"));
+			});
+		});
+	};
 
-				reject(new Error("<%= data[:strings][:request_service][:load_default_outputs][:error_prefix] %> " + response.data.error_msg));
+	requestService.getProvProfiles = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profiles_get]) %>", {
+			job_id: requestService.jobID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve(_.map(response.data.prov_profile_documents, function(aProvProfileData) {
+					return {
+						databaseID: aProvProfileData.id,
+						isProcessed: aProvProfileData.processed,
+						expiringDownloadURL: aProvProfileData.expiring_url
+					};
+				}));
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_prov_profiles][:default_error] %>", "<%= data[:strings][:request_service][:load_prov_profiles][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.getCertificates = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificates_get]) %>", {
+			job_id: requestService.jobID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve(_.map(response.data.build_certificates, function(aCertificateData) {
+					return {
+						databaseID: aCertificateData.id,
+						isProcessed: aCertificateData.processed,
+						expiringDownloadURL: aCertificateData.expiring_url,
+						password: aCertificateData.certificate_password
+					};
+				}));
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_certificates][:default_error] %>", "<%= data[:strings][:request_service][:load_certificates][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.getGenericFiles = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_files_get]) %>", {
+			job_id: requestService.jobID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				var KeystoreFile = $injector.get("KeystoreFile");
+
+				resolve(_.map(_.filter(response.data.project_file_storage_documents, function(aGenericFileData) {
+					return aGenericFileData.user_env_key != KeystoreFile.downloadURLEnvVarPartialID;
+				}), function(aGenericFileData) {
+					return {
+						databaseID: aGenericFileData.id,
+						isProcessed: aGenericFileData.processed,
+						envVarPartialID: aGenericFileData.user_env_key,
+						expiringDownloadURL: aGenericFileData.expiring_url
+					};
+				}));
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_generic_files][:default_error] %>", "<%= data[:strings][:request_service][:load_generic_files][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.getKeystoreFile = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_files_get]) %>", {
+			job_id: requestService.jobID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				var KeystoreFile = $injector.get("KeystoreFile");
+				var keystoreFileData = _.find(response.data.project_file_storage_documents, {
+					user_env_key: KeystoreFile.downloadURLEnvVarPartialID
+				});
+
+				var responseData = null;
+				if (keystoreFileData) {
+					responseData = {
+						databaseID: keystoreFileData.id,
+						isProcessed: keystoreFileData.processed,
+						envVarPartialID: keystoreFileData.user_env_key,
+						expiringDownloadURL: keystoreFileData.expiring_url
+					};
+
+					if (keystoreFileData.exposed_meta_datastore) {
+						responseData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
+						responseData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
+						responseData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
+					}
+				}
+				
+				resolve(responseData);
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:load_keystore_file][:error_prefix] %>"));
 			});
 		});
 	};
@@ -163,8 +300,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:secrets_get]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
 
 				break;
@@ -178,11 +314,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data.envs);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:load_secrets][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:load_secrets][:error_prefix] %> " + response.data.error_msg));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_secrets][:default_error] %>", "<%= data[:strings][:request_service][:load_secrets][:error_prefix] %>"));
 			});
 		});
 	};
@@ -193,8 +325,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_get]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
 
 				break;
@@ -208,38 +339,50 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:load_app_config][:default_error] %>"));
-				}
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_app_config][:default_error] %>", "<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"));
+			});
+		});
+	};
 
-				reject(new Error("<%= data[:strings][:request_service][:load_app_config][:error_prefix] %> " + response.data.error_msg));
+	requestService.getAppAvailableProjectTypes = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_stack_info_get]) %>", {
+			app_slug: requestService.appSlug
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve(response.data ? response.data.project_types : []);
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_app_available_project_types][:default_error] %>", "<%= data[:strings][:request_service][:get_app_available_project_types][:error_prefix] %>"));
 			});
 		});
 	};
 
 	requestService.appConfigYMLDownloadPath = function() {
 		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_download]) %>", {
-			app_slug: requestService.appSlug,
-			api_token: requestService.apiToken
+			app_slug: requestService.appSlug
 		});
 	};
 
 	requestService.postAppConfig = function(appConfig, requestConfig) {
 		var requestURL;
-		var requestData = {
-			bitrise_yml: appConfig
-		};
+		var requestData;
 
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_config_post]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
+				requestData = {
+					app_config_datastore_yaml: appConfig
+				}
 
 				break;
 			case "cli":
 				requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_post]) %>";
+				requestData = {
+					bitrise_yml: appConfig
+				}
 
 				break;
 		}
@@ -248,33 +391,312 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>"));
-				}
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_app_config][:default_error] %>", "<%= data[:strings][:request_service][:save_app_config][:error_prefix] %>"));
+			});
+		});
+	};
 
-				reject(new Error("<%= data[:strings][:request_service][:save_app_config][:error_prefix] %> " + response.data.error_msg));
+	requestService.postProvProfileCreate = function(fileName, fileSize, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_create]) %>", {
+			job_id: requestService.jobID
+		});
+
+		var requestData = {
+			upload_file_name: fileName,
+			upload_file_size: fileSize
+		};
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve({
+					databaseID: response.data.id,
+					uploadURL: response.data.upload_url
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:create_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:create_prov_profile][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.postCertificateCreate = function(fileName, fileSize, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_create]) %>", {
+			job_id: requestService.jobID
+		});
+
+		var requestData = {
+			upload_file_name: fileName,
+			upload_file_size: fileSize
+		};
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve({
+					databaseID: response.data.id,
+					uploadURL: response.data.upload_url
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:create_certificate][:default_error] %>", "<%= data[:strings][:request_service][:create_certificate][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.postGenericFileCreate = function(envVarPartialID, fileName, fileSize, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_create]) %>", {
+			job_id: requestService.jobID
+		});
+
+		var requestData = {
+			user_env_key: envVarPartialID,
+			upload_file_name: fileName,
+			upload_file_size: fileSize
+		};
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve({
+					databaseID: response.data.id,
+					uploadURL: response.data.upload_url
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:create_generic_file][:default_error] %>", "<%= data[:strings][:request_service][:create_generic_file][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.postKeystoreFileCreate = function(fileName, fileSize, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_create]) %>", {
+			job_id: requestService.jobID
+		});
+
+		var KeystoreFile = $injector.get("KeystoreFile");
+
+		var requestData = {
+			user_env_key: KeystoreFile.downloadURLEnvVarPartialID,
+			upload_file_name: fileName,
+			upload_file_size: fileSize
+		};
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function(response) {
+				resolve({
+					databaseID: response.data.id,
+					uploadURL: response.data.upload_url
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:create_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:create_keystore_file][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.uploadFileToStorage = function(uploadURL, file) {
+		return $q(function(resolve, reject) {
+			$.ajax({
+				type: "PUT",
+				url: uploadURL,
+				contentType: "binary/octet-stream",
+				processData: false,
+				data: file
+			}).then(function() {
+				resolve();
+			}, function(response) {
+				reject(new Error("<%= data[:strings][:request_service][:upload_file_to_storage][:default_error] %>"));
+			});
+		});
+	};
+
+	requestService.deleteProvProfile = function(databaseID, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_delete]) %>", {
+			prov_profile_id: databaseID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.delete(requestURL, requestConfig).then(function(response) {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:delete_prov_profile][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.deleteCertificate = function(databaseID, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_delete]) %>", {
+			certificate_id: databaseID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.delete(requestURL, requestConfig).then(function(response) {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_certificate][:default_error] %>", "<%= data[:strings][:request_service][:delete_certificate][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.deleteGenericFile = function(databaseID, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_delete]) %>", {
+			generic_file_id: databaseID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.delete(requestURL, requestConfig).then(function(response) {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_generic_file][:default_error] %>", "<%= data[:strings][:request_service][:delete_generic_file][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.deleteKeystoreFile = function(databaseID, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_delete]) %>", {
+			generic_file_id: databaseID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.delete(requestURL, requestConfig).then(function(response) {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:delete_keystore_file][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.finalizeProvProfileUpload = function(databaseID, isSuccess, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_finalize_upload]) %>", {
+			prov_profile_id: databaseID
+		});
+
+		var requestData = {
+			success: isSuccess
+		};
+
+		return $q(function(resolve, reject) {
+			return $http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:finalize_prov_profile_upload][:default_error] %>", "<%= data[:strings][:request_service][:finalize_prov_profile_upload][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.finalizeCertificateUpload = function(databaseID, isSuccess, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_finalize_upload]) %>", {
+			certificate_id: databaseID
+		});
+
+		var requestData = {
+			success: isSuccess
+		};
+
+		return $q(function(resolve, reject) {
+			return $http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:finalize_certificate_upload][:default_error] %>", "<%= data[:strings][:request_service][:finalize_certificate_upload][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.finalizeGenericFileUpload = function(databaseID, isSuccess, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_finalize_upload]) %>", {
+			generic_file_id: databaseID
+		});
+
+		var requestData = {
+			success: isSuccess
+		};
+
+		return $q(function(resolve, reject) {
+			return $http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:finalize_generic_file_upload][:default_error] %>", "<%= data[:strings][:request_service][:finalize_generic_file_upload][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.finalizeKeystoreFileUpload = function(databaseID, isSuccess, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_finalize_upload]) %>", {
+			generic_file_id: databaseID
+		});
+
+		var requestData = {
+			success: isSuccess
+		};
+
+		return $q(function(resolve, reject) {
+			return $http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:finalize_keystore_file_upload][:default_error] %>", "<%= data[:strings][:request_service][:finalize_keystore_file_upload][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.putCertificatePasswordSave = function(databaseID, password, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_password_save]) %>", {
+			certificate_id: databaseID
+		});
+
+		var requestData = {
+			certificate_password: password
+		};
+
+		return $q(function(resolve, reject) {
+			return $http.put(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_certificate_password][:default_error] %>", "<%= data[:strings][:request_service][:save_certificate_password][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.putKeystoreFileMetadataSave = function(databaseID, password, alias, privateKeyPassword, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:keystore_file_metadata_save]) %>", {
+			keystore_file_id: databaseID
+		});
+
+		var requestData = {
+			exposed_meta: {
+				PASSWORD: password,
+				ALIAS: alias,
+				PRIVATE_KEY_PASSWORD: privateKeyPassword
+			}
+		};
+
+		return $q(function(resolve, reject) {
+			return $http.put(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_keystore_file_metadata][:default_error] %>", "<%= data[:strings][:request_service][:save_keystore_file_metadata][:error_prefix] %>"));
 			});
 		});
 	};
 
 	requestService.postSecrets = function(secrets, requestConfig) {
 		var requestURL;
-		var requestData = {
-			envs: _.map(secrets, function(aSecret) {
-				return aSecret.userVariableConfig
-			})
-		};
+		var requestData;
 
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:secrets_post]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
+				requestData = {
+					app_secrets: {
+						envs: _.map(secrets, function(aSecret) {
+							return aSecret.userVariableConfig
+						})
+					}
+				};
 
 				break;
 			case "cli":
 				requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_post]) %>";
+				requestData = {
+					envs: _.map(secrets, function(aSecret) {
+						return aSecret.userVariableConfig
+					})
+				};
 
 				break;
 		}
@@ -283,11 +705,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:save_secrets][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:save_secrets][:error_prefix] %> " + response.data.error_msg));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_secrets][:default_error] %>", "<%= data[:strings][:request_service][:save_secrets][:error_prefix] %>"));
 			});
 		});
 	};
@@ -299,8 +717,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:yml_post]) %>", {
-					app_slug: requestService.appSlug,
-					api_token: requestService.apiToken
+					app_slug: requestService.appSlug
 				});
 				requestData = {
 					app_config_datastore_yaml: appConfigYML
@@ -320,11 +737,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				if (!response || !response.data || !response.data.error_msg) {
-					return reject(new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>"));
-				}
-
-				reject(new Error("<%= data[:strings][:request_service][:save_app_config][:error_prefix] %> " + response.data.error_msg));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_app_config][:default_error] %>", "<%= data[:strings][:request_service][:save_app_config][:error_prefix] %>"));
 			});
 		});
 	};

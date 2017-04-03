@@ -1,0 +1,8 @@
+<svg xmlns="http://www.w3.org/2000/svg" id="Layer_1" width="323.522" height="400" viewBox="0 0 323.522 400">
+	<linearGradient id="file-purple-linear_gradient-1" gradientUnits="userSpaceOnUse" x1="-15.9165" y1="17.2104" x2="1" y2="17.2104" gradientTransform="matrix(0 -23.6457 -23.6457 0 568.6884 23.646)">
+		<stop offset="0" stop-color="#8151A8"/>
+		<stop offset="1" stop-color="#A457A2"/>
+	</linearGradient>
+	<path d="M231.127 7.599C225.263 2.693 217.829 0 210.164 0H48.535C21.724 0 0 21.046 0 46.991v306.011C0 378.954 21.724 400 48.535 400h226.452c26.812 0 48.535-21.047 48.535-46.999V100.01c0-9.714-4.312-18.898-11.746-25.126L231.127 7.599z" fill="url(#file-purple-linear_gradient-1)"/>
+	<path d="M238.727 84.688h80.831c-1.949-3.65-4.478-6.996-7.698-9.722L230.434 7.12c-2.561-2.032-5.386-3.659-8.408-4.832v65.708C222.025 77.23 229.492 84.688 238.727 84.688z" fill="#523B72"/>
+</svg>

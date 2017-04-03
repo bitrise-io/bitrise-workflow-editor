@@ -1,0 +1,91 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requestService) {
+
+	var ProvProfile = function() {
+		this.databaseID;
+		this.file;
+		this.isProcessed;
+		this.expiringDownloadURL;
+	};
+
+	ProvProfile.prototype.displayName = function() {
+		if (this.expiringDownloadURL) {
+			var nameRegexp = new RegExp(".([-._a-zA-Z0-9 ()]+\.(?:mobileprovision|provisionprofile))+");
+			var decodedExpiringDownloadURL = decodeURIComponent(this.expiringDownloadURL);
+
+			if (nameRegexp.test(decodedExpiringDownloadURL) && nameRegexp.exec(decodedExpiringDownloadURL)[1]) {
+				return nameRegexp.exec(decodedExpiringDownloadURL)[1];
+			}
+		}
+		else if (this.file) {
+			return this.file.name;
+		}
+
+		return "<%= data[:strings][:code_signing][:prov_profile][:no_name_for_file] %>";
+	};
+
+	ProvProfile.prototype.updateFile = function(file) {
+		this.file = file;
+	};
+
+	ProvProfile.prototype.fileSize = function() {
+		if (!this.file) {
+			return undefined;
+		}
+
+		if (this.file.size !== undefined) {
+			return this.file.size;
+		}
+
+		if (this.file.fileSize !== undefined) {
+			return this.file.fileSize;
+		}
+	};
+
+	ProvProfile.prototype.validationError = function() {
+		if (!_.contains(["mobileprovision", "provisionprofile"], _.last(this.file.name.split(".")))) {
+			return new TypeError("<%= data[:strings][:code_signing][:prov_profile][:invalid_file_type] %>");
+		}
+	};
+
+	ProvProfile.prototype.upload = function(requestConfig) {
+		if (this.validationError()) {
+			return $q.reject(this.validationError());
+		}
+
+		var self = this;
+
+		return $q(function(resolve, reject) {
+			requestService.postProvProfileCreate(self.file.name, self.fileSize(), requestConfig).then(function(data) {
+				var provProfileDatabaseID = data.databaseID;
+				var uploadURL = data.uploadURL;
+
+				requestService.uploadFileToStorage(uploadURL, self.file).then(function() {
+					requestService.finalizeProvProfileUpload(provProfileDatabaseID, true, requestConfig).then(resolve, function(error) {
+						reject(error);
+					});
+				}, function(error) {
+					requestService.finalizeProvProfileUpload(provProfileDatabaseID, false, requestConfig).then(function() {
+						reject(error);
+					}, function(finalizeProvProfileUploadError) {
+						reject(error);
+					});
+				});
+			}, function(error) {
+				reject(error);
+			});
+		})
+	};
+
+	ProvProfile.prototype.delete = function(requestConfig) {
+		return requestService.deleteProvProfile(this.databaseID, requestConfig);
+	};
+
+	return ProvProfile;
+
+});
+
+})();

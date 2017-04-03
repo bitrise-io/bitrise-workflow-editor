@@ -1,0 +1,481 @@
+@import "default";
+@import "constants";
+
+.tab-code-signing {
+	$section-horizontalspacing: 40px;
+
+	section.certificate-help {
+		position: relative;
+		@include margin-y(30px);
+		padding: 25px $section-horizontalspacing;
+		background-color: $def-green-ultralight;
+
+		ul {
+			@include margin-y(0);
+			padding-left: 0;
+			list-style: none;
+
+			li {
+				@include display-flex;
+
+				&:before {
+					content: "";
+					@include flex-shrink(0);
+					width: 50px;
+					margin-right: 20px;
+					background-position: center top 5px;
+					background-repeat: no-repeat;
+				}
+
+				h2 {
+					margin-top: 0;
+					margin-bottom: 4px;
+					font-size: 18px;
+					font-weight: 500;
+					color: $def-green;
+				}
+
+				p {
+					margin-top: 0;
+					margin-bottom: 10px;
+					font-size: 14px;
+					font-weight: 100;
+					color: $def-darkgrey;
+				}
+
+				code {
+					display: block;
+					@include border-radius($def-radius);
+					padding: 8px 18px;
+					word-break: break-all;
+					background-color: $def-green-verylight;
+				}
+			}
+
+			li:not(:last-child) {
+				margin-bottom: 25px;
+			}
+
+			li.codesigndoc {
+
+				&:before {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-codesigndoc") %>', (
+						fill: rgba($def-green, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: 30px auto;
+				}
+			}
+
+			li.upload {
+
+				&:before {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-upload") %>', (
+						fill: rgba($def-green, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: 36px auto;
+				}
+			}
+
+			li.add-step {
+
+				&:before {
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-add_step") %>', (
+						fill: rgba($def-green, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: 37px auto;
+				}
+			}
+		}
+
+		button.hide {
+			@include position(absolute, 20px, 20px);
+			opacity: 0.5;
+			@include transition(opacity, $def-transition_duration);
+
+			svg {
+				@include size(15px);
+				fill: black;
+			}
+		}
+
+		button.hide:focus, button.hide:hover {
+			opacity: 1.0;
+		}
+	}
+
+	section.cardo, section.progress-indicator {
+		margin: 20px $section-horizontalspacing;
+	}
+		
+	section.cardo {
+
+		article {
+			padding: 0;
+
+			p.progress-indicator, p.notification {
+				@include margin-x($cardo-horizontalpadding);
+			}
+		}
+	}
+
+	ul.uploaded-files {
+		@include margin-y(0);
+		padding-left: 0;
+	}
+
+	.uploaded-file {
+		@include display-flex;
+		@include align-items(center);
+		padding: 12px $cardo-horizontalpadding;
+		border-bottom: 1px solid $def-mediumlightgrey;
+
+		&:before {
+			content: "";
+			@include flex-shrink(0);
+			@include size(20px, 24px);
+			margin-right: 15px;
+			background-size: contain;
+			background-position: center;
+			background-repeat: no-repeat;
+		}
+
+		.details {
+			padding: 5px 8px;
+			font-size: 14px;
+		}
+
+		.actions {
+			@include flex-shrink(0);
+			margin-left: auto;
+
+			a, button {
+				@include flex-shrink(0);
+				margin-left: 12px;
+			}
+		}
+
+		@include media-below-mid {
+			@include flex-direction(column);
+
+			&:before {
+				margin-right: 0;
+			}
+
+			.details {
+				width: auto;
+				margin-top: 6px;
+				text-align: center;
+			}
+
+			.actions {
+				margin-top: 10px;
+				margin-left: 0;
+			
+				a:first-child, button:first-child {
+					margin-left: 0;
+				}
+			}
+		}
+	}
+
+	.file-upload {
+		margin: 12px $cardo-horizontalpadding;
+
+		.file-uploader {
+			position: relative;
+			border: 4px dashed $def-mediumlightgrey;
+			@include border-radius($def-radius);
+			padding: 18px;
+
+			input[type="file"] {
+				@include position(absolute, 0, 0);
+				z-index: $zindex-file_uploader_input;
+				@include size(100%);
+				font-size: 0;
+				opacity: 0;
+				cursor: pointer;
+			}
+
+			input[type="submit"] {
+				@include position(absolute, 0, 0);
+				@include size(0);
+				border: none;
+				padding: 0;
+				opacity: 0;
+			}
+
+			.content {
+				text-align: center;
+				font-size: 12px;
+				opacity: 0.5;
+				color: $def-verydarkgrey;
+				@include transition(opacity, $def-transition_duration);
+
+				strong {
+					display: block;
+					margin-bottom: 4px;
+					font-weight: 500;
+				}
+
+				em {
+					display: block;
+					font-weight: 100;
+				}
+			}
+
+			input[type="file"]:disabled {
+				cursor: not-allowed;
+			}
+
+			input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
+				opacity: 1.0;
+			}
+		}
+	}
+
+	section.provisioning-profiles {
+
+		ul.uploaded-files {
+
+			li.uploaded-file {
+
+				.details {
+					width: 80%;
+				}
+
+				&:before {
+					background-image: image-url("code_signing/file-green.svg");
+				}
+			}
+		}
+	}
+
+	section.code-signing-identities {
+
+		ul.uploaded-files {
+
+			li.uploaded-file {
+
+				&:before {
+					background-image: image-url("code_signing/file-purple.svg");
+				}
+
+				.details {
+					@include flex-grow(1);
+					width: 40%;
+				}
+
+				.password-edit {
+					@include flex-grow(1);
+					@include flex-shrink(0);
+					@include display-flex;
+					@include align-items(center);
+					margin-left: 6px;
+					margin-right: auto;
+
+					.password {
+						@include display-flex;
+
+						input {
+							border: none;
+							@include border-radius($def-radius);
+							padding: 4px 6px;
+							background-color: $def-lightgrey;
+						}
+
+						button {
+							margin-left: 6px;
+						}
+					}
+
+					.show-password {
+						@include display-flex;
+						margin-left: 15px;
+
+						label {
+							margin-left: 15px;
+							font-size: 12px;
+							font-weight: 100;
+							color: $def-grey;
+						}
+
+						.checkbox {
+							@include flex-shrink(0);
+						}
+					}
+
+					@include media-below-mid {
+						@include flex-direction(column);
+						margin-top: 10px;
+						margin-left: 0;
+						margin-right: 0;
+
+						.password {
+							@include justify-content(center);
+							@include flex-wrap(wrap);
+							margin-bottom: 6px;
+
+							input {
+								width: 100%;
+							}
+
+							input:not(:last-child) {
+								margin-bottom: 6px;	
+							}
+
+							.change-password-actions {
+								@include display-flex;
+								width: 100%;
+
+								button:first-of-type {
+									margin-left: 0;
+								}
+
+								button.ok, button.cancel {
+									@include flex-grow(1);
+								}
+							}
+						}
+
+						.show-password {
+							margin-left: 0;
+						}
+					}
+				}
+			}
+		}
+	}
+
+	section.generic-files, section.android-keystore {
+
+		.uploaded-file {
+
+			&:before {
+				background-image: image-url("code_signing/file-green.svg");
+			}
+
+			.details {
+				width: 80%;
+
+				em.download-url-env-var-key {
+					display: block;
+					font-size: 12px;
+					font-style: normal;
+					font-weight: 100;
+
+					code {
+						display: inline-block;
+						@include border-radius($def-radius);
+						padding: 3px;
+						background-color: $def-verylightgrey;
+						color: $def-purple;
+					}
+				}
+			}
+		}
+
+		.file-upload, form.keystore-metadata {
+
+			p {
+				margin-top: 0;
+				margin-bottom: 10px;
+				font-size: 14px;
+				font-weight: 200;
+			}
+
+			input.env-var {
+				display: block;
+				@include box-sizing(border-box);
+				width: 100%;
+				margin-bottom: 10px;
+				border: 1px solid $def-mediumlightgrey;
+				@include border-radius($def-radius);
+				padding: 10px 18px;
+				font-size: 14px;
+				font-weight: 200;
+			}
+
+			p.progress-indicator, p.notification {
+				@include margin-x(0);
+				margin-bottom: 10px;
+			}
+		}
+	}
+
+	section.generic-files {
+
+		li.uploaded-file {
+
+			&:before {
+				background-image: image-url("code_signing/file-green.svg");
+			}
+		}
+
+		.file-upload {
+
+			code.env-var {
+				display: block;
+				margin-bottom: 10px;
+				border: 1px solid $def-mediumlightgrey;
+				@include border-radius($def-radius);
+				padding: 10px 18px;
+				font-size: 14px;
+				font-weight: 200;
+				color: $def-purple;
+				background-color: $def-verylightgrey;
+			}
+		}
+	}
+
+	section.android-keystore {
+
+		.uploaded-file {
+
+			&:before {
+				background-image: image-url("code_signing/file-purple.svg");
+			}
+		}
+
+		form.keystore-metadata {
+			padding: 12px $cardo-horizontalpadding;
+
+			section {
+				margin-bottom: 25px;
+
+				code.env-var {
+					@include border-radius($def-radius);
+					padding: 3px;
+					font-weight: 200;
+					color: $def-purple;
+					background-color: $def-verylightgrey;
+				}
+
+				.show-password {
+					@include display-flex;
+					@include align-items(center);
+
+					label {
+						margin-left: 8px;
+						font-size: 12px;
+					}
+				}
+			}
+
+			.save, .reset {
+				display: block;
+				width: 500px;
+				max-width: 100%;
+
+				&:not(:last-child) {
+					margin-bottom: 10px;
+				}
+			}
+		}
+	}
+}

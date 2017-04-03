@@ -52,8 +52,10 @@ main {
 				overflow: hidden;
 
 				span.icon {
+					@include flex-shrink(0);
 					@include display-flex;
 					@include align-items(center);
+					@include justify-content(center);
 					margin-right: 8px;
 
 					svg {
@@ -108,8 +110,7 @@ main {
 
 			button.tab.code-signing span.icon svg {
 				top: 0px;
-				// TODO: size width
-				@include size(auto, 15px);
+				@include size(17px, 15px);
 			}
 
 			button.tab.secrets span.icon svg {
@@ -159,7 +160,7 @@ main {
 			}
 		}
 
-		@include media-below-big {
+		@include media-below(1180px) {
 			@include flex-direction(column);
 
 			nav {

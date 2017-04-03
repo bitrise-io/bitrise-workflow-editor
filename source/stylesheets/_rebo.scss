@@ -180,3 +180,13 @@ a.rebo {
 		fill: white;
 	}
 }
+
+.rebo.delete {
+	@include size(22px);
+	padding: 0;
+
+	svg:only-child {
+		@include position(relative, -1px);
+		@include size(8px);
+	}
+}

@@ -10,7 +10,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		secrets: undefined,
 		savedSecrets: undefined,
 		appConfigYML: undefined,
-		savedAppConfigYML: undefined
+		savedAppConfigYML: undefined,
+		availableProjectTypes: undefined
 	};
 
 	appService.getAppConfig = function(requestConfig) {
@@ -167,6 +168,12 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 	appService.discardAppConfigYMLChanges = function() {
 		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
+	};
+
+	appService.getAvailableProjectTypes = function(requestConfig) {
+		return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
+			appService.availableProjectTypes = availableProjectTypes;
+		});
 	};
 
 	return appService;

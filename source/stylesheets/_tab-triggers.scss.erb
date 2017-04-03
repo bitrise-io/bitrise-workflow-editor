@@ -95,11 +95,12 @@
 					}
 
 					&:not(.ninja) > svg {
-						$width: 16px;
+						$width: 10px;
 
-						@include size($width, 10px);
+						@include size($width, 16px);
 						@include margin-x(0.5 * ($arrow-reserved_width - $width));
 						vertical-align: middle;
+						@include transform(rotate(-90deg));
 						fill: $def-darkgrey;
 					}
 				}
@@ -355,7 +356,7 @@
 						&:not(.ninja) > svg {
 							display: block;
 							margin: 15px auto;
-							@include transform(rotate(90deg));
+							@include transform(rotate(0deg));
 						}
 					}
 

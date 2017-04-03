@@ -16,32 +16,52 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 		return string;
 	};
 
-	stringService.joinedStringsWithJoiner = function(strings, joiner, shouldLeaveSpaceAfterJoiner) {
-		var joinedString = "";
-
-		if (joiner === undefined) {
-			joiner = "";
+	stringService.joinedString = function(strings, separator) {
+		if (!strings) {
+			return strings;
 		}
 
-		if (shouldLeaveSpaceAfterJoiner === undefined) {
-			if (joiner == ",") {
-				shouldLeaveSpaceAfterJoiner = true;
-			}
+		var joinedString = "";
+
+		if (strings.length == 0) {
+			return joinedString;
+		}
+
+		if (separator === null) {
+			separator = "";
+		}
+
+		if (separator === undefined) {
+			separator = " ";
 		}
 
 		_.each(strings, function(aString, index) {
-			if (index > 0) {
-				joinedString += joiner;
+			if (aString === null || aString === undefined) {
+				aString = "";
+			}
 
-				if (shouldLeaveSpaceAfterJoiner) {
+			aString = aString.toString();
+
+			if (index > 0 && aString.length > 0) {
+				joinedString += separator;
+
+				if (separator == "," || separator == ";") {
 					joinedString += " ";
 				}
-			}
+			};
 
 			joinedString += aString;
 		});
 
 		return joinedString;
+	};
+
+	stringService.capitalizedFirstLetter = function(string) {
+		if (!string) {
+			return string;
+		}
+
+		return string[0].toUpperCase() + string.slice(1);
 	};
 
 	stringService.isStringMatchingTerm = function(string, term) {
@@ -54,6 +74,49 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 		}
 
 		return string.toLowerCase().indexOf(term.toLowerCase()) != -1;
+	};
+
+	stringService.errorMessageFromErrors = function(errors) {
+		var errorMessages = _.map(errors, function(anError) {
+			return anError.message;
+		});
+
+		var errorMessage = stringService.joinedString(errorMessages, ",");
+		errorMessage = stringService.capitalizedFirstLetter(errorMessage);
+		errorMessage += ".";
+
+		return errorMessage;
+	};
+
+	stringService.errorMessageFromFormModel = function(formModel, errorMessagesForInputs, defaultErrorMessage) {
+		if (formModel.$valid) {
+			return null;
+		}
+
+		var errorMessage = "";
+		_.each(formModel.$error, function(invalidInputs, validatorID) {
+			_.each(invalidInputs, function(anInvalidInput) {
+				var inputErrorMessage;
+
+				try {
+					inputErrorMessage = errorMessagesForInputs[anInvalidInput.$name][validatorID];
+				}
+				catch (error) {
+
+				}
+
+				if (inputErrorMessage) {
+					if (errorMessage.length > 0) {
+						errorMessage += ", ";
+					}
+
+					errorMessage += inputErrorMessage;
+				}
+			});
+		});
+		errorMessage = stringService.capitalizedFirstLetter(errorMessage);
+
+		return errorMessage.length > 0 ? errorMessage : defaultErrorMessage;
 	};
 
 	return stringService;

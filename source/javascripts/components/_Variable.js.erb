@@ -193,7 +193,19 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 
 });
 
-angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function() {
+angular.module("BitriseWorkflowEditor").filter("prettifiedKey", function() {
+
+	return function(key) {
+		if (!key) {
+			return undefined;
+		}
+
+		return "$" + key;
+	};
+
+});
+
+angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function($filter) {
 
 	return function(variable) {
 		if (!variable) {
@@ -202,11 +214,7 @@ angular.module("BitriseWorkflowEditor").filter("prettifiedVariableKey", function
 
 		var key = variable.key();
 
-		if (key === undefined) {
-			return undefined;
-		}
-
-		return "$" + key;
+		return $filter("prettifiedKey")(key);
 	};
 
 });

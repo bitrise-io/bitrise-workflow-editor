@@ -2,101 +2,30 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($scope, $q, $http, $location, routeHelper, Progress) {
+angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, appService, Progress) {
 
 	var viewModel = this;
 
-	viewModel.loadSupportedPlatforms = new Progress();
+	viewModel.shouldShowCodeSigningHints;
+	viewModel.loadProgress = new Progress();
 
-	var stackID;
-	var availableStacks;
-	viewModel.supportedPlatforms;
+	function load() {
+		viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 
-	function loadSupportedPlatforms() {
-		viewModel.loadSupportedPlatforms.start("<%= data[:strings][:code_signing][:load_supported_platforms_progress][:loading] %>");
+		appService.getAvailableProjectTypes().then(function() {
+			viewModel.shouldShowCodeSigningHints = viewModel.areAnyOfTheProjectTypesAvailable(["ios", "osx", "macos", "xamarin"]);
 
-		$q.all([getAllStacks(), getStack()]).then(function() {
-			viewModel.supportedPlatforms = availableStacks[stackID];
-
-			viewModel.loadSupportedPlatforms.success();
+			viewModel.loadProgress.success();
 		}, function(error) {
-			viewModel.loadSupportedPlatforms.error(error);
+			viewModel.loadProgress.error(error);
 		});
 	}
 
-	function getAllStacks() {
-		var appSlug = $location.search().app_slug;
-		var apiToken = $location.search().api_token;
-		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:all_stacks_get] %>", {
-			app_slug: appSlug,
-			api_token: apiToken
-		});
-
-		return $q(function(resolve, reject) {
-			var canceler = $q.defer();
-
-			$scope.$on("$destroy", function() {
-				canceler.resolve();
-			});
-
-			$http.get(requestURL, {
-				timeout: canceler.promise
-			}).then(function(response) {
-				availableStacks = _.mapObject(response.data.available_stacks, function(aStackData) {
-					return aStackData["project-types"];
-				});
-
-				resolve();
-			}, function(response) {
-				if (!response || !response.data) {
-					reject(new Error("<%= data[:strings][:code_signing][:load_all_stacks_progress][:default_error] %>"));
-
-					return;
-				}
-
-				reject(new Error("<%= data[:strings][:code_signing][:load_all_stacks_progress][:error_prefix] %>" + response.data));
-			});
-		});
-	}
-
-	function getStack() {
-		var appSlug = $location.search().app_slug;
-		var apiToken = $location.search().api_token;
-		var requestURL = routeHelper.replacedRoute("<%= data[:routes][:stack_get] %>", {
-			app_slug: appSlug,
-			api_token: apiToken
-		});
-
-		return $q(function(resolve, reject) {
-			var canceler = $q.defer();
-
-			$scope.$on("$destroy", function() {
-				canceler.resolve();
-			});
-
-			$http.get(requestURL, {
-				timeout: canceler.promise
-			}).then(function(response) {
-				stackID = response.data.id;
-
-				resolve();
-			}, function(response) {
-				if (!response || !response.data) {
-					reject(new Error("<%= data[:strings][:code_signing][:load_stack_progress][:default_error] %>"));
-
-					return;
-				}
-
-				reject(new Error("<%= data[:strings][:code_signing][:load_stack_progress][:error_prefix] %>" + response.data));
-			});
-		});
-	}
-
-	viewModel.isSupportedPlatform = function(platformID) {
-		return _.contains(viewModel.supportedPlatforms, platformID);
+	viewModel.areAnyOfTheProjectTypesAvailable = function(projectTypes) {
+		return _.intersection(projectTypes, appService.availableProjectTypes).length > 0;
 	};
 
-	loadSupportedPlatforms();
+	load();
 
 });
 
