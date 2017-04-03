@@ -155,6 +155,7 @@ main {
 				@include padding-x(55px);
 
 				svg {
+					@include position(relative, 2px);
 					@include size(14px, 13px);
 				}
 			}
