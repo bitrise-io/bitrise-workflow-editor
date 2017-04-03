@@ -55,29 +55,40 @@ angular.module("BitriseWorkflowEditor").controller("DefaultPopupController", fun
 		viewModel.confirmPopup.parameters.details = typeof details == "string" ? [details] : details;
 		viewModel.confirmPopup.parameters.yesTitle = yesTitle ? yesTitle : "<%= data[:strings][:confirm_popup][:yes] %>";
 		viewModel.confirmPopup.parameters.noTitle = noTitle ? noTitle : "<%= data[:strings][:confirm_popup][:no] %>";
+
 		viewModel.confirmPopup.parameters.yesSelected = function() {
 			if (yesSelected) {
 				yesSelected();
 			}
 
 			if (deferer && deferer.resolve) {
-				viewModel.confirmPopup.beforeDismissCallback = undefined;
 				deferer.resolve();
 			}
 
+			viewModel.confirmPopup.beforeDismissCallback = undefined;
 			viewModel.confirmPopup.isVisible = false;
 		};
+
 		viewModel.confirmPopup.parameters.noSelected = function() {
 			if (noSelected) {
 				noSelected();
 			}
 
+			if (deferer && deferer.reject) {
+				deferer.reject();
+			}
+
+			viewModel.confirmPopup.beforeDismissCallback = undefined;
 			viewModel.confirmPopup.isVisible = false;
 		};
 
-		if (deferer && deferer.reject) {
-			viewModel.confirmPopup.beforeDismissCallback = deferer.reject;
-		}
+		viewModel.confirmPopup.beforeDismissCallback = function() {
+			noSelected();
+
+			if (deferer && deferer.reject) {
+				deferer.reject();
+			}
+		};
 
 		viewModel.confirmPopup.isVisible = true;
 	});
