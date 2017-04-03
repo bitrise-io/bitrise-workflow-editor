@@ -80,6 +80,7 @@ workflows:
   inputs:
     header: Input variables
     change: Change
+    dont_change_info: Changing this input is not recommended, thus it is only available in YML mode.
     empty_value: no value
     value_placeholder: Enter value
     insert_variable: Insert variable from list

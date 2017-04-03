@@ -902,7 +902,7 @@
 								padding-left: 0;
 								list-style: none;
 
-								li {
+								li.input {
 									@include display-flex;
 									@include padding-y(20px);
 									padding-left: $leftpadding;
@@ -1029,18 +1029,18 @@
 									}
 								}
 
-								li:not(:last-child) {
+								li.input:not(:last-child) {
 									border-bottom: $border;
 								}
 
-								li:not(.selected) {
+								li.input:not(.selected) {
 
 									.input-info h4 span.title:after {
 										content: ":";
 									}
 								}
 
-								li.selected {
+								li.input.selected {
 									background-color: white;
 
 									.input-info h4 span.title {
@@ -1056,6 +1056,19 @@
 										svg {
 											@include transform(rotate(-180deg));
 										}
+									}
+								}
+
+								li.input.dont-change {
+									color: $def-darkgrey;
+									background-color: $def-lightgrey;
+
+									.input-info h4 span.title {
+										color: inherit;
+									}
+
+									button.change {
+										display: none;
 									}
 								}
 							}

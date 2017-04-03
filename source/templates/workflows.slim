@@ -87,7 +87,7 @@
 								section.inputs[ng-if="stepCtrl.step.defaultStepConfig.inputs.length > 0"]
 									h3 == data[:strings][:workflows][:inputs][:header]
 									ul
-										li[ng-repeat="defaultInputConfig in stepCtrl.step.defaultStepConfig.inputs" ng-controller="InputController as inputCtrl" ng-init="inputCtrl.init(stepCtrl.step, defaultInputConfig); id = inputCtrl.input.key()" ng-class="{'selected': inputCtrl.input == stepCtrl.selectedInput}"]
+										li.input[ng-repeat="defaultInputConfig in stepCtrl.step.defaultStepConfig.inputs" ng-controller="InputController as inputCtrl" ng-init="inputCtrl.init(stepCtrl.step, defaultInputConfig); id = inputCtrl.input.key()" ng-class="{'selected': inputCtrl.input == stepCtrl.selectedInput, 'dont-change': inputCtrl.input.isDontChangeValue()}" ng-attr-title="{{ inputCtrl.input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}"]
 											.input-info
 												h4
 													span.title[ng-bind="inputCtrl.input.title()"]
