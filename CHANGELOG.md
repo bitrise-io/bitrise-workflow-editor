@@ -1,6 +1,46 @@
-## Changelog (Current version: 0.9.7)
+## Changelog (Current version: 0.9.8)
 
 -----------------
+
+## 0.9.8 (2017 Apr 03)
+
+### Release Notes
+
+* Issue fixed when bitrise.yml has step defined as `step-id:` instead of `step-id: {}`
+* Confirm popup dismissed via escape key - handled as confirm popup's "no" button
+* Inputs that are not recommended to be changed - changing disabled on the UI
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.8
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.7 -> 0.9.8
+
+* [72ec8d0] erosdome - v0.9.8 (2017 Apr 03)
+* [dabfb34] erosdome - don't change inputs - disable editing on UI (2017 Apr 03)
+* [2d57c85] erosdome - confirm popup dismiss behaviour bugfix (2017 Apr 03)
+* [3e041f6] erosdome - icon position update (2017 Apr 03)
+* [bd50784] erosdome - handle if empty step is defined in YML without empty brackets (2017 Apr 03)
+* [f254084] erosdome - website mode added (#77) (2017 Apr 03)
+
 
 ## 0.9.7 (2017 Mar 31)
 
@@ -284,4 +324,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Mar 31
+Updated: 2017 Apr 03
