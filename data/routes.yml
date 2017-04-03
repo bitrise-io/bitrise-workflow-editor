@@ -36,7 +36,7 @@ website:
   generic_file_delete: /project_file_storage_document/<generic_file_id>.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
   yml_get:  /api/app/<app_slug>/config.yml
-  yml_download:  /api/app/<app_slug>/config.yml&is_download=1
+  yml_download:  /api/app/<app_slug>/config.yml?is_download=1
   yml_post: /api/app/<app_slug>/config.json
   app_stack_info_get: /app/<app_slug>/stack_info.json
   bitrise_steplib_get: https://bitrise-steplib-collection.s3.amazonaws.com/spec.json
