@@ -13,45 +13,40 @@ templates:
   triggers: templates/triggers
   yml: templates/yml
 website:
-  step_config_fetch: undefined # TODO: specify
-  libraries_fetch: undefined # TODO: specify
-  app_config_get: /api/app/<app_slug>/config.json
   app_config_post: /api/app/<app_slug>/config.json
-  default_outputs_get: /api/app/<app_slug>/default_step_outputs.json
-  all_stacks_get: /api/app/<app_slug>/all_stack_info.json
-  secrets_get: /api/app/<app_slug>/secrets.json
-  secrets_post: /api/app/<app_slug>/secrets.json
-  prov_profiles_get: /prov_profile_document/for_job/<job_id>.json
-  prov_profile_create: /prov_profile_document/<job_id>.json
-  prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
-  prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
-  certificates_get: /build_certificate/for_job/<job_id>.json
-  certificate_create: /build_certificate/<job_id>.json
-  certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
-  certificate_delete: /build_certificate/<certificate_id>.json
-  certificate_password_save: /build_certificate/<certificate_id>/password.json
-  generic_files_get: /project_file_storage_document/for_job/<job_id>.json
-  generic_file_create: /project_file_storage_document/<job_id>.json
-  generic_file_finalize_upload: /project_file_storage_document/<generic_file_id>/upload_ended.json
-  generic_file_delete: /project_file_storage_document/<generic_file_id>.json
-  keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
+  app_config_get: /api/app/<app_slug>/config.json
+  yml_post: /api/app/<app_slug>/config.json
   yml_get:  /api/app/<app_slug>/config.yml
   yml_download:  /api/app/<app_slug>/config.yml?is_download=1
-  yml_post: /api/app/<app_slug>/config.json
-  app_stack_info_get: /app/<app_slug>/stack_info.json
+  secrets_post: /api/app/<app_slug>/secrets.json
+  secrets_get: /api/app/<app_slug>/secrets.json
   bitrise_steplib_get: https://bitrise-steplib-collection.s3.amazonaws.com/spec.json
-  bitrise_steplib_source: https://github.com/bitrise-io/bitrise-steplib.git
+  default_outputs_get: /api/app/<app_slug>/default_step_outputs.json
+  app_stack_info_get: /app/<app_slug>/stack_info.json
+  prov_profile_create: /prov_profile_document/<job_id>.json
+  prov_profiles_get: /prov_profile_document/for_job/<job_id>.json
+  prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
+  prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
+  certificate_create: /build_certificate/<job_id>.json
+  certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
+  certificates_get: /build_certificate/for_job/<job_id>.json
+  certificate_password_save: /build_certificate/<certificate_id>/password.json
+  certificate_delete: /build_certificate/<certificate_id>.json
+  generic_file_create: /project_file_storage_document/<job_id>.json
+  generic_file_finalize_upload: /project_file_storage_document/<generic_file_id>/upload_ended.json
+  generic_files_get: /project_file_storage_document/for_job/<job_id>.json
+  generic_file_delete: /project_file_storage_document/<generic_file_id>.json
+  keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
 local_server:
-  step_config_fetch: /api/step-info
-  libraries_fetch: /api/spec
-  app_config_get: /api/bitrise-yml.json
   app_config_post: /api/bitrise-yml.json
-  default_outputs_get: /api/default-outputs
-  secrets_get: /api/secrets
-  secrets_post: /api/secrets
-  yml_get: /api/bitrise-yml
-  yml_download: /api/bitrise-yml?is_download=1
+  app_config_get: /api/bitrise-yml.json
   yml_post: /api/bitrise-yml
+  yml_get: /api/bitrise-yml
+  secrets_post: /api/secrets
+  secrets_get: /api/secrets
+  libraries_fetch: /api/spec
+  step_config_fetch: /api/step-info
+  default_outputs_get: /api/default-outputs
 devcenter:
   step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
   bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide

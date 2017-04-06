@@ -165,7 +165,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				return false;
 			}
 
-			if (step.libraryURL === undefined) {
+			if (step.libraryURL === undefined && requestService.mode == "cli") {
 				loadPromises.push(loadStepWithCVS(aCVS, requestConfig));
 			}
 			else {
