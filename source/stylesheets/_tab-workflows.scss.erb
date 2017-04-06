@@ -24,6 +24,7 @@
 		}
 
 		.workflow-selector {
+			@include display-flex;
 			position: relative;
 
 			.selected-workflow {
@@ -31,7 +32,7 @@
 
 				@include display-flex;
 				@include box-sizing(border-box);
-				height: 100%;
+				width: 100%;
 				border: 1px solid $color;
 				@include border-radius($def-radius);
 				overflow: hidden;
@@ -54,10 +55,8 @@
 					width: 160px;
 					@include border-left-radius(0);
 					border: none;
-					// @include padding-x(12px);
 					@include ellipsis-oneliner;
 					color: $color;
-					// background-color: white;
 
 					@include media-below-big {
 						width: 180px;
@@ -187,6 +186,7 @@
 
 						input {
 							@include flex-grow(1);
+							margin: 0;
 							border: none;
 							padding: $li_padding;
 							font-size: $li_fontsize;
@@ -428,68 +428,88 @@
 							}
 						}
 
-						button.step {
+						.step-actions {
 							position: relative;
-							display: block;
-							text-align: left;
 
-							span.icon {
-								@include position(absolute, 0, null, null, 0);
-								@include box-sizing(border-box);
-								@include size($icon-size);
-								border: 1px solid $def-lightgrey;
-								@include border-radius($def-radius);
-								background-size: cover;
-							}
+							button.step {
+								position: relative;
+								display: block;
+								text-align: left;
 
-							span.info {
-								@include display-flex;
-								@include flex-direction(column);
-								@include justify-content(center);
-								@include align-items(flex-start);
-								@include box-sizing(border-box);
-								@include size($steptitle-width, $icon-size);
-								margin-left: $icon-size + $spacing;
-								border: 1px solid $def-mediumlightgrey;
-								@include border-radius($def-radius);
-								@include padding-x(20px);
-								@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
-								background-color: $def-verylightgrey;
-
-								strong {
-									@include display-flex;
-									@include align-items(center);
-									max-width: 100%;
-									font-size: 14px;
-									font-weight: 400;
-
-									span.title {
-										@include flex-shrink(1);
-										@include ellipsis-oneliner;
-									}
-
-									span.verified {
-										margin-left: 5px;
-
-										svg {
-											@include size(10px);
-										}
-									}
+								span.icon {
+									@include position(absolute, 0, null, null, 0);
+									@include box-sizing(border-box);
+									@include size($icon-size);
+									border: 1px solid $def-lightgrey;
+									@include border-radius($def-radius);
+									background-size: cover;
 								}
 
-								em.version {
-									display: block;
-									@include ellipsis-oneliner;
-									font-size: 12px;
-									font-style: normal;
-									font-weight: 100;
-									color: $def-grey;
+								span.info {
+									@include display-flex;
+									@include flex-direction(column);
+									@include justify-content(center);
+									@include align-items(flex-start);
+									@include box-sizing(border-box);
+									@include size($steptitle-width, $icon-size);
+									margin-left: $icon-size + $spacing;
+									border: 1px solid $def-mediumlightgrey;
+									@include border-radius($def-radius);
+									@include padding-x(20px);
+									@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
+									background-color: $def-verylightgrey;
+
+									strong {
+										@include display-flex;
+										@include align-items(center);
+										max-width: 100%;
+										font-size: 14px;
+										font-weight: 400;
+
+										span.title {
+											@include flex-shrink(1);
+											@include ellipsis-oneliner;
+										}
+
+										span.verified {
+											margin-left: 5px;
+
+											svg {
+												@include size(10px);
+											}
+										}
+									}
+
+									em.version {
+										display: block;
+										@include ellipsis-oneliner;
+										font-size: 12px;
+										font-style: normal;
+										font-weight: 100;
+										color: $def-grey;
+									}
+								}
+							}
+
+							button.update-step {
+								$size: 14px;
+
+								@include position(absolute, 0, null, null, 52px);
+								@include size($size);
+								margin-top: (- $size / 2) + 3px;
+								margin-left: (- $size / 2) - 3px;
+								@include border-radius($size / 2);
+								background-color: $def-danger;
+								@include transition(background-color $def-transition_duration);
+
+								&:hover, &:focus {
+									background-color: $def-danger-shade;
 								}
 							}
 						}
 					}
 
-					li button.step:hover span.info, li button.step:focus span.info, li.selected button.step span.info {
+					li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info, li.selected .step-actions button.step span.info {
 						$color: $def-darkgrey;
 
 						border-color: $color;
@@ -567,20 +587,14 @@
 									border-color: $def-grey;
 								}
 
-								strong.verified {
-									$radius: 8px;
-
+								span.verified, span.user-contributed {
 									@include flex-shrink(0);
 									@include align-self(center);
-									line-height: 2 * $radius;
-									margin-left: 10px;
-									@include border-radius($radius);
-									@include padding-x(10px);
-									font-size: 9px;
-									font-weight: 200;
-									text-transform: uppercase;
-									color: white;
-									background-color: $def-green;
+
+									svg {
+										display: block;
+										@include size(17px);
+									}
 								}
 							}
 
@@ -751,10 +765,6 @@
 								@include align-items(center);
 								width: 20px;
 								margin-right: 10px;
-
-								svg {
-									fill: $def-grey;
-								}
 							}
 
 							@include media-below-big {
@@ -768,6 +778,7 @@
 
 							span.icon svg {
 								@include size(16px, 13px);
+								fill: $def-grey;
 							}
 
 							.markdown {
@@ -854,15 +865,23 @@
 
 						section.version {
 
-							span.icon:before {
-								$radius: 5px;
+							span.icon {
 
-								content: "";
-								@include position(relative, -1px);
-								display: inline-block;
-								@include size(2 * $radius);
-								@include border-radius($radius);
-								background-color: $def-grey;
+								&:before {
+									$radius: 5px;
+
+									content: "";
+									@include position(relative, -1px);
+									display: inline-block;
+									@include size(2 * $radius);
+									@include border-radius($radius);
+									background-color: $def-danger;
+									@include transition(background-color $def-transition_duration);
+								}
+
+								&.latest:before {
+									background-color: $def-green;
+								}
 							}
 
 							select {
@@ -876,6 +895,7 @@
 
 							span.icon svg {
 								@include size(9px, 17px);
+								fill: $def-grey;
 							}
 
 							.checkbox {
@@ -908,6 +928,7 @@
 									padding-left: $leftpadding;
 									padding-right: $rightpadding;
 									background-color: $def-ultralightgrey;
+									@include transition(background-color $def-transition_duration);
 
 									.input-info {
 										@include flex-grow(1);
@@ -927,6 +948,11 @@
 												font-weight: 200;
 												color: $def-darkgrey;
 												@include transition(color $def-transition_duration);
+
+												em {
+													font-style: normal;
+													color: $def-grey;
+												}
 											}
 
 											button.insert-variable {
@@ -1001,29 +1027,40 @@
 										}
 									}
 
-									button.change {
+									.input-change {
 										$color: $def-grey;
 										$transition_duration: $def-transition_duration;
 
 										@include flex-shrink(0);
+										@include display-flex;
+										@include align-items(center);
 										padding-left: 10px;
 										font-size: 10px;
 										text-transform: uppercase;
 										color: $color;
-										@include transition(color $transition_duration);
+
+										button {
+											@include position(absolute, 0, 0);
+											@include size(100%);
+										}
+
+										span {
+											@include transition(color $transition_duration);
+										}
 
 										svg {
 											@include size(10px, 7px);
 											margin-left: 10px;
 											fill: $color;
 											@include transition(transform $transition_duration, fill $transition_duration);
+											pointer-events: none;
 										}
-									}
 
-									button.change:hover, button.change:focus {
-										color: black;
+										button:hover ~ span, button:focus ~ span {
+											color: black;
+										}
 
-										svg {
+										button:hover ~ svg, button:focus ~ svg {
 											fill: black;
 										}
 									}
@@ -1034,10 +1071,7 @@
 								}
 
 								li.input:not(.selected) {
-
-									.input-info h4 span.title:after {
-										content: ":";
-									}
+									position: relative;
 								}
 
 								li.input.selected {
@@ -1047,7 +1081,8 @@
 										color: black;
 									}
 
-									button.change {
+									.input-change {
+										position: relative;
 
 										span {
 											display: none;
@@ -1067,8 +1102,15 @@
 										color: inherit;
 									}
 
-									button.change {
+									.input-change {
 										display: none;
+									}
+								}
+
+								li.input.required-empty {
+									
+									.input-info .manage-input textarea {
+										border-color: $def-danger;
 									}
 								}
 							}
@@ -1198,7 +1240,7 @@
 					}
 				}
 				
-				article ul.steps li {
+				article ul.steps li .step-actions {
 
 					button.step span.info {
 						width: $steptitle-width_small;
@@ -1216,7 +1258,7 @@
 					}
 				}
 
-				article ul.steps li {
+				article ul.steps li .step-actions {
 
 					button.step span.icon {
 						position: static;
@@ -1236,9 +1278,16 @@
 					button.add-step {
 						width: $icon-size_small;
 					}
+
+					.step-actions {
 					
-					button.step span.icon {
-						@include size($icon-size_small);
+						button.step span.icon {
+							@include size($icon-size_small);
+						}
+
+						button.update-step {
+							left: $icon-size_small;
+						}
 					}
 				}
 			}

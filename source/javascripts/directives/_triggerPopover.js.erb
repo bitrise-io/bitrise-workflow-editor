@@ -1,0 +1,20 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").directive("triggerPopover", function() {
+
+	return {
+		restrict: "A",
+		link: function(scope, element, attrs) {
+			var popoverElement = angular.element("<span></span>");
+			$(popoverElement).append(attrs.triggerPopover);
+			$(popoverElement).addClass("popover");
+
+			element.append(popoverElement);
+		}
+	};
+
+});
+
+})();

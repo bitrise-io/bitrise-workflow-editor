@@ -11,16 +11,16 @@ helpers do
 	# path helpers
 
 	def webserver_path(path)
-		case "#{ENV['MODE']}"
-		when "WEBSITE" then path
-		when "CLI" then "not_available"
+		case mode
+		when "website" then path
+		when "cli" then "not_available"
 		end
 	end
 
 	def local_server_path(path)
-		case "#{ENV['MODE']}"
-		when "WEBSITE" then "not_available"
-		when "CLI"
+		case mode
+		when "website" then "not_available"
+		when "cli"
 			case environment
 				when :development then "http://localhost:#{ENV['API_SERVER_PORT']}" + path
 				when :build then path
@@ -29,9 +29,16 @@ helpers do
 	end
 
 	def mode_dependant_asset_path(path)
+		case mode
+		when "website" then "/bitrise_workflow_editor/" + path
+		when "cli" then path
+		end
+	end
+
+	def mode
 		case "#{ENV['MODE']}"
-		when "WEBSITE" then "/bitrise_workflow_editor/" + path
-		when "CLI" then path
+		when "WEBSITE" then "website"
+		when "CLI" then "cli"
 		end
 	end
 

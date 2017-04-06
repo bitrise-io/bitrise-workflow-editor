@@ -59,11 +59,7 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 				this.type("push");
 			}
 
-			if (pushBranchPattern == "") {
-				pushBranchPattern = "*";
-			}
-
-			this.triggerConfig.push_branch = pushBranchPattern;
+			this.triggerConfig.push_branch = pushBranchPattern ? pushBranchPattern : "*";
 		}
 
 		return this.triggerConfig.push_branch;
@@ -75,11 +71,7 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 				this.type("pull-request");
 			}
 
-			if (pullRequestSourceBranchPattern == "") {
-				pullRequestSourceBranchPattern = "*";
-			}
-
-			this.triggerConfig.pull_request_source_branch = pullRequestSourceBranchPattern;
+			this.triggerConfig.pull_request_source_branch = pullRequestSourceBranchPattern ? pullRequestSourceBranchPattern : "*";
 		}
 
 		return this.triggerConfig.pull_request_source_branch;
@@ -91,11 +83,7 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 				this.type("pull-request");
 			}
 
-			if (pullRequestTargetBranchPattern == "") {
-				pullRequestTargetBranchPattern = "*";
-			}
-
-			this.triggerConfig.pull_request_target_branch = pullRequestTargetBranchPattern;
+			this.triggerConfig.pull_request_target_branch = pullRequestTargetBranchPattern ? pullRequestTargetBranchPattern : "*";
 		}
 
 		return this.triggerConfig.pull_request_target_branch;

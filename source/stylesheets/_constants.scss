@@ -5,7 +5,7 @@ $def-green-verylight: #d2f7f1;
 $def-green-light: #c8e7e2;
 $def-green: #3bc3a3;
 $def-green-shade: #3aa792;
-$def-danger-shade: #e16e1f;
+$def-danger-shade: #d5681e;
 $def-danger: #f0741f;
 $def-danger-light: #f4dfd1;
 $def-purple: #8151a8;
@@ -43,5 +43,13 @@ $cardo-horizontalpadding: 18px;
 $cardo-verticalpadding: 12px;
 
 @mixin OpenSansWithFallback {
-	font-family: 'Open Sans', sans-serif;
+	font-family: "Open Sans", sans-serif;
+}
+
+@mixin GothamWithFallback {
+	font-family: "Gotham SSm A", "Gotham SSm B", sans-serif;
+}
+
+@function triangle_as_svg_content($width, $height) {
+	@return svg_with_content("<polygon points='#{ $width / 2 },0 #{ $width },#{ $height }, 0,#{ $height }'/>", $width, $height);
 }

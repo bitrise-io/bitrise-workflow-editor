@@ -2,9 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $cookies, $q, $location, $timeout, requestService, appService, stringService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $cookies, $q, $location, $timeout, requestService, appService, stringService, osService, Progress, Popup) {
 
 	var viewModel = this;
+
+	$scope.osService = osService;
 
 	viewModel.configureModeProgress = new Progress();
 
@@ -166,7 +168,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return;
 			}
 
-			if (!hasUnsavedChanges()) {
+			if (!viewModel.hasUnsavedChanges()) {
 				resolve();
 
 				return;
@@ -211,7 +213,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menuProgress.error(new Error("Failed to load menu."));
 	});
 
-	function hasUnsavedChanges() {
+	viewModel.hasUnsavedChanges = function() {
 		switch (viewModel.currentMenu.id) {
 			case "workflows":
 			case "env-vars":
@@ -225,15 +227,21 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	}
 
 	$(window).on("beforeunload", function() {
-		if (hasUnsavedChanges()) {
+		if (viewModel.hasUnsavedChanges()) {
 			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
 		}
 	});
 
+	window.onmessage = function(event) {
+		if (event.data == "doesWorkflowEditorHaveUnsavedChanges") {
+			window.top.postMessage(viewModel.hasUnsavedChanges() ? "yes" : "no", "*");
+		}
+	};
+
 	viewModel.save = function() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-		return $q(function(resolve, reject) {
+		return $q.all([$q(function(resolve, reject) {
 			switch (viewModel.currentMenu.id) {
 				case "workflows":
 				case "env-vars":
@@ -250,12 +258,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 					break;
 			}
-		}).then(function() {
-			viewModel.saveProgress.success("<%= data[:strings][:main][:load_progress][:save_success] %>");
-
-			$timeout(function() {
-				viewModel.saveProgress.reset();
-			}, 2000);
+		}), $timeout(function() {}, 1000)]).then(function() {
+			viewModel.saveProgress.reset();
 		}, function(error) {
 			viewModel.saveProgress.reset();
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
@@ -294,8 +298,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$rootScope.$emit("MainController::changesDiscarded");
 	};
 
-	configureMode();
-	selectInitialMenu();
+	viewModel.init = function() {
+		configureMode();
+		selectInitialMenu();
+	};
 
 });
 

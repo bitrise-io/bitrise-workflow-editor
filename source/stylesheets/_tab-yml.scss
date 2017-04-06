@@ -20,6 +20,26 @@
 			padding: $cardo-verticalpadding $cardo-horizontalpadding;
 		}
 
+		header {
+			@include display-flex;
+			@include justify-content(space-between);
+
+			a.download-app-config {
+				@include align-self(center);
+				margin-left: 8px;
+			}
+
+			@include media-below-mid {
+				@include flex-direction(column);
+
+				a.download-app-config {
+					@include align-self(stretch);
+					margin-left: 0;
+					margin-top: 10px;
+				}
+			}
+		}
+
 		article {
 			padding: 0;
 
@@ -30,9 +50,5 @@
 				@include border-radius(0);
 			}
 		}
-	}
-
-	a.download-app-config {
-		display: block;
 	}
 }

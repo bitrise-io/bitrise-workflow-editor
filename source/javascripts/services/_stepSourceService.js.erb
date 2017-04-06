@@ -87,6 +87,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_version_error_prefix] %>"+ requestedVersion);
 				}
 
+				step.version = requestedVersion;
 				step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
 		}
 
@@ -108,6 +109,22 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 			return [step.version];
 		}
 	};
+
+	stepSourceService.isLatestStepVersion = function(step) {
+		if (step.libraryURL !== undefined) {
+			var library = _.find(stepSourceService.libraries, {
+				url: step.libraryURL
+			});
+
+			return step.version === null || step.version == library.latestStepVersions[step.id];
+		}
+		else if (step.localPath !== undefined) {
+			return undefined;
+		}
+		else if (step.gitURL !== undefined) {
+			return true;
+		}
+	}
 
 	stepSourceService.changeStepToVersion = function(step, version) {
 		if (step.libraryURL !== undefined) {

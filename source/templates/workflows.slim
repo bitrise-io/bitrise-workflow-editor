@@ -46,13 +46,15 @@
 							ul[order-by-drag models="workflow.steps"]
 								li[ng-repeat="step in workflow.steps" ng-class="{'selected': directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && step == workflowsCtrl.selectedStep}" ng-mousedown="workflowsCtrl.setStepOrderedWorkflow(workflow)"]
 									button.add-step[ng-click="workflowsCtrl.addStepSelectedBeforeStep(step)" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex)"]
-									button.step[ng-click="workflowsCtrl.stepSelected(step, workflowIndex, directWorkflowIndex)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
-										span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
-										span.info
-											strong
-												span.title[ng-bind="step.displayName()"]
-												span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
-											em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
+									.step-actions
+										button.step[ng-click="workflowsCtrl.stepSelected(step, workflowIndex, directWorkflowIndex)" tabindex="{{ step == workflowsCtrl.selectedStep ? '-1' : '0' }}"]
+											span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
+											span.info
+												strong
+													span.title[ng-bind="step.displayName()"]
+													span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
+												em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
+										button.update-step[ng-if="!stepSourceService.isLatestStepVersion(step)" ng-click="stepSourceService.changeStepToVersion(step, null); workflowsCtrl.stepVersionChanged()"]
 							li
 								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtEnd(directWorkflowIndex, workflowIndex)" ng-disabled="!(directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex === workflowsCtrl.editedWorkflowIndex) && workflow.steps.length > 0"]
 						aside.selected-step[ng-if="directWorkflowIndex == workflowsCtrl.editedDirectWorkflowIndex && workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" ng-controller="StepController as stepCtrl" ng-init="stepCtrl.configureWithStep(workflowsCtrl.selectedStep)"]
@@ -60,7 +62,8 @@
 								header.manage-step
 									.title[ng-if="!stepCtrl.renamedStep"]
 										button.rename[ng-bind="stepCtrl.step.title() === undefined ? stepCtrl.step.displayName() : stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
-										strong.verified[ng-if="stepCtrl.step.isVerified()"] == data[:strings][:workflows][:steps][:verified]
+										span.verified[ng-if="stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:verified] }"] = svg("step/badge-verified")
+										span.user-contributed[ng-if="!stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:user_contributed] }"] = svg("step/badge-user_contributed")
 									.rename-title[ng-if="stepCtrl.renamedStep"]
 										input[type="text" ng-model="stepCtrl.renamedStepTitle"]
 										button.ok.rebo.green[ng-click="stepCtrl.renameStepConfirmed()"] = svg("check")
@@ -76,7 +79,7 @@
 										button[ng-click="stepCtrl.shouldShowDescription = !stepCtrl.shouldShowDescription"]
 										= svg("arrow-down")
 								section.version[ng-if="stepCtrl.step.version !== undefined"]
-									span.icon
+									span.icon[ng-class="{'latest': stepSourceService.isLatestStepVersion(stepCtrl.step)}"]
 									label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
 									select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (stepCtrl.step.libraryURL !== undefined ? [null] : []).concat(stepSourceService.versionsOfStep(stepCtrl.step))" ng-model="stepCtrl.requestedVersion" ng-change="stepSourceService.changeStepToVersion(stepCtrl.step, stepCtrl.requestedVersion); stepCtrl.stepVersionChanged()"]
 								section.always-run[ng-if="stepCtrl.step.isAlwaysRun() !== undefined"]
@@ -87,13 +90,15 @@
 								section.inputs[ng-if="stepCtrl.step.defaultStepConfig.inputs.length > 0"]
 									h3 == data[:strings][:workflows][:inputs][:header]
 									ul
-										li.input[ng-repeat="defaultInputConfig in stepCtrl.step.defaultStepConfig.inputs" ng-controller="InputController as inputCtrl" ng-init="inputCtrl.init(stepCtrl.step, defaultInputConfig); id = inputCtrl.input.key()" ng-class="{'selected': inputCtrl.input == stepCtrl.selectedInput, 'dont-change': inputCtrl.input.isDontChangeValue()}" ng-attr-title="{{ inputCtrl.input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}"]
+										li.input[ng-repeat="defaultInputConfig in stepCtrl.step.defaultStepConfig.inputs" ng-controller="InputController as inputCtrl" ng-init="inputCtrl.init(stepCtrl.step, defaultInputConfig); id = inputCtrl.input.key(); inputCtrl.input.isRequired() && inputCtrl.input.value().length == 0 ? stepCtrl.inputSelected(inputCtrl.input) : null" ng-class="{'selected': stepCtrl.openedInputs.indexOf(inputCtrl.input) != -1, 'dont-change': inputCtrl.input.isDontChangeValue(), 'required-empty': inputCtrl.input.isRequired() && inputCtrl.input.value().length == 0}" ng-attr-title="{{ inputCtrl.input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}"]
 											.input-info
 												h4
-													span.title[ng-bind="inputCtrl.input.title()"]
-													button.insert-variable.rebo.small.light.green[ng-click="inputCtrl.insertVariableSelected()" ng-if="inputCtrl.input == stepCtrl.selectedInput && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+													span.title
+														span[ng-bind="inputCtrl.input.title()"]
+														em<[ng-if="inputCtrl.input.isRequired()"] == '(' + data[:strings][:workflows][:inputs][:required] + ')'
+													button.insert-variable.rebo.small.light.green[ng-click="inputCtrl.insertVariableSelected()" ng-if="stepCtrl.openedInputs.indexOf(inputCtrl.input) != -1 && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												strong.value[ng-bind="inputCtrl.input.value() ? inputCtrl.input.value() : '#{ data[:strings][:workflows][:inputs][:empty_value] }'" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
-												.manage-input[ng-if="inputCtrl.input == stepCtrl.selectedInput"]
+												.manage-input[ng-if="stepCtrl.openedInputs.indexOf(inputCtrl.input) != -1"]
 													textarea[msd-elastic ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)" ng-if="!inputCtrl.input.valueOptions()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
 													select[ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-if="inputCtrl.input.valueOptions()" ng-options="valueOption for valueOption in inputCtrl.input.valueOptions()"]
 													.is-expand
@@ -101,7 +106,8 @@
 														label[for="{{ id }}"]
 															strong == data[:strings][:workflows][:inputs][:replace_variables_in_input]
 															em == string_with_urls(data[:strings][:workflows][:inputs][:replace_variables_in_input_learn_more], [data[:routes][:devcenter][:step_inputs]])
-											button.change[ng-click="stepCtrl.inputSelected(inputCtrl.input)"]
+											.input-change
+												button[ng-click="stepCtrl.inputSelected(inputCtrl.input)"]
 												span == data[:strings][:workflows][:inputs][:change]
 												= svg("arrow-down")
 								section.outputs
