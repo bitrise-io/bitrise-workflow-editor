@@ -65,12 +65,13 @@ workflows:
     start: "Start"
     end: "End"
     add:
-      select: "Select a step from the list below:"
-      title_filter_placeholder: Step name, e. g. 'script'
-      filter_by_type_tag: "Filter steps by type tag:"
-      clear_type_tag_filter: Clear type tag filter
-      no_steps_matching_filter: No matching steps found.
-      inputs_removed_popup_title: "The following inputs are not available in this version:"
+      search_placeholder: Search steps
+      show_all_steps: Show all steps
+      categories:
+        new_releases: New releases
+        essentials: Essentials
+        test: Test
+      action: Add
     verified: Verified
     user_contributed: User contributed
     clone: Clone
@@ -79,6 +80,7 @@ workflows:
     version: Version
     always_latest: Always latest
     is_always_run: Run if previous Step failed
+    inputs_removed_popup_title: "The following inputs are not available in this version:"
   inputs:
     header: Input variables
     change: Change

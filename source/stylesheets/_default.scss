@@ -588,6 +588,16 @@ $screen-minimum: 320px;
 			-moz-transition: -moz-transform $additional_parameters;
 			-o-transition: -o-transform $additional_parameters;
 		}
+
+		$flex-shrink_index: str-index("#{ $value }", "flex-shrink");
+		$contains_flex-shrink: $flex-shrink_index != null;
+		
+		@if $contains_flex-shrink {
+			$additional_parameters: unquote(str-slice("#{ $value }", $flex-shrink_index + str-length("flex-shrink") + 1));
+			-webkit-transition: -webkit-flex-shrink $additional_parameters;
+			-moz-transition: -moz-flex-shrink $additional_parameters;
+			-o-transition: flex-shrink $additional_parameters;
+		}
 	}
 
 	-webkit-transition: $values;

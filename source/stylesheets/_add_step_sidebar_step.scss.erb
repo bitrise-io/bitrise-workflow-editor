@@ -1,0 +1,183 @@
+@import "default";
+@import "constants";
+
+.add-step-sidebar .add-step-sidebar-step {
+
+	.step {
+		$icon-size: 52px;
+		$details-open_duration: 0.3s;
+
+		position: relative;
+
+		button.select {
+			@include position(absolute, 0, 0);
+			@include size(100%);
+			border: 1px solid $def-lightgrey;
+			@include border-radius(6px);
+			@include transition(border-width $def-transition_duration, border-color $def-transition_duration);
+
+			svg {
+				@include position(absolute, 8px, 8px);
+				@include size(10px);
+				vertical-align: top;
+				fill: transparent;
+				@include transition(fill $def-transition_duration);
+			}
+		}
+
+		.step-content {
+			@include display-flex;
+			padding: 13px;
+
+			button, a {
+				position: relative;
+			}
+
+			.icon {
+				@include flex-shrink(0);
+				@include size($icon-size);
+				margin-right: 15px;
+				@include border-radius($def-radius);
+				background-size: cover;
+			}
+
+			.details {
+				@include flex-grow(1);
+				@include display-flex;
+				@include flex-direction(column);
+				height: $icon-size;
+				overflow: hidden;
+				font-size: 12px;
+				@include transition(height $details-open_duration ease-in-out);
+
+				h4 {
+					margin-top: 0;
+					margin-bottom: 2px;
+					font-weight: 900;
+
+					span.verified, span.user-contributed {
+
+						svg {
+							display: inline-block;
+							vertical-align: sub;
+							@include size(14px);
+							margin-left: 5px;
+						}
+					}
+				}
+
+				.summary {
+					@include flex-shrink(0);
+					margin-bottom: auto;
+					overflow: hidden;
+					font-weight: 200;
+					color: $def-grey;
+
+					a {
+						color: $def-green;
+						@include transition(color $def-transition_duration);
+
+						&:hover, &:focus {
+							color: $def-green-shade;
+						}
+					}
+
+					&:not(.ninja) > p {
+						margin-top: 0;
+					}
+				}
+
+				.actions {
+					@include align-self(flex-end);
+					@include display-flex;
+					@include justify-content(flex-end);
+					margin-top: 6px;
+					@include transition(opacity $def-transition_duration $details-open_duration);
+
+					a.source {
+						@include flex-shrink(0);
+						@include display-flex;
+						@include align-items(center);
+						margin-right: 8px;
+						@include border-radius($def-radius);
+						@include padding-x(10px);
+						background-color: $def-verylightgrey;
+						@include transition(background-color $def-transition_duration);
+
+						svg {
+							@include size(15px);
+							fill: $def-darkgrey;
+							@include transition(fill $def-transition_duration);
+						}
+
+						&:hover, &:focus {
+							background-color: $def-mediumlightgrey;
+
+							svg {
+								fill: $def-verydarkgrey;
+							}
+						}
+					}
+
+					button.confirm-add-step {
+
+						svg {
+							@include size(10px);
+							vertical-align: top;
+							fill: transparent;
+							@include transition(fill $def-transition_duration);
+						}
+					}
+				}
+			}
+		}
+
+		// Active/not active state
+
+		.step-content .details {
+
+			.summary {
+				@include transition(flex-shrink 0s $details-open_duration);
+			}
+
+			.actions {
+
+				&.ng-enter {
+					opacity: 0;
+				}
+
+				&.ng-enter-active {
+					opacity: 1;
+				}
+
+				&.ng-leave {
+					@include transition-delay(0s);
+				}
+
+				&.ng-leave-active {
+					opacity: 0;
+				}
+			}
+		}
+
+		button.select:hover, button.select:focus, button.select.active {
+			border-width: 2px;
+			border-color: $def-green;
+
+			svg {
+				fill: $def-green;
+			}
+		}
+
+		button.select.active + .step-content {
+
+			.details {
+				height: 180px;
+
+				.summary {
+					@include flex-shrink(1);
+				}
+			}
+		}
+	}
+}

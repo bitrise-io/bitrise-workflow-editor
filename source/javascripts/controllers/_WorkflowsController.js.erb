@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $location, $cookies, $q, $filter, stepSourceService, imageService, stringService, scrollService, appService, Progress, Popup, Workflow, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $location, $cookies, $q, $filter, stepSourceService, imageService, stringService, scrollService, appService, addStepService, Progress, Popup, Workflow, Step, Variable) {
 
 	var viewModel = this;
 
@@ -367,8 +367,18 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 	};
 
+	function addStepSelectedWithInsertIndex(step, insertIndex) {
+		if (!$scope.editedWorkflow.steps) {
+			$scope.editedWorkflow.steps = [];
+		}
+
+		$scope.editedWorkflow.steps.splice(insertIndex, 0, step);
+
+		viewModel.stepSelected(step);
+	}
+
 	viewModel.addStepSelectedBeforeStep = function(step) {
-		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", _.indexOf($scope.editedWorkflow.steps, step));
+		addStepService.showWithInsertIndex(_.indexOf($scope.editedWorkflow.steps, step), addStepSelectedWithInsertIndex);
 	};
 
 	viewModel.addStepSelectedAtEnd = function(directWorkflowIndex, workflowIndex) {
@@ -380,20 +390,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.editedWorkflowIndex = workflowIndex;
 		}
 
-		$rootScope.$emit("AddStepController::showAddStepPopupWithInsertIndex", $scope.editedWorkflow.steps.length);
+		addStepService.showWithInsertIndex($scope.editedWorkflow.steps.length, addStepSelectedWithInsertIndex);
 	};
-
-	$scope.$on("$destroy", $rootScope.$on("AddStepController::addStepAtIndex", function(event, step, index) {
-		if (!$scope.editedWorkflow.steps) {
-			$scope.editedWorkflow.steps = [];
-		}
-
-		var addedStep = angular.copy(step);
-		addedStep.userStepConfig = {};
-		$scope.editedWorkflow.steps.splice(index, 0, addedStep);
-
-		viewModel.stepSelected(addedStep);
-	}));
 
 	viewModel.cloneStepSelected = function() {
 		var clonedStep = angular.copy(viewModel.selectedStep);
@@ -462,7 +460,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 
 		if (removedInputs.length > 0) {
-			Popup.showNoticePopup("<%= data[:strings][:workflows][:steps][:add][:inputs_removed_popup_title] %>", stringService.joinedString(_.map(removedInputs, function(aRemovedInput) {
+			Popup.showNoticePopup("<%= data[:strings][:workflows][:steps][:inputs_removed_popup_title] %>", stringService.joinedStrings(_.map(removedInputs, function(aRemovedInput) {
 				return aRemovedInput.key();
 			}), ","));
 		}

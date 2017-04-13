@@ -29,6 +29,10 @@ a.rebo {
 	padding: 5px;
 }
 
+.rebo.wide {
+	@include padding-x(20px);
+}
+
 .rebo:not(.no-border-radius) {
 	@include border-radius($def-radius);
 }

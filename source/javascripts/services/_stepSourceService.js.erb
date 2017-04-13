@@ -268,6 +268,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 						library.steps = {};
 						library.latestStepVersions = {};
+						library.deprecatedSteps = [];
 						_.each(stepIDs, function(aStepID) {
 							library.steps[aStepID] = {};
 							library.latestStepVersions[aStepID] = aLibraryData.steps[aStepID].latest_version_number;
@@ -279,6 +280,12 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 								return step;
 							});
+
+							if (aLibraryData.steps[aStepID].info !== undefined && aLibraryData.steps[aStepID].info.deprecate_notes !== undefined) {
+								_.each(library.steps[aStepID], function(aStep) {
+									library.deprecatedSteps.push(aStep);
+								});
+							}
 						});
 
 						stepSourceService.libraries.push(library);
