@@ -1,0 +1,20 @@
+version: '2'
+services:
+  middleman-server:
+    build: .
+    command: bitrise run up-middleman-server
+    volumes:
+      - .:/go/src/github.com/bitrise-io/bitrise-workflow-editor
+    ports:
+      - "4567:4567"
+  api-server:
+    command: bitrise run up-api
+    build: .
+    volumes:
+      - .:/go/src/github.com/bitrise-io/bitrise-workflow-editor
+    ports:
+      - "3321:3321"
+    environment:
+      - MIDDLEMAN_SERVER_HOST=middleman-server
+    depends_on:
+      - "middleman-server"
