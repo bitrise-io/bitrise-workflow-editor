@@ -14,6 +14,15 @@
 	@return $string;
 }
 
+@function svg_with_content($content, $width, $height) {
+	@return svg_content_with_attributes("<svg>#{ $content }</svg>", (
+		xmlns: "http://www.w3.org/2000/svg",
+		width: $width,
+		height: $height,
+		viewBox: "0 0 #{ $width } #{ $height }"
+	));
+}
+
 @function svg_content_with_attributes($svg_content, $attributes) {
 	$attributes_string: "";
 

@@ -9,11 +9,12 @@ main:
   - Triggers
   - bitrise.yml
   discard: Discard
+  save: Save
+  saved: Saved
   load_progress:
     loading: Loading, wait a sec...
     saving: Saving, wait a sec...
     save_error: Error saving!
-    save_success: Save successful!
   confirm_tab_change_save_popup:
     title: Unsaved changes
     details: You need to save your unsaved changes before leaving this tab.
@@ -71,6 +72,7 @@ workflows:
       no_steps_matching_filter: No matching steps found.
       inputs_removed_popup_title: "The following inputs are not available in this version:"
     verified: Verified
+    user_contributed: User contributed
     clone: Clone
     source: Source
     delete: "Delete Step: <step_title>"
@@ -83,6 +85,7 @@ workflows:
     dont_change_info: Changing this input is not recommended, thus it is only available in YML mode.
     empty_value: no value
     value_placeholder: Enter value
+    required: required
     insert_variable: Insert variable from list
     replace_variables_in_input: Replace variables in input?
     replace_variables_in_input_learn_more: Learn more about this <a href='<url>' target='_blank'>on our Devcenter!</a>

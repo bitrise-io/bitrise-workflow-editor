@@ -29,29 +29,29 @@ describe("stringService", function() {
 
 	});
 
-	describe("joinedStringsWithJoiner", function() {
+	describe("joinedString", function() {
 
 		it("should return strings joined with joiner character", function() {
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"], ".")).toBe("a.b.c");
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"], "-")).toBe("a-b-c");
+			expect(stringService.joinedString(["a", "b", "c"], ".")).toBe("a.b.c");
+			expect(stringService.joinedString(["a", "b", "c"], "-")).toBe("a-b-c");
 		});
 
 		it("should return strings joined without joiner character if not specified", function() {
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"])).toBe("abc");
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"])).toBe("abc");
+			expect(stringService.joinedString(["a", "b", "c"])).toBe("abc");
+			expect(stringService.joinedString(["a", "b", "c"])).toBe("abc");
 		});
 
 		it("should return strings joined with joiner character, leave space after it if specified", function() {
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"], ".", true)).toBe("a. b. c");
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"], "-", true)).toBe("a- b- c");
+			expect(stringService.joinedString(["a", "b", "c"], ".", true)).toBe("a. b. c");
+			expect(stringService.joinedString(["a", "b", "c"], "-", true)).toBe("a- b- c");
 		});
 
 		it("should return strings joined with joiner character, leave space if joiner character is comma", function() {
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"], ",")).toBe("a, b, c");
+			expect(stringService.joinedString(["a", "b", "c"], ",")).toBe("a, b, c");
 		});
 
 		it("should return strings joined with joiner character, omit space if specified", function() {
-			expect(stringService.joinedStringsWithJoiner(["a", "b", "c"], ",", false)).toBe("a,b,c");
+			expect(stringService.joinedString(["a", "b", "c"], ",", false)).toBe("a,b,c");
 		});
 
 	});

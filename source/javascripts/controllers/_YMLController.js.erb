@@ -6,7 +6,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 
 	var viewModel = this;
 
-	viewModel.appService = appService;
+	$scope.appService = appService;
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
 	function configureACE() {

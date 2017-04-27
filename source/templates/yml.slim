@@ -1,10 +1,10 @@
 .tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
 	section.cardo
 		header
-			h2 == data[:strings][:yml][:title]
-			p == data[:strings][:yml][:info_1]
+			div
+				h2 == data[:strings][:yml][:title]
+				p == data[:strings][:yml][:info_1]
+			a.rebo.green.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
 		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath"] == string_with_urls(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article
-			#yml-editor[ng-model="ymlCtrl.appService.appConfigYML" ui-ace ng-trim="true"]
-	section
-		a.rebo.big.green.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
+			#yml-editor[ng-model="appService.appConfigYML" ui-ace ng-trim="true"]		

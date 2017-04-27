@@ -1,0 +1,34 @@
+@import "default";
+@import "constants";
+
+.popover {
+	position: absolute;
+	margin-top: 6px;
+	@include border-radius(6px);
+	padding: 4px 8px;
+	font-size: 10px;
+	font-weight: 200;
+	color: white;
+	background-color: $def-verydarkgrey;
+
+	&:before {
+		$pointer-width_pixels: 8;
+		$pointer-width: #{ $pointer-width_pixels + "px" };
+		$pointer-height_pixels: 4;
+		$pointer-height: #{ $pointer-height_pixels + "px" };
+
+		content: "";
+		@include size($pointer-width, $pointer-height);
+		@include position(absolute, null, null, 100%, 6px);
+		background-image: background_image_from_svg_content_with_attributes(triangle_as_svg_content($pointer-width_pixels, $pointer-height_pixels), (
+			fill: rgba($def-verydarkgrey, 0.99)
+		));
+	}
+}
+
+*[trigger-popover] {
+
+	&:not(:hover) .popover {
+		display: none;
+	}
+}

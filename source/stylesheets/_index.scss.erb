@@ -2,6 +2,7 @@
 @import "constants";
 
 main {
+	@include flex-grow(1);
 	@include display-flex;
 	@include flex-direction(column);
 	background-color: $def-ultralightgrey;
@@ -43,7 +44,7 @@ main {
 				@include display-flex;
 				@include justify-content(center);
 				@include align-items(center);
-				padding: $menubutton_verticalpadding 30px;
+				padding: $menubutton_verticalpadding 26px;
 				text-align: center;
 				font-size: 14px;
 				font-weight: 300;
@@ -152,11 +153,56 @@ main {
 			}
 
 			button.save {
-				@include padding-x(55px);
+				@include padding-x(25px);
+				font-size: 13px;
 
-				svg {
+				span.save, span.saved, span.in-progress {
+					display: inline-block;
+					width: 60px;
+				}
+
+				span.save {
+
+					&.windows:before {
+						content: "Ctrl + S";
+					}
+
+					&.osx:before {
+						content: "⌘ + S";
+					}
+
+					&.other:before {
+						content: "<%= data[:strings][:main][:save] %>";
+					}
+				}
+
+				span.saved {
+
+					&:after {
+						content: "<%= data[:strings][:main][:saved] %>";
+						margin-left: 6px;
+					}
+
+					svg {
+						@include position(relative, 1px);
+						@include size(11px);
+					}
+				}
+
+				span.in-progress svg {
 					@include position(relative, 2px);
-					@include size(14px, 13px);
+					@include size(20px, 13px);
+
+					@include keyframes(rotate) {
+						from {
+							@include transform(rotate(0deg));
+						}
+						to {
+							@include transform(rotate(360deg));
+						}
+					};
+
+					@include animation(rotate 1s linear infinite);
 				}
 			}
 		}
@@ -186,6 +232,7 @@ main {
 
 				button.tab {
 					@include flex-direction(column);
+					@include justify-content(flex-start);
 					@include padding-x(15px);
 
 					span.icon {
@@ -193,15 +240,21 @@ main {
 						margin-right: 0;
 						margin-bottom: 5px;
 					}
+
+					span.title {
+						font-size: 12px;
+					}
 				}
 			}
 		}
 
-		@include media-below-small {
+		@include media-below(520px) {
 
 			nav {
 
 				button.tab {
+					@include justify-content(center);
+
 					span.icon {
 						margin-bottom: 0;
 					}
@@ -245,27 +298,5 @@ main {
 				@include padding-x($main-horizontalpadding_small);
 			}
 		}
-	}
-
-	aside.save-indicator {
-		@include position(fixed, null, 10px, 10px);
-		z-index: $zindex-save_indicator;
-		border: 1px solid;
-		@include border-radius($def-radius);
-		padding: 6px 10px;
-		font-size: 14px;
-		font-weight: 200;
-	}
-
-	aside.save-indicator.in-progress {
-		border-color: $def-purple;
-		background-color: $def-purple-light;
-		color: $def-purple;
-	}
-
-	aside.save-indicator.success {
-		border-color: $def-green;
-		background-color: $def-green-light;
-		color: $def-green;
 	}
 }

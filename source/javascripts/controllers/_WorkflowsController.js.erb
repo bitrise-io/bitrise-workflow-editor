@@ -6,6 +6,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	var viewModel = this;
 
+	$scope.stepSourceService = stepSourceService;
+
 	viewModel.workflows;
 	viewModel.selectedWorkflow = null;
 	viewModel.workflowSelectorIsVisible = false;
@@ -149,14 +151,16 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		updateWorkflowChain();
 
 		viewModel.editedDirectWorkflow = _.find(viewModel.directWorkflowChain, {
-			workflow: workflow
+			id: workflow.id
 		});
 		viewModel.editedDirectWorkflowIndex = _.findIndex(viewModel.directWorkflowChain, {
-			workflow: workflow
+			id: workflow.id
 		});
 		viewModel.workflowChainOfEditedDirectWorkflow = workflow.workflowChain(viewModel.workflows);
 		$scope.editedWorkflow = workflow;
-		viewModel.editedWorkflowIndex = 0;
+		viewModel.editedWorkflowIndex = _.findIndex(viewModel.directWorkflowChain, {
+			id: workflow.id
+		});
 
 		viewModel.stepSelected(null);
 	};
@@ -427,7 +431,15 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	}
 
-	$scope.$on("$destroy", $rootScope.$on("StepController::stepVersionChanged", function() {
+	$scope.$on("$destroy", $rootScope.$on("StepController::stepVersionChanged", stepVersionChangedHandler));
+
+	viewModel.stepVersionChanged = function() {
+		stepVersionChangedHandler();
+
+		$rootScope.$emit("StepController::configureWithStep", viewModel.selectedStep);
+	};
+
+	function stepVersionChangedHandler() {
 		var index = _.findIndex($scope.editedWorkflow.workflowConfig.steps, function(aWrappedUserStepConfig) {
 			return aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] == viewModel.selectedStep.userStepConfig;
 		});
@@ -450,11 +462,11 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 
 		if (removedInputs.length > 0) {
-			Popup.showNoticePopup("<%= data[:strings][:workflows][:steps][:add][:inputs_removed_popup_title] %>", stringService.joinedStringsWithJoiner(_.map(removedInputs, function(aRemovedInput) {
+			Popup.showNoticePopup("<%= data[:strings][:workflows][:steps][:add][:inputs_removed_popup_title] %>", stringService.joinedString(_.map(removedInputs, function(aRemovedInput) {
 				return aRemovedInput.key();
 			}), ","));
 		}
-	}));
+	}
 
 	$scope.$on("$destroy", $rootScope.$on("InsertVariableController::requestingParametersForInsertVariable", function() {
 		if (!viewModel.selectedStep) {

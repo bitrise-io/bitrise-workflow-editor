@@ -2,7 +2,7 @@
 layout: layout
 ---
 
-main[ng-controller="MainController as mainCtrl"]
+main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu
 		nav
 			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
@@ -14,14 +14,17 @@ main[ng-controller="MainController as mainCtrl"]
 				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
 		aside
-			button.discard.rebo.hollow.grey[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
-			button.save.rebo.green[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"]  == svg("check")
+			button.discard.rebo.hollow.danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress"] == data[:strings][:main][:discard]
+			button.save.rebo.green[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"]
+				span[ng-if="!mainCtrl.saveProgress.isInProgress"]
+					span.save[ng-if="mainCtrl.hasUnsavedChanges()" ng-class="osService.cssClass()"]
+					span.saved[ng-if="!mainCtrl.hasUnsavedChanges()"] == svg("check")
+				span.in-progress[ng-if="mainCtrl.saveProgress.isInProgress"] == svg("in_progress")
 	article.menu-content
 		p.progress-indicator[progress-model="mainCtrl.configureModeProgress"]
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
 		div[ng-view ng-if="!mainCtrl.configureModeProgress.isError && !mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle"]
-	aside.save-indicator[progress-model="mainCtrl.saveProgress" progress-ng-if="mainCtrl.saveProgress.isInProgress || mainCtrl.saveProgress.isIdle"]
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]

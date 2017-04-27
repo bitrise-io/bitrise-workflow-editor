@@ -108,7 +108,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
 	};
 
-	viewModel.deleteTriggerSelected = function(trigger) {
+	viewModel.deleteTrigger = function(trigger) {
 		var index = _.indexOf(viewModel.selectedTriggerType.triggers, trigger);
 		viewModel.selectedTriggerType.triggers.splice(index, 1);
 
@@ -140,6 +140,25 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		viewModel.triggerSelected(newTrigger);
 		addTriggerProgress.start();
 	};
+
+	viewModel.editedTriggerPushBranchPatternInputGetterSetter = function(pushBranchPattern) {
+		pushBranchPattern = viewModel.editedTrigger.pushBranchPattern(pushBranchPattern);
+
+		return pushBranchPattern == "*" ? "" : pushBranchPattern;
+	};
+
+	viewModel.editedTriggerPullRequestSourceBranchPatternInputGetterSetter = function(pullRequestSourceBranchPattern) {
+		pullRequestSourceBranchPattern = viewModel.editedTrigger.pullRequestSourceBranchPattern(pullRequestSourceBranchPattern);
+
+		return pullRequestSourceBranchPattern == "*" ? "" : pullRequestSourceBranchPattern;
+	};
+
+	viewModel.editedTriggerPullRequestTargetBranchPatternInputGetterSetter = function(pullRequestTargetBranchPattern) {
+		pullRequestTargetBranchPattern = viewModel.editedTrigger.pullRequestTargetBranchPattern(pullRequestTargetBranchPattern);
+
+		return pullRequestTargetBranchPattern == "*" ? "" : pullRequestTargetBranchPattern;
+	};
+
 
 	viewModel.triggerIsInvalid = function() {
 		if (viewModel.editedTrigger.workflowID()[0] == "_") {
@@ -189,7 +208,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.triggerEditCancelled = function() {
 		if (addTriggerProgress.isInProgress) {
 			addTriggerProgress.reset();
-			viewModel.deleteTriggerSelected(viewModel.selectedTrigger);
+			viewModel.deleteTrigger(viewModel.selectedTrigger);
 		}
 		else {
 			viewModel.triggerSelected(null);

@@ -16,6 +16,7 @@
 @import "cardo";
 @import "furto";
 @import "popup";
+@import "popover";
 @import "notification-progress-indicator";
 @import "order-by-drag";
 
@@ -36,17 +37,27 @@ select:-moz-focusring {
 }
 
 html {
+	@include display-flex;
+	@include flex-direction(column);
 	width: 100%;
 	min-height: 100%;
 }
 
 body {
+	@include flex-grow(1);
 	@include display-flex;
 	@include flex-direction(column);
 	@include size(100%);
 	@include min-size($screen-minimum, $screen-small);
-	@include OpenSansWithFallback;
 	margin: 0;
+}
+
+body.website {
+	@include GothamWithFallback;
+}
+
+body.cli {
+	@include OpenSansWithFallback;
 }
 
 button, input[type="submit"], input[type="radio"] {

@@ -13,13 +13,13 @@
 						.trigger-infos
 							.trigger-info.pattern.push[ng-switch-when="push"]
 								label == data[:strings][:triggers][:push_branch]
-								input.value[type="text" ng-model="triggersCtrl.editedTrigger.pushBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+								input.value[type="text" ng-model="triggersCtrl.editedTriggerPushBranchPatternInputGetterSetter" ng-model-options="{getterSetter: true}" placeholder="*"]
 							.trigger-info.pattern.pull-request[ng-switch-when="pull-request"]
 								.source
-									input.value[type="text" ng-model="triggersCtrl.editedTrigger.pullRequestSourceBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+									input.value[type="text" ng-model="triggersCtrl.editedTriggerPullRequestSourceBranchPatternInputGetterSetter" ng-model-options="{getterSetter: true}" placeholder="*"]
 									label == data[:strings][:triggers][:source_branch]
 								.target
-									input.value[type="text" ng-model="triggersCtrl.editedTrigger.pullRequestTargetBranchPattern" ng-model-options="{getterSetter: true}" placeholder="*"]
+									input.value[type="text" ng-model="triggersCtrl.editedTriggerPullRequestTargetBranchPatternInputGetterSetter" ng-model-options="{getterSetter: true}" placeholder="*"]
 									label == data[:strings][:triggers][:target_branch]
 							.trigger-info.pattern.tag[ng-switch-when="tag"]
 								label == data[:strings][:triggers][:tag]
@@ -47,5 +47,5 @@
 						span.trigger-info.workflow
 							span.label == data[:strings][:triggers][:workflow]
 							strong.value[ng-bind="trigger.workflowID()"]
-					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTriggerSelected(trigger)"] == svg("trash")
+					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTrigger(trigger)"] == svg("trash")
 				button.add-trigger.rebo.small.light.green[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]
