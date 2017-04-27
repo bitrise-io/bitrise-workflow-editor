@@ -34,11 +34,12 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
-		frontendServerPort := utility.EnvString("FRONTEND_PORT", config.DefaultFrontendPort)
+		frontendServerHost := utility.EnvString("MIDDLEMAN_SERVER_HOST", config.DefaultFrontendHost)
+		frontendServerPort := utility.EnvString("MIDDLEMAN_SERVER_PORT", config.DefaultFrontendPort)
 
-		log.Printf("Starting reverse proxy for frontend => http://localhost:%s", frontendServerPort)
+		log.Printf("Starting reverse proxy for frontend => http://%s:%s", frontendServerHost, frontendServerPort)
 
-		u, err := url.Parse("http://localhost:" + frontendServerPort + "/")
+		u, err := url.Parse("http://" + frontendServerHost + ":" + frontendServerPort + "/")
 		if err != nil {
 			return fmt.Errorf("Failed to initialize frontend proxy URL, error: %s", err)
 		}

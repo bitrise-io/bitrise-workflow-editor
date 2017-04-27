@@ -7,7 +7,7 @@ app:
   - BIN_NAME: workflow-editor
   
   - API_SERVER_PORT: "3321"
-  - FRONTEND_PORT: "4567"
+  - MIDDLEMAN_SERVER_PORT: "4567"
   - MODE: "CLI"
 
 workflows:
