@@ -1,6 +1,51 @@
-## Changelog (Current version: 0.9.8)
+## Changelog (Current version: 0.9.9)
 
 -----------------
+
+## 0.9.9 (2017 May 03)
+
+### Release Notes
+
+* Add step sidebar added
+* Required inputs marked on UI if their value is not filled
+* Step version update available badge added
+* Step verified / user contributed badge added
+* Issues #68, #79, #81
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.9
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.8 -> 0.9.9
+
+* [923f89a] erosdome - v0.9.9 (2017 May 03)
+* [7fce431] erosdome - add step sidebar (#86) (2017 May 03)
+* [e973ab4] erosdome - tab animation removed (2017 Apr 28)
+* [5a7ffde] erosdome - minor requested updates: (#82) (2017 Apr 27)
+* [dfa43f4] erosdome - development now available in docker (#85) (2017 Apr 27)
+* [dcfecdc] Viktor Benei - Tab rename: App Env Vars -> Env Vars (2017 Apr 26)
+* [8f29727] erosdome - env var tab - delete button css fix (2017 Apr 06)
+* [479ab61] erosdome - routes & request service methods cleanup (2017 Apr 06)
+* [d6390eb] erosdome - app config yml download url fixed (2017 Apr 03)
+
 
 ## 0.9.8 (2017 Apr 03)
 
@@ -324,4 +369,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Apr 03
+Updated: 2017 May 03
