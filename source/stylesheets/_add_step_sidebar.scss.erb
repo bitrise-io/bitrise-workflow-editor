@@ -1,0 +1,329 @@
+@import "default";
+@import "constants";
+
+.add-step-sidebar {
+
+	// Sidebar appear-disappear
+
+	.content {
+		@include position(fixed, 0, null, null, 100%);
+	}
+
+	&.open {
+
+		.close-layer {
+			@include position(fixed, 0, 0);
+			@include size(100%);
+		}
+
+		.content {
+			@include transform(translateX(-100%));
+		}
+	}
+
+	&:not(.open) {
+
+		.close-layer {
+			display: none;
+		}
+	}
+
+	.close-layer, .content {
+		z-index: $zindex-add_step_sidebar;
+	}
+
+	//
+
+	&.open .content {
+		@include box-shadow(0px 3px 50px 0px rgba(0, 0, 0, 0.3));
+	}
+
+	.content {
+		$sidebar-padding: 20px;
+
+		padding: $sidebar-padding;
+		@include box-sizing(border-box);
+		overflow-x: hidden;
+		overflow-y: auto;
+		text-align: center;
+		word-wrap: break-word;
+		@include transition(transform, $def-transition_duration ease-in-out);
+		background-color: white;
+
+		// Sidebar size
+
+		@include size(840px, 100%);
+		max-width: 60%;
+
+		@include media-below-mid {
+			max-width: 80%;
+		}
+
+		@include media-below-small {
+			max-width: 90%;
+		}
+
+		//
+
+		header {
+			$spacing: 10px;
+
+			.filters {
+				@include display-flex;
+
+				button.category-mode {
+					margin-right: $spacing;
+					@include border-radius($def-radius);
+					@include padding-x(13px);
+					background-color: $def-verylightgrey;
+					@include transition(background-color, $def-transition_duration);
+
+					svg {
+						@include size(15px, 9px);
+						@include transform(rotate(90deg));
+						fill: $def-darkgrey;
+					}
+
+					&:hover, &:focus {
+						background-color: $def-green-light;
+					}
+				}
+
+				input.step-filter {
+					$padding-x: 12px;
+					$search_icon-width: 18px;
+
+					@include flex-grow(1);
+					display: block;
+					@include box-sizing(border-box);
+					width: 100%;
+					border: none;
+					@include border-radius($def-radius);
+					padding: 12px $padding-x;
+					padding-left: $padding-x + $search_icon-width + $padding-x;
+					font-size: 14px;
+					font-weight: 200;
+					color: $def-darkgrey;
+					background-color: $def-verylightgrey;
+					background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
+						fill: rgba($def-darkgrey, 0.99)
+					));
+					background-size: $search_icon-width 18px;
+					background-position: $padding-x center;
+					background-repeat: no-repeat;
+				}
+			}
+
+			ol.type-filters {
+				$type_filter-spacing: 3px;
+
+				@include display-flex;
+				@include flex-wrap(wrap);
+				@include justify-content(space-between);
+				margin-top: $spacing - $type_filter-spacing;
+				margin-bottom: 0;
+				@include margin-x(- $type_filter-spacing);
+				padding-left: 0;
+				list-style: none;
+
+				li {
+					@include flex-grow(1);
+					@include display-flex;
+					margin: $type_filter-spacing;
+
+					button {
+						@include flex-grow(1);
+						@include border-radius($def-radius);
+						padding: 3px;
+						font-size: 12px;
+						font-weight: 200;
+						background-color: $def-verylightgrey;
+						@include transition(color $def-transition_duration, background-color $def-transition_duration);
+					}
+
+					button:hover, button:focus {
+						background-color: $def-green-light;
+					}
+
+					button.selected {
+						color: white;
+						background-color: $def-green;
+
+						&:hover, &:focus {
+							background-color: $def-green-shade;
+						}
+					}
+				}
+			}
+		}
+
+		ol.categories {
+			@include margin-y(0);
+			padding-left: 0;
+			list-style: none;
+			text-align: left;
+
+			li.category {
+
+				header {
+					@include display-flex;
+					@include justify-content(space-between);
+
+					h3 {
+						@include margin-y(20px);
+						font-size: 12px;
+						font-weight: 900;
+						text-transform: uppercase;
+						@include ellipsis-oneliner;
+
+						&:before {
+							content: "";
+							display: inline-block;
+							vertical-align: sub;
+							@include size(18px);
+							margin-right: 6px;
+							letter-spacing: 0.5px;
+							background-position: center bottom;
+							background-repeat: no-repeat;
+						}
+					}
+
+					.step-pagination {
+						@include display-flex;
+						@include align-items(center);
+						max-width: 75%;
+						margin-left: 10px;
+
+						button.page {
+							@include size(28px, 3px);
+							@include box-sizing(content-box);
+							margin-right: 3px;
+							@include padding-y(20px);
+							background-color: $def-verylightgrey;
+							background-clip: content-box;
+							@include transition(background-color $def-transition_duration);
+
+							&:hover, &:focus {
+								background-color: $def-grey;
+							}
+
+							&:disabled {
+								background-color: $def-grey;
+								cursor: default;
+							}
+						}
+					}
+				}
+
+				&.new-releases header h3 {
+					color: #f89b4c;
+
+					&:before {
+						background-image: image-url("step/category_icon-new.png");
+						background-size: 18px auto;
+					}
+				}
+
+				&.type-test header h3:before {
+					background-image: image-url("step/category_icon-test.png");
+					background-size: 18px auto;
+				}
+
+				&.type-deploy header h3:before {
+					background-image: image-url("step/category_icon-deploy.png");
+					background-size: 18px auto;
+				}
+
+				&.type-notification header h3:before {
+					background-image: image-url("step/category_icon-notification.png");
+					background-size: 18px auto;
+				}
+
+				&.type-utility header h3:before {
+					background-image: image-url("step/category_icon-utility.png");
+					background-size: 18px auto;
+				}
+
+				.steps-wrapper {
+					position: relative;
+
+					button.paginate {
+						@include position(absolute, 0);
+						@include size($sidebar-padding, 100%);
+
+						&.left {
+							right: 100%;
+						}
+
+						&.right {
+							left: 100%;
+						}
+
+						&:disabled {
+							cursor: default;
+						}
+					}
+
+					ol.steps {
+						@include display-flex;
+						@include align-items(center);
+						position: relative;
+						left: 0%;
+						margin-top: 0;
+
+						&.animated-scroll {
+							@include transition(left, $def-transition_duration);
+						}
+
+						li.add-step-sidebar-step {
+							margin-bottom: 0;
+						}
+
+						li.add-step-sidebar-step .step {
+							@include margin-x(7px);
+						}
+					}
+				}
+			}
+		}
+
+		button.show-all-steps {
+			margin-top: 20px;
+			@include border-radius($def-radius);
+			padding: 10px 24px;
+			font-size: 12px;
+			font-weight: 900;
+			text-transform: uppercase;
+			color: white;
+			background-color: $def-darkgrey;
+			@include transition(background-color $def-transition_duration);
+
+			svg {
+				@include position(relative, -1px);
+				@include size(18px, 13px);
+				vertical-align: middle;
+				margin-right: 8px;
+				fill: white;
+			}
+
+			&:hover, &:focus {
+				background-color: $def-verydarkgrey;
+			}
+		}
+
+		ol.steps {
+			margin-top: 20px;
+			padding-left: 0;
+			list-style: none;
+			text-align: left;
+
+			li.add-step-sidebar-step {
+				@include flex-shrink(0);
+
+				&:not(:last-child) {
+					margin-bottom: 15px;
+				}
+			}
+		}
+	}
+}

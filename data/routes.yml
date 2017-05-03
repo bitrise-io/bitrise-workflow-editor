@@ -12,6 +12,8 @@ templates:
   env_vars: templates/env_vars
   triggers: templates/triggers
   yml: templates/yml
+  add_step_sidebar: templates/add_step_sidebar
+  add_step_sidebar_step: templates/add_step_sidebar_step
 website:
   app_config_post: /api/app/<app_slug>/config.json
   app_config_get: /api/app/<app_slug>/config.json
