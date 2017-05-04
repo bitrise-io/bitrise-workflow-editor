@@ -8,20 +8,22 @@
 			ol.type-filters[ng-if="!addStepCtrl.isCategoryMode"]
 				li[ng-repeat="typeFilter in addStepCtrl.typeFilters"]
 					button[ng-bind="'#' + typeFilter" ng-class="{'selected': typeFilter == addStepCtrl.selectedTypeFilter}" ng-click="addStepCtrl.selectedTypeFilter = (addStepCtrl.selectedTypeFilter == typeFilter ? null : typeFilter)"]
-		div[ng-if="addStepCtrl.isCategoryMode"]
-			ol.categories
-				li.category[ng-repeat="category in addStepCtrl.categories" ng-class="category.cssClass"]
-					header
-						h3[ng-bind="category.title"]
-						.step-pagination
-							button.page[ng-repeat="pageIndex in [].constructor(category.paginateStepsConfig.pageCount) track by $index" ng-disabled="$index == category.paginateStepsConfig.currentPageIndex" ng-click="category.paginateStepsConfig.currentPageIndex = $index; category.paginateStepsConfig.currentOffsetInPage = 0;"]
-					.steps-wrapper
-						ol.steps[add-step-dragger drag-in-progress-flag="addStepCtrl.isDragInProgress" paginate-steps-config="category.paginateStepsConfig"]
-							li.add-step-sidebar-step[ng-repeat="step in category.steps" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" select-callback="addStepCtrl.stepSelected(step)" prevent-activation="addStepCtrl.isDragInProgress || addStepCtrl.isStepVisible(step, category)"]
-						button.paginate.left[ng-click="addStepCtrl.paginateSelected(category, 'left')" ng-disabled="category.paginateStepsConfig.currentPageIndex == 0 && category.paginateStepsConfig.currentOffsetInPage == 0" tabindex="-1"]
-						button.paginate.right[ng-click="addStepCtrl.paginateSelected(category, 'right')" ng-disabled="category.paginateStepsConfig.currentPageIndex == category.paginateStepsConfig.pageCount - 1" tabindex="-1"]
-			button.show-all-steps[ng-click="addStepCtrl.isCategoryMode = false"]
-				= svg("workflow/icon-add_step-show_all")
-				span == data[:strings][:workflows][:steps][:add][:show_all_steps]
-		ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
-			li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)"]
+		p.progress-indicator[progress-model="addStepCtrl.loadProgress"]
+		div[ng-if="addStepCtrl.loadProgress.isIdle"]
+			div[ng-if="addStepCtrl.isCategoryMode"]
+				ol.categories
+					li.category[ng-repeat="category in addStepCtrl.categories" ng-class="category.cssClass"]
+						header
+							h3[ng-bind="category.title"]
+							.step-pagination
+								button.page[ng-repeat="pageIndex in [].constructor(category.paginateStepsConfig.pageCount) track by $index" ng-disabled="$index == category.paginateStepsConfig.currentPageIndex" ng-click="category.paginateStepsConfig.currentPageIndex = $index; category.paginateStepsConfig.currentOffsetInPage = 0;"]
+						.steps-wrapper
+							ol.steps[add-step-dragger drag-in-progress-flag="addStepCtrl.isDragInProgress" paginate-steps-config="category.paginateStepsConfig"]
+								li.add-step-sidebar-step[ng-repeat="step in category.steps" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" select-callback="addStepCtrl.stepSelected(step)" prevent-activation="addStepCtrl.isDragInProgress || addStepCtrl.isStepVisible(step, category)"]
+							button.paginate.left[ng-click="addStepCtrl.paginateSelected(category, 'left')" ng-disabled="category.paginateStepsConfig.currentPageIndex == 0 && category.paginateStepsConfig.currentOffsetInPage == 0" tabindex="-1"]
+							button.paginate.right[ng-click="addStepCtrl.paginateSelected(category, 'right')" ng-disabled="category.paginateStepsConfig.currentPageIndex == category.paginateStepsConfig.pageCount - 1" tabindex="-1"]
+				button.show-all-steps[ng-click="addStepCtrl.isCategoryMode = false"]
+					= svg("workflow/icon-add_step-show_all")
+					span == data[:strings][:workflows][:steps][:add][:show_all_steps]
+			ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
+				li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)"]

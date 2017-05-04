@@ -72,6 +72,8 @@ workflows:
         essentials: Essentials
         test: Test
       action: Add
+      load:
+        in_progress: Loading steps, wait a sec...
     verified: Verified
     user_contributed: User contributed
     clone: Clone

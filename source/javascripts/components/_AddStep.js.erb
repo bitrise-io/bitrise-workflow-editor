@@ -22,7 +22,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 	return addStepService;
 
-}).controller("AddStepController", function($scope, stringService, addStepService, stepSourceService) {
+}).controller("AddStepController", function($scope, $q, stringService, addStepService, stepSourceService, Progress) {
 
 	var viewModel = this;
 
@@ -70,6 +70,8 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 	viewModel.typeFilters;
 	viewModel.selectedTypeFilter = null;
 
+	viewModel.loadProgress = new Progress();
+
 	$scope.$watch(function() {
 		return addStepService.isVisible;
 	}, function(isVisible) {
@@ -78,50 +80,59 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 
 		if (isVisible) {
+			viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
+
 			steps = [];
 			steps = steps.concat(stepSourceService.localSteps);
 			steps = steps.concat(stepSourceService.gitSteps);
 			viewModel.typeFilters = [];
-			_.each(stepSourceService.libraries, function(aLibrary) {
-				steps = steps.concat(_.map(_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
-					return _.contains(aLibrary.deprecatedSteps, aLibrary.steps[stepID][aStepVersion]);
-				}), function(aStepVersion, stepID) {
-					var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
 
-					if (aLibrary.url != stepSourceService.defaultLibraryURL) {
-						step.libraryURL = aLibrary.url;
-						step.cvs = step.libraryURL + "::" + step.cvs;
-					}
+			(_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL) ? $q.when() : stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL])).then(function() {
+				_.each(stepSourceService.libraries, function(aLibrary) {
+					steps = steps.concat(_.map(_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
+						return _.contains(aLibrary.deprecatedSteps, aLibrary.steps[stepID][aStepVersion]);
+					}), function(aStepVersion, stepID) {
+						var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
 
-					_.each(step.typeTags(), function(aTypeTag) {
-						if (!_.contains(viewModel.typeFilters, aTypeTag)) {
-							viewModel.typeFilters.push(aTypeTag);
+						if (aLibrary.url != stepSourceService.defaultLibraryURL) {
+							step.libraryURL = aLibrary.url;
+							step.cvs = step.libraryURL + "::" + step.cvs;
 						}
-					});
 
-					return step;
-				}));
-			});
-
-			_.each(viewModel.categories, function(aCategory) {
-				var stepIDsOfCategory;
-
-				switch (aCategory.id) {
-					case "new_releases":
-						aCategory.steps = _.map(_.first(_.sortBy(steps, function(aStep) {
-							return - new Date(aStep.defaultStepConfig.published_at);
-						}), 5));
-
-						break;
-					default:
-						aCategory.steps = _.filter(steps, function(aStep) {
-							return _.contains(aStep.typeTags(), aCategory.id);
+						_.each(step.typeTags(), function(aTypeTag) {
+							if (!_.contains(viewModel.typeFilters, aTypeTag)) {
+								viewModel.typeFilters.push(aTypeTag);
+							}
 						});
 
-						break;
-				}
+						return step;
+					}));
+				});
 
-				aCategory.paginateStepsConfig.pageCount = Math.ceil(aCategory.steps.length / aCategory.paginateStepsConfig.stepsCountPerPage);
+				_.each(viewModel.categories, function(aCategory) {
+					var stepIDsOfCategory;
+
+					switch (aCategory.id) {
+						case "new_releases":
+							aCategory.steps = _.map(_.first(_.sortBy(steps, function(aStep) {
+								return - new Date(aStep.defaultStepConfig.published_at);
+							}), 5));
+
+							break;
+						default:
+							aCategory.steps = _.filter(steps, function(aStep) {
+								return _.contains(aStep.typeTags(), aCategory.id);
+							});
+
+							break;
+					}
+
+					aCategory.paginateStepsConfig.pageCount = Math.ceil(aCategory.steps.length / aCategory.paginateStepsConfig.stepsCountPerPage);
+				});
+
+				viewModel.loadProgress.success();
+			}, function(error) {
+				viewModel.loadProgress.error(error);
 			});
 		}
 		else {
