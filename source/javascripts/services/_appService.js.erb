@@ -133,7 +133,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		appService.appConfig = angular.copy(appService.savedAppConfig);
 	};
 
-	appService.getSecrets = function(requestConfig) {
+	appService.getSecrets = function(shouldForceReload, requestConfig) {
+		if (!shouldForceReload && appService.secrets) {
+			return $q.when();
+		}
+		
 		return requestService.getSecrets(requestConfig).then(function(secretConfigs) {
 			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
 				return new Variable(aSecretConfig, Variable.defaultVariableConfig());

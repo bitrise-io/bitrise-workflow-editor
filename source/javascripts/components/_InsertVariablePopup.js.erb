@@ -89,68 +89,66 @@ angular.module("BitriseWorkflowEditor").service("insertVariablePopupService", fu
 	function loadInsertableVariables() {
 		viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:inputs][:insert_variable][:load_progress] %>");
 
-		var loadPromises = [];
+		$q.all([
+			loadDefaultOutputs(),
+			loadSecrets(),
+			function() {
+				_.find(viewModel.insertableVariables, {
+					id: "from_app_env_vars"
+				}).variables = _.map(appService.appConfig.app ? appService.appConfig.app.envs : [], function(aVariableConfig) {
+					return new Variable(aVariableConfig);
+				});
 
-		if (!_.find(viewModel.insertableVariables, {
-				id: "from_bitriseio"
-			}).variables && !_.find(viewModel.insertableVariables, {
-				id: "from_bitrise_cli"
-			}).variables) {
-			loadPromises.push(loadDefaultOutputs());
-		}
+				_.any(insertVariablePopupService.selectedWorkflow.workflowChain(insertVariablePopupService.workflows), function(aWorkflow) {
+					viewModel.insertableVariables.push({
+						id: "from_workflow_env_vars-" + aWorkflow.id,
+						title: stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:workflow_env_vars] %>", {
+							workflow_id: aWorkflow.id
+						}),
+						variables: _.map(aWorkflow.workflowConfig.envs, function(aVariableConfig) {
+							return new Variable(aVariableConfig);
+						})
+					});
 
-		if (!_.find(viewModel.insertableVariables, {
-				id: "from_secrets"
-			}).variables) {
-			loadPromises.push(loadSecrets());
-		}
+					_.any(aWorkflow.steps, function(aStep) {
+						if (insertVariablePopupService.selectedStep == aStep) {
+							return true;
+						}
 
-		$q.all(loadPromises).then(function() {
+						if (!aStep.defaultStepConfig || !aStep.defaultStepConfig.outputs) {
+							return;
+						}
+
+						viewModel.insertableVariables.push({
+							id: "step-" + aStep.id,
+							title: stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:step_outputs] %>", {
+								step_display_name: aStep.displayName()
+							}),
+							variables: _.map(aStep.defaultStepConfig.outputs, function(anOutputConfig) {
+								return new Variable(undefined, anOutputConfig);
+							})
+						});
+					});
+
+					if (aWorkflow == insertVariablePopupService.selectedWorkflow) {
+						return true;
+					}
+				});
+			}()
+		]).then(function() {
 			viewModel.loadInsertableVariablesProgress.success();
 		}, function(error) {
 			viewModel.loadInsertableVariablesProgress.error(error);
 		});
+	}
 
-		_.find(viewModel.insertableVariables, {
-			id: "from_app_env_vars"
-		}).variables = _.map(appService.appConfig.app ? appService.appConfig.app.envs : [], function(aVariableConfig) {
-			return new Variable(aVariableConfig);
-		});
-
-		_.any(insertVariablePopupService.selectedWorkflow.workflowChain(insertVariablePopupService.workflows), function(aWorkflow) {
-			viewModel.insertableVariables.push({
-				id: "from_workflow_env_vars-" + aWorkflow.id,
-				title: stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:workflow_env_vars] %>", {
-					workflow_id: aWorkflow.id
-				}),
-				variables: _.map(aWorkflow.workflowConfig.envs, function(aVariableConfig) {
-					return new Variable(aVariableConfig);
-				})
-			});
-
-			_.any(aWorkflow.steps, function(aStep) {
-				if (insertVariablePopupService.selectedStep == aStep) {
-					return true;
-				}
-
-				if (!aStep.defaultStepConfig || !aStep.defaultStepConfig.outputs) {
-					return;
-				}
-
-				viewModel.insertableVariables.push({
-					id: "step-" + aStep.id,
-					title: stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:step_outputs] %>", {
-						step_display_name: aStep.displayName()
-					}),
-					variables: _.map(aStep.defaultStepConfig.outputs, function(anOutputConfig) {
-						return new Variable(undefined, anOutputConfig);
-					})
-				});
-			});
-
-			if (aWorkflow == insertVariablePopupService.selectedWorkflow) {
-				return true;
-			}
+	function loadSecrets() {
+		return appService.getSecrets(false, {
+			timeout: viewModel.canceler.promise
+		}).then(function() {
+			_.find(viewModel.insertableVariables, {
+				id: "from_secrets"
+			}).variables = appService.secrets;
 		});
 	}
 
@@ -167,21 +165,6 @@ angular.module("BitriseWorkflowEditor").service("insertVariablePopupService", fu
 				_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
 					defaultOutputsOfSource.variables.push(new Variable(undefined, aDefaultOutputConfig));
 				});
-			});
-		});
-	}
-
-	function loadSecrets() {
-		return requestService.getSecrets({
-			timeout: viewModel.canceler.promise
-		}).then(function(secretConfigs) {
-			var secretsBySource = _.find(viewModel.insertableVariables, {
-				id: "from_secrets"
-			});
-
-			secretsBySource.variables = [];
-			_.each(secretConfigs, function(aSecretConfig) {
-				secretsBySource.variables.push(new Variable(aSecretConfig));
 			});
 		});
 	}
