@@ -114,7 +114,7 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 			return variablesOfSource.source.id == "from_app_env_vars";
 		});
 		if (!appEnvVarsBySource.variables) {
-			appEnvVarsBySource.variables = _.map(appService.appConfig.app.envs, function(aVariableConfig) {
+			appEnvVarsBySource.variables = _.map(appService.appConfig.app ? appService.appConfig.app.envs : [], function(aVariableConfig) {
 				return new Variable(aVariableConfig);
 			});
 		}
