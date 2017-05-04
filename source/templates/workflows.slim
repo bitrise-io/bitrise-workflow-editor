@@ -96,7 +96,7 @@
 													span.title
 														span[ng-bind="inputCtrl.input.title()"]
 														em<[ng-if="inputCtrl.input.isRequired()"] == '(' + data[:strings][:workflows][:inputs][:required] + ')'
-													button.insert-variable.rebo.small.light.green[ng-click="inputCtrl.insertVariableSelected()" ng-if="stepCtrl.openedInputs.indexOf(inputCtrl.input) != -1 && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+													button.insert-variable.rebo.small.light.green[ng-click="inputCtrl.insertVariableSelected(workflowsCtrl.workflows, editedWorkflow, stepCtrl.step, inputCtrl.input)" ng-if="stepCtrl.openedInputs.indexOf(inputCtrl.input) != -1 && !inputCtrl.input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												strong.value[ng-bind="inputCtrl.input.value() ? inputCtrl.input.value() : '#{ data[:strings][:workflows][:inputs][:empty_value] }'" ng-if="inputCtrl.input != stepCtrl.selectedInput"]
 												.manage-input[ng-if="stepCtrl.openedInputs.indexOf(inputCtrl.input) != -1"]
 													textarea[msd-elastic ng-model="inputCtrl.input.value" ng-model-options="{getterSetter: true}" ng-blur="inputCtrl.inputValueBlurred($event)" ng-if="!inputCtrl.input.valueOptions()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
@@ -151,15 +151,5 @@
 			footer
 				button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
 				button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
-add-step-sidebar
-popup[model="insertVariableCtrl.popup" ng-controller="InsertVariableController as insertVariableCtrl"]
-	.popup-body.snowflake#insert-variable-popup-body
-		header
-			h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
-			input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
-		article.vertical-scroll
-			ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
-				li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter"]
-					button[ng-click="insertVariableCtrl.insertVariable(variable)"]
-						strong[ng-bind="variable | prettifiedVariableKey"]
-						em[ng-bind="variablesOfSource.source.title"]
+	add-step-sidebar
+	insert-variable-popup

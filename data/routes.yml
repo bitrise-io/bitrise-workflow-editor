@@ -14,6 +14,7 @@ templates:
   yml: templates/yml
   add_step_sidebar: templates/add_step_sidebar
   add_step_sidebar_step: templates/add_step_sidebar_step
+  insert_variable_popup: templates/insert_variable_popup
 website:
   app_config_post: /api/app/<app_slug>/config.json
   app_config_get: /api/app/<app_slug>/config.json

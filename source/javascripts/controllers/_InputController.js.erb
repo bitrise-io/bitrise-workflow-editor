@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("InputController", function($scope, $rootScope, Variable) {
+angular.module("BitriseWorkflowEditor").controller("InputController", function($scope, $rootScope, insertVariablePopupService, Variable) {
 
 	var viewModel = this;
 
@@ -69,11 +69,12 @@ angular.module("BitriseWorkflowEditor").controller("InputController", function($
 	}));
 
 	viewModel.inputValueBlurred = function(event) {
-		$rootScope.$emit("InsertVariableController::setInsertStartEndPosition", event.target.selectionStart, event.target.selectionEnd);
+		insertVariablePopupService.insertStartPosition = event.target.selectionStart;
+		insertVariablePopupService.insertEndPosition = event.target.selectionEnd;
 	};
 
-	viewModel.insertVariableSelected = function() {
-		$rootScope.$emit("InsertVariableController::showInsertVariablePopupForTargetInput", viewModel.input);
+	viewModel.insertVariableSelected = function(workflows, selectedWorkflow, selectedStep, targetInput) {
+		insertVariablePopupService.show(workflows, selectedWorkflow, selectedStep, targetInput);
 	};
 
 });

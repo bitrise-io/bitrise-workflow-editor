@@ -1,0 +1,14 @@
+.insert-variable-popup
+	popup[model="insertVariablePopupService.popup"]
+		.popup-body.snowflake#insert-variable-popup-body
+			header
+				h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
+				input[type="text" ng-model="insertVariablePopupCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
+			article.vertical-scroll
+				p.progress-indicator[progress-model="insertVariablePopupCtrl.loadInsertableVariablesProgress"]
+				div[ng-if="insertVariablePopupCtrl.loadInsertableVariablesProgress.isIdle"]
+					ul.variable-source[ng-repeat="variablesOfSource in insertVariablePopupCtrl.insertableVariables"]
+						li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariablePopupCtrl.keyFilter" ng-if="insertVariablePopupCtrl.shouldShowVariable(variable)"]
+							button[ng-click="insertVariablePopupCtrl.variableSelected(variable)"]
+								strong[ng-bind="variable | prettifiedVariableKey"]
+								em[ng-bind="variablesOfSource.title"]
