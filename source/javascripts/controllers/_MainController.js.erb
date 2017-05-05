@@ -17,61 +17,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
 
-	function configureMode() {
-		try {
-			requestService.configureMode();
-		}
-		catch (error) {
-			viewModel.configureModeProgress.error(error);
-
-			return;
-		}
-
-		viewModel.menus = _.compact([{
-			id: "workflows",
-			cookieValue: "workflows",
-			title: "<%= data[:strings][:main][:menus][0] %>",
-			path: "<%= data[:routes][:endpoints][:workflows] %>",
-			possibleURLParameterKeys: ["workflow_id"],
-			cssClass: "workflows"
-		}, (requestService.mode == "website" ? {
-			id: "code-signing",
-			cookieValue: "code-signing",
-			title: "<%= data[:strings][:main][:menus][1] %>",
-			path: "<%= data[:routes][:endpoints][:code_signing] %>",
-			possibleURLParameterKeys: [],
-			cssClass: "code-signing"
-		} : null), {
-			id: "secrets",
-			cookieValue: "secrets",
-			title: "<%= data[:strings][:main][:menus][2] %>",
-			path: "<%= data[:routes][:endpoints][:secrets] %>",
-			possibleURLParameterKeys: [],
-			cssClass: "secrets"
-		}, {
-			id: "env-vars",
-			cookieValue: "env-vars",
-			title: "<%= data[:strings][:main][:menus][3] %>",
-			path: "<%= data[:routes][:endpoints][:env_vars] %>",
-			possibleURLParameterKeys: [],
-			cssClass: "env-vars"
-		}, {
-			id: "triggers",
-			cookieValue: "triggers",
-			title: "<%= data[:strings][:main][:menus][4] %>",
-			path: "<%= data[:routes][:endpoints][:triggers] %>",
-			possibleURLParameterKeys: ["trigger_type"],
-			cssClass: "triggers"
-		}, {
-			id: "yml",
-			cookieValue: "yml",
-			title: "<%= data[:strings][:main][:menus][5] %>",
-			path: "<%= data[:routes][:endpoints][:yml] %>",
-			possibleURLParameterKeys: [],
-			cssClass: "yml"
-		}]);
-	}
-
 	function selectInitialMenu() {
 		var initialMenu = _.find(viewModel.menus, function(aMenu) {
 			return "/" + aMenu.path == $location.path()
@@ -214,6 +159,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	});
 
 	viewModel.hasUnsavedChanges = function() {
+		if (!viewModel.currentMenu) {
+			return undefined;
+		}
+		
 		switch (viewModel.currentMenu.id) {
 			case "workflows":
 			case "env-vars":
@@ -231,12 +180,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
 		}
 	});
-
-	window.onmessage = function(event) {
-		if (event.data == "doesWorkflowEditorHaveUnsavedChanges") {
-			window.top.postMessage(viewModel.hasUnsavedChanges() ? "yes" : "no", "*");
-		}
-	};
 
 	viewModel.save = function() {
 		viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
@@ -299,8 +242,81 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.init = function() {
-		configureMode();
-		selectInitialMenu();
+		requestService.configureMode();
+
+		viewModel.menus = _.compact([{
+			id: "workflows",
+			cookieValue: "workflows",
+			title: "<%= data[:strings][:main][:menus][0] %>",
+			path: "<%= data[:routes][:endpoints][:workflows] %>",
+			possibleURLParameterKeys: ["workflow_id"],
+			cssClass: "workflows"
+		}, (requestService.mode == "website" ? {
+			id: "code-signing",
+			cookieValue: "code-signing",
+			title: "<%= data[:strings][:main][:menus][1] %>",
+			path: "<%= data[:routes][:endpoints][:code_signing] %>",
+			possibleURLParameterKeys: [],
+			cssClass: "code-signing"
+		} : null), {
+			id: "secrets",
+			cookieValue: "secrets",
+			title: "<%= data[:strings][:main][:menus][2] %>",
+			path: "<%= data[:routes][:endpoints][:secrets] %>",
+			possibleURLParameterKeys: [],
+			cssClass: "secrets"
+		}, {
+			id: "env-vars",
+			cookieValue: "env-vars",
+			title: "<%= data[:strings][:main][:menus][3] %>",
+			path: "<%= data[:routes][:endpoints][:env_vars] %>",
+			possibleURLParameterKeys: [],
+			cssClass: "env-vars"
+		}, {
+			id: "triggers",
+			cookieValue: "triggers",
+			title: "<%= data[:strings][:main][:menus][4] %>",
+			path: "<%= data[:routes][:endpoints][:triggers] %>",
+			possibleURLParameterKeys: ["trigger_type"],
+			cssClass: "triggers"
+		}, {
+			id: "yml",
+			cookieValue: "yml",
+			title: "<%= data[:strings][:main][:menus][5] %>",
+			path: "<%= data[:routes][:endpoints][:yml] %>",
+			possibleURLParameterKeys: [],
+			cssClass: "yml"
+		}]);
+
+		$q(function(resolve, reject) {
+			switch (requestService.mode) {
+				case "website":
+					window.addEventListener("message", function(event) {
+						var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)-job_id-([0-9]*)");
+						if (configureMessageRegexp.test(event.data)) {
+							requestService.appSlug = configureMessageRegexp.exec(event.data)[1];
+							requestService.jobID = configureMessageRegexp.exec(event.data)[2];
+
+							resolve();
+						}
+						else if (event.data == "doesWorkflowEditorHaveUnsavedChanges") {
+							window.top.postMessage(viewModel.hasUnsavedChanges() ? "doesWorkflowEditorHaveUnsavedChanges:yes" : "doesWorkflowEditorHaveUnsavedChanges:no", "*");
+						}
+					}, false);
+
+					window.top.postMessage("requestingConfiguration", "*");
+
+					break;
+				case "cli":
+					resolve();
+
+					break;
+			}
+		}).then(function() {
+			viewModel.configureModeProgress.success();
+
+			selectInitialMenu();
+		});
 	};
 
 });

@@ -259,7 +259,6 @@ yml:
   load_progress:
     loading: Loading, wait a sec...
 request_service:
-  invalid_mode: Invalid mode!
   step_config_fetch:
     default_error: Error loading local step
     error_prefix: "Error loading local step: "

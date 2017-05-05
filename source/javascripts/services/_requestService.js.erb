@@ -50,24 +50,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	}
 
 	requestService.configureMode = function() {
-		requestService.mode = $location.search().mode;
-		if (requestService.mode === undefined) {
-			requestService.mode = "cli";
-		}
-
-		switch (requestService.mode) {
-			case "website":
-				requestService.appSlug = $location.search().app_slug;
-				requestService.jobID = $location.search().job_id;
-
-				break;
-			case "cli":
-				break;
-			default:
-				requestService.mode = null;
-
-				throw new Error("<%= data[:strings][:request_service][:invalid_mode] %>");
-		}
+		requestService.mode = "<%= mode %>";
 	};
 
 	// App config
