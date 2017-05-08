@@ -100,6 +100,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 		return parameterGetterSetter(this, "type_tags", newTypeTags);
 	};
 
+	Step.prototype.projectTypeTags = function(newProjectTypeTags) {
+		return parameterGetterSetter(this, "project_type_tags", newProjectTypeTags);
+	};
+
 	Step.prototype.isAlwaysRun = function(newIsAlwaysRun) {
 		return parameterGetterSetter(this, "is_always_run", newIsAlwaysRun);
 	}

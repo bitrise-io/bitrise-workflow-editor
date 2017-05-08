@@ -22,11 +22,14 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 	return addStepService;
 
-}).controller("AddStepController", function($scope, $q, stringService, addStepService, stepSourceService, Progress) {
+}).controller("AddStepController", function($scope, $q, stringService, addStepService, requestService, stepSourceService, appService, Progress) {
 
 	var viewModel = this;
 
+	var shouldFilterByProjectTypeDefaultValue = requestService.mode == "website";
+
 	$scope.addStepService = addStepService;
+	$scope.appService = appService;
 
 	viewModel.isDragInProgress = false;
 
@@ -61,11 +64,14 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 				currentOffsetInPage: 0
 			}
 		});
-	})
+	});
 
-	viewModel.stepFilter = "";
+	viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
+
 	viewModel.isCategoryMode = true;
 	viewModel.isWindowSizeForcingListMode;
+
+	viewModel.stepFilter = "";
 
 	viewModel.typeFilters;
 	viewModel.selectedTypeFilter = null;
@@ -82,12 +88,21 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		if (isVisible) {
 			viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
 
+			var loadPromises = [];
+
+			if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
+				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL]));
+			}
+			if (requestService.mode == "website") {
+				loadPromises.push(appService.getProjectType());
+			}
+
 			steps = [];
 			steps = steps.concat(stepSourceService.localSteps);
 			steps = steps.concat(stepSourceService.gitSteps);
 			viewModel.typeFilters = [];
 
-			(_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL) ? $q.when() : stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL])).then(function() {
+			$q.all(loadPromises).then(function() {
 				_.each(stepSourceService.libraries, function(aLibrary) {
 					steps = steps.concat(_.map(_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
 						return _.contains(aLibrary.deprecatedSteps, aLibrary.steps[stepID][aStepVersion]);
@@ -126,9 +141,9 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 							break;
 					}
-
-					aCategory.paginateStepsConfig.pageCount = Math.ceil(aCategory.steps.length / aCategory.paginateStepsConfig.stepsCountPerPage);
 				});
+
+				updatePagination();
 
 				viewModel.loadProgress.success();
 			}, function(error) {
@@ -136,17 +151,13 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			});
 		}
 		else {
+			viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
 			viewModel.stepFilter = "";
 			viewModel.selectedTypeFilter = null;
 
 			if (!viewModel.isWindowSizeForcingListMode) {
 				viewModel.isCategoryMode = true;
 			}
-
-			_.each(viewModel.categories, function(aCategory) {
-				aCategory.paginateStepsConfig.currentPageIndex = 0;
-				aCategory.paginateStepsConfig.currentOffsetInPage = 0;
-			});
 		}
 	});
 
@@ -164,18 +175,43 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 	});
 
-	viewModel.filteredSteps = function() {
-		var filteredSteps = steps;
+	$scope.$watch(function() {
+		return viewModel.shouldFilterByProjectType;
+	}, function(shouldFilterByProjectType) {
+		updatePagination();
+	});
 
-		if (viewModel.selectedTypeFilter) {
+	function updatePagination() {
+		_.each(viewModel.categories, function(aCategory) {
+			aCategory.paginateStepsConfig.pageCount = aCategory.steps ? Math.ceil(viewModel.filterSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage) : undefined;
+			aCategory.paginateStepsConfig.currentPageIndex = 0;
+			aCategory.paginateStepsConfig.currentOffsetInPage = 0;
+		});
+	}
+
+	viewModel.filterSteps = function(_steps) {
+		if (_steps === undefined) {
+			_steps = steps;
+		}
+		var filteredSteps = _steps;
+
+		if (viewModel.shouldFilterByProjectType) {
 			filteredSteps = _.filter(filteredSteps, function(aStep) {
-				return _.contains(aStep.typeTags(), viewModel.selectedTypeFilter);
+				return !aStep.projectTypeTags() || aStep.projectTypeTags().length == 0 || _.contains(aStep.projectTypeTags(), appService.projectType);
 			});
 		}
 
-		filteredSteps =_.filter(filteredSteps, function(aStep) {
-			return stringService.isStringMatchingTerm(aStep.title(), viewModel.stepFilter) || stringService.isStringMatchingTerm(aStep.id, viewModel.stepFilter);
-		});
+		if (!viewModel.isCategoryMode) {
+			if (viewModel.selectedTypeFilter) {
+				filteredSteps = _.filter(filteredSteps, function(aStep) {
+					return _.contains(aStep.typeTags(), viewModel.selectedTypeFilter);
+				});
+			}
+
+			filteredSteps =_.filter(filteredSteps, function(aStep) {
+				return stringService.isStringMatchingTerm(aStep.title(), viewModel.stepFilter) || stringService.isStringMatchingTerm(aStep.id, viewModel.stepFilter);
+			});
+		}
 
 		return filteredSteps;
 	};

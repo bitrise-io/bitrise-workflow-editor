@@ -5,6 +5,13 @@
 			.filters
 				button.category-mode[ng-click="addStepCtrl.isCategoryMode = true" ng-if="!addStepCtrl.isCategoryMode && !addStepCtrl.isWindowSizeForcingListMode"] = svg("arrow-down")
 				input.step-filter[type="text" placeholder="#{ data[:strings][:workflows][:steps][:add][:search_placeholder] }" ng-model="addStepCtrl.stepFilter" ng-focus="addStepCtrl.isCategoryMode = false"]
+				.project-type-filter[ng-if="appService.projectType"]
+					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.projectType | projectTypeCSSClass"]
+						span.apple = svg("logo/apple")
+						span.android = svg("logo/android")
+						span.xamarin = svg("logo/xamarin")
+						span.cordova = svg("logo/cordova")
+					button.all[ng-click="addStepCtrl.shouldFilterByProjectType = false" ng-disabled="!addStepCtrl.shouldFilterByProjectType"] == data[:strings][:workflows][:steps][:add][:all_project_types]
 			ol.type-filters[ng-if="!addStepCtrl.isCategoryMode"]
 				li[ng-repeat="typeFilter in addStepCtrl.typeFilters"]
 					button[ng-bind="'#' + typeFilter" ng-class="{'selected': typeFilter == addStepCtrl.selectedTypeFilter}" ng-click="addStepCtrl.selectedTypeFilter = (addStepCtrl.selectedTypeFilter == typeFilter ? null : typeFilter)"]
@@ -19,11 +26,11 @@
 								button.page[ng-repeat="pageIndex in [].constructor(category.paginateStepsConfig.pageCount) track by $index" ng-disabled="$index == category.paginateStepsConfig.currentPageIndex" ng-click="category.paginateStepsConfig.currentPageIndex = $index; category.paginateStepsConfig.currentOffsetInPage = 0;"]
 						.steps-wrapper
 							ol.steps[add-step-dragger drag-in-progress-flag="addStepCtrl.isDragInProgress" paginate-steps-config="category.paginateStepsConfig"]
-								li.add-step-sidebar-step[ng-repeat="step in category.steps" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" select-callback="addStepCtrl.stepSelected(step)" prevent-activation="addStepCtrl.isDragInProgress || addStepCtrl.isStepVisible(step, category)"]
+								li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filterSteps(category.steps)" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" select-callback="addStepCtrl.stepSelected(step)" prevent-activation="addStepCtrl.isDragInProgress || addStepCtrl.isStepVisible(step, category)"]
 							button.paginate.left[ng-click="addStepCtrl.paginateSelected(category, 'left')" ng-disabled="category.paginateStepsConfig.currentPageIndex == 0 && category.paginateStepsConfig.currentOffsetInPage == 0" tabindex="-1"]
 							button.paginate.right[ng-click="addStepCtrl.paginateSelected(category, 'right')" ng-disabled="category.paginateStepsConfig.currentPageIndex == category.paginateStepsConfig.pageCount - 1" tabindex="-1"]
 				button.show-all-steps[ng-click="addStepCtrl.isCategoryMode = false"]
 					= svg("workflow/icon-add_step-show_all")
 					span == data[:strings][:workflows][:steps][:add][:show_all_steps]
 			ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
-				li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)"]
+				li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filterSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)"]
