@@ -5,3 +5,24 @@ angular.module("BitriseWorkflowEditor").filter("backgroundImagePropertyValue", f
 	};
 
 });
+
+angular.module("BitriseWorkflowEditor").filter("projectTypeCSSClass", function() {
+
+	return function(projectType) {
+		switch (projectType) {
+			case "ios":
+				return "ios";
+			case "osx":
+				return "osx";
+			case "macos":
+				return "macos";
+			case "android":
+				return "android";
+			case "xamarin":
+				return "xamarin";
+			case "cordova":
+				return "cordova";
+		}
+	};
+
+});

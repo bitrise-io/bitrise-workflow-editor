@@ -11,6 +11,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedSecrets: undefined,
 		appConfigYML: undefined,
 		savedAppConfigYML: undefined,
+		projectType: undefined,
 		availableProjectTypes: undefined
 	};
 
@@ -178,7 +179,17 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 	};
 
-	appService.getAvailableProjectTypes = function(requestConfig) {
+	appService.getProjectType = function(requestConfig) {
+		return requestService.getAppProjectType(requestConfig).then(function(projectType) {
+			appService.projectType = projectType;
+		});
+	}
+
+	appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {
+		if (!shouldForceReload && appService.availableProjectTypes) {
+			return $q.when();
+		}
+		
 		return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
 			appService.availableProjectTypes = availableProjectTypes;
 		});

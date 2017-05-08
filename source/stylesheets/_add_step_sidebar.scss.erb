@@ -112,6 +112,76 @@
 					background-position: $padding-x center;
 					background-repeat: no-repeat;
 				}
+
+				.project-type-filter {
+					@include flex-shrink(0);
+					@include display-flex;
+					margin-left: $spacing;
+					border: 1px solid $def-darkgrey;
+					@include border-radius($def-radius);
+
+					button {
+						@include padding-x(15px);
+						background-color: white;
+						color: $def-darkgrey;
+						@include transition(background-color $def-transition_duration, color $def-transition_duration);
+
+						&:disabled {
+							cursor: default;
+						}
+
+						&:disabled, &:hover, &:focus {
+							background-color: $def-darkgrey;
+							color: white;
+
+							svg {
+								fill: white;
+							}
+						}
+
+						svg {
+							position: relative;
+							vertical-align: middle;
+							fill: $def-darkgrey;
+							@include transition(fill $def-transition_duration);
+						}
+					}
+
+					button.current {
+
+						@mixin icon_styling($icon_class, $top, $width, $height: $width) {
+							span:not(.#{$icon_class}) {
+								display: none;
+							}
+
+							span.#{$icon_class} svg {
+								top: $top;
+								@include size($width, $height);
+							}
+						}
+
+						&.ios, &.osx, &.macos {
+							@include icon_styling("apple", -4px, 16px);
+						}
+
+						&.android {
+							@include icon_styling("android", -3px, 16px, 18px);
+						}
+
+						&.xamarin {
+							@include icon_styling("xamarin", -3px, 16px);
+						}
+
+						&.cordova {
+							@include icon_styling("cordova", -3px, 16px);
+						}
+					}
+
+					button.all {
+						font-size: 12px;
+						text-transform: uppercase;
+					}
+				}
 			}
 
 			ol.type-filters {
