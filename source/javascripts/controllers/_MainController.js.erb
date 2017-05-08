@@ -241,6 +241,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$rootScope.$emit("MainController::changesDiscarded");
 	};
 
+	viewModel.sourceCodeMessage = function() {
+		return stringService.stringReplacedWithParameters("<%= data[:strings][:main][:footer][:check_out_source_code] %>", {
+			source_code_url: "<%= data[:routes][:other][:bitrise_workflow_editor_source_code] %>"
+		});
+	};
+
 	viewModel.init = function() {
 		viewModel.menus = _.compact([{
 			id: "workflows",

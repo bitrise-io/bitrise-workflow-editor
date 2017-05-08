@@ -280,21 +280,69 @@ main {
 
 	article.menu-content {
 		@include flex-grow(1);
+		@include display-flex;
+		@include flex-direction(column);
 		background-color: white;
 
-		&:not(.ninja) > p.progress-indicator {
-			margin: $main-verticalpadding $main-horizontalpadding;
+		.tab-content {
+			@include flex-grow(1);
+			@include display-flex;
+			@include flex-direction(column);
 
-			@include media-below-mid {
-				@include margin-x($main-horizontalpadding_small);
+			&:not(.ninja) > p.progress-indicator {
+				margin: $main-verticalpadding $main-horizontalpadding;
+
+				@include media-below-mid {
+					@include margin-x($main-horizontalpadding_small);
+				}
+			}
+
+			.menu-content-padding {
+				padding: $main-verticalpadding $main-horizontalpadding;
+
+				@include media-below-mid {
+					@include padding-x($main-horizontalpadding_small);
+				}
+			}
+		}
+	}
+
+	footer {
+		@include display-flex;
+		@include justify-content(center);
+		@include align-items(center);
+		padding: 10px $main-horizontalpadding;
+		font-size: 11px;
+		font-weight: 200;
+		color: $def-darkgrey;
+		background-color: $def-verylightgrey;
+
+		p {
+			@include margin-y(0);
+		}
+
+		svg {
+			@include size(13px, 12px);
+			@include margin-x(12px);
+			fill: $def-green;
+		}
+
+		a {
+			font-weight: 900;
+			color: inherit;
+			@include transition(color $def-transition_duration);
+
+			&:hover, &:focus {
+				color: black;
 			}
 		}
 
-		.menu-content-padding {
-			padding: $main-verticalpadding $main-horizontalpadding;
+		@include media-below-mid {
+			@include flex-direction(column);
 
-			@include media-below-mid {
-				@include padding-x($main-horizontalpadding_small);
+			svg {
+				@include margin-x(0);
+				@include margin-y(12px);
 			}
 		}
 	}

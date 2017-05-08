@@ -1,6 +1,6 @@
 .tab-workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 	p.progress-indicator[progress-model="workflowsCtrl.configureWorkflowsProgress"]
-	div[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
+	.content[ng-if="workflowsCtrl.configureWorkflowsProgress.isIdle && workflowsCtrl.selectedWorkflow"]
 		section.manage-workflows[sticky-header skip-stickyness="workflowsCtrl.workflowSelectorIsVisible"]
 			.workflow-selector[floating-menu toggle="workflowsCtrl.workflowSelectorIsVisible"]
 				.selected-workflow
@@ -63,7 +63,7 @@
 									.title[ng-if="!stepCtrl.renamedStep"]
 										button.rename[ng-bind="stepCtrl.step.title() === undefined ? stepCtrl.step.displayName() : stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
 										span.verified[ng-if="stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:verified] }"] = svg("step/badge-verified")
-										span.user-contributed[ng-if="!stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:user_contributed] }"] = svg("step/badge-user_contributed")
+										span.user-contributed[ng-if="!stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:community_created] }"] = svg("step/badge-community_created")
 									.rename-title[ng-if="stepCtrl.renamedStep"]
 										input[type="text" ng-model="stepCtrl.renamedStepTitle"]
 										button.ok.rebo.green[ng-click="stepCtrl.renameStepConfirmed()"] = svg("check")

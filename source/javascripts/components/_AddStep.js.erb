@@ -270,12 +270,12 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 			scope.$watch(function() {
 				return addStepService.isVisible;
-			}, function(newIsVisible) {
-				if (newIsVisible === undefined) {
+			}, function(isVisible) {
+				if (isVisible === undefined) {
 					return;
 				}
 
-				if (newIsVisible) {
+				if (isVisible) {
 					angular.element($document).bind("keyup", keyupHandler);
 					windowSizeHandler();
 					$(window).bind("resize", windowSizeHandler);

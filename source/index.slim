@@ -24,7 +24,11 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 		p.progress-indicator[progress-model="mainCtrl.configureModeProgress"]
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
-		div[ng-view ng-if="!mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle"]
+		.tab-content[ng-view ng-if="!mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle"]
+	footer
+		p == data[:strings][:main][:footer][:editor_open_source]
+		== svg("heart")
+		p[ng-bind-html="mainCtrl.sourceCodeMessage()"]
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]

@@ -6,7 +6,7 @@
 			h4
 				span[ng-bind="step.displayName()"]
 				span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
-				span.user-contributed[ng-if="!step.isVerified()"] = svg("step/badge-user_contributed")
+				span.user-contributed[ng-if="!step.isVerified()"] = svg("step/badge-community_created")
 			.summary[btf-markdown="step.summary()"]
 			.actions.angular-animated[ng-if="isActive"]
 				a.source[href="{{ step.sourceURL() }}" target="_blank"] = svg("logo/github")

@@ -94,7 +94,7 @@ select, .mak {
 	padding: 7px $select-horizontalpadding;
 	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
 	text-align: left;
-	font-family: Verdana;
+	font-family: inherit;
 	font-size: 14px;
 	@include transition(background-color $def-transition_duration);
 	background-color: white;

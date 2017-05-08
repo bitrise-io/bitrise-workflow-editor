@@ -21,6 +21,9 @@ main:
     save: Save
     cancel: Cancel
   tab_close_confirm_message: You have unsaved changes. Press OK to confirm, or Cancel to stay on the current page.
+  footer:
+    editor_open_source: The Workflow Editor is now open source
+    check_out_source_code: Check out the source code <a href='<source_code_url>' target='_blank'>on GitHub!</a>
 alert_popup:
   ok: OK
   cancel: Cancel
@@ -76,7 +79,7 @@ workflows:
       load:
         in_progress: Loading steps, wait a sec...
     verified: Verified
-    user_contributed: User contributed
+    community_created: Community created
     clone: Clone
     source: Source
     delete: "Delete Step: <step_title>"
