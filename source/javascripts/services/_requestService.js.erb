@@ -5,7 +5,7 @@
 angular.module("BitriseWorkflowEditor").service("requestService", function($q, $injector, $location, $http, stringService) {
 
 	var requestService = {
-		mode: undefined,
+		mode: "<%= mode %>",
 		appSlug: undefined,
 		jobID: undefined
 	};
@@ -48,10 +48,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		return error;
 	}
-
-	requestService.configureMode = function() {
-		requestService.mode = "<%= mode %>";
-	};
 
 	// App config
 

@@ -242,8 +242,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.init = function() {
-		requestService.configureMode();
-
 		viewModel.menus = _.compact([{
 			id: "workflows",
 			cookieValue: "workflows",
