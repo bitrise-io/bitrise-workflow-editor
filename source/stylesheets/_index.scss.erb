@@ -280,12 +280,14 @@ main {
 
 	article.menu-content {
 		@include flex-grow(1);
+		@include flex-shrink(0);
 		@include display-flex;
 		@include flex-direction(column);
 		background-color: white;
 
 		.tab-content {
 			@include flex-grow(1);
+			@include flex-shrink(0);
 			@include display-flex;
 			@include flex-direction(column);
 
@@ -308,6 +310,7 @@ main {
 	}
 
 	footer {
+		@include flex-shrink(0);
 		@include display-flex;
 		@include justify-content(center);
 		@include align-items(center);

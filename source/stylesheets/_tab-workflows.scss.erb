@@ -3,6 +3,7 @@
 
 .tab-workflows {
 	@include flex-grow(1);
+	@include flex-shrink(0);
 	@include display-flex;
 	@include flex-direction(column);
 
@@ -16,6 +17,7 @@
 
 	.content {
 		@include flex-grow(1);
+		@include flex-shrink(0);
 		@include display-flex;
 		@include flex-direction(column);
 
@@ -308,11 +310,13 @@
 			$steptitle-width_small: 220px;
 
 			@include flex-grow(1);
+			@include flex-shrink(0);
 			@include display-flex;
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
 
 			.workflow-chain {
+				@include flex-shrink(0);
 				@include display-flex;
 				@include flex-direction(column);
 
@@ -325,6 +329,7 @@
 				}
 
 				section.workflow {
+					@include flex-shrink(0);
 					border-top: 1px dashed $def-grey;
 					@include padding-x($main-horizontalpadding);
 					@include transition(background-color $def-transition_duration);
