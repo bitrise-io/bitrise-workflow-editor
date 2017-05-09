@@ -10,18 +10,18 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	viewModel.certificates;
 	viewModel.loadCertificatesProgress = new Progress();
-	viewModel.uploadCertificateProgress = new Progress();
+	viewModel.uploadCertificatesProgress = new Progress();
 	viewModel.certificateActionProgress = new Progress();
 	viewModel.certificates;
-	viewModel.uploadedCertificate = new Certificate();
+	viewModel.certificatesToUpload;
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
 	var passwordEditedCertificateOriginalPassword;
 
 	function loadCertificates(shouldClearPreviousLoad) {
 		viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
-		if (viewModel.uploadCertificateProgress.isIdle && viewModel.uploadCertificateProgress.statusMessage !== null) {
-			viewModel.uploadCertificateProgress.reset();
+		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
+			viewModel.uploadCertificatesProgress.reset();
 		}
 
 		if (shouldClearPreviousLoad === undefined) {
@@ -58,30 +58,50 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		});
 	};
 
-	viewModel.uploadCertificate = function() {
-		viewModel.uploadCertificateProgress.start("<%= data[:strings][:code_signing][:certificate][:upload_progress][:in_progress] %>");
+	viewModel.filesSelectedForUpload = function(files) {
+		if (files.length == 0) {
+			return;
+		}
+
+		viewModel.certificatesToUpload = _.map(files, function(aFile) {
+			var certificate = new Certificate();
+			certificate.file = aFile;
+
+			return certificate;
+		});
+	};
+
+	viewModel.uploadCertificates = function() {
+		viewModel.uploadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:upload_progress][:in_progress] %>");
+
+		var uploadPromise = $q.when();
+		_.each(viewModel.certificatesToUpload, function(aCertificate) {
+			uploadPromise = uploadPromise.then(function() {
+				return aCertificate.upload();
+			});
+		});
 
 		$q(function(resolve, reject) {
-			viewModel.uploadedCertificate.upload().then(function() {
+			uploadPromise.then(function() {
 				resolve();
 			}, function(error) {
 				reject(error);
 			});
 		}).then(function() {
 			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:certificate][:upload_progress][:success] %>");
-			viewModel.uploadCertificateProgress.success();
+			viewModel.uploadCertificatesProgress.success();
 
-			viewModel.uploadedCertificate = new Certificate();
+			viewModel.certificatesToUpload = undefined;
 			loadCertificates(true);
 		}, function(error) {
-			viewModel.uploadCertificateProgress.error(error);
+			viewModel.uploadCertificatesProgress.error(error);
 		});
 	};
 
 	viewModel.deleteCertificate = function(certificate) {
 		viewModel.certificateActionProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>");
-		if (viewModel.uploadCertificateProgress.isIdle && viewModel.uploadCertificateProgress.statusMessage !== null) {
-			viewModel.uploadCertificateProgress.reset();
+		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
+			viewModel.uploadCertificatesProgress.reset();
 		}
 
 		certificate.delete().then(function() {
@@ -105,8 +125,8 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	viewModel.changePassword = function() {
 		viewModel.certificateActionProgress.start("<%= data[:strings][:code_signing][:certificate][:change_password_progress][:in_progress] %>");
-		if (viewModel.uploadCertificateProgress.isIdle && viewModel.uploadCertificateProgress.statusMessage !== null) {
-			viewModel.uploadCertificateProgress.reset();
+		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
+			viewModel.uploadCertificatesProgress.reset();
 		}
 
 		viewModel.passwordEditedCertificate.savePassword().then(function() {

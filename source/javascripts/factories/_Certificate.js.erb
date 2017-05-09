@@ -28,10 +28,6 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		return "<%= data[:strings][:code_signing][:certificate][:no_name_for_file] %>";
 	};
 
-	Certificate.prototype.updateFile = function(file) {
-		this.file = file;
-	};
-
 	Certificate.prototype.fileSize = function() {
 		if (!this.file) {
 			return undefined;

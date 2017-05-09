@@ -27,10 +27,6 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		return "<%= data[:strings][:code_signing][:prov_profile][:no_name_for_file] %>";
 	};
 
-	ProvProfile.prototype.updateFile = function(file) {
-		this.file = file;
-	};
-
 	ProvProfile.prototype.fileSize = function() {
 		if (!this.file) {
 			return undefined;

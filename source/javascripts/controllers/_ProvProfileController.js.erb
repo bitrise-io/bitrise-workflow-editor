@@ -10,16 +10,16 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 	viewModel.provProfiles;
 	viewModel.loadProvProfilesProgress = new Progress();
-	viewModel.uploadProvProfileProgress = new Progress();
+	viewModel.uploadProvProfilesProgress = new Progress();
 	viewModel.deleteProvProfileProgress = new Progress();
 	viewModel.provProfiles;
-	viewModel.uploadedProvProfile = new ProvProfile();
+	viewModel.provProfilesToUpload;
 	viewModel.provProfileUploader;
 
 	function loadProvProfiles(shouldClearPreviousLoad) {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
-		if (viewModel.uploadProvProfileProgress.isIdle && viewModel.uploadProvProfileProgress.statusMessage !== null) {
-			viewModel.uploadProvProfileProgress.reset();
+		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
+			viewModel.uploadProvProfilesProgress.reset();
 		}
 
 		if (shouldClearPreviousLoad === undefined) {
@@ -55,30 +55,50 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	};
 
-	viewModel.uploadProvProfile = function() {
-		viewModel.uploadProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:in_progress] %>");
+	viewModel.filesSelectedForUpload = function(files) {
+		if (files.length == 0) {
+			return;
+		}
+
+		viewModel.provProfilesToUpload = _.map(files, function(aFile) {
+			var provProfile = new ProvProfile();
+			provProfile.file = aFile;
+
+			return provProfile;
+		});
+	};
+
+	viewModel.uploadProvProfiles = function() {
+		viewModel.uploadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:in_progress] %>");
+
+		var uploadPromise = $q.when();
+		_.each(viewModel.provProfilesToUpload, function(aProvProfile) {
+			uploadPromise = uploadPromise.then(function() {
+				return aProvProfile.upload();
+			});
+		});
 
 		$q(function(resolve, reject) {
-			viewModel.uploadedProvProfile.upload().then(function() {
+			uploadPromise.then(function() {
 				resolve();
 			}, function(error) {
 				reject(error);
 			});
 		}).then(function() {
 			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:success] %>");
-			viewModel.uploadProvProfileProgress.success();
+			viewModel.uploadProvProfilesProgress.success();
 
-			viewModel.uploadedProvProfile = new ProvProfile();
+			viewModel.provProfilesToUpload = undefined;
 			loadProvProfiles(true);
 		}, function(error) {
-			viewModel.uploadProvProfileProgress.error(error);
+			viewModel.uploadProvProfilesProgress.error(error);
 		});
 	};
 
 	viewModel.deleteProvProfile = function(provProfile) {
 		viewModel.deleteProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>");
-		if (viewModel.uploadProvProfileProgress.isIdle && viewModel.uploadProvProfileProgress.statusMessage !== null) {
-			viewModel.uploadProvProfileProgress.reset();
+		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
+			viewModel.uploadProvProfilesProgress.reset();
 		}
 
 		provProfile.delete().then(function() {

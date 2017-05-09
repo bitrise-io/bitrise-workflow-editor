@@ -30,9 +30,9 @@
 						.actions
 							a.furto.download[href="{{ provProfile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
-				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfileProgress"]
-				.file-upload[ng-if="!provProfileCtrl.uploadProvProfileProgress.isInProgress"]
-					file-uploader[onupload="provProfileCtrl.uploadProvProfile()" model="provProfileCtrl.provProfileUploader" on-file-change="$files.length > 0 ? provProfileCtrl.uploadedProvProfile.updateFile($files[0]) : null"]
+				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfilesProgress"]
+				.file-upload[ng-if="!provProfileCtrl.uploadProvProfilesProgress.isInProgress"]
+					file-uploader[multiple onupload="provProfileCtrl.uploadProvProfiles()" model="provProfileCtrl.provProfileUploader" on-file-change="provProfileCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:prov_profile][:upload_action]
 						em == data[:strings][:code_signing][:prov_profile][:upload_instructions]
 	section.cardo.uppercase.slim.code-signing-identities[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
@@ -58,9 +58,9 @@
 						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
 							a.furto.download[href="{{ certificate.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] = svg("cross")
-				p.progress-indicator[progress-model="certificateCtrl.uploadCertificateProgress"]
-				.file-upload[ng-if="!certificateCtrl.uploadCertificateProgress.isInProgress"]
-					file-uploader[onupload="certificateCtrl.uploadCertificate()" model="certificateCtrl.certificateUploader" on-file-change="$files.length > 0 ? certificateCtrl.uploadedCertificate.updateFile($files[0]) : null"]
+				p.progress-indicator[progress-model="certificateCtrl.uploadCertificatesProgress"]
+				.file-upload[ng-if="!certificateCtrl.uploadCertificatesProgress.isInProgress"]
+					file-uploader[multiple onupload="certificateCtrl.uploadCertificates()" model="certificateCtrl.certificateUploader" on-file-change="certificateCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:certificate][:upload_action]
 						em == data[:strings][:code_signing][:certificate][:upload_instructions]
 	section.cardo.uppercase.slim.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])"]
