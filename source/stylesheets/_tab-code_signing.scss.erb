@@ -283,15 +283,20 @@
 						@include display-flex;
 
 						input {
-							border: none;
+							border: 1px solid $def-mediumlightgrey;
 							@include border-radius($def-radius);
-							padding: 6px;
-							background-color: $def-lightgrey;
+							padding: 4px;
+							background-color: $def-verylightgrey;
 							font-size: 14px;
 						}
 
-						button {
-							margin-left: 6px;
+						.change-password-actions {
+							@include display-flex;
+
+							button {
+								margin-left: 6px;
+								font-size: 10px;
+							}
 						}
 					}
 
@@ -331,7 +336,6 @@
 							}
 
 							.change-password-actions {
-								@include display-flex;
 								width: 100%;
 
 								button:first-of-type {
