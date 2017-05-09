@@ -306,7 +306,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 	};
 
-}).directive("addStepDragger", function($parse, $document, $timeout) {
+}).directive("addStepDragger", function($parse, $document, $timeout, addStepService) {
 
 	return {
 		restrict: "A",
@@ -370,6 +370,18 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 				}, 0);
 			};
 
+			function windowSizeHandler() {
+				if (!addStepService.isVisible) {
+					return;
+				}
+
+				if (element === undefined || element.children().length == 0) {
+					return;
+				}
+
+				scrollToStepWithIndex(paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage + paginateStepsConfig.currentOffsetInPage);
+			}
+
 			function scrollToStepWithIndex(stepIndex) {
 				var scrollPositionX = $(element.children()[stepIndex]).position().left;
 				element.addClass("animated-scroll");
@@ -412,11 +424,13 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			});
 
 			element.bind("mousedown", mouseDownHandler);
+			$(window).bind("resize", windowSizeHandler);
 
 			scope.$on("$destroy", function() {
 				element.unbind("mousedown", mouseDownHandler);
 				$document.unbind("mousemove", mouseMoveHandler);
 				$document.unbind("mouseup", mouseUpHandler);
+				$(window).unbind("resize", windowSizeHandler);
 			});
 		}
 	};
