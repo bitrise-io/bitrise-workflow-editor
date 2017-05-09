@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
+angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Variable) {
 
 	var Step = function(cvs, userStepConfig, defaultStepConfig) {
 		this.cvs = cvs;
@@ -118,6 +118,24 @@ angular.module("BitriseWorkflowEditor").factory("Step", function(Variable) {
 		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
 
 		return regexpForVerifiedStepSourceURL.test(sourceURL);
+	};
+
+	Step.prototype.isDeprecated = function() {
+		if (this.libraryURL === undefined) {
+			return undefined;
+		}
+
+		var stepSourceService = $injector.get("stepSourceService");
+
+		var library = _.find(stepSourceService.libraries, {
+			url: this.libraryURL
+		});
+
+		if (!library) {
+			return undefined;
+		}
+
+		return _.contains(library.deprecatedSteps, library.steps[this.id][this.version]);
 	};
 
 	Step.prototype.requestedVersion = function() {

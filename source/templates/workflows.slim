@@ -53,6 +53,7 @@
 												strong
 													span.title[ng-bind="step.displayName()"]
 													span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
+													span.deprecated[ng-if="step.isDeprecated()"] = svg("step/badge-deprecated")
 												em.version[ng-if="step.version !== undefined" ng-bind="step.version"]
 										button.update-step[ng-if="!stepSourceService.isLatestStepVersion(step)" ng-click="stepSourceService.changeStepToVersion(step, null); workflowsCtrl.stepVersionChanged()"]
 							li
@@ -63,6 +64,7 @@
 									.title[ng-if="!stepCtrl.renamedStep"]
 										button.rename[ng-bind="stepCtrl.step.title() === undefined ? stepCtrl.step.displayName() : stepCtrl.step.title()" ng-click="stepCtrl.renameStepSelected()"]
 										span.verified[ng-if="stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:verified] }"] = svg("step/badge-verified")
+										span.deprecated[ng-if="stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:deprecated] }"] = svg("step/badge-deprecated")
 										span.user-contributed[ng-if="!stepCtrl.step.isVerified()" trigger-popover="#{ data[:strings][:workflows][:steps][:community_created] }"] = svg("step/badge-community_created")
 									.rename-title[ng-if="stepCtrl.renamedStep"]
 										input[type="text" ng-model="stepCtrl.renamedStepTitle"]

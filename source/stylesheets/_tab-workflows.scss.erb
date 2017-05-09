@@ -496,7 +496,7 @@
 													@include ellipsis-oneliner;
 												}
 
-												span.verified {
+												span.verified, span.deprecated {
 													margin-left: 5px;
 
 													svg {
@@ -612,9 +612,13 @@
 											border-color: $def-grey;
 										}
 
-										span.verified, span.user-contributed {
+										span.verified, span.user-contributed, span.deprecated {
 											@include flex-shrink(0);
 											@include align-self(center);
+
+											&:not(:first-of-type) {
+												margin-left: 4px;
+											}
 
 											svg {
 												display: block;

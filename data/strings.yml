@@ -79,6 +79,7 @@ workflows:
       load:
         in_progress: Loading steps, wait a sec...
     verified: Verified
+    deprecated: Deprecated
     community_created: Community created
     clone: Clone
     source: Source

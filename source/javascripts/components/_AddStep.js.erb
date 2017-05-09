@@ -105,7 +105,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			$q.all(loadPromises).then(function() {
 				_.each(stepSourceService.libraries, function(aLibrary) {
 					steps = steps.concat(_.map(_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
-						return _.contains(aLibrary.deprecatedSteps, aLibrary.steps[stepID][aStepVersion]);
+						return aLibrary.steps[stepID][aStepVersion].isDeprecated();
 					}), function(aStepVersion, stepID) {
 						var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
 
