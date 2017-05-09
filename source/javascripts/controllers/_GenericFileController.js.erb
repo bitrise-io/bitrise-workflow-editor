@@ -94,7 +94,6 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				reject(error);
 			});
 		}).then(function() {
-			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:generic_file][:upload_progress][:success] %>");
 			viewModel.uploadGenericFileProgress.success();
 
 			viewModel.uploadedGenericFile = new GenericFile("");
@@ -105,18 +104,22 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 	};
 
 	viewModel.deleteGenericFile = function(genericFile) {
-		viewModel.deleteGenericFileProgress.start("<%= data[:strings][:code_signing][:generic_file][:delete_progress][:in_progress] %>");
-		if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
-			viewModel.uploadGenericFileProgress.reset();
-		}
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:generic_file][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:generic_file][:delete_confirm][:question] %>", {
+			file_name: genericFile.displayName()
+		}), "<%= data[:strings][:code_signing][:generic_file][:delete_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:generic_file][:delete_confirm][:no_title] %>", function() {
+			viewModel.deleteGenericFileProgress.start("<%= data[:strings][:code_signing][:generic_file][:delete_progress][:in_progress] %>");
+			
+			if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
+				viewModel.uploadGenericFileProgress.reset();
+			}
 
-		genericFile.delete().then(function() {
-			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:generic_file][:delete_progress][:success] %>");
-			viewModel.deleteGenericFileProgress.success();
+			genericFile.delete().then(function() {
+				viewModel.deleteGenericFileProgress.success();
 
-			loadGenericFiles(true);
-		}, function(error) {
-			viewModel.deleteGenericFileProgress.error(error);
+				loadGenericFiles(true);
+			}, function(error) {
+				viewModel.deleteGenericFileProgress.error(error);
+			});
 		});
 	};
 

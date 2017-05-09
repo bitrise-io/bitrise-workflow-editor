@@ -128,19 +128,22 @@ code_signing:
       details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
     header: Provisioning profile
-    upload_action: Add Provisioning Profile
+    upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
     no_prov_profiles_added_yet: No provisioning profiles added yet.
     invalid_file_type: Invalid file type! Select a .provisionprofile or .mobileprovision file.
+    delete_confirm:
+      question_short: "Are you sure?"
+      question: "Are you sure you want to delete <provisioning_profile_name>?"
+      yes_title: "Yes, delete"
+      no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
     upload_progress:
       in_progress: "Uploading, wait a sec..."
-      success: "Provisioning Profile uploaded!"
     delete_progress:
       in_progress: Deleting, wait a sec...
-      success: "Provisioning profile removed!"
   certificate:
     header: Code Signing Identity
     upload_action: Add the private key (.p12) for signing
@@ -148,14 +151,17 @@ code_signing:
     no_name_for_file: No name for file
     no_certificates_added_yet: No certificates added yet.
     invalid_file_type: Invalid file type! Select a .p12 file.
+    delete_confirm:
+      question_short: "Are you sure?"
+      question: "Are you sure you want to delete <certificate_name>?"
+      yes_title: "Yes, delete"
+      no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
     upload_progress:
       in_progress: "Uploading, wait a sec..."
-      success: "Certificate uploaded!"
     delete_progress:
       in_progress: Deleting, wait a sec...
-      success: "Certificate removed!"
     show_password: Show password
     change_password_ok: OK
     change_password_cancel: Cancel
@@ -179,12 +185,15 @@ code_signing:
     id_not_specified: ID not specified. Enter a unique ID.
     id_reserved_for_keystore: This ID is reserved for the Android Keystore file upload.
     enter_id: "Enter an ID for the file's download URL."
+    delete_confirm:
+      question_short: "Are you sure?"
+      question: "Are you sure you want to delete <file_name>?"
+      yes_title: "Yes, delete"
+      no_title: "Cancel"
     upload_progress:
       in_progress: "Uploading, wait a sec..."
-      success: "File uploaded!"
     delete_progress:
       in_progress: Deleting, wait a sec...
-      success: "File removed!"
   android_keystore:
     header: Android Keystore file
     no_keystore_file: "No keystore file added yet."
@@ -196,10 +205,8 @@ code_signing:
       in_progress: Loading, wait a sec...
     upload_progress:
       in_progress: "Uploading, wait a sec..."
-      success: "File uploaded!"
     delete_progress:
       in_progress: Deleting, wait a sec...
-      success: "File removed!"
     keystore_password_as: Keystore password will be available as Environment Variable
     keystore_alias_as: Keystore alias will be available as Environment Variable
     private_key_password_as: Private key password will be available as Environment Variable
@@ -215,6 +222,11 @@ code_signing:
     password_not_specified: password not specified
     alias_not_specified: alias not specified
     private_key_password_not_specified: private key password not specified
+    delete_confirm:
+      question_short: "Are you sure?"
+      question: "Are you sure you want to delete <file_name>?"
+      yes_title: "Yes, delete"
+      no_title: "Cancel"
     save_metadata_progress:
       in_progress: "Saving metadata, wait a sec..."
       success: "Keystore metadata successfully saved!"

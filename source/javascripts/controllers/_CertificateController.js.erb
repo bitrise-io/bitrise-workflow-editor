@@ -88,7 +88,6 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				reject(error);
 			});
 		}).then(function() {
-			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:certificate][:upload_progress][:success] %>");
 			viewModel.uploadCertificatesProgress.success();
 
 			viewModel.certificatesToUpload = undefined;
@@ -99,18 +98,22 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	};
 
 	viewModel.deleteCertificate = function(certificate) {
-		viewModel.certificateActionProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>");
-		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
-			viewModel.uploadCertificatesProgress.reset();
-		}
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question] %>", {
+			certificate_name: certificate.displayName()
+		}), "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:no_title] %>", function() {
+			viewModel.certificateActionProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>");
 
-		certificate.delete().then(function() {
-			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:certificate][:delete_progress][:success] %>");
-			viewModel.certificateActionProgress.success();
+			if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
+				viewModel.uploadCertificatesProgress.reset();
+			}
 
-			loadCertificates(true);
-		}, function(error) {
-			viewModel.certificateActionProgress.error(error);
+			certificate.delete().then(function() {
+				viewModel.certificateActionProgress.success();
+
+				loadCertificates(true);
+			}, function(error) {
+				viewModel.certificateActionProgress.error(error);
+			});
 		});
 	};
 

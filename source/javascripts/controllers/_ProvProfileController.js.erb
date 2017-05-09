@@ -85,7 +85,6 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 				reject(error);
 			});
 		}).then(function() {
-			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:success] %>");
 			viewModel.uploadProvProfilesProgress.success();
 
 			viewModel.provProfilesToUpload = undefined;
@@ -96,18 +95,22 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.deleteProvProfile = function(provProfile) {
-		viewModel.deleteProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>");
-		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
-			viewModel.uploadProvProfilesProgress.reset();
-		}
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question] %>", {
+			provisioning_profile_name: provProfile.displayName()
+		}), "<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:no_title] %>", function() {
+			viewModel.deleteProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>");
 
-		provProfile.delete().then(function() {
-			Popup.showSuccessPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:success] %>");
-			viewModel.deleteProvProfileProgress.success();
+			if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
+				viewModel.uploadProvProfilesProgress.reset();
+			}
 
-			loadProvProfiles(true);
-		}, function(error) {
-			viewModel.deleteProvProfileProgress.error(error);
+			provProfile.delete().then(function() {
+				viewModel.deleteProvProfileProgress.success();
+
+				loadProvProfiles(true);
+			}, function(error) {
+				viewModel.deleteProvProfileProgress.error(error);
+			});
 		});
 	};
 
