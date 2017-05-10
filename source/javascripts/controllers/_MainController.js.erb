@@ -211,10 +211,37 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		});
 	};
 
+	viewModel.isSaveEnabled = function() {
+		if (!viewModel.configureModeProgress.isIdle) {
+			return false;
+		}
+
+		if (!viewModel.menuProgress.isIdle) {
+			return false;
+		}
+
+		if (!viewModel.loadAppConfigProgress.isIdle) {
+			return false;
+		}
+
+		if (viewModel.saveProgress.isInProgress) {
+			return false;
+		}
+
+		if (!viewModel.hasUnsavedChanges()) {
+			return false;
+		}
+
+		return true;
+	};
+
 	$(document).on("keydown", function(event) {
 		if ((event.ctrlKey || event.metaKey) && event.which == 83) {
 			event.preventDefault();
-			viewModel.save();
+
+			if (viewModel.isSaveEnabled()) {
+				viewModel.save();
+			}
 
 			return false;
 		}
