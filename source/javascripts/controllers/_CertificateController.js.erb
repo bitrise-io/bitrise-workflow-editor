@@ -7,6 +7,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	var viewModel = this;
 
 	var certificatesReloadIntervalInSeconds = 2;
+	viewModel.maximumCertificatesCount = 5;
 
 	viewModel.certificates;
 	viewModel.loadCertificatesProgress = new Progress();
@@ -73,6 +74,16 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	viewModel.uploadCertificates = function() {
 		viewModel.uploadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:upload_progress][:in_progress] %>");
+
+		if (viewModel.certificates.length + viewModel.certificatesToUpload.length > viewModel.maximumCertificatesCount) {
+			viewModel.uploadCertificatesProgress.error(new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:can_only_upload_x_more] %>", {
+				count: viewModel.maximumCertificatesCount - viewModel.certificates.length
+			})));
+
+			viewModel.certificatesToUpload = undefined;
+
+			return;
+		}
 
 		var uploadPromise = $q.when();
 		_.each(viewModel.certificatesToUpload, function(aCertificate) {

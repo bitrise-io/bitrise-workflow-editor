@@ -153,6 +153,8 @@ code_signing:
     no_name_for_file: No name for file
     no_certificates_added_yet: No certificates added yet.
     invalid_file_type: Invalid file type! Select a .p12 file.
+    upload_count_limit_reached: You reached the maximum allowed number of certificate files for this project.
+    can_only_upload_x_more: You can only upload <count> more certificate files.
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <certificate_name>?"

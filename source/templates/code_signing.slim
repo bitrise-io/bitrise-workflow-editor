@@ -40,7 +40,9 @@
 						em == data[:strings][:code_signing][:prov_profile][:upload_instructions]
 	section.cardo.uppercase.slim.code-signing-identities[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
-			h2 == data[:strings][:code_signing][:certificate][:header]
+			h2
+				span == data[:strings][:code_signing][:certificate][:header]
+				span<[ng-if="certificateCtrl.certificates.length > 0" ng-bind="'(' + certificateCtrl.certificates.length + '/' + certificateCtrl.maximumCertificatesCount + ')'"]
 		article
 			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
 			p.progress-indicator[progress-model="certificateCtrl.certificateActionProgress"]
@@ -61,8 +63,10 @@
 						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
 							a.furto.download[href="{{ certificate.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] = svg("cross")
+				p.notification.error[ng-if="certificateCtrl.certificates.length >= certificateCtrl.maximumCertificatesCount"] == data[:strings][:code_signing][:certificate][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="certificateCtrl.uploadCertificatesProgress"]
 				.file-upload[ng-if="!certificateCtrl.uploadCertificatesProgress.isInProgress"]
+				.file-upload[ng-if="!certificateCtrl.uploadCertificatesProgress.isInProgress && certificateCtrl.certificates.length < certificateCtrl.maximumCertificatesCount"]
 					file-uploader[multiple onupload="certificateCtrl.uploadCertificates()" model="certificateCtrl.certificateUploader" on-file-change="certificateCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:certificate][:upload_action]
 						em == data[:strings][:code_signing][:certificate][:upload_instructions]
