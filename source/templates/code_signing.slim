@@ -18,7 +18,9 @@
 		button.hide[ng-click="codeSigningCtrl.shouldShowCodeSigningHints = false"] = svg("cross_slim")
 	section.cardo.uppercase.slim.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
-			h2 == data[:strings][:code_signing][:prov_profile][:header]
+			h2
+				span == data[:strings][:code_signing][:prov_profile][:header]
+				span<[ng-if="provProfileCtrl.provProfiles.length > 0" ng-bind="'(' + provProfileCtrl.provProfiles.length + '/' + provProfileCtrl.maximumProvProfilesCount + ')'"]
 		article
 			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
 			p.progress-indicator[progress-model="provProfileCtrl.deleteProvProfileProgress"]
@@ -30,8 +32,9 @@
 						.actions
 							a.furto.download[href="{{ provProfile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
+				p.notification.error[ng-if="provProfileCtrl.provProfiles.length >= provProfileCtrl.maximumProvProfilesCount"] == data[:strings][:code_signing][:prov_profile][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfilesProgress"]
-				.file-upload[ng-if="!provProfileCtrl.uploadProvProfilesProgress.isInProgress"]
+				.file-upload[ng-if="!provProfileCtrl.uploadProvProfilesProgress.isInProgress && provProfileCtrl.provProfiles.length < provProfileCtrl.maximumProvProfilesCount"]
 					file-uploader[multiple onupload="provProfileCtrl.uploadProvProfiles()" model="provProfileCtrl.provProfileUploader" on-file-change="provProfileCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:prov_profile][:upload_action]
 						em == data[:strings][:code_signing][:prov_profile][:upload_instructions]

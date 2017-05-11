@@ -133,6 +133,8 @@ code_signing:
     no_name_for_file: No name for file
     no_prov_profiles_added_yet: No provisioning profiles added yet.
     invalid_file_type: Invalid file type! Select a .provisionprofile or .mobileprovision file.
+    upload_count_limit_reached: You reached the maximum allowed number of provisioning profile files for this project.
+    can_only_upload_x_more: You can only upload <count> more provisioning profile files.
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <provisioning_profile_name>?"

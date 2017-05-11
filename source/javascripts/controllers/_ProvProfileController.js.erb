@@ -7,6 +7,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	var viewModel = this;
 
 	var provProfilesReloadIntervalInSeconds = 2;
+	viewModel.maximumProvProfilesCount = 5;
 
 	viewModel.provProfiles;
 	viewModel.loadProvProfilesProgress = new Progress();
@@ -70,6 +71,16 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 	viewModel.uploadProvProfiles = function() {
 		viewModel.uploadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:in_progress] %>");
+
+		if (viewModel.provProfiles.length + viewModel.provProfilesToUpload.length > viewModel.maximumProvProfilesCount) {
+			viewModel.uploadProvProfilesProgress.error(new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:can_only_upload_x_more] %>", {
+				count: viewModel.maximumProvProfilesCount - viewModel.provProfiles.length
+			})));
+
+			viewModel.provProfilesToUpload = undefined;
+
+			return;
+		}
 
 		var uploadPromise = $q.when();
 		_.each(viewModel.provProfilesToUpload, function(aProvProfile) {
