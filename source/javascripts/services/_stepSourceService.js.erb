@@ -124,7 +124,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		else if (step.gitURL !== undefined) {
 			return true;
 		}
-	}
+	};
 
 	stepSourceService.changeStepToVersion = function(step, version) {
 		if (step.libraryURL !== undefined) {

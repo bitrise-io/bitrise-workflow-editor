@@ -72,6 +72,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 			return this.userVariableConfig ? this.userVariableConfig[key] : defaultKey ? this.defaultVariableConfig[defaultKey] : undefined;
 		}
 
+		if (newValue.length == 0) {
+			newValue = null;
+		}
+
 		if (!this.defaultVariableConfig || !defaultKey || newValue !== this.defaultVariableConfig[defaultKey]) {
 			if (!this.userVariableConfig) {
 				this.userVariableConfig = {};
@@ -137,7 +141,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		if (variable.userVariableConfig && variable.userVariableConfig.opts && variable.userVariableConfig.opts[optionKey] !== undefined) {
 			optionSource = variable.userVariableConfig.opts;
 		}
-		else if (variable.defaultVariableConfig && variable.defaultVariableConfig.opts && variable.defaultVariableConfig.opts[optionKey]) {
+		else if (variable.defaultVariableConfig && variable.defaultVariableConfig.opts && variable.defaultVariableConfig.opts[optionKey] !== undefined) {
 			optionSource = variable.defaultVariableConfig.opts;
 		}
 

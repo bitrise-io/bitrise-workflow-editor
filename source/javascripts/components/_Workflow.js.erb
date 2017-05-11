@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, stepSourceService, Step, Variable) {
+angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, stepSourceService, Step) {
 
 	var Workflow = function(id, workflowConfig) {
 		this.id = id;
@@ -30,25 +30,33 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
+	Workflow.prototype.beforeRunWorkflows = function(allWorkflows) {
+		return _.map(this.workflowConfig.before_run, function(aWorkflowID) {
+			return _.find(allWorkflows, {
+				id: aWorkflowID
+			});
+		});
+	};
+
+	Workflow.prototype.afterRunWorkflows = function(allWorkflows) {
+		return _.map(this.workflowConfig.after_run, function(aWorkflowID) {
+			return _.find(allWorkflows, {
+				id: aWorkflowID
+			});
+		});
+	};
+
 	Workflow.prototype.workflowChain = function(allWorkflows) {
 		var workflows = [];
 
-		_.each(this.workflowConfig.before_run, function(aWorkflowID) {
-			var beforeRunWorkflow = _.find(allWorkflows, {
-				id: aWorkflowID
-			});
-
-			workflows = workflows.concat(beforeRunWorkflow.workflowChain(allWorkflows));
+		_.each(this.beforeRunWorkflows(allWorkflows), function(aWorkflow) {
+			workflows = workflows.concat(aWorkflow.workflowChain(allWorkflows));
 		});
 
 		workflows.push(this);
 
-		_.each(this.workflowConfig.after_run, function(aWorkflowID) {
-			var afterRunWorkflow = _.find(allWorkflows, {
-				id: aWorkflowID
-			});
-
-			workflows = workflows.concat(afterRunWorkflow.workflowChain(allWorkflows));
+		_.each(this.afterRunWorkflows(allWorkflows), function(aWorkflow) {
+			workflows = workflows.concat(aWorkflow.workflowChain(allWorkflows));
 		});
 
 		return workflows;
