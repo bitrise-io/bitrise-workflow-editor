@@ -167,11 +167,11 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "workflows":
 			case "env-vars":
 			case "triggers":
-				return !angular.equals(appService.appConfig, appService.savedAppConfig);
+				return appService.appConfigHasUnsavedChanges();
 			case "secrets":
-				return !angular.equals(appService.secrets, appService.savedSecrets);
+				return appService.secretsHaveUnsavedChanges();
 			case "yml":
-				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
+				return appService.appConfigYMLHasUnsavedChanges();
 		}
 	}
 
