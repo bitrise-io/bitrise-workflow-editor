@@ -1,6 +1,59 @@
-## Changelog (Current version: 0.9.9)
+## Changelog (Current version: 0.9.10)
 
 -----------------
+
+## 0.9.10 (2017 May 11)
+
+### Release Notes
+
+* Issues #83, #84, #88, #90, #92, #93, #94 fixed
+* Footer added
+* Deprecated badge added for deprecated steps
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 0.9.10
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.9 -> 0.9.10
+
+* [a6a89fe] erosdome - v0.9.10 (2017 May 11)
+* [2dc2e76] erosdome - workflows tab revision (#95) (2017 May 11)
+* [bf0cf5f] erosdome - unsaved changes check - moved to separate methods (2017 May 11)
+* [7c9fec8] erosdome - block saving with key if not enabled (2017 May 10)
+* [c93a89e] erosdome - Safari css fixes added (2017 May 09)
+* [4c6a039] erosdome - code signin tab - style updated (2017 May 09)
+* [3139729] erosdome - file upload - popups updated (2017 May 09)
+* [2a4372b] erosdome - provisioning profiles, certificates - multiple upload added (2017 May 09)
+* [5a459a4] erosdome - add trigger button css update (2017 May 09)
+* [ebccf6b] erosdome - add step sidebar - window resize handled; hide verified/community created badge if deprecated (2017 May 09)
+* [b78b821] erosdome - deprecated steps - badge added (2017 May 09)
+* [ca8fc6e] erosdome - footer added; css updates (2017 May 09)
+* [36a1aa3] erosdome - project type filtering added (#89) (2017 May 08)
+* [fe49f6a] erosdome - request service - mode configuration updated (2017 May 08)
+* [ba44c35] erosdome - mode configuration updated (2017 May 05)
+* [7045ab6] erosdome - only load secrets the first time, or when forced (2017 May 04)
+* [4fc16cb] erosdome - insert variable popup fix (issue #84) (2017 May 04)
+* [bb69490] erosdome - add step sidebar - load steps if not loaded yet (if no workflow uses step from default steplib) (2017 May 04)
+* [045ba24] erosdome - insert variable error fixed (issue #83) (2017 May 04)
+
 
 ## 0.9.9 (2017 May 03)
 
@@ -369,4 +422,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 03
+Updated: 2017 May 11

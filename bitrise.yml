@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 0.9.9
+  - RELEASE_VERSION: 0.9.10
   - BIN_NAME: workflow-editor
   
   - API_SERVER_PORT: "3321"
