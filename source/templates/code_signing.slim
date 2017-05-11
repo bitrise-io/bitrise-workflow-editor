@@ -115,13 +115,16 @@
 								label[for="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_private_key_password]
 						input.rebo.big.green.save[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
 						button.rebo.big.grey.reset[type="button" ng-click="androidKeystoreCtrl.resetMetadata()"] == data[:strings][:code_signing][:android_keystore][:reset_to_saved]
-			.file-upload[ng-if="!androidKeystoreCtrl.keystoreFile && !androidKeystoreCtrl.actionProgress.isInProgress"]
+			p.notification.error[ng-if="androidKeystoreCtrl.genericFileAndKeystoreFileCountSum >= androidKeystoreCtrl.maximumGenericFileAndKeystoreFileCountSum"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
+			.file-upload[ng-if="!androidKeystoreCtrl.keystoreFile && !androidKeystoreCtrl.actionProgress.isInProgress && androidKeystoreCtrl.genericFileAndKeystoreFileCountSum < androidKeystoreCtrl.maximumGenericFileAndKeystoreFileCountSum"]
 				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
 					strong[ng-bind="androidKeystoreCtrl.uploadInstruction"]
 					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
 	section.cardo.uppercase.slim.generic-files[ng-controller="GenericFileController as genericFileCtrl"]
 		header
-			h2 == data[:strings][:code_signing][:generic_file][:header]
+			h2
+				span == data[:strings][:code_signing][:generic_file][:header]
+				span<[ng-if="genericFileCtrl.genericFiles.length > 0" ng-bind="'(' + genericFileCtrl.genericFiles.length + '/' + genericFileCtrl.maximumGenericFilesCount + ')'"]
 		article
 			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
 			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
@@ -137,8 +140,9 @@
 						.actions
 							a.furto.download[href="{{ genericFile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] = svg("cross")
+				p.notification.error[ng-if="genericFileCtrl.genericFiles.length >= genericFileCtrl.maximumGenericFilesCount"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]
-				.file-upload[ng-if="!genericFileCtrl.uploadGenericFileProgress.isInProgress"]
+				.file-upload[ng-if="!genericFileCtrl.uploadGenericFileProgress.isInProgress && genericFileCtrl.genericFiles.length < genericFileCtrl.maximumGenericFilesCount"]
 					p == data[:strings][:code_signing][:generic_file][:env_var_details]
 					code.env-var[ng-bind="genericFileCtrl.downloadURLEnvVarKeyPrettifiedPreview()"]
 					input.env-var[type="text" ng-model="genericFileCtrl.uploadedGenericFile.envVarPartialID" placeholder="#{ data[:strings][:code_signing][:generic_file][:uploaded_file_placeholder] }"]

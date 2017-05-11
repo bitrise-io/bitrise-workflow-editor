@@ -189,6 +189,7 @@ code_signing:
     id_not_specified: ID not specified. Enter a unique ID.
     id_reserved_for_keystore: This ID is reserved for the Android Keystore file upload.
     enter_id: "Enter an ID for the file's download URL."
+    upload_count_limit_reached: You reached the maximum allowed number of generic files for this project.
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <file_name>?"
@@ -226,6 +227,7 @@ code_signing:
     password_not_specified: password not specified
     alias_not_specified: alias not specified
     private_key_password_not_specified: private key password not specified
+    upload_count_limit_reached: You reached the maximum allowed number of generic files for this project.
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <file_name>?"

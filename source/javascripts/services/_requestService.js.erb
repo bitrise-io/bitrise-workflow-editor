@@ -680,9 +680,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					user_env_key: KeystoreFile.downloadURLEnvVarPartialID
 				});
 
-				var responseData = null;
+				var responseData = {
+					genericFileAndKeystoreFileCountSum: response.data.project_file_storage_documents.length
+				};
+				
 				if (keystoreFileData) {
-					responseData = {
+					responseData.keystoreFileData = {
 						databaseID: keystoreFileData.id,
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
