@@ -99,7 +99,7 @@
 													em<[ng-if="input.isRequired()"] == '(' + data[:strings][:workflows][:inputs][:required] + ')'
 												button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="workflowsCtrl.openedInputs.indexOf(input) != -1 && !input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 											.input-description[btf-markdown="input.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedInputs.indexOf(input) == -1}"]
-											textarea[msd-elastic ng-model="input.value" ng-model-options="{getterSetter: true}" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-if="!input.valueOptions()" ng-disabled="workflowsCtrl.openedInputs.indexOf(input) == -1" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+											textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-if="!input.valueOptions()" ng-disabled="workflowsCtrl.openedInputs.indexOf(input) == -1" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
 											select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="workflowsCtrl.openedInputs.indexOf(input) == -1" ng-options="valueOption for valueOption in input.valueOptions()"]
 											.manage-input[ng-if="workflowsCtrl.openedInputs.indexOf(input) != -1"]
 												.is-expand

@@ -285,19 +285,19 @@ main {
 		@include flex-direction(column);
 		background-color: white;
 
+		&:not(.ninja) > p.progress-indicator, .tab-content > p.progress-indicator {
+			margin: $main-verticalpadding $main-horizontalpadding;
+
+			@include media-below-mid {
+				@include margin-x($main-horizontalpadding_small);
+			}
+		}
+
 		.tab-content {
 			@include flex-grow(1);
 			@include flex-shrink(0);
 			@include display-flex;
 			@include flex-direction(column);
-
-			&:not(.ninja) > p.progress-indicator {
-				margin: $main-verticalpadding $main-horizontalpadding;
-
-				@include media-below-mid {
-					@include margin-x($main-horizontalpadding_small);
-				}
-			}
 
 			.menu-content-padding {
 				padding: $main-verticalpadding $main-horizontalpadding;
