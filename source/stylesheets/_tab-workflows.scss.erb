@@ -786,6 +786,19 @@
 
 								.markdown {
 									@include flex-grow(1);
+
+									a {
+										color: $def-green;
+									}
+
+									a:not(:hover):not(:focus) {
+										text-decoration: none;
+									}
+
+									code {
+										color: black;
+										background-color: $def-verylightgrey;
+									}
 								}
 
 								span.toggle-visibility {
@@ -820,19 +833,6 @@
 									
 									p {
 										margin-top: 0;
-									}
-
-									a {
-										color: $def-green;
-									}
-
-									a:not(:hover):not(:focus) {
-										text-decoration: none;
-									}
-
-									code {
-										color: black;
-										background-color: $def-verylightgrey;
 									}
 
 									pre code {
