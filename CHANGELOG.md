@@ -1,6 +1,46 @@
-## Changelog (Current version: 1.0.0)
+## Changelog (Current version: 1.0.1)
 
 -----------------
+
+## 1.0.1 (2017 May 12)
+
+### Release Notes
+
+* Issues #99, #102, #104 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.1
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.0 -> 1.0.1
+
+* [1c0d173] erosdome - v1.0.1 (2017 May 12)
+* [d817958] erosdome - tag trigger fix (2017 May 12)
+* [2dff3a1] erosdome - css fixes (2017 May 12)
+* [b58c500] erosdome - Source Code Pro font added (2017 May 12)
+* [7b02566] erosdome - input fonts updated (2017 May 12)
+* [99a23b0] erosdome - font weight update; input alignment updates (2017 May 12)
+* [90f7827] erosdome - markdown styling fix (2017 May 12)
+* [a1aa753] erosdome - required empty inputs css fix (2017 May 12)
+
 
 ## 1.0.0 (2017 May 12)
 
