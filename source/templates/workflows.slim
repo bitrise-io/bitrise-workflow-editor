@@ -75,7 +75,7 @@
 							section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
 								span.icon
 									= svg("step/description")
-								.markdown[btf-markdown="workflowsCtrl.selectedStep.description()"]
+								.markdown[btf-markdown="workflowsCtrl.selectedStep.description()" ng-class="{'oneliner': !workflowsCtrl.shouldShowDescription}"]
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
 									= svg("arrow-down")
@@ -90,7 +90,7 @@
 								checkbox[ng-model="workflowsCtrl.selectedStep.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
 							section.inputs[ng-if="workflowsCtrl.selectedStep.defaultStepConfig.inputs.length > 0"]
 								h3 == data[:strings][:workflows][:inputs][:header]
-								ul
+								ol.inputs-list
 									li.input[ng-repeat="input in workflowsCtrl.inputsOfSelectedStep" ng-class="{'selected': workflowsCtrl.openedInputs.indexOf(input) != -1, 'dont-change': input.isDontChangeValue(), 'required-empty': input.isRequired() && (!input.value() || input.value().length == 0)}" ng-attr-title="{{ input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}"]
 										.input-info
 											h4
@@ -98,10 +98,10 @@
 													span[ng-bind="input.title()"]
 													em<[ng-if="input.isRequired()"] == '(' + data[:strings][:workflows][:inputs][:required] + ')'
 												button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="workflowsCtrl.openedInputs.indexOf(input) != -1 && !input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-											strong.value[ng-bind="input.value() ? input.value() : '#{ data[:strings][:workflows][:inputs][:empty_value] }'" ng-if="workflowsCtrl.openedInputs.indexOf(input) == -1"]
+											.input-description[btf-markdown="input.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedInputs.indexOf(input) == -1}"]
+											textarea[msd-elastic ng-model="input.value" ng-model-options="{getterSetter: true}" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-if="!input.valueOptions()" ng-disabled="workflowsCtrl.openedInputs.indexOf(input) == -1" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+											select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="workflowsCtrl.openedInputs.indexOf(input) == -1" ng-options="valueOption for valueOption in input.valueOptions()"]
 											.manage-input[ng-if="workflowsCtrl.openedInputs.indexOf(input) != -1"]
-												textarea[msd-elastic ng-model="input.value" ng-model-options="{getterSetter: true}" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-if="!input.valueOptions()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
-												select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-options="valueOption for valueOption in input.valueOptions()"]
 												.is-expand
 													checkbox[ng-model="input.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="id"]
 													label[for="{{ id }}"]

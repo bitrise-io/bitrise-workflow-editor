@@ -814,22 +814,6 @@
 								}
 							}
 
-							section.description:not(.open) {
-
-								.markdown {
-									@include ellipsis-oneliner;
-
-									* {
-										display: inline;
-										white-space: nowrap;
-										font-size: inherit;
-										font-weight: inherit;
-										color: inherit;
-										text-decoration: none;
-									}
-								}
-							}
-
 							section.description.open {
 
 								.markdown {
@@ -920,7 +904,7 @@
 									background-color: $def-verylightgrey;
 								}
 
-								ul {
+								ol.inputs-list {
 									@include margin-y(0);
 									padding-left: 0;
 									list-style: none;
@@ -948,7 +932,7 @@
 													margin-right: auto;
 													@include ellipsis-oneliner;
 													font-size: 12px;
-													font-weight: 200;
+													font-weight: 900;
 													color: $def-darkgrey;
 													@include transition(color $def-transition_duration);
 
@@ -959,37 +943,34 @@
 												}
 
 												button.insert-variable {
+													@include flex-shrink(0);
 													margin-left: 6px;
 												}
 											}
 
-											strong.value {
+											.input-description {
+												@include margin-y(6px);
+												font-size: 12px;
+												font-weight: 200;
+												color: $def-mediumdarkgrey;
+											}
+
+											textarea, select {
 												display: block;
-												margin-top: 4px;
-												white-space: pre-wrap;
-												font-size: 14px;
+												width: 100%;
+												@include box-sizing(border-box);
+												border: $border;
+												@include border-radius($def-radius);
+												padding: 8px;
+												font-size: 12px;
 												font-weight: 100;
+												color: $def-darkgrey;
+												background-color: $def-verylightgrey;
 											}
 
 											.manage-input {
 												position: relative;
 												margin-top: 10px;
-
-												textarea, select {
-													display: block;
-													width: 100%;
-												}
-
-												textarea {
-													@include box-sizing(border-box);
-													border: $border;
-													@include border-radius($def-radius);
-													padding: 8px;
-													font-size: 12px;
-													font-weight: 100;
-													color: $def-darkgrey;
-													background-color: $def-verylightgrey;
-												}
 
 												.is-expand {
 													@include display-flex;
@@ -1120,16 +1101,16 @@
 
 								@include media-below-big {
 
-									h3, ul li {
+									h3, ol.inputs-list > li.input {
 										@include padding-x($horizontalpadding_small);
 									}
 
-									ul li .input-info h4 {
+									ol.inputs-list > li.input .input-info h4 {
 										@include flex-direction(column);
 										@include align-items(flex-start);
 
 										button.insert-variable {
-											@include align-self(flex-end);
+											@include align-self(flex-start);
 											margin-left: 0;
 											margin-top: 4px;
 										}

@@ -197,6 +197,33 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 }
 
+[btf-markdown].oneliner {
+	@include ellipsis-oneliner;
+
+	p {
+		display: inline;
+		white-space: nowrap;
+		font-size: inherit;
+		font-weight: inherit;
+		color: inherit;
+		text-decoration: none;
+	}
+
+	ul, ol {
+		display: inline;
+		padding-left: 0;
+		list-style: none;
+
+		li {
+			display: inline;
+
+			&:after {
+				content: ", ";
+			}
+		}
+	}
+}
+
 // Common classes
 
 .vertical-scroll {
