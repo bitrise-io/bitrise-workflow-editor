@@ -61,6 +61,24 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 
 		_.each(variableConfigs, Variable.minimizeVariableConfig);
+
+		if (appService.appConfig.app) {
+			if (appService.appConfig.app.envs && appService.appConfig.app.envs.length == 0) {
+				delete appService.appConfig.app["envs"];
+			}
+
+			if (angular.equals(appService.appConfig.app, {})) {
+				delete appService.appConfig["app"];
+			}
+		}
+
+		if (appService.appConfig.triggers && appService.appConfig.triggers.length == 0) {
+			delete appService.appConfig["triggers"];
+		}
+
+		if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {
+			delete appService.appConfig["workflows"];
+		}
 	}
 
 	function validateVariables(variables) {
