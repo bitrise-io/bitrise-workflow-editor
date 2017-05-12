@@ -6,6 +6,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 	var viewModel = this;
 
+	$scope.Variable = Variable;
+
 	var mode;
 	var envVarsWatchers;
 
@@ -54,7 +56,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 		viewModel.envVarsBySource.push({
 			type: "app",
-			warning: "<%= data[:strings][:env_vars][:app][:warning] %>",
+			notification: "<%= data[:strings][:env_vars][:app][:notification] %>",
 			envVars: _.map(appService.appConfig.app && appService.appConfig.app.envs ? appService.appConfig.app.envs : [], function(anAppEnvVarConfig) {
 				return new Variable(anAppEnvVarConfig, Variable.defaultVariableConfig());
 			})

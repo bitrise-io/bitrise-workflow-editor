@@ -239,20 +239,20 @@ code_signing:
 env_vars:
   load_progress:
     in_progress: Loading, wait a sec...
-  warning: Warning!
   add_new: Add new
   replace_variables_label: "Replace variables in inputs?"
   delete_env_var: "Delete"
   new_default_key: "KEY"
-  invalid_env_var_key: "One or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
+  invalid_env_var_key: "Invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
+  one_or_more_invalid_env_var_key: "One or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
   key_placeholder: "Key"
   value_placeholder: "Value"
   secrets:
     title: Secret Environment Variables
-    notification: "Secret Environment Variables will not be available in builds triggered by pull requests. You can add private information here."
+    notification: "Secret Environment Variables <strong>will not be available</strong> in builds triggered by pull requests. You can add private information here."
   app:
     title: App Environment Variables
-    warning: "App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
+    notification: "App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
   workflow:
     title_postfix: Workflow Environment Variables
     notification: "You can specify Env Vars which will only be available for the steps in your <workflow_id> Workflow."

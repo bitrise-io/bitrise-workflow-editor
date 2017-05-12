@@ -1,17 +1,12 @@
 .tab-env-vars.menu-content-padding[ng-controller="EnvVarsController as envVarsCtrl" ng-init="envVarsCtrl.configureWithMode('env-vars')"]
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
-		div[ng-switch="envVarsOfSource.type"]
-			header[ng-switch-when="app"]
-				h2 == data[:strings][:env_vars][:app][:title]
-			header[ng-switch-when="workflow"]
-				h2
+		header
+			h2[ng-switch="envVarsOfSource.type"]
+				span[ng-switch-when="app"] == data[:strings][:env_vars][:app][:title]
+				span[ng-switch-when="workflow"]
 					span>[ng-bind="envVarsOfSource.workflowID"]
 					em == data[:strings][:env_vars][:workflow][:title_postfix]
-				p[ng-bind="envVarsOfSource.notification"]
-		p.notification.warning.no-icon[ng-if="envVarsOfSource.warning"]
-			strong == data[:strings][:env_vars][:warning]
-			br
-			span[ng-bind="envVarsOfSource.warning"]
+				p[ng-if="envVarsOfSource.notification" ng-bind="envVarsOfSource.notification"]
 		article
 			ul.env-vars[order-by-drag models="envVarsOfSource.envVars"]
 				li[ng-repeat="envVar in envVarsOfSource.envVars"]
@@ -22,4 +17,5 @@
 					.is-expand
 						checkbox.small[ng-model="envVar.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
 						label[for="env-var-editor-is-expand-checkbox-{{ $index }}"] == data[:strings][:env_vars][:replace_variables_label]
+					p.notification.warning[ng-if="!Variable.isValidKey(envVar.key())"] == data[:strings][:env_vars][:invalid_env_var_key]
 			button.add.rebo.green[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == data[:strings][:env_vars][:add_new]

@@ -68,7 +68,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			if (_.any(variables, function(aVariable) {
 				return !Variable.isValidKey(aVariable.key());
 			})) {
-				reject(new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>"));
+				reject(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
 			}
 			else {
 				resolve();
