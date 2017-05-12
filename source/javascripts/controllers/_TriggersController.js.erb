@@ -159,6 +159,11 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		return pullRequestTargetBranchPattern == "*" ? "" : pullRequestTargetBranchPattern;
 	};
 
+	viewModel.editedTriggerTagPatternInputGetterSetter = function(tagPattern) {
+		tagPattern = viewModel.editedTrigger.tagPattern(tagPattern);
+
+		return tagPattern == "*" ? "" : tagPattern;
+	};
 
 	viewModel.triggerIsInvalid = function() {
 		if (viewModel.editedTrigger.workflowID()[0] == "_") {

@@ -95,7 +95,7 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 				this.type("tag");
 			}
 
-			this.triggerConfig.tag = tagPattern;
+			this.triggerConfig.tag = tagPattern ? tagPattern : "*";
 		}
 
 		return this.triggerConfig.tag;
