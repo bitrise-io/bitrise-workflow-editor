@@ -73,6 +73,7 @@
 				@include display-flex;
 
 				button.category-mode {
+					@include flex-shrink(0);
 					margin-right: $spacing;
 					@include border-radius($def-radius);
 					@include padding-x(13px);
@@ -98,6 +99,7 @@
 					display: block;
 					@include box-sizing(border-box);
 					width: 100%;
+					@include margin-y(0);
 					border: none;
 					@include border-radius($def-radius);
 					padding: 12px $padding-x;
