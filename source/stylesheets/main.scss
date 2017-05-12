@@ -28,6 +28,10 @@
 	outline: none;
 }
 
+input, textarea, select {
+	font-family: inherit;
+}
+
 input::-moz-focus-inner, button::-moz-focus-inner, select::-moz-focus-inner {
 	border: 0;
 	padding: 0;
@@ -94,7 +98,6 @@ select, .mak {
 	padding: 7px $select-horizontalpadding;
 	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
 	text-align: left;
-	font-family: inherit;
 	font-size: 14px;
 	@include transition(background-color $def-transition_duration);
 	background-color: white;
