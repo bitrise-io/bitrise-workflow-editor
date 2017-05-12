@@ -48,6 +48,10 @@ $cardo-verticalpadding: 12px;
 	font-family: "Open Sans", sans-serif;
 }
 
+@mixin SourceCodeProWithFallback {
+	font-family: "Source Code Pro", monospace;
+}
+
 @mixin GothamWithFallback {
 	font-family: "Gotham SSm A", "Gotham SSm B", sans-serif;
 }
