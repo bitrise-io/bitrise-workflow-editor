@@ -222,6 +222,11 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 			}
 		}
 	}
+
+	pre {
+		display: inline;
+		white-space: nowrap !important;
+	}
 }
 
 // Common classes

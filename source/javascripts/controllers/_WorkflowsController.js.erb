@@ -662,6 +662,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	// Outputs
 
 	viewModel.outputsOfSelectedStep;
+	viewModel.openedOutputs;
 
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
@@ -669,7 +670,17 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.outputsOfSelectedStep = selectedStep ? _.map(selectedStep.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
 			return new Variable(undefined, anDefaultOutputConfig);
 		}) : undefined;
+		viewModel.openedOutputs = [];
 	});
+
+	viewModel.outputSelected = function(output) {
+		if (_.contains(viewModel.openedOutputs, output)) {
+			viewModel.openedOutputs = _.without(viewModel.openedOutputs, output);
+		}
+		else {
+			viewModel.openedOutputs.push(output);
+		}
+	};
 
 	loadWorkflows();
 

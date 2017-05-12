@@ -1154,20 +1154,63 @@
 
 										td {
 											width: 50%;
-											@include ellipsis-oneliner;
 											@include padding-y(12px);
 											padding-left: $leftpadding;
 											padding-right: $rightpadding;
 										}
 
 										td.key {
+											@include ellipsis-oneliner;
 											font-weight: 300;
 											color: $def-purple;
 										}
 
 										td.description {
+											position: relative;
 											font-weight: 100;
 											color: $def-grey;
+
+											p {
+												@include margin-y(0);
+											}
+
+											button {
+												@include position(absolute, 0, 0);
+												@include size(100%);
+											}
+
+											.toggleabble-description {
+												@include display-flex;
+												@include align-items(center);
+
+												p {
+													@include flex-grow(1);
+
+													pre {
+														white-space: normal;
+														word-break: break-all;
+													}
+												}
+
+												svg {
+													@include flex-shrink(0);
+													@include size(10px, 7px);
+													margin-left: 10px;
+													fill: $def-grey;
+													@include transition(fill $def-transition_duration, transform $def-transition_duration);
+												}
+
+												p:not(.oneliner) + svg {
+													@include transform(rotate(-180deg));
+												}
+											}
+
+											button:hover + .toggleabble-description, button:focus + .toggleabble-description {
+												
+												svg {
+													fill: black;
+												}
+											}
 										}
 									}
 

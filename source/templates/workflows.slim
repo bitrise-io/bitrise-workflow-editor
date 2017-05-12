@@ -117,7 +117,13 @@
 								table[ng-if="workflowsCtrl.outputsOfSelectedStep"]
 									tr[ng-repeat="output in workflowsCtrl.outputsOfSelectedStep"]
 										td.key[ng-bind="output | prettifiedVariableKey"]
-										td.description[ng-bind="output.description() ? output.description() : '#{ data[:strings][:workflows][:outputs][:no_description] }'"]
+										td.description
+											p[ng-if="!output.shortestDescription()"] == data[:strings][:workflows][:outputs][:no_description]
+											div[ng-if="output.shortestDescription()"]
+												button[ng-click="workflowsCtrl.outputSelected(output)"]
+												.toggleabble-description
+													p[btf-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
+													= svg("arrow-down")
 						button.delete-step.rebo.big.hollow.danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
 		.popup-body.snowflake#add-workflow-popup-body.vertical-scroll
