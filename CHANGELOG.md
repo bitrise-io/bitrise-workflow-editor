@@ -1,6 +1,49 @@
-## Changelog (Current version: 0.9.10)
+## Changelog (Current version: 1.0.0)
 
 -----------------
+
+## 1.0.0 (2017 May 12)
+
+### Release Notes
+
+* Prepared for website integration
+* Issues #1, #51, #87, #97 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.0
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 0.9.10 -> 1.0.0
+
+* [38a717a] erosdome - v1.0.0 (2017 May 12)
+* [e72f3de] erosdome - code signing hints - don't show if once dismissed (2017 May 12)
+* [4af5b69] erosdome - outputs - can open/close description (2017 May 12)
+* [11c2732] erosdome - inputs - show description (2017 May 12)
+* [855db0d] erosdome - minimize app config - updated (2017 May 12)
+* [e181672] erosdome - env vars - validate during type (2017 May 12)
+* [a2d4dd4] erosdome - ignore save error if already handled (2017 May 12)
+* [a1ccb66] erosdome - generic files - handle maximum count (2017 May 11)
+* [d153d45] erosdome - certificates - handle maximum count (2017 May 11)
+* [e5d98fc] erosdome - prov profiles - handle maximum count (2017 May 11)
+
 
 ## 0.9.10 (2017 May 11)
 
@@ -422,4 +465,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 11
+Updated: 2017 May 12
