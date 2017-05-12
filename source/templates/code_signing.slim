@@ -15,7 +15,7 @@
 				div
 					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
 					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
-		button.hide[ng-click="codeSigningCtrl.shouldShowCodeSigningHints = false"] = svg("cross_slim")
+		button.hide[ng-click="codeSigningCtrl.codeSigningHintsDismissed()"] = svg("cross_slim")
 	section.cardo.uppercase.slim.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
 			h2

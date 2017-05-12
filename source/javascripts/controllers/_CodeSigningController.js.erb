@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, appService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, $cookies, appService, Progress) {
 
 	var viewModel = this;
 
@@ -13,7 +13,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 
 		appService.getAvailableProjectTypes().then(function() {
-			viewModel.shouldShowCodeSigningHints = viewModel.areAnyOfTheProjectTypesAvailable(["ios", "osx", "macos", "xamarin"]);
+			viewModel.shouldShowCodeSigningHints = $cookies.get("code_signing_hints_hidden") ? false : viewModel.areAnyOfTheProjectTypesAvailable(["ios", "osx", "macos", "xamarin"]);
 
 			viewModel.loadProgress.success();
 		}, function(error) {
@@ -23,6 +23,14 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 
 	viewModel.areAnyOfTheProjectTypesAvailable = function(projectTypes) {
 		return _.intersection(projectTypes, appService.availableProjectTypes).length > 0;
+	};
+
+	viewModel.codeSigningHintsDismissed = function() {
+		viewModel.shouldShowCodeSigningHints = false;
+
+		$cookies.put("code_signing_hints_hidden", false, {
+			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+		});
 	};
 
 	load();
