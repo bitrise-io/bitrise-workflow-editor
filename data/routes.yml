@@ -52,7 +52,7 @@ local_server:
   step_config_fetch: /api/step-info
   default_outputs_get: /api/default-outputs
 devcenter:
-  step_inputs: http://devcenter.bitrise.io/v1.0/docs/manage-your-bitrise-workflow#section-step-inputs
+  step_inputs: http://devcenter.bitrise.io/getting-started/manage-your-bitrise-workflow/#environment-variable-replace-mode
   bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
   codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
   xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
