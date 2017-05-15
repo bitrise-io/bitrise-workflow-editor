@@ -52,11 +52,11 @@
 					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
 						.details[ng-bind="certificate.displayName()"]
 						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
-							.password
-								input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+							form.password[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
+								input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
 								.change-password-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
-									button.ok.rebo.small.green[ng-click="certificateCtrl.changePassword()"] == data[:strings][:code_signing][:certificate][:change_password_ok]
-									button.cancel.rebo.small.danger[ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
+									input.ok.rebo.small.green[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_ok] }"]
+									button.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
 							.show-password
 								checkbox.small[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 								label[for="'code-signin-certificate-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:show_password]
@@ -88,7 +88,7 @@
 						.actions
 							a.furto.download[href="{{ androidKeystoreCtrl.keystoreFile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] = svg("cross")
-					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()"]
+					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()" autocomplete="off"]
 						section
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
