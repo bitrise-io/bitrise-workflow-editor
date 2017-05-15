@@ -76,8 +76,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			}
 		}
 
-		if (appService.appConfig.triggers && appService.appConfig.triggers.length == 0) {
-			delete appService.appConfig["triggers"];
+		if (appService.appConfig.trigger_map && appService.appConfig.trigger_map.length == 0) {
+			delete appService.appConfig["trigger_map"];
 		}
 
 		if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {

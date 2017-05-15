@@ -36,7 +36,7 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 			return "push";
 		}
 
-		if (this.triggerConfig.pull_request_source_branch !== undefined) {
+		if (this.triggerConfig.pull_request_source_branch !== undefined || this.triggerConfig.pull_request_target_branch !== undefined) {
 			return "pull-request";
 		}
 
@@ -71,10 +71,10 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 				this.type("pull-request");
 			}
 
-			this.triggerConfig.pull_request_source_branch = pullRequestSourceBranchPattern ? pullRequestSourceBranchPattern : "*";
+			this.triggerConfig.pull_request_source_branch = (pullRequestSourceBranchPattern && pullRequestSourceBranchPattern != "*") ? pullRequestSourceBranchPattern : (this.triggerConfig.pull_request_target_branch ? undefined : "*");
 		}
 
-		return this.triggerConfig.pull_request_source_branch;
+		return this.triggerConfig.pull_request_source_branch ? this.triggerConfig.pull_request_source_branch : "*";
 	};
 
 	Trigger.prototype.pullRequestTargetBranchPattern = function(pullRequestTargetBranchPattern) {
@@ -83,10 +83,10 @@ angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
 				this.type("pull-request");
 			}
 
-			this.triggerConfig.pull_request_target_branch = pullRequestTargetBranchPattern ? pullRequestTargetBranchPattern : "*";
+			this.triggerConfig.pull_request_target_branch = (pullRequestTargetBranchPattern && pullRequestTargetBranchPattern != "*") ? pullRequestTargetBranchPattern : (this.triggerConfig.pull_request_source_branch ? undefined : "*");
 		}
 
-		return this.triggerConfig.pull_request_target_branch;
+		return this.triggerConfig.pull_request_target_branch ? this.triggerConfig.pull_request_target_branch : "*";
 	};
 
 	Trigger.prototype.tagPattern = function(tagPattern) {
