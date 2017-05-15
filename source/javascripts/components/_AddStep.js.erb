@@ -25,7 +25,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 	return addStepService;
 
-}).controller("AddStepController", function($scope, $q, stringService, addStepService, requestService, stepSourceService, appService, Progress) {
+}).controller("AddStepController", function($scope, $q, stringService, addStepService, requestService, iframeService, stepSourceService, appService, Progress) {
 
 	var viewModel = this;
 
@@ -86,6 +86,10 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 	}, function(isVisible) {
 		if (isVisible === undefined) {
 			return;
+		}
+
+		if (requestService.mode == "website") {
+			iframeService.sendMessage("shouldShowWorkflowEditorPopupCloseButton:" + (isVisible ? "yes" : "no"));
 		}
 
 		if (isVisible) {
