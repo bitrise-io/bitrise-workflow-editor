@@ -1,6 +1,48 @@
-## Changelog (Current version: 1.0.2)
+## Changelog (Current version: 1.0.3)
 
 -----------------
+
+## 1.0.3 (2017 May 16)
+
+### Release Notes
+
+* Asset caching added (issue #96)
+* UX updates (issue #124)
+* Issue #121 fixed
+* Issue #116 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.3
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.2 -> 1.0.3
+
+* [b1697a0] erosdome - v1.0.3 (2017 May 16)
+* [4b5761f] erosdome - triggers - switch type during add - fixed (2017 May 16)
+* [5272f68] erosdome - not allowed cursor for not recommended to be changed inputs (2017 May 16)
+* [c6a36a0] erosdome - clone, source code - popovers added with info (2017 May 16)
+* [0c45979] erosdome - rename workflow fixed (2017 May 16)
+* [6fb827d] erosdome - cache blocking added for website mode (2017 May 16)
+* [748071a] erosdome - version ordering fix (2017 May 16)
+
 
 ## 1.0.2 (2017 May 16)
 
