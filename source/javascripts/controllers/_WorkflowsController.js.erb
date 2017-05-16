@@ -336,6 +336,12 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.renamedWorkflowID = "";
 
 	$scope.$watch(function() {
+		return viewModel.selectedWorkflow;
+	}, function(selectedWorkflow) {
+		viewModel.renamedWorkflow = null;
+	});
+
+	$scope.$watch(function() {
 		return viewModel.renamedWorkflow;
 	}, function(renamedWorkflow) {
 		viewModel.renamedWorkflowID = renamedWorkflow ? renamedWorkflow.id : "";
