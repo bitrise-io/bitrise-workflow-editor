@@ -1,5 +1,21 @@
 # Bitrise Workflow Editor
 
+## How to install & use the Workflow Editor on your Mac/Linux
+
+1. Install the latest [Bitrise CLI](https://www.bitrise.io/cli) - it's a single binary command line tool
+1. Run `bitrise setup` just to be sure everything's prepared
+1. `cd` into a directory where you have your `bitrise.yml`, and run: `bitrise :workflow-editor`
+
+That's all. The Workflow Editor is now part of the Bitrise CLI core plugins, so you don't have to install it manually.
+
+To upgrade to the latest version of the Workflow Editor run:
+
+```
+bitrise plugin update workflow-editor
+```
+
+*Join the Workflow Editor's discussion at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39)*
+
 
 ## Development
 
