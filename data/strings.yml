@@ -81,8 +81,8 @@ workflows:
     verified: Verified
     deprecated: Deprecated
     community_created: Community created
-    clone: Clone
-    source: Source
+    clone_popover_info: Clone this step
+    source_popover_info: Source code
     delete: "Delete Step: <step_title>"
     version: Version
     always_latest: Always latest

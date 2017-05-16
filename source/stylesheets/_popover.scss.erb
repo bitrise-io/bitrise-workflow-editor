@@ -2,10 +2,12 @@
 @import "constants";
 
 .popover {
+	z-index: $zindex-popover;
 	position: absolute;
 	margin-top: 6px;
 	@include border-radius(6px);
 	padding: 4px 8px;
+	line-height: normal;
 	font-size: 10px;
 	font-weight: 200;
 	color: white;

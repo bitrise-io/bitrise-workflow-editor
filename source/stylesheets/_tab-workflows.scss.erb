@@ -668,13 +668,30 @@
 										}
 									}
 
-									button.clone svg {
-										@include position(relative, 2px);
-										@include size(18px, 18px);
+									button.clone {
+										position: relative;
+
+										.popover {
+											top: 70%;
+											left: 32%;
+											width: 45px;
+										}
+
+										svg {
+											@include position(relative, 2px);
+											@include size(18px, 18px);
+										}
 									}
 
 									a.source {
+										position: relative;
 										text-align: center;
+
+										.popover {
+											top: 70%;
+											left: 32%;
+											width: 32px;
+										}
 
 										svg {
 											@include position(relative, 2px);
