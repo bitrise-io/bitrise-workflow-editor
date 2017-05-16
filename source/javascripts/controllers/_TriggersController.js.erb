@@ -88,6 +88,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 	viewModel.triggerTypeSelected = function(triggerType) {
 		if (triggerType !== undefined) {
+			if (addTriggerProgress.isInProgress) {
+				viewModel.triggerEditCancelled();
+			}
+			
 			viewModel.selectedTriggerType = triggerType;
 			$location.search("trigger_type", triggerType.urlParameterValue);
 			$cookies.put("last_selected_trigger_type", triggerType.cookieValue, {
