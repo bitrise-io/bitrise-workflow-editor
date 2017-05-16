@@ -100,7 +100,14 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				url: step.libraryURL
 			});
 
-			return _.keys(library.steps[step.id]).reverse();
+			return _.sortBy(_.keys(library.steps[step.id]), function(version) {
+				return _.map(version.split("."), function(aVersionPart) {
+					var pad = "000000";
+					var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
+
+					return versionPartWithLeadingZeros;
+				}).join(".");
+			}).reverse();
 		}
 		else if (step.localPath !== undefined) {
 			return undefined;
