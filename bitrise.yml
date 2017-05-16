@@ -58,6 +58,8 @@ workflows:
   middleman-build-for-bitrise-io:
     envs:
       - MODE: "WEBSITE"
+    steps:
+    - timestamp: {}
     after_run:
     - middleman-build
 
