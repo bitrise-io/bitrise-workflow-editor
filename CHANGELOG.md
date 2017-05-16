@@ -6,7 +6,7 @@
 
 ### Release Notes
 
-* Asset caching added (issue #96)
+* Prevent asset caching added (issue #96) for website mode
 * UX updates (issue #124)
 * Issue #121 fixed
 * Issue #116 fixed
