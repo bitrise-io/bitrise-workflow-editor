@@ -18,7 +18,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	appService.getAppConfig = function(requestConfig) {
 		return requestService.getAppConfig(requestConfig).then(function(appConfig) {
 			appService.appConfig = appConfig;
-			minimizeAppConfig();
+			normalizeAppConfig();
 
 			appService.savedAppConfig = angular.copy(appService.appConfig);
 		});
@@ -28,7 +28,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		return !angular.equals(appService.appConfig, appService.savedAppConfig);
 	}
 
-	function minimizeAppConfig() {
+	function normalizeAppConfig() {
 		var variableConfigs = [];
 
 		if (appService.appConfig.app && appService.appConfig.app.envs) {
@@ -36,7 +36,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 
 		if (appService.appConfig.workflows) {
-			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+			_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+				if (!aWorkflowConfig) {
+					appService.appConfig.workflows[aWorkflowID] = aWorkflowConfig = {};
+				}
+
 				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
 				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
@@ -72,8 +76,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			}
 		}
 
-		if (appService.appConfig.triggers && appService.appConfig.triggers.length == 0) {
-			delete appService.appConfig["triggers"];
+		if (appService.appConfig.trigger_map && appService.appConfig.trigger_map.length == 0) {
+			delete appService.appConfig["trigger_map"];
 		}
 
 		if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {

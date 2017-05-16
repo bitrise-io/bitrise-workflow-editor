@@ -532,12 +532,18 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return;
 		}
 
-		changeStepToVersion(viewModel.selectedStep, requestedStepVersion);
+		if (requestedStepVersion != viewModel.selectedStep.requestedVersion()) {
+			changeStepToVersion(viewModel.selectedStep, requestedStepVersion);
+		}
 	});
 
 	function changeStepToVersion(step, version) {
 		var oldDefaultStepConfig = step.defaultStepConfig;
 		stepSourceService.changeStepToVersion(step, version);
+
+		if (!oldDefaultStepConfig) {
+			return;
+		}
 
 		var removedInputs = [];
 		_.each(oldDefaultStepConfig.inputs, function(aDefaultInputConfigOfOldStep) {
@@ -590,7 +596,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
-		viewModel.inputsOfSelectedStep = selectedStep ? _.map(selectedStep.defaultStepConfig.inputs, function(anDefaultInputConfig) {
+		viewModel.inputsOfSelectedStep = selectedStep && selectedStep.defaultStepConfig ? _.map(selectedStep.defaultStepConfig.inputs, function(anDefaultInputConfig) {
 			var userInputConfig = selectedStep.userStepConfig ? _.find(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
 				return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig);
 			}) : {};
@@ -667,7 +673,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
-		viewModel.outputsOfSelectedStep = selectedStep ? _.map(selectedStep.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
+		viewModel.outputsOfSelectedStep = selectedStep && selectedStep.defaultStepConfig ? _.map(selectedStep.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
 			return new Variable(undefined, anDefaultOutputConfig);
 		}) : undefined;
 		viewModel.openedOutputs = [];

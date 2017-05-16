@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $cookies, $q, $location, $timeout, requestService, appService, stringService, osService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $cookies, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup) {
 
 	var viewModel = this;
 
@@ -332,20 +332,19 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$q(function(resolve, reject) {
 			switch (requestService.mode) {
 				case "website":
-					window.addEventListener("message", function(event) {
-						var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)-job_id-([0-9]*)");
-						if (configureMessageRegexp.test(event.data)) {
-							requestService.appSlug = configureMessageRegexp.exec(event.data)[1];
-							requestService.jobID = configureMessageRegexp.exec(event.data)[2];
+					var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)-job_id-([0-9]*)");
+					iframeService.handleMessage(configureMessageRegexp, function(message) {
+						requestService.appSlug = configureMessageRegexp.exec(message)[1];
+						requestService.jobID = configureMessageRegexp.exec(message)[2];
 
-							resolve();
-						}
-						else if (event.data == "doesWorkflowEditorHaveUnsavedChanges") {
-							window.top.postMessage(viewModel.hasUnsavedChanges() ? "doesWorkflowEditorHaveUnsavedChanges:yes" : "doesWorkflowEditorHaveUnsavedChanges:no", "*");
-						}
-					}, false);
+						resolve();
+					});
 
-					window.top.postMessage("requestingConfiguration", "*");
+					iframeService.handleMessage("doesWorkflowEditorHaveUnsavedChanges", function() {
+						iframeService.sendMessage(viewModel.hasUnsavedChanges() ? "doesWorkflowEditorHaveUnsavedChanges:yes" : "doesWorkflowEditorHaveUnsavedChanges:no");
+					});
+
+					iframeService.sendMessage("requestingConfiguration");
 
 					break;
 				case "cli":

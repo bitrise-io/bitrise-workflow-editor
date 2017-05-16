@@ -88,7 +88,7 @@
 									= svg("step/is_always_run")
 								label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
 								checkbox[ng-model="workflowsCtrl.selectedStep.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
-							section.inputs[ng-if="workflowsCtrl.selectedStep.defaultStepConfig.inputs.length > 0"]
+							section.inputs[ng-if="workflowsCtrl.inputsOfSelectedStep && workflowsCtrl.inputsOfSelectedStep.length > 0"]
 								h3 == data[:strings][:workflows][:inputs][:header]
 								ol.inputs-list
 									li.input[ng-repeat="input in workflowsCtrl.inputsOfSelectedStep" ng-class="{'selected': workflowsCtrl.openedInputs.indexOf(input) != -1, 'dont-change': input.isDontChangeValue(), 'required-empty': input.isRequired() && (!input.value() || input.value().length == 0)}" ng-attr-title="{{ input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}"]
@@ -114,7 +114,7 @@
 							section.outputs
 								h3 == data[:strings][:workflows][:outputs][:header]
 								p.no-outputs[ng-if="!workflowsCtrl.outputsOfSelectedStep || workflowsCtrl.outputsOfSelectedStep.length == 0"] == data[:strings][:workflows][:outputs][:no_outputs]
-								table[ng-if="workflowsCtrl.outputsOfSelectedStep"]
+								table[ng-if="workflowsCtrl.outputsOfSelectedStep && workflowsCtrl.outputsOfSelectedStep.length > 0"]
 									tr[ng-repeat="output in workflowsCtrl.outputsOfSelectedStep"]
 										td.key[ng-bind="output | prettifiedVariableKey"]
 										td.description

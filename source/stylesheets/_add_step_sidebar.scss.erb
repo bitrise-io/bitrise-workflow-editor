@@ -152,14 +152,27 @@
 
 					button.current {
 
+						span.platform-icon {
+							display: none;
+						}
+
+						&:before {
+							content: "?";
+						}
+
 						@mixin icon_styling($icon_class, $top, $width, $height: $width) {
-							span:not(.#{$icon_class}) {
-								display: none;
+
+							&:before {
+								content: none;
 							}
 
-							span.#{$icon_class} svg {
-								top: $top;
-								@include size($width, $height);
+							span.platform-icon.#{$icon_class} {
+								display: inline;
+
+								svg {
+									top: $top;
+									@include size($width, $height);
+								}
 							}
 						}
 

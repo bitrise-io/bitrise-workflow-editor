@@ -7,10 +7,10 @@
 				input.step-filter[type="text" placeholder="#{ data[:strings][:workflows][:steps][:add][:search_placeholder] }" ng-model="addStepCtrl.stepFilter" ng-focus="addStepCtrl.isCategoryMode = false"]
 				.project-type-filter[ng-if="appService.projectType"]
 					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.projectType | projectTypeCSSClass"]
-						span.apple = svg("logo/apple")
-						span.android = svg("logo/android")
-						span.xamarin = svg("logo/xamarin")
-						span.cordova = svg("logo/cordova")
+						span.platform-icon.apple = svg("logo/apple")
+						span.platform-icon.android = svg("logo/android")
+						span.platform-icon.xamarin = svg("logo/xamarin")
+						span.platform-icon.cordova = svg("logo/cordova")
 					button.all[ng-click="addStepCtrl.shouldFilterByProjectType = false" ng-disabled="!addStepCtrl.shouldFilterByProjectType"] == data[:strings][:workflows][:steps][:add][:all_project_types]
 			ol.type-filters[ng-if="!addStepCtrl.isCategoryMode"]
 				li[ng-repeat="typeFilter in addStepCtrl.typeFilters"]

@@ -693,9 +693,9 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
-						responseData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
-						responseData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
-						responseData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
+						responseData.keystoreFileData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
+						responseData.keystoreFileData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
+						responseData.keystoreFileData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
 					}
 				}
 				

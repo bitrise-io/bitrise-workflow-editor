@@ -1,0 +1,35 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").service("iframeService", function() {
+
+	var iframeService = {
+	};
+
+	iframeService.handleMessage = function(messageOrMessageRegexp, messageHandler) {
+		var message = typeof messageOrMessageRegexp == "string" ? messageOrMessageRegexp : undefined;
+		var messageRegexp = messageOrMessageRegexp instanceof RegExp ? messageOrMessageRegexp : undefined;
+
+		return window.addEventListener("message", function(event) {
+			if (message !== undefined && event.data != message) {
+				return;
+			}
+
+			if (messageRegexp !== undefined && !messageRegexp.test(event.data)) {
+				return;
+			}
+
+			messageHandler(event.data);
+		});
+	};
+
+	iframeService.sendMessage = function(message) {
+		window.top.postMessage(message, "*");
+	};
+
+	return iframeService;
+
+});
+
+})();

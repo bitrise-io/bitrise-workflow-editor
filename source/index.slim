@@ -5,7 +5,7 @@ layout: layout
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu
 		nav
-			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
+			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
 				span.icon[ng-if="menu.cssClass == 'workflows'"] == svg("main/menuicon-workflows")
 				span.icon[ng-if="menu.cssClass == 'code-signing'"] == svg("main/menuicon-code_signing")
 				span.icon[ng-if="menu.cssClass == 'secrets'"] == svg("main/menuicon-secrets")

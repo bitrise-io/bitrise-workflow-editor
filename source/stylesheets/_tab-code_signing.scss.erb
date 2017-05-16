@@ -279,10 +279,10 @@
 					margin-left: 6px;
 					margin-right: auto;
 
-					.password {
+					form.password {
 						@include display-flex;
 
-						input {
+						input:not([type="submit"]) {
 							border: 1px solid $def-mediumlightgrey;
 							@include border-radius($def-radius);
 							padding: 4px;
@@ -293,7 +293,7 @@
 						.change-password-actions {
 							@include display-flex;
 
-							button {
+							input[type="submit"], button {
 								margin-left: 6px;
 								font-size: 10px;
 							}
@@ -322,27 +322,27 @@
 						margin-left: 0;
 						margin-right: 0;
 
-						.password {
+						form.password {
 							@include justify-content(center);
 							@include flex-wrap(wrap);
 							margin-bottom: 6px;
 
-							input {
+							input:not([type="submit"]) {
 								width: 100%;
-							}
 
-							input:not(:last-child) {
-								margin-bottom: 6px;	
+								&:not(:last-child) {
+									margin-bottom: 6px;	
+								}
 							}
 
 							.change-password-actions {
 								width: 100%;
 
-								button:first-of-type {
+								input[type="submit"] {
 									margin-left: 0;
 								}
 
-								button.ok, button.cancel {
+								input.ok, button.cancel {
 									@include flex-grow(1);
 								}
 							}
