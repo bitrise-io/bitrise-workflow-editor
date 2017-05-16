@@ -9,7 +9,7 @@ angular.module("BitriseWorkflowEditor").service("iframeService", function() {
 
 	iframeService.handleMessage = function(messageOrMessageRegexp, messageHandler) {
 		var message = typeof messageOrMessageRegexp == "string" ? messageOrMessageRegexp : undefined;
-		var messageRegexp = messageOrMessageRegexp instanceof RegExp ? messageRegexp : undefined;
+		var messageRegexp = messageOrMessageRegexp instanceof RegExp ? messageOrMessageRegexp : undefined;
 
 		return window.addEventListener("message", function(event) {
 			if (message !== undefined && event.data != message) {
@@ -20,7 +20,7 @@ angular.module("BitriseWorkflowEditor").service("iframeService", function() {
 				return;
 			}
 
-			messageHandler();
+			messageHandler(event.data);
 		});
 	};
 
