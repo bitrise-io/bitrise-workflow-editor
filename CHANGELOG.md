@@ -1,6 +1,43 @@
-## Changelog (Current version: 1.0.1)
+## Changelog (Current version: 1.0.2)
 
 -----------------
+
+## 1.0.2 (2017 May 16)
+
+### Release Notes
+
+* Issue #109 fix: empty workflows handled
+* Devcenter URL fix (issue #115)
+* Issue #119 fix: pull request triggers only need source or target branch pattern
+* Issue #122 fix: inputs-outputs fix for steps without inputs or outputs
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.2
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.1 -> 1.0.2
+
+* [b00ba6f] erosdome - v1.0.2 (2017 May 16)
+* [5671eb8] erosdome - quickfixes (#117) (2017 May 16)
+
 
 ## 1.0.1 (2017 May 12)
 
@@ -505,4 +542,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 12
+Updated: 2017 May 16
