@@ -188,13 +188,13 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 	function updatePagination() {
 		_.each(viewModel.categories, function(aCategory) {
-			aCategory.paginateStepsConfig.pageCount = aCategory.steps ? Math.ceil(viewModel.filterSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage) : undefined;
+			aCategory.paginateStepsConfig.pageCount = aCategory.steps ? Math.ceil(viewModel.filteredSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage) : undefined;
 			aCategory.paginateStepsConfig.currentPageIndex = 0;
 			aCategory.paginateStepsConfig.currentOffsetInPage = 0;
 		});
 	}
 
-	viewModel.filterSteps = function(_steps) {
+	viewModel.filteredSteps = function(_steps) {
 		if (_steps === undefined) {
 			_steps = steps;
 		}
@@ -219,6 +219,14 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 
 		return filteredSteps;
+	};
+
+	viewModel.filteredTypeFilters = function() {
+		return _.filter(viewModel.typeFilters, function(aTypeFilter) {
+			return _.any(viewModel.filteredSteps(), function(aStep) {
+				return _.contains(aStep.typeTags(), aTypeFilter);
+			});
+		});
 	};
 
 	viewModel.stepSelected = function(step) {
