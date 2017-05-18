@@ -1,6 +1,57 @@
-## Changelog (Current version: 1.0.3)
+## Changelog (Current version: 1.0.4)
 
 -----------------
+
+## 1.0.4 (2017 May 18)
+
+### Release Notes
+
+* Replace variables in input toggle removed (#123)
+* Version added to footer (#54)
+* Step rename UX update (issue #130)
+* Add step type tag filters - only listing filters which have matching steps (#111)
+* Links in markdowns now open in new tab (#106)
+* Add step list duplication issue (#127) fixed
+* Add step index issue (#131) fixed
+* Text change (issue #73)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.4
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.3 -> 1.0.4
+
+* [52e9734] erosdome - v1.0.4 (2017 May 18)
+* [023276c] erosdome - version added to footer (2017 May 18)
+* [378d05c] erosdome - url & text updates (2017 May 18)
+* [6f6e15a] erosdome - links in markdown - open in new tab (2017 May 18)
+* [7597994] erosdome - step type filters - only show filters which has matching steps (2017 May 18)
+* [b10c55b] erosdome - "replace variables in input" toggle removed from step inputs (2017 May 18)
+* [be3a00c] erosdome - step list indexing issue fixed (2017 May 18)
+* [480e499] erosdome - add step sidebar step listing fixed (2017 May 18)
+* [990c8dd] erosdome - font smoothing updated (2017 May 18)
+* [4dc1dba] erosdome - step rename UX update (2017 May 18)
+* [21fbd4f] Viktor Benei - Update README.md (#126) (2017 May 16)
+* [465e3ae] erosdome - changelog update (2017 May 16)
+
 
 ## 1.0.3 (2017 May 16)
 
@@ -584,4 +635,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 16
+Updated: 2017 May 18
