@@ -96,8 +96,6 @@ workflows:
     value_placeholder: Enter value
     required: required
     insert_variable: Insert variable from list
-    replace_variables_in_input: Replace variables in input?
-    replace_variables_in_input_learn_more: Learn more about this <a href='<url>' target='_blank'>on our Devcenter!</a>
     insert_variable:
       action: Insert variable
       key_filter_placeholder: Filter by key
