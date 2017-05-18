@@ -48,7 +48,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 							if (appService.appConfigHasDeprecatedTriggerMap()) {
 								appService.updateDeprecatedTriggerMap();
 
-								Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", "<%= string_with_urls(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
+								Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", ["<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>", "<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
 								]).then(viewModel.save).then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 							}
 							else {

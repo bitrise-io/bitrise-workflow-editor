@@ -340,12 +340,41 @@ main {
 			}
 		}
 
+		&:before {
+			content: "";
+			margin-right: auto;
+		}
+
+		a.version {
+			margin-left: auto;
+			text-align: right;
+			font-weight: 300;
+
+			&:not(:hover):not(:focus) {
+				text-decoration: none;
+			}
+		}
+
+		&:before, a.version {
+			width: 40px;
+		}
+
 		@include media-below-mid {
 			@include flex-direction(column);
 
 			svg {
 				@include margin-x(0);
 				@include margin-y(12px);
+			}
+
+			&:before {
+				content: none;
+			}
+
+			a.version {
+				margin-top: 6px;
+				margin-left: 0;
+				text-align: center;
 			}
 		}
 	}

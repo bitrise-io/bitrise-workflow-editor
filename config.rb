@@ -44,9 +44,9 @@ helpers do
 
 	# string helpers
 
-	def string_with_urls(string, urls)
-		urls.each do |url|
-			string = string.sub("<url>", url)
+	def replaced_string(string, replacements)
+		replacements.each do |replacement|
+			string = string.sub(/<[a-zA-Z0-9\-\_\.]+>/, replacement)
 		end
 
 		return string

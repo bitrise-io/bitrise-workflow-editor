@@ -57,3 +57,4 @@ blog:
   new_triggers: http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html
 other:
   bitrise_workflow_editor_source_code: https://github.com/bitrise-io/bitrise-workflow-editor
+  bitrise_workflow_editor_current_release: https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/<version>
