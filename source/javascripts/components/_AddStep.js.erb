@@ -105,8 +105,6 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			}
 
 			steps = [];
-			steps = steps.concat(stepSourceService.localSteps);
-			steps = steps.concat(stepSourceService.gitSteps);
 			viewModel.typeFilters = [];
 
 			$q.all(loadPromises).then(function() {

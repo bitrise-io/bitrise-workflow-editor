@@ -252,7 +252,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 	stepSourceService.loadLibrariesWithURLs = function(libraryURLs, requestConfig) {
 		return $q(function(resolve, reject) {
-			var notLoadedLibraryURLs = _.reject(libraryURLs, function(aLibraryURL) {
+			var notLoadedLibraryURLs = _.reject(_.uniq(libraryURLs), function(aLibraryURL) {
 				return _.find(stepSourceService.libraries, {
 					url: aLibraryURL
 				});
