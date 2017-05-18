@@ -28,7 +28,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	footer
 		p == data[:strings][:main][:footer][:editor_open_source]
 		== svg("heart")
-		p[ng-bind-html="mainCtrl.sourceCodeMessage()"]
+		p == string_with_urls(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]

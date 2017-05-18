@@ -52,10 +52,7 @@ local_server:
   step_config_fetch: /api/step-info
   default_outputs_get: /api/default-outputs
 devcenter:
-  bitrise_cli: http://devcenter.bitrise.io/docs/bitrise-command-line-interface-how-to-guide
-  codesigndoc: http://devcenter.bitrise.io/docs/provprofile-cert-export#section-use-our-codesigndoc-tool-to-get-your-code-signing-files
-  xamarin_code_signing: http://devcenter.bitrise.io/v1.0/docs/getting-started-with-xamarin-on-bitrise#section-code-signing
-  apk: https://bitrise-io.github.io/devcenter/tutorials/create-signed-apk-on-bitrise/
+  bitrise_cli: http://devcenter.bitrise.io/bitrise-cli
 blog:
   new_triggers: http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html
 other:
