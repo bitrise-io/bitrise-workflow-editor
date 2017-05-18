@@ -66,8 +66,8 @@
 									span.community-created[ng-if="!workflowsCtrl.selectedStep.isVerified() && !workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:community_created] }"] = svg("step/badge-community_created")
 									span.deprecated[ng-if="workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:deprecated] }"] = svg("step/badge-deprecated")
 								.rename-title[ng-if="workflowsCtrl.renamedStep"]
-									input[type="text" ng-model="workflowsCtrl.renamedStepTitle"]
-									button.ok.rebo.green[ng-click="workflowsCtrl.renameStepConfirmed()"] = svg("check")
+									input[type="text" ng-model="workflowsCtrl.renamedStep.title" ng-model-options="{getterSetter: true}" ng-blur="workflowsCtrl.renamedStep = null"]
+									button.ok.rebo.green[ng-click="workflowsCtrl.renamedStep = null"] = svg("check")
 								aside
 									button.clone[ng-click="workflowsCtrl.cloneStepSelected()" trigger-popover="#{ data[:strings][:workflows][:steps][:clone_popover_info] }"] = svg("step/clone")
 									a.source[href="{{ workflowsCtrl.selectedStep.sourceURL() }}" target="_blank" ng-class="workflowsCtrl.selectedStep | stepSourceCSSClass" trigger-popover="#{ data[:strings][:workflows][:steps][:source_popover_info] }"] = svg("logo/github")
