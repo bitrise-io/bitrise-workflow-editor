@@ -134,7 +134,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 	viewModel.addToEnvVars = function(envVars) {
 		var newEnvVar = new Variable({
-			"<%= data[:strings][:env_vars][:new_default_key] %>": ""
+			"": ""
 		}, Variable.defaultVariableConfig());
 
 		envVars.push(newEnvVar);
