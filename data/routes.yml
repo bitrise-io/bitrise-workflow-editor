@@ -42,7 +42,8 @@ website:
   generic_file_delete: /project_file_storage_document/<generic_file_id>.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
 local_server:
-  connection_delete: /api/connection
+  cancel_api_connection_close: /api/connection
+  close_api_connection: /api/connection
   app_config_post: /api/bitrise-yml.json
   app_config_get: /api/bitrise-yml.json
   yml_post: /api/bitrise-yml

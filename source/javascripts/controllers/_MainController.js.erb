@@ -174,15 +174,21 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}
 	}
 
-	$(window).on("beforeunload", function() {
+	window.onload = function() {
+		if (requestService.mode == "cli") {
+			requestService.cancelAPIConnectionClose();
+		}
+	};
+
+	window.onbeforeunload = function() {
 		if (viewModel.hasUnsavedChanges()) {
 			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
 		}
 
 		if (requestService.mode == "cli") {
-			requestService.closeLocalAPIConnection();
+			requestService.closeAPIConnection();
 		}
-	});
+	};
 
 	viewModel.save = function(shouldReturnPromise) {
 		if (shouldReturnPromise === undefined) {
