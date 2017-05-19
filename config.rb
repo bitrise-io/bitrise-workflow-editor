@@ -11,21 +11,13 @@ helpers do
 	# path helpers
 
 	def webserver_path(path)
-		case mode
-		when "website" then path
-		when "cli" then "not_available"
-		end
+		return "not_available" if mode.eql?("cli")
+		return path
 	end
 
 	def local_server_path(path)
-		case mode
-		when "website" then "not_available"
-		when "cli"
-			case environment
-				when :development then "http://localhost:#{ENV['API_SERVER_PORT']}" + path
-				when :build then path
-			end
-		end
+		return "not_available" if mode.eql?("website")
+		return path
 	end
 
 	def mode_dependant_asset_path(path)
