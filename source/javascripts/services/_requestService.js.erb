@@ -49,6 +49,16 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		return error;
 	}
 
+	// Connection
+
+	requestService.closeLocalAPIConnection = function(requestConfig) {
+		return $.ajax({
+			type: "DELETE",
+			url: "<%= local_server_path(data[:routes][:local_server][:connection_delete]) %>",
+			async: false, 
+		});
+	};
+
 	// App config
 
 	requestService.postAppConfig = function(appConfig, requestConfig) {

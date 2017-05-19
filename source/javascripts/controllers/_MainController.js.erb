@@ -178,6 +178,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		if (viewModel.hasUnsavedChanges()) {
 			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
 		}
+
+		if (requestService.mode == "cli") {
+			requestService.closeLocalAPIConnection();
+		}
 	});
 
 	viewModel.save = function(shouldReturnPromise) {
