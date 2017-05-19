@@ -1,6 +1,52 @@
-## Changelog (Current version: 1.0.4)
+## Changelog (Current version: 1.0.5)
 
 -----------------
+
+## 1.0.5 (2017 May 19)
+
+### Release Notes
+
+* Multiple workflow editors can run parallel (#64)
+* Browser tab close disconnects API server (#48)
+* Workflow rename fixed (issue #134)
+* Step rename fixed (issue #133)
+* Env var key specification updated (#135)
+* Source code icon - hidden if not available (issue #132)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.5
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.4 -> 1.0.5
+
+* [f9d93ce] erosdome - v1.0.5 (2017 May 19)
+* [80f48c5] erosdome - API uses arbitrary free port, multiple editors can be opened (#137) (2017 May 19)
+* [3cd902e] erosdome - Disconnect API fix - not disconnecting on page reload anymore (#138) (2017 May 19)
+* [f7c7d80] erosdome - Close API connection on workflow editor tab close (#136) (2017 May 19)
+* [40d78d2] erosdome - hide source code link if not specified (2017 May 19)
+* [48f59e8] erosdome - step rename fix (2017 May 19)
+* [df79eb5] erosdome - spec updates (2017 May 19)
+* [e5845b9] erosdome - workflow rename fix (2017 May 19)
+* [df0da3c] erosdome - env var key specification updated (2017 May 19)
+
 
 ## 1.0.4 (2017 May 18)
 
@@ -635,4 +681,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 18
+Updated: 2017 May 19
