@@ -2,7 +2,9 @@ package apiserver
 
 import (
 	"fmt"
+	"net"
 	"net/http"
+	"os"
 	"runtime"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
@@ -11,9 +13,35 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 )
 
+func chooseFreePort() (string, error) {
+	address, err := net.ResolveTCPAddr("tcp", "localhost:0")
+	if err != nil {
+		return "", err
+	}
+
+	listener, err := net.ListenTCP("tcp", address)
+	if err != nil {
+		return "", err
+	}
+	defer func() {
+		if err := listener.Close(); err != nil {
+			log.Errorf("Failed to close port, error: %s", err)
+		}
+	}()
+	port := listener.Addr().(*net.TCPAddr).Port
+	return fmt.Sprintf("%d", port), nil
+}
+
 // LaunchServer ...
 func LaunchServer() error {
-	port := utility.EnvString("PORT", config.DefaultPort)
+	port := os.Getenv("PORT")
+	if port == "" {
+		var err error
+		if port, err = chooseFreePort(); err != nil {
+			return fmt.Errorf("Failed to find free port, error: %s", err)
+		}
+	}
+
 	log.Printf("Starting API server at http://localhost:%s", port)
 
 	isServeFilesThroughMiddlemanServer := (utility.EnvString("USE_MIDDLEMAN_SERVER", "false") == "true")

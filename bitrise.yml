@@ -6,7 +6,6 @@ app:
   - RELEASE_VERSION: 1.0.4
   - BIN_NAME: workflow-editor
   
-  - API_SERVER_PORT: "3645"
   - MIDDLEMAN_SERVER_PORT: "4567"
   - MODE: "CLI"
 
