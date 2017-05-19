@@ -16,7 +16,7 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 		return string;
 	};
 
-	stringService.joinedString = function(strings, separator) {
+	stringService.joinedString = function(strings, separator, shouldLeaveSpaceAfterSeparator) {
 		if (!strings) {
 			return strings;
 		}
@@ -27,12 +27,12 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 			return joinedString;
 		}
 
-		if (separator === null) {
+		if (separator === null || separator === undefined) {
 			separator = "";
 		}
 
-		if (separator === undefined) {
-			separator = " ";
+		if (shouldLeaveSpaceAfterSeparator === undefined) {
+			shouldLeaveSpaceAfterSeparator = _.contains([",", ";"], separator);
 		}
 
 		_.each(strings, function(aString, index) {
@@ -45,7 +45,7 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 			if (index > 0 && aString.length > 0) {
 				joinedString += separator;
 
-				if (separator == "," || separator == ";") {
+				if (shouldLeaveSpaceAfterSeparator) {
 					joinedString += " ";
 				}
 			};

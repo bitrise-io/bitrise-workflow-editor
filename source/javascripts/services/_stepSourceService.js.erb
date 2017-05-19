@@ -57,7 +57,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 				break;
 			default:
-				if (!source && !this.defaultLibraryURL) {
+				if (!source && !stepSourceService.defaultLibraryURL) {
 					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_library] %>");
 				}
 
@@ -65,7 +65,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_id] %>");
 				}
 
-				step.libraryURL = source != null ? source : this.defaultLibraryURL;
+				step.libraryURL = source != null ? source : stepSourceService.defaultLibraryURL;
 				step.id = id;
 				step.version = version;
 

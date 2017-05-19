@@ -7,10 +7,13 @@ describe("Workflow", function() {
 	beforeEach(inject(function(_Workflow_, _stepSourceService_) {
 		Workflow = _Workflow_;
 		stepSourceService = _stepSourceService_;
+		var originalStepFromCVS = stepSourceService.stepFromCVS;
 		stepSourceService.stepFromCVS = function(cvs) {
 			if (!_.contains(["red-step", "green-step", "blue-step"], cvs)) {
 				throw new Error("Step not found.");
 			}
+
+			return originalStepFromCVS(cvs);
 		}
 	}));
 

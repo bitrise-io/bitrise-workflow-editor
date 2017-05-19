@@ -241,7 +241,7 @@ describe("Step", function() {
 
 			step.iconURL("red-icon.svg");
 
-			expect(step.userStepConfig).toBeNull();
+			expect(step.userStepConfig).toEqual({});
 		});
 
 	});
