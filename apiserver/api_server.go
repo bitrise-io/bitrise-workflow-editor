@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"net"
 	"net/http"
+	"os"
 	"runtime"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
@@ -33,10 +34,12 @@ func chooseFreePort() (string, error) {
 
 // LaunchServer ...
 func LaunchServer() error {
-	port, err := chooseFreePort()
-	if err != nil {
-		log.Errorf("Failed to find free port, trying to use default port")
-		port = utility.EnvString("PORT", config.DefaultPort)
+	port := os.Getenv("PORT")
+	if port == "" {
+		var err error
+		if port, err = chooseFreePort(); err != nil {
+			return fmt.Errorf("Failed to find free port, error: %s", err)
+		}
 	}
 
 	log.Printf("Starting API server at http://localhost:%s", port)
