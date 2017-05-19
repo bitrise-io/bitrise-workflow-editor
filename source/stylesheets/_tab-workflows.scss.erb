@@ -181,7 +181,7 @@
 
 					li:not(.rename-in-progress) {
 
-						.workflow-rename {
+						form.workflow-rename {
 							display: none;
 						}
 					}
@@ -192,10 +192,10 @@
 							display: none;
 						}
 
-						.workflow-rename {
+						form.workflow-rename {
 							@include display-flex;
 
-							input {
+							input.name {
 								@include flex-grow(1);
 								margin: 0;
 								border: none;
@@ -204,11 +204,16 @@
 								color: $def-mediumdarkgrey;
 							}
 
-							button.ok {
-
-								svg {
-									@include size(12px, 11px);
-								}
+							input.ok {
+								width: 12px;
+								@include box-sizing(content-box);
+								background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
+									fill: rgba(white, 0.99)
+								)), none;
+								background-size: 100% auto;
+								background-position: center;
+								background-origin: content-box;
+								background-repeat: no-repeat;
 							}
 						}
 					}

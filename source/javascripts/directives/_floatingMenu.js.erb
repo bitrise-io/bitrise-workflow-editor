@@ -12,8 +12,7 @@ angular.module("BitriseWorkflowEditor").directive("floatingMenu", function($pars
 					return;
 				}
 
-				$parse(attrs.toggle).assign(scope, false);
-				scope.$digest();
+				dismissFloatingMenu();
 			}
 
 			function clickHandler(event) {
@@ -21,8 +20,12 @@ angular.module("BitriseWorkflowEditor").directive("floatingMenu", function($pars
 					return;
 				}
 
+				dismissFloatingMenu();
+			}
+
+			function dismissFloatingMenu() {
 				$parse(attrs.toggle).assign(scope, false);
-				scope.$digest();
+				scope.$apply();
 			}
 
 			scope.$watch(function() {

@@ -61,6 +61,33 @@ describe("Workflow", function() {
 
 	});
 
+	describe("isValidID", function() {
+
+		it("should return undefined if id is not defined", function() {
+			expect(Workflow.isValidID(undefined)).toBeUndefined();
+		});
+
+		it("should return false if ID is empty", function() {
+			expect(Workflow.isValidID("")).toBeFalsy();
+		});
+
+		it("should return false if ID contains something other than numbers, letters, dash, dot, or underscore", function() {
+			expect(Workflow.isValidID("ABC?123")).toBeFalsy();
+			expect(Workflow.isValidID("ABC!123")).toBeFalsy();
+			expect(Workflow.isValidID("ABC<>123")).toBeFalsy();
+		});
+
+		it("should return true", function() {
+			expect(Workflow.isValidID("ABC1def")).toBeTruthy();
+			expect(Workflow.isValidID("abc1DEF")).toBeTruthy();
+			expect(Workflow.isValidID("ABC_DEF")).toBeTruthy();
+			expect(Workflow.isValidID("ABC-DEF")).toBeTruthy();
+			expect(Workflow.isValidID("ABC.DEF")).toBeTruthy();
+			expect(Workflow.isValidID("_ABC_DEF_")).toBeTruthy();
+		});
+
+	});
+
 	describe("workflowChain", function() {
 
 		var redWorkflow;

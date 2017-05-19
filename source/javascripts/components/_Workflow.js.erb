@@ -30,6 +30,20 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
+	Workflow.isValidID = function(id) {
+		if (id === undefined) {
+			return undefined;
+		}
+
+		if (id.length == 0) {
+			return false;
+		}
+
+		var validIDRegexp = new RegExp("^[A-Za-z0-9-_.]+$");
+
+		return validIDRegexp.test(id);
+	};
+
 	Workflow.prototype.beforeRunWorkflows = function(allWorkflows) {
 		return _.map(this.workflowConfig.before_run, function(aWorkflowID) {
 			return _.find(allWorkflows, {

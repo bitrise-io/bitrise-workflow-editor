@@ -336,8 +336,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.renamedWorkflowID = "";
 
 	$scope.$watch(function() {
-		return viewModel.selectedWorkflow;
-	}, function(selectedWorkflow) {
+		return viewModel.workflowSelectorIsVisible;
+	}, function() {
 		viewModel.renamedWorkflow = null;
 	});
 
@@ -346,6 +346,12 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	}, function(renamedWorkflow) {
 		viewModel.renamedWorkflowID = renamedWorkflow ? renamedWorkflow.id : "";
 	});
+
+	viewModel.isRenamedWorkflowIDValid = function() {
+		return Workflow.isValidID(viewModel.renamedWorkflowID) && !_.find(_.without(viewModel.workflows, viewModel.renamedWorkflow), {
+			id: viewModel.renamedWorkflowID
+		});
+	};
 
 	viewModel.renameWorkflowConfirmed = function() {
 		var oldWorkflowID = viewModel.renamedWorkflow.id;
