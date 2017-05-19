@@ -32,7 +32,8 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 	r.HandleFunc("/api/spec", wrapHandlerFunc(service.PostSpecHandler)).Methods("POST")
 	r.HandleFunc("/api/step-info", wrapHandlerFunc(service.PostStepInfoHandler)).Methods("POST")
 
-	r.HandleFunc("/api/connection", wrapHandlerFunc(service.DeleteCloseHandler)).Methods("DELETE")
+	r.HandleFunc("/api/connection", wrapHandlerFunc(service.DeleteConnectionHandler)).Methods("DELETE")
+	r.HandleFunc("/api/connection", wrapHandlerFunc(service.PostConnectionHandler)).Methods("POST")
 
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
