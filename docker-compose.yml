@@ -13,7 +13,7 @@ services:
     volumes:
       - .:/go/src/github.com/bitrise-io/bitrise-workflow-editor
     ports:
-      - "3645:3645"
+      - "1234:1234"
     environment:
       - MIDDLEMAN_SERVER_HOST=middleman-server
     depends_on:
