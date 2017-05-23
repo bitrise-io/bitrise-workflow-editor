@@ -35,7 +35,7 @@
 			section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 				header.workflow-header
 					h2
-						.run-workflow
+						button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex); workflowsCtrl.stepSelected(null)"]
 							span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] = svg("workflow/icon-before_run")
 							span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]

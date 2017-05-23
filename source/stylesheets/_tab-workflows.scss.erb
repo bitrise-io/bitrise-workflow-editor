@@ -347,18 +347,25 @@
 						margin-left: $spacing;
 						border: 1px solid $color;
 						@include border-radius($def-radius);
+						overflow: hidden;
 						font-size: 14px;
 						font-weight: 300;
 						color: $color;
-						@include transition(background-color $def-transition_duration);
 
-						.run-workflow {
-							@include display-flex;
+						button.edit {
+							@include flex-grow(1);
 							padding: 6px 8px;
-							overflow: hidden;
+							text-align: left;
+							@include ellipsis-oneliner;
+							background-color: $def-ultralightgrey;
+							@include transition(background-color $def-transition_duration);
+
+							&:hover {
+								background-color: white;
+							}
 
 							span.icon {
-								@include flex-shrink(0);
+								display: inline-block;
 								margin-right: 6px;
 
 								svg {
@@ -401,6 +408,7 @@
 					@include align-items(flex-start);
 
 					ul.steps {
+						@include align-self(stretch);
 						@include display-flex;
 						@include flex-direction(column);
 						@include margin-y(0);
@@ -563,6 +571,7 @@
 					aside.selected-step, aside[workflow-description] {
 						@include flex-grow(1);
 						margin-top: $add_step-size + $spacing;
+						margin-bottom: 50px;
 					}
 
 					aside.selected-step {
@@ -1378,26 +1387,11 @@
 			}
 
 			section.workflow.selected {
-
 				background-color: white;
-
-				header {
-
-					h2 {
-						background-color: white;
-					}
-				}
 			}
 
 			section.workflow:not(.selected) {
 				$inactive_opacity: 0.7;
-
-				header {
-
-					h2 {
-						background-color: $def-ultralightgrey;
-					}
-				}
 
 				article {
 
