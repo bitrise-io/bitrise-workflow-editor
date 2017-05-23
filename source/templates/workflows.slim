@@ -35,7 +35,7 @@
 			section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 				header.workflow-header
 					h2
-						button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex); workflowsCtrl.stepSelected(null)"]
+						button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex)"]
 							span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] = svg("workflow/icon-before_run")
 							span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]
@@ -58,7 +58,7 @@
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 					aside[workflow-description="workflow" ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && !workflowsCtrl.selectedStep"]
-					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep"]
+					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-click-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.tab-workflows .manage-workflows, .tab-workflows ul.steps'"]
 						.step-details
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
