@@ -80,6 +80,14 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		return !_.contains(this.workflowChain(allWorkflows), workflow);
 	};
 
+	Workflow.prototype.description = function(description) {
+		if (description !== undefined) {
+			this.workflowConfig.description = description;
+		}
+
+		return this.workflowConfig.description;
+	};
+
 	return Workflow;
 
 });

@@ -12,6 +12,7 @@ templates:
   env_vars: templates/env_vars
   triggers: templates/triggers
   yml: templates/yml
+  workflows_workflow_description: templates/workflows-workflow_description
   add_step_sidebar: templates/add_step_sidebar
   add_step_sidebar_step: templates/add_step_sidebar_step
   insert_variable_popup: templates/insert_variable_popup

@@ -398,6 +398,7 @@
 					$add_step-borderwidth: 1px;
 
 					@include display-flex;
+					@include align-items(flex-start);
 
 					ul.steps {
 						@include display-flex;
@@ -535,7 +536,11 @@
 							}
 						}
 
-						li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info, li.selected .step-actions button.step span.info {
+						li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info {
+							background-color: $def-mediumlightgrey;
+						}
+
+						li.selected .step-actions button.step span.info {
 							$color: $def-darkgrey;
 
 							border-color: $color;
@@ -555,14 +560,17 @@
 						z-index: $zindex-dragged_element;
 					}
 
+					aside.selected-step, aside[workflow-description] {
+						@include flex-grow(1);
+						margin-top: $add_step-size + $spacing;
+					}
+
 					aside.selected-step {
 						$trashicon_width: 17px;
 						$leftpadding: 25px;
 						$rightpadding: ($icon-size - $trashicon_width) / 2 + 3px;
 						$horizontalpadding_small: 12px;
 
-						@include flex-grow(1);
-						margin-top: $add_step-size + $spacing;
 						overflow: hidden;
 
 						&:not(.ninja) > * {

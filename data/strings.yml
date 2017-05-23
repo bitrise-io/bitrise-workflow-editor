@@ -64,6 +64,9 @@ workflows:
   env_vars:
     no_env_vars: No Env Vars for this Workflow yet
     title: Workflow Environment Variables
+  description:
+    header: <workflow_id> workflow's description
+    no_description: No description for this Workflow yet.
   steps:
     start: "Start"
     end: "End"

@@ -473,9 +473,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				scrollService.scrollToTarget();
 			}, 300);
 		}
-
-		viewModel.selectedStep = step;
-		viewModel.shouldShowDescription = false;
+		else {
+			viewModel.selectedStep = viewModel.selectedStep == step ? null : step;
+		}
 	};
 
 	$scope.$watch(function() {
