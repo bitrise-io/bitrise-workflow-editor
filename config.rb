@@ -52,7 +52,7 @@ helpers do
 
 		return "(svg not found)" unless File.exists?(file_path)
 
-		return File.read(file_path).gsub!("\n", "").gsub!("\r", "").gsub!("\t", "")
+		return File.read(file_path).gsub("\n", "").gsub("\r", "").gsub("\t", "")
 	end
 
 end
