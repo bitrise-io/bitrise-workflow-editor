@@ -463,6 +463,10 @@
 								}
 							}
 
+							button.add-step:last-child {
+								margin-right: $spacing + $steptitle-width;
+							}
+
 							.step-actions {
 								position: relative;
 
@@ -1333,10 +1337,17 @@
 						}
 					}
 					
-					article ul.steps li .step-actions {
+					article ul.steps li {
 
-						button.step span.info {
-							width: $steptitle-width_small;
+						button.add-step:last-child {
+							margin-right: $spacing + $steptitle-width_small;
+						}
+
+						.step-actions {
+
+							button.step span.info {
+								width: $steptitle-width_small;
+							}
 						}
 					}
 				}
@@ -1351,15 +1362,22 @@
 						}
 					}
 
-					article ul.steps li .step-actions {
+					article ul.steps li {
 
-						button.step span.icon {
-							position: static;
-							display: block;
+						button.add-step:last-child {
+							margin-right: 0;
 						}
-					
-						button.step span.info {
-							display: none;
+
+						.step-actions {
+
+							button.step span.icon {
+								position: static;
+								display: block;
+							}
+						
+							button.step span.info {
+								display: none;
+							}
 						}
 					}
 				}

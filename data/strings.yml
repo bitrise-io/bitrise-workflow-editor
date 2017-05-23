@@ -66,7 +66,7 @@ workflows:
     title: Workflow Environment Variables
   description:
     header: <workflow_id> workflow's description
-    no_description: No description for this Workflow yet.
+    no_description: Click here to add a description...
   steps:
     start: "Start"
     end: "End"
