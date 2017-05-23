@@ -589,63 +589,110 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	// Inputs
 
-	viewModel.inputsOfSelectedStep;
+	viewModel.inputCategoriesOfSelectedStep;
+	viewModel.mainInputCategory;
+	viewModel.openedInputCategories;
 	viewModel.openedInputs;
 	var inputWatchers;
 
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
-		viewModel.inputsOfSelectedStep = selectedStep && selectedStep.defaultStepConfig ? _.map(selectedStep.defaultStepConfig.inputs, function(anDefaultInputConfig) {
-			var userInputConfig = selectedStep.userStepConfig ? _.find(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
-				return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig);
-			}) : {};
+		viewModel.inputCategoriesOfSelectedStep = [];
 
-			return new Variable(userInputConfig, anDefaultInputConfig);
-		}) : undefined;
+		if (selectedStep && selectedStep.defaultStepConfig) {
+			_.each(selectedStep.defaultStepConfig.inputs, function(anDefaultInputConfig) {
+				var userInputConfig = selectedStep.userStepConfig ? _.find(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+					return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig);
+				}) : [];
+
+				var input = new Variable(userInputConfig, anDefaultInputConfig);
+				var inputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
+					name: input.category()
+				});
+
+				if (!inputCategory) {
+					inputCategory = {
+						name: input.category(),
+						inputs: []
+					};
+					viewModel.inputCategoriesOfSelectedStep.push(inputCategory);
+				}
+
+				inputCategory.inputs.push(input);
+			});
+
+			viewModel.inputCategoriesOfSelectedStep = _.sortBy(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+				return anInputCategory.name;
+			});
+		}
 
 		_.each(inputWatchers, function(anInputWatcher) {
 			anInputWatcher();
 		});
 		inputWatchers = [];
-		_.each(viewModel.inputsOfSelectedStep, function(anInput) {
-			inputWatchers.push($scope.$watch(function() {
-				return !anInput.userVariableConfig || angular.equals(anInput.userVariableConfig, {});
-			}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
-				if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
-					var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
-						return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
-					});
+		_.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+			_.each(anInputCategory.inputs, function(anInput) {
+				inputWatchers.push($scope.$watch(function() {
+					return !anInput.userVariableConfig || angular.equals(anInput.userVariableConfig, {});
+				}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
+					if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
+						var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
+						});
 
-					viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
-
-					if (angular.equals(viewModel.selectedStep.userStepConfig.inputs, [])) {
-						delete viewModel.selectedStep.userStepConfig["inputs"];
-					}
-				}
-
-				if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
-					if (!viewModel.selectedStep.userStepConfig.inputs) {
-						viewModel.selectedStep.userStepConfig.inputs = [];
-					}
-
-					var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
-						return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
-					});
-
-					if (indexOfUserInputConfig != -1) {
 						viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+
+						if (angular.equals(viewModel.selectedStep.userStepConfig.inputs, [])) {
+							delete viewModel.selectedStep.userStepConfig["inputs"];
+						}
 					}
 
-					viewModel.selectedStep.userStepConfig.inputs.push(anInput.userVariableConfig);
-				}
-			}));
+					if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
+						if (!viewModel.selectedStep.userStepConfig.inputs) {
+							viewModel.selectedStep.userStepConfig.inputs = [];
+						}
+
+						var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
+						});
+
+						if (indexOfUserInputConfig != -1) {
+							viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+						}
+
+						viewModel.selectedStep.userStepConfig.inputs.push(anInput.userVariableConfig);
+					}
+				}));
+			});
 		});
 
-		viewModel.openedInputs = _.filter(viewModel.inputsOfSelectedStep, function(anInput) {
-			return anInput.isRequired() && (!anInput.value() || anInput.value().length == 0);
+		viewModel.openedInputCategories = [];
+		viewModel.mainInputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
+			name: ""
+		});
+		if (viewModel.mainInputCategory) {
+			viewModel.openedInputCategories.push(viewModel.mainInputCategory);
+		}
+
+		viewModel.openedInputs = [];
+		_.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+			_.each(_.filter(anInputCategory.inputs, function(anInput) {
+				return anInput.isRequired() && (!anInput.value() || anInput.value().length == 0);
+			}), function(anInput) {
+				viewModel.openedInputs.push(anInput);
+			})
 		});
 	});
+
+	viewModel.inputCategoryToggled = function(inputCategory) {
+		if (_.contains(viewModel.openedInputCategories, inputCategory)) {
+			viewModel.openedInputCategories = _.without(viewModel.openedInputCategories, inputCategory);
+		}
+		else {
+			viewModel.openedInputCategories.push(inputCategory);
+		}
+	};
 
 	viewModel.inputSelected = function(input) {
 		if (_.contains(viewModel.openedInputs, input)) {

@@ -904,192 +904,264 @@
 
 								h3 {
 									@include margin-y(0);
-									@include border-y($border);
+									border-top: 3px solid $def-lightgrey;
 									@include padding-y(10px);
 									padding-left: $leftpadding;
 									padding-right: $rightpadding;
 									font-size: 12px;
-									font-weight: 300;
+									font-weight: 700;
 									color: $def-darkgrey;
-									background-color: $def-verylightgrey;
 								}
 
-								ol.inputs-list {
+								$toggle_category_button_icon-width: 10px;
+
+								ol.input-category {
 									@include margin-y(0);
 									padding-left: 0;
-									list-style: none;
 
-									li.input {
-										@include display-flex;
-										@include padding-y(20px);
-										padding-left: $leftpadding;
-										padding-right: $rightpadding;
-										background-color: $def-ultralightgrey;
-										@include transition(background-color $def-transition_duration);
-
-										.input-info {
-											@include flex-grow(1);
-											overflow: hidden;
-
-											h4 {
-												@include display-flex;
-												@include align-items(center);
-												@include margin-y(0);
-
-												span.title {
-													display: block;
-													max-width: 100%;
-													margin-right: auto;
-													@include ellipsis-oneliner;
-													font-size: 12px;
-													font-weight: 900;
-													color: $def-darkgrey;
-													@include transition(color $def-transition_duration);
-
-													em {
-														font-style: normal;
-														color: $def-grey;
-													}
-												}
-
-												button.insert-variable {
-													@include flex-shrink(0);
-													margin-left: 6px;
-												}
-											}
-
-											.input-description {
-												@include margin-y(6px);
-												font-size: 12px;
-												font-weight: 200;
-												color: $def-mediumdarkgrey;
-											}
-
-											textarea, select {
-												display: block;
-												width: 100%;
-												@include box-sizing(border-box);
-												border: $border;
-												@include border-radius($def-radius);
-												padding: 8px;
-												font-size: 12px;
-												font-weight: 200;
-												color: $def-darkgrey;
-												background-color: $def-verylightgrey;
-
-												&:disabled {
-													color: inherit;
-												}
-											}
-										}
-
-										.input-change {
-											$color: $def-grey;
-											$transition_duration: $def-transition_duration;
-
-											@include flex-shrink(0);
-											@include display-flex;
-											@include align-items(center);
-											padding-left: 10px;
-											font-size: 10px;
-											text-transform: uppercase;
-											color: $color;
-
-											button {
-												@include position(absolute, 0, 0);
-												@include size(100%);
-											}
-
-											span {
-												@include transition(color $transition_duration);
-											}
-
-											svg {
-												@include size(10px, 7px);
-												margin-left: 10px;
-												fill: $color;
-												@include transition(transform $transition_duration, fill $transition_duration);
-												pointer-events: none;
-											}
-
-											button:hover ~ span, button:focus ~ span {
-												color: black;
-											}
-
-											button:hover ~ svg, button:focus ~ svg {
-												fill: black;
-											}
-										}
-									}
-
-									li.input:not(:last-child) {
+									&:not(:last-child) {
 										border-bottom: $border;
 									}
 
-									li.input:not(.selected) {
-										position: relative;
+									&:not(.main) {
+										background-color: $def-ultralightgrey;
 									}
 
-									li.input.selected {
-										background-color: white;
+									h4 {
+										@include display-flex;
+										@include justify-content(space-between);
+										position: relative;
+										@include margin-y(0);
+										@include padding-y(10px);
+										padding-left: $leftpadding;
+										padding-right: 6px + $toggle_category_button_icon-width + $rightpadding;
+										font-size: 12px;
+										color: $def-darkgrey;
 
-										.input-info h4 span.title {
-											color: black;
+										strong.category-name {
+											@include ellipsis-oneliner;
+											font-weight: 700;
 										}
 
-										.input-change {
-											position: relative;
+										button.toggle-category {
+											@include position(absolute, 0, 0);
+											@include size(100%);
 
-											span {
+											svg {
+												$toggle_category_button_icon-height: 10px;
+
+												@include position(absolute, 50%, $rightpadding);
+												@include size($toggle_category_button_icon-width, 10px);
+												margin-top: -$toggle_category_button_icon-height / 2;
+												fill: black;
+												@include transition(transform 0.3s, opacity $def-transition_duration);
+											}
+
+											&:not(:focus):not(:hover) svg {
+												opacity: 0.6;
+											}
+										}
+									}
+
+									&.open button.toggle-category svg {
+										@include transform(rotate(135deg));
+									}
+
+									ol.inputs-list {
+										@include margin-y(0);
+										padding-left: 0;
+										list-style: none;
+
+										li.input {
+											position: relative;
+											@include display-flex;
+											@include padding-y(20px);
+											padding-left: $leftpadding;
+											padding-right: $rightpadding;
+											background-color: $def-ultralightgrey;
+											@include transition(background-color $def-transition_duration);
+
+											&:before {
+												content: "";
+												@include position(absolute, 0, null, null, $leftpadding);
+												@include size(100%, 1px);
+												background-color: $def-mediumlightgrey;
+											}
+
+											.input-info {
+												@include flex-grow(1);
+												overflow: hidden;
+
+												h5 {
+													@include display-flex;
+													@include align-items(center);
+													@include margin-y(0);
+
+													span.title {
+														display: block;
+														max-width: 100%;
+														margin-right: auto;
+														@include ellipsis-oneliner;
+														font-size: 12px;
+														font-weight: 900;
+														color: $def-darkgrey;
+														@include transition(color $def-transition_duration);
+
+														em {
+															font-style: normal;
+															color: $def-grey;
+														}
+													}
+
+													button.insert-variable {
+														@include flex-shrink(0);
+														margin-left: 6px;
+													}
+												}
+
+												.input-description {
+													@include margin-y(6px);
+													font-size: 12px;
+													font-weight: 200;
+													color: $def-mediumdarkgrey;
+												}
+
+												textarea, select {
+													display: block;
+													width: 100%;
+													@include box-sizing(border-box);
+													border: $border;
+													@include border-radius($def-radius);
+													padding: 8px;
+													font-size: 12px;
+													font-weight: 200;
+													color: $def-darkgrey;
+													background-color: $def-verylightgrey;
+
+													&:disabled {
+														color: inherit;
+													}
+												}
+											}
+
+											.input-change {
+												$color: $def-grey;
+												$transition_duration: $def-transition_duration;
+
+												@include flex-shrink(0);
+												@include display-flex;
+												@include align-items(center);
+												padding-left: 10px;
+												font-size: 10px;
+												text-transform: uppercase;
+												color: $color;
+
+												button {
+													@include position(absolute, 0, 0);
+													@include size(100%);
+												}
+
+												span {
+													@include transition(color $transition_duration);
+												}
+
+												svg {
+													@include size(10px, 7px);
+													margin-left: 10px;
+													fill: $color;
+													@include transition(transform $transition_duration, fill $transition_duration);
+													pointer-events: none;
+												}
+
+												button:hover ~ span, button:focus ~ span {
+													color: black;
+												}
+
+												button:hover ~ svg, button:focus ~ svg {
+													fill: black;
+												}
+											}
+										}
+
+										li.input.selected {
+											background-color: white;
+
+											.input-info h4 span.title {
+												color: black;
+											}
+
+											.input-change {
+												position: relative;
+
+												span {
+													display: none;
+												}
+
+												svg {
+													@include transform(rotate(-180deg));
+												}
+											}
+										}
+
+										li.input.dont-change {
+											cursor: not-allowed;
+
+											.input-info h5 span.title {
+												color: inherit;
+											}
+
+											.input-change {
 												display: none;
 											}
 
-											svg {
-												@include transform(rotate(-180deg));
+											* {
+												cursor: inherit;
 											}
 										}
-									}
 
-									li.input.dont-change {
-										color: $def-darkgrey;
-										background-color: $def-lightgrey;
-										cursor: not-allowed;
-
-										.input-info h4 span.title {
-											color: inherit;
-										}
-
-										.input-change {
-											display: none;
-										}
-
-										* {
-											cursor: inherit;
-										}
-									}
-
-									li.input.required-empty {
-										
-										.input-info textarea {
-											border-color: $def-danger;
+										li.input.required-empty {
+											
+											.input-info textarea {
+												border-color: $def-danger;
+											}
 										}
 									}
 								}
 
 								@include media-below-big {
 
-									h3, ol.inputs-list > li.input {
+									h3 {
 										@include padding-x($horizontalpadding_small);
 									}
 
-									ol.inputs-list > li.input .input-info h4 {
-										@include flex-direction(column);
-										@include align-items(flex-start);
+									ol.input-category {
 
-										button.insert-variable {
-											@include align-self(flex-start);
-											margin-left: 0;
-											margin-top: 4px;
+										h4 {
+											padding-left: $horizontalpadding_small;
+											padding-right: 6px + $toggle_category_button_icon-width + $horizontalpadding_small;
+
+											button.toggle-category svg {
+												right: $horizontalpadding_small;
+											}
+										}
+
+										ol.inputs-list > li.input {
+											@include padding-x($horizontalpadding_small);
+
+											&:before {
+												left: $horizontalpadding_small;
+											}
+
+											.input-info h5 {
+												@include flex-direction(column);
+												@include align-items(flex-start);
+
+												button.insert-variable {
+													@include align-self(flex-start);
+													margin-left: 0;
+													margin-top: 4px;
+												}
+											}
 										}
 									}
 								}

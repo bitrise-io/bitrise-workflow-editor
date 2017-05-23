@@ -99,6 +99,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		return optionGetterSetter(this, "title", newValue);
 	};
 
+	Variable.prototype.category = function(newValue) {
+		return optionGetterSetter(this, "category", newValue);
+	};
+
 	Variable.prototype.summary = function(newValue) {
 		return optionGetterSetter(this, "summary", newValue);
 	};
