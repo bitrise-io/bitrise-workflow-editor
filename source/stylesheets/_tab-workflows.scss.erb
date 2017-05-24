@@ -337,6 +337,7 @@
 					h2 {
 						$color: $def-mediumdarkgrey;
 
+						position: relative;
 						@include flex-grow(1);
 						@include align-self(flex-end);
 						@include display-flex;
@@ -353,16 +354,26 @@
 						color: $color;
 
 						button.edit {
+							@include position(absolute, 0, 0);
+							@include size(100%);
+
+							&:hover ~ span.icons-and-name, &:focus ~ span.icons-and-name {
+								background-color: white;
+
+								span.edit-icon {
+									opacity: 1;
+								}
+							}
+						}
+
+						span.icons-and-name {
 							@include flex-grow(1);
+							@include display-flex;
 							padding: 6px 8px;
-							text-align: left;
 							@include ellipsis-oneliner;
+							
 							background-color: $def-ultralightgrey;
 							@include transition(background-color $def-transition_duration);
-
-							&:hover {
-								background-color: white;
-							}
 
 							span.icon {
 								display: inline-block;
@@ -375,11 +386,24 @@
 							}
 
 							span.workflow-name {
+								@include flex-grow(1);
 								@include ellipsis-oneliner;
+							}
+
+							span.edit-icon {
+								margin-left: 6px;
+								opacity: 0;
+								@include transition(opacity $def-transition_duration);
+
+								svg {
+									@include size(12px, 10px);
+									fill: $color;
+								}
 							}
 						}
 
 						button.remove {
+							position: relative;
 							@include flex-shrink(0);
 							@include align-self(stretch);
 							margin-left: auto;
