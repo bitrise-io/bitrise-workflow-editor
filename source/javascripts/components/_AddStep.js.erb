@@ -99,15 +99,15 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 			if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
 				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL]).then(function() {
-					var stepIconLoadLoadPromises = [];
+					var stepIconLoadPromises = [];
 					_.each(stepSourceService.libraries, function(aLibrary) {
 						_.each(aLibrary.steps, function(aStep, stepID) {
 							var step = aLibrary.steps[stepID][aLibrary.latestStepVersions[stepID]];
-							stepIconLoadLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)));
+							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)));
 						});
 					});
 
-					return $q.all(stepIconLoadLoadPromises).then(function() {
+					return $q.all(stepIconLoadPromises).then(function() {
 						return $q.when();
 					}, function() {
 						return $q.when();

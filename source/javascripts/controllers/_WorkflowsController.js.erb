@@ -40,14 +40,14 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 						return new Workflow(aWorkflowID, aWorkflowConfig);
 					});
 
-					var stepIconLoadLoadPromises = [];
+					var stepIconLoadPromises = [];
 					_.each(viewModel.workflows, function(aWorkflow) {
 						_.each(aWorkflow.steps, function(aStep) {
-							stepIconLoadLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(aStep)));
+							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(aStep)));
 						});
 					});
 
-					$q.all(stepIconLoadLoadPromises).then(function() {
+					$q.all(stepIconLoadPromises).then(function() {
 						resolve();
 					}, function() {
 						resolve();
