@@ -1,0 +1,97 @@
+@import "default";
+@import "constants";
+
+.workflow-description {
+	$padding: 15px 25px;
+
+	position: relative;
+	border: 1px solid $def-mediumlightgrey;
+	@include border-radius($def-radius);
+	overflow: hidden;
+
+	button.edit {
+		@include position(absolute, 0, 0);
+		@include size(100%);
+	}
+
+	button.edit:not(:hover):not(:focus) ~ h3 span.edit-icon {
+		opacity: 0;
+	}
+
+	button.edit:hover, button.edit:focus {
+
+		&:not(.ninja) ~ article {
+			background-color: white;
+		}
+	}
+
+	h3 {
+		@include display-flex;
+		@include margin-y(0);
+		border-bottom: 1px solid $def-mediumlightgrey;
+		padding: $padding;
+		font-size: 12px;
+		text-transform: uppercase;
+		font-weight: 500;
+		color: $def-mediumdarkgrey;
+		background-color: $def-verylightgrey;
+
+		span.description-icon {
+
+			svg {
+				@include size(13px, auto);
+				fill: $def-mediumdarkgrey;
+			}
+		}
+
+		strong {
+			@include padding-x(12px);
+		}
+
+		span.edit-icon {
+			margin-left: auto;
+			@include transition(opacity $def-transition_duration);
+
+			svg {
+				@include size(13px, auto);
+				fill: $def-mediumdarkgrey;
+			}
+		}
+	}
+
+	&.edit-mode {
+
+		article {
+			background-color: white;
+		}
+	}
+
+	article {
+		background-color: $def-verylightgrey;
+		@include transition(background-color $def-transition_duration);
+
+		div.description, textarea.description {
+			padding: $padding;
+		}
+
+		div.description {
+			font-size: 12px;
+			color: $def-darkgrey;
+
+			a {
+				position: relative;
+			}
+
+			em.no-description {
+				color: $def-grey;
+			}
+		}
+
+		textarea.description {
+			width: 100%;
+			@include SourceCodeProWithFallback;
+			font-size: 12px;
+			border: none;
+		}
+	}
+}

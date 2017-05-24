@@ -1,0 +1,11 @@
+.workflow-description[ng-class="{'edit-mode': workflowDescriptionCtrl.isEditMode}"]
+	button.edit[ng-if="!workflowDescriptionCtrl.isEditMode" ng-click="workflowDescriptionCtrl.isEditMode = !workflowDescriptionCtrl.isEditMode"]
+	h3
+		span.description-icon = svg("code")
+		strong[ng-bind="descriptionHeader()"]
+		span.edit-icon[ng-if="!workflowDescriptionCtrl.isEditMode"] = svg("pencil")
+	article
+		.description[ng-if="!workflowDescriptionCtrl.isEditMode"]
+			span[ng-if="workflow.description()" btf-markdown="workflow.description()"]
+			em.no-description[ng-if="!workflow.description()"] == data[:strings][:workflows][:description][:no_description]
+		textarea.description[msd-elastic description-editor ng-if="workflowDescriptionCtrl.isEditMode" ng-model="workflow.description" ng-model-options="{getterSetter: true}" ng-blur="workflowDescriptionCtrl.isEditMode = false"]

@@ -337,6 +337,7 @@
 					h2 {
 						$color: $def-mediumdarkgrey;
 
+						position: relative;
 						@include flex-grow(1);
 						@include align-self(flex-end);
 						@include display-flex;
@@ -347,18 +348,35 @@
 						margin-left: $spacing;
 						border: 1px solid $color;
 						@include border-radius($def-radius);
+						overflow: hidden;
 						font-size: 14px;
 						font-weight: 300;
 						color: $color;
-						@include transition(background-color $def-transition_duration);
 
-						.run-workflow {
+						button.edit {
+							@include position(absolute, 0, 0);
+							@include size(100%);
+
+							&:hover ~ span.icons-and-name, &:focus ~ span.icons-and-name {
+								background-color: white;
+
+								span.edit-icon {
+									opacity: 1;
+								}
+							}
+						}
+
+						span.icons-and-name {
+							@include flex-grow(1);
 							@include display-flex;
 							padding: 6px 8px;
-							overflow: hidden;
+							@include ellipsis-oneliner;
+							
+							background-color: $def-ultralightgrey;
+							@include transition(background-color $def-transition_duration);
 
 							span.icon {
-								@include flex-shrink(0);
+								display: inline-block;
 								margin-right: 6px;
 
 								svg {
@@ -368,11 +386,24 @@
 							}
 
 							span.workflow-name {
+								@include flex-grow(1);
 								@include ellipsis-oneliner;
+							}
+
+							span.edit-icon {
+								margin-left: 6px;
+								opacity: 0;
+								@include transition(opacity $def-transition_duration);
+
+								svg {
+									@include size(12px, 10px);
+									fill: $color;
+								}
 							}
 						}
 
 						button.remove {
+							position: relative;
 							@include flex-shrink(0);
 							@include align-self(stretch);
 							margin-left: auto;
@@ -398,8 +429,10 @@
 					$add_step-borderwidth: 1px;
 
 					@include display-flex;
+					@include align-items(flex-start);
 
 					ul.steps {
+						@include align-self(stretch);
 						@include display-flex;
 						@include flex-direction(column);
 						@include margin-y(0);
@@ -452,6 +485,10 @@
 								&:before {
 									display: none;
 								}
+							}
+
+							button.add-step:last-child {
+								margin-right: $spacing + $steptitle-width;
 							}
 
 							.step-actions {
@@ -535,7 +572,11 @@
 							}
 						}
 
-						li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info, li.selected .step-actions button.step span.info {
+						li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info {
+							background-color: $def-mediumlightgrey;
+						}
+
+						li.selected .step-actions button.step span.info {
 							$color: $def-darkgrey;
 
 							border-color: $color;
@@ -555,14 +596,18 @@
 						z-index: $zindex-dragged_element;
 					}
 
+					aside.selected-step, aside[workflow-description] {
+						@include flex-grow(1);
+						margin-top: $add_step-size + $spacing;
+						margin-bottom: 50px;
+					}
+
 					aside.selected-step {
 						$trashicon_width: 17px;
 						$leftpadding: 25px;
 						$rightpadding: ($icon-size - $trashicon_width) / 2 + 3px;
 						$horizontalpadding_small: 12px;
 
-						@include flex-grow(1);
-						margin-top: $add_step-size + $spacing;
 						overflow: hidden;
 
 						&:not(.ninja) > * {
@@ -1316,10 +1361,17 @@
 						}
 					}
 					
-					article ul.steps li .step-actions {
+					article ul.steps li {
 
-						button.step span.info {
-							width: $steptitle-width_small;
+						button.add-step:last-child {
+							margin-right: $spacing + $steptitle-width_small;
+						}
+
+						.step-actions {
+
+							button.step span.info {
+								width: $steptitle-width_small;
+							}
 						}
 					}
 				}
@@ -1334,15 +1386,22 @@
 						}
 					}
 
-					article ul.steps li .step-actions {
+					article ul.steps li {
 
-						button.step span.icon {
-							position: static;
-							display: block;
+						button.add-step:last-child {
+							margin-right: 0;
 						}
-					
-						button.step span.info {
-							display: none;
+
+						.step-actions {
+
+							button.step span.icon {
+								position: static;
+								display: block;
+							}
+						
+							button.step span.info {
+								display: none;
+							}
 						}
 					}
 				}
@@ -1370,26 +1429,11 @@
 			}
 
 			section.workflow.selected {
-
 				background-color: white;
-
-				header {
-
-					h2 {
-						background-color: white;
-					}
-				}
 			}
 
 			section.workflow:not(.selected) {
 				$inactive_opacity: 0.7;
-
-				header {
-
-					h2 {
-						background-color: $def-ultralightgrey;
-					}
-				}
 
 				article {
 
@@ -1484,7 +1528,7 @@
 				}
 			}
 
-			section.workflow.selected {
+			section.workflow.selected:not(:first-child) {
 
 				header.workflow-header {
 
@@ -1494,7 +1538,7 @@
 				}
 			}
 
-			section.workflow:not(.selected) {
+			section.workflow:not(.selected):not(:first-child) {
 
 				header.workflow-header {
 

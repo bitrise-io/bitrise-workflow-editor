@@ -35,10 +35,12 @@
 			section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 				header.workflow-header
 					h2
-						.run-workflow
+						button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex)"]
+						span.icons-and-name
 							span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] = svg("workflow/icon-before_run")
 							span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] = svg("workflow/icon-after_run")
 							span.workflow-name[ng-bind="workflow.id"]
+							span.edit-icon = svg("code")
 						button.remove[ng-if="workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1 || workflowChainLink.selectedWorkflowAfterRunWorkflowIndex != -1" ng-click="workflowsCtrl.deleteBeforeAfterWorkflowAtWorkflowChainLink(workflowChainLink)"] = svg("cross")
 				article
 					ul.steps
@@ -57,7 +59,8 @@
 									button.update-step[ng-if="!stepSourceService.isLatestStepVersion(step)" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"]
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
-					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep"]
+					aside[workflow-description="workflow" ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && !workflowsCtrl.selectedStep"]
+					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-click-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.tab-workflows .manage-workflows, .tab-workflows ul.steps'"]
 						.step-details
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
@@ -74,7 +77,7 @@
 									button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
 							section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
 								span.icon
-									= svg("step/description")
+									= svg("code")
 								.markdown[btf-markdown="workflowsCtrl.selectedStep.description()" ng-class="{'oneliner': !workflowsCtrl.shouldShowDescription}"]
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
