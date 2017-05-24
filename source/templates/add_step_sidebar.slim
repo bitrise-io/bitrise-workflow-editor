@@ -26,7 +26,7 @@
 								button.page[ng-repeat="pageIndex in [].constructor(category.paginateStepsConfig.pageCount) track by $index" ng-disabled="$index == category.paginateStepsConfig.currentPageIndex" ng-click="category.paginateStepsConfig.currentPageIndex = $index; category.paginateStepsConfig.currentOffsetInPage = 0;"]
 						.steps-wrapper
 							ol.steps[add-step-dragger drag-in-progress-flag="addStepCtrl.isDragInProgress" paginate-steps-config="category.paginateStepsConfig"]
-								li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps(category.steps)" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" select-callback="addStepCtrl.stepSelected(step)" prevent-activation="addStepCtrl.isDragInProgress || addStepCtrl.isStepVisible(step, category)"]
+								li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps(category.steps)" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" select-callback="addStepCtrl.stepSelected(step)"]
 							button.paginate.left[ng-click="addStepCtrl.paginateSelected(category, 'left')" ng-disabled="category.paginateStepsConfig.currentPageIndex == 0 && category.paginateStepsConfig.currentOffsetInPage == 0" tabindex="-1"]
 							button.paginate.right[ng-click="addStepCtrl.paginateSelected(category, 'right')" ng-disabled="category.paginateStepsConfig.currentPageIndex == category.paginateStepsConfig.pageCount - 1" tabindex="-1"]
 				button.show-all-steps[ng-click="addStepCtrl.isCategoryMode = false"]

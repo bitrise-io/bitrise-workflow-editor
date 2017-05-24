@@ -1,5 +1,5 @@
 .step
-	button.select.angular-animated[ng-click="selected()" ng-class="{'active': isActive}" tabindex="{{ shouldPreventActivation() ? '-1' : undefined }}"] = svg("plus")
+	button.select.angular-animated[ng-click="selected()"] = svg("plus")
 	.step-content
 		.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
 		.details
@@ -8,6 +8,3 @@
 				span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 				span.community-created[ng-if="!step.isVerified()"] = svg("step/badge-community_created")
 			.summary[btf-markdown="step.summary()"]
-			.actions.angular-animated[ng-if="isActive"]
-				a.source[href="{{ step.sourceURL() }}" target="_blank"] = svg("logo/github")
-				button.confirm-add-step.rebo.small.wide.green[ng-click="selected()"] == "+ " + data[:strings][:workflows][:steps][:add][:action]

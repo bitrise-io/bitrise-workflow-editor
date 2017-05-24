@@ -464,63 +464,12 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 }).directive("addStepSidebarStep", function($animate) {
 
-	var activateDebounceInMilliseconds = 500;
-
 	return {
 		restrict: "C",
 		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar_step] )%>",
 		scope: {
 			step: "=",
-			shouldPreventActivation: "&preventActivation",
 			selected: "&selectCallback"
-		},
-		link: function(scope, element, attrs) {
-			scope.isActive = false;
-
-			var selectButtonElement = element.find("button.select");
-
-			function activateStep(event) {
-				var shouldPreventActivation = scope.shouldPreventActivation();
-
-				setTimeout(function() {
-					shouldPreventActivation = shouldPreventActivation || scope.shouldPreventActivation();
-
-					if (shouldPreventActivation) {
-						if ($(event.target).is(":focus")) {
-							$(event.target).blur();
-						}
-
-						return;
-					}
-
-					if (!$(event.target).is(":focus") && !$(event.target).is(":hover")) {
-						return;
-					}
-
-					scope.isActive = true;
-
-					scope.$digest();
-				}, activateDebounceInMilliseconds);
-			};
-
-			function deactivateStep(event) {
-				var newTargetElement = event.toElement || event.relatedTarget;
-
-				if (element.get(0) == newTargetElement || element.has(newTargetElement).length > 0) {
-					$(newTargetElement).bind(event.type, deactivateStep);
-
-					return;
-				}
-
-				scope.isActive = false;
-
-				scope.$digest();
-			}
-
-			selectButtonElement.bind("mouseenter", activateStep);
-			selectButtonElement.bind("mouseleave", deactivateStep);
-			selectButtonElement.bind("focusin", activateStep);
-			selectButtonElement.bind("focusout", deactivateStep);
 		}
 	};
 

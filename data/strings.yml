@@ -78,7 +78,6 @@ workflows:
         new_releases: New releases
         essentials: Essentials
         test: Test
-      action: Add
       load:
         in_progress: Loading steps, wait a sec...
     verified: Verified
