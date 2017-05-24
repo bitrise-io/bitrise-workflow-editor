@@ -1087,6 +1087,52 @@
 														color: inherit;
 													}
 												}
+
+												.is-expand {
+													@include display-flex;
+													@include align-items(center);
+													margin-top: 12px;
+													font-size: 11px;
+													font-weight: 300;
+
+													p {
+														@include display-flex;
+														@include align-items(center);
+														@include margin-y(0);
+
+														svg {
+															margin-right: 6px;
+														}
+
+														&.expanded svg {
+															@include size(10px, 9px);
+															fill: $def-green;
+														}
+
+														&.not-expanded svg {
+															@include size(8px);
+															fill: $def-danger;
+														}
+													}
+
+													a.devcenter-info {
+														margin-left: 6px;
+														@include border-radius($def-radius);
+														padding: 3px 8px;
+														color: white;
+														background-color: $def-green;
+														text-decoration: none;
+														@include transition(background-color $def-transition_duration);
+
+														&:before {
+															content: "?";
+														}
+
+														&:hover, &:focus {
+															background-color: $def-green-shade;
+														}
+													}
+												}
 											}
 
 											.input-change {
