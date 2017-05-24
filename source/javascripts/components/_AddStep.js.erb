@@ -25,7 +25,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 	return addStepService;
 
-}).controller("AddStepController", function($scope, $q, stringService, addStepService, requestService, iframeService, stepSourceService, appService, Progress) {
+}).controller("AddStepController", function($scope, $q, $filter, stringService, imageService, addStepService, requestService, iframeService, stepSourceService, appService, Progress) {
 
 	var viewModel = this;
 
@@ -98,7 +98,21 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			var loadPromises = [];
 
 			if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
-				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL]));
+				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL]).then(function() {
+					var stepIconLoadLoadPromises = [];
+					_.each(stepSourceService.libraries, function(aLibrary) {
+						_.each(aLibrary.steps, function(aStep, stepID) {
+							var step = aLibrary.steps[stepID][aLibrary.latestStepVersions[stepID]];
+							stepIconLoadLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)));
+						});
+					});
+
+					return $q.all(stepIconLoadLoadPromises).then(function() {
+						return $q.when();
+					}, function() {
+						return $q.when();
+					});
+				}));
 			}
 			if (requestService.mode == "website") {
 				loadPromises.push(appService.getProjectType());
