@@ -1,6 +1,53 @@
-## Changelog (Current version: 1.0.5)
+## Changelog (Current version: 1.0.6)
 
 -----------------
+
+## 1.0.6 (2017 May 25)
+
+### Release Notes
+
+* Input categories added
+* Workflow description added
+* UX update - top menu now sticks to the top of the screen when scrolling
+* Issue #123 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.6
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.5 -> 1.0.6
+
+* [a614ce0] erosdome - v1.0.6 (2017 May 25)
+* [0308bc3] erosdome - Make top menu sticky when scrolling (#143) (2017 May 25)
+* [2127f2f] erosdome - iframe message updated (2017 May 25)
+* [6893e14] erosdome - add step - expanded state removed (2017 May 24)
+* [50f57bd] erosdome - typo fix (2017 May 24)
+* [8b322e9] erosdome - add step sidebar - load step icons when loading step data (2017 May 24)
+* [39b6003] erosdome - environment variable replace/no replace added (2017 May 24)
+* [aeac161] erosdome - Workflow description added (#142) (2017 May 24)
+* [70eff20] erosdome - middleman svg helper method fix (2017 May 23)
+* [bc207d9] erosdome - input categories added (2017 May 23)
+* [256f56e] erosdome - docker configuration updated - fix port for development mode (2017 May 22)
+* [f231127] erosdome - triggers - normalize method should order them by type (2017 May 22)
+
 
 ## 1.0.5 (2017 May 19)
 
@@ -681,4 +728,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 19
+Updated: 2017 May 25
