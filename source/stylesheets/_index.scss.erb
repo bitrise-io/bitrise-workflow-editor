@@ -1,7 +1,7 @@
 @import "default";
 @import "constants";
 
-body > header.sticky {
+header.sticky {
 	z-index: $zindex-sticky_header;
 	
 	@include position(fixed, 0, 0);
@@ -12,210 +12,280 @@ body > header.sticky {
 	}
 }
 
-:not(header.sticky) > [sticky] {
-	visibility: hidden;
+$menubutton_verticalpadding: 12px;
+
+header.menu {
+	@include flex-shrink(0);
+	@include display-flex;
+	padding-top: 20px;
+	@include padding-x($main-horizontalpadding);
+
+	nav {
+		@include display-flex;
+		margin-right: auto;
+
+		button.tab {
+
+			&:before {
+				$border_width: 4px;
+				
+				content: "";
+				@include position(absolute, 100%, 0);
+				@include size(100%);
+				border-top: $border_width solid $def-green;
+				@include border-top-radius($border_width);
+				background-color: white;
+			}
+
+			position: relative;
+			@include display-flex;
+			@include justify-content(center);
+			@include align-items(center);
+			padding: $menubutton_verticalpadding 26px;
+			text-align: center;
+			font-size: 14px;
+			font-weight: 300;
+			color: $def-mediumdarkgrey;
+			text-decoration: none;
+			overflow: hidden;
+
+			span.icon {
+				@include flex-shrink(0);
+				@include display-flex;
+				@include align-items(center);
+				@include justify-content(center);
+				margin-right: 8px;
+
+				svg {
+					position: relative;
+					fill: $def-mediumdarkgrey;
+				}
+			}
+
+			span.title {
+				position: relative;
+			}
+		}
+
+		button.tab:hover:not(.current), button.tab:focus:not(.current) {
+			$color: $def-green;
+
+			color: $color;
+
+			span.icon svg {
+				fill: $color;
+			}
+		}
+
+		button.tab:not(.current) {
+			$transition_duration: $def-transition_duration;
+
+			@include transition(color $transition_duration);
+
+			span.icon svg {
+				@include transition(fill $transition_duration);
+			}
+		}
+
+		button.tab.current {
+			$color: black;
+
+			color: $color;
+
+			&:before {
+				top: 0;
+			}
+
+			span.icon svg {
+				fill: $color;
+			}
+		}
+
+		button.tab.workflows span.icon svg {
+			top: -1px;
+			@include size(18px, 12px);
+		}
+
+		button.tab.code-signing span.icon svg {
+			top: 0px;
+			@include size(17px, 15px);
+		}
+
+		button.tab.secrets span.icon svg {
+			top: -1px;
+			@include size(11px, 13px);
+		}
+
+		button.tab.env-vars span.icon svg {
+			top: -1px;
+			@include size(9px, 16px);
+		}
+
+		button.tab.triggers span.icon svg {
+			top: -1px;
+			@include size(9px, 17px);
+		}
+
+		button.tab.yml span.icon svg {
+			top: 0px;
+			@include size(15px, 9px);
+		}
+
+	}
+
+	aside.discard-save {
+		@include align-self(flex-end);
+		@include display-flex;
+		margin-left: 10px;
+		padding-bottom: $menubutton_verticalpadding;
+
+		button {
+			@include border-radius($def-button-border_radius);
+			@include padding-y(8px);
+			@include transition-duration($def-transition_duration);
+		}
+
+		button:not(:last-child) {
+			margin-right: 10px;
+		}
+
+		button.save {
+			@include padding-x(25px);
+			font-size: 13px;
+
+			span.save, span.saved, span.in-progress {
+				display: inline-block;
+				width: 60px;
+			}
+
+			span.save {
+
+				&.windows:before {
+					content: "Ctrl + S";
+				}
+
+				&.osx:before {
+					content: "⌘ + S";
+				}
+
+				&.other:before {
+					content: "<%= data[:strings][:main][:save] %>";
+				}
+			}
+
+			span.saved {
+
+				&:after {
+					content: "<%= data[:strings][:main][:saved] %>";
+					margin-left: 6px;
+				}
+
+				svg {
+					@include position(relative, 1px);
+					@include size(11px);
+				}
+			}
+
+			span.in-progress svg {
+				@include position(relative, 2px);
+				@include size(20px, 13px);
+
+				@include keyframes(rotate) {
+					from {
+						@include transform(rotate(0deg));
+					}
+					to {
+						@include transform(rotate(360deg));
+					}
+				};
+
+				@include animation(rotate 1s linear infinite);
+			}
+		}
+	}
+
+	@include media-below(1180px) {
+		@include flex-direction(column);
+
+		nav {
+			@include order(2);
+			margin-right: 0;
+
+			button.tab {
+				@include flex-grow(1);
+			}
+		}
+
+		aside.discard-save {
+			@include order(1);
+			margin-left: 0;
+		}
+	}
+
+	@include media-below-mid {
+		@include padding-x($main-horizontalpadding_small);
+
+		nav {
+
+			button.tab {
+				@include flex-direction(column);
+				@include justify-content(flex-start);
+				@include padding-x(15px);
+
+				span.icon {
+					height: 16px;
+					margin-right: 0;
+					margin-bottom: 5px;
+				}
+
+				span.title {
+					font-size: 12px;
+				}
+			}
+		}
+	}
+
+	@include media-below(520px) {
+
+		nav {
+
+			button.tab {
+				@include justify-content(center);
+
+				span.icon {
+					margin-bottom: 0;
+				}
+
+				span.title {
+					display: none;
+				}
+			}
+		}
+
+		aside.discard-save {
+			@include align-self(stretch);
+
+			button.discard {
+				@include flex-grow(1);
+			}
+
+			button.save {
+				@include flex-grow(2);
+			}
+		}
+	}
 }
 
-$menubutton_verticalpadding: 12px;
+header.sticky header.menu {
+	padding-top: 10px;
+	background-color: $def-ultralightgrey;
+}
 
 main {
 	@include flex-grow(1);
 	@include display-flex;
 	@include flex-direction(column);
 	background-color: $def-ultralightgrey;
-
-	header.menu {
-		@include padding-x($main-horizontalpadding);
-
-		@include media-below-mid {
-			@include padding-x($main-horizontalpadding_small);
-		}
-	}
-
-	header.menu {
-		@include flex-shrink(0);
-		@include display-flex;
-		padding-top: 20px;
-
-		nav {
-			@include display-flex;
-			margin-right: auto;
-
-			button.tab {
-
-				&:before {
-					$border_width: 4px;
-					
-					content: "";
-					@include position(absolute, 100%, 0);
-					@include size(100%);
-					border-top: $border_width solid $def-green;
-					@include border-top-radius($border_width);
-					background-color: white;
-				}
-
-				position: relative;
-				@include display-flex;
-				@include justify-content(center);
-				@include align-items(center);
-				padding: $menubutton_verticalpadding 26px;
-				text-align: center;
-				font-size: 14px;
-				font-weight: 300;
-				color: $def-mediumdarkgrey;
-				text-decoration: none;
-				overflow: hidden;
-
-				span.icon {
-					@include flex-shrink(0);
-					@include display-flex;
-					@include align-items(center);
-					@include justify-content(center);
-					margin-right: 8px;
-
-					svg {
-						position: relative;
-						fill: $def-mediumdarkgrey;
-					}
-				}
-
-				span.title {
-					position: relative;
-				}
-			}
-
-			button.tab:hover:not(.current), button.tab:focus:not(.current) {
-				$color: $def-green;
-
-				color: $color;
-
-				span.icon svg {
-					fill: $color;
-				}
-			}
-
-			button.tab:not(.current) {
-				$transition_duration: $def-transition_duration;
-
-				@include transition(color $transition_duration);
-
-				span.icon svg {
-					@include transition(fill $transition_duration);
-				}
-			}
-
-			button.tab.current {
-				$color: black;
-
-				color: $color;
-
-				&:before {
-					top: 0;
-				}
-
-				span.icon svg {
-					fill: $color;
-				}
-			}
-
-			button.tab.workflows span.icon svg {
-				top: -1px;
-				@include size(18px, 12px);
-			}
-
-			button.tab.code-signing span.icon svg {
-				top: 0px;
-				@include size(17px, 15px);
-			}
-
-			button.tab.secrets span.icon svg {
-				top: -1px;
-				@include size(11px, 13px);
-			}
-
-			button.tab.env-vars span.icon svg {
-				top: -1px;
-				@include size(9px, 16px);
-			}
-
-			button.tab.triggers span.icon svg {
-				top: -1px;
-				@include size(9px, 17px);
-			}
-
-			button.tab.yml span.icon svg {
-				top: 0px;
-				@include size(15px, 9px);
-			}
-
-		}
-
-		aside.discard-save {
-			margin-left: 10px;
-		}
-
-		@include media-below(1180px) {
-			@include flex-direction(column);
-
-			nav {
-				@include order(2);
-				margin-right: 0;
-
-				button.tab {
-					@include flex-grow(1);
-				}
-			}
-
-			aside.discard-save {
-				@include order(1);
-				margin-left: 0;
-			}
-		}
-
-		@include media-below-mid {
-
-			nav {
-
-				button.tab {
-					@include flex-direction(column);
-					@include justify-content(flex-start);
-					@include padding-x(15px);
-
-					span.icon {
-						height: 16px;
-						margin-right: 0;
-						margin-bottom: 5px;
-					}
-
-					span.title {
-						font-size: 12px;
-					}
-				}
-			}
-		}
-
-		@include media-below(520px) {
-
-			nav {
-
-				button.tab {
-					@include justify-content(center);
-
-					span.icon {
-						margin-bottom: 0;
-					}
-
-					span.title {
-						display: none;
-					}
-				}
-			}
-
-			aside.discard-save {
-				@include align-self(stretch);
-			}
-		}
-	}
 
 	article.menu-content {
 		@include flex-grow(1);
@@ -316,99 +386,5 @@ main {
 				text-align: center;
 			}
 		}
-	}
-}
-
-aside.discard-save {
-	@include align-self(flex-end);
-	@include display-flex;
-	padding-bottom: $menubutton_verticalpadding;
-
-	button {
-		@include border-radius($def-button-border_radius);
-		@include padding-y(8px);
-		@include transition-duration($def-transition_duration);
-	}
-
-	button:not(:last-child) {
-		margin-right: 10px;
-	}
-
-	button.save {
-		@include padding-x(25px);
-		font-size: 13px;
-
-		span.save, span.saved, span.in-progress {
-			display: inline-block;
-			width: 60px;
-		}
-
-		span.save {
-
-			&.windows:before {
-				content: "Ctrl + S";
-			}
-
-			&.osx:before {
-				content: "⌘ + S";
-			}
-
-			&.other:before {
-				content: "<%= data[:strings][:main][:save] %>";
-			}
-		}
-
-		span.saved {
-
-			&:after {
-				content: "<%= data[:strings][:main][:saved] %>";
-				margin-left: 6px;
-			}
-
-			svg {
-				@include position(relative, 1px);
-				@include size(11px);
-			}
-		}
-
-		span.in-progress svg {
-			@include position(relative, 2px);
-			@include size(20px, 13px);
-
-			@include keyframes(rotate) {
-				from {
-					@include transform(rotate(0deg));
-				}
-				to {
-					@include transform(rotate(360deg));
-				}
-			};
-
-			@include animation(rotate 1s linear infinite);
-		}
-	}
-
-	@include media-below(520px) {
-
-		button.discard {
-			@include flex-grow(1);
-		}
-
-		button.save {
-			@include flex-grow(2);
-		}
-	}
-}
-
-header.sticky > aside.discard-save {
-	@include display-flex;
-	@include justify-content(flex-end);
-	@include padding-y(8px);
-	background-color: $def-ultralightgrey;
-
-	@include padding-x($main-horizontalpadding);
-
-	@include media-below-mid {
-		@include padding-x($main-horizontalpadding_small);
 	}
 }

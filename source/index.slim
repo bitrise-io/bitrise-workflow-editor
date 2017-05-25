@@ -4,7 +4,7 @@ layout: layout
 
 header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
-	header.menu
+	header.menu[sticky sticking-index="1"]
 		nav
 			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
 				span.icon[ng-if="menu.cssClass == 'workflows'"] == svg("main/menuicon-workflows")
@@ -14,7 +14,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 				span.icon[ng-if="menu.cssClass == 'triggers'"] == svg("main/menuicon-triggers")
 				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
-		aside.discard-save[sticky sticking-index="1"]
+		aside.discard-save
 			button.discard.rebo.hollow.danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
 			button.save.rebo.green[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]
 				span[ng-if="!mainCtrl.saveProgress.isInProgress"]
