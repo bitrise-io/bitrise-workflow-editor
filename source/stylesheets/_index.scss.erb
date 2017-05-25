@@ -1,6 +1,23 @@
 @import "default";
 @import "constants";
 
+body > header.sticky {
+	z-index: $zindex-sticky_header;
+	
+	@include position(fixed, 0, 0);
+	width: 100%;
+
+	&:not(:empty) {
+		@include box-shadow(0px 3px 20px 0px rgba(0, 0, 0, 0.2));
+	}
+}
+
+:not(header.sticky) > [sticky] {
+	visibility: hidden;
+}
+
+$menubutton_verticalpadding: 12px;
+
 main {
 	@include flex-grow(1);
 	@include display-flex;
@@ -16,8 +33,6 @@ main {
 	}
 
 	header.menu {
-		$menubutton_verticalpadding: 12px;
-
 		@include flex-shrink(0);
 		@include display-flex;
 		padding-top: 20px;
@@ -135,75 +150,8 @@ main {
 
 		}
 
-		aside {
-			@include align-self(flex-end);
-			@include display-flex;
+		aside.discard-save {
 			margin-left: 10px;
-			padding-bottom: $menubutton_verticalpadding;
-
-			button {
-				@include border-radius($def-button-border_radius);
-				@include padding-y(8px);
-				@include transition-duration($def-transition_duration);
-			}
-
-			button:not(:last-child) {
-				margin-right: 10px;
-			}
-
-			button.save {
-				@include padding-x(25px);
-				font-size: 13px;
-
-				span.save, span.saved, span.in-progress {
-					display: inline-block;
-					width: 60px;
-				}
-
-				span.save {
-
-					&.windows:before {
-						content: "Ctrl + S";
-					}
-
-					&.osx:before {
-						content: "⌘ + S";
-					}
-
-					&.other:before {
-						content: "<%= data[:strings][:main][:save] %>";
-					}
-				}
-
-				span.saved {
-
-					&:after {
-						content: "<%= data[:strings][:main][:saved] %>";
-						margin-left: 6px;
-					}
-
-					svg {
-						@include position(relative, 1px);
-						@include size(11px);
-					}
-				}
-
-				span.in-progress svg {
-					@include position(relative, 2px);
-					@include size(20px, 13px);
-
-					@include keyframes(rotate) {
-						from {
-							@include transform(rotate(0deg));
-						}
-						to {
-							@include transform(rotate(360deg));
-						}
-					};
-
-					@include animation(rotate 1s linear infinite);
-				}
-			}
 		}
 
 		@include media-below(1180px) {
@@ -218,9 +166,8 @@ main {
 				}
 			}
 
-			aside {
+			aside.discard-save {
 				@include order(1);
-				@include align-self(flex-end);
 				margin-left: 0;
 			}
 		}
@@ -264,16 +211,8 @@ main {
 				}
 			}
 
-			aside {
+			aside.discard-save {
 				@include align-self(stretch);
-
-				button.discard {
-					@include flex-grow(1);
-				}
-
-				button.save {
-					@include flex-grow(2);
-				}
 			}
 		}
 	}
@@ -377,5 +316,99 @@ main {
 				text-align: center;
 			}
 		}
+	}
+}
+
+aside.discard-save {
+	@include align-self(flex-end);
+	@include display-flex;
+	padding-bottom: $menubutton_verticalpadding;
+
+	button {
+		@include border-radius($def-button-border_radius);
+		@include padding-y(8px);
+		@include transition-duration($def-transition_duration);
+	}
+
+	button:not(:last-child) {
+		margin-right: 10px;
+	}
+
+	button.save {
+		@include padding-x(25px);
+		font-size: 13px;
+
+		span.save, span.saved, span.in-progress {
+			display: inline-block;
+			width: 60px;
+		}
+
+		span.save {
+
+			&.windows:before {
+				content: "Ctrl + S";
+			}
+
+			&.osx:before {
+				content: "⌘ + S";
+			}
+
+			&.other:before {
+				content: "<%= data[:strings][:main][:save] %>";
+			}
+		}
+
+		span.saved {
+
+			&:after {
+				content: "<%= data[:strings][:main][:saved] %>";
+				margin-left: 6px;
+			}
+
+			svg {
+				@include position(relative, 1px);
+				@include size(11px);
+			}
+		}
+
+		span.in-progress svg {
+			@include position(relative, 2px);
+			@include size(20px, 13px);
+
+			@include keyframes(rotate) {
+				from {
+					@include transform(rotate(0deg));
+				}
+				to {
+					@include transform(rotate(360deg));
+				}
+			};
+
+			@include animation(rotate 1s linear infinite);
+		}
+	}
+
+	@include media-below(520px) {
+
+		button.discard {
+			@include flex-grow(1);
+		}
+
+		button.save {
+			@include flex-grow(2);
+		}
+	}
+}
+
+header.sticky > aside.discard-save {
+	@include display-flex;
+	@include justify-content(flex-end);
+	@include padding-y(8px);
+	background-color: $def-ultralightgrey;
+
+	@include padding-x($main-horizontalpadding);
+
+	@include media-below-mid {
+		@include padding-x($main-horizontalpadding_small);
 	}
 }
