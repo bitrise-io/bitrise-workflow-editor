@@ -89,7 +89,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 
 		if (requestService.mode == "website") {
-			iframeService.sendMessage("shouldShowWorkflowEditorPopupCloseButton:" + (isVisible ? "no" : "yes"));
+			iframeService.sendMessage("shouldShowWorkflowEditorCloseButton:" + (isVisible ? "no" : "yes"));
 		}
 
 		if (isVisible) {
