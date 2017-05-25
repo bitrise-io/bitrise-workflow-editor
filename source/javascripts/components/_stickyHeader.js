@@ -2,48 +2,44 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("stickyService", function() {
-
-	var scrollDurationInMilliseconds = 300;
-
-	var stickyService = {};
-
-	stickyService.shouldBeSticking = function(targetScrollTop) {
-		var stickyHeaderElement = $("[sticky-header]").first();
-
-		if (stickyHeaderElement.length == 0) {
-			return undefined;
-		}
-
-		if (targetScrollTop === undefined) {
-			targetScrollTop = $(window).scrollTop();
-		}
-
-		return targetScrollTop > stickyHeaderElement.parent().position().top;
-	};
-
-	return stickyService;
-
-});
-
-angular.module("BitriseWorkflowEditor").directive("stickyHeader", function(stickyService, $parse) {
+angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 	return {
 		restrict: "A",
 		link: function(scope, element, attrs) {
+			var parentElement = element.parent();
+			var nextSiblingElement = element.next();
+			var placeholderElement;
 
 			function scrollHandler() {
-				var elementIsAlreadySticking = $(element).hasClass("sticking");
+				var stickingElement = $("header.sticky [sticking-index='" + attrs.stickingIndex + "']");
+				var shouldBeSticking = $(window).scrollTop() > element.parent().position().top && !$parse(attrs.skipStickyness)(scope);
+				var isAlreadySticking = stickingElement.length > 0;
 
-				if (stickyService.shouldBeSticking() && !$parse(attrs.skipStickyness)(scope)) {
-					if (!elementIsAlreadySticking) {
-						$(element).next().css("padding-top", $(element).outerHeight() + "px");
-						$(element).addClass("sticking");
+				if (shouldBeSticking) {
+					if (!isAlreadySticking) {
+						placeholderElement = angular.element("<div></div>");
+						placeholderElement.width(element.outerWidth());
+						placeholderElement.height(element.outerHeight());
+
+						$("header.sticky").append(element);
+
+						if (nextSiblingElement.length == 0) {
+							parentElement.append(placeholderElement);
+						}
+						else {
+							placeholderElement.insertBefore(nextSiblingElement);
+						}
 					}
 				}
 				else {
-					if (elementIsAlreadySticking) {
-						$(element).next().css("padding-top", "0");
-						$(element).removeClass("sticking");
+					if (isAlreadySticking) {
+						placeholderElement.remove();
+						if (nextSiblingElement.length == 0) {
+							parentElement.append(element);
+						}
+						else {
+							element.insertBefore(nextSiblingElement);
+						}
 					}
 				}
 			}

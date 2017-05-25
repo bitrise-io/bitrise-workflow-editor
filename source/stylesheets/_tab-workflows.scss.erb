@@ -1,6 +1,288 @@
 @import "default";
 @import "constants";
 
+section.manage-workflows {
+	$button-spacing: 8px;
+
+	@include flex-shrink(0);
+	@include display-flex;
+	@include flex-wrap(wrap);
+	padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
+	background-color: white;
+
+	&:not(.ninja) > * {
+		margin: $button-spacing / 2;
+	}
+
+	.workflow-selector {
+		@include display-flex;
+		position: relative;
+
+		.selected-workflow {
+			$color: $def-mediumdarkgrey;
+
+			@include display-flex;
+			@include box-sizing(border-box);
+			width: 100%;
+			border: 1px solid $color;
+			@include border-radius($def-radius);
+			overflow: hidden;
+			font-size: 12px;
+			background-color: $color;
+
+			&:before {
+				content: "<%= data[:strings][:workflows][:select_workflow_placeholder] %>";
+				@include flex-shrink(0);
+				@include align-self(center);
+				@include padding-x(15px);
+				text-align: center;
+				font-weight: 200;
+				text-transform: uppercase;
+				color: white;
+			}
+
+			button {
+				@include flex-grow(1);
+				width: 160px;
+				@include border-left-radius(0);
+				border: none;
+				@include ellipsis-oneliner;
+				color: $color;
+
+				@include media-below-big {
+					width: 180px;
+				}
+			}
+		}
+
+		ul {
+			$border: 1px solid $def-lightgrey;
+			$li_padding: 12px;
+			$li_fontsize: 14px;
+
+			@include position(absolute, 100%, 0);
+			z-index: $zindex-workflow_selector;
+			width: 100%;
+			margin-top: 10px;
+			margin-bottom: 0;
+			border: $border;
+			@include border-radius($def-radius);
+			padding-left: 0;
+			overflow: hidden;
+			list-style: none;
+			@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
+
+			li {
+				font-size: $li_fontsize;
+				font-weight: 200;
+
+				&.selected .workflow svg, &:not(.selected) .workflow button.select-workflow:before {
+					@include flex-shrink(0);
+					@include size(12px, 11px);
+					margin-right: 10px;
+				}
+
+				&.selected .workflow {
+					@include display-flex;
+					@include align-items(center);
+					padding: $li_padding;
+					background-color: $def-green;
+					color: white;
+
+					svg {
+						fill: white;
+					}
+
+					span.workflow-id {
+						@include flex-grow(1);
+						@include ellipsis-oneliner;
+					}
+
+					button.select-workflow {
+						display: none;
+					}
+
+					button.rename-workflow {
+						margin-left: 6px;
+						text-align: left;
+						font-size: 10px;
+						text-transform: uppercase;
+
+						&:before {
+							content: "Rename";
+						}
+					}
+
+					button.rename-workflow:hover, button.rename-workflow:focus {
+						text-decoration: underline;
+					}
+				}
+
+				&:not(.selected) .workflow {
+					@include display-flex;
+
+					svg {
+						display: none;
+					}
+
+					span.workflow-id {
+						display: none;
+					}
+
+					button.select-workflow {
+						width: 100%;
+						padding: $li_padding;
+						text-align: left;
+						@include ellipsis-oneliner;
+						background-color: white;
+						@include transition(color $def-transition_duration, background-color $def-transition_duration);
+
+						&:before {
+							content: "○";
+							display: inline-block;
+							text-align: center;
+						}
+					}
+
+					button.select-workflow:hover, button.select-workflow:focus {
+						background-color: $def-green;
+						color: white;
+					}
+
+					button.rename-workflow {
+						display: none;
+					}
+				}
+			}
+
+			li:not(:last-child) {
+				border-bottom: $border;
+			}
+
+			li:not(.rename-in-progress) {
+
+				form.workflow-rename {
+					display: none;
+				}
+			}
+
+			li.rename-in-progress {
+
+				.workflow {
+					display: none;
+				}
+
+				form.workflow-rename {
+					@include display-flex;
+
+					input.name {
+						@include flex-grow(1);
+						margin: 0;
+						border: none;
+						padding: $li_padding;
+						font-size: $li_fontsize;
+						color: $def-mediumdarkgrey;
+					}
+
+					input.ok {
+						width: 12px;
+						@include box-sizing(content-box);
+						background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
+							fill: rgba(white, 0.99)
+						)), none;
+						background-size: 100% auto;
+						background-position: center;
+						background-origin: content-box;
+						background-repeat: no-repeat;
+					}
+				}
+			}
+		}
+
+		ul.ng-animate {
+			@include transition(opacity $def-transition_duration);
+		}
+
+		ul.ng-hide {
+			opacity: 0;
+		}
+
+		@include media-below(580px) {
+			width: 100%;
+		}
+	}
+
+	button.manage-button {
+		font-size: 12px;
+	}
+
+	button.add-workflow, button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
+		@include flex-grow(1);
+
+		svg:last-of-type {
+			margin-right: 8px;
+		}
+
+		@include media-below-mid {
+
+			svg:last-of-type {
+				margin-right: 0;
+			}
+
+			span {
+				display: none;
+			}
+		}
+	}
+
+	button.add-workflow {
+
+		svg {
+			@include size(10px);
+		}
+	}
+
+	button.add-before-run-workflow {
+
+		svg {
+			@include size(10px, 10px);
+		}
+	}
+
+	button.add-after-run-workflow {
+
+		svg {
+			@include size(10px, 10px);
+		}
+	}
+
+	button.rearrange {
+
+		svg {
+			@include size(8px, 13px);
+		}
+
+		svg:first-of-type {
+			@include transform(rotate(180deg));
+		}
+	}
+
+	button.delete-workflow {
+
+		svg {
+			@include size(8px);
+		}
+	}
+
+	@include media-below-mid {
+		@include padding-x($main-horizontalpadding_small - ($button-spacing / 2));
+	}
+}
+
+header.sticky section.manage-workflows {
+	@include padding-y(10px);
+}
+
 .tab-workflows {
 	@include flex-grow(1);
 	@include flex-shrink(0);
@@ -20,292 +302,6 @@
 		@include flex-shrink(0);
 		@include display-flex;
 		@include flex-direction(column);
-
-		section.manage-workflows {
-			$button-spacing: 8px;
-
-			@include flex-shrink(0);
-			@include display-flex;
-			@include flex-wrap(wrap);
-			padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
-			background-color: white;
-
-			&:not(.ninja) > * {
-				margin: $button-spacing / 2;
-			}
-
-			.workflow-selector {
-				@include display-flex;
-				position: relative;
-
-				.selected-workflow {
-					$color: $def-mediumdarkgrey;
-
-					@include display-flex;
-					@include box-sizing(border-box);
-					width: 100%;
-					border: 1px solid $color;
-					@include border-radius($def-radius);
-					overflow: hidden;
-					font-size: 12px;
-					background-color: $color;
-
-					&:before {
-						content: "<%= data[:strings][:workflows][:select_workflow_placeholder] %>";
-						@include flex-shrink(0);
-						@include align-self(center);
-						@include padding-x(15px);
-						text-align: center;
-						font-weight: 200;
-						text-transform: uppercase;
-						color: white;
-					}
-
-					button {
-						@include flex-grow(1);
-						width: 160px;
-						@include border-left-radius(0);
-						border: none;
-						@include ellipsis-oneliner;
-						color: $color;
-
-						@include media-below-big {
-							width: 180px;
-						}
-					}
-				}
-
-				ul {
-					$border: 1px solid $def-lightgrey;
-					$li_padding: 12px;
-					$li_fontsize: 14px;
-
-					@include position(absolute, 100%, 0);
-					z-index: $zindex-workflow_selector;
-					width: 100%;
-					margin-top: 10px;
-					margin-bottom: 0;
-					border: $border;
-					@include border-radius($def-radius);
-					padding-left: 0;
-					overflow: hidden;
-					list-style: none;
-					@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
-
-					li {
-						font-size: $li_fontsize;
-						font-weight: 200;
-
-						&.selected .workflow svg, &:not(.selected) .workflow button.select-workflow:before {
-							@include flex-shrink(0);
-							@include size(12px, 11px);
-							margin-right: 10px;
-						}
-
-						&.selected .workflow {
-							@include display-flex;
-							@include align-items(center);
-							padding: $li_padding;
-							background-color: $def-green;
-							color: white;
-
-							svg {
-								fill: white;
-							}
-
-							span.workflow-id {
-								@include flex-grow(1);
-								@include ellipsis-oneliner;
-							}
-
-							button.select-workflow {
-								display: none;
-							}
-
-							button.rename-workflow {
-								margin-left: 6px;
-								text-align: left;
-								font-size: 10px;
-								text-transform: uppercase;
-
-								&:before {
-									content: "Rename";
-								}
-							}
-
-							button.rename-workflow:hover, button.rename-workflow:focus {
-								text-decoration: underline;
-							}
-						}
-
-						&:not(.selected) .workflow {
-							@include display-flex;
-
-							svg {
-								display: none;
-							}
-
-							span.workflow-id {
-								display: none;
-							}
-
-							button.select-workflow {
-								width: 100%;
-								padding: $li_padding;
-								text-align: left;
-								@include ellipsis-oneliner;
-								background-color: white;
-								@include transition(color $def-transition_duration, background-color $def-transition_duration);
-
-								&:before {
-									content: "○";
-									display: inline-block;
-									text-align: center;
-								}
-							}
-
-							button.select-workflow:hover, button.select-workflow:focus {
-								background-color: $def-green;
-								color: white;
-							}
-
-							button.rename-workflow {
-								display: none;
-							}
-						}
-					}
-
-					li:not(:last-child) {
-						border-bottom: $border;
-					}
-
-					li:not(.rename-in-progress) {
-
-						form.workflow-rename {
-							display: none;
-						}
-					}
-
-					li.rename-in-progress {
-
-						.workflow {
-							display: none;
-						}
-
-						form.workflow-rename {
-							@include display-flex;
-
-							input.name {
-								@include flex-grow(1);
-								margin: 0;
-								border: none;
-								padding: $li_padding;
-								font-size: $li_fontsize;
-								color: $def-mediumdarkgrey;
-							}
-
-							input.ok {
-								width: 12px;
-								@include box-sizing(content-box);
-								background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
-									fill: rgba(white, 0.99)
-								)), none;
-								background-size: 100% auto;
-								background-position: center;
-								background-origin: content-box;
-								background-repeat: no-repeat;
-							}
-						}
-					}
-				}
-
-				ul.ng-animate {
-					@include transition(opacity $def-transition_duration);
-				}
-
-				ul.ng-hide {
-					opacity: 0;
-				}
-
-				@include media-below(580px) {
-					width: 100%;
-				}
-			}
-
-			button.manage-button {
-				font-size: 12px;
-			}
-
-			button.add-workflow, button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
-				@include flex-grow(1);
-
-				svg:last-of-type {
-					margin-right: 8px;
-				}
-
-				@include media-below-mid {
-
-					svg:last-of-type {
-						margin-right: 0;
-					}
-
-					span {
-						display: none;
-					}
-				}
-			}
-
-			button.add-workflow {
-
-				svg {
-					@include size(10px);
-				}
-			}
-
-			button.add-before-run-workflow {
-
-				svg {
-					@include size(10px, 10px);
-				}
-			}
-
-			button.add-after-run-workflow {
-
-				svg {
-					@include size(10px, 10px);
-				}
-			}
-
-			button.rearrange {
-
-				svg {
-					@include size(8px, 13px);
-				}
-
-				svg:first-of-type {
-					@include transform(rotate(180deg));
-				}
-			}
-
-			button.delete-workflow {
-
-				svg {
-					@include size(8px);
-				}
-			}
-
-			@include media-below-mid {
-				@include padding-x($main-horizontalpadding_small - ($button-spacing / 2));
-			}
-		}
-
-		section.manage-workflows[sticky-header].sticking {
-			@include position(fixed, 0, 0);
-			z-index: $zindex-sticky_header-manage_workflows;
-			@include box-sizing(border-box);
-			width: 100%;
-			@include box-shadow(0px 3px 20px 0px rgba(0, 0, 0, 0.2));
-		}
 
 		.workflows {
 			$spacing: 8px;

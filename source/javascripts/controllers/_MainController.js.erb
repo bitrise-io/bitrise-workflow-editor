@@ -349,6 +349,15 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 					iframeService.sendMessage("requestingConfiguration");
 
+					var isScrollAtTop = $(window).scrollTop() == 0;
+					$(window).on("scroll", function() {
+						if (isScrollAtTop != ($(window).scrollTop() == 0)) {
+							iframeService.sendMessage($(window).scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
+						}
+
+						isScrollAtTop = $(window).scrollTop() == 0;
+					});
+
 					break;
 				case "cli":
 					resolve();

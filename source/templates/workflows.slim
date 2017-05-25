@@ -1,7 +1,7 @@
 .tab-workflows[ng-controller="WorkflowsController as workflowsCtrl"]
 	p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
 	.content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
-		section.manage-workflows[sticky-header skip-stickyness="workflowsCtrl.workflowSelectorIsVisible"]
+		section.manage-workflows[sticky sticking-index="2" skip-stickyness="workflowsCtrl.workflowSelectorIsVisible"]
 			.workflow-selector[floating-menu toggle="workflowsCtrl.workflowSelectorIsVisible"]
 				.selected-workflow[ng-if="workflowsCtrl.selectedWorkflow"]
 					button.mak[ng-bind="workflowsCtrl.selectedWorkflow.id" ng-click="workflowsCtrl.workflowSelectorIsVisible = !workflowsCtrl.workflowSelectorIsVisible"]
@@ -60,7 +60,7 @@
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 					aside[workflow-description="workflow" ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && !workflowsCtrl.selectedStep"]
-					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-click-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.tab-workflows .manage-workflows, .tab-workflows ul.steps'"]
+					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-click-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.manage-workflows, .tab-workflows ul.steps'"]
 						.step-details
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
