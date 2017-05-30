@@ -1,6 +1,43 @@
-## Changelog (Current version: 1.0.6)
+## Changelog (Current version: 1.0.7)
 
 -----------------
+
+## 1.0.7 (2017 May 30)
+
+### Release Notes
+
+* Issues #145, #146, #148, #149 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.7
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.6 -> 1.0.7
+
+* [897d184] erosdome - v1.0.7 (2017 May 30)
+* [c6e5b21] erosdome - sticky header fix (2017 May 30)
+* [6a98a7f] Viktor Benei - Environment Variables will be replaced in input... - clarification (#147) (2017 May 30)
+* [3df16da] erosdome - workflow name validation on create (2017 May 30)
+* [5e4c188] erosdome - step rename fixed (2017 May 30)
+
 
 ## 1.0.6 (2017 May 25)
 
@@ -728,4 +765,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 25
+Updated: 2017 May 30
