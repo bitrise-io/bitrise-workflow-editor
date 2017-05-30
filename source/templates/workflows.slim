@@ -60,7 +60,7 @@
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 					aside[workflow-description="workflow" ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && !workflowsCtrl.selectedStep"]
-					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-click-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.manage-workflows, .tab-workflows ul.steps'"]
+					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-mousedown-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.manage-workflows, .tab-workflows ul.steps'"]
 						.step-details
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
