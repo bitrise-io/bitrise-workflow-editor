@@ -97,8 +97,8 @@ workflows:
     empty_value: no value
     value_placeholder: Enter value
     required: required
-    will_be_replaced: Environment Variables will be replaced in input.
-    wont_be_replaced: Environment Variables won't be replaced in input.
+    will_be_replaced: Environment Variables will be replaced in input by the Bitrise CLI before starting the Step.
+    wont_be_replaced: Environment Variables won't be replaced in input by the Bitrise CLI before starting the Step.
     insert_variable: Insert variable from list
     insert_variable:
       action: Insert variable
