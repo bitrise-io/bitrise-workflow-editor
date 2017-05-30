@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").directive("callbackOnClickElsewhere", function($document, $parse) {
+angular.module("BitriseWorkflowEditor").directive("callbackOnMousedownElsewhere", function($document, $parse) {
 	return {
 		restrict: "A",
 		link: function(scope, element, attrs) {
@@ -29,14 +29,14 @@ angular.module("BitriseWorkflowEditor").directive("callbackOnClickElsewhere", fu
 					}
 				}
 
-				$parse(attrs.callbackOnClickElsewhere)(scope);
+				$parse(attrs.callbackOnMousedownElsewhere)(scope);
 				scope.$apply();
 			}
 
-			$document.bind("click", executeCallbackOnClickElsewhere);
+			$document.bind("mousedown", executeCallbackOnClickElsewhere);
 
 			scope.$on("$destroy", function() {
-				$document.unbind("click", executeCallbackOnClickElsewhere);
+				$document.unbind("mousedown", executeCallbackOnClickElsewhere);
 			});
 		}
 	}

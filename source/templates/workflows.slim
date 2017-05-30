@@ -60,7 +60,7 @@
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 					aside[workflow-description="workflow" ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && !workflowsCtrl.selectedStep"]
-					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-click-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.manage-workflows, .tab-workflows ul.steps'"]
+					aside.selected-step[ng-if="workflowIndex == workflowsCtrl.editedWorkflowIndex && workflowsCtrl.selectedStep" callback-on-mousedown-elsewhere="workflowsCtrl.stepSelected(null)" elsewhere-exceptions-selector="'.manage-workflows, .tab-workflows ul.steps'"]
 						.step-details
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
@@ -142,7 +142,7 @@
 				label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
 				select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowSourceWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
 			footer
-				button.rebo.big.green[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="workflowsCtrl.addWorkflowID.length == 0 || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:done]
+				button.rebo.big.green[ng-click="workflowsCtrl.addWorkflow()" ng-disabled="!Workflow.isValidID(workflowsCtrl.addWorkflowID) || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0"] == data[:strings][:workflows][:add_workflow][:done]
 	popup[model="workflowsCtrl.addRunWorkflowPopup"]
 		.popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
 			header
