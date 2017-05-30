@@ -17,36 +17,45 @@ angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 
 				if (shouldBeSticking) {
 					if (!isAlreadySticking) {
-						placeholderElement = angular.element("<div></div>");
-						placeholderElement.width(element.outerWidth());
-						placeholderElement.height(element.outerHeight());
-
-						$("header.sticky").append(element);
-
-						if (nextSiblingElement.length == 0) {
-							parentElement.append(placeholderElement);
-						}
-						else {
-							placeholderElement.insertBefore(nextSiblingElement);
-						}
+						stick();
 					}
 				}
 				else {
 					if (isAlreadySticking) {
-						placeholderElement.remove();
-						if (nextSiblingElement.length == 0) {
-							parentElement.append(element);
-						}
-						else {
-							element.insertBefore(nextSiblingElement);
-						}
+						unstick();
 					}
+				}
+			}
+
+			function stick() {
+				placeholderElement = angular.element("<div></div>");
+				placeholderElement.width(element.outerWidth());
+				placeholderElement.height(element.outerHeight());
+
+				$("header.sticky").append(element);
+
+				if (nextSiblingElement.length == 0) {
+					parentElement.append(placeholderElement);
+				}
+				else {
+					placeholderElement.insertBefore(nextSiblingElement);
+				}
+			}
+
+			function unstick() {
+				placeholderElement.remove();
+				if (nextSiblingElement.length == 0) {
+					parentElement.append(element);
+				}
+				else {
+					element.insertBefore(nextSiblingElement);
 				}
 			}
 
 			$(window).on("scroll", scrollHandler);
 
 			scope.$on("$destroy", function() {
+				unstick();
 				$(window).off("scroll", scrollHandler);
 			});
 		}
