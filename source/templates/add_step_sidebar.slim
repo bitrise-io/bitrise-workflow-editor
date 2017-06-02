@@ -12,6 +12,7 @@
 						span.platform-icon.xamarin = svg("logo/xamarin")
 						span.platform-icon.cordova = svg("logo/cordova")
 						span.platform-icon.ionic = svg("logo/ionic")
+						span.platform-icon.fastlane = svg("logo/fastlane")
 					button.all[ng-click="addStepCtrl.shouldFilterByProjectType = false" ng-disabled="!addStepCtrl.shouldFilterByProjectType"] == data[:strings][:workflows][:steps][:add][:all_project_types]
 			ol.type-filters[ng-if="!addStepCtrl.isCategoryMode"]
 				li[ng-repeat="typeFilter in addStepCtrl.filteredTypeFilters()"]
