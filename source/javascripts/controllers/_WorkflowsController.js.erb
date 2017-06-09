@@ -579,13 +579,27 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	// Step rename
 
+	$scope.Step = Step;
+	viewModel.renamedStep;
+	viewModel.renamedStepTitle;
+
+	$scope.$watch(function() {
+		return viewModel.renamedStep;
+	}, function(newRenamedStep, oldRenamedStep) {
+		if (newRenamedStep == null) {
+			if (Step.isValidTitle(viewModel.renamedStepTitle)) {
+				oldRenamedStep.title(viewModel.renamedStepTitle);
+			}
+		}
+
+		viewModel.renamedStepTitle = newRenamedStep ? newRenamedStep.title() : null;
+	});
+
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
 		viewModel.renamedStep = null;
 	});
-
-	viewModel.renamedStep;
 
 	// Inputs
 

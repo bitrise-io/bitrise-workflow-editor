@@ -31,6 +31,14 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return parameterGetterSetter(this, "title", newTitle);
 	};
 
+	Step.isValidTitle = function(title) {
+		if (title === undefined) {
+			return undefined;
+		}
+
+		return title && title.length > 0;
+	};
+
 	Step.prototype.summary = function(newSummary) {
 		return parameterGetterSetter(this, "summary", newSummary);
 	};
