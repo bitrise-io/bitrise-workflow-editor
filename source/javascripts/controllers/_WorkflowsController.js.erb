@@ -612,11 +612,21 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
+		configureInputsForStep(selectedStep);
+	});
+
+	$scope.$watch(function() {
+		return viewModel.selectedStep ? viewModel.selectedStep.requestedVersion() : undefined;
+	}, function() {
+		configureInputsForStep(viewModel.selectedStep);
+	});
+
+	function configureInputsForStep(step) {
 		viewModel.inputCategoriesOfSelectedStep = [];
 
-		if (selectedStep && selectedStep.defaultStepConfig) {
-			_.each(selectedStep.defaultStepConfig.inputs, function(anDefaultInputConfig) {
-				var userInputConfig = selectedStep.userStepConfig ? _.find(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+		if (step && step.defaultStepConfig) {
+			_.each(step.defaultStepConfig.inputs, function(anDefaultInputConfig) {
+				var userInputConfig = step.userStepConfig ? _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
 					return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig);
 				}) : [];
 
@@ -647,31 +657,31 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 					return !anInput.userVariableConfig || angular.equals(anInput.userVariableConfig, {});
 				}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
 					if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
-						var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+						var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
 						});
 
-						viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+						step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 
-						if (angular.equals(viewModel.selectedStep.userStepConfig.inputs, [])) {
-							delete viewModel.selectedStep.userStepConfig["inputs"];
+						if (angular.equals(step.userStepConfig.inputs, [])) {
+							delete step.userStepConfig["inputs"];
 						}
 					}
 
 					if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
-						if (!viewModel.selectedStep.userStepConfig.inputs) {
-							viewModel.selectedStep.userStepConfig.inputs = [];
+						if (!step.userStepConfig.inputs) {
+							step.userStepConfig.inputs = [];
 						}
 
-						var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+						var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
 						});
 
 						if (indexOfUserInputConfig != -1) {
-							viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+							step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 						}
 
-						viewModel.selectedStep.userStepConfig.inputs.push(anInput.userVariableConfig);
+						step.userStepConfig.inputs.push(anInput.userVariableConfig);
 					}
 				}));
 			});
@@ -693,7 +703,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				viewModel.openedInputs.push(anInput);
 			})
 		});
-	});
+	}
 
 	viewModel.inputCategoryToggled = function(inputCategory) {
 		if (_.contains(viewModel.openedInputCategories, inputCategory)) {
@@ -730,11 +740,21 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
-		viewModel.outputsOfSelectedStep = selectedStep && selectedStep.defaultStepConfig ? _.map(selectedStep.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
+		configureOutputsForStep(selectedStep);
+	});
+
+	$scope.$watch(function() {
+		return viewModel.selectedStep ? viewModel.selectedStep.requestedVersion() : undefined;
+	}, function() {
+		configureOutputsForStep(viewModel.selectedStep);
+	});
+
+	function configureOutputsForStep(step) {
+		viewModel.outputsOfSelectedStep = step && step.defaultStepConfig ? _.map(step.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
 			return new Variable(undefined, anDefaultOutputConfig);
 		}) : undefined;
 		viewModel.openedOutputs = [];
-	});
+	}
 
 	viewModel.outputSelected = function(output) {
 		if (_.contains(viewModel.openedOutputs, output)) {
