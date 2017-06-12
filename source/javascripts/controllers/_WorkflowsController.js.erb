@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, $cookies, stringService, imageService, scrollService, appService, stepSourceService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, scrollService, appService, stepSourceService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
 
 	var viewModel = this;
 
@@ -94,11 +94,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			});
 		}
 		if (!viewModel.selectedWorkflow) {
-			viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-				id: $cookies.get("last_selected_workflow_id")
-			});
-		}
-		if (!viewModel.selectedWorkflow) {
 			viewModel.selectedWorkflow = _.first(viewModel.workflows);
 		}
 
@@ -124,9 +119,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 
 		$location.search("workflow_id", selectedWorkflow.id);
-		$cookies.put("last_selected_workflow_id", selectedWorkflow.id, {
-			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-		});
 
 		updateSelectedWorkflowChain();
 	});

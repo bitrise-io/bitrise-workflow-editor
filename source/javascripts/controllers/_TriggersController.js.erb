@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, $location, $cookies, appService, Progress, Trigger, Workflow) {
+angular.module("BitriseWorkflowEditor").controller("TriggersController", function($scope, $rootScope, $location, appService, Progress, Trigger, Workflow) {
 
 	var viewModel = this;
 
@@ -13,17 +13,14 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	$scope.triggerTypes = [{
 		id: "push",
 		urlParameterValue: "push",
-		cookieValue: "push",
 		triggers: undefined
 	}, {
 		id: "pull-request",
 		urlParameterValue: "pull_request",
-		cookieValue: "pull_request",
 		triggers: undefined
 	}, {
 		id: "tag",
 		urlParameterValue: "tag",
-		cookieValue: "tag",
 		triggers: undefined
 	}];
 	viewModel.selectedTriggerType;
@@ -75,11 +72,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			urlParameterValue: $location.search().trigger_type
 		});
 		if (!triggerType) {
-			triggerType = _.find($scope.triggerTypes, {
-				cookieValue: $cookies.get("last_selected_trigger_type")
-			});
-		}
-		if (!triggerType) {
 			triggerType = _.first($scope.triggerTypes);
 		}
 		
@@ -94,9 +86,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			
 			viewModel.selectedTriggerType = triggerType;
 			$location.search("trigger_type", triggerType.urlParameterValue);
-			$cookies.put("last_selected_trigger_type", triggerType.cookieValue, {
-				expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-			});
 			viewModel.triggerSelected(null);
 		}
 
