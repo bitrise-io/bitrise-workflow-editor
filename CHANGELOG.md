@@ -1,6 +1,47 @@
-## Changelog (Current version: 1.0.8)
+## Changelog (Current version: 1.0.9)
 
 -----------------
+
+## 1.0.9 (2017 Jun 12)
+
+### Release Notes
+
+* Also showing "always latest" in step list (#152)
+* Issues #98, #155, #156, #160, #161 fixed
+* On startup, "workflows" is always the initially selected tab, push is the initially selected trigger type (unless specified otherwise in the URL)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.9
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.8 -> 1.0.9
+
+* [4c7af15] erosdome - v1.0.9 (2017 Jun 12)
+* [370a052] erosdome - last visited menu-workflow-trigger cookies removed (2017 Jun 12)
+* [bcf59c1] erosdome - sticky header console error fix (2017 Jun 09)
+* [fc6a61d] erosdome - inputs - reload between step version changes (2017 Jun 09)
+* [fcc8b0e] erosdome - step title validator updated (2017 Jun 09)
+* [9d65116] erosdome - prevent trimming of textareas (2017 Jun 09)
+* [18df395] erosdome - display "always latest" in steps list (2017 Jun 09)
+
 
 ## 1.0.8 (2017 Jun 02)
 
@@ -802,4 +843,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Jun 02
+Updated: 2017 Jun 12
