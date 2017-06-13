@@ -16,11 +16,11 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 	};
 
 	Step.prototype.displayName = function() {
-		if (this.title() !== undefined) {
+		if (this.title()) {
 			return this.title();
 		}
 
-		if (this.id !== undefined) {
+		if (this.id) {
 			return this.id;
 		}
 
