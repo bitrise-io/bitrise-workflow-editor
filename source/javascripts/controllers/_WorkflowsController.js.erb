@@ -94,6 +94,11 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			});
 		}
 		if (!viewModel.selectedWorkflow) {
+			viewModel.selectedWorkflow = _.find(viewModel.workflows, {
+				id: "primary"
+			});
+		}
+		if (!viewModel.selectedWorkflow) {
 			viewModel.selectedWorkflow = _.first(viewModel.workflows);
 		}
 
