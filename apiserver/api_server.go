@@ -59,7 +59,7 @@ func LaunchServer() error {
 	}
 	config.SecretsYMLPath.Freeze()
 
-	if err := setupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
+	if _, err := SetupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
 		return fmt.Errorf("Failed to setup routes, error: %s", err)
 	}
 
