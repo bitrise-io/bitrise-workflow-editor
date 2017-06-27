@@ -30,7 +30,7 @@
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details[ng-bind="provProfile.displayName()"]
 						.actions
-							a.furto.download[href="{{ provProfile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							a.furto.download[href="{{ provProfile.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
 				p.notification.error[ng-if="provProfileCtrl.provProfiles.length >= provProfileCtrl.maximumProvProfilesCount"] == data[:strings][:code_signing][:prov_profile][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfilesProgress"]
@@ -61,7 +61,7 @@
 								checkbox.small[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 								label[for="'code-signin-certificate-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:show_password]
 						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
-							a.furto.download[href="{{ certificate.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							a.furto.download[href="{{ certificate.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] = svg("cross")
 				p.notification.error[ng-if="certificateCtrl.certificates.length >= certificateCtrl.maximumCertificatesCount"] == data[:strings][:code_signing][:certificate][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="certificateCtrl.uploadCertificatesProgress"]
@@ -86,7 +86,7 @@
 								span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
 								code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
 						.actions
-							a.furto.download[href="{{ androidKeystoreCtrl.keystoreFile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							a.furto.download[href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] = svg("cross")
 					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()" autocomplete="off"]
 						section
@@ -138,7 +138,7 @@
 								span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
 								code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 						.actions
-							a.furto.download[href="{{ genericFile.expiringDownloadURL }}"] = svg("arrow_tailed_slim-down")
+							a.furto.download[href="{{ genericFile.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] = svg("cross")
 				p.notification.error[ng-if="genericFileCtrl.genericFiles.length >= genericFileCtrl.maximumGenericFilesCount"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]

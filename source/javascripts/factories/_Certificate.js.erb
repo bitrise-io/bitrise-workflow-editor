@@ -77,6 +77,10 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		})
 	};
 
+	Certificate.prototype.download = function() {
+		return requestService.downloadCertificate(this.databaseID);
+	}
+
 	Certificate.prototype.savePassword = function(requestConfig) {
 		return requestService.putCertificatePasswordSave(this.databaseID, this.password, requestConfig);
 	};

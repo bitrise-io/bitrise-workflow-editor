@@ -446,6 +446,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	requestService.downloadProvProfile = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_download]) %>", {
+			prov_profile_id: databaseID
+		});
+	};
+
 	requestService.deleteProvProfile = function(databaseID, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_delete]) %>", {
 			prov_profile_id: databaseID
@@ -520,6 +526,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_certificates][:default_error] %>", "<%= data[:strings][:request_service][:load_certificates][:error_prefix] %>"));
 			});
+		});
+	};
+
+	requestService.downloadCertificate = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_download]) %>", {
+			certificate_id: databaseID
 		});
 	};
 
@@ -623,6 +635,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	requestService.downloadGenericFile = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_download]) %>", {
+			generic_file_id: databaseID
+		});
+	};
+
 	requestService.deleteGenericFile = function(databaseID, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_delete]) %>", {
 			generic_file_id: databaseID
@@ -717,6 +735,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:load_keystore_file][:error_prefix] %>"));
 			});
+		});
+	};
+
+	requestService.downloadKeystoreFile = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_download]) %>", {
+			generic_file_id: databaseID
 		});
 	};
 

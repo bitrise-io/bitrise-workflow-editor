@@ -101,6 +101,10 @@ angular.module("BitriseWorkflowEditor").factory("GenericFile", function($q, $inj
 		})
 	};
 
+	GenericFile.prototype.download = function() {
+		return requestService.downloadGenericFile(this.databaseID);
+	}
+
 	GenericFile.prototype.delete = function(requestConfig) {
 		return requestService.deleteGenericFile(this.databaseID, requestConfig);
 	};

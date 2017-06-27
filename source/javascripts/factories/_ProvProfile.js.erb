@@ -76,6 +76,10 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		})
 	};
 
+	ProvProfile.prototype.download = function() {
+		return requestService.downloadProvProfile(this.databaseID);
+	}
+
 	ProvProfile.prototype.delete = function(requestConfig) {
 		return requestService.deleteProvProfile(this.databaseID, requestConfig);
 	};
