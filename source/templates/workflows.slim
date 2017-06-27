@@ -111,7 +111,7 @@
 													button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												.input-description[btf-markdown="input.shortestDescription()" ng-class="{'oneliner': !isOpen}"]
 												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-if="!input.valueOptions()" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
-												select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="!isOpen" ng-options="valueOption for valueOption in input.valueOptions()"]
+												select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="!isOpen" ng-options="valueOption for valueOption in (input.valueOptions().indexOf(input.value()) != -1 ? input.valueOptions() : input.valueOptions().concat([input.value()]))"]
 												.is-expand[ng-if="isOpen"]
 													p.expanded[ng-if="input.isExpand()"]
 														= svg("check")
