@@ -8,14 +8,14 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	$scope.osService = osService;
 
-	viewModel.configureModeProgress = new Progress();
-
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
 
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
+
+	viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 
 	function selectInitialMenu() {
 		var initialMenu = _.find(viewModel.menus, function(aMenu) {
@@ -74,6 +74,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.loadAppConfigProgress.success();
 		}, function(error) {
 			viewModel.loadAppConfigProgress.error(error);
+
+			viewModel.shouldAllowYMLMenuWithoutDiscard = true;
 		})
 	}
 
@@ -108,6 +110,14 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 
 			if (!viewModel.hasUnsavedChanges()) {
+				resolve();
+
+				return;
+			}
+
+			if (viewModel.shouldAllowYMLMenuWithoutDiscard) {
+				viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+
 				resolve();
 
 				return;
@@ -222,10 +232,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.isSaveEnabled = function() {
-		if (!viewModel.configureModeProgress.isIdle) {
-			return false;
-		}
-
 		if (!viewModel.menuProgress.isIdle) {
 			return false;
 		}
@@ -350,8 +356,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
-			viewModel.configureModeProgress.success();
-
 			selectInitialMenu();
 		});
 	};
