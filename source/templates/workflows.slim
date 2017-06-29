@@ -59,7 +59,7 @@
 												span<[ng-if="step.requestedVersion() != null" ng-bind="step.version"]
 												span<[ng-if="step.requestedVersion() == null"]
 													span == + data[:strings][:workflows][:steps][:always_latest]
-													span<[ng-bind="'(' + step.version + ')'"]
+													span<[ng-bind="'(' + step.version + ')'" ng-if="step.version"]
 									button.update-step[ng-if="stepSourceService.isLatestStepVersion(step) === false" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"]
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
