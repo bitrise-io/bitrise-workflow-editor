@@ -11,11 +11,13 @@ import (
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/service"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
+	"github.com/bitrise-io/bitrise-workflow-editor/version"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/gorilla/mux"
 )
 
-func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
+// SetupRoutes ...
+func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 	r := mux.NewRouter()
 
 	r.HandleFunc("/api/bitrise-yml", wrapHandlerFunc(service.GetBitriseYMLHandler)).Methods("GET")
@@ -44,18 +46,18 @@ func setupRoutes(isServeFilesThroughMiddlemanServer bool) error {
 
 		u, err := url.Parse("http://" + frontendServerHost + ":" + frontendServerPort + "/")
 		if err != nil {
-			return fmt.Errorf("Failed to initialize frontend proxy URL, error: %s", err)
+			return nil, fmt.Errorf("Failed to initialize frontend proxy URL, error: %s", err)
 		}
 		r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
 	} else {
 		box := rice.MustFindBox("www")
-		r.NotFoundHandler = http.FileServer(box.HTTPBox())
+		http.Handle("/"+version.VERSION+"/", http.StripPrefix("/"+version.VERSION+"/", http.FileServer(box.HTTPBox())))
 	}
 	//
 
 	http.Handle("/", r)
 
-	return nil
+	return r, nil
 }
 
 func wrapHandlerFunc(h func(http.ResponseWriter, *http.Request)) func(http.ResponseWriter, *http.Request) {
