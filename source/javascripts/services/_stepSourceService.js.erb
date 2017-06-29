@@ -177,30 +177,48 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 		var loadPromises = [];
 		var libraryURLs = [];
-		var cvsError;
+		var error;
 		_.every(CVSs, function(aCVS) {
 			var step;
 			try {
 				step = stepSourceService.stepFromCVS(aCVS);
 			}
-			catch (error) {
-				cvsError = error;
+			catch (_error) {
+				error = _error;
 
 				return false;
 			}
 
-			if (step.libraryURL === undefined && requestService.mode == "cli") {
-				loadPromises.push(loadStepWithCVS(aCVS, requestConfig));
-			}
-			else {
+			if (step.libraryURL !== undefined) {
 				libraryURLs.push(step.libraryURL);
+			}
+			else if (step.localPath !== undefined) {
+				if (requestService.mode == "cli") {
+					loadPromises.push(loadStepWithCVS(aCVS, requestConfig));
+				}
+			}
+			else if (step.gitURL !== undefined) {
+				loadPromises.push($q(function(resolve, reject) {
+					loadStepWithCVS(aCVS, requestConfig).then(function(defaultStepConfig) {
+						resolve(defaultStepConfig);
+					}, function(_error) {
+						if (requestService.mode == "cli") {
+							reject(_error);
+						}
+						else {
+							console.log(_error.message);
+
+							resolve(null);
+						}
+					});
+				}));
 			}
 
 			return true;
 		});
 
-		if (cvsError) {
-			return $q.reject(cvsError);
+		if (error) {
+			return $q.reject(error);
 		}
 
 		loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig));

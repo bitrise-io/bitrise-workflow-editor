@@ -308,9 +308,47 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			requestData.id = step.localPath;
 		}
 		else if (step.gitURL) {
-			requestData.library = "git";
-			requestData.id = step.gitURL;
-			requestData.version = step.version;
+			switch (requestService.mode) {
+				case "website":
+					if (!step.version) {
+						return $q.reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:version_not_specified] %>"));
+					}
+
+					var stepYMLurl;
+
+					var githubGitURLRegexp = new RegExp("^(?:(?:http|https)\:\/\/){0,1}(?:www\.){0,1}(?:(?:github)\.com\/)(.*?)(?:\.git){0,1}$");
+					if (githubGitURLRegexp.test(step.gitURL)) {
+						var stepYMLurl = stringService.stringReplacedWithParameters("<%= data[:routes][:other][:github_step_yml_path] %>", {
+							step_path: githubGitURLRegexp.exec(step.gitURL)[1],
+							step_version: step.version
+						});
+					}
+
+					if (stepYMLurl) {
+						return $q(function(resolve, reject) {
+							$http.get(stepYMLurl, requestConfig).then(function(response) {
+								try {
+									var defaultStepConfig = jsyaml.load(response.data);
+									resolve(defaultStepConfig);
+								}
+								catch (error) {
+									reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"));
+								}
+							}, function(response) {
+								reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:github_error] %>"));
+							});
+						});
+					}
+					else {
+						return $q.reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>"));
+					}
+				case "cli":
+					requestData.library = "git";
+					requestData.id = step.gitURL;
+					requestData.version = step.version;
+
+					break;
+			}
 		}
 		else {
 			requestData.library = step.libraryURL;
