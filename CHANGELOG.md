@@ -1,6 +1,55 @@
-## Changelog (Current version: 1.0.9)
+## Changelog (Current version: 1.0.10)
 
 -----------------
+
+## 1.0.10 (2017 Jun 29)
+
+### Release Notes
+
+* YML mode available even if app config load fails (#112)
+* UI for git URL specified steps now also available in website mode (for now, GitHub only) - #164
+* Preventin asset caching (#96)
+* Issues #157, #167 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.10
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.9 -> 1.0.10
+
+* [3a74f93] erosdome - v1.0.10 (2017 Jun 29)
+* [c94a596] Krisztián Gödrei - versioned api base url (#163) (2017 Jun 29)
+* [0c138bf] erosdome - hide version if null (2017 Jun 29)
+* [22c4cc5] erosdome - if no version in git url specified step, use master (2017 Jun 29)
+* [abe2cf8] erosdome - support git URL specified steps (only GitHub for now) in website mode (2017 Jun 29)
+* [60f6b4b] erosdome - release version instead of timestamp (2017 Jun 29)
+* [bdc68d0] erosdome - allow YML mode even if load error occurs (2017 Jun 28)
+* [0f31b25] erosdome - is latest step version - fixed for local steps (2017 Jun 28)
+* [6a3a2d5] erosdome - css fix (2017 Jun 27)
+* [9e8c0f2] erosdome - input value options - UI displays value not specified in the defaults (e. g. if user specifies value in an environment variable) (2017 Jun 27)
+* [f4fa865] erosdome - on file download, get new expiring URLs (2017 Jun 27)
+* [be26ffb] erosdome - select primary workflow if it exists (2017 Jun 13)
+* [f56565c] erosdome - "always latest" + version text in steps list rearranged (2017 Jun 13)
+* [05f54c2] erosdome - display step ID or cvs even if step's title is defined but as empty string (2017 Jun 13)
+
 
 ## 1.0.9 (2017 Jun 12)
 
@@ -843,4 +892,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Jun 12
+Updated: 2017 Jun 29
