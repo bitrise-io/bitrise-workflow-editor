@@ -5,50 +5,36 @@ import (
 	"net/http"
 	"net/http/httputil"
 	"net/url"
-	"path/filepath"
 	"time"
 
 	"github.com/GeertJohan/go.rice"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/service"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
-	"github.com/bitrise-io/bitrise-workflow-editor/version"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/gorilla/mux"
 )
-
-func apiBaseURL() string {
-	return filepath.Join("/api", version.VERSION)
-}
-
-func endpointURL(endpointName string) string {
-	return filepath.Join(apiBaseURL(), endpointName)
-}
-
-func assetsBaseURL() string {
-	return filepath.Join("/assets", version.VERSION) + "/"
-}
 
 // SetupRoutes ...
 func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 	r := mux.NewRouter()
 
-	r.HandleFunc(endpointURL("bitrise-yml"), wrapHandlerFunc(service.GetBitriseYMLHandler)).Methods("GET")
-	r.HandleFunc(endpointURL("bitrise-yml"), wrapHandlerFunc(service.PostBitriseYMLHandler)).Methods("POST")
+	r.HandleFunc("/api/bitrise-yml", wrapHandlerFunc(service.GetBitriseYMLHandler)).Methods("GET")
+	r.HandleFunc("/api/bitrise-yml", wrapHandlerFunc(service.PostBitriseYMLHandler)).Methods("POST")
 
-	r.HandleFunc(endpointURL("bitrise-yml.json"), wrapHandlerFunc(service.GetBitriseYMLAsJSONHandler)).Methods("GET")
-	r.HandleFunc(endpointURL("bitrise-yml.json"), wrapHandlerFunc(service.PostBitriseYMLFromJSONHandler)).Methods("POST")
+	r.HandleFunc("/api/bitrise-yml.json", wrapHandlerFunc(service.GetBitriseYMLAsJSONHandler)).Methods("GET")
+	r.HandleFunc("/api/bitrise-yml.json", wrapHandlerFunc(service.PostBitriseYMLFromJSONHandler)).Methods("POST")
 
-	r.HandleFunc(endpointURL("secrets"), wrapHandlerFunc(service.GetSecretsAsJSONHandler)).Methods("GET")
-	r.HandleFunc(endpointURL("secrets"), wrapHandlerFunc(service.PostSecretsYMLFromJSONHandler)).Methods("POST")
+	r.HandleFunc("/api/secrets", wrapHandlerFunc(service.GetSecretsAsJSONHandler)).Methods("GET")
+	r.HandleFunc("/api/secrets", wrapHandlerFunc(service.PostSecretsYMLFromJSONHandler)).Methods("POST")
 
-	r.HandleFunc(endpointURL("default-outputs"), wrapHandlerFunc(service.GetDefaultOutputsHandler)).Methods("GET")
+	r.HandleFunc("/api/default-outputs", wrapHandlerFunc(service.GetDefaultOutputsHandler)).Methods("GET")
 
-	r.HandleFunc(endpointURL("spec"), wrapHandlerFunc(service.PostSpecHandler)).Methods("POST")
-	r.HandleFunc(endpointURL("step-info"), wrapHandlerFunc(service.PostStepInfoHandler)).Methods("POST")
+	r.HandleFunc("/api/spec", wrapHandlerFunc(service.PostSpecHandler)).Methods("POST")
+	r.HandleFunc("/api/step-info", wrapHandlerFunc(service.PostStepInfoHandler)).Methods("POST")
 
-	r.HandleFunc(endpointURL("connection"), wrapHandlerFunc(service.DeleteConnectionHandler)).Methods("DELETE")
-	r.HandleFunc(endpointURL("connection"), wrapHandlerFunc(service.PostConnectionHandler)).Methods("POST")
+	r.HandleFunc("/api/connection", wrapHandlerFunc(service.DeleteConnectionHandler)).Methods("DELETE")
+	r.HandleFunc("/api/connection", wrapHandlerFunc(service.PostConnectionHandler)).Methods("POST")
 
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
@@ -64,8 +50,9 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 		r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
 	} else {
 		box := rice.MustFindBox("www")
-		assetsServer := http.StripPrefix(assetsBaseURL(), http.FileServer(box.HTTPBox()))
-		r.Handle(assetsBaseURL(), assetsServer)
+		// r.NotFoundHandler = http.FileServer(box.HTTPBox())
+
+		http.Handle("/assets/1.0.9/", http.StripPrefix("/assets/1.0.9/", http.FileServer(box.HTTPBox())))
 	}
 	//
 
