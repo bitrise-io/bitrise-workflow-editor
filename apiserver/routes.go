@@ -11,6 +11,7 @@ import (
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/service"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
+	"github.com/bitrise-io/bitrise-workflow-editor/version"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/gorilla/mux"
 )
@@ -50,9 +51,7 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 		r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
 	} else {
 		box := rice.MustFindBox("www")
-		// r.NotFoundHandler = http.FileServer(box.HTTPBox())
-
-		http.Handle("/assets/1.0.9/", http.StripPrefix("/assets/1.0.9/", http.FileServer(box.HTTPBox())))
+		http.Handle("/"+version.VERSION+"/", http.StripPrefix("/"+version.VERSION+"/", http.FileServer(box.HTTPBox())))
 	}
 	//
 
