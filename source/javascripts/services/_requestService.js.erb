@@ -310,17 +310,13 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		else if (step.gitURL) {
 			switch (requestService.mode) {
 				case "website":
-					if (!step.version) {
-						return $q.reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:version_not_specified] %>"));
-					}
-
 					var stepYMLurl;
 
 					var githubGitURLRegexp = new RegExp("^(?:(?:http|https)\:\/\/){0,1}(?:www\.){0,1}(?:(?:github)\.com\/)(.*?)(?:\.git){0,1}$");
 					if (githubGitURLRegexp.test(step.gitURL)) {
 						var stepYMLurl = stringService.stringReplacedWithParameters("<%= data[:routes][:other][:github_step_yml_path] %>", {
 							step_path: githubGitURLRegexp.exec(step.gitURL)[1],
-							step_version: step.version
+							step_version: step.version ? step.version : "master"
 						});
 					}
 

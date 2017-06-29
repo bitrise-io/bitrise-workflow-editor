@@ -286,7 +286,6 @@ request_service:
   step_config_fetch:
     default_error: Error loading step.
     error_prefix: "Error loading step: "
-    version_not_specified: "Step version needed for step.yml load."
     not_supported_host: "This host is not supported for step.yml load."
     github_error: "Could not load step.yml from GitHub."
   libraries_fetch:
