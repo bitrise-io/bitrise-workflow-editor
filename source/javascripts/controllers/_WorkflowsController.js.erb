@@ -685,8 +685,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 
 		viewModel.openedInputCategories = [];
-		viewModel.mainInputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
-			name: ""
+		viewModel.mainInputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+			return !anInputCategory.name;
 		});
 		if (viewModel.mainInputCategory) {
 			viewModel.openedInputCategories.push(viewModel.mainInputCategory);
