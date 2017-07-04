@@ -96,7 +96,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git`
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
-	require.Equal(t, "{\"format_version\":\"1.3.1\",\"default_step_lib_source\":\"https://github.com/bitrise-io/bitrise-steplib.git\",\"app\":{}}\n", rr.Body.String())
+	require.Equal(t, "{\"format_version\":\"1.3.1\",\"default_step_lib_source\":\"https://github.com/bitrise-io/bitrise-steplib.git\",\"project_type\":\"\",\"app\":{}}\n", rr.Body.String())
 }
 
 func TestPostBitriseYMLFromJSONHandler(t *testing.T) {
