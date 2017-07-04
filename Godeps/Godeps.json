@@ -8,16 +8,16 @@
 	"Deps": [
 		{
 			"ImportPath": "github.com/GeertJohan/go.rice",
-			"Rev": "4bbccbfa39e784796e483270451217d3369ecfbe"
+			"Rev": "c02ca9a983da5807ddf7d796784928f5be4afd09"
 		},
 		{
 			"ImportPath": "github.com/GeertJohan/go.rice/embedded",
-			"Rev": "4bbccbfa39e784796e483270451217d3369ecfbe"
+			"Rev": "c02ca9a983da5807ddf7d796784928f5be4afd09"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/bitrise/models",
-			"Comment": "1.5.5-1-g2fa6ef4",
-			"Rev": "2fa6ef4c0185acd0914a9a571b1f46bc729a51fa"
+			"Comment": "1.6.2-2-g6a53b4a",
+			"Rev": "6a53b4ae82b7bfdb00866ab334573d48f5b58e98"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/depman/pathutil",
@@ -25,49 +25,49 @@
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/envman/models",
-			"Comment": "1.1.3",
-			"Rev": "4b4be054a126fe6b1f26caddd8ef75fe58c30970"
+			"Comment": "1.1.4-2-ga9e6184",
+			"Rev": "a9e61845c44ff4f165ecaa4c5e288eb8344c3365"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/colorstring",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/command",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/errorutil",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/fileutil",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/freezable",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/log",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/parseutil",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/pathutil",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/go-utils/pointers",
-			"Rev": "477d758d7497458ddbec25bec4a8d107bbe0404d"
+			"Rev": "2bf26e59ba80fe2a2fd27055b5a4db8e9ec4d1c2"
 		},
 		{
 			"ImportPath": "github.com/bitrise-io/stepman/models",
-			"Comment": "0.9.29",
-			"Rev": "86726daabc8fa46ad8116c7ecdf6349de1b4144a"
+			"Comment": "0.9.31-2-g58796bd",
+			"Rev": "58796bd4b4ea846ca35df3ef1ce39588309db445"
 		},
 		{
 			"ImportPath": "github.com/daaku/go.zipexe",
@@ -75,13 +75,13 @@
 		},
 		{
 			"ImportPath": "github.com/davecgh/go-spew/spew",
-			"Comment": "v1.1.0",
-			"Rev": "346938d642f2ec3594ed81d874461961cd0faa76"
+			"Comment": "v1.1.0-1-g782f496",
+			"Rev": "782f4967f2dc4564575ca782fe2d04090b5faca8"
 		},
 		{
 			"ImportPath": "github.com/gorilla/mux",
-			"Comment": "v1.3.0-5-g599cba5",
-			"Rev": "599cba5e7b6137d46ddf58fb1765f5d928e69604"
+			"Comment": "v1.4.0-13-gac112f7",
+			"Rev": "ac112f7d75a0714af1bd86ab17749b31f7809640"
 		},
 		{
 			"ImportPath": "github.com/inconshreveable/mousetrap",
@@ -89,7 +89,7 @@
 		},
 		{
 			"ImportPath": "github.com/kardianos/osext",
-			"Rev": "9d302b58e975387d0b4d9be876622c86cefe64be"
+			"Rev": "ae77be60afb1dcacde03767a8c37337fad28ac14"
 		},
 		{
 			"ImportPath": "github.com/pmezard/go-difflib/difflib",
@@ -103,25 +103,25 @@
 		},
 		{
 			"ImportPath": "github.com/spf13/cobra",
-			"Rev": "7be4beda01ec05d0b93d80b3facd2b6f44080d94"
+			"Rev": "8c6fa02d2225de0f9bdcb7ca912556f68d172d8c"
 		},
 		{
 			"ImportPath": "github.com/spf13/pflag",
-			"Rev": "d16db1e50e33dff1b6cdf37596cef36742128670"
+			"Rev": "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/assert",
-			"Comment": "v1.1.4-27-g4d4bfba",
-			"Rev": "4d4bfba8f1d1027c4fdbe371823030df51419987"
+			"Comment": "v1.1.4-66-gf6abca5",
+			"Rev": "f6abca593680b2315d2075e0f5e2a9751e3f431a"
 		},
 		{
 			"ImportPath": "github.com/stretchr/testify/require",
-			"Comment": "v1.1.4-27-g4d4bfba",
-			"Rev": "4d4bfba8f1d1027c4fdbe371823030df51419987"
+			"Comment": "v1.1.4-66-gf6abca5",
+			"Rev": "f6abca593680b2315d2075e0f5e2a9751e3f431a"
 		},
 		{
 			"ImportPath": "gopkg.in/yaml.v2",
-			"Rev": "a3f3340b5840cee44f372bddb5880fcbc419b46a"
+			"Rev": "cd8b52f8269e0feb286dfeef29f8fe4d5b397e0b"
 		}
 	]
 }
