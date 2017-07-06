@@ -4,11 +4,10 @@ import (
 	"errors"
 	"fmt"
 
-	yaml "gopkg.in/yaml.v2"
-
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/command"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+	"gopkg.in/yaml.v2"
 )
 
 // StepmanStepInfo ...
