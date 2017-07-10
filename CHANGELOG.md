@@ -1,6 +1,46 @@
-## Changelog (Current version: 1.0.10)
+## Changelog (Current version: 1.0.11)
 
 -----------------
+
+## 1.0.11 (2017 Jul 10)
+
+### Release Notes
+
+* Prevent removing `project_type` from bitrise.yml (issue #170)
+* Error on start if no bitrise.yml in directory (#166)
+* Issues #174, #175 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.11
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.10 -> 1.0.11
+
+* [6fcf1b4] erosdome - v1.0.11 (2017 Jul 10)
+* [6da88cd] erosdome - handle empty step list defined for workflows in app config (2017 Jul 10)
+* [b03518b] erosdome - expiring URL - only generate on download (2017 Jul 10)
+* [1e5104d] Krisztián Gödrei - check if bitrise.yml exist in the current directory (#178) (2017 Jul 06)
+* [3e87a9c] Krisztián Gödrei - Bitrise models update (#177) (2017 Jul 06)
+* [247f2e1] erosdome - handle if input category is not empty string, but undefined (2017 Jul 03)
+
 
 ## 1.0.10 (2017 Jun 29)
 
@@ -892,4 +932,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Jun 29
+Updated: 2017 Jul 10
