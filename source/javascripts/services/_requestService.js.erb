@@ -471,7 +471,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					return {
 						databaseID: aProvProfileData.id,
 						isProcessed: aProvProfileData.processed,
-						expiringDownloadURL: aProvProfileData.expiring_url
+						uploadFileName: aProvProfileData.upload_file_name
 					};
 				}));
 			}, function(response) {
@@ -553,7 +553,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					return {
 						databaseID: aCertificateData.id,
 						isProcessed: aCertificateData.processed,
-						expiringDownloadURL: aCertificateData.expiring_url,
+						uploadFileName: aCertificateData.upload_file_name,
 						password: aCertificateData.certificate_password
 					};
 				}));
@@ -660,7 +660,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aGenericFileData.id,
 						isProcessed: aGenericFileData.processed,
 						envVarPartialID: aGenericFileData.user_env_key,
-						expiringDownloadURL: aGenericFileData.expiring_url
+						uploadFileName: aGenericFileData.upload_file_name
 					};
 				}));
 			}, function(response) {
@@ -755,7 +755,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: keystoreFileData.id,
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
-						expiringDownloadURL: keystoreFileData.expiring_url
+						uploadFileName: keystoreFileData.upload_file_name
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
