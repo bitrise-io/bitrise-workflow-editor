@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, $cookies, stringService, imageService, scrollService, appService, stepSourceService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, scrollService, appService, stepSourceService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
 
 	var viewModel = this;
 
@@ -95,7 +95,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 		if (!viewModel.selectedWorkflow) {
 			viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-				id: $cookies.get("last_selected_workflow_id")
+				id: "primary"
 			});
 		}
 		if (!viewModel.selectedWorkflow) {
@@ -124,9 +124,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 
 		$location.search("workflow_id", selectedWorkflow.id);
-		$cookies.put("last_selected_workflow_id", selectedWorkflow.id, {
-			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-		});
 
 		updateSelectedWorkflowChain();
 	});
@@ -579,13 +576,27 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	// Step rename
 
+	$scope.Step = Step;
+	viewModel.renamedStep;
+	viewModel.renamedStepTitle;
+
+	$scope.$watch(function() {
+		return viewModel.renamedStep;
+	}, function(newRenamedStep, oldRenamedStep) {
+		if (newRenamedStep == null) {
+			if (Step.isValidTitle(viewModel.renamedStepTitle)) {
+				oldRenamedStep.title(viewModel.renamedStepTitle);
+			}
+		}
+
+		viewModel.renamedStepTitle = newRenamedStep ? newRenamedStep.title() : null;
+	});
+
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
 		viewModel.renamedStep = null;
 	});
-
-	viewModel.renamedStep;
 
 	// Inputs
 
@@ -598,11 +609,21 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
+		configureInputsForStep(selectedStep);
+	});
+
+	$scope.$watch(function() {
+		return viewModel.selectedStep ? viewModel.selectedStep.requestedVersion() : undefined;
+	}, function() {
+		configureInputsForStep(viewModel.selectedStep);
+	});
+
+	function configureInputsForStep(step) {
 		viewModel.inputCategoriesOfSelectedStep = [];
 
-		if (selectedStep && selectedStep.defaultStepConfig) {
-			_.each(selectedStep.defaultStepConfig.inputs, function(anDefaultInputConfig) {
-				var userInputConfig = selectedStep.userStepConfig ? _.find(selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+		if (step && step.defaultStepConfig) {
+			_.each(step.defaultStepConfig.inputs, function(anDefaultInputConfig) {
+				var userInputConfig = step.userStepConfig ? _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
 					return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig);
 				}) : [];
 
@@ -621,10 +642,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 				inputCategory.inputs.push(input);
 			});
-
-			viewModel.inputCategoriesOfSelectedStep = _.sortBy(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
-				return anInputCategory.name;
-			});
 		}
 
 		_.each(inputWatchers, function(anInputWatcher) {
@@ -637,39 +654,39 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 					return !anInput.userVariableConfig || angular.equals(anInput.userVariableConfig, {});
 				}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
 					if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
-						var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+						var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
 						});
 
-						viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+						step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 
-						if (angular.equals(viewModel.selectedStep.userStepConfig.inputs, [])) {
-							delete viewModel.selectedStep.userStepConfig["inputs"];
+						if (angular.equals(step.userStepConfig.inputs, [])) {
+							delete step.userStepConfig["inputs"];
 						}
 					}
 
 					if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
-						if (!viewModel.selectedStep.userStepConfig.inputs) {
-							viewModel.selectedStep.userStepConfig.inputs = [];
+						if (!step.userStepConfig.inputs) {
+							step.userStepConfig.inputs = [];
 						}
 
-						var indexOfUserInputConfig = _.findIndex(viewModel.selectedStep.userStepConfig.inputs, function(aUserInputConfig) {
+						var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
 						});
 
 						if (indexOfUserInputConfig != -1) {
-							viewModel.selectedStep.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+							step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 						}
 
-						viewModel.selectedStep.userStepConfig.inputs.push(anInput.userVariableConfig);
+						step.userStepConfig.inputs.push(anInput.userVariableConfig);
 					}
 				}));
 			});
 		});
 
 		viewModel.openedInputCategories = [];
-		viewModel.mainInputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
-			name: ""
+		viewModel.mainInputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+			return !anInputCategory.name;
 		});
 		if (viewModel.mainInputCategory) {
 			viewModel.openedInputCategories.push(viewModel.mainInputCategory);
@@ -683,7 +700,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				viewModel.openedInputs.push(anInput);
 			})
 		});
-	});
+	}
 
 	viewModel.inputCategoryToggled = function(inputCategory) {
 		if (_.contains(viewModel.openedInputCategories, inputCategory)) {
@@ -720,11 +737,21 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
 	}, function(selectedStep) {
-		viewModel.outputsOfSelectedStep = selectedStep && selectedStep.defaultStepConfig ? _.map(selectedStep.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
+		configureOutputsForStep(selectedStep);
+	});
+
+	$scope.$watch(function() {
+		return viewModel.selectedStep ? viewModel.selectedStep.requestedVersion() : undefined;
+	}, function() {
+		configureOutputsForStep(viewModel.selectedStep);
+	});
+
+	function configureOutputsForStep(step) {
+		viewModel.outputsOfSelectedStep = step && step.defaultStepConfig ? _.map(step.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
 			return new Variable(undefined, anDefaultOutputConfig);
 		}) : undefined;
 		viewModel.openedOutputs = [];
-	});
+	}
 
 	viewModel.outputSelected = function(output) {
 		if (_.contains(viewModel.openedOutputs, output)) {

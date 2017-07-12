@@ -9,19 +9,15 @@ angular.module("BitriseWorkflowEditor").factory("GenericFile", function($q, $inj
 		this.file;
 		this.envVarPartialID = envVarPartialID;
 		this.isProcessed;
-		this.expiringDownloadURL;
+		this.uploadFileName;
 	};
 
 	GenericFile.prototype.displayName = function() {
-		if (this.expiringDownloadURL) {
-			var nameRegexp = new RegExp("[^?]*\/([^?]+).*");
-			var decodedExpiringDownloadURL = decodeURIComponent(this.expiringDownloadURL);
-
-			if (nameRegexp.test(decodedExpiringDownloadURL) && nameRegexp.exec(decodedExpiringDownloadURL)[1]) {
-				return nameRegexp.exec(decodedExpiringDownloadURL)[1];
-			}
+		if (this.uploadFileName) {
+			return this.uploadFileName;
 		}
-		else if (this.file) {
+
+		if (this.file) {
 			return this.file.name;
 		}
 
@@ -100,6 +96,10 @@ angular.module("BitriseWorkflowEditor").factory("GenericFile", function($q, $inj
 			});
 		})
 	};
+
+	GenericFile.prototype.download = function() {
+		return requestService.downloadGenericFile(this.databaseID);
+	}
 
 	GenericFile.prototype.delete = function(requestConfig) {
 		return requestService.deleteGenericFile(this.databaseID, requestConfig);

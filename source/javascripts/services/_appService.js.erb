@@ -43,6 +43,10 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
+				if (aWorkflowConfig.steps !== undefined && _.isEmpty(aWorkflowConfig.steps)) {
+					delete aWorkflowConfig["steps"];
+				}
+
 				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
 					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
 					var stepConfig = aWrappedUserStepConfig[stepCVS];

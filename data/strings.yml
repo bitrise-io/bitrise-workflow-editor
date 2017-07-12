@@ -87,7 +87,7 @@ workflows:
     source_popover_info: Source code
     delete: "Delete Step: <step_title>"
     version: Version
-    always_latest: Always latest
+    always_latest: always latest
     is_always_run: Run if previous Step failed
     inputs_removed_popup_title: "The following inputs are not available in this version:"
   inputs:
@@ -284,8 +284,10 @@ yml:
     loading: Loading, wait a sec...
 request_service:
   step_config_fetch:
-    default_error: Error loading local step
-    error_prefix: "Error loading local step: "
+    default_error: Error loading step.
+    error_prefix: "Error loading step: "
+    not_supported_host: "This host is not supported for step.yml load."
+    github_error: "Could not load step.yml from GitHub."
   libraries_fetch:
     default_error: Error loading library
     error_prefix: "Error loading library: "

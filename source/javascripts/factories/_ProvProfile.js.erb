@@ -8,19 +8,19 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		this.databaseID;
 		this.file;
 		this.isProcessed;
-		this.expiringDownloadURL;
+		this.uploadFileName;
 	};
 
 	ProvProfile.prototype.displayName = function() {
-		if (this.expiringDownloadURL) {
-			var nameRegexp = new RegExp(".([-._a-zA-Z0-9 ()]+\.(?:mobileprovision|provisionprofile))+");
-			var decodedExpiringDownloadURL = decodeURIComponent(this.expiringDownloadURL);
+		if (this.uploadFileName) {
+			var nameRegexp = new RegExp("^(.+)\.(?:mobileprovision|provisionprofile)$");
 
-			if (nameRegexp.test(decodedExpiringDownloadURL) && nameRegexp.exec(decodedExpiringDownloadURL)[1]) {
-				return nameRegexp.exec(decodedExpiringDownloadURL)[1];
+			if (nameRegexp.test(this.uploadFileName) && nameRegexp.exec(this.uploadFileName)[1]) {
+				return nameRegexp.exec(this.uploadFileName)[1];
 			}
 		}
-		else if (this.file) {
+
+		if (this.file) {
 			return this.file.name;
 		}
 
@@ -75,6 +75,10 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 			});
 		})
 	};
+
+	ProvProfile.prototype.download = function() {
+		return requestService.downloadProvProfile(this.databaseID);
+	}
 
 	ProvProfile.prototype.delete = function(requestConfig) {
 		return requestService.deleteProvProfile(this.databaseID, requestConfig);

@@ -8,20 +8,20 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		this.databaseID;
 		this.file;
 		this.isProcessed;
-		this.expiringDownloadURL;
+		this.uploadFileName;
 		this.password;
 	};
 
 	Certificate.prototype.displayName = function() {
-		if (this.expiringDownloadURL) {
-			var nameRegexp = new RegExp(".([-._a-zA-Z0-9 ()]+\.p12)+");
-			var decodedExpiringDownloadURL = decodeURIComponent(this.expiringDownloadURL);
+		if (this.uploadFileName) {
+			var nameRegexp = new RegExp("^(.+)\.(?:p12)$");
 
-			if (nameRegexp.test(decodedExpiringDownloadURL) && nameRegexp.exec(decodedExpiringDownloadURL)[1]) {
-				return nameRegexp.exec(decodedExpiringDownloadURL)[1];
+			if (nameRegexp.test(this.uploadFileName) && nameRegexp.exec(this.uploadFileName)[1]) {
+				return nameRegexp.exec(this.uploadFileName)[1];
 			}
 		}
-		else if (this.file) {
+
+		if (this.file) {
 			return this.file.name;
 		}
 
@@ -76,6 +76,10 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 			});
 		})
 	};
+
+	Certificate.prototype.download = function() {
+		return requestService.downloadCertificate(this.databaseID);
+	}
 
 	Certificate.prototype.savePassword = function(requestConfig) {
 		return requestService.putCertificatePasswordSave(this.databaseID, this.password, requestConfig);

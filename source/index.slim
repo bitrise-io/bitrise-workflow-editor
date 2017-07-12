@@ -6,7 +6,7 @@ header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu[sticky sticking-index="1"]
 		nav
-			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
+			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
 				span.icon[ng-if="menu.cssClass == 'workflows'"] == svg("main/menuicon-workflows")
 				span.icon[ng-if="menu.cssClass == 'code-signing'"] == svg("main/menuicon-code_signing")
 				span.icon[ng-if="menu.cssClass == 'secrets'"] == svg("main/menuicon-secrets")
@@ -15,14 +15,13 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
 		aside.discard-save
-			button.discard.rebo.hollow.danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.configureModeProgress.isIdle || !mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
+			button.discard.rebo.hollow.danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
 			button.save.rebo.green[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]
 				span[ng-if="!mainCtrl.saveProgress.isInProgress"]
 					span.save[ng-if="mainCtrl.hasUnsavedChanges()" ng-class="osService.cssClass()"]
 					span.saved[ng-if="!mainCtrl.hasUnsavedChanges()"] == svg("check")
 				span.in-progress[ng-if="mainCtrl.saveProgress.isInProgress"] == svg("in_progress")
 	article.menu-content
-		p.progress-indicator[progress-model="mainCtrl.configureModeProgress"]
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
 		.tab-content[ng-view ng-if="!mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle"]

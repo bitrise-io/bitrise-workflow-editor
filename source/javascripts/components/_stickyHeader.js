@@ -10,18 +10,20 @@ angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 			var nextSiblingElement = element.next();
 			var placeholderElement;
 
+			function isSticking() {
+				return $("header.sticky [sticking-index='" + attrs.stickingIndex + "']").length > 0;
+			}
+
 			function scrollHandler() {
-				var stickingElement = $("header.sticky [sticking-index='" + attrs.stickingIndex + "']");
 				var shouldBeSticking = $(window).scrollTop() > element.parent().position().top && !$parse(attrs.skipStickyness)(scope);
-				var isAlreadySticking = stickingElement.length > 0;
 
 				if (shouldBeSticking) {
-					if (!isAlreadySticking) {
+					if (!isSticking()) {
 						stick();
 					}
 				}
 				else {
-					if (isAlreadySticking) {
+					if (isSticking()) {
 						unstick();
 					}
 				}
@@ -55,7 +57,10 @@ angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 			$(window).on("scroll", scrollHandler);
 
 			scope.$on("$destroy", function() {
-				unstick();
+				if (isSticking()) {
+					unstick();
+				}
+				
 				$(window).off("scroll", scrollHandler);
 			});
 		}

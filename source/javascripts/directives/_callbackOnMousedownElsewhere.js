@@ -6,37 +6,23 @@ angular.module("BitriseWorkflowEditor").directive("callbackOnMousedownElsewhere"
 	return {
 		restrict: "A",
 		link: function(scope, element, attrs) {
-			function executeCallbackOnClickElsewhere(event) {
-				if (event.target == element[0]) {
+			function executeCallbackOnMousedown(event) {
+				if (event.target == element[0] || $.contains(element[0], event.target)) {
 					return;
 				}
 
-				if ($.contains(element[0], event.target)) {
-					return;
+				var targetFilterSelector = $parse(attrs.callbackOnMousedownElsewhereTargetFilterSelector)(scope);
+
+				if (!targetFilterSelector || $(event.target).is(targetFilterSelector)) {
+					$parse(attrs.callbackOnMousedownElsewhere)(scope);
+					scope.$apply();
 				}
-
-				var elsewhereExceptionsSelector = $parse(attrs.elsewhereExceptionsSelector)(scope);
-
-				if (elsewhereExceptionsSelector) {
-					if ($(event.target).is(elsewhereExceptionsSelector)) {
-						return;
-					}
-
-					if (_.any($(elsewhereExceptionsSelector), function(anElsewhereException) {
-						return $.contains(anElsewhereException, event.target);
-					})) {
-						return;
-					}
-				}
-
-				$parse(attrs.callbackOnMousedownElsewhere)(scope);
-				scope.$apply();
 			}
 
-			$document.bind("mousedown", executeCallbackOnClickElsewhere);
+			$document.bind("mousedown", executeCallbackOnMousedown);
 
 			scope.$on("$destroy", function() {
-				$document.unbind("mousedown", executeCallbackOnClickElsewhere);
+				$document.unbind("mousedown", executeCallbackOnMousedown);
 			});
 		}
 	}

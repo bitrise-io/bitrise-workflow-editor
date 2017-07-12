@@ -321,7 +321,7 @@ const apkInfo104DefintiionJSON = `{
    "library":"https://github.com/bitrise-io/bitrise-steplib.git",
    "id":"apk-info",
    "version":"1.0.4",
-   "latest_version":"1.2.2",
+   "latest_version":"1.2.3",
    "info":{
 
    },

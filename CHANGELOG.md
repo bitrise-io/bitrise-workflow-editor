@@ -1,6 +1,173 @@
-## Changelog (Current version: 1.0.7)
+## Changelog (Current version: 1.0.11)
 
 -----------------
+
+## 1.0.11 (2017 Jul 10)
+
+### Release Notes
+
+* Prevent removing `project_type` from bitrise.yml (issue #170)
+* Error on start if no bitrise.yml in directory (#166)
+* Issues #174, #175 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.11
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.10 -> 1.0.11
+
+* [6fcf1b4] erosdome - v1.0.11 (2017 Jul 10)
+* [6da88cd] erosdome - handle empty step list defined for workflows in app config (2017 Jul 10)
+* [b03518b] erosdome - expiring URL - only generate on download (2017 Jul 10)
+* [1e5104d] Krisztián Gödrei - check if bitrise.yml exist in the current directory (#178) (2017 Jul 06)
+* [3e87a9c] Krisztián Gödrei - Bitrise models update (#177) (2017 Jul 06)
+* [247f2e1] erosdome - handle if input category is not empty string, but undefined (2017 Jul 03)
+
+
+## 1.0.10 (2017 Jun 29)
+
+### Release Notes
+
+* YML mode available even if app config load fails (#112)
+* UI for git URL specified steps now also available in website mode (for now, GitHub only) - #164
+* Preventin asset caching (#96)
+* Issues #157, #167 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.10
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.9 -> 1.0.10
+
+* [3a74f93] erosdome - v1.0.10 (2017 Jun 29)
+* [c94a596] Krisztián Gödrei - versioned api base url (#163) (2017 Jun 29)
+* [0c138bf] erosdome - hide version if null (2017 Jun 29)
+* [22c4cc5] erosdome - if no version in git url specified step, use master (2017 Jun 29)
+* [abe2cf8] erosdome - support git URL specified steps (only GitHub for now) in website mode (2017 Jun 29)
+* [60f6b4b] erosdome - release version instead of timestamp (2017 Jun 29)
+* [bdc68d0] erosdome - allow YML mode even if load error occurs (2017 Jun 28)
+* [0f31b25] erosdome - is latest step version - fixed for local steps (2017 Jun 28)
+* [6a3a2d5] erosdome - css fix (2017 Jun 27)
+* [9e8c0f2] erosdome - input value options - UI displays value not specified in the defaults (e. g. if user specifies value in an environment variable) (2017 Jun 27)
+* [f4fa865] erosdome - on file download, get new expiring URLs (2017 Jun 27)
+* [be26ffb] erosdome - select primary workflow if it exists (2017 Jun 13)
+* [f56565c] erosdome - "always latest" + version text in steps list rearranged (2017 Jun 13)
+* [05f54c2] erosdome - display step ID or cvs even if step's title is defined but as empty string (2017 Jun 13)
+
+
+## 1.0.9 (2017 Jun 12)
+
+### Release Notes
+
+* Also showing "always latest" in step list (#152)
+* Issues #98, #155, #156, #160, #161 fixed
+* On startup, "workflows" is always the initially selected tab, push is the initially selected trigger type (unless specified otherwise in the URL)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.9
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.8 -> 1.0.9
+
+* [4c7af15] erosdome - v1.0.9 (2017 Jun 12)
+* [370a052] erosdome - last visited menu-workflow-trigger cookies removed (2017 Jun 12)
+* [bcf59c1] erosdome - sticky header console error fix (2017 Jun 09)
+* [fc6a61d] erosdome - inputs - reload between step version changes (2017 Jun 09)
+* [fcc8b0e] erosdome - step title validator updated (2017 Jun 09)
+* [9d65116] erosdome - prevent trimming of textareas (2017 Jun 09)
+* [18df395] erosdome - display "always latest" in steps list (2017 Jun 09)
+
+
+## 1.0.8 (2017 Jun 02)
+
+### Release Notes
+
+* Issues #158, #154, #150 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.8
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.7 -> 1.0.8
+
+* [52a49d4] erosdome - v1.0.8 (2017 Jun 02)
+* [be24e67] erosdome - input categories - sorted by order of definition (2017 Jun 02)
+* [e08c421] erosdome - callback elsewhere updated (2017 Jun 02)
+* [9e34c28] Norbert Kovach - ionic project type (#151) (2017 Jun 02)
+* [b8389c8] erosdome - fastlane project type icon added (2017 May 31)
+
 
 ## 1.0.7 (2017 May 30)
 
@@ -765,4 +932,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 May 30
+Updated: 2017 Jul 10

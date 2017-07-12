@@ -30,16 +30,19 @@ website:
   app_project_type_get: /app/<app_slug>/project_type
   prov_profile_create: /prov_profile_document/<job_id>.json
   prov_profiles_get: /prov_profile_document/for_job/<job_id>.json
+  prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
   prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
   certificate_create: /build_certificate/<job_id>.json
   certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
   certificates_get: /build_certificate/for_job/<job_id>.json
+  certificate_download: /build_certificate/<certificate_id>
   certificate_password_save: /build_certificate/<certificate_id>/password.json
   certificate_delete: /build_certificate/<certificate_id>.json
   generic_file_create: /project_file_storage_document/<job_id>.json
   generic_file_finalize_upload: /project_file_storage_document/<generic_file_id>/upload_ended.json
   generic_files_get: /project_file_storage_document/for_job/<job_id>.json
+  generic_file_download: /project_file_storage_document/<generic_file_id>
   generic_file_delete: /project_file_storage_document/<generic_file_id>.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
 local_server:
@@ -62,3 +65,4 @@ blog:
 other:
   bitrise_workflow_editor_source_code: https://github.com/bitrise-io/bitrise-workflow-editor
   bitrise_workflow_editor_current_release: https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/<version>
+  github_step_yml_path: https://raw.githubusercontent.com/<step_path>/<step_version>/step.yml

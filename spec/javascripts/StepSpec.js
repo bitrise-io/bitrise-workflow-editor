@@ -76,6 +76,26 @@ describe("Step", function() {
 
 	});
 
+	describe("isValidTitle", function() {
+
+		it("should return undefined if title is not defined", function() {
+			expect(Step.isValidTitle(undefined)).toBeUndefined();
+		});
+
+		it("should return false if title is empty", function() {
+			expect(Step.isValidTitle("")).toBeFalsy();
+		});
+
+		it("should return true", function() {
+			expect(Step.isValidTitle("ABCdef")).toBeTruthy();
+			expect(Step.isValidTitle("ABC1def")).toBeTruthy();
+			expect(Step.isValidTitle("ABC.DEF")).toBeTruthy();
+			expect(Step.isValidTitle("ABC DEF")).toBeTruthy();
+			expect(Step.isValidTitle("ABC?DEF")).toBeTruthy();
+		});
+
+	});
+
 	describe("iconURL", function() {
 		var step;
 

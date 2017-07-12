@@ -22,8 +22,8 @@ helpers do
 
 	def mode_dependant_asset_path(path)
 		case mode
-		when "website" then "/bitrise_workflow_editor-#{ENV['UNIX_TIMESTAMP']}/" + path
-		when "cli" then path
+		when "website" then "/bitrise_workflow_editor-#{ENV['RELEASE_VERSION']}/" + path
+		when "cli" then build? ? "/#{ENV['RELEASE_VERSION']}/" + path : path
 		end
 	end
 

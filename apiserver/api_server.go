@@ -9,6 +9,7 @@ import (
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
+	"github.com/bitrise-io/bitrise-workflow-editor/version"
 	"github.com/bitrise-io/go-utils/command"
 	"github.com/bitrise-io/go-utils/log"
 )
@@ -59,7 +60,7 @@ func LaunchServer() error {
 	}
 	config.SecretsYMLPath.Freeze()
 
-	if err := setupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
+	if _, err := SetupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
 		return fmt.Errorf("Failed to setup routes, error: %s", err)
 	}
 
@@ -68,7 +69,7 @@ func LaunchServer() error {
 		if runtime.GOOS == "linux" {
 			openCmd = "xdg-open"
 		}
-		workflowEditorURL := fmt.Sprintf("http://localhost:%s", port)
+		workflowEditorURL := fmt.Sprintf("http://localhost:%s/%s/", port, version.VERSION)
 		log.Printf("Open workflow editor in browser ...")
 		if err := command.NewWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
 			log.Printf(" [!] Failed to open workflow editor in browser, error: %s", err)

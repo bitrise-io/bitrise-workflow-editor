@@ -308,9 +308,43 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			requestData.id = step.localPath;
 		}
 		else if (step.gitURL) {
-			requestData.library = "git";
-			requestData.id = step.gitURL;
-			requestData.version = step.version;
+			switch (requestService.mode) {
+				case "website":
+					var stepYMLurl;
+
+					var githubGitURLRegexp = new RegExp("^(?:(?:http|https)\:\/\/){0,1}(?:www\.){0,1}(?:(?:github)\.com\/)(.*?)(?:\.git){0,1}$");
+					if (githubGitURLRegexp.test(step.gitURL)) {
+						var stepYMLurl = stringService.stringReplacedWithParameters("<%= data[:routes][:other][:github_step_yml_path] %>", {
+							step_path: githubGitURLRegexp.exec(step.gitURL)[1],
+							step_version: step.version ? step.version : "master"
+						});
+					}
+
+					if (stepYMLurl) {
+						return $q(function(resolve, reject) {
+							$http.get(stepYMLurl, requestConfig).then(function(response) {
+								try {
+									var defaultStepConfig = jsyaml.load(response.data);
+									resolve(defaultStepConfig);
+								}
+								catch (error) {
+									reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"));
+								}
+							}, function(response) {
+								reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:github_error] %>"));
+							});
+						});
+					}
+					else {
+						return $q.reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>"));
+					}
+				case "cli":
+					requestData.library = "git";
+					requestData.id = step.gitURL;
+					requestData.version = step.version;
+
+					break;
+			}
 		}
 		else {
 			requestData.library = step.libraryURL;
@@ -437,12 +471,18 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					return {
 						databaseID: aProvProfileData.id,
 						isProcessed: aProvProfileData.processed,
-						expiringDownloadURL: aProvProfileData.expiring_url
+						uploadFileName: aProvProfileData.upload_file_name
 					};
 				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_prov_profiles][:default_error] %>", "<%= data[:strings][:request_service][:load_prov_profiles][:error_prefix] %>"));
 			});
+		});
+	};
+
+	requestService.downloadProvProfile = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_download]) %>", {
+			prov_profile_id: databaseID
 		});
 	};
 
@@ -513,13 +553,19 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					return {
 						databaseID: aCertificateData.id,
 						isProcessed: aCertificateData.processed,
-						expiringDownloadURL: aCertificateData.expiring_url,
+						uploadFileName: aCertificateData.upload_file_name,
 						password: aCertificateData.certificate_password
 					};
 				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_certificates][:default_error] %>", "<%= data[:strings][:request_service][:load_certificates][:error_prefix] %>"));
 			});
+		});
+	};
+
+	requestService.downloadCertificate = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_download]) %>", {
+			certificate_id: databaseID
 		});
 	};
 
@@ -614,12 +660,18 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aGenericFileData.id,
 						isProcessed: aGenericFileData.processed,
 						envVarPartialID: aGenericFileData.user_env_key,
-						expiringDownloadURL: aGenericFileData.expiring_url
+						uploadFileName: aGenericFileData.upload_file_name
 					};
 				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_generic_files][:default_error] %>", "<%= data[:strings][:request_service][:load_generic_files][:error_prefix] %>"));
 			});
+		});
+	};
+
+	requestService.downloadGenericFile = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_download]) %>", {
+			generic_file_id: databaseID
 		});
 	};
 
@@ -703,7 +755,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: keystoreFileData.id,
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
-						expiringDownloadURL: keystoreFileData.expiring_url
+						uploadFileName: keystoreFileData.upload_file_name
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
@@ -717,6 +769,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:load_keystore_file][:error_prefix] %>"));
 			});
+		});
+	};
+
+	requestService.downloadKeystoreFile = function(databaseID) {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_download]) %>", {
+			generic_file_id: databaseID
 		});
 	};
 

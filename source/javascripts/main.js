@@ -13,6 +13,8 @@
 //= require _ace
 //= require _mode-yaml
 //= require _theme-monokai
+//= require _esprima.js
+//= require _js-yaml.min.js
 
 //= require _BitriseWorkflowEditor
 //= require_tree ./services/

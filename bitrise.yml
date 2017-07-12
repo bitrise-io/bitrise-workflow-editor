@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 1.0.7
+  - RELEASE_VERSION: 1.0.11
   - BIN_NAME: workflow-editor
   
   - PORT: "1234"
@@ -59,8 +59,6 @@ workflows:
   middleman-build-for-bitrise-io:
     envs:
       - MODE: "WEBSITE"
-    steps:
-    - timestamp: {}
     after_run:
     - middleman-build
 

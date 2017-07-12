@@ -2,13 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $cookies, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup) {
 
 	var viewModel = this;
 
 	$scope.osService = osService;
-
-	viewModel.configureModeProgress = new Progress();
 
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
@@ -17,15 +15,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
 
+	viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+
 	function selectInitialMenu() {
 		var initialMenu = _.find(viewModel.menus, function(aMenu) {
 			return "/" + aMenu.path == $location.path()
 		});
-		if (!initialMenu) {
-			initialMenu = _.find(viewModel.menus, {
-				cookieValue: $cookies.get("last_selected_menu")
-			});
-		}
 		if (!initialMenu) {
 			initialMenu = _.find(viewModel.menus, {
 				id: "workflows"
@@ -79,6 +74,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.loadAppConfigProgress.success();
 		}, function(error) {
 			viewModel.loadAppConfigProgress.error(error);
+
+			viewModel.shouldAllowYMLMenuWithoutDiscard = true;
 		})
 	}
 
@@ -118,6 +115,14 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return;
 			}
 
+			if (viewModel.shouldAllowYMLMenuWithoutDiscard) {
+				viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+
+				resolve();
+
+				return;
+			}
+
 			Popup.showConfirmPopup("<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>", "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>", function() {
 				viewModel.save(true).then(function() {
 					resolve();
@@ -134,10 +139,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 						$location.search(aMenuURLParameterKey, null);
 					}
 				});
-			});
-
-			$cookies.put("last_selected_menu", menu.cookieValue, {
-				expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
 			});
 
 			viewModel.currentMenu = menu;
@@ -231,10 +232,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.isSaveEnabled = function() {
-		if (!viewModel.configureModeProgress.isIdle) {
-			return false;
-		}
-
 		if (!viewModel.menuProgress.isIdle) {
 			return false;
 		}
@@ -290,42 +287,36 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.init = function() {
 		viewModel.menus = _.compact([{
 			id: "workflows",
-			cookieValue: "workflows",
 			title: "<%= data[:strings][:main][:menus][0] %>",
 			path: "<%= data[:routes][:endpoints][:workflows] %>",
 			possibleURLParameterKeys: ["workflow_id"],
 			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			id: "code-signing",
-			cookieValue: "code-signing",
 			title: "<%= data[:strings][:main][:menus][1] %>",
 			path: "<%= data[:routes][:endpoints][:code_signing] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "code-signing"
 		} : null), {
 			id: "secrets",
-			cookieValue: "secrets",
 			title: "<%= data[:strings][:main][:menus][2] %>",
 			path: "<%= data[:routes][:endpoints][:secrets] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "secrets"
 		}, {
 			id: "env-vars",
-			cookieValue: "env-vars",
 			title: "<%= data[:strings][:main][:menus][3] %>",
 			path: "<%= data[:routes][:endpoints][:env_vars] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "env-vars"
 		}, {
 			id: "triggers",
-			cookieValue: "triggers",
 			title: "<%= data[:strings][:main][:menus][4] %>",
 			path: "<%= data[:routes][:endpoints][:triggers] %>",
 			possibleURLParameterKeys: ["trigger_type"],
 			cssClass: "triggers"
 		}, {
 			id: "yml",
-			cookieValue: "yml",
 			title: "<%= data[:strings][:main][:menus][5] %>",
 			path: "<%= data[:routes][:endpoints][:yml] %>",
 			possibleURLParameterKeys: [],
@@ -365,8 +356,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
-			viewModel.configureModeProgress.success();
-
 			selectInitialMenu();
 		});
 	};
