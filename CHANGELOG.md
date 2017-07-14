@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.0.11)
+## Changelog (Current version: 1.0.12)
 
 -----------------
+
+## 1.0.12 (2017 Jul 13)
+
+### Release Notes
+
+* Issue #181 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.12
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.11 -> 1.0.12
+
+* [a7841c2] Krisztián Gödrei - Check bitrise config (#182) (2017 Jul 13)
+
 
 ## 1.0.11 (2017 Jul 10)
 
@@ -932,4 +965,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Jul 10
+Updated: 2017 Jul 13

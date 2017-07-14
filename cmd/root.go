@@ -19,7 +19,7 @@ func failf(format string, v ...interface{}) {
 var RootCmd = &cobra.Command{
 	Use: "workflow-editor",
 	Run: func(cmd *cobra.Command, args []string) {
-		currentDir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+		currentDir, err := filepath.Abs("./")
 		if err != nil {
 			failf("Failed to get current dir, error: %s", err)
 		}
