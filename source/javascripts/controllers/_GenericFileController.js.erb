@@ -11,6 +11,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 	viewModel.maximumGenericFilesCount = 5;
 
 	viewModel.genericFiles;
+	viewModel.genericFileIsExposeGetterSetterConfigs;
 	viewModel.loadGenericFilesProgress = new Progress();
 	viewModel.uploadGenericFileProgress = new Progress();
 	viewModel.deleteGenericFileProgress = new Progress();
@@ -41,8 +42,17 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				genericFile.databaseID = aGenericFileData.databaseID;
 				genericFile.isProcessed = aGenericFileData.isProcessed;
 				genericFile.uploadFileName = aGenericFileData.uploadFileName;
+				genericFile.isExpose = aGenericFileData.isExpose;
 
 				return genericFile;
+			});
+
+			viewModel.genericFileIsExposeGetterSetterConfigs = _.map(viewModel.genericFiles, function(aGenericFile) {
+				var progress = new Progress();
+				return {
+					getterSetter: isExposeGetterSetterForGenericFile(aGenericFile, progress),
+					progress: progress
+				};
 			});
 
 			viewModel.loadGenericFilesProgress.success();
@@ -122,6 +132,26 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				viewModel.deleteGenericFileProgress.error(error);
 			});
 		});
+	};
+
+	function isExposeGetterSetterForGenericFile(aGenericFile, progress) {
+		return function(isExpose) {
+			if (isExpose === undefined) {
+				return aGenericFile.isExpose;
+			}
+
+			var oldIsExpose = aGenericFile.isExpose;
+			aGenericFile.isExpose = isExpose;
+
+			progress.start();
+			requestService.updateGenericFileIsExposeState(aGenericFile.databaseID, aGenericFile.isExpose).then(function() {
+				progress.success();
+			}, function(error) {
+				aGenericFile.isExpose = oldIsExpose;
+				progress.reset();
+				Popup.showErrorPopup(error.message); 
+			});
+		}
 	};
 
 	loadGenericFiles();

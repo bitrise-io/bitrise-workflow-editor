@@ -16,6 +16,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.provProfiles;
 	viewModel.provProfilesToUpload;
 	viewModel.provProfileUploader;
+	viewModel.provProfileIsExposeGetterSetterConfigs;
 
 	function loadProvProfiles(shouldClearPreviousLoad) {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
@@ -38,8 +39,17 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 				provProfile.databaseID = aProvProfileData.databaseID;
 				provProfile.isProcessed = aProvProfileData.isProcessed;
 				provProfile.uploadFileName = aProvProfileData.uploadFileName;
+				provProfile.isExpose = aProvProfileData.isExpose;
 
 				return provProfile;
+			});
+
+			viewModel.provProfileIsExposeGetterSetterConfigs = _.map(viewModel.provProfiles, function(aProvProfile) {
+				var progress = new Progress();
+				return {
+					getterSetter: isExposeGetterSetterForProvProfile(aProvProfile, progress),
+					progress: progress
+				};
 			});
 
 			viewModel.loadProvProfilesProgress.success();
@@ -123,6 +133,26 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 				viewModel.deleteProvProfileProgress.error(error);
 			});
 		});
+	};
+
+	function isExposeGetterSetterForProvProfile(aProvProfile, progress) {
+		return function(isExpose) {
+			if (isExpose === undefined) {
+				return aProvProfile.isExpose;
+			}
+
+			var oldIsExpose = aProvProfile.isExpose;
+			aProvProfile.isExpose = isExpose;
+
+			progress.start();
+			requestService.updateProvProfileIsExposeState(aProvProfile.databaseID, aProvProfile.isExpose).then(function() {
+				progress.success();
+			}, function(error) {
+				aProvProfile.isExpose = oldIsExpose;
+				progress.reset();
+				Popup.showErrorPopup(error.message); 
+			});
+		}
 	};
 
 	loadProvProfiles();

@@ -17,6 +17,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.certificatesToUpload;
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
+	viewModel.certificateIsExposeGetterSetterConfigs;
 	var passwordEditedCertificateOriginalPassword;
 
 	function loadCertificates(shouldClearPreviousLoad) {
@@ -41,8 +42,17 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				certificate.isProcessed = aCertificateData.isProcessed;
 				certificate.uploadFileName = aCertificateData.uploadFileName;
 				certificate.password = aCertificateData.password;
+				certificate.isExpose = aCertificateData.isExpose;
 
 				return certificate;
+			});
+
+			viewModel.certificateIsExposeGetterSetterConfigs = _.map(viewModel.certificates, function(aCertificate) {
+				var progress = new Progress();
+				return {
+					getterSetter: isExposeGetterSetterForCertificate(aCertificate, progress),
+					progress: progress
+				};
 			});
 
 			viewModel.loadCertificatesProgress.success();
@@ -157,6 +167,26 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		viewModel.passwordEditedCertificate.password = passwordEditedCertificateOriginalPassword;
 		viewModel.passwordEditedCertificate = null;
 		passwordEditedCertificateOriginalPassword = undefined;
+	};
+
+	function isExposeGetterSetterForCertificate(certificate, progress) {
+		return function(isExpose) {
+			if (isExpose === undefined) {
+				return certificate.isExpose;
+			}
+
+			var oldIsExpose = certificate.isExpose;
+			certificate.isExpose = isExpose;
+
+			progress.start();
+			requestService.updateCertificateIsExposeState(certificate.databaseID, certificate.isExpose).then(function() {
+				progress.success();
+			}, function(error) {
+				certificate.isExpose = oldIsExpose;
+				progress.reset();
+				Popup.showErrorPopup(error.message); 
+			});
+		}
 	};
 
 	loadCertificates();

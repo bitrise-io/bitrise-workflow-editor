@@ -12,7 +12,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	Variable.defaultVariableConfig = function() {
 		return {
 			opts: {
-				is_expand: true
+				is_expand: true,
+				meta: {
+					is_expose: false
+				}
 			}
 		};
 	};
@@ -119,6 +122,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		return optionGetterSetter(this, "is_expand", newValue);
 	};
 
+	Variable.prototype.isExpose = function(newValue) {
+		return metaOptionGetterSetter(this, "is_expose", newValue);
+	};
+
 	Variable.prototype.skipIfEmpty = function(newValue) {
 		return optionGetterSetter(this, "skip_if_empty", newValue);
 	};
@@ -187,6 +194,64 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 				if (key == defaultKey && variable.userVariableConfig[key] == defaultValue) {
 					variable.userVariableConfig = null;
 				}
+			}
+		}
+
+		return optionValue;
+	}
+
+	function metaOptionGetterSetter(variable, optionKey, optionValue) {
+		var optionSource;
+
+		if (variable.userVariableConfig && variable.userVariableConfig.opts && variable.userVariableConfig.opts.meta && variable.userVariableConfig.opts.meta[optionKey] !== undefined) {
+			optionSource = variable.userVariableConfig.opts.meta;
+		}
+		else if (variable.defaultVariableConfig && variable.defaultVariableConfig.opts && variable.defaultVariableConfig.opts.meta && variable.defaultVariableConfig.opts.meta[optionKey] !== undefined) {
+			optionSource = variable.defaultVariableConfig.opts.meta;
+		}
+
+		if (optionValue === undefined) {
+			return optionSource ? optionSource[optionKey] : undefined;
+		}
+
+		var key = variable.key();
+		var defaultKey = Variable.keyFromVariableConfig(variable.defaultVariableConfig);
+		var defaultValue = variable.defaultVariableConfig ? variable.defaultVariableConfig[defaultKey] : undefined;
+
+		if (!variable.defaultVariableConfig || !variable.defaultVariableConfig.opts || !variable.defaultVariableConfig.opts.meta || optionValue !== variable.defaultVariableConfig.opts.meta[optionKey]) {
+			if (!variable.userVariableConfig) {
+				variable.userVariableConfig = {};
+
+				if (defaultValue) {
+					variable.userVariableConfig[key] = defaultValue;
+				}
+			}
+
+			if (!variable.userVariableConfig.opts) {
+				variable.userVariableConfig.opts = {};
+			}
+
+			if (!variable.userVariableConfig.opts.meta) {
+				variable.userVariableConfig.opts.meta = {};
+			}
+
+			variable.userVariableConfig.opts.meta[optionKey] = optionValue;
+		}
+		else if (variable.userVariableConfig && variable.userVariableConfig.opts && variable.userVariableConfig.opts.meta) {
+			if (variable.userVariableConfig.opts.meta[optionKey] !== undefined) {
+				delete variable.userVariableConfig.opts.meta[optionKey];
+			}
+
+			if (_.isEmpty(angular.copy(variable.userVariableConfig.opts.meta))) {
+				delete variable.userVariableConfig.opts["meta"];
+
+				if (key == defaultKey && variable.userVariableConfig[key] == defaultValue) {
+					variable.userVariableConfig = null;
+				}
+			}
+
+			if (_.isEmpty(angular.copy(variable.userVariableConfig.opts))) {
+				delete variable.userVariableConfig.opts;
 			}
 		}
 

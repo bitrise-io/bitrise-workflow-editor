@@ -202,6 +202,95 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 }
 
+.eye-checkbox {
+	$transition_duration: $def-transition_duration;
+
+	z-index: $zindex-checkbox;
+	position: absolute;
+	@include size(32px, 26px);
+	@include border-radius($def-radius);
+	top: 0;
+	right: 0;
+	overflow: hidden;
+
+	input[type="checkbox"] {
+		@include size(100%);
+		@include appearance(none);
+		margin: 0;
+		opacity: 0;
+		cursor: pointer;
+	}
+
+	.checkbox-svg-wrapper {
+		z-index: -1;
+		@include position(absolute, 0, 0);
+		@include size(100%);
+		@include transition(right $transition_duration, background-color $transition_duration);
+
+		svg[opened-eye], svg[crossed-eye] {
+			position: absolute;
+			@include transition(opacity $transition_duration);
+			fill: $def-darkgrey;
+			top: 2px;
+			left: 4px;
+		}
+
+		svg[opened-eye] {
+			@include size(24px, 22px);
+			top: 3px;
+			left: 4px;
+		}
+
+		svg[crossed-eye] {
+			@include size(25px, 24px);
+			top: 2px;
+			left: 4px;
+		}
+	}
+
+	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
+		
+		svg[opened-eye] {
+			opacity: 0.8;
+		}
+
+		svg[crossed-eye] {
+			opacity: 0;
+		}
+	}
+
+	input[type="checkbox"]:checked + .checkbox-svg-wrapper {
+		
+		svg[opened-eye] {
+			opacity: 0;
+		}
+
+		svg[crossed-eye] {
+			opacity: 0.8;
+		}
+	}
+
+	input[type="checkbox"]:checked:hover + .checkbox-svg-wrapper, input[type="checkbox"]:checked:focus + .checkbox-svg-wrapper {
+		svg[opened-eye] {
+			opacity: 0;
+		}
+
+		svg[crossed-eye] {
+			opacity: 1;
+		}
+	}
+
+	input[type="checkbox"]:not(:checked):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):focus + .checkbox-svg-wrapper {
+		svg[opened-eye] {
+			opacity: 1;
+		}
+
+		svg[crossed-eye] {
+			opacity: 0;
+		}
+	}
+}
+
 [btf-markdown] {
 
 	a {

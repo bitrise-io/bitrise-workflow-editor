@@ -18,9 +18,11 @@
 		button.hide[ng-click="codeSigningCtrl.codeSigningHintsDismissed()"] = svg("cross_slim")
 	section.cardo.uppercase.slim.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
-			h2
-				span == data[:strings][:code_signing][:prov_profile][:header]
+			h2.title
+				span == data[:strings][:code_signing][:prov_profile][:header][:card_title]
 				span<[ng-if="provProfileCtrl.provProfiles.length > 0" ng-bind="'(' + provProfileCtrl.provProfiles.length + '/' + provProfileCtrl.maximumProvProfilesCount + ')'"]
+			h2.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
+				span == data[:strings][:code_signing][:prov_profile][:header][:is_expose_param_title]
 		article
 			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
 			p.progress-indicator[progress-model="provProfileCtrl.deleteProvProfileProgress"]
@@ -28,7 +30,11 @@
 				p.notification.no-icon[ng-if="provProfileCtrl.provProfiles.length == 0"] == data[:strings][:code_signing][:prov_profile][:no_prov_profiles_added_yet]
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
-						.details[ng-bind="provProfile.displayName()"]
+						.details
+							span.name[ng-bind="provProfile.displayName()"]
+						.expose
+							checkbox[ng-model="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
+							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:is_expose]
 						.actions
 							a.furto.download[href="{{ provProfile.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
@@ -40,9 +46,13 @@
 						em == data[:strings][:code_signing][:prov_profile][:upload_instructions]
 	section.cardo.uppercase.slim.code-signing-identities[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
-			h2
-				span == data[:strings][:code_signing][:certificate][:header]
+			h2.title
+				span == data[:strings][:code_signing][:certificate][:header][:card_title]
 				span<[ng-if="certificateCtrl.certificates.length > 0" ng-bind="'(' + certificateCtrl.certificates.length + '/' + certificateCtrl.maximumCertificatesCount + ')'"]
+			h2.password[ng-if="certificateCtrl.certificates.length > 0"]
+				span == data[:strings][:code_signing][:certificate][:header][:password_param_title]
+			h2.expose[ng-if="certificateCtrl.certificates.length > 0"]
+				span == data[:strings][:code_signing][:certificate][:header][:is_expose_param_title]
 		article
 			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
 			p.progress-indicator[progress-model="certificateCtrl.certificateActionProgress"]
@@ -50,16 +60,19 @@
 				p.notification.no-icon[ng-if="certificateCtrl.certificates.length == 0"] == data[:strings][:code_signing][:certificate][:no_certificates_added_yet]
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
-						.details[ng-bind="certificate.displayName()"]
+						.details
+							span.name[ng-bind="certificate.displayName()"]
 						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
 							form.password[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
-								input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+								.input-with-show-password
+									input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+									eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 								.change-password-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
 									input.ok.rebo.small.green[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_ok] }"]
 									button.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
-							.show-password
-								checkbox.small[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
-								label[for="'code-signin-certificate-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:show_password]
+						.expose
+							checkbox[ng-model="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
+							label[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:is_expose]
 						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
 							a.furto.download[href="{{ certificate.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] = svg("cross")
@@ -72,7 +85,10 @@
 						em == data[:strings][:code_signing][:certificate][:upload_instructions]
 	section.cardo.uppercase.slim.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])"]
 		header
-			h2 == data[:strings][:code_signing][:android_keystore][:header]
+			h2.title
+				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
+			h2.expose[ng-if="androidKeystoreCtrl.keystoreFile"]
+				span == data[:strings][:code_signing][:android_keystore][:header][:is_expose_param_title]
 		article
 			p.progress-indicator[progress-model="androidKeystoreCtrl.loadProgress"]
 			p.progress-indicator[progress-model="androidKeystoreCtrl.actionProgress"]
@@ -81,10 +97,14 @@
 				div[ng-if="androidKeystoreCtrl.keystoreFile"]
 					.uploaded-file
 						.details
-							span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
-							em.download-url-env-var-key
-								span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
-								code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
+							span
+								span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
+								em.download-url-env-var-key
+									span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
+									code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
+						.expose
+							checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
+							label[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:is_expose]
 						.actions
 							a.furto.download[href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] = svg("cross")
@@ -122,9 +142,11 @@
 					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
 	section.cardo.uppercase.slim.generic-files[ng-controller="GenericFileController as genericFileCtrl"]
 		header
-			h2
-				span == data[:strings][:code_signing][:generic_file][:header]
+			h2.title
+				span == data[:strings][:code_signing][:generic_file][:header][:card_title]
 				span<[ng-if="genericFileCtrl.genericFiles.length > 0" ng-bind="'(' + genericFileCtrl.genericFiles.length + '/' + genericFileCtrl.maximumGenericFilesCount + ')'"]
+			h2.expose[ng-if="genericFileCtrl.genericFiles.length > 0"]
+				span == data[:strings][:code_signing][:generic_file][:header][:is_expose_param_title]
 		article
 			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
 			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
@@ -133,10 +155,14 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							span.name[ng-bind="genericFile.displayName()"]
-							em.download-url-env-var-key
-								span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
-								code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
+							span
+								span.name[ng-bind="genericFile.displayName()"]
+								em.download-url-env-var-key
+									span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
+									code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
+						.expose
+							checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
+							label[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:is_expose]
 						.actions
 							a.furto.download[href="{{ genericFile.download() }}"] = svg("arrow_tailed_slim-down")
 							button.furto.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] = svg("cross")
