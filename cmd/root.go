@@ -25,6 +25,8 @@ var RootCmd = &cobra.Command{
 		}
 
 		bitriseConfigPth := filepath.Join(currentDir, "bitrise.yml")
+		log.Printf("Searching for bitrise.yml at: %s", bitriseConfigPth)
+
 		if exist, err := pathutil.IsPathExists(bitriseConfigPth); err != nil {
 			failf("Failed to check is bitrise.yml exist, error: %s", err)
 		} else if !exist {
