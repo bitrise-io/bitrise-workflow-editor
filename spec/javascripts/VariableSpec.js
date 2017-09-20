@@ -395,6 +395,10 @@ describe("Variable", function() {
 				is_updated: false
 			});
 
+			expect(variable.defaultVariableConfig.opts.meta).toEqual({
+				is_expose: false
+			});
+
 			variable.meta({
 				is_test: false
 			});
