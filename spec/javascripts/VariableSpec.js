@@ -330,6 +330,67 @@ describe("Variable", function() {
 
 	});
 
+	describe("meta", function() {
+		var defaultVariableConfig = {
+			key: "value",
+			opts: {
+				title: "Red title",
+				is_expand: true,
+				meta: {
+					is_expose: false
+				}
+			}
+		};
+
+		it("should get meta from user variable config", function() {
+			var variable = new Variable({
+				key: "value",
+				opts: {
+					title: "Blue title",
+					is_expand: true,
+					meta: {
+						is_expose: false
+					}
+				}
+			}, defaultVariableConfig);
+
+			expect(variable.meta()).toEqual({
+				is_expose: false
+			});
+		});
+
+		it("should get meta from default variable config if user variable config is not defined", function() {
+			var variable = new Variable(undefined, defaultVariableConfig);
+
+			expect(variable.meta()).toEqual({
+				is_expose: false
+			});
+		});
+
+
+		it("should override meta", function() {
+			var variable = new Variable({
+				key: "value",
+				opts: {
+					title: "Blue title",
+					is_expand: true,
+					meta: {
+						is_expose: false
+					}
+				}
+			}, defaultVariableConfig);
+
+			var meta = {
+				is_expose: true,
+				is_updated: false
+			};
+
+			expect(variable.meta(meta)).toEqual(meta);
+			expect(variable.userVariableConfig.opts.meta).toEqual(meta);
+		});
+
+	});
+
 	describe("minimizeVariableConfig", function() {
 
 		it("should remove opts if empty", function() {

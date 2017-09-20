@@ -114,18 +114,19 @@
 	}
 		
 	section.cardo {
+		$is_expose-width: 34%;
 		
 		header {
 			@include display-flex;
 			@include justify-content(space-between);
 
 			.title {
-				width: 66%;
+				width: 100% - $is_expose-width;
 				margin-bottom: 0;
 			}
 
 			.expose {
-				width: 34%;
+				width: $is_expose-width;
 			}
 		}
 
@@ -144,6 +145,9 @@
 	}
 
 	.uploaded-file {
+		$is_details-width: 66%;
+		$is_expose-width: 26%;
+
 		@include display-flex;
 		@include align-items(center);
 		padding: 12px $cardo-horizontalpadding;
@@ -153,7 +157,7 @@
 			@include display-flex;
 			@include align-items(center);
 			@include box-sizing(border-box);
-			width: 66%;
+			width: $is_details-width;
 			padding: 5px 8px;
 			font-size: 14px;
 
@@ -169,7 +173,7 @@
 		}
 
 		.expose {
-			width: 26%;
+			width:$is_expose-width;
 
 			label {
 				display: none;
@@ -179,7 +183,7 @@
 		.actions {
 			@include display-flex;
 			@include flex-shrink(0);
-			width: 8%;
+			width: 100% -  ($is_details-width + $is_expose-width);
 			margin-left: auto;
 
 			a, button {
@@ -260,13 +264,15 @@
 	section.code-signing-identities {
 
 		header {
+			$is_title-width: 35%;
+			$is_password-width: 31%;
 
 			.title {
-				width: 35%;
+				width: $is_title-width;
 			}
 
 			.password {
-				width: 31%;
+				width: $is_password-width;
 				margin-bottom: 0;
 			}
 		}
@@ -274,9 +280,11 @@
 		ul.uploaded-files {
 
 			li.uploaded-file {
+				$is_details-width: 35%;
+				$is_password-width: 31%;
 
 				.details {
-					width: 35%;
+					width: $is_details-width;
 
 					&:before {
 						background-image: image-url("code_signing/file-purple.svg");
@@ -286,7 +294,7 @@
 				.password-edit {
 					@include display-flex;
 					@include align-items(center);
-					width: 31%;
+					width:	$is_password-width;
 
 					form.password {
 						@include display-flex;
@@ -294,6 +302,29 @@
 						.input-with-show-password {
 							position: relative;
 							@include display-flex;
+							max-width: 170px;
+
+							.eye-checkbox {
+
+								input[type="checkbox"]:checked ~ .checkbox-svg-wrapper span.closed-eye, input[type="checkbox"]:not(:checked) ~ .checkbox-svg-wrapper span.opened-eye {
+									display: none;
+								}
+
+								svg {
+									@include size(26px);
+									margin-left: 5px;
+								}
+							}
+
+							input.password-input {
+								border: 1px solid $def-mediumlightgrey;
+								@include border-radius($def-radius);
+								padding: 4px;
+								padding-right: 32px;
+								background-color: $def-verylightgrey;
+								font-size: 14px;
+								min-width: 135px;
+							}
 						}
 
 						input:not([type="submit"]) {
@@ -308,7 +339,7 @@
 						.change-password-actions {
 							@include display-flex;
 
-							input[type="submit"], button {
+							input.submit, button {
 								margin-left: 6px;
 								font-size: 10px;
 							}
@@ -482,12 +513,13 @@
 							margin-bottom: 8px;
 						}
 
-						span {
+						span.file-data {
 							@include ellipsis-oneliner;
 							width: 100%;
 
 							em {
 								@include display-flex;
+								@include justify-content(center);
 
 								code {
 									@include ellipsis-oneliner;
@@ -523,7 +555,7 @@
 							.change-password-actions {
 								width: 100%;
 
-								input[type="submit"] {
+								input.submit {
 									margin-left: 0;
 								}
 
@@ -541,18 +573,21 @@
 							width: 36px;
 							height: 16px;
 
-							svg[check] {
-								width: 10px;
-								height: 9px;
-								top: 3px;
-								left: 4px;
-							}
-							
-							svg[cross] {
-								width: 8px;
-								height: 8px;
-								top: 4px;
-								left: 5px;
+							.checkbox-svg-wrapper {
+
+								svg[check] {
+									width: 10px;
+									height: 9px;
+									top: 3px;
+									left: 4px;
+								}
+								
+								svg[cross] {
+									width: 8px;
+									height: 8px;
+									top: 4px;
+									left: 5px;
+								}
 							}
 						}
 

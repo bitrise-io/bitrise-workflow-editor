@@ -31,7 +31,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details
-							span.name[ng-bind="provProfile.displayName()"]
+							span.file-data.name[ng-bind="provProfile.displayName()"]
 						.expose
 							checkbox[ng-model="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:is_expose]
@@ -61,14 +61,14 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
 						.details
-							span.name[ng-bind="certificate.displayName()"]
+							span.file-data.name[ng-bind="certificate.displayName()"]
 						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
 							form.password[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
 								.input-with-show-password
-									input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+									input.password-input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
 									eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 								.change-password-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
-									input.ok.rebo.small.green[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_ok] }"]
+									input.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_ok] }"]
 									button.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
 						.expose
 							checkbox[ng-model="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
@@ -97,7 +97,7 @@
 				div[ng-if="androidKeystoreCtrl.keystoreFile"]
 					.uploaded-file
 						.details
-							span
+							span.file-data
 								span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
 								em.download-url-env-var-key
 									span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
@@ -133,7 +133,7 @@
 							.show-password
 								checkbox.small[ng-model="androidKeystoreCtrl.showPrivateKeyPassword" checkbox-id-expression="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_private_key_password]
-						input.rebo.big.green.save[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
+						input.rebo.big.green.save.submit[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
 						button.rebo.big.grey.reset[type="button" ng-click="androidKeystoreCtrl.resetMetadata()"] == data[:strings][:code_signing][:android_keystore][:reset_to_saved]
 			p.notification.error[ng-if="androidKeystoreCtrl.genericFileAndKeystoreFileCountSum >= androidKeystoreCtrl.maximumGenericFileAndKeystoreFileCountSum"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 			.file-upload[ng-if="!androidKeystoreCtrl.keystoreFile && !androidKeystoreCtrl.actionProgress.isInProgress && androidKeystoreCtrl.genericFileAndKeystoreFileCountSum < androidKeystoreCtrl.maximumGenericFileAndKeystoreFileCountSum"]
@@ -155,7 +155,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							span
+							span.file-data
 								span.name[ng-bind="genericFile.displayName()"]
 								em.download-url-env-var-key
 									span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
