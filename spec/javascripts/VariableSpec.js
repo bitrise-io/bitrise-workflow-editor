@@ -349,13 +349,13 @@ describe("Variable", function() {
 					title: "Blue title",
 					is_expand: true,
 					meta: {
-						is_expose: false
+						is_expose: true
 					}
 				}
 			}, defaultVariableConfig);
 
 			expect(variable.meta()).toEqual({
-				is_expose: false
+				is_expose: true
 			});
 		});
 
@@ -380,13 +380,28 @@ describe("Variable", function() {
 				}
 			}, defaultVariableConfig);
 
-			var meta = {
+			variable.meta({
 				is_expose: true,
 				is_updated: false
-			};
+			});
 
-			expect(variable.meta(meta)).toEqual(meta);
-			expect(variable.userVariableConfig.opts.meta).toEqual(meta);
+			expect(variable.meta()).toEqual({
+				is_expose: true,
+				is_updated: false
+			});
+
+			expect(variable.userVariableConfig.opts.meta).toEqual({
+				is_expose: true,
+				is_updated: false
+			});
+
+			variable.meta({
+				is_test: false
+			});
+
+			expect(variable.meta()).toEqual({
+				is_test: false
+			});
 		});
 
 	});

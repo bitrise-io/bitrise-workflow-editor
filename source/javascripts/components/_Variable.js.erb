@@ -150,16 +150,16 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		return optionGetterSetter(this, "meta", newValue);
 	};
 
-	Variable.prototype.isExpose = function(newIsExposedValue) {
-		var newMetaValue;
-		if (newIsExposedValue !== undefined) {
-			newMetaValue = angular.copy(this.meta());
-			newMetaValue.is_expose = newIsExposedValue;
+	Variable.prototype.isExpose = function(isExpose) {
+		var meta;
+		if (isExpose !== undefined) {
+			meta = angular.copy(this.meta());
+			meta.is_expose = isExpose;
 		}
 
-		var newMeta = optionGetterSetter(this, "meta", newMetaValue);
-		
-		return newMeta.is_expose;
+		meta = optionGetterSetter(this, "meta", meta);
+
+		return meta ? meta.is_expose : undefined;
 	};
 
 	function optionGetterSetter(variable, optionKey, optionValue) {

@@ -206,11 +206,9 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	$transition_duration: $def-transition_duration;
 
 	z-index: $zindex-checkbox;
-	position: absolute;
+	position: relative;
 	@include size(32px, 26px);
 	@include border-radius($def-radius);
-	top: 0;
-	right: 0;
 	overflow: hidden;
 
 	input[type="checkbox"] {
