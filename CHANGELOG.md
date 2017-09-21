@@ -1,6 +1,41 @@
-## Changelog (Current version: 1.0.13)
+## Changelog (Current version: 1.0.14)
 
 -----------------
+
+## 1.0.14 (2017 Sep 21)
+
+### Release Notes
+
+* "Is expose" option added for app secrets and files. It toggles whether the secret or file is accessible in pull requests. By default, for secrets it is turned off, for files it is turned on.
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.14
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.13 -> 1.0.14
+
+* [a249a55] erosdome - secret normalize after load (2017 Sep 21)
+* [9a6f69d] Norbert Kovach - is exposed for files and secrets (#183) (2017 Sep 21)
+* [82ab567] Norbert Kovach - Feature/new project type logo (#189) (2017 Sep 19)
+
 
 ## 1.0.13 (2017 Aug 07)
 
@@ -998,4 +1033,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Aug 07
+Updated: 2017 Sep 21
