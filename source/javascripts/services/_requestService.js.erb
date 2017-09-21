@@ -471,11 +471,30 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					return {
 						databaseID: aProvProfileData.id,
 						isProcessed: aProvProfileData.processed,
-						uploadFileName: aProvProfileData.upload_file_name
+						uploadFileName: aProvProfileData.upload_file_name,
+						isExpose: aProvProfileData.is_expose
 					};
 				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_prov_profiles][:default_error] %>", "<%= data[:strings][:request_service][:load_prov_profiles][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.updateProvProfileIsExposeState = function(databaseID, isExpose, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_is_expose_state_update]) %>", {
+			prov_profile_id: databaseID,
+		});
+
+		var requestData = {
+			is_expose: isExpose
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:update_prov_profile_is_expose_state][:default_error] %>", "<%= data[:strings][:request_service][:update_prov_profile_is_expose_state][:error_prefix] %>"));
 			});
 		});
 	};
@@ -554,11 +573,30 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aCertificateData.id,
 						isProcessed: aCertificateData.processed,
 						uploadFileName: aCertificateData.upload_file_name,
-						password: aCertificateData.certificate_password
+						password: aCertificateData.certificate_password,
+						isExpose: aCertificateData.is_expose
 					};
 				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_certificates][:default_error] %>", "<%= data[:strings][:request_service][:load_certificates][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.updateCertificateIsExposeState = function(databaseID, isExpose, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_is_expose_state_update]) %>", {
+			certificate_id: databaseID,
+		});
+
+		var requestData = {
+			is_expose: isExpose
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:update_certificate_is_expose_state][:default_error] %>", "<%= data[:strings][:request_service][:update_certificate_is_expose_state][:error_prefix] %>"));
 			});
 		});
 	};
@@ -660,11 +698,30 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aGenericFileData.id,
 						isProcessed: aGenericFileData.processed,
 						envVarPartialID: aGenericFileData.user_env_key,
-						uploadFileName: aGenericFileData.upload_file_name
+						uploadFileName: aGenericFileData.upload_file_name,
+						isExpose: aGenericFileData.is_expose
 					};
 				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_generic_files][:default_error] %>", "<%= data[:strings][:request_service][:load_generic_files][:error_prefix] %>"));
+			});
+		});
+	};
+	
+	requestService.updateGenericFileIsExposeState = function(databaseID, isExpose, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_is_expose_state_update]) %>", {
+			generic_file_id: databaseID,
+		});
+
+		var requestData = {
+			is_expose: isExpose
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:update_generic_file_is_expose_state][:default_error] %>", "<%= data[:strings][:request_service][:update_generic_file_is_expose_state][:error_prefix] %>"));
 			});
 		});
 	};
@@ -755,7 +812,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: keystoreFileData.id,
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
-						uploadFileName: keystoreFileData.upload_file_name
+						uploadFileName: keystoreFileData.upload_file_name,
+						isExpose: keystoreFileData.is_expose
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
@@ -768,6 +826,24 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(responseData);
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:load_keystore_file][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.updateKeystoreFileIsExposeState = function(databaseID, isExpose, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_is_expose_state_update]) %>", {
+			generic_file_id: databaseID,
+		});
+
+		var requestData = {
+			is_expose: isExpose
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, requestData, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:update_generic_file_is_expose_state][:default_error] %>", "<%= data[:strings][:request_service][:update_generic_file_is_expose_state][:error_prefix] %>"));
 			});
 		});
 	};

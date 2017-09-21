@@ -1,0 +1,53 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").directive("eyeCheckbox", function() {
+
+	var inheritedAttributes = ["ng-model", "ng-model-options", "ng-change", "ng-checked"];
+
+	return {
+		restrict: "E",
+		replace: true,
+		transclude: false,
+		priority: 1000000,
+		template: function(tElement, tAttrs) {
+			var parentElement = angular.element("<div></div>");
+			$(parentElement).addClass("eye-checkbox");
+
+			var inputCheckboxElement = angular.element("<input type='checkbox'></input>");
+			_.each(inheritedAttributes, function(anAttribute) {
+				inputCheckboxElement.attr(anAttribute, tElement.attr(anAttribute));
+			});
+			inputCheckboxElement.attr("id", "{{" + tAttrs.checkboxIdExpression + "}}");
+
+			$(parentElement).append(inputCheckboxElement);
+
+			var checkboxSVGWrapperElement = angular.element("<div></div>");
+			$(checkboxSVGWrapperElement).addClass("checkbox-svg-wrapper");
+			$(parentElement).append(checkboxSVGWrapperElement);
+
+			var openedEyeSpanElement = angular.element("<span></span>");
+			var openedEyeElement = angular.element('<%= svg("opened-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
+			$(openedEyeSpanElement).addClass("opened-eye");
+			$(openedEyeSpanElement).append(openedEyeElement);
+			$(checkboxSVGWrapperElement).append(openedEyeSpanElement);
+
+			var closedEyeSpanElement = angular.element("<span></span>");
+			var closedEyeElement = angular.element('<%= svg("crossed-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
+			$(closedEyeSpanElement).addClass("closed-eye");
+			$(closedEyeSpanElement).append(closedEyeElement);
+			$(checkboxSVGWrapperElement).append(closedEyeSpanElement);
+
+			return parentElement.prop("outerHTML");
+		},
+		link: function(scope, element) {
+			_.each(inheritedAttributes, function(anAttribute) {
+				$(element).removeAttr(anAttribute);
+			});
+		}
+	};
+
+});
+
+})();

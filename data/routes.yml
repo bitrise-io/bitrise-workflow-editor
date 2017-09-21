@@ -32,16 +32,19 @@ website:
   prov_profiles_get: /prov_profile_document/for_job/<job_id>.json
   prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
+  prov_profile_is_expose_state_update: /prov_profile_document/<prov_profile_id>/update_is_expose.json
   prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
   certificate_create: /build_certificate/<job_id>.json
   certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
   certificates_get: /build_certificate/for_job/<job_id>.json
   certificate_download: /build_certificate/<certificate_id>
+  certificate_is_expose_state_update: /build_certificate/<certificate_id>/update_is_expose.json
   certificate_password_save: /build_certificate/<certificate_id>/password.json
   certificate_delete: /build_certificate/<certificate_id>.json
   generic_file_create: /project_file_storage_document/<job_id>.json
   generic_file_finalize_upload: /project_file_storage_document/<generic_file_id>/upload_ended.json
   generic_files_get: /project_file_storage_document/for_job/<job_id>.json
+  generic_file_is_expose_state_update: /project_file_storage_document/<generic_file_id>/update_is_expose.json
   generic_file_download: /project_file_storage_document/<generic_file_id>
   generic_file_delete: /project_file_storage_document/<generic_file_id>.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json

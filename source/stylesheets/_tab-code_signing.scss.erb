@@ -114,6 +114,21 @@
 	}
 		
 	section.cardo {
+		$header_is_expose-width: 34%;
+		
+		header {
+			@include display-flex;
+			@include justify-content(space-between);
+
+			.title {
+				width: 100% - $header_is_expose-width;
+				margin-bottom: 0;
+			}
+
+			.expose {
+				width: $header_is_expose-width;
+			}
+		}
 
 		article {
 			padding: 0;
@@ -122,210 +137,180 @@
 				@include margin-x($cardo-horizontalpadding);
 			}
 		}
-	}
 
-	ul.uploaded-files {
-		@include margin-y(0);
-		padding-left: 0;
-	}
-
-	.uploaded-file {
-		@include display-flex;
-		@include align-items(center);
-		padding: 12px $cardo-horizontalpadding;
-		border-bottom: 1px solid $def-mediumlightgrey;
-
-		&:before {
-			content: "";
-			@include flex-shrink(0);
-			@include size(20px, 24px);
-			margin-right: 15px;
-			background-size: contain;
-			background-position: center;
-			background-repeat: no-repeat;
+		ul.uploaded-files {
+			@include margin-y(0);
+			padding-left: 0;
 		}
-
-		.details {
-			padding: 5px 8px;
-			font-size: 14px;
-		}
-
-		.actions {
-			@include flex-shrink(0);
-			margin-left: auto;
-
-			a, button {
-				@include flex-shrink(0);
-				margin-left: 12px;
-			}
-		}
-
-		@include media-below-mid {
-			@include flex-direction(column);
-
-			&:before {
-				margin-right: 0;
-			}
-
+	
+		.uploaded-file {
+			$details-width: 100% - $header_is_expose-width;
+			$content_is_expose-width: 26%;
+	
+			@include display-flex;
+			@include align-items(center);
+			padding: 12px $cardo-horizontalpadding;
+			border-bottom: 1px solid $def-mediumlightgrey;
+	
 			.details {
-				width: auto;
-				margin-top: 6px;
-				text-align: center;
-			}
-
-			.actions {
-				margin-top: 10px;
-				margin-left: 0;
-			
-				a:first-child, button:first-child {
-					margin-left: 0;
-				}
-			}
-		}
-	}
-
-	.file-upload {
-		margin: 12px $cardo-horizontalpadding;
-
-		.file-uploader {
-			position: relative;
-			border: 4px dashed $def-mediumlightgrey;
-			@include border-radius($def-radius);
-			padding: 18px;
-
-			input[type="file"] {
-				@include position(absolute, 0, 0);
-				z-index: $zindex-file_uploader_input;
-				@include size(100%);
-				font-size: 0;
-				opacity: 0;
-				cursor: pointer;
-			}
-
-			input[type="submit"] {
-				@include position(absolute, 0, 0);
-				@include size(0);
-				border: none;
-				padding: 0;
-				opacity: 0;
-			}
-
-			.content {
-				text-align: center;
-				font-size: 12px;
-				opacity: 0.5;
-				color: $def-verydarkgrey;
-				@include transition(opacity, $def-transition_duration);
-
-				strong {
-					display: block;
-					margin-bottom: 4px;
-					font-weight: 500;
-				}
-
-				em {
-					display: block;
-					font-weight: 200;
-				}
-			}
-
-			input[type="file"]:disabled {
-				cursor: not-allowed;
-			}
-
-			input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
-				opacity: 1.0;
-			}
-		}
-	}
-
-	section.provisioning-profiles {
-
-		ul.uploaded-files {
-
-			li.uploaded-file {
-
-				.details {
-					width: 80%;
-				}
-
+				@include display-flex;
+				@include align-items(center);
+				@include box-sizing(border-box);
+				width: $details-width;
+				padding: 5px 8px;
+				font-size: 14px;
+	
 				&:before {
-					background-image: image-url("code_signing/file-green.svg");
-				}
-			}
-		}
-	}
-
-	section.code-signing-identities {
-
-		ul.uploaded-files {
-
-			li.uploaded-file {
-
-				&:before {
-					background-image: image-url("code_signing/file-purple.svg");
-				}
-
-				.details {
-					@include flex-grow(1);
-					width: 40%;
-				}
-
-				.password-edit {
-					@include flex-grow(1);
+					content: "";
 					@include flex-shrink(0);
-					@include display-flex;
-					@include align-items(center);
-					margin-left: 6px;
-					margin-right: auto;
+					@include size(20px, 24px);
+					margin-right: 15px;
+					background-size: contain;
+					background-position: center;
+					background-repeat: no-repeat;
+				}
+			}
+	
+			.expose {
+				width: $content_is_expose-width;
+	
+				label {
+					display: none;
+				}
+			}
+	
+			.actions {
+				@include display-flex;
+				@include flex-shrink(0);
+				width: 100% - ($details-width + $content_is_expose-width);
+				margin-left: auto;
+	
+				a, button {
+					@include flex-shrink(0);
+					margin-left: 12px;
+				}
+			}
+		}
+	
+		.file-upload {
+			margin: 12px $cardo-horizontalpadding;
+	
+			.file-uploader {
+				position: relative;
+				border: 4px dashed $def-mediumlightgrey;
+				@include border-radius($def-radius);
+				padding: 18px;
+	
+				input[type="file"] {
+					@include position(absolute, 0, 0);
+					z-index: $zindex-file_uploader_input;
+					@include size(100%);
+					font-size: 0;
+					opacity: 0;
+					cursor: pointer;
+				}
+	
+				input[type="submit"] {
+					@include position(absolute, 0, 0);
+					@include size(0);
+					border: none;
+					padding: 0;
+					opacity: 0;
+				}
+	
+				.content {
+					text-align: center;
+					font-size: 12px;
+					opacity: 0.5;
+					color: $def-verydarkgrey;
+					@include transition(opacity, $def-transition_duration);
+	
+					strong {
+						display: block;
+						margin-bottom: 4px;
+						font-weight: 500;
+					}
+	
+					em {
+						display: block;
+						font-weight: 200;
+					}
+				}
+	
+				input[type="file"]:disabled {
+					cursor: not-allowed;
+				}
+	
+				input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
+					opacity: 1.0;
+				}
+			}
+		}
 
-					form.password {
-						@include display-flex;
+		@include media-below-big {
+			
+			header {
 
-						input:not([type="submit"]) {
-							border: 1px solid $def-mediumlightgrey;
-							@include border-radius($def-radius);
-							padding: 4px;
-							background-color: $def-verylightgrey;
-							font-size: 14px;
+				.title {
+					width: 100%;
+				}
+
+				.password, .expose {
+					display: none;
+				}
+			}
+
+			article {
+
+				ul.uploaded-files > li.uploaded-file, .uploaded-file {
+					@include flex-direction(column);
+
+					.details, .expose, .actions {
+						@include justify-content(center);
+						width: 100%;
+						margin-top: 6px;
+					}
+
+					.details {
+						@include flex-direction(column);
+						@include justify-content(center);
+						text-align: center;
+
+						&:before {
+							margin-right: 0;
+							margin-bottom: 8px;
 						}
 
-						.change-password-actions {
-							@include display-flex;
+						span.file-data {
+							@include ellipsis-oneliner;
+							width: 100%;
 
-							input[type="submit"], button {
-								margin-left: 6px;
-								font-size: 10px;
+							em {
+								@include display-flex;
+								@include justify-content(center);
+
+								code {
+									@include ellipsis-oneliner;
+								}
 							}
 						}
 					}
 
-					.show-password {
-						@include display-flex;
-						margin-left: 15px;
-
-						label {
-							margin-left: 15px;
-							font-size: 12px;
-							font-weight: 200;
-							color: $def-grey;
-						}
-
-						.checkbox {
-							@include flex-shrink(0);
-						}
-					}
-
-					@include media-below-mid {
+					.password-edit {
 						@include flex-direction(column);
+						width: auto;
+						min-width: 200px;
 						margin-top: 10px;
-						margin-left: 0;
-						margin-right: 0;
 
 						form.password {
 							@include justify-content(center);
 							@include flex-wrap(wrap);
 							margin-bottom: 6px;
+							width: 100%;
+
+							.input-with-show-password {
+								width: 100%;
+							}
 
 							input:not([type="submit"]) {
 								width: 100%;
@@ -338,7 +323,7 @@
 							.change-password-actions {
 								width: 100%;
 
-								input[type="submit"] {
+								input.submit {
 									margin-left: 0;
 								}
 
@@ -347,9 +332,153 @@
 								}
 							}
 						}
+					}
 
-						.show-password {
+					.expose {
+						@include display-flex;
+
+						.checkbox {
+							width: 36px;
+							height: 16px;
+
+							.checkbox-svg-wrapper {
+
+								svg[check] {
+									width: 10px;
+									height: 9px;
+									top: 3px;
+									left: 4px;
+								}
+								
+								svg[cross] {
+									width: 8px;
+									height: 8px;
+									top: 4px;
+									left: 5px;
+								}
+							}
+						}
+
+						label {
+							display: block !important;
+							@include ellipsis-oneliner;
+							font-size: 12px;
+							margin-left: 8px;
+						}
+					}
+
+					.actions {
+						width: 8%;
+						margin-top: 10px;
+						margin-left: 0;
+					
+						a:first-child, button:first-child {
 							margin-left: 0;
+						}
+					}
+				}
+
+				code {
+					word-wrap: break-word;
+				}
+			}
+		}
+	}
+
+	section.provisioning-profiles {
+
+		ul.uploaded-files {
+
+			li.uploaded-file {
+
+				.details:before {
+					background-image: image-url("code_signing/file-green.svg");
+				}
+			}
+		}
+	}
+
+	section.code-signing-identities {
+
+		header {
+			$title-width: 35%;
+			$password-width: 31%;
+
+			.title {
+				width: $title-width;
+			}
+
+			.password {
+				width: $password-width;
+				margin-bottom: 0;
+			}
+		}
+
+		ul.uploaded-files {
+
+			li.uploaded-file {
+				$details-width: 35%;
+				$password-width: 31%;
+
+				.details {
+					width: $details-width;
+
+					&:before {
+						background-image: image-url("code_signing/file-purple.svg");
+					}
+				}
+
+				.password-edit {
+					@include display-flex;
+					@include align-items(center);
+					width:	$password-width;
+
+					form.password {
+						@include display-flex;
+
+						.input-with-show-password {
+							@include display-flex;
+							max-width: 170px;
+
+							.eye-checkbox {
+
+								input[type="checkbox"]:checked ~ .checkbox-svg-wrapper span.closed-eye, input[type="checkbox"]:not(:checked) ~ .checkbox-svg-wrapper span.opened-eye {
+									display: none;
+								}
+
+								svg {
+									@include size(26px);
+									margin-left: 5px;
+								}
+							}
+
+							input.password-input {
+								border: 1px solid $def-mediumlightgrey;
+								@include border-radius($def-radius);
+								padding: 4px;
+								padding-right: 32px;
+								background-color: $def-verylightgrey;
+								font-size: 14px;
+								min-width: 135px;
+							}
+						}
+
+						input:not([type="submit"]) {
+							border: 1px solid $def-mediumlightgrey;
+							@include border-radius($def-radius);
+							padding: 4px;
+							padding-right: 32px;
+							background-color: $def-verylightgrey;
+							font-size: 14px;
+						}
+
+						.change-password-actions {
+							@include display-flex;
+
+							input.submit, button {
+								margin-left: 6px;
+								font-size: 10px;
+							}
 						}
 					}
 				}
@@ -361,12 +490,11 @@
 
 		.uploaded-file {
 
-			&:before {
-				background-image: image-url("code_signing/file-green.svg");
-			}
-
 			.details {
-				width: 80%;
+
+				&:before {
+					background-image: image-url("code_signing/file-green.svg");
+				}
 
 				em.download-url-env-var-key {
 					display: block;
@@ -417,7 +545,7 @@
 
 		li.uploaded-file {
 
-			&:before {
+			.details:before {
 				background-image: image-url("code_signing/file-green.svg");
 			}
 		}
@@ -443,7 +571,7 @@
 
 		.uploaded-file {
 
-			&:before {
+			.details:before {
 				background-image: image-url("code_signing/file-purple.svg");
 			}
 		}
@@ -484,4 +612,5 @@
 			}
 		}
 	}
+
 }

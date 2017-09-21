@@ -129,7 +129,10 @@ code_signing:
       title: Don't forget to add the Certificate and Provisioning Profile Installer step
       details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
-    header: Provisioning profile
+    header: 
+      card_title: Provisioning profile
+      is_expose_param_title: Expose for Pull Requests
+    is_expose: Expose for Pull Request
     upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -149,7 +152,11 @@ code_signing:
     delete_progress:
       in_progress: Deleting, wait a sec...
   certificate:
-    header: Code Signing Identity
+    header:
+      card_title: Code Signing Identity
+      password_param_title: Password
+      is_expose_param_title: Expose for Pull Requests
+    is_expose: Expose for Pull Request
     upload_action: Add the private key (.p12) for signing
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -174,7 +181,10 @@ code_signing:
     change_password_progress:
       in_progress: Change password, wait a sec...
   generic_file:
-    header: Generic File Storage
+    header:
+      card_title: Generic File Storage
+      is_expose_param_title: Expose for Pull Requests
+    is_expose: Expose for Pull Request
     upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
     upload_instructions: Click here or Drag & Drop to upload
     no_files_added_yet: No files added yet.
@@ -202,7 +212,10 @@ code_signing:
     delete_progress:
       in_progress: Deleting, wait a sec...
   android_keystore:
-    header: Android Keystore file
+    header:
+      card_title: Android Keystore file
+      is_expose_param_title: Expose for Pull Requests
+    is_expose: Expose for Pull Request
     no_keystore_file: "No keystore file added yet."
     download_url_available_as: Download URL available as
     no_name_for_file: No name for file
@@ -243,6 +256,7 @@ env_vars:
     in_progress: Loading, wait a sec...
   add_new: Add new
   replace_variables_label: "Replace variables in inputs?"
+  expose_for_pr_label: "Expose for Pull Requests?"
   delete_env_var: "Delete"
   invalid_env_var_key: "Invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
   one_or_more_invalid_env_var_key: "One or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
@@ -339,6 +353,18 @@ request_service:
   finalize_keystore_file_upload:
     default_error: Error finalizing file upload.
     error_prefix: "Error finalizing file upload: "
+  update_prov_profile_is_expose_state:
+    default_error: Error updating Expose for Pull Requests state.
+    error_prefix: "Error updating Expose for Pull Requests state: "
+  update_certificate_is_expose_state:
+    default_error: Error updating Expose for Pull Requests state.
+    error_prefix: "Error updating Expose for Pull Requests state: "
+  update_generic_file_is_expose_state:
+    default_error: Error updating Expose for Pull Requests state.
+    error_prefix: "Error updating Expose for Pull Requests state: "
+  update_keystore_file_is_expose_state:
+    default_error: Error updating Expose for Pull Requests state.
+    error_prefix: "Error updating Expose for Pull Requests state: "
   save_keystore_file_metadata:
     default_error: "Error saving metadata."
     error_prefix: "Error saving metadata: "

@@ -12,7 +12,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 	Variable.defaultVariableConfig = function() {
 		return {
 			opts: {
-				is_expand: true
+				is_expand: true,
+				meta: {
+					is_expose: false
+				}
 			}
 		};
 	};
@@ -143,6 +146,22 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		return _.first(_.without(_.keys(angular.copy(variableConfig)), "opts"));
 	};
 
+	Variable.prototype.meta = function(newValue) {
+		return optionGetterSetter(this, "meta", newValue);
+	};
+
+	Variable.prototype.isExpose = function(isExpose) {
+		var meta;
+		if (isExpose !== undefined) {
+			meta = angular.copy(this.meta());
+			meta.is_expose = isExpose;
+		}
+
+		meta = optionGetterSetter(this, "meta", meta);
+
+		return meta ? meta.is_expose : undefined;
+	};
+
 	function optionGetterSetter(variable, optionKey, optionValue) {
 		var optionSource;
 
@@ -161,7 +180,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		var defaultKey = Variable.keyFromVariableConfig(variable.defaultVariableConfig);
 		var defaultValue = variable.defaultVariableConfig ? variable.defaultVariableConfig[defaultKey] : undefined;
 
-		if (!variable.defaultVariableConfig || !variable.defaultVariableConfig.opts || optionValue !== variable.defaultVariableConfig.opts[optionKey]) {
+		if (!variable.defaultVariableConfig || !variable.defaultVariableConfig.opts || !angular.equals(optionValue, variable.defaultVariableConfig.opts[optionKey])) {
 			if (!variable.userVariableConfig) {
 				variable.userVariableConfig = {};
 
