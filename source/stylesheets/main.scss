@@ -132,6 +132,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 
 	input[type="checkbox"] {
+		display: block;
 		@include size(100%);
 		@include appearance(none);
 		margin: 0;
