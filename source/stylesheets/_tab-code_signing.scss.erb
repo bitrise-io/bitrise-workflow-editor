@@ -438,9 +438,13 @@
 
 						.input-with-show-password {
 							@include display-flex;
+							position: relative;
 							max-width: 170px;
 
 							.eye-checkbox {
+								position: absolute;
+								z-index: 0;
+								right: 0;
 
 								input[type="checkbox"]:checked ~ .checkbox-svg-wrapper span.closed-eye, input[type="checkbox"]:not(:checked) ~ .checkbox-svg-wrapper span.opened-eye {
 									display: none;
