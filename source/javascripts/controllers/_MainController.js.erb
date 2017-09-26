@@ -141,6 +141,13 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				});
 			});
 
+			var isInitialSelection = !viewModel.currentMenu;
+			if (isInitialSelection && requestService.mode == "website") {
+				history.pushState({
+					eventID: "backButtonPressedOnInitialWorkflowEditorPage"
+				}, "");
+			}
+
 			viewModel.currentMenu = menu;
 			$location.path("/" + menu.path);
 
@@ -189,6 +196,16 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		if (requestService.mode == "cli") {
 			requestService.closeAPIConnection();
 		}
+	};
+
+	window.onpopstate = function(event) {
+		if (event.state && event.state.eventID == "backButtonPressedOnInitialWorkflowEditorPage") {
+			iframeService.sendMessage("backButtonPressedOnInitialWorkflowEditorPage");
+
+			return;
+		}
+
+
 	};
 
 	viewModel.save = function(shouldReturnPromise) {
