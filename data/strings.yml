@@ -117,9 +117,7 @@ workflows:
     no_description: No description for this output variable
   confirm_workflow_delete_popup:
     title: Are you sure?
-    details: Are you sure you want to delete <workflow_name>?
-    save: Save
-    cancel: Cancel
+    details: Are you sure you want to delete the <workflow_id> workflow?
 code_signing:
   available_project_types_load: Loading, wait a sec...
   certificate_help:

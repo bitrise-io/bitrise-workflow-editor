@@ -194,10 +194,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	viewModel.deleteWorkflowSelected = function() {
 		Popup.showConfirmPopup("<%= data[:strings][:workflows][:confirm_workflow_delete_popup][:title] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:confirm_workflow_delete_popup][:details] %>", {
-			workflow_name: viewModel.selectedWorkflow.id
-		}), "<%= data[:strings][:workflows][:confirm_workflow_delete_popup][:save] %>", "<%= data[:strings][:workflows][:confirm_workflow_delete_popup][:cancel] %>", function() {
+			workflow_id: viewModel.selectedWorkflow.id
+		}), undefined, undefined, function() {
 			viewModel.workflows.splice(_.indexOf(viewModel.workflows, viewModel.selectedWorkflow), 1);
-			
+
 			_.each(viewModel.workflows, function(aWorkflow) {
 				if (aWorkflow.workflowConfig.before_run) {
 					while (_.contains(aWorkflow.workflowConfig.before_run, viewModel.selectedWorkflow.id)) {
