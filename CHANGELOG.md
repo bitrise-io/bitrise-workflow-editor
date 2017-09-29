@@ -1,6 +1,43 @@
-## Changelog (Current version: 1.0.14)
+## Changelog (Current version: 1.0.15)
 
 -----------------
+
+## 1.0.15 (2017 Sep 29)
+
+### Release Notes
+
+* Issue fixes (#190, #194)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.15
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.14 -> 1.0.15
+
+* [305eee6] erosdome - in website mode, indicate if back button is pressed on initial workflow editor page (2017 Sep 26)
+* [a093426] erosdome - readme update (2017 Sep 26)
+* [d378fde] Norbert Kovach - User should confirm workflow deletion (#195) (2017 Sep 26)
+* [bb59af0] Norbert Kovach - password toggle fix (#193) (2017 Sep 21)
+* [45c0467] erosdome - development info (2017 Sep 21)
+
 
 ## 1.0.14 (2017 Sep 21)
 
@@ -1033,4 +1070,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Sep 21
+Updated: 2017 Sep 29
