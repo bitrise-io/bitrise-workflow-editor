@@ -6,6 +6,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	var viewModel = this;
 
+	var originalOnbeforeunloadHandler = window.onbeforeunload;
+
 	$scope.osService = osService;
 
 	viewModel.menus;
@@ -188,13 +190,13 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		}
 	};
 
-	window.onbeforeunload = function() {
+	window.onbeforeunload = function(event) {
 		if (viewModel.hasUnsavedChanges()) {
 			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
 		}
 
-		if (requestService.mode == "cli") {
-			requestService.closeAPIConnection();
+		if (originalOnbeforeunloadHandler) {
+			originalOnbeforeunloadHandler(event);
 		}
 	};
 
@@ -204,8 +206,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 			return;
 		}
-
-
 	};
 
 	viewModel.save = function(shouldReturnPromise) {
