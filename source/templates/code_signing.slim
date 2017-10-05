@@ -32,7 +32,7 @@
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details
 							span.file-data.name[ng-bind="provProfile.displayName()"]
-						.expose
+						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 							checkbox[ng-model="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:is_expose]
 						.actions
@@ -70,7 +70,7 @@
 								.change-password-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
 									input.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_ok] }"]
 									button.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
-						.expose
+						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 							checkbox[ng-model="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
 							label[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:is_expose]
 						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
@@ -160,7 +160,7 @@
 								em.download-url-env-var-key
 									span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
 									code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
-						.expose
+						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 							checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
 							label[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:is_expose]
 						.actions

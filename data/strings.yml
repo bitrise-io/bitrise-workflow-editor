@@ -120,6 +120,7 @@ workflows:
     details: Are you sure you want to delete the <workflow_id> workflow?
 code_signing:
   available_project_types_load: Loading, wait a sec...
+  expose_for_pr_popover_content: You can decide which files should be exposed for / available in Pull Request builds. <br> Be careful, exposing a secret is a potential security risk.
   certificate_help:
     codesigndoc:
       title: Export your code signing files with Codesigndoc
@@ -260,6 +261,7 @@ env_vars:
   add_new: Add new
   replace_variables_label: "Replace variables in inputs?"
   expose_for_pr_label: "Expose for Pull Requests?"
+  expose_for_pr_popover_content: You can decide which secrets should be exposed for / available in Pull Request builds. <br> Be careful, exposing a secret is a potential security risk.
   delete_env_var: "Delete"
   invalid_env_var_key: "Invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."
   one_or_more_invalid_env_var_key: "One or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, and should not begin with a number."

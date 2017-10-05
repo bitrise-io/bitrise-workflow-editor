@@ -173,9 +173,18 @@
 	
 			.expose {
 				width: $content_is_expose-width;
+				position: relative;
 	
 				label {
 					display: none;
+				}
+
+				.popover {
+					top: 100%;
+
+					&:before {
+						left: 8px;
+					}
 				}
 			}
 	
@@ -336,6 +345,7 @@
 
 					.expose {
 						@include display-flex;
+						width: auto;
 
 						.checkbox {
 							width: 36px;
@@ -364,6 +374,10 @@
 							@include ellipsis-oneliner;
 							font-size: 12px;
 							margin-left: 8px;
+						}
+
+						.popover {
+							margin-top: 10px;
 						}
 					}
 
