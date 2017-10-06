@@ -83,11 +83,14 @@ workflows:
             #!/bin/bash
             set -ex
             bundle exec middleman build
-            mkdir -p ./spec/javascripts/main/
-            cp -f ./build/javascripts/main.js ./spec/javascripts/main/
+            mkdir -p ./spec/javascripts/src/
+            cp -f ./build/javascripts/main.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/jquery_cache.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/angular_cache.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/underscore_cache.js ./spec/javascripts/src/
             rm -rf ./build
             bundle exec middleman server
-            rm -rf ./spec/javascripts/main/
+            rm -rf ./spec/javascripts/src/
 
   ci:
     before_run:
