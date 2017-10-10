@@ -1,0 +1,39 @@
+[[constraint]]
+  name = "github.com/GeertJohan/go.rice"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitrise-io/bitrise"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitrise-io/depman"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitrise-io/envman"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitrise-io/go-utils"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/bitrise-io/stepman"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/gorilla/mux"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/spf13/cobra"
+  branch = "master"
+
+[[constraint]]
+  name = "github.com/stretchr/testify"
+  branch = "master"
+
+[[constraint]]
+  name = "gopkg.in/yaml.v2"
+  branch = "v2"
