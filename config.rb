@@ -58,3 +58,12 @@ helpers do
 end
 
 set :images_dir, mode_dependant_asset_path("images")
+
+sprockets.import_asset "jquery"
+sprockets.import_asset "underscore"
+sprockets.import_asset "angular"
+sprockets.import_asset "angular-route"
+sprockets.import_asset "angular-sanitize"
+sprockets.import_asset "angular-animate"
+sprockets.import_asset "angular-cookies"
+sprockets.import_asset "angular-mocks"

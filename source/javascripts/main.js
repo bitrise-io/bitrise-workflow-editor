@@ -1,12 +1,4 @@
-//= require jquery
-//= require underscore
-//= require angular
-//= require angular-route
-//= require angular-sanitize
 //= require angular-ui-ace
-//= require angular-animate
-//= require angular-cookies
-//= require angular-mocks
 //= require _elastic
 //= require _showdown
 //= require _markdown
@@ -16,6 +8,7 @@
 //= require _esprima.js
 //= require _js-yaml.min.js
 
+//= require _apihandler
 //= require _BitriseWorkflowEditor
 //= require_tree ./services/
 //= require_tree ./factories/

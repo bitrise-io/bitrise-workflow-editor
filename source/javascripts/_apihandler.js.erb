@@ -1,0 +1,25 @@
+window.onload = function() {
+	if ("<%= mode %>" == "cli") {
+		cancelAPIConnectionClose();
+	}
+};
+
+window.onbeforeunload = function() {
+	if ("<%= mode %>" == "cli") {
+		closeAPIConnection();
+	}
+};
+
+function cancelAPIConnectionClose() {
+	$.ajax({
+		type: "POST",
+		url: "<%= local_server_path(data[:routes][:local_server][:cancel_api_connection_close]) %>"
+	});
+}
+
+function closeAPIConnection() {
+	$.ajax({
+		type: "DELETE",
+		url: "<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>"
+	});
+}
