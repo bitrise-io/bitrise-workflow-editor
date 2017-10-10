@@ -46,6 +46,32 @@ To:
 * init: create a template deplist.json file in the current dir
 * update: checks deplist.json and downloads all the dependencies
 
+## Examples
+
+### Minimalist:
+```JSON
+{
+  "deps": [
+    {
+      "url": "https://my.domain/awesome-lib.git",
+      "store_path": "./awesome-lib"
+    }
+  ]
+}
+```
+
+### With custom branch:
+```JSON
+{
+  "deps": [
+    {
+      "url": "https://my.domain/awesome-lib.git",
+      "store_path": "./awesome-lib",
+      "branch": "awesome-feature"
+    }
+  ]
+}
+```
 
 ## Limitations
 

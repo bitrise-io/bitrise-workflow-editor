@@ -8,20 +8,22 @@
   revision = "c02ca9a983da5807ddf7d796784928f5be4afd09"
 
 [[projects]]
+  branch = "master"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "08696133ec4dc07e470d744f47336f52da1cf9e7"
+  revision = "2796fa7142e5f80e8833951ff8a01a3120522ec2"
 
 [[projects]]
+  branch = "master"
   name = "github.com/bitrise-io/depman"
   packages = ["pathutil"]
-  revision = "4c59bc31f02a2ae78ce5d8d96a006289cd3e6beb"
+  revision = "e296641465fca7487059fcabd9bb57e9a3f3b1f8"
 
 [[projects]]
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
-  revision = "cde1244f808bd58f7e92b7607f3274ee0bcade87"
-  version = "1.1.7"
+  revision = "455072a756cf80ab469ecfbcfd8c1dd614585cfc"
+  version = "1.1.8"
 
 [[projects]]
   branch = "master"
@@ -32,8 +34,8 @@
 [[projects]]
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "5609b753e57f9d2e4f18160fc2ee8667b1e34652"
-  version = "0.9.34"
+  revision = "f528959740f424f44e678f4f4e74eebf82fdd582"
+  version = "0.9.35"
 
 [[projects]]
   branch = "master"
@@ -44,7 +46,8 @@
 [[projects]]
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "dce690a33ebe33040a7a2ffeb96dd200060f3fca"
+  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
+  version = "v1.1.0"
 
 [[projects]]
   name = "github.com/gorilla/context"
@@ -53,9 +56,10 @@
   version = "v1.1"
 
 [[projects]]
+  branch = "master"
   name = "github.com/gorilla/mux"
   packages = ["."]
-  revision = "3f19343c7d9ce75569b952758bd236af94956061"
+  revision = "bdd5a5a1b0b489d297b73eb62b5f6328df198bfc"
 
 [[projects]]
   name = "github.com/inconshreveable/mousetrap"
@@ -76,20 +80,22 @@
   version = "v1.0.0"
 
 [[projects]]
+  branch = "master"
   name = "github.com/ryanuber/go-glob"
   packages = ["."]
-  revision = "572520ed46dbddaed19ea3d9541bdd0494163693"
-  version = "v0.1"
+  revision = "256dc444b735e061061cf46c809487313d5b0065"
 
 [[projects]]
+  branch = "master"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "d5bde60e022436203e377c47806e001418c16af3"
+  revision = "4d6af280c76ff7d266434f2dba207c4b75dfc076"
 
 [[projects]]
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "be7121dd7a937a85e1e4b1ddda6a3edce3466110"
+  revision = "e57e3eeb33f795204c1ca35f56c44f83227c6e66"
+  version = "v1.0.0"
 
 [[projects]]
   branch = "master"
@@ -106,6 +112,6 @@
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "ae1079d2c6b0900073cf369d8bf856cd44b528505bc3bbcb0085c1f5c4fa81e6"
+  inputs-digest = "4dd00e1ce064395b6e2ceb9efab0470d359243310903e5de5b54d1d9d8d07e9e"
   solver-name = "gps-cdcl"
   solver-version = 1

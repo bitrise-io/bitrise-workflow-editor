@@ -18,6 +18,7 @@ var initCmd = &cobra.Command{
 				depman.DepStruct{
 					URL:       "http://repo.url",
 					StorePath: "relative/store/path",
+					Branch:    "master",
 				},
 			},
 		}

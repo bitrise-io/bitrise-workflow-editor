@@ -3,14 +3,15 @@ package depman
 import (
 	"errors"
 	"fmt"
-	"github.com/bitrise-tools/depman/pathutil"
-	"github.com/bitrise-tools/depman/scanutil"
 	"io/ioutil"
 	"log"
 	"os"
 	"os/exec"
 	"path/filepath"
 	"strings"
+
+	"github.com/bitrise-tools/depman/pathutil"
+	"github.com/bitrise-tools/depman/scanutil"
 )
 
 func runCommand(name string, args ...string) error {
@@ -62,6 +63,12 @@ func updateDependency(dep DepStruct) (DepLockStruct, error) {
 
 	if err := runCommand("git", []string{"clone", "--recursive", dep.URL, tempCloneDir}...); err != nil {
 		return DepLockStruct{}, err
+	}
+
+	if dep.Branch != "" {
+		if _, err := runCommandInDirAndGetOutput(tempCloneDir, "git", []string{"checkout", dep.Branch}...); err != nil {
+			return DepLockStruct{}, err
+		}
 	}
 
 	// get revision hash

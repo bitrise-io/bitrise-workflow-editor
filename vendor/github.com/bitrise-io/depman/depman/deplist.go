@@ -3,9 +3,10 @@ package depman
 import (
 	"encoding/json"
 	"errors"
-	"github.com/bitrise-tools/depman/pathutil"
 	"io"
 	"os"
+
+	"github.com/bitrise-tools/depman/pathutil"
 )
 
 type DepLockStruct struct {
@@ -20,6 +21,7 @@ type depLocksStruct struct {
 type DepStruct struct {
 	URL       string `json:"url"`
 	StorePath string `json:"store_path"`
+	Branch    string `json:"branch"`
 }
 
 type DepList struct {
