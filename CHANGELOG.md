@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.0.17)
+## Changelog (Current version: 1.0.18)
 
 -----------------
+
+## 1.0.18 (2017 Oct 19)
+
+### Release Notes
+
+* CDN fix for jQuery
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.18
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.17 -> 1.0.18
+
+* [abbe2fe] erosdome - don't use jquery slim version (#205) (2017 Oct 16)
+
 
 ## 1.0.17 (2017 Oct 10)
 
@@ -1146,4 +1179,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Oct 10
+Updated: 2017 Oct 19
