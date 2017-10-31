@@ -1,6 +1,78 @@
-## Changelog (Current version: 1.0.16)
+## Changelog (Current version: 1.0.18)
 
 -----------------
+
+## 1.0.18 (2017 Oct 19)
+
+### Release Notes
+
+* CDN fix for jQuery
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.18
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.17 -> 1.0.18
+
+* [abbe2fe] erosdome - don't use jquery slim version (#205) (2017 Oct 16)
+
+
+## 1.0.17 (2017 Oct 10)
+
+### Release Notes
+
+* few external javascripts referenced from CDN
+* popover z-index fix - mobile view
+* manage go dependencies with dep
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.17
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.16 -> 1.0.17
+
+* [678e719] Krisztián Gödrei - prepare for 1.0.17 (2017 Oct 10)
+* [d726ca1] Krisztián Gödrei - Dep update (#204) (2017 Oct 10)
+* [1d40ecb] erosdome - few external javascripts referenced from CDN (#197) (2017 Oct 06)
+* [5211613] Norbert Kovach - popover z-index fix - mobile view (#203) (2017 Oct 06)
+
 
 ## 1.0.16 (2017 Oct 05)
 
@@ -1107,4 +1179,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Oct 05
+Updated: 2017 Oct 19
