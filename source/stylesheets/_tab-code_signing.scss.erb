@@ -450,9 +450,19 @@
 									display: none;
 								}
 
-								svg {
+								.opened-eye, .closed-eye {
 									@include size(26px);
+
+									svg {
+										@include size(26px);
+										fill: #757575;
+									}
+								}
+
+								.opened-eye svg, .closed-eye svg {
+									@include size(22px , 14px);
 									margin-left: 5px;
+									margin-top: 7px;
 								}
 							}
 

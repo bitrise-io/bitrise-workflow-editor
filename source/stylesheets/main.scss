@@ -229,19 +229,19 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		svg[opened-eye], svg[crossed-eye] {
 			position: absolute;
 			@include transition(opacity $transition_duration);
-			fill: $def-darkgrey;
+			fill: #757575;
 			top: 2px;
 			left: 4px;
 		}
 
 		svg[opened-eye] {
-			@include size(24px, 22px);
+			@include size(22px, 14px);
 			top: 3px;
 			left: 4px;
 		}
 
 		svg[crossed-eye] {
-			@include size(25px, 24px);
+			@include size(22px, 14px);
 			top: 2px;
 			left: 4px;
 		}
