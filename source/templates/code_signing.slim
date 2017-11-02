@@ -102,7 +102,7 @@
 								em.download-url-env-var-key
 									span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
 									code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
-						.expose
+						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 							checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
 							label[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:is_expose]
 						.actions
