@@ -446,23 +446,19 @@
 								z-index: 0;
 								right: 0;
 
-								input[type="checkbox"]:checked ~ .checkbox-svg-wrapper span.closed-eye, input[type="checkbox"]:not(:checked) ~ .checkbox-svg-wrapper span.opened-eye {
+								input[type="checkbox"]:checked ~ .checkbox-svg-wrapper span.crossed-eye, input[type="checkbox"]:not(:checked) ~ .checkbox-svg-wrapper span.eye {
 									display: none;
 								}
 
-								.opened-eye, .closed-eye {
+								span.eye, span.crossed-eye {
 									@include size(26px);
 
 									svg {
-										@include size(26px);
+										@include size(22px , 14px);
 										fill: #757575;
+										margin-left: 3px;
+										margin-top: 5px;
 									}
-								}
-
-								.opened-eye svg, .closed-eye svg {
-									@include size(22px , 14px);
-									margin-left: 5px;
-									margin-top: 7px;
 								}
 							}
 
