@@ -10,6 +10,13 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		this.isProcessed;
 		this.uploadFileName;
 		this.isExpose;
+		this.isDetailsLoaded = false;
+		this.uuid;
+		this.expirationDate;
+		this.exportType;
+		this.teamName;
+		this.teamID;
+		this.bundleID;
 	};
 
 	ProvProfile.prototype.displayName = function() {
@@ -77,9 +84,17 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		})
 	};
 
+	ProvProfile.prototype.getDetails = function(requestConfig) {
+		requestService.getDetailsOfProvProfile(this.databaseID).then(function() {
+			resolve();
+		}, function(error) {
+			reject(error);
+		});
+	};
+
 	ProvProfile.prototype.download = function() {
 		return requestService.downloadProvProfile(this.databaseID);
-	}
+	};
 
 	ProvProfile.prototype.delete = function(requestConfig) {
 		return requestService.deleteProvProfile(this.databaseID, requestConfig);
@@ -88,5 +103,6 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 	return ProvProfile;
 
 });
+
 
 })();

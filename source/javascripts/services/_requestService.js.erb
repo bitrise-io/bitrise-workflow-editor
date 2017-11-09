@@ -420,6 +420,27 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	// Provisioning profiles
 
+	requestService.getDetailsOfProvProfile = function(provProfileDatabaseID, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_get_details]) %>", {
+			prov_profile_id: provProfileDatabaseID
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve({
+					uuid: response.data.prov_profile_details.uuid,
+					expirationDateAndTime: response.data.prov_profile_details.expiration_date,
+					exportType: response.data.prov_profile_details.export_type,
+					teamName: response.data.prov_profile_details.team_name,
+					teamID: response.data.prov_profile_details.team_id,
+					bundleID: response.data.prov_profile_details.bundle_id
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:get_details_prov_profile][:error_prefix] %>"));
+			});
+		});
+	};
+
 	requestService.postProvProfileCreate = function(fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_create]) %>", {
 			job_id: requestService.jobID

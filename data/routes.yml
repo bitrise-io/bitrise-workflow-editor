@@ -29,6 +29,7 @@ website:
   app_stack_info_get: /app/<app_slug>/stack_info.json
   app_project_type_get: /app/<app_slug>/project_type
   prov_profile_create: /prov_profile_document/<job_id>.json
+  prov_profile_get_details: /prov_profile_document/get_details/<prov_profile_id>.json
   prov_profiles_get: /prov_profile_document/for_job/<job_id>.json
   prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json

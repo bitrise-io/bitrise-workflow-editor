@@ -22,7 +22,8 @@
 				span == data[:strings][:code_signing][:prov_profile][:header][:card_title]
 				span<[ng-if="provProfileCtrl.provProfiles.length > 0" ng-bind="'(' + provProfileCtrl.provProfiles.length + '/' + provProfileCtrl.maximumProvProfilesCount + ')'"]
 			h2.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
-				span == data[:strings][:code_signing][:prov_profile][:header][:is_expose_param_title]
+				span.long-version == data[:strings][:code_signing][:prov_profile][:header][:is_expose_param_title_long]
+				span.short-version == data[:strings][:code_signing][:prov_profile][:header][:is_expose_param_title_short]
 		article
 			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
 			p.progress-indicator[progress-model="provProfileCtrl.deleteProvProfileProgress"]
@@ -31,13 +32,35 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details
-							span.file-data.name[ng-bind="provProfile.displayName()"]
-						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+							.first-column
+								.name[ng-bind="provProfile.displayName()"]
+								.uuid[ng-bind="provProfile.uuid" ng-if="provProfile.uuid && provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
+								.expiry-date-and-time[ng-if="provProfile.expirationDateAndTime && provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
+									b>[ng-if="!dateService.isDatetimeValueExpired(provProfile.expirationDateAndTime)"] Expires on:
+									.warning-message>[ng-if="dateService.isDatetimeValueExpired(provProfile.expirationDateAndTime)"] Expired
+									time[ng-bind="(provProfile.expirationDateAndTime | date: 'MMM, dd, yyyy, HH:mm (UTC)')" datetime="{{ provProfile.expirationDateAndTime | datetimeValue }}"]
+								p.progress-indicator[progress-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].progress" progress-config="{uploadErrorTryAgainCallbackAsString: 'provProfileCtrl.getDetails(provProfile)'}"]
+							.second-column[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
+								.export-type[ng-if="provProfile.exportType"]
+									b> Export Type:
+									span[ng-bind="provProfile.exportType"]
+								.team-data[ng-if="provProfile.teamName && provProfile.teamID"]
+									b> Team:
+									span.name-and-id[ng-bind="provProfile.teamName + ' (' + provProfile.teamID + ')'"]
+								.bundle-id[ng-if="provProfile.bundleID"]
+									b> Bundle ID:
+									span[ng-bind="provProfile.bundleID"]
+						.expose
 							checkbox[ng-model="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:is_expose]
 						.actions
-							a.furto.download[href="{{ provProfile.download() }}"] = svg("arrow_tailed_slim-down")
-							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
+							.menu-selector[floating-menu toggle="provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible"]
+								span.menu-icon[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible"] = svg("three-horizontal-dots")
+								.menu.angular-animated[ng-show="provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible"]
+									a.download[href="{{ provProfile.download() }}"]
+										| Download
+									button.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"]
+										| Delete
 				p.notification.error[ng-if="provProfileCtrl.provProfiles.length >= provProfileCtrl.maximumProvProfilesCount"] == data[:strings][:code_signing][:prov_profile][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfilesProgress"]
 				.file-upload[ng-if="!provProfileCtrl.uploadProvProfilesProgress.isInProgress && provProfileCtrl.provProfiles.length < provProfileCtrl.maximumProvProfilesCount"]
@@ -52,7 +75,7 @@
 			h2.password[ng-if="certificateCtrl.certificates.length > 0"]
 				span == data[:strings][:code_signing][:certificate][:header][:password_param_title]
 			h2.expose[ng-if="certificateCtrl.certificates.length > 0"]
-				span == data[:strings][:code_signing][:certificate][:header][:is_expose_param_title]
+				span == data[:strings][:code_signing][:certificate][:header][:is_expose_param_title_long]
 		article
 			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
 			p.progress-indicator[progress-model="certificateCtrl.certificateActionProgress"]
@@ -61,7 +84,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
 						.details
-							span.file-data.name[ng-bind="certificate.displayName()"]
+							.file-data.name[ng-bind="certificate.displayName()"]
 						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
 							form.password[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
 								.input-with-show-password
@@ -88,7 +111,7 @@
 			h2.title
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
 			h2.expose[ng-if="androidKeystoreCtrl.keystoreFile"]
-				span == data[:strings][:code_signing][:android_keystore][:header][:is_expose_param_title]
+				span == data[:strings][:code_signing][:android_keystore][:header][:is_expose_param_title_long]
 		article
 			p.progress-indicator[progress-model="androidKeystoreCtrl.loadProgress"]
 			p.progress-indicator[progress-model="androidKeystoreCtrl.actionProgress"]
@@ -97,7 +120,7 @@
 				div[ng-if="androidKeystoreCtrl.keystoreFile"]
 					.uploaded-file
 						.details
-							span.file-data
+							.file-data
 								span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
 								em.download-url-env-var-key
 									span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
@@ -146,7 +169,7 @@
 				span == data[:strings][:code_signing][:generic_file][:header][:card_title]
 				span<[ng-if="genericFileCtrl.genericFiles.length > 0" ng-bind="'(' + genericFileCtrl.genericFiles.length + '/' + genericFileCtrl.maximumGenericFilesCount + ')'"]
 			h2.expose[ng-if="genericFileCtrl.genericFiles.length > 0"]
-				span == data[:strings][:code_signing][:generic_file][:header][:is_expose_param_title]
+				span == data[:strings][:code_signing][:generic_file][:header][:is_expose_param_title_long]
 		article
 			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
 			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
@@ -155,7 +178,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							span.file-data
+							.file-data
 								span.name[ng-bind="genericFile.displayName()"]
 								em.download-url-env-var-key
 									span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]

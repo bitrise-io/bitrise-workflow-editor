@@ -2,14 +2,15 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($q, $timeout, requestService, stringService, Popup, Progress, ProvProfile) {
+angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, $timeout, requestService, stringService, dateService, Popup, Progress, ProvProfile) {
 
 	var viewModel = this;
+
+	$scope.dateService = dateService;
 
 	var provProfilesReloadIntervalInSeconds = 2;
 	viewModel.maximumProvProfilesCount = 30;
 
-	viewModel.provProfiles;
 	viewModel.loadProvProfilesProgress = new Progress();
 	viewModel.uploadProvProfilesProgress = new Progress();
 	viewModel.deleteProvProfileProgress = new Progress();
@@ -17,6 +18,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.provProfilesToUpload;
 	viewModel.provProfileUploader;
 	viewModel.provProfileIsExposeGetterSetterConfigs;
+	viewModel.provProfileSettings = [];
 
 	function loadProvProfiles(shouldClearPreviousLoad) {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
@@ -40,6 +42,15 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 				provProfile.isProcessed = aProvProfileData.isProcessed;
 				provProfile.uploadFileName = aProvProfileData.uploadFileName;
 				provProfile.isExpose = aProvProfileData.isExpose;
+
+				viewModel.provProfileSettings[provProfile.databaseID] = {
+					progress: new Progress(),
+					toggleMenuIsVisible: false
+				};
+
+				if (!provProfile.isDetailsLoaded) {
+					viewModel.getDetails(provProfile);
+				}
 
 				return provProfile;
 			});
@@ -132,6 +143,32 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			}, function(error) {
 				viewModel.deleteProvProfileProgress.error(error);
 			});
+		});
+	};
+
+	viewModel.getDetails = function(provProfile) {
+		viewModel.provProfileSettings[provProfile.databaseID].progress.start("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>");
+		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
+			viewModel.uploadProvProfilesProgress.reset();
+		}
+
+		requestService.getDetailsOfProvProfile(provProfile.databaseID).then(function(provProfileDetails) {
+			provProfile.isDetailsLoaded = true;
+
+			provProfile.uuid = provProfileDetails.uuid;
+			provProfile.expirationDateAndTime = provProfileDetails.expirationDateAndTime;
+			provProfile.exportType = provProfileDetails.exportType;
+			provProfile.teamName = provProfileDetails.teamName;
+			provProfile.teamID = provProfileDetails.teamID;
+			provProfile.bundleID = provProfileDetails.bundleID;
+
+			viewModel.provProfileSettings[provProfile.databaseID].progress.success();
+		}, function(error) {
+			var errorWithTryAgain = new Error(error.message + stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress]", {
+				callback: viewModel.provProfileSettings[provProfile.databaseID].progress.config.uploadErrorTryAgainCallbackAsString
+			}));
+
+			viewModel.provProfileSettings[provProfile.databaseID].progress.error(errorWithTryAgain);
 		});
 	};
 

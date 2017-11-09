@@ -135,7 +135,8 @@ code_signing:
   prov_profile:
     header: 
       card_title: Provisioning profile
-      is_expose_param_title: Expose for Pull Requests
+      is_expose_param_title_long: Expose for Pull Requests
+      is_expose_param_title_short: Expose for PR
     is_expose: Expose for Pull Request
     upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
@@ -151,6 +152,9 @@ code_signing:
       no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
+    get_details_progress:
+      in_progress: Loading, wait a sec...
+      try_again_postfix: " <a href='javascript:void()' ng-click='<callback>'>Click here to try again</a>."
     upload_progress:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
@@ -346,6 +350,9 @@ request_service:
   create_keystore_file:
     default_error: Error uploading file.
     error_prefix: "Error uploading file: "
+  get_details_prov_profile:
+    default_error: Error getting details of uploaded provisioning profile.
+    error_prefix: "Error getting details of uploaded provisioning profile: "
   finalize_prov_profile_upload:
     default_error: Error finalizing provisioning profile upload.
     error_prefix: "Error finalizing provisioning profile upload: "

@@ -10,6 +10,7 @@ angular.module("BitriseWorkflowEditor").factory("Progress", function() {
 		this.isError;
 		this.isIdle;
 		this.cssClass;
+		this.config = {};
 
 		this.reset();
 	};
@@ -54,7 +55,7 @@ angular.module("BitriseWorkflowEditor").factory("Progress", function() {
 
 });
 
-angular.module("BitriseWorkflowEditor").directive("progressModel", function() {
+angular.module("BitriseWorkflowEditor").directive("progressModel", function($parse) {
 
 	return {
 		restrict: "A",
@@ -70,9 +71,15 @@ angular.module("BitriseWorkflowEditor").directive("progressModel", function() {
 			tElement.attr("ng-if", ngIfValue);
 			tElement.attr("ng-class", tAttrs.progressModel + ".cssClass");
 			tElement.attr("ng-bind-html", tAttrs.progressModel + ".statusMessage");
+			tElement.attr('model', tAttrs.progressModel);
 			tElement.removeAttr("progressModel");
 
 			return tElement.prop("outerHTML");
+		},
+		link: function(scope, element, attrs) {
+			var progress = $parse(attrs.model)(scope);
+
+			progress.config = _.extend(progress.config, $parse(attrs.progressConfig)(scope));
 		}
 	};
 

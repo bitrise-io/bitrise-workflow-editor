@@ -114,19 +114,13 @@
 	}
 		
 	section.cardo {
-		$header_is_expose-width: 34%;
-		
+
 		header {
 			@include display-flex;
 			@include justify-content(space-between);
 
 			.title {
-				width: 100% - $header_is_expose-width;
 				margin-bottom: 0;
-			}
-
-			.expose {
-				width: $header_is_expose-width;
 			}
 		}
 
@@ -144,33 +138,96 @@
 		}
 	
 		.uploaded-file {
-			$details-width: 100% - $header_is_expose-width;
-			$content_is_expose-width: 26%;
-	
 			@include display-flex;
-			@include align-items(center);
+			@include align-items(flex-start);
 			padding: 12px $cardo-horizontalpadding;
 			border-bottom: 1px solid $def-mediumlightgrey;
 	
 			.details {
 				@include display-flex;
-				@include align-items(center);
+				@include align-items(flex-start);
 				@include box-sizing(border-box);
-				width: $details-width;
+				overflow: hidden;
 				padding: 5px 8px;
 				font-size: 14px;
 	
 				&:before {
 					content: "";
 					@include flex-shrink(0);
-					@include size(20px, 24px);
+					@include size(30px, 40px);
 					margin-right: 15px;
 					background-size: contain;
 					background-position: center;
 					background-repeat: no-repeat;
 				}
+
+				.first-column {
+
+					.name, .uuid, .expiry-date-and-time {
+						@include ellipsis-oneliner;
+						font-size: 14px;
+						font-weight: 500;
+						display: inline-block;
+					}
+
+					.name {
+						color: #464646;
+						display: block;
+						margin-right: 15px
+					}
+
+					.uuid {
+						padding: 5px 7px;
+						margin: 5px 0;
+						border-radius: 1px;
+						background-color: #d9fff4;
+						font-family: "Source Code Pro", monospace;
+					}
+
+					.expiry-date-and-time {
+
+						.warning-message {
+							padding: 7px 12px;
+							text-transform: uppercase;
+							border-radius: 3px;
+							color: #f17420;
+							background-color: #ffeadc;
+							display: inline-block;
+						}
+
+						time {
+							font-weight: 300;
+							color: #464646;
+						}
+					}
+
+					p.progress-indicator {
+						margin-left: 0;
+						margin-bottom: 0;
+					}
+				}
+
+				.second-column {
+					width: 100%;
+
+					.export-type, .team-data, .bundle-id {
+
+						span {
+							color: #464646;
+						}
+					}
+
+					.team-data {
+						@include display-flex;
+						padding: 5px 0px;
+
+						.name-and-id {
+							padding-left: 5px;
+						}
+					}
+				}
 			}
-	
+			
 			.expose {
 				width: $content_is_expose-width;
 				position: relative;
@@ -191,12 +248,61 @@
 			.actions {
 				@include display-flex;
 				@include flex-shrink(0);
-				width: 100% - ($details-width + $content_is_expose-width);
+				@include justify-content(flex-end);
 				margin-left: auto;
-	
-				a, button {
-					@include flex-shrink(0);
-					margin-left: 12px;
+
+				.menu-selector {
+					position: relative;
+
+					.menu-icon {
+
+						&:hover svg {
+							fill: $def-darkgrey;
+						}
+						 
+						svg {
+							@include size(26px, 21px);
+							fill: #999999;
+						}
+					}
+
+					.menu {
+						@include display-flex;
+						@include flex-direction(column);
+						@include align-items(flex-start);
+						@include position(absolute, 100%, 0);
+						width: 180px;
+						z-index: $zindex-popover;
+						margin-top: 10px;
+						margin-bottom: 0;
+						border: 1px solid $def-lightgrey;
+						@include border-radius(5px);
+						padding-left: 0;
+						overflow: hidden;
+						list-style: none;
+						@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
+
+						a, button {
+							width: 100%;
+							padding: 15px 12px;
+							font-size: 12px;
+							font-weight: 500;
+							text-align: left;
+							text-decoration: none;
+							color: #767676;
+							background-color: white;
+							border-bottom: 1px solid $def-lightgrey;
+
+							&.delete {
+								color: #f17420;
+								border-bottom: none;
+							}
+
+							&:hover {
+								background-color: $def-ultralightgrey;
+							}
+						}
+					}
 				}
 			}
 		}
@@ -256,6 +362,85 @@
 			}
 		}
 
+		@include media-above-inclusive-huge {
+			$header_is_expose_inclusive_huge-width: 26%;
+			$details-width: 100% - $header_is_expose-inclusive-huge-width;
+			$content_is_expose-width: $header_is_expose-inclusive-huge-width - 3%;
+
+			header {
+				.title {
+					width: 100% - $header_is_expose_inclusive_huge-width;
+				}
+
+				.expose {
+					width: $header_is_expose_inclusive_huge-width;
+
+					.short-version {
+						display: none;
+					}
+				}
+			}
+
+			ul.uploaded-files > li.uploaded-file, .uploaded-file {
+
+				.details {
+					width: $details-width;
+
+					.first-column {
+						min-width: 400px;
+					}
+				}
+
+				.expose {
+					width: $content_is_expose-width;
+				}
+
+				.actions {
+					width: 100% - ($details-width + $content_is_expose-width);
+				}
+			}
+		}
+
+		@include media-below-huge {
+			$header_is_expose_below_huge-width: 19%;
+			$details-width: 100% - $header_is_expose_below_huge-width;
+			$content_is_expose-width: $header_is_expose_below_huge-width - 3%;
+
+			header {
+				
+				.title {
+					width: 100% - $header_is_expose_below_huge-width;
+				}
+
+				.expose {
+					width: $header_is_expose_below_huge-width;
+
+					.long-version {
+						display: none;
+					}
+				}
+			}
+
+			ul.uploaded-files > li.uploaded-file, .uploaded-file {
+
+				.details {
+					width: $details-width;
+
+					.first-column {
+						min-width: 360px;
+					}
+				}
+
+				.expose {
+					width: $content_is_expose-width;
+				}
+
+				.actions {
+					width: 100% - ($details-width + $content_is_expose-width);
+				}
+			}
+		}
+
 		@include media-below-big {
 			
 			header {
@@ -286,11 +471,45 @@
 						text-align: center;
 
 						&:before {
+							@include align-self(center);
 							margin-right: 0;
 							margin-bottom: 8px;
 						}
 
-						span.file-data {
+						.first-column, .second-column {
+							@include display-flex;
+							@include flex-direction(column);
+							@include align-items(flex-start);
+							text-align: left;
+							min-width: 0;
+							width: 100%;
+
+							.name, .uuid, .expiry-date-and-time, .export-type, .team-data, .bundle-id {
+								margin: 7px 0;
+								min-width: 0;
+								width: 100%;
+								overflow: visible;
+								white-space: normal;
+							}
+
+							.uuid {
+								width: auto;
+							}
+						}
+
+						.first-column {
+
+							.name {
+								margin-right: 0;
+								text-align: center;
+							}
+
+							p.progress-indicator {
+								margin: 0 auto;
+							}
+						}
+
+						.file-data {
 							@include ellipsis-oneliner;
 							width: 100%;
 
@@ -382,18 +601,38 @@
 					}
 
 					.actions {
-						width: 8%;
+						@include align-self(center);
 						margin-top: 10px;
-						margin-left: 0;
-					
-						a:first-child, button:first-child {
-							margin-left: 0;
+
+						.menu-selector .menu {
+							right: -78px;
 						}
 					}
 				}
 
 				code {
 					word-wrap: break-word;
+				}
+			}
+		}
+
+		@include media-below(520px) {
+			article {
+				
+				ul.uploaded-files > li.uploaded-file, .uploaded-file {
+					
+					.details { 
+
+						.name, .uuid, .expiry-date-and-time, .export-type, .team-data, .bundle-id {
+							@include display-flex;
+							@include flex-direction(column);
+							margin: 0;
+						}
+
+						.team-data .name-and-id {
+							padding-left: 0;
+						}
+					}
 				}
 			}
 		}
@@ -406,7 +645,7 @@
 			li.uploaded-file {
 
 				.details:before {
-					background-image: image-url("code_signing/file-green.svg");
+					background-image: image-url("code_signing/prov-profile-green.svg");
 				}
 			}
 		}
@@ -438,7 +677,7 @@
 					width: $details-width;
 
 					&:before {
-						background-image: image-url("code_signing/file-purple.svg");
+						background-image: image-url("code_signing/code-sign-purple.svg");
 					}
 				}
 
@@ -518,7 +757,7 @@
 			.details {
 
 				&:before {
-					background-image: image-url("code_signing/file-green.svg");
+					background-image: image-url("code_signing/generic-file-green.svg");
 				}
 
 				em.download-url-env-var-key {
@@ -571,7 +810,7 @@
 		li.uploaded-file {
 
 			.details:before {
-				background-image: image-url("code_signing/file-green.svg");
+				background-image: image-url("code_signing/generic-file-green.svg");
 			}
 		}
 
@@ -597,7 +836,7 @@
 		.uploaded-file {
 
 			.details:before {
-				background-image: image-url("code_signing/file-purple.svg");
+				background-image: image-url("code_signing/code-sign-purple.svg");
 			}
 		}
 
