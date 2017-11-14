@@ -137,6 +137,16 @@ code_signing:
       card_title: Provisioning profile
       is_expose_param_title_long: Expose for Pull Requests
       is_expose_param_title_short: Expose for PR
+    article:
+      details:
+        expires_on_label: "Expires on:"
+        expired_label: Expired
+        export_type_label: "Export type:"
+        team_data_label: "Team:"
+        bundle_id_label: "Bundle ID:"
+      actions:
+        download_label: "Download"
+        delete_label: "Delete"
     is_expose: Expose for Pull Request
     upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
@@ -154,7 +164,7 @@ code_signing:
       in_progress: Loading, wait a sec...
     get_details_progress:
       in_progress: Loading, wait a sec...
-      try_again_postfix: " <a href='javascript:void()' ng-click='<callback>'>Click here to try again</a>."
+      try_again_postfix: " Click here to try again."
     upload_progress:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
@@ -163,7 +173,18 @@ code_signing:
     header:
       card_title: Code Signing Identity
       password_param_title: Password
-      is_expose_param_title: Expose for Pull Requests
+      is_expose_param_title_long: Expose for Pull Requests
+      is_expose_param_title_short: Expose for PR
+    article:
+      details:
+        team_data_label: "Team:"
+        expires_on_label: "Expires on:"
+        expired_label: Expired
+      password_edit:
+        incorrect_password_notice: Incorrect password
+      actions:
+        download_label: "Download"
+        delete_label: "Delete"
     is_expose: Expose for Pull Request
     upload_action: Add the private key (.p12) for signing
     upload_instructions: Click here or Drag & Drop to upload
@@ -179,19 +200,27 @@ code_signing:
       no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
+    get_details_progress:
+      in_progress: Loading, wait a sec...
+      try_again_postfix: " Click here to try again."
     upload_progress:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
       in_progress: Deleting, wait a sec...
     show_password: Show password
-    change_password_ok: OK
+    change_password_save: Save
     change_password_cancel: Cancel
     change_password_progress:
       in_progress: Change password, wait a sec...
   generic_file:
     header:
       card_title: Generic File Storage
-      is_expose_param_title: Expose for Pull Requests
+      is_expose_param_title_long: Expose for Pull Requests
+      is_expose_param_title_short: Expose for PR
+    article:
+      actions:
+        download_label: "Download"
+        delete_label: "Delete"
     is_expose: Expose for Pull Request
     upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
     upload_instructions: Click here or Drag & Drop to upload
@@ -222,7 +251,12 @@ code_signing:
   android_keystore:
     header:
       card_title: Android Keystore file
-      is_expose_param_title: Expose for Pull Requests
+      is_expose_param_title_long: Expose for Pull Requests
+      is_expose_param_title_short: Expose for PR
+    article:
+      actions:
+        download_label: "Download"
+        delete_label: "Delete"
     is_expose: Expose for Pull Request
     no_keystore_file: "No keystore file added yet."
     download_url_available_as: Download URL available as
@@ -353,6 +387,9 @@ request_service:
   get_details_prov_profile:
     default_error: Error getting details of uploaded provisioning profile.
     error_prefix: "Error getting details of uploaded provisioning profile: "
+  get_details_certificate:
+    default_error: Error getting details of uploaded certificate file.
+    error_prefix: "Error getting details of uploaded certificate file: "
   finalize_prov_profile_upload:
     default_error: Error finalizing provisioning profile upload.
     error_prefix: "Error finalizing provisioning profile upload: "

@@ -37,6 +37,7 @@ website:
   prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
   certificate_create: /build_certificate/<job_id>.json
   certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
+  certificate_get_details: /build_certificate/get_details/<certificate_id>.json
   certificates_get: /build_certificate/for_job/<job_id>.json
   certificate_download: /build_certificate/<certificate_id>
   certificate_is_expose_state_update: /build_certificate/<certificate_id>/update_is_expose.json

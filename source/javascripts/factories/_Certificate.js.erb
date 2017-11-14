@@ -11,6 +11,9 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		this.uploadFileName;
 		this.password;
 		this.isExpose;
+		this.isDetailsLoaded = false;
+		this.details;
+		
 	};
 
 	Certificate.prototype.displayName = function() {
@@ -78,9 +81,18 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		})
 	};
 
+	Certificate.prototype.getDetails = function(requestConfig) {
+		requestService.getDetailsOfCertificate(this.databaseID, this.password).then(function() {
+			resolve();
+		}, function(error) {
+			reject(error);
+		});
+	};
+
+
 	Certificate.prototype.download = function() {
 		return requestService.downloadCertificate(this.databaseID);
-	}
+	};
 
 	Certificate.prototype.savePassword = function(requestConfig) {
 		return requestService.putCertificatePasswordSave(this.databaseID, this.password, requestConfig);

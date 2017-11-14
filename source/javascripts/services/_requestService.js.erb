@@ -40,6 +40,9 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				error.message = stringService.errorMessageFromErrors(errors);
 			}
+			if (response.data.error_type) {
+				error.name = response.data.error_type;
+			}
 		}
 
 		if (errorMessagePrefix && (error.message != defaultErrorMessage)) {
@@ -541,6 +544,34 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	};
 
 	// Certificates
+
+	requestService.getDetailsOfCertificate = function(certificateDatabaseID, certificatePassword, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_get_details]) %>", {
+			certificate_id: certificateDatabaseID,
+			password: certificatePassword
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				var certificate_details = [];
+				
+				_.each(response.data.build_certificate_details, function(aCertificate) {
+					certificate_details.push({
+						commonName: aCertificate.common_name,
+						startDate: aCertificate.start_date,
+						endDate: aCertificate.end_date,
+						teamName: aCertificate.team_name,
+						teamID: aCertificate.team_id,
+						serial: aCertificate.serial
+					});
+				});
+
+				resolve(certificate_details);
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_certificate][:default_error] %>", "<%= data[:strings][:request_service][:get_details_certificate][:error_prefix] %>"));
+			});
+		});
+	};
 
 	requestService.postCertificateCreate = function(fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_create]) %>", {

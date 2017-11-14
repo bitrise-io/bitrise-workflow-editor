@@ -164,11 +164,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 			viewModel.provProfileSettings[provProfile.databaseID].progress.success();
 		}, function(error) {
-			var errorWithTryAgain = new Error(error.message + stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress]", {
-				callback: viewModel.provProfileSettings[provProfile.databaseID].progress.config.uploadErrorTryAgainCallbackAsString
-			}));
-
-			viewModel.provProfileSettings[provProfile.databaseID].progress.error(errorWithTryAgain);
+			viewModel.provProfileSettings[provProfile.databaseID].progress.error();
 		});
 	};
 

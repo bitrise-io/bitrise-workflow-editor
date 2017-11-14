@@ -2,14 +2,15 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CertificateController", function($q, $timeout, requestService, stringService, Popup, Progress, Certificate) {
+angular.module("BitriseWorkflowEditor").controller("CertificateController", function($scope, $q, $timeout, requestService, stringService, dateService, Popup, Progress, Certificate) {
 
 	var viewModel = this;
+
+	$scope.dateService = dateService;	
 
 	var certificatesReloadIntervalInSeconds = 2;
 	viewModel.maximumCertificatesCount = 30;
 
-	viewModel.certificates;
 	viewModel.loadCertificatesProgress = new Progress();
 	viewModel.uploadCertificatesProgress = new Progress();
 	viewModel.certificateActionProgress = new Progress();
@@ -18,6 +19,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
 	viewModel.certificateIsExposeGetterSetterConfigs;
+	viewModel.certificateSettings = [];
 	var passwordEditedCertificateOriginalPassword;
 
 	function loadCertificates(shouldClearPreviousLoad) {
@@ -43,6 +45,16 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				certificate.uploadFileName = aCertificateData.uploadFileName;
 				certificate.password = aCertificateData.password;
 				certificate.isExpose = aCertificateData.isExpose;
+
+				viewModel.certificateSettings[certificate.databaseID] = {
+					progress: new Progress(),
+					toggleMenuIsVisible: false,
+					isInvalidPassword: false
+				};
+				
+				if (!certificate.isDetailsLoaded) {
+					viewModel.getDetails(certificate);
+				}
 
 				return certificate;
 			});
@@ -154,6 +166,8 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		}
 
 		viewModel.passwordEditedCertificate.savePassword().then(function() {
+			viewModel.getDetails(viewModel.passwordEditedCertificate);
+
 			viewModel.passwordEditedCertificate = null;
 			passwordEditedCertificateOriginalPassword = undefined;
 
@@ -167,6 +181,44 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		viewModel.passwordEditedCertificate.password = passwordEditedCertificateOriginalPassword;
 		viewModel.passwordEditedCertificate = null;
 		passwordEditedCertificateOriginalPassword = undefined;
+	};
+
+	viewModel.getDetails = function(certificate) {
+		viewModel.certificateSettings[certificate.databaseID].progress.start("<%= data[:strings][:code_signing][:certificate][:get_details_progress][:in_progress] %>");
+		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
+			viewModel.uploadCertificatesProgress.reset();
+		}
+
+		requestService.getDetailsOfCertificate(certificate.databaseID, certificate.password).then(function(certificateDetails) {
+			certificate.isDetailsLoaded = true;
+
+			var certificateFileDetails = [];
+			_.each(certificateDetails, function(aCertificateDetail) {
+				certificateFileDetails.push({
+					commonName: aCertificateDetail.commonName,
+					startDate: aCertificateDetail.startDate,
+					endDate: aCertificateDetail.endDate,
+					teamName: aCertificateDetail.teamName,
+					teamID: aCertificateDetail.teamID,
+					serial: aCertificateDetail.serial
+				});
+			});
+
+			certificate.details = certificateFileDetails;
+
+			viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = false;
+
+			viewModel.certificateSettings[certificate.databaseID].progress.success();
+		}, function(error) {
+			// if (error.name && error.name == "invalid_password") {
+			// 	viewModel.certificateSettings[certificate.databaseID].progress.reset();
+
+			// 	viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
+			// }
+			// else {
+				viewModel.certificateSettings[certificate.databaseID].progress.error(error);
+			// }
+		});
 	};
 
 	function isExposeGetterSetterForCertificate(certificate, progress) {

@@ -163,25 +163,37 @@
 
 				.first-column {
 
-					.name, .uuid, .expiry-date-and-time {
+					.name, .uuid, .serial, .expiry-date-and-time {
 						@include ellipsis-oneliner;
 						font-size: 14px;
 						font-weight: 500;
+					}
+
+					.name, .common-name {
+						color: #464646;
+						display: block;
+						margin-right: 15px;
+						margin-bottom: 5px;
+					}
+
+					.uuid, .serial {
+						padding: 5px 7px;
+						margin-bottom: 5px;
+						border-radius: 1px;
+						font-family: "Source Code Pro", monospace;
 						display: inline-block;
 					}
 
-					.name {
-						color: #464646;
-						display: block;
-						margin-right: 15px
+					.uuid {
+						background-color: #d9fff4;
 					}
 
-					.uuid {
-						padding: 5px 7px;
-						margin: 5px 0;
-						border-radius: 1px;
-						background-color: #d9fff4;
-						font-family: "Source Code Pro", monospace;
+					.serial {
+						background-color: #f6eaff;
+					}
+
+					.team-data {
+						margin-bottom: 5px;
 					}
 
 					.expiry-date-and-time {
@@ -204,6 +216,7 @@
 					p.progress-indicator {
 						margin-left: 0;
 						margin-bottom: 0;
+						font-size: 12px;
 					}
 				}
 
@@ -304,6 +317,26 @@
 						}
 					}
 				}
+
+				.actions-on-mobile-view {
+					display: none;
+					
+					a, button {
+						font-size: 12px;
+						font-weight: 500;
+						text-decoration: underline;
+					}
+
+					.download {
+						color: $def-green;
+						margin-right: 25px;
+					}
+
+					.delete {
+						font-weight: 200;
+						color: #f17420;
+					}
+				}
 			}
 		}
 	
@@ -365,9 +398,12 @@
 		@include media-above-inclusive-huge {
 			$header_is_expose_inclusive_huge-width: 26%;
 			$details-width: 100% - $header_is_expose-inclusive-huge-width;
+			$password-section-for-certificate-section: 25%;
+			$details-width-for-certificate-section: $details-width - $password-section-for-certificate-section;
 			$content_is_expose-width: $header_is_expose-inclusive-huge-width - 3%;
 
 			header {
+
 				.title {
 					width: 100% - $header_is_expose_inclusive_huge-width;
 				}
@@ -399,11 +435,39 @@
 					width: 100% - ($details-width + $content_is_expose-width);
 				}
 			}
+
+			&.code-signing-identities {
+				
+				header {
+						
+					.title {
+						width: $details-width-for-certificate-section;
+					}
+
+					.password {
+						width: $password-section-for-certificate-section;
+						margin-bottom: 0;
+					}
+				}
+
+	 			ul.uploaded-files > li.uploaded-file, .uploaded-file {
+					
+					.details {
+						width: $details-width-for-certificate-section;
+					}
+
+					.password-edit {
+						width: $password-section-for-certificate-section;
+					}
+				}
+			}
 		}
 
 		@include media-below-huge {
 			$header_is_expose_below_huge-width: 19%;
 			$details-width: 100% - $header_is_expose_below_huge-width;
+			$password-section-for-certificate-section: 31%;
+			$details-width-for-certificate-section: $details-width - $password-section-for-certificate-section;
 			$content_is_expose-width: $header_is_expose_below_huge-width - 3%;
 
 			header {
@@ -417,6 +481,32 @@
 
 					.long-version {
 						display: none;
+					}
+				}
+			}
+
+			&.code-signing-identities {
+				
+				header {
+						
+					.title {
+						width: $details-width-for-certificate-section;
+					}
+
+					.password {
+						width: $password-section-for-certificate-section;
+						margin-bottom: 0;
+					}
+				}
+
+	 			ul.uploaded-files > li.uploaded-file, .uploaded-file {
+					
+					.details {
+						width: $details-width-for-certificate-section;
+					}
+
+					.password-edit {
+						width: $password-section-for-certificate-section;
 					}
 				}
 			}
@@ -442,121 +532,82 @@
 		}
 
 		@include media-below-big {
+
+			&.provisioning-profiles, &.code-signing-identities, &.android-keystore, &.generic-files {
 			
-			header {
+				header {
 
-				.title {
-					width: 100%;
-				}
-
-				.password, .expose {
-					display: none;
-				}
-			}
-
-			article {
-
-				ul.uploaded-files > li.uploaded-file, .uploaded-file {
-					@include flex-direction(column);
-
-					.details, .expose, .actions {
-						@include justify-content(center);
+					.title {
 						width: 100%;
-						margin-top: 6px;
 					}
 
-					.details {
-						@include flex-direction(column);
-						@include justify-content(center);
-						text-align: center;
+					.password, .expose {
+						display: none;
+					}
+				}
 
-						&:before {
-							@include align-self(center);
-							margin-right: 0;
-							margin-bottom: 8px;
+				article {
+
+					ul.uploaded-files > li.uploaded-file, .uploaded-file {
+						@include flex-direction(column);
+
+						.details, .expose, .password-edit, .actions {
+							@include justify-content(left);
+							width: 100%;
+							margin-top: 6px;
 						}
 
-						.first-column, .second-column {
-							@include display-flex;
+						.details {
 							@include flex-direction(column);
-							@include align-items(flex-start);
-							text-align: left;
-							min-width: 0;
-							width: 100%;
+							text-align: center;
 
-							.name, .uuid, .expiry-date-and-time, .export-type, .team-data, .bundle-id {
-								margin: 7px 0;
+							&:before {
+								margin-right: 0;
+								margin-bottom: 8px;
+							}
+
+							.first-column, .second-column {
+								@include display-flex;
+								@include flex-direction(column);
+								@include align-items(flex-start);
+								text-align: left;
 								min-width: 0;
 								width: 100%;
-								overflow: visible;
-								white-space: normal;
-							}
 
-							.uuid {
-								width: auto;
-							}
-						}
-
-						.first-column {
-
-							.name {
-								margin-right: 0;
-								text-align: center;
-							}
-
-							p.progress-indicator {
-								margin: 0 auto;
-							}
-						}
-
-						.file-data {
-							@include ellipsis-oneliner;
-							width: 100%;
-
-							em {
-								@include display-flex;
-								@include justify-content(center);
-
-								code {
-									@include ellipsis-oneliner;
+								.name, .uuid, .expiry-date-and-time, .export-type, .team-data, .bundle-id {
+									margin: 7px 0;
+									min-width: 0;
+									width: 100%;
+									overflow: visible;
+									white-space: normal;
 								}
-							}
-						}
-					}
 
-					.password-edit {
-						@include flex-direction(column);
-						width: auto;
-						min-width: 200px;
-						margin-top: 10px;
-
-						form.password {
-							@include justify-content(center);
-							@include flex-wrap(wrap);
-							margin-bottom: 6px;
-							width: 100%;
-
-							.input-with-show-password {
-								width: 100%;
-							}
-
-							input:not([type="submit"]) {
-								width: 100%;
-
-								&:not(:last-child) {
-									margin-bottom: 6px;	
+								.uuid {
+									width: auto;
 								}
-							}
 
-							.change-password-actions {
-								width: 100%;
-
-								input.submit {
+								p.progress-indicator {
 									margin-left: 0;
+									margin-bottom: 0;
+									font-size: 12px;
 								}
+							}
 
-								input.ok, button.cancel {
-									@include flex-grow(1);
+							.first-column .name {
+								margin-right: 0;
+							}
+
+							.file-data {
+								@include ellipsis-oneliner;
+								width: 100%;
+
+								em {
+									@include display-flex;
+									@include align-items(center);
+
+									code {
+										@include ellipsis-oneliner;
+									}
 								}
 							}
 						}
@@ -566,33 +617,42 @@
 						@include display-flex;
 						width: auto;
 
-						.checkbox {
-							width: 36px;
-							height: 16px;
-
-							.checkbox-svg-wrapper {
-
-								svg[check] {
-									width: 10px;
-									height: 9px;
-									top: 3px;
-									left: 4px;
-								}
-								
-								svg[cross] {
-									width: 8px;
-									height: 8px;
-									top: 4px;
-									left: 5px;
-								}
-							}
+						.expose, .action {
+							@include padding-x(8px);
 						}
 
-						label {
-							display: block !important;
-							@include ellipsis-oneliner;
-							font-size: 12px;
-							margin-left: 8px;
+						.expose {
+							@include display-flex;
+							margin-top: 15px;
+
+							.checkbox {
+								width: 36px;
+								height: 16px;
+
+								.checkbox-svg-wrapper {
+
+									svg[check] {
+										width: 10px;
+										height: 9px;
+										top: 3px;
+										left: 4px;
+									}
+									
+									svg[cross] {
+										width: 8px;
+										height: 8px;
+										top: 4px;
+										left: 5px;
+									}
+								}
+							}
+
+							label {
+								display: block !important;
+								@include ellipsis-oneliner;
+								font-size: 12px;
+								margin-left: 8px;
+							}
 						}
 
 						.popover {
@@ -600,23 +660,29 @@
 						}
 					}
 
-					.actions {
-						@include align-self(center);
-						margin-top: 10px;
+						.actions {
+							margin-top: 15px;
+							padding: 5px 8px;
 
-						.menu-selector .menu {
-							right: -78px;
+							.menu-selector {
+								display: none;
+							}
+
+							.actions-on-mobile-view {
+								display: inline-block;
+							}
 						}
 					}
-				}
 
-				code {
-					word-wrap: break-word;
+					code {
+						word-wrap: break-word;
+					}
 				}
 			}
 		}
 
 		@include media-below(520px) {
+			
 			article {
 				
 				ul.uploaded-files > li.uploaded-file, .uploaded-file {
@@ -653,46 +719,27 @@
 
 	section.code-signing-identities {
 
-		header {
-			$title-width: 35%;
-			$password-width: 31%;
-
-			.title {
-				width: $title-width;
-			}
-
-			.password {
-				width: $password-width;
-				margin-bottom: 0;
-			}
-		}
-
 		ul.uploaded-files {
 
 			li.uploaded-file {
-				$details-width: 35%;
-				$password-width: 31%;
 
-				.details {
-					width: $details-width;
-
-					&:before {
-						background-image: image-url("code_signing/code-sign-purple.svg");
-					}
+				.details:before {
+					background-image: image-url("code_signing/code-sign-purple.svg");
 				}
 
 				.password-edit {
 					@include display-flex;
-					@include align-items(center);
-					width:	$password-width;
+					@include align-items(flex-start);
+					@include flex-direction(column);
 
 					form.password {
 						@include display-flex;
+						@include flex-direction(column);
 
 						.input-with-show-password {
 							@include display-flex;
 							position: relative;
-							max-width: 170px;
+							max-width: 220px;
 
 							.eye-checkbox {
 								position: absolute;
@@ -723,7 +770,18 @@
 								padding-right: 32px;
 								background-color: $def-verylightgrey;
 								font-size: 14px;
-								min-width: 135px;
+								min-width: 185px;
+
+								&.invalid-password {
+									border-color: #F17420;
+								}
+							}
+
+							input[type="password"] {
+								
+								&.invalid-password {
+									color: #F17420
+								}
 							}
 						}
 
@@ -738,10 +796,85 @@
 
 						.change-password-actions {
 							@include display-flex;
+							margin-top: 10px;
 
 							input.submit, button {
-								margin-left: 6px;
 								font-size: 10px;
+								width: 70px;
+							}
+
+							button {
+								margin-left: 6px;
+							}
+						}
+					}
+
+					.error-notice {
+						@include display-flex;
+						margin-top: 10px;
+						width: 100%;
+
+						span {
+
+							svg {
+								@include size(16px, 15px);
+								fill: #F17420;
+								margin-right: 10px;
+							}
+
+							&.notice {
+								font-size: 12px;
+								color: #F17420;
+							}
+						}
+					}
+
+					@include media-below-big {
+						@include flex-direction(column);
+						width: auto;
+						min-width: 200px;
+						margin-top: 10px;
+						@include padding-x(8px);
+	
+						form.password {
+							@include justify-content(flex-start);
+							@include flex-wrap(wrap);
+							margin-bottom: 6px;
+							width: 100%;
+	
+							.input-with-show-password {
+								width: 100%;
+							}
+	
+							input:not([type="submit"]) {
+								width: 100%;
+	
+								&:not(:last-child) {
+									margin-bottom: 6px;	
+								}
+							}
+	
+							.change-password-actions {
+								width: 100%;
+	
+								input.submit {
+									margin-left: 0;
+									margin-right: 10px;
+								}
+							}
+						}
+					}
+
+					@include media-below(360px) {
+
+						form.password {
+
+							.input-with-show-password {
+								max-width: 180px;
+
+								input.password-input {
+									min-width: 150px;
+								}
 							}
 						}
 					}
