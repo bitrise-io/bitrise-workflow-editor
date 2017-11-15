@@ -161,7 +161,7 @@
 					background-repeat: no-repeat;
 				}
 
-				.first-column {
+				.left-column {
 
 					.name, .uuid, .serial, .expiry-date-and-time {
 						@include ellipsis-oneliner;
@@ -218,9 +218,47 @@
 						margin-bottom: 0;
 						font-size: 12px;
 					}
+
+					.show-included-identities {
+						@include display-flex;
+						@include align-items(center);
+						padding: 10px 12px;
+						border-radius: 3px;
+						border: 1px solid $def-grey;
+
+						&:hover {
+							background-color: $def-ultralightgrey;
+						}
+
+						.icon {
+							margin-right: 6px;
+
+							svg {
+								@include size(9px, 16px);
+								vertical-align: middle;
+								fill: $def-verydarkgrey;
+							}
+						}
+
+						.title {
+							font-size: 12px;
+							font-weight: 400;
+						}
+						
+						.arrow {
+							margin-left: 6px;
+
+							svg {
+								@include size(10px, 16px);
+								vertical-align: middle;
+								@include transform(rotate(-90deg));
+								fill: $def-verydarkgrey;
+							}
+						}
+					}
 				}
 
-				.second-column {
+				.right-column {
 					width: 100%;
 
 					.export-type, .team-data, .bundle-id {
@@ -269,8 +307,12 @@
 
 					.menu-icon {
 
-						&:hover svg {
-							fill: $def-darkgrey;
+						&:hover {
+							cursor: pointer;
+						
+							svg {
+								fill: $def-darkgrey;
+							}
 						}
 						 
 						svg {
@@ -422,7 +464,7 @@
 				.details {
 					width: $details-width;
 
-					.first-column {
+					.left-column {
 						min-width: 400px;
 					}
 				}
@@ -516,7 +558,7 @@
 				.details {
 					width: $details-width;
 
-					.first-column {
+					.left-column {
 						min-width: 360px;
 					}
 				}
@@ -566,7 +608,7 @@
 								margin-bottom: 8px;
 							}
 
-							.first-column, .second-column {
+							.left-column, .right-column {
 								@include display-flex;
 								@include flex-direction(column);
 								@include align-items(flex-start);
@@ -593,7 +635,7 @@
 								}
 							}
 
-							.first-column .name {
+							.left-column .name {
 								margin-right: 0;
 							}
 
@@ -739,7 +781,7 @@
 						.input-with-show-password {
 							@include display-flex;
 							position: relative;
-							max-width: 220px;
+							max-width: 205px;
 
 							.eye-checkbox {
 								position: absolute;
@@ -770,7 +812,7 @@
 								padding-right: 32px;
 								background-color: $def-verylightgrey;
 								font-size: 14px;
-								min-width: 185px;
+								min-width: 175px;
 
 								&.invalid-password {
 									border-color: #F17420;
@@ -1009,5 +1051,130 @@
 			}
 		}
 	}
+}
 
+.popup-body#list-identities-popup-body {
+	width: 840px;
+	
+	header.closeable.left-aligned {
+		border-bottom: 1px solid $def-grey;
+
+		.popup-title {
+			@include display-flex;
+			@include flex-direction(column);
+
+			.title, .certificate-name {
+				font-size: 12px;
+				font-weight: 500;
+			}
+
+			.title {
+				color: $def-mediumdarkgrey;
+			}
+
+			.certificate-name {
+				color: black;
+			}
+		}
+
+		.popup-close {
+
+			svg {
+				@include size(10px, 16px);
+				vertical-align: middle;
+				fill: $def-darkgrey;
+			}
+		}
+	}
+
+	article {
+		@include display-flex;
+		@include flex-direction(column);
+		padding: 0;
+
+		ul.list-of-identities {
+			margin-top: 0;
+			margin-bottom: 45px;
+			list-style: none;
+			padding-left: 0;
+		
+			li.identity {
+				@include display-flex;
+				padding: 12px 14px;
+				border-bottom: 1px solid $def-grey;
+
+				.column {
+					@include display-flex;
+					@include flex-direction(column);
+					@include align-items(flex-start);
+					width: 50%;
+					text-align: left;
+
+					.common-name, .serial, .team-data, .expiry-date-and-time {
+						@include margin-y(5px);
+						font-size: 12px;
+						font-weight: 400;
+					}
+
+					.common-name {
+						font-weight: 500;
+					}
+					
+					.serial {
+						padding: 5px 7px;
+						border-radius: 1px;
+						font-family: "Source Code Pro", monospace;
+						display: inline-block;
+						background-color: #f6eaff;
+					}
+
+					.team-data, .expiry-date-and-time {
+						@include display-flex;
+
+						span, time {
+							padding-left: 5px;
+						}
+					}
+
+					.expiry-date-and-time {
+						
+						.warning-message {
+							text-transform: uppercase;
+							border-radius: 3px;
+							color: #f17420;
+							display: inline-block;
+						}
+
+						time.expired {
+							color: #f17420;
+						}
+					}
+				}
+
+				.column:first-child {
+					margin-right: 12px;
+				}
+
+				.column:not(:first-child) {
+					margin-left: 12px;
+				}
+
+				@include media-below-mid {
+					@include flex-direction(column);
+
+					.column {
+						width: 100%;
+					}
+
+					.column:first-child {
+						margin-right: 0;
+					}
+	
+					.column:not(:first-child) {
+						margin-left: 0;
+					}
+				}
+			}
+		}
+	}
 }

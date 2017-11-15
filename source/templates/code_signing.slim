@@ -32,7 +32,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details
-							.first-column
+							.left-column
 								.name[ng-bind="provProfile.displayName()"]
 								.uuid[ng-bind="provProfile.uuid" ng-if="provProfile.uuid && provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
 								.expiry-date-and-time[ng-if="provProfile.expirationDateAndTime && provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
@@ -43,7 +43,7 @@
 									span.error-content
 										span[ng-bind-html="provProfileCtrl.provProfileSettings[certificate.databaseID].progress.statusMessage"]
 										a>[href="javascript:void(0)" ng-click="provProfileCtrl.getDetails(provProfile)"] == data[:strings][:code_signing][:prov_profile][:get_details_progress][:try_again_postfix]
-							.second-column[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
+							.right-column[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].progress.isIdle"]
 								.export-type[ng-if="provProfile.exportType"]
 									b> == data[:strings][:code_signing][:prov_profile][:article][:details][:export_type_label]
 									span[ng-bind="provProfile.exportType"]
@@ -55,7 +55,7 @@
 									span[ng-bind="provProfile.bundleID"]
 						.expose
 							checkbox[ng-model="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
-							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:is_expose]
+							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
 						.actions
 							.menu-selector[floating-menu toggle="provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible"]
 								span.menu-icon[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].toggleMenuIsVisible"] = svg("three-horizontal-dots")
@@ -89,8 +89,8 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
 						.details
-							.first-column
-								.file-data.name[ng-bind="certificate.displayName()" ng-if="!certificate.details || certificate.details.length > 1"]
+							.left-column
+								.file-data.name[ng-bind="certificate.uploadFileName" ng-if="!certificate.details || certificate.details.length > 1"]
 								.common-name[ng-bind="certificate.details[0].commonName" ng-if="certificate.details.length == 1 && certificate.details && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 								.serial[ng-bind="certificate.details[0].serial" ng-if="certificate.details.length == 1 && certificate.details && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 								.team-data[ ng-if="certificate.details.length == 1 && certificate.details && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
@@ -104,6 +104,10 @@
 									span.error-content
 										span[ng-bind-html="certificateCtrl.certificateSettings[certificate.databaseID].progress.statusMessage"]
 										a>[href="javascript:void(0)" ng-click="certificateCtrl.getDetails(certificate)"] == data[:strings][:code_signing][:certificate][:get_details_progress][:try_again_postfix]
+								button.show-included-identities[ng-click="certificateCtrl.showIncludedIdentities(certificate)" ng-if="certificate.details && certificate.details.length > 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
+									span.icon = svg("member")
+									span.title == data[:strings][:code_signing][:certificate][:article][:details][:show_included_identities_button_label]
+									span.arrow = svg("arrow_slim-down")
 						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
 							form.password[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
 								.input-with-show-password
@@ -113,11 +117,11 @@
 									input.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
 									button.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
 							.error-notice[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword && certificate != certificateCtrl.passwordEditedCertificate && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
-								span = svg("triangle-icon")
+								span = svg("triangle")
 								span.notice == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
 						.expose
 							checkbox[ng-model="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
-							label[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:is_expose]
+							label[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]
 						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
 							.menu-selector[floating-menu toggle="certificateCtrl.certificateSettings[certificate.databaseID].toggleMenuIsVisible"]
 								span.menu-icon[ng-click="certificateCtrl.certificateSettings[certificate.databaseID].toggleMenuIsVisible = !certificateCtrl.certificateSettings[certificate.databaseID].toggleMenuIsVisible"] = svg("three-horizontal-dots")
@@ -134,7 +138,28 @@
 					file-uploader[multiple onupload="certificateCtrl.uploadCertificates()" model="certificateCtrl.certificateUploader" on-file-change="certificateCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:certificate][:upload_action]
 						em == data[:strings][:code_signing][:certificate][:upload_instructions]
-	section.cardo.uppercase.slim.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])"]
+		popup[model="certificateCtrl.listOfIdentitiesPopup"]
+			.popup-body.snowflake#list-identities-popup-body.vertical-scroll
+				header.closeable.left-aligned
+					span.popup-title
+						span.title == data[:strings][:code_signing][:certificate][:identities_list_popup][:header][:title]
+						span.certificate-name[ng-bind="certificateCtrl.selectedCertificate.uploadFileName"]
+					span.popup-close[ng-click="certificateCtrl.listOfIdentitiesPopup.isVisible = false"] = svg("cross")
+				article.vertical-scroll
+					ul.list-of-identities
+						li.identity[ng-repeat="identity in certificateCtrl.selectedCertificate.details"]
+							.column
+								.common-name[ng-bind="identity.commonName"]
+								.serial[ng-bind="identity.serial"]
+							.column
+								.team-data
+									b> == data[:strings][:code_signing][:certificate][:article][:details][:team_data_label]
+									span[ng-bind="identity.teamName + ' (' + identity.teamID + ')'"]
+								.expiry-date-and-time
+									b>[ng-if="!dateService.isDatetimeValueExpired(identity.endDate)"] == data[:strings][:code_signing][:certificate][:article][:details][:expires_on_label]
+									.warning-message>[ng-if="dateService.isDatetimeValueExpired(identity.endDate)"] == data[:strings][:code_signing][:certificate][:article][:details][:expired_label]
+									time[ng-bind="(identity.endDate | date: 'MMM, dd, yyyy, HH:mm (UTC)')" datetime="{{ identity.endDate | datetimeValue }}"]
+	section.cardo.uppercase.slim.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])" ng-class="{'expired' : dateService.isDatetimeValueExpired(identity.endDate) }"]
 		header
 			h2.title
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
@@ -149,7 +174,7 @@
 				div[ng-if="androidKeystoreCtrl.keystoreFile"]
 					.uploaded-file
 						.details
-							.first-column
+							.left-column
 								.file-data
 									span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
 									em.download-url-env-var-key
@@ -157,7 +182,7 @@
 										code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
 						.expose
 							checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
-							label[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:is_expose]
+							label[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
 						.actions
 							.menu-selector[floating-menu toggle="androidKeystoreCtrl.toggleMenuIsVisible"]
 								span.menu-icon[ng-click="androidKeystoreCtrl.toggleMenuIsVisible = !androidKeystoreCtrl.toggleMenuIsVisible"] = svg("three-horizontal-dots")
@@ -215,7 +240,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							.first-column
+							.left-column
 								.file-data
 									span.name[ng-bind="genericFile.displayName()"]
 									em.download-url-env-var-key
@@ -223,7 +248,7 @@
 										code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 						.expose
 							checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
-							label[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:is_expose]
+							label[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]
 						.actions
 							.menu-selector[floating-menu toggle="genericFileCtrl.genericFileSettings[genericFile.databaseID].toggleMenuIsVisible"]
 								span.menu-icon[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].toggleMenuIsVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].toggleMenuIsVisible"] = svg("three-horizontal-dots")

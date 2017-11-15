@@ -22,6 +22,12 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.certificateSettings = [];
 	var passwordEditedCertificateOriginalPassword;
 
+	viewModel.selectedCertificate;
+	viewModel.listOfIdentitiesPopup = new Popup();
+	viewModel.listOfIdentitiesPopup.afterDismissCallback = function() {
+		viewModel.selectedCertificate = null;
+	};
+
 	function loadCertificates(shouldClearPreviousLoad) {
 		viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
 		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
@@ -210,14 +216,14 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 			viewModel.certificateSettings[certificate.databaseID].progress.success();
 		}, function(error) {
-			// if (error.name && error.name == "invalid_password") {
-			// 	viewModel.certificateSettings[certificate.databaseID].progress.reset();
+			if (error.name && error.name == "invalid_password") {
+				viewModel.certificateSettings[certificate.databaseID].progress.reset();
 
-			// 	viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
-			// }
-			// else {
+				viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
+			}
+			else {
 				viewModel.certificateSettings[certificate.databaseID].progress.error(error);
-			// }
+			}
 		});
 	};
 
@@ -239,6 +245,12 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				Popup.showErrorPopup(error.message); 
 			});
 		}
+	};
+
+	viewModel.showIncludedIdentities = function(aSelectedCertificate) {
+		viewModel.selectedCertificate = aSelectedCertificate;
+
+		viewModel.listOfIdentitiesPopup.isVisible = true;
 	};
 
 	loadCertificates();

@@ -147,7 +147,8 @@ code_signing:
       actions:
         download_label: "Download"
         delete_label: "Delete"
-    is_expose: Expose for Pull Request
+      expose:
+        is_expose: Expose for Pull Request
     upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -180,12 +181,17 @@ code_signing:
         team_data_label: "Team:"
         expires_on_label: "Expires on:"
         expired_label: Expired
+        show_included_identities_button_label: Show included Identities
       password_edit:
         incorrect_password_notice: Incorrect password
       actions:
         download_label: "Download"
         delete_label: "Delete"
-    is_expose: Expose for Pull Request
+      expose:
+        is_expose: Expose for Pull Request
+    identities_list_popup:
+      header:
+        title: Included identities for
     upload_action: Add the private key (.p12) for signing
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -221,7 +227,8 @@ code_signing:
       actions:
         download_label: "Download"
         delete_label: "Delete"
-    is_expose: Expose for Pull Request
+    expose:
+      is_expose: Expose for Pull Request
     upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
     upload_instructions: Click here or Drag & Drop to upload
     no_files_added_yet: No files added yet.
@@ -257,7 +264,8 @@ code_signing:
       actions:
         download_label: "Download"
         delete_label: "Delete"
-    is_expose: Expose for Pull Request
+    expose:
+      is_expose: Expose for Pull Request
     no_keystore_file: "No keystore file added yet."
     download_url_available_as: Download URL available as
     no_name_for_file: No name for file
