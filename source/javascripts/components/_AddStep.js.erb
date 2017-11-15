@@ -15,8 +15,6 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			this.isVisible = false;
 
 			var stepToAdd = angular.copy(step);
-			stepToAdd.userStepConfig = {};
-
 			stepSelectedCallback(stepToAdd, insertIndex);
 		};
 
