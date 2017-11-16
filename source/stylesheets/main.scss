@@ -228,14 +228,15 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		@include transition(right $transition_duration, background-color $transition_duration);
 
 		span.eye, span.crossed-eye {
+			position: absolute;
+			@include transition(opacity $transition_duration);
+			top: 2px;
+			left: 4px;
 
 			svg {
-				position: absolute;
 				@include size(22px, 14px);
-				@include transition(opacity $transition_duration);
 				fill: #757575;
-				top: 2px;
-				left: 4px;
+				display: block;
 			}
 		}
 	}
@@ -243,68 +244,44 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
 		
 		span.eye {
-
-			svg {
-				opacity: 0;
-			}
+			opacity: 0;
 		}
 
 		span.crossed-eye {
-
-			 svg {
-				opacity: 0.8;
-			}
+			opacity: 0.8;
 		}
 	}
 
 	input[type="checkbox"]:checked + .checkbox-svg-wrapper {
 		
 		span.eye {
-
-			svg {
-				opacity: 0.8;
-			}
+			opacity: 0.8;
 		}
 
 		span.crossed-eye {
-
-			svg {
-				opacity: 0;
-			}
+			opacity: 0;
 		}
 	}
 
 	input[type="checkbox"]:checked:hover + .checkbox-svg-wrapper, input[type="checkbox"]:checked:focus + .checkbox-svg-wrapper {
 		
 		span.eye {
-
-			svg {
-				opacity: 1;
-			}
+			opacity: 1;
 		}
 
 		span.crossed-eye {
-
-			svg {
-				opacity: 0;
-			}
+			opacity: 0;
 		}
 	}
 
 	input[type="checkbox"]:not(:checked):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):focus + .checkbox-svg-wrapper {
 		
 		span.eye {
-
-			svg {
-				opacity: 0;
-			}
+			opacity: 0;
 		}
 
 		span.crossed-eye {
-
-			svg {
-				opacity: 1;
-			}
+			opacity: 1;
 		}
 	}
 }
