@@ -11,7 +11,12 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		this.libraryURL;
 		this.id;
 		this.version;
+
 		this.userStepConfig = userStepConfig;
+		if (!this.userStepConfig) {
+			this.userStepConfig = {};
+		}
+
 		this.defaultStepConfig = defaultStepConfig;
 	};
 
@@ -74,7 +79,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 			}
 
 			if (this.defaultStepConfig && this.defaultStepConfig.asset_urls[iconTypeKey] && this.defaultStepConfig.asset_urls[iconTypeKey] == newIconURL) {
-				if (this.userStepConfig && this.userStepConfig.asset_urls) {
+				if (this.userStepConfig.asset_urls) {
 					delete this.userStepConfig.asset_urls[iconTypeKey];
 
 					if (_.isEmpty(this.userStepConfig.asset_urls)) {
@@ -83,9 +88,6 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 				}
 			}
 			else {
-				if (!this.userStepConfig) {
-					this.userStepConfig = {};
-				}
 				if (!this.userStepConfig.asset_urls) {
 					this.userStepConfig.asset_urls = [];
 				}
@@ -94,7 +96,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 			}
 		}
 
-		if (this.userStepConfig && this.userStepConfig.asset_urls) {
+		if (this.userStepConfig.asset_urls) {
 			if (this.userStepConfig.asset_urls["icon.svg"]) {
 				return this.userStepConfig.asset_urls["icon.svg"];
 			}
@@ -171,14 +173,14 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 
 	Step.prototype.wrappedUserStepConfig = function() {
 		var wrappedUserStepConfig = {};
-		wrappedUserStepConfig[this.cvs] = this.userStepConfig ? this.userStepConfig : {};
+		wrappedUserStepConfig[this.cvs] = this.userStepConfig;
 
 		return wrappedUserStepConfig;
 	};
 
 	function parameterGetterSetter(step, parameterKey, parameterValue) {
 		if (parameterValue === undefined) {
-			if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
+			if (step.userStepConfig[parameterKey] !== undefined) {
 				return step.userStepConfig[parameterKey];
 			}
 
@@ -186,13 +188,9 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		}
 
 		if (!step.defaultStepConfig || parameterValue != step.defaultStepConfig[parameterKey]) {
-			if (!step.userStepConfig) {
-				step.userStepConfig = {};
-			}
-
 			step.userStepConfig[parameterKey] = parameterValue;
 		}
-		else if (step.userStepConfig && step.userStepConfig[parameterKey] !== undefined) {
+		else if (step.userStepConfig[parameterKey] !== undefined) {
 			delete step.userStepConfig[parameterKey];
 		}
 

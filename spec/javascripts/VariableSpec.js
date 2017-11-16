@@ -76,7 +76,7 @@ describe("Variable", function() {
 			expect(variable.userVariableConfig.red_key).toBe("red_variable");
 		});
 
-		it("should clear user variable config if key is the default and options are not defined", function() {
+		it("should keep user variable config even if key is the default and options are not defined", function() {
 			var variable = new Variable({
 				new_red_key: "red_variable"
 			}, {
@@ -84,7 +84,8 @@ describe("Variable", function() {
 			});
 
 			expect(variable.key("red_key")).toBe("red_key");
-			expect(variable.userVariableConfig).toBeNull();
+			expect(variable.userVariableConfig).not.toBeUndefined();
+			expect(variable.userVariableConfig.red_key).toBe("red_variable");
 		});
 
 	});
@@ -183,7 +184,7 @@ describe("Variable", function() {
 			expect(variable.userVariableConfig.red_key).toBe("red_variable");
 		});
 
-		it("should clear user variable config if value is the default and options are not defined", function() {
+		it("should keep user variable config even if value is the default and options are not defined", function() {
 			var variable = new Variable({
 				red_key: "new_red_variable"
 			}, {
@@ -191,7 +192,8 @@ describe("Variable", function() {
 			});
 
 			expect(variable.value("red_variable")).toBe("red_variable");
-			expect(variable.userVariableConfig).toBeNull();
+			expect(variable.userVariableConfig).not.toBeUndefined();
+			expect(variable.userVariableConfig.red_key).toBe("red_variable");
 		});
 
 	});
@@ -287,7 +289,7 @@ describe("Variable", function() {
 			expect(variable.userVariableConfig.opts).toBeUndefined();
 		});
 
-		it("should clear user variable config if options set back to default and key-value is default", function() {
+		it("should keep user variable config even if options set back to default and key-value is default", function() {
 			var variable = new Variable({
 				key: "value",
 				opts: {
@@ -297,7 +299,7 @@ describe("Variable", function() {
 
 			variable.title("Red title");
 
-			expect(variable.userVariableConfig).toBeNull();
+			expect(variable.userVariableConfig).not.toBeUndefined();
 		});
 
 	});
