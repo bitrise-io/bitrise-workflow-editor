@@ -138,10 +138,13 @@
 		}
 	
 		.uploaded-file {
-			@include display-flex;
-			@include align-items(flex-start);
 			padding: 12px $cardo-horizontalpadding;
 			border-bottom: 1px solid $def-mediumlightgrey;
+
+			.file-data {
+				@include display-flex;
+				@include align-items(flex-start);
+			}
 	
 			.details {
 				@include display-flex;
@@ -218,44 +221,6 @@
 						margin-bottom: 0;
 						font-size: 12px;
 					}
-
-					.show-included-identities {
-						@include display-flex;
-						@include align-items(center);
-						padding: 10px 12px;
-						border-radius: 3px;
-						border: 1px solid $def-grey;
-
-						&:hover {
-							background-color: $def-ultralightgrey;
-						}
-
-						.icon {
-							margin-right: 6px;
-
-							svg {
-								@include size(9px, 16px);
-								vertical-align: middle;
-								fill: $def-verydarkgrey;
-							}
-						}
-
-						.title {
-							font-size: 12px;
-							font-weight: 400;
-						}
-						
-						.arrow {
-							margin-left: 6px;
-
-							svg {
-								@include size(10px, 16px);
-								vertical-align: middle;
-								@include transform(rotate(-90deg));
-								fill: $def-verydarkgrey;
-							}
-						}
-					}
 				}
 
 				.right-column {
@@ -280,7 +245,6 @@
 			}
 			
 			.expose {
-				width: $content_is_expose-width;
 				position: relative;
 	
 				label {
@@ -289,6 +253,7 @@
 
 				.popover {
 					top: 100%;
+					width: 180px;
 
 					&:before {
 						left: 8px;
@@ -380,6 +345,45 @@
 					}
 				}
 			}
+
+			.show-included-identities, .show-prov-profile-validated-details {
+				@include display-flex;
+				@include align-items(center);
+				padding: 10px 12px;
+				margin-left: 53px;
+				border-radius: 3px;
+				border: 1px solid $def-grey;
+
+				&:hover {
+					background-color: $def-ultralightgrey;
+				}
+
+				.icon {
+					margin-right: 6px;
+					vertical-align: middle;
+
+					svg {
+						@include size(9px, 16px);
+						fill: $def-verydarkgrey;
+					}
+				}
+
+				.title {
+					font-size: 12px;
+					font-weight: 400;
+				}
+				
+				.arrow {
+					margin-left: 6px;
+					vertical-align: middle;
+					@include transform(rotate(-90deg));
+
+					svg {
+						@include size(10px, 16px);
+						fill: $def-verydarkgrey;
+					}
+				}
+			}
 		}
 	
 		.file-upload {
@@ -465,12 +469,13 @@
 					width: $details-width;
 
 					.left-column {
-						min-width: 400px;
+						min-width: 390px;
+						margin-right: 15px;
 					}
-				}
 
-				.expose {
-					width: $content_is_expose-width;
+					.right-column {
+						margin-right: 15px;
+					}
 				}
 
 				.actions {
@@ -563,10 +568,6 @@
 					}
 				}
 
-				.expose {
-					width: $content_is_expose-width;
-				}
-
 				.actions {
 					width: 100% - ($details-width + $content_is_expose-width);
 				}
@@ -590,7 +591,7 @@
 
 				article {
 
-					ul.uploaded-files > li.uploaded-file, .uploaded-file {
+					ul.uploaded-files > li.uploaded-file .file-data, .uploaded-file .file-data {
 						@include flex-direction(column);
 
 						.details, .expose, .password-edit, .actions {
@@ -639,7 +640,7 @@
 								margin-right: 0;
 							}
 
-							.file-data {
+							.name {
 								@include ellipsis-oneliner;
 								width: 100%;
 
@@ -652,15 +653,6 @@
 									}
 								}
 							}
-						}
-					}
-
-					.expose {
-						@include display-flex;
-						width: auto;
-
-						.expose, .action {
-							@include padding-x(8px);
 						}
 
 						.expose {
@@ -697,11 +689,6 @@
 							}
 						}
 
-						.popover {
-							margin-top: 10px;
-						}
-					}
-
 						.actions {
 							margin-top: 15px;
 							padding: 5px 8px;
@@ -714,6 +701,15 @@
 								display: inline-block;
 							}
 						}
+
+						.popover {
+							margin-top: 10px;
+						}
+					}
+
+					.show-included-identities, .show-prov-profile-validated-details {
+						margin-left: 0;
+						margin-top: 15px;
 					}
 
 					code {
@@ -753,7 +749,9 @@
 			li.uploaded-file {
 
 				.details:before {
-					background-image: image-url("code_signing/prov-profile-green.svg");
+					background-image: background_image_from_svg_content_with_attributes('<%= svg("code_signing/prov_profile") %>', (
+						fill: rgba(#33E4B3, 0.99)
+					));
 				}
 			}
 		}
@@ -766,7 +764,9 @@
 			li.uploaded-file {
 
 				.details:before {
-					background-image: image-url("code_signing/code-sign-purple.svg");
+					background-image: background_image_from_svg_content_with_attributes('<%= svg("code_signing/code_sign") %>', (
+						fill: rgba(#8151A8, 0.99)
+					));
 				}
 
 				.password-edit {
@@ -794,13 +794,13 @@
 
 								span.eye, span.crossed-eye {
 									@include size(26px);
+									display: block;
 									margin-left: 3px;
 									margin-top: 5px;
 
 									svg {
 										@include size(22px , 14px);
 										fill: #757575;
-										display: block;
 									}
 								}
 							}
@@ -858,10 +858,13 @@
 
 						span {
 
-							svg {
-								@include size(16px, 15px);
-								fill: #F17420;
+							&.icon {
 								margin-right: 10px;
+
+								svg {
+									@include size(16px, 15px);
+									fill: #F17420;
+								}
 							}
 
 							&.notice {
@@ -985,7 +988,9 @@
 		li.uploaded-file {
 
 			.details:before {
-				background-image: image-url("code_signing/generic-file-green.svg");
+				background-image: background_image_from_svg_content_with_attributes('<%= svg("code_signing/generic_file") %>', (
+					fill: rgba(#33E4B3, 0.99)
+				));
 			}
 		}
 
@@ -1011,7 +1016,9 @@
 		.uploaded-file {
 
 			.details:before {
-				background-image: image-url("code_signing/code-sign-purple.svg");
+				background-image: background_image_from_svg_content_with_attributes('<%= svg("code_signing/code_sign") %>', (
+					fill: rgba(#8151A8, 0.99)
+				));
 			}
 		}
 
@@ -1053,6 +1060,215 @@
 	}
 }
 
+.popup-body#prov-profile-details-popup-body.vertical-scroll {
+	width: 840px;
+	min-height: 90%;
+
+	header.closeable.left-aligned {
+		@include flex-shrink(0);
+		@include ellipsis-oneliner;
+		border-bottom: 1px solid $def-mediumlightgrey;
+
+		.popup-title b {
+			@include ellipsis-oneliner;
+			font-size: 12px;
+			color: black;
+		}
+
+		.popup-close {
+			vertical-align: middle;
+
+			svg {
+				@include size(10px, 16px);
+				fill: $def-darkgrey;
+			}
+		}
+	}
+
+	article {
+		@include display-flex;
+		padding: 0;
+
+		.sidenav {
+			@include flex-shrink(0);
+			max-width: 215px;
+			width: 100%;
+			border-right: 1px solid $def-mediumlightgrey;
+	
+			nav {
+				@include display-flex;
+				@include flex-direction(column);
+	
+				.tab {
+					@include display-flex;
+					@include justify-content(space-between);
+					padding: 22px 20px;
+					border-bottom: 1px solid $def-mediumlightgrey;
+
+					&:hover, &.selected {
+						color: white;
+
+						.arrow svg {
+							fill: white;
+						}
+					}
+
+					&:hover {
+						background-color: $def-mediumlightgrey;
+					}
+
+					&.selected {
+						background-color: $def-verydarkgrey;
+					}
+
+					.title {
+						font-size: 12px;
+						font-weight: 500;
+					}
+
+					.arrow {
+						display: block;
+						margin-left: 6px;
+						vertical-align: middle;
+						@include transform(rotate(-90deg));
+
+						svg {
+							@include size(10px, 16px);
+							fill: $def-verydarkgrey;
+						}
+					}
+				}
+
+				select.menu-selector {
+					display: none;
+				}
+			}
+		}
+
+		.content {
+			width: 100%;
+
+			.matching-certificates, .devices, .capabilities {
+				@include display-flex;
+				
+				ul {
+					width: 100%;
+					list-style: none;
+					padding-left: 0;
+					margin-top: 0;
+
+					li {
+						@include display-flex;
+						@include align-items(center);
+						padding: 16px 22px;
+						border-bottom: 1px solid $def-mediumlightgrey;
+
+						.details {
+							display: inline-block;
+
+							.common-name, .serial, .udid {
+								@include margin-y(2px);
+								font-size: 12px;
+								font-weight: 500;
+							}
+							
+							.serial {
+								padding: 5px 7px;
+								border-radius: 1px;
+								display: inline-block;
+								background-color: #f6eaff;
+								font-family: "Source Code Pro", monospace;
+							}
+						}
+
+						&.device {
+							@include display-flex;
+							@include align-items(center);
+
+							.details {
+								@include display-flex;
+								@include align-items(center);
+
+								.udid {
+									font-size: 14px;
+									font-weight: 300;
+									word-break: break-all;
+									font-family: "Source Code Pro", monospace;
+								}
+							}
+						}
+
+						&.capability {
+						
+							&:nth-child(even) {
+								background-color: $def-verylightgrey;
+							}
+
+							span {
+								font-size: 12px;
+								font-weight: 500;
+							}
+						}
+					}
+				}
+			}
+		}
+
+		@include media-below-mid {
+			@include flex-direction(column);
+
+			.sidenav {
+				max-width: 100%;
+
+				nav {
+					@include flex-direction(row);
+
+					.tab {
+						@include flex-grow(1);
+						@include flex-basis(0);
+						@include justify-content(center);
+
+						&:not(:first-child) {
+							border-left: 1px solid $def-mediumlightgrey;
+						}
+					}
+				}
+			}
+		}
+
+		@include media-below(420px) {
+			
+			.sidenav nav {
+
+				.tab {
+					display: none;
+				}
+
+				select.menu-selector {
+					display: block;
+					width: 100%;
+					font-size: 12px;
+					font-weight: 500;
+					padding: 16px 14px;
+					margin: 10px 14px;
+					border-color: $def-mediumlightgrey;
+
+					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
+						fill: rgba($def-verydarkgrey, 0.99)
+					));
+
+					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+					background-size: 14px auto;
+				}
+			}
+
+			.content.vertical-scroll {
+				border-top: 1px solid $def-mediumlightgrey;
+			}
+		}
+	}
+}
+
 .popup-body#list-identities-popup-body {
 	width: 840px;
 	
@@ -1064,6 +1280,7 @@
 			@include flex-direction(column);
 
 			.title, .certificate-name {
+				@include ellipsis-oneliner;
 				font-size: 12px;
 				font-weight: 500;
 			}
@@ -1078,10 +1295,10 @@
 		}
 
 		.popup-close {
+			vertical-align: middle;
 
 			svg {
 				@include size(10px, 16px);
-				vertical-align: middle;
 				fill: $def-darkgrey;
 			}
 		}
@@ -1100,7 +1317,7 @@
 		
 			li.identity {
 				@include display-flex;
-				padding: 12px 14px;
+				padding: 12px 18px;
 				border-bottom: 1px solid $def-grey;
 
 				.column {

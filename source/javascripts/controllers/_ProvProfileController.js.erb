@@ -20,6 +20,26 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.provProfileIsExposeGetterSetterConfigs;
 	viewModel.provProfileSettings = [];
 
+	viewModel.validatedProvProfileDetailsPopup = new Popup();
+	viewModel.validatedProvProfileDetailsPopup.afterDismissCallback = function() {
+		viewModel.selectedProvProfile = null;
+	};
+	
+	viewModel.menus = [{
+		id: "matching-certificates",
+		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:matching_certificates] %>",
+		cssClass: "matching-certificates"
+	}, {
+		id: "devices",
+		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:devices] %>",
+		cssClass: "devices"
+	}, {
+		id: "capabilities",
+		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:capabilities] %>",
+		cssClass: "capabilities"
+	}];
+	viewModel.selectedMenu;
+
 	function loadProvProfiles(shouldClearPreviousLoad) {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
 		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
@@ -45,7 +65,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 				viewModel.provProfileSettings[provProfile.databaseID] = {
 					progress: new Progress(),
-					toggleMenuIsVisible: false
+					isMenuVisible: false
 				};
 
 				if (!provProfile.isDetailsLoaded) {
@@ -161,10 +181,15 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			provProfile.teamName = provProfileDetails.teamName;
 			provProfile.teamID = provProfileDetails.teamID;
 			provProfile.bundleID = provProfileDetails.bundleID;
+			provProfile.developerCertificateIdentities = provProfileDetails.developerCertificateIdentities,
+			provProfile.provisionedDevices = provProfileDetails.provisionedDevices,
+			provProfile.capability = _.uniq(_.compact(_.map(provProfileDetails.capabilityKeys, function(aCapabilityKey) {
+				return ProvProfile.descriptionForCapabilityKey(aCapabilityKey);
+			})));
 
 			viewModel.provProfileSettings[provProfile.databaseID].progress.success();
 		}, function(error) {
-			viewModel.provProfileSettings[provProfile.databaseID].progress.error();
+			viewModel.provProfileSettings[provProfile.databaseID].progress.error(error);
 		});
 	};
 
@@ -186,6 +211,14 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 				Popup.showErrorPopup(error.message); 
 			});
 		}
+	};
+
+	viewModel.showProvProfileValidatedDetails = function(aSelectedProvProfile) {
+		viewModel.selectedProvProfile = aSelectedProvProfile;
+
+		viewModel.selectedMenu = viewModel.menus[0];
+
+		viewModel.validatedProvProfileDetailsPopup.isVisible = true;
 	};
 
 	loadProvProfiles();

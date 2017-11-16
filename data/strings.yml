@@ -144,11 +144,41 @@ code_signing:
         export_type_label: "Export type:"
         team_data_label: "Team:"
         bundle_id_label: "Bundle ID:"
+        show_prov_profile_validated_details_button: Show matching Certificates, Devices & Capabilities
       actions:
-        download_label: "Download"
-        delete_label: "Delete"
+        download: "Download"
+        delete: "Delete"
       expose:
         is_expose: Expose for Pull Request
+    prov_profile_details_popup:
+      menus:
+        matching_certificates: Matching Certificates
+        devices: Devices
+        capabilities: Capabilities
+      device_registration_details:
+          not_registered: Not registered on bitrise
+          registered: Registered on Bitrise by
+      # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
+      capabilities: 
+        'com.apple.security.application-groups': 'App Groups'
+        'com.apple.developer.in-app-payments': 'Apple Pay'
+        'com.apple.developer.associated-domains': 'Associated Domains'
+        'com.apple.developer.healthkit': 'HealthKit'
+        'com.apple.developer.homekit': 'HomeKit'
+        'com.apple.developer.networking.HotspotConfiguration': 'Hotspot'
+        'com.apple.InAppPurchase': 'In-App Purchase'
+        'inter-app-audio': 'Inter-App Audio'
+        'com.apple.developer.networking.multipath': 'Multipath'
+        'com.apple.developer.networking.networkextension': 'Network Extensions'
+        'com.apple.developer.nfc.readersession.formats': 'NFC Tag Reading'
+        'com.apple.developer.networking.vpn.api': 'Personal VPN'
+        'aps-environment': 'Push Notifications'
+        'com.apple.developer.siri': 'SiriKit'
+        'com.apple.developer.pass-type-identifiers': 'Wallet'
+        'com.apple.external-accessory.wireless-configuration': 'Wireless Accessory Configuration'
+        'com.apple.developer.default-data-protection': 'Data Protection'
+        'com.apple.developer.ubiquity-kvstore-identifier': 'iCloud'
+        'com.apple.developer.icloud-services': 'iCloud'
     upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -166,6 +196,12 @@ code_signing:
     get_details_progress:
       in_progress: Loading, wait a sec...
       try_again_postfix: " Click here to try again."
+    get_all_test_devices_of_repository:
+      in_progress: Loading, wait a sec...
+    validate_certificates:
+      in_progress: Loading, wait a sec...
+    validate_test_devices:
+      in_progress: Loading, wait a sec...
     upload_progress:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
@@ -185,8 +221,8 @@ code_signing:
       password_edit:
         incorrect_password_notice: Incorrect password
       actions:
-        download_label: "Download"
-        delete_label: "Delete"
+        download: "Download"
+        delete: "Delete"
       expose:
         is_expose: Expose for Pull Request
     identities_list_popup:
@@ -225,8 +261,8 @@ code_signing:
       is_expose_param_title_short: Expose for PR
     article:
       actions:
-        download_label: "Download"
-        delete_label: "Delete"
+        download: "Download"
+        delete: "Delete"
     expose:
       is_expose: Expose for Pull Request
     upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
@@ -262,8 +298,8 @@ code_signing:
       is_expose_param_title_short: Expose for PR
     article:
       actions:
-        download_label: "Download"
-        delete_label: "Delete"
+        download: "Download"
+        delete: "Delete"
     expose:
       is_expose: Expose for Pull Request
     no_keystore_file: "No keystore file added yet."
@@ -395,9 +431,11 @@ request_service:
   get_details_prov_profile:
     default_error: Error getting details of uploaded provisioning profile.
     error_prefix: "Error getting details of uploaded provisioning profile: "
+    not_website_mode_error: Provisioning profile detail fetch is only available in website mode
   get_details_certificate:
     default_error: Error getting details of uploaded certificate file.
     error_prefix: "Error getting details of uploaded certificate file: "
+    not_website_mode_error: Certificate detail fetch is only available in website mode
   finalize_prov_profile_upload:
     default_error: Error finalizing provisioning profile upload.
     error_prefix: "Error finalizing provisioning profile upload: "
@@ -451,6 +489,10 @@ request_service:
   get_app_available_project_types:
     default_error: Error loading app available project types.
     error_prefix: "Error loading app available project types: "
+  get_all_test_devices_of_repository:
+    default_error: Error getting test devices of specified repository.
+    error_prefix: "Error getting test devices of specified repository: "
+    not_website_mode_error: Fetching of all test devices of repository is only available in website mode
 step_source_service:
   step_from_cvs:
     no_path: Path not specified.

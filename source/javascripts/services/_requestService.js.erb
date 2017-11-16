@@ -25,23 +25,30 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				error.message = response.data.message;
 			}
 			else if (response.data.errors) {
-				var errorMessages;
+				var errors;
 
 				if (angular.isArray(response.data.errors)) {
-					errorMessages = response.data.errors;
+					if (angular.isString(response.data.errors[0])) {
+						errors = _.map(response.data.errors, function(anErrorMessage) {
+							return new Error(anErrorMessage);
+						});
+					}
+					else {
+						errors = _.map(response.data.errors, function(anErrorMap) {
+							var error = new Error(anErrorMap.message);
+							error.name = anErrorMap.type;
+
+							return error;
+						});
+					}
 				}
 				else if (angular.isObject(response.data.errors)) {
-					errorMessages = _.flatten(_.values(response.data.errors));
+					errors = _.map(_.flatten(_.values(response.data.errors)), function(anErrorMessage) {
+						return new Error(anErrorMessage);
+					});
 				}
 
-				var errors = _.map(errorMessages, function(anErrorMessage) {
-					return new Error(anErrorMessage);
-				});
-
 				error.message = stringService.errorMessageFromErrors(errors);
-			}
-			if (response.data.error_type) {
-				error.name = response.data.error_type;
 			}
 		}
 
@@ -424,19 +431,57 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	// Provisioning profiles
 
 	requestService.getDetailsOfProvProfile = function(provProfileDatabaseID, requestConfig) {
-		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_get_details]) %>", {
-			prov_profile_id: provProfileDatabaseID
-		});
+		var requestURL;
+		
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_get_details]) %>", {
+					prov_profile_id: provProfileDatabaseID
+				});
+
+				break;
+			case "cli":
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_prov_profile][:not_website_mode_error] %>"));
+
+				break;
+		}
 
 		return $q(function(resolve, reject) {
 			$http.get(requestURL, requestConfig).then(function(response) {
+				var developerCertificateIdentities = [];
+				_.each(response.data.prov_profile_details.developer_certificates, function(aCertificateIdentity) {
+					developerCertificateIdentities.push({
+						commonName: aCertificateIdentity.common_name,
+						startDate: aCertificateIdentity.start_date,
+						endDate: aCertificateIdentity.end_date,
+						teamName: aCertificateIdentity.team_name,
+						teamID: aCertificateIdentity.team_id,
+						serial: aCertificateIdentity.serial
+					});
+				});
+
+				var capabilityKeys = [];
+				_.each(response.data.prov_profile_details.entitlements, function(value, key) {
+					capabilityKeys.push(key);
+				});
+
+				var provisionedDevices = [];
+				_.each(response.data.prov_profile_details.provisioned_devices, function(value, key) {
+					provisionedDevices.push({
+						udid: value
+					});
+				});
+
 				resolve({
 					uuid: response.data.prov_profile_details.uuid,
 					expirationDateAndTime: response.data.prov_profile_details.expiration_date,
 					exportType: response.data.prov_profile_details.export_type,
 					teamName: response.data.prov_profile_details.team_name,
 					teamID: response.data.prov_profile_details.team_id,
-					bundleID: response.data.prov_profile_details.bundle_id
+					bundleID: response.data.prov_profile_details.bundle_id,
+					developerCertificateIdentities: developerCertificateIdentities,
+					capabilityKeys: capabilityKeys,
+					provisionedDevices: provisionedDevices
 				});
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:get_details_prov_profile][:error_prefix] %>"));
@@ -546,17 +591,28 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	// Certificates
 
 	requestService.getDetailsOfCertificate = function(certificateDatabaseID, certificatePassword, requestConfig) {
-		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_get_details]) %>", {
-			certificate_id: certificateDatabaseID,
-			password: certificatePassword
-		});
+		var requestURL;
+		
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_get_details]) %>", {
+					certificate_id: certificateDatabaseID,
+					password: certificatePassword
+				});
+
+				break;
+			case "cli":
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_certificate][:not_website_mode_error] %>"));
+
+				break;
+		}
 
 		return $q(function(resolve, reject) {
 			$http.get(requestURL, requestConfig).then(function(response) {
-				var certificate_details = [];
+				var certificateDetails = [];
 				
 				_.each(response.data.build_certificate_details, function(aCertificate) {
-					certificate_details.push({
+					certificateDetails.push({
 						commonName: aCertificate.common_name,
 						startDate: aCertificate.start_date,
 						endDate: aCertificate.end_date,
@@ -566,7 +622,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					});
 				});
 
-				resolve(certificate_details);
+				resolve(certificateDetails);
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_certificate][:default_error] %>", "<%= data[:strings][:request_service][:get_details_certificate][:error_prefix] %>"));
 			});

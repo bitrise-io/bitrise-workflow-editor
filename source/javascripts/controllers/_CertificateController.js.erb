@@ -22,7 +22,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.certificateSettings = [];
 	var passwordEditedCertificateOriginalPassword;
 
-	viewModel.selectedCertificate;
+	viewModel.selectedCertificate = null;
 	viewModel.listOfIdentitiesPopup = new Popup();
 	viewModel.listOfIdentitiesPopup.afterDismissCallback = function() {
 		viewModel.selectedCertificate = null;
@@ -54,7 +54,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 				viewModel.certificateSettings[certificate.databaseID] = {
 					progress: new Progress(),
-					toggleMenuIsVisible: false,
+					isMenuVisible: false,
 					isInvalidPassword: false
 				};
 				

@@ -13,7 +13,6 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		this.isExpose;
 		this.isDetailsLoaded = false;
 		this.details;
-		
 	};
 
 	Certificate.prototype.displayName = function() {
@@ -88,7 +87,6 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 			reject(error);
 		});
 	};
-
 
 	Certificate.prototype.download = function() {
 		return requestService.downloadCertificate(this.databaseID);
