@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, scrollService, appService, stepSourceService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
 
 	var viewModel = this;
 
@@ -14,6 +14,8 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	function loadWorkflows() {
 		viewModel.loadWorkflowsProgress.start("<%= data[:strings][:workflows][:load_workflows_progress][:in_progress] %>");
+
+		workflowsTabService.shouldWatchSelectionChanges = false;
 
 		var canceler = $q.defer();
 		$scope.$on("$destroy", function() {
@@ -60,7 +62,43 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				reject(error);
 			});
 		}).then(function() {
-			viewModel.loadWorkflowsProgress.success();
+			$q(function(resolve) {
+				if (workflowsTabService.lastSelectedWorkflowID !== null) {
+					viewModel.selectedWorkflow = _.find(viewModel.workflows, {
+						id: workflowsTabService.lastSelectedWorkflowID
+					});
+
+					if (workflowsTabService.lastEditedWorkflowIndex !== null) {
+						$timeout(function() {
+							if (viewModel.selectedWorkflowChain[workflowsTabService.lastEditedWorkflowIndex] && viewModel.selectedWorkflowChain[workflowsTabService.lastEditedWorkflowIndex].workflow.id == workflowsTabService.lastEditedWorkflowID) {
+								viewModel.editWorkflowAtIndex(workflowsTabService.lastEditedWorkflowIndex);
+							}
+
+							if (workflowsTabService.lastSelectedStepIndex !== null) {
+								$timeout(function() {
+									if (viewModel.editedWorkflow.steps[workflowsTabService.lastSelectedStepIndex] && viewModel.editedWorkflow.steps[workflowsTabService.lastSelectedStepIndex].cvs == workflowsTabService.lastSelectedStepCVS) {
+										viewModel.stepSelected(viewModel.editedWorkflow.steps[workflowsTabService.lastSelectedStepIndex], undefined, !(workflowsTabService.lastEditedWorkflowIndex === 0 && workflowsTabService.lastSelectedStepIndex === 0));
+									}
+
+									resolve();
+								}, 0);
+							}
+							else {
+								resolve();
+							}
+						}, 0);
+					}
+					else {
+						resolve();
+					}
+				}
+				else {
+					resolve();
+				}
+			}).then(function() {
+				workflowsTabService.shouldWatchSelectionChanges = true;
+				viewModel.loadWorkflowsProgress.success();
+			});
 		}, function(error) {
 			viewModel.workflows = undefined;
 			console.log(error.message);
@@ -117,6 +155,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	}, function(selectedWorkflow) {
 		if (viewModel.workflowSelectorIsVisible) {
 			viewModel.workflowSelectorIsVisible = false;
+		}
+
+		if (workflowsTabService.shouldWatchSelectionChanges) {
+			workflowsTabService.storeSelectionState(selectedWorkflow, viewModel.editedWorkflow, viewModel.editedWorkflowIndex, viewModel.selectedStep);
 		}
 
 		if (!selectedWorkflow) {
@@ -405,6 +447,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.editWorkflowAtIndex = function(workflowIndex) {
 		viewModel.editedWorkflowIndex = workflowIndex === null ? null : workflowIndex;
 		viewModel.editedWorkflow = workflowIndex === null ? null : viewModel.selectedWorkflowChain[workflowIndex].workflow;
+
+		if (workflowsTabService.shouldWatchSelectionChanges) {
+			workflowsTabService.storeSelectionState(viewModel.selectedWorkflow, viewModel.editedWorkflow, viewModel.editedWorkflowIndex, viewModel.selectedStep);
+		}
 	};
 
 	// Steps
@@ -464,13 +510,20 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 	};
 
-	viewModel.stepSelected = function(step, workflowIndex) {
+	viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 		if (workflowIndex === undefined) {
 			workflowIndex = viewModel.editedWorkflowIndex;
 		}
 
+		if (shouldScrollToStep === undefined) {
+			shouldScrollToStep = viewModel.editedWorkflowIndex != workflowIndex;
+		}
+
 		if (viewModel.editedWorkflowIndex != workflowIndex) {
 			viewModel.editWorkflowAtIndex(workflowIndex);
+		}
+
+		if (shouldScrollToStep) {
 			setTimeout(function() {
 				scrollService.scrollToTarget();
 			}, 300);
@@ -481,8 +534,12 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	$scope.$watch(function() {
 		return viewModel.selectedStep;
-	}, function(editedWorkflow) {
+	}, function(selectedStep) {
 		viewModel.shouldShowDescription = false;
+
+		if (workflowsTabService.shouldWatchSelectionChanges) {
+			workflowsTabService.storeSelectionState(viewModel.selectedWorkflow, viewModel.editedWorkflow, viewModel.editedWorkflowIndex, selectedStep);
+		}
 	});
 
 	viewModel.cloneStepSelected = function() {
@@ -766,7 +823,38 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 	};
 
+	// Selection caching
+
+	function storeSelectionState() {
+		workflowsTabService.lastSelectedWorkflowID = viewModel.selectedWorkflow ? viewModel.selectedWorkflow.id : null;
+		workflowsTabService.lastEditedWorkflowID = viewModel.editedWorkflow ? viewModel.editedWorkflow.id : null;
+		workflowsTabService.lastEditedWorkflowIndex = viewModel.editedWorkflow ? viewModel.editedWorkflowIndex : null;
+		workflowsTabService.lastSelectedStepCVS = viewModel.selectedStep ? viewModel.selectedStep.cvs : null;
+		workflowsTabService.lastSelectedStepIndex = viewModel.editedWorkflow && viewModel.selectedStep ? viewModel.editedWorkflow.steps.indexOf(viewModel.selectedStep) : null;
+	}
+
 	loadWorkflows();
+
+}).service("workflowsTabService", function() {
+
+	var workflowsTabService = {
+		lastSelectedWorkflowID: null,
+		lastEditedWorkflowID: null,
+		lastEditedWorkflowIndex: null,
+		lastSelectedStepCVS: null,
+		lastSelectedStepIndex: null,
+		shouldWatchSelectionChanges: false
+	};
+
+	workflowsTabService.storeSelectionState = function(lastSelectedWorkflow, lastEditedWorkflow, lastEditedWorkflowIndex, lastSelectedStep) {
+		workflowsTabService.lastSelectedWorkflowID = lastSelectedWorkflow ? lastSelectedWorkflow.id : null;
+		workflowsTabService.lastEditedWorkflowID = lastEditedWorkflow ? lastEditedWorkflow.id : null;
+		workflowsTabService.lastEditedWorkflowIndex = lastEditedWorkflow ? lastEditedWorkflowIndex : null;
+		workflowsTabService.lastSelectedStepCVS = lastSelectedStep ? lastSelectedStep.cvs : null;
+		workflowsTabService.lastSelectedStepIndex = lastEditedWorkflow && lastSelectedStep ? lastEditedWorkflow.steps.indexOf(lastSelectedStep) : null;
+	};
+
+	return workflowsTabService;
 
 });
 
