@@ -1,6 +1,46 @@
-## Changelog (Current version: 1.0.19)
+## Changelog (Current version: 1.0.20)
 
 -----------------
+
+## 1.0.20 (2017 Nov 16)
+
+### Release Notes
+
+* Remember the edited workflow and selected step when switching between tabs
+* Issues #207, #212 fixed
+* Minor UX updates
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.20
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.19 -> 1.0.20
+
+* [587b068] erosdome - cache selected workflow, edited workflow, selected step between tabs (#217) (2017 Nov 16)
+* [1ab7c39] erosdome - empty step handling updated - user step config & user variable config are now empty objects by default (#216) (2017 Nov 16)
+* [d6707e8] Norbert Kovach - password eye style fix (#208) (2017 Nov 16)
+* [97f546e] Norbert Kovach - popover for is_expose toggle (#202) (2017 Nov 16)
+* [ba2ae9f] erosdome - source fix for forked steps (#210) (2017 Nov 16)
+* [16087a9] erosdome - testing guide added to readme (#211) (2017 Nov 16)
+
 
 ## 1.0.19 (2017 Nov 14)
 
@@ -1212,4 +1252,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Nov 14
+Updated: 2017 Nov 16
