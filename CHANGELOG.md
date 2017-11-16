@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.0.18)
+## Changelog (Current version: 1.0.19)
 
 -----------------
+
+## 1.0.19 (2017 Nov 14)
+
+### Release Notes
+
+* Reset border-radius to 0 for buttons
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.19
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.18 -> 1.0.19
+
+* [224e52d] erosdome - reset border-radius to 0 for buttons (#209) (2017 Oct 31)
+
 
 ## 1.0.18 (2017 Oct 19)
 
@@ -1179,4 +1212,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Oct 19
+Updated: 2017 Nov 14
