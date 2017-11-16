@@ -31,6 +31,12 @@ bitrise run go-install
 1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
+### Run tests
+
+1. In the Workflow Editor's directory, run `up-middleman-jasmine`.
+1. In your browser, you can reach the tests on `localhost:4567/jasmine`.
+1. Every time you make a change to the code, you have to exit the running workflow and start it up again. You can make changes to the specs without having to do this.
+
 ## New version release
 
 - Ensure clean git

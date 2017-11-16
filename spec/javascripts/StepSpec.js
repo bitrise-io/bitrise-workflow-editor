@@ -279,29 +279,35 @@ describe("Step", function() {
 
 		it("should return true if is from bitrise-io on GitHub", function() {
 			step.sourceURL("https://www.github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBe(true);
+			expect(step.isVerified()).toBeTruthy();
 
 			step.sourceURL("https://github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBe(true);
+			expect(step.isVerified()).toBeTruthy();
 
 			step.sourceURL("www.github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBe(true);
+			expect(step.isVerified()).toBeTruthy();
 
 			step.sourceURL("github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBe(true);
+			expect(step.isVerified()).toBeTruthy();
 		});
 
 		it("should return true if is from bitrise-steplib on GitHub", function() {
 			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
-			expect(step.isVerified()).toBe(true);
+			expect(step.isVerified()).toBeTruthy();
 		});
 
 		it("should return false if is from any other user or host", function() {
 			step.sourceURL("https://www.github.com/red-user/red-step");
-			expect(step.isVerified()).toBe(false);
+			expect(step.isVerified()).toBeFalsy();
 
 			step.sourceURL("https://www.red.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBe(false);
+			expect(step.isVerified()).toBeFalsy();
+		});
+
+		it("should return false if step specs define a verified path, but step is a fork of that path, referenced by git URL", function() {
+			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
+			step.gitURL = "https://www.github.com/bitrise-forked-steplib/red-step";
+			expect(step.isVerified()).toBeFalsy();
 		});
 
 	});

@@ -51,10 +51,6 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
 					var stepConfig = aWrappedUserStepConfig[stepCVS];
 
-					if (!stepConfig) {
-						return;
-					}
-
 					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
 						delete stepConfig["source"];
 					}

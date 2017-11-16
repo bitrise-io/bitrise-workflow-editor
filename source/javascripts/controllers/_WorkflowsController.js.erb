@@ -684,9 +684,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 		if (step && step.defaultStepConfig) {
 			_.each(step.defaultStepConfig.inputs, function(anDefaultInputConfig) {
-				var userInputConfig = step.userStepConfig ? _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
+				var userInputConfig = _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
 					return Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig);
-				}) : [];
+				});
 
 				var input = new Variable(userInputConfig, anDefaultInputConfig);
 				var inputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
@@ -712,9 +712,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		_.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
 			_.each(anInputCategory.inputs, function(anInput) {
 				inputWatchers.push($scope.$watch(function() {
-					return !anInput.userVariableConfig || angular.equals(anInput.userVariableConfig, {});
-				}, function(isUserInputConfigEmptyNow, wasUserInputConfigEmptyBefore) {
-					if (isUserInputConfigEmptyNow === true && wasUserInputConfigEmptyBefore === false) {
+					var userVariableConfigWithOnlyDefaultKeyAndDefaultValue = {};
+					var defaultKey = Variable.keyFromVariableConfig(anInput.defaultVariableConfig);
+					userVariableConfigWithOnlyDefaultKeyAndDefaultValue[defaultKey] = anInput.defaultVariableConfig[defaultKey];
+
+					return angular.equals(anInput.userVariableConfig, {}) || angular.equals(anInput.userVariableConfig, userVariableConfigWithOnlyDefaultKeyAndDefaultValue);
+				}, function(isUserInputConfigDefaultNow, wasUserInputConfigDefaultBefore) {
+					if (isUserInputConfigDefaultNow === true && wasUserInputConfigDefaultBefore === false) {
 						var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
 							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
 						});
@@ -726,7 +730,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 						}
 					}
 
-					if (isUserInputConfigEmptyNow === false && wasUserInputConfigEmptyBefore === true) {
+					if (isUserInputConfigDefaultNow === false && wasUserInputConfigDefaultBefore === true) {
 						if (!step.userStepConfig.inputs) {
 							step.userStepConfig.inputs = [];
 						}
@@ -735,11 +739,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 							return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
 						});
 
-						if (indexOfUserInputConfig != -1) {
-							step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
-						}
-
-						step.userStepConfig.inputs.push(anInput.userVariableConfig);
+						step.userStepConfig.inputs.splice(indexOfUserInputConfig, indexOfUserInputConfig == -1 ? 0 : 1, anInput.userVariableConfig);
 					}
 				}));
 			});
