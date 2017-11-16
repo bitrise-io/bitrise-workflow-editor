@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.0.20)
+## Changelog (Current version: 1.0.21)
 
 -----------------
+
+## 1.0.21 (2017 Nov 16)
+
+### Release Notes
+
+* Update for the fix of issue #212
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.21
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.20 -> 1.0.21
+
+* [b8929d8] erosdome - empty step fix update (#218) (2017 Nov 16)
+
 
 ## 1.0.20 (2017 Nov 16)
 
