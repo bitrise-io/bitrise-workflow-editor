@@ -27,17 +27,17 @@ angular.module("BitriseWorkflowEditor").directive("eyeCheckbox", function() {
 			$(checkboxSVGWrapperElement).addClass("checkbox-svg-wrapper");
 			$(parentElement).append(checkboxSVGWrapperElement);
 
-			var openedEyeSpanElement = angular.element("<span></span>");
-			var openedEyeElement = angular.element('<%= svg("opened-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
-			$(openedEyeSpanElement).addClass("opened-eye");
-			$(openedEyeSpanElement).append(openedEyeElement);
-			$(checkboxSVGWrapperElement).append(openedEyeSpanElement);
+			var defaultEyeSVGWrapperElement = angular.element("<span></span>");
+			var defaultEyeSVGElement = angular.element('<%= svg("eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
+			$(defaultEyeSVGWrapperElement).addClass("eye");
+			$(defaultEyeSVGWrapperElement).append(defaultEyeSVGElement);
+			$(checkboxSVGWrapperElement).append(defaultEyeSVGWrapperElement);
 
-			var closedEyeSpanElement = angular.element("<span></span>");
-			var closedEyeElement = angular.element('<%= svg("crossed-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
-			$(closedEyeSpanElement).addClass("closed-eye");
-			$(closedEyeSpanElement).append(closedEyeElement);
-			$(checkboxSVGWrapperElement).append(closedEyeSpanElement);
+			var crossedEyeSVGWrapperElement = angular.element("<span></span>");
+			var crossedEyeSVGElement = angular.element('<%= svg("crossed-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
+			$(crossedEyeSVGWrapperElement).addClass("crossed-eye");
+			$(crossedEyeSVGWrapperElement).append(crossedEyeSVGElement);
+			$(checkboxSVGWrapperElement).append(crossedEyeSVGWrapperElement);
 
 			return parentElement.prop("outerHTML");
 		},

@@ -53,6 +53,14 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 	};
 
 	Step.prototype.sourceURL = function(newSourceURL) {
+		if (this.gitURL !== undefined) {
+			if (newSourceURL) {
+				this.gitURL = newSourceURL;
+			}
+
+			return this.gitURL;
+		}
+
 		return parameterGetterSetter(this, "source_code_url", newSourceURL);
 	};
 
