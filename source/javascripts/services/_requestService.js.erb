@@ -48,7 +48,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					});
 				}
 
-				error.name = _.pluck(errors, "type").join();
+				error.name = _.pluck(errors, "name").join();
 				error.message = stringService.errorMessageFromErrors(errors);
 			}
 		}

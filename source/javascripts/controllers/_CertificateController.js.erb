@@ -217,7 +217,9 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.certificateSettings[certificate.databaseID].progress.success();
 		}, function(error) {
 			var errorTypes = error.name ? error.name.split(",") : [];
-			if (_.containes(errorTypes, "invalid_password")) {
+			if (_.contains(errorTypes, "invalid_password")) {
+				certificate.details = null;
+
 				viewModel.certificateSettings[certificate.databaseID].progress.reset();
 
 				viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
