@@ -13,13 +13,13 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	viewModel.loadCertificatesProgress = new Progress();
 	viewModel.uploadCertificatesProgress = new Progress();
-	viewModel.certificateActionProgress = new Progress();
+	viewModel.deleteCertificateProgress = new Progress();
+	viewModel.changePasswordProgress = new Progress();
 	viewModel.certificates;
 	viewModel.certificatesToUpload;
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
-	viewModel.certificateIsExposeGetterSetterConfigs;
-	viewModel.certificateSettings = [];
+	viewModel.certificateSettings = {};
 	var passwordEditedCertificateOriginalPassword;
 
 	viewModel.selectedCertificate = null;
@@ -52,25 +52,21 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				certificate.password = aCertificateData.password;
 				certificate.isExpose = aCertificateData.isExpose;
 
+				var isExposeGetterSetterProgress = new Progress();
+
 				viewModel.certificateSettings[certificate.databaseID] = {
 					progress: new Progress(),
 					isMenuVisible: false,
-					isInvalidPassword: false
+					isInvalidPassword: false,
+					isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
+					isExposeGetterSetterProgress: isExposeGetterSetterProgress
 				};
 				
-				if (!certificate.isDetailsLoaded) {
+				if (!certificate.details) {
 					viewModel.getDetails(certificate);
 				}
 
 				return certificate;
-			});
-
-			viewModel.certificateIsExposeGetterSetterConfigs = _.map(viewModel.certificates, function(aCertificate) {
-				var progress = new Progress();
-				return {
-					getterSetter: isExposeGetterSetterForCertificate(aCertificate, progress),
-					progress: progress
-				};
 			});
 
 			viewModel.loadCertificatesProgress.success();
@@ -140,33 +136,29 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question] %>", {
 			certificate_name: certificate.displayName()
 		}), "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:no_title] %>", function() {
-			viewModel.certificateActionProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>");
+			viewModel.deleteCertificateProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>");
 
 			if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
 				viewModel.uploadCertificatesProgress.reset();
 			}
 
 			certificate.delete().then(function() {
-				viewModel.certificateActionProgress.success();
+				viewModel.deleteCertificateProgress.success();
 
 				loadCertificates(true);
 			}, function(error) {
-				viewModel.certificateActionProgress.error(error);
+				viewModel.deleteCertificateProgress.error(error);
 			});
 		});
 	};
 
 	viewModel.changePasswordSelected = function(certificate) {
-		if (viewModel.renamedCertificate) {
-			viewModel.cancelRename();
-		}
-		
 		viewModel.passwordEditedCertificate = certificate;
 		passwordEditedCertificateOriginalPassword = certificate.password;
 	};
 
 	viewModel.changePassword = function() {
-		viewModel.certificateActionProgress.start("<%= data[:strings][:code_signing][:certificate][:change_password_progress][:in_progress] %>");
+		viewModel.changePasswordProgress.start("<%= data[:strings][:code_signing][:certificate][:change_password_progress][:in_progress] %>");
 		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
 			viewModel.uploadCertificatesProgress.reset();
 		}
@@ -177,9 +169,9 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.passwordEditedCertificate = null;
 			passwordEditedCertificateOriginalPassword = undefined;
 
-			viewModel.certificateActionProgress.success();
+			viewModel.changePasswordProgress.success();
 		}, function(error) {
-			viewModel.certificateActionProgress.error(error);
+			viewModel.changePasswordProgress.error(error);
 		});
 	};
 
@@ -195,11 +187,11 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.uploadCertificatesProgress.reset();
 		}
 
-		requestService.getDetailsOfCertificate(certificate.databaseID, certificate.password).then(function(certificateDetails) {
+		requestService.getDetailsOfCertificate(certificate.databaseID, certificate.password).then(function(data) {
 			certificate.isDetailsLoaded = true;
 
 			var certificateFileDetails = [];
-			_.each(certificateDetails, function(aCertificateDetail) {
+			_.each(data, function(aCertificateDetail) {
 				certificateFileDetails.push({
 					commonName: aCertificateDetail.commonName,
 					startDate: aCertificateDetail.startDate,

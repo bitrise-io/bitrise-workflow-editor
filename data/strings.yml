@@ -135,15 +135,15 @@ code_signing:
   prov_profile:
     header: 
       card_title: Provisioning profile
-      is_expose_param_title_long: Expose for Pull Requests
-      is_expose_param_title_short: Expose for PR
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
     article:
       details:
-        expires_on_label: "Expires on:"
+        expires_on_label: Expires on
         expired_label: Expired
-        export_type_label: "Export type:"
-        team_data_label: "Team:"
-        bundle_id_label: "Bundle ID:"
+        export_type_label: Export type
+        team_data_label: Team
+        bundle_id_label: Bundle ID
         show_prov_profile_validated_details_button: Show matching Certificates, Devices & Capabilities
       actions:
         download: "Download"
@@ -159,6 +159,8 @@ code_signing:
           not_registered: Not registered on bitrise
           registered: Registered on Bitrise by
       # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
+      devices:
+        udid: UDID
       capabilities: 
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
@@ -209,14 +211,15 @@ code_signing:
   certificate:
     header:
       card_title: Code Signing Identity
-      password_param_title: Password
-      is_expose_param_title_long: Expose for Pull Requests
-      is_expose_param_title_short: Expose for PR
+      password: Password
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
     article:
       details:
-        team_data_label: "Team:"
-        expires_on_label: "Expires on:"
+        team_data_label: Team
+        expires_on_label: Expires on
         expired_label: Expired
+        multiple_identities: "Multiple identities found. Click here to view them:"
         show_included_identities_button_label: Show included Identities
       password_edit:
         incorrect_password_notice: Incorrect password
@@ -257,8 +260,8 @@ code_signing:
   generic_file:
     header:
       card_title: Generic File Storage
-      is_expose_param_title_long: Expose for Pull Requests
-      is_expose_param_title_short: Expose for PR
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
     article:
       actions:
         download: "Download"
@@ -294,8 +297,8 @@ code_signing:
   android_keystore:
     header:
       card_title: Android Keystore file
-      is_expose_param_title_long: Expose for Pull Requests
-      is_expose_param_title_short: Expose for PR
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
     article:
       actions:
         download: "Download"
@@ -428,11 +431,11 @@ request_service:
   create_keystore_file:
     default_error: Error uploading file.
     error_prefix: "Error uploading file: "
-  get_details_prov_profile:
+  get_details_of_prov_profile:
     default_error: Error getting details of uploaded provisioning profile.
     error_prefix: "Error getting details of uploaded provisioning profile: "
     not_website_mode_error: Provisioning profile detail fetch is only available in website mode
-  get_details_certificate:
+  get_details_of_certificate:
     default_error: Error getting details of uploaded certificate file.
     error_prefix: "Error getting details of uploaded certificate file: "
     not_website_mode_error: Certificate detail fetch is only available in website mode

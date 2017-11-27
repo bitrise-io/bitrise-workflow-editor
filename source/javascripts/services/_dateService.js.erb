@@ -44,15 +44,15 @@ angular.module("BitriseWorkflowEditor").service("dateService", function($filter)
 		return new Date(dateString);
 	};
 
-	dateService.isDatetimeValueExpired = function(datetimeValue) {
-		if (!datetimeValue) {
-			return false;
+	dateService.isDateExpired = function(date) {
+		if (!date) {
+			return undefined;
 		}
 
-		var currentDatetime = new Date();
+		var now = new Date();
 
-		return dateService.dateFromString(datetimeValue) < currentDatetime;
-	}
+		return date < now;
+	};
 
 	return dateService;
 });

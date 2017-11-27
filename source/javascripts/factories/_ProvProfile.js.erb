@@ -32,16 +32,15 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		this.isProcessed;
 		this.uploadFileName;
 		this.isExpose;
-		this.isDetailsLoaded = false;
 		this.uuid;
-		this.expirationDate;
+		this.expiresAt;
 		this.exportType;
 		this.teamName;
 		this.teamID;
 		this.bundleID;
 		this.developerCertificateIdentities;
 		this.provisionedDevices;
-		this.capability;
+		this.capabilityKeys;
 	};
 
 	ProvProfile.prototype.displayName = function() {

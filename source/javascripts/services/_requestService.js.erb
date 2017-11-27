@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("requestService", function($q, $injector, $location, $http, stringService) {
+angular.module("BitriseWorkflowEditor").service("requestService", function($q, $injector, $location, $http, stringService, dateService) {
 
 	var requestService = {
 		mode: "<%= mode %>",
@@ -431,61 +431,50 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	// Provisioning profiles
 
-	requestService.getDetailsOfProvProfile = function(provProfileDatabaseID, requestConfig) {
+	requestService.getDetailsOfProvProfile = function(databaseID, requestConfig) {
 		var requestURL;
 		
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_get_details]) %>", {
-					prov_profile_id: provProfileDatabaseID
+					prov_profile_id: databaseID
 				});
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_prov_profile][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_of_prov_profile][:not_website_mode_error] %>"));
 
 				break;
 		}
 
 		return $q(function(resolve, reject) {
 			$http.get(requestURL, requestConfig).then(function(response) {
-				var developerCertificateIdentities = [];
-				_.each(response.data.prov_profile_details.developer_certificates, function(aCertificateIdentity) {
-					developerCertificateIdentities.push({
-						commonName: aCertificateIdentity.common_name,
-						startDate: aCertificateIdentity.start_date,
-						endDate: aCertificateIdentity.end_date,
-						teamName: aCertificateIdentity.team_name,
-						teamID: aCertificateIdentity.team_id,
-						serial: aCertificateIdentity.serial
-					});
-				});
-
-				var capabilityKeys = [];
-				_.each(response.data.prov_profile_details.entitlements, function(value, key) {
-					capabilityKeys.push(key);
-				});
-
-				var provisionedDevices = [];
-				_.each(response.data.prov_profile_details.provisioned_devices, function(value, key) {
-					provisionedDevices.push({
-						udid: value
-					});
-				});
-
 				resolve({
 					uuid: response.data.prov_profile_details.uuid,
-					expirationDateAndTime: response.data.prov_profile_details.expiration_date,
+					expiresAt: dateService.dateFromString(response.data.prov_profile_details.expiration_date),
 					exportType: response.data.prov_profile_details.export_type,
 					teamName: response.data.prov_profile_details.team_name,
 					teamID: response.data.prov_profile_details.team_id,
 					bundleID: response.data.prov_profile_details.bundle_id,
-					developerCertificateIdentities: developerCertificateIdentities,
-					capabilityKeys: capabilityKeys,
-					provisionedDevices: provisionedDevices
+					developerCertificateIdentities: _.map(response.data.prov_profile_details.developer_certificates, function(aCertificateIdentity) {
+						return {
+							commonName: aCertificateIdentity.common_name,
+							startDate: dateService.dateFromString(aCertificateIdentity.start_date),
+							endDate: dateService.dateFromString(aCertificateIdentity.end_date),
+							teamName: aCertificateIdentity.team_name,
+							teamID: aCertificateIdentity.team_id,
+							serial: aCertificateIdentity.serial
+						};
+					}),
+					capabilityKeys: _.keys(response.data.prov_profile_details.entitlements),
+					provisionedDevices: _.map(response.data.prov_profile_details.provisioned_devices, function(udid) {
+						return {
+							udid: udid
+						};
+					})
 				});
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:get_details_prov_profile][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_of_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:get_details_of_prov_profile][:error_prefix] %>"));
 			});
 		});
 	};
@@ -542,7 +531,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aProvProfileData.id,
 						isProcessed: aProvProfileData.processed,
 						uploadFileName: aProvProfileData.upload_file_name,
-						isExpose: aProvProfileData.is_expose
+						isExpose: aProvProfileData.is_expose,
+						createdAt: dateService.dateFromString(aProvProfileData.created_at)
 					};
 				}));
 			}, function(response) {
@@ -603,29 +593,25 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_certificate][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_of_certificate][:not_website_mode_error] %>"));
 
 				break;
 		}
 
 		return $q(function(resolve, reject) {
 			$http.get(requestURL, requestConfig).then(function(response) {
-				var certificateDetails = [];
-				
-				_.each(response.data.build_certificate_details, function(aCertificate) {
-					certificateDetails.push({
-						commonName: aCertificate.common_name,
-						startDate: aCertificate.start_date,
-						endDate: aCertificate.end_date,
-						teamName: aCertificate.team_name,
-						teamID: aCertificate.team_id,
-						serial: aCertificate.serial
-					});
-				});
-
-				resolve(certificateDetails);
+				resolve(_.map(response.data.build_certificate_details, function(aCertificateData) {
+					return {
+						commonName: aCertificateData.common_name,
+						startDate: dateService.dateFromString(aCertificateData.start_date),
+						endDate: dateService.dateFromString(aCertificateData.end_date),
+						teamName: aCertificateData.team_name,
+						teamID: aCertificateData.team_id,
+						serial: aCertificateData.serial
+					};
+				}));
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_certificate][:default_error] %>", "<%= data[:strings][:request_service][:get_details_certificate][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_details_of_certificate][:default_error] %>", "<%= data[:strings][:request_service][:get_details_of_certificate][:error_prefix] %>"));
 			});
 		});
 	};
@@ -683,7 +669,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: aCertificateData.processed,
 						uploadFileName: aCertificateData.upload_file_name,
 						password: aCertificateData.certificate_password,
-						isExpose: aCertificateData.is_expose
+						isExpose: aCertificateData.is_expose,
+						createdAt: dateService.dateFromString(aCertificateData.created_at)
 					};
 				}));
 			}, function(response) {
@@ -808,7 +795,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: aGenericFileData.processed,
 						envVarPartialID: aGenericFileData.user_env_key,
 						uploadFileName: aGenericFileData.upload_file_name,
-						isExpose: aGenericFileData.is_expose
+						isExpose: aGenericFileData.is_expose,
+						createdAt: dateService.dateFromString(aGenericFileData.created_at)
 					};
 				}));
 			}, function(response) {
@@ -922,7 +910,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
 						uploadFileName: keystoreFileData.upload_file_name,
-						isExpose: keystoreFileData.is_expose
+						isExpose: keystoreFileData.is_expose,
+						createdAt: dateService.dateFromString(keystoreFileData.created_at)
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
