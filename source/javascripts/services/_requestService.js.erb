@@ -738,7 +738,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.postGenericFileCreate = function(envVarPartialID, fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_create]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		var requestData = {
@@ -779,7 +779,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.getGenericFiles = function(requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_files_get]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		return $q(function(resolve, reject) {
@@ -846,7 +846,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.postKeystoreFileCreate = function(fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_create]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		var KeystoreFile = $injector.get("KeystoreFile");
@@ -889,7 +889,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.getKeystoreFile = function(requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_files_get]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		return $q(function(resolve, reject) {
