@@ -617,7 +617,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.postCertificateCreate = function(fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_create]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		var requestData = {
@@ -657,7 +657,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.getCertificates = function(requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificates_get]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		return $q(function(resolve, reject) {
