@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.0.21)
+## Changelog (Current version: 1.0.22)
 
 -----------------
+
+## 1.0.22 (2017 Nov 28)
+
+### Release Notes
+
+* Provisioning profile & certificate details showing on the code signing tab
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.22
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.0.21 -> 1.0.22
+
+* [585f901] Norbert Kovach - Feature/code signing files with details (#219) (2017 Nov 28)
+
 
 ## 1.0.21 (2017 Nov 16)
 
@@ -1285,4 +1318,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Nov 16
+Updated: 2017 Nov 28
