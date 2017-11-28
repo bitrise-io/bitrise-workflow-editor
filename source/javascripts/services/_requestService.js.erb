@@ -6,8 +6,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	var requestService = {
 		mode: "<%= mode %>",
-		appSlug: undefined,
-		jobID: undefined
+		appSlug: undefined
 	};
 
 	function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
@@ -481,7 +480,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.postProvProfileCreate = function(fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_create]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		var requestData = {
@@ -521,7 +520,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.getProvProfiles = function(requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profiles_get]) %>", {
-			job_id: requestService.jobID
+			app_slug: requestService.appSlug
 		});
 
 		return $q(function(resolve, reject) {
