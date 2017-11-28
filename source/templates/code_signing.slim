@@ -289,10 +289,10 @@
 									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
 										a.dropdown-option.download[href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
-										button.dropdown-option.delete[ng-click="genericFileCtrl.deleteCertificate(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
+										button.dropdown-option.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 								.actions.small
 									a.option.download[href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
-									button.option.delete[ng-click="genericFileCtrl.deleteCertificate(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
+									button.option.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 				p.notification.error[ng-if="genericFileCtrl.genericFiles.length >= genericFileCtrl.maximumGenericFilesCount"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]
 				.file-upload[ng-if="!genericFileCtrl.uploadGenericFileProgress.isInProgress && genericFileCtrl.genericFiles.length < genericFileCtrl.maximumGenericFilesCount"]
