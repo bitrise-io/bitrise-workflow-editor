@@ -38,7 +38,9 @@
 	}
 
 	.popup-body.snowflake {
-		$padding: 16px 14px;
+		$padding-x: 16px;
+		$padding-y: 14px;
+		$padding: $padding-x $padding-y;
 
 		@include display-flex;
 		@include flex-direction(column);
@@ -54,6 +56,43 @@
 			h2 {
 				font-size: inherit;
 				font-weight: inherit;
+			}
+
+			&.left-aligned {
+				text-align: left;
+			}
+
+			&.closeable {
+				$close_button_width: 12px;
+				$close_button_height: 12px;
+
+				position: relative;
+				padding-right: $close_button_width + (2 * $padding-x);
+
+				.popup-close {
+					position: absolute;
+					top: 50%;
+					right: $padding-x;
+					margin-top: - $close_button_width / 2;
+
+					svg {
+						@include size($close_button_width, $close_button_height);
+						display: block;
+						fill: #7f7f7f;
+					}
+
+					&:hover {
+						cursor: pointer;
+
+						svg {
+							fill: $def-verydarkgrey;
+						}
+					}
+				}
+
+				&:not(.left-aligned) {
+					@include padding-x($close_button_width + (2 * $padding-x));
+				}
 			}
 		}
 

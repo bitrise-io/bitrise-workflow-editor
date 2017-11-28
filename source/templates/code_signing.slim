@@ -16,98 +16,219 @@
 					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
 					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
 		button.hide[ng-click="codeSigningCtrl.codeSigningHintsDismissed()"] = svg("cross_slim")
-	section.cardo.uppercase.slim.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
+	section.cardo.uppercase.slim.files.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
-			h2.title
+			h2.label
 				span == data[:strings][:code_signing][:prov_profile][:header][:card_title]
 				span<[ng-if="provProfileCtrl.provProfiles.length > 0" ng-bind="'(' + provProfileCtrl.provProfiles.length + '/' + provProfileCtrl.maximumProvProfilesCount + ')'"]
-			h2.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
-				span == data[:strings][:code_signing][:prov_profile][:header][:is_expose_param_title]
+			h2.label.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
+				span.long-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pull_requests]
+				span.short-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pr]
 		article
 			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
 			p.progress-indicator[progress-model="provProfileCtrl.deleteProvProfileProgress"]
 			div[ng-if="provProfileCtrl.loadProvProfilesProgress.isIdle && !provProfileCtrl.deleteProvProfileProgress.isInProgress"]
 				p.notification.no-icon[ng-if="provProfileCtrl.provProfiles.length == 0"] == data[:strings][:code_signing][:prov_profile][:no_prov_profiles_added_yet]
 				ul.uploaded-files
-					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
+					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles | orderBy: 'createdAt': true"]
 						.details
-							span.file-data.name[ng-bind="provProfile.displayName()"]
-						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-							checkbox[ng-model="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="provProfileCtrl.provProfileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
-							label[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:is_expose]
-						.actions
-							a.furto.download[href="{{ provProfile.download() }}"] = svg("arrow_tailed_slim-down")
-							button.furto.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] = svg("cross")
+							.icon = svg("code_signing/sheet-prov_profile")
+							.column.left
+								.detail.name[ng-bind="provProfile.displayName()"]
+								div[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].progress.isIdle"]
+									.detail.code.uuid[ng-bind="provProfile.uuid" ng-if="provProfile.uuid"]
+									.detail[ng-if="provProfile.expiresAt"]
+										strong.label>[ng-if="!dateService.isDateExpired(provProfile.expiresAt)"] == data[:strings][:code_signing][:prov_profile][:article][:details][:expires_on_label] + ":"
+										.label.warning>[ng-if="dateService.isDateExpired(provProfile.expiresAt)"] == data[:strings][:code_signing][:prov_profile][:article][:details][:expired_label] + ":"
+										time[ng-bind="(provProfile.expiresAt | date: 'MMM, dd, yyyy, HH:mm (UTC)' : 'UTC')" datetime="{{ provProfile.expiresAt | datetimeValue }}"]
+								p.progress-indicator[progress-model="provProfileCtrl.provProfileConfigs[provProfile.databaseID].progress"]
+									span.error-content
+										span[ng-bind-html="provProfileCtrl.provProfileConfigs[provProfile.databaseID].progress.statusMessage"]
+										a>[href="javascript:void(0)" ng-click="provProfileCtrl.getDetails(provProfile)"] == data[:strings][:code_signing][:prov_profile][:get_details_progress][:try_again_postfix]
+							.column.right[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].progress.isIdle"]
+								.detail[ng-if="provProfile.exportType"]
+									strong.label> == data[:strings][:code_signing][:prov_profile][:article][:details][:export_type_label] + ":"
+									span[ng-bind="provProfile.exportType"]
+								.detail[ng-if="provProfile.teamName && provProfile.teamID"]
+									strong.label> == data[:strings][:code_signing][:prov_profile][:article][:details][:team_data_label] + ":"
+									span[ng-bind="provProfile.teamName + ' (' + provProfile.teamID + ')'"]
+								.detail[ng-if="provProfile.bundleID"]
+									strong.label> == data[:strings][:code_signing][:prov_profile][:article][:details][:bundle_id_label] + ":"
+									span[ng-bind="provProfile.bundleID"]
+							.expose-and-actions
+								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+									checkbox[ng-model="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
+									label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
+								.actions[floating-menu toggle="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible"]
+									button.dropdown-toggle[ng-click="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
+									.dropdown[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible"]
+										a.dropdown-option.download[href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
+										button.dropdown-option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
+								.actions.small
+									a.option.download[href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
+									button.option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
+						.show-more-details[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].progress.isIdle"]
+							button.show-more[ng-click="provProfileCtrl.showProvProfileValidatedDetails(provProfile)"]
+								span.container
+									span.icon = svg("member")
+									span == data[:strings][:code_signing][:prov_profile][:article][:details][:show_prov_profile_validated_details_button]
+									span.arrow = svg("arrow_slim-down")
 				p.notification.error[ng-if="provProfileCtrl.provProfiles.length >= provProfileCtrl.maximumProvProfilesCount"] == data[:strings][:code_signing][:prov_profile][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfilesProgress"]
 				.file-upload[ng-if="!provProfileCtrl.uploadProvProfilesProgress.isInProgress && provProfileCtrl.provProfiles.length < provProfileCtrl.maximumProvProfilesCount"]
 					file-uploader[multiple onupload="provProfileCtrl.uploadProvProfiles()" model="provProfileCtrl.provProfileUploader" on-file-change="provProfileCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:prov_profile][:upload_action]
 						em == data[:strings][:code_signing][:prov_profile][:upload_instructions]
-	section.cardo.uppercase.slim.code-signing-identities[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
+		popup[model="provProfileCtrl.validatedProvProfileDetailsPopup"]
+			.popup-body.snowflake#prov-profile-details-popup-body.vertical-scroll
+				header.closeable.left-aligned
+					span.popup-title
+						b[ng-bind="provProfileCtrl.selectedProvProfile.displayName()"]
+					span.popup-close[ng-click="provProfileCtrl.validatedProvProfileDetailsPopup.isVisible = false"] = svg("cross")
+				article
+					aside.sidebar
+						.menu
+							button.menu-option[ng-repeat="menu in provProfileCtrl.menus" ng-click="provProfileCtrl.selectedMenu = menu" ng-class="{'selected': menu == provProfileCtrl.selectedMenu}" ng-bind="menu.title"]
+						.menu.small
+							select.menu-selector[ng-model="provProfileCtrl.selectedMenu" ng-model-options="{getterSetter: true}" ng-options="menu.title for menu in provProfileCtrl.menus" ng-class="{ 'selected' : menu == provProfileCtrl.selectedMenu }"]
+					.content.vertical-scroll[ng-switch="provProfileCtrl.selectedMenu.id"]
+						ul.matching-certificates[ng-switch-when="matching-certificates"]
+							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities"]
+								.common-name[ng-bind="identity.commonName"]
+								.serial[ng-bind="identity.serial"]
+						ul.devices[ng-switch-when="devices"]
+							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
+								strong.label> == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:devices][:udid] + ":"
+								span.udid[ng-bind="aProvisionedDevice.udid"]
+						ul.capabilities[ng-switch-when="capabilities"]
+							li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile(provProfileCtrl.selectedProvProfile) track by $index" ng-bind="description"]
+	section.cardo.uppercase.slim.files.certificates[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
-			h2.title
+			h2.label.title
 				span == data[:strings][:code_signing][:certificate][:header][:card_title]
 				span<[ng-if="certificateCtrl.certificates.length > 0" ng-bind="'(' + certificateCtrl.certificates.length + '/' + certificateCtrl.maximumCertificatesCount + ')'"]
-			h2.password[ng-if="certificateCtrl.certificates.length > 0"]
-				span == data[:strings][:code_signing][:certificate][:header][:password_param_title]
-			h2.expose[ng-if="certificateCtrl.certificates.length > 0"]
-				span == data[:strings][:code_signing][:certificate][:header][:is_expose_param_title]
+			h2.label.password[ng-if="certificateCtrl.certificates.length > 0"]
+				span == data[:strings][:code_signing][:certificate][:header][:password]
+			h2.label.expose[ng-if="certificateCtrl.certificates.length > 0"]
+				span.long-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pull_requests]
+				span.short-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pr]
 		article
 			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
-			p.progress-indicator[progress-model="certificateCtrl.certificateActionProgress"]
-			div[ng-if="certificateCtrl.loadCertificatesProgress.isIdle && !certificateCtrl.certificateActionProgress.isInProgress"]
+			p.progress-indicator[progress-model="certificateCtrl.deleteCertificateProgress"]
+			p.progress-indicator[progress-model="certificateCtrl.changePasswordProgress"]
+			div[ng-if="certificateCtrl.loadCertificatesProgress.isIdle && !certificateCtrl.deleteCertificateProgress.isInProgress && !certificateCtrl.changePasswordProgress.isInProgress"]
 				p.notification.no-icon[ng-if="certificateCtrl.certificates.length == 0"] == data[:strings][:code_signing][:certificate][:no_certificates_added_yet]
 				ul.uploaded-files
-					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates" ng-init="showPassword = false"]
+					li.uploaded-file[ng-repeat="certificate in certificateCtrl.certificates | orderBy: 'createdAt': true" ng-init="showPassword = false"]
 						.details
-							span.file-data.name[ng-bind="certificate.displayName()"]
-						.password-edit[ng-if="certificate != certificateCtrl.renamedCertificate"]
-							form.password[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
-								.input-with-show-password
-									input.password-input[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
-									eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
-								.change-password-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
-									input.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_ok] }"]
-									button.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
-						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-							checkbox[ng-model="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="certificateCtrl.certificateIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
-							label[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:is_expose]
-						.actions[ng-if="certificate != certificateCtrl.renamedCertificate && certificate != certificateCtrl.passwordEditedCertificate"]
-							a.furto.download[href="{{ certificate.download() }}"] = svg("arrow_tailed_slim-down")
-							button.furto.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] = svg("cross")
+							.icon = svg("code_signing/sheet-certificate")
+							.column.left
+								div[ng-if="!certificate.details || certificate.details.length > 1 || !certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
+									.detail.name[ng-bind="certificate.uploadFileName"]
+								div[ng-if="certificate.details && certificate.details.length == 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
+									.detail.name[ng-bind="certificate.details[0].commonName"]
+									.detail.code.serial[ng-bind="certificate.details[0].serial"]
+									.detail
+										strong.label> == data[:strings][:code_signing][:certificate][:article][:details][:team_data_label] + ":"
+										span[ng-bind="certificate.details[0].teamName + ' (' + certificate.details[0].teamID + ')'"]
+									.detail
+										strong.label>[ng-if="!dateService.isDateExpired(certificate.details[0].endDate)"] == data[:strings][:code_signing][:certificate][:article][:details][:expires_on_label] + ":"
+										.label.warning>[ng-if="dateService.isDateExpired(certificate.details[0].endDate)"] == data[:strings][:code_signing][:certificate][:article][:details][:expired_label] + ":"
+										time[ng-bind="(certificate.details[0].endDate | date: 'MMM, dd, yyyy, HH:mm (UTC)' : 'UTC')" datetime="{{ certificate.details[0].endDate | datetimeValue }}"]
+								p.progress-indicator[progress-model="certificateCtrl.certificateSettings[certificate.databaseID].progress"]
+									span.error-content
+										span[ng-bind-html="certificateCtrl.certificateSettings[certificate.databaseID].progress.statusMessage"]
+										a>[href="javascript:void(0)" ng-click="certificateCtrl.getDetails(certificate)"] == data[:strings][:code_signing][:certificate][:get_details_progress][:try_again_postfix]
+							.column.right.password
+								.label.on-small == data[:strings][:code_signing][:certificate][:header][:password]
+								form[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
+									.password-field-wrapper
+										input.password-field[type="{{ showPassword ? 'text' : 'password' }}" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+										eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
+									.change-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
+										input.action.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
+										button.action.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
+								.error-notice[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword && !certificateCtrl.passwordEditedCertificate && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
+									span.icon = svg("triangle")
+									span == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
+							.expose-and-actions
+								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+									checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
+									label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]
+								.actions[floating-menu toggle="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
+									button.dropdown-toggle[ng-click="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible = !certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
+									.dropdown[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
+										a.dropdown-option.download[href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
+										button.dropdown-option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
+								.actions.small
+									a.option.download[href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
+									button.option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
+						.show-more-details[ng-if="certificate.details && certificate.details.length > 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle && !certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword"]
+							p.show-more-info == data[:strings][:code_signing][:certificate][:article][:details][:multiple_identities]
+							button.show-more[ng-click="certificateCtrl.showIncludedIdentities(certificate)"]
+								span.container
+									span.icon = svg("member")
+									span == data[:strings][:code_signing][:certificate][:article][:details][:show_included_identities_button_label]
+									span.arrow = svg("arrow_slim-down")
 				p.notification.error[ng-if="certificateCtrl.certificates.length >= certificateCtrl.maximumCertificatesCount"] == data[:strings][:code_signing][:certificate][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="certificateCtrl.uploadCertificatesProgress"]
-				.file-upload[ng-if="!certificateCtrl.uploadCertificatesProgress.isInProgress"]
 				.file-upload[ng-if="!certificateCtrl.uploadCertificatesProgress.isInProgress && certificateCtrl.certificates.length < certificateCtrl.maximumCertificatesCount"]
 					file-uploader[multiple onupload="certificateCtrl.uploadCertificates()" model="certificateCtrl.certificateUploader" on-file-change="certificateCtrl.filesSelectedForUpload($files)"]
 						strong == data[:strings][:code_signing][:certificate][:upload_action]
 						em == data[:strings][:code_signing][:certificate][:upload_instructions]
-	section.cardo.uppercase.slim.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])"]
+		popup[model="certificateCtrl.listOfIdentitiesPopup"]
+			.popup-body.snowflake#list-identities-popup-body.vertical-scroll
+				header.closeable.left-aligned
+					.popup-title
+						.label == data[:strings][:code_signing][:certificate][:identities_list_popup][:header][:title]
+						.certificate-name[ng-bind="certificateCtrl.selectedCertificate.uploadFileName"]
+					button.popup-close[ng-click="certificateCtrl.listOfIdentitiesPopup.isVisible = false"] = svg("cross")
+				article.vertical-scroll
+					ul.identities
+						li.identity[ng-repeat="identity in certificateCtrl.selectedCertificate.details"]
+							.column.column.left
+								.detail.common-name[ng-bind="identity.commonName"]
+								.detail.serial[ng-bind="identity.serial"]
+							.column.column.right
+								.detail.team-data
+									strong.label> == data[:strings][:code_signing][:certificate][:article][:details][:team_data_label] + ":"
+									span[ng-bind="identity.teamName + ' (' + identity.teamID + ')'"]
+								.detail.expire-at[ng-class="{'expired': dateService.isDateExpired(identity.endDate)}"]
+									strong.label> == data[:strings][:code_signing][:certificate][:article][:details][:expires_on_label] + ":"
+									strong.label.expired-label> == data[:strings][:code_signing][:certificate][:article][:details][:expired_label] + ":"
+									time[ng-bind="(identity.endDate | date: 'MMM, dd, yyyy, HH:mm (UTC)' : 'UTC')" datetime="{{ identity.endDate | datetimeValue }}"]
+	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['android', 'xamarin'])" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
 		header
-			h2.title
+			h2.label
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
-			h2.expose[ng-if="androidKeystoreCtrl.keystoreFile"]
-				span == data[:strings][:code_signing][:android_keystore][:header][:is_expose_param_title]
+			h2.label.expose[ng-if="androidKeystoreCtrl.keystoreFile"]
+				span.long-version == data[:strings][:code_signing][:android_keystore][:header][:expose_for_pull_requests]
+				span.short-version == data[:strings][:code_signing][:android_keystore][:header][:expose_for_pr]
 		article
 			p.progress-indicator[progress-model="androidKeystoreCtrl.loadProgress"]
 			p.progress-indicator[progress-model="androidKeystoreCtrl.actionProgress"]
 			div[ng-if="androidKeystoreCtrl.loadProgress.isIdle && !androidKeystoreCtrl.actionProgress.isInProgress"]
 				p.notification.no-icon[ng-if="!androidKeystoreCtrl.keystoreFile"] == data[:strings][:code_signing][:android_keystore][:no_keystore_file]
 				div[ng-if="androidKeystoreCtrl.keystoreFile"]
-					.uploaded-file
-						.details
-							span.file-data
-								span.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
-								em.download-url-env-var-key
-									span> == data[:strings][:code_signing][:android_keystore][:download_url_available_as]
-									code[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
-						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-							checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
-							label[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:is_expose]
-						.actions
-							a.furto.download[href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] = svg("arrow_tailed_slim-down")
-							button.furto.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] = svg("cross")
+					.uploaded-files
+						.uploaded-file
+							.details
+								.icon = svg("code_signing/sheet-certificate")
+								.column.left
+									.detail.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
+									.detail.code.env-var-key[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
+								.expose-and-actions
+									.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
+										label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
+									.actions[floating-menu toggle="androidKeystoreCtrl.isMenuVisible"]
+										button.dropdown-toggle[ng-click="androidKeystoreCtrl.isMenuVisible = !androidKeystoreCtrl.isMenuVisible"] = svg("three-horizontal-dots")
+										.dropdown[ng-if="androidKeystoreCtrl.isMenuVisible"]
+											a.dropdown-option.download[href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
+											button.dropdown-option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
+									.actions.small
+										a.option.download[href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
+										button.option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
 					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()" autocomplete="off"]
 						section
 							p
@@ -140,32 +261,38 @@
 				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
 					strong[ng-bind="androidKeystoreCtrl.uploadInstruction"]
 					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
-	section.cardo.uppercase.slim.generic-files[ng-controller="GenericFileController as genericFileCtrl"]
+	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl"]
 		header
-			h2.title
+			h2.label
 				span == data[:strings][:code_signing][:generic_file][:header][:card_title]
 				span<[ng-if="genericFileCtrl.genericFiles.length > 0" ng-bind="'(' + genericFileCtrl.genericFiles.length + '/' + genericFileCtrl.maximumGenericFilesCount + ')'"]
-			h2.expose[ng-if="genericFileCtrl.genericFiles.length > 0"]
-				span == data[:strings][:code_signing][:generic_file][:header][:is_expose_param_title]
+			h2.label.expose[ng-if="genericFileCtrl.genericFiles.length > 0"]
+				span.long-version == data[:strings][:code_signing][:generic_file][:header][:expose_for_pull_requests]
+				span.short-version == data[:strings][:code_signing][:generic_file][:header][:expose_for_pr]
 		article
 			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
 			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
 			div[ng-if="genericFileCtrl.loadGenericFilesProgress.isIdle && !genericFileCtrl.deleteGenericFileProgress.isInProgress"]
 				p.notification.no-icon[ng-if="genericFileCtrl.genericFiles.length == 0"] == data[:strings][:code_signing][:generic_file][:no_files_added_yet]
 				ul.uploaded-files
-					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
+					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles | orderBy: 'createdAt': true"]
 						.details
-							span.file-data
-								span.name[ng-bind="genericFile.displayName()"]
-								em.download-url-env-var-key
-									span> == data[:strings][:code_signing][:generic_file][:download_url_available_as]
-									code[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
-						.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-							checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
-							label[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:is_expose]
-						.actions
-							a.furto.download[href="{{ genericFile.download() }}"] = svg("arrow_tailed_slim-down")
-							button.furto.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] = svg("cross")
+							.icon = svg("code_signing/sheet-generic_file")
+							.column
+								.detail.name[ng-bind="genericFile.displayName()"]
+								.detail.code.env-var-key[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
+							.expose-and-actions
+								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+									checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
+									label.on-small[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]
+								.actions[floating-menu toggle="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
+									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
+									.dropdown[ng-if="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
+										a.dropdown-option.download[href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
+										button.dropdown-option.delete[ng-click="genericFileCtrl.deleteCertificate(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
+								.actions.small
+									a.option.download[href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
+									button.option.delete[ng-click="genericFileCtrl.deleteCertificate(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 				p.notification.error[ng-if="genericFileCtrl.genericFiles.length >= genericFileCtrl.maximumGenericFilesCount"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]
 				.file-upload[ng-if="!genericFileCtrl.uploadGenericFileProgress.isInProgress && genericFileCtrl.genericFiles.length < genericFileCtrl.maximumGenericFilesCount"]

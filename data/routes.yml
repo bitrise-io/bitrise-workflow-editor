@@ -29,6 +29,7 @@ website:
   app_stack_info_get: /app/<app_slug>/stack_info.json
   app_project_type_get: /app/<app_slug>/project_type
   prov_profile_create: /prov_profile_document/<job_id>.json
+  prov_profile_get_details: /prov_profile_document/details/<prov_profile_id>.json
   prov_profiles_get: /prov_profile_document/for_job/<job_id>.json
   prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
@@ -36,6 +37,7 @@ website:
   prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
   certificate_create: /build_certificate/<job_id>.json
   certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
+  certificate_get_details: /build_certificate/details/<certificate_id>.json
   certificates_get: /build_certificate/for_job/<job_id>.json
   certificate_download: /build_certificate/<certificate_id>
   certificate_is_expose_state_update: /build_certificate/<certificate_id>/update_is_expose.json
@@ -48,6 +50,7 @@ website:
   generic_file_download: /project_file_storage_document/<generic_file_id>
   generic_file_delete: /project_file_storage_document/<generic_file_id>.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
+  get_team_test_devices: /api/app/<app_slug>/team_test_devices.json
 local_server:
   cancel_api_connection_close: /api/connection
   close_api_connection: /api/connection

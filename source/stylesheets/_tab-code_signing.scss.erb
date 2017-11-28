@@ -112,21 +112,41 @@
 	section.cardo, section.progress-indicator {
 		margin: 20px $section-horizontalspacing;
 	}
-		
-	section.cardo {
-		$header_is_expose-width: 34%;
-		
+
+	$layout-style_change_screenwidth: 1000px;
+	$column_left-width: 40%;
+	$details_icon-width: 30px;
+	$details_icon_and_column-spacing: 15px;
+
+	.files {
+		$expose-width: 200px;
+		$action_dropdown_icon-spacing: 15px;
+		$action_dropdown_icon-width: 26px;
+
 		header {
 			@include display-flex;
 			@include justify-content(space-between);
 
-			.title {
-				width: 100% - $header_is_expose-width;
+			.label {
+				font-size: 12px;
+				font-weight: 400;
+			}
+
+			h2.label {
 				margin-bottom: 0;
 			}
 
 			.expose {
-				width: $header_is_expose-width;
+				@include flex-shrink(0);
+				width: $expose-width;
+				margin-left: auto;
+				text-transform: uppercase;
+			}
+
+			&:after {
+				content: "";
+				margin-left: $action_dropdown_icon-spacing;
+				width: $action_dropdown_icon-width;
 			}
 		}
 
@@ -136,506 +156,922 @@
 			p.progress-indicator, p.notification {
 				@include margin-x($cardo-horizontalpadding);
 			}
-		}
-
-		ul.uploaded-files {
-			@include margin-y(0);
-			padding-left: 0;
-		}
-	
-		.uploaded-file {
-			$details-width: 100% - $header_is_expose-width;
-			$content_is_expose-width: 26%;
-	
-			@include display-flex;
-			@include align-items(center);
-			padding: 12px $cardo-horizontalpadding;
-			border-bottom: 1px solid $def-mediumlightgrey;
-	
-			.details {
-				@include display-flex;
-				@include align-items(center);
-				@include box-sizing(border-box);
-				width: $details-width;
-				padding: 5px 8px;
-				font-size: 14px;
-	
-				&:before {
-					content: "";
-					@include flex-shrink(0);
-					@include size(20px, 24px);
-					margin-right: 15px;
-					background-size: contain;
-					background-position: center;
-					background-repeat: no-repeat;
-				}
-			}
-	
-			.expose {
-				width: $content_is_expose-width;
-				position: relative;
-	
-				label {
-					display: none;
-				}
-
-				.popover {
-					top: 100%;
-
-					&:before {
-						left: 8px;
-					}
-				}
-			}
-	
-			.actions {
-				@include display-flex;
-				@include flex-shrink(0);
-				width: 100% - ($details-width + $content_is_expose-width);
-				margin-left: auto;
-	
-				a, button {
-					@include flex-shrink(0);
-					margin-left: 12px;
-				}
-			}
-		}
-	
-		.file-upload {
-			margin: 12px $cardo-horizontalpadding;
-	
-			.file-uploader {
-				position: relative;
-				border: 4px dashed $def-mediumlightgrey;
-				@include border-radius($def-radius);
-				padding: 18px;
-	
-				input[type="file"] {
-					@include position(absolute, 0, 0);
-					z-index: $zindex-file_uploader_input;
-					@include size(100%);
-					font-size: 0;
-					opacity: 0;
-					cursor: pointer;
-				}
-	
-				input[type="submit"] {
-					@include position(absolute, 0, 0);
-					@include size(0);
-					border: none;
-					padding: 0;
-					opacity: 0;
-				}
-	
-				.content {
-					text-align: center;
-					font-size: 12px;
-					opacity: 0.5;
-					color: $def-verydarkgrey;
-					@include transition(opacity, $def-transition_duration);
-	
-					strong {
-						display: block;
-						margin-bottom: 4px;
-						font-weight: 500;
-					}
-	
-					em {
-						display: block;
-						font-weight: 200;
-					}
-				}
-	
-				input[type="file"]:disabled {
-					cursor: not-allowed;
-				}
-	
-				input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
-					opacity: 1.0;
-				}
-			}
-		}
-
-		@include media-below-big {
 			
-			header {
+			.uploaded-files {
+				@include margin-y(0);
+				padding-left: 0;
+				list-style: none;
 
-				.title {
-					width: 100%;
-				}
-
-				.password, .expose {
-					display: none;
-				}
-			}
-
-			article {
-
-				ul.uploaded-files > li.uploaded-file, .uploaded-file {
-					@include flex-direction(column);
-
-					.details, .expose, .actions {
-						@include justify-content(center);
-						width: 100%;
-						margin-top: 6px;
-					}
+				.uploaded-file {
+					padding: 12px $cardo-horizontalpadding;
+					border-bottom: 1px solid $def-mediumlightgrey;
 
 					.details {
-						@include flex-direction(column);
-						@include justify-content(center);
-						text-align: center;
-
-						&:before {
-							margin-right: 0;
-							margin-bottom: 8px;
-						}
-
-						span.file-data {
-							@include ellipsis-oneliner;
-							width: 100%;
-
-							em {
-								@include display-flex;
-								@include justify-content(center);
-
-								code {
-									@include ellipsis-oneliner;
-								}
-							}
-						}
-					}
-
-					.password-edit {
-						@include flex-direction(column);
-						width: auto;
-						min-width: 200px;
-						margin-top: 10px;
-
-						form.password {
-							@include justify-content(center);
-							@include flex-wrap(wrap);
-							margin-bottom: 6px;
-							width: 100%;
-
-							.input-with-show-password {
-								width: 100%;
-							}
-
-							input:not([type="submit"]) {
-								width: 100%;
-
-								&:not(:last-child) {
-									margin-bottom: 6px;	
-								}
-							}
-
-							.change-password-actions {
-								width: 100%;
-
-								input.submit {
-									margin-left: 0;
-								}
-
-								input.ok, button.cancel {
-									@include flex-grow(1);
-								}
-							}
-						}
-					}
-
-					.expose {
 						@include display-flex;
-						width: auto;
+						@include align-items(flex-start);
 
-						.checkbox {
-							width: 36px;
-							height: 16px;
-
-							.checkbox-svg-wrapper {
-
-								svg[check] {
-									width: 10px;
-									height: 9px;
-									top: 3px;
-									left: 4px;
-								}
-								
-								svg[cross] {
-									width: 8px;
-									height: 8px;
-									top: 4px;
-									left: 5px;
-								}
+						.icon {
+							@include flex-shrink(0);
+							margin-right: $details_icon_and_column-spacing;
+							
+							svg {
+								@include size($details_icon-width, 40px);
 							}
 						}
 
-						label {
-							display: block !important;
-							@include ellipsis-oneliner;
-							font-size: 12px;
-							margin-left: 8px;
+						.column {
+							margin-right: $details_icon_and_column-spacing;
+							
+							&.left {
+								@include flex-shrink(0);
+								width: $column_left-width;
+							}
+
+							&.right {
+								@include flex-grow(1);
+							}
+
+							.detail {
+								margin-bottom: 10px;
+								font-size: 14px;
+								font-weight: 200;
+
+								&.name {
+									font-weight: 500;
+								}
+
+								.label:not(.warning) {
+									font-weight: 500;
+								}
+
+								.label.warning {
+									display: inline-block;
+									@include border-radius($def-radius);
+									padding: 7px 12px;
+									text-transform: uppercase;
+									color: $def-danger;
+									background-color: $def-danger-light;
+								}
+
+								&.code {
+									display: inline-block;
+									padding: 5px 7px;
+									@include SourceCodeProWithFallback;
+									word-break: break-all;
+								}
+							}
+
+							p.progress-indicator, p.notification {
+								@include margin-x(0);
+							}
 						}
 
-						.popover {
-							margin-top: 10px;
-						}
-					}
-
-					.actions {
-						width: 8%;
-						margin-top: 10px;
-						margin-left: 0;
-					
-						a:first-child, button:first-child {
-							margin-left: 0;
-						}
-					}
-				}
-
-				code {
-					word-wrap: break-word;
-				}
-			}
-		}
-	}
-
-	section.provisioning-profiles {
-
-		ul.uploaded-files {
-
-			li.uploaded-file {
-
-				.details:before {
-					background-image: image-url("code_signing/file-green.svg");
-				}
-			}
-		}
-	}
-
-	section.code-signing-identities {
-
-		header {
-			$title-width: 35%;
-			$password-width: 31%;
-
-			.title {
-				width: $title-width;
-			}
-
-			.password {
-				width: $password-width;
-				margin-bottom: 0;
-			}
-		}
-
-		ul.uploaded-files {
-
-			li.uploaded-file {
-				$details-width: 35%;
-				$password-width: 31%;
-
-				.details {
-					width: $details-width;
-
-					&:before {
-						background-image: image-url("code_signing/file-purple.svg");
-					}
-				}
-
-				.password-edit {
-					@include display-flex;
-					@include align-items(center);
-					width:	$password-width;
-
-					form.password {
-						@include display-flex;
-
-						.input-with-show-password {
+						.expose-and-actions {
+							@include flex-shrink(0);
 							@include display-flex;
-							position: relative;
-							max-width: 170px;
+							@include justify-content(space-between);
+							margin-left: auto;
 
-							.eye-checkbox {
-								position: absolute;
-								z-index: 0;
-								right: 0;
+							.expose {
+								position: relative;
+								width: $expose-width;
 
-								input[type="checkbox"]:checked ~ .checkbox-svg-wrapper span.crossed-eye, input[type="checkbox"]:not(:checked) ~ .checkbox-svg-wrapper span.eye {
-									display: none;
-								}
-
-								span.eye, span.crossed-eye {
-									@include size(26px);
-									margin-left: 3px;
-									margin-top: 5px;
-
-									svg {
-										@include size(22px , 14px);
-										fill: #757575;
-										display: block;
+								.popover {
+									top: 100%;
+									width: 100%;
+				
+									&:before {
+										left: 8px;
 									}
 								}
 							}
 
-							input.password-input {
-								border: 1px solid $def-mediumlightgrey;
-								@include border-radius($def-radius);
-								padding: 4px;
-								padding-right: 32px;
-								background-color: $def-verylightgrey;
-								font-size: 14px;
-								min-width: 135px;
+							.actions:not(.small) {
+								position: relative;
+								margin-left: $action_dropdown_icon-spacing;
+
+								.dropdown-toggle {
+									cursor: pointer;
+									
+									svg {
+										@include size($action_dropdown_icon-width, 21px);
+										fill: #999999;
+									}
+
+									&:focus svg, &:hover svg {
+										fill: $def-darkgrey;
+									}
+								}
+
+								.dropdown {
+									@include position(absolute, 100%, 0);
+									z-index: $zindex-popover;
+									width: 180px;
+									margin-top: 10px;
+									border: 1px solid $def-lightgrey;
+									@include border-radius(5px);
+									@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
+									overflow: hidden;
+
+									.dropdown-option {
+										display: block;
+										padding: 15px 12px;
+										font-size: 12px;
+										font-weight: 500;
+										color: #767676;
+										background-color: white;
+
+										&:hover {
+											background-color: $def-ultralightgrey;
+										}
+
+										&:not(:last-child) {
+											border-bottom: 1px solid $def-lightgrey;
+										}
+
+										&.delete {
+											color: #f17420;
+										}
+									}
+
+									a.dropdown-option {
+										text-decoration: none;
+									}
+
+									button.dropdown-option {
+										width: 100%;
+										text-align: left;
+									}
+								}
 							}
 						}
+					}
 
-						input:not([type="submit"]) {
-							border: 1px solid $def-mediumlightgrey;
-							@include border-radius($def-radius);
-							padding: 4px;
-							padding-right: 32px;
-							background-color: $def-verylightgrey;
+					.show-more-details {
+						max-width: $column_left-width;
+						@include margin-y(15px);
+						margin-left: $details_icon-width + $details_icon_and_column-spacing;
+
+						.show-more-info {
+							margin-bottom: 10px;
 							font-size: 14px;
+							font-weight: 200;
 						}
 
-						.change-password-actions {
-							@include display-flex;
+						p.show-more-info {
+							margin-top: 0;
+						}
 
-							input.submit, button {
-								margin-left: 6px;
-								font-size: 10px;
+						.show-more {
+							display: block;
+							border: 1px solid $def-grey;
+							@include border-radius($def-radius);
+							background-color: white;
+
+							&:hover, &:focus {
+								background-color: $def-ultralightgrey;
+							}
+
+							.container {
+								@include display-flex;
+								@include justify-content(space-between);
+								@include align-items(center);
+								padding: 10px 12px;
+								font-size: 12px;
+								font-weight: 400;
+					
+								.icon {
+									margin-right: 6px;
+					
+									svg {
+										@include size(9px, 12px);
+										fill: $def-verydarkgrey;
+									}
+								}
+								
+								.arrow {
+									margin-left: 6px;
+									@include transform(rotate(-90deg));
+					
+									svg {
+										@include size(10px, 6px);
+										fill: $def-verydarkgrey;
+									}
+								}
 							}
 						}
 					}
 				}
 			}
-		}
-	}
 
-	section.generic-files, section.android-keystore {
-
-		.uploaded-file {
-
-			.details {
-
-				&:before {
-					background-image: image-url("code_signing/file-green.svg");
-				}
-
-				em.download-url-env-var-key {
-					display: block;
-					font-size: 12px;
-					font-style: normal;
-					font-weight: 200;
-
-					code {
-						display: inline-block;
-						@include border-radius($def-radius);
-						padding: 3px;
-						background-color: $def-verylightgrey;
-						color: $def-purple;
-					}
-				}
-			}
-		}
-
-		.file-upload, form.keystore-metadata {
-
-			p {
-				margin-top: 0;
-				margin-bottom: 10px;
-				font-size: 14px;
-				font-weight: 200;
-			}
-
-			input.env-var {
-				display: block;
-				@include box-sizing(border-box);
-				width: 100%;
-				margin-bottom: 10px;
-				border: 1px solid $def-mediumlightgrey;
-				@include border-radius($def-radius);
-				padding: 10px 18px;
-				font-size: 14px;
-				font-weight: 200;
-			}
-
-			p.progress-indicator, p.notification {
-				@include margin-x(0);
-				margin-bottom: 10px;
-			}
-		}
-	}
-
-	section.generic-files {
-
-		li.uploaded-file {
-
-			.details:before {
-				background-image: image-url("code_signing/file-green.svg");
-			}
-		}
-
-		.file-upload {
-
-			code.env-var {
-				display: block;
-				line-height: 180%;
-				margin-bottom: 10px;
-				border: 1px solid $def-mediumlightgrey;
-				@include border-radius($def-radius);
-				padding: 10px 18px;
-				font-size: 14px;
-				font-weight: 200;
-				color: $def-purple;
-				background-color: $def-verylightgrey;
-			}
-		}
-	}
-
-	section.android-keystore {
-
-		.uploaded-file {
-
-			.details:before {
-				background-image: image-url("code_signing/file-purple.svg");
-			}
-		}
-
-		form.keystore-metadata {
-			padding: 12px $cardo-horizontalpadding;
-
-			section {
-				margin-bottom: 25px;
-
-				code.env-var {
+			.file-upload {
+				margin: 12px $cardo-horizontalpadding;
+		
+				.file-uploader {
+					position: relative;
+					border: 4px dashed $def-mediumlightgrey;
 					@include border-radius($def-radius);
-					padding: 3px;
-					font-weight: 200;
-					color: $def-purple;
-					background-color: $def-verylightgrey;
-				}
-
-				.show-password {
-					@include display-flex;
-					@include align-items(center);
-
-					label {
-						margin-left: 8px;
+					padding: 18px;
+		
+					input[type="file"] {
+						@include position(absolute, 0, 0);
+						z-index: $zindex-file_uploader_input;
+						@include size(100%);
+						font-size: 0;
+						opacity: 0;
+						cursor: pointer;
+					}
+		
+					input[type="submit"] {
+						@include position(absolute, 0, 0);
+						@include size(0);
+						border: none;
+						padding: 0;
+						opacity: 0;
+					}
+		
+					.content {
+						text-align: center;
 						font-size: 12px;
+						opacity: 0.5;
+						color: $def-verydarkgrey;
+						@include transition(opacity, $def-transition_duration);
+		
+						strong {
+							display: block;
+							margin-bottom: 4px;
+							font-weight: 500;
+						}
+		
+						em {
+							display: block;
+							font-weight: 200;
+						}
+					}
+		
+					input[type="file"]:disabled {
+						cursor: not-allowed;
+					}
+		
+					input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
+						opacity: 1.0;
 					}
 				}
 			}
+		}
 
-			.save, .reset {
-				display: block;
-				width: 500px;
-				max-width: 100%;
+		$expose_header-text_change_screenwidth: 1200px;
 
-				&:not(:last-child) {
+		@include media-above($expose_header-text_change_screenwidth) {
+			
+			header .expose .short-version {
+				display: none;
+			}
+		}
+
+		@include media-below-inclusive($expose_header-text_change_screenwidth) {
+			
+			header .expose .long-version {
+				display: none;
+			}
+		}
+
+		@include media-above($layout-style_change_screenwidth) {
+
+			article .uploaded-files .details .expose-and-actions {
+
+				.expose .on-small {
+					display: none;
+				}
+
+				.actions.small {
+					display: none;
+				}
+			}
+		}
+
+		@include media-below-inclusive($layout-style_change_screenwidth) {
+
+			header .expose {
+				display: none;
+			}
+
+			article .uploaded-files .uploaded-file {
+				
+				.details {
+					display: block;
+
+					.icon {
+						margin-right: 0;
+						margin-bottom: 15px;
+					}
+
+					.column {
+						margin-right: 0;
+
+						&.left {
+							@include flex-shrink(1);
+							width: auto;
+						}
+
+						.detail {
+							margin-bottom: 15px;
+						}
+					}
+
+					.expose-and-actions {
+						display: block;
+						width: auto;
+						margin-left: 0;
+
+						.expose {
+							@include display-flex;
+							@include align-items(center);
+							width: auto;
+
+							.checkbox {
+								@include flex-shrink(0);
+							}
+
+							.on-small {
+								margin-left: 10px;
+								font-size: 12px;
+							}
+						}
+
+						.actions:not(.small) {
+							display: none;
+						}
+
+						.actions.small {
+							@include display-flex;
+							margin-top: 15px;
+
+							.option {
+								font-size: 12px;
+								font-weight: 500;
+								color: $def-green;
+
+								&:hover, &:focus {
+									color: $def-green-shade;
+								}
+
+								&:not(:last-child) {
+									margin-right: 25px;
+								}
+
+								&.delete {
+									color: $def-danger;
+
+									&:hover, &:focus {
+										color: $def-danger-shade;
+									}
+								}
+							}
+
+							button.option {
+								text-align: left;
+								text-decoration: underline;
+							}
+						}
+					}
+				}
+
+				.show-more-details {
+					max-width: none;
+					margin-left: 0;
+				}
+			}
+		}
+	}
+
+	.files.provisioning-profiles {
+
+		article .uploaded-files .details {
+			
+			.icon svg {
+				fill: $def-green-neon;
+			}
+
+			.column {
+
+				.detail.uuid {
+					background-color: $def-green-verylight;
+				}
+			}
+		}
+	}
+
+	.files.certificates {
+
+		header {
+
+			.label.title {
+				width: $column_left-width;
+				margin-right: $details_icon-width + $details_icon_and_column-spacing + $details_icon_and_column-spacing;
+			}
+		}
+
+		article .uploaded-files .uploaded-file .details {
+
+			.icon svg {
+				fill: $def-purple;
+			}
+			
+			.column {
+
+				.detail.serial {
+					background-color: $def-purple-light;
+				}
+			}
+
+			.password {
+
+				.password-field-wrapper {
+					position: relative;
+					max-width: 300px;
+
+					$eye_checkbox-width: 22px;
+					$padding: 4px;
+
+					input.password-field {
+						display: block;
+						width: 100%;
+						@include box-sizing(border-box);
+						border: 1px solid $def-mediumlightgrey;
+						@include border-radius($def-radius);
+						padding: $padding;
+						padding-right: $padding + $eye_checkbox-width + $padding;
+						background-color: $def-verylightgrey;
+						font-size: 14px;
+
+						&.invalid {
+							border-color: #F17420;
+						}
+					}
+
+					.eye-checkbox {
+						@include position(absolute, 50%, $padding);
+						@include transform(translateY(-50%));
+					}
+				}
+
+				.change-actions {
+					$spacing: 10px;
+
+					@include display-flex;
+					margin-top: $spacing;
+
+					.action:not(:last-child) {
+						margin-right: $spacing;
+					}
+				}
+
+				.error-notice {
+					@include display-flex;
+					margin-top: 10px;
+					font-size: 12px;
+					color: #F17420;
+
+					.icon {
+						margin-right: 10px;
+
+						svg {
+							@include size(16px, 15px);
+							fill: #F17420;
+						}
+					}
+				}
+			}
+		}
+
+		@include media-above($layout-style_change_screenwidth) {
+
+			article .uploaded-files .uploaded-file .details .password .label.on-small {
+				display: none;
+			}
+		}
+
+		@include media-below-inclusive($layout-style_change_screenwidth) {
+
+			header .label.password {
+				display: none;
+			}
+
+			article .uploaded-files .uploaded-file .details .password {
+				margin-bottom: 15px;
+
+				.label.on-small {
+					margin-bottom: 10px;
+					font-size: 14px;
+					font-weight: 500;
+				}
+			}
+		}
+	}
+
+	.files.android-keystore, .files.generic-files {
+		
+		article {
+
+			.file-upload, .keystore-metadata {
+	
+				p {
+					margin-top: 0;
+					margin-bottom: 10px;
+					font-size: 14px;
+					font-weight: 200;
+				}
+	
+				input.env-var {
+					display: block;
+					@include box-sizing(border-box);
+					width: 100%;
+					margin-bottom: 10px;
+					border: 1px solid $def-mediumlightgrey;
+					@include border-radius($def-radius);
+					padding: 10px 18px;
+					font-size: 14px;
+					font-weight: 200;
+				}
+	
+				p.progress-indicator, p.notification {
+					@include margin-x(0);
 					margin-bottom: 10px;
 				}
 			}
 		}
 	}
 
+	.files.android-keystore {
+		
+		article {
+			
+			.uploaded-files .uploaded-file .details {
+
+				.icon svg {
+					fill: $def-green-verylight;
+				}
+				
+				.column {
+
+					.detail.env-var-key {
+						background-color: $def-green-verylight;
+					}
+				}
+			}
+
+			form.keystore-metadata {
+				padding: 12px $cardo-horizontalpadding;
+
+				section {
+					margin-bottom: 25px;
+
+					code.env-var {
+						@include border-radius($def-radius);
+						padding: 3px;
+						font-weight: 200;
+						color: $def-purple;
+						background-color: $def-verylightgrey;
+					}
+
+					.show-password {
+						@include display-flex;
+						@include align-items(center);
+
+						label {
+							margin-left: 8px;
+							font-size: 12px;
+						}
+					}
+				}
+
+				.save, .reset {
+					display: block;
+					width: 500px;
+					max-width: 100%;
+
+					&:not(:last-child) {
+						margin-bottom: 10px;
+					}
+				}
+			}
+		}
+	}
+
+	.files.generic-files {
+
+		article {
+			
+			.uploaded-files .uploaded-file .details {
+
+				.icon svg {
+					fill: $def-green-neon;
+				}
+				
+				.column {
+
+					.detail.env-var-key {
+						background-color: $def-green-verylight;
+					}
+				}
+			}
+
+			.file-upload {
+
+				code.env-var {
+					display: block;
+					line-height: 180%;
+					margin-bottom: 10px;
+					border: 1px solid $def-mediumlightgrey;
+					@include border-radius($def-radius);
+					padding: 10px 18px;
+					font-size: 14px;
+					font-weight: 200;
+					color: $def-purple;
+					background-color: $def-verylightgrey;
+				}
+			}
+		}
+	}
+}
+
+.popup-body#prov-profile-details-popup-body.vertical-scroll {
+	width: 840px;
+	min-height: 90%;
+
+	header.closeable.left-aligned {
+		@include flex-shrink(0);
+		@include ellipsis-oneliner;
+		border-bottom: 1px solid $def-mediumlightgrey;
+
+		.popup-title b {
+			@include ellipsis-oneliner;
+			font-size: 12px;
+			color: black;
+		}
+
+		.popup-close {
+			vertical-align: middle;
+
+			svg {
+				@include size(10px, 16px);
+				fill: $def-darkgrey;
+			}
+		}
+	}
+
+	article {
+		@include display-flex;
+		padding: 0;
+
+		.sidebar {
+			@include flex-shrink(0);
+			width: 215px;
+			border-right: 1px solid $def-mediumlightgrey;
+
+			.menu {
+	
+				.menu-option {
+					padding: 22px 20px;
+					border-bottom: 1px solid $def-mediumlightgrey;
+					font-size: 12px;
+					font-weight: 500;
+
+					&:hover, &:focus {
+						background-color: $def-verylightgrey;
+					}
+
+					&.selected {
+						color: white;
+						background-color: $def-verydarkgrey;
+					}
+				}
+
+				button.menu-option {
+					display: block;
+					width: 100%;
+					text-align: left;
+				}
+			}
+		}
+
+		.content {
+			@include flex-grow(1);
+
+			ul.matching-certificates, ul.devices, ul.capabilities {
+				list-style: none;
+				padding-left: 0;
+				margin-top: 0;
+
+				li {
+					border-bottom: 1px solid $def-mediumlightgrey;
+					padding: 16px 22px;
+				}
+
+				.identity {
+
+					.common-name {
+						font-size: 12px;
+						font-weight: 500;
+					}
+
+					.serial {
+						display: inline-block;
+						margin-top: 4px;
+						padding: 5px 7px;
+						@include SourceCodeProWithFallback;
+						font-size: 12px;
+						font-weight: 500;
+						background-color: #f6eaff;
+					}
+				}
+
+				.device {
+					font-size: 14px;
+					font-weight: 300;
+					word-break: break-all;
+					@include SourceCodeProWithFallback;
+				}
+
+				.capability {
+					font-size: 12px;
+					font-weight: 500;
+
+					&:nth-child(even) {
+						background-color: $def-verylightgrey;
+					}
+				}
+			}
+		}
+
+		@include media-below-mid {
+			display: block;
+
+			.sidebar {
+				width: auto;
+				border-right: none;
+				border-bottom: 1px solid $def-mediumlightgrey;
+
+				.menu {
+					@include display-flex;
+
+					.menu-option {
+						@include flex-grow(1);
+						border-bottom: none;
+						
+						&:not(:first-child) {
+							border-left: 1px solid $def-mediumlightgrey;
+						}
+					}
+
+					button.menu-option {
+						text-align: center;
+					}
+				}
+			}
+		}
+
+		$dropdown_menu-screenwidth: 420px;
+
+		@include media-above($dropdown_menu-screenwidth) {
+
+			.sidebar .menu.small {
+				display: none;
+			}
+		}
+
+		@include media-below-inclusive($dropdown_menu-screenwidth) {
+			
+			.sidebar {
+
+				.menu:not(.small) {
+					display: none;
+				}
+
+				.menu.small {
+
+					.menu-selector {
+						width: 100%;
+						margin: 10px 14px;
+						border-color: $def-mediumlightgrey;
+						@include padding-y(16px);
+						font-size: 12px;
+						font-weight: 500;
+
+						$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
+							fill: rgba($def-verydarkgrey, 0.99)
+						));
+
+						background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+						background-size: 14px auto;
+					}
+				}
+			}
+		}
+	}
+}
+
+.popup-body#list-identities-popup-body {
+	width: 840px;
+	
+	header.closeable.left-aligned {
+		border-bottom: 1px solid $def-grey;
+
+		.popup-title {
+
+			.label {
+				font-size: 14px;
+				font-weight: 200;
+				color: $def-mediumdarkgrey;
+			}
+
+			.certificate-name {
+				font-size: 14px;
+				font-weight: 500;
+				color: black;
+			}
+		}
+	}
+
+	article {
+		padding: 0;
+
+		ul.identities {
+			@include margin-y(0);
+			padding-bottom: 45px;
+			list-style: none;
+			padding-left: 0;
+		
+			li.identity {
+				@include display-flex;
+				padding: 12px 14px;
+				border-bottom: 1px solid $def-grey;
+
+				.column {
+
+					.detail {
+						margin-bottom: 10px;
+						font-size: 12px;
+
+						.label {
+							font-weight: 500;
+						}
+
+						&.serial {
+							padding: 5px 7px;
+							display: inline-block;
+							border-radius: 1px;
+							@include SourceCodeProWithFallback;
+							background-color: #f6eaff;
+						}
+
+						&.expire-at {
+
+							&:not(.expired) {
+
+								.label.expired-label {
+									display: none;
+								}
+							}
+
+							&.expired {
+								color: $def-danger;
+
+								.label:not(.expired-label) {
+									display: none;
+								}
+							
+								.label.expired-label {
+									display: inline-block;
+									border-radius: $def-radius;
+									font-weight: 300;
+									text-transform: uppercase;
+								}
+							}
+						}
+					}
+
+					&.column.left {
+						@include flex-shrink(0);
+						width: 45%;
+						margin-right: 24px;
+					}
+
+					.common-name {
+						font-weight: 500;
+					}
+				}
+
+				@include media-below-mid {
+					display: block;
+
+					.column.left {
+						width: auto;
+						margin-right: 0;
+					}
+				}
+			}
+		}
+	}
 }

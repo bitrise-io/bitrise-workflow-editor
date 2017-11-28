@@ -69,7 +69,28 @@ angular.module("BitriseWorkflowEditor").directive("progressModel", function() {
 
 			tElement.attr("ng-if", ngIfValue);
 			tElement.attr("ng-class", tAttrs.progressModel + ".cssClass");
-			tElement.attr("ng-bind-html", tAttrs.progressModel + ".statusMessage");
+
+			if (tElement.children().length > 0) {
+				var inProgressContentElement = tElement.find(".in-progress-content");
+				var errorContentElement = tElement.find(".error-content");
+
+				if (inProgressContentElement.length == 0) {
+					inProgressContentElement = angular.element("<span class='in-progress-content' ng-bind-html='" + tAttrs.progressModel + ".statusMessage'></span>");
+					tElement.append(inProgressContentElement);
+				}
+				inProgressContentElement.attr("ng-if", tAttrs.progressModel + ".isInProgress");
+
+				if (errorContentElement.length == 0) {
+					errorContentElement = angular.element("<span class='error-content' ng-bind-html='" + tAttrs.progressModel + ".statusMessage'></span>");
+					tElement.append(errorContentElement);
+				}
+				errorContentElement.attr("ng-if", tAttrs.progressModel + ".isError");
+			}
+			else {
+				tElement.attr("ng-bind-html", tAttrs.progressModel + ".statusMessage");
+			}
+
+			tElement.attr('model', tAttrs.progressModel);
 			tElement.removeAttr("progressModel");
 
 			return tElement.prop("outerHTML");

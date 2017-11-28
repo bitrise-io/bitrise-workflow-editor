@@ -135,8 +135,52 @@ code_signing:
   prov_profile:
     header: 
       card_title: Provisioning profile
-      is_expose_param_title: Expose for Pull Requests
-    is_expose: Expose for Pull Request
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
+    article:
+      details:
+        expires_on_label: Expires on
+        expired_label: Expired
+        export_type_label: Export type
+        team_data_label: Team
+        bundle_id_label: Bundle ID
+        show_prov_profile_validated_details_button: Show matching Certificates, Devices & Capabilities
+      actions:
+        download: "Download"
+        delete: "Delete"
+      expose:
+        is_expose: Expose for Pull Request
+    prov_profile_details_popup:
+      menus:
+        matching_certificates: Matching Certificates
+        devices: Devices
+        capabilities: Capabilities
+      device_registration_details:
+          not_registered: Not registered on bitrise
+          registered: Registered on Bitrise by
+      # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
+      devices:
+        udid: UDID
+      capabilities: 
+        'com.apple.security.application-groups': 'App Groups'
+        'com.apple.developer.in-app-payments': 'Apple Pay'
+        'com.apple.developer.associated-domains': 'Associated Domains'
+        'com.apple.developer.healthkit': 'HealthKit'
+        'com.apple.developer.homekit': 'HomeKit'
+        'com.apple.developer.networking.HotspotConfiguration': 'Hotspot'
+        'com.apple.InAppPurchase': 'In-App Purchase'
+        'inter-app-audio': 'Inter-App Audio'
+        'com.apple.developer.networking.multipath': 'Multipath'
+        'com.apple.developer.networking.networkextension': 'Network Extensions'
+        'com.apple.developer.nfc.readersession.formats': 'NFC Tag Reading'
+        'com.apple.developer.networking.vpn.api': 'Personal VPN'
+        'aps-environment': 'Push Notifications'
+        'com.apple.developer.siri': 'SiriKit'
+        'com.apple.developer.pass-type-identifiers': 'Wallet'
+        'com.apple.external-accessory.wireless-configuration': 'Wireless Accessory Configuration'
+        'com.apple.developer.default-data-protection': 'Data Protection'
+        'com.apple.developer.ubiquity-kvstore-identifier': 'iCloud'
+        'com.apple.developer.icloud-services': 'iCloud'
     upload_action: Add Provisioning Profile(s)
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -151,6 +195,15 @@ code_signing:
       no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
+    get_details_progress:
+      in_progress: Loading, wait a sec...
+      try_again_postfix: " Click here to try again."
+    get_all_test_devices_of_repository:
+      in_progress: Loading, wait a sec...
+    validate_certificates:
+      in_progress: Loading, wait a sec...
+    validate_test_devices:
+      in_progress: Loading, wait a sec...
     upload_progress:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
@@ -158,9 +211,26 @@ code_signing:
   certificate:
     header:
       card_title: Code Signing Identity
-      password_param_title: Password
-      is_expose_param_title: Expose for Pull Requests
-    is_expose: Expose for Pull Request
+      password: Password
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
+    article:
+      details:
+        team_data_label: Team
+        expires_on_label: Expires on
+        expired_label: Expired
+        multiple_identities: "Multiple identities found. Click here to view them:"
+        show_included_identities_button_label: Show included Identities
+      password_edit:
+        incorrect_password_notice: Incorrect password
+      actions:
+        download: "Download"
+        delete: "Delete"
+      expose:
+        is_expose: Expose for Pull Request
+    identities_list_popup:
+      header:
+        title: Included identities for
     upload_action: Add the private key (.p12) for signing
     upload_instructions: Click here or Drag & Drop to upload
     no_name_for_file: No name for file
@@ -175,20 +245,29 @@ code_signing:
       no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
+    get_details_progress:
+      in_progress: Loading, wait a sec...
+      try_again_postfix: " Click here to try again."
     upload_progress:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
       in_progress: Deleting, wait a sec...
     show_password: Show password
-    change_password_ok: OK
+    change_password_save: Save
     change_password_cancel: Cancel
     change_password_progress:
       in_progress: Change password, wait a sec...
   generic_file:
     header:
       card_title: Generic File Storage
-      is_expose_param_title: Expose for Pull Requests
-    is_expose: Expose for Pull Request
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
+    article:
+      actions:
+        download: "Download"
+        delete: "Delete"
+    expose:
+      is_expose: Expose for Pull Request
     upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
     upload_instructions: Click here or Drag & Drop to upload
     no_files_added_yet: No files added yet.
@@ -218,8 +297,14 @@ code_signing:
   android_keystore:
     header:
       card_title: Android Keystore file
-      is_expose_param_title: Expose for Pull Requests
-    is_expose: Expose for Pull Request
+      expose_for_pull_requests: Expose for Pull Requests
+      expose_for_pr: Expose for PR
+    article:
+      actions:
+        download: "Download"
+        delete: "Delete"
+    expose:
+      is_expose: Expose for Pull Request
     no_keystore_file: "No keystore file added yet."
     download_url_available_as: Download URL available as
     no_name_for_file: No name for file
@@ -346,6 +431,14 @@ request_service:
   create_keystore_file:
     default_error: Error uploading file.
     error_prefix: "Error uploading file: "
+  get_details_of_prov_profile:
+    default_error: Error getting details of uploaded provisioning profile.
+    error_prefix: "Error getting details of uploaded provisioning profile: "
+    not_website_mode_error: Provisioning profile detail fetch is only available in website mode
+  get_details_of_certificate:
+    default_error: Error getting details of uploaded certificate file.
+    error_prefix: "Error getting details of uploaded certificate file: "
+    not_website_mode_error: Certificate detail fetch is only available in website mode
   finalize_prov_profile_upload:
     default_error: Error finalizing provisioning profile upload.
     error_prefix: "Error finalizing provisioning profile upload: "
@@ -399,6 +492,10 @@ request_service:
   get_app_available_project_types:
     default_error: Error loading app available project types.
     error_prefix: "Error loading app available project types: "
+  get_all_test_devices_of_repository:
+    default_error: Error getting test devices of specified repository.
+    error_prefix: "Error getting test devices of specified repository: "
+    not_website_mode_error: Fetching of all test devices of repository is only available in website mode
 step_source_service:
   step_from_cvs:
     no_path: Path not specified.
