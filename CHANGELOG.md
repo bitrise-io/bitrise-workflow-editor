@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.0.22)
+## Changelog (Current version: 1.0.23)
 
 -----------------
+
+## 1.0.23 (2017 Nov 29)
+
+### Release Notes
+
+* Generic file delete bug fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.0.23
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - v1.0.22 -> 1.0.23
+
+* [797f4b6] Paul Heasley - Fix issue where you can't delete a generic file (#220) (2017 Nov 29)
+
 
 ## 1.0.22 (2017 Nov 28)
 
@@ -1318,4 +1351,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Nov 28
+Updated: 2017 Nov 29
