@@ -343,10 +343,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$q(function(resolve, reject) {
 			switch (requestService.mode) {
 				case "website":
-					var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)-job_id-([0-9]*)");
+					var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)");
 					iframeService.handleMessage(configureMessageRegexp, function(message) {
 						requestService.appSlug = configureMessageRegexp.exec(message)[1];
-						requestService.jobID = configureMessageRegexp.exec(message)[2];
 
 						resolve();
 					});
