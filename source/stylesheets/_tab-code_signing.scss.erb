@@ -349,18 +349,18 @@
 										100% { transform: scale(1); }
 									}
 
-									&.in-progress svg {
+									&.loading svg {
 										@include size(6px);
 										fill: $def-purple;
 										animation: pulse 1s ease infinite;
 									}
 
-									&.error svg {
+									&.missing svg {
 										@include size(9px);
 										fill: $def-danger;
 									}
 
-									&.success svg {
+									&.ok svg {
 										@include size(9px);
 										fill: $def-green;
 									}
@@ -822,7 +822,7 @@
 		@include ellipsis-oneliner;
 		border-bottom: 1px solid $def-mediumlightgrey;
 
-		.popup-title b {
+		.popup-title strong {
 			@include ellipsis-oneliner;
 			font-size: 12px;
 			color: black;
@@ -868,6 +868,14 @@
 						}
 					}
 
+					&.matching-certificates .arrow, &.devices .arrow {
+						display: none;
+					}
+
+					&.capabilities .status {
+						display: none;
+					}
+
 					.title {
 						font-size: 12px;
 						font-weight: 500;
@@ -884,18 +892,18 @@
 							100% { transform: scale(1); }
 						}
 
-						&.in-progress svg {
+						&.loading svg {
 							@include size(6px);
 							fill: $def-purple;
 							animation: pulse 1s ease infinite;
 						}
 
-						&.error svg {
+						&.missing svg {
 							@include size(10px);
 							fill: $def-danger;
 						}
 
-						&.success svg {
+						&.ok svg {
 							@include size(10px);
 							fill: $def-green;
 						}
@@ -938,7 +946,7 @@
 
 					.status {
 						@include display-flex;
-						@include flex-direction(center);
+						@include align-items(center);
 						@include flex-shrink(0);
 						@include size(18px);
 
@@ -948,24 +956,25 @@
 							100% { transform: scale(1); }
 						}
 						
-						&.in-progress, &.error, &.success {
+						&.loading, &.missing, &.ok {
 							display: block;
 							margin-right: 22px;
-						}
-		
-						&.in-progress span svg {
-							@include size(12px);
-							fill: $def-purple;
-							animation: pulse 1s ease infinite;
-						}
-						&.error span svg {
-							@include size(18px);
-							fill: $def-danger;
-						}
-		
-						&.success span svg {
-							@include size(18px);
-							fill: #3ac3a2;
+						
+							.loading svg {
+								@include size(12px);
+								fill: $def-purple;
+								animation: pulse 1s ease infinite;
+							}
+							
+							.missing svg {
+								@include size(18px);
+								fill: $def-danger;
+							}
+			
+							.ok svg {
+								@include size(18px);
+								fill: #3ac3a2;
+							}
 						}
 					}
 				}
@@ -1010,17 +1019,17 @@
 							text-align: lft;
 							font-size: 10px;
 
-							.not-registerd b, .registered b {
+							.not-registerd strong, .registered strong {
 								text-transform: uppercase;
 							}
 
-							.not-registered b {
+							.not-registered strong {
 								color: $def-danger;
 							}
 
 							.registered {
 
-								b {
+								strong {
 									color: $def-mediumdarkgrey;
 								}
 

@@ -12,11 +12,10 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	var certificatesReloadIntervalInSeconds = 2;
 	viewModel.maximumCertificatesCount = 30;
 
-	viewModel.loadCertificatesProgress = new Progress();
+	viewModel.loadCertificatesProgress = certificateService.loadProgress = new Progress();
 	viewModel.uploadCertificatesProgress = new Progress();
 	viewModel.deleteCertificateProgress = new Progress();
 	viewModel.changePasswordProgress = new Progress();
-	viewModel.certificates;
 	viewModel.certificatesToUpload;
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
@@ -31,7 +30,6 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	function loadCertificates(shouldClearPreviousLoad) {
 		viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
-		certificateService.progress = viewModel.loadCertificatesProgress;				
 		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
 			viewModel.uploadCertificatesProgress.reset();
 		}
@@ -41,11 +39,11 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		}
 
 		if (shouldClearPreviousLoad) {
-			viewModel.certificates = undefined;
+			certificateService.certificates = undefined;
 		}
 
 		requestService.getCertificates().then(function(certificateDatas) {
-			viewModel.certificates = _.map(certificateDatas, function(aCertificateData) {
+			certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
 				var certificate = new Certificate();
 
 				certificate.databaseID = aCertificateData.databaseID;
@@ -66,12 +64,6 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				
 				if (!certificate.details) {
 					viewModel.getDetails(certificate);
-
-					certificateService.certificateDetailStateMaps.push({
-						certificate: certificate,
-						progress: viewModel.certificateSettings[certificate.databaseID].progress
-					});
-
 				}
 
 				return certificate;
@@ -79,7 +71,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 			viewModel.loadCertificatesProgress.success();
 
-			if (_.find(viewModel.certificates, {
+			if (_.find(certificateService.certificates, {
 				isProcessed: false
 			})) {
 				$timeout(function() {
@@ -107,9 +99,9 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.uploadCertificates = function() {
 		viewModel.uploadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:upload_progress][:in_progress] %>");
 
-		if (viewModel.certificates.length + viewModel.certificatesToUpload.length > viewModel.maximumCertificatesCount) {
+		if (certificateService.certificates.length + viewModel.certificatesToUpload.length > viewModel.maximumCertificatesCount) {
 			viewModel.uploadCertificatesProgress.error(new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:can_only_upload_x_more] %>", {
-				count: viewModel.maximumCertificatesCount - viewModel.certificates.length
+				count: viewModel.maximumCertificatesCount - certificateService.certificates.length
 			})));
 
 			viewModel.certificatesToUpload = undefined;

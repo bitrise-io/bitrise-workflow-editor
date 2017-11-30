@@ -497,19 +497,14 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		return $q(function(resolve, reject) {
 			$http.get(requestURL, requestConfig).then(function(response) {
-				var devices = [];
-				_.each(response.data, function(aDeviceData) {
-					devices.push({
-						deviceIdentifier: aDeviceData.device_identifier,
-						id: aDeviceData.id,
-						owner: aDeviceData.owner,
+				resolve(_.map(response.data, function(aDeviceData) {
+					return {
+						udid: aDeviceData.device_identifier,
+						databaseID: aDeviceData.id,
+						ownerUsername: aDeviceData.owner,
 						title: aDeviceData.title
-					});
-				});
-				
-				resolve({
-					devices: devices
-				})
+					};
+				}));
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_all_test_devices_of_repository][:default_error] %>", "<%= data[:strings][:request_service][:get_all_test_devices_of_repository][:error_prefix] %>"));
 			});
