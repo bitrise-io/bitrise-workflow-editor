@@ -2,11 +2,12 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CertificateController", function($scope, $q, $timeout, requestService, stringService, dateService, Popup, Progress, Certificate) {
+angular.module("BitriseWorkflowEditor").controller("CertificateController", function($scope, $q, $timeout, requestService, stringService, dateService, certificateService, Popup, Progress, Certificate) {
 
 	var viewModel = this;
 
 	$scope.dateService = dateService;	
+	$scope.certificateService = certificateService;	
 
 	var certificatesReloadIntervalInSeconds = 2;
 	viewModel.maximumCertificatesCount = 30;
@@ -30,6 +31,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	function loadCertificates(shouldClearPreviousLoad) {
 		viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
+		certificateService.progress = viewModel.loadCertificatesProgress;				
 		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
 			viewModel.uploadCertificatesProgress.reset();
 		}
@@ -64,6 +66,12 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				
 				if (!certificate.details) {
 					viewModel.getDetails(certificate);
+
+					certificateService.certificateDetailStateMaps.push({
+						certificate: certificate,
+						progress: viewModel.certificateSettings[certificate.databaseID].progress
+					});
+
 				}
 
 				return certificate;

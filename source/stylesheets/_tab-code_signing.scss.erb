@@ -342,10 +342,27 @@
 					
 								.icon {
 									margin-right: 6px;
-					
-									svg {
-										@include size(9px, 12px);
-										fill: $def-verydarkgrey;
+
+									@keyframes pulse {
+										0% { transform: scale(1); }
+										50% { transform: scale(1.2); }
+										100% { transform: scale(1); }
+									}
+
+									&.in-progress svg {
+										@include size(6px);
+										fill: $def-purple;
+										animation: pulse 1s ease infinite;
+									}
+
+									&.error svg {
+										@include size(9px);
+										fill: $def-danger;
+									}
+
+									&.success svg {
+										@include size(9px);
+										fill: $def-green;
 									}
 								}
 								
@@ -797,7 +814,7 @@
 }
 
 .popup-body#prov-profile-details-popup-body.vertical-scroll {
-	width: 840px;
+	width: 920px;
 	min-height: 90%;
 
 	header.closeable.left-aligned {
@@ -845,11 +862,61 @@
 					&.selected {
 						color: white;
 						background-color: $def-verydarkgrey;
+
+						.arrow svg {
+							fill: white;
+						}
+					}
+
+					.title {
+						font-size: 12px;
+						font-weight: 500;
+					}
+
+					.status, .arrow {
+						display: block;
+					}
+	
+					.status {
+						@keyframes pulse {
+							0% { transform: scale(1); }
+							50% { transform: scale(1.2); }
+							100% { transform: scale(1); }
+						}
+
+						&.in-progress svg {
+							@include size(6px);
+							fill: $def-purple;
+							animation: pulse 1s ease infinite;
+						}
+
+						&.error svg {
+							@include size(10px);
+							fill: $def-danger;
+						}
+
+						&.success svg {
+							@include size(10px);
+							fill: $def-green;
+						}
+					}
+
+					.arrow {
+						margin-left: 6px;
+						vertical-align: middle;
+						@include transform(rotate(-90deg));
+
+						svg {
+							@include size(10px, 16px);
+							fill: $def-verydarkgrey;
+						}
 					}
 				}
 
 				button.menu-option {
-					display: block;
+					@include display-flex;
+					@include align-items(center);
+					@include justify-content(space-between);
 					width: 100%;
 					text-align: left;
 				}
@@ -865,11 +932,46 @@
 				margin-top: 0;
 
 				li {
+					@include display-flex;
 					border-bottom: 1px solid $def-mediumlightgrey;
 					padding: 16px 22px;
+
+					.status {
+						@include display-flex;
+						@include flex-direction(center);
+						@include flex-shrink(0);
+						@include size(18px);
+
+						@keyframes pulse {
+							0% { transform: scale(1); }
+							50% { transform: scale(1.3); }
+							100% { transform: scale(1); }
+						}
+						
+						&.in-progress, &.error, &.success {
+							display: block;
+							margin-right: 22px;
+						}
+		
+						&.in-progress span svg {
+							@include size(12px);
+							fill: $def-purple;
+							animation: pulse 1s ease infinite;
+						}
+						&.error span svg {
+							@include size(18px);
+							fill: $def-danger;
+						}
+		
+						&.success span svg {
+							@include size(18px);
+							fill: #3ac3a2;
+						}
+					}
 				}
 
 				.identity {
+					@include align-items(center);
 
 					.common-name {
 						font-size: 12px;
@@ -888,10 +990,47 @@
 				}
 
 				.device {
-					font-size: 14px;
-					font-weight: 300;
-					word-break: break-all;
-					@include SourceCodeProWithFallback;
+					@include align-items(center);
+					
+					.udid-info {
+						font-size: 14px;
+						font-weight: 300;
+						word-break: break-all;
+						@include SourceCodeProWithFallback;
+					}
+
+					.details {
+						@include display-flex;
+						@include justify-content(space-between);
+						@include align-items(center);
+						width: 100%;
+
+						.registration-info {
+							width: 160px;
+							text-align: lft;
+							font-size: 10px;
+
+							.not-registerd b, .registered b {
+								text-transform: uppercase;
+							}
+
+							.not-registered b {
+								color: $def-danger;
+							}
+
+							.registered {
+
+								b {
+									color: $def-mediumdarkgrey;
+								}
+
+								.username {
+									color: $def-green;
+									font-weight: 500;
+								}
+							}
+						}
+					}
 				}
 
 				.capability {
