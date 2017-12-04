@@ -109,10 +109,31 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 	};
 
 	ProvProfile.prototype.getDetails = function(requestConfig) {
-		requestService.getDetailsOfProvProfile(this.databaseID).then(function() {
-			resolve();
-		}, function(error) {
-			reject(error);
+		var self = this;
+
+		return requestService.getDetailsOfProvProfile(self.databaseID).then(function(data) {
+			self.uuid = data.uuid;
+			self.expiresAt = data.expiresAt;
+			self.exportType = data.exportType;
+			self.teamName = data.teamName;
+			self.teamID = data.teamID;
+			self.bundleID = data.bundleID;
+			self.developerCertificateIdentities = _.map(data.developerCertificateIdentities, function(anIdentity) {
+				return {
+					commonName: anIdentity.commonName,
+					startDate: anIdentity.startDate,
+					endDate: anIdentity.endDate,
+					teamName: anIdentity.teamName,
+					teamID: anIdentity.teamID,
+					serial: anIdentity.serial
+				};
+			});
+			self.provisionedDevices = _.map(data.provisionedDevices, function(aProvisionedDevice) {
+				return {
+					udid: aProvisionedDevice.udid
+				};
+			});
+			self.capabilityKeys = data.capabilityKeys;
 		});
 	};
 

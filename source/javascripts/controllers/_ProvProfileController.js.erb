@@ -310,37 +310,10 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			viewModel.uploadProvProfilesProgress.reset();
 		}
 
-		return $q(function(resolve, reject) {
-			return requestService.getDetailsOfProvProfile(provProfile.databaseID).then(function(data) {
-				provProfile.uuid = data.uuid;
-				provProfile.expiresAt = data.expiresAt;
-				provProfile.exportType = data.exportType;
-				provProfile.teamName = data.teamName;
-				provProfile.teamID = data.teamID;
-				provProfile.bundleID = data.bundleID;
-				provProfile.developerCertificateIdentities = _.map(data.developerCertificateIdentities, function(anIdentity) {
-					return {
-						commonName: anIdentity.commonName,
-						startDate: anIdentity.startDate,
-						endDate: anIdentity.endDate,
-						teamName: anIdentity.teamName,
-						teamID: anIdentity.teamID,
-						serial: anIdentity.serial
-					};
-				});
-				provProfile.provisionedDevices = _.map(data.provisionedDevices, function(aProvisionedDevice) {
-					return {
-						udid: aProvisionedDevice.udid
-					};
-				});
-				provProfile.capabilityKeys = data.capabilityKeys;
-
-				viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.success();
-				resolve();
-			}, function(error) {
-				viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.error(error);
-				reject(error);
-			});
+		provProfile.getDetails().then(function() {
+			viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.success();
+		}, function(error) {
+			viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.error(error);
 		});
 	};
 
