@@ -344,9 +344,9 @@
 									margin-right: 6px;
 
 									@keyframes pulse {
-										0% { transform: scale(1); }
-										50% { transform: scale(1.2); }
-										100% { transform: scale(1); }
+										0% { @include transform(scale(1)); }
+										50% { @include transform(scale(1.2)); }
+										100% { @include transform(scale(1)); }
 									}
 
 									&.loading svg {
@@ -822,9 +822,10 @@
 		@include ellipsis-oneliner;
 		border-bottom: 1px solid $def-mediumlightgrey;
 
-		.popup-title strong {
+		.popup-title {
 			@include ellipsis-oneliner;
 			font-size: 12px;
+			font-weight: bold;
 			color: black;
 		}
 
@@ -850,6 +851,9 @@
 			.menu {
 	
 				.menu-option {
+					@include display-flex;
+					@include align-items(center);
+					@include justify-content(space-between);
 					padding: 22px 20px;
 					border-bottom: 1px solid $def-mediumlightgrey;
 					font-size: 12px;
@@ -887,9 +891,9 @@
 	
 					.status {
 						@keyframes pulse {
-							0% { transform: scale(1); }
-							50% { transform: scale(1.2); }
-							100% { transform: scale(1); }
+							0% { @include transform(scale(1)); }
+							50% { @include transform(scale(1.2)); }
+							100% { @include transform(scale(1)); }
 						}
 
 						&.loading svg {
@@ -922,9 +926,6 @@
 				}
 
 				button.menu-option {
-					@include display-flex;
-					@include align-items(center);
-					@include justify-content(space-between);
 					width: 100%;
 					text-align: left;
 				}
@@ -934,7 +935,7 @@
 		.content {
 			@include flex-grow(1);
 
-			ul.matching-certificates, ul.devices, ul.capabilities {
+			.matching-certificates, .devices, .capabilities {
 				list-style: none;
 				padding-left: 0;
 				margin-top: 0;
@@ -951,27 +952,39 @@
 						@include size(18px);
 
 						@keyframes pulse {
-							0% { transform: scale(1); }
-							50% { transform: scale(1.3); }
-							100% { transform: scale(1); }
+							0% { @include transform(scale(1)); }
+							50% { @include transform(scale(1.3)); }
+							100% { @include transform(scale(1)); }
+						}
+
+						&.loading .icon-wrapper:not(.loading-icon-wrapper) {
+							display: none;
+						}
+
+						&.missing .icon-wrapper:not(.missing-icon-wrapper) {
+							display: none;
+						}
+
+						&.ok .icon-wrapper:not(.ok-icon-wrapper) {
+							display: none;
 						}
 						
 						&.loading, &.missing, &.ok {
 							display: block;
 							margin-right: 22px;
 						
-							.loading svg {
+							.loading-icon-wrapper svg {
 								@include size(12px);
 								fill: $def-purple;
 								animation: pulse 1s ease infinite;
 							}
 							
-							.missing svg {
+							.missing-icon-wrapper svg {
 								@include size(18px);
 								fill: $def-danger;
 							}
 			
-							.ok svg {
+							.ok-icon-wrapper svg {
 								@include size(18px);
 								fill: #3ac3a2;
 							}
@@ -1004,32 +1017,37 @@
 					.udid-info {
 						font-size: 14px;
 						font-weight: 300;
-						word-break: break-all;
 						@include SourceCodeProWithFallback;
+
+						.udid {
+							word-break: break-all;
+						}
 					}
 
 					.details {
 						@include display-flex;
 						@include justify-content(space-between);
 						@include align-items(center);
-						width: 100%;
+						@include flex-grow(1);
 
 						.registration-info {
+							@include flex-shrink(0);
 							width: 160px;
-							text-align: lft;
+							margin-left: 10px;
+							text-align: left;
 							font-size: 10px;
 
-							.not-registerd strong, .registered strong {
+							.not-registerd .label, .registered .label {
 								text-transform: uppercase;
 							}
 
-							.not-registered strong {
+							.not-registered .label {
 								color: $def-danger;
 							}
 
 							.registered {
-
-								strong {
+								
+								.label {
 									color: $def-mediumdarkgrey;
 								}
 
@@ -1071,12 +1089,47 @@
 						&:not(:first-child) {
 							border-left: 1px solid $def-mediumlightgrey;
 						}
+
+						&.capabilities .arrow {
+							@include transform(none);
+						}
 					}
 
 					button.menu-option {
 						text-align: center;
 					}
 				}
+			}
+
+			.content {
+
+				.matching-certificates, .devices, .capabilities {
+
+					li {
+						display: block;
+						
+						.status {
+							margin-right: 0;
+							margin-bottom: 10px;
+						}
+					}
+				}
+
+				.devices {
+
+					.device {
+						
+						.details {
+							display: block;
+
+							.registration-info {
+								margin-left: 0;
+								margin-top: 10px;
+							}
+						}
+					}
+				}
+
 			}
 		}
 

@@ -82,8 +82,7 @@
 		popup[model="provProfileCtrl.provProfileDetailsPopup"]
 			.popup-body.snowflake#prov-profile-details-popup-body.vertical-scroll
 				header.closeable.left-aligned
-					span.popup-title
-						strong[ng-bind="provProfileCtrl.selectedProvProfile.displayName()"]
+					span.popup-title[ng-bind="provProfileCtrl.selectedProvProfile.displayName()"]
 					span.popup-close[ng-click="provProfileCtrl.provProfileDetailsPopup.isVisible = false"] = svg("cross")
 				article
 					aside.sidebar
@@ -98,27 +97,27 @@
 						ul.matching-certificates[ng-switch-when="matching-certificates"]
 							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities"]
 								.status[ng-class="provProfileCtrl.identityStatusCSSclass(identity.serial)"]
-									.loading[ng-if="provProfileCtrl.identityStatusCSSclass(identity.serial) == 'loading'"] = svg("dot")
-									.missing[ng-if="provProfileCtrl.identityStatusCSSclass(identity.serial) == 'missing'"] = svg("triangle")
-									.ok[ng-if="provProfileCtrl.identityStatusCSSclass(identity.serial) == 'ok'"] = svg("check-in-circle")
+									.icon-wrapper.loading-icon-wrapper = svg("dot")
+									.icon-wrapper.missing-icon-wrapper = svg("triangle")
+									.icon-wrapper.ok-icon-wrapper = svg("check-in-circle")
 								.details
 									.common-name[ng-bind="identity.commonName"]
 									.serial[ng-bind="identity.serial"]
 						ul.devices[ng-switch-when="devices"]
 							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
 								.status[ng-class="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid)"]
-									.loading[ng-if="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid) == 'loading'"] = svg("dot")
-									.missing[ng-if="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid) == 'missing'"] = svg("triangle")
-									.ok[ng-if="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid) == 'ok'"] = svg("check-in-circle")
+									.icon-wrapper.loading-icon-wrapper = svg("dot")
+									.icon-wrapper.missing-icon-wrapper = svg("triangle")
+									.icon-wrapper.ok-icon-wrapper = svg("check-in-circle")
 								.details
 									.udid-info
 										strong.label> == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:devices][:udid] + ":"
 										span.udid[ng-bind="aProvisionedDevice.udid"]
 									.registration-info
 										span.not-registered[ng-if="!provProfileCtrl.deviceRegisteredBy(aProvisionedDevice.udid)"]
-											strong == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:device_registration_details][:not_registered]
+											strong.label == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:device_registration_details][:not_registered]
 										span.registered[ng-if="provProfileCtrl.deviceRegisteredBy(aProvisionedDevice.udid)"]
-											strong == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:device_registration_details][:registered]
+											strong.label == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:device_registration_details][:registered]
 											.username[ng-bind="'@' + provProfileCtrl.deviceRegisteredBy(aProvisionedDevice.udid).username"]
 						ul.capabilities[ng-switch-when="capabilities"]
 							li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile() track by $index" ng-bind="description"]
