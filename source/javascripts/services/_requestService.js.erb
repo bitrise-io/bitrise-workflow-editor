@@ -479,6 +479,38 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	requestService.fetchAllTestDevicesOfRepository = function(requestConfig) {
+		var requestURL;
+		
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:team_test_devices]) %>", {
+					app_slug: requestService.appSlug
+				});
+
+				break;
+			case "cli":
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_all_test_devices_of_repository][:not_website_mode_error] %>"));
+
+				break;
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve(_.map(response.data, function(aDeviceData) {
+					return {
+						udid: aDeviceData.device_identifier,
+						databaseID: aDeviceData.id,
+						ownerUsername: aDeviceData.owner,
+						title: aDeviceData.title
+					};
+				}));
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_all_test_devices_of_repository][:default_error] %>", "<%= data[:strings][:request_service][:get_all_test_devices_of_repository][:error_prefix] %>"));
+			});
+		});
+	};
+
 	requestService.postProvProfileCreate = function(fileName, fileSize, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_create]) %>", {
 			job_id: requestService.jobID
@@ -531,8 +563,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aProvProfileData.id,
 						isProcessed: aProvProfileData.processed,
 						uploadFileName: aProvProfileData.upload_file_name,
-						isExpose: aProvProfileData.is_expose,
-						createdAt: dateService.dateFromString(aProvProfileData.created_at)
+						isExpose: aProvProfileData.is_expose
 					};
 				}));
 			}, function(response) {
@@ -669,8 +700,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: aCertificateData.processed,
 						uploadFileName: aCertificateData.upload_file_name,
 						password: aCertificateData.certificate_password,
-						isExpose: aCertificateData.is_expose,
-						createdAt: dateService.dateFromString(aCertificateData.created_at)
+						isExpose: aCertificateData.is_expose
 					};
 				}));
 			}, function(response) {
@@ -795,8 +825,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: aGenericFileData.processed,
 						envVarPartialID: aGenericFileData.user_env_key,
 						uploadFileName: aGenericFileData.upload_file_name,
-						isExpose: aGenericFileData.is_expose,
-						createdAt: dateService.dateFromString(aGenericFileData.created_at)
+						isExpose: aGenericFileData.is_expose
 					};
 				}));
 			}, function(response) {
@@ -910,8 +939,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
 						uploadFileName: keystoreFileData.upload_file_name,
-						isExpose: keystoreFileData.is_expose,
-						createdAt: dateService.dateFromString(keystoreFileData.created_at)
+						isExpose: keystoreFileData.is_expose
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
