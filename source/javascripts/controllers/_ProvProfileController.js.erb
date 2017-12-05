@@ -56,10 +56,17 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 					var unwatch = $scope.$watch(function(){
 						return certificateService.loadProgress.isInProgress;
 					}, function(isCertificateLoadInProgress, wasCertificateLoadInProgress) {
-						if (isCertificateLoadInProgress && certificateService.certificates !== undefined) {
-							unwatch();
+						if (!isCertificateLoadInProgress) {
+							if (certificateService.loadProgress.isError) {
+								unwatch();
 
-							resolve();
+								reject(new Error(certificateService.loadProgress.statusMessage));
+							}
+							else if (certificateService.certificates !== undefined) {
+								unwatch();
+
+								resolve();
+							}
 						}
 					})
 				})
