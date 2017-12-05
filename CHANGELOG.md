@@ -6,8 +6,7 @@
 
 ### Release Notes
 
-* __BREAKING__ : change 1
-* change 2
+* Version number fix
 
 ### Install or upgrade
 
