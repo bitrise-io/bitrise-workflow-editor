@@ -49,7 +49,7 @@ website:
   generic_file_download: /project_file_storage_document/<generic_file_id>
   generic_file_delete: /project_file_storage_document/<generic_file_id>.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
-  get_team_test_devices: /api/app/<app_slug>/team_test_devices.json
+  team_test_devices: /api/app/<app_slug>/team_test_devices.json
 local_server:
   cancel_api_connection_close: /api/connection
   close_api_connection: /api/connection

@@ -2,26 +2,29 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, $timeout, requestService, stringService, dateService, Popup, Progress, ProvProfile) {
+angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, requestService, stringService, dateService, certificateService, Popup, Progress, ProvProfile) {
 
 	var viewModel = this;
 
 	$scope.dateService = dateService;
-	$scope.ProvProfile = ProvProfile;
+	$scope.certificateService = certificateService;
 
-	var provProfilesReloadIntervalInSeconds = 2;
 	viewModel.maximumProvProfilesCount = 30;
 
 	viewModel.loadProvProfilesProgress = new Progress();
 	viewModel.uploadProvProfilesProgress = new Progress();
 	viewModel.deleteProvProfileProgress = new Progress();
+	viewModel.loadTestDevicesProgress = new Progress();
+
 	viewModel.provProfiles;
 	viewModel.provProfilesToUpload;
 	viewModel.provProfileUploader;
 	viewModel.provProfileConfigs = {};
+	
+	var testDevicesOfApp;
 
-	viewModel.validatedProvProfileDetailsPopup = new Popup();
-	viewModel.validatedProvProfileDetailsPopup.afterDismissCallback = function() {
+	viewModel.provProfileDetailsPopup = new Popup();
+	viewModel.provProfileDetailsPopup.afterDismissCallback = function() {
 		viewModel.selectedProvProfile = null;
 	};
 	
@@ -40,6 +43,37 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	}];
 	viewModel.selectedMenu;
 
+	viewModel.init = function() {
+		load();
+	};
+
+	function load() {
+		$q.all([
+			loadProvProfiles(),
+			loadTestDevices(),
+			function() {
+				return $q(function(resolve, reject) {
+					var unwatch = $scope.$watch(function(){
+						return certificateService.loadProgress.isInProgress;
+					}, function(isCertificateLoadInProgress, wasCertificateLoadInProgress) {
+						if (!isCertificateLoadInProgress) {
+							if (certificateService.loadProgress.isError) {
+								unwatch();
+
+								reject(new Error(certificateService.loadProgress.statusMessage));
+							}
+							else if (certificateService.certificates !== undefined) {
+								unwatch();
+
+								resolve();
+							}
+						}
+					})
+				})
+			}
+		]).then()
+	}
+
 	function loadProvProfiles(shouldClearPreviousLoad) {
 		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
 		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
@@ -54,43 +88,158 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			viewModel.provProfiles = undefined;
 		}
 
-		requestService.getProvProfiles().then(function(provProfileDatas) {
-			viewModel.provProfiles = _.map(provProfileDatas, function(aProvProfileData) {
-				var provProfile = new ProvProfile();
+		return $q(function(resolve, reject) {
+			requestService.getProvProfiles().then(function(provProfileDatas) {
+				viewModel.provProfiles = _.map(provProfileDatas, function(aProvProfileData) {
+					var provProfile = new ProvProfile();
 
-				provProfile.databaseID = aProvProfileData.databaseID;
-				provProfile.isProcessed = aProvProfileData.isProcessed;
-				provProfile.uploadFileName = aProvProfileData.uploadFileName;
-				provProfile.isExpose = aProvProfileData.isExpose;
+					provProfile.databaseID = aProvProfileData.databaseID;
+					provProfile.isProcessed = aProvProfileData.isProcessed;
+					provProfile.uploadFileName = aProvProfileData.uploadFileName;
+					provProfile.isExpose = aProvProfileData.isExpose;
 
-				var provProfileIsExposeGetterSetterProgress = new Progress();
+					var provProfileIsExposeGetterSetterProgress = new Progress();
 
-				viewModel.provProfileConfigs[provProfile.databaseID] = {
-					progress: new Progress(),
-					isMenuVisible: false,
-					isExposeGetterSetter: isExposeGetterSetterForProvProfile(provProfile, provProfileIsExposeGetterSetterProgress),
-					isExposeGetterSetterProgress: provProfileIsExposeGetterSetterProgress
-				};
+					viewModel.provProfileConfigs[provProfile.databaseID] = {
+						getDetailsProgress: new Progress(),
+						isMenuVisible: false,
+						isExposeGetterSetter: isExposeGetterSetterForProvProfile(provProfile, provProfileIsExposeGetterSetterProgress),
+						isExposeGetterSetterProgress: provProfileIsExposeGetterSetterProgress,
+					};
 
-				if (!provProfile.uuid) {
-					viewModel.getDetails(provProfile);
-				}
+					if (!provProfile.uuid) {
+						viewModel.getDetails(provProfile);
+					}
 
-				return provProfile;
+					return provProfile;
+				});
+
+				viewModel.loadProvProfilesProgress.success();
+				resolve();
+			}, function (error) {
+				viewModel.loadProvProfilesProgress.error(error);
+				reject(error);
 			});
-
-			viewModel.loadProvProfilesProgress.success();
-
-			if (_.find(viewModel.provProfiles, {
-				isProcessed: false
-			})) {
-				$timeout(function() {
-					loadProvProfiles();
-				}, provProfilesReloadIntervalInSeconds * 1000);
-			}
-		}, function(error) {
-			viewModel.loadProvProfilesProgress.error(error);
 		});
+	};
+
+	function loadTestDevices() {
+		viewModel.loadTestDevicesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:validate_test_devices][:in_progress] %>");
+		
+		return $q(function(resolve, reject) {
+			requestService.fetchAllTestDevicesOfRepository().then(function(testDeviceDatas) {
+				testDevicesOfApp = _.map(testDeviceDatas, function(aTestDeviceData) {
+					return {
+						udid: aTestDeviceData.udid,
+						registeredBy: aTestDeviceData.ownerUsername
+					};
+				});
+
+				viewModel.loadTestDevicesProgress.success();
+				resolve();
+			}, function(error) {
+				viewModel.loadTestDevicesProgress.error(error);
+				reject();
+			});
+		});
+	}
+
+	function isIdentityWithSerialAddedToApp(identitySerial) {
+		if (certificateService.loadProgress.isInProgress) {
+			return undefined;
+		}
+
+		return _.any(certificateService.certificates, function(aCertificate) {
+			return _.any(aCertificate, { serial: identitySerial });
+		});
+	};
+
+	function isDeviceWithUDIDaddedToApp(deviceUDID) {
+		if (testDevicesOfApp === undefined) {
+			return undefined;
+		}
+
+		return _.any(testDevicesOfApp, { udid: deviceUDID });
+	};
+
+	viewModel.identityStatusCSSclass = function(identitySerial) {
+		if (!viewModel.selectedProvProfile) {
+			return undefined;
+		}
+
+		if (certificateService.loadProgress.isInProgress) {
+			return "loading";
+		}
+
+		return _.any(certificateService.certificates, function(aCertificate) {
+			return _.any(aCertificate.details, { serial: identitySerial });
+		}) ? "ok" : "missing";
+	};
+
+	viewModel.deviceStatusCSSclass = function(deviceUDID) {
+		if (!viewModel.selectedProvProfile) {
+			return undefined;
+		}
+
+		if (testDevicesOfApp === undefined) {
+			return "loading";
+		}
+
+		return _.any(testDevicesOfApp, { udid: deviceUDID }) ? "ok" : "missing";
+	};
+
+	viewModel.deviceRegisteredBy = function(deviceUDID) {
+		if (testDevicesOfApp === undefined) {
+			return undefined;
+		}
+
+		var registeredTestDevice = _.find(testDevicesOfApp, { udid: deviceUDID });
+		
+		return registeredTestDevice ? registeredTestDevice.registeredBy : undefined;
+	};
+
+	viewModel.identitiesStatusCSSclass = function() {
+		if (!viewModel.selectedProvProfile) {
+			return undefined;
+		}
+
+		if (certificateService.loadProgress.isInProgress) {
+			return "loading";
+		}
+
+		return _.every(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
+			return isIdentityWithSerialAddedToApp(anIdentity.serial);
+		}) ? "ok" : "missing";
+	};
+
+	viewModel.devicesStatusCSSclass = function() {
+		if (!viewModel.selectedProvProfile) {
+			return undefined;
+		}
+
+		if (testDevicesOfApp === undefined) {
+			return "loading";
+		}
+
+		return _.every(viewModel.selectedProvProfile.provisionedDevices, function(aDevice) {
+			return isDeviceWithUDIDaddedToApp(aDevice.udid);
+		}) ? "ok" : "missing";
+	};
+
+	viewModel.provProfileStatusCSSclass = function(provProfile) {
+		if (certificateService.loadProgress.isInProgress || testDevicesOfApp === undefined) {
+			return "loading";
+		}
+		else if (_.any(provProfile.developerCertificateIdentities, function(anIdentity) {
+			return !isIdentityWithSerialAddedToApp(anIdentity.serial);
+		}) || _.any(provProfile.provisionedDevices, function(aDevice) {
+			return !isDeviceWithUDIDaddedToApp(aDevice.udid);
+		})) {
+			return "missing";
+		}
+		else {
+			return "ok";
+		}
 	};
 
 	viewModel.filesSelectedForUpload = function(files) {
@@ -163,26 +312,22 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.getDetails = function(provProfile) {
-		viewModel.provProfileConfigs[provProfile.databaseID].progress.start("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>");
+		viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.start("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>");
 		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
 			viewModel.uploadProvProfilesProgress.reset();
 		}
 
-		requestService.getDetailsOfProvProfile(provProfile.databaseID).then(function(data) {
-			provProfile.uuid = data.uuid;
-			provProfile.expiresAt = data.expiresAt;
-			provProfile.exportType = data.exportType;
-			provProfile.teamName = data.teamName;
-			provProfile.teamID = data.teamID;
-			provProfile.bundleID = data.bundleID;
-			provProfile.developerCertificateIdentities = data.developerCertificateIdentities;
-			provProfile.provisionedDevices = data.provisionedDevices;
-			provProfile.capabilityKeys = data.capabilityKeys;
-
-			viewModel.provProfileConfigs[provProfile.databaseID].progress.success();
+		provProfile.getDetails().then(function() {
+			viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.success();
 		}, function(error) {
-			viewModel.provProfileConfigs[provProfile.databaseID].progress.error(error);
+			viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.error(error);
 		});
+	};
+
+	viewModel.capabilityDescriptionsOfProvProfile = function() {
+		return _.compact(_.uniq(_.map(viewModel.selectedProvProfile.capabilityKeys, function(aCapabilityKey) {
+			return ProvProfile.descriptionForCapabilityKey(aCapabilityKey);
+		})));
 	};
 
 	function isExposeGetterSetterForProvProfile(aProvProfile, progress) {
@@ -205,22 +350,13 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 	};
 
-	viewModel.showProvProfileValidatedDetails = function(aSelectedProvProfile) {
+	viewModel.showProvProfileDetails = function(aSelectedProvProfile) {
 		viewModel.selectedProvProfile = aSelectedProvProfile;
 
 		viewModel.selectedMenu = viewModel.menus[0];
 
-		viewModel.validatedProvProfileDetailsPopup.isVisible = true;
+		viewModel.provProfileDetailsPopup.isVisible = true;
 	};
-
-	viewModel.capabilityDescriptionsOfProvProfile = function(provProfile) {
-		return _.compact(_.uniq(_.map(provProfile.capabilityKeys, function(aCapabilityKey) {
-			return ProvProfile.descriptionForCapabilityKey(aCapabilityKey);
-		})));
-	};
-
-	loadProvProfiles();
-
 });
 
 })();
