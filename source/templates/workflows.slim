@@ -77,7 +77,7 @@
 									button.ok.rebo.green[ng-click="workflowsCtrl.renamedStep = null" ng-disabled="!Step.isValidTitle(workflowsCtrl.renamedStepTitle)"] = svg("check")
 								aside
 									button.clone[ng-click="workflowsCtrl.cloneStepSelected()" trigger-popover="#{ data[:strings][:workflows][:steps][:clone_popover_info] }"] = svg("step/clone")
-									a.source[ng-if="workflowsCtrl.selectedStep.sourceURL()" href="{{ workflowsCtrl.selectedStep.sourceURL() }}" target="_blank" rel="noopener noreferrer" ng-class="workflowsCtrl.selectedStep | stepSourceCSSClass" trigger-popover="#{ data[:strings][:workflows][:steps][:source_popover_info] }"] = svg("logo/github")
+									a.source[ng-if="workflowsCtrl.selectedStep.sourceURL()" href="{{ workflowsCtrl.selectedStep.sourceURL() }}" target="_blank" rel="noreferrer" ng-class="workflowsCtrl.selectedStep | stepSourceCSSClass" trigger-popover="#{ data[:strings][:workflows][:steps][:source_popover_info] }"] = svg("logo/github")
 									button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
 							section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
 								span.icon
