@@ -53,7 +53,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			loadTestDevices(),
 			function() {
 				return $q(function(resolve, reject) {
-					var unwatch = $scope.$watch(function(){
+					var unwatch = $scope.$watch(function() {
 						return certificateService.loadProgress.isInProgress;
 					}, function(isCertificateLoadInProgress, wasCertificateLoadInProgress) {
 						if (!isCertificateLoadInProgress) {
@@ -150,7 +150,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		return _.any(certificateService.certificates, function(aCertificate) {
-			return _.any(aCertificate, { serial: identitySerial });
+			return _.any(aCertificate.details, { serial: identitySerial });
 		});
 	};
 
@@ -207,7 +207,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			return "loading";
 		}
 
-		return _.every(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
+		return _.any(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
 			return isIdentityWithSerialAddedToApp(anIdentity.serial);
 		}) ? "ok" : "missing";
 	};
@@ -231,14 +231,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			return "loading";
 		}
 		else if (_.any(provProfile.developerCertificateIdentities, function(anIdentity) {
-			return !isIdentityWithSerialAddedToApp(anIdentity.serial);
-		}) || _.any(provProfile.provisionedDevices, function(aDevice) {
-			return !isDeviceWithUDIDaddedToApp(aDevice.udid);
+			return isIdentityWithSerialAddedToApp(anIdentity.serial);
 		})) {
-			return "missing";
+			return "ok";
 		}
 		else {
-			return "ok";
+			return "missing";
 		}
 	};
 
