@@ -89,7 +89,7 @@
 						.menu
 							button.menu-option[ng-repeat="menu in provProfileCtrl.menus" ng-click="provProfileCtrl.selectedMenu = menu" class="{{ menu.cssClass }}" ng-class="{'selected': menu == provProfileCtrl.selectedMenu}"]
 								span.title[ng-bind="menu.title"]
-								span.status[ng-class="menu.id == 'matching-certificates' ? provProfileCtrl.identitiesStatusCSSclass() : (menu.id == 'devices' ? provProfileCtrl.devicesStatusCSSclass() : '')"] = svg("dot")
+								span.status[ng-class="provProfileCtrl.identitiesStatusCSSclass()"] = svg("dot")
 								span.arrow = svg("arrow_slim-down")
 						.menu.small
 							select.menu-selector[ng-model="provProfileCtrl.selectedMenu" ng-model-options="{getterSetter: true}" ng-options="menu.title for menu in provProfileCtrl.menus" ng-class="{ 'selected' : menu == provProfileCtrl.selectedMenu }"]
