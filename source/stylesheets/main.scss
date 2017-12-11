@@ -313,3 +313,8 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 .vertical-scroll {
 	overflow-y: auto;
 }
+
+// Dark theme setup
+body.dark-theme * {
+	filter: invert(100%);
+}
