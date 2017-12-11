@@ -231,12 +231,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			return "loading";
 		}
 		else if (_.any(provProfile.developerCertificateIdentities, function(anIdentity) {
-			return !isIdentityWithSerialAddedToApp(anIdentity.serial);
+			return isIdentityWithSerialAddedToApp(anIdentity.serial);
 		})) {
-			return "missing";
+			return "ok";
 		}
 		else {
-			return "ok";
+			return "missing";
 		}
 	};
 
