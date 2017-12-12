@@ -970,7 +970,7 @@ header.sticky section.manage-workflows {
 										overflow: hidden;
 										margin: $margin;
 										border-radius: 5px;
-										border: $borderwidth solid #ccc;
+										border: $borderwidth solid $def-mediumlightgrey;
 
 										ol.inputs-list li.input {
 											padding-left: $leftpadding - $borderwidth - $margin;
@@ -1029,9 +1029,8 @@ header.sticky section.manage-workflows {
 											@include padding-y(20px);
 											padding-left: $leftpadding;
 											padding-right: $rightpadding;
-											border-top: 1px solid #ccc;
+											border-top: 1px solid $def-mediumlightgrey;
 											color: $def-mediumdarkgrey;
-
 											@include transition(background-color $def-transition_duration);
 
 											&:before {
