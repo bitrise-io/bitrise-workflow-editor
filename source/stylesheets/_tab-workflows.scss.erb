@@ -949,9 +949,9 @@ header.sticky section.manage-workflows {
 									@include padding-y(10px);
 									padding-left: $leftpadding;
 									padding-right: $rightpadding;
-									font-size: 12px;
+									font-size: 18px;
 									font-weight: 700;
-									color: $def-darkgrey;
+									color: $def-mediumdarkgrey;
 								}
 
 								$toggle_category_button_icon-width: 10px;
@@ -965,10 +965,16 @@ header.sticky section.manage-workflows {
 									}
 
 									&:not(.main) {
-										 overflow: hidden;
-										margin: 10px;
+										$margin: 10px;
+										$borderwidth: 1px;
+										overflow: hidden;
+										margin: $margin;
 										border-radius: 5px;
-										border: 1px solid #ccc;
+										border: $borderwidth solid #ccc;
+
+										ol.inputs-list li.input {
+											padding-left: $leftpadding - $borderwidth - $margin;
+										}
 									}
 
 									h4 {
@@ -1024,22 +1030,9 @@ header.sticky section.manage-workflows {
 											padding-left: $leftpadding;
 											padding-right: $rightpadding;
 											border-top: 1px solid #ccc;
-											color: $def-purple;
+											color: $def-mediumdarkgrey;
 
 											@include transition(background-color $def-transition_duration);
-
-											::-webkit-input-placeholder { /* Chrome/Opera/Safari */
-												<%# color: $def-mediumlightgrey; %>
-											}
-											::-moz-placeholder { /* Firefox 19+ */
-												<%# color: $def-mediumlightgrey; %>
-											}
-											:-ms-input-placeholder { /* IE 10+ */
-												<%# color: $def-mediumlightgrey; %>
-											}
-											:-moz-placeholder { /* Firefox 18- */
-												<%# color: $def-mediumlightgrey; %>
-											}
 
 											&:before {
 												content: "";
@@ -1104,8 +1097,9 @@ header.sticky section.manage-workflows {
 													@include border-radius($def-radius);
 													padding: 8px;
 													font-size: 12px;
+													font-weight: 500;
 													color: $def-darkgrey;
-													background-color: $def-verylightgrey;
+													background-color: $def-ultralightgrey;
 
 													&:disabled {
 														color: inherit;
