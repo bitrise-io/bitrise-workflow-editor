@@ -1,6 +1,45 @@
-## Changelog (Current version: 1.1.0)
+## Changelog (Current version: 1.1.1)
 
 -----------------
+
+## 1.1.1 (2017 Dec 12)
+
+### Release Notes
+
+* Provisioning profile validation status indication fix
+* Step input - style update, show full description if opened
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.1
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.0 -> 1.1.1
+
+* [4910ce8] Norbert Kovach - Feature/remove job (#222) (2017 Dec 12)
+* [086b837] David Breuer - Feature/wfe 2075 (#227) (2017 Dec 12)
+* [96d5d9b] Norbert Kovach - noreferrer & noopener for step source urls (#224) (2017 Dec 12)
+* [ee759b1] Norbert Kovach - show input description when the input field is expanded (#223) (2017 Dec 11)
+* [970cf4a] Norbert Kovach - validation updates and fixes (#225) (2017 Dec 11)
+* [28dbe2c] erosdome - changelog update (2017 Dec 05)
+
 
 ## 1.1.0 (2017 Dec 05)
 
@@ -1416,4 +1455,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Dec 05
+Updated: 2017 Dec 12
