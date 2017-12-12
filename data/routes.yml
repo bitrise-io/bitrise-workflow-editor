@@ -28,26 +28,26 @@ website:
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json
   app_stack_info_get: /app/<app_slug>/stack_info.json
   app_project_type_get: /app/<app_slug>/project_type
-  prov_profile_create: /prov_profile_document/<app_slug>.json
+  prov_profile_create: /api/app/<app_slug>/prov_profile_document/create.json
   prov_profile_get_details: /prov_profile_document/details/<prov_profile_id>.json
-  prov_profiles_get: /prov_profile_document/for_repository/<app_slug>.json
+  prov_profiles_get: /api/app/<app_slug>/prov_profile_document/show.json
   prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
   prov_profile_is_expose_state_update: /prov_profile_document/<prov_profile_id>/update_is_expose.json
-  prov_profile_delete:  /prov_profile_document/<prov_profile_id>.json
-  certificate_create: /build_certificate/<app_slug>.json
+  prov_profile_delete:  /api/app/<app_slug>/prov_profile_document/<prov_profile_id>/delete.json
+  certificate_create: /api/app/<app_slug>/build_certificate/create.json
   certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
-  certificates_get: /build_certificate/for_repository/<app_slug>.json
+  certificates_get: /api/app/<app_slug>/build_certificate/show.json
   certificate_download: /build_certificate/<certificate_id>
   certificate_is_expose_state_update: /build_certificate/<certificate_id>/update_is_expose.json
   certificate_password_save: /build_certificate/<certificate_id>/password.json
-  certificate_delete: /build_certificate/<certificate_id>.json
-  generic_file_create: /project_file_storage_document/<app_slug>.json
+  certificate_delete: /api/app/<app_slug>/build_certificate/<certificate_id>/delete.json
+  generic_file_create: /api/app/<app_slug>/project_file_storage_document/create.json
   generic_file_finalize_upload: /project_file_storage_document/<generic_file_id>/upload_ended.json
-  generic_files_get: /project_file_storage_document/for_repository/<app_slug>.json
+  generic_files_get: /api/app/<app_slug>/project_file_storage_document/show.json
   generic_file_is_expose_state_update: /project_file_storage_document/<generic_file_id>/update_is_expose.json
   generic_file_download: /project_file_storage_document/<generic_file_id>
-  generic_file_delete: /project_file_storage_document/<generic_file_id>.json
+  generic_file_delete: /api/app/<app_slug>/project_file_storage_document/<generic_file_id>/delete.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
   team_test_devices: /api/app/<app_slug>/team_test_devices.json
 local_server:
