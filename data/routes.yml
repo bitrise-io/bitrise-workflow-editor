@@ -39,6 +39,7 @@ website:
   certificate_finalize_upload: /build_certificate/<certificate_id>/upload_ended.json
   certificates_get: /api/app/<app_slug>/build_certificate/show.json
   certificate_download: /build_certificate/<certificate_id>
+  certificate_get_details: /build_certificate/details/<certificate_id>.json
   certificate_is_expose_state_update: /build_certificate/<certificate_id>/update_is_expose.json
   certificate_password_save: /build_certificate/<certificate_id>/password.json
   certificate_delete: /api/app/<app_slug>/build_certificate/<certificate_id>/delete.json
