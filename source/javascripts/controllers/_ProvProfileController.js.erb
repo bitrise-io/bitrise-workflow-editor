@@ -20,14 +20,15 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.provProfilesToUpload;
 	viewModel.provProfileUploader;
 	viewModel.provProfileConfigs = {};
-	
+
 	var testDevicesOfApp;
 
 	viewModel.provProfileDetailsPopup = new Popup();
 	viewModel.provProfileDetailsPopup.afterDismissCallback = function() {
 		viewModel.selectedProvProfile = null;
+		viewModel.selectedMenu = null;
 	};
-	
+
 	viewModel.menus = [{
 		id: "matching-certificates",
 		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:matching_certificates] %>",
@@ -125,7 +126,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 	function loadTestDevices() {
 		viewModel.loadTestDevicesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:validate_test_devices][:in_progress] %>");
-		
+
 		return $q(function(resolve, reject) {
 			requestService.fetchAllTestDevicesOfRepository().then(function(testDeviceDatas) {
 				testDevicesOfApp = _.map(testDeviceDatas, function(aTestDeviceData) {
@@ -194,7 +195,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		var registeredTestDevice = _.find(testDevicesOfApp, { udid: deviceUDID });
-		
+
 		return registeredTestDevice ? registeredTestDevice.registeredBy : undefined;
 	};
 
@@ -343,7 +344,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			}, function(error) {
 				aProvProfile.isExpose = oldIsExpose;
 				progress.reset();
-				Popup.showErrorPopup(error.message); 
+				Popup.showErrorPopup(error.message);
 			});
 		}
 	};
