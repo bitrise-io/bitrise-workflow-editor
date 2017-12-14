@@ -12,6 +12,7 @@ templates:
   secrets: templates/secrets
   env_vars: templates/env_vars
   triggers: templates/triggers
+  stack: templates/stack
   yml: templates/yml
   workflows_workflow_description: templates/workflows-workflow_description
   add_step_sidebar: templates/add_step_sidebar
@@ -70,6 +71,7 @@ devcenter:
 blog:
   new_triggers: http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html
 other:
+  bitrise_available_stacks: http://devcenter.bitrise.io/infrastructure/available-stacks
   bitrise_workflow_editor_source_code: https://github.com/bitrise-io/bitrise-workflow-editor
   bitrise_workflow_editor_current_release: https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/<version>
   github_step_yml_path: https://raw.githubusercontent.com/<step_path>/<step_version>/step.yml

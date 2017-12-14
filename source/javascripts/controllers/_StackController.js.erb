@@ -1,0 +1,75 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, requestService, appService, Progress, Workflow, Stack) {
+
+	var viewModel = this;
+
+	viewModel.loadStacksProgress = new Progress();
+	viewModel.workflows;
+	viewModel.stacks;
+	viewModel.defaultStack;
+
+	viewModel.init = function() {
+		configureWithAppConfig();
+		loadStacks();
+	};
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
+		configureWithAppConfig();
+	}));
+
+	function configureWithAppConfig() {
+		viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, workflowID) {
+			return new Workflow(workflowID, aWorkflowConfig);
+		});
+	}
+
+	function loadStacks() {
+		viewModel.loadStacksProgress.start("<%= data[:strings][:stack][:load_stacks_progress][:in_progress] %>");
+
+		requestService.getAvailableStacks().then(function(data) {
+			viewModel.stacks = _.map(data.stacks, function(aStackData) {
+				return {
+					id: aStackData.id,
+					name: aStackData.name,
+					description: aStackData.description
+				};
+			});
+			viewModel.defaultStack = _.find(viewModel.stacks, {
+				id: data.default_stack_id
+			});
+
+			viewModel.loadStacksProgress.success();
+		}, function(error) {
+			viewModel.loadStacksProgress.error(error);
+		});
+	}
+
+	viewModel.workflowIDWithPostfix = function(workflow) {
+		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:workflow_id_with_postfix] %>", {
+			workflow_id: workflow.id
+		});
+	};
+
+	viewModel.aboutStack = function(stack) {
+		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
+			stack_name: stack.name
+		});
+	};
+
+	viewModel.stackGetterSetterForWorkflow = function(workflow) {
+		return function(stack) {
+			var isGetterMode = stack === undefined;
+			var stackID = stack ? stack.id : null;
+
+			return _.find(viewModel.stacks, {
+				id: workflow.stackID(isGetterMode ? undefined : stackID)
+			});
+		};
+	};
+
+});
+
+})();

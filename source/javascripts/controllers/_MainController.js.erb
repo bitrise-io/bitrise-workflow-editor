@@ -40,6 +40,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "workflows":
 				case "env-vars":
 				case "triggers":
+				case "stack":
 					appService.getAppConfig().then(function() {
 						$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
 							if (appService.appConfigHasDeprecatedTriggerMap()) {

@@ -88,6 +88,33 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		return this.workflowConfig.description;
 	};
 
+	Workflow.prototype.stackID = function(stackID) {
+		if (stackID !== undefined) {
+			if (!this.workflowConfig.meta) {
+				this.workflowConfig.meta = {};
+			}
+			if (!this.workflowConfig.meta.bitriseio) {
+				this.workflowConfig.meta.bitriseio = {};
+			}
+
+			if (stackID) {
+				this.workflowConfig.meta.bitriseio.stack = stackID;
+			}
+			else {
+				delete this.workflowConfig.meta.bitriseio.stack;
+			}
+
+			if (_.isEmpty(this.workflowConfig.meta.bitriseio)) {
+				delete this.workflowConfig.meta.bitriseio;
+			}
+			if (_.isEmpty(this.workflowConfig.meta)) {
+				delete this.workflowConfig.meta;
+			}
+		}
+
+		return this.workflowConfig.meta && this.workflowConfig.meta.bitriseio && this.workflowConfig.meta.bitriseio.stack ? this.workflowConfig.meta.bitriseio.stack : null;
+	};
+
 	return Workflow;
 
 });

@@ -1,0 +1,17 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("Stack", function() {
+
+	var Stack = function(id, name, description) {
+		this.id = id;
+		this.name = name;
+		this.description = description;
+	};
+
+	return Stack;
+
+});
+
+})();

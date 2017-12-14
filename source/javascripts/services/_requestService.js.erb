@@ -428,6 +428,49 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	// Stacks
+
+	requestService.getAvailableStacks = function(requestConfig) {
+		var requestURL;
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_stack_info_get]) %>", {
+					app_slug: requestService.appSlug
+				});
+
+				break;
+			case "cli":
+				// For development mode:
+				return $q.when({
+					default_stack_id: "stack_1",
+					stacks: [{
+						id: "stack_1",
+						name: "Stack #1",
+						description: "Description of Stack #1"
+					}, {
+						id: "stack_2",
+						name: "Stack #2",
+						description: "Description of Stack #2"
+					}, {
+						id: "stack_3",
+						name: "Stack #3",
+						description: "Description of Stack #3"
+					}]
+				});
+
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_available_stacks][:not_website_mode_error] %>"));
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve(response.data);
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_available_stacks][:default_error] %>", "<%= data[:strings][:request_service][:get_available_stacks][:error_prefix] %>"));
+			});
+		});
+	};
+
 	// Provisioning profiles
 
 	requestService.getDetailsOfProvProfile = function(databaseID, requestConfig) {

@@ -380,6 +380,14 @@ triggers:
   delete: Delete
   done: Done
   cancel: Cancel
+stack:
+  load_stacks_progress:
+    in_progress: Loading, wait a sec...
+  workflow_id_with_postfix: <workflow_id> workflow
+  about_stack: About <stack_name>
+  default_stack_selector:
+    header_title: Default Stack Selector
+    header_description: "This will appear as a default stack in your workflows. <a href='<url>' target='_blank'>Supported build prepare types »</a>"
 yml:
   title: bitrise.yml editor
   info_1: "You can edit your current config in YAML format:"
@@ -493,6 +501,10 @@ request_service:
   get_app_available_project_types:
     default_error: Error loading app available project types.
     error_prefix: "Error loading app available project types: "
+  get_available_stacks:
+    default_error: Error loading available stacks.
+    error_prefix: "Error loading available stacks: "
+    not_website_mode_error: Stack get is only available in website mode.
   get_all_test_devices_of_repository:
     default_error: Error getting test devices of specified repository.
     error_prefix: "Error getting test devices of specified repository: "

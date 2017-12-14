@@ -1,0 +1,27 @@
+.tab-stack.menu-content-padding[ng-controller="StackController as stackCtrl" ng-init="stackCtrl.init()"]
+	section.progress-indicator[progress-model="stackCtrl.loadStacksProgress"]
+	div[ng-if="stackCtrl.loadStacksProgress.isIdle"]
+		section.cardo.default-stack-selector
+			header
+				h2 == data[:strings][:stack][:default_stack_selector][:header_title]
+				p == replaced_string(data[:strings][:stack][:default_stack_selector][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
+			article
+				select.stack-selector[ng-model="stackCtrl.defaultStack" ng-options="stack.name for stack in stackCtrl.stacks"]
+				.stack-info
+					= svg("information_badge")
+					.stack-info-text
+						h3[ng-bind="stackCtrl.aboutStack(stackCtrl.defaultStack)"]
+						p[ng-bind="stackCtrl.defaultStack.description"]
+						a.more-info[target="_blank"] == data[:strings][:stack][:more_info_about]
+		section.cardo.workflow-specific-stacks
+			header
+			article
+				.workflow[ng-repeat="workflow in stackCtrl.workflows"]
+					h4[ng-bind="stackCtrl.workflowIDWithPostfix(workflow)"]
+					select.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stack.name for stack in stackCtrl.stacks"]
+					.stack-info[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow)()"]
+						= svg("information_badge")
+						.stack-info-text
+							h3[ng-bind="stackCtrl.aboutStack(stackCtrl.stackGetterSetterForWorkflow(workflow))"]
+							p[ng-bind="stackCtrl.stackGetterSetterForWorkflow(workflow).description"]
+							a.more-info[target="_blank"] == data[:strings][:stack][:more_info_about]

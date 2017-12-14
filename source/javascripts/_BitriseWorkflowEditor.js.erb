@@ -44,6 +44,11 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 		reloadOnSearch: false
 	});
 
+	$routeProvider.when("/<%= data[:routes][:endpoints][:stack] %>", {
+		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:stack]) %>",
+		reloadOnSearch: false
+	});
+
 	$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
 		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
 	});
