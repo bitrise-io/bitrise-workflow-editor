@@ -4,6 +4,7 @@ endpoints:
   secrets: secrets
   env_vars: env_vars
   triggers: triggers
+  stack: stack
   yml: yml
 templates:
   workflows: templates/workflows

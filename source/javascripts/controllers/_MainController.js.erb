@@ -94,7 +94,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 
 			var menuIDsByHandledSource = [
-				["workflows", "env-vars", "triggers"],
+				["workflows", "env-vars", "triggers", "stack"],
 				["secrets"],
 				["yml"]
 			];
@@ -176,6 +176,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "workflows":
 			case "env-vars":
 			case "triggers":
+			case "stack":
 				return appService.appConfigHasUnsavedChanges();
 			case "secrets":
 				return appService.secretsHaveUnsavedChanges();
@@ -220,6 +221,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "workflows":
 				case "env-vars":
 				case "triggers":
+				case "stack":
 					appService.saveAppConfig().then(resolve, reject);
 
 					break;
@@ -285,6 +287,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "workflows":
 			case "env-vars":
 			case "triggers":
+			case "stack":
 				appService.discardAppConfigChanges();
 
 				break;
@@ -304,37 +307,43 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.init = function() {
 		viewModel.menus = _.compact([{
 			id: "workflows",
-			title: "<%= data[:strings][:main][:menus][0] %>",
+			title: "<%= data[:strings][:main][:menus][:workflows] %>",
 			path: "<%= data[:routes][:endpoints][:workflows] %>",
 			possibleURLParameterKeys: ["workflow_id"],
 			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			id: "code-signing",
-			title: "<%= data[:strings][:main][:menus][1] %>",
+			title: "<%= data[:strings][:main][:menus][:code_signing] %>",
 			path: "<%= data[:routes][:endpoints][:code_signing] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "code-signing"
 		} : null), {
 			id: "secrets",
-			title: "<%= data[:strings][:main][:menus][2] %>",
+			title: "<%= data[:strings][:main][:menus][:secrets] %>",
 			path: "<%= data[:routes][:endpoints][:secrets] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "secrets"
 		}, {
 			id: "env-vars",
-			title: "<%= data[:strings][:main][:menus][3] %>",
+			title: "<%= data[:strings][:main][:menus][:env_vars] %>",
 			path: "<%= data[:routes][:endpoints][:env_vars] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "env-vars"
 		}, {
 			id: "triggers",
-			title: "<%= data[:strings][:main][:menus][4] %>",
+			title: "<%= data[:strings][:main][:menus][:triggers] %>",
 			path: "<%= data[:routes][:endpoints][:triggers] %>",
 			possibleURLParameterKeys: ["trigger_type"],
 			cssClass: "triggers"
 		}, {
+			id: "stack",
+			title: "<%= data[:strings][:main][:menus][:stack] %>",
+			path: "<%= data[:routes][:endpoints][:stack] %>",
+			possibleURLParameterKeys: [],
+			cssClass: "stack"
+		}, {
 			id: "yml",
-			title: "<%= data[:strings][:main][:menus][5] %>",
+			title: "<%= data[:strings][:main][:menus][:yml] %>",
 			path: "<%= data[:routes][:endpoints][:yml] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "yml"

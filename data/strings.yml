@@ -2,12 +2,13 @@ meta:
   title: Bitrise Workflow editor
 main:
   menus:
-  - Workflows
-  - Code Signing
-  - Secrets
-  - Env Vars
-  - Triggers
-  - bitrise.yml
+    workflows: Workflows
+    code_signing: Code Signing
+    secrets: Secrets
+    env_vars: Env Vars
+    triggers: Triggers
+    stack: Stack
+    yml: bitrise.yml
   discard: Discard
   save: Save
   saved: Saved

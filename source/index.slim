@@ -12,6 +12,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 				span.icon[ng-if="menu.cssClass == 'secrets'"] == svg("main/menuicon-secrets")
 				span.icon[ng-if="menu.cssClass == 'env-vars'"] == svg("env_var_prefix")
 				span.icon[ng-if="menu.cssClass == 'triggers'"] == svg("main/menuicon-triggers")
+				span.icon[ng-if="menu.cssClass == 'stack'"] == svg("main/menuicon-stack")
 				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
 		aside.discard-save
