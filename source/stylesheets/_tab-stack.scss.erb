@@ -1,0 +1,109 @@
+@import "default";
+@import "constants";
+
+.tab-stack {
+	$content-spacing: 10px;
+
+	.stack-settings {
+		margin-bottom: 30px;
+
+		article {
+			@include padding-y(0);
+
+			section {
+				@include padding-y(18px);
+
+				.max-width-wrapper {
+					width: 550px;
+				}
+			}
+		}
+
+		.stack-selector {
+			width: 100%;
+			margin-bottom: $content-spacing;
+		}
+
+		.stack-info {
+			@include display-flex;
+			@include align-items(flex-start);
+			width: 100%;
+			$icon-size: 18px;
+			$spacing: 8px;
+
+			.info-badge-wrapper {
+				@include margin-x(14px);
+
+				svg {
+					display: block;
+					@include size($icon-size);
+				}
+			}
+
+			.stack-info-text {
+				@include flex-grow(1);
+
+				.stack-name {
+					line-height: $icon-size;
+					margin-top: 0;
+					margin-bottom: $spacing;
+					font-size: 14px;
+					font-weight: 600;
+					color: $def-darkgrey;
+				}
+
+				.stack-description {
+					line-height: 1.5;
+					margin-top: 0;
+					margin-bottom: $spacing;
+					font-size: 12px;
+					font-weight: 300;
+					color: $def-darkgrey;
+				}
+
+				.stack-info-link {
+					font-size: 13px;
+					font-weight: 500;
+					color: $def-green;
+
+					&:not(:last-child) {
+						margin-bottom: 6px;
+					}
+
+					&:hover, &:focus {
+						text-decoration: underline;
+					}
+				}
+
+				a.stack-info-link {
+					text-decoration: none;
+				}
+			}
+		}
+	}
+
+	.stack-settings.workflow-specific {
+
+		article {
+
+			.workflow {
+
+				&:not(:last-child) {
+					border-bottom: 1px solid $def-mediumlightgrey;
+				}
+
+				.workflow-header {
+					margin-top: 0;
+					margin-bottom: $content-spacing;
+					font-size: 15px;
+					color: $def-darkgrey;
+					font-weight: 400;
+
+					.workflow-id {
+						font-weight: 800;
+					}
+				}
+			}
+		}
+	}
+}

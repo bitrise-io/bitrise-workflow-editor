@@ -430,12 +430,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	// Stacks
 
-	requestService.getAvailableStacks = function(requestConfig) {
+	requestService.getStack = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_stack_info_get]) %>", {
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:stack_get]) %>", {
 					app_slug: requestService.appSlug
 				});
 
@@ -443,30 +443,115 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			case "cli":
 				// For development mode:
 				return $q.when({
-					default_stack_id: "stack_1",
-					stacks: [{
-						id: "stack_1",
-						name: "Stack #1",
-						description: "Description of Stack #1"
-					}, {
-						id: "stack_2",
-						name: "Stack #2",
-						description: "Description of Stack #2"
-					}, {
-						id: "stack_3",
-						name: "Stack #3",
-						description: "Description of Stack #3"
-					}]
+					stackID: "my_stack_2",
+					dockerImageName: "my_docker_image"
 				});
 
-				return $q.reject(new Error("<%= data[:strings][:request_service][:get_available_stacks][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_stack][:not_website_mode_error] %>"));
 		}
 
 		return $q(function(resolve, reject) {
 			$http.get(requestURL, requestConfig).then(function(response) {
-				resolve(response.data);
+				resolve({
+					stackID: response.data.stack_identifier,
+					dockerImageName: response.data.docker_image_name
+				});
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_available_stacks][:default_error] %>", "<%= data[:strings][:request_service][:get_available_stacks][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_stack][:default_error] %>", "<%= data[:strings][:request_service][:get_stack][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.getStacks = function(requestConfig) {
+		var requestURL;
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:stacks_get]) %>", {
+					app_slug: requestService.appSlug
+				});
+
+				break;
+			case "cli":
+				// For development mode:
+				return $q.when({
+					stackDatas: [{
+						id: "my_stack_1",
+						name: "My stack #1",
+						description: "Description of my stack #1",
+						descriptionURL: "https://bitrise.io"
+					}, {
+						id: "my_stack_2",
+						name: "My stack #2",
+						description: "Description of my stack #2",
+						descriptionURL: "https://bitrise.io"
+					}, {
+						id: "my_stack_3",
+						name: "My stack #3",
+						description: "Description of my stack #3",
+						descriptionURL: "https://bitrise.io"
+					}]
+				});
+
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_stacks][:not_website_mode_error] %>"));
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				var stackDatas = _.map(response.data.available_stacks, function(aStackData, stackID) {
+					return {
+						id: stackID,
+						name: aStackData.title,
+						description: aStackData.description,
+						descriptionURL: aStackData["description-link"],
+						preInstalledToolsLink: aStackData["pre-installed-tools-link"],
+						projectTypes: aStackData["project-types"],
+						queueInfo: aStackData["queueInfo"]
+					};
+				});
+
+				var projecTypeDatas = _.map(response.data.project_types_with_default_stacks, function(aProjectTypeData, projectTypeID) {
+					return {
+						id: projectTypeID,
+						defaultStackID: aProjectTypeData.default_stack
+					};
+				});
+
+				resolve({
+					stackDatas: stackDatas,
+					projectTypeDatas: projecTypeDatas
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_stacks][:default_error] %>", "<%= data[:strings][:request_service][:get_stacks][:error_prefix] %>"));
+			});
+		});
+	};
+
+	requestService.saveStack = function(stackID, dockerImageName, requestConfig) {
+		var requestURL;
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:stack_save]) %>", {
+					app_slug: requestService.appSlug
+				});
+
+				break;
+			case "cli":
+				// For development mode:
+				return $q.when();
+
+				return $q.reject(new Error("<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>"));
+		}
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, {
+				stack_identifier: stackID,
+				docker_image_name: dockerImageName
+			}, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_stack][:default_error] %>", "<%= data[:strings][:request_service][:save_stack][:error_prefix] %>"));
 			});
 		});
 	};

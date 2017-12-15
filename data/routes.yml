@@ -28,7 +28,10 @@ website:
   secrets_get: /api/app/<app_slug>/secrets.json
   bitrise_steplib_get: https://bitrise-steplib-collection.s3.amazonaws.com/spec.json
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json
-  app_stack_info_get: /app/<app_slug>/stack_info.json
+  stack_get: /app/<app_slug>/stack
+  stack_info_get: /app/<app_slug>/stack_info.json
+  stacks_get: /app/<app_slug>/all_stack_info
+  stack_save: /app/<app_slug>/stack
   app_project_type_get: /app/<app_slug>/project_type
   prov_profile_create: /api/app/<app_slug>/prov_profile_document/create.json
   prov_profile_get_details: /prov_profile_document/details/<prov_profile_id>.json

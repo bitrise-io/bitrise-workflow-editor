@@ -40,7 +40,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "workflows":
 				case "env-vars":
 				case "triggers":
-				case "stack":
 					appService.getAppConfig().then(function() {
 						$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
 							if (appService.appConfigHasDeprecatedTriggerMap()) {
@@ -66,6 +65,13 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					resolve();
 				case "secrets":
 					appService.getSecrets().then(resolve, reject);
+
+					break;
+				case "stack":
+					$q.all([
+						appService.getAppConfig(),
+						appService.getStack()
+					]).then(resolve, reject);
 
 					break;
 				case "yml":
@@ -95,8 +101,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 
 			var menuIDsByHandledSource = [
-				["workflows", "env-vars", "triggers", "stack"],
+				["workflows", "env-vars", "triggers"],
 				["secrets"],
+				["stack"],
 				["yml"]
 			];
 
@@ -177,10 +184,11 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "workflows":
 			case "env-vars":
 			case "triggers":
-			case "stack":
 				return appService.appConfigHasUnsavedChanges();
 			case "secrets":
 				return appService.secretsHaveUnsavedChanges();
+			case "stack":
+				return appService.appConfigHasUnsavedChanges() || appService.stackHasUnsavedChanges();
 			case "yml":
 				return appService.appConfigYMLHasUnsavedChanges();
 		}
@@ -222,12 +230,18 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "workflows":
 				case "env-vars":
 				case "triggers":
-				case "stack":
 					appService.saveAppConfig().then(resolve, reject);
 
 					break;
 				case "secrets":
 					appService.saveSecrets().then(resolve, reject);
+
+					break;
+				case "stack":
+					$q.all([
+						appService.saveAppConfig(),
+						appService.saveStack()
+					]).then(resolve, reject);
 
 					break;
 				case "yml":
@@ -288,7 +302,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "workflows":
 			case "env-vars":
 			case "triggers":
-			case "stack":
 				appService.discardAppConfigChanges();
 
 				break;
@@ -296,6 +309,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				appService.discardSecretsChanges();
 
 				break;
+			case "stack":
+				appService.discardAppConfigChanges();
+				appService.discardStackChanges();
+
 			case "yml":
 				appService.discardAppConfigYMLChanges();
 

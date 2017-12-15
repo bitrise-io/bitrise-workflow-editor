@@ -2,18 +2,16 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, requestService, appService, Progress, Workflow, Stack) {
+angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, $q, stringService, requestService, appService, Progress, Workflow, Stack) {
 
 	var viewModel = this;
 
-	viewModel.loadStacksProgress = new Progress();
 	viewModel.workflows;
 	viewModel.stacks;
 	viewModel.defaultStack;
 
 	viewModel.init = function() {
 		configureWithAppConfig();
-		loadStacks();
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
@@ -24,34 +22,15 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, workflowID) {
 			return new Workflow(workflowID, aWorkflowConfig);
 		});
+		viewModel.stacks = appService.stacks;
+		viewModel.defaultStack = appService.stack;
 	}
 
-	function loadStacks() {
-		viewModel.loadStacksProgress.start("<%= data[:strings][:stack][:load_stacks_progress][:in_progress] %>");
-
-		requestService.getAvailableStacks().then(function(data) {
-			viewModel.stacks = _.map(data.stacks, function(aStackData) {
-				return {
-					id: aStackData.id,
-					name: aStackData.name,
-					description: aStackData.description
-				};
-			});
-			viewModel.defaultStack = _.find(viewModel.stacks, {
-				id: data.default_stack_id
-			});
-
-			viewModel.loadStacksProgress.success();
-		}, function(error) {
-			viewModel.loadStacksProgress.error(error);
-		});
-	}
-
-	viewModel.workflowIDWithPostfix = function(workflow) {
-		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:workflow_id_with_postfix] %>", {
-			workflow_id: workflow.id
-		});
-	};
+	$scope.$watch(function() {
+		return viewModel.defaultStack;
+	}, function(newStack) {
+		appService.stack = newStack;
+	});
 
 	viewModel.aboutStack = function(stack) {
 		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
@@ -61,12 +40,11 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 
 	viewModel.stackGetterSetterForWorkflow = function(workflow) {
 		return function(stack) {
-			var isGetterMode = stack === undefined;
-			var stackID = stack ? stack.id : null;
+			if (!appService.stacks || !appService.stack) {
+				return undefined;
+			}
 
-			return _.find(viewModel.stacks, {
-				id: workflow.stackID(isGetterMode ? undefined : stackID)
-			});
+			return workflow.stack(stack, appService.stacks, appService.stack);
 		};
 	};
 

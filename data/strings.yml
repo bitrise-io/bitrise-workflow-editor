@@ -383,11 +383,15 @@ triggers:
 stack:
   load_stacks_progress:
     in_progress: Loading, wait a sec...
-  workflow_id_with_postfix: <workflow_id> workflow
+  workflow_id_postfix: " workflow"
   about_stack: About <stack_name>
-  default_stack_selector:
-    header_title: Default Stack Selector
+  more_info_about: More info about this Stack »
+  default_stack_settings:
+    header_title: Default Stack
     header_description: "This will appear as a default stack in your workflows. <a href='<url>' target='_blank'>Supported build prepare types »</a>"
+  workflow_specific_settings:
+    header_title: Workflow Specific Stacks
+    header_description: This will appear as a default stack in your workflows.
 yml:
   title: bitrise.yml editor
   info_1: "You can edit your current config in YAML format:"
@@ -501,10 +505,18 @@ request_service:
   get_app_available_project_types:
     default_error: Error loading app available project types.
     error_prefix: "Error loading app available project types: "
-  get_available_stacks:
-    default_error: Error loading available stacks.
-    error_prefix: "Error loading available stacks: "
+  get_stack:
+    default_error: Error loading stack.
+    error_prefix: "Error loading stack: "
     not_website_mode_error: Stack get is only available in website mode.
+  get_stacks:
+    default_error: Error loading stacks.
+    error_prefix: "Error loading stacks: "
+    not_website_mode_error: Stacks get is only available in website mode.
+  save_stack:
+    default_error: Error saving stack.
+    error_prefix: "Error saving stack: "
+    not_website_mode_error: Stack save is only available in website mode.
   get_all_test_devices_of_repository:
     default_error: Error getting test devices of specified repository.
     error_prefix: "Error getting test devices of specified repository: "

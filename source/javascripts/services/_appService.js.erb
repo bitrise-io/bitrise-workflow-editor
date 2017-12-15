@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, Trigger, Step, Variable) {
+angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, Trigger, Step, Variable, Stack) {
 
 	var appService = {
 		appConfig: undefined,
@@ -11,6 +11,9 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedSecrets: undefined,
 		appConfigYML: undefined,
 		savedAppConfigYML: undefined,
+		stack: undefined,
+		savedStack: undefined,
+		stacks: undefined,
 		projectType: undefined,
 		availableProjectTypes: undefined
 	};
@@ -229,6 +232,44 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 	appService.discardAppConfigYMLChanges = function() {
 		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
+	};
+
+	appService.getStack = function() {
+		if (appService.stack) {
+			return $q.when();
+		}
+
+		return $q.all([
+			requestService.getStacks(),
+			requestService.getStack()
+		]).then(function(datas) {
+			var getStacksData = datas[0];
+			var getStackData = datas[1];
+
+			appService.stacks = _.map(getStacksData.stackDatas, function(aStackData) {
+				return new Stack(aStackData.id, aStackData.name, aStackData.description, aStackData.descriptionURL);
+			});
+			appService.stack = _.find(appService.stacks, {
+				id: getStackData.stackID
+			});
+			appService.savedStack = angular.copy(appService.stack);
+		});
+	};
+
+	appService.stackHasUnsavedChanges = function() {
+		return !angular.equals(appService.stack, appService.savedStack);
+	};
+
+	appService.saveStack = function() {
+		return requestService.saveStack(appService.stack.id, undefined /* TODO: specify - currently this will not be OK for certain stacks */).then(function() {
+			appService.savedStack = angular.copy(appService.stack);
+		});
+	};
+
+	appService.discardStackChanges = function() {
+		appService.stack = _.find(appService.stacks, {
+			id: appService.savedStack.id
+		});
 	};
 
 	appService.getProjectType = function(requestConfig) {

@@ -88,8 +88,8 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		return this.workflowConfig.description;
 	};
 
-	Workflow.prototype.stackID = function(stackID) {
-		if (stackID !== undefined) {
+	Workflow.prototype.stack = function(stack, allStacks, defaultStack) {
+		if (stack !== undefined) {
 			if (!this.workflowConfig.meta) {
 				this.workflowConfig.meta = {};
 			}
@@ -97,8 +97,8 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 				this.workflowConfig.meta.bitriseio = {};
 			}
 
-			if (stackID) {
-				this.workflowConfig.meta.bitriseio.stack = stackID;
+			if (stack != defaultStack) {
+				this.workflowConfig.meta.bitriseio.stack = stack.id;
 			}
 			else {
 				delete this.workflowConfig.meta.bitriseio.stack;
@@ -112,7 +112,13 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 			}
 		}
 
-		return this.workflowConfig.meta && this.workflowConfig.meta.bitriseio && this.workflowConfig.meta.bitriseio.stack ? this.workflowConfig.meta.bitriseio.stack : null;
+		if (!this.workflowConfig.meta || !this.workflowConfig.meta.bitriseio || !this.workflowConfig.meta.bitriseio.stack) {
+			return defaultStack;
+		}
+
+		return _.find(allStacks, {
+			id: this.workflowConfig.meta.bitriseio.stack
+		});
 	};
 
 	return Workflow;

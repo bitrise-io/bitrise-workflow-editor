@@ -4,10 +4,11 @@
 
 angular.module("BitriseWorkflowEditor").factory("Stack", function() {
 
-	var Stack = function(id, name, description) {
+	var Stack = function(id, name, description, descriptionURL) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
+		this.descriptionURL = descriptionURL;
 	};
 
 	return Stack;

@@ -46,12 +46,116 @@ $main-verticalpadding: 20px;
 $cardo-horizontalpadding: 18px;
 $cardo-verticalpadding: 12px;
 
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 700;
+	src: font-url("OpenSans-Bold.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: italic;
+	font-weight: 700;
+	src: font-url("OpenSans-BoldItalic.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 800;
+	src: font-url("OpenSans-ExtraBold.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: italic;
+	font-weight: 800;
+	src: font-url("OpenSans-ExtraBoldItalic.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: italic;
+	font-weight: 400;
+	src: font-url("OpenSans-Italic.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 300;
+	src: font-url("OpenSans-Light.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 300;
+	src: font-url("OpenSans-LightItalic.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 400;
+	src: font-url("OpenSans-Regular.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 600;
+	src: font-url("OpenSans-Semibold.ttf") format("ttf");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 600;
+	src: font-url("OpenSans-SemiboldItalic.ttf2") format("ttf");
+}
+
 @mixin OpenSansWithFallback {
-	font-family: "Open Sans", sans-serif;
+	font-family: "OpenSans", sans-serif;
+}
+
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 900;
+	src: font-url("SourceCodePro-Black.ttf") format("ttf");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 700;
+	src: font-url("SourceCodePro-Bold.ttf") format("ttf");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 200;
+	src: font-url("SourceCodePro-ExtraLight.ttf") format("ttf");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 300;
+	src: font-url("SourceCodePro-Light.ttf") format("ttf");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 500;
+	src: font-url("SourceCodePro-Medium.ttf") format("ttf");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 400;
+	src: font-url("SourceCodePro-Regular.ttf") format("ttf");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 600;
+	src: font-url("SourceCodePro-Semibold.ttf") format("ttf");
 }
 
 @mixin SourceCodeProWithFallback {
-	font-family: "Source Code Pro", monospace;
+	font-family: "SourceCodePro", monospace;
 }
 
 @mixin GothamWithFallback {
