@@ -49,109 +49,109 @@ $cardo-verticalpadding: 12px;
 @font-face {
 	font-family: "OpenSans";
 	font-style: normal;
-	font-weight: 700;
-	src: font-url("OpenSans-Bold.ttf") format("ttf");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 700;
-	src: font-url("OpenSans-BoldItalic.ttf") format("ttf");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: normal;
-	font-weight: 800;
-	src: font-url("OpenSans-ExtraBold.ttf") format("ttf");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 800;
-	src: font-url("OpenSans-ExtraBoldItalic.ttf") format("ttf");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 400;
-	src: font-url("OpenSans-Italic.ttf") format("ttf");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: normal;
 	font-weight: 300;
-	src: font-url("OpenSans-Light.ttf") format("ttf");
+	src: font-url("OpenSans-Light.ttf") format("truetype");
 }
 @font-face {
 	font-family: "OpenSans";
-	font-style: normal;
+	font-style: italic;
 	font-weight: 300;
-	src: font-url("OpenSans-LightItalic.ttf") format("ttf");
+	src: font-url("OpenSans-LightItalic.ttf") format("truetype");
 }
 @font-face {
 	font-family: "OpenSans";
 	font-style: normal;
 	font-weight: 400;
-	src: font-url("OpenSans-Regular.ttf") format("ttf");
+	src: font-url("OpenSans-Regular.ttf") format("truetype");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: italic;
+	font-weight: 400;
+	src: font-url("OpenSans-Italic.ttf") format("truetype");
 }
 @font-face {
 	font-family: "OpenSans";
 	font-style: normal;
 	font-weight: 600;
-	src: font-url("OpenSans-Semibold.ttf") format("ttf");
+	src: font-url("OpenSans-Semibold.ttf") format("truetype");
 }
 @font-face {
 	font-family: "OpenSans";
-	font-style: normal;
+	font-style: italic;
 	font-weight: 600;
-	src: font-url("OpenSans-SemiboldItalic.ttf2") format("ttf");
-}
-
-@mixin OpenSansWithFallback {
-	font-family: "OpenSans", sans-serif;
-}
-
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 900;
-	src: font-url("SourceCodePro-Black.ttf") format("ttf");
+	src: font-url("OpenSans-SemiboldItalic.ttf") format("truetype");
 }
 @font-face {
-	font-family: "SourceCodePro";
+	font-family: "OpenSans";
 	font-style: normal;
 	font-weight: 700;
-	src: font-url("SourceCodePro-Bold.ttf") format("ttf");
+	src: font-url("OpenSans-Bold.ttf") format("truetype");
 }
+@font-face {
+	font-family: "OpenSans";
+	font-style: italic;
+	font-weight: 700;
+	src: font-url("OpenSans-BoldItalic.ttf") format("truetype");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: normal;
+	font-weight: 800;
+	src: font-url("OpenSans-ExtraBold.ttf") format("truetype");
+}
+@font-face {
+	font-family: "OpenSans";
+	font-style: italic;
+	font-weight: 800;
+	src: font-url("OpenSans-ExtraBoldItalic.ttf") format("truetype");
+}
+
 @font-face {
 	font-family: "SourceCodePro";
 	font-style: normal;
 	font-weight: 200;
-	src: font-url("SourceCodePro-ExtraLight.ttf") format("ttf");
+	src: font-url("SourceCodePro-ExtraLight.ttf") format("truetype");
 }
 @font-face {
 	font-family: "SourceCodePro";
 	font-style: normal;
 	font-weight: 300;
-	src: font-url("SourceCodePro-Light.ttf") format("ttf");
+	src: font-url("SourceCodePro-Light.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 400;
+	src: font-url("SourceCodePro-Regular.ttf") format("truetype");
 }
 @font-face {
 	font-family: "SourceCodePro";
 	font-style: normal;
 	font-weight: 500;
-	src: font-url("SourceCodePro-Medium.ttf") format("ttf");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 400;
-	src: font-url("SourceCodePro-Regular.ttf") format("ttf");
+	src: font-url("SourceCodePro-Medium.ttf") format("truetype");
 }
 @font-face {
 	font-family: "SourceCodePro";
 	font-style: normal;
 	font-weight: 600;
-	src: font-url("SourceCodePro-Semibold.ttf") format("ttf");
+	src: font-url("SourceCodePro-Semibold.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 700;
+	src: font-url("SourceCodePro-Bold.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 900;
+	src: font-url("SourceCodePro-Black.ttf") format("truetype");
+}
+
+@mixin OpenSansWithFallback {
+	font-family: "OpenSans", sans-serif;
 }
 
 @mixin SourceCodeProWithFallback {
