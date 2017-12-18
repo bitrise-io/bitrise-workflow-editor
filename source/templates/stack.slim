@@ -2,7 +2,7 @@
 	section.cardo.stack-settings.default
 		header
 			h2 == data[:strings][:stack][:default_stack_settings][:header_title]
-			p == replaced_string(data[:strings][:stack][:default_stack_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
+			p.header-description == replaced_string(data[:strings][:stack][:default_stack_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
 		article
 			section
 				.max-width-wrapper
@@ -29,5 +29,5 @@
 						.info-badge-wrapper = svg("info_badge")
 						.stack-info-text
 							h3.stack-name[ng-bind="stackCtrl.aboutStack(stackCtrl.stackGetterSetterForWorkflow(workflow)())"]
-							p.stack-description[ng-bind="stackCtrl.stackGetterSetterForWorkflow(workflow)().description"]
+							p.stack-description[btf-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow)().description"]
 							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]

@@ -385,7 +385,7 @@ stack:
     in_progress: Loading, wait a sec...
   workflow_id_postfix: " workflow"
   about_stack: About <stack_name>
-  more_info_about: More info about this Stack »
+  more_info_about: More information about this Stack »
   default_stack_settings:
     header_title: Default Stack
     header_description: "This will appear as a default stack in your workflows. <a href='<url>' target='_blank'>Supported build prepare types »</a>"

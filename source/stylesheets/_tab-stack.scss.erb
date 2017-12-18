@@ -14,7 +14,7 @@
 				@include padding-y(18px);
 
 				.max-width-wrapper {
-					width: 550px;
+					max-width: 550px;
 				}
 			}
 		}
@@ -82,6 +82,24 @@
 		}
 	}
 
+	.stack-settings.default {
+
+		header {
+
+			.header-description {
+
+				a {
+					font-weight: 600;
+					color: inherit;
+
+					&:hover, &:focus {
+						color: $def-green;
+					}
+				}
+			}
+		}
+	}
+
 	.stack-settings.workflow-specific {
 
 		article {
@@ -100,7 +118,7 @@
 					font-weight: 400;
 
 					.workflow-id {
-						font-weight: 800;
+						font-weight: 700;
 					}
 				}
 			}
