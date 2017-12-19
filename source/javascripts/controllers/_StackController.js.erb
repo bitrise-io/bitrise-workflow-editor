@@ -2,35 +2,30 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, $q, stringService, requestService, appService, Progress, Workflow, Stack) {
+angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, appService, Workflow, Stack) {
 
 	var viewModel = this;
 
 	viewModel.workflows;
-	viewModel.stacks;
-	viewModel.defaultStack;
+	$scope.Stack = Stack;
+	$scope.appService = appService;
+	viewModel.defaultDockerImagesByStackIDs = {
+		"linux-docker-android": "bitriseio/android-ndk:latest"
+	};
 
 	viewModel.init = function() {
-		configureWithAppConfig();
+		configure();
 	};
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
-		configureWithAppConfig();
+		configure();
 	}));
 
-	function configureWithAppConfig() {
+	function configure() {
 		viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, workflowID) {
 			return new Workflow(workflowID, aWorkflowConfig);
 		});
-		viewModel.stacks = appService.stacks;
-		viewModel.defaultStack = appService.stack;
 	}
-
-	$scope.$watch(function() {
-		return viewModel.defaultStack;
-	}, function(newStack) {
-		appService.stack = newStack;
-	});
 
 	viewModel.aboutStack = function(stack) {
 		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
@@ -40,11 +35,13 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 
 	viewModel.stackGetterSetterForWorkflow = function(workflow) {
 		return function(stack) {
-			if (!appService.stacks || !appService.stack) {
-				return undefined;
-			}
+			return workflow.stack(stack, appService.stack, Stack.all);
+		};
+	};
 
-			return workflow.stack(stack, appService.stacks, appService.stack);
+	viewModel.dockerImageGetterSetterForWorkflow = function(workflow) {
+		return function(dockerImage) {
+			return workflow.dockerImage(dockerImage, appService.dockerImage);
 		};
 	};
 

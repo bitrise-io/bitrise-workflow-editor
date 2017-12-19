@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup, Stack) {
 
 	var viewModel = this;
 
@@ -70,7 +70,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "stack":
 					$q.all([
 						appService.getAppConfig(),
-						appService.getStack()
+						Stack.getAll().then(appService.getStack)
 					]).then(resolve, reject);
 
 					break;

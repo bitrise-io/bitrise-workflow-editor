@@ -13,7 +13,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedAppConfigYML: undefined,
 		stack: undefined,
 		savedStack: undefined,
-		stacks: undefined,
+		dockerImage: undefined,
+		savedDockerImage: undefined,
 		projectType: undefined,
 		availableProjectTypes: undefined
 	};
@@ -235,41 +236,35 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	};
 
 	appService.getStack = function() {
-		if (appService.stack) {
+		if (appService.stackID) {
 			return $q.when();
 		}
 
-		return $q.all([
-			requestService.getStacks(),
-			requestService.getStack()
-		]).then(function(datas) {
-			var getStacksData = datas[0];
-			var getStackData = datas[1];
-
-			appService.stacks = _.map(getStacksData.stackDatas, function(aStackData) {
-				return new Stack(aStackData.id, aStackData.name, aStackData.description, aStackData.descriptionURL);
-			});
-			appService.stack = _.find(appService.stacks, {
-				id: getStackData.stackID
+		return requestService.getStack().then(function(data) {
+			appService.stack = _.find(Stack.all, {
+				id: data.stackID
 			});
 			appService.savedStack = angular.copy(appService.stack);
+			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
 		});
 	};
 
 	appService.stackHasUnsavedChanges = function() {
-		return !angular.equals(appService.stack, appService.savedStack);
+		return !angular.equals(appService.stack, appService.savedStack) || appService.dockerImage !== appService.savedDockerImage;
 	};
 
 	appService.saveStack = function() {
-		return requestService.saveStack(appService.stack.id, undefined /* TODO: specify - currently this will not be OK for certain stacks */).then(function() {
+		return requestService.saveStack(appService.stack.id, appService.dockerImage).then(function() {
 			appService.savedStack = angular.copy(appService.stack);
+			appService.savedDockerImage = appService.dockerImage;
 		});
 	};
 
 	appService.discardStackChanges = function() {
-		appService.stack = _.find(appService.stacks, {
+		appService.stack = _.find(Stack.all, {
 			id: appService.savedStack.id
 		});
+		appService.dockerImage = appService.savedDockerImage;
 	};
 
 	appService.getProjectType = function(requestConfig) {

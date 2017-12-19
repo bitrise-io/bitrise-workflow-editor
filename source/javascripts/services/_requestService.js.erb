@@ -441,10 +441,10 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				break;
 			case "cli":
-				// For development mode:
+				// TODO: remove; For development mode:
 				return $q.when({
 					stackID: "my_stack_2",
-					dockerImageName: "my_docker_image"
+					dockerImage: "my_docker_image"
 				});
 
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_stack][:not_website_mode_error] %>"));
@@ -454,7 +454,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve({
 					stackID: response.data.stack_identifier,
-					dockerImageName: response.data.docker_image_name
+					dockerImage: response.data.docker_image_name
 				});
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_stack][:default_error] %>", "<%= data[:strings][:request_service][:get_stack][:error_prefix] %>"));
@@ -473,7 +473,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				break;
 			case "cli":
-				// For development mode:
+				// TODO: remove; For development mode:
 				return $q.when({
 					stackDatas: [{
 						id: "my_stack_1",
@@ -527,7 +527,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.saveStack = function(stackID, dockerImageName, requestConfig) {
+	requestService.saveStack = function(stackID, dockerImage, requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
@@ -538,7 +538,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				break;
 			case "cli":
-				// For development mode:
+				// TODO: remove; For development mode:
 				return $q.when();
 
 				return $q.reject(new Error("<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>"));
@@ -547,7 +547,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, {
 				stack_identifier: stackID,
-				docker_image_name: dockerImageName
+				docker_image_name: dockerImage
 			}, requestConfig).then(function() {
 				resolve();
 			}, function(response) {

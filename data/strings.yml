@@ -386,6 +386,7 @@ stack:
   workflow_id_postfix: " workflow"
   about_stack: About <stack_name>
   more_info_about: More information about this Stack »
+  docker_image_to_use: Docker image to use
   default_stack_settings:
     header_title: Default Stack
     header_description: "This will appear as a default stack in your workflows. <a href='<url>' target='_blank'>Supported build prepare types »</a>"

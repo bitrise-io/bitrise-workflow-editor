@@ -2,13 +2,23 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Stack", function() {
+angular.module("BitriseWorkflowEditor").factory("Stack", function(requestService) {
 
 	var Stack = function(id, name, description, descriptionURL) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.descriptionURL = descriptionURL;
+	};
+
+	Stack.all;
+
+	Stack.getAll = function() {
+		return requestService.getStacks().then(function(data) {
+			Stack.all = _.map(data.stackDatas, function(aStackData) {
+				return new Stack(aStackData.id, aStackData.name, aStackData.description, aStackData.descriptionURL);
+			});
+		});
 	};
 
 	return Stack;
