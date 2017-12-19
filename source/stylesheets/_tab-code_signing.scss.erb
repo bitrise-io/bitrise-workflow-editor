@@ -995,19 +995,36 @@
 				.identity {
 					@include align-items(center);
 
-					.common-name {
-						font-size: 12px;
-						font-weight: 500;
-					}
+					.details {
+						@include display-flex;
+						@include justify-content(space-between);
+						@include flex-grow(1);
 
-					.serial {
-						display: inline-block;
-						margin-top: 4px;
-						padding: 5px 7px;
-						@include SourceCodeProWithFallback;
-						font-size: 12px;
-						font-weight: 500;
-						background-color: #f6eaff;
+						.column {
+
+							.common-name {
+								font-size: 12px;
+								font-weight: 500;
+							}
+
+							.serial {
+								display: inline-block;
+								margin-top: 4px;
+								padding: 5px 7px;
+								@include SourceCodeProWithFallback;
+								font-size: 12px;
+								font-weight: 500;
+								background-color: #f6eaff;
+							}
+
+							.is-identity-expired {
+								color: $def-danger;
+								padding: 8px;
+								border-radius: $def-radius;
+								font-weight: 300;
+								text-transform: uppercase;
+							}
+						}
 					}
 				}
 
@@ -1037,7 +1054,7 @@
 							text-align: left;
 							font-size: 10px;
 
-							.not-registerd .label, .registered .label {
+							.not-registered .label, .registered .label {
 								text-transform: uppercase;
 							}
 
@@ -1111,6 +1128,23 @@
 						.status {
 							margin-right: 0;
 							margin-bottom: 10px;
+						}
+					}
+				}
+
+				.matching-certificates {
+
+					.identity {
+						
+						.details {
+							@include flex-direction(column);
+
+							.column {
+								
+								.is-identity-expired {
+									@include padding-x(0);
+								}
+							}
 						}
 					}
 				}

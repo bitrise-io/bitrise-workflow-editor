@@ -152,6 +152,10 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		return _.any(certificateService.certificates, function(aCertificate) {
 			return _.any(aCertificate.details, { serial: identitySerial });
 		});
+	}
+
+	viewModel.isIdentityExpired = function(identityExpiryDateTime) {
+		return new Date(identityExpiryDateTime) < new Date();
 	};
 
 	function isDeviceWithUDIDaddedToApp(deviceUDID) {
@@ -160,9 +164,9 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		return _.any(testDevicesOfApp, { udid: deviceUDID });
-	};
+	}
 
-	viewModel.identityStatusCSSclass = function(identitySerial) {
+	viewModel.identityStatusCSSclass = function(identity) {
 		if (!viewModel.selectedProvProfile) {
 			return undefined;
 		}
@@ -172,7 +176,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		return _.any(certificateService.certificates, function(aCertificate) {
-			return _.any(aCertificate.details, { serial: identitySerial });
+			return _.any(aCertificate.details, { serial: identity.serial }) && !viewModel.isIdentityExpired(identity.endDate);;
 		}) ? "ok" : "missing";
 	};
 
@@ -208,7 +212,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		return _.any(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
-			return isIdentityWithSerialAddedToApp(anIdentity.serial);
+			return isIdentityWithSerialAddedToApp(anIdentity.serial) && !viewModel.isIdentityExpired(anIdentity.endDate);
 		}) ? "ok" : "missing";
 	};
 
@@ -231,7 +235,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			return "loading";
 		}
 		else if (_.any(provProfile.developerCertificateIdentities, function(anIdentity) {
-			return isIdentityWithSerialAddedToApp(anIdentity.serial);
+			return isIdentityWithSerialAddedToApp(anIdentity.serial) && !viewModel.isIdentityExpired(anIdentity.endDate);
 		})) {
 			return "ok";
 		}

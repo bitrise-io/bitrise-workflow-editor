@@ -161,6 +161,8 @@ code_signing:
       # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
       devices:
         udid: UDID
+      identities:
+        expired: Expired
       capabilities: 
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
