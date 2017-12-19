@@ -339,9 +339,13 @@
 								padding: 10px 12px;
 								font-size: 12px;
 								font-weight: 400;
-					
+
 								.icon {
 									margin-right: 6px;
+
+									svg {
+										@include size(9px);
+									}
 
 									@keyframes pulse {
 										0% { @include transform(scale(1)); }
@@ -365,11 +369,11 @@
 										fill: $def-green;
 									}
 								}
-								
+
 								.arrow {
 									margin-left: 6px;
 									@include transform(rotate(-90deg));
-					
+
 									svg {
 										@include size(10px, 6px);
 										fill: $def-verydarkgrey;
@@ -383,13 +387,13 @@
 
 			.file-upload {
 				margin: 12px $cardo-horizontalpadding;
-		
+
 				.file-uploader {
 					position: relative;
 					border: 4px dashed $def-mediumlightgrey;
 					@include border-radius($def-radius);
 					padding: 18px;
-		
+
 					input[type="file"] {
 						@include position(absolute, 0, 0);
 						z-index: $zindex-file_uploader_input;
@@ -398,7 +402,7 @@
 						opacity: 0;
 						cursor: pointer;
 					}
-		
+
 					input[type="submit"] {
 						@include position(absolute, 0, 0);
 						@include size(0);
@@ -406,7 +410,7 @@
 						padding: 0;
 						opacity: 0;
 					}
-		
+
 					.content {
 						text-align: center;
 						font-size: 12px;
