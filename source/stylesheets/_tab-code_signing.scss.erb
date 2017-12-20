@@ -997,6 +997,7 @@
 
 					.details {
 						@include display-flex;
+						@include align-items(center);
 						@include justify-content(space-between);
 						@include flex-grow(1);
 
@@ -1018,11 +1019,12 @@
 							}
 
 							.is-identity-expired {
-								color: $def-danger;
-								padding: 8px;
-								border-radius: $def-radius;
-								font-weight: 300;
+								display: inline-block;
+								@include border-radius($def-radius);
+								padding: 5px 7px;
 								text-transform: uppercase;
+								color: $def-danger;
+								background-color: $def-danger-light;
 							}
 						}
 					}
@@ -1030,7 +1032,7 @@
 
 				.device {
 					@include align-items(center);
-					
+
 					.udid-info {
 						font-size: 14px;
 						font-weight: 300;
