@@ -105,7 +105,7 @@
 										.common-name[ng-bind="identity.commonName"]
 										.serial[ng-bind="identity.serial"]
 									.column
-										.is-identity-expired[ng-if="provProfileCtrl.isIdentityExpired(identity.endDate)"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
+										.expired[ng-if="provProfileCtrl.isIdentityExpired(identity)"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
 						ul.devices[ng-switch-when="devices"]
 							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
 								.status[ng-class="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid)"]

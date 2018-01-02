@@ -154,8 +154,8 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	}
 
-	viewModel.isIdentityExpired = function(identityExpiryDateTime) {
-		return new Date(identityExpiryDateTime) < new Date();
+	viewModel.isIdentityExpired = function(identity) {
+		return identity.endDate < new Date();
 	};
 
 	function isDeviceWithUDIDaddedToApp(deviceUDID) {
