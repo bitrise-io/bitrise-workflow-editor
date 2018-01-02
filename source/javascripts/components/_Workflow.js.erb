@@ -88,7 +88,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		return this.workflowConfig.description;
 	};
 
-	Workflow.prototype.stack = function(stack, appStack, stacks) {
+	Workflow.prototype.stack = function(stack, stacks) {
 		if (stack !== undefined) {
 			if (!this.workflowConfig.meta) {
 				this.workflowConfig.meta = {};
@@ -97,7 +97,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 				this.workflowConfig.meta.bitriseio = {};
 			}
 
-			if (stack != appStack) {
+			if (stack !== null) {
 				this.workflowConfig.meta.bitriseio.stack = stack.id;
 			}
 			else {
@@ -113,7 +113,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		}
 
 		if (!this.workflowConfig.meta || !this.workflowConfig.meta.bitriseio || !this.workflowConfig.meta.bitriseio.stack) {
-			return appStack;
+			return null;
 		}
 
 		return _.find(stacks, {
@@ -121,7 +121,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
-	Workflow.prototype.dockerImage = function(dockerImage, appDockerImage) {
+	Workflow.prototype.dockerImage = function(dockerImage) {
 		if (dockerImage !== undefined) {
 			if (!this.workflowConfig.meta) {
 				this.workflowConfig.meta = {};
@@ -130,7 +130,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 				this.workflowConfig.meta.bitriseio = {};
 			}
 
-			if (dockerImage != appDockerImage) {
+			if (dockerImage !== null) {
 				this.workflowConfig.meta.bitriseio.stack_docker_image = dockerImage;
 			}
 			else {
@@ -146,7 +146,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		}
 
 		if (!this.workflowConfig.meta || !this.workflowConfig.meta.bitriseio || !this.workflowConfig.meta.bitriseio.stack_docker_image) {
-			return appDockerImage;
+			return null;
 		}
 
 		return this.workflowConfig.meta.bitriseio.stack_docker_image;

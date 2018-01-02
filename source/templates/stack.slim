@@ -13,24 +13,28 @@
 							h3.stack-name[ng-bind="stackCtrl.aboutStack(appService.stack)"]
 							p.stack-description[ng-bind="appService.stack.description"]
 							a.stack-info-link[ng-href="{{ appService.stack.descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
+					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
+						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
+						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
 			p == replaced_string(data[:strings][:stack][:workflow_specific_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
 		article
-			section.workflow[ng-repeat="workflow in stackCtrl.workflows" ng-class="{'default': stackCtrl.stackGetterSetterForWorkflow(workflow)() == appService.stack}"]
+			section.workflow[ng-repeat="workflow in stackCtrl.workflows" ng-class="{'default': !stackCtrl.stackGetterSetterForWorkflow(workflow)()}"]
 				.max-width-wrapper
 					h4.workflow-header
 						strong.workflow-id[ng-bind="workflow.id"]
 						span == data[:strings][:stack][:workflow_id_postfix]
 					.stack-selector-wrapper
-						select.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stack.name for stack in Stack.all"]
+						select.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stackCtrl.stackOptionTitle(stack) for stack in [null].concat(Stack.all)" ng-change="workflow.dockerImage(stackCtrl.defaultDockerImagesByStackIDs[stack.id] !== undefined ? '' : null)"]
 					.stack-info
 						.info-badge-wrapper = svg("info_badge")
 						.stack-info-text
-							h3.stack-name[ng-bind="stackCtrl.stackGetterSetterForWorkflow(workflow)().name"]
-							p.stack-description[btf-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow)().description"]
-							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
-					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[stackCtrl.stackGetterSetterForWorkflow(workflow)().id] !== undefined"]
+							h3.stack-name[ng-bind="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().name"]
+							p.stack-description[btf-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
+							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
+					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
-						input.docker-image[type="text" ng-model="stackCtrl.dockerImageGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[stackCtrl.stackGetterSetterForWorkflow(workflow)().id] }}"]
+						input.docker-image[type="text" ng-model="workflow.dockerImage" ng-model-options="{getterSetter: true}" ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow)() !== null" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id] }}"]
+						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow)() === null" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}" disabled]

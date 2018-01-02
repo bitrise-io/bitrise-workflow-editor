@@ -10,7 +10,7 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 	$scope.Stack = Stack;
 	$scope.appService = appService;
 	viewModel.defaultDockerImagesByStackIDs = {
-		"linux-docker-android": "bitriseio/android-ndk:latest"
+		"my_stack_2": "bitriseio/android-ndk:latest"
 	};
 
 	viewModel.init = function() {
@@ -27,15 +27,11 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		});
 	}
 
-	$scope.$watch(function() {
-		return appService.stack;
-	}, function(appStack) {
-		_.each(_.filter(viewModel.workflows, function(aWorkflow) {
-			return appStack == viewModel.stackGetterSetterForWorkflow(aWorkflow)();
-		}), function(aWorkflow) {
-			viewModel.stackGetterSetterForWorkflow(aWorkflow)(viewModel.stackGetterSetterForWorkflow(aWorkflow)());
+	viewModel.stackOptionTitle = function(stack) {
+		return stack !== null ? stack.name : stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:default_stack] %>", {
+			stack_name: appService.stack.name
 		});
-	});
+	};
 
 	viewModel.aboutStack = function(stack) {
 		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
@@ -43,15 +39,23 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		});
 	};
 
-	viewModel.stackGetterSetterForWorkflow = function(workflow) {
-		return function(stack) {
-			return workflow.stack(stack, appService.stack, Stack.all);
-		};
-	};
+	viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
+		if (shouldNormalize === undefined) {
+			shouldNormalize = false;
+		}
 
-	viewModel.dockerImageGetterSetterForWorkflow = function(workflow) {
-		return function(dockerImage) {
-			return workflow.dockerImage(dockerImage, appService.dockerImage);
+		return function(stack) {
+			if (stack === null && shouldNormalize) {
+				stack = appService.stack;
+			}
+
+			stack = workflow.stack(stack, Stack.all);
+
+			if (stack === null && shouldNormalize) {
+				return appService.stack;
+			}
+
+			return stack;
 		};
 	};
 
