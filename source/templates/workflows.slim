@@ -42,6 +42,7 @@
 							span.workflow-name[ng-bind="workflow.id"]
 							span.edit-icon = svg("code")
 						button.remove[ng-if="workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1 || workflowChainLink.selectedWorkflowAfterRunWorkflowIndex != -1" ng-click="workflowsCtrl.deleteBeforeAfterWorkflowAtWorkflowChainLink(workflowChainLink)"] = svg("cross")
+					.stack[ng-bind="workflowsCtrl.normalizedStackForWorkflow(workflow).name"]
 				article
 					ul.steps
 						ul[order-by-drag models="workflow.steps"]
