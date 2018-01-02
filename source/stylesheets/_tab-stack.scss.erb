@@ -19,9 +19,12 @@
 			}
 		}
 
-		.stack-selector {
-			width: 100%;
+		.stack-selector-wrapper {
 			margin-bottom: $content-spacing;
+
+			.stack-selector {
+				width: 100%;
+			}
 		}
 
 		.stack-info {
@@ -80,6 +83,27 @@
 				}
 			}
 		}
+
+		.docker-image-settings {
+			margin-top: 18px;
+
+			.docker-image-label {
+				display: block;
+				margin-bottom: 4px;
+				font-size: 12px;
+				font-weight: 600;
+			}
+
+			.docker-image {
+				display: block;
+				@include box-sizing(border-box);
+				width: 100%;
+				border: 1px solid $def-mediumlightgrey;
+				@include border-radius($def-radius);
+				padding: 7px 12px;
+				font-size: 12px;
+			}
+		}
 	}
 
 	.stack-settings.default {
@@ -119,6 +143,27 @@
 
 					.workflow-id {
 						font-weight: 700;
+					}
+				}
+
+				.stack-selector-wrapper {
+					position: relative;
+
+					label.default-stack {
+						$badge-height: 14px;
+
+						@include position(absolute, 50%, 30px);
+						@include box-sizing(border-box);
+						line-height: $badge-height;
+						margin-top: - $badge-height / 2;
+						@include border-radius($badge-height / 2);
+						@include padding-x(5px);
+						font-size: 8px;
+						letter-spacing: 0.5px;
+						font-weight: 300;
+						text-transform: uppercase;
+						color: white;
+						background-color: #029dd8;
 					}
 				}
 			}
