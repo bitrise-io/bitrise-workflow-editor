@@ -27,6 +27,16 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		});
 	}
 
+	$scope.$watch(function() {
+		return appService.stack;
+	}, function(appStack) {
+		_.each(_.filter(viewModel.workflows, function(aWorkflow) {
+			return appStack == viewModel.stackGetterSetterForWorkflow(aWorkflow)();
+		}), function(aWorkflow) {
+			viewModel.stackGetterSetterForWorkflow(aWorkflow)(viewModel.stackGetterSetterForWorkflow(aWorkflow)());
+		});
+	});
+
 	viewModel.aboutStack = function(stack) {
 		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
 			stack_name: stack.name
