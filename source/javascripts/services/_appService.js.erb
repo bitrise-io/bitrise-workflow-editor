@@ -147,7 +147,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	appService.saveAppConfig = function(requestConfig) {
 		var variables = [];
 		if (appService.appConfig.app && appService.appConfig.app.envs) {
-			var variablesWithoutKeyAndValue = _.filter(_.map(appService.appConfig.app.envs, function(anEnvVarConfig, ind) {
+			var variablesWithoutKeyAndValue = _.filter(_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
 				return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 			}), function(anEnvVar){
 				return (_.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value()));
