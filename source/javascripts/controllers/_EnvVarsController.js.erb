@@ -26,6 +26,32 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		}
 	}));
 
+	$scope.$on("$destroy", $rootScope.$on("MainController::savedFinishedWithSuccess", function() {
+		switch (mode) {
+			case "secrets":
+				configureWithSecrets();
+
+				break;
+			case "env-vars":
+				configureWithAppConfig();
+
+				break;
+		}
+	}));
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::savedFinishedWithError", function() {
+		switch (mode) {
+			case "secrets":
+				configureWithSecrets();
+
+				break;
+			case "env-vars":
+				configureWithAppConfig();
+
+				break;
+		}
+	}));
+
 	viewModel.configureWithMode = function(_mode) {
 		mode = _mode;
 
