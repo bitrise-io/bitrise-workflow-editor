@@ -7,7 +7,7 @@
 			section
 				.max-width-wrapper
 					.stack-selector-wrapper
-						select.stack-selector[ng-model="appService.stack" ng-options="stack.name for stack in Stack.all"]
+						select.stack-selector[ng-model="appService.stack" ng-options="stack.name for stack in Stack.all" ng-change="appService.dockerImage = stackCtrl.defaultDockerImagesByStackIDs[stack.id] !== undefined ? '' : null"]
 					.stack-info
 						.info-badge-wrapper = svg("info_badge")
 						.stack-info-text
@@ -17,7 +17,8 @@
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
-	section.cardo.stack-settings.workflow-specific
+	/ TODO: uncomment when workflow-specific stacks feature has been implemented:
+	/ section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
 			p == replaced_string(data[:strings][:stack][:workflow_specific_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])

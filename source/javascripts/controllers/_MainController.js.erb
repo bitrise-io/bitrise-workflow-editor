@@ -40,10 +40,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "workflows":
 				case "env-vars":
 				case "triggers":
-					$q.all([
-						appService.getAppConfig(),
-						Stack.getAll().then(appService.getStack)
-					]).then(function() {
+					var loadPromises = [appService.getAppConfig()];
+					if (requestService.mode == "website") {
+						loadPromises.push(Stack.getAll().then(appService.getStack));
+					}
+
+					$q.all(loadPromises).then(function() {
 						$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
 							if (appService.appConfigHasDeprecatedTriggerMap()) {
 								appService.updateDeprecatedTriggerMap();
@@ -356,13 +358,13 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			path: "<%= data[:routes][:endpoints][:triggers] %>",
 			possibleURLParameterKeys: ["trigger_type"],
 			cssClass: "triggers"
-		}, {
+		}, (requestService.mode == "website" ? {
 			id: "stack",
 			title: "<%= data[:strings][:main][:menus][:stack] %>",
 			path: "<%= data[:routes][:endpoints][:stack] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "stack"
-		}, {
+		}: null), {
 			id: "yml",
 			title: "<%= data[:strings][:main][:menus][:yml] %>",
 			path: "<%= data[:routes][:endpoints][:yml] %>",

@@ -2,9 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable, Stack) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, requestService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable, Stack) {
 
 	var viewModel = this;
+
+	$scope.requestService = requestService;
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		loadWorkflows();

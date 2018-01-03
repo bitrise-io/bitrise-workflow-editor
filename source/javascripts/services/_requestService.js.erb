@@ -441,12 +441,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				break;
 			case "cli":
-				// TODO: remove; For development mode:
-				return $q.when({
-					stackID: "my_stack_2",
-					dockerImage: "my_docker_image"
-				});
-
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_stack][:not_website_mode_error] %>"));
 		}
 
@@ -473,26 +467,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				break;
 			case "cli":
-				// TODO: remove; For development mode:
-				return $q.when({
-					stackDatas: [{
-						id: "my_stack_1",
-						name: "My stack #1",
-						description: "Description of my stack #1",
-						descriptionURL: "https://bitrise.io"
-					}, {
-						id: "my_stack_2",
-						name: "My stack #2",
-						description: "Description of my stack #2",
-						descriptionURL: "https://bitrise.io"
-					}, {
-						id: "my_stack_3",
-						name: "My stack #3",
-						description: "Description of my stack #3",
-						descriptionURL: "https://bitrise.io"
-					}]
-				});
-
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_stacks][:not_website_mode_error] %>"));
 		}
 
@@ -529,26 +503,27 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.saveStack = function(stackID, dockerImage, requestConfig) {
 		var requestURL;
+		var requestData;
 
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:stack_save]) %>", {
 					app_slug: requestService.appSlug
 				});
+				requestData = {
+					stack_identifier: stackID
+				};
+				if (dockerImage !== null) {
+					requestData.docker_image_name = dockerImage;
+				}
 
 				break;
 			case "cli":
-				// TODO: remove; For development mode:
-				return $q.when();
-
 				return $q.reject(new Error("<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>"));
 		}
 
 		return $q(function(resolve, reject) {
-			$http.post(requestURL, {
-				stack_identifier: stackID,
-				docker_image_name: dockerImage
-			}, requestConfig).then(function() {
+			$http.post(requestURL, requestData, requestConfig).then(function() {
 				resolve();
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_stack][:default_error] %>", "<%= data[:strings][:request_service][:save_stack][:error_prefix] %>"));
