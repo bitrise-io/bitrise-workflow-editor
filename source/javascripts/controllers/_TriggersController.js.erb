@@ -60,6 +60,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			aTriggerType.triggers = [];
 		});
 
+		if (addTriggerProgress.isInProgress) {
+			addTriggerProgress.reset();
+		}
+
 		_.each(appService.appConfig.trigger_map, function(triggerConfig) {
 			var trigger = new Trigger(triggerConfig);
 
@@ -103,9 +107,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 	viewModel.deleteTrigger = function(trigger) {
 		var index = _.indexOf(viewModel.selectedTriggerType.triggers, trigger);
-		if (index >= 0) {
-			viewModel.selectedTriggerType.triggers.splice(index, 1);
-		}
+		viewModel.selectedTriggerType.triggers.splice(index, 1);
 
 		viewModel.triggerSelected(null);
 	};
