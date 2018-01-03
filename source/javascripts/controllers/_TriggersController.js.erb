@@ -103,7 +103,9 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 	viewModel.deleteTrigger = function(trigger) {
 		var index = _.indexOf(viewModel.selectedTriggerType.triggers, trigger);
-		viewModel.selectedTriggerType.triggers.splice(index, 1);
+		if (index >= 0) {
+			viewModel.selectedTriggerType.triggers.splice(index, 1);
+		}
 
 		viewModel.triggerSelected(null);
 	};
