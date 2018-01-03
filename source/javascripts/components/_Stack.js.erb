@@ -4,11 +4,12 @@
 
 angular.module("BitriseWorkflowEditor").factory("Stack", function($q, requestService) {
 
-	var Stack = function(id, name, description, descriptionURL) {
+	var Stack = function(id, name, description, descriptionURL, projectTypes) {
 		this.id = id;
 		this.name = name;
 		this.description = description;
 		this.descriptionURL = descriptionURL;
+		this.projectTypes = projectTypes;
 	};
 
 	Stack.all;
@@ -20,7 +21,7 @@ angular.module("BitriseWorkflowEditor").factory("Stack", function($q, requestSer
 
 		return requestService.getStacks().then(function(data) {
 			Stack.all = _.map(data.stackDatas, function(aStackData) {
-				return new Stack(aStackData.id, aStackData.name, aStackData.description, aStackData.descriptionURL);
+				return new Stack(aStackData.id, aStackData.name, aStackData.description, aStackData.descriptionURL, aStackData.projectTypes);
 			});
 		});
 	};

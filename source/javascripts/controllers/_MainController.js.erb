@@ -75,7 +75,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "stack":
 					$q.all([
 						appService.getAppConfig(),
-						Stack.getAll().then(appService.getStack)
+						Stack.getAll().then(appService.getStack),
+						appService.getProjectType()
 					]).then(resolve, reject);
 
 					break;
