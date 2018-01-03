@@ -60,6 +60,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			aTriggerType.triggers = [];
 		});
 
+		if (addTriggerProgress.isInProgress) {
+			addTriggerProgress.reset();
+		}
+
 		_.each(appService.appConfig.trigger_map, function(triggerConfig) {
 			var trigger = new Trigger(triggerConfig);
 

@@ -1,6 +1,44 @@
-## Changelog (Current version: 1.1.2)
+## Changelog (Current version: 1.1.3)
 
 -----------------
+
+## 1.1.3 (2018 Jan 03)
+
+### Release Notes
+
+* Code signing tab bugfixes
+* Certificate expiration badge added
+* Issue #232 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.3
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.2 -> 1.1.3
+
+* [ef68c80] Norbert Kovach - discard button fix on triggers page (#233) (2018 Jan 03)
+* [6b23c47] Norbert Kovach - code sign tab - expiry status of identities (ProvProfile popup) (#231) (2018 Jan 03)
+* [a16b766] Norbert Kovach - set selectedMenu to null if provProfile popup is closed (#229) (2018 Jan 03)
+* [06f7e15] Norbert Kovach - display certificate details button - icon fix (#230) (2018 Jan 03)
+
 
 ## 1.1.2 (2017 Dec 13)
 
@@ -1488,4 +1526,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Dec 13
+Updated: 2018 Jan 03
