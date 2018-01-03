@@ -330,96 +330,137 @@ header.sticky section.manage-workflows {
 					@include display-flex;
 					margin-bottom: $spacing;
 
-					h2 {
-						$color: $def-mediumdarkgrey;
-
-						position: relative;
+					.header-info {
 						@include flex-grow(1);
 						@include align-self(flex-end);
 						@include display-flex;
 						@include align-items(center);
-						@include box-sizing(border-box);
-						max-width: $steptitle-width;
-						@include margin-y(0);
 						margin-left: $spacing;
-						border: 1px solid $color;
-						@include border-radius($def-radius);
-						overflow: hidden;
-						font-size: 14px;
-						font-weight: 300;
-						color: $color;
 
-						button.edit {
-							@include position(absolute, 0, 0);
-							@include size(100%);
+						h2 {
+							$color: $def-mediumdarkgrey;
 
-							&:hover ~ span.icons-and-name, &:focus ~ span.icons-and-name {
-								background-color: white;
+							@include flex-grow(1);
+							position: relative;
+							@include display-flex;
+							@include align-items(center);
+							@include box-sizing(border-box);
+							max-width: $steptitle-width;
+							@include margin-y(0);
+							border: 1px solid $color;
+							@include border-radius($def-radius);
+							overflow: hidden;
+							font-size: 14px;
+							font-weight: 300;
+							color: $color;
+
+							button.edit {
+								@include position(absolute, 0, 0);
+								@include size(100%);
+
+								&:hover ~ span.icons-and-name, &:focus ~ span.icons-and-name {
+									background-color: white;
+
+									span.edit-icon {
+										opacity: 1;
+									}
+								}
+							}
+
+							span.icons-and-name {
+								@include flex-grow(1);
+								@include display-flex;
+								padding: 6px 8px;
+								@include ellipsis-oneliner;
+								
+								background-color: $def-ultralightgrey;
+								@include transition(background-color $def-transition_duration);
+
+								span.icon {
+									display: inline-block;
+									margin-right: 6px;
+
+									svg {
+										@include size(12px, 11px);
+										fill: $color;
+									}
+								}
+
+								span.workflow-name {
+									@include flex-grow(1);
+									@include ellipsis-oneliner;
+								}
 
 								span.edit-icon {
-									opacity: 1;
+									margin-left: 6px;
+									opacity: 0;
+									@include transition(opacity $def-transition_duration);
+
+									svg {
+										@include size(12px, 10px);
+										fill: $color;
+									}
 								}
+							}
+
+							button.remove {
+								position: relative;
+								@include flex-shrink(0);
+								@include align-self(stretch);
+								margin-left: auto;
+								@include padding-x(12px);
+								background-color: $color;
+								@include transition(background-color $def-transition_duration);
+
+								svg {
+									@include size(8px);
+									fill: white;
+								}
+							}
+
+							button.remove:focus, button.remove:hover {
+								background-color: $def-darkgrey;
 							}
 						}
 
-						span.icons-and-name {
-							@include flex-grow(1);
+						.stack {
 							@include display-flex;
-							padding: 6px 8px;
-							@include ellipsis-oneliner;
-							
-							background-color: $def-ultralightgrey;
-							@include transition(background-color $def-transition_duration);
+							@include align-items(center);
+							margin-left: $spacing;
 
-							span.icon {
-								display: inline-block;
-								margin-right: 6px;
+							.icon {
+								@include flex-shrink(0);
+								@include margin-x(15px);
 
 								svg {
-									@include size(12px, 11px);
-									fill: $color;
+									display: block;
+									@include size(16px);
+									fill: $def-darkgrey;
 								}
 							}
 
-							span.workflow-name {
-								@include flex-grow(1);
-								@include ellipsis-oneliner;
+							.name {
+								font-size: 15px;
+								font-weight: 500;
+								color: $def-darkgrey;
 							}
 
-							span.edit-icon {
-								margin-left: 6px;
-								opacity: 0;
-								@include transition(opacity $def-transition_duration);
+							.default-badge {
+								$badge-height: 14px;
 
-								svg {
-									@include size(12px, 10px);
-									fill: $color;
-								}
+								@include box-sizing(border-box);
+								line-height: $badge-height;
+								margin-left: 12px;
+								@include border-radius($badge-height / 2);
+								@include padding-x(5px);
+								font-size: 8px;
+								letter-spacing: 0.5px;
+								font-weight: 300;
+								text-transform: uppercase;
+								color: white;
+								background-color: #029dd8;
 							}
 						}
-
-						button.remove {
-							position: relative;
-							@include flex-shrink(0);
-							@include align-self(stretch);
-							margin-left: auto;
-							@include padding-x(12px);
-							background-color: $color;
-							@include transition(background-color $def-transition_duration);
-
-							svg {
-								@include size(8px);
-								fill: white;
-							}
-						}
-
-						button.remove:focus, button.remove:hover {
-							background-color: $def-darkgrey;
-						}
-					}
-
-					.stack {
-						margin-left: $spacing;
 					}
 				}
 
@@ -1424,8 +1465,11 @@ header.sticky section.manage-workflows {
 
 					header.workflow-header {
 
-						h2 {
-							max-width: $steptitle-width_small;
+						.header-info {
+
+							h2 {
+								max-width: $steptitle-width_small;
+							}
 						}
 					}
 					
@@ -1448,9 +1492,22 @@ header.sticky section.manage-workflows {
 
 					header.workflow-header {
 
-						h2 {
-							overflow: hidden;
-							max-width: none;
+						.header-info {
+							display: block;
+
+							h2 {
+								overflow: hidden;
+								max-width: none;
+							}
+
+							.stack {
+								margin-left: 0;
+								margin-top: 10px;
+
+								.icon {
+									margin-left: 0;
+								}
+							}
 						}
 					}
 
@@ -1600,8 +1657,18 @@ header.sticky section.manage-workflows {
 
 				header.workflow-header {
 
-					h2 {
-						@include position(relative, -15px);
+					.header-info {
+						$negative_spacing: -15px;
+
+						@include position(relative, $negative_spacing);
+
+						.stack {
+							@include position(relative, - $negative_spacing + 15px);
+
+							@include media-below-mid {
+								position: static;
+							}
+						}
 					}
 				}
 			}

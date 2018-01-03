@@ -453,9 +453,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 	};
 
-	viewModel.normalizedStackForWorkflow = function(workflow) {
+	viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
+		if (shouldNormalize === undefined) {
+			shouldNormalize = false;
+		}
+
 		var stack = workflow.stack(stack, Stack.all);
-		if (stack === null) {
+		if (stack === null && shouldNormalize) {
 			stack = appService.stack;
 		}
 

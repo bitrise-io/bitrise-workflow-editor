@@ -34,15 +34,19 @@
 		.workflows
 			section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 				header.workflow-header
-					h2
-						button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex); workflowsCtrl.stepSelected(null)"]
-						span.icons-and-name
-							span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] = svg("workflow/icon-before_run")
-							span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] = svg("workflow/icon-after_run")
-							span.workflow-name[ng-bind="workflow.id"]
-							span.edit-icon = svg("code")
-						button.remove[ng-if="workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1 || workflowChainLink.selectedWorkflowAfterRunWorkflowIndex != -1" ng-click="workflowsCtrl.deleteBeforeAfterWorkflowAtWorkflowChainLink(workflowChainLink)"] = svg("cross")
-					.stack[ng-bind="workflowsCtrl.normalizedStackForWorkflow(workflow).name"]
+					.header-info
+						h2
+							button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex); workflowsCtrl.stepSelected(null)"]
+							span.icons-and-name
+								span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] = svg("workflow/icon-before_run")
+								span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] = svg("workflow/icon-after_run")
+								span.workflow-name[ng-bind="workflow.id"]
+								span.edit-icon = svg("code")
+							button.remove[ng-if="workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1 || workflowChainLink.selectedWorkflowAfterRunWorkflowIndex != -1" ng-click="workflowsCtrl.deleteBeforeAfterWorkflowAtWorkflowChainLink(workflowChainLink)"] = svg("cross")
+						.stack[ng-if="workflow == workflowsCtrl.selectedWorkflow"]
+							.icon = svg("layers")
+							.name[ng-bind="workflowsCtrl.stackForWorkflow(workflow, true).name"]
+							label.default-badge[ng-if="workflowsCtrl.stackForWorkflow(workflow) === null"] == data[:strings][:stack][:default]
 				article
 					ul.steps
 						ul[order-by-drag models="workflow.steps"]
