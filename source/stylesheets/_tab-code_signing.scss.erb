@@ -339,9 +339,13 @@
 								padding: 10px 12px;
 								font-size: 12px;
 								font-weight: 400;
-					
+
 								.icon {
 									margin-right: 6px;
+
+									svg {
+										@include size(9px);
+									}
 
 									@keyframes pulse {
 										0% { @include transform(scale(1)); }
@@ -365,11 +369,11 @@
 										fill: $def-green;
 									}
 								}
-								
+
 								.arrow {
 									margin-left: 6px;
 									@include transform(rotate(-90deg));
-					
+
 									svg {
 										@include size(10px, 6px);
 										fill: $def-verydarkgrey;
@@ -383,13 +387,13 @@
 
 			.file-upload {
 				margin: 12px $cardo-horizontalpadding;
-		
+
 				.file-uploader {
 					position: relative;
 					border: 4px dashed $def-mediumlightgrey;
 					@include border-radius($def-radius);
 					padding: 18px;
-		
+
 					input[type="file"] {
 						@include position(absolute, 0, 0);
 						z-index: $zindex-file_uploader_input;
@@ -398,7 +402,7 @@
 						opacity: 0;
 						cursor: pointer;
 					}
-		
+
 					input[type="submit"] {
 						@include position(absolute, 0, 0);
 						@include size(0);
@@ -406,7 +410,7 @@
 						padding: 0;
 						opacity: 0;
 					}
-		
+
 					.content {
 						text-align: center;
 						font-size: 12px;
@@ -995,25 +999,44 @@
 				.identity {
 					@include align-items(center);
 
-					.common-name {
-						font-size: 12px;
-						font-weight: 500;
-					}
+					.details {
+						@include display-flex;
+						@include align-items(center);
+						@include justify-content(space-between);
+						@include flex-grow(1);
 
-					.serial {
-						display: inline-block;
-						margin-top: 4px;
-						padding: 5px 7px;
-						@include SourceCodeProWithFallback;
-						font-size: 12px;
-						font-weight: 500;
-						background-color: #f6eaff;
+						.column {
+
+							.common-name {
+								font-size: 12px;
+								font-weight: 500;
+							}
+
+							.serial {
+								display: inline-block;
+								margin-top: 4px;
+								padding: 5px 7px;
+								@include SourceCodeProWithFallback;
+								font-size: 12px;
+								font-weight: 500;
+								background-color: #f6eaff;
+							}
+
+							.expired {
+								display: inline-block;
+								@include border-radius($def-radius);
+								padding: 5px 7px;
+								text-transform: uppercase;
+								color: $def-danger;
+								background-color: $def-danger-light;
+							}
+						}
 					}
 				}
 
 				.device {
 					@include align-items(center);
-					
+
 					.udid-info {
 						font-size: 14px;
 						font-weight: 300;
@@ -1037,7 +1060,7 @@
 							text-align: left;
 							font-size: 10px;
 
-							.not-registerd .label, .registered .label {
+							.not-registered .label, .registered .label {
 								text-transform: uppercase;
 							}
 
@@ -1111,6 +1134,23 @@
 						.status {
 							margin-right: 0;
 							margin-bottom: 10px;
+						}
+					}
+				}
+
+				.matching-certificates {
+
+					.identity {
+						
+						.details {
+							@include flex-direction(column);
+
+							.column {
+								
+								.expired {
+									@include padding-x(0);
+								}
+							}
 						}
 					}
 				}

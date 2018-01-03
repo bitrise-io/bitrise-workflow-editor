@@ -96,13 +96,16 @@
 					.content.vertical-scroll[ng-switch="provProfileCtrl.selectedMenu.id"]
 						ul.matching-certificates[ng-switch-when="matching-certificates"]
 							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities"]
-								.status[ng-class="provProfileCtrl.identityStatusCSSclass(identity.serial)"]
+								.status[ng-class="provProfileCtrl.identityStatusCSSclass(identity)"]
 									.icon-wrapper.loading-icon-wrapper = svg("dot")
 									.icon-wrapper.missing-icon-wrapper = svg("triangle")
 									.icon-wrapper.ok-icon-wrapper = svg("check-in-circle")
 								.details
-									.common-name[ng-bind="identity.commonName"]
-									.serial[ng-bind="identity.serial"]
+									.column
+										.common-name[ng-bind="identity.commonName"]
+										.serial[ng-bind="identity.serial"]
+									.column
+										.expired[ng-if="provProfileCtrl.isIdentityExpired(identity)"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
 						ul.devices[ng-switch-when="devices"]
 							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
 								.status[ng-class="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid)"]
