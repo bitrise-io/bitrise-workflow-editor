@@ -107,10 +107,23 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 		viewModel.selectedTrigger = trigger;
 		viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
+
 		viewModel.editedTriggerPushBranchPattern = viewModel.editedTrigger ? viewModel.editedTrigger.pushBranchPattern() : undefined;
+		if (viewModel.editedTriggerPushBranchPattern == "*") {
+			viewModel.editedTriggerPushBranchPattern = "";
+		}
 		viewModel.editedTriggerPullRequestSourceBranchPattern = viewModel.editedTrigger ? viewModel.editedTrigger.pullRequestSourceBranchPattern() : undefined;
+		if (viewModel.editedTriggerPullRequestSourceBranchPattern == "*") {
+			viewModel.editedTriggerPullRequestSourceBranchPattern = "";
+		}
 		viewModel.editedTriggerPullRequestTargetBranchPattern = viewModel.editedTrigger ? viewModel.editedTrigger.pullRequestTargetBranchPattern() : undefined;
+		if (viewModel.editedTriggerPullRequestTargetBranchPattern == "*") {
+			viewModel.editedTriggerPullRequestTargetBranchPattern = "";
+		}
 		viewModel.editedTriggerTagPattern = viewModel.editedTrigger ? viewModel.editedTrigger.tagPattern() : undefined;
+		if (viewModel.editedTriggerTagPattern == "*") {
+			viewModel.editedTriggerTagPattern = "";
+		}
 	};
 
 	viewModel.deleteTrigger = function(trigger) {
