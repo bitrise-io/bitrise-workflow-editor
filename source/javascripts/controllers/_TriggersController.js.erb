@@ -27,6 +27,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 	viewModel.selectedTrigger = null;
 	viewModel.editedTrigger;
+	viewModel.editedTriggerPushBranchPattern;
+	viewModel.editedTriggerPullRequestSourceBranchPattern;
+	viewModel.editedTriggerPullRequestTargetBranchPattern;
+	viewModel.editedTriggerTagPattern;
 	viewModel.newTriggerIndex;
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
@@ -103,6 +107,10 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 		viewModel.selectedTrigger = trigger;
 		viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
+		viewModel.editedTriggerPushBranchPattern = viewModel.editedTrigger ? viewModel.editedTrigger.pushBranchPattern() : undefined;
+		viewModel.editedTriggerPullRequestSourceBranchPattern = viewModel.editedTrigger ? viewModel.editedTrigger.pullRequestSourceBranchPattern() : undefined;
+		viewModel.editedTriggerPullRequestTargetBranchPattern = viewModel.editedTrigger ? viewModel.editedTrigger.pullRequestTargetBranchPattern() : undefined;
+		viewModel.editedTriggerTagPattern = viewModel.editedTrigger ? viewModel.editedTrigger.tagPattern() : undefined;
 	};
 
 	viewModel.deleteTrigger = function(trigger) {
@@ -136,30 +144,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 
 		viewModel.triggerSelected(newTrigger);
 		addTriggerProgress.start();
-	};
-
-	viewModel.editedTriggerPushBranchPatternInputGetterSetter = function(pushBranchPattern) {
-		pushBranchPattern = viewModel.editedTrigger.pushBranchPattern(pushBranchPattern);
-
-		return pushBranchPattern == "*" ? "" : pushBranchPattern;
-	};
-
-	viewModel.editedTriggerPullRequestSourceBranchPatternInputGetterSetter = function(pullRequestSourceBranchPattern) {
-		pullRequestSourceBranchPattern = viewModel.editedTrigger.pullRequestSourceBranchPattern(pullRequestSourceBranchPattern);
-
-		return pullRequestSourceBranchPattern == "*" ? "" : pullRequestSourceBranchPattern;
-	};
-
-	viewModel.editedTriggerPullRequestTargetBranchPatternInputGetterSetter = function(pullRequestTargetBranchPattern) {
-		pullRequestTargetBranchPattern = viewModel.editedTrigger.pullRequestTargetBranchPattern(pullRequestTargetBranchPattern);
-
-		return pullRequestTargetBranchPattern == "*" ? "" : pullRequestTargetBranchPattern;
-	};
-
-	viewModel.editedTriggerTagPatternInputGetterSetter = function(tagPattern) {
-		tagPattern = viewModel.editedTrigger.tagPattern(tagPattern);
-
-		return tagPattern == "*" ? "" : tagPattern;
 	};
 
 	viewModel.triggerIsInvalid = function() {
