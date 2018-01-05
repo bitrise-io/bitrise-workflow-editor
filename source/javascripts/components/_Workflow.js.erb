@@ -131,10 +131,10 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 			}
 
 			if (dockerImage !== null) {
-				this.workflowConfig.meta.bitriseio.stack_docker_image = dockerImage;
+				this.workflowConfig.meta.bitriseio.docker_image = dockerImage;
 			}
 			else {
-				delete this.workflowConfig.meta.bitriseio.stack_docker_image;
+				delete this.workflowConfig.meta.bitriseio.docker_image;
 			}
 
 			if (_.isEmpty(this.workflowConfig.meta.bitriseio)) {
@@ -145,11 +145,11 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 			}
 		}
 
-		if (!this.workflowConfig.meta || !this.workflowConfig.meta.bitriseio || !this.workflowConfig.meta.bitriseio.stack_docker_image) {
+		if (!this.workflowConfig.meta || !this.workflowConfig.meta.bitriseio || !this.workflowConfig.meta.bitriseio.docker_image) {
 			return null;
 		}
 
-		return this.workflowConfig.meta.bitriseio.stack_docker_image;
+		return this.workflowConfig.meta.bitriseio.docker_image;
 	};
 
 	return Workflow;
