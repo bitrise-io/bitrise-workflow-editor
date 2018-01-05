@@ -164,6 +164,17 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 		if (appService.appConfig.workflows) {
 			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+				var variablesWithoutKeyAndValue = _.filter(_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
+					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+				}), function(anEnvVar){
+					return (_.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value()));
+				});
+
+				_.each(variablesWithoutKeyAndValue, function(aVariable) {
+					var index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
+					aWorkflowConfig.envs.splice(index, 1);
+				});
+
 				variables = variables.concat(_.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
 					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 				}));
