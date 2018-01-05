@@ -3,6 +3,14 @@
 
 .tab-code-signing {
 	$section-horizontalspacing: 40px;
+	$expose_header-text_change_screenwidth: 1200px;
+	$layout-style_change_screenwidth: 1000px;
+	$column_left-width: 40%;
+	$details_icon-width: 30px;
+	$details_icon_and_column-spacing: 15px;
+	$expose-width: 220px;
+	$action_dropdown_icon-spacing: 15px;
+	$action_dropdown_icon-width: 26px;
 
 	section.certificate-help {
 		position: relative;
@@ -113,15 +121,7 @@
 		margin: 20px $section-horizontalspacing;
 	}
 
-	$layout-style_change_screenwidth: 1000px;
-	$column_left-width: 40%;
-	$details_icon-width: 30px;
-	$details_icon_and_column-spacing: 15px;
-
 	.files {
-		$expose-width: 200px;
-		$action_dropdown_icon-spacing: 15px;
-		$action_dropdown_icon-width: 26px;
 
 		header {
 			@include display-flex;
@@ -141,12 +141,76 @@
 				width: $expose-width;
 				margin-left: auto;
 				text-transform: uppercase;
+
+				&:after {
+					content: "";
+					margin-left: $action_dropdown_icon-spacing;
+					width: $action_dropdown_icon-width;
+				}
 			}
 
-			&:after {
-				content: "";
+			.actions {
+				position: relative;
 				margin-left: $action_dropdown_icon-spacing;
-				width: $action_dropdown_icon-width;
+
+				&.hidden {
+					width: $action_dropdown_icon-width;
+				}
+
+				.dropdown-toggle {
+					cursor: pointer;
+					height: 100%;
+
+					svg {
+						@include size($action_dropdown_icon-width, 12px);
+						fill: #999999;
+					}
+
+					&:focus svg, &:hover svg {
+						fill: $def-darkgrey;
+					}
+				}
+
+				.dropdown {
+					@include position(absolute, 100%, 0);
+					z-index: $zindex-popover;
+					width: 180px;
+					margin-top: 10px;
+					border: 1px solid $def-lightgrey;
+					@include border-radius(5px);
+					@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
+					overflow: hidden;
+
+					.dropdown-option {
+						display: block;
+						padding: 15px 12px;
+						font-size: 12px;
+						font-weight: 500;
+						color: #767676;
+						background-color: white;
+
+						&:hover {
+							background-color: $def-ultralightgrey;
+						}
+
+						&:not(:last-child) {
+							border-bottom: 1px solid $def-lightgrey;
+						}
+
+						&.delete-all {
+							color: #f17420;
+						}
+					}
+
+					a.dropdown-option {
+						text-decoration: none;
+					}
+
+					button.dropdown-option {
+						width: 100%;
+						text-align: left;
+					}
+				}
 			}
 		}
 
@@ -156,7 +220,7 @@
 			p.progress-indicator, p.notification {
 				@include margin-x($cardo-horizontalpadding);
 			}
-			
+
 			.uploaded-files {
 				@include margin-y(0);
 				padding-left: 0;
@@ -173,7 +237,7 @@
 						.icon {
 							@include flex-shrink(0);
 							margin-right: $details_icon_and_column-spacing;
-							
+
 							svg {
 								@include size($details_icon-width, 40px);
 							}
@@ -181,7 +245,7 @@
 
 						.column {
 							margin-right: $details_icon_and_column-spacing;
-							
+
 							&.left {
 								@include flex-shrink(0);
 								width: $column_left-width;
@@ -198,6 +262,7 @@
 
 								&.name {
 									font-weight: 500;
+									word-wrap: break-word;
 								}
 
 								.label:not(.warning) {
@@ -239,7 +304,7 @@
 								.popover {
 									top: 100%;
 									width: 100%;
-				
+
 									&:before {
 										left: 8px;
 									}
@@ -252,7 +317,7 @@
 
 								.dropdown-toggle {
 									cursor: pointer;
-									
+
 									svg {
 										@include size($action_dropdown_icon-width, 21px);
 										fill: #999999;
@@ -417,23 +482,23 @@
 						opacity: 0.5;
 						color: $def-verydarkgrey;
 						@include transition(opacity, $def-transition_duration);
-		
+
 						strong {
 							display: block;
 							margin-bottom: 4px;
 							font-weight: 500;
 						}
-		
+
 						em {
 							display: block;
 							font-weight: 200;
 						}
 					}
-		
+
 					input[type="file"]:disabled {
 						cursor: not-allowed;
 					}
-		
+
 					input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
 						opacity: 1.0;
 					}
@@ -441,19 +506,25 @@
 			}
 		}
 
-		$expose_header-text_change_screenwidth: 1200px;
-
 		@include media-above($expose_header-text_change_screenwidth) {
-			
+
 			header .expose .short-version {
 				display: none;
 			}
 		}
 
 		@include media-below-inclusive($expose_header-text_change_screenwidth) {
-			
-			header .expose .long-version {
-				display: none;
+
+			header .expose {
+				width: 140px;
+
+				.long-version {
+					display: none;
+				}
+			}
+
+			article .uploaded-files .uploaded-file .details .expose-and-actions .expose {
+				width: 140px;
 			}
 		}
 
@@ -473,12 +544,15 @@
 
 		@include media-below-inclusive($layout-style_change_screenwidth) {
 
-			header .expose {
-				display: none;
+			header {
+
+				.expose {
+					display: none;
+				}
 			}
 
 			article .uploaded-files .uploaded-file {
-				
+
 				.details {
 					display: block;
 
@@ -569,7 +643,7 @@
 	.files.provisioning-profiles {
 
 		article .uploaded-files .details {
-			
+
 			.icon svg {
 				fill: $def-green-neon;
 			}
@@ -598,7 +672,7 @@
 			.icon svg {
 				fill: $def-purple;
 			}
-			
+
 			.column {
 
 				.detail.serial {
@@ -675,8 +749,16 @@
 
 		@include media-below-inclusive($layout-style_change_screenwidth) {
 
-			header .label.password {
-				display: none;
+			header {
+
+				.label.title {
+					width: 100%;
+					margin-right: 0;
+				}
+
+				.label.password {
+					display: none;
+				}
 			}
 
 			article .uploaded-files .uploaded-file .details .password {
@@ -692,18 +774,31 @@
 	}
 
 	.files.android-keystore, .files.generic-files {
-		
+
+		header {
+
+			&:after {
+				content: "";
+				margin-left: $action_dropdown_icon-spacing;
+				width: $action_dropdown_icon-width;
+			}
+
+			.expose:after {
+				content: none;
+			}
+		}
+
 		article {
 
 			.file-upload, .keystore-metadata {
-	
+
 				p {
 					margin-top: 0;
 					margin-bottom: 10px;
 					font-size: 14px;
 					font-weight: 200;
 				}
-	
+
 				input.env-var {
 					display: block;
 					@include box-sizing(border-box);
@@ -715,7 +810,7 @@
 					font-size: 14px;
 					font-weight: 200;
 				}
-	
+
 				p.progress-indicator, p.notification {
 					@include margin-x(0);
 					margin-bottom: 10px;
@@ -725,15 +820,15 @@
 	}
 
 	.files.android-keystore {
-		
+
 		article {
-			
+
 			.uploaded-files .uploaded-file .details {
 
 				.icon svg {
 					fill: $def-green-verylight;
 				}
-				
+
 				.column {
 
 					.detail.env-var-key {
@@ -783,13 +878,13 @@
 	.files.generic-files {
 
 		article {
-			
+
 			.uploaded-files .uploaded-file .details {
 
 				.icon svg {
 					fill: $def-green-neon;
 				}
-				
+
 				.column {
 
 					.detail.env-var-key {
@@ -853,7 +948,7 @@
 			border-right: 1px solid $def-mediumlightgrey;
 
 			.menu {
-	
+
 				.menu-option {
 					@include display-flex;
 					@include align-items(center);
@@ -892,7 +987,7 @@
 					.status, .arrow {
 						display: block;
 					}
-	
+
 					.status {
 						@keyframes pulse {
 							0% { @include transform(scale(1)); }
@@ -972,22 +1067,22 @@
 						&.ok .icon-wrapper:not(.ok-icon-wrapper) {
 							display: none;
 						}
-						
+
 						&.loading, &.missing, &.ok {
 							display: block;
 							margin-right: 22px;
-						
+
 							.loading-icon-wrapper svg {
 								@include size(12px);
 								fill: $def-purple;
 								animation: pulse 1s ease infinite;
 							}
-							
+
 							.missing-icon-wrapper svg {
 								@include size(18px);
 								fill: $def-danger;
 							}
-			
+
 							.ok-icon-wrapper svg {
 								@include size(18px);
 								fill: #3ac3a2;
@@ -1069,7 +1164,7 @@
 							}
 
 							.registered {
-								
+
 								.label {
 									color: $def-mediumdarkgrey;
 								}
@@ -1108,7 +1203,7 @@
 					.menu-option {
 						@include flex-grow(1);
 						border-bottom: none;
-						
+
 						&:not(:first-child) {
 							border-left: 1px solid $def-mediumlightgrey;
 						}
@@ -1130,7 +1225,7 @@
 
 					li {
 						display: block;
-						
+
 						.status {
 							margin-right: 0;
 							margin-bottom: 10px;
@@ -1141,12 +1236,12 @@
 				.matching-certificates {
 
 					.identity {
-						
+
 						.details {
 							@include flex-direction(column);
 
 							.column {
-								
+
 								.expired {
 									@include padding-x(0);
 								}
@@ -1158,7 +1253,7 @@
 				.devices {
 
 					.device {
-						
+
 						.details {
 							display: block;
 
@@ -1183,7 +1278,7 @@
 		}
 
 		@include media-below-inclusive($dropdown_menu-screenwidth) {
-			
+
 			.sidebar {
 
 				.menu:not(.small) {
@@ -1215,7 +1310,7 @@
 
 .popup-body#list-identities-popup-body {
 	width: 840px;
-	
+
 	header.closeable.left-aligned {
 		border-bottom: 1px solid $def-grey;
 
@@ -1243,7 +1338,7 @@
 			padding-bottom: 45px;
 			list-style: none;
 			padding-left: 0;
-		
+
 			li.identity {
 				@include display-flex;
 				padding: 12px 14px;
@@ -1282,7 +1377,7 @@
 								.label:not(.expired-label) {
 									display: none;
 								}
-							
+
 								.label.expired-label {
 									display: inline-block;
 									border-radius: $def-radius;

@@ -14,12 +14,16 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	viewModel.loadProvProfilesProgress = new Progress();
 	viewModel.uploadProvProfilesProgress = new Progress();
 	viewModel.deleteProvProfileProgress = new Progress();
+	viewModel.deleteAllProvProfilesProgress = new Progress();
 	viewModel.loadTestDevicesProgress = new Progress();
 
 	viewModel.provProfiles;
 	viewModel.provProfilesToUpload;
 	viewModel.provProfileUploader;
-	viewModel.provProfileConfigs = {};
+	viewModel.provProfileSettings = {};
+	viewModel.actionsForAllProvisioningProfiles = {
+		isMenuVisible: false
+	};
 
 	var testDevicesOfApp;
 
@@ -101,7 +105,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 					var provProfileIsExposeGetterSetterProgress = new Progress();
 
-					viewModel.provProfileConfigs[provProfile.databaseID] = {
+					viewModel.provProfileSettings[provProfile.databaseID] = {
 						getDetailsProgress: new Progress(),
 						isMenuVisible: false,
 						isExposeGetterSetter: isExposeGetterSetterForProvProfile(provProfile, provProfileIsExposeGetterSetterProgress),
@@ -314,16 +318,35 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	};
 
+	viewModel.deleteAllProvProfiles = function() {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>"), 
+		"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:no_title] %>", function() {
+			viewModel.deleteAllProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
+
+			if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
+				viewModel.uploadProvProfilesProgress.reset();
+			}
+
+			requestService.deleteAllProvProfiles().then(function() {
+				viewModel.deleteAllProvProfilesProgress.success();
+
+				loadProvProfiles(true);
+			}, function(error) {
+				viewModel.deleteAllProvProfilesProgress.error(error);
+			});
+		});
+	};
+
 	viewModel.getDetails = function(provProfile) {
-		viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.start("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>");
+		viewModel.provProfileSettings[provProfile.databaseID].getDetailsProgress.start("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>");
 		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
 			viewModel.uploadProvProfilesProgress.reset();
 		}
 
 		provProfile.getDetails().then(function() {
-			viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.success();
+			viewModel.provProfileSettings[provProfile.databaseID].getDetailsProgress.success();
 		}, function(error) {
-			viewModel.provProfileConfigs[provProfile.databaseID].getDetailsProgress.error(error);
+			viewModel.provProfileSettings[provProfile.databaseID].getDetailsProgress.error(error);
 		});
 	};
 

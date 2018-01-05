@@ -24,10 +24,15 @@
 			h2.label.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
 				span.long-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pr]
+			.actions[ng-class="{'hidden': provProfileCtrl.provProfiles.length <= 1}" floating-menu toggle="provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible"]
+				button.dropdown-toggle[ng-if="provProfileCtrl.provProfiles.length > 1" ng-click="provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible = !provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible" ng-disabled="provProfileCtrl.deleteAllProvProfilesProgress.isInProgress"] = svg("three-horizontal-dots")
+				.dropdown[ng-if="provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible"]
+					button.dropdown-option.delete-all[ng-click="provProfileCtrl.deleteAllProvProfiles()"] == data[:strings][:code_signing][:prov_profile][:header][:actions][:delete_all]
 		article
 			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
 			p.progress-indicator[progress-model="provProfileCtrl.deleteProvProfileProgress"]
-			div[ng-if="provProfileCtrl.loadProvProfilesProgress.isIdle && !provProfileCtrl.deleteProvProfileProgress.isInProgress"]
+			p.progress-indicator[progress-model="provProfileCtrl.deleteAllProvProfilesProgress"]
+			div[ng-if="provProfileCtrl.loadProvProfilesProgress.isIdle && !provProfileCtrl.deleteProvProfileProgress.isInProgress && !provProfileCtrl.deleteAllProvProfilesProgress.isInProgress"]
 				p.notification.no-icon[ng-if="provProfileCtrl.provProfiles.length == 0"] == data[:strings][:code_signing][:prov_profile][:no_prov_profiles_added_yet]
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
@@ -35,17 +40,17 @@
 							.icon = svg("code_signing/sheet-prov_profile")
 							.column.left
 								.detail.name[ng-bind="provProfile.displayName()"]
-								div[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].getDetailsProgress.isIdle"]
+								div[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 									.detail.code.uuid[ng-bind="provProfile.uuid" ng-if="provProfile.uuid"]
 									.detail[ng-if="provProfile.expiresAt"]
 										strong.label>[ng-if="!dateService.isDateExpired(provProfile.expiresAt)"] == data[:strings][:code_signing][:prov_profile][:article][:details][:expires_on_label] + ":"
 										.label.warning>[ng-if="dateService.isDateExpired(provProfile.expiresAt)"] == data[:strings][:code_signing][:prov_profile][:article][:details][:expired_label] + ":"
 										time[ng-bind="(provProfile.expiresAt | date: 'MMM, dd, yyyy, HH:mm (UTC)' : 'UTC')" datetime="{{ provProfile.expiresAt | datetimeValue }}"]
-								p.progress-indicator[progress-model="provProfileCtrl.provProfileConfigs[provProfile.databaseID].getDetailsProgress"]
+								p.progress-indicator[progress-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress"]
 									span.error-content
-										span[ng-bind-html="provProfileCtrl.provProfileConfigs[provProfile.databaseID].getDetailsProgress.statusMessage"]
+										span[ng-bind-html="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.statusMessage"]
 										a>[href="javascript:void(0)" ng-click="provProfileCtrl.getDetails(provProfile)"] == data[:strings][:code_signing][:prov_profile][:get_details_progress][:try_again_postfix]
-							.column.right[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].getDetailsProgress.isIdle"]
+							.column.right[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 								.detail[ng-if="provProfile.exportType"]
 									strong.label> == data[:strings][:code_signing][:prov_profile][:article][:details][:export_type_label] + ":"
 									span[ng-bind="provProfile.exportType"]
@@ -57,17 +62,17 @@
 									span[ng-bind="provProfile.bundleID"]
 							.expose-and-actions
 								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-									checkbox[ng-model="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
+									checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 									label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
-								.actions[floating-menu toggle="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible"]
-									button.dropdown-toggle[ng-click="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
-									.dropdown[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].isMenuVisible"]
+								.actions[floating-menu toggle="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
+									button.dropdown-toggle[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
+									.dropdown[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
 										a.dropdown-option.download[href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
 										button.dropdown-option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
 								.actions.small
 									a.option.download[href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
 									button.option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
-						.show-more-details[ng-if="provProfileCtrl.provProfileConfigs[provProfile.databaseID].getDetailsProgress.isIdle"]
+						.show-more-details[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 							button.show-more[ng-click="provProfileCtrl.showProvProfileDetails(provProfile)"]
 								span.container
 									span.icon[ng-class="provProfileCtrl.provProfileStatusCSSclass(provProfile)"] = svg("dot")
@@ -134,11 +139,16 @@
 			h2.label.expose[ng-if="certificateService.certificates.length > 0"]
 				span.long-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pr]
+			.actions[ng-class="{'hidden': certificateService.certificates.length <= 1}" floating-menu toggle="certificateCtrl.actionsForAllCertificates.isMenuVisible"]
+				button.dropdown-toggle[ng-if="certificateService.certificates.length > 1" ng-click="certificateCtrl.actionsForAllCertificates.isMenuVisible = !certificateCtrl.actionsForAllCertificates.isMenuVisible" ng-disabled="certificateCtrl.deleteAllCertificatesProgress.isInProgress"] = svg("three-horizontal-dots")
+				.dropdown[ng-if="certificateCtrl.actionsForAllCertificates.isMenuVisible"]
+					button.dropdown-option.delete-all[ng-click="certificateCtrl.deleteAllCertificates()"] == data[:strings][:code_signing][:certificate][:header][:actions][:delete_all]
 		article
 			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
 			p.progress-indicator[progress-model="certificateCtrl.deleteCertificateProgress"]
+			p.progress-indicator[progress-model="certificateCtrl.deleteAllCertificatesProgress"]
 			p.progress-indicator[progress-model="certificateCtrl.changePasswordProgress"]
-			div[ng-if="certificateCtrl.loadCertificatesProgress.isIdle && !certificateCtrl.deleteCertificateProgress.isInProgress && !certificateCtrl.changePasswordProgress.isInProgress"]
+			div[ng-if="certificateCtrl.loadCertificatesProgress.isIdle && !certificateCtrl.deleteCertificateProgress.isInProgress && !certificateCtrl.changePasswordProgress.isInProgress && !certificateCtrl.deleteAllCertificatesProgress.isInProgress"]
 				p.notification.no-icon[ng-if="certificateService.certificates.length == 0"] == data[:strings][:code_signing][:certificate][:no_certificates_added_yet]
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateService.certificates" ng-init="showPassword = false"]

@@ -15,11 +15,15 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.loadCertificatesProgress = certificateService.loadProgress = new Progress();
 	viewModel.uploadCertificatesProgress = new Progress();
 	viewModel.deleteCertificateProgress = new Progress();
+	viewModel.deleteAllCertificatesProgress = new Progress();
 	viewModel.changePasswordProgress = new Progress();
 	viewModel.certificatesToUpload;
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
 	viewModel.certificateSettings = {};
+	viewModel.actionsForAllCertificates = {
+		isMenuVisible: false
+	};
 	var passwordEditedCertificateOriginalPassword;
 
 	viewModel.selectedCertificate = null;
@@ -61,7 +65,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 					isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
 					isExposeGetterSetterProgress: isExposeGetterSetterProgress
 				};
-				
+
 				if (!certificate.details) {
 					viewModel.getDetails(certificate);
 				}
@@ -152,6 +156,25 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		});
 	};
 
+	viewModel.deleteAllCertificates = function() {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>"), 
+		"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:no_title] %>", function() {
+			viewModel.deleteAllCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_all_progress][:in_progress] %>");
+
+			if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
+				viewModel.uploadCertificatesProgress.reset();
+			}
+
+			requestService.deleteAllCertificates().then(function() {
+				viewModel.deleteAllCertificatesProgress.success();
+
+				loadCertificates(true);
+			}, function(error) {
+				viewModel.deleteAllCertificatesProgress.error(error);
+			});
+		});
+	};
+
 	viewModel.changePasswordSelected = function(certificate) {
 		viewModel.passwordEditedCertificate = certificate;
 		passwordEditedCertificateOriginalPassword = certificate.password;
@@ -237,7 +260,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			}, function(error) {
 				certificate.isExpose = oldIsExpose;
 				progress.reset();
-				Popup.showErrorPopup(error.message); 
+				Popup.showErrorPopup(error.message);
 			});
 		}
 	};
