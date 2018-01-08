@@ -21,9 +21,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	viewModel.certificateUploader;
 	viewModel.passwordEditedCertificate = null;
 	viewModel.certificateSettings = {};
-	viewModel.actionsForAllCertificates = {
-		isMenuVisible: false
-	};
+	viewModel.isActionMenuForAllCertificatesVisible = false;
 	var passwordEditedCertificateOriginalPassword;
 
 	viewModel.selectedCertificate = null;
@@ -157,7 +155,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	};
 
 	viewModel.deleteAllCertificates = function() {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>"), 
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>", 
 		"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:no_title] %>", function() {
 			viewModel.deleteAllCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_all_progress][:in_progress] %>");
 

@@ -9,6 +9,7 @@
 	$details_icon-width: 30px;
 	$details_icon_and_column-spacing: 15px;
 	$expose-width: 220px;
+	$expose-width-below-inclusive: 140px;
 	$action_dropdown_icon-spacing: 15px;
 	$action_dropdown_icon-width: 26px;
 
@@ -142,20 +143,14 @@
 				margin-left: auto;
 				text-transform: uppercase;
 
-				&:after {
-					content: "";
-					margin-left: $action_dropdown_icon-spacing;
-					width: $action_dropdown_icon-width;
+				&:last-child {
+					width: $expose-width + $action_dropdown_icon-spacing + $action_dropdown_icon-width;
 				}
 			}
 
 			.actions {
 				position: relative;
 				margin-left: $action_dropdown_icon-spacing;
-
-				&.hidden {
-					width: $action_dropdown_icon-width;
-				}
 
 				.dropdown-toggle {
 					cursor: pointer;
@@ -297,11 +292,12 @@
 							@include justify-content(space-between);
 							margin-left: auto;
 
-							.expose {
+							.expose-with-popover {
+								@include display-flex;
 								position: relative;
 								width: $expose-width;
 
-								.popover {
+								.expose .popover {
 									top: 100%;
 									width: 100%;
 
@@ -516,15 +512,19 @@
 		@include media-below-inclusive($expose_header-text_change_screenwidth) {
 
 			header .expose {
-				width: 140px;
+				width: $expose-width-below-inclusive;
+				
+				&:last-child {
+					width: $expose-width-below-inclusive + $action_dropdown_icon-spacing + $action_dropdown_icon-width;
+				}
 
 				.long-version {
 					display: none;
 				}
 			}
 
-			article .uploaded-files .uploaded-file .details .expose-and-actions .expose {
-				width: 140px;
+			article .uploaded-files .uploaded-file .details .expose-and-actions .expose-with-popover {
+				width: $expose-width-below-inclusive;
 			}
 		}
 
@@ -532,7 +532,7 @@
 
 			article .uploaded-files .details .expose-and-actions {
 
-				.expose .on-small {
+				.expose-with-popover .expose .on-small {
 					display: none;
 				}
 
@@ -579,18 +579,21 @@
 						width: auto;
 						margin-left: 0;
 
-						.expose {
-							@include display-flex;
-							@include align-items(center);
+						.expose-with-popover {
 							width: auto;
 
-							.checkbox {
-								@include flex-shrink(0);
-							}
+							.expose {
+								@include display-flex;
+								@include align-items(center);
 
-							.on-small {
-								margin-left: 10px;
-								font-size: 12px;
+								.checkbox {
+									@include flex-shrink(0);
+								}
+
+								.on-small {
+									margin-left: 10px;
+									font-size: 12px;
+								}
 							}
 						}
 

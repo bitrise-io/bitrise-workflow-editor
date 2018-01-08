@@ -24,9 +24,9 @@
 			h2.label.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
 				span.long-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pr]
-			.actions[ng-class="{'hidden': provProfileCtrl.provProfiles.length <= 1}" floating-menu toggle="provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible"]
-				button.dropdown-toggle[ng-if="provProfileCtrl.provProfiles.length > 1" ng-click="provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible = !provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible" ng-disabled="provProfileCtrl.deleteAllProvProfilesProgress.isInProgress"] = svg("three-horizontal-dots")
-				.dropdown[ng-if="provProfileCtrl.actionsForAllProvisioningProfiles.isMenuVisible"]
+			.actions[ng-if="provProfileCtrl.provProfiles.length > 1" floating-menu toggle="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible"]
+				button.dropdown-toggle[ng-click="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible = !provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible" ng-disabled="provProfileCtrl.deleteAllProvProfilesProgress.isInProgress"] = svg("three-horizontal-dots")
+				.dropdown[ng-if="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible"]
 					button.dropdown-option.delete-all[ng-click="provProfileCtrl.deleteAllProvProfiles()"] == data[:strings][:code_signing][:prov_profile][:header][:actions][:delete_all]
 		article
 			p.progress-indicator[progress-model="provProfileCtrl.loadProvProfilesProgress"]
@@ -61,9 +61,10 @@
 									strong.label> == data[:strings][:code_signing][:prov_profile][:article][:details][:bundle_id_label] + ":"
 									span[ng-bind="provProfile.bundleID"]
 							.expose-and-actions
-								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-									checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
-									label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
+								.expose-with-popover
+									.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
+										label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
 								.actions[floating-menu toggle="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
 									button.dropdown-toggle[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
@@ -139,9 +140,9 @@
 			h2.label.expose[ng-if="certificateService.certificates.length > 0"]
 				span.long-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pr]
-			.actions[ng-class="{'hidden': certificateService.certificates.length <= 1}" floating-menu toggle="certificateCtrl.actionsForAllCertificates.isMenuVisible"]
-				button.dropdown-toggle[ng-if="certificateService.certificates.length > 1" ng-click="certificateCtrl.actionsForAllCertificates.isMenuVisible = !certificateCtrl.actionsForAllCertificates.isMenuVisible" ng-disabled="certificateCtrl.deleteAllCertificatesProgress.isInProgress"] = svg("three-horizontal-dots")
-				.dropdown[ng-if="certificateCtrl.actionsForAllCertificates.isMenuVisible"]
+			.actions[ng-if="certificateService.certificates.length > 1" floating-menu toggle="certificateCtrl.isActionMenuForAllCertificatesVisible"]
+				button.dropdown-toggle[ng-click="certificateCtrl.isActionMenuForAllCertificatesVisible = !certificateCtrl.isActionMenuForAllCertificatesVisible" ng-disabled="certificateCtrl.deleteAllCertificatesProgress.isInProgress"] = svg("three-horizontal-dots")
+				.dropdown[ng-if="certificateCtrl.isActionMenuForAllCertificatesVisible"]
 					button.dropdown-option.delete-all[ng-click="certificateCtrl.deleteAllCertificates()"] == data[:strings][:code_signing][:certificate][:header][:actions][:delete_all]
 		article
 			p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
@@ -184,9 +185,10 @@
 									span.icon = svg("triangle")
 									span == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
 							.expose-and-actions
-								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-									checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
-									label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]
+								.expose-with-popover
+									.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
+										label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]
 								.actions[floating-menu toggle="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
 									button.dropdown-toggle[ng-click="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible = !certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
@@ -314,9 +316,10 @@
 								.detail.name[ng-bind="genericFile.displayName()"]
 								.detail.code.env-var-key[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 							.expose-and-actions
-								.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-									checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
-									label.on-small[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]
+								.expose-with-popover
+									.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
+										label.on-small[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]
 								.actions[floating-menu toggle="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
 									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
