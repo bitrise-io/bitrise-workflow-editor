@@ -147,12 +147,34 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	appService.saveAppConfig = function(requestConfig) {
 		var variables = [];
 		if (appService.appConfig.app && appService.appConfig.app.envs) {
+			var variablesWithoutKeyAndValue = _.filter(_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
+				return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+			}), function(anEnvVar){
+				return (_.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value()));
+			});
+
+			_.each(variablesWithoutKeyAndValue, function(aVariable) {
+				var index = _.findIndex(appService.appConfig.app.envs, aVariable.userVariableConfig);
+				appService.appConfig.app.envs.splice(index, 1);
+			});
+
 			variables = variables.concat(_.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
 				return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 			}));
 		}
 		if (appService.appConfig.workflows) {
 			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+				var variablesWithoutKeyAndValue = _.filter(_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
+					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+				}), function(anEnvVar){
+					return (_.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value()));
+				});
+
+				_.each(variablesWithoutKeyAndValue, function(aVariable) {
+					var index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
+					aWorkflowConfig.envs.splice(index, 1);
+				});
+
 				variables = variables.concat(_.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
 					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 				}));
@@ -176,7 +198,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		if (!shouldForceReload && appService.secrets) {
 			return $q.when();
 		}
-		
+
 		return requestService.getSecrets(requestConfig).then(function(secretConfigs) {
 			normalizeSecretConfigs(secretConfigs);
 
@@ -197,6 +219,9 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	};
 
 	appService.saveSecrets = function() {
+		appService.secrets = _.filter(appService.secrets, function(aSecretVar){
+			return (!_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
+		});
 		return validateVariables(appService.secrets).then(function() {
 			return requestService.postSecrets(appService.secrets);
 		}).then(function() {
@@ -241,7 +266,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		if (!shouldForceReload && appService.availableProjectTypes) {
 			return $q.when();
 		}
-		
+
 		return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
 			appService.availableProjectTypes = availableProjectTypes;
 		});
