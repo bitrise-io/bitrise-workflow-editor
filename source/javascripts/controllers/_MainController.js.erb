@@ -171,7 +171,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		if (!viewModel.currentMenu) {
 			return undefined;
 		}
-		
+
 		switch (viewModel.currentMenu.id) {
 			case "workflows":
 			case "env-vars":
@@ -234,8 +234,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 		}), $timeout(function() {}, 1000)]).then(function() {
 			viewModel.saveProgress.reset();
+			$rootScope.$emit("MainController::savedFinishedWithSuccess");
 		}, function(error) {
 			viewModel.saveProgress.reset();
+			$rootScope.$emit("MainController::savedFinishedWithError");
 			Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
 			if (shouldReturnPromise) {
