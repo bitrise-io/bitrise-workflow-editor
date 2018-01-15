@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.1.4)
+## Changelog (Current version: 1.1.5)
 
 -----------------
+
+## 1.1.5 (2018 Jan 15)
+
+### Release Notes
+
+* CDN update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.5
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.4 -> 1.1.5
+
+* [b507ad8] erosdome - new CDN link for jQuery; (#237) (2018 Jan 15)
+
 
 ## 1.1.4 (2018 Jan 09)
 
@@ -1564,4 +1597,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jan 09
+Updated: 2018 Jan 15
