@@ -98,7 +98,7 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 	Certificate.prototype.delete = function(requestConfig) {
 		return requestService.deleteCertificate(this.databaseID, requestConfig);
 	};
-
+	
 	return Certificate;
 
 });
