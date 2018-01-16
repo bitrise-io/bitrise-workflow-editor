@@ -30,6 +30,8 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 			opts: {
 				is_expand: true,
 				meta: {
+					// TODO: remove the following line, it is only required during secrets' "is expose" migration
+					is_expose: false,
 					"bitrise.io.workflow-editor": {
 						is_expose: false
 					}

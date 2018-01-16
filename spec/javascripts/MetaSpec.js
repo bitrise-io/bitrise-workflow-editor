@@ -111,6 +111,19 @@ describe("Meta", function() {
 				});
 				expect(meta.valueGetterSetter(undefined, "key1", "bundle2")).toBeNull();
 			});
+
+			// TODO: remove the rest of the specs from getter mode, they are only required during secrets' "is expose" migration
+
+			it("should return 'is expose' value if it is set in user defined config with the non-namespaced way", function() {
+				var meta = new Meta({});
+				meta.userMetaConfig.is_expose = true;
+
+				expect(meta.valueGetterSetter(undefined, "is_expose", "bitrise.io.workflow-editor")).toBe(true);
+
+				meta.userMetaConfig.is_expose = false;
+
+				expect(meta.valueGetterSetter(undefined, "is_expose", "bitrise.io.workflow-editor")).toBe(false);
+			});
 		});
 
 		describe("setter mode", function() {
@@ -251,6 +264,28 @@ describe("Meta", function() {
 					bundle2: {
 						key2: "value4"
 					}
+				});
+			});
+
+			// TODO: remove the rest of the specs from setter mode, they are only required during secrets' "is expose" migration
+
+			it("should set 'is expose' value with the namespaced and also with the non-namespaced way", function() {
+				var meta = new Meta({});
+				meta.valueGetterSetter(true, "is_expose", "bitrise.io.workflow-editor");
+
+				expect(meta.userMetaConfig).toEqual({
+					"bitrise.io.workflow-editor": {
+						is_expose: true
+					},
+					is_expose: true
+				});
+
+				meta.valueGetterSetter(false, "is_expose", "bitrise.io.workflow-editor");
+				expect(meta.userMetaConfig).toEqual({
+					"bitrise.io.workflow-editor": {
+						is_expose: false
+					},
+					is_expose: false
 				});
 			});
 		});
