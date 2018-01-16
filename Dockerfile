@@ -10,7 +10,7 @@ ENV LANG="en_US.UTF-8" \
     LANGUAGE="en_US.UTF-8" \
     LC_ALL="en_US.UTF-8" \
 # Configs - tool versions
-    TOOL_VER_BITRISE_CLI="1.9.0" \
+    TOOL_VER_BITRISE_CLI="1.12.0" \
     TOOL_VER_RUBY="2.3.4" \
     TOOL_VER_GO="1.8.1"
 
