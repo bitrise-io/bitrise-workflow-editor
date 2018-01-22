@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 1.1.2
+  - RELEASE_VERSION: 1.1.5
   - BIN_NAME: workflow-editor
   
   - PORT: "1234"
@@ -84,10 +84,11 @@ workflows:
             set -ex
             bundle exec middleman build
             mkdir -p ./spec/javascripts/src/
-            cp -f ./build/javascripts/main.js ./spec/javascripts/src/
             cp -f ./build/javascripts/jquery_cache.js ./spec/javascripts/src/
             cp -f ./build/javascripts/angular_cache.js ./spec/javascripts/src/
             cp -f ./build/javascripts/underscore_cache.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/vendor.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/main.js ./spec/javascripts/src/
             rm -rf ./build
             bundle exec middleman server
             rm -rf ./spec/javascripts/src/

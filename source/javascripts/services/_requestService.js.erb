@@ -535,7 +535,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.getDetailsOfProvProfile = function(databaseID, requestConfig) {
 		var requestURL;
-		
+
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_get_details]) %>", {
@@ -583,7 +583,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.fetchAllTestDevicesOfRepository = function(requestConfig) {
 		var requestURL;
-		
+
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:team_test_devices]) %>", {
@@ -712,11 +712,25 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	requestService.deleteAllProvProfiles = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profiles_delete_all]) %>", {
+			app_slug: requestService.appSlug
+		});
+
+		return $q(function(resolve, reject) {
+			$http.delete(requestURL, requestConfig).then(function(response) {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_all_prov_profiles][:default_error] %>", "<%= data[:strings][:request_service][:delete_all_prov_profiles][:error_prefix] %>"));
+			});
+		});
+	};
+
 	// Certificates
 
 	requestService.getDetailsOfCertificate = function(certificateDatabaseID, certificatePassword, requestConfig) {
 		var requestURL;
-		
+
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificate_get_details]) %>", {
@@ -867,6 +881,20 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	requestService.deleteAllCertificates = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:certificates_delete_all]) %>", {
+			app_slug: requestService.appSlug
+		});
+
+		return $q(function(resolve, reject) {
+			$http.delete(requestURL, requestConfig).then(function(response) {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_all_certificates][:default_error] %>", "<%= data[:strings][:request_service][:delete_all_certificates][:error_prefix] %>"));
+			});
+		});
+	};
+
 	// Generic files
 
 	requestService.postGenericFileCreate = function(envVarPartialID, fileName, fileSize, requestConfig) {
@@ -935,7 +963,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			});
 		});
 	};
-	
+
 	requestService.updateGenericFileIsExposeState = function(databaseID, isExpose, requestConfig) {
 		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:generic_file_is_expose_state_update]) %>", {
 			generic_file_id: databaseID,
@@ -1034,7 +1062,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				var responseData = {
 					genericFileAndKeystoreFileCountSum: response.data.project_file_storage_documents.length
 				};
-				
+
 				if (keystoreFileData) {
 					responseData.keystoreFileData = {
 						databaseID: keystoreFileData.id,
@@ -1050,7 +1078,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						responseData.keystoreFileData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
 					}
 				}
-				
+
 				resolve(responseData);
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_keystore_file][:default_error] %>", "<%= data[:strings][:request_service][:load_keystore_file][:error_prefix] %>"));

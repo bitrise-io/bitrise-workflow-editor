@@ -20,7 +20,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 	});
 	viewModel.uploadedGenericFile = new GenericFile("");
 	viewModel.genericFileUploader;
-	viewModel.genericFileSettings = [];
+	viewModel.genericFileSettings = {};
 
 	function loadGenericFiles(shouldClearPreviousLoad) {
 		viewModel.loadGenericFilesProgress.start("<%= data[:strings][:code_signing][:generic_file][:load_progress][:in_progress] %>");
@@ -124,7 +124,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			file_name: genericFile.displayName()
 		}), "<%= data[:strings][:code_signing][:generic_file][:delete_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:generic_file][:delete_confirm][:no_title] %>", function() {
 			viewModel.deleteGenericFileProgress.start("<%= data[:strings][:code_signing][:generic_file][:delete_progress][:in_progress] %>");
-			
+
 			if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
 				viewModel.uploadGenericFileProgress.reset();
 			}
@@ -154,7 +154,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			}, function(error) {
 				aGenericFile.isExpose = oldIsExpose;
 				progress.reset();
-				Popup.showErrorPopup(error.message); 
+				Popup.showErrorPopup(error.message);
 			});
 		}
 	};

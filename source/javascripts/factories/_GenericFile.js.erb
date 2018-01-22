@@ -73,7 +73,7 @@ angular.module("BitriseWorkflowEditor").factory("GenericFile", function($q, $inj
 		if (this.validationError()) {
 			return $q.reject(this.validationError());
 		}
-		
+
 		var self = this;
 
 		return $q(function(resolve, reject) {

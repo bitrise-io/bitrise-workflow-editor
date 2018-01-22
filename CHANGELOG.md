@@ -1,6 +1,115 @@
-## Changelog (Current version: 1.1.2)
+## Changelog (Current version: 1.1.5)
 
 -----------------
+
+## 1.1.5 (2018 Jan 15)
+
+### Release Notes
+
+* CDN update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.5
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.4 -> 1.1.5
+
+* [b507ad8] erosdome - new CDN link for jQuery; (#237) (2018 Jan 15)
+
+
+## 1.1.4 (2018 Jan 09)
+
+### Release Notes
+
+* When saving environment variables, filter the ones without key AND value before validating all the environment variables - the user probably just forgot to cancel creating a new one
+* Trigger pattern handling update when using "*" character
+* "Delete all" action added for uploaded code signing files
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.4
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.3 -> 1.1.4
+
+* [44801af] Norbert Kovach - delete all functionality for provisioning profile files and certificates (#238) (2018 Jan 09)
+* [ebb8761] erosdome - allow * as initial character when entering trigger pattern (#236) (2018 Jan 09)
+* [712637e] erosdome - Also strip workflow env vars before validating all variables (#239) (2018 Jan 05)
+* [d4101ec] David Breuer - filtered empty key/value env vars and secrets (#234) (2018 Jan 05)
+
+
+## 1.1.3 (2018 Jan 03)
+
+### Release Notes
+
+* Code signing tab bugfixes
+* Certificate expiration badge added
+* Issue #232 fixed
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.3
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.2 -> 1.1.3
+
+* [ef68c80] Norbert Kovach - discard button fix on triggers page (#233) (2018 Jan 03)
+* [6b23c47] Norbert Kovach - code sign tab - expiry status of identities (ProvProfile popup) (#231) (2018 Jan 03)
+* [a16b766] Norbert Kovach - set selectedMenu to null if provProfile popup is closed (#229) (2018 Jan 03)
+* [06f7e15] Norbert Kovach - display certificate details button - icon fix (#230) (2018 Jan 03)
+
 
 ## 1.1.2 (2017 Dec 13)
 
@@ -1488,4 +1597,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2017 Dec 13
+Updated: 2018 Jan 15

@@ -138,6 +138,8 @@ code_signing:
       card_title: Provisioning profile
       expose_for_pull_requests: Expose for Pull Requests
       expose_for_pr: Expose for PR
+      actions:
+        delete_all: Delete all
     article:
       details:
         expires_on_label: Expires on
@@ -162,6 +164,8 @@ code_signing:
       # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
       devices:
         udid: UDID
+      identities:
+        expired: Expired
       capabilities: 
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
@@ -194,6 +198,11 @@ code_signing:
       question: "Are you sure you want to delete <provisioning_profile_name>?"
       yes_title: "Yes, delete"
       no_title: "Cancel"
+    delete_all_confirm:
+      question_short: "Are you sure?"
+      question: "Are you sure you want to delete all provisioning profiles?"
+      yes_title: "Yes, delete"
+      no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
     get_details_progress:
@@ -209,12 +218,16 @@ code_signing:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
       in_progress: Deleting, wait a sec...
+    delete_all_progress:
+      in_progress: Deleting all provisioning profiles, wait a sec...
   certificate:
     header:
       card_title: Code Signing Identity
       password: Password
       expose_for_pull_requests: Expose for Pull Requests
       expose_for_pr: Expose for PR
+      actions:
+        delete_all: Delete all
     article:
       details:
         team_data_label: Team
@@ -244,6 +257,11 @@ code_signing:
       question: "Are you sure you want to delete <certificate_name>?"
       yes_title: "Yes, delete"
       no_title: "Cancel"
+    delete_all_confirm:
+      question_short: "Are you sure?"
+      question: "Are you sure you want to delete all certificates?"
+      yes_title: "Yes, delete"
+      no_title: "Cancel"
     load_progress:
       in_progress: Loading, wait a sec...
     get_details_progress:
@@ -253,6 +271,8 @@ code_signing:
       in_progress: "Uploading, wait a sec..."
     delete_progress:
       in_progress: Deleting, wait a sec...
+    delete_all_progress:
+      in_progress: Deleting all certificates, wait a sec...
     show_password: Show password
     change_password_save: Save
     change_password_cancel: Cancel
@@ -487,9 +507,15 @@ request_service:
   delete_prov_profile:
     default_error: Error removing provisioning profile.
     error_prefix: "Error removing provisioning profile: "
+  delete_all_prov_profiles:
+    default_error: Error removing all provisioning profiles.
+    error_prefix: "Error removing all provisioning profiles: "
   delete_certificate:
     default_error: Error removing certificate.
     error_prefix: "Error removing certificate: "
+  delete_all_certificates:
+    default_error: Error removing all certificates.
+    error_prefix: "Error removing all certificates: "
   delete_generic_file:
     default_error: Error removing file.
     error_prefix: "Error removing file: "
