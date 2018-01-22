@@ -17,8 +17,7 @@
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
-	/ TODO: uncomment when workflow-specific stacks feature has been implemented:
-	/ section.cardo.stack-settings.workflow-specific
+	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
 			p == replaced_string(data[:strings][:stack][:workflow_specific_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
