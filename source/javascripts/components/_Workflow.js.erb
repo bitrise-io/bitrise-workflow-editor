@@ -121,37 +121,6 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
-	Workflow.prototype.dockerImage = function(dockerImage) {
-		if (dockerImage !== undefined) {
-			if (!this.workflowConfig.meta) {
-				this.workflowConfig.meta = {};
-			}
-			if (!this.workflowConfig.meta.bitriseio) {
-				this.workflowConfig.meta.bitriseio = {};
-			}
-
-			if (dockerImage !== null) {
-				this.workflowConfig.meta.bitriseio.docker_image = dockerImage;
-			}
-			else {
-				delete this.workflowConfig.meta.bitriseio.docker_image;
-			}
-
-			if (_.isEmpty(this.workflowConfig.meta.bitriseio)) {
-				delete this.workflowConfig.meta.bitriseio;
-			}
-			if (_.isEmpty(this.workflowConfig.meta)) {
-				delete this.workflowConfig.meta;
-			}
-		}
-
-		if (!this.workflowConfig.meta || !this.workflowConfig.meta.bitriseio || !this.workflowConfig.meta.bitriseio.docker_image) {
-			return null;
-		}
-
-		return this.workflowConfig.meta.bitriseio.docker_image;
-	};
-
 	return Workflow;
 
 });
