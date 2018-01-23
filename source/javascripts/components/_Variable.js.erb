@@ -152,7 +152,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 			variable.meta.userMetaConfig = variable.userVariableConfig.opts.meta;
 		}
 
-		metaValue = variable.meta.valueGetterSetter(metaValue, metaKey, metaBundleID);
+		metaValue = variable.meta.valueGetterSetter(metaBundleID, metaKey, metaValue);
 
 		if (isSetterMode) {
 			if (angular.equals(variable.userVariableConfig.opts.meta, {})) {

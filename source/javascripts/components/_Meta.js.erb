@@ -13,7 +13,7 @@ angular.module("BitriseWorkflowEditor").factory("Meta", function() {
 		this.defaultMetaConfig = defaultMetaConfig;
 	};
 
-	Meta.prototype.valueGetterSetter = function(value, key, bundleID) {
+	Meta.prototype.valueGetterSetter = function(bundleID, key, value) {
 		if (value !== undefined) {
 			if (!this.userMetaConfig[bundleID]) {
 				this.userMetaConfig[bundleID] = {};

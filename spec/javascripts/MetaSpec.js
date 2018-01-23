@@ -17,7 +17,7 @@ describe("Meta", function() {
 						key: "value"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key", "bundle")).toBe("value");
+				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value");
 			});
 
 			it("should return value for key in bundle from default config if user defined config has no such bundle", function() {
@@ -30,7 +30,7 @@ describe("Meta", function() {
 						key: "value2"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key", "bundle2")).toBe("value2");
+				expect(meta.valueGetterSetter("bundle2", "key", undefined)).toBe("value2");
 			});
 
 			it("should return value for key in bundle from default config if user defined config has no such key in bundle", function() {
@@ -43,7 +43,7 @@ describe("Meta", function() {
 						key2: "value2"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key2", "bundle")).toBe("value2");
+				expect(meta.valueGetterSetter("bundle", "key2", undefined)).toBe("value2");
 			});
 
 			it("should return value for key in bundle from user defined config if it is defined there", function() {
@@ -52,7 +52,7 @@ describe("Meta", function() {
 						key: "value"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key", "bundle")).toBe("value");
+				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value");
 			});
 
 			it("should return value for key in bundle from user defined config if it is defined there, even if it is also defined in the default config", function() {
@@ -65,12 +65,12 @@ describe("Meta", function() {
 						key: "value2"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key", "bundle")).toBe("value1");
+				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value1");
 			});
 
 			it("should return null for key in bundle if no configs", function() {
 				var meta = new Meta({}, {});
-				expect(meta.valueGetterSetter(undefined, "key", "bundle")).toBeNull();
+				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBeNull();
 			});
 
 			it("should return null for key in bundle if bundle is not defined in any of the configs", function() {
@@ -83,7 +83,7 @@ describe("Meta", function() {
 						key: "value"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key", "bundle3")).toBeNull();
+				expect(meta.valueGetterSetter("bundle3", "key", undefined)).toBeNull();
 			});
 
 			it("should return null for key in bundle if key is not defined in the bundle in any of the configs", function() {
@@ -96,7 +96,7 @@ describe("Meta", function() {
 						key2: "value"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key3", "bundle")).toBeNull();
+				expect(meta.valueGetterSetter("bundle", "key3", undefined)).toBeNull();
 			});
 
 			it("should return null for key in bundle if key and bundle are defined, but not with each other", function() {
@@ -109,7 +109,7 @@ describe("Meta", function() {
 						key2: "value2"
 					}
 				});
-				expect(meta.valueGetterSetter(undefined, "key1", "bundle2")).toBeNull();
+				expect(meta.valueGetterSetter("bundle2", "key1", undefined)).toBeNull();
 			});
 
 			// TODO: remove the rest of the specs from getter mode, they are only required during secrets' "is expose" migration
@@ -118,11 +118,11 @@ describe("Meta", function() {
 				var meta = new Meta({});
 				meta.userMetaConfig.is_expose = true;
 
-				expect(meta.valueGetterSetter(undefined, "is_expose", "bitrise.io.workflow-editor")).toBe(true);
+				expect(meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", undefined)).toBe(true);
 
 				meta.userMetaConfig.is_expose = false;
 
-				expect(meta.valueGetterSetter(undefined, "is_expose", "bitrise.io.workflow-editor")).toBe(false);
+				expect(meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", undefined)).toBe(false);
 			});
 		});
 
@@ -130,7 +130,7 @@ describe("Meta", function() {
 
 			it("should set value for key in bundle in the user defined config", function() {
 				var meta = new Meta({});
-				meta.valueGetterSetter("value", "key", "bundle");
+				meta.valueGetterSetter("bundle", "key", "value");
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
 						key: "value"
@@ -145,7 +145,7 @@ describe("Meta", function() {
 						key1: "value1"
 					}
 				});
-				meta.valueGetterSetter("value2", "key2", "bundle2");
+				meta.valueGetterSetter("bundle2", "key2", "value2");
 				expect(meta.userMetaConfig).toEqual({
 					bundle1: {
 						key1: "value1"
@@ -167,7 +167,7 @@ describe("Meta", function() {
 						key: "value2"
 					}
 				});
-				meta.valueGetterSetter("value3", "key", "bundle");
+				meta.valueGetterSetter("bundle", "key", "value3");
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
 						key: "value3"
@@ -187,7 +187,7 @@ describe("Meta", function() {
 						key2: "value2"
 					}
 				});
-				meta.valueGetterSetter(null, "key1", "bundle");
+				meta.valueGetterSetter("bundle", "key1", null);
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
 						key2: "value2"
@@ -202,7 +202,7 @@ describe("Meta", function() {
 						key: "value"
 					}
 				});
-				meta.valueGetterSetter(null, "key", "bundle");
+				meta.valueGetterSetter("bundle", "key", null);
 				expect(meta.userMetaConfig).toEqual({});
 				expect(meta.defaultMetaConfig).toBeUndefined();
 			});
@@ -218,7 +218,7 @@ describe("Meta", function() {
 						key1: "value3"
 					}
 				});
-				meta.valueGetterSetter("value3", "key1", "bundle");
+				meta.valueGetterSetter("bundle", "key1", "value3");
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
 						key2: "value2"
@@ -251,7 +251,7 @@ describe("Meta", function() {
 						key2: "value4"
 					}
 				});
-				meta.valueGetterSetter("value3", "key1", "bundle1");
+				meta.valueGetterSetter("bundle1", "key1", "value3");
 				expect(meta.userMetaConfig).toEqual({
 					bundle2: {
 						key2: "value2"
@@ -271,7 +271,7 @@ describe("Meta", function() {
 
 			it("should set 'is expose' value with the namespaced and also with the non-namespaced way", function() {
 				var meta = new Meta({});
-				meta.valueGetterSetter(true, "is_expose", "bitrise.io.workflow-editor");
+				meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", true);
 
 				expect(meta.userMetaConfig).toEqual({
 					"bitrise.io.workflow-editor": {
@@ -280,7 +280,7 @@ describe("Meta", function() {
 					is_expose: true
 				});
 
-				meta.valueGetterSetter(false, "is_expose", "bitrise.io.workflow-editor");
+				meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", false);
 				expect(meta.userMetaConfig).toEqual({
 					"bitrise.io.workflow-editor": {
 						is_expose: false
