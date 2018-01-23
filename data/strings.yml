@@ -24,7 +24,7 @@ main:
   tab_close_confirm_message: You have unsaved changes. Press OK to confirm, or Cancel to stay on the current page.
   footer:
     editor_open_source: The Workflow Editor is now open source
-    check_out_source_code: Check out the source code <a href='<url>' target='_blank'>on GitHub!</a>
+    check_out_source_code: Check out the source code <a href='<url>' target='_blank' rel='noreferrer noopener'>on GitHub!</a>
 alert_popup:
   ok: OK
   cancel: Cancel
