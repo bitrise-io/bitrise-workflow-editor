@@ -23,7 +23,7 @@ main:
   tab_close_confirm_message: You have unsaved changes. Press OK to confirm, or Cancel to stay on the current page.
   footer:
     editor_open_source: The Workflow Editor is now open source
-    check_out_source_code: Check out the source code <a href='<url>' target='_blank'>on GitHub!</a>
+    check_out_source_code: Check out the source code <a href='<url>' target='_blank' rel='noreferrer noopener'>on GitHub!</a>
 alert_popup:
   ok: OK
   cancel: Cancel
@@ -385,7 +385,7 @@ triggers:
   update_deprecated_popup:
     title: Triggers are changing for the better
     details_1: We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs. You don't have to worry, though, everything you've set so far will work the same!
-    details_2: For more information, please check the <a href='<url>' target='_blank'>blogpost</a>!
+    details_2: For more information, please check the <a href='<url>' target='_blank' rel='noreferrer noopener'>blogpost</a>!
   add: Add trigger
   push_branch: Push branch
   source_branch: Source branch
@@ -402,7 +402,7 @@ triggers:
 yml:
   title: bitrise.yml editor
   info_1: "You can edit your current config in YAML format:"
-  info_2: You can download this YML and run it directly with <a href='<url>' target='_blank'>bitrise CLI</a> locally.
+  info_2: You can download this YML and run it directly with <a href='<url>' target='_blank' rel='noreferrer noopener'>bitrise CLI</a> locally.
   download: Download currently saved config
   load_progress:
     loading: Loading, wait a sec...
