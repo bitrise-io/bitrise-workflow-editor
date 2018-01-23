@@ -118,11 +118,11 @@ describe("Meta", function() {
 				var meta = new Meta({});
 				meta.userMetaConfig.is_expose = true;
 
-				expect(meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", undefined)).toBe(true);
+				expect(meta.valueGetterSetter("bitrise.io", "is_expose", undefined)).toBe(true);
 
 				meta.userMetaConfig.is_expose = false;
 
-				expect(meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", undefined)).toBe(false);
+				expect(meta.valueGetterSetter("bitrise.io", "is_expose", undefined)).toBe(false);
 			});
 		});
 
@@ -271,18 +271,18 @@ describe("Meta", function() {
 
 			it("should set 'is expose' value with the namespaced and also with the non-namespaced way", function() {
 				var meta = new Meta({});
-				meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", true);
+				meta.valueGetterSetter("bitrise.io", "is_expose", true);
 
 				expect(meta.userMetaConfig).toEqual({
-					"bitrise.io.workflow-editor": {
+					"bitrise.io": {
 						is_expose: true
 					},
 					is_expose: true
 				});
 
-				meta.valueGetterSetter("bitrise.io.workflow-editor", "is_expose", false);
+				meta.valueGetterSetter("bitrise.io", "is_expose", false);
 				expect(meta.userMetaConfig).toEqual({
-					"bitrise.io.workflow-editor": {
+					"bitrise.io": {
 						is_expose: false
 					},
 					is_expose: false
