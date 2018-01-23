@@ -25,10 +25,7 @@ angular.module("BitriseWorkflowEditor").factory("Meta", function() {
 				this.userMetaConfig.is_expose = value;
 			}
 
-			if (value === null) {
-				delete this.userMetaConfig[bundleID][key];
-			}
-			else if (this.defaultMetaConfig && this.defaultMetaConfig[bundleID] && this.defaultMetaConfig[bundleID][key] !== undefined && angular.equals(this.defaultMetaConfig[bundleID][key], value)) {
+			if (value === null || (this.defaultMetaConfig && this.defaultMetaConfig[bundleID] && this.defaultMetaConfig[bundleID][key] !== undefined && angular.equals(this.defaultMetaConfig[bundleID][key], value))) {
 				delete this.userMetaConfig[bundleID][key];
 			}
 
