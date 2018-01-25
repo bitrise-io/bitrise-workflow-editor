@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup, Stack) {
 
 	var viewModel = this;
 
@@ -40,7 +40,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				case "workflows":
 				case "env-vars":
 				case "triggers":
-					appService.getAppConfig().then(function() {
+					var loadPromises = [appService.getAppConfig()];
+					if (requestService.mode == "website") {
+						loadPromises.push(Stack.getAll().then(appService.getStack));
+					}
+
+					$q.all(loadPromises).then(function() {
 						$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
 							if (appService.appConfigHasDeprecatedTriggerMap()) {
 								appService.updateDeprecatedTriggerMap();
@@ -65,6 +70,14 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					resolve();
 				case "secrets":
 					appService.getSecrets().then(resolve, reject);
+
+					break;
+				case "stack":
+					$q.all([
+						appService.getAppConfig(),
+						Stack.getAll().then(appService.getStack),
+						appService.getProjectType()
+					]).then(resolve, reject);
 
 					break;
 				case "yml":
@@ -96,6 +109,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			var menuIDsByHandledSource = [
 				["workflows", "env-vars", "triggers"],
 				["secrets"],
+				["stack"],
 				["yml"]
 			];
 
@@ -179,6 +193,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return appService.appConfigHasUnsavedChanges();
 			case "secrets":
 				return appService.secretsHaveUnsavedChanges();
+			case "stack":
+				return appService.appConfigHasUnsavedChanges() || appService.stackHasUnsavedChanges();
 			case "yml":
 				return appService.appConfigYMLHasUnsavedChanges();
 		}
@@ -225,6 +241,13 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 				case "secrets":
 					appService.saveSecrets().then(resolve, reject);
+
+					break;
+				case "stack":
+					$q.all([
+						appService.saveAppConfig(),
+						appService.saveStack()
+					]).then(resolve, reject);
 
 					break;
 				case "yml":
@@ -294,6 +317,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				appService.discardSecretsChanges();
 
 				break;
+			case "stack":
+				appService.discardAppConfigChanges();
+				appService.discardStackChanges();
+
 			case "yml":
 				appService.discardAppConfigYMLChanges();
 
@@ -306,37 +333,43 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.init = function() {
 		viewModel.menus = _.compact([{
 			id: "workflows",
-			title: "<%= data[:strings][:main][:menus][0] %>",
+			title: "<%= data[:strings][:main][:menus][:workflows] %>",
 			path: "<%= data[:routes][:endpoints][:workflows] %>",
 			possibleURLParameterKeys: ["workflow_id"],
 			cssClass: "workflows"
 		}, (requestService.mode == "website" ? {
 			id: "code-signing",
-			title: "<%= data[:strings][:main][:menus][1] %>",
+			title: "<%= data[:strings][:main][:menus][:code_signing] %>",
 			path: "<%= data[:routes][:endpoints][:code_signing] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "code-signing"
 		} : null), {
 			id: "secrets",
-			title: "<%= data[:strings][:main][:menus][2] %>",
+			title: "<%= data[:strings][:main][:menus][:secrets] %>",
 			path: "<%= data[:routes][:endpoints][:secrets] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "secrets"
 		}, {
 			id: "env-vars",
-			title: "<%= data[:strings][:main][:menus][3] %>",
+			title: "<%= data[:strings][:main][:menus][:env_vars] %>",
 			path: "<%= data[:routes][:endpoints][:env_vars] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "env-vars"
 		}, {
 			id: "triggers",
-			title: "<%= data[:strings][:main][:menus][4] %>",
+			title: "<%= data[:strings][:main][:menus][:triggers] %>",
 			path: "<%= data[:routes][:endpoints][:triggers] %>",
 			possibleURLParameterKeys: ["trigger_type"],
 			cssClass: "triggers"
-		}, {
+		}, (requestService.mode == "website" ? {
+			id: "stack",
+			title: "<%= data[:strings][:main][:menus][:stack] %>",
+			path: "<%= data[:routes][:endpoints][:stack] %>",
+			possibleURLParameterKeys: [],
+			cssClass: "stack"
+		}: null), {
 			id: "yml",
-			title: "<%= data[:strings][:main][:menus][5] %>",
+			title: "<%= data[:strings][:main][:menus][:yml] %>",
 			path: "<%= data[:routes][:endpoints][:yml] %>",
 			possibleURLParameterKeys: [],
 			cssClass: "yml"

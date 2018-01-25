@@ -2,9 +2,11 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, requestService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable, Stack) {
 
 	var viewModel = this;
+
+	$scope.requestService = requestService;
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		loadWorkflows();
@@ -451,6 +453,19 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		if (workflowsTabService.shouldWatchSelectionChanges) {
 			workflowsTabService.storeSelectionState(viewModel.selectedWorkflow, viewModel.editedWorkflow, viewModel.editedWorkflowIndex, viewModel.selectedStep);
 		}
+	};
+
+	viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
+		if (shouldNormalize === undefined) {
+			shouldNormalize = false;
+		}
+
+		var stack = workflow.stack(stack, Stack.all);
+		if (stack === null && shouldNormalize) {
+			stack = appService.stack;
+		}
+
+		return stack;
 	};
 
 	// Steps

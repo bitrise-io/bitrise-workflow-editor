@@ -8,6 +8,7 @@
 @import "tab-code_signing";
 @import "tab-secrets-env_vars";
 @import "tab-triggers";
+@import "tab-stack";
 @import "tab-yml";
 @import "workflows-workflow_description";
 @import "add_step_sidebar";
@@ -99,7 +100,7 @@ select, .mak {
 	border: 1px solid $def-mediumlightgrey;
 	@include border-radius($def-radius);
 	padding: 7px $select-horizontalpadding;
-	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
+	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding;
 	text-align: left;
 	font-size: 14px;
 	@include transition(background-color $def-transition_duration);

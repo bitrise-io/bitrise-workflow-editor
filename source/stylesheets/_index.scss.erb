@@ -88,7 +88,7 @@ header.menu {
 		}
 
 		button.tab.current {
-			$color: black;
+			$color: $def-green;
 
 			color: $color;
 
@@ -124,6 +124,10 @@ header.menu {
 		button.tab.triggers span.icon svg {
 			top: -1px;
 			@include size(9px, 17px);
+		}
+
+		button.tab.stack span.icon svg {
+			@include size(17px, 14px);
 		}
 
 		button.tab.yml span.icon svg {

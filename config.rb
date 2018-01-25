@@ -58,6 +58,7 @@ helpers do
 end
 
 set :images_dir, mode_dependant_asset_path("images")
+set :fonts_dir, mode_dependant_asset_path("fonts")
 
 sprockets.import_asset "jquery"
 sprockets.import_asset "underscore"

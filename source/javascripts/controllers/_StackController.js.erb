@@ -1,0 +1,64 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, appService, Workflow, Stack) {
+
+	var viewModel = this;
+
+	viewModel.workflows;
+	$scope.Stack = Stack;
+	$scope.appService = appService;
+	viewModel.defaultDockerImagesByStackIDs = {
+		"linux-docker-android": "quay.io/bitriseio/android-ndk:latest"
+	};
+
+	viewModel.init = function() {
+		configure();
+	};
+
+	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
+		configure();
+	}));
+
+	function configure() {
+		viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, workflowID) {
+			return new Workflow(workflowID, aWorkflowConfig);
+		});
+	}
+
+	viewModel.stackOptionTitle = function(stack) {
+		return stack !== null ? stack.name : stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:default_stack] %>", {
+			stack_name: appService.stack.name
+		});
+	};
+
+	viewModel.aboutStack = function(stack) {
+		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
+			stack_name: stack.name
+		});
+	};
+
+	viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
+		if (shouldNormalize === undefined) {
+			shouldNormalize = false;
+		}
+
+		return function(stack) {
+			if (stack === null && shouldNormalize) {
+				stack = appService.stack;
+			}
+
+			stack = workflow.stack(stack, Stack.all);
+
+			if (stack === null && shouldNormalize) {
+				return appService.stack;
+			}
+
+			return stack;
+		};
+	};
+
+});
+
+})();
