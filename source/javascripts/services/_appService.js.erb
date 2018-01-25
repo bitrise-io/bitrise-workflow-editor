@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, Trigger, Step, Variable) {
+angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, Trigger, Step, Variable, Stack) {
 
 	var appService = {
 		appConfig: undefined,
@@ -11,6 +11,10 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedSecrets: undefined,
 		appConfigYML: undefined,
 		savedAppConfigYML: undefined,
+		stack: undefined,
+		savedStack: undefined,
+		dockerImage: undefined,
+		savedDockerImage: undefined,
 		projectType: undefined,
 		availableProjectTypes: undefined
 	};
@@ -254,6 +258,48 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 	appService.discardAppConfigYMLChanges = function() {
 		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
+	};
+
+	appService.getStack = function() {
+		if (appService.stack) {
+			return $q.when();
+		}
+
+		return requestService.getStack().then(function(data) {
+			appService.stack = _.find(Stack.all, {
+				id: data.stackID
+			});
+			appService.savedStack = angular.copy(appService.stack);
+			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
+		});
+	};
+
+	appService.availableStacks = function() {
+		if (Stack.all === undefined || appService.projectType === undefined) {
+			return undefined;
+		}
+
+		return _.filter(Stack.all, function(aStack) {
+			return _.contains(aStack.projectTypes, appService.projectType);
+		});
+	}
+
+	appService.stackHasUnsavedChanges = function() {
+		return !angular.equals(appService.stack, appService.savedStack) || appService.dockerImage !== appService.savedDockerImage;
+	};
+
+	appService.saveStack = function() {
+		return requestService.saveStack(appService.stack.id, appService.dockerImage).then(function() {
+			appService.savedStack = angular.copy(appService.stack);
+			appService.savedDockerImage = appService.dockerImage;
+		});
+	};
+
+	appService.discardStackChanges = function() {
+		appService.stack = _.find(Stack.all, {
+			id: appService.savedStack.id
+		});
+		appService.dockerImage = appService.savedDockerImage;
 	};
 
 	appService.getProjectType = function(requestConfig) {

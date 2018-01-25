@@ -88,6 +88,39 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		return this.workflowConfig.description;
 	};
 
+	Workflow.prototype.stack = function(stack, stacks) {
+		if (stack !== undefined) {
+			if (!this.workflowConfig.meta) {
+				this.workflowConfig.meta = {};
+			}
+			if (!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
+				this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+			}
+
+			if (stack !== null) {
+				this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack = stack.id;
+			}
+			else {
+				delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
+			}
+
+			if (_.isEmpty(this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"])) {
+				delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"];
+			}
+			if (_.isEmpty(this.workflowConfig.meta)) {
+				delete this.workflowConfig.meta;
+			}
+		}
+
+		if (!this.workflowConfig.meta || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack) {
+			return null;
+		}
+
+		return _.find(stacks, {
+			id: this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack
+		});
+	};
+
 	return Workflow;
 
 });

@@ -4,6 +4,7 @@ endpoints:
   secrets: secrets
   env_vars: env_vars
   triggers: triggers
+  stack: stack
   yml: yml
 templates:
   workflows: templates/workflows
@@ -11,6 +12,7 @@ templates:
   secrets: templates/secrets
   env_vars: templates/env_vars
   triggers: templates/triggers
+  stack: templates/stack
   yml: templates/yml
   workflows_workflow_description: templates/workflows-workflow_description
   add_step_sidebar: templates/add_step_sidebar
@@ -26,7 +28,10 @@ website:
   secrets_get: /api/app/<app_slug>/secrets.json
   bitrise_steplib_get: https://bitrise-steplib-collection.s3.amazonaws.com/spec.json
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json
-  app_stack_info_get: /app/<app_slug>/stack_info.json
+  stack_get: /app/<app_slug>/stack
+  stack_info_get: /app/<app_slug>/stack_info.json
+  stacks_get: /app/<app_slug>/all_stack_info
+  stack_save: /app/<app_slug>/stack
   app_project_type_get: /app/<app_slug>/project_type
   prov_profile_create: /api/app/<app_slug>/prov_profile_document/create.json
   prov_profile_get_details: /prov_profile_document/details/<prov_profile_id>.json
@@ -71,6 +76,7 @@ devcenter:
 blog:
   new_triggers: http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html
 other:
+  bitrise_available_stacks: http://devcenter.bitrise.io/infrastructure/available-stacks
   bitrise_workflow_editor_source_code: https://github.com/bitrise-io/bitrise-workflow-editor
   bitrise_workflow_editor_current_release: https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/<version>
   github_step_yml_path: https://raw.githubusercontent.com/<step_path>/<step_version>/step.yml
