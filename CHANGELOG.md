@@ -1,6 +1,45 @@
-## Changelog (Current version: 1.1.6)
+## Changelog (Current version: 1.1.7)
 
 -----------------
+
+## 1.1.7 (2018 Jan 25)
+
+### Release Notes
+
+* Stacks tab added
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.7
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.5 -> 1.1.7
+
+* [46322aa] erosdome - Stacks tab added (#235) (2018 Jan 25)
+* [7b39fae] erosdome - v1.1.6 (2018 Jan 23)
+* [449d00e] erosdome - Add rel=“noreferrer noopener” for target=“_blank” links (#246) (2018 Jan 23)
+* [85c0d2d] erosdome - Update Gemfile for security reasons (#245) (2018 Jan 23)
+* [6cc26b3] Pedro Maia - Fixes menu zindex while scrolling (#243) (2018 Jan 17)
+* [6f5b0e6] erosdome - Update CLI from 1.9.0 to 1.12.0 (#242) (2018 Jan 16)
+* [0894679] erosdome - Also include vendor.js in Jasmine testing preparation (#240) (2018 Jan 16)
+
 
 ## 1.1.6 (2018 Jan 23)
 
@@ -1638,4 +1677,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jan 23
+Updated: 2018 Jan 25
