@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.1.7)
+## Changelog (Current version: 1.1.8)
 
 -----------------
+
+## 1.1.8 (2018 Jan 25)
+
+### Release Notes
+
+* Switch to "namespaced" format of metadata: secrets will temporarily use both namespaced (under "bitrise.io" ID) and non-namespaced format of "is expose" flag
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.8
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.7 -> 1.1.8
+
+* [3187f81] erosdome - Use both namespaced and non-namespaced handling for secrets' "is expose" flag - temporarily (#241) (2018 Jan 25)
+
 
 ## 1.1.7 (2018 Jan 25)
 
