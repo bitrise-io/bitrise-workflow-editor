@@ -100,7 +100,7 @@ select, .mak {
 	border: 1px solid $def-mediumlightgrey;
 	@include border-radius($def-radius);
 	padding: 7px $select-horizontalpadding;
-	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding !important;
+	padding-right: $select-horizontalpadding + $arrow_width + $select-horizontalpadding;
 	text-align: left;
 	font-size: 14px;
 	@include transition(background-color $def-transition_duration);
