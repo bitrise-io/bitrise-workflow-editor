@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("Variable", function() {
+angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
 	var Variable = function(userVariableConfig, defaultVariableConfig) {
 		this.userVariableConfig = userVariableConfig;
@@ -10,7 +10,19 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 			this.userVariableConfig = {};
 		}
 
+		var userMetaConfig = undefined;
+		if (this.userVariableConfig.opts && this.userVariableConfig.opts.meta) {
+			userMetaConfig = this.userVariableConfig.opts.meta;
+		}
+
 		this.defaultVariableConfig = defaultVariableConfig;
+
+		var defaultMetaConfig = undefined;
+		if (this.defaultVariableConfig && this.defaultVariableConfig.opts && this.defaultVariableConfig.opts.meta) {
+			defaultMetaConfig = this.defaultVariableConfig.opts.meta;
+		}
+
+		this.meta = new Meta(userMetaConfig, defaultMetaConfig);
 	};
 
 	Variable.defaultVariableConfig = function() {
@@ -18,7 +30,11 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 			opts: {
 				is_expand: true,
 				meta: {
-					is_expose: false
+					// TODO: remove the following line, it is only required during secrets' "is expose" migration
+					is_expose: false,
+					"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>": {
+						is_expose: false
+					}
 				}
 			}
 		};
@@ -117,21 +133,39 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function() {
 		return _.first(_.without(_.keys(angular.copy(variableConfig)), "opts"));
 	};
 
-	Variable.prototype.meta = function(newValue) {
-		return optionGetterSetter(this, "meta", newValue);
+	Variable.prototype.isExpose = function(isExpose) {
+		return metaGetterSetter(this, "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>", "is_expose", isExpose);
 	};
 
-	Variable.prototype.isExpose = function(isExpose) {
-		var meta;
-		if (isExpose !== undefined) {
-			meta = angular.copy(this.meta());
-			meta.is_expose = isExpose;
+	function metaGetterSetter(variable, metaBundleID, metaKey, metaValue) {
+		var isSetterMode = metaValue !== undefined;
+
+		if (isSetterMode) {
+			if (!variable.userVariableConfig.opts) {
+				variable.userVariableConfig.opts = {};
+			}
+
+			if (!variable.userVariableConfig.opts.meta) {
+				variable.userVariableConfig.opts.meta = {};
+			}
+
+			variable.meta.userMetaConfig = variable.userVariableConfig.opts.meta;
 		}
 
-		meta = optionGetterSetter(this, "meta", meta);
+		metaValue = variable.meta.valueGetterSetter(metaBundleID, metaKey, metaValue);
 
-		return meta ? meta.is_expose : undefined;
-	};
+		if (isSetterMode) {
+			if (angular.equals(variable.userVariableConfig.opts.meta, {})) {
+				delete variable.userVariableConfig.opts.meta;
+			}
+
+			if (angular.equals(variable.userVariableConfig.opts, {})) {
+				delete variable.userVariableConfig.opts;
+			}
+		}
+
+		return metaValue;
+	}
 
 	function optionGetterSetter(variable, optionKey, optionValue) {
 		var optionSource;
