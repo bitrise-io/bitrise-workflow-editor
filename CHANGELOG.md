@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.9)
+## Changelog (Current version: 1.1.10)
 
 -----------------
+
+## 1.1.10 (2018 Jan 26)
+
+### Release Notes
+
+* __BREAKING__ : change 1
+* change 2
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.10
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.9 -> 1.1.10
+
+* [65a7ec4] erosdome - Stack tab more fixes (#248) (2018 Jan 26)
+
 
 ## 1.1.9 (2018 Jan 26)
 
