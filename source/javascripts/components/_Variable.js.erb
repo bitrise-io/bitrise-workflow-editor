@@ -4,7 +4,7 @@
 
 angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
-	var Variable = function(userVariableConfig, defaultVariableConfig) {
+	var Variable = function(userVariableConfig, defaultVariableConfig, isKeyChangeable) {
 		this.userVariableConfig = userVariableConfig;
 		if (!this.userVariableConfig) {
 			this.userVariableConfig = {};
@@ -23,6 +23,8 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		}
 
 		this.meta = new Meta(userMetaConfig, defaultMetaConfig);
+
+		this.isKeyChangeable = isKeyChangeable !== undefined ? isKeyChangeable : true;
 	};
 
 	Variable.defaultVariableConfig = function() {

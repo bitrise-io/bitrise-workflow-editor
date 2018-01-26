@@ -217,7 +217,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			normalizeSecretConfigs(secretConfigs);
 
 			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
-				return new Variable(aSecretConfig, Variable.defaultVariableConfig());
+				return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false);
 			});
 
 			appService.savedSecrets = angular.copy(appService.secrets);
@@ -236,9 +236,13 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		appService.secrets = _.filter(appService.secrets, function(aSecretVar){
 			return (!_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
 		});
+
 		return validateVariables(appService.secrets, true).then(function() {
 			return requestService.postSecrets(appService.secrets);
 		}).then(function() {
+			_.each(appService.secrets, function(aSecret) {
+				aSecret.isKeyChangeable = false;
+			});
 			appService.savedSecrets = angular.copy(appService.secrets);
 		});
 	};
