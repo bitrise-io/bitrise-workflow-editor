@@ -415,7 +415,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 	};
 
 	requestService.getAppAvailableProjectTypes = function(requestConfig) {
-		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_stack_info_get]) %>", {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:stack_info_get]) %>", {
 			app_slug: requestService.appSlug
 		});
 
