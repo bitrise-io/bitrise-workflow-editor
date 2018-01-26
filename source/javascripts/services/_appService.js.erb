@@ -292,6 +292,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		return requestService.saveStack(appService.stack.id, appService.dockerImage).then(function() {
 			appService.savedStack = angular.copy(appService.stack);
 			appService.savedDockerImage = appService.dockerImage;
+			appService.availableProjectTypes = undefined;
 		});
 	};
 
