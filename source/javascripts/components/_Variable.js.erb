@@ -59,7 +59,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		return newKey;
 	};
 
-	Variable.isValidKey = function(key) {
+	Variable.isValidKey = function(key, keyUniquenessScope) {
 		if (key === undefined) {
 			return undefined;
 		}
@@ -70,7 +70,17 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
 		var validKeyRegexp = new RegExp("^[a-zA-Z_]{1}[a-zA-Z0-9_]*$");
 
-		return validKeyRegexp.test(key);
+		if (!validKeyRegexp.test(key)) {
+			return false;
+		}
+
+		if (keyUniquenessScope && _.filter(keyUniquenessScope, function(anotherVariable) {
+			return anotherVariable.key() == key;
+		}).length > 1) {
+			return false;
+		}
+
+		return true;
 	};
 
 	Variable.prototype.value = function(newValue) {
