@@ -370,6 +370,7 @@ env_vars:
   expose_for_pr_popover_content: You can decide which secrets should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
   delete_env_var: "Delete"
   invalid_env_var_key: "invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
+  invalid_secret_env_var_value: "invalid Secret Environment Variable value. Should not be empty"
   one_or_more_invalid_env_var_key: "one or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
   should_be_unique: "should be unique"
   key_placeholder: "Key"

@@ -101,7 +101,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 	}
 
-	function validateVariables(variables, shouldKeysBeUnique) {
+	function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
 		return $q(function(resolve, reject) {
 			var errors = [];
 
@@ -112,6 +112,14 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 				if (shouldKeysBeUnique) {
 					errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
+				}
+			}
+
+			if (shouldValuesBeNotEmpty) {
+				if (_.any(variables, function(aVariable) {
+					return !aVariable.value().replace(/\s/g, '').length > 0;
+				})) {
+					errors.push(new Error("<%= data[:strings][:env_vars][:invalid_secret_env_var_value] %>"));
 				}
 			}
 
@@ -237,7 +245,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			return (!_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
 		});
 
-		return validateVariables(appService.secrets, true).then(function() {
+		return validateVariables(appService.secrets, true, true).then(function() {
 			return requestService.postSecrets(appService.secrets);
 		}).then(function() {
 			_.each(appService.secrets, function(aSecret) {
