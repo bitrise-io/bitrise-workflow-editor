@@ -1006,12 +1006,12 @@
 
 						&.missing svg {
 							@include size(10px);
-							fill: $def-danger;
+							fill: #F1741E;
 						}
 
 						&.ok svg {
 							@include size(10px);
-							fill: $def-green;
+							fill: #38C3A2;
 						}
 					}
 
@@ -1036,6 +1036,16 @@
 
 		.content {
 			@include flex-grow(1);
+
+			.error-notice {
+				@include border-radius($def-radius);
+				padding: 6px 12px;
+				margin: 16px 22px;
+				font-size: 13px;
+				line-height: 18px;
+				color: $def-danger;
+				background-color: $def-danger-light;
+			}
 
 			.matching-certificates, .devices, .capabilities {
 				list-style: none;
@@ -1120,13 +1130,16 @@
 								background-color: #f6eaff;
 							}
 
-							.expired {
+							.expired, .missing, .included {
 								display: inline-block;
-								@include border-radius($def-radius);
-								padding: 5px 7px;
+								font-size: 11px;
+								font-weight: 500;
 								text-transform: uppercase;
 								color: $def-danger;
-								background-color: $def-danger-light;
+							}
+
+							.included {
+								color: #3ac3a2;
 							}
 						}
 					}
@@ -1142,6 +1155,7 @@
 
 						.udid {
 							word-break: break-all;
+							word-wrap: break-word;
 						}
 					}
 
@@ -1194,6 +1208,7 @@
 
 		@include media-below-mid {
 			display: block;
+			overflow-y: auto;
 
 			.sidebar {
 				width: auto;
@@ -1211,7 +1226,7 @@
 							border-left: 1px solid $def-mediumlightgrey;
 						}
 
-						&.capabilities .arrow {
+						&.devices .arrow, &.capabilities .arrow {
 							@include transform(none);
 						}
 					}
@@ -1242,10 +1257,11 @@
 
 						.details {
 							@include flex-direction(column);
+							@include align-items(flex-start);
 
 							.column {
 
-								.expired {
+								.expired, .missing, .included {
 									@include padding-x(0);
 								}
 							}

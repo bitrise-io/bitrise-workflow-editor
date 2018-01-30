@@ -147,6 +147,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	}
 
+	viewModel.hasValidIdentity = function() {
+		return !_.isUndefined(_.find(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
+			return viewModel.identityStatusCSSclass(anIdentity) == "ok" && !viewModel.isIdentityExpired(anIdentity);
+		}));
+	};
+
 	function isIdentityWithSerialAddedToApp(identitySerial) {
 		if (certificateService.loadProgress.isInProgress) {
 			return undefined;
