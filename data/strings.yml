@@ -406,7 +406,6 @@ stack:
   workflow_id_postfix: " workflow"
   default_stack: Default (<stack_name>)
   default: default
-  about_stack: About <stack_name>
   more_info_about: More information about this Stack »
   docker_image_to_use: Docker image to use
   default_stack_settings:
