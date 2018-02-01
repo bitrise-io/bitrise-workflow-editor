@@ -44,6 +44,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				genericFile.isProcessed = aGenericFileData.isProcessed;
 				genericFile.uploadFileName = aGenericFileData.uploadFileName;
 				genericFile.isExpose = aGenericFileData.isExpose;
+				genericFile.isProtected = aGenericFileData.isProtected;
 
 				viewModel.genericFileSettings[genericFile.databaseID] = {
 					isMenuVisible: false

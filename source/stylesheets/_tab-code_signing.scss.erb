@@ -255,9 +255,38 @@
 								font-size: 14px;
 								font-weight: 200;
 
-								&.name {
-									font-weight: 500;
-									word-wrap: break-word;
+								&.protected-badge-and-name {
+									@include display-flex;
+									@include align-items(center);
+
+									.protected-badge {
+										@include flex-shrink(0);
+										@include display-flex;
+										@include align-items(center);
+										margin-right: 6px;
+										@include border-radius($def-radius);
+										padding: 6px;
+										font-size: 11px;
+										font-weight: 500;
+										text-transform: uppercase;
+										background-color: $def-verylightgrey;
+
+										.icon-wrapper {
+											@include flex-shrink(0);
+											margin-right: 6px;
+											
+											svg {
+												display: block;
+												@include size(11px, 16px);
+											}
+										}
+									}
+
+									.name {
+										@include flex-grow(1);
+										font-weight: 500;
+										word-wrap: break-word;
+									}
 								}
 
 								.label:not(.warning) {
@@ -571,6 +600,16 @@
 
 						.detail {
 							margin-bottom: 15px;
+
+							&.protected-badge-and-name {
+								@include flex-direction(column);
+								@include align-items(flex-start);
+
+								.protected-badge {
+									margin-right: 0;
+									margin-bottom: 6px;
+								}
+							}
 						}
 					}
 
