@@ -665,7 +665,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						databaseID: aProvProfileData.id,
 						isProcessed: aProvProfileData.processed,
 						uploadFileName: aProvProfileData.upload_file_name,
-						isExpose: aProvProfileData.is_expose
+						isExpose: aProvProfileData.is_expose,
+						isProtected: aProvProfileData.is_protected
 					};
 				}));
 			}, function(response) {
@@ -816,7 +817,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: aCertificateData.processed,
 						uploadFileName: aCertificateData.upload_file_name,
 						password: aCertificateData.certificate_password,
-						isExpose: aCertificateData.is_expose
+						isExpose: aCertificateData.is_expose,
+						isProtected: aCertificateData.is_protected
 					};
 				}));
 			}, function(response) {
@@ -955,7 +957,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: aGenericFileData.processed,
 						envVarPartialID: aGenericFileData.user_env_key,
 						uploadFileName: aGenericFileData.upload_file_name,
-						isExpose: aGenericFileData.is_expose
+						isExpose: aGenericFileData.is_expose,
+						isProtected: aGenericFileData.is_protected
 					};
 				}));
 			}, function(response) {
@@ -1069,7 +1072,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
 						uploadFileName: keystoreFileData.upload_file_name,
-						isExpose: keystoreFileData.is_expose
+						isExpose: keystoreFileData.is_expose,
+						isProtected: keystoreFileData.is_protected
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
