@@ -7,11 +7,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	var viewModel = this;
 
 	$scope.Variable = Variable;
+	$scope.requestService = requestService;
 
 	var mode;
 	var envVarsWatchers;
 
 	viewModel.envVarsBySource;
+	viewModel.envVarSettings = {};
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		switch (mode) {
@@ -74,6 +76,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			envVars: appService.secrets
 		}];
 
+		_.each(appService.secrets, function(aSecret) {
+			viewModel.envVarSettings[aSecret.key()] = {
+				progress: new Progress(),
+				isMenuVisible: false
+			};
+		});
+
 		configureEnvVarsWatchers();
 	}
 
@@ -98,6 +107,15 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
 					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 				})
+			});
+		});
+
+		_.each(viewModel.envVarsBySource, function(anEnvVarsBySource) {
+			_.each(anEnvVarsBySource.envVars, function(anEnvVar) {
+				viewModel.envVarSettings[anEnvVar.key()] = {
+					progress: new Progress(),
+					isMenuVisible: false
+				};
 			});
 		});
 
@@ -184,6 +202,32 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		}
 
 		return errors.length > 0 ? stringService.errorMessageFromErrors(errors) : null;
+	};
+
+	viewModel.shouldShowSecretEnvVarValue = function(envVar) {
+		if (_.isNull(envVar.value())) {
+			viewModel.envVarSettings[envVar.key()].progress.start("<%= data[:strings][:env_vars][:get_secret_env_value_progress][:in_progress] %>");
+
+			$q(function(resolve, reject) {
+				appService.getSecretEnvValue(envVar).then(function() {
+					resolve();
+				}, function(error) {
+					reject(error);
+				});
+			}).then(function() {
+				viewModel.envVarSettings[envVar.key()].progress.success();
+			}, function(error) {
+				viewModel.envVarSettings[envVar.key()].progress.error(error);
+			});
+		}
+
+		return !envVar.shouldShowValue;
+	};
+
+	viewModel.valueGetterSetterForEnvVar = function(envVar) {
+		return function(value) {
+			return (envVar.value() !== null && envVar.shouldShowValue) ? envVar.value(value) : "******";
+		};
 	};
 
 });
