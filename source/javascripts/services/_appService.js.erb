@@ -117,7 +117,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 			if (shouldValuesBeNotEmpty) {
 				if (_.any(variables, function(aVariable) {
-					return !aVariable.value().replace(/\s/g, '').length > 0;
+					return aVariable.value() !== null && aVariable.value() && !(aVariable.value().replace(/\s/g, '').length > 0);
 				})) {
 					errors.push(new Error("<%= data[:strings][:env_vars][:invalid_secret_env_var_value] %>"));
 				}
@@ -225,10 +225,29 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			normalizeSecretConfigs(secretConfigs);
 
 			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
-				return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false);
+				return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
 			});
 
 			appService.savedSecrets = angular.copy(appService.secrets);
+		});
+	};
+
+	appService.getSecretEnvValue = function(envVar, requestConfig) {
+		var secretEnvVar = envVar;
+		if (!secretEnvVar && appService.secrets) {
+			return $q.when();
+		}
+
+		return requestService.getSecretEnvValue(secretEnvVar, requestConfig).then(function(secretValue) {
+			var envVar = _.find(appService.secrets, function(aSecret) {
+				return aSecret.key() == secretEnvVar.key();
+			});
+			envVar.userVariableConfig[secretEnvVar.key()] = secretValue;
+
+			var savedEnvVar = _.find(appService.savedSecrets, function(aSavedSecret) {
+				return aSavedSecret.key() == secretEnvVar.key();
+			});
+			savedEnvVar.userVariableConfig[secretEnvVar.key()] = secretValue;
 		});
 	};
 
@@ -237,7 +256,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	}
 
 	appService.secretsHaveUnsavedChanges = function() {
-		return !angular.equals(appService.secrets, appService.savedSecrets);
+		return !angular.equals(_.map(appService.secrets, "userVariableConfig"), _.map(appService.savedSecrets, "userVariableConfig"));
 	};
 
 	appService.saveSecrets = function() {
