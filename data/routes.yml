@@ -39,6 +39,7 @@ website:
   prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
   prov_profile_is_expose_state_update: /prov_profile_document/<prov_profile_id>/update_is_expose.json
+  prov_profile_protect: /prov_profile_document/<prov_profile_id>/protect.json
   prov_profile_delete:  /api/app/<app_slug>/prov_profile_document/<prov_profile_id>/delete.json
   prov_profiles_delete_all:  /api/app/<app_slug>/prov_profile_document/delete.json
   certificate_create: /api/app/<app_slug>/build_certificate/create.json

@@ -73,9 +73,11 @@
 									button.dropdown-toggle[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
 										a.dropdown-option.download[ng-if="!provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
+										button.dropdown-option.protect[ng-if="!provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
 										button.dropdown-option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
 								.actions.small
 									a.option.download[ng-if="!provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
+									button.option.protect[ng-if="!provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
 									button.option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
 						.show-more-details[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 							button.show-more[ng-click="provProfileCtrl.showProvProfileDetails(provProfile)"]

@@ -150,6 +150,7 @@ code_signing:
         show_prov_profile_validated_details_button: Show matching Certificates, Devices & Capabilities
       actions:
         download: "Download"
+        protect: Make protected
         delete: "Delete"
       expose:
         is_expose: Expose for Pull Request
@@ -193,6 +194,10 @@ code_signing:
     invalid_file_type: Invalid file type! Select a .provisionprofile or .mobileprovision file.
     upload_count_limit_reached: You reached the maximum allowed number of provisioning profile files for this project.
     can_only_upload_x_more: You can only upload <count> more provisioning profile files.
+    make_protected:
+      notice_header: "‘Protected’ will be irreversible after save"
+      notice_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
+      notice_ok: "Got it"
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <provisioning_profile_name>?"
@@ -491,6 +496,9 @@ request_service:
   update_prov_profile_is_expose_state:
     default_error: Error updating Expose for Pull Requests state.
     error_prefix: "Error updating Expose for Pull Requests state: "
+  protect_prov_profile:
+    default_error: Error setting provisioning profile to protected.
+    error_prefix: "Error setting provisioning profile to protected: "
   update_certificate_is_expose_state:
     default_error: Error updating Expose for Pull Requests state.
     error_prefix: "Error updating Expose for Pull Requests state: "

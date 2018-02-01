@@ -693,6 +693,20 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	requestService.protectProvProfile = function(databaseID, requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_protect]) %>", {
+			prov_profile_id: databaseID,
+		});
+
+		return $q(function(resolve, reject) {
+			$http.post(requestURL, undefined, requestConfig).then(function() {
+				resolve();
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:protect_prov_profile][:default_error] %>", "<%= data[:strings][:request_service][:protect_prov_profile][:error_prefix] %>"));
+			});
+		});
+	};
+
 	requestService.downloadProvProfile = function(databaseID) {
 		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:prov_profile_download]) %>", {
 			prov_profile_id: databaseID

@@ -297,6 +297,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	};
 
+	viewModel.makeProvProfileProtected = function(provProfile) {
+		Popup.showNoticePopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:notice_header] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:notice_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:notice_ok] %>");
+
+		provProfile.protect();
+	};
+
 	viewModel.deleteProvProfile = function(provProfile) {
 		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question] %>", {
 			provisioning_profile_name: provProfile.displayName()
