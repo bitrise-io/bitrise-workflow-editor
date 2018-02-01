@@ -18,5 +18,5 @@
 						.is-expand
 							checkbox.small[name="isExpand" ng-model="envVar.isExpand" ng-model-options="{getterSetter: true}" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
 							label[for="env-var-editor-is-expand-checkbox-{{ $index }}"] == data[:strings][:env_vars][:replace_variables_label]
-						p.notification.warning[ng-if="envVarForm.key.$invalid && !envVarForm.key.$pristine"] == data[:strings][:env_vars][:invalid_env_var_key]
+						p.notification.warning[ng-if="envVarForm.key.$invalid && !envVarForm.key.$pristine" ng-bind="envVarsCtrl.envVarValidationWarning(envVar)"]
 			button.add.rebo.green[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == data[:strings][:env_vars][:add_new]
