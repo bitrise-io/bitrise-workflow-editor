@@ -279,9 +279,14 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			return undefined;
 		}
 
-		return _.filter(Stack.all, function(aStack) {
-			return _.contains(aStack.projectTypes, appService.projectType);
-		});
+		if (appService.projectType == "other") {
+			return Stack.all;
+		}
+		else {
+			return _.filter(Stack.all, function(aStack) {
+				return _.contains(aStack.projectTypes, appService.projectType);
+			});
+		}
 	}
 
 	appService.stackHasUnsavedChanges = function() {
