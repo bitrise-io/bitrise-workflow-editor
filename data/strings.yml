@@ -364,7 +364,7 @@ code_signing:
 env_vars:
   confirm_make_it_protected_popup:
     title: ‘Protected’ will be irreversible after save
-    details: If you choose to make this variable read-only no one will be able to reveal the value, you can overwrite the value by deleting the current one and creating a new one.
+    details: If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one.
     ok_button_title: Got it
   load_progress:
     in_progress: Loading, wait a sec...
