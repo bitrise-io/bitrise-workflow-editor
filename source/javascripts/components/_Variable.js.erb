@@ -37,7 +37,8 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 					// TODO: remove the following line, it is only required during secrets' "is expose" migration
 					is_expose: false,
 					"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>": {
-						is_expose: false
+						is_expose: false,
+						is_protected: false
 					}
 				}
 			}
@@ -149,6 +150,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
 	Variable.prototype.isExpose = function(isExpose) {
 		return metaGetterSetter(this, "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>", "is_expose", isExpose);
+	};
+
+	Variable.prototype.isProtected = function(isProtected) {
+		return metaGetterSetter(this, "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>", "is_protected", isProtected);
 	};
 
 	function metaGetterSetter(variable, metaBundleID, metaKey, metaValue) {

@@ -134,7 +134,7 @@ code_signing:
       title: Don't forget to add the Certificate and Provisioning Profile Installer step
       details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
-    header: 
+    header:
       card_title: Provisioning profile
       expose_for_pull_requests: Expose for Pull Requests
       expose_for_pr: Expose for PR
@@ -166,7 +166,7 @@ code_signing:
         udid: UDID
       identities:
         expired: Expired
-      capabilities: 
+      capabilities:
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
         'com.apple.developer.associated-domains': 'Associated Domains'
@@ -362,6 +362,10 @@ code_signing:
       in_progress: "Saving metadata, wait a sec..."
       success: "Keystore metadata successfully saved!"
 env_vars:
+  confirm_make_it_protected_popup:
+    title: ‘Protected’ will be irreversible after save
+    details: If you choose to make this variable read-only no one will be able to reveal the value, you can overwrite the value by deleting the current one and creating a new one.
+    ok_button_title: Got it
   load_progress:
     in_progress: Loading, wait a sec...
   get_secret_env_value_progress:
@@ -378,6 +382,7 @@ env_vars:
   key_placeholder: "Key"
   value_placeholder: "Value"
   actions:
+    make_it_protected: Make it protected
     delete_env_var: "Delete"
     show_value: "Show value?"
   secrets:

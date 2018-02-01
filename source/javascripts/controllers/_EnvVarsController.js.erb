@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable, Popup) {
 
 	var viewModel = this;
 
@@ -230,6 +230,11 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		};
 	};
 
+	viewModel.makeItProtected = function(envVar) {
+		Popup.showNoticePopup("<%= data[:strings][:env_vars][:confirm_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:confirm_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:confirm_make_it_protected_popup][:ok_button_title] %>", function() {
+			envVar.isProtected(!envVar.isProtected())
+		});
+	};
 });
 
 })();
