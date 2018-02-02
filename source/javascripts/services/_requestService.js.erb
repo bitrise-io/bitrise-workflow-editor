@@ -69,7 +69,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		return $.ajax({
 			type: "DELETE",
 			url: "<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>",
-			async: false, 
+			async: false,
 		});
 	};
 
@@ -262,14 +262,14 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.getSecretEnvValue = function(envVar, requestConfig) {
+	requestService.getSecretValue = function(secret, requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
 			case "website":
 				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:secret_value_get]) %>", {
 					app_slug: requestService.appSlug,
-					secret_key: envVar.key()
+					secret_key: secret.key()
 				});
 
 				break;

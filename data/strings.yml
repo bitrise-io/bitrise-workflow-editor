@@ -362,15 +362,15 @@ code_signing:
       in_progress: "Saving metadata, wait a sec..."
       success: "Keystore metadata successfully saved!"
 env_vars:
-  confirm_make_it_protected_popup:
+  alert_make_it_protected_popup:
     title: ‘Protected’ will be irreversible after save
     details: If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one.
     ok_button_title: Got it
   load_progress:
     in_progress: Loading, wait a sec...
   get_secret_env_value_progress:
-      in_progress: Loading, wait a sec...
-      try_again_postfix: " Click here to try again."
+    in_progress: Loading, wait a sec...
+    try_again_postfix: " Click here to try again."
   add_new: Add new
   replace_variables_label: "Replace variables in inputs?"
   expose_for_pr_label: "Expose for Pull Requests?"

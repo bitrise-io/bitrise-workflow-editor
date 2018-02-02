@@ -27,6 +27,8 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		this.isKeyChangeable = isKeyChangeable !== undefined ? isKeyChangeable : true;
 
 		this.shouldShowValue = shouldShowValue !== undefined ? shouldShowValue : true;
+
+		this.customProperties = {};
 	};
 
 	Variable.defaultVariableConfig = function() {

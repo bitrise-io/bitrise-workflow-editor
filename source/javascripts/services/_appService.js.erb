@@ -101,7 +101,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 	}
 
-	function validateVariables(variables, shouldKeysBeUnique) {
+	function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
 		return $q(function(resolve, reject) {
 			var errors = [];
 
@@ -232,22 +232,18 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		});
 	};
 
-	appService.getSecretEnvValue = function(envVar, requestConfig) {
-		var secretEnvVar = envVar;
-		if (!secretEnvVar && appService.secrets) {
+	appService.getSecretValue = function(secret, requestConfig) {
+		if (!_.isNull(secret.value()) && appService.secrets) {
 			return $q.when();
 		}
 
-		return requestService.getSecretEnvValue(secretEnvVar, requestConfig).then(function(secretValue) {
-			var envVar = _.find(appService.secrets, function(aSecret) {
-				return aSecret.key() == secretEnvVar.key();
-			});
-			envVar.userVariableConfig[secretEnvVar.key()] = secretValue;
+		return requestService.getSecretValue(secret, requestConfig).then(function(secretValue) {
+			secret.value(secretValue);
 
 			var savedEnvVar = _.find(appService.savedSecrets, function(aSavedSecret) {
-				return aSavedSecret.key() == secretEnvVar.key();
+				return aSavedSecret.key() == secret.key();
 			});
-			savedEnvVar.userVariableConfig[secretEnvVar.key()] = secretValue;
+			savedEnvVar.value(secretValue);
 		});
 	};
 
