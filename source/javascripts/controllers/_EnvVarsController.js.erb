@@ -172,6 +172,20 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		envVars.splice(index, 1);
 	};
 
+	viewModel.envVarValidationWarning = function(envVar, keyUniquenessScope) {
+		var errors = [];
+
+		if (!Variable.isValidKey(envVar.key(), keyUniquenessScope)) {
+			errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_key] %>"));
+
+			if (keyUniquenessScope) {
+				errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
+			}
+		}
+
+		return errors.length > 0 ? stringService.errorMessageFromErrors(errors) : null;
+	};
+
 });
 
 })();
