@@ -101,7 +101,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 	}
 
-	function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
+	function validateVariables(variables, shouldKeysBeUnique) {
 		return $q(function(resolve, reject) {
 			var errors = [];
 
