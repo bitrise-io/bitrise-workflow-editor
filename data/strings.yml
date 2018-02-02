@@ -195,9 +195,9 @@ code_signing:
     upload_count_limit_reached: You reached the maximum allowed number of provisioning profile files for this project.
     can_only_upload_x_more: You can only upload <count> more provisioning profile files.
     make_protected:
-      notice_header: "‘Protected’ will be irreversible after save"
-      notice_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
-      notice_ok: "Got it"
+      confirm_question: "Are you sure?"
+      confirm_details: "‘Protected’ will be irreversible after save. If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
+      confirm_ok: "Got it"
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <provisioning_profile_name>?"

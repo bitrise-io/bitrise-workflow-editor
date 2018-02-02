@@ -298,9 +298,9 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.makeProvProfileProtected = function(provProfile) {
-		Popup.showNoticePopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:notice_header] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:notice_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:notice_ok] %>");
-
-		provProfile.protect();
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>").then(function() {
+			provProfile.protect();
+		});
 	};
 
 	viewModel.deleteProvProfile = function(provProfile) {
