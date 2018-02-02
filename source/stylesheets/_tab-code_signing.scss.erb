@@ -513,7 +513,7 @@
 
 			header .expose {
 				width: $expose-width-below-inclusive;
-				
+
 				&:last-child {
 					width: $expose-width-below-inclusive + $action_dropdown_icon-spacing + $action_dropdown_icon-width;
 				}
@@ -1004,6 +1004,11 @@
 							animation: pulse 1s ease infinite;
 						}
 
+						&.expired svg {
+							@include size(6px);
+							fill: $def-grey;
+						}
+
 						&.missing svg {
 							@include size(10px);
 							fill: #F1741E;
@@ -1073,6 +1078,10 @@
 							display: none;
 						}
 
+						&.expired .icon-wrapper:not(.expired-icon-wrapper) {
+							display: none;
+						}
+
 						&.missing .icon-wrapper:not(.missing-icon-wrapper) {
 							display: none;
 						}
@@ -1081,7 +1090,7 @@
 							display: none;
 						}
 
-						&.loading, &.missing, &.ok {
+						&.loading, &.expired, &.missing, &.ok {
 							display: block;
 							margin-right: 22px;
 
@@ -1092,6 +1101,11 @@
 							}
 
 							.missing-icon-wrapper svg {
+								@include size(18px);
+								fill: $def-grey;
+							}
+
+							.expired-icon-wrapper svg {
 								@include size(18px);
 								fill: $def-danger;
 							}
@@ -1106,6 +1120,17 @@
 
 				.identity {
 					@include align-items(center);
+
+					&.missing {
+						opacity: 0.5;
+
+						.details .column {
+
+							.common-name, .missing {
+								color: $def-verydarkgrey;
+							}
+						}
+					}
 
 					.details {
 						@include display-flex;
@@ -1130,7 +1155,7 @@
 								background-color: #f6eaff;
 							}
 
-							.expired, .missing, .included {
+							.expired, .missing, .uploaded {
 								display: inline-block;
 								font-size: 11px;
 								font-weight: 500;
@@ -1138,11 +1163,12 @@
 								color: $def-danger;
 							}
 
-							.included {
+							.uploaded {
 								color: #3ac3a2;
 							}
 						}
 					}
+
 				}
 
 				.device {
@@ -1261,7 +1287,7 @@
 
 							.column {
 
-								.expired, .missing, .included {
+								.expired, .missing, .uploaded {
 									@include padding-x(0);
 								}
 							}

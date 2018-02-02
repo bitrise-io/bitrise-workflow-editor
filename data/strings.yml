@@ -134,7 +134,7 @@ code_signing:
       title: Don't forget to add the Certificate and Provisioning Profile Installer step
       details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
-    header: 
+    header:
       card_title: Provisioning profile
       expose_for_pull_requests: Expose for Pull Requests
       expose_for_pr: Expose for PR
@@ -155,7 +155,7 @@ code_signing:
         is_expose: Expose for Pull Request
     prov_profile_details_popup:
       menus:
-        matching_certificates: Matching Certificates
+        matching_certificates: Included Certificates
         devices: Devices
         capabilities: Capabilities
       device_registration_details:
@@ -168,9 +168,9 @@ code_signing:
         udid: UDID
       identities:
         expired: Expired
-        included: Included
+        uploaded: Uploaded
         missing: Missing
-      capabilities: 
+      capabilities:
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
         'com.apple.developer.associated-domains': 'Associated Domains'

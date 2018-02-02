@@ -102,19 +102,20 @@
 					.content.vertical-scroll[ng-switch="provProfileCtrl.selectedMenu.id"]
 						.error-notice[ng-if="!provProfileCtrl.hasValidIdentity()" ng-switch-when="matching-certificates"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:matching_certificates_details][:missing_or_expired_notice]
 						ul.matching-certificates[ng-switch-when="matching-certificates"]
-							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities"]
+							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities" ng-class="{'missing': provProfileCtrl.identityStatusCSSclass(identity) == 'missing'}"]
 								.status[ng-class="provProfileCtrl.identityStatusCSSclass(identity)"]
 									.icon-wrapper.loading-icon-wrapper = svg("dot")
-									.icon-wrapper.missing-icon-wrapper = svg("warning-in-circle")
+									.icon-wrapper.missing-icon-wrapper = svg("dot")
+									.icon-wrapper.expired-icon-wrapper = svg("warning-in-circle")
 									.icon-wrapper.ok-icon-wrapper = svg("tick-in-circle")
 								.details
 									.column
 										.common-name[ng-bind="identity.commonName"]
 										.serial[ng-bind="identity.serial"]
 									.column
-										.included[ng-if="!provProfileCtrl.isIdentityExpired(identity) && provProfileCtrl.identityStatusCSSclass(identity) == 'ok'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:included]
-										.expired[ng-if="provProfileCtrl.isIdentityExpired(identity)"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
-										.missing[ng-if="!provProfileCtrl.isIdentityExpired(identity) && provProfileCtrl.identityStatusCSSclass(identity) == 'missing'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:missing]
+										.uploaded[ng-if="provProfileCtrl.identityStatusCSSclass(identity) == 'ok'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:uploaded]
+										.expired[ng-if="provProfileCtrl.isIdentityExpired(identity) == 'expired'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
+										.missing[ng-if="provProfileCtrl.identityStatusCSSclass(identity) == 'missing'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:missing]
 						ul.devices[ng-switch-when="devices"]
 							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
 								.status[ng-class="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid)"]
