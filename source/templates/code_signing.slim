@@ -203,9 +203,11 @@
 									button.dropdown-toggle[ng-click="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible = !certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
 										a.dropdown-option.download[ng-if="!certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
+										button.dropdown-option.protect[ng-if="!certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
 										button.dropdown-option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
 								.actions.small
 									a.option.download[ng-if="!certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
+									button.option.protect[ng-if="!certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
 									button.option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
 						.show-more-details[ng-if="certificate.details && certificate.details.length > 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle && !certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword"]
 							p.show-more-info == data[:strings][:code_signing][:certificate][:article][:details][:multiple_identities]
@@ -273,9 +275,11 @@
 										button.dropdown-toggle[ng-click="androidKeystoreCtrl.isMenuVisible = !androidKeystoreCtrl.isMenuVisible"] = svg("three-horizontal-dots")
 										.dropdown[ng-if="androidKeystoreCtrl.isMenuVisible"]
 											a.dropdown-option.download[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
+											button.dropdown-option.protect[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
 											button.dropdown-option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
 									.actions.small
 										a.option.download[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
+										button.option.protect[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
 										button.option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
 					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()" autocomplete="off"]
 						section
@@ -342,9 +346,11 @@
 									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
 										a.dropdown-option.download[ng-if="!genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
+										button.dropdown-option.protect[ng-if="!genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
 										button.dropdown-option.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 								.actions.small
 									a.option.download[ng-if="!genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
+									button.option.protect[ng-if="!genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
 									button.option.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 				p.notification.error[ng-if="genericFileCtrl.genericFiles.length >= genericFileCtrl.maximumGenericFilesCount"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]

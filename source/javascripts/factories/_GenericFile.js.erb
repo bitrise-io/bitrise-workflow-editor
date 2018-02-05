@@ -70,6 +70,14 @@ angular.module("BitriseWorkflowEditor").factory("GenericFile", function($q, $inj
 		return "BITRISEIO_" + this.envVarPartialID + "_URL";
 	};
 
+	GenericFile.prototype.protect = function(requestConfig) {
+		var self = this;
+
+		return requestService.protectGenericFile(this.databaseID, requestConfig).then(function() {
+			self.isProtected = true;
+		});
+	};
+
 	GenericFile.prototype.upload = function(requestConfig) {
 		if (this.validationError()) {
 			return $q.reject(this.validationError());

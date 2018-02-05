@@ -298,7 +298,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.makeProvProfileProtected = function(provProfile) {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>").then(function() {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_cancel] %>").then(function() {
 			provProfile.protect();
 		});
 	};
@@ -324,7 +324,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.deleteAllProvProfiles = function() {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>", 
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>",
 		"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:no_title] %>", function() {
 			viewModel.deleteAllProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
 

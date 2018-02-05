@@ -6,8 +6,8 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	var viewModel = this;
 
-	$scope.dateService = dateService;	
-	$scope.certificateService = certificateService;	
+	$scope.dateService = dateService;
+	$scope.certificateService = certificateService;
 
 	var certificatesReloadIntervalInSeconds = 2;
 	viewModel.maximumCertificatesCount = 30;
@@ -135,6 +135,12 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		});
 	};
 
+	viewModel.makeCertificateProtected = function(certificate) {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_ok] %>", "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_cancel] %>").then(function() {
+			certificate.protect();
+		});
+	};
+
 	viewModel.deleteCertificate = function(certificate) {
 		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question] %>", {
 			certificate_name: certificate.displayName()
@@ -156,7 +162,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 	};
 
 	viewModel.deleteAllCertificates = function() {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>", 
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>",
 		"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:no_title] %>", function() {
 			viewModel.deleteAllCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:delete_all_progress][:in_progress] %>");
 
