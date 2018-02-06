@@ -134,7 +134,7 @@ code_signing:
       title: Don't forget to add the Certificate and Provisioning Profile Installer step
       details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
-    header: 
+    header:
       card_title: Provisioning profile
       expose_for_pull_requests: Expose for Pull Requests
       expose_for_pr: Expose for PR
@@ -166,7 +166,7 @@ code_signing:
         udid: UDID
       identities:
         expired: Expired
-      capabilities: 
+      capabilities:
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
         'com.apple.developer.associated-domains': 'Associated Domains'
@@ -412,7 +412,7 @@ stack:
   docker_image_to_use: Docker image to use
   default_stack_settings:
     header_title: Default Stack
-    header_description: "This will appear as a default stack in your workflows. <a href='<url>' target='_blank'>Supported build prepare types »</a>"
+    header_description: "This will appear as a default stack in your workflows."
   workflow_specific_settings:
     header_title: Workflow Specific Stacks
     header_description: This will appear as a default stack in your workflows.
