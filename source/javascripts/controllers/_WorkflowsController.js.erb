@@ -164,10 +164,15 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 
 		if (!selectedWorkflow) {
-			return;
-		}
+			if (!viewModel.workflows) {
+				return;
+			}
 
-		$location.search("workflow_id", selectedWorkflow.id);
+			viewModel.selectedWorkflow = _.first(viewModel.workflows);
+		}
+		else {
+			$location.search("workflow_id", selectedWorkflow.id);
+		}
 
 		updateSelectedWorkflowChain();
 	});
