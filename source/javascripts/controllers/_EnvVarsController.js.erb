@@ -13,7 +13,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	var envVarsWatchers;
 
 	viewModel.envVarsBySource;
-	viewModel.envVarSettings;
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		switch (mode) {
@@ -88,7 +87,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 	function configureWithAppConfig() {
 		viewModel.envVarsBySource = [];
-		viewModel.envVarSettingsBySource = [];
 
 		viewModel.envVarsBySource.push({
 			type: "app",
@@ -203,7 +201,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		return function(shouldShowValue) {
 			if (shouldShowValue !== undefined) {
 				if (shouldShowValue && !secret.customProperties.progress.isInProgress) {
-					showValueOfSecret(secret);
+					getSecretValue(secret);
 				}
 
 				secret.shouldShowValue = shouldShowValue;
@@ -213,16 +211,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		};
 	};
 
-	function showValueOfSecret(secret) {
+	function getSecretValue(secret) {
 		secret.customProperties.progress.start("<%= data[:strings][:env_vars][:get_secret_env_value_progress][:in_progress] %>");
 
-		$q(function(resolve, reject) {
-			appService.getSecretValue(secret).then(function() {
-				resolve();
-			}, function(error) {
-				reject(error);
-			});
-		}).then(function() {
+		appService.getSecretValue(secret).then(function() {
 			secret.customProperties.progress.success();
 		}, function(error) {
 			secret.customProperties.progress.error(error);
@@ -235,8 +227,11 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		};
 	};
 
-	viewModel.makeItProtected = function(envVar) {
-		Popup.showNoticePopup("<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:ok_button_title] %>");
+	viewModel.makeEnvVarProtected = function(envVar) {
+		Popup.showNoticePopup("<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:ok_button_title] %>").then(
+			envVar.shouldShowValue = false,
+			envVar.isProtected(!envVar.isProtected())
+		);
 	};
 });
 

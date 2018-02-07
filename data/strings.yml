@@ -370,14 +370,13 @@ env_vars:
     in_progress: Loading, wait a sec...
   get_secret_env_value_progress:
     in_progress: Loading, wait a sec...
-    try_again_postfix: " Click here to try again."
   add_new: Add new
   replace_variables_label: "Replace variables in inputs?"
   expose_for_pr_label: "Expose for Pull Requests?"
   expose_for_pr_popover_content: You can decide which secrets should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
   invalid_env_var_key: "invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
-  invalid_secret_env_var_value: "invalid Secret Environment Variable value. Should not be empty"
   one_or_more_invalid_env_var_key: "one or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
+  invalid_env_var_value: "invalid Environment Variable value. Should not be empty"
   should_be_unique: "should be unique"
   key_placeholder: "Key"
   value_placeholder: "Value"

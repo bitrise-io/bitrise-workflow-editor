@@ -90,6 +90,18 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		return true;
 	};
 
+	Variable.isValidValue = function(value, shouldBeNotEmpty) {
+		if (value === undefined) {
+			return undefined;
+		}
+
+		if (!shouldBeNotEmpty || value === null || !value || value.replace(/\s/g, '').length < 1) {
+			return false;
+		}
+
+		return true;
+	};
+
 	Variable.prototype.value = function(newValue) {
 		var key = this.key();
 

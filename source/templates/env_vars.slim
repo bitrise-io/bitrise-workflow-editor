@@ -14,7 +14,7 @@
 					form[name="envVarForm" ng-if="!envVar.customProperties.progress.isInProgress"]
 						.key-value-delete
 							input.key[type="text" name="key" ng-model="envVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!envVar.isKeyChangeable" custom-validators="{'key': Variable.isValidKey(envVar.key())}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
-							.env-var-value
+							.value-with-actions
 								textarea.value[name="value" msd-elastic ng-model="envVar.value" ng-model-options="{getterSetter: true}" ng-trim="false" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
 							.actions[floating-menu toggle="envVar.customProperties.isMenuVisible"]
 								button.dropdown-toggle[ng-click="envVar.customProperties.isMenuVisible = !envVar.customProperties.isMenuVisible"] = svg("three-horizontal-dots")
