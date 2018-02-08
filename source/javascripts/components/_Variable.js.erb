@@ -95,7 +95,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 			return undefined;
 		}
 
-		if (shouldBeNotEmpty && value !== null && value.replace(new RegExp(/^(\s)*$/gm), '').length < 1) {
+		if (shouldBeNotEmpty && value !== null && value.match(new RegExp(/^(?:\s)*$/))) {
 			return false;
 		}
 

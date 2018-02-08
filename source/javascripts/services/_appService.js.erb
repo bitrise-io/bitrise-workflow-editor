@@ -223,7 +223,12 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			normalizeSecretConfigs(secretConfigs);
 
 			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
-				return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
+				switch (requestService.mode) {
+					case "website":
+						return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
+					case "cli":
+						return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
+				}
 			});
 
 			appService.savedSecrets = angular.copy(appService.secrets);

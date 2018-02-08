@@ -228,10 +228,10 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	};
 
 	viewModel.makeEnvVarProtected = function(envVar) {
-		Popup.showNoticePopup("<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:ok_button_title] %>").then(
-			envVar.shouldShowValue = false,
-			envVar.isProtected(true)
-		);
+		Popup.showNoticePopup("<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:ok_button_title] %>").then(function() {
+			envVar.shouldShowValue = false;
+			envVar.isProtected(true);
+		});
 	};
 });
 
