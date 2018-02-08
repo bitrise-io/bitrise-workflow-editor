@@ -163,7 +163,11 @@
 							.icon = svg("code_signing/sheet-certificate")
 							.column.left
 								div[ng-if="!certificate.details || certificate.details.length > 1 || !certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
-									.detail.name[ng-bind="certificate.uploadFileName"]
+									.detail.protected-badge-and-name
+										.protected-badge[ng-if="certificate.isProtected"]
+												.icon-wrapper = svg("lock-closed")
+												span protected
+										.name[ng-bind="certificate.uploadFileName"]
 								div[ng-if="certificate.details && certificate.details.length == 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 									.detail.protected-badge-and-name
 										.protected-badge[ng-if="certificate.isProtected"]
