@@ -268,9 +268,10 @@
 										.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
 									.detail.code.env-var-key[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
 								.expose-and-actions
-									.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-										checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
-										label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
+									.expose-with-popover
+										.expose[trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+											checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
+											label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
 									.actions[floating-menu toggle="androidKeystoreCtrl.isMenuVisible"]
 										button.dropdown-toggle[ng-click="androidKeystoreCtrl.isMenuVisible = !androidKeystoreCtrl.isMenuVisible"] = svg("three-horizontal-dots")
 										.dropdown[ng-if="androidKeystoreCtrl.isMenuVisible"]

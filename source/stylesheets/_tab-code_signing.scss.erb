@@ -274,7 +274,7 @@
 										.icon-wrapper {
 											@include flex-shrink(0);
 											margin-right: 6px;
-											
+
 											svg {
 												display: block;
 												@include size(11px, 16px);
@@ -542,7 +542,7 @@
 
 			header .expose {
 				width: $expose-width-below-inclusive;
-				
+
 				&:last-child {
 					width: $expose-width-below-inclusive + $action_dropdown_icon-spacing + $action_dropdown_icon-width;
 				}
@@ -642,19 +642,17 @@
 
 						.actions.small {
 							@include display-flex;
-							margin-top: 15px;
+							@include flex-direction(column);
+							@include margin-y(15px);
 
 							.option {
 								font-size: 12px;
 								font-weight: 500;
 								color: $def-green;
+								margin-top: 25px;
 
 								&:hover, &:focus {
 									color: $def-green-shade;
-								}
-
-								&:not(:last-child) {
-									margin-right: 25px;
 								}
 
 								&.delete {
@@ -816,19 +814,6 @@
 	}
 
 	.files.android-keystore, .files.generic-files {
-
-		header {
-
-			&:after {
-				content: "";
-				margin-left: $action_dropdown_icon-spacing;
-				width: $action_dropdown_icon-width;
-			}
-
-			.expose:after {
-				content: none;
-			}
-		}
 
 		article {
 
