@@ -100,6 +100,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 					provProfile.isProcessed = aProvProfileData.isProcessed;
 					provProfile.uploadFileName = aProvProfileData.uploadFileName;
 					provProfile.isExpose = aProvProfileData.isExpose;
+					provProfile.isProtected = aProvProfileData.isProtected;
 
 					var provProfileIsExposeGetterSetterProgress = new Progress();
 
@@ -296,6 +297,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	};
 
+	viewModel.makeProvProfileProtected = function(provProfile) {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_cancel] %>").then(function() {
+			provProfile.protect();
+		});
+	};
+
 	viewModel.deleteProvProfile = function(provProfile) {
 		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question] %>", {
 			provisioning_profile_name: provProfile.displayName()
@@ -317,7 +324,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.deleteAllProvProfiles = function() {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>", 
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>",
 		"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:no_title] %>", function() {
 			viewModel.deleteAllProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
 

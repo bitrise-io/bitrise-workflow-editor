@@ -40,6 +40,7 @@ website:
   prov_profile_download: /prov_profile_document/<prov_profile_id>
   prov_profile_finalize_upload: /prov_profile_document/<prov_profile_id>/upload_ended.json
   prov_profile_is_expose_state_update: /prov_profile_document/<prov_profile_id>/update_is_expose.json
+  prov_profile_protect: /prov_profile_document/<prov_profile_id>/protect.json
   prov_profile_delete:  /api/app/<app_slug>/prov_profile_document/<prov_profile_id>/delete.json
   prov_profiles_delete_all:  /api/app/<app_slug>/prov_profile_document/delete.json
   certificate_create: /api/app/<app_slug>/build_certificate/create.json
@@ -49,6 +50,7 @@ website:
   certificate_get_details: /build_certificate/details/<certificate_id>.json
   certificate_is_expose_state_update: /build_certificate/<certificate_id>/update_is_expose.json
   certificate_password_save: /build_certificate/<certificate_id>/password.json
+  certificate_protect: /build_certificate/<certificate_id>/protect.json
   certificate_delete: /api/app/<app_slug>/build_certificate/<certificate_id>/delete.json
   certificates_delete_all: /api/app/<app_slug>/build_certificate/delete.json
   generic_file_create: /api/app/<app_slug>/project_file_storage_document/create.json
@@ -56,6 +58,7 @@ website:
   generic_files_get: /api/app/<app_slug>/project_file_storage_document/show.json
   generic_file_is_expose_state_update: /project_file_storage_document/<generic_file_id>/update_is_expose.json
   generic_file_download: /project_file_storage_document/<generic_file_id>
+  generic_file_protect: /project_file_storage_document/<generic_file_id>/protect.json
   generic_file_delete: /api/app/<app_slug>/project_file_storage_document/<generic_file_id>/delete.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
   team_test_devices: /api/app/<app_slug>/team_test_devices.json
