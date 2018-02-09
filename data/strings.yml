@@ -386,18 +386,28 @@ code_signing:
       in_progress: "Saving metadata, wait a sec..."
       success: "Keystore metadata successfully saved!"
 env_vars:
+  alert_make_it_protected_popup:
+    title: ‘Protected’ will be irreversible after save
+    details: If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one.
+    ok_button_title: Got it
   load_progress:
+    in_progress: Loading, wait a sec...
+  get_secret_env_value_progress:
     in_progress: Loading, wait a sec...
   add_new: Add new
   replace_variables_label: "Replace variables in inputs?"
   expose_for_pr_label: "Expose for Pull Requests?"
   expose_for_pr_popover_content: You can decide which secrets should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
-  delete_env_var: "Delete"
   invalid_env_var_key: "invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
   one_or_more_invalid_env_var_key: "one or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
+  invalid_env_var_value: "invalid Environment Variable value. Should not be empty"
   should_be_unique: "should be unique"
   key_placeholder: "Key"
   value_placeholder: "Value"
+  actions:
+    make_it_protected: Make it protected
+    delete_env_var: "Delete"
+    show_value: "Show value?"
   secrets:
     title: Secret Environment Variables
     notification: "Secret Environment Variables <strong>will not be available</strong> in builds triggered by pull requests. You can add private information here."
@@ -587,6 +597,10 @@ request_service:
     default_error: Error getting test devices of specified repository.
     error_prefix: "Error getting test devices of specified repository: "
     not_website_mode_error: Fetching of all test devices of repository is only available in website mode
+  get_secret_environment_value:
+    default_error: Error getting secret environment value.
+    error_prefix: "Error getting secret environment value: "
+    not_website_mode_error: Getting secret environment value is only available in website mode
 step_source_service:
   step_from_cvs:
     no_path: Path not specified.
