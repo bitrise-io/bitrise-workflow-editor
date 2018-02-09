@@ -134,7 +134,7 @@ code_signing:
       title: Don't forget to add the Certificate and Provisioning Profile Installer step
       details: You’ll need this step in your workflow to make code signing work for your project
   prov_profile:
-    header: 
+    header:
       card_title: Provisioning profile
       expose_for_pull_requests: Expose for Pull Requests
       expose_for_pr: Expose for PR
@@ -150,6 +150,7 @@ code_signing:
         show_prov_profile_validated_details_button: Show matching Certificates, Devices & Capabilities
       actions:
         download: "Download"
+        protect: Make protected
         delete: "Delete"
       expose:
         is_expose: Expose for Pull Request
@@ -166,7 +167,7 @@ code_signing:
         udid: UDID
       identities:
         expired: Expired
-      capabilities: 
+      capabilities:
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
         'com.apple.developer.associated-domains': 'Associated Domains'
@@ -193,6 +194,11 @@ code_signing:
     invalid_file_type: Invalid file type! Select a .provisionprofile or .mobileprovision file.
     upload_count_limit_reached: You reached the maximum allowed number of provisioning profile files for this project.
     can_only_upload_x_more: You can only upload <count> more provisioning profile files.
+    make_protected:
+      confirm_question: "‘Protected’ will be irreversible after save"
+      confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
+      confirm_ok: "Make it protected"
+      confirm_cancel: "Cancel"
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <provisioning_profile_name>?"
@@ -239,6 +245,7 @@ code_signing:
         incorrect_password_notice: Incorrect password
       actions:
         download: "Download"
+        protect: Make protected
         delete: "Delete"
       expose:
         is_expose: Expose for Pull Request
@@ -252,6 +259,11 @@ code_signing:
     invalid_file_type: Invalid file type! Select a .p12 file.
     upload_count_limit_reached: You reached the maximum allowed number of certificate files for this project.
     can_only_upload_x_more: You can only upload <count> more certificate files.
+    make_protected:
+      confirm_question: "‘Protected’ will be irreversible after save"
+      confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
+      confirm_ok: "Make it protected"
+      confirm_cancel: "Cancel"
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <certificate_name>?"
@@ -286,6 +298,7 @@ code_signing:
     article:
       actions:
         download: "Download"
+        protect: Make protected
         delete: "Delete"
     expose:
       is_expose: Expose for Pull Request
@@ -306,6 +319,11 @@ code_signing:
     id_reserved_for_keystore: This ID is reserved for the Android Keystore file upload.
     enter_id: "Enter an ID for the file's download URL."
     upload_count_limit_reached: You reached the maximum allowed number of generic files for this project.
+    make_protected:
+      confirm_question: "‘Protected’ will be irreversible after save"
+      confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
+      confirm_ok: "Make it protected"
+      confirm_cancel: "Cancel"
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <file_name>?"
@@ -323,6 +341,7 @@ code_signing:
     article:
       actions:
         download: "Download"
+        protect: Make protected
         delete: "Delete"
     expose:
       is_expose: Expose for Pull Request
@@ -353,6 +372,11 @@ code_signing:
     alias_not_specified: alias not specified
     private_key_password_not_specified: private key password not specified
     upload_count_limit_reached: You reached the maximum allowed number of generic files for this project.
+    make_protected:
+      confirm_question: "‘Protected’ will be irreversible after save"
+      confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
+      confirm_ok: "Make it protected"
+      confirm_cancel: "Cancel"
     delete_confirm:
       question_short: "Are you sure?"
       question: "Are you sure you want to delete <file_name>?"
@@ -491,6 +515,18 @@ request_service:
   update_prov_profile_is_expose_state:
     default_error: Error updating Expose for Pull Requests state.
     error_prefix: "Error updating Expose for Pull Requests state: "
+  protect_prov_profile:
+    default_error: Error setting provisioning profile to protected.
+    error_prefix: "Error setting provisioning profile to protected: "
+  protect_certificate:
+    default_error: Error setting certificate to protected.
+    error_prefix: "Error setting certificate to protected: "
+  protect_keystore_file:
+    default_error: Error setting keystore file to protected.
+    error_prefix: "Error setting keystore file to protected: "
+  protect_generic_file:
+    default_error: Error setting file to protected.
+    error_prefix: "Error setting file to protected: "
   update_certificate_is_expose_state:
     default_error: Error updating Expose for Pull Requests state.
     error_prefix: "Error updating Expose for Pull Requests state: "
