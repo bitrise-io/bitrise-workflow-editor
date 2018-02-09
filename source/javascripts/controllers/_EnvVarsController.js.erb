@@ -66,13 +66,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 				break;
 		}
-
-		_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
-			_.each(envVarsOfSource.envVars, function(anEnvVar) {
-				anEnvVar.customProperties.progress = new Progress();
-				anEnvVar.customProperties.isMenuVisible = false;
-			});
-		});
 	};
 
 	function configureWithSecrets() {
@@ -81,6 +74,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
 			envVars: appService.secrets
 		}];
+
+		_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
+			_.each(envVarsOfSource.envVars, function(anEnvVar) {
+				anEnvVar.customProperties.progress = new Progress();
+				anEnvVar.customProperties.isMenuVisible = false;
+			});
+		});
 
 		configureEnvVarsWatchers();
 	}
@@ -106,6 +106,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				envVars: _.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
 					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 				})
+			});
+		});
+
+		_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
+			_.each(envVarsOfSource.envVars, function(anEnvVar) {
+				anEnvVar.customProperties.progress = new Progress();
+				anEnvVar.customProperties.isMenuVisible = false;
 			});
 		});
 
@@ -230,6 +237,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.makeEnvVarProtected = function(envVar) {
 		Popup.showNoticePopup("<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:ok_button_title] %>").then(function() {
 			envVar.shouldShowValue = false;
+			envVar.isKeyChangeable = false;
 			envVar.isProtected(true);
 		});
 	};
