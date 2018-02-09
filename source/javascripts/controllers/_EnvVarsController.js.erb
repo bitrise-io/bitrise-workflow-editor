@@ -15,47 +15,24 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.envVarsBySource;
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
-		switch (mode) {
-			case "secrets":
-				configureWithSecrets();
-
-				break;
-			case "env-vars":
-				configureWithAppConfig();
-
-				break;
-		}
+		configure();
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::savedFinishedWithSuccess", function() {
-		switch (mode) {
-			case "secrets":
-				configureWithSecrets();
-
-				break;
-			case "env-vars":
-				configureWithAppConfig();
-
-				break;
-		}
+		configure();
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::savedFinishedWithError", function() {
-		switch (mode) {
-			case "secrets":
-				configureWithSecrets();
-
-				break;
-			case "env-vars":
-				configureWithAppConfig();
-
-				break;
-		}
+		configure();
 	}));
 
 	viewModel.configureWithMode = function(_mode) {
 		mode = _mode;
 
+		configure();
+	};
+
+	function configure() {
 		switch (mode) {
 			case "secrets":
 				configureWithSecrets();
@@ -66,14 +43,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 				break;
 		}
-	};
-
-	function configureWithSecrets() {
-		viewModel.envVarsBySource = [{
-			type: "secrets",
-			notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
-			envVars: appService.secrets
-		}];
 
 		_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
 			_.each(envVarsOfSource.envVars, function(anEnvVar) {
@@ -83,6 +52,14 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		});
 
 		configureEnvVarsWatchers();
+	}
+
+	function configureWithSecrets() {
+		viewModel.envVarsBySource = [{
+			type: "secrets",
+			notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
+			envVars: appService.secrets
+		}];
 	}
 
 	function configureWithAppConfig() {
@@ -108,15 +85,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				})
 			});
 		});
-
-		_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
-			_.each(envVarsOfSource.envVars, function(anEnvVar) {
-				anEnvVar.customProperties.progress = new Progress();
-				anEnvVar.customProperties.isMenuVisible = false;
-			});
-		});
-
-		configureEnvVarsWatchers();
 	}
 
 	function configureEnvVarsWatchers() {
