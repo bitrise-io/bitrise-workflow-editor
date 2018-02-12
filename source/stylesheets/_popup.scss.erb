@@ -213,7 +213,50 @@
 		}
 	}
 
-	.popup-body#default-alert-popup-body.error, .popup-body#default-confirm-popup-body {
+	.popup-body#default-confirm-popup-body {
+
+		&:before {
+			background-image: background_image_from_svg_content_with_attributes('<%= svg("exclamation-mark") %>', (
+				fill: rgba(white, 0.99)
+			));
+			background-size: auto 54px;
+			background-color: $def-danger;
+		}
+
+		article {
+
+			h2 {
+				color: $def-verydarkgrey;
+			}
+		}
+
+		footer {
+
+			button {
+				width: 50%;
+			}
+
+			button.yes {
+				background-color: $def-danger;
+			}
+
+			button.yes:hover, button.yes:focus {
+				background-color: $def-danger-shade;
+			}
+
+			button.no {
+				color: $def-verydarkgrey;
+				background-color: white;
+				border-top: 1px solid $def-lightgrey;
+			}
+
+			button.no:hover, button.no:focus {
+				background-color: $def-ultralightgrey;
+			}
+		}
+	}
+
+	.popup-body#default-alert-popup-body.error {
 
 		&:before {
 			background-image: background_image_from_svg_content_with_attributes('<%= svg("cross") %>', (

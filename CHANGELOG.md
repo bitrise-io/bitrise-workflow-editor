@@ -1,6 +1,45 @@
-## Changelog (Current version: 1.1.10)
+## Changelog (Current version: 1.1.11)
 
 -----------------
+
+## 1.1.11 (2018 Feb 09)
+
+### Release Notes
+
+* Fix stack selector if project type is “other”
+* Secrets are now required to have unique key and non-empty value
+* Secrets’ values are now hidden by default, loading & showing only when “view” is selected
+* Secrets and uploaded files can now be “protected”: nor their key, nor their value, nor any of their options are editable if they are protected
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.11
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.10 -> 1.1.11
+
+* [554556a] Norbert Kovach - Encrypted secrets (#253) (2018 Feb 09)
+* [f94c3b6] Norbert Kovach - Handle protected state of app files (#255) (2018 Feb 09)
+* [86196f9] erosdome - Expect unique secrets (#252) (2018 Feb 01)
+* [7f7dccf] Norbert Kovach - fix stack selector - it was empty in case of project type "other" (#249) (2018 Feb 01)
+
 
 ## 1.1.10 (2018 Jan 26)
 
@@ -1776,4 +1815,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jan 26
+Updated: 2018 Feb 09

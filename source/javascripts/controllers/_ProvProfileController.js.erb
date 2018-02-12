@@ -100,6 +100,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 					provProfile.isProcessed = aProvProfileData.isProcessed;
 					provProfile.uploadFileName = aProvProfileData.uploadFileName;
 					provProfile.isExpose = aProvProfileData.isExpose;
+					provProfile.isProtected = aProvProfileData.isProtected;
 
 					var provProfileIsExposeGetterSetterProgress = new Progress();
 
@@ -299,6 +300,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 			loadProvProfiles(true);
 		}, function(error) {
 			viewModel.uploadProvProfilesProgress.error(error);
+		});
+	};
+
+	viewModel.makeProvProfileProtected = function(provProfile) {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_cancel] %>").then(function() {
+			provProfile.protect();
 		});
 	};
 

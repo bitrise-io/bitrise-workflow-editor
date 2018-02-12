@@ -44,6 +44,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				genericFile.isProcessed = aGenericFileData.isProcessed;
 				genericFile.uploadFileName = aGenericFileData.uploadFileName;
 				genericFile.isExpose = aGenericFileData.isExpose;
+				genericFile.isProtected = aGenericFileData.isProtected;
 
 				viewModel.genericFileSettings[genericFile.databaseID] = {
 					isMenuVisible: false
@@ -116,6 +117,12 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			loadGenericFiles(true);
 		}, function(error) {
 			viewModel.uploadGenericFileProgress.error(error);
+		});
+	};
+
+	viewModel.makeGenericFileProtected = function(genericFile) {
+		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:generic_file][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:generic_file][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:generic_file][:make_protected][:confirm_ok] %>", "<%= data[:strings][:code_signing][:generic_file][:make_protected][:confirm_cancel] %>").then(function() {
+			genericFile.protect();
 		});
 	};
 

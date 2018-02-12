@@ -32,6 +32,7 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		this.isProcessed;
 		this.uploadFileName;
 		this.isExpose;
+		this.isProtected;
 		this.uuid;
 		this.expiresAt;
 		this.exportType;
@@ -106,6 +107,14 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 				reject(error);
 			});
 		})
+	};
+
+	ProvProfile.prototype.protect = function(requestConfig) {
+		var self = this;
+
+		return requestService.protectProvProfile(this.databaseID, requestConfig).then(function() {
+			self.isProtected = true;
+		});
 	};
 
 	ProvProfile.prototype.getDetails = function(requestConfig) {

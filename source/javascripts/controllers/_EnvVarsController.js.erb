@@ -2,11 +2,12 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable, Popup) {
 
 	var viewModel = this;
 
 	$scope.Variable = Variable;
+	$scope.requestService = requestService;
 
 	var mode;
 	var envVarsWatchers;
@@ -14,47 +15,24 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	viewModel.envVarsBySource;
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
-		switch (mode) {
-			case "secrets":
-				configureWithSecrets();
-
-				break;
-			case "env-vars":
-				configureWithAppConfig();
-
-				break;
-		}
+		configure();
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::savedFinishedWithSuccess", function() {
-		switch (mode) {
-			case "secrets":
-				configureWithSecrets();
-
-				break;
-			case "env-vars":
-				configureWithAppConfig();
-
-				break;
-		}
+		configure();
 	}));
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::savedFinishedWithError", function() {
-		switch (mode) {
-			case "secrets":
-				configureWithSecrets();
-
-				break;
-			case "env-vars":
-				configureWithAppConfig();
-
-				break;
-		}
+		configure();
 	}));
 
 	viewModel.configureWithMode = function(_mode) {
 		mode = _mode;
 
+		configure();
+	};
+
+	function configure() {
 		switch (mode) {
 			case "secrets":
 				configureWithSecrets();
@@ -65,7 +43,16 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 
 				break;
 		}
-	};
+
+		_.each(viewModel.envVarsBySource, function(envVarsOfSource) {
+			_.each(envVarsOfSource.envVars, function(anEnvVar) {
+				anEnvVar.customProperties.progress = new Progress();
+				anEnvVar.customProperties.isMenuVisible = false;
+			});
+		});
+
+		configureEnvVarsWatchers();
+	}
 
 	function configureWithSecrets() {
 		viewModel.envVarsBySource = [{
@@ -73,8 +60,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 			notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
 			envVars: appService.secrets
 		}];
-
-		configureEnvVarsWatchers();
 	}
 
 	function configureWithAppConfig() {
@@ -100,8 +85,6 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 				})
 			});
 		});
-
-		configureEnvVarsWatchers();
 	}
 
 	function configureEnvVarsWatchers() {
@@ -114,8 +97,8 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		envVarsWatchers = _.map(viewModel.envVarsBySource, function(envVarsOfSource) {
 			return $scope.$watch(function() {
 				return envVarsOfSource;
-			}, function(envVarsOfSource) {
-				switch (envVarsOfSource.type) {
+			}, function(newEnvVarsOfSource) {
+				switch (newEnvVarsOfSource.type) {
 					case "app":
 						if (!appService.appConfig) {
 							return;
@@ -125,7 +108,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 							appService.appConfig.app = {};
 						}
 
-						appService.appConfig.app.envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+						appService.appConfig.app.envs = _.map(newEnvVarsOfSource.envVars, function(anEnvVar) {
 							return anEnvVar.userVariableConfig;
 						});
 
@@ -143,12 +126,12 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 							return;
 						}
 
-						appService.appConfig.workflows[envVarsOfSource.workflowID].envs = _.map(envVarsOfSource.envVars, function(anEnvVar) {
+						appService.appConfig.workflows[newEnvVarsOfSource.workflowID].envs = _.map(newEnvVarsOfSource.envVars, function(anEnvVar) {
 							return anEnvVar.userVariableConfig;
 						});
 
-						if (_.isEmpty(appService.appConfig.workflows[envVarsOfSource.workflowID].envs)) {
-							delete appService.appConfig.workflows[envVarsOfSource.workflowID]["envs"];
+						if (_.isEmpty(appService.appConfig.workflows[newEnvVarsOfSource.workflowID].envs)) {
+							delete appService.appConfig.workflows[newEnvVarsOfSource.workflowID]["envs"];
 						}
 
 						break;
@@ -162,6 +145,9 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		var newEnvVar = new Variable({
 			"": ""
 		}, Variable.defaultVariableConfig());
+
+		newEnvVar.customProperties.progress = new Progress();
+		newEnvVar.customProperties.isMenuVisible = false;
 
 		envVars.push(newEnvVar);
 	};
@@ -186,6 +172,43 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		return errors.length > 0 ? stringService.errorMessageFromErrors(errors) : null;
 	};
 
+	viewModel.valueVisibilityGetterSetterForEnvVar = function(secret) {
+		return function(shouldShowValue) {
+			if (shouldShowValue !== undefined) {
+				if (shouldShowValue && !secret.customProperties.progress.isInProgress) {
+					getSecretValue(secret);
+				}
+
+				secret.shouldShowValue = shouldShowValue;
+			}
+
+			return secret.shouldShowValue;
+		};
+	};
+
+	function getSecretValue(secret) {
+		secret.customProperties.progress.start("<%= data[:strings][:env_vars][:get_secret_env_value_progress][:in_progress] %>");
+
+		appService.getSecretValue(secret).then(function() {
+			secret.customProperties.progress.success();
+		}, function(error) {
+			secret.customProperties.progress.error(error);
+		});
+	}
+
+	viewModel.valueGetterSetterForEnvVar = function(envVar) {
+		return function(value) {
+			return (envVar.value() !== null && envVar.shouldShowValue) ? envVar.value(value) : "******";
+		};
+	};
+
+	viewModel.makeEnvVarProtected = function(envVar) {
+		Popup.showNoticePopup("<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:title] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:details] %>", "<%= data[:strings][:env_vars][:alert_make_it_protected_popup][:ok_button_title] %>").then(function() {
+			envVar.shouldShowValue = false;
+			envVar.isKeyChangeable = false;
+			envVar.isProtected(true);
+		});
+	};
 });
 
 })();
