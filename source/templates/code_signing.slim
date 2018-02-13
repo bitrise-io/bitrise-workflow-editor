@@ -96,7 +96,7 @@
 				header.closeable.left-aligned
 					span.popup-title[ng-bind="provProfileCtrl.selectedProvProfile.displayName()"]
 					span.popup-close[ng-click="provProfileCtrl.provProfileDetailsPopup.isVisible = false"] = svg("cross")
-				article
+				article.vertical-scroll
 					aside.sidebar
 						.menu
 							button.menu-option[ng-repeat="menu in provProfileCtrl.menus" ng-click="provProfileCtrl.selectedMenu = menu" class="{{ menu.cssClass }}" ng-class="{'selected': menu == provProfileCtrl.selectedMenu}"]
