@@ -123,6 +123,7 @@ code_signing:
   available_project_types_load: Loading, wait a sec...
   expose_for_pr_popover_content: You can decide which files should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
   certificate_help:
+    title: How to setup Code Signing
     codesigndoc:
       title: Export your code signing files with Codesigndoc
       details: Paste this script into your terminal and follow the instructions

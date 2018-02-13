@@ -15,106 +15,125 @@
 
 	section.certificate-help {
 		position: relative;
-		@include margin-y(30px);
-		padding: 25px $section-horizontalspacing;
+		margin: 25px $section-horizontalspacing;
+		padding: 12px 18px;
+		border: 1px solid #3bc3a3;
+		@include border-radius($def-radius);
 		background-color: $def-green-ultralight;
 
-		ul {
-			@include margin-y(0);
-			padding-left: 0;
-			list-style: none;
+		.toggleabble-support-info{
+			@include display-flex;
+			@include justify-content(space-between);
+			@include align-items(center);
 
-			li {
+			.oneliner {
 				@include display-flex;
+				@include align-items(center);
+				height: 20px;
+				color: $def-green;
 
-				&:before {
-					content: "";
+				svg {
 					@include flex-shrink(0);
-					width: 50px;
-					margin-right: 20px;
-					background-position: center top 5px;
-					background-repeat: no-repeat;
-				}
-
-				h2 {
-					margin-top: 0;
-					margin-bottom: 4px;
-					font-size: 18px;
-					font-weight: 500;
-					color: $def-green;
-				}
-
-				p {
-					margin-top: 0;
-					margin-bottom: 10px;
-					font-size: 14px;
-					font-weight: 200;
-					color: $def-darkgrey;
-				}
-
-				code {
-					display: block;
-					@include border-radius($def-radius);
-					padding: 8px 18px;
-					word-break: break-all;
-					background-color: $def-green-verylight;
+					@include size(20px);
+					margin-right: 10px;
+					fill: $def-green;
 				}
 			}
 
-			li:not(:last-child) {
-				margin-bottom: 25px;
+			ul:not(.oneliner) + button svg {
+				@include transform(rotate(-180deg));
 			}
 
-			li.codesigndoc {
+			ul {
+				@include margin-y(0);
+				padding-left: 0;
+				list-style: none;
 
-				&:before {
-					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-codesigndoc") %>', (
-						fill: rgba($def-green, 0.99)
-					));
+				li {
+					@include display-flex;
 
-					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
-					background-size: 30px auto;
+					&:before {
+						content: "";
+						@include flex-shrink(0);
+						width: 50px;
+						margin-right: 20px;
+						background-position: center top 5px;
+						background-repeat: no-repeat;
+					}
+
+					h2 {
+						margin-top: 0;
+						margin-bottom: 4px;
+						font-size: 18px;
+						font-weight: 500;
+						color: $def-green;
+					}
+
+					p {
+						margin-top: 0;
+						margin-bottom: 10px;
+						font-size: 14px;
+						font-weight: 200;
+						color: $def-darkgrey;
+					}
+
+					code {
+						display: block;
+						@include border-radius($def-radius);
+						padding: 8px 18px;
+						word-break: break-all;
+						background-color: $def-green-verylight;
+					}
+				}
+
+				li:not(:last-child) {
+					margin-bottom: 25px;
+				}
+
+				li.codesigndoc {
+
+					&:before {
+						$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-codesigndoc") %>', (
+							fill: rgba($def-green, 0.99)
+						));
+
+						background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+						background-size: 30px auto;
+					}
+				}
+
+				li.upload {
+
+					&:before {
+						$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-upload") %>', (
+							fill: rgba($def-green, 0.99)
+						));
+
+						background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+						background-size: 36px auto;
+					}
+				}
+
+				li.add-step {
+
+					&:before {
+						$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-add_step") %>', (
+							fill: rgba($def-green, 0.99)
+						));
+
+						background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+						background-size: 37px auto;
+					}
 				}
 			}
 
-			li.upload {
-
-				&:before {
-					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-upload") %>', (
-						fill: rgba($def-green, 0.99)
-					));
-
-					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
-					background-size: 36px auto;
-				}
+			button svg {
+				@include flex-shrink(0);
+				@include size(10px, 7px);
+				margin-left: 10px;
+				fill: $def-green;
+				@include transition(fill $def-transition_duration, transform $def-transition_duration);
 			}
-
-			li.add-step {
-
-				&:before {
-					$svg_content_with_attributes: svg_content_with_attributes('<%= svg("code_signing/icon-add_step") %>', (
-						fill: rgba($def-green, 0.99)
-					));
-
-					background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
-					background-size: 37px auto;
-				}
-			}
-		}
-
-		button.hide {
-			@include position(absolute, 20px, 20px);
-			opacity: 0.5;
-			@include transition(opacity, $def-transition_duration);
-
-			svg {
-				@include size(15px);
-				fill: black;
-			}
-		}
-
-		button.hide:focus, button.hide:hover {
-			opacity: 1.0;
 		}
 	}
 
