@@ -33,12 +33,6 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		});
 	};
 
-	viewModel.aboutStack = function(stack) {
-		return stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:about_stack] %>", {
-			stack_name: stack.name
-		});
-	};
-
 	viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
 		if (shouldNormalize === undefined) {
 			shouldNormalize = false;
