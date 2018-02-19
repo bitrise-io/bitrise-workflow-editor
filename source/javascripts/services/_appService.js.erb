@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, Trigger, Step, Variable, Stack) {
+angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack) {
 
 	var appService = {
 		appConfig: undefined,
@@ -101,15 +101,31 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 	}
 
-	function validateVariables(variables) {
+	function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
 		return $q(function(resolve, reject) {
+			var errors = [];
+
 			if (_.any(variables, function(aVariable) {
-				return !Variable.isValidKey(aVariable.key());
+				return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
 			})) {
-				reject(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
+				errors.push(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
+
+				if (shouldKeysBeUnique) {
+					errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
+				}
+			}
+
+			if (_.any(variables, function(aVariable) {
+				return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
+			})) {
+				errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_value] %>"));
+			}
+
+			if (errors.length == 0) {
+				resolve();
 			}
 			else {
-				resolve();
+				reject(new Error(stringService.errorMessageFromErrors(errors)));
 			}
 		});
 	}
@@ -207,10 +223,30 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			normalizeSecretConfigs(secretConfigs);
 
 			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
-				return new Variable(aSecretConfig, Variable.defaultVariableConfig());
+				switch (requestService.mode) {
+					case "website":
+						return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
+					case "cli":
+						return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
+				}
 			});
 
 			appService.savedSecrets = angular.copy(appService.secrets);
+		});
+	};
+
+	appService.getSecretValue = function(secret, requestConfig) {
+		if (!_.isNull(secret.value()) && appService.secrets) {
+			return $q.when();
+		}
+
+		return requestService.getSecretValue(secret, requestConfig).then(function(secretValue) {
+			secret.value(secretValue);
+
+			var savedEnvVar = _.find(appService.savedSecrets, function(aSavedSecret) {
+				return aSavedSecret.key() == secret.key();
+			});
+			savedEnvVar.value(secretValue);
 		});
 	};
 
@@ -219,16 +255,20 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	}
 
 	appService.secretsHaveUnsavedChanges = function() {
-		return !angular.equals(appService.secrets, appService.savedSecrets);
+		return !angular.equals(_.map(appService.secrets, "userVariableConfig"), _.map(appService.savedSecrets, "userVariableConfig"));
 	};
 
 	appService.saveSecrets = function() {
 		appService.secrets = _.filter(appService.secrets, function(aSecretVar){
 			return (!_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
 		});
-		return validateVariables(appService.secrets).then(function() {
+
+		return validateVariables(appService.secrets, true, true).then(function() {
 			return requestService.postSecrets(appService.secrets);
 		}).then(function() {
+			_.each(appService.secrets, function(aSecret) {
+				aSecret.isKeyChangeable = false;
+			});
 			appService.savedSecrets = angular.copy(appService.secrets);
 		});
 	};

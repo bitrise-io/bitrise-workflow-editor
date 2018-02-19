@@ -11,6 +11,7 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		this.uploadFileName;
 		this.password;
 		this.isExpose;
+		this.isProtected;
 		this.details;
 	};
 
@@ -79,6 +80,14 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		})
 	};
 
+	Certificate.prototype.protect = function(requestConfig) {
+		var self = this;
+
+		return requestService.protectCertificate(this.databaseID, requestConfig).then(function() {
+			self.isProtected = true;
+		});
+	};
+
 	Certificate.prototype.getDetails = function(requestConfig) {
 		requestService.getDetailsOfCertificate(this.databaseID, this.password).then(function() {
 			resolve();
@@ -98,7 +107,7 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 	Certificate.prototype.delete = function(requestConfig) {
 		return requestService.deleteCertificate(this.databaseID, requestConfig);
 	};
-	
+
 	return Certificate;
 
 });

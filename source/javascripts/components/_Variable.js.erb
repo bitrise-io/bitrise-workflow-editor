@@ -4,7 +4,7 @@
 
 angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
-	var Variable = function(userVariableConfig, defaultVariableConfig) {
+	var Variable = function(userVariableConfig, defaultVariableConfig, isKeyChangeable, shouldShowValue) {
 		this.userVariableConfig = userVariableConfig;
 		if (!this.userVariableConfig) {
 			this.userVariableConfig = {};
@@ -23,6 +23,12 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		}
 
 		this.meta = new Meta(userMetaConfig, defaultMetaConfig);
+
+		this.isKeyChangeable = isKeyChangeable !== undefined ? isKeyChangeable : true;
+
+		this.shouldShowValue = shouldShowValue !== undefined ? shouldShowValue : true;
+
+		this.customProperties = {};
 	};
 
 	Variable.defaultVariableConfig = function() {
@@ -33,7 +39,8 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 					// TODO: remove the following line, it is only required during secrets' "is expose" migration
 					is_expose: false,
 					"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>": {
-						is_expose: false
+						is_expose: false,
+						is_protected: false
 					}
 				}
 			}
@@ -59,7 +66,7 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		return newKey;
 	};
 
-	Variable.isValidKey = function(key) {
+	Variable.isValidKey = function(key, keyUniquenessScope) {
 		if (key === undefined) {
 			return undefined;
 		}
@@ -70,7 +77,29 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
 		var validKeyRegexp = new RegExp("^[a-zA-Z_]{1}[a-zA-Z0-9_]*$");
 
-		return validKeyRegexp.test(key);
+		if (!validKeyRegexp.test(key)) {
+			return false;
+		}
+
+		if (keyUniquenessScope && _.filter(keyUniquenessScope, function(anotherVariable) {
+			return anotherVariable.key() == key;
+		}).length > 1) {
+			return false;
+		}
+
+		return true;
+	};
+
+	Variable.isValidValue = function(value, shouldBeNotEmpty) {
+		if (value === undefined) {
+			return undefined;
+		}
+
+		if (shouldBeNotEmpty && value !== null && value.match(new RegExp(/^(?:\s)*$/))) {
+			return false;
+		}
+
+		return true;
 	};
 
 	Variable.prototype.value = function(newValue) {
@@ -135,6 +164,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 
 	Variable.prototype.isExpose = function(isExpose) {
 		return metaGetterSetter(this, "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>", "is_expose", isExpose);
+	};
+
+	Variable.prototype.isProtected = function(isProtected) {
+		return metaGetterSetter(this, "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>", "is_protected", isProtected);
 	};
 
 	function metaGetterSetter(variable, metaBundleID, metaKey, metaValue) {
