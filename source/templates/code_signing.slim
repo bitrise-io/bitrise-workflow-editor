@@ -107,7 +107,7 @@
 							select.menu-selector[ng-model="provProfileCtrl.selectedMenu" ng-model-options="{getterSetter: true}" ng-options="menu.title for menu in provProfileCtrl.menus" ng-class="{ 'selected' : menu == provProfileCtrl.selectedMenu }"]
 					.content.vertical-scroll[ng-switch="provProfileCtrl.selectedMenu.id"]
 						.error-notice[ng-if="!provProfileCtrl.hasValidIdentity()" ng-switch-when="matching-certificates"]
-							div == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:matching_certificates_details][:missing_or_expired_notice_part_1]
+							== data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:matching_certificates_details][:missing_or_expired_notice_part_1]
 							strong == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:matching_certificates_details][:missing_or_expired_notice_part_2]
 						ul.matching-certificates[ng-switch-when="matching-certificates"]
 							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities" ng-class="{'missing': provProfileCtrl.identityStatus(identity) == 'missing'}"]
@@ -122,7 +122,7 @@
 										.serial[ng-bind="identity.serial"]
 									.column
 										.uploaded[ng-if="provProfileCtrl.identityStatus(identity) == 'ok'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:uploaded]
-										.expired[ng-if="provProfileCtrl.isIdentityExpired(identity) == 'expired'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
+										.expired[ng-if="provProfileCtrl.identityStatus(identity) == 'expired'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
 										.missing[ng-if="provProfileCtrl.identityStatus(identity) == 'missing'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:missing]
 						ul.devices[ng-switch-when="devices"]
 							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]

@@ -1067,6 +1067,8 @@
 			@include flex-grow(1);
 
 			.error-notice {
+				@include display_flex;
+				@include flex-direction(column);
 				@include border-radius($def-radius);
 				padding: 6px 12px;
 				margin: 16px 22px;
