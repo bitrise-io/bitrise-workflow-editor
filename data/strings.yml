@@ -163,7 +163,8 @@ code_signing:
         not_registered: Not registered on Bitrise
         registered: Registered on Bitrise by
       matching_certificates_details:
-        missing_or_expired_notice: "There is no matching certificate right now. They are either missing or expired.<br><strong>Upload at least one certificate that is matching with one of your provisioning profile.</strong>"
+        missing_or_expired_notice_part_1: "There is no matching certificate right now. They are either missing or expired."
+        missing_or_expired_notice_part_2: "Upload at least one certificate that is matching with one of your provisioning profile."
       # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
       devices:
         udid: UDID
