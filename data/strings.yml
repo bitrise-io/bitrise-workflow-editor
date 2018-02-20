@@ -156,17 +156,22 @@ code_signing:
         is_expose: Expose for Pull Request
     prov_profile_details_popup:
       menus:
-        matching_certificates: Matching Certificates
+        matching_certificates: Included Certificates
         devices: Devices
         capabilities: Capabilities
       device_registration_details:
-          not_registered: Not registered on bitrise
-          registered: Registered on Bitrise by
+        not_registered: Not registered on Bitrise
+        registered: Registered on Bitrise by
+      matching_certificates_details:
+        missing_or_expired_notice_part_1: "There is no matching certificate right now. They are either missing or expired."
+        missing_or_expired_notice_part_2: "Upload at least one certificate that is matching with one of your provisioning profile."
       # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
       devices:
         udid: UDID
       identities:
         expired: Expired
+        uploaded: Uploaded
+        missing: Missing
       capabilities:
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
