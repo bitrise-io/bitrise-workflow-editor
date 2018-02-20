@@ -145,6 +145,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 		var newEnvVar = new Variable({
 			"": ""
 		}, Variable.defaultVariableConfig());
+		newEnvVar.isExpand(false);
 
 		newEnvVar.customProperties.progress = new Progress();
 		newEnvVar.customProperties.isMenuVisible = false;
