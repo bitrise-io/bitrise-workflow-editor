@@ -21,15 +21,24 @@
 		@include border-radius($def-radius);
 		background-color: $def-green-ultralight;
 
-		.toggleabble-support-info{
+		.toggleabble-support-info {
 			@include display-flex;
 			@include justify-content(space-between);
-			@include align-items(center);
+			@include align-items(flex-start);
 
-			.oneliner {
+			&.open {
+
+				ul + button.arrow svg {
+					@include transform(rotate(-180deg));
+				}
+			}
+
+			h2.oneliner-title {
 				@include display-flex;
 				@include align-items(center);
-				height: 20px;
+				margin: 0;
+				font-size: 14px;
+				line-height: 14px;
 				color: $def-green;
 
 				svg {
@@ -38,10 +47,6 @@
 					margin-right: 10px;
 					fill: $def-green;
 				}
-			}
-
-			ul:not(.oneliner) + button svg {
-				@include transform(rotate(-180deg));
 			}
 
 			ul {
@@ -127,9 +132,10 @@
 				}
 			}
 
-			button svg {
+			.arrow svg {
 				@include flex-shrink(0);
-				@include size(10px, 7px);
+				@include size(12px, 19px);
+				display: block;
 				margin-left: 10px;
 				fill: $def-green;
 				@include transition(fill $def-transition_duration, transform $def-transition_duration);
