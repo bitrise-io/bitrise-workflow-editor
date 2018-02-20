@@ -46,15 +46,6 @@
 			.stack-info-text {
 				@include flex-grow(1);
 
-				.stack-name {
-					line-height: $icon-size;
-					margin-top: 0;
-					margin-bottom: $spacing;
-					font-size: 14px;
-					font-weight: 600;
-					color: $def-darkgrey;
-				}
-
 				.stack-description {
 					line-height: 1.5;
 					margin-top: 0;
@@ -62,6 +53,10 @@
 					font-size: 12px;
 					font-weight: 300;
 					color: $def-darkgrey;
+
+					&:not(.ninja) > p:first-child {
+						margin-top: 0;
+					}
 				}
 
 				.stack-info-link {
