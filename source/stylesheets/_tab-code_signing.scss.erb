@@ -1053,14 +1053,19 @@
 							animation: pulse 1s ease infinite;
 						}
 
+						&.expired svg {
+							@include size(6px);
+							fill: $def-grey;
+						}
+
 						&.missing svg {
 							@include size(10px);
-							fill: $def-danger;
+							fill: #F1741E;
 						}
 
 						&.ok svg {
 							@include size(10px);
-							fill: $def-green;
+							fill: #38C3A2;
 						}
 					}
 
@@ -1085,6 +1090,18 @@
 
 		.content {
 			@include flex-grow(1);
+
+			.error-notice {
+				@include display_flex;
+				@include flex-direction(column);
+				@include border-radius($def-radius);
+				padding: 6px 12px;
+				margin: 16px 22px;
+				font-size: 13px;
+				line-height: 18px;
+				color: $def-danger;
+				background-color: $def-danger-light;
+			}
 
 			.matching-certificates, .devices, .capabilities {
 				list-style: none;
@@ -1112,6 +1129,10 @@
 							display: none;
 						}
 
+						&.expired .icon-wrapper:not(.expired-icon-wrapper) {
+							display: none;
+						}
+
 						&.missing .icon-wrapper:not(.missing-icon-wrapper) {
 							display: none;
 						}
@@ -1120,7 +1141,7 @@
 							display: none;
 						}
 
-						&.loading, &.missing, &.ok {
+						&.loading, &.expired, &.missing, &.ok {
 							display: block;
 							margin-right: 22px;
 
@@ -1131,6 +1152,11 @@
 							}
 
 							.missing-icon-wrapper svg {
+								@include size(18px);
+								fill: $def-grey;
+							}
+
+							.expired-icon-wrapper svg {
 								@include size(18px);
 								fill: $def-danger;
 							}
@@ -1145,6 +1171,17 @@
 
 				.identity {
 					@include align-items(center);
+
+					&.missing {
+						opacity: 0.5;
+
+						.details .column {
+
+							.common-name, .missing {
+								color: $def-verydarkgrey;
+							}
+						}
+					}
 
 					.details {
 						@include display-flex;
@@ -1169,16 +1206,20 @@
 								background-color: #f6eaff;
 							}
 
-							.expired {
+							.expired, .missing, .uploaded {
 								display: inline-block;
-								@include border-radius($def-radius);
-								padding: 5px 7px;
+								font-size: 11px;
+								font-weight: 500;
 								text-transform: uppercase;
 								color: $def-danger;
-								background-color: $def-danger-light;
+							}
+
+							.uploaded {
+								color: #3ac3a2;
 							}
 						}
 					}
+
 				}
 
 				.device {
@@ -1191,6 +1232,7 @@
 
 						.udid {
 							word-break: break-all;
+							word-wrap: break-word;
 						}
 					}
 
@@ -1260,7 +1302,7 @@
 							border-left: 1px solid $def-mediumlightgrey;
 						}
 
-						&.capabilities .arrow {
+						&.devices .arrow, &.capabilities .arrow {
 							@include transform(none);
 						}
 					}
@@ -1291,10 +1333,11 @@
 
 						.details {
 							@include flex-direction(column);
+							@include align-items(flex-start);
 
 							.column {
 
-								.expired {
+								.expired, .missing, .uploaded {
 									@include padding-x(0);
 								}
 							}

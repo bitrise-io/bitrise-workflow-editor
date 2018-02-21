@@ -100,7 +100,7 @@
 				header.closeable.left-aligned
 					span.popup-title[ng-bind="provProfileCtrl.selectedProvProfile.displayName()"]
 					span.popup-close[ng-click="provProfileCtrl.provProfileDetailsPopup.isVisible = false"] = svg("cross")
-				article
+				article.vertical-scroll
 					aside.sidebar
 						.menu
 							button.menu-option[ng-repeat="menu in provProfileCtrl.menus" ng-click="provProfileCtrl.selectedMenu = menu" class="{{ menu.cssClass }}" ng-class="{'selected': menu == provProfileCtrl.selectedMenu}"]
@@ -110,24 +110,30 @@
 						.menu.small
 							select.menu-selector[ng-model="provProfileCtrl.selectedMenu" ng-model-options="{getterSetter: true}" ng-options="menu.title for menu in provProfileCtrl.menus" ng-class="{ 'selected' : menu == provProfileCtrl.selectedMenu }"]
 					.content.vertical-scroll[ng-switch="provProfileCtrl.selectedMenu.id"]
+						.error-notice[ng-if="!provProfileCtrl.hasValidIdentity()" ng-switch-when="matching-certificates"]
+							== data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:matching_certificates_details][:missing_or_expired_notice_part_1]
+							strong == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:matching_certificates_details][:missing_or_expired_notice_part_2]
 						ul.matching-certificates[ng-switch-when="matching-certificates"]
-							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities"]
-								.status[ng-class="provProfileCtrl.identityStatusCSSclass(identity)"]
+							li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities" ng-class="{'missing': provProfileCtrl.identityStatus(identity) == 'missing'}"]
+								.status[ng-class="provProfileCtrl.identityStatus(identity)"]
 									.icon-wrapper.loading-icon-wrapper = svg("dot")
-									.icon-wrapper.missing-icon-wrapper = svg("triangle")
-									.icon-wrapper.ok-icon-wrapper = svg("check-in-circle")
+									.icon-wrapper.missing-icon-wrapper = svg("dot")
+									.icon-wrapper.expired-icon-wrapper = svg("warning-in-circle")
+									.icon-wrapper.ok-icon-wrapper = svg("tick-in-circle")
 								.details
 									.column
 										.common-name[ng-bind="identity.commonName"]
 										.serial[ng-bind="identity.serial"]
 									.column
-										.expired[ng-if="provProfileCtrl.isIdentityExpired(identity)"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
+										.uploaded[ng-if="provProfileCtrl.identityStatus(identity) == 'ok'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:uploaded]
+										.expired[ng-if="provProfileCtrl.identityStatus(identity) == 'expired'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:expired]
+										.missing[ng-if="provProfileCtrl.identityStatus(identity) == 'missing'"] == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:identities][:missing]
 						ul.devices[ng-switch-when="devices"]
 							li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
 								.status[ng-class="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid)"]
 									.icon-wrapper.loading-icon-wrapper = svg("dot")
-									.icon-wrapper.missing-icon-wrapper = svg("triangle")
-									.icon-wrapper.ok-icon-wrapper = svg("check-in-circle")
+									.icon-wrapper.missing-icon-wrapper = svg("warning-in-circle")
+									.icon-wrapper.ok-icon-wrapper = svg("tick-in-circle")
 								.details
 									.udid-info
 										strong.label> == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:devices][:udid] + ":"
