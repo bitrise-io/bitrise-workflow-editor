@@ -28,8 +28,8 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		return _.intersection(projectTypes, appService.availableProjectTypes).length > 0;
 	};
 
-	viewModel.codeSigningHintsToggle = function(isCodeSigningHintsOpen) {
-		viewModel.isCodeSigningHintsOpen = isCodeSigningHintsOpen;
+	viewModel.toggleCodeSigningHints = function() {
+		viewModel.isCodeSigningHintsOpen = !viewModel.isCodeSigningHintsOpen;
 
 		$cookies.put("code_signing_hints_hidden", viewModel.isCodeSigningHintsOpen, {
 			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))

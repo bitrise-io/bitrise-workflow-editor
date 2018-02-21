@@ -19,7 +19,7 @@
 					div
 						h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
 						p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
-			button.arrow[ng-click="codeSigningCtrl.codeSigningHintsToggle(!codeSigningCtrl.isCodeSigningHintsOpen)"] = svg("arrow-down")
+			button.arrow[ng-click="codeSigningCtrl.toggleCodeSigningHints()"] = svg("arrow-down")
 	section.cardo.uppercase.slim.files.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-init="provProfileCtrl.init()" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
 			h2.label
