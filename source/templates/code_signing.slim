@@ -1,21 +1,25 @@
 .tab-code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
 	section.progress-indicator[progress-model="codeSigningCtrl.loadProgress"]
 	section.certificate-help[ng-if="codeSigningCtrl.shouldShowCodeSigningHints"]
-		ul
-			li.codesigndoc
-				div
-					h2 == data[:strings][:code_signing][:certificate_help][:codesigndoc][:title]
-					p == data[:strings][:code_signing][:certificate_help][:codesigndoc][:details]
-					code == data[:strings][:code_signing][:certificate_help][:codesigndoc][:code]
-			li.upload
-				div
-					h2 == data[:strings][:code_signing][:certificate_help][:upload][:title]
-					p == data[:strings][:code_signing][:certificate_help][:upload][:details]
-			li.add-step
-				div
-					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
-					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
-		button.hide[ng-click="codeSigningCtrl.codeSigningHintsDismissed()"] = svg("cross_slim")
+		.toggleabble-support-info[ng-class="{'open': codeSigningCtrl.isCodeSigningHintsOpen}"]
+			h2.oneliner-title[ng-if="!codeSigningCtrl.isCodeSigningHintsOpen"]
+				span = svg("support")
+				span == data[:strings][:code_signing][:certificate_help][:title]
+			ul[ng-if="codeSigningCtrl.isCodeSigningHintsOpen"]
+				li.codesigndoc
+					div
+						h2 == data[:strings][:code_signing][:certificate_help][:codesigndoc][:title]
+						p == data[:strings][:code_signing][:certificate_help][:codesigndoc][:details]
+						code == data[:strings][:code_signing][:certificate_help][:codesigndoc][:code]
+				li.upload
+					div
+						h2 == data[:strings][:code_signing][:certificate_help][:upload][:title]
+						p == data[:strings][:code_signing][:certificate_help][:upload][:details]
+				li.add-step
+					div
+						h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
+						p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
+			button.arrow[ng-click="codeSigningCtrl.toggleCodeSigningHints()"] = svg("arrow-down")
 	section.cardo.uppercase.slim.files.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-init="provProfileCtrl.init()" ng-if="codeSigningCtrl.areAnyOfTheProjectTypesAvailable(['ios', 'osx', 'macos', 'xamarin'])"]
 		header
 			h2.label
