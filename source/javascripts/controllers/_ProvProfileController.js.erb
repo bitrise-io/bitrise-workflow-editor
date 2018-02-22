@@ -148,6 +148,12 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		});
 	}
 
+	viewModel.hasValidIdentity = function() {
+		return _.any(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
+			return viewModel.identityStatus(anIdentity) == "ok" && !viewModel.isIdentityExpired(anIdentity);
+		});
+	};
+
 	function isIdentityWithSerialAddedToApp(identitySerial) {
 		if (certificateService.loadProgress.isInProgress) {
 			return undefined;
@@ -170,7 +176,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		return _.any(testDevicesOfApp, { udid: deviceUDID });
 	}
 
-	viewModel.identityStatusCSSclass = function(identity) {
+	viewModel.identityStatus = function(identity) {
 		if (!viewModel.selectedProvProfile) {
 			return undefined;
 		}
@@ -180,8 +186,8 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		return _.any(certificateService.certificates, function(aCertificate) {
-			return _.any(aCertificate.details, { serial: identity.serial }) && !viewModel.isIdentityExpired(identity.endDate);;
-		}) ? "ok" : "missing";
+			return _.any(aCertificate.details, { serial: identity.serial }) && !viewModel.isIdentityExpired(identity.endDate);
+		}) ? "ok" : viewModel.isIdentityExpired(identity.endDate) ? "expired" : "missing";
 	};
 
 	viewModel.deviceStatusCSSclass = function(deviceUDID) {

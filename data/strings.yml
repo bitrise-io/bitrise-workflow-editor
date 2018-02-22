@@ -123,6 +123,7 @@ code_signing:
   available_project_types_load: Loading, wait a sec...
   expose_for_pr_popover_content: You can decide which files should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
   certificate_help:
+    title: How to setup Code Signing
     codesigndoc:
       title: Export your code signing files with Codesigndoc
       details: Paste this script into your terminal and follow the instructions
@@ -156,17 +157,22 @@ code_signing:
         is_expose: Expose for Pull Request
     prov_profile_details_popup:
       menus:
-        matching_certificates: Matching Certificates
+        matching_certificates: Included Certificates
         devices: Devices
         capabilities: Capabilities
       device_registration_details:
-          not_registered: Not registered on bitrise
-          registered: Registered on Bitrise by
+        not_registered: Not registered on Bitrise
+        registered: Registered on Bitrise by
+      matching_certificates_details:
+        missing_or_expired_notice_part_1: "There is no matching certificate right now. They are either missing or expired."
+        missing_or_expired_notice_part_2: "Upload at least one certificate that is matching with one of your provisioning profile."
       # https://github.com/bitrise-steplib/steps-ios-auto-provision/blob/master/auto-provision/app_services.rb#L6
       devices:
         udid: UDID
       identities:
         expired: Expired
+        uploaded: Uploaded
+        missing: Missing
       capabilities:
         'com.apple.security.application-groups': 'App Groups'
         'com.apple.developer.in-app-payments': 'Apple Pay'
@@ -441,12 +447,11 @@ stack:
   workflow_id_postfix: " workflow"
   default_stack: Default (<stack_name>)
   default: default
-  about_stack: About <stack_name>
   more_info_about: More information about this Stack »
   docker_image_to_use: Docker image to use
   default_stack_settings:
     header_title: Default Stack
-    header_description: "This will appear as a default stack in your workflows. <a href='<url>' target='_blank'>Supported build prepare types »</a>"
+    header_description: "This will appear as a default stack in your workflows."
   workflow_specific_settings:
     header_title: Workflow Specific Stacks
     header_description: This will appear as a default stack in your workflows.
