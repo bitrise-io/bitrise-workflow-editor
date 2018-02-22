@@ -462,6 +462,9 @@ yml:
   download: Download currently saved config
   load_progress:
     loading: Loading, wait a sec...
+image_service:
+  broken_image: "Broken image: <image_url>."
+  load_error: "Error loading image: <image_url>."
 request_service:
   step_config_fetch:
     default_error: Error loading step.
