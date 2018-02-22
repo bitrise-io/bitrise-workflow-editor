@@ -85,7 +85,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			viewModel.loadWorkflowsProgress.success();
 		}, function(error) {
 			viewModel.workflows = undefined;
-			console.log(error.message);
+			console.error(error);
 			viewModel.loadWorkflowsProgress.error(new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>"));
 		});
 	}
