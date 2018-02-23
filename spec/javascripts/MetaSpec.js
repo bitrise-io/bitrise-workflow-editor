@@ -111,19 +111,6 @@ describe("Meta", function() {
 				});
 				expect(meta.valueGetterSetter("bundle2", "key1", undefined)).toBeNull();
 			});
-
-			// TODO: remove the rest of the specs from getter mode, they are only required during secrets' "is expose" migration
-
-			it("should return 'is expose' value if it is set in user defined config with the non-namespaced way", function() {
-				var meta = new Meta({});
-				meta.userMetaConfig.is_expose = true;
-
-				expect(meta.valueGetterSetter("bitrise.io", "is_expose", undefined)).toBe(true);
-
-				meta.userMetaConfig.is_expose = false;
-
-				expect(meta.valueGetterSetter("bitrise.io", "is_expose", undefined)).toBe(false);
-			});
 		});
 
 		describe("setter mode", function() {
@@ -264,28 +251,6 @@ describe("Meta", function() {
 					bundle2: {
 						key2: "value4"
 					}
-				});
-			});
-
-			// TODO: remove the rest of the specs from setter mode, they are only required during secrets' "is expose" migration
-
-			it("should set 'is expose' value with the namespaced and also with the non-namespaced way", function() {
-				var meta = new Meta({});
-				meta.valueGetterSetter("bitrise.io", "is_expose", true);
-
-				expect(meta.userMetaConfig).toEqual({
-					"bitrise.io": {
-						is_expose: true
-					},
-					is_expose: true
-				});
-
-				meta.valueGetterSetter("bitrise.io", "is_expose", false);
-				expect(meta.userMetaConfig).toEqual({
-					"bitrise.io": {
-						is_expose: false
-					},
-					is_expose: false
 				});
 			});
 		});
