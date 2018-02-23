@@ -69,10 +69,14 @@
 	}
 }
 
-.notification.error, .notification.warning, .progress-indicator.error {
+.notification.error, .progress-indicator.error {
 	@include notification_styling($def-danger, $def-danger-light, '<%= svg("cross") %>', 12px);
 }
 
 .notification.success, .progress-indicator.success {
 	@include notification_styling($def-green-shade, $def-green-light, '<%= svg("check") %>', 14px);
+}
+
+.notification.warning {
+	@include notification_styling($def-danger, $def-danger-light, '<%= svg("warning") %>', 20px);
 }
