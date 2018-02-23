@@ -6,8 +6,9 @@
 		article
 			section
 				.max-width-wrapper
+					p.notification.warning.invalid-stack[ng-if="appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:default_stack_settings][:invalid_stack]
 					.stack-selector-wrapper
-						select.stack-selector[ng-model="appService.stack" ng-options="stack.name for stack in appService.availableStacks()" ng-change="appService.dockerImage = stackCtrl.defaultDockerImagesByStackIDs[stack.id] !== undefined ? '' : null"]
+						select.stack-selector[ng-model="appService.stack" ng-options="stackCtrl.stackOptionTitle(stack) for stack in stackCtrl.defaultStackOptions()" ng-change="appService.dockerImage = stackCtrl.defaultDockerImagesByStackIDs[stack.id] !== undefined ? '' : null"]
 					.stack-info
 						.info-badge-wrapper = svg("info_badge")
 						.stack-info-text
