@@ -71,7 +71,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 					$q.all(stepIconLoadPromises).then(function() {
 						resolve();
-					}, function() {
+					}, function(error) {
+						console.error(error);
+
 						resolve();
 					});
 				}

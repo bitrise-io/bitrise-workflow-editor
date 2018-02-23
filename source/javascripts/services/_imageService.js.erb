@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("imageService", function($q) {
+angular.module("BitriseWorkflowEditor").service("imageService", function($q, stringService) {
 
 	var imageService = {};
 
@@ -13,11 +13,19 @@ angular.module("BitriseWorkflowEditor").service("imageService", function($q) {
 		return $q(function(resolve, reject) {
 			image.on("load", function() {
 				if (!this.complete || typeof this.naturalWidth == "undefined" || this.naturalWidth == 0) {
-					reject("broken image");
+					reject(new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:image_service][:broken_image] %>", {
+						image_url: url
+					})));
 				}
 				else {
 					resolve();
 				}
+			});
+
+			image.on("error", function() {
+				reject(new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:image_service][:load_error] %>", {
+					image_url: url
+				})));
 			});
 		});
 	};
