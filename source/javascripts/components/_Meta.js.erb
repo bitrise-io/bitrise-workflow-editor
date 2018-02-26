@@ -20,18 +20,8 @@ angular.module("BitriseWorkflowEditor").factory("Meta", function() {
 			}
 			this.userMetaConfig[bundleID][key] = value;
 
-			// TODO: remove the following if block, it is only required during secrets' "is expose" migration
-			if (key == "is_expose" && bundleID == "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>") {
-				this.userMetaConfig.is_expose = value;
-			}
-
 			if (value === null || (this.defaultMetaConfig && this.defaultMetaConfig[bundleID] && this.defaultMetaConfig[bundleID][key] !== undefined && angular.equals(this.defaultMetaConfig[bundleID][key], value))) {
 				delete this.userMetaConfig[bundleID][key];
-			}
-
-			// TODO: remove the following if block, it is only required during secrets' "is expose" migration
-			if (key == "is_expose" && bundleID == "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>" && this.defaultMetaConfig && this.defaultMetaConfig.is_expose == value) {
-				delete this.userMetaConfig.is_expose;
 			}
 
 			if (angular.equals(this.userMetaConfig[bundleID], {})) {
@@ -41,11 +31,6 @@ angular.module("BitriseWorkflowEditor").factory("Meta", function() {
 
 		if (this.userMetaConfig && this.userMetaConfig[bundleID] && this.userMetaConfig[bundleID][key] !== undefined) {
 			return this.userMetaConfig[bundleID][key];
-		}
-
-		// TODO: remove the following if block, it is only required during secrets' "is expose" migration
-		if (key == "is_expose" && bundleID == "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>" && this.userMetaConfig.is_expose !== undefined) {
-			return this.userMetaConfig.is_expose;
 		}
 
 		if (this.defaultMetaConfig && this.defaultMetaConfig[bundleID] && this.defaultMetaConfig[bundleID][key] !== undefined) {
