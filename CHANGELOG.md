@@ -1,6 +1,55 @@
-## Changelog (Current version: 1.1.11)
+## Changelog (Current version: 1.1.12)
 
 -----------------
+
+## 1.1.12 (2018 Feb 26)
+
+### Release Notes
+
+* Stack tab content updates
+* When creating secrets & env vars, set "is expand" option to false initially
+* More information added to provisioning profiles' matching certificates
+* Issue #244 fixed
+* Handling state when current stack is invalid for current project type, also presenting warning
+* Parameter changes for protected secrets & uploaded files are now disabled
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.12
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.11 -> 1.1.12
+
+* [a65878b] erosdome - Only use namespaced metadata (#262) (2018 Feb 26)
+* [7965ce6] erosdome - Hide secret value after save (#263) (2018 Feb 26)
+* [4c10b38] erosdome - Disable toggles for secrets & uploaded files after they have been set to protected (#264) (2018 Feb 26)
+* [06b1823] erosdome - Ask for confirmation when making secrets protected (#265) (2018 Feb 26)
+* [0ee78c6] erosdome - Show image error in console (#260) (2018 Feb 23)
+* [d8e1f51] erosdome - Handle if stack is set to a not found one (#261) (2018 Feb 23)
+* [f27bfdf] erosdome - Clear cached selection state if last selected workflow is gone. (#259) (2018 Feb 22)
+* [911a787] Norbert Kovach - Toggle for codesigndoc info (#257) (2018 Feb 22)
+* [23f341b] Norbert Kovach - update matching certificates popup (#250) (2018 Feb 20)
+* [fa5c121] erosdome - Make env vars “is expand” false on create, but without changing it being true as the default value (#258) (2018 Feb 19)
+* [1157679] Norbert Kovach - Remove supported build prepare types url from stack tab (#256) (2018 Feb 19)
+* [cd13067] erosdome - Remove stack name from UI, it is already present in the dropdown above it (#251) (2018 Feb 19)
+
 
 ## 1.1.11 (2018 Feb 09)
 
@@ -1815,4 +1864,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Feb 09
+Updated: 2018 Feb 26
