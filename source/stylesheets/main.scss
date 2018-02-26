@@ -146,7 +146,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		z-index: -1;
 		@include position(absolute, 0, 0);
 		@include size(50%, 100%);
-		@include transition(right $transition_duration, background-color $transition_duration);
+		@include transition(right $transition_duration, background-color $transition_duration, opacity $transition_duration);
 		background-color: $def-green;
 
 		svg[check], svg[cross] {
@@ -173,15 +173,19 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		background-color: $def-danger;
 	}
 
+	input[type="checkbox"]:disabled + .checkbox-svg-wrapper {
+		opacity: 0.5;
+	}
+
 	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper svg[check], input[type="checkbox"]:checked + .checkbox-svg-wrapper svg[cross] {
 		opacity: 0;
 	}
 
-	input[type="checkbox"]:checked:hover + .checkbox-svg-wrapper, input[type="checkbox"]:checked:focus + .checkbox-svg-wrapper {
+	input[type="checkbox"]:checked:not(:disabled):hover + .checkbox-svg-wrapper, input[type="checkbox"]:checked:not(:disabled):focus + .checkbox-svg-wrapper {
 		background-color: $def-green-shade;
 	}
 
-	input[type="checkbox"]:not(:checked):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):focus + .checkbox-svg-wrapper {
+	input[type="checkbox"]:not(:checked):not(:disabled):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):not(:disabled):focus + .checkbox-svg-wrapper {
 		background-color: $def-danger-shade;
 	}
 
