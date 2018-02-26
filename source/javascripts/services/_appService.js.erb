@@ -268,6 +268,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}).then(function() {
 			_.each(appService.secrets, function(aSecret) {
 				aSecret.isKeyChangeable = false;
+				aSecret.shouldShowValue = false;
 			});
 			appService.savedSecrets = angular.copy(appService.secrets);
 		});
