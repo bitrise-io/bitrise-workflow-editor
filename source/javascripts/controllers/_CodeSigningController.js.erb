@@ -2,30 +2,89 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, $cookies, appService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, $cookies, $scope, requestService, appService, Progress) {
+
+	var canceler = $q.defer();
+	$scope.$on("$destroy", function() {
+		canceler.resolve();
+	});
 
 	var viewModel = this;
 
 	viewModel.shouldShowCodeSigningHints;
 	viewModel.isCodeSigningHintsOpen;
+	viewModel.sectionConfigurations = {
+		provProfile: {
+			shouldShow: undefined,
+			relevantProjectTypes: ['ios', 'osx', 'macos', 'xamarin'],
+			getAreThereAnyUploadedFilesPromise: requestService.getProvProfiles({
+				timeout: canceler.promise
+			}).then(function(data) {
+				return data.length > 0;
+			})
+		},
+		certificate: {
+			shouldShow: undefined,
+			relevantProjectTypes: ['ios', 'osx', 'macos', 'xamarin'],
+			getAreThereAnyUploadedFilesPromise: requestService.getCertificates({
+				timeout: canceler.promise
+			}).then(function(data) {
+				return data.length > 0;
+			})
+		},
+		genericFile: {
+			shouldShow: undefined,
+			relevantProjectTypes: undefined,
+			getAreThereAnyUploadedFilesPromise: $q.when(true)
+		},
+		androidKeystore: {
+			shouldShow: undefined,
+			relevantProjectTypes: ['android', 'xamarin'],
+			getAreThereAnyUploadedFilesPromise: requestService.getKeystoreFile({
+				timeout: canceler.promise
+			}).then(function(data) {
+				return data.keystoreFileData !== undefined;
+			})
+		}
+	};
 	viewModel.loadProgress = new Progress();
 
 	function load() {
 		viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 
-		appService.getAvailableProjectTypes().then(function() {
-			viewModel.shouldShowCodeSigningHints = viewModel.areAnyOfTheProjectTypesAvailable(["ios", "osx", "macos", "xamarin"]);
+		$q(function(resolve, reject) {
+			appService.getProjectType(undefined, {
+				timeout: canceler.promise
+			}).then(function() {
+				viewModel.shouldShowCodeSigningHints = areAnyOfTheProjectTypesAvailable(["ios", "osx", "macos", "xamarin"]);
 
-			viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
+				viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
 
+				$q.all(_.map(viewModel.sectionConfigurations, function(aSectionConfiguration) {
+					if (areAnyOfTheProjectTypesAvailable(aSectionConfiguration.relevantProjectTypes)) {
+						aSectionConfiguration.shouldShow = true;
+		
+						return $q.when();
+					}
+		
+					return aSectionConfiguration.getAreThereAnyUploadedFilesPromise.then(function(areThereAnyUploadedFilesOfSection) {
+						aSectionConfiguration.shouldShow = areThereAnyUploadedFilesOfSection;
+					});
+				})).then(resolve, reject);
+			}, reject);
+		}).then(function() {
 			viewModel.loadProgress.success();
 		}, function(error) {
 			viewModel.loadProgress.error(error);
 		});
 	}
 
-	viewModel.areAnyOfTheProjectTypesAvailable = function(projectTypes) {
-		return _.intersection(projectTypes, appService.availableProjectTypes).length > 0;
+	function areAnyOfTheProjectTypesAvailable(projectTypes) {
+		if (projectTypes === undefined) {
+			return true;
+		}
+
+		return _.contains(projectTypes, appService.projectType);
 	};
 
 	viewModel.toggleCodeSigningHints = function() {
