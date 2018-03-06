@@ -3,7 +3,7 @@
 
 .cardo {
 	border: 1px solid $def-mediumlightgrey;
-	@include border-radius(6px);
+	@include border-radius($cardo-borderradius);
 	overflow: hidden;
 
 	header {
