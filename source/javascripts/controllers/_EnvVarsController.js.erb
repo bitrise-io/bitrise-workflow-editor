@@ -57,6 +57,7 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	function configureWithSecrets() {
 		viewModel.envVarsBySource = [{
 			type: "secrets",
+			shouldShowInfoBox: true,
 			envVars: appService.secrets
 		}];
 	}
