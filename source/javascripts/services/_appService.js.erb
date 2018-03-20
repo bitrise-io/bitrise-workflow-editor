@@ -15,6 +15,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedStack: undefined,
 		dockerImage: undefined,
 		savedDockerImage: undefined,
+		denTags: undefined,
+		savedDenTags: undefined,
 		projectType: undefined,
 		availableProjectTypes: undefined
 	};
@@ -312,6 +314,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			});
 			appService.savedStack = angular.copy(appService.stack);
 			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
+			appService.denTags = appService.savedDenTags = data.denTags.join(", ");;
 		});
 	};
 
@@ -331,13 +334,18 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	}
 
 	appService.stackHasUnsavedChanges = function() {
-		return !angular.equals(appService.stack, appService.savedStack) || appService.dockerImage !== appService.savedDockerImage;
+		return !angular.equals(appService.stack, appService.savedStack) || appService.dockerImage !== appService.savedDockerImage || appService.denTags !== appService.savedDenTags;
 	};
 
 	appService.saveStack = function() {
-		return requestService.saveStack(appService.stack.id, appService.dockerImage).then(function() {
+		var bitriseDENtagsArray = appService.denTags ? _.map(appService.denTags.split(","), function(string) {
+			return string.trim();
+		}) : [];
+
+		return requestService.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray).then(function() {
 			appService.savedStack = angular.copy(appService.stack);
 			appService.savedDockerImage = appService.dockerImage;
+			appService.savedDenTags = appService.denTags;
 			appService.availableProjectTypes = undefined;
 		});
 	};
@@ -347,6 +355,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			id: appService.savedStack.id
 		});
 		appService.dockerImage = appService.savedDockerImage;
+		appService.denTags = appService.savedDenTags;
 	};
 
 	appService.getProjectType = function(requestConfig) {

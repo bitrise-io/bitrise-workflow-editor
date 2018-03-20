@@ -35,7 +35,7 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 
 	viewModel.defaultStackOptions = function() {
 		var stacks = appService.availableStacks();
-		
+
 		if (!_.contains(stacks, appService.stack)) {
 			stacks.push(appService.stack);
 		}
