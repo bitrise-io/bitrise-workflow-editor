@@ -340,7 +340,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	appService.saveStack = function() {
 		var bitriseDENtagsArray = appService.denTags ? _.map(appService.denTags.split(","), function(string) {
 			return string.trim();
-		}) : [];
+		}) : undefined;
 
 		return requestService.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray).then(function() {
 			appService.savedStack = angular.copy(appService.stack);

@@ -538,13 +538,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					app_slug: requestService.appSlug
 				});
 				requestData = {
-					stack_identifier: stackID
+					stack_identifier: stackID,
+					den_tags: denTags
 				};
 				if (dockerImage !== null) {
 					requestData.docker_image_name = dockerImage;
-				}
-				if (denTags !== null) {
-					requestData.den_tags = denTags;
 				}
 
 				break;
