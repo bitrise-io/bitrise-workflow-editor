@@ -200,7 +200,7 @@
 								.label.on-small == data[:strings][:code_signing][:certificate][:header][:password]
 								form[ng-submit="certificateCtrl.changePassword()" autocomplete="off" name="certificatePasswordForm"]
 									.password-field-wrapper
-										input.password-field[type="{{ showPassword ? 'text' : 'password' }}" autocomplete="off" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
+										input.password-field[type="{{ showPassword ? 'text' : 'password' }}" autocomplete="hell-no" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
 										eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 									.change-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
 										input.action.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
