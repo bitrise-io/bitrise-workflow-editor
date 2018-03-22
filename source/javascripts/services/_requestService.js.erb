@@ -474,7 +474,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve({
 					stackID: response.data.stack_identifier,
-					dockerImage: response.data.docker_image_name
+					dockerImage: response.data.docker_image_name,
+					denTags: response.data.den_tags
 				});
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_stack][:default_error] %>", "<%= data[:strings][:request_service][:get_stack][:error_prefix] %>"));
@@ -527,7 +528,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.saveStack = function(stackID, dockerImage, requestConfig) {
+	requestService.saveStack = function(stackID, dockerImage, denTags, requestConfig) {
 		var requestURL;
 		var requestData;
 
@@ -537,7 +538,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					app_slug: requestService.appSlug
 				});
 				requestData = {
-					stack_identifier: stackID
+					stack_identifier: stackID,
+					den_tags: denTags
 				};
 				if (dockerImage !== null) {
 					requestData.docker_image_name = dockerImage;

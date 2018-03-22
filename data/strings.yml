@@ -416,7 +416,11 @@ env_vars:
     show_value: "Show value?"
   secrets:
     title: Secret Environment Variables
-    notification: "Secret Environment Variables <strong>will not be available</strong> in builds triggered by pull requests. You can add private information here."
+    info:
+      heading: Your secrets are safe with us
+      store_separate: We store the app's secrets separate from the bitrise.yml
+      encrypted: Your secrets are encrypted
+      no_expose: We do not expose any of your secrets in pull requests, unless explicitly enabled
     make_protected:
       confirm_question: "'Protected' will be irreversible after save"
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
@@ -454,6 +458,8 @@ stack:
   default: default
   more_info_about: More information about this Stack »
   docker_image_to_use: Docker image to use
+  den_tags_label: "Set app's tags for Bitrise DEN (comma separated): "
+  den_tags_placeholder: "Bitrise DEN tags"
   default_stack_settings:
     header_title: Default Stack
     header_description: "This will appear as a default stack in your workflows."

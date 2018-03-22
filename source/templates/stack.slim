@@ -17,6 +17,9 @@
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
+					.den-tag-settings[ng-if="appService.stack.id == 'self-hosted'"]
+						label.den-tag-label == data[:strings][:stack][:den_tags_label]
+						input.den-tags[type="text" ng-model="appService.denTags" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:stack][:den_tags_placeholder] }"]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]

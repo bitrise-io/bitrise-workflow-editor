@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, requestService, stringService, appService, Progress, Variable, Popup) {
+angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function($scope, $rootScope, $q, $cookies, requestService, stringService, appService, Progress, Variable, Popup) {
 
 	var viewModel = this;
 
@@ -57,7 +57,13 @@ angular.module("BitriseWorkflowEditor").controller("EnvVarsController", function
 	function configureWithSecrets() {
 		viewModel.envVarsBySource = [{
 			type: "secrets",
-			notification: "<%= data[:strings][:env_vars][:secrets][:notification] %>",
+			shouldShowInfoBox: $cookies.get("should_show_secrets_info_box") == "true",
+			toggleInfoBoxVisibility: function() {
+				this.shouldShowInfoBox = !this.shouldShowInfoBox;
+				$cookies.put("should_show_secrets_info_box", this.shouldShowInfoBox ? "true" : "false", {
+					expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
+				});
+			},
 			envVars: appService.secrets
 		}];
 	}
