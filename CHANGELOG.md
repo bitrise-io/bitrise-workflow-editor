@@ -1,6 +1,47 @@
-## Changelog (Current version: 1.1.12)
+## Changelog (Current version: 1.1.13)
 
 -----------------
+
+## 1.1.13 (2018 Mar 22)
+
+### Release Notes
+
+* Show all uploaded files on Code Signing page even if the project type is not matching with the file type
+* Update content of the notification on Secret page
+* Input field for adding/removing DEN tags on Stack page if the selected stack is “Self hosted agent”
+
+* __BREAKING__ : change 1
+* change 2
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.13
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.12 -> 1.1.13
+
+* [0218911] erosdome - Password field fix - method #1 (#270) (2018 Mar 22)
+* [d712899] Norbert Kovach - Add and show den_tags input field if "self hosted agent" stack is selected (#273) (2018 Mar 22)
+* [b19f058] erosdome - Update secrets info notification (#268) (2018 Mar 12)
+* [0145f81] erosdome - Show sections if matching project type or if they have uploaded files (#266) (2018 Mar 06)
+
 
 ## 1.1.12 (2018 Feb 26)
 
@@ -1864,4 +1905,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Feb 26
+Updated: 2018 Mar 22
