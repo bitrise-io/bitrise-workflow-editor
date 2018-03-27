@@ -13,10 +13,11 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 
 	viewModel.shouldShowCodeSigningHints;
 	viewModel.isCodeSigningHintsOpen;
+	var irrelevantProjectTypesForCodeSigningHints = ["android"];
 	viewModel.sectionConfigurations = {
 		provProfile: {
 			shouldShow: undefined,
-			relevantProjectTypes: ['ios', 'osx', 'macos', 'xamarin'],
+			irrelevantProjectTypes: ["android"],
 			getAreThereAnyUploadedFilesPromise: requestService.getProvProfiles({
 				timeout: canceler.promise
 			}).then(function(data) {
@@ -25,7 +26,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		},
 		certificate: {
 			shouldShow: undefined,
-			relevantProjectTypes: ['ios', 'osx', 'macos', 'xamarin'],
+			irrelevantProjectTypes: ["android"],
 			getAreThereAnyUploadedFilesPromise: requestService.getCertificates({
 				timeout: canceler.promise
 			}).then(function(data) {
@@ -34,12 +35,12 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		},
 		genericFile: {
 			shouldShow: undefined,
-			relevantProjectTypes: undefined,
+			irrelevantProjectTypes: [],
 			getAreThereAnyUploadedFilesPromise: $q.when(true)
 		},
 		androidKeystore: {
 			shouldShow: undefined,
-			relevantProjectTypes: ['android', 'xamarin'],
+			irrelevantProjectTypes: ["ios", "osx", "macos"],
 			getAreThereAnyUploadedFilesPromise: requestService.getKeystoreFile({
 				timeout: canceler.promise
 			}).then(function(data) {
@@ -49,19 +50,19 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 	};
 	viewModel.loadProgress = new Progress();
 
-	function load() {
+	viewModel.load = function() {
 		viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 
 		$q(function(resolve, reject) {
 			appService.getProjectType(undefined, {
 				timeout: canceler.promise
 			}).then(function() {
-				viewModel.shouldShowCodeSigningHints = areAnyOfTheProjectTypesAvailable(["ios", "osx", "macos", "xamarin"]);
+				viewModel.shouldShowCodeSigningHints = !_.contains(irrelevantProjectTypesForCodeSigningHints, appService.projectType);
 
 				viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
 
 				$q.all(_.map(viewModel.sectionConfigurations, function(aSectionConfiguration) {
-					if (areAnyOfTheProjectTypesAvailable(aSectionConfiguration.relevantProjectTypes)) {
+					if (!_.contains(aSectionConfiguration.irrelevantProjectTypes, appService.projectType)) {
 						aSectionConfiguration.shouldShow = true;
 		
 						return $q.when();
@@ -77,14 +78,6 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		}, function(error) {
 			viewModel.loadProgress.error(error);
 		});
-	}
-
-	function areAnyOfTheProjectTypesAvailable(projectTypes) {
-		if (projectTypes === undefined) {
-			return true;
-		}
-
-		return _.contains(projectTypes, appService.projectType);
 	};
 
 	viewModel.toggleCodeSigningHints = function() {
@@ -94,8 +87,6 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
 		});
 	};
-
-	load();
 
 });
 
