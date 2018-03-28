@@ -1,4 +1,4 @@
-.tab-code-signing[ng-controller="CodeSigningController as codeSigningCtrl"]
+.tab-code-signing[ng-controller="CodeSigningController as codeSigningCtrl" ng-init="codeSigningCtrl.load()"]
 	section.progress-indicator[progress-model="codeSigningCtrl.loadProgress"]
 	section.certificate-help[ng-if="codeSigningCtrl.shouldShowCodeSigningHints"]
 		.toggleabble-support-info[ng-class="{'open': codeSigningCtrl.isCodeSigningHintsOpen}"]
