@@ -28,8 +28,8 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 	}
 
 	viewModel.stackOptionTitle = function(stack) {
-		return stack !== null ? stack.name : stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:default_stack] %>", {
-			stack_name: appService.stack.name
+		return stack ? (stack.name ? stack.name : stack.id) : stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:default_stack] %>", {
+			stack_name: viewModel.stackOptionTitle(appService.stack)
 		});
 	};
 
@@ -53,7 +53,13 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 				stack = appService.stack;
 			}
 
-			stack = workflow.stack(stack, Stack.all);
+			var stacks = [];
+			if (stack && !_.contains(Stack.all, stack)) {
+				stacks.push(stack);
+			}
+			stacks = stacks.concat(Stack.all);
+
+			stack = workflow.stack(stack, stacks);
 
 			if (stack === null && shouldNormalize) {
 				return appService.stack;
