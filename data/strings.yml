@@ -377,7 +377,6 @@ code_signing:
     password_not_specified: password not specified
     alias_not_specified: alias not specified
     private_key_password_not_specified: private key password not specified
-    upload_count_limit_reached: You reached the maximum allowed number of generic files for this project.
     make_protected:
       confirm_question: "‘Protected’ will be irreversible after save"
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."

@@ -1132,12 +1132,10 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					user_env_key: KeystoreFile.downloadURLEnvVarPartialID
 				});
 
-				var responseData = {
-					genericFileAndKeystoreFileCountSum: response.data.project_file_storage_documents.length
-				};
+				var responseData = null;
 
 				if (keystoreFileData) {
-					responseData.keystoreFileData = {
+					responseData = {
 						databaseID: keystoreFileData.id,
 						isProcessed: keystoreFileData.processed,
 						envVarPartialID: keystoreFileData.user_env_key,
@@ -1147,9 +1145,9 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					};
 
 					if (keystoreFileData.exposed_meta_datastore) {
-						responseData.keystoreFileData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
-						responseData.keystoreFileData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
-						responseData.keystoreFileData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
+						responseData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
+						responseData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
+						responseData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
 					}
 				}
 
