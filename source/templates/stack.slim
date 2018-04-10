@@ -6,7 +6,8 @@
 		article
 			section
 				.max-width-wrapper
-					p.notification.warning.invalid-stack[ng-if="appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:default_stack_settings][:invalid_stack]
+					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == data[:strings][:stack][:invalid_stack]
+					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:incompatible_stack]
 					.stack-selector-wrapper
 						select.stack-selector[ng-model="appService.stack" ng-options="stackCtrl.stackOptionTitle(stack) for stack in stackCtrl.defaultStackOptions()" ng-change="appService.dockerImage = stackCtrl.defaultDockerImagesByStackIDs[stack.id] !== undefined ? '' : null"]
 					.stack-info
@@ -30,7 +31,9 @@
 					h4.workflow-header
 						strong.workflow-id[ng-bind="workflow.id"]
 						span == data[:strings][:stack][:workflow_id_postfix]
-					.stack-selector-wrapper[ng-class="{'default': !stackCtrl.stackGetterSetterForWorkflow(workflow)()}"]
+					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == data[:strings][:stack][:invalid_stack]
+					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) != -1 && appService.availableStacks().indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == data[:strings][:stack][:incompatible_stack]
+					.stack-selector-wrapper[ng-class="{'default': stackCtrl.stackGetterSetterForWorkflow(workflow)() === null}"]
 						select.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stackCtrl.stackOptionTitle(stack) for stack in [null].concat(appService.availableStacks())"]
 						label.default-stack == data[:strings][:stack][:default]
 					.stack-info
