@@ -312,6 +312,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.stack = _.find(Stack.all, {
 				id: data.stackID
 			});
+
+			if (appService.stack === undefined) {
+				appService.stack = new Stack(data.stackID);
+			}
+
 			appService.savedStack = angular.copy(appService.stack);
 			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
 			appService.denTags = appService.savedDenTags = data.denTags.join(", ");;
@@ -354,6 +359,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		appService.stack = _.find(Stack.all, {
 			id: appService.savedStack.id
 		});
+
+		if (appService.stack === undefined) {
+			appService.stack = new Stack(appService.savedStack.id);
+		}
+
 		appService.dockerImage = appService.savedDockerImage;
 		appService.denTags = appService.savedDenTags;
 	};
