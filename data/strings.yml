@@ -460,10 +460,11 @@ stack:
   docker_image_to_use: Docker image to use
   den_tags_label: "Set app's tags for Bitrise DEN (comma separated): "
   den_tags_placeholder: "Bitrise DEN tags"
+  incompatible_stack: "Your current stack is not compatible with your current project type! Select a different stack from the list below."
+  invalid_stack: "Your current stack is invalid! Choose another stack from the list below."
   default_stack_settings:
     header_title: Default Stack
     header_description: "This will appear as a default stack in your workflows."
-    invalid_stack: "Your current stack is not compatible with your current project type! Select a different stack from the list below."
   workflow_specific_settings:
     header_title: Workflow Specific Stacks
     header_description: This will appear as a default stack in your workflows.
