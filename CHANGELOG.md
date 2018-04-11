@@ -1,6 +1,46 @@
-## Changelog (Current version: 1.1.14)
+## Changelog (Current version: 1.1.15)
 
 -----------------
+
+## 1.1.15 (2018 Apr 11)
+
+### Release Notes
+
+* Android Keystore & generic file upload limit handling update
+* Creating new workflow - minor UX improvement
+* Warning notification boxes' contents updated at several places for clarity
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.15
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.14 -> 1.1.15
+
+* [5e54f5b] erosdome - Don’t show error in Android Keystore section (#280) (2018 Apr 11)
+* [ecba52c] erosdome - Message box opening update (#279) (2018 Apr 11)
+* [c8c9bd2] erosdome - Handle if in new workflow popup enter is pressed (#278) (2018 Apr 10)
+* [dd9356b] erosdome - Increase font size for triggers (#277) (2018 Apr 10)
+* [b4fa1c6] erosdome - Stack warning update (#276) (2018 Apr 10)
+* [a1ce0be] Norbert Kovach - Update secret info data (#275) (2018 Apr 10)
+
 
 ## 1.1.14 (2018 Mar 28)
 
@@ -1938,4 +1978,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Mar 28
+Updated: 2018 Apr 11
