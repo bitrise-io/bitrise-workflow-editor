@@ -417,9 +417,9 @@ env_vars:
     title: Secret Environment Variables
     info:
       heading: Your secrets are safe with us
-      store_separate: We store the app's secrets separate from the bitrise.yml
-      encrypted: Your secrets are encrypted
-      no_expose: We do not expose any of your secrets in pull requests, unless explicitly enabled
+      store_separate: Your secrets are not shown in the bitrise.yml
+      encrypted: Your secrets are stored encrypted and are anonymized by default in the logs
+      no_expose: Still, consider that anyone might be able to do a workaround and log the value of secrets with a pull request, thus we advise not to expose secrets in PRs
     make_protected:
       confirm_question: "'Protected' will be irreversible after save"
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
@@ -459,10 +459,11 @@ stack:
   docker_image_to_use: Docker image to use
   den_tags_label: "Set app's tags for Bitrise DEN (comma separated): "
   den_tags_placeholder: "Bitrise DEN tags"
+  incompatible_stack: "Your current stack is not compatible with your current project type! Select a different stack from the list below."
+  invalid_stack: "Your current stack is invalid! Choose another stack from the list below."
   default_stack_settings:
     header_title: Default Stack
     header_description: "This will appear as a default stack in your workflows."
-    invalid_stack: "Your current stack is not compatible with your current project type! Select a different stack from the list below."
   workflow_specific_settings:
     header_title: Workflow Specific Stacks
     header_description: This will appear as a default stack in your workflows.
