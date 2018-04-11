@@ -44,7 +44,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 			getAreThereAnyUploadedFilesPromise: requestService.getKeystoreFile({
 				timeout: canceler.promise
 			}).then(function(data) {
-				return data.keystoreFileData !== undefined;
+				return data !== null;
 			})
 		}
 	};
