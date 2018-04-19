@@ -1,6 +1,39 @@
-## Changelog (Current version: 1.1.15)
+## Changelog (Current version: 1.1.16)
 
 -----------------
+
+## 1.1.16 (2018 Apr 19)
+
+### Release Notes
+
+* Code signing files' password - UI update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.16
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.15 -> 1.1.16
+
+* [55af080] erosdome - Update placeholders for hidden states of fields on code signing tab (#282) (2018 Apr 19)
+
 
 ## 1.1.15 (2018 Apr 11)
 
@@ -1978,4 +2011,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Apr 11
+Updated: 2018 Apr 19
