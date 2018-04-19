@@ -88,6 +88,10 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		});
 	};
 
+	viewModel.placeholderForText = function(text) {
+		return Array(text.length + 1).join("*");
+	};
+
 });
 
 })();
