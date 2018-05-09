@@ -283,15 +283,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 			}
 
 			return requestService.libraryFetch(notLoadedLibraryURLs, requestConfig).then(function(data) {
-				var newLibraries = _.pick(data, function(aLibraryData, aLibraryURL) {
-					return _.isUndefined(_.find(stepSourceService.libraries, { url: aLibraryURL }));
-				});
-
-				if (_.size(newLibraries) == 0) {
-					resolve();
-				}
-
-				_.each(newLibraries, function(aLibraryData, aLibraryURL) {
+				_.each(data, function(aLibraryData, aLibraryURL) {
 					try {
 						var library = {
 							url: aLibraryURL
