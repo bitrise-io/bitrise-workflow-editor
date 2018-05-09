@@ -87,7 +87,8 @@
 							section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
 								span.icon
 									= svg("code")
-								.markdown[btf-markdown="workflowsCtrl.selectedStep.description()" ng-class="{'oneliner': !workflowsCtrl.shouldShowDescription}"]
+                                .markdown[ng-if="workflowsCtrl.shouldShowDescription" btf-markdown="workflowsCtrl.selectedStep.description() ? workflowsCtrl.selectedStep.description() : workflowsCtrl.selectedStep.summary()"]
+								.markdown.oneliner[ng-if="!workflowsCtrl.shouldShowDescription" btf-markdown="workflowsCtrl.selectedStep.summary() ? workflowsCtrl.selectedStep.summary() : workflowsCtrl.selectedStep.description()"]
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
 									= svg("arrow-down")
