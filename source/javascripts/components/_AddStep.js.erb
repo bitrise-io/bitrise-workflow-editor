@@ -26,7 +26,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 }).controller("AddStepController", function($scope, $q, $filter, stringService, imageService, addStepService, requestService, iframeService, stepSourceService, appService, Progress) {
 
 	var viewModel = this;
-	viewModel.canceler = $q.defer();
+	var canceler = $q.defer();
 
 	var shouldFilterByProjectTypeDefaultValue = requestService.mode == "website";
 
@@ -97,10 +97,11 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			var loadPromises = [];
 
 			if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
-				viewModel.canceler.resolve();
+				canceler.resolve();
+				canceler = $q.defer();
 
 				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL], {
-					timeout: viewModel.canceler.promise
+					timeout: canceler.promise
 				}).then(function() {
 					var stepIconLoadPromises = [];
 					_.each(stepSourceService.libraries, function(aLibrary) {
