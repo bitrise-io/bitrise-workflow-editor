@@ -302,27 +302,27 @@
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
 								code.env-var[ng-bind="KeystoreFile.androidKeystorePasswordEnvVarKey | prettifiedKey"]
-							input.env-var[type="text" ng-if="androidKeystoreCtrl.showPassword" name="password" required ng-model="androidKeystoreCtrl.keystoreFile.password" placeholder="#{ data[:strings][:code_signing][:android_keystore][:password_placeholder] }"]
+							input.env-var[type="text" ng-if="androidKeystoreCtrl.showPassword" name="password" ng-required="androidKeystoreCtrl.keystoreFile.password" ng-model="androidKeystoreCtrl.keystoreFile.password" placeholder="#{ data[:strings][:code_signing][:android_keystore][:password_placeholder] }"]
 							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showPassword" ng-model="codeSigningCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.password)" ng-model-options="{getterSetter: true}" disabled]
-							.show-password
+							.show-password[ng-if="androidKeystoreCtrl.keystoreFile.password"]
 								checkbox.small[ng-model="androidKeystoreCtrl.showPassword" checkbox-id-expression="'code-signin-android-keystore-show-password-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_password]
 						section
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_alias_as]
 								code.env-var[ng-bind="KeystoreFile.androidKeystoreAliasEnvVarKey | prettifiedKey"]
-							input.env-var[type="text" ng-if="androidKeystoreCtrl.showAlias" name="alias" required ng-model="androidKeystoreCtrl.keystoreFile.alias" placeholder="#{ data[:strings][:code_signing][:android_keystore][:alias_placeholder] }"]
+							input.env-var[type="text" ng-if="androidKeystoreCtrl.showAlias" name="alias" ng-required="androidKeystoreCtrl.keystoreFile.alias" ng-model="androidKeystoreCtrl.keystoreFile.alias" placeholder="#{ data[:strings][:code_signing][:android_keystore][:alias_placeholder] }"]
 							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showAlias" ng-model="codeSigningCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.alias)" ng-model-options="{getterSetter: true}" disabled]
-							.show-password
+							.show-password[ng-if="androidKeystoreCtrl.keystoreFile.alias"]
 								checkbox.small[ng-model="androidKeystoreCtrl.showAlias" checkbox-id-expression="'code-signin-android-keystore-show-alias-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-alias-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_alias]
 						section
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:private_key_password_as]
 								code.env-var[ng-bind="KeystoreFile.androidKeystorePrivateKeyPasswordEnvVarKey | prettifiedKey"]
-							input.env-var[type="text" ng-if="androidKeystoreCtrl.showPrivateKeyPassword" name="privateKeyPassword" required ng-model="androidKeystoreCtrl.keystoreFile.privateKeyPassword" placeholder="#{ data[:strings][:code_signing][:android_keystore][:private_key_password_placeholder] }"]
+							input.env-var[type="text" ng-if="androidKeystoreCtrl.showPrivateKeyPassword" name="privateKeyPassword" ng-required="androidKeystoreCtrl.keystoreFile.privateKeyPassword" ng-model="androidKeystoreCtrl.keystoreFile.privateKeyPassword" placeholder="#{ data[:strings][:code_signing][:android_keystore][:private_key_password_placeholder] }"]
 							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showPrivateKeyPassword" ng-model="codeSigningCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.privateKeyPassword)" ng-model-options="{getterSetter: true}" disabled]
-							.show-password
+							.show-password[ng-if="androidKeystoreCtrl.keystoreFile.privateKeyPassword"]
 								checkbox.small[ng-model="androidKeystoreCtrl.showPrivateKeyPassword" checkbox-id-expression="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_private_key_password]
 						input.rebo.big.green.save.submit[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
