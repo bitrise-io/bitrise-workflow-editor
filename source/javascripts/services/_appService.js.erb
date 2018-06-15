@@ -5,6 +5,7 @@
 angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack) {
 
 	var appService = {
+		appDetails: undefined,
 		appConfig: undefined,
 		savedAppConfig: undefined,
 		secrets: undefined,
@@ -19,6 +20,12 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedDenTags: undefined,
 		projectType: undefined,
 		availableProjectTypes: undefined
+	};
+
+	appService.getAppDetails = function(requestConfig) {
+		return requestService.getAppDetails(requestConfig).then(function(appDetails) {
+			appService.appDetails = appDetails;
+		});
 	};
 
 	appService.getAppConfig = function(requestConfig) {

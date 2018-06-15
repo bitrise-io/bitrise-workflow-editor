@@ -73,6 +73,30 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	// App details
+
+	requestService.getAppDetails = function(requestConfig) {
+		var requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_data_get]) %>", {
+			app_slug: requestService.appSlug
+		});
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				resolve({
+					slug: response.data.slug,
+					title: response.data.title,
+					projectTypeID: response.data.project_type,
+					providerID: response.data.provider,
+					repositoryURL: response.data.url,
+					isPublic: response.data.is_public
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_app_data][:default_error] %>", "<%= data[:strings][:request_service][:get_app_data][:error_prefix] %>"));
+			});
+		});
+	};
+
+
 	// App config
 
 	requestService.postAppConfig = function(appConfig, requestConfig) {

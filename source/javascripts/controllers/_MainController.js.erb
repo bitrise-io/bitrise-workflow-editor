@@ -10,6 +10,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	$scope.osService = osService;
 
+	viewModel.appDetails;
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
@@ -21,7 +22,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	function selectInitialMenu() {
 		var initialMenu = _.find(viewModel.menus, function(aMenu) {
-			return "/" + aMenu.path == $location.path()
+			return "/" + aMenu.path == $location.path();
 		});
 		if (!initialMenu) {
 			initialMenu = _.find(viewModel.menus, {
@@ -407,6 +408,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
+			appService.getAppDetails();
+
 			selectInitialMenu();
 		});
 	};

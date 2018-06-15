@@ -9,6 +9,8 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		canceler.resolve();
 	});
 
+	$scope.appService = appService;
+
 	var viewModel = this;
 
 	viewModel.shouldShowCodeSigningHints;
@@ -64,10 +66,10 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 				$q.all(_.map(viewModel.sectionConfigurations, function(aSectionConfiguration) {
 					if (!_.contains(aSectionConfiguration.irrelevantProjectTypes, appService.projectType)) {
 						aSectionConfiguration.shouldShow = true;
-		
+
 						return $q.when();
 					}
-		
+
 					return aSectionConfiguration.getAreThereAnyUploadedFilesPromise.then(function(areThereAnyUploadedFilesOfSection) {
 						aSectionConfiguration.shouldShow = areThereAnyUploadedFilesOfSection;
 					});
