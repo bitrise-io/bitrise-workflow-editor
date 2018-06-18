@@ -330,6 +330,20 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$rootScope.$emit("MainController::changesDiscarded");
 	};
 
+	viewModel.selectMenuByID = function(menuID) {
+		var selectedMenu = _.find(viewModel.menus, {
+			id: menuID
+		});
+
+		if (!selectedMenu) {
+			selectedMenu = _.find(viewModel.menus, {
+				id: "workflows"
+			});
+		}
+
+		viewModel.menuSelected(selectedMenu);
+	};
+
 	viewModel.init = function() {
 		viewModel.menus = _.compact([{
 			id: "workflows",

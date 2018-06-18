@@ -1,4 +1,16 @@
 .tab-env-vars.menu-content-padding[ng-controller="EnvVarsController as envVarsCtrl" ng-init="envVarsCtrl.configureWithMode('env-vars')"]
+	section.cardo.warn-box
+		.icon
+		.message
+			.title
+				| You should
+				strong<>
+					| not
+				| add private informations here.
+			p
+				| These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use
+				button<>[ng-click="mainCtrl.selectMenuByID('secrets')"] Secrets
+				| .
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
 		header
 			h2[ng-switch="envVarsOfSource.type"]
