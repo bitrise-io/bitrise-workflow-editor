@@ -144,6 +144,10 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		return optionGetterSetter(this, "is_required", newValue);
 	};
 
+	Variable.prototype.isSensitive = function(newValue) {
+		return optionGetterSetter(this, "is_sensitive", newValue);
+	};
+
 	Variable.prototype.isDontChangeValue = function(newValue) {
 		return optionGetterSetter(this, "is_dont_change_value", newValue);
 	};

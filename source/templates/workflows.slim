@@ -113,10 +113,17 @@
 												h5
 													span.title
 														span[ng-bind="input.title()"]
-														em<[ng-if="input.isRequired()"] == data[:strings][:workflows][:inputs][:required]
+														em.required<[ng-if="input.isRequired()"] == data[:strings][:workflows][:inputs][:required]
+														em.sensitive<[ng-if="input.isSensitive()"] == data[:strings][:workflows][:inputs][:sensitive]
 													button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.valueOptions()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												.input-description[btf-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
 												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-if="!input.valueOptions()" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+												.sensitive-input-warning[ng-if="isOpen && input.isSensitive()"]
+													.icon
+													.message
+														== data[:strings][:workflows][:inputs][:sensitive_warning_message][:info]
+														button<>[ng-click="mainCtrl.selectMenuByID('secrets')"] == data[:strings][:workflows][:inputs][:sensitive_warning_message][:prompt_with_button_label][:part_1_button_label]
+														== data[:strings][:workflows][:inputs][:sensitive_warning_message][:prompt_with_button_label][:part_2_detail]
 												select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="!isOpen" ng-options="valueOption for valueOption in (input.valueOptions().indexOf(input.value()) != -1 ? input.valueOptions() : input.valueOptions().concat([input.value()]))"]
 												.is-expand[ng-if="isOpen"]
 													p.expanded[ng-if="input.isExpand()"]

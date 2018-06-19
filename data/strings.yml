@@ -98,9 +98,15 @@ workflows:
     empty_value: no value
     value_placeholder: Enter value
     required: required
+    sensitive: sensitive
     will_be_replaced: Environment Variables will be replaced in input by the Bitrise CLI before starting the Step.
     wont_be_replaced: Environment Variables won't be replaced in input by the Bitrise CLI before starting the Step.
     insert_variable: Insert variable from list
+    sensitive_warning_message:
+      info: This input holds sensitive information.
+      prompt_with_button_label:
+        part_1_button_label: Use Secrets
+        part_2_detail: to securely reference it.
     insert_variable:
       action: Insert variable
       key_filter_placeholder: Filter by key

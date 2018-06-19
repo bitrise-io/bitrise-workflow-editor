@@ -372,7 +372,7 @@ header.sticky section.manage-workflows {
 								@include display-flex;
 								padding: 6px 8px;
 								@include ellipsis-oneliner;
-								
+
 								background-color: $def-ultralightgrey;
 								@include transition(background-color $def-transition_duration);
 
@@ -926,7 +926,7 @@ header.sticky section.manage-workflows {
 							section.description.open {
 
 								.markdown {
-									
+
 									p {
 										margin-top: 0;
 									}
@@ -1016,7 +1016,7 @@ header.sticky section.manage-workflows {
 										margin: $margin;
 										border-radius: 5px;
 										border: $borderwidth solid $def-mediumlightgrey;
-										
+
 										ol.inputs-list li.input {
 											padding-left: $leftpadding - $borderwidth - $margin;
 										}
@@ -1116,7 +1116,14 @@ header.sticky section.manage-workflows {
 															font-weight: 200;
 															letter-spacing: 0.1em;
 															text-transform: uppercase;
-															background: $def-purple;
+
+															&.required {
+																background: $def-purple;
+															}
+
+															&.sensitive {
+																background: $def-yellow;
+															}
 														}
 													}
 
@@ -1147,6 +1154,48 @@ header.sticky section.manage-workflows {
 
 													&:disabled {
 														color: inherit;
+													}
+												}
+
+												.sensitive-input-warning {
+													@include display-flex;
+													@include justify-content(space-between);
+													@include align-items(center);
+													@include border-radius($def-radius);
+													padding: 10px 12px;
+													margin-top: 15px;
+													border: solid 1px $def-yellow;
+													background-color: $def-yellow-light;
+
+													.icon {
+														margin-right: 15px;
+
+														&:before {
+															content: "";
+															display: inline-block;
+															width: 22px;
+															height: 20px;
+															vertical-align: sub;
+															background-size: 22px 20px;
+															background-repeat: no-repeat;
+															background-position: center bottom;
+															background-image: image-url("workflow/icon-warning.png");
+														}
+													}
+
+													.message {
+														@include flex-grow(1);
+														color: $def-verydarkgrey;
+														font-size: 13px;
+														font-weight: normal;
+														font-style: normal;
+														font-stretch: normal;
+														line-height: normal;
+														letter-spacing: normal;
+
+														button {
+															text-decoration: underline;
+														}
 													}
 												}
 
@@ -1274,7 +1323,7 @@ header.sticky section.manage-workflows {
 										}
 
 										li.input.required-empty {
-											
+
 											.input-info textarea {
 												border-color: $def-purple;
 											}
@@ -1409,7 +1458,7 @@ header.sticky section.manage-workflows {
 											}
 
 											button:hover + .toggleabble-description, button:focus + .toggleabble-description {
-												
+
 												svg {
 													fill: black;
 												}
@@ -1472,7 +1521,7 @@ header.sticky section.manage-workflows {
 							}
 						}
 					}
-					
+
 					article ul.steps li {
 
 						button.add-step:last-child {
@@ -1523,7 +1572,7 @@ header.sticky section.manage-workflows {
 								position: static;
 								display: block;
 							}
-						
+
 							button.step span.info {
 								display: none;
 							}
@@ -1540,7 +1589,7 @@ header.sticky section.manage-workflows {
 						}
 
 						.step-actions {
-						
+
 							button.step span.icon {
 								@include size($icon-size_small);
 							}
