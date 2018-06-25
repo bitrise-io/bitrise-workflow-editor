@@ -9,6 +9,8 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 		canceler.resolve();
 	});
 
+	$scope.appService = appService;
+
 	var viewModel = this;
 
 	viewModel.shouldShowCodeSigningHints;
