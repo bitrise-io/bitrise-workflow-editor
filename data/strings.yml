@@ -411,17 +411,22 @@ env_vars:
   should_be_unique: "should be unique"
   key_placeholder: "Key"
   value_placeholder: "Value"
+  warn:
+    title: You should <strong>not</strong> add private informations here.
+    detail: These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use
+    button_title: Secrets
   actions:
     make_it_protected: Make it protected
     delete_env_var: "Delete"
     show_value: "Show value?"
   secrets:
     title: Secret Environment Variables
-    info:
-      heading: Your secrets are safe with us
-      store_separate: Your secrets are not shown in the bitrise.yml
-      encrypted: Your secrets are stored encrypted and are anonymized by default in the logs
-      no_expose: Still, consider that anyone might be able to do a workaround and log the value of secrets with a pull request, thus we advise not to expose secrets in PRs
+    warn:
+      title: Your secrets are safe with us
+      detail_1: Your secrets are not shown in the bitrise.yml
+      detail_2: Your secrets are stored encrypted and are anonymized by default in the logs
+      detail_3: You can prevent exposing secrets on the UI by making them protected
+      detail_4: Note that anyone might be able to do a workaround and log the value of secrets with a pull request, thus we advise <strong>not to expose secrets in PRs<strong>
     make_protected:
       confirm_question: "'Protected' will be irreversible after save"
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."

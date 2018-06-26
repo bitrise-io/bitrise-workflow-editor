@@ -1,4 +1,12 @@
 .tab-env-vars.menu-content-padding[ng-controller="EnvVarsController as envVarsCtrl" ng-init="envVarsCtrl.configureWithMode('env-vars')"]
+	section.cardo.warn-box
+		.icon
+		.message
+			.title == data[:strings][:env_vars][:warn][:title]
+			p
+				== data[:strings][:env_vars][:warn][:detail]
+				button<[ng-click="mainCtrl.selectMenuByID('secrets')"] == data[:strings][:env_vars][:warn][:button_title]
+				| .
 	section.cardo[ng-repeat="envVarsOfSource in envVarsCtrl.envVarsBySource"]
 		header
 			h2[ng-switch="envVarsOfSource.type"]
