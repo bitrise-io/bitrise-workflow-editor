@@ -1,6 +1,78 @@
-## Changelog (Current version: 1.1.17)
+## Changelog (Current version: 1.1.18)
 
 -----------------
+
+## 1.1.18 (2018 Jun 26)
+
+### Release Notes
+
+* UX revision of Input fields of Android keystore file
+* Disable "Expose for Pull-requests" toggles in case of Public apps
+* Add prominent warnings
+* Fix ProvProfile name overlap
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.18
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.17 -> 1.1.18
+
+* [02d5467] Norbert Kovach - Add prominent warnings (#289) (2018 Jun 26)
+* [c84386e] Norbert Kovach - Disable the "Expose for Pull-Requests" toggle if the app is public (#288) (2018 Jun 25)
+* [2c05cbb] Norbert Kovach - UX revision of android keystore file's input fields (#287) (2018 Jun 22)
+* [1cc4316] Norbert Kovach - Fix provprofile overlap (#290) (2018 Jun 22)
+
+
+## 1.1.18 (2018 Jun 26)
+
+### Release Notes
+
+* __BREAKING__ : change 1
+* change 2
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.18
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.17 -> 1.1.18
+
+
 
 ## 1.1.17 (2018 May 16)
 
@@ -2046,4 +2118,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 May 16
+Updated: 2018 Jun 26
