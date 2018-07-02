@@ -2,6 +2,205 @@
 
 -----------------
 
+## 1.2.0 (2018 Jun 25)
+
+### Release Notes
+
+* added IsSensitive: `is_sensitive` input option
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.2.0/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.14 -> 1.2.0
+
+* [ee23095] Papik Tamas - Prepare for 1.2.0 (2018 Jun 25)
+* [6e142fd] Tamas Papik - dep update (#137) (2018 Jun 25)
+* [62a6a51] Tamas Papik - added IsSensitive: `is_sensitive` input field (#136) (2018 Jun 25)
+
+
+## 1.1.14 (2018 Jun 11)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.1.14/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.13 -> 1.1.14
+
+* [bc86db8] Krisztián  Gödrei - prepare for 1.1.14 (2018 Jun 11)
+* [25e3dcf] Krisztián Gödrei - Dep update +  errcheck fix (#135) (2018 Jun 11)
+
+
+## 1.1.13 (2018 May 07)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.1.13/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.12 -> 1.1.13
+
+* [c47809f] Krisztián  Gödrei - prepare for 1.1.13 (2018 May 07)
+* [213d1e4] Krisztián Gödrei - dep update (#134) (2018 May 07)
+* [8437ec0] Krisztián Gödrei - Go utils update (#132) (2018 Apr 25)
+
+
+## 1.1.12 (2018 Apr 09)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.1.12/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.11 -> 1.1.12
+
+* [10cf4bc] Krisztián  Gödrei - prepare for 1.1.12 (2018 Apr 09)
+* [f182eac] Krisztián Gödrei - dependencies update (#131) (2018 Apr 09)
+
+
+## 1.1.11 (2018 Mar 12)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.1.11/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.10 -> 1.1.11
+
+* [eef4a31] Krisztian Dobmayer - Dep update (2018 Mar 12)
+* [448fdaf] Krisztian Dobmayer - Bump version to 1.1.11 (2018 Mar 12)
+
+
+## 1.1.10 (2018 Feb 12)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.1.10/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.9 -> 1.1.10
+
+* [f066882] trapacska - Prepare for 1.1.10 (2018 Feb 12)
+* [039f73d] Tamas Papik - dep-update & updated README.md (#129) (2018 Feb 12)
+
+
+## 1.1.9 (2018 Jan 09)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/envman/releases/download/1.1.9/envman-$(uname -s)-$(uname -m) > /usr/local/bin/envman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/envman
+```
+
+That's all, you're ready to call `envman`!
+
+### Release Commits - 1.1.8 -> 1.1.9
+
+* [32b29f0] godrei - prepare for 1.1.9 (2018 Jan 09)
+* [b69e031] Krisztián Gödrei - lock go-utils package (#128) (2018 Jan 09)
+* [bb820f1] Krisztián Gödrei - dep update (#127) (2018 Jan 08)
+
+
 ## 1.1.8 (2017 Oct 09)
 
 ### Release Notes
@@ -723,4 +922,4 @@ That's all, you're ready to call `envman`!
 
 -----------------
 
-Generated at: 2017 Oct 09
+Generated at: 2018 Jun 25

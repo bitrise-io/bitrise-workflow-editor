@@ -20,7 +20,7 @@ const (
 	StepRunStatusCodeSkippedWithRunIf = 4
 
 	// Version ...
-	Version = "4"
+	Version = "6"
 )
 
 // StepListItemModel ...
@@ -35,6 +35,7 @@ type WorkflowModel struct {
 	AfterRun     []string                            `json:"after_run,omitempty" yaml:"after_run,omitempty"`
 	Environments []envmanModels.EnvironmentItemModel `json:"envs,omitempty" yaml:"envs,omitempty"`
 	Steps        []StepListItemModel                 `json:"steps,omitempty" yaml:"steps,omitempty"`
+	Meta         map[string]interface{}              `json:"meta,omitempty" yaml:"meta,omitempty"`
 }
 
 // AppModel ...

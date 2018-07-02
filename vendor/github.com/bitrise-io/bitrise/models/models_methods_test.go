@@ -309,7 +309,7 @@ workflows:
 		config, err := configModelFromYAMLBytes([]byte(configStr))
 		require.NoError(t, err)
 
-		warnings, err := config.Validate()
+		warnings, err := config.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, []string{"workflow (_deps-update) defined in trigger item (push_branch: /release -> workflow: _deps-update), but utility workflows can't be triggered directly"}, warnings)
 	}
@@ -331,7 +331,7 @@ workflows:
 		config, err := configModelFromYAMLBytes([]byte(configStr))
 		require.NoError(t, err)
 
-		_, err = config.Validate()
+		_, err = config.Validate(nil)
 		require.EqualError(t, err, "workflow (release) defined in trigger item (push_branch: /release -> workflow: release), but does not exist")
 	}
 
@@ -449,52 +449,29 @@ workflows:
 }
 
 func TestMatchWithParamsCodePushItem(t *testing.T) {
-	t.Log("code-push against code-push type item - MATCH")
+	t.Log("The following patterns are all matches")
 	{
-		pushBranch := "master"
-		prSourceBranch := ""
-		prTargetBranch := ""
-		tag := ""
+		for aPattern, aPushBranch := range map[string]string{
+			"feature":   "feature",
+			"feature/*": "feature/login",
+			"feature**": "feature",
+			"*feature":  "feature",
+			"**feature": "feature",
+			"*":         "feature",
+		} {
+			pushBranch := aPushBranch
+			prSourceBranch := ""
+			prTargetBranch := ""
+			tag := ""
 
-		item := TriggerMapItemModel{
-			PushBranch: "master",
-			WorkflowID: "primary",
+			item := TriggerMapItemModel{
+				PushBranch: aPattern,
+				WorkflowID: "primary",
+			}
+			match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
+			require.NoError(t, err)
+			require.Equal(t, true, match, "(pattern: %s) (branch: %s)", aPattern, aPushBranch)
 		}
-		match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
-		require.NoError(t, err)
-		require.Equal(t, true, match)
-	}
-
-	t.Log("code-push against code-push type item - MATCH")
-	{
-		pushBranch := "master"
-		prSourceBranch := ""
-		prTargetBranch := ""
-		tag := ""
-
-		item := TriggerMapItemModel{
-			PushBranch: "*",
-			WorkflowID: "primary",
-		}
-		match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
-		require.NoError(t, err)
-		require.Equal(t, true, match)
-	}
-
-	t.Log("code-push against code-push type item - MATCH")
-	{
-		pushBranch := "feature/login"
-		prSourceBranch := ""
-		prTargetBranch := ""
-		tag := ""
-
-		item := TriggerMapItemModel{
-			PushBranch: "feature/*",
-			WorkflowID: "primary",
-		}
-		match, err := item.MatchWithParams(pushBranch, prSourceBranch, prTargetBranch, tag)
-		require.NoError(t, err)
-		require.Equal(t, true, match)
 	}
 
 	t.Log("code-push against code-push type item - NOT MATCH")
@@ -810,7 +787,7 @@ func TestValidateConfig(t *testing.T) {
 			},
 		}
 
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 	}
@@ -823,7 +800,7 @@ func TestValidateConfig(t *testing.T) {
 				"": WorkflowModel{},
 			},
 		}
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.EqualError(t, err, "invalid workflow ID (): empty")
 		require.Equal(t, 0, len(warnings))
 	}
@@ -837,7 +814,7 @@ func TestValidateConfig(t *testing.T) {
 			},
 		}
 
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(warnings))
 		require.Equal(t, "invalid workflow ID (wf/id): doesn't conform to: [A-Za-z0-9-_.]", warnings[0])
@@ -852,7 +829,7 @@ func TestValidateConfig(t *testing.T) {
 			},
 		}
 
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(warnings))
 		require.Equal(t, "invalid workflow ID (wf:id): doesn't conform to: [A-Za-z0-9-_.]", warnings[0])
@@ -867,7 +844,7 @@ func TestValidateConfig(t *testing.T) {
 			},
 		}
 
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(warnings))
 		require.Equal(t, "invalid workflow ID (wf id): doesn't conform to: [A-Za-z0-9-_.]", warnings[0])
@@ -882,7 +859,7 @@ func TestValidateConfig(t *testing.T) {
 			},
 		}
 
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(warnings))
 		require.Equal(t, "invalid workflow ID ( wfid): doesn't conform to: [A-Za-z0-9-_.]", warnings[0])
@@ -897,7 +874,7 @@ func TestValidateConfig(t *testing.T) {
 			},
 		}
 
-		warnings, err := bitriseData.Validate()
+		warnings, err := bitriseData.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(warnings))
 	}
@@ -912,7 +889,7 @@ func TestValidateWorkflow(t *testing.T) {
 			AfterRun:  []string{"after1", "after2", "after3"},
 		}
 
-		warnings, err := workflow.Validate()
+		warnings, err := workflow.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 	}
@@ -943,7 +920,7 @@ workflows:
 		require.NoError(t, yaml.Unmarshal([]byte(configStr), &config))
 		require.NoError(t, config.Normalize())
 
-		warnings, err := config.Validate()
+		warnings, err := config.Validate(nil)
 		require.Error(t, err)
 		require.Equal(t, true, strings.Contains(err.Error(), "more than 2 keys specified: [BAD_KEY content opts]"))
 		require.Equal(t, 0, len(warnings))
@@ -969,9 +946,37 @@ workflows:
 		require.NoError(t, yaml.Unmarshal([]byte(configStr), &config))
 		require.NoError(t, config.Normalize())
 
-		warnings, err := config.Validate()
+		warnings, err := config.Validate(nil)
 		require.NoError(t, err)
 		require.Equal(t, 1, len(warnings))
+	}
+
+	t.Log("test secret env check")
+	{
+		secrets := []envmanModels.EnvironmentItemModel{
+			{"KEY": "value"},
+			{"KEY2": "value2"},
+			{"KEY3": "value3"},
+			{"KEY_4": "value 4"},
+		}
+
+		for _, env := range secrets {
+			key, _, err := env.GetKeyValuePair()
+			require.NoError(t, err)
+			require.NoError(t, isSecretEnv("$"+key, secrets))
+			require.NoError(t, isSecretEnv("${"+key+"}", secrets))
+			require.NoError(t, isSecretEnv("\"$"+key+"\"", secrets))
+			require.NoError(t, isSecretEnv("\"${"+key+"}\"", secrets))
+		}
+
+		for _, env := range secrets {
+			key, _, err := env.GetKeyValuePair()
+			require.NoError(t, err)
+			require.Error(t, isSecretEnv("$A"+key, secrets))
+			require.Error(t, isSecretEnv("${B"+key+"}", secrets))
+			require.Error(t, isSecretEnv("\"$C"+key+"\"", secrets))
+			require.Error(t, isSecretEnv("\"${D"+key+"}\"", secrets))
+		}
 	}
 }
 
