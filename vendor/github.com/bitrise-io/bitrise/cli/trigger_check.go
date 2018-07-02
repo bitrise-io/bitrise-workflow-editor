@@ -141,7 +141,7 @@ func triggerCheck(c *cli.Context) error {
 	}
 
 	// Config validation
-	bitriseConfig, warns, err := CreateBitriseConfigFromCLIParams(triggerParams.BitriseConfigBase64Data, triggerParams.BitriseConfigPath)
+	bitriseConfig, warns, err := CreateBitriseConfigFromCLIParams(triggerParams.BitriseConfigBase64Data, triggerParams.BitriseConfigPath, inventoryEnvironments)
 	warnings = append(warnings, warns...)
 	if err != nil {
 		registerFatal(fmt.Sprintf("Failed to create config, err: %s", err), warnings, triggerParams.Format)
@@ -173,7 +173,9 @@ func triggerCheck(c *cli.Context) error {
 		registerFatal(err.Error(), warnings, triggerParams.Format)
 	}
 
-	triggerModel := map[string]string{"workflow": workflowToRunID}
+	triggerModel := map[string]string{
+		"workflow": workflowToRunID,
+	}
 
 	if triggerParams.TriggerPattern != "" {
 		triggerModel["pattern"] = triggerParams.TriggerPattern
