@@ -1,6 +1,43 @@
-## Changelog (Current version: 1.1.19)
+## Changelog (Current version: 1.1.20)
 
 -----------------
+
+## 1.1.20 (2018 Jul 04)
+
+### Release Notes
+
+* Fix secrets reveal button
+* Update gems
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.20
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.19 -> 1.1.20
+
+* [85b0dc5] Norbert Kovach - Fix secrets reveal button (#296) (2018 Jul 04)
+* [1c60478] Norbert Kovach - Update nokogiri and sprockets gems (#294) (2018 Jul 04)
+* [b39eabb] Norbert Kovach - Godep update (#295) (2018 Jul 02)
+* [8d065ba] David Breuer - v1.1.19 (2018 Jun 29)
+
 
 ## 1.1.19 (2018 Jun 29)
 
@@ -2150,4 +2187,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jun 29
+Updated: 2018 Jul 04
