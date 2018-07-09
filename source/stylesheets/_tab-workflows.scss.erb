@@ -372,7 +372,7 @@ header.sticky section.manage-workflows {
 								@include display-flex;
 								padding: 6px 8px;
 								@include ellipsis-oneliner;
-								
+
 								background-color: $def-ultralightgrey;
 								@include transition(background-color $def-transition_duration);
 
@@ -926,7 +926,7 @@ header.sticky section.manage-workflows {
 							section.description.open {
 
 								.markdown {
-									
+
 									p {
 										margin-top: 0;
 									}
@@ -1016,7 +1016,7 @@ header.sticky section.manage-workflows {
 										margin: $margin;
 										border-radius: 5px;
 										border: $borderwidth solid $def-mediumlightgrey;
-										
+
 										ol.inputs-list li.input {
 											padding-left: $leftpadding - $borderwidth - $margin;
 										}
@@ -1116,7 +1116,14 @@ header.sticky section.manage-workflows {
 															font-weight: 200;
 															letter-spacing: 0.1em;
 															text-transform: uppercase;
-															background: $def-purple;
+
+															&.required {
+																background: $def-purple;
+															}
+
+															&.sensitive {
+																background: $def-yellow;
+															}
 														}
 													}
 
@@ -1147,6 +1154,24 @@ header.sticky section.manage-workflows {
 
 													&:disabled {
 														color: inherit;
+													}
+												}
+
+												.sensitive-input-warning {
+													@include display-flex;
+													@include flex-direction(column);
+													padding-top: 15px;
+
+													span {
+														margin-bottom: 15px;
+
+														button {
+															text-decoration: underline;
+														}
+													}
+
+													button.insert-variable {
+														max-width: 160px;
 													}
 												}
 
@@ -1274,9 +1299,21 @@ header.sticky section.manage-workflows {
 										}
 
 										li.input.required-empty {
-											
+
 											.input-info textarea {
 												border-color: $def-purple;
+											}
+										}
+
+										li.input.sensitive {
+											cursor: not-allowed;
+
+											* {
+												cursor: inherit;
+											}
+
+											button.insert-variable {
+												cursor: pointer;
 											}
 										}
 									}
@@ -1409,7 +1446,7 @@ header.sticky section.manage-workflows {
 											}
 
 											button:hover + .toggleabble-description, button:focus + .toggleabble-description {
-												
+
 												svg {
 													fill: black;
 												}
@@ -1472,7 +1509,7 @@ header.sticky section.manage-workflows {
 							}
 						}
 					}
-					
+
 					article ul.steps li {
 
 						button.add-step:last-child {
@@ -1523,7 +1560,7 @@ header.sticky section.manage-workflows {
 								position: static;
 								display: block;
 							}
-						
+
 							button.step span.info {
 								display: none;
 							}
@@ -1540,7 +1577,7 @@ header.sticky section.manage-workflows {
 						}
 
 						.step-actions {
-						
+
 							button.step span.icon {
 								@include size($icon-size_small);
 							}
@@ -1930,86 +1967,382 @@ header.sticky section.manage-workflows {
 
 .popup-body#insert-variable-popup-body {
 
-	header {
-
-		h2 {
-			margin-top: 0;
-			margin-bottom: 12px;
-			font-size: inherit;
-			font-weight: inherit;
-		}
-
-		input {
-			$searchicon_width: 16px;
-			$padding: 12px;
-
-			display: block;
-			@include box-sizing(border-box);
-			width: 100%;
-			border: none;
-			@include border-radius($def-radius);
-			padding: $padding;
-			padding-left: $padding + $searchicon_width + $padding;
-			font-size: 14px;
-			font-weight: 200;
-			background-color: $def-verylightgrey;
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
-				fill: rgba($def-darkgrey, 0.99)
-			));
-			background-size: $searchicon_width auto;
-			background-repeat: no-repeat;
-			background-position: left $padding center;
-		}
+	header h2 {
+		margin-top: 0;
+		margin-bottom: 12px;
+		font-size: inherit;
+		font-weight: inherit;
 	}
 
 	article {
 
-		ul.variable-source {
-			@include margin-y(0);
-			padding-left: 0;
-			list-style: none;
+		.create-new-secret, .list-of-available-secrets {
+			margin-bottom: 18px;
 
-			li {
-				margin-bottom: 5px;
+			.title {
+				font-size: 19px;
+				font-weight: bold;
+				font-style: normal;
+				font-stretch: normal;
+				line-height: 1.26;
+				letter-spacing: 0.2px;
+				color: #492f5c;
+				padding-bottom: 18px;
+				margin-bottom: 15px;
+				border-bottom: 2px solid $def-mediumlightgrey;
+			}
 
-				button {
-					display: block;
-					@include box-sizing(border-box);
-					width: 100%;
-					border: 1px solid $def-lightgrey;
-					@include border-radius($def-radius);
-					padding: 10px 14px;
-					text-align: left;
-					@include transition(background-color $def-transition_duration);
+			input.searchbar {
+				$searchicon_width: 16px;
+				$padding: 12px;
 
-					strong {
+				display: block;
+				@include box-sizing(border-box);
+				width: 100%;
+				border: none;
+				@include border-radius($def-radius);
+				padding: $padding;
+				padding-left: $padding + $searchicon_width + $padding;
+				margin-bottom: 12px;
+				font-size: 14px;
+				font-weight: 200;
+				background-color: $def-verylightgrey;
+				background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
+					fill: rgba($def-darkgrey, 0.99)
+				));
+				background-size: $searchicon_width auto;
+				background-repeat: no-repeat;
+				background-position: left $padding center;
+			}
+
+			ul.variable-source {
+				@include margin-y(0);
+				padding-left: 0;
+				list-style: none;
+
+				li {
+					margin-bottom: 5px;
+
+					button {
 						display: block;
-						margin-bottom: 4px;
-						@include ellipsis-oneliner;
-						font-size: 12px;
-						font-weight: 400;
-						color: $def-purple;
+						@include box-sizing(border-box);
+						width: 100%;
+						border: 1px solid $def-lightgrey;
+						@include border-radius($def-radius);
+						padding: 10px 14px;
+						text-align: left;
+						@include transition(background-color $def-transition_duration);
+
+						strong {
+							display: block;
+							margin-bottom: 4px;
+							@include ellipsis-oneliner;
+							font-size: 12px;
+							font-weight: 400;
+							color: $def-purple;
+						}
+
+						em {
+							display: block;
+							@include ellipsis-oneliner;
+							font-size: 10px;
+							font-weight: 200;
+							font-style: normal;
+							text-transform: uppercase;
+							color: $def-grey;
+						}
 					}
 
-					em {
-						display: block;
-						@include ellipsis-oneliner;
-						font-size: 10px;
+					button:hover, button:focus {
+						background-color: $def-lightgrey;
+					}
+				}
+
+				&:last-child li:last-child {
+					margin-bottom: 0;
+				}
+			}
+
+			form {
+				$input-height: 36px;
+				$input-horizontalpadding: 14px;
+				$first_column-width: 220px;
+				$action_dropdown_icon-spacing: 15px;
+				$action_dropdown_icon-width: 26px;
+				padding-top: $cardo-verticalpadding;
+				padding-bottom: $cardo-verticalpadding;
+				background-color: white;
+
+				.key-value-delete {
+					@include display-flex;
+					@include align-items(center);
+					margin-bottom: 12px;
+
+					&:before {
+						content: "=";
+						@include order(2);
+						@include margin-x(20px);
+						width: 10px;
+						font-size: 16px;
+						font-weight: 900;
+					}
+
+					input.key, textarea.value {
+						padding: 0px $input-horizontalpadding;
+						height: $input-height;
+						font-size: 14px;
 						font-weight: 200;
-						font-style: normal;
-						text-transform: uppercase;
-						color: $def-grey;
+						@include SourceCodeProWithFallback;
+					}
+
+					input.key {
+						$background_width: 8px;
+						$background_reservedwidth: 30px;
+
+						@mixin input_key_styling($is_danger) {
+							$color: if($is_danger, $def-danger, $def-purple);
+
+							border: 1px solid $color;
+							color: $color;
+							background-image: background_image_from_svg_content_with_attributes('<%= svg("env_var_prefix") %>', (
+								fill: white
+							)), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
+						}
+
+						@include order(1);
+						@include flex-shrink(0);
+						@include box-sizing(border-box);
+						width: $first_column-width;
+						@include border-radius($def-radius);
+						padding-left: $background_reservedwidth + $input-horizontalpadding;
+						background-size: $background_width auto, $background_reservedwidth 100%;
+						background-position: left #{($background_reservedwidth - $background_width) / 2} center, left center;
+						background-repeat: no-repeat;
+						@include input_key_styling(false);
+
+						&.ng-invalid:not(.ng-pristine) {
+							@include input_key_styling(true);
+						}
+
+						&:disabled {
+							opacity: 0.5;
+						}
+					}
+
+					.value-with-actions.secret {
+						@include order(3);
+						@include flex-grow(1);
+						@include align-self(flex-start);
+						border: 1px solid $def-mediumlightgrey;
+						@include border-radius($def-radius);
+						position: relative;
+
+						textarea.value {
+							@include align-self(stretch);
+							@include box-sizing(border-box);
+							border: 0;
+							@include padding-y(8px);
+							display: block;
+							width: 100%;
+							padding-right: 68px;
+
+							&.protected {
+								padding-right: 14px;
+								color: $def-mediumdarkgrey;
+								background-color: $def-lightgrey;
+							}
+						}
+
+						.lock {
+							@include position(absolute, 0, 0);
+							@include size(54px, 100%);
+
+							svg {
+								@include size(16px, 18px);
+								margin: 9px 19px;
+								fill: $def-mediumdarkgrey;
+							}
+						}
+					}
+
+					.actions:not(.small) {
+						@include order(4);
+						@include flex-shrink(0);
+						position: relative;
+						margin-left: $action_dropdown_icon-spacing;
+
+						.dropdown-toggle {
+							cursor: pointer;
+
+							svg {
+								@include size($action_dropdown_icon-width, 12px);
+								fill: #999999;
+							}
+
+							&:focus svg, &:hover svg {
+								fill: $def-darkgrey;
+							}
+						}
+
+						.dropdown {
+							@include position(absolute, 100%, 0);
+							z-index: $zindex-popover;
+							width: 180px;
+							margin-top: 10px;
+							border: 1px solid $def-lightgrey;
+							@include border-radius(5px);
+							@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
+							overflow: hidden;
+
+							.dropdown-option {
+								display: block;
+								padding: 15px 12px;
+								font-size: 12px;
+								font-weight: 500;
+								color: #767676;
+								background-color: white;
+
+								&:hover {
+									background-color: $def-ultralightgrey;
+								}
+
+								&:not(:last-child) {
+									border-bottom: 1px solid $def-lightgrey;
+								}
+
+								&.delete-env-var {
+									color: #f17420;
+								}
+							}
+
+							a.dropdown-option {
+								text-decoration: none;
+							}
+
+							button.dropdown-option {
+								width: 100%;
+								text-align: left;
+							}
+						}
 					}
 				}
 
-				button:hover, button:focus {
-					background-color: $def-lightgrey;
+				.env-var-settings {
+					@include display-flex;
+					@include align-items(center);
+
+					&:not(:last-child) {
+						margin-bottom: 12px;
+					}
+
+					.is-expand, .is-expose-with-popover {
+						@include display-flex;
+						@include align-items(center);
+
+						.checkbox + label {
+							margin-left: 8px;
+						}
+
+						label {
+							font-size: 12px;
+							font-weight: 200;
+						}
+					}
+
+					.is-expand {
+						@include flex-shrink(0);
+						@include box-sizing(border-box);
+						width: $first_column-width + 50px;
+					}
+
+					.is-expose-with-popover {
+						@include flex-grow(1);
+						@include align-self(stretch);
+						@include box-sizing(border-box);
+
+						.is-expose {
+							@include display-flex;
+							position: relative;
+
+							.popover {
+								top: 85%;
+							}
+						}
+					}
+				}
+
+				.actions.small {
+					display: none;
+				}
+
+				p.notification {
+					margin-top: 0;
+					margin-bottom: 12px;
+				}
+
+				@include media-below-mid {
+
+					.key-value-delete {
+						@include flex-direction(column);
+						@include align-items(flex-start);
+
+						&:before {
+							@include margin-y(10px);
+							@include margin-x(auto);
+						}
+
+						input.key, .value-with-actions {
+							width: 100%;
+						}
+
+						.actions:not(.small) {
+							display: none;
+						}
+					}
+
+					.env-var-settings {
+						@include flex_direction(column);
+						@include align-items(flex-start);
+
+						.is-expand, .is-expose-with-popover {
+							@include padding-y(12px);
+						}
+
+						.is-expose-with-popover .is-expose .popover {
+							top: 95%;
+						}
+					}
+
+					.actions.small {
+						@include display-flex;
+						@include flex_direction(column);
+						@include align_items(flex-start);
+						@include flex-shrink(0);
+
+						button.make-it-protected {
+							@include align-self(stretch);
+							@include size($first_column-width, auto);
+							margin-bottom: 12px;
+							border-color: $def-mediumdarkgrey;
+							color: $def-mediumdarkgrey;
+							background-color: white;
+							@include margin-x(0);
+
+							&:after {
+								content: "<%= data[:strings][:env_vars][:delete_env_var] %>";
+							}
+
+							@include media-below-small {
+								width: auto;
+							}
+						}
+					}
 				}
 			}
+		}
 
-			&:last-child li:last-child {
-				margin-bottom: 0;
-			}
+		.create-new-secret {
+			margin-bottom: 30px;
 		}
 	}
 }

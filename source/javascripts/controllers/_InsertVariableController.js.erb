@@ -1,0 +1,159 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $q, appService, requestService, stringService, Progress, Variable) {
+
+	var viewModel = this;
+	viewModel.canceler = $q.defer();
+
+	$scope.appService = appService;
+
+	viewModel.keyFilter = "";
+	viewModel.insertableVariables = [{
+		id: "from_bitriseio",
+		title: "<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:bitriseio] %>",
+		variables: undefined
+	}, {
+		id: "from_bitrise_cli",
+		title: "<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:bitrise_cli] %>",
+		variables: undefined
+	}, {
+		id: "from_secrets",
+		title: "<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:secrets] %>",
+		variables: undefined
+	}, {
+		id: "from_remaining_vars",
+		title: "<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:app_env_vars] %>",
+		variables: undefined
+	}];
+
+	var availableVariableGroupIDs;
+	var workflows;
+	var selectedWorkflow;
+	var selectedStep;
+	viewModel.variableSelected;
+
+	viewModel.loadInsertableVariablesProgress = new Progress();
+
+	viewModel.init = function(variableSelectedCallback, _availableVariableGroupIDs, _workflows, _selectedWorkflow, _selectedStep) {
+		viewModel.variableSelected = variableSelectedCallback;
+		availableVariableGroupIDs = _availableVariableGroupIDs;
+		workflows = _workflows;
+		selectedWorkflow = _selectedWorkflow;
+		selectedStep = _selectedStep;
+
+		loadInsertableVariables();
+	};
+
+	function loadInsertableVariables() {
+		viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:inputs][:insert_variable][:load_progress] %>");
+
+		var loadPromises = [loadDefaultOutputs()];
+		if (!availableVariableGroupIDs || _.contains(availableVariableGroupIDs, "from_secrets")) {
+			loadPromises.push(loadSecrets());
+		}
+		if (!availableVariableGroupIDs || _.contains(availableVariableGroupIDs, "from_remaining_vars")) {
+			loadPromises.push(loadRemainingVars());
+		}
+		$q.all(loadPromises).then(function() {
+			viewModel.loadInsertableVariablesProgress.success();
+		}, function(error) {
+			viewModel.loadInsertableVariablesProgress.error(error);
+		});
+	}
+
+	function loadSecrets() {
+		return appService.getSecrets(false, {
+			timeout: viewModel.canceler.promise
+		}).then(function() {
+			_.find(viewModel.insertableVariables, {
+				id: "from_secrets"
+			}).variables = appService.secrets;
+		});
+	}
+
+	function loadDefaultOutputs() {
+		return requestService.getDefaultOutputs({
+			timeout: viewModel.canceler.promise
+		}).then(function(defaultOutputConfigsBySource) {
+			var availableDefaultOutputConfigsBySource = _.pick(defaultOutputConfigsBySource, function(defaultOutputConfigs, sourceID) {
+				if (!availableVariableGroupIDs) {
+					return true;
+				}
+
+				return _.contains(availableVariableGroupIDs, sourceID);
+			});
+
+			_.each(availableDefaultOutputConfigsBySource, function(defaultOutputConfigs, sourceID) {
+				var defaultOutputsOfSource = _.find(viewModel.insertableVariables, {
+					id: sourceID
+				});
+
+				defaultOutputsOfSource.variables = [];
+				_.each(defaultOutputConfigs, function(aDefaultOutputConfig) {
+					defaultOutputsOfSource.variables.push(new Variable(undefined, aDefaultOutputConfig));
+				});
+			});
+		});
+	}
+
+	function loadRemainingVars() {
+		_.find(viewModel.insertableVariables, {
+			id: "from_remaining_vars"
+		}).variables = _.map(appService.appConfig.app ? appService.appConfig.app.envs : [], function(aVariableConfig) {
+			return new Variable(aVariableConfig);
+		});
+
+		_.any(selectedWorkflow.workflowChain(workflows), function(aWorkflow) {
+			viewModel.insertableVariables.push({
+				id: "from_workflow_env_vars-" + aWorkflow.id,
+				title: stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:workflow_env_vars] %>", {
+					workflow_id: aWorkflow.id
+				}),
+				variables: _.map(aWorkflow.workflowConfig.envs, function(aVariableConfig) {
+					return new Variable(aVariableConfig);
+				})
+			});
+
+			_.any(aWorkflow.steps, function(aStep) {
+				if (selectedStep == aStep) {
+					return true;
+				}
+
+				if (!aStep.defaultStepConfig || !aStep.defaultStepConfig.outputs) {
+					return;
+				}
+
+				viewModel.insertableVariables.push({
+					id: "step-" + aStep.id,
+					title: stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:step_outputs] %>", {
+						step_display_name: aStep.displayName()
+					}),
+					variables: _.map(aStep.defaultStepConfig.outputs, function(anOutputConfig) {
+						return new Variable(undefined, anOutputConfig);
+					})
+				});
+			});
+
+			if (aWorkflow == selectedWorkflow) {
+				return true;
+			}
+		});
+
+		return $q.when();
+	}
+
+	viewModel.shouldShowVariable = function(variable) {
+		return _.find(_.compact(_.flatten(_.pluck(viewModel.insertableVariables, "variables"))).reverse(), function(aVariable) {
+			return aVariable.key() == variable.key();
+		}) == variable;
+	};
+
+	$scope.$on("$destroy", function() {
+		viewModel.canceler.resolve();
+	});
+
+});
+
+})();
