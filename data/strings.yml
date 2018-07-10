@@ -119,7 +119,7 @@ workflows:
       save_progress: Saving insertable secret, wait a sec...
       create_new_secret_env_var_label: Create New Secret Env Var
       choose_secret_env_var_label: Choose Secret Env Var
-      there_is_no_secrets_in_the_list: There is no secrets in the list.
+      there_is_no_secrets_in_the_list: There are no secrets added to this app yet.
       key_filter_placeholder: Filter by key
       source:
         secret: from secrets

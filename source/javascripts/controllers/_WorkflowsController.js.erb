@@ -130,27 +130,13 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				timeout: canceler.promise
 			}).then(function() {
 				try {
-					var allWorkflowsLoadedCallbacks = [];
-
 					viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 						return new Workflow(aWorkflowID, aWorkflowConfig);
 					});
 
 					var stepIconLoadPromises = [];
-					var shouldLoadSecretEnvKeys = false;
 					_.each(viewModel.workflows, function(aWorkflow) {
 						_.each(aWorkflow.steps, function(aStep) {
-
-							// TODO: Should Remove this
-							_.each(aStep.defaultStepConfig.inputs, function(anInput){
-								anInput.opts.is_sensitive = true;
-							});
-
-							if (!shouldLoadSecretEnvKeys) {
-								shouldLoadSecretEnvKeys = !_.isUndefined(_.find(aStep.defaultStepConfig.inputs, function(anInput) {
-									return anInput.opts.is_sensitive;
-								}));
-							}
 							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(aStep)));
 						});
 					});

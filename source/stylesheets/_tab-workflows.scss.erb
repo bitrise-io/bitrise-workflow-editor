@@ -1719,8 +1719,6 @@ header.sticky section.manage-workflows {
 					}
 				}
 			}
-
-			//
 		}
 	}
 }
@@ -2066,7 +2064,7 @@ header.sticky section.manage-workflows {
 			form {
 				$input-height: 36px;
 				$input-horizontalpadding: 14px;
-				$first_column-width: 220px;
+				$first_column-width: 240px;
 				$action_dropdown_icon-spacing: 15px;
 				$action_dropdown_icon-width: 26px;
 				padding-top: $cardo-verticalpadding;
@@ -2152,78 +2150,6 @@ header.sticky section.manage-workflows {
 								background-color: $def-lightgrey;
 							}
 						}
-
-						.lock {
-							@include position(absolute, 0, 0);
-							@include size(54px, 100%);
-
-							svg {
-								@include size(16px, 18px);
-								margin: 9px 19px;
-								fill: $def-mediumdarkgrey;
-							}
-						}
-					}
-
-					.actions:not(.small) {
-						@include order(4);
-						@include flex-shrink(0);
-						position: relative;
-						margin-left: $action_dropdown_icon-spacing;
-
-						.dropdown-toggle {
-							cursor: pointer;
-
-							svg {
-								@include size($action_dropdown_icon-width, 12px);
-								fill: #999999;
-							}
-
-							&:focus svg, &:hover svg {
-								fill: $def-darkgrey;
-							}
-						}
-
-						.dropdown {
-							@include position(absolute, 100%, 0);
-							z-index: $zindex-popover;
-							width: 180px;
-							margin-top: 10px;
-							border: 1px solid $def-lightgrey;
-							@include border-radius(5px);
-							@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
-							overflow: hidden;
-
-							.dropdown-option {
-								display: block;
-								padding: 15px 12px;
-								font-size: 12px;
-								font-weight: 500;
-								color: #767676;
-								background-color: white;
-
-								&:hover {
-									background-color: $def-ultralightgrey;
-								}
-
-								&:not(:last-child) {
-									border-bottom: 1px solid $def-lightgrey;
-								}
-
-								&.delete-env-var {
-									color: #f17420;
-								}
-							}
-
-							a.dropdown-option {
-								text-decoration: none;
-							}
-
-							button.dropdown-option {
-								width: 100%;
-								text-align: left;
-							}
-						}
 					}
 				}
 
@@ -2271,10 +2197,6 @@ header.sticky section.manage-workflows {
 					}
 				}
 
-				.actions.small {
-					display: none;
-				}
-
 				p.notification {
 					margin-top: 0;
 					margin-bottom: 12px;
@@ -2294,10 +2216,6 @@ header.sticky section.manage-workflows {
 						input.key, .value-with-actions {
 							width: 100%;
 						}
-
-						.actions:not(.small) {
-							display: none;
-						}
 					}
 
 					.env-var-settings {
@@ -2310,31 +2228,6 @@ header.sticky section.manage-workflows {
 
 						.is-expose-with-popover .is-expose .popover {
 							top: 95%;
-						}
-					}
-
-					.actions.small {
-						@include display-flex;
-						@include flex_direction(column);
-						@include align_items(flex-start);
-						@include flex-shrink(0);
-
-						button.make-it-protected {
-							@include align-self(stretch);
-							@include size($first_column-width, auto);
-							margin-bottom: 12px;
-							border-color: $def-mediumdarkgrey;
-							color: $def-mediumdarkgrey;
-							background-color: white;
-							@include margin-x(0);
-
-							&:after {
-								content: "<%= data[:strings][:env_vars][:delete_env_var] %>";
-							}
-
-							@include media-below-small {
-								width: auto;
-							}
 						}
 					}
 				}

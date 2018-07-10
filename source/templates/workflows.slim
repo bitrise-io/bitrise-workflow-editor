@@ -215,13 +215,6 @@
 							input.key[type="text" name="key" ng-model="createAndInsertSecretCtrl.newSecretEnvVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!createAndInsertSecretCtrl.newSecretEnvVar.isKeyChangeable" custom-validators="{'key': createAndInsertSecretCtrl.isValidKey(createAndInsertSecretCtrl.newSecretEnvVar.key(), appService.secrets)}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" skip-drag-order]
 							.value-with-actions.secret
 								textarea.value[name="value" msd-elastic ng-model="createAndInsertSecretCtrl.newSecretEnvVar.value" ng-model-options="{getterSetter: true}" ng-class="{'protected' : requestService.mode == 'website' && createAndInsertSecretCtrl.newSecretEnvVar.isProtected()}" ng-disabled="!createAndInsertSecretCtrl.newSecretEnvVar.shouldShowValue" ng-trim="false" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
-								.lock[ng-if="requestService.mode == 'website' && !createAndInsertSecretCtrl.newSecretEnvVar.isKeyChangeable && createAndInsertSecretCtrl.newSecretEnvVar.isProtected()"] = svg("main/menuicon-secrets")
-							.actions[floating-menu toggle="newSecretEnvVar.customProperties.isMenuVisible"]
-								button.dropdown-toggle[type="button" ng-click="newSecretEnvVar.customProperties.isMenuVisible = !newSecretEnvVar.customProperties.isMenuVisible"] = svg("three-horizontal-dots")
-								.dropdown[ng-if="newSecretEnvVar.customProperties.isMenuVisible"]
-									button.dropdown-option.make-it-protected[type="button" ng-if="requestService.mode == 'website' && !newSecretEnvVar.isProtected()" ng-click="createAndInsertSecretCtrl.makeEnvVarProtected(envVar)"] == data[:strings][:env_vars][:actions][:make_it_protected]
-						.actions.small
-							button.option.make-it-protected.rebo.hollow.grey[type="button" ng-if="requestService.mode == 'website' && !newSecretEnvVar.isProtected()" ng-click="createAndInsertSecretCtrl.makeEnvVarProtected(createAndInsertSecretCtrl.newSecretEnvVar)"] == data[:strings][:env_vars][:actions][:make_it_protected]
 						.env-var-settings
 							.is-expand
 								checkbox.small[name="isExpand" ng-model="newSecretEnvVar.isExpand" ng-model-options="{getterSetter: true}" ng-disabled="newSecretEnvVar.isProtected()" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
