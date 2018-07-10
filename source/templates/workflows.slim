@@ -133,10 +133,11 @@
 							section.outputs
 								h3 == data[:strings][:workflows][:outputs][:header]
 								p.no-outputs[ng-if="!workflowsCtrl.outputsOfSelectedStep || workflowsCtrl.outputsOfSelectedStep.length == 0"] == data[:strings][:workflows][:outputs][:no_outputs]
-								table[ng-if="workflowsCtrl.outputsOfSelectedStep && workflowsCtrl.outputsOfSelectedStep.length > 0"]
-									tr[ng-repeat="output in workflowsCtrl.outputsOfSelectedStep"]
-										td.key[ng-bind="output | prettifiedVariableKey"]
-										td.description
+								.output-box[ng-if="workflowsCtrl.outputsOfSelectedStep && workflowsCtrl.outputsOfSelectedStep.length > 0"]
+									.output[ng-repeat="output in workflowsCtrl.outputsOfSelectedStep"]
+										.parameter.key
+											input[value="{{ output | prettifiedVariableKey }}" readonly]
+										.parameter.description
 											p[ng-if="!output.shortestDescription()"] == data[:strings][:workflows][:outputs][:no_description]
 											div[ng-if="output.shortestDescription()"]
 												button[ng-click="workflowsCtrl.outputSelected(output)"]
