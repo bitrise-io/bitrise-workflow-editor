@@ -137,7 +137,24 @@ func DownloadStep(collectionURI string, collection models.StepCollectionModel, i
 			}
 		case "git":
 			err := retry.Times(2).Wait(3 * time.Second).Try(func(attempt uint) error {
-				return git.CloneTagOrBranchAndValidateCommitHash(downloadLocation.Src, stepPth, version, commithash)
+				repo, err := git.New(stepPth)
+				if err != nil {
+					return err
+				}
+
+				if err := repo.CloneTagOrBranch(downloadLocation.Src, version).Run(); err != nil {
+					return err
+				}
+
+				hash, err := repo.RevParse("HEAD").RunAndReturnTrimmedCombinedOutput()
+				if err != nil {
+					return err
+				}
+
+				if hash != commithash {
+					return fmt.Errorf("commit hash (%s) doesn't match the one specified (%s) for the version tag (%s)", hash, commithash, version)
+				}
+				return nil
 			})
 
 			if err != nil {
@@ -279,6 +296,29 @@ func generateStepLib(route SteplibRoute, templateCollection models.StepCollectio
 	return collection, nil
 }
 
+func generateSlimStepLib(collection models.StepCollectionModel) models.StepCollectionModel {
+
+	slimCollection := models.StepCollectionModel{
+		FormatVersion:         collection.FormatVersion,
+		GeneratedAtTimeStamp:  collection.GeneratedAtTimeStamp,
+		SteplibSource:         collection.SteplibSource,
+		DownloadLocations:     collection.DownloadLocations,
+		AssetsDownloadBaseURI: collection.AssetsDownloadBaseURI,
+	}
+	steps := models.StepHash{}
+
+	for stepID, stepGroupModel := range collection.Steps {
+		steps[stepID] = models.StepGroupModel{
+			Info:     stepGroupModel.Info,
+			Versions: map[string]models.StepModel{stepGroupModel.LatestVersionNumber: stepGroupModel.Versions[stepGroupModel.LatestVersionNumber]},
+		}
+	}
+
+	slimCollection.Steps = steps
+
+	return slimCollection
+}
+
 // WriteStepSpecToFile ...
 func WriteStepSpecToFile(templateCollection models.StepCollectionModel, route SteplibRoute) error {
 	pth := GetStepSpecPath(route)
@@ -307,6 +347,22 @@ func WriteStepSpecToFile(templateCollection models.StepCollectionModel, route St
 	if err != nil {
 		return err
 	}
+
+	if err := fileutil.WriteBytesToFile(pth, bytes); err != nil {
+		return err
+	}
+
+	pth = GetSlimStepSpecPath(route)
+	slimCollection := generateSlimStepLib(collection)
+	if err != nil {
+		return err
+	}
+
+	bytes, err = json.MarshalIndent(slimCollection, "", "\t")
+	if err != nil {
+		return err
+	}
+
 	return fileutil.WriteBytesToFile(pth, bytes)
 }
 

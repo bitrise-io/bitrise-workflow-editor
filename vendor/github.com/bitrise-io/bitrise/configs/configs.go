@@ -13,8 +13,9 @@ import (
 
 // ConfigModel ...
 type ConfigModel struct {
-	SetupVersion          string    `json:"setup_version"`
-	LastPluginUpdateCheck time.Time `json:"last_plugin_update_check"`
+	SetupVersion           string               `json:"setup_version"`
+	LastCLIUpdateCheck     time.Time            `json:"last_cli_update_check"`
+	LastPluginUpdateChecks map[string]time.Time `json:"last_plugin_update_checks"`
 }
 
 // ---------------------------
@@ -27,6 +28,9 @@ var (
 	IsDebugMode = false
 	// IsPullRequestMode ...
 	IsPullRequestMode = false
+
+	// IsSecretFiltering ...
+	IsSecretFiltering = false
 )
 
 // ---------------------------
@@ -43,6 +47,8 @@ const (
 	DebugModeEnvKey = "DEBUG"
 	// LogLevelEnvKey ...
 	LogLevelEnvKey = "LOGLEVEL"
+	// IsSecretFilteringKey ...
+	IsSecretFilteringKey = "BITRISE_SECRET_FILTERING"
 
 	// --- Debug Options
 
@@ -110,14 +116,41 @@ func EnsureBitriseConfigDirExists() error {
 	return pathutil.EnsureDirExist(confDirPth)
 }
 
-// CheckIsPluginUpdateCheckRequired ...
-func CheckIsPluginUpdateCheckRequired() bool {
+// CheckIsCLIUpdateCheckRequired ...
+func CheckIsCLIUpdateCheckRequired() bool {
 	config, err := loadBitriseConfig()
 	if err != nil {
 		return false
 	}
 
-	duration := time.Now().Sub(config.LastPluginUpdateCheck)
+	duration := time.Now().Sub(config.LastCLIUpdateCheck)
+	if duration.Hours() >= 24 {
+		return true
+	}
+
+	return false
+}
+
+// SaveCLIUpdateCheck ...
+func SaveCLIUpdateCheck() error {
+	config, err := loadBitriseConfig()
+	if err != nil {
+		return err
+	}
+
+	config.LastCLIUpdateCheck = time.Now()
+
+	return saveBitriseConfig(config)
+}
+
+// CheckIsPluginUpdateCheckRequired ...
+func CheckIsPluginUpdateCheckRequired(plugin string) bool {
+	config, err := loadBitriseConfig()
+	if err != nil {
+		return false
+	}
+
+	duration := time.Now().Sub(config.LastPluginUpdateChecks[plugin])
 	if duration.Hours() >= 24 {
 		return true
 	}
@@ -126,13 +159,17 @@ func CheckIsPluginUpdateCheckRequired() bool {
 }
 
 // SavePluginUpdateCheck ...
-func SavePluginUpdateCheck() error {
+func SavePluginUpdateCheck(plugin string) error {
 	config, err := loadBitriseConfig()
 	if err != nil {
 		return err
 	}
 
-	config.LastPluginUpdateCheck = time.Now()
+	if config.LastPluginUpdateChecks == nil {
+		config.LastPluginUpdateChecks = map[string]time.Time{}
+	}
+
+	config.LastPluginUpdateChecks[plugin] = time.Now()
 
 	return saveBitriseConfig(config)
 }

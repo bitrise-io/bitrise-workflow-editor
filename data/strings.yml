@@ -430,9 +430,9 @@ env_vars:
     warn:
       title: Your secrets are safe with us
       detail_1: Your secrets are not shown in the bitrise.yml
-      detail_2: Your secrets are stored encrypted and are anonymized by default in the logs
+      detail_2: Your secrets are stored encrypted
       detail_3: You can prevent exposing secrets on the UI by making them protected
-      detail_4: Note that anyone might be able to do a workaround and log the value of secrets with a pull request, thus we advise <strong>not to expose secrets in PRs<strong>
+      detail_4: Note that anyone might be able to do a workaround and log the value of secrets with a pull request, thus we advise <strong>not to expose secrets in PRs</strong>
     make_protected:
       confirm_question: "'Protected' will be irreversible after save"
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."

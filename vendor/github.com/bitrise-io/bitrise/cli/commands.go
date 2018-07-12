@@ -2,31 +2,22 @@ package cli
 
 import "github.com/urfave/cli"
 
+// Flags ...
 const (
-	// JSONParamsKey ...
-	JSONParamsKey = "json-params"
-	// JSONParamsBase64Key ...
+	JSONParamsKey       = "json-params"
 	JSONParamsBase64Key = "json-params-base64"
 
-	// WorkflowKey ...
 	WorkflowKey = "workflow"
 
-	// PatternKey ...
-	PatternKey = "pattern"
-	// PushBranchKey ...
-	PushBranchKey = "push-branch"
-	// PRSourceBranchKey ...
+	PatternKey        = "pattern"
+	PushBranchKey     = "push-branch"
 	PRSourceBranchKey = "pr-source-branch"
-	// PRTargetBranchKey ...
 	PRTargetBranchKey = "pr-target-branch"
 
-	// ConfigKey ...
-	ConfigKey = "config"
-	// InventoryKey ...
-	InventoryKey = "inventory"
-
-	// OuputFormatKey ...
-	OuputFormatKey = "format"
+	IncludeWorkflowMetaKey = "include-workflow-meta"
+	ConfigKey              = "config"
+	InventoryKey           = "inventory"
+	OuputFormatKey         = "format"
 )
 
 var (
@@ -55,29 +46,8 @@ var (
 				flFormat,
 			},
 		},
-		{
-			Name:    "run",
-			Aliases: []string{"r"},
-			Usage:   "Runs a specified Workflow.",
-			Action:  run,
-			Flags: []cli.Flag{
-				// cli params
-				cli.StringFlag{Name: WorkflowKey, Usage: "workflow id to run."},
-				cli.StringFlag{Name: ConfigKey + ", " + configShortKey, Usage: "Path where the workflow config file is located."},
-				cli.StringFlag{Name: InventoryKey + ", " + inventoryShortKey, Usage: "Path of the inventory file."},
-
-				// cli params used in CI mode
-				cli.StringFlag{Name: JSONParamsKey, Usage: "Specify command flags with json string-string hash."},
-				cli.StringFlag{Name: JSONParamsBase64Key, Usage: "Specify command flags with base64 encoded json string-string hash."},
-
-				// deprecated
-				flPath,
-
-				// should deprecate
-				cli.StringFlag{Name: ConfigBase64Key, Usage: "base64 encoded config data."},
-				cli.StringFlag{Name: InventoryBase64Key, Usage: "base64 encoded inventory data."},
-			},
-		},
+		updateCommand,
+		runCommand,
 		{
 			Name:   "trigger-check",
 			Usage:  "Prints out which workflow will triggered by specified pattern.",
@@ -107,34 +77,7 @@ var (
 				cli.StringFlag{Name: InventoryBase64Key, Usage: "base64 encoded inventory data."},
 			},
 		},
-		{
-			Name:    "trigger",
-			Aliases: []string{"t"},
-			Usage:   "Triggers a specified Workflow.",
-			Action:  trigger,
-			Flags: []cli.Flag{
-				// cli params
-				cli.StringFlag{Name: PatternKey, Usage: "trigger pattern."},
-				cli.StringFlag{Name: ConfigKey + ", " + configShortKey, Usage: "Path where the workflow config file is located."},
-				cli.StringFlag{Name: InventoryKey + ", " + inventoryShortKey, Usage: "Path of the inventory file."},
-
-				cli.StringFlag{Name: PushBranchKey, Usage: "Git push branch name."},
-				cli.StringFlag{Name: PRSourceBranchKey, Usage: "Git pull request source branch name."},
-				cli.StringFlag{Name: PRTargetBranchKey, Usage: "Git pull request target branch name."},
-				cli.StringFlag{Name: TagKey, Usage: "Git tag name."},
-
-				// cli params used in CI mode
-				cli.StringFlag{Name: JSONParamsKey, Usage: "Specify command flags with json string-string hash."},
-				cli.StringFlag{Name: JSONParamsBase64Key, Usage: "Specify command flags with base64 encoded json string-string hash."},
-
-				// deprecated
-				flPath,
-
-				// should deprecate
-				cli.StringFlag{Name: ConfigBase64Key, Usage: "base64 encoded config data."},
-				cli.StringFlag{Name: InventoryBase64Key, Usage: "base64 encoded inventory data."},
-			},
-		},
+		triggerCommand,
 		{
 			Name:   "export",
 			Usage:  "Export the bitrise configuration.",
@@ -180,21 +123,7 @@ var (
 				flStepYML,
 			},
 		},
-		{
-			Name:   "workflows",
-			Usage:  "List of available workflows in config.",
-			Action: workflowList,
-			Flags: []cli.Flag{
-				flPath,
-				flConfig,
-				flConfigBase64,
-				flFormat,
-				cli.BoolFlag{
-					Name:  MinimalModeKey,
-					Usage: "Print only workflow summary.",
-				},
-			},
-		},
+		workflowListCommand,
 		{
 			Name:   "share",
 			Usage:  "Publish your step.",

@@ -43,7 +43,7 @@ workflows:
 `
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -82,7 +82,7 @@ workflows:
 `
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -139,7 +139,7 @@ workflows:
 `
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -203,7 +203,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -245,7 +245,7 @@ workflows:
 `
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -305,7 +305,7 @@ workflows:
 `
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -346,7 +346,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -389,7 +389,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -438,7 +438,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -478,7 +478,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -521,7 +521,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -565,7 +565,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -612,7 +612,7 @@ workflows:
 
 		require.NoError(t, configs.InitPaths())
 
-		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+		config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 		require.NoError(t, err)
 		require.Equal(t, 0, len(warnings))
 
@@ -640,7 +640,7 @@ func Test0Steps1Workflows(t *testing.T) {
 		},
 	}
 
-	_, err := config.Validate()
+	_, err := config.Validate(nil)
 	require.NoError(t, err)
 
 	buildRunResults := models.BuildRunResultsModel{
@@ -688,7 +688,7 @@ func Test0Steps3WorkflowsBeforeAfter(t *testing.T) {
 		},
 	}
 
-	_, err := config.Validate()
+	_, err := config.Validate(nil)
 	require.NoError(t, err)
 
 	buildRunResults := models.BuildRunResultsModel{
@@ -696,7 +696,11 @@ func Test0Steps3WorkflowsBeforeAfter(t *testing.T) {
 		StepmanUpdates: map[string]int{},
 	}
 
-	buildRunResults, err = activateAndRunWorkflow("target", workflow, config, buildRunResults, &[]envmanModels.EnvironmentItemModel{}, "")
+	buildRunResults, err = activateAndRunWorkflow(
+		"target", workflow, config, buildRunResults,
+		&[]envmanModels.EnvironmentItemModel{}, []envmanModels.EnvironmentItemModel{},
+		"",
+	)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(buildRunResults.SuccessSteps))
 	require.Equal(t, 0, len(buildRunResults.FailedSteps))
@@ -737,7 +741,7 @@ func Test0Steps3WorkflowsCircularDependency(t *testing.T) {
 		},
 	}
 
-	_, err := config.Validate()
+	_, err := config.Validate(nil)
 	require.Error(t, err)
 
 	require.Equal(t, "0", os.Getenv("BITRISE_BUILD_STATUS"))
@@ -779,7 +783,7 @@ workflows:
     - script:
         title: Should skipped
   `
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -791,7 +795,11 @@ workflows:
 		StepmanUpdates: map[string]int{},
 	}
 
-	buildRunResults, err = activateAndRunWorkflow("trivial_fail", workflow, config, buildRunResults, &[]envmanModels.EnvironmentItemModel{}, "")
+	buildRunResults, err = activateAndRunWorkflow(
+		"trivial_fail", workflow, config, buildRunResults,
+		&[]envmanModels.EnvironmentItemModel{}, []envmanModels.EnvironmentItemModel{},
+		"",
+	)
 	require.NoError(t, err)
 	require.Equal(t, 3, len(buildRunResults.SuccessSteps))
 	require.Equal(t, 1, len(buildRunResults.FailedSteps))
@@ -865,7 +873,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -904,7 +912,7 @@ workflows:
     - before1
     - before2
   `
-	_, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	_, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.Error(t, err)
 	require.Equal(t, 0, len(warnings))
 }
@@ -998,7 +1006,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1054,7 +1062,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1088,7 +1096,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1145,7 +1153,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1206,7 +1214,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1266,7 +1274,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1314,7 +1322,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1366,7 +1374,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -1426,14 +1434,14 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
 	_, found := config.Workflows["out-test"]
 	require.Equal(t, true, found)
 
-	_, err = config.Validate()
+	_, err = config.Validate(nil)
 	require.NoError(t, err)
 
 	buildRunResults, err := runWorkflowWithConfiguration(time.Now(), "out-test", config, []envmanModels.EnvironmentItemModel{})
@@ -1472,7 +1480,7 @@ workflows:
 
   after2:
   `
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 

@@ -2,6 +2,261 @@
 
 -----------------
 
+## 0.10.0 (2018 Jun 26)
+
+### Release Notes
+
+* added `is_sensitive` input option
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.10.0/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.43 -> 0.10.0
+
+* [0387883] Papik Tamas - v0.10.0 (2018 Jun 26)
+* [202f228] Tamas Papik - added is-sensitive option (#248) (2018 Jun 26)
+* [87174f7] Krisztián Gödrei - share flow messages fixes (#247) (2018 Jun 15)
+
+
+## 0.9.43 (2018 Jun 11)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.43/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.42 -> 0.9.43
+
+* [5e5c8a7] Krisztián  Gödrei - prepare for 0.9.43 (2018 Jun 11)
+* [21a1bea] Krisztián Gödrei - Dep update (#246) (2018 Jun 11)
+
+
+## 0.9.42 (2018 May 16)
+
+### Release Notes
+
+* __REGRESSION__ : fixed step activation from it's git source.
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.42/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.41 -> 0.9.42
+
+* [9f11334] Krisztián  Gödrei - 0.9.42 (2018 May 16)
+* [b459b9d] Krisztián Gödrei - download step fix (#245) (2018 May 16)
+
+
+## 0.9.41 (2018 May 07)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.41/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.40 -> 0.9.41
+
+* [e4197eb] Krisztián Gödrei - dep update (#244) (2018 May 07)
+* [bf618fc] Krisztián Gödrei - go-utils update (#243) (2018 Apr 25)
+
+
+## 0.9.40 (2018 Apr 09)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.40/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.39 -> 0.9.40
+
+* [dc7ade4] Krisztián  Gödrei - prepare for 0.9.40 (2018 Apr 09)
+* [656e6ac] Krisztián Gödrei - dependencies update (#242) (2018 Apr 09)
+
+
+## 0.9.39 (2018 Mar 12)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.39/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.38 -> 0.9.39
+
+* [1bd8d97] Krisztian Dobmayer - Bump version to 0.9.39 (2018 Mar 12)
+
+
+## 0.9.38 (2018 Feb 12)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.38/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.37 -> 0.9.38
+
+* [0103a1e] trapacska - Prepare for 0.9.38 (2018 Feb 12)
+* [c04fdd8] Tamas Papik - dep-update & updated README.md (#241) (2018 Feb 12)
+
+
+## 0.9.37 (2018 Jan 09)
+
+### Release Notes
+
+* go dependencies update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.37/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.36 -> 0.9.37
+
+* [b369231] godrei - prepare for 0.9.37 (2018 Jan 09)
+* [050d3e6] Krisztián Gödrei - dep update (#240) (2018 Jan 09)
+* [e51348b] Krisztián Gödrei - Update CHANGELOG.md (2017 Dec 12)
+
+
+## 0.9.36 (2017 Dec 12)
+
+### Release Notes
+
+__Generate slim steplib spec__
+
+`stepman setup --collection STEPLIB_URI` command will generate a tiny version of the steplib spec (`slim-spec.json`) as well, this short version contains only the latest versions of the steps.
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/stepman/releases/download/0.9.36/stepman-$(uname -s)-$(uname -m) > /usr/local/bin/stepman
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/stepman
+```
+
+That's all, you're ready to call `stepman`!
+
+### Release Commits - 0.9.35 -> 0.9.36
+
+* [7ae3816] godrei - prepare for 0.9.36 (2017 Dec 12)
+* [0bd88cf] Krisztian Dobmayer - Slim steplib (#239) (2017 Nov 28)
+
+
 ## 0.9.35 (2017 Oct 09)
 
 ### Release Notes
@@ -26,7 +281,7 @@ That's all, you're ready to call `stepman`!
 
 ### Release Commits - 0.9.34 -> 0.9.35
 
-* [6a9ecf9] Krisztián Gödrei - prepare for 0.9.35 (2017 Oct 09)
+* [6a9ecf9] Krisztián Gödrei - prepare for 0.9.35 (2017 Oct 09)
 * [42e27e6] Krisztián Gödrei - dep update (#238) (2017 Oct 09)
 
 
@@ -55,7 +310,7 @@ That's all, you're ready to call `stepman`!
 
 ### Release Commits - 0.9.33 -> 0.9.34
 
-* [a8a5cba] Krisztián Gödrei - prepare for 0.9.34 (2017 Sep 12)
+* [a8a5cba] Krisztián Gödrei - prepare for 0.9.34 (2017 Sep 12)
 * [2ff164b] Krisztián Gödrei - manage dependencies with dep, dependency updates (#237) (2017 Sep 12)
 
 
@@ -1547,4 +1802,4 @@ That's all, you're ready to call `stepman`!
 
 -----------------
 
-Generated at: 2017 Oct 09
+Generated at: 2018 Jun 26

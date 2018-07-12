@@ -1,6 +1,658 @@
-## Changelog (Current version: 1.9.0)
+## Changelog (Current version: 1.18.1)
 
 -----------------
+
+## 1.18.1 (2018 Jun 28)
+
+### Release Notes
+
+* updated analytics plugin version
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.18.1/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.18.0 -> 1.18.1
+
+* [1b08017] Papik Tamas - Prepare for 1.18.1 (2018 Jun 28)
+
+
+## 1.18.0 (2018 Jun 28)
+
+### Release Notes
+
+* added is_sensitive input option
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.18.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.17.0 -> 1.18.0
+
+* [63c9ca8] Papik Tamas - Prepare for 1.18.0 (2018 Jun 28)
+* [4d216d3] Tamas Papik - tool version update (#614) (2018 Jun 28)
+* [39fd038] Tamas Papik - format version bumped (#612) (2018 Jun 28)
+* [a120cbb] Tamas Papik - go dependency update (#613) (2018 Jun 28)
+* [e9205fd] Tamas Papik - added is_sensitive input option (#610) (2018 Jun 28)
+
+
+## 1.17.0 (2018 Jun 11)
+
+### Release Notes
+
+__1. Secret filtering updates__
+
+Issue fixes around secret filtering.
+
+__2. Tools update__
+
+- envman update to version [1.1.14](https://github.com/bitrise-io/envman/releases/tag/1.1.14)
+- stepman update to version [0.9.43](https://github.com/bitrise-io/stepman/releases/tag/0.9.43)
+
+__3. Default plugins update__
+
+- init plugin updated to version [1.0.4](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/1.0.4)
+- step plugin updated to version [0.9.8](https://github.com/bitrise-core/bitrise-plugins-step/releases/tag/0.9.8)
+- workflow-editor plugin updated to version [1.1.17](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.17)
+- analytics plugin updated to version [0.9.13](https://github.com/bitrise-core/bitrise-plugins-analytics/releases/tag/0.9.13)
+
+__4. Go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.17.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.16.1 -> 1.17.0
+
+* [552ee66] Krisztián  Gödrei - prepare for 1.17.0 (2018 Jun 11)
+* [656c2b8] Krisztián Gödrei - tools and plugins versions update (#608) (2018 Jun 11)
+* [3fd9d35] Krisztián Gödrei - dep update (#607) (2018 Jun 11)
+* [95291f6] Krisztián Gödrei - secret filtering fixes (#605) (2018 May 24)
+
+
+## 1.16.1 (2018 May 16)
+
+### Release Notes
+
+* __REGRESSION__: fixed step activation from its git source
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.16.1/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.16.0 -> 1.16.1
+
+* [e20fa6d] Krisztián  Gödrei - prepare for 1.16.1 (2018 May 16)
+* [1c5f584] Krisztián Gödrei - stepman version update (#604) (2018 May 16)
+* [e7cf18e] Krisztián Gödrei - bitrise.yml update & version test fix (#601) (2018 May 08)
+
+
+## 1.16.0 (2018 May 08)
+
+### Release Notes
+
+__1. Secret filtering updates__
+
+Bitrise cli got a new flag to enable/disable redacting secret values in the output log: `--secret-filtering`.  
+Pass this flag to the `run` or `trigger` commands to enable filtering: `bitrise run WORKFLOW_ID --secret-filtering`.  
+The new flag can be set by an environment variable as well: `BITRISE_SECRET_FILTERING=true bitrise run WORKFLOW_ID` .
+
+_BITRISE_SECRET_FILTERING env var can be set as a secret env (in .bitrise.secrets.yml) as in the previous cli version._
+
+The min length of the secret value to redact was removed.
+
+__2. Tools update__
+
+- envman update to version [1.1.13](https://github.com/bitrise-io/envman/releases/tag/1.1.13)
+- stepman update to version [0.9.41](https://github.com/bitrise-io/stepman/releases/tag/0.9.41)
+
+__3. Default plugins update__
+
+- init plugin updated to version [1.0.2](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/1.0.2)
+- step plugin updated to version [0.9.6](https://github.com/bitrise-core/bitrise-plugins-step/releases/tag/0.9.6)
+- workflow-editor plugin updated to version [1.1.16](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.16)
+- analytics plugin updated to version [0.9.12](https://github.com/bitrise-core/bitrise-plugins-analytics/releases/tag/0.9.12)
+
+__4. Go toolkit's Go version bumped to 1.10.2__
+
+__5. Go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.16.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.15.0 -> 1.16.0
+
+* [dc41506] Krisztián  Gödrei - prepare for 1.16.0 (2018 May 08)
+* [e967d07] Krisztián Gödrei - secret filtering update (#600) (2018 May 08)
+* [13c79e1] Krisztián Gödrei - tool and plugin version updates (#598) (2018 May 08)
+* [7443059] Krisztián Gödrei - dep update (#599) (2018 May 08)
+* [2dc00ae] Viktor Benei - Go (toolkit) 1.10.2 (#597) (2018 May 08)
+* [210625f] Krisztián Gödrei - secret filtering flag (#596) (2018 Apr 27)
+* [2b70a67] Krisztián Gödrei - remove secret min length for filtering (#595) (2018 Apr 27)
+* [aa721aa] Krisztián Gödrei - Git update (#594) (2018 Apr 26)
+* [aab9d39] Krisztián Gödrei - Update CHANGELOG.md (2018 Apr 10)
+* [4d2703b] Krisztián Gödrei - Update CHANGELOG.md (2018 Apr 10)
+
+
+## 1.15.0 (2018 Apr 09)
+
+### Release Notes
+
+__1. Bitrise secret filtering__
+
+From this version bitrise-cli can filter your secrets from the build log.
+
+Set `BITRISE_SECRET_FILTERING` to `true` in your secrets to enable the new feature. The new functionality can hide single and multiline secrets in the log.
+
+__NOTE:__ Secrets with at least 6 characters will be replaced with `[REDACTED]` pattern in the build log.
+
+Example:
+
+.bitrise.secrets.yml
+```
+envs:
+- BITRISE_SECRET_FILTERING: true
+- MY_SSH_KEY: |
+    -----BEGIN RSA PRIVATE KEY-----
+    bitrise_testmfsjOSsRK7+uFr1g4jvIz/yoDrSMRcKrBi/c+iJr+aO8xIb7j2WQ
+    5F4h84OLEkQEmfsjOSsRK7+uFr1g4jvIz/yoDrSMRcKrBi/c+iJr+aO8xIb7j2WQ
+    sPXxhoOj4kuoxqFjrQMGyDZ+uIJMD9D+vsov4iDvIBrMkn2TuD/o1X9oISEhDw1l
+    3tsWqgFxpZprcMw64rdEOJ/7+aJczWvi37kGYjQ4wvSnD+MEoFZIM3fhxDDcxb+I
+    COjv7Y+Ta++KGjhyu5OJjTAzFyjal0ub0VaVdu8Vg6tAr1grdhQayPYXZqd1TqaU
+    kniMwxz4hAg+QbhsdSlKzQjgbJJhzn3shiK7kMxL7DrUmhoIgQ1QMUERj4Lt8y9I
+    J3zHmSq27IEXSzwBIL0JRAsKfcq914f3S2tbyQUi2doJTMxWDgcaL6jkzjCwmCx/
+    bitrise_testmfsWwlaF+Y0w0xVfAcABHdYjWHx2UHP02EC1ZGUAqF9z6XaCV8l9
+    oMHHu9lvWKuxpVNPcGY/kR3G897Qn+6vE3yuVwbD4reu0IHAWZzBgt7e3we5
+    -----END RSA PRIVATE KEY-----
+```
+
+bitrise.yml
+```
+format_version: 5
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+workflows:
+  primary:
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            echo "My ssh key: $MY_SSH_KEY"
+```
+
+`bitrise run primary`
+```
++------------------------------------------------------------------------------+
+| (0) script                                                                   |
++------------------------------------------------------------------------------+
+| id: script                                                                   |
+| version: 1.1.5                                                               |
+| collection: https://github.com/bitrise-io/bitrise-steplib.git                |
+| toolkit: bash                                                                |
+| time: 2018-04-10T10:10:35+02:00                                              |
++------------------------------------------------------------------------------+
+|                                                                              |
+WARN[10:10:36] Secret filtering enabled
+My ssh key: [REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+[REDACTED]
+|                                                                              |
++---+---------------------------------------------------------------+----------+
+| ✓ | script                                                        | 2.46 sec |
++---+---------------------------------------------------------------+----------+
+```
+
+__2. Step Development Guideline updated with [Step icon convention section](https://github.com/bitrise-io/bitrise/blob/master/_docs/step-development-guideline.md#step-icon-convention)__
+
+__3. `bitrise update` command got improvements__
+
+- better log messages
+- avoid updating if the current version is the latest
+
+__4. Tools update__
+
+- envman update to version [1.1.12](https://github.com/bitrise-io/envman/releases/tag/1.1.12)
+- stepman update to version [0.9.40](https://github.com/bitrise-io/stepman/releases/tag/0.9.40)
+
+__5. Default plugins update__
+
+- workflow-editor plugin update to version [1.1.14](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.14)
+
+__6. Go version for toolkit bumped to 1.10.1__
+
+__7. Go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.15.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.14.0 -> 1.15.0
+
+* [b9fc581] Krisztián  Gödrei - prepare for 1.15.0 (2018 Apr 09)
+* [ec6fc4e] Krisztián Gödrei - dep update (#592) (2018 Apr 09)
+* [af3647a] Viktor Benei - Go version for toolkit, bump to 1.10.1 (#590) (2018 Apr 03)
+* [f78a297] Krisztián Gödrei - opt out secret filtering (#589) (2018 Mar 23)
+* [0188f52] Krisztián Gödrei - filter secrets from log lines (#583) (2018 Mar 20)
+* [89d24b9] Krisztian Dobmayer - Bitrise update improvements (#588) (2018 Mar 20)
+* [940b107] Krisztián Gödrei - Update step-development-guideline.md (#585) (2018 Mar 13)
+
+
+## 1.14.0 (2018 Mar 12)
+
+### Release Notes
+
+* __Run apt-get update before install apt-get dependencies__
+
+__tools update__
+
+- envman update to version [1.1.11](https://github.com/bitrise-io/envman/releases/tag/1.1.11)
+- stepman update to version [0.9.39](https://github.com/bitrise-io/stepman/releases/tag/0.9.39)
+
+__default plugins update__
+
+- workflow-editor plugin update to version [1.1.12](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.12)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.14.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.13.0 -> 1.14.0
+
+* [1f8dce2] Krisztian Dobmayer - Bump version to 1.14.0 (2018 Mar 12)
+* [1be454a] Krisztian Dobmayer - Run apt-get update before install apt-get dependencies (once per build) (#584) (2018 Feb 27)
+
+
+## 1.13.0 (2018 Feb 13)
+
+### Release Notes
+
+* __added self update__
+
+- Show if CLI update is available
+- New subcommand: update
+- Update is accepting an exact version number
+
+* __added functionality of exporting the directory of the current step__
+
+- Now you will be able to use side-load assets for the step because `BITRISE_STEP_SOURCE_DIR` ENV now will be exported with the root source directory of the currently running step.
+
+__tools update__
+
+- envman update to version [1.1.10](https://github.com/bitrise-io/envman/releases/tag/1.1.10)
+- stepman update to version [0.9.38](https://github.com/bitrise-io/stepman/releases/tag/0.9.38)
+
+__default plugins update__
+
+- workflow-editor plugin update to version [1.1.11](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.11)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.13.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.12.0 -> 1.13.0
+
+* [4f2ef8c] trapacska - Prepare for 1.13.0 (2018 Feb 13)
+* [f74620d] Tamas Papik - updated versions (#579) (2018 Feb 13)
+* [f82f5f4] Tamas Papik - dep-update & readme.md update (#578) (2018 Feb 12)
+* [2268242] Viktor Benei - Go toolkit - go version bump to 1.9.4 (#576) (2018 Feb 12)
+* [a7d713e] Krisztián Gödrei - readme update (#577) (2018 Feb 12)
+* [b5eb848] Viktor Benei - Update golang.go (#575) (2018 Feb 06)
+* [d92ff71] Krisztian Dobmayer - Export the directory of the current step (#574) (2018 Feb 05)
+* [7da2ff5] Krisztián Gödrei - Update step-development-guideline.md (2018 Jan 17)
+* [7445d3a] Krisztian Dobmayer - Self update (#568) (2018 Jan 15)
+
+
+## 1.12.0 (2018 Jan 09)
+
+### Release Notes
+
+__removed `include-workflow-meta` flag from `trigger-check` command__
+
+The workflow's meta tag is designed to define extra options for the workflows by other tools, but the cli does not handle this property.
+
+__tools update__
+
+- envman update to version [1.1.9](https://github.com/bitrise-io/envman/releases/tag/1.1.9)
+- stepman update to version [0.9.37](https://github.com/bitrise-io/stepman/releases/tag/0.9.37)
+
+__default plugins update__
+
+- init plugin update to version [1.0.1](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/1.0.1)
+- workflow-editor plugin update to version [1.1.3](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.3)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.12.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.11.0 -> 1.12.0
+
+* [fbe0ff6] godrei - prepare for 1.12.0 (2018 Jan 09)
+* [fedff33] Krisztián Gödrei - update bitrise tools and plugins (#570) (2018 Jan 09)
+* [20664cb] Krisztián Gödrei - revert include-workflow-metadata & godeps update (#569) (2018 Jan 09)
+* [ee7cf78] Krisztian Dobmayer - Add description about shell completion (#567) (2018 Jan 02)
+* [a6abe29] Krisztian Dobmayer - Add fastlane project type (#565) (2017 Dec 19)
+* [1760eb4] Viktor Benei - Added more unit tests for trigger-check/match with Glob patterns (#564) (2017 Dec 15)
+
+
+## 1.11.0 (2017 Dec 12)
+
+### Release Notes
+
+__workflow model new property: `meta`__
+
+From now on you can define workflow's `meta` field:
+
+```
+format_version: 5
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+trigger_map:
+- push_branch: "branch1"
+  workflow: primary
+
+workflows:
+  primary:
+    meta:
+      bitriseio:
+        stack: fast-stack
+    steps:
+    ...
+```
+
+`meta` property is used to define extra options without creating a new bitrise cli release.
+
+The cli does not use `meta` field directly, but other tools can use this property to expand the workflow options.
+
+__tools update__
+
+- stepman update to version [0.9.36](https://github.com/bitrise-io/stepman/releases/tag/0.9.36)
+
+__default plugins update__
+
+- analytics plugin update to version [0.9.11](https://github.com/bitrise-core/bitrise-plugins-analytics/releases/tag/0.9.11)
+- init plugin update to version [1.0.0](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/1.0.0)
+- workflow-editor plugin update to version [1.1.0](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.1.0)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.11.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.10.1 -> 1.11.0
+
+* [4586598] godrei - prepare for 1.11.0 (2017 Dec 12)
+* [56e5eda] Krisztián Gödrei - update analytics plugin to 0.9.11 (#563) (2017 Dec 12)
+* [457aa0b] Krisztián Gödrei - update bitrise tools versions (#562) (2017 Dec 12)
+* [03b6319] Tamas Papik - bumped format version (#561) (2017 Dec 11)
+* [84cf511] Tamas Papik - added --include-workflow-meta flag (#558) (2017 Dec 11)
+* [c593bca] Tamas Papik - Revert "added multiple workflow handling, bumped version (#554)" (#557) (2017 Dec 04)
+* [acf72fe] Tamas Papik - added multiple workflow handling, bumped version (#554) (2017 Nov 30)
+* [2f2937b] Tamas Papik - updated version info (2017 Nov 14)
+* [b8eabdd] Tamas Papik - Update CHANGELOG.md (2017 Nov 14)
+* [8988eae] Tamas Papik - Update CHANGELOG.md (2017 Nov 14)
+
+
+## 1.10.1 (2017 Nov 14)
+
+### Release Notes
+
+* go dependencies update
+
+* go toolkit: version bump: go 1.9.1 -> 1.9.2
+
+* workflows command update (#542)
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.10.1/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.10.0 -> 1.10.1
+
+* [0d83c79] trapacska - Prepare for v1.10.1 (2017 Nov 14)
+* [787e38e] Tamas Papik - deps-update, bumped wf editor, fixed typo in readme (#547) (2017 Nov 14)
+* [e72885d] Viktor Benei - Go toolkit: version bump: go 1.9.1 -> 1.9.2 (#545) (2017 Nov 14)
+* [a9b23e3] Krisztián Gödrei - Workflows command update (#542) (2017 Oct 19)
+
+## 1.10.0 (2017 Oct 10)
+
+### Release Notes
+
+__set Stdin for bitrise tools commands__
+
+__update min go version from 1.9 to 1.9.1__
+
+__bitrise tools update__
+
+- envman update to version [1.1.8](https://github.com/bitrise-io/envman/releases/tag/1.1.8)
+- stepman update to version [0.9.35](https://github.com/bitrise-io/stepman/releases/tag/0.9.35)
+
+__bitrise default plugins update__
+
+- init plugin update to version [0.9.11](https://github.com/bitrise-core/bitrise-plugins-init/releases/tag/0.9.11)
+- workflow-editor plugin update to version [1.0.17](https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/1.0.17)
+
+__go dependencies update__
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+curl -fL https://github.com/bitrise-io/bitrise/releases/download/1.10.0/bitrise-$(uname -s)-$(uname -m) > /usr/local/bin/bitrise
+```
+
+Then:
+
+```
+chmod +x /usr/local/bin/bitrise
+```
+
+That's all, you're ready to go!
+
+Optionally, you can call `bitrise setup` to verify that everything what's required for bitrise to run
+is installed and available, but if you forget to do this it'll be performed the first
+time you call bitrise run.
+
+### Release Commits - 1.9.0 -> 1.10.0
+
+* [caae040] Krisztián Gödrei - prepare for 1.10.0 (2017 Oct 10)
+* [320337f] Krisztián Gödrei - tools update (#539) (2017 Oct 10)
+* [2796fa7] Krisztián Gödrei - dep update (#538) (2017 Oct 09)
+* [a5ea4c0] Viktor Benei - Update min go version: 1.9 -> 1.9.1 (#537) (2017 Oct 09)
+* [0869613] Viktor Benei - set Stdin for bitrise tools commands (#536) (2017 Sep 12)
+* [d5b98d3] Krisztián Gödrei - Update CHANGELOG.md (2017 Sep 12)
+
 
 ## 1.9.0 (2017 Sep 12)
 
@@ -3230,4 +3882,4 @@ time you call bitrise run.
 
 -----------------
 
-Updated: 2017 Sep 12
+Updated: 2018 Jun 28
