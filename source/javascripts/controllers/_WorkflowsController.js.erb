@@ -72,6 +72,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.insertSecretToStepInputConfig.popup.isVisible = true;
 	};
 
+	viewModel.insertSecretToStepInputConfig.beforeAppearCallback = function() {
+		loadSecrets();
+	};
+
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		workflowsTabService.shouldWatchSelectionChanges = false;
 
@@ -89,7 +93,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	}));
 
 	viewModel.loadWorkflowsProgress = new Progress();
-	viewModel.loadSecretVariableKeysProgress = new Progress();
+	viewModel.loadSecretVariablesProgress = new Progress();
 
 	$scope.$on("$destroy", function() {
 		viewModel.canceler.resolve();
@@ -132,9 +136,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 					var stepIconLoadPromises = [];
 					_.each(viewModel.workflows, function(aWorkflow) {
 						_.each(aWorkflow.steps, function(aStep) {
-							_.each(aStep.defaultStepConfig.inputs, function(anInput) {
-								anInput.opts.is_sensitive = true;
-							});
 							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(aStep)));
 						});
 					});
@@ -899,6 +900,17 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	viewModel.insertSecretSelected = function(targetInput) {
 		viewModel.insertSecretToStepInputConfig.show(viewModel.workflows, viewModel.editedWorkflow, viewModel.selectedStep, targetInput);
 	};
+
+	function loadSecrets() {
+		viewModel.loadSecretVariablesProgress.start("<%= data[:strings][:workflows][:inputs][:insert_secret][:load_progress] %>");
+		return appService.getSecrets(false, {
+			timeout: viewModel.canceler.promise
+		}).then(function() {
+			viewModel.loadSecretVariablesProgress.success();
+		}, function(error) {
+			viewModel.loadSecretVariablesProgress.error(error);
+		});
+	}
 
 	// Outputs
 
