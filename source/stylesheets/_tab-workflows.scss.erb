@@ -372,7 +372,7 @@ header.sticky section.manage-workflows {
 								@include display-flex;
 								padding: 6px 8px;
 								@include ellipsis-oneliner;
-								
+
 								background-color: $def-ultralightgrey;
 								@include transition(background-color $def-transition_duration);
 
@@ -926,7 +926,7 @@ header.sticky section.manage-workflows {
 							section.description.open {
 
 								.markdown {
-									
+
 									p {
 										margin-top: 0;
 									}
@@ -1016,7 +1016,7 @@ header.sticky section.manage-workflows {
 										margin: $margin;
 										border-radius: 5px;
 										border: $borderwidth solid $def-mediumlightgrey;
-										
+
 										ol.inputs-list li.input {
 											padding-left: $leftpadding - $borderwidth - $margin;
 										}
@@ -1274,7 +1274,7 @@ header.sticky section.manage-workflows {
 										}
 
 										li.input.required-empty {
-											
+
 											.input-info textarea {
 												border-color: $def-purple;
 											}
@@ -1342,9 +1342,10 @@ header.sticky section.manage-workflows {
 									font-size: 12px;
 								}
 
-								table {
+								.output-box {
 									$table_border: 1px solid $def-mediumlightgrey;
 
+									display: table;
 									table-layout: fixed;
 									width: 100%;
 									@include margin-y(0);
@@ -1352,23 +1353,36 @@ header.sticky section.manage-workflows {
 									padding-left: 0;
 									list-style: none;
 
-									tr {
+									.output {
+										display: table-row;
 										font-size: 12px;
 
-										td {
+										.parameter {
+											display: table-cell;
 											width: 50%;
 											@include padding-y(12px);
 											padding-left: $leftpadding;
 											padding-right: $rightpadding;
 										}
 
-										td.key {
-											@include ellipsis-oneliner;
-											font-weight: 300;
-											color: $def-purple;
+										.o {
+											display: block;
 										}
 
-										td.description {
+										.key {
+
+											input {
+												width: 100%;
+												margin: 0;
+												border: none;
+												padding: 0;
+												font-size: 12px;
+												font-weight: 300;
+												color: $def-purple;
+											}
+										}
+
+										.description {
 											position: relative;
 											font-weight: 200;
 											color: $def-grey;
@@ -1409,7 +1423,7 @@ header.sticky section.manage-workflows {
 											}
 
 											button:hover + .toggleabble-description, button:focus + .toggleabble-description {
-												
+
 												svg {
 													fill: black;
 												}
@@ -1417,11 +1431,11 @@ header.sticky section.manage-workflows {
 										}
 									}
 
-									tr:not(:first-child) {
+									.output:not(:first-child) {
 										border-top: $table_border;
 									}
 
-									td:not(:first-child) {
+									.parameter:not(:first-child) {
 										border-left: $table_border;
 									}
 								}
@@ -1436,14 +1450,14 @@ header.sticky section.manage-workflows {
 										@include padding-x($horizontalpadding_small);
 									}
 
-									table tr td {
+									.output-box .output .parameter {
 										@include padding-x($horizontalpadding_small);
 									}
 								}
 
 								@include media-below-mid {
 
-									table tr td.description {
+									.output-box .output .parameter.description {
 										display: none;
 									}
 								}
@@ -1472,7 +1486,7 @@ header.sticky section.manage-workflows {
 							}
 						}
 					}
-					
+
 					article ul.steps li {
 
 						button.add-step:last-child {
@@ -1523,7 +1537,7 @@ header.sticky section.manage-workflows {
 								position: static;
 								display: block;
 							}
-						
+
 							button.step span.info {
 								display: none;
 							}
@@ -1540,7 +1554,7 @@ header.sticky section.manage-workflows {
 						}
 
 						.step-actions {
-						
+
 							button.step span.icon {
 								@include size($icon-size_small);
 							}
