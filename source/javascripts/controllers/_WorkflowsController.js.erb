@@ -137,6 +137,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 					var stepIconLoadPromises = [];
 					_.each(viewModel.workflows, function(aWorkflow) {
 						_.each(aWorkflow.steps, function(aStep) {
+							_.each(aStep.defaultStepConfig.inputs, function(anInput) {
+								anInput.opts.is_sensitive = true;
+							});
 							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(aStep)));
 						});
 					});
@@ -900,11 +903,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 
 	viewModel.insertSecretSelected = function(targetInput) {
 		viewModel.insertSecretToStepInputConfig.show(viewModel.workflows, viewModel.editedWorkflow, viewModel.selectedStep, targetInput);
-	};
-
-	viewModel.inputSecretBlurred = function(event) {
-		viewModel.insertSecretToStepInputConfig.insertStartPosition = event.target.selectionStart;
-		viewModel.insertSecretToStepInputConfig.insertEndPosition = event.target.selectionEnd;
 	};
 
 	// Outputs
