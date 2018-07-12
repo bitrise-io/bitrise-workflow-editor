@@ -66,11 +66,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.insertSecretToStepInputConfig.secretSelected = function(variable) {
 			viewModel.insertSecretToStepInputConfig.popup.isVisible = false;
 
-			var oldValue = targetVariable.value();
-			if (oldValue === null) {
-				oldValue = "";
-			}
-
 			targetVariable.value($filter("prettifiedVariableKey")(variable));
 		};
 
