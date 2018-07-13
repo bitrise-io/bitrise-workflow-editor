@@ -35,6 +35,9 @@ workflows:
   load_workflows_progress:
     in_progress: Loading workflows...
     error: Failed to load workflows.
+  load_secret_environment_keys_progress:
+    in_progress: Loading secret environment variable keys...
+    error: Failed to load secret environment variable keys.
   select_workflow_placeholder: Workflow
   run_workflows:
     postfix: workflow
@@ -98,9 +101,28 @@ workflows:
     empty_value: no value
     value_placeholder: Enter value
     required: required
+    sensitive: sensitive
     will_be_replaced: Environment Variables will be replaced in input by the Bitrise CLI before starting the Step.
     wont_be_replaced: Environment Variables won't be replaced in input by the Bitrise CLI before starting the Step.
     insert_variable: Insert variable from list
+    sensitive_warning_message:
+      info: This input holds sensitive information.
+      prompt_with_button_label:
+        part_1_text: You can only use
+        part_2_button_label: secrets
+        part_3_text: to securely reference it.
+    select_secret_variable:
+      action: Select secret variable
+    insert_secret:
+      action: Insert variable
+      load_progress: Loading insertable secrets, wait a sec...
+      save_progress: Saving insertable secret, wait a sec...
+      create_new_secret_env_var_label: Create New Secret Env Var
+      choose_secret_env_var_label: Choose Secret Env Var
+      there_is_no_secrets_in_the_list: There are no secrets added to this app yet.
+      key_filter_placeholder: Filter by key
+      source:
+        secret: from secrets
     insert_variable:
       action: Insert variable
       key_filter_placeholder: Filter by key

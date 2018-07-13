@@ -2,11 +2,79 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, requestService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, insertVariablePopupService, Progress, Popup, Workflow, Step, Variable, Stack) {
+angular.module("BitriseWorkflowEditor").controller("WorkflowsController", function($scope, $rootScope, $q, $filter, $location, $timeout, stringService, imageService, requestService, scrollService, appService, stepSourceService, workflowsTabService, addStepService, Progress, Popup, Workflow, Step, Variable, Stack) {
 
 	var viewModel = this;
 
+	viewModel.canceler = $q.defer();
+
 	$scope.requestService = requestService;
+
+	viewModel.insertVariableToStepInputConfig = {
+		popup: new Popup(),
+		workflows: undefined,
+		selectedWorkflow: undefined,
+		selectedStep: undefined,
+		variableSelected: undefined,
+		insertStartPosition: undefined,
+		insertEndPosition: undefined,
+		availableVariableGroupIDs: undefined,
+		show: undefined
+	};
+
+	viewModel.insertVariableToStepInputConfig.show = function(workflows, selectedWorkflow, selectedStep, targetVariable) {
+		viewModel.insertVariableToStepInputConfig.workflows = workflows;
+		viewModel.insertVariableToStepInputConfig.selectedWorkflow = selectedWorkflow;
+		viewModel.insertVariableToStepInputConfig.selectedStep = selectedStep;
+
+		if (viewModel.insertVariableToStepInputConfig.insertStartPosition === undefined) {
+			viewModel.insertVariableToStepInputConfig.insertStartPosition = targetVariable.value.length;
+		}
+		if (viewModel.insertVariableToStepInputConfig.insertEndPosition === undefined) {
+			viewModel.insertVariableToStepInputConfig.insertEndPosition = targetVariable.value.length;
+		}
+
+		viewModel.insertVariableToStepInputConfig.variableSelected = function(variable) {
+			viewModel.insertVariableToStepInputConfig.popup.isVisible = false;
+
+			var oldValue = targetVariable.value();
+			if (oldValue === null) {
+				oldValue = "";
+			}
+
+			targetVariable.value(oldValue.slice(0, viewModel.insertVariableToStepInputConfig.insertStartPosition) + $filter("prettifiedVariableKey")(variable) + oldValue.slice(viewModel.insertVariableToStepInputConfig.insertEndPosition));
+		};
+
+		viewModel.insertVariableToStepInputConfig.popup.isVisible = true;
+	};
+
+	viewModel.insertSecretToStepInputConfig = {
+		popup: new Popup(),
+		workflows: undefined,
+		selectedWorkflow: undefined,
+		selectedStep: undefined,
+		secretSelected: undefined,
+		availableVariableGroupIDs: undefined,
+		show: undefined
+	};
+
+	viewModel.insertSecretToStepInputConfig.show = function(workflows, selectedWorkflow, selectedStep, targetVariable) {
+		viewModel.insertSecretToStepInputConfig.workflows = workflows;
+		viewModel.insertSecretToStepInputConfig.selectedWorkflow = selectedWorkflow;
+		viewModel.insertSecretToStepInputConfig.selectedStep = selectedStep;
+
+		viewModel.insertSecretToStepInputConfig.secretSelected = function(variable) {
+			viewModel.insertSecretToStepInputConfig.popup.isVisible = false;
+
+			targetVariable.value($filter("prettifiedVariableKey")(variable));
+		};
+
+		viewModel.insertSecretToStepInputConfig.popup.isVisible = true;
+	};
+
+	viewModel.insertSecretToStepInputConfig.beforeAppearCallback = function() {
+		loadSecrets();
+	};
 
 	$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
 		workflowsTabService.shouldWatchSelectionChanges = false;
@@ -25,6 +93,11 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	}));
 
 	viewModel.loadWorkflowsProgress = new Progress();
+	viewModel.loadSecretVariablesProgress = new Progress();
+
+	$scope.$on("$destroy", function() {
+		viewModel.canceler.resolve();
+	});
 
 	viewModel.init = function() {
 		workflowsTabService.shouldWatchSelectionChanges = false;
@@ -56,8 +129,6 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				timeout: canceler.promise
 			}).then(function() {
 				try {
-					var allWorkflowsLoadedCallbacks = [];
-
 					viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 						return new Workflow(aWorkflowID, aWorkflowConfig);
 					});
@@ -795,7 +866,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 				return anInput.isRequired() && (!anInput.value() || anInput.value().length == 0);
 			}), function(anInput) {
 				viewModel.openedInputs.push(anInput);
-			})
+			});
 		});
 	}
 
@@ -818,13 +889,28 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 	};
 
 	viewModel.insertVariableSelected = function(targetInput) {
-		insertVariablePopupService.show(viewModel.workflows, viewModel.editedWorkflow, viewModel.selectedStep, targetInput);
+		viewModel.insertVariableToStepInputConfig.show(viewModel.workflows, viewModel.editedWorkflow, viewModel.selectedStep, targetInput);
 	};
 
 	viewModel.inputValueBlurred = function(event) {
-		insertVariablePopupService.insertStartPosition = event.target.selectionStart;
-		insertVariablePopupService.insertEndPosition = event.target.selectionEnd;
+		viewModel.insertVariableToStepInputConfig.insertStartPosition = event.target.selectionStart;
+		viewModel.insertVariableToStepInputConfig.insertEndPosition = event.target.selectionEnd;
 	};
+
+	viewModel.insertSecretSelected = function(targetInput) {
+		viewModel.insertSecretToStepInputConfig.show(viewModel.workflows, viewModel.editedWorkflow, viewModel.selectedStep, targetInput);
+	};
+
+	function loadSecrets() {
+		viewModel.loadSecretVariablesProgress.start("<%= data[:strings][:workflows][:inputs][:insert_secret][:load_progress] %>");
+		return appService.getSecrets(false, {
+			timeout: viewModel.canceler.promise
+		}).then(function() {
+			viewModel.loadSecretVariablesProgress.success();
+		}, function(error) {
+			viewModel.loadSecretVariablesProgress.error(error);
+		});
+	}
 
 	// Outputs
 
