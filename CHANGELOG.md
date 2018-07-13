@@ -1,6 +1,43 @@
-## Changelog (Current version: 1.1.20)
+## Changelog (Current version: 1.1.21)
 
 -----------------
+
+## 1.1.21 (2018 Jul 13)
+
+### Release Notes
+
+* Remove newline from when copying output key
+* Sensitive step inputs that can only reference secrets as values
+* YML error - display server provided error message instead of generic error
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.21
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.20 -> 1.1.21
+
+* [78d3b19] erosdome - Only display fallback error message if server does not return any errors (#301) (2018 Jul 13)
+* [054d380] Norbert Kovach - Handle sensitive input fields (#300) (2018 Jul 13)
+* [b2b17a7] erosdome - Remove newline from when copying output key (#299) (2018 Jul 12)
+
 
 ## 1.1.20 (2018 Jul 04)
 
@@ -2187,4 +2224,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jul 04
+Updated: 2018 Jul 13
