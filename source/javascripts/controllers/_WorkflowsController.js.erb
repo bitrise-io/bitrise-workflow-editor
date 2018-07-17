@@ -15,6 +15,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		workflows: undefined,
 		selectedWorkflow: undefined,
 		selectedStep: undefined,
+		targetVariable: undefined,
 		variableSelected: undefined,
 		insertStartPosition: undefined,
 		insertEndPosition: undefined,
@@ -26,6 +27,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.insertVariableToStepInputConfig.workflows = workflows;
 		viewModel.insertVariableToStepInputConfig.selectedWorkflow = selectedWorkflow;
 		viewModel.insertVariableToStepInputConfig.selectedStep = selectedStep;
+		viewModel.insertVariableToStepInputConfig.targetVariable = targetVariable;
 
 		if (viewModel.insertVariableToStepInputConfig.insertStartPosition === undefined) {
 			viewModel.insertVariableToStepInputConfig.insertStartPosition = targetVariable.value.length;
