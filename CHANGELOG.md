@@ -1,6 +1,41 @@
-## Changelog (Current version: 1.1.21)
+## Changelog (Current version: 1.1.22)
 
 -----------------
+
+## 1.1.22 (2018 Jul 18)
+
+### Release Notes
+
+* Fix insert variable popup
+* Set minimum CLI version to 1.18.0
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.22
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.21 -> 1.1.22
+
+* [81da1d1] Norbert Kovach - Fix insert variable popup (#303) (2018 Jul 18)
+* [587f953] erosdome - Set minimum CLI version to 1.18.0 (#302) (2018 Jul 18)
+
 
 ## 1.1.21 (2018 Jul 13)
 
@@ -2224,4 +2259,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jul 13
+Updated: 2018 Jul 18
