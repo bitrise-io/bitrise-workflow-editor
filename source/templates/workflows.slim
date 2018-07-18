@@ -197,7 +197,7 @@
 				h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
 				input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
 			article.vertical-scroll
-				.list-of-available-secrets
+				.list-of-available-env-vars
 					p.progress-indicator[progress-model="insertVariableCtrl.loadInsertableVariablesProgress"]
 					div[ng-if="insertVariableCtrl.loadInsertableVariablesProgress.isIdle"]
 						ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
