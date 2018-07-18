@@ -1982,16 +1982,39 @@ header.sticky section.manage-workflows {
 
 .popup-body#insert-variable-popup-body {
 
-	header h2 {
-		margin-top: 0;
-		margin-bottom: 12px;
-		font-size: inherit;
-		font-weight: inherit;
+	header {
+		h2 {
+			margin-top: 0;
+			margin-bottom: 12px;
+			font-size: inherit;
+			font-weight: inherit;
+		}
+
+		input {
+			$searchicon_width: 16px;
+			$padding: 12px;
+			display: block;
+			@include box-sizing(border-box);
+			width: 100%;
+			border: none;
+			@include border-radius($def-radius);
+			padding: $padding;
+			padding-left: $padding + $searchicon_width + $padding;
+			font-size: 14px;
+			font-weight: 200;
+			background-color: $def-verylightgrey;
+			background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
+				fill: rgba($def-darkgrey, 0.99)
+			));
+			background-size: $searchicon_width auto;
+			background-repeat: no-repeat;
+			background-position: left $padding center;
+		}
 	}
 
 	article {
 
-		.create-new-secret, .list-of-available-secrets {
+		.create-new-secret, .list-of-available-secrets, .list-of-available-env-vars {
 			margin-bottom: 18px;
 
 			.title {

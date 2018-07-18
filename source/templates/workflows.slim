@@ -117,7 +117,7 @@
 														em.sensitive<[ng-if="input.isSensitive()"] == data[:strings][:workflows][:inputs][:sensitive]
 													button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.isSensitive()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												.input-description[btf-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
-												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-disabled="!isOpen || input.isSensitive()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-disabled="!isOpen || input.isSensitive()" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
 												.sensitive-input-warning[ng-if="isOpen && input.isSensitive() && !input.valueOptions()"]
 													span
 														span == data[:strings][:workflows][:inputs][:sensitive_warning_message][:info]
@@ -197,13 +197,14 @@
 				h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
 				input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
 			article.vertical-scroll
-				p.progress-indicator[progress-model="insertVariableCtrl.loadInsertableVariablesProgress"]
-				div[ng-if="insertVariableCtrl.loadInsertableVariablesProgress.isIdle"]
-					ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
-						li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter" ng-if="insertVariableCtrl.shouldShowVariable(variable)"]
-							button[ng-click="insertVariableCtrl.variableSelected(variable)"]
-								strong[ng-bind="variable | prettifiedVariableKey"]
-								em[ng-bind="variablesOfSource.title"]
+				.list-of-available-env-vars
+					p.progress-indicator[progress-model="insertVariableCtrl.loadInsertableVariablesProgress"]
+					div[ng-if="insertVariableCtrl.loadInsertableVariablesProgress.isIdle"]
+						ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
+							li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter" ng-if="insertVariableCtrl.shouldShowVariable(variable)"]
+								button[ng-click="insertVariableCtrl.variableSelected(variable)"]
+									strong[ng-bind="variable | prettifiedVariableKey"]
+									em[ng-bind="variablesOfSource.title"]
 	popup[model="workflowsCtrl.insertSecretToStepInputConfig.popup"]
 		.popup-body.snowflake#insert-variable-popup-body[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ]
 			header
