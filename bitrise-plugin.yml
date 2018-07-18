@@ -6,5 +6,5 @@ executable:
   linux: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.1.21/workflow-editor-Linux-x86_64
 requirements:
 - tool: bitrise
-  min_version: 1.12.0
+  min_version: 1.18.0
   max_version: ""
