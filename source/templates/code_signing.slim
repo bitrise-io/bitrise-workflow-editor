@@ -343,7 +343,7 @@
 			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
 			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
 			div[ng-if="genericFileCtrl.loadGenericFilesProgress.isIdle && !genericFileCtrl.deleteGenericFileProgress.isInProgress"]
-				p.notification.no-icon[ng-if="genericFileCtrl.genericFiles.length == 0"] == data[:strings][:code_signing][:generic_file][:no_files_added_yet]
+				/ p.notification.no-icon[ng-if="genericFileCtrl.genericFiles.length == 0"] == data[:strings][:code_signing][:generic_file][:no_files_added_yet]
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
@@ -374,10 +374,13 @@
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]
 				.file-upload[ng-if="!genericFileCtrl.uploadGenericFileProgress.isInProgress && genericFileCtrl.genericFiles.length < genericFileCtrl.maximumGenericFilesCount"]
 					p == data[:strings][:code_signing][:generic_file][:env_var_details]
-					code.env-var[ng-bind="genericFileCtrl.downloadURLEnvVarKeyPrettifiedPreview()"]
-					input.env-var[type="text" ng-model="genericFileCtrl.uploadedGenericFile.envVarPartialID" placeholder="#{ data[:strings][:code_signing][:generic_file][:uploaded_file_placeholder] }"]
+					label.input-label == data[:strings][:code_signing][:generic_file][:file_storage_id]
+					input.env-var[type="text" name="upload-file-id" ng-model="genericFileCtrl.uploadedGenericFile.envVarPartialID" placeholder="#{ data[:strings][:code_signing][:generic_file][:uploaded_file_placeholder] }"]
+					label.input-label == data[:strings][:code_signing][:generic_file][:download_url]
+					code.env-var[ng-bind="genericFileCtrl.downloadURLEnvVarKeyPrettifiedPreview()" name="upload-file-url"]
 					p.progress-indicator.error[ng-if="genericFileCtrl.uploadedGenericFileErrorMessage() && genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0" ng-bind="genericFileCtrl.uploadedGenericFileErrorMessage()"]
-					file-uploader[onupload="genericFileCtrl.uploadGenericFile()" model="genericFileCtrl.genericFileUploader" on-file-change="$files.length > 0 ? genericFileCtrl.uploadedGenericFile.updateFile($files[0]) : null" ng-disabled="genericFileCtrl.uploadedGenericFileErrorMessage()"]
-						strong[ng-bind="genericFileCtrl.uploadInstruction"]
-						em[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0"] == data[:strings][:code_signing][:generic_file][:upload_instructions]
-						em[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length == 0"] == data[:strings][:code_signing][:generic_file][:enter_id]
+					file-uploader[onupload="genericFileCtrl.uploadGenericFile()" model="genericFileCtrl.genericFileUploader" on-file-change="$files.length > 0 ? genericFileCtrl.uploadedGenericFile.updateFile($files[0]) : null" ng-class="{'disabled': genericFileCtrl.uploadedGenericFileErrorMessage()}" ng-disabled="genericFileCtrl.uploadedGenericFileErrorMessage()"]
+						.file-uploader-message[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length == 0"]
+							.info-badge-wrapper = svg("info_badge")
+							.info-message == data[:strings][:code_signing][:generic_file][:upload_instructions]
+						strong[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0" ng-bind="genericFileCtrl.uploadInstruction"]
