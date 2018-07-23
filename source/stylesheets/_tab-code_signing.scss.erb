@@ -462,9 +462,21 @@
 			.file-upload {
 				margin: 12px $cardo-horizontalpadding;
 
+				.input-label {
+					margin: 15px 0 10px 0;
+					display: block;
+					font-size: 15px;
+					font-weight: bold;
+					font-style: normal;
+					font-stretch: normal;
+					line-height: normal;
+					letter-spacing: 0.3px;
+					color: $def-grape;
+				}
+
 				.file-uploader {
 					position: relative;
-					border: 4px dashed $def-mediumlightgrey;
+					border: 2px dashed $def-green;
 					@include border-radius($def-radius);
 					padding: 18px;
 
@@ -489,13 +501,37 @@
 						text-align: center;
 						font-size: 12px;
 						opacity: 0.5;
-						color: $def-verydarkgrey;
+						color: $def-green;
 						@include transition(opacity, $def-transition_duration);
 
-						strong {
-							display: block;
+						.file-uploader-message {
+							@include display-flex;
+							@include justify-content(center);
 							margin-bottom: 4px;
 							font-weight: 500;
+
+							.info-badge-wrapper {
+								@include margin-x(6px);
+
+								svg {
+									display: block;
+									width: 20px;
+									height: 20px;
+
+									circle {
+										fill: transparent;
+										stroke: $def-darkgrey;
+									}
+
+									polygon, rect {
+										fill: $def-darkgrey;
+									}
+								}
+							}
+
+							.info-message {
+								@include margin-y(3px);
+							}
 						}
 
 						em {
@@ -510,6 +546,14 @@
 
 					input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
 						opacity: 1.0;
+					}
+
+					&.disabled {
+						border: 2px dashed $def-lightgrey;
+
+						.content {
+							color: $def-darkgrey;
+						}
 					}
 				}
 			}
