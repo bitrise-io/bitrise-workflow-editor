@@ -335,7 +335,6 @@ code_signing:
     download_url: Download URL
     upload_action: Upload file (max. <maximum_file_size_in_megabytes> MB)
     upload_instructions: Add a <strong>File Storage ID</strong> before uploading a file
-    no_files_added_yet: No files added yet.
     download_url_available_as: Download URL available as
     id_specified: the ID you specify
     uploaded_file_placeholder: Enter a unique ID
