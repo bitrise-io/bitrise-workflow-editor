@@ -512,16 +512,19 @@
 
 							.info-badge-wrapper {
 								@include margin-x(6px);
+
 								svg {
 									display: block;
 									width: 20px;
 									height: 20px;
+
 									circle {
 										fill: transparent;
-										stroke: $def-new-darkgey;
+										stroke: $def-darkgrey;
 									}
+
 									polygon, rect {
-										fill: $def-new-darkgey;
+										fill: $def-darkgrey;
 									}
 								}
 							}
@@ -546,9 +549,10 @@
 					}
 
 					&.disabled {
-						border: 2px dashed $def-newgrey;
+						border: 2px dashed $def-lightgrey;
+
 						.content {
-							color: $def-new-darkgey;
+							color: $def-darkgrey;
 						}
 					}
 				}
