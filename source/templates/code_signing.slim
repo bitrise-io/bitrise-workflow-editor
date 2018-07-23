@@ -343,7 +343,6 @@
 			p.progress-indicator[progress-model="genericFileCtrl.loadGenericFilesProgress"]
 			p.progress-indicator[progress-model="genericFileCtrl.deleteGenericFileProgress"]
 			div[ng-if="genericFileCtrl.loadGenericFilesProgress.isIdle && !genericFileCtrl.deleteGenericFileProgress.isInProgress"]
-				/ p.notification.no-icon[ng-if="genericFileCtrl.genericFiles.length == 0"] == data[:strings][:code_signing][:generic_file][:no_files_added_yet]
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
