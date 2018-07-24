@@ -1,6 +1,41 @@
-## Changelog (Current version: 1.1.22)
+## Changelog (Current version: 1.1.23)
 
 -----------------
+
+## 1.1.23 (2018 Jul 24)
+
+### Release Notes
+
+* Secrets tab UI bugfix for when adding a secret after a save
+* Code signing tab UI update
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.23
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.22 -> 1.1.23
+
+* [02c4641] David Breuer - Update: Codesign tab generic filestore section #3azrw (#304) (2018 Jul 23)
+* [0f66fa2] erosdome - Don’t reference secrets by variable that will eventually become obsolete (#305) (2018 Jul 23)
+
 
 ## 1.1.22 (2018 Jul 18)
 
@@ -2259,4 +2294,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jul 18
+Updated: 2018 Jul 24
