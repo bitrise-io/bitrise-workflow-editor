@@ -249,6 +249,17 @@ workflows:
             set -x
 
             bitrise run create-binaries
+    - script:
+        title: Commit & push changes
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            set -x
+
+            git add -A
+            git commit -m "v$RELEASE_VERSION"
+            git push
   create-binaries:
     title: Create binaries
     description: |
