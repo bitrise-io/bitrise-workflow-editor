@@ -240,6 +240,15 @@ workflows:
             releaseman create-changelog \
               --version $RELEASE_VERSION \
               --set-version-script "bash _scripts/set_version.sh version/version.go bitrise-plugin.yml"
+    - script:
+        title: Create binaries for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            set -x
+
+            bitrise run create-binaries
   create-binaries:
     title: Create binaries
     description: |
