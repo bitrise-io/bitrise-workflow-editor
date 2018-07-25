@@ -8,8 +8,8 @@ changelog:
 
     ### Release Notes
 
-    * __BREAKING__ : change 1
-    * change 2
+    {{range .Commits}}* {{.Message}}
+    {{end}}
 
     ### Install or upgrade
 
