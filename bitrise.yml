@@ -236,6 +236,11 @@ workflows:
             #!/bin/bash
             set -e
             read -p "Enter new Workflow Editor version: " -r
+            if [[ $REPLY == $RELEASE_VERSION ]] ; then
+              echo "Workflow Editor is already on version $REPLY"
+              exit 1
+            fi
+
             envman add --key NEW_RELEASE_VERSION --value "${REPLY}"
     - script:
         title: Confirm release
