@@ -295,6 +295,17 @@ workflows:
             git commit -m "v$NEW_RELEASE_VERSION"
             git push
     - script:
+        title: Create description for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get -u github.com/bitrise-tools/releaseman
+
+            cd ./github_release
+            releaseman create-changelog --version $NEW_RELEASE_VERSION | echo "YES"
+    - script:
         title: Create binaries for GitHub release
         inputs:
         - content: |-
