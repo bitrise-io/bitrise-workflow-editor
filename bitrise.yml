@@ -304,7 +304,7 @@ workflows:
             go get -u github.com/bitrise-tools/releaseman
 
             cd ./github_release
-            releaseman create-changelog --version $NEW_RELEASE_VERSION | echo "YES"
+            echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
     - script:
         title: Create binaries for GitHub release
         inputs:
