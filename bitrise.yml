@@ -230,6 +230,14 @@ workflows:
         Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
     steps:
     - script:
+        title: Input new version number
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+            read -p "Enter new Workflow Editor version: " -r
+            envman add --key NEW_RELEASE_VERSION --value "${REPLY}"
+    - script:
         title: Confirm release
         inputs:
         - content: |-
@@ -238,7 +246,7 @@ workflows:
 
             echo
             echo "This action will:"
-            echo "- Set Workflow editor to version $RELEASE_VERSION"
+            echo "- Set Workflow editor to version $NEW_RELEASE_VERSION"
             echo "- Create a new release on GitHub"
             echo "- Create related article in discuss.bitrise.io changelog"
             echo
@@ -249,7 +257,16 @@ workflows:
               exit 1
             fi
     - script:
-        title: Set new version & create CHANGELOG
+        title: Set new version
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            cat bitrise.yml | sed -e "s/^  \- RELEASE_VERSION\: .*$/  - RELEASE_VERSION: ${NEW_RELEASE_VERSION}/" > new_bitrise.yml
+            mv new_bitrise.yml bitrise.yml
+    - script:
+        title: Create changelog
         inputs:
         - content: |-
             #!/bin/bash
@@ -260,28 +277,26 @@ workflows:
             export CI=true
 
             releaseman create-changelog \
-              --version $RELEASE_VERSION \
+              --version $NEW_RELEASE_VERSION \
               --set-version-script "bash _scripts/set_version.sh version/version.go bitrise-plugin.yml"
-    - script:
-        title: Create binaries for GitHub release
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -e
-            set -x
-
-            bitrise run create-binaries
     - script:
         title: Commit & push changes
         inputs:
         - content: |-
             #!/bin/bash
-            set -e
-            set -x
+            set -ex
 
             git add -A
-            git commit -m "v$RELEASE_VERSION"
+            git commit -m "v$NEW_RELEASE_VERSION"
             git push
+    - script:
+        title: Create binaries for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            bitrise run create-binaries
   create-binaries:
     title: Create binaries
     description: |
