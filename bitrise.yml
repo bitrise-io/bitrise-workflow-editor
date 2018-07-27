@@ -225,6 +225,9 @@ workflows:
   # ----------------------------------------------------------------
   # --- workflows for Releasing
   create-release:
+    title: Create release
+    description: |
+        Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
     steps:
     - script:
         title: Set new version & create CHANGELOG
