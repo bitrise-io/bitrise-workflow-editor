@@ -305,6 +305,10 @@ workflows:
 
             cd ./github_release
             echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
+
+            envman add --key GITHUB_RELEASE_DESCRIPTION --value "$(cat CHANGELOG.md)"
+
+            rm CHANGELOG.md
     - script:
         title: Create binaries for GitHub release
         inputs:
