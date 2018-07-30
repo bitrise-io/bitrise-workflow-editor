@@ -226,15 +226,18 @@ workflows:
   # --- workflows for Releasing
   create-release:
     title: Create release
+    before_run:
+    - create-binaries
     description: |
         Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
     steps:
     - script:
-        title: Input new version number
+        title: Input required infos
         inputs:
         - content: |-
             #!/bin/bash
             set -e
+
             read -p "Enter new Workflow Editor version: " -r
             if [[ $REPLY == $RELEASE_VERSION ]] ; then
               echo "Workflow Editor is already on version $REPLY"
@@ -242,6 +245,20 @@ workflows:
             fi
 
             envman add --key NEW_RELEASE_VERSION --value "${REPLY}"
+
+            if [ -z "$GITHUB_RELEASE_API_TOKEN" ] ; then
+              read -p "Enter GitHub API token for release: " -r
+              envman add --key GITHUB_RELEASE_API_TOKEN --value "${REPLY}"
+            else
+                echo "Using GitHub API token for release: $GITHUB_RELEASE_API_TOKEN"
+            fi
+
+            if [ -z "$GITHUB_USERNAME" ] ; then
+              read -p "Enter GitHub username: " -r
+              envman add --key GITHUB_USERNAME --value "${REPLY}"
+            else
+                echo "Using GitHub username: $GITHUB_USERNAME"
+            fi
     - script:
         title: Confirm release
         inputs:
@@ -309,14 +326,19 @@ workflows:
             envman add --key GITHUB_RELEASE_DESCRIPTION --value "$(cat CHANGELOG.md)"
 
             rm CHANGELOG.md
-    - script:
-        title: Create binaries for GitHub release
+    - github-release@0.9.3:
         inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-
-            bitrise run create-binaries
+        - api_token: $GITHUB_RELEASE_API_TOKEN
+        - username: $GITHUB_USERNAME
+        - repository_url: https://github.com/bitrise-io/bitrise-workflow-editor.git
+        - tag: $NEW_RELEASE_VERSION
+        - commit: master
+        - draft: 'no'
+        - name: $NEW_RELEASE_VERSION
+        - body: $GITHUB_RELEASE_DESCRIPTION
+        - files_to_upload: |-
+            $OSX_DEPLOY_PATH
+            $LINUX_DEPLOY_PATH
   create-binaries:
     title: Create binaries
     description: |
