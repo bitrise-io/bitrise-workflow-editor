@@ -40,16 +40,8 @@ bitrise run go-install
 ## New version release
 
 - Ensure clean git
-- Bump `RELEASE_VERSION` in `bitrise.yml`
-- Call `bitrise run create-release`
-- Update changelog in `CHANGELOG.md`
 - If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` change `min_version` requirement of the `bitrise` tool to the required CLI version
-- Commit changes with message `vX.X.X`, push it
-- On GitHub, create new release with title and tag `X.X.X`, description from changelog, starting with *Release Notes*, up to but not including *Release Commits*
-- Wait for the `create-release` workflow to finish successfully on Bitrise
-- Download the generated artifacts from Bitrise
-- In terminal, run `chmod +x <path to generated binary> && <path to generated binary> version --full`
-- After finish and double-checking build number and commit hash on Bitrise, run <path to generated binary> to check if binary is working
-- On GitHub, attach the binaries, then select *Publish release*
-- On discuss.bitrise.io, in *Changelog* category, create a topic called **Workflow Editor vX.X.X released**. Description should include the changelog (with URLs to related GitHub issues) and a link to the installation instructions.
-- On GitHub, close the related GitHub issues, and milestones if the issues were assigned to any.
+- Optional: set the following secrets: $GITHUB_RELEASE_API_TOKEN, $GITHUB_USERNAME, $DISCUSS_API_KEY, $DISCUSS_USERNAME
+- Call `bitrise run create-release`
+- During the build you will need to specify a new version number, and if you did not specify any of the secrets above, you will need to specify those as well.
+- After the build has finished, close the related GitHub issues, and milestones if the issues were assigned to any.
