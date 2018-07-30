@@ -25,7 +25,8 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	article.menu-content
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
-		.tab-content[ng-view ng-if="!mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle"]
+		p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
+		.tab-content[ng-view ng-if="!mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle && mainCtrl.changeMenuProgress.isIdle"]
 	footer
 		p == data[:strings][:main][:footer][:editor_open_source]
 		== svg("heart")
