@@ -117,7 +117,7 @@
 														em.sensitive<[ng-if="input.isSensitive()"] == data[:strings][:workflows][:inputs][:sensitive]
 													button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.isSensitive()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												.input-description[btf-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
-												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-click="isOpen && input.isSensitive() ? workflowsCtrl.insertSecretSelected(input) : ''" ng-disabled="!isOpen || workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-click="isOpen && input.isSensitive() ? workflowsCtrl.insertSecretSelected(input) : ''" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
 												.sensitive-input-warning[ng-if="isOpen && input.isSensitive() && !input.valueOptions()"]
 													span
 														span == data[:strings][:workflows][:inputs][:sensitive_warning_message][:info]
@@ -206,11 +206,11 @@
 									strong[ng-bind="variable | prettifiedVariableKey"]
 									em[ng-bind="variablesOfSource.title"]
 	popup[model="workflowsCtrl.insertSecretToStepInputConfig.popup"]
-		.popup-body.snowflake#insert-variable-popup-body[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ]
+		.popup-body.snowflake#insert-variable-popup-body
 			header
 				h2 == data[:strings][:workflows][:inputs][:insert_secret][:action]
-			article.vertical-scroll
-				.create-new-secret[ng-controller="CreateAndInsertSecretVariableController as createAndInsertSecretVariableCtrl" ng-init="createAndInsertSecretVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
+			article.vertical-scroll[initial-focus]
+				.create-new-secret[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ng-controller="CreateAndInsertSecretVariableController as createAndInsertSecretVariableCtrl" ng-init="createAndInsertSecretVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
 					.title == data[:strings][:workflows][:inputs][:insert_secret][:create_new_secret_env_var_label]
 					form[name="newSecretEnvVarForm" ng-submit="createAndInsertSecretVariableCtrl.saveAndInsertSecretEnvVar()" ng-if="!createAndInsertSecretVariableCtrl.newSecretEnvVar.customProperties.progress.isInProgress" autocomplete="off" autocapitalize="none"]
 						.key-value-delete
@@ -227,7 +227,7 @@
 									label[for="env-var-editor-is-expose-checkbox-{{ $index }}"] == data[:strings][:env_vars][:expose_for_pr_label]
 						p.notification.warning[ng-if="newSecretEnvVarForm.key.$invalid && !newSecretEnvVarForm.key.$pristine" ng-bind="createAndInsertSecretVariableCtrl.envVarValidationWarning()"]
 						button.add.rebo.green[type="submit" ng-disabled="!createAndInsertSecretVariableCtrl.newSecretEnvVar.key || !createAndInsertSecretVariableCtrl.newSecretEnvVar.value"] == data[:strings][:env_vars][:add_new]
-				.list-of-available-secrets[ng-controller="InsertVariableController as insertVariableCtrl" ng-init="insertVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, ['from_secrets'], workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
+				.list-of-available-secrets[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ng-controller="InsertVariableController as insertVariableCtrl" ng-init="insertVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, ['from_secrets'], workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
 					.title == data[:strings][:workflows][:inputs][:insert_secret][:choose_secret_env_var_label]
 					input.searchbar[type="text" ng-if="appService.secrets.length > 1" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_secret][:key_filter_placeholder] }"]
 					p.progress-indicator[progress-model="insertVariableCtrl.loadInsertableVariablesProgress"]
