@@ -259,6 +259,20 @@ workflows:
             else
                 echo "Using GitHub username: $GITHUB_USERNAME"
             fi
+
+            if [ -z "$DISCUSS_API_KEY" ] ; then
+              read -p "Enter Discuss API key for topic: " -r
+              envman add --key DISCUSS_API_KEY --value "${REPLY}"
+            else
+                echo "Using Discuss API key for topic: $DISCUSS_API_KEY"
+            fi
+
+            if [ -z "$DISCUSS_USERNAME" ] ; then
+              read -p "Enter Discuss username for topic: " -r
+              envman add --key DISCUSS_USERNAME --value "${REPLY}"
+            else
+                echo "Using Discuss username for topic: $DISCUSS_USERNAME"
+            fi
     - script:
         title: Confirm release
         inputs:
@@ -339,6 +353,37 @@ workflows:
         - files_to_upload: |-
             $OSX_DEPLOY_PATH
             $LINUX_DEPLOY_PATH
+    - script:
+        title: Create description for Discuss topic
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get -u github.com/bitrise-tools/releaseman
+
+            cd ./discuss_topic
+            echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
+
+            envman add --key DISCUSS_TOPIC_CONTENT --value "$(cat CHANGELOG.md)"
+
+            rm CHANGELOG.md
+    - script:
+        title: Create Discuss topic
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            export DISCUSS_CHANGELOG_CATEGORY_ID=6
+
+            curl -X POST "https://discuss.bitrise.io/posts" \
+            -H "Content-Type: multipart/form-data;" \
+            -F "api_key=$DISCUSS_API_KEY" \
+            -F "api_username=$DISCUSS_USERNAME" \
+            -F "category=$DISCUSS_CHANGELOG_CATEGORY_ID" \
+            -F "title=Workflow Editor v$NEW_RELEASE_VERSION released" \
+            -F "raw=$DISCUSS_TOPIC_CONTENT"
   create-binaries:
     title: Create binaries
     description: |
