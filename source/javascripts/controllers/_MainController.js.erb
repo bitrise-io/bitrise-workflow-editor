@@ -17,8 +17,15 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
+	viewModel.changeMenuProgress = new Progress();
 
 	viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+
+	$scope.$on('$locationChangeSuccess', function(event, next, current) {
+		$timeout(function() {
+			viewModel.changeMenuProgress.success();
+		}, 0);
+	});
 
 	function selectInitialMenu() {
 		var initialMenu = _.find(viewModel.menus, function(aMenu) {
@@ -168,6 +175,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.currentMenu = menu;
 			$location.path("/" + menu.path);
 
+			viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
 			if (shouldCallLoadAfterMenuChange) {
 				load();
 			}
