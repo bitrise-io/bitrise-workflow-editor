@@ -1,6 +1,50 @@
-## Changelog (Current version: 1.1.23)
+## Changelog (Current version: 1.1.24)
 
 -----------------
+
+## 1.1.24 (2018 Jul 31)
+
+### Release Notes
+
+* Automate release (#310)
+* Show insert secret variable popup in case of clicking on sensitive input (#309)
+* Show progress indicator on tab change event (#311)
+* Fixes #297  Yaml Editor by updateing Ace version (#308)
+* Use commit messages for release notes (#307)
+* Remove AngularJS rails gem, and update AngularJS to version 1.7.2 (#306)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.24
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.23 -> 1.1.24
+
+* [11c3dc8] erosdome - Automate release (#310) (2018 Jul 31)
+* [185f155] Norbert Kovach - Show insert secret variable popup in case of clicking on sensitive input (#309) (2018 Jul 31)
+* [9173309] Norbert Kovach - Show progress indicator on tab change event (#311) (2018 Jul 30)
+* [ccfa15e] David Breuer - Fixes #297  Yaml Editor by updateing Ace version (#308) (2018 Jul 27)
+* [5abd452] erosdome - Use commit messages for release notes (#307) (2018 Jul 25)
+* [8283909] erosdome - Remove AngularJS rails gem, and update AngularJS to version 1.7.2 (#306) (2018 Jul 25)
+
 
 ## 1.1.23 (2018 Jul 24)
 
@@ -2294,4 +2338,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jul 24
+Updated: 2018 Jul 31
