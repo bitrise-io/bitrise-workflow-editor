@@ -124,6 +124,9 @@ angular.module("BitriseWorkflowEditor").directive("popup", function($animate, $d
 					}
 
 					if (newIsVisible) {
+						var focusedElement = $(":focus");
+						focusedElement.blur();
+
 						var initiallyFocusedElement = element.find("[initial-focus]");
 
 						if (initiallyFocusedElement.length > 1) {
