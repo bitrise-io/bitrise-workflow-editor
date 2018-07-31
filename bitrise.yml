@@ -5,6 +5,11 @@ app:
   envs:
   - RELEASE_VERSION: 1.1.23
   - BIN_NAME: workflow-editor
+  - BIN_ARCH: x86_64
+  - BIN_OS_DARWIN: Darwin
+  - BIN_OS_LINUX: Linux
+  - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+  - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
 
   - PORT: "1234"
   - MIDDLEMAN_SERVER_PORT: "4567"
@@ -225,9 +230,85 @@ workflows:
   # ----------------------------------------------------------------
   # --- workflows for Releasing
   create-release:
+    title: Create release
+    description: |
+        Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
     steps:
     - script:
-        title: Set new version & create CHANGELOG
+        title: Input required infos
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+
+            read -p "Enter new Workflow Editor version: " -r
+            if [[ $REPLY == $RELEASE_VERSION ]] ; then
+              echo "Workflow Editor is already on version $REPLY"
+              exit 1
+            fi
+
+            envman add --key NEW_RELEASE_VERSION --value "${REPLY}"
+
+            if [ -z "$GITHUB_RELEASE_API_TOKEN" ] ; then
+              read -p "Enter GitHub API token for release: " -r
+              envman add --key GITHUB_RELEASE_API_TOKEN --value "${REPLY}"
+            else
+                echo "Using GitHub API token for release: $GITHUB_RELEASE_API_TOKEN"
+            fi
+
+            if [ -z "$GITHUB_USERNAME" ] ; then
+              read -p "Enter GitHub username: " -r
+              envman add --key GITHUB_USERNAME --value "${REPLY}"
+            else
+                echo "Using GitHub username: $GITHUB_USERNAME"
+            fi
+
+            if [ -z "$DISCUSS_API_KEY" ] ; then
+              read -p "Enter Discuss API key for topic: " -r
+              envman add --key DISCUSS_API_KEY --value "${REPLY}"
+            else
+                echo "Using Discuss API key for topic: $DISCUSS_API_KEY"
+            fi
+
+            if [ -z "$DISCUSS_USERNAME" ] ; then
+              read -p "Enter Discuss username for topic: " -r
+              envman add --key DISCUSS_USERNAME --value "${REPLY}"
+            else
+                echo "Using Discuss username for topic: $DISCUSS_USERNAME"
+            fi
+    - script:
+        title: Confirm release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+
+            echo
+            echo "This action will:"
+            echo "- Set Workflow editor to version $NEW_RELEASE_VERSION"
+            echo "- Create a new release on GitHub"
+            echo "- Create related article in discuss.bitrise.io changelog"
+            echo
+
+            read -p "Are you sure? [y/n] " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]] ; then
+              exit 1
+            fi
+    - script:
+        title: Set new version
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            cat bitrise.yml | sed -e "s/^  \- RELEASE_VERSION\: .*$/  - RELEASE_VERSION: ${NEW_RELEASE_VERSION}/" > new_bitrise.yml
+            mv new_bitrise.yml bitrise.yml
+
+            export RELEASE_VERSION="$NEW_RELEASE_VERSION"
+            envman add --key RELEASE_VERSION --value "$RELEASE_VERSION"
+    - script:
+        title: Create changelog
         inputs:
         - content: |-
             #!/bin/bash
@@ -238,8 +319,85 @@ workflows:
             export CI=true
 
             releaseman create-changelog \
-              --version $RELEASE_VERSION \
+              --version $NEW_RELEASE_VERSION \
               --set-version-script "bash _scripts/set_version.sh version/version.go bitrise-plugin.yml"
+    - script:
+        title: Commit & push changes
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            git add -A
+            git commit -m "v$NEW_RELEASE_VERSION"
+            git push
+    - script:
+        title: Create description for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get -u github.com/bitrise-tools/releaseman
+
+            cd ./github_release
+            echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
+
+            envman add --key GITHUB_RELEASE_DESCRIPTION --value "$(cat CHANGELOG.md)"
+
+            rm CHANGELOG.md
+    - script:
+        title: Create binaries for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            bitrise run create-binaries
+    - github-release@0.9.3:
+        inputs:
+        - api_token: $GITHUB_RELEASE_API_TOKEN
+        - username: $GITHUB_USERNAME
+        - repository_url: https://github.com/bitrise-io/bitrise-workflow-editor.git
+        - tag: $NEW_RELEASE_VERSION
+        - commit: master
+        - draft: 'no'
+        - name: $NEW_RELEASE_VERSION
+        - body: $GITHUB_RELEASE_DESCRIPTION
+        - files_to_upload: |-
+            $BIN_PATH_DARWIN
+            $BIN_PATH_LINUX
+    - script:
+        title: Create description for Discuss topic
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get -u github.com/bitrise-tools/releaseman
+
+            cd ./discuss_topic
+            echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
+
+            envman add --key DISCUSS_TOPIC_CONTENT --value "$(cat CHANGELOG.md)"
+
+            rm CHANGELOG.md
+    - script:
+        title: Create Discuss topic
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            export DISCUSS_CHANGELOG_CATEGORY_ID=6
+
+            curl -X POST "https://discuss.bitrise.io/posts" \
+            -H "Content-Type: multipart/form-data;" \
+            -F "api_key=$DISCUSS_API_KEY" \
+            -F "api_username=$DISCUSS_USERNAME" \
+            -F "category=$DISCUSS_CHANGELOG_CATEGORY_ID" \
+            -F "title=Workflow Editor v$NEW_RELEASE_VERSION released" \
+            -F "raw=$DISCUSS_TOPIC_CONTENT"
   create-binaries:
     title: Create binaries
     description: |
@@ -258,38 +416,31 @@ workflows:
             echo "Create final binaries"
             echo "  Build number: $BITRISE_BUILD_NUMBER"
 
-            export ARCH=x86_64
             export GOARCH=amd64
 
             # Create Darwin bin
-            export OS=Darwin
             export GOOS=darwin
 
-            DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
-            echo "  Create final Darwin binary at: $DEPLOY_PATH"
+            echo "  Create final Darwin binary at: $BIN_PATH_DARWIN"
 
             version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$DEPLOY_PATH"
+              -o "$BIN_PATH_DARWIN"
 
-            envman add --key OSX_DEPLOY_PATH --value $DEPLOY_PATH
-            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH
-            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH"
+            cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
 
 
             # Create Linux binary
-            export OS=Linux
             export GOOS=linux
 
-            DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
-            echo "  Create final Linux binary at: $DEPLOY_PATH"
+            echo "  Create final Linux binary at: $BIN_PATH_LINUX"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$DEPLOY_PATH"
+              -o "$BIN_PATH_LINUX"
 
-            envman add --key LINUX_DEPLOY_PATH --value $DEPLOY_PATH
-            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH
-            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH"
+            cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
+            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
