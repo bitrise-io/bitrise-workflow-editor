@@ -209,7 +209,7 @@
 		.popup-body.snowflake#insert-variable-popup-body
 			header
 				h2 == data[:strings][:workflows][:inputs][:insert_secret][:action]
-			article.vertical-scroll[initial-focus]
+			article.vertical-scroll
 				.create-new-secret[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ng-controller="CreateAndInsertSecretVariableController as createAndInsertSecretVariableCtrl" ng-init="createAndInsertSecretVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
 					.title == data[:strings][:workflows][:inputs][:insert_secret][:create_new_secret_env_var_label]
 					form[name="newSecretEnvVarForm" ng-submit="createAndInsertSecretVariableCtrl.saveAndInsertSecretEnvVar()" ng-if="!createAndInsertSecretVariableCtrl.newSecretEnvVar.customProperties.progress.isInProgress" autocomplete="off" autocapitalize="none"]
