@@ -5,6 +5,11 @@ app:
   envs:
   - RELEASE_VERSION: 1.1.23
   - BIN_NAME: workflow-editor
+  - BIN_ARCH: x86_64
+  - BIN_OS_DARWIN: Darwin
+  - BIN_OS_LINUX: Linux
+  - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+  - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
 
   - PORT: "1234"
   - MIDDLEMAN_SERVER_PORT: "4567"
@@ -226,8 +231,6 @@ workflows:
   # --- workflows for Releasing
   create-release:
     title: Create release
-    before_run:
-    - create-binaries
     description: |
         Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
     steps:
@@ -301,6 +304,9 @@ workflows:
 
             cat bitrise.yml | sed -e "s/^  \- RELEASE_VERSION\: .*$/  - RELEASE_VERSION: ${NEW_RELEASE_VERSION}/" > new_bitrise.yml
             mv new_bitrise.yml bitrise.yml
+
+            export RELEASE_VERSION="$NEW_RELEASE_VERSION"
+            envman add --key RELEASE_VERSION --value "$RELEASE_VERSION"
     - script:
         title: Create changelog
         inputs:
@@ -340,6 +346,14 @@ workflows:
             envman add --key GITHUB_RELEASE_DESCRIPTION --value "$(cat CHANGELOG.md)"
 
             rm CHANGELOG.md
+    - script:
+        title: Create binaries for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            bitrise run create-binaries
     - github-release@0.9.3:
         inputs:
         - api_token: $GITHUB_RELEASE_API_TOKEN
@@ -351,8 +365,8 @@ workflows:
         - name: $NEW_RELEASE_VERSION
         - body: $GITHUB_RELEASE_DESCRIPTION
         - files_to_upload: |-
-            $OSX_DEPLOY_PATH
-            $LINUX_DEPLOY_PATH
+            $BIN_PATH_DARWIN
+            $BIN_PATH_LINUX
     - script:
         title: Create description for Discuss topic
         inputs:
@@ -402,38 +416,31 @@ workflows:
             echo "Create final binaries"
             echo "  Build number: $BITRISE_BUILD_NUMBER"
 
-            export ARCH=x86_64
             export GOARCH=amd64
 
             # Create Darwin bin
-            export OS=Darwin
             export GOOS=darwin
 
-            DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
-            echo "  Create final Darwin binary at: $DEPLOY_PATH"
+            echo "  Create final Darwin binary at: $BIN_PATH_DARWIN"
 
             version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$DEPLOY_PATH"
+              -o "$BIN_PATH_DARWIN"
 
-            envman add --key OSX_DEPLOY_PATH --value $DEPLOY_PATH
-            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH
-            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH"
+            cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
 
 
             # Create Linux binary
-            export OS=Linux
             export GOOS=linux
 
-            DEPLOY_PATH="_bin/$BIN_NAME-$OS-$ARCH"
-            echo "  Create final Linux binary at: $DEPLOY_PATH"
+            echo "  Create final Linux binary at: $BIN_PATH_LINUX"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$DEPLOY_PATH"
+              -o "$BIN_PATH_LINUX"
 
-            envman add --key LINUX_DEPLOY_PATH --value $DEPLOY_PATH
-            cp $DEPLOY_PATH $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH
-            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$OS-$ARCH"
+            cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
+            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
