@@ -9,31 +9,48 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	$scope.appService = appService;
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
+	viewModel.editorOptions = {
+		value: appService.appConfigYML
+	};
+
 	function configureACE() {
-		var editor = ace.edit("yml-editor");
-		var session = editor.getSession();
-		var renderer = editor.renderer;
+		// var editor = ace.edit("yml-editor");
+		// var session = editor.getSession();
+		// var renderer = editor.renderer;
 
-		editor.setTheme('ace/theme/monokai');
-		session.setMode('ace/mode/yaml');
+		// editor.setTheme('ace/theme/monokai');
+		// session.setMode('ace/mode/yaml');
 
-		editor.setReadOnly(false);
-		editor.setShowPrintMargin(false);
-		editor.setShowInvisibles(false);
-		editor.$blockScrolling = Infinity;
-		editor.setOptions({
-			vScrollBarAlwaysVisible: true,
-			tabSize: 2
-		});
-		editor.setValue(appService.appConfigYML);
-		editor.focus();
-		editor.gotoLine(1);
+		// editor.setReadOnly(false);
+		// editor.setShowPrintMargin(false);
+		// editor.setShowInvisibles(false);
+		// editor.$blockScrolling = Infinity;
+		// editor.setOptions({
+		// 	vScrollBarAlwaysVisible: true,
+		// 	tabSize: 2
+		// });
+		// editor.setValue(appService.appConfigYML);
+		// editor.focus();
+		// editor.gotoLine(1);
 
-		session.setUndoManager(new ace.UndoManager());
-		session.setUseWrapMode(true);
-		session.setUseSoftTabs(true);
+		// session.setUndoManager(new ace.UndoManager());
+		// session.setUseWrapMode(true);
+		// session.setUseSoftTabs(true);
 
-		renderer.setShowGutter(true);
+		// renderer.setShowGutter(true);
+		require.config({ paths: { 'vs': 'monaco-editor/min/vs' }});
+            require(['vs/editor/editor.main'], function() {
+                var editor = monaco.editor.create(document.getElementById('code-container'), {
+                    value: appService.appConfigYML,
+					language: 'yaml',
+					lineNumbers: "on",
+					roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+				});
+				editor.layout();
+            });
 	}
 
 	configureACE();

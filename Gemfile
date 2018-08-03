@@ -7,6 +7,6 @@ gem "underscore-rails"
 gem "jquery-middleman"
 gem "middleman-jasmine"
 
-source 'https://rails-assets.org' do
+source 'http://insecure.rails-assets.org' do
 	gem "rails-assets-angular-ui-ace"
 end
