@@ -13,9 +13,9 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 
 	function configureEditor() {
 		require.config({ paths: { 'vs': '<%= mode_dependant_asset_path("monaco-editor/min/vs") %>' }});
-            require(['vs/editor/editor.main'], function() {
+			require(['vs/editor/editor.main'], function() {
 				editor = monaco.editor.create(document.getElementById('code-container'), {
-                    value: appService.appConfigYML,
+					value: appService.appConfigYML,
 					language: 'yaml',
 					lineNumbers: "on",
 					roundedSelection: false,
