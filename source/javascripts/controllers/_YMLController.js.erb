@@ -8,9 +8,6 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	var editor;
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
-	viewModel.configureEditor = configureEditor;
-	viewModel.updateAppConfigYML = updateAppConfigYML;
-
 	function configureEditor() {
 		require.config({ paths: { 'vs': '<%= mode_dependant_asset_path("monaco-editor/min/vs") %>' }});
 			require(['vs/editor/editor.main'], function() {
@@ -25,7 +22,7 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 				});
 				editor.layout();
 				editor.focus();
-				editor.onDidChangeModelContent(viewModel.updateAppConfigYML);
+				editor.onDidChangeModelContent(updateAppConfigYML);
 			});
 	}
 
