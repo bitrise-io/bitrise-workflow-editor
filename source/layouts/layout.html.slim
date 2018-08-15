@@ -6,7 +6,7 @@ html
 		meta[name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"]
 		base[href="/"]
 		link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }"]
-		link[rel="stylesheet" data-name="vs/editor/editor.main" href="#{ mode_dependant_asset_path 'monaco-editor/min/vs/editor/editor.main.css' }"]
+		link[rel="stylesheet" data-name="vs/editor/editor.main" href="#{ mode_dependant_asset_path 'javascripts/monaco-editor/min/vs/editor/editor.main.css' }"]
 		- if mode.eql? "website"
 			= stylesheet_link_tag "//cloud.typography.com/7981312/721124/css/fonts.css"
 		= partial "javascripts"
