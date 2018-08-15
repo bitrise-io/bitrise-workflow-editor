@@ -3,7 +3,7 @@
 
 header.sticky {
 	z-index: $zindex-sticky_header;
-	
+
 	@include position(fixed, 0, 0);
 	width: 100%;
 
@@ -28,7 +28,7 @@ header.menu {
 
 			&:before {
 				$border_width: 4px;
-				
+
 				content: "";
 				@include position(absolute, 100%, 0);
 				@include size(100%);
@@ -290,6 +290,8 @@ main {
 	@include display-flex;
 	@include flex-direction(column);
 	background-color: $def-ultralightgrey;
+	height: 100vh;
+	overflow: scroll;
 
 	article.menu-content {
 		@include flex-grow(1);

@@ -14,6 +14,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
+	viewModel.isScrollAtTop = true;
 
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
@@ -413,15 +414,16 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					});
 
 					iframeService.sendMessage("requestingConfiguration");
+					var iframeWrapper = document.getElementById('workflowEditorIframe');
 
-					var isScrollAtTop = $(window).scrollTop() == 0;
-					$(window).on("scroll", function() {
-						if (isScrollAtTop != ($(window).scrollTop() == 0)) {
-							iframeService.sendMessage($(window).scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
-						}
-
-						isScrollAtTop = $(window).scrollTop() == 0;
-					});
+					if (iframeWrapper && !$('#workflow-main').length) {
+						console.log('done');
+						var workflowEditorMain = iframeWrapper.contentDocument;
+						var workflowEditorMainContent = workflowEditorMain.getElementById('workflow-main');
+						workflowEditorMainContent.addEventListener("scroll", workflowEditorMainContent.bind(this), true);
+					} else {
+						$('#workflow-main').scroll(scrollingMessageSender.bind($('#workflow-main')));
+					}
 
 					break;
 				case "cli":
@@ -435,6 +437,18 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			selectInitialMenu();
 		});
 	};
+
+	var scrollingMessageSender = function() {
+
+		var workflowEditorMainContent = this;
+		console.log('scrollingMessageSender', workflowEditorMainContent.scrollTop());
+
+		if (viewModel.isScrollAtTop !== (workflowEditorMainContent.scrollTop() === 0)) {
+			iframeService.sendMessage(workflowEditorMainContent.scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
+			viewModel.isScrollAtTop = (workflowEditorMainContent.scrollTop() === 0);
+			console.log('shouldMinimizeHeader');
+		}
+	}
 
 });
 
