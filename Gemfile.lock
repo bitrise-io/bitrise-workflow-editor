@@ -1,6 +1,6 @@
 GEM
   remote: https://rubygems.org/
-  remote: http://insecure.rails-assets.org/
+  remote: https://rails-assets.org/
   specs:
     activesupport (4.2.8)
       i18n (~> 0.7)
