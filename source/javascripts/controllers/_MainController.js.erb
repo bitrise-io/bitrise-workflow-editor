@@ -417,7 +417,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					var iframeWrapper = document.getElementById('workflowEditorIframe');
 
 					if (iframeWrapper && !$('#workflow-main').length) {
-						console.log('done');
 						var workflowEditorMain = iframeWrapper.contentDocument;
 						var workflowEditorMainContent = workflowEditorMain.getElementById('workflow-main');
 						workflowEditorMainContent.addEventListener("scroll", workflowEditorMainContent.bind(this), true);
@@ -441,12 +440,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	var scrollingMessageSender = function() {
 
 		var workflowEditorMainContent = this;
-		console.log('scrollingMessageSender', workflowEditorMainContent.scrollTop());
 
 		if (viewModel.isScrollAtTop !== (workflowEditorMainContent.scrollTop() === 0)) {
 			iframeService.sendMessage(workflowEditorMainContent.scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
 			viewModel.isScrollAtTop = (workflowEditorMainContent.scrollTop() === 0);
-			console.log('shouldMinimizeHeader');
 		}
 	}
 
