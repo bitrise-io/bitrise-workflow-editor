@@ -2,42 +2,41 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $rootScope, $q, appService, requestService, Progress) {
+angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $timeout, $rootScope, $q, appService, requestService, Progress) {
 
 	var viewModel = this;
-
-	$scope.appService = appService;
+	var editor;
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
-	function configureACE() {
-		var editor = ace.edit("yml-editor");
-		var session = editor.getSession();
-		var renderer = editor.renderer;
-
-		editor.setTheme('ace/theme/monokai');
-		session.setMode('ace/mode/yaml');
-
-		editor.setReadOnly(false);
-		editor.setShowPrintMargin(false);
-		editor.setShowInvisibles(false);
-		editor.$blockScrolling = Infinity;
-		editor.setOptions({
-			vScrollBarAlwaysVisible: true,
-			tabSize: 2
-		});
-		editor.setValue(appService.appConfigYML);
-		editor.focus();
-		editor.gotoLine(1);
-
-		session.setUndoManager(new ace.UndoManager());
-		session.setUseWrapMode(true);
-		session.setUseSoftTabs(true);
-
-		renderer.setShowGutter(true);
+	function configureEditor() {
+		require.config({ paths: { 'vs': '<%= mode_dependant_asset_path("javascripts/monaco-editor/min/vs") %>' }});
+			require(['vs/editor/editor.main'], function() {
+				editor = monaco.editor.create(document.getElementById('code-container'), {
+					value: appService.appConfigYML,
+					language: 'yaml',
+					lineNumbers: "on",
+					roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark",
+				});
+				editor.layout();
+				editor.focus();
+				editor.onDidChangeModelContent(updateAppConfigYML);
+			});
 	}
 
-	configureACE();
+	function updateAppConfigYML() {
+		$timeout(function () { appService.appConfigYML = editor.getValue(); }, 100);
+	}
 
+	configureEditor();
+
+	$scope.$on('$destroy', function() {
+		if (editor) {
+			editor.dispose();
+		}
+	});
 });
 
 })();
