@@ -19,7 +19,6 @@ angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 
 			function scrollHandler() {
 				var workflowEditorMainContent = this;
-				// console.log('scrollHandler', getBodyScrollTop(), $(this).scrollTop());
 				var shouldBeSticking = workflowEditorMainContent.scrollTop() > element.parent().position().top && !$parse(attrs.skipStickyness)(scope);
 
 				if (shouldBeSticking) {
