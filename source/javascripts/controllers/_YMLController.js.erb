@@ -8,7 +8,6 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	var editor;
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
-	// discard change detection
 	$scope.$watch(function(){
 		return appService.appConfigYML;
 	}, function() {
