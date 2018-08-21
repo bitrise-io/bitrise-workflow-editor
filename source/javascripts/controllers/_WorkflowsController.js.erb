@@ -903,6 +903,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.insertSecretToStepInputConfig.show(viewModel.workflows, viewModel.editedWorkflow, viewModel.selectedStep, targetInput);
 	};
 
+	viewModel.clearSensitiveInputValue = function(targetInput) {
+		targetInput.value('');
+	};
+
 	function loadSecrets() {
 		viewModel.loadSecretVariablesProgress.start("<%= data[:strings][:workflows][:inputs][:insert_secret][:load_progress] %>");
 		return appService.getSecrets(false, {

@@ -194,3 +194,22 @@ a.rebo {
 		@include size(8px);
 	}
 }
+
+.rebo.inline {
+	cursor: pointer !important;
+	padding: 8px 12px;
+	border-top-left-radius: 0px;
+	border-bottom-left-radius: 0px;
+
+	border-color: $def-mediumlightgrey;
+	color: black;
+
+	svg {
+		fill: black;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-mediumlightgrey;
+		background-color: $def-mediumlightgrey;
+	}
+}

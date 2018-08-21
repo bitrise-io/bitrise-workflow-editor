@@ -117,7 +117,10 @@
 														em.sensitive<[ng-if="input.isSensitive()"] == data[:strings][:workflows][:inputs][:sensitive]
 													button.insert-variable.rebo.small.light.green[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.isSensitive()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
 												.input-description[btf-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
-												textarea[msd-elastic rows="1" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-click="isOpen && input.isSensitive() ? workflowsCtrl.insertSecretSelected(input) : ''" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+												.flex-wrapper
+													textarea[msd-elastic rows="1" ng-class="{'has-button': input.isSensitive()}" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-click="isOpen && input.isSensitive() ? workflowsCtrl.insertSecretSelected(input) : ''" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
+													button.rebo.inline[ng-if="input.isSensitive()" ng-disabled="!input.value" ng-click="workflowsCtrl.clearSensitiveInputValue(input)"]
+														| Clear
 												.sensitive-input-warning[ng-if="isOpen && input.isSensitive() && !input.valueOptions()"]
 													span
 														span == data[:strings][:workflows][:inputs][:sensitive_warning_message][:info]

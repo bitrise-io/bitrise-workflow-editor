@@ -1139,6 +1139,18 @@ header.sticky section.manage-workflows {
 													color: $def-mediumdarkgrey;
 												}
 
+												.flex-wrapper {
+													@include display-flex();
+													@include flex-direction(row);
+													@include align-items(flex-start);
+
+													textarea.has-button {
+														border-top-right-radius: 0px;
+														border-bottom-right-radius: 0px;
+														border-right: 0px;
+													}
+												}
+
 												textarea, select {
 													@include SourceCodeProWithFallback;
 													display: block;
