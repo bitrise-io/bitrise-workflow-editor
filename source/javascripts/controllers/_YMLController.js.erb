@@ -8,6 +8,15 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	var editor;
 	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
+	// discard change detection
+	$scope.$watch(function(){
+		return appService.appConfigYML;
+	}, function() {
+		if (appService.appConfigYML !== editor.getValue()) {
+			editor.setValue(appService.appConfigYML);
+		}
+	});
+
 	function configureEditor() {
 		require.config({ paths: { 'vs': '<%= mode_dependant_asset_path("javascripts/monaco-editor/min/vs") %>' }});
 			require(['vs/editor/editor.main'], function() {
