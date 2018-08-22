@@ -9,13 +9,17 @@ angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 			var parentElement = element.parent();
 			var nextSiblingElement = element.next();
 			var placeholderElement;
+			if ($('#workflow-main').length > 0) {
+				$('#workflow-main').scroll(scrollHandler.bind($('#workflow-main')));
+			}
 
 			function isSticking() {
 				return $("header.sticky [sticking-index='" + attrs.stickingIndex + "']").length > 0;
 			}
 
 			function scrollHandler() {
-				var shouldBeSticking = $(window).scrollTop() > element.parent().position().top && !$parse(attrs.skipStickyness)(scope);
+				var workflowEditorMainContent = this;
+				var shouldBeSticking = workflowEditorMainContent.scrollTop() > element.parent().position().top && !$parse(attrs.skipStickyness)(scope);
 
 				if (shouldBeSticking) {
 					if (!isSticking()) {
@@ -54,14 +58,12 @@ angular.module("BitriseWorkflowEditor").directive("sticky", function($parse) {
 				}
 			}
 
-			$(window).on("scroll", scrollHandler);
-
 			scope.$on("$destroy", function() {
 				if (isSticking()) {
 					unstick();
 				}
-				
-				$(window).off("scroll", scrollHandler);
+
+				$('#workflow-main').off('scroll', scrollHandler.bind($('#workflow-main')));
 			});
 		}
 	};
