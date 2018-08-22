@@ -18,6 +18,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
 	viewModel.changeMenuProgress = new Progress();
+	viewModel.initAppProgress = new Progress();
 
 	viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 
@@ -354,6 +355,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	viewModel.init = function() {
+		viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+
 		viewModel.menus = _.compact([{
 			id: "workflows",
 			title: "<%= data[:strings][:main][:menus][:workflows] %>",
@@ -431,9 +434,11 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 		}).then(function() {
 			appService.getAppDetails();
-
+			viewModel.initAppProgress.success();
 			selectInitialMenu();
-		});
+		}).catch( function(hasError) {
+			viewModel.initAppProgress.error(hasError);
+		})
 	};
 
 });
