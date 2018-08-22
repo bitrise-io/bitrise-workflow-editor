@@ -45,18 +45,10 @@ select:-moz-focusring {
 }
 
 html {
-	@include display-flex;
-	@include flex-direction(column);
 	width: 100%;
-	min-height: 100%;
 }
 
 body {
-	@include flex-grow(1);
-	@include display-flex;
-	@include flex-direction(column);
-	@include size(100%);
-	@include min-size($screen-minimum, $screen-small);
 	margin: 0;
 	-webkit-font-smoothing: subpixel-antialiased;
 }
@@ -246,7 +238,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 
 	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
-		
+
 		span.eye {
 			display: none;
 		}
@@ -305,7 +297,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 			@include position(absolute, 0, 0);
 			@include size(100%);
 			padding: $verticalpadding $horizontalpadding-basic;
-			
+
 			svg {
 				display: block;
 				width: $arrow-width;
