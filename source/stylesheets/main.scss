@@ -23,6 +23,7 @@
 @import "popover";
 @import "notification-progress-indicator";
 @import "order-by-drag";
+@import "clear-value";
 
 // Basic settings
 
@@ -246,7 +247,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 
 	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
-		
+
 		span.eye {
 			display: none;
 		}
@@ -305,7 +306,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 			@include position(absolute, 0, 0);
 			@include size(100%);
 			padding: $verticalpadding $horizontalpadding-basic;
-			
+
 			svg {
 				display: block;
 				width: $arrow-width;
