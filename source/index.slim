@@ -26,6 +26,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()" id="wo
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
 		p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
+		p.progress-indicator[progress-model="mainCtrl.initAppProgress"]
 		.tab-content[ng-view ng-if="!mainCtrl.menuProgress.isError && mainCtrl.loadAppConfigProgress.isIdle && mainCtrl.changeMenuProgress.isIdle"]
 	footer
 		p == data[:strings][:main][:footer][:editor_open_source]
