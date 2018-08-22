@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.24)
+## Changelog (Current version: 1.1.25)
 
 -----------------
+
+## 1.1.25 (2018 Aug 16)
+
+### Release Notes
+
+* Switch from ACE editor to Monaco editor
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.25
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.24 -> 1.1.25
+
+* [8d94fee] David Breuer - Switch from ACE editor to Monaco editor (2018 Aug 15)
+
 
 ## 1.1.24 (2018 Jul 31)
 
@@ -2338,4 +2372,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Jul 31
+Updated: 2018 Aug 16
