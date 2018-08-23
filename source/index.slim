@@ -3,7 +3,7 @@ layout: layout
 ---
 
 header.sticky
-main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()" id="workflow-main"]
+main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu[sticky sticking-index="1"]
 		nav
 			button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
