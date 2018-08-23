@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.26)
+## Changelog (Current version: 1.1.27)
 
 -----------------
+
+## 1.1.27 (2018 Aug 23)
+
+### Release Notes
+
+* Add option to remove sensitive input value (#319)
+* Mobile tab change progress bar fix (#320)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.27
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.26 -> 1.1.27
+
+* [02f69df] David Breuer - Add option to remove sensitive input value (#319) (2018 Aug 23)
+* [cd717a0] David Breuer - Mobile tab change progress bar fix (#320) (2018 Aug 22)
+
 
 ## 1.1.26 (2018 Aug 22)
 
@@ -2410,4 +2446,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Aug 22
+Updated: 2018 Aug 23
