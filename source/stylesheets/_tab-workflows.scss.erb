@@ -10,6 +10,18 @@ section.manage-workflows {
 	padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
 	background-color: white;
 
+	position: sticky;
+	position: -webkit-sticky;
+	position: -moz-sticky;
+	position: -ms-sticky;
+	position: -o-sticky;
+	right: 0px;
+	left: 0px;
+	top: 0px;
+	z-index: 9999;
+	@include transform(translate3d(0, 0, 0)); // fixing scroller jumps
+	border-bottom: 1px dashed $def-grey;
+
 	&:not(.ninja) > * {
 		margin: $button-spacing / 2;
 	}
@@ -315,10 +327,10 @@ header.sticky section.manage-workflows {
 			@include display-flex;
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
+			margin-top: 2px;
 
 			section.workflow {
 				@include flex-shrink(0);
-				border-top: 1px dashed $def-grey;
 				@include padding-x($main-horizontalpadding);
 				@include transition(background-color $def-transition_duration);
 

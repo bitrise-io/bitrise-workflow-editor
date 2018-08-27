@@ -3,7 +3,7 @@
 
 header.sticky {
 	z-index: $zindex-sticky_header;
-	
+
 	@include position(fixed, 0, 0);
 	width: 100%;
 
@@ -28,7 +28,7 @@ header.menu {
 
 			&:before {
 				$border_width: 4px;
-				
+
 				content: "";
 				@include position(absolute, 100%, 0);
 				@include size(100%);
@@ -290,13 +290,21 @@ main {
 	@include display-flex;
 	@include flex-direction(column);
 	background-color: $def-ultralightgrey;
+	height: 100vh;
 
 	article.menu-content {
+		$top-header-height: 53px;
+		$workflow-header-height: 65px;
+		$workflow-footer-height: 34px;
+
 		@include flex-grow(1);
 		@include flex-shrink(0);
 		@include display-flex;
 		@include flex-direction(column);
 		background-color: white;
+		height: calc(100vh - $top-header-height - $workflow-header-height - $workflow-footer-height);
+		-webkit-overflow-scrolling: touch;
+		overflow: scroll;
 
 		&:not(.ninja) > p.progress-indicator, .tab-content > p.progress-indicator {
 			margin: $main-verticalpadding $main-horizontalpadding;
