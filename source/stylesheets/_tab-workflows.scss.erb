@@ -314,6 +314,7 @@ header.sticky section.manage-workflows {
 		@include flex-shrink(0);
 		@include display-flex;
 		@include flex-direction(column);
+		overflow: hidden;
 
 		.workflows {
 			$spacing: 8px;
@@ -328,6 +329,8 @@ header.sticky section.manage-workflows {
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
 			margin-top: 2px;
+			height: 50vh;
+			overflow-y: scroll;
 
 			section.workflow {
 				@include flex-shrink(0);
