@@ -60,6 +60,7 @@ body {
 	@include min-size($screen-minimum, $screen-small);
 	margin: 0;
 	-webkit-font-smoothing: subpixel-antialiased;
+	overflow: hidden;
 }
 
 body.website {
@@ -247,7 +248,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 
 	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
-		
+
 		span.eye {
 			display: none;
 		}
@@ -306,7 +307,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 			@include position(absolute, 0, 0);
 			@include size(100%);
 			padding: $verticalpadding $horizontalpadding-basic;
-			
+
 			svg {
 				display: block;
 				width: $arrow-width;
