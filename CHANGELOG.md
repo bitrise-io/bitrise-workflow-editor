@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.28)
+## Changelog (Current version: 1.1.29)
 
 -----------------
+
+## 1.1.29 (2018 Aug 30)
+
+### Release Notes
+
+* Fixing mobile Safari scrolling issue (#322)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.29
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.28 -> 1.1.29
+
+* [2fecb70] David Breuer - Fixing mobile Safari scrolling issue (#322) (2018 Aug 30)
+
 
 ## 1.1.28 (2018 Aug 23)
 
@@ -2480,4 +2514,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Aug 23
+Updated: 2018 Aug 30
