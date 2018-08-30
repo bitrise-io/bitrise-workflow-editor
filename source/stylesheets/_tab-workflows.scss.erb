@@ -7,17 +7,6 @@ section.manage-workflows {
 	@include flex-shrink(0);
 	@include display-flex;
 	@include flex-wrap(wrap);
-	position: sticky;
-	position: -webkit-sticky;
-	position: -moz-sticky;
-	position: -ms-sticky;
-	position: -o-sticky;
-	right: 0px;
-	left: 0px;
-	top: 0px;
-	z-index: $zindex-manage_workflows_header;
-	@include transform(translate3d(0, 0, 0));
-	border-bottom: 1px dashed $def-grey;
 	padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
 	background-color: white;
 
@@ -290,6 +279,10 @@ section.manage-workflows {
 	}
 }
 
+header.sticky section.manage-workflows {
+	@include padding-y(10px);
+}
+
 .tab-workflows {
 	@include flex-grow(1);
 	@include flex-shrink(0);
@@ -309,7 +302,6 @@ section.manage-workflows {
 		@include flex-shrink(0);
 		@include display-flex;
 		@include flex-direction(column);
-		overflow: hidden;
 
 		.workflows {
 			$spacing: 8px;
@@ -323,12 +315,10 @@ section.manage-workflows {
 			@include display-flex;
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
-			margin-top: 2px;
-			height: 50vh;
-			overflow-y: scroll;
 
 			section.workflow {
 				@include flex-shrink(0);
+				border-top: 1px dashed $def-grey;
 				@include padding-x($main-horizontalpadding);
 				@include transition(background-color $def-transition_duration);
 
