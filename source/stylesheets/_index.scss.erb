@@ -1,17 +1,6 @@
 @import "default";
 @import "constants";
 
-header.sticky {
-	z-index: $zindex-sticky_header;
-
-	@include position(fixed, 0, 0);
-	width: 100%;
-
-	&:not(:empty) {
-		@include box-shadow(0px 3px 20px 0px rgba(0, 0, 0, 0.2));
-	}
-}
-
 $menubutton_verticalpadding: 12px;
 
 header.menu {
@@ -280,11 +269,6 @@ header.menu {
 	}
 }
 
-header.sticky header.menu {
-	padding-top: 10px;
-	background-color: $def-ultralightgrey;
-}
-
 main {
 	@include flex-grow(1);
 	@include display-flex;
@@ -304,7 +288,7 @@ main {
 		background-color: white;
 		height: calc(100vh - $top-header-height - $workflow-header-height - $workflow-footer-height);
 		-webkit-overflow-scrolling: touch;
-		overflow: scroll;
+		overflow-y: auto;
 
 		&:not(.ninja) > p.progress-indicator, .tab-content > p.progress-indicator {
 			margin: $main-verticalpadding $main-horizontalpadding;
