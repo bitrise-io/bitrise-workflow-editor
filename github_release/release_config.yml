@@ -6,7 +6,7 @@ changelog:
   content_template: |-
     {{range $index, $element := .ContentItems}}{{if eq $index 0}}### Release Notes
 
-    {{range .Commits}}* {{.Message}}
+    {{range $commitIndex, $commitElement := .Commits}}{{if gt $commitIndex 0}}* {{.Message}}
     {{end}}
 
     ### Install or upgrade
