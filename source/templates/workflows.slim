@@ -1,7 +1,7 @@
 .tab-workflows[ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
 	p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
 	.content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
-		section.manage-workflows[sticky sticking-index="2" skip-stickyness="workflowsCtrl.workflowSelectorIsVisible"]
+		section.manage-workflows
 			.workflow-selector[floating-menu toggle="workflowsCtrl.workflowSelectorIsVisible"]
 				.selected-workflow[ng-if="workflowsCtrl.selectedWorkflow"]
 					button.mak[ng-bind="workflowsCtrl.selectedWorkflow.id" ng-click="workflowsCtrl.workflowSelectorIsVisible = !workflowsCtrl.workflowSelectorIsVisible"]
