@@ -76,7 +76,7 @@ local_server:
   default_outputs_get: /api/default-outputs
 devcenter:
   bitrise_cli: http://devcenter.bitrise.io/bitrise-cli
-  env_var_is_expand: http://devcenter.bitrise.io/getting-started/manage-your-bitrise-workflow/#environment-variable-replace-mode
+  env_var_is_expand: https://devcenter.bitrise.io/getting-started/getting-started-steps/#environment-variables-as-step-inputs
 blog:
   new_triggers: http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html
 other:
