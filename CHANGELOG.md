@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.31)
+## Changelog (Current version: 1.1.32)
 
 -----------------
+
+## 1.1.32 (2018 Sep 14)
+
+### Release Notes
+
+* Fix syntax error in GitHub changelor create (#331)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.32
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.31 -> 1.1.32
+
+* [67799ed] erosdome - Fix syntax error in GitHub changelor create (#331) (2018 Sep 14)
+
 
 ## 1.1.31 (2018 Sep 14)
 
