@@ -7,7 +7,7 @@ changelog:
     {{range $index, $element := .ContentItems}}{{if eq $index 0}}### Release Notes
 
     {{range $commitIndex, $commitElement := .Commits}}{{if gt $commitIndex 0}}* {{.Message}}
-    {{end}}
+    {{end}}{{end}}
 
     ### Install or upgrade
 
