@@ -1,6 +1,48 @@
-## Changelog (Current version: 1.1.30)
+## Changelog (Current version: 1.1.31)
 
 -----------------
+
+## 1.1.31 (2018 Sep 14)
+
+### Release Notes
+
+* Replace selected variable in input fields  (#330)
+* Fix a devcenter link (#326)
+* Change favicon (#328)
+* Update step_info_test.go (#329)
+* Skip version bump commit from changelogs (#324)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.31
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.30 -> 1.1.31
+
+* [d61b28a] David Breuer - Replace selected variable in input fields  (#330) (2018 Sep 14)
+* [afd4737] Norbert Kovach - Fix a devcenter link (#326) (2018 Sep 13)
+* [cec40f2] Norbert Kovach - Change favicon (#328) (2018 Sep 12)
+* [04e2cca] Gábor Szakács - Update step_info_test.go (#329) (2018 Sep 12)
+* [2bfdb06] slapec93 - Skip version bump commit from changelogs (#324) (2018 Sep 05)
+
 
 ## 1.1.30 (2018 Aug 30)
 
@@ -2548,4 +2590,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Aug 30
+Updated: 2018 Sep 14
