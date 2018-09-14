@@ -30,10 +30,10 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		viewModel.insertVariableToStepInputConfig.targetVariable = targetVariable;
 
 		if (viewModel.insertVariableToStepInputConfig.insertStartPosition === undefined) {
-			viewModel.insertVariableToStepInputConfig.insertStartPosition = targetVariable.value.length;
+			viewModel.insertVariableToStepInputConfig.insertStartPosition = 0;
 		}
 		if (viewModel.insertVariableToStepInputConfig.insertEndPosition === undefined) {
-			viewModel.insertVariableToStepInputConfig.insertEndPosition = targetVariable.value.length;
+			viewModel.insertVariableToStepInputConfig.insertEndPosition = targetVariable.value().length;
 		}
 
 		viewModel.insertVariableToStepInputConfig.variableSelected = function(variable) {
