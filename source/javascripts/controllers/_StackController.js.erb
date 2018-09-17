@@ -10,7 +10,7 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 	$scope.Stack = Stack;
 	$scope.appService = appService;
 	viewModel.defaultDockerImagesByStackIDs = {
-		"linux-docker-android": "quay.io/bitriseio/android-ndk:latest"
+		"linux-docker-android": "bitriseio/android-ndk:pinned"
 	};
 
 	viewModel.init = function() {
