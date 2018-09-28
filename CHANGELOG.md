@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.32)
+## Changelog (Current version: 1.1.33)
 
 -----------------
+
+## 1.1.33 (2018 Sep 28)
+
+### Release Notes
+
+* Add React Native as recognized project type (#333)
+* Change quay.io URL (#332)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.33
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.32 -> 1.1.33
+
+* [489e08b] erosdome - Add React Native as recognized project type (#333) (2018 Sep 28)
+* [0d81ea0] slapec93 - Change quay.io URL (#332) (2018 Sep 17)
+
 
 ## 1.1.32 (2018 Sep 14)
 
@@ -2624,4 +2660,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Sep 14
+Updated: 2018 Sep 28
