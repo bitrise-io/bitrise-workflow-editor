@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup, Stack) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, dateService, osService, Progress, Popup, Stack) {
 
 	var viewModel = this;
 
@@ -265,7 +265,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 					break;
 			}
-		}), $timeout(function() {}, 1000)]).then(function() {
+		}), $timeout(function() {}, dateService.defaultSaveDelayDurationInMilliseconds)]).then(function() {
 			viewModel.saveProgress.reset();
 			$rootScope.$emit("MainController::savedFinishedWithSuccess");
 		}, function(error) {
