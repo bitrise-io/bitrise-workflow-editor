@@ -84,7 +84,7 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 					}
 
 					$(selectedElement).css("top", moveOffsetY + "px");
-					
+
 					var offsetYBetweenSiblings = $(selectedElement).offset().top - $(previousElement).offset().top;
 					if (offsetYBetweenSiblings < 0) {
 						var index = $(element).children().index(selectedElement);
@@ -120,10 +120,14 @@ angular.module("BitriseWorkflowEditor").directive("orderByDrag", function($parse
 				scope.$apply();
 			}
 
-			scope.$watchCollection(attrs.models, function() {
+			scope.$watchCollection(attrs.models, function(newModels, oldModels) {
 				_.each($(element).children(draggableSelector), function(aChild) {
 					$(aChild).off("mousedown", mousedownHandler).on("mousedown", mousedownHandler);
 				});
+
+				if (attrs.modelsChangedCallback) {
+					$parse(attrs.modelsChangedCallback)(scope)(newModels, oldModels);
+				}
 			});
 
 			scope.$on("$destroy", function() {
