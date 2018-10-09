@@ -191,6 +191,20 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menuProgress.error(new Error("Failed to load menu."));
 	});
 
+	viewModel.isDiscardSaveAvailable = function() {
+		if (!viewModel.currentMenu) {
+			return undefined;
+		}
+
+		switch (viewModel.currentMenu.id) {
+			case "secrets":
+			case "code-signing":
+				return false;
+			default:
+				return true;
+		}
+	};
+
 	viewModel.hasUnsavedChanges = function() {
 		if (!viewModel.currentMenu) {
 			return undefined;
