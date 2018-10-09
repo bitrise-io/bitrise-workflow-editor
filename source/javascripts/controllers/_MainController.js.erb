@@ -134,6 +134,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return;
 			}
 
+			cleanupMenu();
+
 			if (!viewModel.hasUnsavedChanges()) {
 				resolve();
 
@@ -204,6 +206,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return true;
 		}
 	};
+
+	function cleanupMenu() {
+		if (viewModel.currentMenu.id == "secrets") {
+			appService.discardSecretsChanges();
+		}
+	}
 
 	viewModel.hasUnsavedChanges = function() {
 		if (!viewModel.currentMenu) {
