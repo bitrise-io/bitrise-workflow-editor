@@ -460,6 +460,11 @@ env_vars:
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
       confirm_ok: "Make it protected"
       confirm_cancel: "Cancel"
+    delete:
+      confirm_question: "Are you sure?"
+      confirm_details: "Are you sure you want to delete this secret?"
+      confirm_ok: "Delete"
+      confirm_cancel: "Cancel"
     save:
       in_progress: "Saving secret, wait a sec..."
   app:
