@@ -52,6 +52,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					var loadPromises = [appService.getAppConfig()];
 					if (requestService.mode == "website") {
 						loadPromises.push(Stack.getAll().then(appService.getStack));
+						loadPromises.push(appService.getProjectType());
 					}
 
 					$q.all(loadPromises).then(function() {

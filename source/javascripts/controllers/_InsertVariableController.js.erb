@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $q, appService, requestService, stringService, Progress, Variable) {
+angular.module("BitriseWorkflowEditor").controller("InsertVariableController", function($scope, $q, appService, requestService, stringService, Progress, Variable, ProvProfile, Certificate, GenericFile, KeystoreFile) {
 
 	var viewModel = this;
 	viewModel.canceler = $q.defer();
@@ -17,6 +17,10 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 	}, {
 		id: "from_bitrise_cli",
 		title: "<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:bitrise_cli] %>",
+		variables: undefined
+	}, {
+		id: "from_code_signing_files",
+		title: "<%= data[:strings][:workflows][:inputs][:insert_variable][:source][:code_signing_files] %>",
 		variables: undefined
 	}, {
 		id: "from_secrets",
@@ -50,6 +54,9 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 		viewModel.loadInsertableVariablesProgress.start("<%= data[:strings][:workflows][:inputs][:insert_variable][:load_progress] %>");
 
 		var loadPromises = [loadDefaultOutputs()];
+		if ((requestService.mode == "website" && !availableVariableGroupIDs) || _.contains(availableVariableGroupIDs, "from_code_signing_files")) {
+			loadPromises.push(loadCodeSigningFilePaths());
+		}
 		if (!availableVariableGroupIDs || _.contains(availableVariableGroupIDs, "from_secrets")) {
 			loadPromises.push(loadSecrets());
 		}
@@ -60,6 +67,63 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 			viewModel.loadInsertableVariablesProgress.success();
 		}, function(error) {
 			viewModel.loadInsertableVariablesProgress.error(error);
+		});
+	}
+
+	function loadCodeSigningFilePaths() {
+		var requestConfig = {
+			timeout: viewModel.canceler.promise
+		};
+
+		$q.all([
+			requestService.getProvProfiles(requestConfig).then(function(provProfileDatas) {
+				var availableKeys = [];
+				if (provProfileDatas.length > 0) {
+					availableKeys.push(ProvProfile.provisionURLEnvVarKey);
+				}
+
+				if (appService.projectType != "xamarin") {
+					availableKeys.push(ProvProfile.defaultProvisionURLEnvVarKey);
+				}
+
+				return availableKeys;
+			}),
+			requestService.getCertificates(requestConfig).then(function(certificateDatas) {
+				var availableKeys = [];
+				if (certificateDatas.length > 0) {
+					availableKeys.push(Certificate.certificateURLEnvVarKey);
+					availableKeys.push(Certificate.certificatePassphraseEnvVarKey);
+				}
+
+				if (appService.projectType != "xamarin") {
+					availableKeys.push(Certificate.defaultCertificateURLEnvVarKey);
+					availableKeys.push(Certificate.defaultCertificatePassphraseEnvVarKey);
+				}
+
+				return availableKeys;
+			}),
+			requestService.getGenericFiles(requestConfig).then(function(genericFileDatas) {
+				return _.map(genericFileDatas, function(aGenericFileData) {
+					var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
+
+					return genericFile.downloadURLEnvVarKey();
+				});
+			}),
+			requestService.getKeystoreFile(requestConfig).then(function(keystoreFileData) {
+				return (keystoreFileData ? [
+					KeystoreFile.androidKeystorePasswordEnvVarKey,
+					KeystoreFile.androidKeystoreAliasEnvVarKey,
+					KeystoreFile.androidKeystorePrivateKeyPasswordEnvVarKey,
+					KeystoreFile.downloadURLEnvVarKey()
+				] : []);
+			})
+		]).then(function(availableKeyArrays) {
+			viewModel.variablesOfSourceFromCodeSigningFiles().variables = _.map(_.flatten(availableKeyArrays), function(aKey) {
+				var variable = new Variable(undefined, Variable.defaultVariableConfig());
+				variable.key(aKey);
+
+				return variable;
+			});
 		});
 	}
 
@@ -143,6 +207,12 @@ angular.module("BitriseWorkflowEditor").controller("InsertVariableController", f
 
 		return $q.when();
 	}
+
+	viewModel.variablesOfSourceFromCodeSigningFiles = function() {
+		return _.find(viewModel.insertableVariables, {
+			id: "from_code_signing_files"
+		});
+	};
 
 	viewModel.shouldShowVariable = function(variable) {
 		return _.find(_.compact(_.flatten(_.pluck(viewModel.insertableVariables, "variables"))).reverse(), function(aVariable) {

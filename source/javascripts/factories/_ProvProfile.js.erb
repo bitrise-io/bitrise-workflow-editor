@@ -44,6 +44,9 @@ angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requ
 		this.capabilityKeys;
 	};
 
+	ProvProfile.provisionURLEnvVarKey = "BITRISE_PROVISION_URL";
+	ProvProfile.defaultProvisionURLEnvVarKey = "BITRISE_DEFAULT_PROVISION_URL";
+
 	ProvProfile.prototype.displayName = function() {
 		if (this.uploadFileName) {
 			var nameRegexp = new RegExp("^(.+)\.(?:mobileprovision|provisionprofile)$");
