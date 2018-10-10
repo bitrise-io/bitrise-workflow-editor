@@ -209,7 +209,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	function cleanupMenu() {
 		if (viewModel.currentMenu.id == "secrets") {
-			appService.discardSecretsChanges();
+			$rootScope.$emit("MainController::cleanupMenu");
 		}
 	}
 
