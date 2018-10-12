@@ -463,7 +463,7 @@ env_vars:
       confirm_cancel: "Cancel"
     delete:
       confirm_question: "Are you sure?"
-      confirm_details: "Are you sure you want to delete this secret?"
+      confirm_details: "Are you sure you want to delete this secret? This cannot be undone."
       confirm_ok: "Delete"
       confirm_cancel: "Cancel"
     save:
