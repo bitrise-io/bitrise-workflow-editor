@@ -9,20 +9,9 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		if (!this.userVariableConfig) {
 			this.userVariableConfig = {};
 		}
-
-		var userMetaConfig = undefined;
-		if (this.userVariableConfig.opts && this.userVariableConfig.opts.meta) {
-			userMetaConfig = this.userVariableConfig.opts.meta;
-		}
-
 		this.defaultVariableConfig = defaultVariableConfig;
 
-		var defaultMetaConfig = undefined;
-		if (this.defaultVariableConfig && this.defaultVariableConfig.opts && this.defaultVariableConfig.opts.meta) {
-			defaultMetaConfig = this.defaultVariableConfig.opts.meta;
-		}
-
-		this.meta = new Meta(userMetaConfig, defaultMetaConfig);
+		this.configureMeta();
 
 		this.isKeyChangeable = isKeyChangeable !== undefined ? isKeyChangeable : true;
 
@@ -43,6 +32,24 @@ angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 				}
 			}
 		};
+	};
+
+	Variable.prototype.configureMeta = function() {
+		var userMetaConfig = undefined;
+		if (this.userVariableConfig.opts && this.userVariableConfig.opts.meta) {
+			userMetaConfig = this.userVariableConfig.opts.meta;
+		}
+
+		var defaultMetaConfig = undefined;
+		if (this.defaultVariableConfig && this.defaultVariableConfig.opts && this.defaultVariableConfig.opts.meta) {
+			defaultMetaConfig = this.defaultVariableConfig.opts.meta;
+		}
+
+		this.meta = new Meta(userMetaConfig, defaultMetaConfig);
+	};
+
+	Variable.prototype.reconfigureMeta = function() {
+		return this.configureMeta();
 	};
 
 	Variable.prototype.key = function(newKey) {

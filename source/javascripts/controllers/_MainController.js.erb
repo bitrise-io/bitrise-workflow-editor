@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, osService, Progress, Popup, Stack) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, dateService, osService, Progress, Popup, Stack) {
 
 	var viewModel = this;
 
@@ -135,6 +135,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				return;
 			}
 
+			cleanupMenu();
+
 			if (!viewModel.hasUnsavedChanges()) {
 				resolve();
 
@@ -192,6 +194,26 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menuProgress.error(new Error("Failed to load menu."));
 	});
 
+	viewModel.isDiscardSaveAvailable = function() {
+		if (!viewModel.currentMenu) {
+			return undefined;
+		}
+
+		switch (viewModel.currentMenu.id) {
+			case "secrets":
+			case "code-signing":
+				return false;
+			default:
+				return true;
+		}
+	};
+
+	function cleanupMenu() {
+		if (viewModel.currentMenu.id == "secrets") {
+			$rootScope.$emit("MainController::cleanupMenu");
+		}
+	}
+
 	viewModel.hasUnsavedChanges = function() {
 		if (!viewModel.currentMenu) {
 			return undefined;
@@ -218,6 +240,8 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	};
 
 	window.onbeforeunload = function(event) {
+		cleanupMenu();
+
 		if (viewModel.hasUnsavedChanges()) {
 			return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
 		}
@@ -266,7 +290,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 					break;
 			}
-		}), $timeout(function() {}, 1000)]).then(function() {
+		}), $timeout(function() {}, dateService.defaultSaveDelayDurationInMilliseconds)]).then(function() {
 			viewModel.saveProgress.reset();
 			$rootScope.$emit("MainController::savedFinishedWithSuccess");
 		}, function(error) {
