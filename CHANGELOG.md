@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.36)
+## Changelog (Current version: 1.1.37)
 
 -----------------
+
+## 1.1.37 (2018 Oct 15)
+
+### Release Notes
+
+* Protected secret fix (#341)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.37
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.36 -> 1.1.37
+
+* [8f582c4] erosdome - Protected secret fix (#341) (2018 Oct 15)
+
 
 ## 1.1.36 (2018 Oct 15)
 
