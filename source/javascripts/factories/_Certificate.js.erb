@@ -15,6 +15,11 @@ angular.module("BitriseWorkflowEditor").factory("Certificate", function($q, requ
 		this.details;
 	};
 
+	Certificate.certificateURLEnvVarKey = "BITRISE_CERTIFICATE_URL";
+	Certificate.certificatePassphraseEnvVarKey = "BITRISE_CERTIFICATE_PASSPHRASE";
+	Certificate.defaultCertificateURLEnvVarKey = "BITRISE_DEFAULT_CERTIFICATE_URL";
+	Certificate.defaultCertificatePassphraseEnvVarKey = "BITRISE_DEFAULT_CERTIFICATE_PASSPHRASE";
+
 	Certificate.prototype.displayName = function() {
 		if (this.uploadFileName) {
 			var nameRegexp = new RegExp("^(.+)\.(?:p12)$");

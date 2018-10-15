@@ -3,8 +3,10 @@
 "use strict";
 
 angular.module("BitriseWorkflowEditor").service("dateService", function($filter) {
-	
-	var dateService = {};
+
+	var dateService = {
+		defaultSaveDelayDurationInMilliseconds: parseInt("<%= data[:constants][:default_save_delay_in_milliseconds] %>")
+	};
 
 	dateService.datetimeValueFromDate = function(date) {
 		if (!date) {
@@ -53,6 +55,8 @@ angular.module("BitriseWorkflowEditor").service("dateService", function($filter)
 
 		return date < now;
 	};
+
+	dateService.defaultSaveDelayDurationInMilliseconds
 
 	return dateService;
 });

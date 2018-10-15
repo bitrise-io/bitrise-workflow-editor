@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 1.1.33
+  - RELEASE_VERSION: 1.1.35
   - BIN_NAME: workflow-editor
   - BIN_ARCH: x86_64
   - BIN_OS_DARWIN: Darwin
@@ -177,7 +177,7 @@ workflows:
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
             # Go lint
-            go get -u github.com/golang/lint/golint
+            go get -u golang.org/x/lint/golint
 
   test:
     steps:

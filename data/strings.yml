@@ -132,6 +132,7 @@ workflows:
       source:
         bitriseio: from bitrise.io
         bitrise_cli: from bitrise CLI
+        code_signing_files: from code signing files
         secrets: from secrets
         app_env_vars: from app env vars
         workflow_env_vars: "env var of workflow: <workflow_id>"
@@ -442,8 +443,10 @@ env_vars:
     button_title: Secrets
   actions:
     make_it_protected: Make it protected
+    save: Save
     delete_env_var: "Delete"
     show_value: "Show value?"
+    cancel: Cancel
   secrets:
     title: Secret Environment Variables
     warn:
@@ -452,11 +455,19 @@ env_vars:
       detail_2: Your secrets are stored encrypted
       detail_3: You can prevent exposing secrets on the UI by making them protected
       detail_4: Note that anyone might be able to do a workaround and log the value of secrets with a pull request, thus we advise <strong>not to expose secrets in PRs</strong>
+    edit: Edit
     make_protected:
       confirm_question: "'Protected' will be irreversible after save"
       confirm_details: "If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the value only by deleting the current one and creating a new one."
       confirm_ok: "Make it protected"
       confirm_cancel: "Cancel"
+    delete:
+      confirm_question: "Are you sure?"
+      confirm_details: "Are you sure you want to delete this secret? This cannot be undone."
+      confirm_ok: "Delete"
+      confirm_cancel: "Cancel"
+    save:
+      in_progress: "Saving secret, wait a sec..."
   app:
     title: App Environment Variables
     notification: "App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
