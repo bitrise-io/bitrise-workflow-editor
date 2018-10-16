@@ -40,9 +40,19 @@ bitrise run go-install
 
 ## New version release
 
+- Generate a GitHub personal access token for your user (one who has rights to create releases on the repository) - you can generate one here: https://github.com/settings/tokens
+- Generate a Discuss API key: you need to be a Discourse admin for this, then you can generate an API key for yourself at: https://discuss.bitrise.io/admin/api/keys
 - Ensure clean git
 - If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` change `min_version` requirement of the `bitrise` tool to the required CLI version
 - Optional: set the following secrets: $GITHUB_RELEASE_API_TOKEN, $GITHUB_USERNAME, $DISCUSS_API_KEY, $DISCUSS_USERNAME
 - Call `bitrise run create-release`
 - During the build you will need to specify a new version number, and if you did not specify any of the secrets above, you will need to specify those as well.
 - After the build has finished, close the related GitHub issues, and milestones if the issues were assigned to any.
+
+## Testing if version release works, without actually releasing
+
+- In bitrise.yml, create a workflow e. g. `test-release`
+- From the `create-release` workflow, copy-paste the *GitHub release* and *Create Discuss topic* steps.
+- In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
+- In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
+- After the test release process, don't forget to delete the draft release and the internal changelog topic.
