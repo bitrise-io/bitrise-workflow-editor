@@ -27,7 +27,7 @@ section.manage-workflows {
 			border: 1px solid $color;
 			@include border-radius($def-radius);
 			overflow: hidden;
-			font-size: 12px;
+			font-size: 13px;
 			background-color: $color;
 
 			&:before {
@@ -36,7 +36,7 @@ section.manage-workflows {
 				@include align-self(center);
 				@include padding-x(15px);
 				text-align: center;
-				font-weight: 200;
+				font-weight: 300;
 				text-transform: uppercase;
 				color: white;
 			}
@@ -58,7 +58,7 @@ section.manage-workflows {
 		ul {
 			$border: 1px solid $def-lightgrey;
 			$li_padding: 12px;
-			$li_fontsize: 14px;
+			$li_fontsize: 16px;
 
 			@include position(absolute, 100%, 0);
 			z-index: $zindex-workflow_selector;
@@ -74,7 +74,7 @@ section.manage-workflows {
 
 			li {
 				font-size: $li_fontsize;
-				font-weight: 200;
+				font-weight: 400;
 
 				&.selected .workflow svg, &:not(.selected) .workflow button.select-workflow:before {
 					@include flex-shrink(0);
@@ -105,7 +105,7 @@ section.manage-workflows {
 					button.rename-workflow {
 						margin-left: 6px;
 						text-align: left;
-						font-size: 10px;
+						font-size: 13px;
 						text-transform: uppercase;
 
 						&:before {
@@ -213,7 +213,7 @@ section.manage-workflows {
 	}
 
 	button.manage-button {
-		font-size: 12px;
+		font-size: 14px;
 	}
 
 	button.add-workflow, button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
@@ -350,8 +350,8 @@ header.sticky section.manage-workflows {
 							border: 1px solid $color;
 							@include border-radius($def-radius);
 							overflow: hidden;
-							font-size: 14px;
-							font-weight: 300;
+							font-size: 16px;
+							font-weight: 400;
 							color: $color;
 
 							button.edit {
@@ -440,7 +440,7 @@ header.sticky section.manage-workflows {
 							}
 
 							.name {
-								font-size: 15px;
+								font-size: 16px;
 								font-weight: 500;
 								color: $def-darkgrey;
 							}
@@ -453,7 +453,7 @@ header.sticky section.manage-workflows {
 								margin-left: 12px;
 								@include border-radius($badge-height / 2);
 								@include padding-x(5px);
-								font-size: 8px;
+								font-size: 10px;
 								letter-spacing: 0.5px;
 								font-weight: 300;
 								text-transform: uppercase;
@@ -508,7 +508,7 @@ header.sticky section.manage-workflows {
 									content: "+";
 									display: block;
 									height: $add_step-iconsize;
-									font-size: 14px;
+									font-size: 16px;
 									color: $def-darkgrey;
 								}
 							}
@@ -567,7 +567,7 @@ header.sticky section.manage-workflows {
 											@include display-flex;
 											@include align-items(center);
 											max-width: 100%;
-											font-size: 14px;
+											font-size: 16px;
 											font-weight: 400;
 
 											span.title {
@@ -587,9 +587,9 @@ header.sticky section.manage-workflows {
 										em.version {
 											display: block;
 											@include ellipsis-oneliner;
-											font-size: 12px;
+											font-size: 13px;
 											font-style: normal;
-											font-weight: 200;
+											font-weight: 300;
 											color: $def-grey;
 										}
 									}
@@ -689,7 +689,7 @@ header.sticky section.manage-workflows {
 										padding: 4px $renamebutton-horizontalpadding;
 										text-align: left;
 										@include ellipsis-oneliner;
-										font-size: 14px;
+										font-size: 16px;
 										font-weight: 400;
 										color: $def-darkgrey;
 										@include transition(border-color $def-transition_duration);
@@ -727,7 +727,7 @@ header.sticky section.manage-workflows {
 										border: 1px solid $def-lightgrey;
 										@include border-radius($def-radius);
 										@include padding-x(8px);
-										font-size: 14px;
+										font-size: 16px;
 									}
 
 									button.ok {
@@ -781,7 +781,7 @@ header.sticky section.manage-workflows {
 										.popover {
 											top: 70%;
 											left: 32%;
-											width: 32px;
+											width: 40px;
 										}
 
 										svg {
@@ -831,13 +831,13 @@ header.sticky section.manage-workflows {
 									.title {
 
 										button.rename {
-											font-size: 12px;
+											font-size: 13px;
 										}
 									}
 
 									.rename-title input {
 										@include flex-grow(1);
-										font-size: 12px;
+										font-size: 13px;
 									}
 
 									aside {
@@ -863,8 +863,8 @@ header.sticky section.manage-workflows {
 								@include padding-y(18px);
 								padding-left: $leftpadding;
 								padding-right: $rightpadding;
-								font-size: 12px;
-								font-weight: 200;
+								font-size: 13px;
+								font-weight: 300;
 								color: $def-darkgrey;
 
 								&:not(:first-of-type) {
@@ -994,7 +994,7 @@ header.sticky section.manage-workflows {
 									@include padding-y(10px);
 									padding-left: $leftpadding;
 									padding-right: $rightpadding;
-									font-size: 18px;
+									font-size: 20px;
 									font-weight: 700;
 									color: $def-mediumdarkgrey;
 								}
@@ -1030,7 +1030,7 @@ header.sticky section.manage-workflows {
 										@include padding-y(10px);
 										padding-left: $leftpadding;
 										padding-right: 6px + $toggle_category_button_icon-width + $rightpadding;
-										font-size: 12px;
+										font-size: 13px;
 										color: $def-darkgrey;
 										background-color: $def-ultralightgrey;
 
@@ -1098,8 +1098,8 @@ header.sticky section.manage-workflows {
 														max-width: 100%;
 														margin-right: auto;
 														@include ellipsis-oneliner;
-														font-size: 12px;
-														font-weight: 900;
+														font-size: 13px;
+														font-weight: 700;
 														color: $def-darkgrey;
 														@include transition(color $def-transition_duration);
 
@@ -1113,7 +1113,7 @@ header.sticky section.manage-workflows {
 															display: inline-block;
 															padding: .25em 1em;
 															font-size: 75%;
-															font-weight: 200;
+															font-weight: 300;
 															letter-spacing: 0.1em;
 															text-transform: uppercase;
 
@@ -1135,7 +1135,7 @@ header.sticky section.manage-workflows {
 
 												.input-description {
 													@include margin-y(6px);
-													font-size: 12px;
+													font-size: 13px;
 													color: $def-mediumdarkgrey;
 												}
 
@@ -1176,7 +1176,7 @@ header.sticky section.manage-workflows {
 
 													span {
 														margin-bottom: 15px;
-														font-size: 12px;
+														font-size: 13px;
 														color: $def-mediumdarkgrey;
 
 														button {
@@ -1194,8 +1194,8 @@ header.sticky section.manage-workflows {
 													@include display-flex;
 													@include align-items(center);
 													margin-top: 12px;
-													font-size: 11px;
-													font-weight: 300;
+													font-size: 13px;
+													font-weight: 400;
 
 													p {
 														@include display-flex;
@@ -1246,7 +1246,7 @@ header.sticky section.manage-workflows {
 												@include display-flex;
 												@include align-items(center);
 												padding-left: 10px;
-												font-size: 10px;
+												font-size: 11px;
 												text-transform: uppercase;
 												color: $color;
 
@@ -1381,7 +1381,7 @@ header.sticky section.manage-workflows {
 									@include padding-y(10px);
 									padding-left: $leftpadding;
 									padding-right: $rightpadding;
-									font-size: 12px;
+									font-size: 13px;
 									font-weight: 300;
 									color: $def-darkgrey;
 									background-color: $def-verylightgrey;
@@ -1391,7 +1391,7 @@ header.sticky section.manage-workflows {
 									@include margin-y(16px);
 									padding-left: $leftpadding;
 									padding-right: $rightpadding;
-									font-size: 12px;
+									font-size: 13px;
 								}
 
 								.output-box {
@@ -1407,7 +1407,7 @@ header.sticky section.manage-workflows {
 
 									.output {
 										display: table-row;
-										font-size: 12px;
+										font-size: 13px;
 
 										.parameter {
 											display: table-cell;
@@ -1428,7 +1428,7 @@ header.sticky section.manage-workflows {
 												margin: 0;
 												border: none;
 												padding: 0;
-												font-size: 12px;
+												font-size: 13px;
 												font-weight: 300;
 												color: $def-purple;
 											}
@@ -1436,7 +1436,7 @@ header.sticky section.manage-workflows {
 
 										.description {
 											position: relative;
-											font-weight: 200;
+											font-weight: 300;
 											color: $def-grey;
 
 											p {
@@ -1764,8 +1764,8 @@ header.sticky section.manage-workflows {
 			@include border-radius($def-radius);
 			border: 1px solid $def-mediumlightgrey;
 			padding: 12px;
-			font-size: 14px;
-			font-weight: 200;
+			font-size: 16px;
+			font-weight: 300;
 		}
 
 		input {
@@ -1775,7 +1775,7 @@ header.sticky section.manage-workflows {
 		label {
 			display: block;
 			margin-bottom: 10px;
-			font-size: 12px;
+			font-size: 13px;
 			font-weight: 600;
 			text-transform: uppercase;
 		}
@@ -1815,7 +1815,7 @@ header.sticky section.manage-workflows {
 					padding-left: $workflow-padding + $icon-size + $workflow-padding;
 					@include ellipsis-oneliner;
 					font-size: $fontsize;
-					font-weight: 200;
+					font-weight: 300;
 					background-repeat: no-repeat;
 					background-position: left $workflow-padding center;
 					color: $color;
@@ -1899,7 +1899,7 @@ header.sticky section.manage-workflows {
 				padding-left: $workflow-padding + $icon-size + $workflow-padding;
 				@include ellipsis-oneliner;
 				font-size: $fontsize;
-				font-weight: 200;
+				font-weight: 300;
 				background-repeat: no-repeat;
 				background-position: left $workflow-padding center, right $workflow-padding center;
 				background-color: $def-green;
@@ -2012,8 +2012,8 @@ header.sticky section.manage-workflows {
 			@include border-radius($def-radius);
 			padding: $padding;
 			padding-left: $padding + $searchicon_width + $padding;
-			font-size: 14px;
-			font-weight: 200;
+			font-size: 16px;
+			font-weight: 300;
 			background-color: $def-verylightgrey;
 			background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
 				fill: rgba($def-darkgrey, 0.99)
@@ -2054,8 +2054,8 @@ header.sticky section.manage-workflows {
 				padding: $padding;
 				padding-left: $padding + $searchicon_width + $padding;
 				margin-bottom: 12px;
-				font-size: 14px;
-				font-weight: 200;
+				font-size: 16px;
+				font-weight: 300;
 				background-color: $def-verylightgrey;
 				background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
 					fill: rgba($def-darkgrey, 0.99)
@@ -2087,7 +2087,7 @@ header.sticky section.manage-workflows {
 							display: block;
 							margin-bottom: 4px;
 							@include ellipsis-oneliner;
-							font-size: 12px;
+							font-size: 13px;
 							font-weight: 400;
 							color: $def-purple;
 						}
@@ -2095,8 +2095,8 @@ header.sticky section.manage-workflows {
 						em {
 							display: block;
 							@include ellipsis-oneliner;
-							font-size: 10px;
-							font-weight: 200;
+							font-size: 11px;
+							font-weight: 300;
 							font-style: normal;
 							text-transform: uppercase;
 							color: $def-grey;
@@ -2222,8 +2222,8 @@ header.sticky section.manage-workflows {
 						}
 
 						label {
-							font-size: 12px;
-							font-weight: 200;
+							font-size: 13px;
+							font-weight: 300;
 						}
 					}
 
