@@ -10,8 +10,8 @@
     border-color: $def-mediumlightgrey;
 	color: black;
 	text-align: center;
-	font-size: 12px;
-	font-weight: 200;
+	font-size: 13px;
+	font-weight: 400;
 	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
 
 	svg {

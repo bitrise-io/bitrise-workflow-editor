@@ -52,64 +52,45 @@ $cardo-verticalpadding: 12px;
 $cardo-borderradius: 6px;
 
 @font-face {
-	font-family: "OpenSans";
-	font-style: normal;
-	font-weight: 300;
-	src: font-url("OpenSans-Light.ttf") format("truetype");
+	font-family: "TTNorms";
+	src: font-url("35C30F_7_0.eot");
+	src: font-url("35C30F_7_0.eot?#iefix") format("embedded-opentype"), font-url("35C30F_7_0.woff2") format("woff2"), font-url("35C30F_7_0.woff") format("woff"), font-url("35C30F_7_0.ttf") format("truetype"), font-url("35C30F_7_0.svg#wf") format("svg");
+	font-weight: 100;
 }
+
 @font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 300;
-	src: font-url("OpenSans-LightItalic.ttf") format("truetype");
+	font-family: "TTNorms";
+	src: font-url("35C30F_C_0.eot");
+	src: font-url("35C30F_C_0.eot?#iefix") format("embedded-opentype"), font-url("35C30F_C_0.woff2") format("woff2"), font-url("35C30F_C_0.woff") format("woff"), font-url("35C30F_C_0.ttf") format("truetype"), font-url("35C30F_C_0.svg#wf") format("svg");
+	font-weight: 200;
 }
+
 @font-face {
-	font-family: "OpenSans";
-	font-style: normal;
+	font-family: "TTNorms";
+	src: font-url("35C30F_F_0.eot");
+	src: font-url("35C30F_F_0.eot?#iefix") format("embedded-opentype"), font-url("35C30F_F_0.woff2") format("woff2"), font-url("35C30F_F_0.woff") format("woff"), font-url("35C30F_F_0.ttf") format("truetype"), font-url("35C30F_F_0.svg#wf") format("svg");
 	font-weight: 400;
-	src: font-url("OpenSans-Regular.ttf") format("truetype");
 }
+
 @font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 400;
-	src: font-url("OpenSans-Italic.ttf") format("truetype");
+	font-family: "TTNorms";
+	src: font-url("35C30F_D_0.eot");
+	src: font-url("35C30F_D_0.eot?#iefix") format("embedded-opentype"), font-url("35C30F_D_0.woff2") format("woff2"), font-url("35C30F_D_0.woff") format("woff"), font-url("35C30F_D_0.ttf") format("truetype"), font-url("35C30F_D_0.svg#wf") format("svg");
+	font-weight: 500;
 }
+
 @font-face {
-	font-family: "OpenSans";
-	font-style: normal;
-	font-weight: 600;
-	src: font-url("OpenSans-Semibold.ttf") format("truetype");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 600;
-	src: font-url("OpenSans-SemiboldItalic.ttf") format("truetype");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: normal;
+	font-family: "TTNorms";
+	src: font-url("35C30F_1_0.eot");
+	src: font-url("35C30F_1_0.eot?#iefix") format("embedded-opentype"), font-url("35C30F_1_0.woff2") format("woff2"), font-url("35C30F_1_0.woff") format("woff"), font-url("35C30F_1_0.ttf") format("truetype"), font-url("35C30F_1_0.svg#wf") format("svg");
 	font-weight: 700;
-	src: font-url("OpenSans-Bold.ttf") format("truetype");
 }
+
 @font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 700;
-	src: font-url("OpenSans-BoldItalic.ttf") format("truetype");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: normal;
-	font-weight: 800;
-	src: font-url("OpenSans-ExtraBold.ttf") format("truetype");
-}
-@font-face {
-	font-family: "OpenSans";
-	font-style: italic;
-	font-weight: 800;
-	src: font-url("OpenSans-ExtraBoldItalic.ttf") format("truetype");
+	font-family: "TTNorms";
+	src: font-url("35C30F_3_0.eot");
+	src: font-url("35C30F_3_0.eot?#iefix") format("embedded-opentype"), font-url("35C30F_3_0.woff2") format("woff2"), font-url("35C30F_3_0.woff") format("woff"), font-url("35C30F_3_0.ttf") format("truetype"), font-url("35C30F_3_0.svg#wf") format("svg");
+	font-weight: 900;
 }
 
 @font-face {
@@ -155,16 +136,12 @@ $cardo-borderradius: 6px;
 	src: font-url("SourceCodePro-Black.ttf") format("truetype");
 }
 
-@mixin OpenSansWithFallback {
-	font-family: "OpenSans", sans-serif;
+@mixin TTNormsWithFallback {
+	font-family: "TTNorms", sans-serif;
 }
 
 @mixin SourceCodeProWithFallback {
 	font-family: "SourceCodePro", monospace;
-}
-
-@mixin GothamWithFallback {
-	font-family: "Gotham SSm A", "Gotham SSm B", sans-serif;
 }
 
 @function triangle_as_svg_content($width, $height) {

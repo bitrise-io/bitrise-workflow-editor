@@ -6,8 +6,8 @@
 	border: 1px solid;
 	padding: 10px 12px;
 	text-align: center;
-	font-size: 12px;
-	font-weight: 200;
+	font-size: 15px;
+	font-weight: 400;
 	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
 
 	svg {
@@ -22,11 +22,11 @@ a.rebo {
 
 .rebo.big {
 	padding: 12px 15px;
-	font-size: 14px;
 }
 
 .rebo.small {
-	padding: 5px;
+	padding: 5px 7px;
+	font-size: 13px;
 }
 
 .rebo.wide {

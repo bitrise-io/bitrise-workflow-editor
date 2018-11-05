@@ -12,12 +12,12 @@
 
 		h2 {
 			@include margin-y(0);
-			font-size: 14px;
-			font-weight: 600;
+			font-size: 16px;
+			font-weight: 700;
 
 			em {
 				font-style: normal;
-				font-weight: 200;
+				font-weight: 300;
 			}
 		}
 
@@ -27,8 +27,8 @@
 
 		p {
 			@include margin-y(0);
-			font-size: 12px;
-			font-weight: 200;
+			font-size: 13px;
+			font-weight: 400;
 			color: $def-darkgrey;
 		}
 	}
