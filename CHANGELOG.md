@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.37)
+## Changelog (Current version: 1.1.38)
 
 -----------------
+
+## 1.1.38 (2018 Nov 05)
+
+### Release Notes
+
+* Change Gotham & OpenSans font to TTNorms (#343)
+* Extend the version release process in the readme (#342)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.38
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.37 -> 1.1.38
+
+* [d3a4299] erosdome - Change Gotham & OpenSans font to TTNorms (#343) (2018 Nov 05)
+* [95b25f9] erosdome - Extend the version release process in the readme (#342) (2018 Oct 16)
+
 
 ## 1.1.37 (2018 Oct 15)
 
@@ -2800,4 +2836,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Oct 15
+Updated: 2018 Nov 05
