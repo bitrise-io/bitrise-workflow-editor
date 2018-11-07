@@ -4,7 +4,7 @@
 			div
 				h2 == data[:strings][:yml][:title]
 				p == data[:strings][:yml][:info_1]
-			a.rebo.green.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
+			a.rebo.purple.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
 		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article
 			#code-container

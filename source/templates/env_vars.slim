@@ -35,4 +35,4 @@
 						.actions.small
 							button.option.delete-env-var.rebo.danger[ng-click="envVarsCtrl.removeEnvVarFromEnvVars(envVar, envVarsOfSource.envVars)"] == data[:strings][:env_vars][:actions][:delete_env_var]
 						p.notification.warning[ng-if="envVarForm.key.$invalid && !envVarForm.key.$pristine" ng-bind="envVarsCtrl.envVarValidationWarning(envVar)"]
-			button.add.rebo.green[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == data[:strings][:env_vars][:add_new]
+			button.add.rebo.purple[ng-click="envVarsCtrl.addToEnvVars(envVarsOfSource.envVars)"] == data[:strings][:env_vars][:add_new]
