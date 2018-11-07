@@ -52,6 +52,21 @@ a.rebo {
 	}
 }
 
+.rebo.purple:not(:disabled) {
+	border-color: $def-purple;
+	color: white;
+	background-color: $def-purple;
+
+	svg {
+		fill: white;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-purple-shade;
+		background-color: $def-purple-shade;
+	}
+}
+
 .rebo.danger:not(:disabled) {
 	border-color: $def-danger;
 	color: white;
@@ -95,6 +110,26 @@ a.rebo {
 		border-color: $def-green;
 		color: white;
 		background-color: $def-green;
+
+		svg {
+			fill: white;
+		}
+	}
+}
+
+.rebo.light.purple:not(:disabled) {
+	border-color: $def-purple;
+	color: $def-purple;
+	background-color: $def-purple-light;
+
+	svg {
+		fill: $def-purple;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-purple;
+		color: white;
+		background-color: $def-purple;
 
 		svg {
 			fill: white;
