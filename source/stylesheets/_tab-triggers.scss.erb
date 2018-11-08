@@ -4,7 +4,7 @@
 .tab-triggers {
 
 	.type-filter {
-		$border: 1px solid $def-purple;
+		$border: 1px solid $def-green;
 
 		@include display-flex;
 		border: $border;
@@ -13,7 +13,7 @@
 		.type {
 			@include flex-grow(1);
 			position: relative;
-			color: $def-purple;
+			color: $def-green;
 
 			input[type="radio"] {
 				@include position(absolute, 0, 0);
@@ -28,13 +28,13 @@
 				text-align: center;
 				font-size: 13px;
 				font-weight: 400;
-				color: $def-purple;
+				color: $def-green;
 				text-transform: uppercase;
 				@include transition(color $def-transition_duration, background-color $def-transition_duration);
 			}
 
 			input[type="radio"]:checked + label, input[type="radio"]:hover + label, input[type="radio"]:focus + label {
-				background-color: $def-purple;
+				background-color: $def-green;
 				color: white;
 			}
 		}
@@ -278,7 +278,7 @@
 								font-size: 13px;
 								text-transform: uppercase;
 								font-weight: 400;
-								background-color: $def-purple;
+								background-color: $def-green;
 								color: white;
 							}
 						}
