@@ -53,17 +53,16 @@ a.rebo {
 }
 
 .rebo.purple:not(:disabled) {
-	border-color: $def-purple;
+	border-color: $rebo-purple-border;
 	color: white;
-	background-color: $def-purple;
+	background-image: linear-gradient(to top, $rebo-purple-gradient-bottom, $rebo-purple-gradient-top);
 
 	svg {
 		fill: white;
 	}
 
 	&:hover, &:focus {
-		border-color: $def-purple-shade;
-		background-color: $def-purple-shade;
+		background-image: linear-gradient(to top, $rebo-purple-gradient-hover-bottom, $rebo-purple-gradient-hover-top);
 	}
 }
 
@@ -97,7 +96,7 @@ a.rebo {
 	}
 }
 
-.rebo.light.green:not(:disabled) {
+.rebo.light-green:not(:disabled) {
 	border-color: $def-green;
 	color: $def-green;
 	background-color: $def-green-verylight;
@@ -117,7 +116,7 @@ a.rebo {
 	}
 }
 
-.rebo.light.purple:not(:disabled) {
+.rebo.light-purple:not(:disabled) {
 	border-color: $def-purple;
 	color: $def-purple;
 	background-color: $def-purple-light;
@@ -137,7 +136,7 @@ a.rebo {
 	}
 }
 
-.rebo.light.danger:not(:disabled) {
+.rebo.light-danger:not(:disabled) {
 	border-color: $def-danger;
 	color: $def-danger;
 	background-color: $def-danger-light;
@@ -157,7 +156,7 @@ a.rebo {
 	}
 }
 
-.rebo.light.grey:not(:disabled) {
+.rebo.light-grey:not(:disabled) {
 	border-color: $def-mediumlightgrey;
 	color: black;
 	background-color: $def-verylightgrey;
@@ -172,7 +171,7 @@ a.rebo {
 	}
 }
 
-.rebo.hollow.grey:not(:disabled) {
+.rebo.hollow-grey:not(:disabled) {
 	border-color: $def-mediumlightgrey;
 	color: $def-mediumlightgrey;
 	background-color: transparent;
@@ -191,7 +190,7 @@ a.rebo {
 	}
 }
 
-.rebo.hollow.danger:not(:disabled) {
+.rebo.hollow-danger:not(:disabled) {
 	color: $def-danger;
 	background-color: transparent;
 

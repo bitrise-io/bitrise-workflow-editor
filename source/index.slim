@@ -16,7 +16,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 				span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
 				span.title[ng-bind="menu.title"]
 		aside.discard-save[ng-class="{'not-available': !mainCtrl.isDiscardSaveAvailable()}"]
-			button.discard.rebo.hollow.danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
+			button.discard.rebo.hollow-danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
 			button.save.rebo.purple[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]
 				span[ng-if="!mainCtrl.saveProgress.isInProgress"]
 					span.save[ng-if="mainCtrl.hasUnsavedChanges()" ng-class="osService.cssClass()"]
