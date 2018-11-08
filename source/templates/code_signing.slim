@@ -204,7 +204,7 @@
 										input.password-field[ng-if="!showPassword" type="text" ng-model="codeSigningCtrl.placeholderForText(certificate.password)" ng-model-options="{getterSetter: true}" disabled]
 										eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 									.change-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
-										input.action.ok.rebo.small.purple.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
+										input.action.ok.rebo.small.green.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
 										button.action.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
 								.error-notice[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword && certificate != certificateCtrl.passwordEditedCertificate && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 									span.icon = svg("triangle")
@@ -325,7 +325,7 @@
 							.show-password
 								checkbox.small[ng-model="androidKeystoreCtrl.showPrivateKeyPassword" checkbox-id-expression="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_private_key_password]
-						input.rebo.big.purple.save.submit[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
+						input.rebo.big.green.save.submit[type="submit" value="#{ data[:strings][:code_signing][:android_keystore][:save_metadata] }"]
 						button.rebo.big.grey.reset[type="button" ng-click="androidKeystoreCtrl.resetMetadata()"] == data[:strings][:code_signing][:android_keystore][:reset_to_saved]
 			.file-upload[ng-if="!androidKeystoreCtrl.keystoreFile && !androidKeystoreCtrl.actionProgress.isInProgress"]
 				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
