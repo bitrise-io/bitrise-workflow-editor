@@ -7,7 +7,7 @@
 	padding: 10px 12px;
 	text-align: center;
 	font-size: 15px;
-	font-weight: 400;
+	font-weight: 500;
 	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
 
 	svg {

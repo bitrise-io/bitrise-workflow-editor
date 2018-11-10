@@ -1944,27 +1944,31 @@ header.sticky section.manage-workflows {
 
 		button {
 			width: 50%;
+			border-top: 1px solid;
 			@include padding-y(18px);
 			font-size: 16px;
 			font-weight: 300;
 			color: white;
-			@include transition(background-color $def-transition_duration);
+			@include transition(border-color $def-transition_duration, background-color $def-transition_duration);
 		}
 
 		button.done {
+			border-color: $def-purple;
 			background-color: $def-purple;
 		}
 
 		button.done:hover, button.done:focus {
+			border-color: $def-purple-shade;
 			background-color: $def-purple-shade;
 		}
 
 		button.cancel {
-			background-color: $def-danger;
+			border-color: $def-lightgrey;
+			color: $def-verydarkgrey;
 		}
 
 		button.cancel:hover, button.cancel:focus {
-			background-color: $def-danger-shade;
+			background-color: $def-ultralightgrey;
 		}
 	}
 }
