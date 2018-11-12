@@ -86,7 +86,7 @@ section.manage-workflows {
 					@include display-flex;
 					@include align-items(center);
 					padding: $li_padding;
-					background-color: $def-green;
+					background-color: $def-purple;
 					color: white;
 
 					svg {
@@ -145,7 +145,7 @@ section.manage-workflows {
 					}
 
 					button.select-workflow:hover, button.select-workflow:focus {
-						background-color: $def-green;
+						background-color: $def-purple;
 						color: white;
 					}
 
@@ -1223,7 +1223,7 @@ header.sticky section.manage-workflows {
 														@include border-radius($def-radius);
 														padding: 3px 8px;
 														color: white;
-														background-color: $def-green;
+														background-color: $def-purple;
 														text-decoration: none;
 														@include transition(background-color $def-transition_duration);
 
@@ -1232,7 +1232,7 @@ header.sticky section.manage-workflows {
 														}
 
 														&:hover, &:focus {
-															background-color: $def-green-shade;
+															background-color: $def-purple-shade;
 														}
 													}
 												}
@@ -1902,18 +1902,18 @@ header.sticky section.manage-workflows {
 				font-weight: 300;
 				background-repeat: no-repeat;
 				background-position: left $workflow-padding center, right $workflow-padding center;
-				background-color: $def-green;
+				background-color: $def-purple;
 				color: white;
 				@include transition(background-color $def-transition_duration);
 			}
 
 			select.run-workflow-selector:hover, select.run-workflow-selector:focus {
-				background-color: $def-green-shade;
+				background-color: $def-purple-shade;
 			}
 
 			select.run-workflow-selector.before-run {
 				background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-					fill: rgba($def-green-light, 0.99)
+					fill: rgba($def-purple-light, 0.99)
 				)), background_image_from_svg_content_with_attributes('<%= svg("arrow-down") %>', (
 					fill: rgba(white, 0.99)
 				));
@@ -1922,7 +1922,7 @@ header.sticky section.manage-workflows {
 
 			select.run-workflow-selector.after-run {
 				background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-					fill: rgba($def-green-light, 0.99)
+					fill: rgba($def-purple-light, 0.99)
 				)), background_image_from_svg_content_with_attributes('<%= svg("arrow-down") %>', (
 					fill: rgba(white, 0.99)
 				));
@@ -1944,27 +1944,31 @@ header.sticky section.manage-workflows {
 
 		button {
 			width: 50%;
+			border-top: 1px solid;
 			@include padding-y(18px);
 			font-size: 16px;
 			font-weight: 300;
 			color: white;
-			@include transition(background-color $def-transition_duration);
+			@include transition(border-color $def-transition_duration, background-color $def-transition_duration);
 		}
 
 		button.done {
-			background-color: $def-green;
+			border-color: $def-purple;
+			background-color: $def-purple;
 		}
 
 		button.done:hover, button.done:focus {
-			background-color: $def-green-shade;
+			border-color: $def-purple-shade;
+			background-color: $def-purple-shade;
 		}
 
 		button.cancel {
-			background-color: $def-danger;
+			border-color: $def-lightgrey;
+			color: $def-verydarkgrey;
 		}
 
 		button.cancel:hover, button.cancel:focus {
-			background-color: $def-danger-shade;
+			background-color: $def-ultralightgrey;
 		}
 	}
 }

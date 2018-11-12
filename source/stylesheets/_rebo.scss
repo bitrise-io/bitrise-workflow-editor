@@ -7,7 +7,7 @@
 	padding: 10px 12px;
 	text-align: center;
 	font-size: 15px;
-	font-weight: 400;
+	font-weight: 500;
 	@include transition(border-color $def-transition_duration, opacity $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
 
 	svg {
@@ -52,6 +52,20 @@ a.rebo {
 	}
 }
 
+.rebo.purple:not(:disabled) {
+	border-color: $rebo-purple-border;
+	color: white;
+	background-image: linear-gradient(to top, $rebo-purple-gradient-bottom, $rebo-purple-gradient-top);
+
+	svg {
+		fill: white;
+	}
+
+	&:hover, &:focus {
+		background-image: linear-gradient(to top, $rebo-purple-gradient-hover-bottom, $rebo-purple-gradient-hover-top);
+	}
+}
+
 .rebo.danger:not(:disabled) {
 	border-color: $def-danger;
 	color: white;
@@ -82,7 +96,7 @@ a.rebo {
 	}
 }
 
-.rebo.light.green:not(:disabled) {
+.rebo.light-green:not(:disabled) {
 	border-color: $def-green;
 	color: $def-green;
 	background-color: $def-green-verylight;
@@ -102,7 +116,27 @@ a.rebo {
 	}
 }
 
-.rebo.light.danger:not(:disabled) {
+.rebo.light-purple:not(:disabled) {
+	border-color: $def-purple;
+	color: $def-purple;
+	background-color: $def-purple-light;
+
+	svg {
+		fill: $def-purple;
+	}
+
+	&:hover, &:focus {
+		border-color: $def-purple;
+		color: white;
+		background-color: $def-purple;
+
+		svg {
+			fill: white;
+		}
+	}
+}
+
+.rebo.light-danger:not(:disabled) {
 	border-color: $def-danger;
 	color: $def-danger;
 	background-color: $def-danger-light;
@@ -122,7 +156,7 @@ a.rebo {
 	}
 }
 
-.rebo.light.grey:not(:disabled) {
+.rebo.light-grey:not(:disabled) {
 	border-color: $def-mediumlightgrey;
 	color: black;
 	background-color: $def-verylightgrey;
@@ -137,7 +171,7 @@ a.rebo {
 	}
 }
 
-.rebo.hollow.grey:not(:disabled) {
+.rebo.hollow-grey:not(:disabled) {
 	border-color: $def-mediumlightgrey;
 	color: $def-mediumlightgrey;
 	background-color: transparent;
@@ -156,7 +190,7 @@ a.rebo {
 	}
 }
 
-.rebo.hollow.danger:not(:disabled) {
+.rebo.hollow-danger:not(:disabled) {
 	color: $def-danger;
 	background-color: transparent;
 
