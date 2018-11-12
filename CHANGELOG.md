@@ -1,6 +1,44 @@
-## Changelog (Current version: 1.1.38)
+## Changelog (Current version: 1.1.39)
 
 -----------------
+
+## 1.1.39 (2018 Nov 12)
+
+### Release Notes
+
+* Change colors to match new design (#346)
+* Revert "Update green backgrounded selectables to purple (#344)" (#345)
+* Update green backgrounded selectables to purple (#344)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.39
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.38 -> 1.1.39
+
+* [5032439] erosdome - Change colors to match new design (#346) (2018 Nov 12)
+* [b3621ff] erosdome - Revert "Update green backgrounded selectables to purple (#344)" (#345) (2018 Nov 08)
+* [73fed5c] erosdome - Update green backgrounded selectables to purple (#344) (2018 Nov 07)
+
 
 ## 1.1.38 (2018 Nov 05)
 
@@ -2836,4 +2874,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Nov 05
+Updated: 2018 Nov 12
