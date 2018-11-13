@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.39)
+## Changelog (Current version: 1.1.40)
 
 -----------------
+
+## 1.1.40 (2018 Nov 13)
+
+### Release Notes
+
+* Show/hide secret value on edit mode enter/exit (#347)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.40
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.39 -> 1.1.40
+
+* [812c1af] erosdome - Show/hide secret value on edit mode enter/exit (#347) (2018 Nov 13)
+
 
 ## 1.1.39 (2018 Nov 12)
 
@@ -2874,4 +2908,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Nov 12
+Updated: 2018 Nov 13
