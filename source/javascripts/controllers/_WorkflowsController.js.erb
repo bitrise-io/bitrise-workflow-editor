@@ -524,6 +524,11 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		});
 
 		viewModel.renamedWorkflow.id = newWorkflowID;
+
+		if (workflowsTabService.shouldWatchSelectionChanges && viewModel.selectedWorkflow == viewModel.renamedWorkflow) {
+			workflowsTabService.storeSelectionState(viewModel.selectedWorkflow, viewModel.editedWorkflow, viewModel.editedWorkflowIndex, viewModel.selectedStep);
+		}
+
 		viewModel.renamedWorkflow = null;
 	};
 
