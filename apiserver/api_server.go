@@ -70,7 +70,7 @@ func LaunchServer() error {
 			openCmd = "xdg-open"
 		}
 		workflowEditorURL := fmt.Sprintf("http://localhost:%s/%s/", port, version.VERSION)
-		log.Printf("Open workflow editor in browser ...")
+		log.Printf("Workflow editor URL: %s", workflowEditorURL)
 		if err := command.NewWithStandardOuts(openCmd, workflowEditorURL).Run(); err != nil {
 			log.Printf(" [!] Failed to open workflow editor in browser, error: %s", err)
 		}
