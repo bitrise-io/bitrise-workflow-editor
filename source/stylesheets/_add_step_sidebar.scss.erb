@@ -160,7 +160,11 @@
 							content: "?";
 						}
 
-						@mixin icon_styling($icon_class, $top, $width, $height: $width) {
+						svg {
+							@include size(24px);
+						}
+
+						@mixin icon_styling($icon_class) {
 
 							&:before {
 								content: none;
@@ -168,40 +172,38 @@
 
 							span.platform-icon.#{$icon_class} {
 								display: inline;
-
-								svg {
-									top: $top;
-									@include size($width, $height);
-								}
 							}
 						}
 
-						&.ios, &.osx, &.macos {
-							@include icon_styling("apple", -4px, 16px);
+						&.ios {
+							@include icon_styling("apple");
 						}
-
+						&.osx, &.macos {
+							@include icon_styling("macos");
+						}
 						&.android {
-							@include icon_styling("android", -3px, 16px, 18px);
+							@include icon_styling("android");
 						}
-
 						&.xamarin {
-							@include icon_styling("xamarin", -3px, 16px);
+							@include icon_styling("xamarin");
 						}
-
 						&.cordova {
-							@include icon_styling("cordova", -3px, 16px);
+							@include icon_styling("cordova");
 						}
 						&.ionic {
-							@include icon_styling("ionic", -3px, 16px);
+							@include icon_styling("ionic");
 						}
 						&.fastlane {
-							@include icon_styling("fastlane", -3px, 16px);
+							@include icon_styling("fastlane");
+						}
+						&.flutter {
+							@include icon_styling("flutter");
 						}
 						&.react-native {
-							@include icon_styling("react-native", -1px, 19px);
+							@include icon_styling("react-native");
 						}
 						&.other {
-							@include icon_styling("other", -3px, 16px);
+							@include icon_styling("other");
 						}
 					}
 
