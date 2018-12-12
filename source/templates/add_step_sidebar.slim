@@ -8,11 +8,13 @@
 				.project-type-filter[ng-if="appService.projectType"]
 					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.projectType | projectTypeCSSClass"]
 						span.platform-icon.apple = svg("logo/apple")
+						span.platform-icon.macos = svg("logo/macos")
 						span.platform-icon.android = svg("logo/android")
 						span.platform-icon.xamarin = svg("logo/xamarin")
 						span.platform-icon.cordova = svg("logo/cordova")
 						span.platform-icon.ionic = svg("logo/ionic")
 						span.platform-icon.fastlane = svg("logo/fastlane")
+						span.platform-icon.flutter = svg("logo/flutter")
 						span.platform-icon.react-native = svg("logo/react")
 						span.platform-icon.other = svg("logo/other")
 					button.all[ng-click="addStepCtrl.shouldFilterByProjectType = false" ng-disabled="!addStepCtrl.shouldFilterByProjectType"] == data[:strings][:workflows][:steps][:add][:all_project_types]
