@@ -187,7 +187,9 @@ section.manage-workflows {
 					input.ok {
 						width: 12px;
 						@include box-sizing(content-box);
-            background-color: $def-purple;
+						border: none;
+						padding: 10px 13px;
+						background-color: $def-purple;
 						background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
 							fill: rgba(white, 0.99)
 						)), none;
@@ -195,8 +197,6 @@ section.manage-workflows {
 						background-position: center;
 						background-origin: content-box;
 						background-repeat: no-repeat;
-            border: none;
-            padding: 10px 13px;
 					}
 				}
 			}
