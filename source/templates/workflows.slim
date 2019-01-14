@@ -14,7 +14,7 @@
 							button.rename-workflow[ng-click="workflowsCtrl.renamedWorkflow = workflow"]
 						form.workflow-rename[name="renameWorkflowForm" ng-submit="workflowsCtrl.renameWorkflowConfirmed()"]
 							input.name[type="text" name="name" ng-model="workflowsCtrl.renamedWorkflowID" custom-validators="{'id': workflowsCtrl.isRenamedWorkflowIDValid()}"]
-							input.ok.rebo.no-border-radius.purple[type="submit" ng-disabled="renameWorkflowForm.name.$invalid" value=""]
+							input.ok[type="submit" ng-disabled="renameWorkflowForm.name.$invalid" value=""]
 			button.manage-button.add-workflow.rebo.light-purple[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
 				= svg("plus")
 				span == data[:strings][:workflows][:add_workflow][:action]
