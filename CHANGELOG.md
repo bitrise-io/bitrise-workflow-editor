@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.44)
+## Changelog (Current version: 1.1.45)
 
 -----------------
+
+## 1.1.45 (2019 Jan 16)
+
+### Release Notes
+
+* added Flutter selector (#354)
+* Fix rename workflow checkmark background (#355)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.45
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.44 -> 1.1.45
+
+* [64f7fa2] Tamas Papik - added Flutter selector (#354) (2019 Jan 16)
+* [e9cf45c] Simon Márton - Fix rename workflow checkmark background (#355) (2019 Jan 15)
+
 
 ## 1.1.44 (2018 Dec 12)
 
@@ -3046,4 +3082,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2018 Dec 12
+Updated: 2019 Jan 16
