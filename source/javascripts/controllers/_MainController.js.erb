@@ -458,9 +458,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
-			if (requestService.mode == "website") {
-				appService.getAppDetails();
-			}
+			appService.getAppDetails();
 			viewModel.initAppProgress.success();
 			selectInitialMenu();
 		}).catch( function(hasError) {
