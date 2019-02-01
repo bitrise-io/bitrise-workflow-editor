@@ -21,7 +21,7 @@
 					p.progress-indicator[progress-model="envVar.customProperties.progress"]
 					form[name="envVarForm" ng-if="!envVar.customProperties.progress.isInProgress"]
 						.key-value-delete
-							input.key[type="text" name="key" ng-model="envVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!envVar.isKeyChangeable" custom-validators="{'key': Variable.isValidKey(envVar.key())}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
+							input.key[type="text" name="key" autocomplete="off" ng-model="envVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!envVar.isKeyChangeable" custom-validators="{'key': Variable.isValidKey(envVar.key())}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
 							.value-with-actions
 								textarea.value[name="value" msd-elastic ng-model="envVar.value" ng-model-options="{getterSetter: true}" ng-trim="false" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
 							.actions[floating-menu toggle="envVar.customProperties.isMenuVisible"]
