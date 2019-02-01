@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.46)
+## Changelog (Current version: 1.1.47)
 
 -----------------
+
+## 1.1.47 (2019 Feb 01)
+
+### Release Notes
+
+* Add autocomplete off for env var key inputs (#357)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.47
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.46 -> 1.1.47
+
+* [03272d9] erosdome - Add autocomplete off for env var key inputs (#357) (2019 Feb 01)
+
 
 ## 1.1.46 (2019 Jan 25)
 
@@ -3116,4 +3150,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Jan 25
+Updated: 2019 Feb 01
