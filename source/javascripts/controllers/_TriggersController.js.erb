@@ -82,7 +82,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		if (!triggerType) {
 			triggerType = _.first($scope.triggerTypes);
 		}
-		
+
 		viewModel.triggerTypeSelected(triggerType);
 	}
 
@@ -91,7 +91,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			if (addTriggerProgress.isInProgress) {
 				viewModel.triggerEditCancelled();
 			}
-			
+
 			viewModel.selectedTriggerType = triggerType;
 			$location.search("trigger_type", triggerType.urlParameterValue);
 			viewModel.triggerSelected(null);
@@ -129,8 +129,6 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 	viewModel.deleteTrigger = function(trigger) {
 		var index = _.indexOf(viewModel.selectedTriggerType.triggers, trigger);
 		viewModel.selectedTriggerType.triggers.splice(index, 1);
-
-		viewModel.triggerSelected(null);
 	};
 
 	viewModel.addTriggerSelectedAtIndex = function(index) {
@@ -200,7 +198,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 		if (addTriggerProgress.isInProgress) {
 			addTriggerProgress.success();
 		}
-		
+
 		viewModel.triggerSelected(null);
 	};
 
@@ -209,9 +207,8 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			addTriggerProgress.reset();
 			viewModel.deleteTrigger(viewModel.selectedTrigger);
 		}
-		else {
-			viewModel.triggerSelected(null);
-		}
+
+		viewModel.triggerSelected(null);
 	};
 
 	configureWithAppConfig();
