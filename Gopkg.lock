@@ -3,33 +3,42 @@
 
 [[projects]]
   branch = "master"
+  digest = "1:4699973a321429e9cae734b6175b2aa294a6a0ab9edcb4359b76213d84c76695"
   name = "github.com/GeertJohan/go.rice"
   packages = [
     ".",
-    "embedded"
+    "embedded",
   ]
-  revision = "c02ca9a983da5807ddf7d796784928f5be4afd09"
+  pruneopts = ""
+  revision = "0af3f3b09a0a8b391f63ab52ba5ab50f84fabd30"
 
 [[projects]]
   branch = "master"
+  digest = "1:9d32dcfbd0beba87567f79deec3afc4ec19a40ee376da3627f1b79eddcbd65a9"
   name = "github.com/bitrise-io/bitrise"
   packages = ["models"]
-  revision = "c0d570ef7a5202cd8013c66ffe0619c02e308fa3"
+  pruneopts = ""
+  revision = "0687b215e84a67d8c785c4f6eb4b6d66e9211ce6"
 
 [[projects]]
   branch = "master"
+  digest = "1:a85cae1c2ab266aaa813668936710b634ea158d4afb726672fb33788c218c77a"
   name = "github.com/bitrise-io/depman"
   packages = ["pathutil"]
+  pruneopts = ""
   revision = "e296641465fca7487059fcabd9bb57e9a3f3b1f8"
 
 [[projects]]
   branch = "master"
+  digest = "1:d0807039f502a02cfbef18128db8a074db6f07fa2461e69ae85736b2badc9c4e"
   name = "github.com/bitrise-io/envman"
   packages = ["models"]
-  revision = "7d5180ae4046f109e3dfd73c15082170ae7153d3"
+  pruneopts = ""
+  revision = "4a7ab5aae4a3db9a60dcc02ff472de7e47c82d71"
 
 [[projects]]
   branch = "master"
+  digest = "1:6083fc4e90fe661aad326c42fa16fb85774cb55711560d1208c82ff290534836"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -40,94 +49,120 @@
     "log",
     "parseutil",
     "pathutil",
-    "pointers"
+    "pointers",
   ]
-  revision = "d1de0dbcb811588e61362aff67bb700b93c13c17"
+  pruneopts = ""
+  revision = "2a09aab8380d7842750328aebd5671bcccea89c8"
 
 [[projects]]
   branch = "master"
+  digest = "1:a08599f6937ab2778d1ae1359b8ebe90a0985c046eddff850d47242dd01cd959"
   name = "github.com/bitrise-io/stepman"
   packages = ["models"]
-  revision = "60db1821f76766e849f8c6eb18b7f90202f15407"
+  pruneopts = ""
+  revision = "9a9514dd0aa576d51fffbd997d9b37d1660f4dd7"
 
 [[projects]]
   branch = "master"
+  digest = "1:5fd5c4d4282935b7a575299494f2c09e9d2cacded7815c83aff7c1602aff3154"
   name = "github.com/daaku/go.zipexe"
   packages = ["."]
+  pruneopts = ""
   revision = "a5fe2436ffcb3236e175e5149162b41cd28bd27d"
 
 [[projects]]
+  digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  revision = "346938d642f2ec3594ed81d874461961cd0faa76"
-  version = "v1.1.0"
-
-[[projects]]
-  name = "github.com/gorilla/context"
-  packages = ["."]
-  revision = "08b5f424b9271eedf6f9f0ce86cb9396ed337a42"
+  pruneopts = ""
+  revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
 
 [[projects]]
   branch = "master"
+  digest = "1:a3c01bbe8766cbce019cdb900aa51460a6f7bd4266a18d80722dc92297302bc3"
   name = "github.com/gorilla/mux"
   packages = ["."]
-  revision = "cb4698366aa625048f3b815af6a0dea8aef9280a"
+  pruneopts = ""
+  revision = "a7962380ca08b5a188038c69871b8d3fbdf31e89"
 
 [[projects]]
+  digest = "1:870d441fe217b8e689d7949fef6e43efbc787e50f200cb1e70dbca9204a1d6be"
   name = "github.com/inconshreveable/mousetrap"
   packages = ["."]
+  pruneopts = ""
   revision = "76626ae9c91c4f2a10f34cad8ce83ea42c93bb75"
   version = "v1.0"
 
 [[projects]]
-  branch = "master"
-  name = "github.com/kardianos/osext"
-  packages = ["."]
-  revision = "ae77be60afb1dcacde03767a8c37337fad28ac14"
-
-[[projects]]
+  digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
+  pruneopts = ""
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
   branch = "master"
+  digest = "1:4244255905cb95c3c98894d671367f84a6292608ae528936fe46ba9c86f68393"
   name = "github.com/ryanuber/go-glob"
   packages = ["."]
-  revision = "256dc444b735e061061cf46c809487313d5b0065"
+  pruneopts = ""
+  revision = "51a8f68e6c24dc43f1e371749c89a267de4ebc53"
 
 [[projects]]
   branch = "master"
+  digest = "1:5ecde9953966d79a8f58a3a612eda90bdab5ef36745271f9da46cac8dad128bf"
   name = "github.com/spf13/cobra"
   packages = ["."]
-  revision = "a114f312e075f65bf30d6d9a1430113f857e543b"
+  pruneopts = ""
+  revision = "7547e83b2d85fd1893c7d76916f67689d761fecb"
 
 [[projects]]
+  digest = "1:cbaf13cdbfef0e4734ed8a7504f57fe893d471d62a35b982bf6fb3f036449a66"
   name = "github.com/spf13/pflag"
   packages = ["."]
-  revision = "583c0c0531f06d5278b7d917446061adc344b5cd"
-  version = "v1.0.1"
+  pruneopts = ""
+  revision = "298182f68c66c05229eb03ac171abe6e309ee79a"
+  version = "v1.0.3"
 
 [[projects]]
   branch = "master"
+  digest = "1:3535f2234c64cf34dcf1cc82395aca5a8d704b1e1523e69c8d8715ddd7c4de92"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
-    "require"
+    "require",
   ]
-  revision = "f35b8ab0b5a2cef36673838d662e249dd9c94686"
+  pruneopts = ""
+  revision = "78018b09cde1da8ab313a2344fa4395b86026def"
 
 [[projects]]
   branch = "v2"
+  digest = "1:cedccf16b71e86db87a24f8d4c70b0a855872eb967cb906a66b95de56aefbd0d"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  revision = "5420a8b6744d3b0345ab293f6fcba19c978f1183"
+  pruneopts = ""
+  revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
-  inputs-digest = "4dd00e1ce064395b6e2ceb9efab0470d359243310903e5de5b54d1d9d8d07e9e"
+  input-imports = [
+    "github.com/GeertJohan/go.rice",
+    "github.com/bitrise-io/bitrise/models",
+    "github.com/bitrise-io/depman/pathutil",
+    "github.com/bitrise-io/envman/models",
+    "github.com/bitrise-io/go-utils/command",
+    "github.com/bitrise-io/go-utils/fileutil",
+    "github.com/bitrise-io/go-utils/freezable",
+    "github.com/bitrise-io/go-utils/log",
+    "github.com/bitrise-io/go-utils/pathutil",
+    "github.com/bitrise-io/stepman/models",
+    "github.com/gorilla/mux",
+    "github.com/spf13/cobra",
+    "github.com/stretchr/testify/require",
+    "gopkg.in/yaml.v2",
+  ]
   solver-name = "gps-cdcl"
   solver-version = 1

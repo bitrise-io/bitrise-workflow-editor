@@ -84,6 +84,10 @@ func trigger(c *cli.Context) error {
 	var secretFiltering *bool
 	if c.IsSet(secretFilteringFlag) {
 		secretFiltering = pointers.NewBoolPtr(c.Bool(secretFilteringFlag))
+	} else if os.Getenv(configs.IsSecretFilteringKey) == "true" {
+		secretFiltering = pointers.NewBoolPtr(true)
+	} else if os.Getenv(configs.IsSecretFilteringKey) == "false" {
+		secretFiltering = pointers.NewBoolPtr(false)
 	}
 
 	triggerPattern := c.String(PatternKey)
@@ -127,7 +131,7 @@ func trigger(c *cli.Context) error {
 	}
 
 	// Config validation
-	bitriseConfig, warnings, err := CreateBitriseConfigFromCLIParams(triggerParams.BitriseConfigBase64Data, triggerParams.BitriseConfigPath, inventoryEnvironments)
+	bitriseConfig, warnings, err := CreateBitriseConfigFromCLIParams(triggerParams.BitriseConfigBase64Data, triggerParams.BitriseConfigPath)
 	for _, warning := range warnings {
 		log.Warnf("warning: %s", warning)
 	}

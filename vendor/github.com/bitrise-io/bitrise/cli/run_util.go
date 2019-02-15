@@ -2,8 +2,10 @@ package cli
 
 import (
 	"encoding/base64"
+	"encoding/json"
 	"errors"
 	"fmt"
+	"io/ioutil"
 	"os"
 	"path/filepath"
 	"runtime"
@@ -30,8 +32,6 @@ import (
 	"github.com/bitrise-io/go-utils/versions"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 )
-
-var isAptGetUpdated bool
 
 func isPRMode(prGlobalFlagPtr *bool, inventoryEnvironments []envmanModels.EnvironmentItemModel) (bool, error) {
 	if prGlobalFlagPtr != nil {
@@ -110,18 +110,21 @@ func isSecretFiltering(filteringFlag *bool, inventoryEnvironments []envmanModels
 		return *filteringFlag, nil
 	}
 
-	for _, env := range inventoryEnvironments {
-		key, value, err := env.GetKeyValuePair()
-		if err != nil {
-			return false, err
-		}
+	expandedEnvs, err := tools.ExpandEnvItems(inventoryEnvironments, os.Environ())
+	if err != nil {
+		return false, err
+	}
 
-		if key == configs.IsSecretFilteringKey && value == "true" {
+	value, ok := expandedEnvs[configs.IsSecretFilteringKey]
+	if ok {
+		if value == "true" {
 			return true, nil
+		} else if value == "false" {
+			return false, nil
 		}
 	}
 
-	return false, nil
+	return true, nil
 }
 
 func registerSecretFiltering(filtering bool) error {
@@ -133,6 +136,14 @@ func registerSecretFiltering(filtering bool) error {
 	return os.Setenv(configs.IsSecretFilteringKey, strconv.FormatBool(filtering))
 }
 
+func isDirEmpty(path string) (bool, error) {
+	entries, err := ioutil.ReadDir(path)
+	if err != nil {
+		return false, err
+	}
+	return len(entries) == 0, nil
+}
+
 // GetBitriseConfigFromBase64Data ...
 func GetBitriseConfigFromBase64Data(configBase64Str string) (models.BitriseDataModel, []string, error) {
 	configBase64Bytes, err := base64.StdEncoding.DecodeString(configBase64Str)
@@ -140,7 +151,7 @@ func GetBitriseConfigFromBase64Data(configBase64Str string) (models.BitriseDataM
 		return models.BitriseDataModel{}, []string{}, fmt.Errorf("Failed to decode base 64 string, error: %s", err)
 	}
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes(configBase64Bytes, nil)
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes(configBase64Bytes)
 	if err != nil {
 		return models.BitriseDataModel{}, warnings, fmt.Errorf("Failed to parse bitrise config, error: %s", err)
 	}
@@ -164,7 +175,7 @@ func GetBitriseConfigFilePath(bitriseConfigPath string) (string, error) {
 }
 
 // CreateBitriseConfigFromCLIParams ...
-func CreateBitriseConfigFromCLIParams(bitriseConfigBase64Data, bitriseConfigPath string, secrets []envmanModels.EnvironmentItemModel) (models.BitriseDataModel, []string, error) {
+func CreateBitriseConfigFromCLIParams(bitriseConfigBase64Data, bitriseConfigPath string) (models.BitriseDataModel, []string, error) {
 	bitriseConfig := models.BitriseDataModel{}
 	warnings := []string{}
 
@@ -184,7 +195,7 @@ func CreateBitriseConfigFromCLIParams(bitriseConfigBase64Data, bitriseConfigPath
 			return models.BitriseDataModel{}, []string{}, errors.New("Failed to get config (bitrise.yml) path: empty bitriseConfigPath")
 		}
 
-		config, warns, err := bitrise.ReadBitriseConfig(bitriseConfigPath, secrets)
+		config, warns, err := bitrise.ReadBitriseConfig(bitriseConfigPath)
 		warnings = warns
 		if err != nil {
 			return models.BitriseDataModel{}, warnings, fmt.Errorf("Config (path:%s) is not valid: %s", bitriseConfigPath, err)
@@ -265,7 +276,7 @@ func CreateInventoryFromCLIParams(inventoryBase64Data, inventoryPath string) ([]
 
 			inventory, err := bitrise.CollectEnvironmentsFromFile(inventoryPath)
 			if err != nil {
-				return []envmanModels.EnvironmentItemModel{}, fmt.Errorf("Invalid invetory format: %s", err)
+				return []envmanModels.EnvironmentItemModel{}, fmt.Errorf("Invalid inventory format: %s", err)
 			}
 			inventoryEnvironments = inventory
 		}
@@ -316,14 +327,6 @@ func checkAndInstallStepDependencies(step stepmanModels.StepModel) error {
 				log.Infof(" * "+colorstring.Green("[OK]")+" Step dependency (%s) installed, available.", brewDep.GetBinaryName())
 			}
 		case "linux":
-			if len(step.Deps.AptGet) > 0 && !isAptGetUpdated {
-				cmd := command.New("sudo", "apt-get", "update")
-				log.Infof(cmd.PrintableCommandArgs())
-				if err := cmd.SetStdout(os.Stdout).SetStderr(os.Stderr).Run(); err != nil {
-					log.Errorf("apt-get update failed, error: %s", err)
-				}
-				isAptGetUpdated = true
-			}
 			for _, aptGetDep := range step.Deps.AptGet {
 				log.Infof("Start installing (%s) with apt-get", aptGetDep.Name)
 				if err := bitrise.InstallWithAptGetIfNeeded(aptGetDep, configs.IsCIMode); err != nil {
@@ -427,7 +430,6 @@ func runStep(
 		return 1, []envmanModels.EnvironmentItemModel{}, fmt.Errorf("Failed to init envman for the Step, error: %s", err)
 	}
 
-	environments = append(environments, envmanModels.EnvironmentItemModel{"BITRISE_STEP_SOURCE_DIR": stepDir})
 	if err := tools.ExportEnvironmentsList(configs.InputEnvstorePath, environments); err != nil {
 		return 1, []envmanModels.EnvironmentItemModel{}, fmt.Errorf("Failed to export environment list for the Step, error: %s", err)
 	}
@@ -868,18 +870,45 @@ func activateAndRunSteps(
 		if mergedStep.IsAlwaysRun != nil {
 			isAlwaysRun = *mergedStep.IsAlwaysRun
 		} else {
-			log.Warn("Step (%s) mergedStep.IsAlwaysRun is nil, should not!", stepIDData.IDorURI)
+			log.Warnf("Step (%s) mergedStep.IsAlwaysRun is nil, should not!", stepIDData.IDorURI)
 		}
 
 		if buildRunResults.IsBuildFailed() && !isAlwaysRun {
 			registerStepRunResults(mergedStep, stepInfoPtr, stepIdxPtr,
 				*mergedStep.RunIf, models.StepRunStatusCodeSkipped, 0, err, isLastStep, false)
 		} else {
+			// beside of the envs coming from the current parent process these will be added as an extra
+			var additionalEnvironments []envmanModels.EnvironmentItemModel
+
+			// add an extra env for the next step run to be able to access the step's source location
+			additionalEnvironments = append(additionalEnvironments, envmanModels.EnvironmentItemModel{
+				"BITRISE_STEP_SOURCE_DIR": stepDir,
+			})
+
+			// ensure a new testDirPath and if created successfuly then attach it to the step process by and env
+			testDirPath, err := ioutil.TempDir(os.Getenv(configs.BitriseTestResultDirEnvKey), "test_result")
+			if err != nil {
+				log.Errorf("Failed to create test result dir, error: %s", err)
+			}
+
+			if testDirPath != "" {
+				// managed to create the test dir, set the env for it for the next step run
+				additionalEnvironments = append(additionalEnvironments, envmanModels.EnvironmentItemModel{
+					configs.BitriseTestResultDirEnvKey: testDirPath,
+				})
+			}
+
 			exit, outEnvironments, err := runStep(
 				mergedStep, stepIDData, stepDir,
-				*environments, secrets,
+				append(*environments, additionalEnvironments...), secrets,
 				buildRunResults,
 			)
+
+			if testDirPath != "" {
+				if err := addTestMetadata(testDirPath, models.TestResultStepInfo{Number: idx, Title: *mergedStep.Title, ID: stepIDData.IDorURI, Version: stepIDData.Version}); err != nil {
+					log.Errorf("Failed to normalize test result dir, error: %s", err)
+				}
+			}
 
 			if err := tools.EnvmanClear(configs.OutputEnvstorePath); err != nil {
 				log.Errorf("Failed to clear output envstore, error: %s", err)
@@ -1072,4 +1101,27 @@ func runWorkflowWithConfiguration(
 	}
 
 	return buildRunResults, nil
+}
+
+func addTestMetadata(testDirPath string, testResultStepInfo models.TestResultStepInfo) error {
+	// check if the test dir is empty
+	if empty, err := isDirEmpty(testDirPath); err != nil {
+		return fmt.Errorf("failed to check if dir empty: %s, error: %s", testDirPath, err)
+	} else if empty {
+		// if the test dir is empty then we need to remove the dir from the temp location to not to spam the system with empty dirs
+		if err := os.Remove(testDirPath); err != nil {
+			return fmt.Errorf("failed to remove dir: %s, error: %s", testDirPath, err)
+		}
+	} else {
+		// if the step put files into the test dir(so it is used) then we won't need to remove the test dir, moreover we need to add extra info from the step parameters
+		stepInfoFilePath := filepath.Join(testDirPath, "step-info.json")
+		stepResultInfoFile, err := os.Create(stepInfoFilePath)
+		if err != nil {
+			return fmt.Errorf("failed to open file: %s, error: %s", stepInfoFilePath, err)
+		}
+		if err := json.NewEncoder(stepResultInfoFile).Encode(testResultStepInfo); err != nil {
+			return fmt.Errorf("failed to encode to JSON, error: %s", err)
+		}
+	}
+	return nil
 }

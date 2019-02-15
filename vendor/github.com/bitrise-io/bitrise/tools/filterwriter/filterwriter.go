@@ -4,6 +4,7 @@ import (
 	"bytes"
 	"io"
 	"sort"
+	"sync"
 	"time"
 
 	"github.com/bitrise-io/go-utils/log"
@@ -21,6 +22,7 @@ type Writer struct {
 
 	chunk []byte
 	store [][]byte
+	mux   sync.Mutex
 }
 
 // New ...
@@ -38,10 +40,15 @@ func New(secrets []string, target io.Writer) *Writer {
 // Since we do not know which is the last call of Write we need to call Flush
 // on buffer to write the remaining lines.
 func (w *Writer) Write(p []byte) (int, error) {
+	defer func() {
+		w.mux.Unlock()
+	}()
+	w.mux.Lock()
+
 	// previous bytes may not ended with newline
 	data := append(w.chunk, p...)
 
-	lastLines, chunk := split(data)
+	lastLines, chunk := splitAfterNewline(data)
 	w.chunk = chunk
 	if len(chunk) > 0 {
 		// we have remaining bytes, do not swallow them
@@ -53,7 +60,7 @@ func (w *Writer) Write(p []byte) (int, error) {
 	}
 
 	if len(lastLines) == 0 {
-		// it is neccessary to return the count of incoming bytes
+		// it is necessary to return the count of incoming bytes
 		return len(p), nil
 	}
 
@@ -74,13 +81,18 @@ func (w *Writer) Write(p []byte) (int, error) {
 		}
 	}
 
-	// it is neccessary to return the count of incoming bytes
+	// it is necessary to return the count of incoming bytes
 	// to let the exec.Command work properly
 	return len(p), nil
 }
 
 // Flush writes the remaining bytes.
 func (w *Writer) Flush() (int, error) {
+	defer func() {
+		w.mux.Unlock()
+	}()
+	w.mux.Lock()
+
 	if len(w.chunk) > 0 {
 		// lines are containing newline, chunk may not
 		chunk := w.chunk
@@ -168,7 +180,7 @@ func (w *Writer) matchSecrets(lines [][]byte) (matchMap map[int][]int, partialMa
 	return
 }
 
-// linesToKeepRange returns a range (first, last index) of lines needs to be observed
+// linesToKeepRange returns the first line index needs to be observed
 // since they contain partially matching secrets.
 func (w *Writer) linesToKeepRange(partialMatchIndexes map[int]bool) int {
 	first := -1
@@ -187,7 +199,7 @@ func (w *Writer) linesToKeepRange(partialMatchIndexes map[int]bool) int {
 	return first
 }
 
-// matchLines return which lines can be printed and which should be keept for further observing.
+// matchLines return which lines can be printed and which should be kept for further observing.
 func (w *Writer) matchLines(lines [][]byte, partialMatchIndexes map[int]bool) ([][]byte, [][]byte) {
 	first := w.linesToKeepRange(partialMatchIndexes)
 	switch first {
@@ -242,11 +254,18 @@ func redact(line []byte, ranges []matchRange) []byte {
 		first := r.first + offset
 		last := first + length
 
+		toRedact := line[first:last]
+		redactStr := RedactStr
+		if bytes.HasSuffix(toRedact, []byte("\n")) {
+			// if string to redact ends with newline redact message should also
+			redactStr += "\n"
+		}
+
 		newLine := append([]byte{}, line[:first]...)
-		newLine = append(newLine, RedactStr...)
+		newLine = append(newLine, redactStr...)
 		newLine = append(newLine, line[last:]...)
 
-		offset += len(RedactStr) - length
+		offset += len(redactStr) - length
 
 		line = newLine
 	}
@@ -283,28 +302,45 @@ func (w *Writer) redact(lines [][]byte, matchMap map[int][]int) [][]byte {
 func secretsByteList(secrets []string) [][][]byte {
 	var s [][][]byte
 	for _, secret := range secrets {
-		s = append(s, bytes.Split([]byte(secret), newLine))
+		lines, lastLine := splitAfterNewline([]byte(secret))
+		if lines == nil && lastLine == nil {
+			continue
+		}
+
+		var secretLines [][]byte
+		if lines != nil {
+			secretLines = append(secretLines, lines...)
+		}
+		if lastLine != nil {
+			secretLines = append(secretLines, lastLine)
+		}
+		s = append(s, secretLines)
 	}
 	return s
 }
 
-// split splits p after "\n", the split is assigned to lines
-// if last line has no "\n" it is assigned to chunk.
-func split(p []byte) (lines [][]byte, chunk []byte) {
-	chunk = p
+// splitAfterNewline splits p after "\n", the split is assigned to lines
+// if last line has no "\n" it is assigned to the chunk.
+// If p is nil both lines and chunk is set to nil.
+func splitAfterNewline(p []byte) ([][]byte, []byte) {
+	chunk := p
+	var lines [][]byte
+
 	for len(chunk) > 0 {
 		idx := bytes.Index(chunk, newLine)
 		if idx == -1 {
-			return
+			return lines, chunk
 		}
 
 		lines = append(lines, chunk[:idx+1])
 
 		if idx == len(chunk)-1 {
-			chunk = []byte{}
-			continue
+			chunk = nil
+			break
 		}
+
 		chunk = chunk[idx+1:]
 	}
-	return
+
+	return lines, chunk
 }
