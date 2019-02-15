@@ -172,6 +172,8 @@ func run(c *cli.Context) error {
 		secretFiltering = pointers.NewBoolPtr(c.Bool(secretFilteringFlag))
 	} else if os.Getenv(configs.IsSecretFilteringKey) == "true" {
 		secretFiltering = pointers.NewBoolPtr(true)
+	} else if os.Getenv(configs.IsSecretFilteringKey) == "false" {
+		secretFiltering = pointers.NewBoolPtr(false)
 	}
 
 	workflowToRunID := c.String(WorkflowKey)
@@ -210,7 +212,7 @@ func run(c *cli.Context) error {
 	}
 
 	// Config validation
-	bitriseConfig, warnings, err := CreateBitriseConfigFromCLIParams(runParams.BitriseConfigBase64Data, runParams.BitriseConfigPath, inventoryEnvironments)
+	bitriseConfig, warnings, err := CreateBitriseConfigFromCLIParams(runParams.BitriseConfigBase64Data, runParams.BitriseConfigPath)
 	for _, warning := range warnings {
 		log.Warnf("warning: %s", warning)
 	}
