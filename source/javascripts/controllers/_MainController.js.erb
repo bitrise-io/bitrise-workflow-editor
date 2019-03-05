@@ -91,7 +91,16 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 					break;
 				case "yml":
-					appService.getAppConfigYML().then(resolve, reject);
+					appService.getAppConfigYML().then(function() {
+						resolve();
+					}, function(response) {
+						if (response.bitrise_yml) {
+							reject(response.error_message);
+						}
+						else {
+							reject(response);
+						}
+					});
 
 					break;
 			}
@@ -101,7 +110,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.loadAppConfigProgress.error(error);
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = true;
-		})
+		});
 	}
 
 	viewModel.menuSelected = function(menu) {
@@ -313,7 +322,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			return false;
 		}
 
-		if (!viewModel.loadAppConfigProgress.isIdle) {
+		if (viewModel.loadAppConfigProgress.isInProgress) {
 			return false;
 		}
 

@@ -530,6 +530,7 @@ request_service:
     default_error: Error loading library
     error_prefix: "Error loading library: "
   load_app_config:
+    invalid_bitrise_yml_error: Your config (bitrise.yml) is invalid.
     default_error: Error loading app config.
     error_prefix: "Error loading app config: "
   load_default_outputs:
