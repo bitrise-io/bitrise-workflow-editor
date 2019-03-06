@@ -4,6 +4,7 @@ import (
 	"testing"
 
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/envutil"
 	"github.com/stretchr/testify/require"
 )
 
@@ -61,9 +62,36 @@ func Test_LogFilter(t *testing.T) {
 		require.NotContains(t, out, sshKeyLogChunk)
 	}
 
+	t.Log("newlines in the middle")
+	{
+		cmd := command.New(binPath(), "run", "newline_test", "--config", configPth, "--inventory", secretsPth)
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+		require.Contains(t, out, `SECRET_WITH_NEWLINES_IN_THE_MIDDLE: [REDACTED]
+[REDACTED]
+[REDACTED]continue the last line`)
+		require.NotContains(t, out, sshKeyLogChunk)
+	}
+
+	t.Log("newlines at the end")
+	{
+		cmd := command.New(binPath(), "run", "ending_with_newline_test", "--config", configPth, "--inventory", secretsPth)
+		out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+		require.NoError(t, err, out)
+		require.Contains(t, out, `SECRET_ENDING_WITH_NEWLINE: [REDACTED]
+starts in a new line`)
+		require.NotContains(t, out, sshKeyLogChunk)
+	}
+
 	t.Log("disable filtering test")
 	{
 		secretsPth = "log_filter_disabled_test_secrets.yml"
+
+		revoke, err := envutil.RevokableSetenv("BITRISE_SECRET_FILTERING", "")
+		defer func() {
+			require.NoError(t, revoke())
+		}()
+		require.NoError(t, err)
 
 		cmd := command.New(binPath(), "run", "test", "--config", configPth, "--inventory", secretsPth)
 		out, err := cmd.RunAndReturnTrimmedCombinedOutput()

@@ -9,7 +9,6 @@ import (
 	"strings"
 
 	"github.com/bitrise-io/bitrise/output"
-	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/colorstring"
 	flog "github.com/bitrise-io/go-utils/log"
 	"github.com/urfave/cli"
@@ -150,70 +149,15 @@ func (v ValidationModel) String() string {
 	return msg
 }
 
-func validate(c *cli.Context) error {
-	warnings := []string{}
-
-	// Expand cli.Context
-	bitriseConfigBase64Data := c.String(ConfigBase64Key)
-	bitriseConfigPath := c.String(ConfigKey)
-	deprecatedBitriseConfigPath := c.String(PathKey)
-	if bitriseConfigPath == "" && deprecatedBitriseConfigPath != "" {
-		warnings = append(warnings, "'path' key is deprecated, use 'config' instead!")
-		bitriseConfigPath = deprecatedBitriseConfigPath
-	}
-
-	inventoryBase64Data := c.String(InventoryBase64Key)
-	inventoryPath := c.String(InventoryKey)
-
-	format := c.String(OuputFormatKey)
-	if format == "" {
-		format = output.FormatRaw
-	}
-	//
-
-	var log flog.Logger
-	log = flog.NewDefaultRawLogger()
-	if format == output.FormatRaw {
-		log = flog.NewDefaultRawLogger()
-	} else if format == output.FormatJSON {
-		log = flog.NewDefaultJSONLoger()
-	} else {
-		log.Print(NewValidationError(fmt.Sprintf("Invalid format: %s", format), warnings...))
-		os.Exit(1)
-	}
-
-	validation := ValidationModel{}
-
-	pth, err := GetInventoryFilePath(inventoryPath)
-	if err != nil {
-		log.Print(NewValidationError(fmt.Sprintf("Failed to get secrets path, err: %s", err), warnings...))
-		os.Exit(1)
-	}
-
-	var inventorySecrets []envmanModels.EnvironmentItemModel
-	if pth != "" || inventoryBase64Data != "" {
-		// Inventory validation
-		inventorySecrets, err = CreateInventoryFromCLIParams(inventoryBase64Data, inventoryPath)
-		secretValidation := ValidationItemModel{
-			IsValid: true,
-		}
-		if err != nil {
-			secretValidation.IsValid = false
-			secretValidation.Error = err.Error()
-		}
-
-		validation.Secrets = &secretValidation
-	}
-
-	pth, err = GetBitriseConfigFilePath(bitriseConfigPath)
+func validateBitriseYML(bitriseConfigPath string, bitriseConfigBase64Data string) (*ValidationItemModel, error) {
+	pth, err := GetBitriseConfigFilePath(bitriseConfigPath)
 	if err != nil && !strings.Contains(err.Error(), "bitrise.yml path not defined and not found on it's default path:") {
-		log.Print(NewValidationError(fmt.Sprintf("Failed to get config path, err: %s", err), warnings...))
-		os.Exit(1)
+		return nil, fmt.Errorf("Failed to get config path, err: %s", err)
 	}
 
 	if pth != "" || (pth == "" && bitriseConfigBase64Data != "") {
 		// Config validation
-		_, warns, err := CreateBitriseConfigFromCLIParams(bitriseConfigBase64Data, bitriseConfigPath, inventorySecrets)
+		_, warns, err := CreateBitriseConfigFromCLIParams(bitriseConfigBase64Data, bitriseConfigPath)
 		configValidation := ValidationItemModel{
 			IsValid:  true,
 			Warnings: warns,
@@ -223,15 +167,96 @@ func validate(c *cli.Context) error {
 			configValidation.Error = err.Error()
 		}
 
-		validation.Config = &configValidation
+		return &configValidation, nil
+	}
+
+	return nil, nil
+}
+
+func validateInventory(inventoryPath string, inventoryBase64Data string) (*ValidationItemModel, error) {
+	pth, err := GetInventoryFilePath(inventoryPath)
+	if err != nil {
+		return nil, fmt.Errorf("Failed to get secrets path, err: %s", err)
+	}
+
+	if pth != "" || inventoryBase64Data != "" {
+		// Inventory validation
+		_, err := CreateInventoryFromCLIParams(inventoryBase64Data, inventoryPath)
+		secretValidation := ValidationItemModel{
+			IsValid: true,
+		}
+		if err != nil {
+			secretValidation.IsValid = false
+			secretValidation.Error = err.Error()
+		}
+
+		return &secretValidation, nil
+	}
+
+	return nil, nil
+}
+
+func runValidate(bitriseConfigPath string, deprecatedBitriseConfigPath string, bitriseConfigBase64Data string, inventoryPath string, inventoryBase64Data string) (*ValidationModel, []string, error) {
+	warnings := []string{}
+
+	if bitriseConfigPath == "" && deprecatedBitriseConfigPath != "" {
+		warnings = append(warnings, "'path' key is deprecated, use 'config' instead!")
+		bitriseConfigPath = deprecatedBitriseConfigPath
+	}
+
+	validation := ValidationModel{}
+
+	result, err := validateBitriseYML(bitriseConfigPath, bitriseConfigBase64Data)
+	validation.Config = result
+	if err != nil {
+		return &validation, warnings, err
+	}
+
+	result, err = validateInventory(inventoryPath, inventoryBase64Data)
+	validation.Secrets = result
+	if err != nil {
+		return &validation, warnings, err
 	}
 
 	if validation.Config == nil && validation.Secrets == nil {
-		log.Print(NewValidationError("No config or secrets found for validation", warnings...))
+		return &validation, warnings, fmt.Errorf("No config or secrets found for validation")
+	}
+
+	return &validation, warnings, nil
+}
+
+func validate(c *cli.Context) error {
+	// Expand cli.Context
+	bitriseConfigBase64Data := c.String(ConfigBase64Key)
+	bitriseConfigPath := c.String(ConfigKey)
+	deprecatedBitriseConfigPath := c.String(PathKey)
+
+	inventoryBase64Data := c.String(InventoryBase64Key)
+	inventoryPath := c.String(InventoryKey)
+
+	format := c.String(OuputFormatKey)
+	if format == "" {
+		format = output.FormatRaw
+	}
+
+	var log flog.Logger
+	log = flog.NewDefaultRawLogger()
+	if format == output.FormatRaw {
+		log = flog.NewDefaultRawLogger()
+	} else if format == output.FormatJSON {
+		log = flog.NewDefaultJSONLoger()
+	} else {
+		log.Print(NewValidationError(fmt.Sprintf("Invalid format: %s", format)))
 		os.Exit(1)
 	}
 
-	log.Print(NewValidationResponse(validation, warnings...))
+	validation, warnings, err := runValidate(bitriseConfigPath, deprecatedBitriseConfigPath, bitriseConfigBase64Data, inventoryPath, inventoryBase64Data)
+	if err != nil {
+		log.Print(NewValidationError(err.Error(), warnings...))
+		os.Exit(1)
+	}
+
+	log.Print(NewValidationResponse(*validation, warnings...))
 
 	if !validation.IsValid() {
 		os.Exit(1)

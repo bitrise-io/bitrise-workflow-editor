@@ -3,15 +3,73 @@ package cli
 import (
 	"encoding/base64"
 	"os"
+	"path/filepath"
 	"testing"
 	"time"
 
 	"github.com/bitrise-io/bitrise/bitrise"
 	"github.com/bitrise-io/bitrise/configs"
+	"github.com/bitrise-io/bitrise/models"
 	envmanModels "github.com/bitrise-io/envman/models"
+	"github.com/bitrise-io/go-utils/fileutil"
+	"github.com/bitrise-io/go-utils/pathutil"
 	"github.com/bitrise-io/go-utils/pointers"
 	"github.com/stretchr/testify/require"
 )
+
+func TestIsSecretFiltering(t *testing.T) {
+	t.Log("flag influences the filtering")
+	{
+		set, err := isSecretFiltering(pointers.NewBoolPtr(true), []envmanModels.EnvironmentItemModel{})
+		require.NoError(t, err)
+		require.True(t, set)
+
+		set, err = isSecretFiltering(pointers.NewBoolPtr(false), []envmanModels.EnvironmentItemModel{})
+		require.NoError(t, err)
+		require.False(t, set)
+	}
+
+	t.Log("secret influences the filtering")
+	{
+		set, err := isSecretFiltering(nil, []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "true"},
+		})
+		require.NoError(t, err)
+		require.True(t, set)
+
+		set, err = isSecretFiltering(nil, []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "false"},
+		})
+		require.NoError(t, err)
+		require.False(t, set)
+	}
+
+	t.Log("flag has priority")
+	{
+		set, err := isSecretFiltering(pointers.NewBoolPtr(false), []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "true"},
+		})
+		require.NoError(t, err)
+		require.False(t, set)
+	}
+
+	t.Log("secrets are exposed")
+	{
+		set, err := isSecretFiltering(nil, []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "true", "opts": map[string]interface{}{"is_expand": true}},
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "false", "opts": map[string]interface{}{"is_expand": true}},
+		})
+		require.NoError(t, err)
+		require.False(t, set)
+
+		set, err = isSecretFiltering(nil, []envmanModels.EnvironmentItemModel{
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "true", "opts": map[string]interface{}{"is_expand": true}},
+			envmanModels.EnvironmentItemModel{"BITRISE_SECRET_FILTERING": "$BITRISE_SECRET_FILTERING", "opts": map[string]interface{}{"is_expand": true}},
+		})
+		require.NoError(t, err)
+		require.True(t, set)
+	}
+}
 
 func TestIsPRMode(t *testing.T) {
 	prModeEnv := os.Getenv(configs.PRModeEnvKey)
@@ -325,7 +383,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -377,7 +435,7 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
@@ -454,10 +512,98 @@ workflows:
 
 	require.NoError(t, configs.InitPaths())
 
-	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr), nil)
+	config, warnings, err := bitrise.ConfigModelFromYAMLBytes([]byte(configStr))
 	require.NoError(t, err)
 	require.Equal(t, 0, len(warnings))
 
 	results, err := runWorkflowWithConfiguration(time.Now(), "target", config, []envmanModels.EnvironmentItemModel{})
 	require.Equal(t, 1, len(results.StepmanUpdates))
+}
+
+func TestAddTestMetadata(t *testing.T) {
+	t.Log("test empty dir")
+	{
+		testDirPath, err := pathutil.NormalizedOSTempDirPath("testing")
+		if err != nil {
+			t.Fatalf("failed to create testing dir, error: %s", err)
+		}
+
+		testResultStepInfo := models.TestResultStepInfo{}
+
+		exists, err := pathutil.IsDirExists(testDirPath)
+		if err != nil {
+			t.Fatalf("failed to check if dir exists, error: %s", err)
+		}
+
+		if !exists {
+			t.Fatal("test dir should exits")
+		}
+
+		if err := addTestMetadata(testDirPath, testResultStepInfo); err != nil {
+			t.Fatalf("failed to normalize test dir, error: %s", err)
+		}
+
+		exists, err = pathutil.IsDirExists(testDirPath)
+		if err != nil {
+			t.Fatalf("failed to check if dir exists, error: %s", err)
+		}
+
+		if exists {
+			t.Fatal("test dir should not exits")
+		}
+	}
+
+	t.Log("test not empty dir")
+	{
+		testDirPath, err := pathutil.NormalizedOSTempDirPath("testing")
+		if err != nil {
+			t.Fatalf("failed to create testing dir, error: %s", err)
+		}
+
+		testResultStepInfo := models.TestResultStepInfo{}
+
+		exists, err := pathutil.IsDirExists(testDirPath)
+		if err != nil {
+			t.Fatalf("failed to check if dir exists, error: %s", err)
+		}
+
+		if !exists {
+			t.Fatal("test dir should exits")
+		}
+
+		if err := fileutil.WriteStringToFile(filepath.Join(testDirPath, "test-file"), "test-content"); err != nil {
+			t.Fatalf("failed to write file, error: %s", err)
+		}
+
+		if err := addTestMetadata(testDirPath, testResultStepInfo); err != nil {
+			t.Fatalf("failed to normalize test dir, error: %s", err)
+		}
+
+		exists, err = pathutil.IsDirExists(testDirPath)
+		if err != nil {
+			t.Fatalf("failed to check if dir exists, error: %s", err)
+		}
+
+		if !exists {
+			t.Fatal("test dir should exits")
+		}
+
+		exists, err = pathutil.IsPathExists(filepath.Join(testDirPath, "test-file"))
+		if err != nil {
+			t.Fatalf("failed to check if dir exists, error: %s", err)
+		}
+
+		if !exists {
+			t.Fatal("test file should exits")
+		}
+
+		exists, err = pathutil.IsPathExists(filepath.Join(testDirPath, "step-info.json"))
+		if err != nil {
+			t.Fatalf("failed to check if dir exists, error: %s", err)
+		}
+
+		if !exists {
+			t.Fatal("step-info.json file should exits")
+		}
+	}
 }
