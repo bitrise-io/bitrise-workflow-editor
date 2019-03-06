@@ -438,7 +438,7 @@ env_vars:
   key_placeholder: "Key"
   value_placeholder: "Value"
   warn:
-    title: You should <strong>not</strong> add private informations here.
+    title: You should <strong>not</strong> add private information here.
     detail: These Environment Variables will also be available in builds triggered by pull requests and bitrise.yml. For private info use
     button_title: Secrets
   actions:
