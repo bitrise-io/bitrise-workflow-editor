@@ -221,7 +221,15 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.get(requestURL, requestConfig).then(function(response) {
 				resolve(response.data);
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_app_config][:default_error] %>", "<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"));
+				if (response.data.bitrise_yml) {
+					reject({
+						bitrise_yml: response.data.bitrise_yml,
+						error_message: errorFromResponse(response, "<%= data[:strings][:request_service][:load_app_config][:invalid_bitrise_yml_error] %>", "<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>")
+					});
+				}
+				else {
+					reject(errorFromResponse(response, "<%= data[:strings][:request_service][:load_app_config][:default_error] %>", "<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"));
+				}
 			});
 		});
 	};

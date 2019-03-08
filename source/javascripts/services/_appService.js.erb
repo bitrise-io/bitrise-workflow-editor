@@ -291,6 +291,13 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		return requestService.getAppConfigYML(requestConfig).then(function(appConfigYML) {
 			appService.appConfigYML = appConfigYML;
 			appService.savedAppConfigYML = appConfigYML;
+		}, function(response) {
+			if (response.bitrise_yml) {
+				appService.appConfigYML = response.bitrise_yml;
+				appService.savedAppConfigYML = response.bitrise_yml;
+			}
+
+			return $q.reject(response);
 		});
 	};
 
