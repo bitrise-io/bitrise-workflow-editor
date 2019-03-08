@@ -1,6 +1,44 @@
-## Changelog (Current version: 1.1.49)
+## Changelog (Current version: 1.1.50)
 
 -----------------
+
+## 1.1.50 (2019 Mar 08)
+
+### Release Notes
+
+* YML tab can be loaded even if the bitrise.yml is invalid (Offline mode) (#363)
+* Improve grammar in warning message (#361)
+* restore bitrise.yml
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.50
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.49 -> 1.1.50
+
+* [b3bb948] Norbert Kovach - YML tab can be loaded even if the bitrise.yml is invalid (Offline mode) (#363) (2019 Mar 08)
+* [0e5cd24] mikemee - Improve grammar in warning message (#361) (2019 Mar 06)
+* [bc15a53] Papik Tamas - restore bitrise.yml (2019 Feb 15)
+
 
 ## 1.1.49 (2019 Feb 15)
 
@@ -3222,4 +3260,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Feb 15
+Updated: 2019 Mar 08
