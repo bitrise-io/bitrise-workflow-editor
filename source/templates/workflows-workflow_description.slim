@@ -6,6 +6,6 @@
 		span.edit-icon[ng-if="!workflowDescriptionCtrl.isEditMode"] = svg("pencil")
 	article
 		.description[ng-if="!workflowDescriptionCtrl.isEditMode"]
-			span[ng-if="workflow.description()" btf-markdown="workflow.description()"]
+			span[ng-if="workflow.description()" sanitized-markdown="workflow.description()"]
 			em.no-description[ng-if="!workflow.description()"] == data[:strings][:workflows][:description][:no_description]
 		textarea.description[msd-elastic description-editor ng-if="workflowDescriptionCtrl.isEditMode" ng-model="workflow.description" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowDescriptionCtrl.isEditMode = false"]
