@@ -87,8 +87,8 @@
 							section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
 								span.icon
 									= svg("code")
-                                .markdown[ng-if="workflowsCtrl.shouldShowDescription" btf-markdown="workflowsCtrl.selectedStep.description() ? workflowsCtrl.selectedStep.description() : workflowsCtrl.selectedStep.summary()"]
-								.markdown.oneliner[ng-if="!workflowsCtrl.shouldShowDescription" btf-markdown="workflowsCtrl.selectedStep.summary() ? workflowsCtrl.selectedStep.summary() : workflowsCtrl.selectedStep.description()"]
+                                .markdown[ng-if="workflowsCtrl.shouldShowDescription" sanitized-markdown="workflowsCtrl.selectedStep.description() ? workflowsCtrl.selectedStep.description() : workflowsCtrl.selectedStep.summary()"]
+								.markdown.oneliner[ng-if="!workflowsCtrl.shouldShowDescription" sanitized-markdown="workflowsCtrl.selectedStep.summary() ? workflowsCtrl.selectedStep.summary() : workflowsCtrl.selectedStep.description()"]
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
 									= svg("arrow-down")
@@ -116,7 +116,7 @@
 														em.required<[ng-if="input.isRequired()"] == data[:strings][:workflows][:inputs][:required]
 														em.sensitive<[ng-if="input.isSensitive()"] == data[:strings][:workflows][:inputs][:sensitive]
 													button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.isSensitive()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-												.input-description[btf-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
+												.input-description[sanitized-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
 												.flex-wrapper
 													textarea[msd-elastic rows="1" ng-class="{'has-button': input.isSensitive() && input.value()}" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event)" ng-click="isOpen && input.isSensitive() ? workflowsCtrl.insertSecretSelected(input) : ''" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
 													button.clear-value[ng-if="input.isSensitive() && input.value()" ng-click="workflowsCtrl.clearSensitiveInputValue(input)"]
@@ -153,7 +153,7 @@
 											div[ng-if="output.shortestDescription()"]
 												button[ng-click="workflowsCtrl.outputSelected(output)"]
 												.toggleabble-description
-													p[btf-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
+													p[sanitized-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
 													= svg("arrow-down")
 						button.delete-step.rebo.big.hollow-danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]

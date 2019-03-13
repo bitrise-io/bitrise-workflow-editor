@@ -8,11 +8,12 @@ var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
 	"ngAnimate",
 	"ngCookies",
 	"monospaced.elastic",
-	"btford.markdown"
+	"ng-showdown"
 ]);
 
 BitriseWorkflowEditor.config(function($compileProvider) {
 	$compileProvider.debugInfoEnabled(false);
+	$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/); 
 });
 
 BitriseWorkflowEditor.config(function($animateProvider) {
