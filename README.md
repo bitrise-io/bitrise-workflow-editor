@@ -1,4 +1,6 @@
 # Bitrise Workflow Editor
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbitrise-io%2Fbitrise-workflow-editor.svg?type=shield)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbitrise-io%2Fbitrise-workflow-editor?ref=badge_shield)
+
 
 ## How to install & use the Workflow Editor on your Mac/Linux
 
@@ -56,3 +58,7 @@ bitrise run go-install
 - In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
 - In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
 - After the test release process, don't forget to delete the draft release and the internal changelog topic.
+
+
+## License
+[![FOSSA Status](https://app.fossa.io/api/projects/git%2Bgithub.com%2Fbitrise-io%2Fbitrise-workflow-editor.svg?type=large)](https://app.fossa.io/projects/git%2Bgithub.com%2Fbitrise-io%2Fbitrise-workflow-editor?ref=badge_large)
