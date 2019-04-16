@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.52)
+## Changelog (Current version: 1.1.53)
 
 -----------------
+
+## 1.1.53 (2019 Apr 16)
+
+### Release Notes
+
+* Always allow to expose secrets & code signing files for PRs (#369)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.53
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.52 -> 1.1.53
+
+* [2ae0c00] erosdome - Always allow to expose secrets & code signing files for PRs (#369) (2019 Apr 16)
+
 
 ## 1.1.52 (2019 Apr 04)
 
@@ -3332,4 +3366,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Apr 04
+Updated: 2019 Apr 16
