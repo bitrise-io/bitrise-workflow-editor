@@ -25,11 +25,11 @@ By declaring every option as an input you make it easier to test your Step,
 and you also let the user of your Step to easily declare these inputs,
 instead of searching in the code for the required Environment Variable.
 
-### Secret environment variables in Steps 
+### Secret environment variables in Steps
 
-You can mark Step inputs as **Sensitive** to make sure their values do not get exposed. Sensitive inputs only accept [Secrets](/bitrise-cli/secrets/) - secret environment variables - as values. This ensures they are not visible in build logs. 
+You can mark Step inputs as **Sensitive** to make sure their values do not get exposed. Sensitive inputs only accept [Secrets](/bitrise-cli/secrets/) - secret environment variables - as values. This ensures they are not visible in build logs.
 
-To mark a Step input as sensitive, use the `is_sensitive` property. It has two values: `true` and `false`. 
+To mark a Step input as sensitive, use the `is_sensitive` property. It has two values: `true` and `false`.
 
 Please note that if you mark an input as sensitive, the `is_expand` property of the input also must be `true`!
 
@@ -113,7 +113,6 @@ Available `project_type_tags`:
 - cordova
 - ionic
 - flutter
-- fastlane
 - web
 
 _If step is available for all project types, do not specify project_type_tags, otherwise specify every project types, with which the step can work._
