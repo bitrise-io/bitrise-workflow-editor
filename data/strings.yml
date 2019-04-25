@@ -147,7 +147,6 @@ workflows:
 code_signing:
   available_project_types_load: Loading, wait a sec...
   expose_for_pr_popover_content: You can decide which files should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
-  expose_for_public_app_pr_popover_content: Disabled for security reasons as secrets included in PR builds can be accessed by anyone who can open a pull request.
   certificate_help:
     title: How to setup Code Signing
     codesigndoc:
@@ -430,7 +429,6 @@ env_vars:
   replace_variables_label: "Replace variables in inputs?"
   expose_for_pr_label: "Expose for Pull Requests?"
   expose_for_pr_popover_content: You can decide which secrets should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.
-  expose_for_public_app_pr_popover_content: Disabled for security reasons as secrets included in PR builds can be accessed by anyone who can open a pull request.
   invalid_env_var_key: "invalid Environment Variable key. Should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
   one_or_more_invalid_env_var_key: "one or more Environment Variable has an invalid key. Keys should not be empty, should only contain uppercase, lowercase letters, numbers, underscores, should not begin with a number"
   invalid_env_var_value: "invalid Environment Variable value. Should not be empty"
