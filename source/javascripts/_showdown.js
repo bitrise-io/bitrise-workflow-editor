@@ -1008,7 +1008,7 @@ Showdown.converter = function (converter_options) {
 
     var _DoGithubCodeBlocks = function (text) {
 //
-//  Process Github-style code blocks
+//  Process GitHub-style code blocks
 //  Example:
 //  ```ruby
 //  def hello_world(x)
