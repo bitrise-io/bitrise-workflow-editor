@@ -61,5 +61,5 @@ func TestPostSecretsYMLFromJSONHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
-	require.Equal(t, "{\"message\":\"OK\"}\n", rr.Body.String())
+	require.Equal(t, "{\"data\":{\"config\":{\"is_valid\":true,\"error\":\"\",\"warnings\":null},\"secrets\":{\"is_valid\":true,\"error\":\"\",\"warnings\":null}},\"error\":\"\"}\n", rr.Body.String())
 }
