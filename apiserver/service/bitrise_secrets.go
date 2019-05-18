@@ -128,7 +128,7 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	validationData, validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contAsYAML))
+	warnings, validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contAsYAML))
 	if validationErr != nil {
 		log.Errorf("Invalid secrets: %s", validationErr)
 		RespondWithJSONBadRequestErrorMessage(w, "Invalid secrets: %s", validationErr)
@@ -141,5 +141,5 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondWithJSON(w, 200, validationData)
+	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
 }

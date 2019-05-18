@@ -10,23 +10,14 @@ import (
 	"github.com/bitrise-io/go-utils/command"
 )
 
-type BitriseCLIValidateItemModel struct {
-	IsValid  bool     `json:"is_valid"`
-	Error    string   `json:"error"`
+// ValidationResponse ...
+type ValidationResponse struct {
 	Warnings []string `json:"warnings"`
-}
-type BitriseCLIValidateDataModel struct {
-	Config  BitriseCLIValidateItemModel `json:"config"`
-	Secrets BitriseCLIValidateItemModel `json:"secrets"`
-}
-type BitriseCLIValidateOutputModel struct {
-	Data  BitriseCLIValidateDataModel `json:"data"`
-	Error string                      `json:"error"`
 }
 
 // ValidateBitriseConfigAndSecret ...
 // `bitriseConfig` and `secretsConfig` can be either YML or JSON, both are accepted
-func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*BitriseCLIValidateOutputModel, error) {
+func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) ([]string, error) {
 	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
 	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
 
@@ -37,7 +28,21 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Bitri
 
 	combinedOut, cmdErr := validateCmd.RunAndReturnTrimmedCombinedOutput()
 
-	var validationOutput *BitriseCLIValidateOutputModel
+	type BitriseCLIValidateItemModel struct {
+		IsValid  bool     `json:"is_valid"`
+		Error    string   `json:"error"`
+		Warnings []string `json:"warnings"`
+	}
+	type BitriseCLIValidateDataModel struct {
+		Config  BitriseCLIValidateItemModel `json:"config"`
+		Secrets BitriseCLIValidateItemModel `json:"secrets"`
+	}
+	type BitriseCLIValidateOutputModel struct {
+		Data  BitriseCLIValidateDataModel `json:"data"`
+		Error string                      `json:"error"`
+	}
+
+	var validationOutput BitriseCLIValidateOutputModel
 	if outputParseErr := json.NewDecoder(strings.NewReader(combinedOut)).Decode(&validationOutput); outputParseErr != nil {
 		if cmdErr != nil {
 			return nil, fmt.Errorf("Failed to run bitrise validate command, error: %s | 'bitrise validate' command output: %s", cmdErr, combinedOut)
@@ -65,7 +70,14 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Bitri
 		return nil, fmt.Errorf("bitrise validation command failed, error: %s", cmdErr)
 	}
 
-	return validationOutput, nil
+	warningsArray := []string{}
+	warnings := validationOutput.Data.Config.Warnings
+	warnings = append(warnings, validationOutput.Data.Secrets.Warnings...)
+	if warnings != nil && len(warnings) > 0 {
+		warningsArray = append(warningsArray, warnings...)
+	}
+
+	return warningsArray, nil
 }
 
 // EnvString ...
