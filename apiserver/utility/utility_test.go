@@ -56,8 +56,10 @@ workflows:
 			for _, aValidSecret := range validSecrets {
 				t.Log("Config: ", aValidConfig)
 				t.Log("Secret: ", aValidSecret)
-				_, err := ValidateBitriseConfigAndSecret(aValidConfig, aValidSecret)
+				warningItems, err := ValidateBitriseConfigAndSecret(aValidConfig, aValidSecret)
 				require.NoError(t, err)
+				require.True(t, len(warningItems.Config) == 0)
+				require.True(t, len(warningItems.Secrets) == 0)
 			}
 		}
 	}
@@ -67,7 +69,7 @@ workflows:
 		warnings, err := ValidateBitriseConfigAndSecret(validWithWarning,
 			config.MinimalValidSecrets)
 		require.NoError(t, err)
-		require.Equal(t, "workflow (_prepare_and_setup) defined in trigger item (pattern: ci/quick && is_pull_request_allowed: false -> workflow: _prepare_and_setup), but utility workflows can't be triggered directly", warnings["config"][0])
+		require.Equal(t, "workflow (_prepare_and_setup) defined in trigger item (pattern: ci/quick && is_pull_request_allowed: false -> workflow: _prepare_and_setup), but utility workflows can't be triggered directly", warnings.Config[0])
 	}
 
 	t.Log("Invalid configs - empty")
