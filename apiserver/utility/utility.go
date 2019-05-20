@@ -71,8 +71,15 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (map[st
 	}
 
 	result := map[string][]string{}
-	result["config"] = validationOutput.Data.Config.Warnings
-	result["secrets"] = validationOutput.Data.Secrets.Warnings
+	result["config"] = []string{}
+	if len(validationOutput.Data.Config.Warnings) > 0 {
+		result["config"] = validationOutput.Data.Config.Warnings
+	}
+	result["secrets"] = []string{}
+	if len(validationOutput.Data.Config.Warnings) > 0 {
+		result["secrets"] = validationOutput.Data.Secrets.Warnings
+	}
+
 	return result, nil
 }
 

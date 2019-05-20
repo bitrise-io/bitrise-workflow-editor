@@ -71,7 +71,7 @@ default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"`
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
-	require.Equal(t, "{\"warnings\":{\"config\":null,\"secrets\":null}}\n", rr.Body.String())
+	require.Equal(t, "{\"warnings\":{\"config\":[],\"secrets\":[]}}\n", rr.Body.String())
 }
 
 func TestGetBitriseYMLAsJSONHandler(t *testing.T) {
@@ -130,5 +130,5 @@ func TestPostBitriseYMLFromJSONHandler(t *testing.T) {
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
-	require.Equal(t, "{\"warnings\":{\"config\":null,\"secrets\":null}}\n", rr.Body.String())
+	require.Equal(t, "{\"warnings\":{\"config\":[],\"secrets\":[]}}\n", rr.Body.String())
 }
