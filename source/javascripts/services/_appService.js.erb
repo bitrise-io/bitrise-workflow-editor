@@ -306,7 +306,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	};
 
 	appService.saveAppConfigYML = function() {
-		return requestService.postAppConfigYML(appService.appConfigYML).then(function(appConfigYML) {
+		return requestService.postAppConfigYML(appService.appConfigYML).then(function() {
 			appService.appConfig = undefined;
 			appService.savedAppConfig = undefined;
 			appService.savedAppConfigYML = appService.appConfigYML;
