@@ -39,6 +39,16 @@ workflows:
 `,
 		//
 	}
+	validWithWarning :=
+		`
+format_version: 1.1.0
+trigger_map:
+- pattern: ci/quick
+  workflow: _prepare_and_setup
+workflows:
+ _prepare_and_setup:
+  description: desc
+`
 
 	t.Log("Valid combinations")
 	{
@@ -50,6 +60,14 @@ workflows:
 				require.NoError(t, err)
 			}
 		}
+	}
+
+	t.Log("Valid config with warnings")
+	{
+		warnings, err := ValidateBitriseConfigAndSecret(validWithWarning,
+			config.MinimalValidSecrets)
+		require.NoError(t, err)
+		require.Equal(t, "workflow (_prepare_and_setup) defined in trigger item (pattern: ci/quick && is_pull_request_allowed: false -> workflow: _prepare_and_setup), but utility workflows can't be triggered directly", warnings["config"][0])
 	}
 
 	t.Log("Invalid configs - empty")
@@ -112,7 +130,7 @@ workflows:
 
 	t.Log("Invalid secrets - envs as hash with value")
 	{
-		_, err	 := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, `envs:
+		_, err := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, `envs:
   KEY_ONE: value one`)
 		require.Error(t, err)
 		require.True(t, strings.Contains(err.Error(), "Validation failed: Secret validation error: Failed to get inventory from base 64 data, err: yaml: unmarshal errors:\n  line 2: cannot unmarshal !!map into []models.EnvironmentItemModel"), err.Error())

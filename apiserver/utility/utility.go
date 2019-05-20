@@ -12,12 +12,12 @@ import (
 
 // ValidationResponse ...
 type ValidationResponse struct {
-	Warnings []string `json:"warnings"`
+	Warnings map[string][]string `json:"warnings"`
 }
 
 // ValidateBitriseConfigAndSecret ...
 // `bitriseConfig` and `secretsConfig` can be either YML or JSON, both are accepted
-func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) ([]string, error) {
+func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (map[string][]string, error) {
 	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
 	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
 
@@ -70,14 +70,10 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) ([]stri
 		return nil, fmt.Errorf("bitrise validation command failed, error: %s", cmdErr)
 	}
 
-	warningsArray := []string{}
-	warnings := validationOutput.Data.Config.Warnings
-	warnings = append(warnings, validationOutput.Data.Secrets.Warnings...)
-	if warnings != nil && len(warnings) > 0 {
-		warningsArray = append(warningsArray, warnings...)
-	}
-
-	return warningsArray, nil
+	result := map[string][]string{}
+	result["config"] = validationOutput.Data.Config.Warnings
+	result["secrets"] = validationOutput.Data.Secrets.Warnings
+	return result, nil
 }
 
 // EnvString ...
