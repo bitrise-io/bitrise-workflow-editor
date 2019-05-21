@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.53)
+## Changelog (Current version: 1.1.54)
 
 -----------------
+
+## 1.1.54 (2019 May 21)
+
+### Release Notes
+
+* Saving bitrise.yml: display warnings #a3k79 (#371)
+* Remove fastlane project type (#368)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.54
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.53 -> 1.1.54
+
+* [2515b69] Daniel Serleg - Saving bitrise.yml: display warnings #a3k79 (#371) (2019 May 20)
+* [a32ae1a] Norbert Kovach - Remove fastlane project type (#368) (2019 Apr 25)
+
 
 ## 1.1.53 (2019 Apr 16)
 
@@ -3366,4 +3402,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Apr 16
+Updated: 2019 May 21
