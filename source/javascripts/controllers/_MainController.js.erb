@@ -8,12 +8,15 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	var originalOnbeforeunloadHandler = window.onbeforeunload;
 
+	$scope.appService = appService;
+	$scope.requestService = requestService;
 	$scope.osService = osService;
 
 	viewModel.appDetails;
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
+	viewModel.shouldShowBreadcrumbs = false;
 
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
@@ -388,6 +391,34 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menuSelected(selectedMenu);
 	};
 
+	viewModel.breadCrumbsAccountPath = function() {
+		if (!appService.appDetails || appService.appDetails.ownerData === undefined || appService.appDetails.ownerData.slug === undefined) {
+			return undefined;
+		}
+
+		if (appService.appDetails.ownerData.type == 'User') {
+			if (appService.appDetails.isCurrentUserOwner) {
+				return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?only_direct=true";
+			} else {
+				return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?user_slug=" + appService.appDetails.ownerData.slug;
+			}
+		}
+
+		if (appService.appDetails.ownerData.type == 'Organization') {
+			return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?organization_slug=" + appService.appDetails.ownerData.slug;
+		}
+	};
+
+	viewModel.dashboardPath = function() {
+		return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>";
+	};
+
+	viewModel.appPath = function() {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_path]) %>", {
+			app_slug: appService.appDetails.slug
+		});
+	};
+
 	viewModel.init = function() {
 		viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
@@ -467,6 +498,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
+			requestService.getBetaTagsOfUser().then(function(betaTagsOfCurrentUser) {
+				viewModel.shouldShowBreadcrumbs = _.indexOf(betaTagsOfCurrentUser, "visible-breadcrumbs") >= 0;
+			});
 			appService.getAppDetails();
 			viewModel.initAppProgress.success();
 			selectInitialMenu();

@@ -15,199 +15,365 @@ header.sticky {
 $menubutton_verticalpadding: 12px;
 
 header.menu {
-	@include flex-shrink(0);
 	@include display-flex;
-	padding-top: 20px;
+	@include flex-direction(column);
+	@include flex-shrink(0);
 	@include padding-x($main-horizontalpadding);
+	padding-top: 20px;
 
-	nav {
+	.app-topbar {
 		@include display-flex;
-		margin-right: auto;
+		@include align-items(center);
+		@include flex-wrap(wrap);
+		$spacing: 14px;
 
-		button.tab {
+		.app-icon {
+			@include flex-shrink(0);
+			@include size(24px);
+			@include margin-y(8px);
+			margin-right: $spacing;
+			font-size: 14px;
+			text-align: center;
+			line-height: 26px;
+			overflow: hidden;
+			text-transform: uppercase;
+			color: white;
+			border-radius: 3px;
+			background-color: $def-purple;
+			background-size: cover;
+		}
 
-			&:before {
-				$border_width: 4px;
+		.project-type-icon {
+			@include flex-shrink(0);
+			@include margin-y(8px);
+			margin-right: $spacing;
 
-				content: "";
-				@include position(absolute, 100%, 0);
-				@include size(100%);
-				border-top: $border_width solid $def-violet_blue;
-				@include border-top-radius($border_width);
-				background-color: white;
+			span.platform-icon {
+				@include size(24px);
+				display: none;
 			}
 
-			position: relative;
-			@include display-flex;
-			@include justify-content(center);
-			@include align-items(center);
-			padding: $menubutton_verticalpadding 26px;
-			text-align: center;
-			font-size: 16px;
-			font-weight: 400;
-			color: $def-mediumdarkgrey;
-			text-decoration: none;
-			overflow: hidden;
+			&:before {
+				content: "?";
+			}
 
-			span.icon {
-				@include flex-shrink(0);
-				@include display-flex;
-				@include align-items(center);
-				@include justify-content(center);
-				margin-right: 8px;
+			svg {
+				@include size(24px);
+				fill: $def-grey;
+			}
 
-				svg {
-					position: relative;
-					fill: $def-mediumdarkgrey;
+			@mixin icon_styling($icon_class) {
+
+				&:before {
+					content: none;
+				}
+
+				span.platform-icon.#{$icon_class} {
+					display: flex;;
 				}
 			}
 
-			span.title {
-				position: relative;
+			&.ios {
+				@include icon_styling("apple");
+			}
+			&.osx, &.macos {
+				@include icon_styling("macos");
+			}
+			&.android {
+				@include icon_styling("android");
+			}
+			&.xamarin {
+				@include icon_styling("xamarin");
+			}
+			&.cordova {
+				@include icon_styling("cordova");
+			}
+			&.ionic {
+				@include icon_styling("ionic");
+			}
+			&.flutter {
+				@include icon_styling("flutter");
+			}
+			&.react-native {
+				@include icon_styling("react-native");
+			}
+			&.flutter {
+				@include icon_styling("flutter");
+			}
+			&.other {
+				@include icon_styling("other");
 			}
 		}
 
-		button.tab:hover:not(.current), button.tab:focus:not(.current) {
-			$color: $def-violet_blue;
+		ol.breadcrumbs {
+			@include display-flex;
+			@include align_items(baseline);
+			@include flex_wrap(wrap);
+			@include flex-shrink(0);
+			@include margin-y(8px);
+			margin-right: $spacing;
+			padding-left: 0;
+			list-style: none;
+			max-width: 100%;
+			font-size: 18px;
+			font-weight: 300;
+			color: $def-grape;
 
-			color: $color;
+			.level {
+				@include flex-shrink(0);
+				max-width: 100%;
+				word-break: break-all;
 
-			span.icon svg {
-				fill: $color;
+				&:not(.shrinkable) {
+					@include flex-shrink(0);
+				}
+
+				&.current {
+					font-weight: 500;
+				}
+
+				a {
+					text-decoration: none;
+					color: inherit;
+
+					&:hover, &:focus {
+						text-decoration: underline;
+					}
+				}
+
+				&:not(:last-child):after {
+					content: "/";
+					@include margin-x(6px);
+				}
 			}
 		}
 
-		button.tab:not(.current) {
-			$transition_duration: $def-transition_duration;
+		.privacy-settings-icon {
+			@include display-flex;
+			@include flex-shrink(0);
+			@include size(24px);
+			@include margin-y(8px);
+			margin-right: $spacing;
 
-			@include transition(color $transition_duration);
-
-			span.icon svg {
-				@include transition(fill $transition_duration);
-			}
-		}
-
-		button.tab.current {
-			$color: $def-violet_blue;
-
-			color: $color;
-
-			&:before {
-				top: 0;
+			.public, .private {
+				display: none
 			}
 
-			span.icon svg {
-				fill: $color;
+			&.private  .private{
+				@include display-flex;
+
+				svg {
+					@include size(18px, 22px);
+					fill: $def-grey;
+				}
+			}
+
+			&.public .public {
+				@include display-flex;
+
+				svg {
+					@include display-flex;
+					@include size(18px, 21px);
+				}
 			}
 		}
-
-		button.tab.workflows span.icon svg {
-			top: -1px;
-			@include size(18px, 12px);
-		}
-
-		button.tab.code-signing span.icon svg {
-			top: 0px;
-			@include size(17px, 15px);
-		}
-
-		button.tab.secrets span.icon svg {
-			top: -1px;
-			@include size(11px, 13px);
-		}
-
-		button.tab.env-vars span.icon svg {
-			top: -1px;
-			@include size(9px, 16px);
-		}
-
-		button.tab.triggers span.icon svg {
-			top: -1px;
-			@include size(9px, 17px);
-		}
-
-		button.tab.stack span.icon svg {
-			@include size(17px, 14px);
-		}
-
-		button.tab.yml span.icon svg {
-			top: 0px;
-			@include size(15px, 9px);
-		}
-
 	}
 
-	aside.discard-save {
-		@include align-self(flex-end);
+	.workflow-editor-menubar {
 		@include display-flex;
-		margin-left: 10px;
-		padding-bottom: $menubutton_verticalpadding;
+		@include flex-direction(row);
+		@include flex-shrink(0);
+		padding-top: 20px;
 
-		&.not-available {
-			visibility: hidden;
-		}
+		nav {
+			@include display-flex;
+			margin-right: auto;
 
-		button {
-			@include border-radius($def-button-border_radius);
-			@include padding-y(8px);
-			@include transition-duration($def-transition_duration);
-		}
+			button.tab {
 
-		button:not(:last-child) {
-			margin-right: 10px;
-		}
+				&:before {
+					$border_width: 4px;
 
-		button.save {
-			@include padding-x(25px);
-			font-size: 15px;
-
-			span.save, span.saved, span.in-progress {
-				display: inline-block;
-				width: 60px;
-			}
-
-			span.save {
-
-				&.windows:before {
-					content: "Ctrl + S";
+					content: "";
+					@include position(absolute, 100%, 0);
+					@include size(100%);
+					border-top: $border_width solid $def-violet_blue;
+					@include border-top-radius($border_width);
+					background-color: white;
 				}
 
-				&.osx:before {
-					content: "⌘ + S";
-				}
+				position: relative;
+				@include display-flex;
+				@include justify-content(center);
+				@include align-items(center);
+				padding: $menubutton_verticalpadding 26px;
+				text-align: center;
+				font-size: 16px;
+				font-weight: 400;
+				color: $def-mediumdarkgrey;
+				text-decoration: none;
+				overflow: hidden;
 
-				&.other:before {
-					content: "<%= data[:strings][:main][:save] %>";
-				}
-			}
+				span.icon {
+					@include flex-shrink(0);
+					@include display-flex;
+					@include align-items(center);
+					@include justify-content(center);
+					margin-right: 8px;
 
-			span.saved {
-
-				&:after {
-					content: "<%= data[:strings][:main][:saved] %>";
-					margin-left: 6px;
-				}
-
-				svg {
-					@include position(relative, 1px);
-					@include size(11px);
-				}
-			}
-
-			span.in-progress svg {
-				@include position(relative, 2px);
-				@include size(20px, 13px);
-
-				@include keyframes(rotate) {
-					from {
-						@include transform(rotate(0deg));
+					svg {
+						position: relative;
+						fill: $def-mediumdarkgrey;
 					}
-					to {
-						@include transform(rotate(360deg));
-					}
-				};
+				}
 
-				@include animation(rotate 1s linear infinite);
+				span.title {
+					position: relative;
+				}
+			}
+
+			button.tab:hover:not(.current), button.tab:focus:not(.current) {
+				$color: $def-violet_blue;
+
+				color: $color;
+
+				span.icon svg {
+					fill: $color;
+				}
+			}
+
+			button.tab:not(.current) {
+				$transition_duration: $def-transition_duration;
+
+				@include transition(color $transition_duration);
+
+				span.icon svg {
+					@include transition(fill $transition_duration);
+				}
+			}
+
+			button.tab.current {
+				$color: $def-violet_blue;
+
+				color: $color;
+
+				&:before {
+					top: 0;
+				}
+
+				span.icon svg {
+					fill: $color;
+				}
+			}
+
+			button.tab.workflows span.icon svg {
+				top: -1px;
+				@include size(18px, 12px);
+			}
+
+			button.tab.code-signing span.icon svg {
+				top: 0px;
+				@include size(17px, 15px);
+			}
+
+			button.tab.secrets span.icon svg {
+				top: -1px;
+				@include size(11px, 13px);
+			}
+
+			button.tab.env-vars span.icon svg {
+				top: -1px;
+				@include size(9px, 16px);
+			}
+
+			button.tab.triggers span.icon svg {
+				top: -1px;
+				@include size(9px, 17px);
+			}
+
+			button.tab.stack span.icon svg {
+				@include size(17px, 14px);
+			}
+
+			button.tab.yml span.icon svg {
+				top: 0px;
+				@include size(15px, 9px);
+			}
+
+		}
+
+		aside.discard-save {
+			@include align-self(flex-end);
+			@include display-flex;
+			margin-left: 10px;
+			padding-bottom: $menubutton_verticalpadding;
+
+			&.not-available {
+				visibility: hidden;
+			}
+
+			button {
+				@include border-radius($def-button-border_radius);
+				@include padding-y(8px);
+				@include transition-duration($def-transition_duration);
+			}
+
+			button:not(:last-child) {
+				margin-right: 10px;
+			}
+
+			button.save {
+				@include padding-x(25px);
+				font-size: 15px;
+
+				span.save, span.saved, span.in-progress {
+					display: inline-block;
+					width: 60px;
+				}
+
+				span.save {
+
+					&.windows:before {
+						content: "Ctrl + S";
+					}
+
+					&.osx:before {
+						content: "⌘ + S";
+					}
+
+					&.other:before {
+						content: "<%= data[:strings][:main][:save] %>";
+					}
+				}
+
+				span.saved {
+
+					&:after {
+						content: "<%= data[:strings][:main][:saved] %>";
+						margin-left: 6px;
+					}
+
+					svg {
+						@include position(relative, 1px);
+						@include size(11px);
+					}
+				}
+
+				span.in-progress svg {
+					@include position(relative, 2px);
+					@include size(20px, 13px);
+
+					@include keyframes(rotate) {
+						from {
+							@include transform(rotate(0deg));
+						}
+						to {
+							@include transform(rotate(360deg));
+						}
+					};
+
+					@include animation(rotate 1s linear infinite);
+				}
 			}
 		}
 	}
@@ -215,39 +381,59 @@ header.menu {
 	@include media-below(1180px) {
 		@include flex-direction(column);
 
-		nav {
-			@include order(2);
-			margin-right: 0;
+		.workflow-editor-menubar {
+			@include flex-direction(column);
 
-			button.tab {
-				@include flex-grow(1);
+			nav {
+				@include order(2);
+				margin-right: 0;
+
+				button.tab {
+					@include flex-grow(1);
+				}
 			}
-		}
 
-		aside.discard-save {
-			@include order(1);
-			margin-left: 0;
+			aside.discard-save {
+				@include order(1);
+				margin-left: 0;
+			}
 		}
 	}
 
 	@include media-below-mid {
 		@include padding-x($main-horizontalpadding_small);
+		padding-top: 10px;
 
-		nav {
+		.app-topbar {
 
-			button.tab {
-				@include flex-direction(column);
-				@include justify-content(flex-start);
-				@include padding-x(15px);
+			.app-icon, .project-type-icon, .privacy-settings-icon {
+				display: none;
+			}
 
-				span.icon {
-					height: 16px;
-					margin-right: 0;
-					margin-bottom: 5px;
-				}
+			ol.breadcrumbs {
+				font-size: 14px;
+			}
+		}
 
-				span.title {
-					font-size: 13px;
+		.workflow-editor-menubar {
+			padding-top: 5px;
+
+			nav {
+
+				button.tab {
+					@include flex-direction(column);
+					@include justify-content(flex-start);
+					@include padding-x(15px);
+
+					span.icon {
+						height: 16px;
+						margin-right: 0;
+						margin-bottom: 5px;
+					}
+
+					span.title {
+						font-size: 13px;
+					}
 				}
 			}
 		}
@@ -255,30 +441,32 @@ header.menu {
 
 	@include media-below(520px) {
 
-		nav {
+		.workflow-editor-menubar {
+			nav {
 
-			button.tab {
-				@include justify-content(center);
+				button.tab {
+					@include justify-content(center);
 
-				span.icon {
-					margin-bottom: 0;
-				}
+					span.icon {
+						margin-bottom: 0;
+					}
 
-				span.title {
-					display: none;
+					span.title {
+						display: none;
+					}
 				}
 			}
-		}
 
-		aside.discard-save {
-			@include align-self(stretch);
+			aside.discard-save {
+				@include align-self(stretch);
 
-			button.discard {
-				@include flex-grow(1);
-			}
+				button.discard {
+					@include flex-grow(1);
+				}
 
-			button.save {
-				@include flex-grow(2);
+				button.save {
+					@include flex-grow(2);
+				}
 			}
 		}
 	}
