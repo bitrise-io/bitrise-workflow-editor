@@ -73,6 +73,25 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	// User
+
+	requestService.getBetaTagsOfUser = function(requestConfig) {
+		switch (requestService.mode) {
+			case "website":
+				var requestURL = "<%= webserver_path(data[:routes][:website][:current_user_beta_tags_get]) %>";
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(function (response) {
+						resolve(response.data.beta_tags);
+					}, function (response) {
+						reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_user_beta_tags][:default_error] %>", "<%= data[:strings][:request_service][:get_user_beta_tags][:error_prefix] %>"));
+					});
+				});
+			case "cli": {
+				return $q.when({});
+			}
+		}
+	};
+
 	// App details
 
 	requestService.getAppDetails = function(requestConfig) {
@@ -85,11 +104,20 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				return $q(function(resolve, reject) {
 					$http.get(requestURL, requestConfig).then(function(response) {
 						resolve({
+							avatarURL: response.data.avatar_icon_url,
 							slug: response.data.slug,
 							title: response.data.title,
 							projectTypeID: response.data.project_type,
 							providerID: response.data.provider,
-							repositoryURL: response.data.url
+							repositoryURL: response.data.url,
+							stack: response.data.stack_identifier,
+							isPublic: response.data.is_public,
+							isCurrentUserOwner: response.data.owner_is_current_user,
+							ownerData: {
+								slug: response.data.owner_slug,
+								type: response.data.owner_type,
+								name: response.data.owner_type == 'User' ? response.data.owner_username : response.data.owner_name
+							}
 						});
 					}, function(response) {
 						reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_app_data][:default_error] %>", "<%= data[:strings][:request_service][:get_app_data][:error_prefix] %>"));
@@ -115,14 +143,14 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				});
 				requestData = {
 					app_config_datastore_yaml: appConfig
-				}
+				};
 
 				break;
 			case "cli":
 				requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_post]) %>";
 				requestData = {
 					bitrise_yml: appConfig
-				}
+				};
 
 				break;
 		}
