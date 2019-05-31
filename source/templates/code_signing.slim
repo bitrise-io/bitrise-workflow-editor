@@ -353,6 +353,10 @@
 										.icon-wrapper = svg("lock-closed")
 										span protected
 									.name[ng-bind="genericFile.displayName()"]
+									.unprocessed-text[ng-if="!genericFile.isProcessed"]
+										p unprocessed
+									.unprocessed-text[ng-if="genericFile.isProcessed"]
+										p processed
 								.detail.code.env-var-key[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 							.expose-and-actions
 								.expose-with-popover

@@ -44,6 +44,10 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			certificateService.certificates = undefined;
 		}
 
+		refreshCertificates();
+	};
+
+	function refreshCertificates() {
 		requestService.getCertificates().then(function(certificateDatas) {
 			certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
 				var certificate = new Certificate();
@@ -78,7 +82,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				isProcessed: false
 			})) {
 				$timeout(function() {
-					loadCertificates();
+					refreshCertificates();
 				}, certificatesReloadIntervalInSeconds * 1000);
 			}
 		}, function(error) {

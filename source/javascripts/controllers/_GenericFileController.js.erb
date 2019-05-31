@@ -36,6 +36,10 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			viewModel.genericFiles = undefined;
 		}
 
+		refreshGenericFiles();
+	};
+
+	function refreshGenericFiles() {
 		requestService.getGenericFiles().then(function(genericFileDatas) {
 			viewModel.genericFiles = _.map(genericFileDatas, function(aGenericFileData) {
 				var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
@@ -67,7 +71,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				isProcessed: false
 			})) {
 				$timeout(function() {
-					loadGenericFiles();
+					refreshGenericFiles();
 				}, genericFilesReloadIntervalInSeconds * 1000);
 			}
 		}, function(error) {
