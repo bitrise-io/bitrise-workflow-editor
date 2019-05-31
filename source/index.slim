@@ -5,7 +5,6 @@ layout: layout
 header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu[sticky sticking-index="1"]
-		.loading[ng-if="mainCtrl.initAppProgress.isInProgress"] Loading Workflow Editor...
 		.breadcrumb[ng-if="requestService.mode == 'website' && mainCtrl.shouldShowBreadcrumbs"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
 			.app-topbar[ng-if="mainCtrl.initAppProgress.isIdle"]
