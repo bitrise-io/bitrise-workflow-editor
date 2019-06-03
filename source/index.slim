@@ -5,7 +5,7 @@ layout: layout
 header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu[sticky sticking-index="1"]
-		.breadcrumb[ng-if="requestService.mode == 'website' && mainCtrl.shouldShowBreadcrumbs"]
+		.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
 			.app-topbar[ng-if="mainCtrl.initAppProgress.isIdle"]
 				span.app-icon[ng-if="appService.appDetails.avatarURL" ng-style="{'background-image': (appService.appDetails.avatarURL | appAvatarURL) }"]

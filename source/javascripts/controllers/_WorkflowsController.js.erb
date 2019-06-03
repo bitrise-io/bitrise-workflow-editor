@@ -261,7 +261,9 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 			return;
 		}
 
-		$location.search("workflow_id", selectedWorkflow.id);
+		if ($location.search().workflow_id != selectedWorkflow.id) {
+			$location.search("workflow_id", selectedWorkflow.id).replace();
+		}
 
 		updateSelectedWorkflowChain();
 	});

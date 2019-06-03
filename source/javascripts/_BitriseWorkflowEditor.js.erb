@@ -13,7 +13,7 @@ var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
 
 BitriseWorkflowEditor.config(function($compileProvider) {
 	$compileProvider.debugInfoEnabled(false);
-	$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/); 
+	$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
 });
 
 BitriseWorkflowEditor.config(function($animateProvider) {
