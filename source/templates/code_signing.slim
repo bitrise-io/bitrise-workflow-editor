@@ -41,13 +41,18 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details
-							.icon = svg("code_signing/sheet-prov_profile")
+							.icon[ng-class="{unprocessed: !certificate.isProcessed}"] = svg("code_signing/sheet-prov_profile")
 							.column.left
 								.detail.protected-badge-and-name
 									.protected-badge[ng-if="provProfile.isProtected"]
 										.icon-wrapper = svg("lock-closed")
 										span protected
 									.name[ng-bind="provProfile.displayName()"]
+									.uploading[ng-if="!provProfile.isProcessed"]
+										.loader
+											span
+										.loading-text
+											span Uploading file...
 								div[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 									.detail.code.uuid[ng-bind="provProfile.uuid" ng-if="provProfile.uuid"]
 									.detail[ng-if="provProfile.expiresAt"]
@@ -170,7 +175,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateService.certificates" ng-init="showPassword = false"]
 						.details
-							.icon = svg("code_signing/sheet-certificate")
+							.icon[ng-class="{unprocessed: !certificate.isProcessed}"] = svg("code_signing/sheet-certificate")
 							.column.left
 								div[ng-if="!certificate.details || certificate.details.length > 1 || !certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 									.detail.protected-badge-and-name
@@ -178,6 +183,11 @@
 												.icon-wrapper = svg("lock-closed")
 												span protected
 										.name[ng-bind="certificate.uploadFileName"]
+										.uploading[ng-if="!certificate.isProcessed"]
+											.loader
+												span
+											.loading-text
+												span Uploading file...
 								div[ng-if="certificate.details && certificate.details.length == 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 									.detail.protected-badge-and-name
 										.protected-badge[ng-if="certificate.isProtected"]

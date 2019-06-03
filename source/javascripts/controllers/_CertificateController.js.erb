@@ -30,26 +30,30 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		viewModel.selectedCertificate = null;
 	};
 
-	function loadCertificates(shouldClearPreviousLoad) {
+	function loadCertificates() {
 		viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
 		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
 			viewModel.uploadCertificatesProgress.reset();
 		}
 
-		if (shouldClearPreviousLoad === undefined) {
-			shouldClearPreviousLoad = false;
-		}
-
-		if (shouldClearPreviousLoad) {
-			certificateService.certificates = undefined;
-		}
-
+		certificateService.certificates = []
 		refreshCertificates();
 	};
 
+	function isCertificateModelEquals(obj1, obj2) {
+		return 
+			obj1.databaseID === obj2.databaseID &&
+			obj1.isExpose === obj1.isExpose &&
+			obj1.isProcessed === obj1.isProcessed &&
+			obj1.isProtected === obj1.isProtected &&
+			obj1.password === obj1.password &&
+			obj1.uploadFileName === obj1.uploadFileName;
+	}
+
 	function refreshCertificates() {
 		requestService.getCertificates().then(function(certificateDatas) {
-			certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
+			var certificates = new Map();
+			_.each(certificateDatas, function(aCertificateData) {
 				var certificate = new Certificate();
 
 				certificate.databaseID = aCertificateData.databaseID;
@@ -59,22 +63,36 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				certificate.isExpose = aCertificateData.isExpose;
 				certificate.isProtected = aCertificateData.isProtected;
 
-				var isExposeGetterSetterProgress = new Progress();
-
-				viewModel.certificateSettings[certificate.databaseID] = {
-					progress: new Progress(),
-					isMenuVisible: false,
-					isInvalidPassword: false,
-					isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
-					isExposeGetterSetterProgress: isExposeGetterSetterProgress
-				};
-
-				if (!certificate.details) {
-					viewModel.getDetails(certificate);
-				}
-
-				return certificate;
+				certificates.set(certificate.databaseID, certificate);
 			});
+
+			if (certificateService.certificates.length != certificates.size) {
+				certificateService.certificates = []
+				certificates.forEach(function(value, key, map) {
+					certificateService.certificates.push(value);
+
+					var isExposeGetterSetterProgress = new Progress();
+
+					viewModel.certificateSettings[value.databaseID] = {
+						progress: new Progress(),
+						isMenuVisible: false,
+						isInvalidPassword: false,
+						isExposeGetterSetter: isExposeGetterSetterForCertificate(value, isExposeGetterSetterProgress),
+						isExposeGetterSetterProgress: isExposeGetterSetterProgress
+					};
+
+					if (!value.details) {
+						viewModel.getDetails(value);
+					}
+				});
+			} else {
+				_.each(certificateService.certificates, function(certificate) {
+					var el = certificates.get(certificate.databaseID);
+					if (el !== undefined && !isCertificateModelEquals(el, certificate)) {
+						certificate = el;
+					}
+				});
+			}
 
 			viewModel.loadCertificatesProgress.success();
 
@@ -133,7 +151,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.uploadCertificatesProgress.success();
 
 			viewModel.certificatesToUpload = undefined;
-			loadCertificates(true);
+			loadCertificates();
 		}, function(error) {
 			viewModel.uploadCertificatesProgress.error(error);
 		});
@@ -158,7 +176,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			certificate.delete().then(function() {
 				viewModel.deleteCertificateProgress.success();
 
-				loadCertificates(true);
+				loadCertificates();
 			}, function(error) {
 				viewModel.deleteCertificateProgress.error(error);
 			});
@@ -177,7 +195,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			requestService.deleteAllCertificates().then(function() {
 				viewModel.deleteAllCertificatesProgress.success();
 
-				loadCertificates(true);
+				loadCertificates();
 			}, function(error) {
 				viewModel.deleteAllCertificatesProgress.error(error);
 			});
