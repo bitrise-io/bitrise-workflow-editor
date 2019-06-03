@@ -6,14 +6,19 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	var viewModel = this;
 
+	var appPathRegexp = new RegExp(".*\/app\/([a-z|0-9]+).*");
+
 	var originalOnbeforeunloadHandler = window.onbeforeunload;
 
+	$scope.appService = appService;
+	$scope.requestService = requestService;
 	$scope.osService = osService;
 
 	viewModel.appDetails;
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
+	viewModel.shouldShowBreadcrumbs = false;
 
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
@@ -27,6 +32,16 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			viewModel.changeMenuProgress.success();
 		}, 0);
 	});
+
+	function getAppFromCurrentPath () {
+		var path = $location.absUrl();
+
+		if (appPathRegexp.test(path)) {
+			return appPathRegexp.exec(path)[1];
+		}
+
+		return null;
+	}
 
 	function selectInitialMenu() {
 		var initialMenu = _.find(viewModel.menus, function(aMenu) {
@@ -388,6 +403,34 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		viewModel.menuSelected(selectedMenu);
 	};
 
+	viewModel.breadCrumbsAccountPath = function() {
+		if (!appService.appDetails || appService.appDetails.ownerData === undefined || appService.appDetails.ownerData.slug === undefined) {
+			return undefined;
+		}
+
+		if (appService.appDetails.ownerData.type == 'User') {
+			if (appService.appDetails.isCurrentUserOwner) {
+				return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?only_direct=true";
+			} else {
+				return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?user_slug=" + appService.appDetails.ownerData.slug;
+			}
+		}
+
+		if (appService.appDetails.ownerData.type == 'Organization') {
+			return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?organization_slug=" + appService.appDetails.ownerData.slug;
+		}
+	};
+
+	viewModel.dashboardPath = function() {
+		return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>";
+	};
+
+	viewModel.appPath = function() {
+		return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_path]) %>", {
+			app_slug: appService.appDetails.slug
+		});
+	};
+
 	viewModel.init = function() {
 		viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
@@ -438,27 +481,44 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$q(function(resolve, reject) {
 			switch (requestService.mode) {
 				case "website":
-					var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)");
-					iframeService.handleMessage(configureMessageRegexp, function(message) {
-						requestService.appSlug = configureMessageRegexp.exec(message)[1];
+					requestService.getBetaTagsOfUser().then(function(betaTagsOfCurrentUser) {
+						viewModel.shouldShowBreadcrumbs = _.indexOf(betaTagsOfCurrentUser, "visible-breadcrumbs") >= 0;
 
-						resolve();
-					});
+						if (viewModel.shouldShowBreadcrumbs) {
+							var appSlug = getAppFromCurrentPath();
 
-					iframeService.handleMessage("doesWorkflowEditorHaveUnsavedChanges", function() {
-						iframeService.sendMessage(viewModel.hasUnsavedChanges() ? "doesWorkflowEditorHaveUnsavedChanges:yes" : "doesWorkflowEditorHaveUnsavedChanges:no");
-					});
+							if (appSlug) {
+								requestService.appSlug = appSlug;
 
-					iframeService.sendMessage("requestingConfiguration");
+								resolve();
+							} else {
+								reject("No app slug specified.");
+							}
+						} else {
+							var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)");
+							iframeService.handleMessage(configureMessageRegexp, function(message) {
+								requestService.appSlug = configureMessageRegexp.exec(message)[1];
 
-					var isScrollAtTop = $(window).scrollTop() == 0;
-					$(window).on("scroll", function() {
-						if (isScrollAtTop != ($(window).scrollTop() == 0)) {
-							iframeService.sendMessage($(window).scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
+								resolve();
+							});
+
+							iframeService.handleMessage("doesWorkflowEditorHaveUnsavedChanges", function() {
+								iframeService.sendMessage(viewModel.hasUnsavedChanges() ? "doesWorkflowEditorHaveUnsavedChanges:yes" : "doesWorkflowEditorHaveUnsavedChanges:no");
+							});
+
+							iframeService.sendMessage("requestingConfiguration");
+
+							var isScrollAtTop = $(window).scrollTop() == 0;
+							$(window).on("scroll", function() {
+								if (isScrollAtTop != ($(window).scrollTop() == 0)) {
+									iframeService.sendMessage($(window).scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
+								}
+
+								isScrollAtTop = $(window).scrollTop() == 0;
+							});
 						}
-
-						isScrollAtTop = $(window).scrollTop() == 0;
 					});
+
 
 					break;
 				case "cli":
@@ -472,7 +532,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			selectInitialMenu();
 		}).catch( function(hasError) {
 			viewModel.initAppProgress.error(hasError);
-		})
+		});
 	};
 
 });
