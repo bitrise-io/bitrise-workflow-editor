@@ -36,12 +36,23 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			viewModel.genericFiles = undefined;
 		}
 
+		viewModel.genericFiles = [];
 		refreshGenericFiles();
 	};
 
+	function isGenericFileModelEquals(obj1, obj2) {
+		return 	obj1.envVarPartialID === obj2.envVarPartialID &&
+				obj1.databaseID === obj1.databaseID &&
+				obj1.isProcessed === obj1.isProcessed &&
+				obj1.uploadFileName === obj1.uploadFileName &&
+				obj1.isExpose === obj1.isExpose &&
+				obj1.isProtected === obj1.isProtected;
+	}
+
 	function refreshGenericFiles() {
 		requestService.getGenericFiles().then(function(genericFileDatas) {
-			viewModel.genericFiles = _.map(genericFileDatas, function(aGenericFileData) {
+			var genericFiles = new Map()
+			_.each(genericFileDatas, function(aGenericFileData) {
 				var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
 
 				genericFile.databaseID = aGenericFileData.databaseID;
@@ -50,12 +61,26 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				genericFile.isExpose = aGenericFileData.isExpose;
 				genericFile.isProtected = aGenericFileData.isProtected;
 
-				viewModel.genericFileSettings[genericFile.databaseID] = {
-					isMenuVisible: false
-				};
-
-				return genericFile;
+				genericFiles.set(aGenericFileData.envVarPartialID, genericFile);
 			});
+
+			if (viewModel.genericFiles.length != genericFiles.size) {
+				viewModel.genericFiles = [];
+				genericFiles.forEach(function(value, key, map) {
+					viewModel.genericFiles.push(value);
+
+					viewModel.genericFileSettings[key] = {
+						isMenuVisible: false
+					};
+				});
+			} else {
+				_.each(viewModel.genericFiles, function(genericFile) {
+					var el = genericFiles.get(genericFile.envVarPartialID);
+					if (el !== undefined && !isGenericFileModelEquals(el, genericFile)) {
+						genericFile = el;
+					}
+				});
+			}
 
 			viewModel.genericFileIsExposeGetterSetterConfigs = _.map(viewModel.genericFiles, function(aGenericFile) {
 				var progress = new Progress();

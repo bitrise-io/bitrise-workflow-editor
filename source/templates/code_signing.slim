@@ -346,17 +346,18 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							.icon = svg("code_signing/sheet-generic_file")
+							.icon[ng-class="{unprocessed: !genericFile.isProcessed}"] = svg("code_signing/sheet-generic_file")
 							.column
 								.detail.protected-badge-and-name
 									.protected-badge[ng-if="genericFile.isProtected"]
 										.icon-wrapper = svg("lock-closed")
 										span protected
 									.name[ng-bind="genericFile.displayName()"]
-									.unprocessed-text[ng-if="!genericFile.isProcessed"]
-										p unprocessed
-									.unprocessed-text[ng-if="genericFile.isProcessed"]
-										p processed
+									.uploading[ng-if="!genericFile.isProcessed"]
+										.loader
+											span
+										.loading-text
+											span Uploading file...
 								.detail.code.env-var-key[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 							.expose-and-actions
 								.expose-with-popover
