@@ -34,7 +34,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 
 	function refreshGenericFiles() {
 		requestService.getGenericFiles().then(function(genericFileDatas) {
-			var genericFiles = new Map();
+			var genericFiles = {};
 			_.each(genericFileDatas, function(aGenericFileData) {
 				var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
 
@@ -44,12 +44,12 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				genericFile.isExpose = aGenericFileData.isExpose;
 				genericFile.isProtected = aGenericFileData.isProtected;
 
-				genericFiles.set(aGenericFileData.envVarPartialID, genericFile);
+				genericFiles[aGenericFileData.envVarPartialID] = genericFile;
 			});
 
-			if (viewModel.genericFiles.length != genericFiles.size) {
+			if (viewModel.genericFiles.length != _.size(genericFiles)) {
 				viewModel.genericFiles = [];
-				genericFiles.forEach(function(value, key, map) {
+				_.forEach(genericFiles, function(value, key) {
 					viewModel.genericFiles.push(value);
 
 					viewModel.genericFileSettings[key] = {
@@ -58,8 +58,8 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				});
 			} else {
 				_.each(viewModel.genericFiles, function(aGenericFile) {
-					var elementValue = genericFiles.get(aGenericFile.envVarPartialID);
-					if (elementValue !== undefined && !isGenericFileModelEquals(elementValue, aGenericFile)) {
+					var elementValue = genericFiles[aGenericFile.envVarPartialID];
+					if (elementValue !== undefined && !angular.equals(elementValue, aGenericFile)) {
 						aGenericFile = elementValue;
 					}
 				});
@@ -86,16 +86,6 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			viewModel.loadGenericFilesProgress.error(error);
 		});
 	};
-
-	function isGenericFileModelEquals(obj1, obj2) {
-		return 
-			obj1.envVarPartialID === obj2.envVarPartialID &&
-			obj1.databaseID === obj1.databaseID &&
-			obj1.isProcessed === obj1.isProcessed &&
-			obj1.uploadFileName === obj1.uploadFileName &&
-			obj1.isExpose === obj1.isExpose &&
-			obj1.isProtected === obj1.isProtected;
-	}
 
 	viewModel.downloadURLEnvVarKeyPrettifiedPreview = function() {
 		if (viewModel.uploadedGenericFile.envVarPartialID.length == 0) {

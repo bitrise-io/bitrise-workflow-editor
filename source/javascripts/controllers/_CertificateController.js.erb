@@ -42,7 +42,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 	function refreshCertificates() {
 		requestService.getCertificates().then(function(certificateDatas) {
-			var certificates = new Map();
+			var certificates = {};
 			_.each(certificateDatas, function(aCertificateData) {
 				var certificate = new Certificate();
 
@@ -53,12 +53,12 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				certificate.isExpose = aCertificateData.isExpose;
 				certificate.isProtected = aCertificateData.isProtected;
 
-				certificates.set(certificate.databaseID, certificate);
+				certificates[certificate.databaseID] = certificate;
 			});
 
-			if (certificateService.certificates.length != certificates.size) {
+			if (certificateService.certificates.length != _.size(certificates)) {
 				certificateService.certificates = []
-				certificates.forEach(function(value, key, map) {
+				_.each(certificates, function(value, key) {
 					certificateService.certificates.push(value);
 
 					var isExposeGetterSetterProgress = new Progress();
@@ -77,8 +77,8 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				});
 			} else {
 				_.each(certificateService.certificates, function(aCertificate) {
-					var elementValue = certificates.get(aCertificate.databaseID);
-					if (elementValue !== undefined && !isCertificateModelEquals(elementValue, aCertificate)) {
+					var elementValue = certificates[aCertificate.databaseID];
+					if (elementValue !== undefined && !angular.equals(elementValue, aCertificate)) {
 						aCertificate = elementValue;
 					}
 				});
@@ -97,16 +97,6 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.loadCertificatesProgress.error(error);
 		});
 	};
-
-	function isCertificateModelEquals(obj1, obj2) {
-		return 
-			obj1.databaseID === obj2.databaseID &&
-			obj1.isExpose === obj1.isExpose &&
-			obj1.isProcessed === obj1.isProcessed &&
-			obj1.isProtected === obj1.isProtected &&
-			obj1.password === obj1.password &&
-			obj1.uploadFileName === obj1.uploadFileName;
-	}
 
 	viewModel.filesSelectedForUpload = function(files) {
 		if (files.length == 0) {
