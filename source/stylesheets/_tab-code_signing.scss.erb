@@ -239,7 +239,78 @@
 
 								&.protected-badge-and-name {
 									@include display-flex;
-									@include align-items(center);
+									@include align-items(left);
+									flex-direction: column;
+									
+									.uploading {
+										*, ::after, ::before { -webkit-box-sizing: border-box; box-sizing: border-box; }
+										
+										@include display-flex;
+										@include align-items(center);
+										flex-direction: row;
+										margin-top: 5px;
+										.loader {
+											height: 16px;
+											width: 16px;
+											-webkit-animation: loader-1 4.8s linear infinite;
+													animation: loader-1 4.8s linear infinite;
+										}
+										@-webkit-keyframes loader-1 {
+											0%   { -webkit-transform: rotate(0deg); }
+											100% { -webkit-transform: rotate(360deg); }
+										}
+										@keyframes loader-1 {
+											0%   { transform: rotate(0deg); }
+											100% { transform: rotate(360deg); }
+										}
+										.loader span {
+											display: block;
+											position: absolute;
+											top: 0; left: 0;
+											bottom: 0; right: 0;
+											margin: auto;
+											height: 16px;
+											width: 16px;
+											clip: rect(0, 16px, 16px, 8px);
+											-webkit-animation: loader-2 1.2s linear infinite;
+													animation: loader-2 1.2s linear infinite;
+										}
+										@-webkit-keyframes loader-2 {
+											0%   { -webkit-transform: rotate(0deg); }
+											100% { -webkit-transform: rotate(220deg); }
+										}
+										@keyframes loader-2 {
+											0%   { transform: rotate(0deg); }
+											100% { transform: rotate(220deg); }
+										}
+										.loader span::after {
+											content: "";
+											position: absolute;
+											top: 0; left: 0;
+											bottom: 0; right: 0;
+											margin: auto;
+											height: 16px;
+											width: 16px;
+											clip: rect(0, 16px, 16px, 8px);
+											border: 3px solid $def-violet_blue;
+											border-radius: 50%;
+											-webkit-animation: loader-3 1.2s cubic-bezier(0.770, 0.000, 0.175, 1.000) infinite;
+													animation: loader-3 1.2s cubic-bezier(0.770, 0.000, 0.175, 1.000) infinite;
+										}
+										@-webkit-keyframes loader-3 {
+											0%   { -webkit-transform: rotate(-140deg); }
+											50%  { -webkit-transform: rotate(-160deg); }
+											100% { -webkit-transform: rotate(140deg); }
+										}
+										@keyframes loader-3 {
+											0%   { transform: rotate(-140deg); }
+											50%  { transform: rotate(-160deg); }
+											100% { transform: rotate(140deg); }
+										}
+										.loading-text{
+											margin-left: 5px;
+										} 
+									}
 
 									.protected-badge {
 										@include flex-shrink(0);
@@ -716,6 +787,10 @@
 				fill: $def-green-neon;
 			}
 
+			.unprocessed svg {
+				fill: $def-mediumlightgrey;
+			}
+
 			.column {
 
 				.detail.uuid {
@@ -739,6 +814,10 @@
 
 			.icon svg {
 				fill: $def-purple;
+			}
+
+			.unprocessed svg {
+				fill: $def-mediumlightgrey;
 			}
 
 			.column {
@@ -884,6 +963,10 @@
 					fill: $def-green-verylight;
 				}
 
+				.unprocessed svg {
+					fill: $def-mediumlightgrey;
+				}
+
 				.column {
 
 					.detail.env-var-key {
@@ -938,6 +1021,10 @@
 
 				.icon svg {
 					fill: $def-green-neon;
+				}
+
+				.unprocessed svg {
+					fill: $def-mediumlightgrey;
 				}
 
 				.column {

@@ -111,7 +111,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 						isExposeGetterSetterProgress: provProfileIsExposeGetterSetterProgress,
 					};
 
-					if (!provProfile.uuid) {
+					if (!provProfile.uuid && provProfile.isProcessed) {
 						viewModel.getDetails(provProfile);
 					}
 

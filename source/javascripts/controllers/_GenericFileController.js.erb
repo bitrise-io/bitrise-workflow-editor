@@ -22,22 +22,20 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 	viewModel.genericFileUploader;
 	viewModel.genericFileSettings = {};
 
-	function loadGenericFiles(shouldClearPreviousLoad) {
+	function loadGenericFiles() {
 		viewModel.loadGenericFilesProgress.start("<%= data[:strings][:code_signing][:generic_file][:load_progress][:in_progress] %>");
 		if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
 			viewModel.uploadGenericFileProgress.reset();
 		}
 
-		if (shouldClearPreviousLoad === undefined) {
-			shouldClearPreviousLoad = false;
-		}
+		viewModel.genericFiles = [];
+		refreshGenericFiles();
+	};
 
-		if (shouldClearPreviousLoad) {
-			viewModel.genericFiles = undefined;
-		}
-
+	function refreshGenericFiles() {
 		requestService.getGenericFiles().then(function(genericFileDatas) {
-			viewModel.genericFiles = _.map(genericFileDatas, function(aGenericFileData) {
+			var genericFiles = {};
+			_.each(genericFileDatas, function(aGenericFileData) {
 				var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
 
 				genericFile.databaseID = aGenericFileData.databaseID;
@@ -46,12 +44,26 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 				genericFile.isExpose = aGenericFileData.isExpose;
 				genericFile.isProtected = aGenericFileData.isProtected;
 
-				viewModel.genericFileSettings[genericFile.databaseID] = {
-					isMenuVisible: false
-				};
-
-				return genericFile;
+				genericFiles[aGenericFileData.envVarPartialID] = genericFile;
 			});
+
+			if (viewModel.genericFiles.length != _.size(genericFiles)) {
+				viewModel.genericFiles = [];
+				_.each(genericFiles, function(value, key) {
+					viewModel.genericFiles.push(value);
+
+					viewModel.genericFileSettings[key] = {
+						isMenuVisible: false
+					};
+				});
+			} else {
+				_.each(viewModel.genericFiles, function(aGenericFile) {
+					var elementValue = genericFiles[aGenericFile.envVarPartialID];
+					if (elementValue !== undefined && !angular.equals(elementValue, aGenericFile)) {
+						aGenericFile = elementValue;
+					}
+				});
+			}
 
 			viewModel.genericFileIsExposeGetterSetterConfigs = _.map(viewModel.genericFiles, function(aGenericFile) {
 				var progress = new Progress();
@@ -63,11 +75,11 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 
 			viewModel.loadGenericFilesProgress.success();
 
-			if (_.find(viewModel.genericFiles, {
+			if (viewModel.genericFiles.length == 0 || _.find(viewModel.genericFiles, {
 				isProcessed: false
 			})) {
 				$timeout(function() {
-					loadGenericFiles();
+					refreshGenericFiles();
 				}, genericFilesReloadIntervalInSeconds * 1000);
 			}
 		}, function(error) {
@@ -114,7 +126,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			viewModel.uploadGenericFileProgress.success();
 
 			viewModel.uploadedGenericFile = new GenericFile("");
-			loadGenericFiles(true);
+			loadGenericFiles();
 		}, function(error) {
 			viewModel.uploadGenericFileProgress.error(error);
 		});
@@ -139,7 +151,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			genericFile.delete().then(function() {
 				viewModel.deleteGenericFileProgress.success();
 
-				loadGenericFiles(true);
+				loadGenericFiles();
 			}, function(error) {
 				viewModel.deleteGenericFileProgress.error(error);
 			});
