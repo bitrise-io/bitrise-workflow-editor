@@ -49,7 +49,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 
 			if (viewModel.genericFiles.length != _.size(genericFiles)) {
 				viewModel.genericFiles = [];
-				_.forEach(genericFiles, function(value, key) {
+				_.each(genericFiles, function(value, key) {
 					viewModel.genericFiles.push(value);
 
 					viewModel.genericFileSettings[key] = {
@@ -75,7 +75,7 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 
 			viewModel.loadGenericFilesProgress.success();
 
-			if (_.find(viewModel.genericFiles, {
+			if (viewModel.genericFiles.length == 0 || _.find(viewModel.genericFiles, {
 				isProcessed: false
 			})) {
 				$timeout(function() {

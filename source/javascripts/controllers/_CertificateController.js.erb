@@ -71,7 +71,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 						isExposeGetterSetterProgress: isExposeGetterSetterProgress
 					};
 
-					if (!value.details) {
+					if (!value.details && value.isProcessed) {
 						viewModel.getDetails(value);
 					}
 				});
@@ -86,7 +86,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 			viewModel.loadCertificatesProgress.success();
 
-			if (_.find(certificateService.certificates, {
+			if (certificateService.certificates.length == 0 || _.find(certificateService.certificates, {
 				isProcessed: false
 			})) {
 				$timeout(function() {
