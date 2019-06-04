@@ -216,14 +216,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
-			console.log(response)
 				resolve(response.data);
 			}, function(response) {
 				var error = new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>");
 				if (response && response.data && response.data.error) {
 					error.message = response.data.error;
 				}
-				console.log(response)
 				reject(errorFromResponse(response, error.message, "<%= data[:strings][:request_service][:save_app_config][:error_prefix] %>"));
 			});
 		});

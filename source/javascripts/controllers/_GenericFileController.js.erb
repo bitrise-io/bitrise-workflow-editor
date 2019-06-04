@@ -32,16 +32,6 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 		refreshGenericFiles();
 	};
 
-	function isGenericFileModelEquals(obj1, obj2) {
-		return 
-			obj1.envVarPartialID === obj2.envVarPartialID &&
-			obj1.databaseID === obj1.databaseID &&
-			obj1.isProcessed === obj1.isProcessed &&
-			obj1.uploadFileName === obj1.uploadFileName &&
-			obj1.isExpose === obj1.isExpose &&
-			obj1.isProtected === obj1.isProtected;
-	}
-
 	function refreshGenericFiles() {
 		requestService.getGenericFiles().then(function(genericFileDatas) {
 			var genericFiles = new Map();
@@ -67,10 +57,10 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 					};
 				});
 			} else {
-				_.each(viewModel.genericFiles, function(genericFile) {
-					var el = genericFiles.get(genericFile.envVarPartialID);
-					if (el !== undefined && !isGenericFileModelEquals(el, genericFile)) {
-						genericFile = el;
+				_.each(viewModel.genericFiles, function(aGenericFile) {
+					var elementValue = genericFiles.get(aGenericFile.envVarPartialID);
+					if (elementValue !== undefined && !isGenericFileModelEquals(elementValue, aGenericFile)) {
+						aGenericFile = elementValue;
 					}
 				});
 			}
@@ -96,6 +86,16 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			viewModel.loadGenericFilesProgress.error(error);
 		});
 	};
+
+	function isGenericFileModelEquals(obj1, obj2) {
+		return 
+			obj1.envVarPartialID === obj2.envVarPartialID &&
+			obj1.databaseID === obj1.databaseID &&
+			obj1.isProcessed === obj1.isProcessed &&
+			obj1.uploadFileName === obj1.uploadFileName &&
+			obj1.isExpose === obj1.isExpose &&
+			obj1.isProtected === obj1.isProtected;
+	}
 
 	viewModel.downloadURLEnvVarKeyPrettifiedPreview = function() {
 		if (viewModel.uploadedGenericFile.envVarPartialID.length == 0) {

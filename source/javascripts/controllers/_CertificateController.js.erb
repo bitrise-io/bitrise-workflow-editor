@@ -40,16 +40,6 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		refreshCertificates();
 	};
 
-	function isCertificateModelEquals(obj1, obj2) {
-		return 
-			obj1.databaseID === obj2.databaseID &&
-			obj1.isExpose === obj1.isExpose &&
-			obj1.isProcessed === obj1.isProcessed &&
-			obj1.isProtected === obj1.isProtected &&
-			obj1.password === obj1.password &&
-			obj1.uploadFileName === obj1.uploadFileName;
-	}
-
 	function refreshCertificates() {
 		requestService.getCertificates().then(function(certificateDatas) {
 			var certificates = new Map();
@@ -86,10 +76,10 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 					}
 				});
 			} else {
-				_.each(certificateService.certificates, function(certificate) {
-					var el = certificates.get(certificate.databaseID);
-					if (el !== undefined && !isCertificateModelEquals(el, certificate)) {
-						certificate = el;
+				_.each(certificateService.certificates, function(aCertificate) {
+					var elementValue = certificates.get(aCertificate.databaseID);
+					if (elementValue !== undefined && !isCertificateModelEquals(elementValue, aCertificate)) {
+						aCertificate = elementValue;
 					}
 				});
 			}
@@ -107,6 +97,16 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.loadCertificatesProgress.error(error);
 		});
 	};
+
+	function isCertificateModelEquals(obj1, obj2) {
+		return 
+			obj1.databaseID === obj2.databaseID &&
+			obj1.isExpose === obj1.isExpose &&
+			obj1.isProcessed === obj1.isProcessed &&
+			obj1.isProtected === obj1.isProtected &&
+			obj1.password === obj1.password &&
+			obj1.uploadFileName === obj1.uploadFileName;
+	}
 
 	viewModel.filesSelectedForUpload = function(files) {
 		if (files.length == 0) {
