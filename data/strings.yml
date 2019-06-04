@@ -637,9 +637,6 @@ request_service:
   save_secrets:
     default_error: Error saving secrets.
     error_prefix: "Error saving secrets: "
-  get_user_beta_tags:
-    default_error: Error loading beta tags.
-    error_prefix: "Error loading beta tags: "
   get_app_data:
     default_error: Error loading app data.
     error_prefix: "Error loading app data: "
