@@ -1,4 +1,10 @@
 .tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
+	section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
+		.icon
+		.message
+			.title == data[:strings][:yml][:warn][:title]
+			ul
+				li[ng-repeat="warning in appService.validationWarnings"] {{warning}}
 	section.cardo
 		header
 			div
