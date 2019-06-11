@@ -312,11 +312,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.savedAppConfig = undefined;
 			appService.savedAppConfigYML = appService.appConfigYML;
 
-			if (validationData.warnings.config!==null) {
+			if (validationData.warnings.config !== null) {
 				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config)
 			}
 
-			if (validationData.warnings.secrets!==null) {
+			if (validationData.warnings.secrets !== null) {
 				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets)
 			}
 		});
