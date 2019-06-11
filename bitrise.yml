@@ -1,7 +1,446 @@
-format_version: 1.1.0
-trigger_map:
-- pattern: ci/quick
-  workflow: _prepare_and_setup
+format_version: 1.3.1
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+
+app:
+  envs:
+  - RELEASE_VERSION: 1.1.57
+  - BIN_NAME: workflow-editor
+  - BIN_ARCH: x86_64
+  - BIN_OS_DARWIN: Darwin
+  - BIN_OS_LINUX: Linux
+  - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+  - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
+
+  - PORT: "1234"
+  - MIDDLEMAN_SERVER_PORT: "4567"
+  - MODE: "CLI"
+
 workflows:
- _prepare_and_setup:
-  description: desc
+  up-api:
+    envs:
+      - BITRISE_CONFIG: "$TEST_BITRISE_CONFIG_PATH"
+      - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
+      - USE_MIDDLEMAN_SERVER: "true"
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            go get github.com/codegangsta/gin
+            go install
+            bitrise-workflow-editor
+
+  setup-middleman:
+    steps:
+    - script:
+        deps:
+          apt_get:
+          - name: ruby
+          - name: ruby-dev
+          - name: build-essential
+          - name: nodejs
+          # for nokogiri
+          - name: patch
+          - name: zlib1g-dev
+          - name: liblzma-dev
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle install --path .bundle/inst
+
+  middleman-build:
+    before_run:
+    - setup-middleman
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle exec middleman build --clean --verbose
+
+  middleman-build-for-bitrise-io:
+    envs:
+      - MODE: "WEBSITE"
+    after_run:
+    - middleman-build
+
+  up-middleman-server:
+    before_run:
+    - setup-middleman
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle exec middleman server
+
+  up-middleman-jasmine:
+    before_run:
+    - setup-middleman
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle exec middleman build
+            mkdir -p ./spec/javascripts/src/
+            cp -f ./build/javascripts/jquery_cache.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/angular_cache.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/underscore_cache.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/vendor.js ./spec/javascripts/src/
+            cp -f ./build/javascripts/main.js ./spec/javascripts/src/
+            rm -rf ./build
+            bundle exec middleman server
+            rm -rf ./spec/javascripts/src/
+
+  ci:
+    before_run:
+    - _install_test_tools
+    - middleman-build
+    - test
+
+  go-install:
+    before_run:
+    - assets-precompile
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            go install
+
+  dep-update:
+    title: Dep update
+    description: |
+      Used for updating bitrise dependencies with dep
+    steps:
+    - script:
+        title: Dependency update
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            go get -u -v github.com/golang/dep/cmd/dep
+            dep ensure -v
+            dep ensure -v -update
+
+  deps-update:
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            rm -rf ./vendor
+            rm -rf ./Godeps
+            go get -u github.com/tools/godep
+            godep version
+            go get -t -d ./...
+            go get golang.org/x/sys/unix
+            go get github.com/bitrise-io/envman/models
+            go get github.com/bitrise-io/stepman/models
+            go get github.com/ryanuber/go-glob
+            go get github.com/davecgh/go-spew/spew
+            go get github.com/pmezard/go-difflib/difflib
+            go get github.com/inconshreveable/mousetrap
+            godep save ./...
+
+  assets-precompile:
+    before_run:
+    - middleman-build
+    steps:
+    - script:
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            go get github.com/GeertJohan/go.rice/rice
+            rm -rf ./apiserver/www/
+            mv ./build/ ./apiserver/www/
+            cd ./apiserver
+            rice embed-go
+
+  _install_test_tools:
+    steps:
+    - script:
+        title: Install required testing tools
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # Check for unhandled errors
+            go get -u github.com/kisielk/errcheck
+            # Go lint
+            go get -u golang.org/x/lint/golint
+
+  test:
+    steps:
+    - script:
+        title: GOLIST_WITHOUT_VENDOR
+        inputs:
+        - content: |-
+            set -ex
+            no_vendor_paths="$(go list ./... | grep -v vendor)"
+            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
+          opts:
+            # opts, for bitrise.yml parsing test in the workflow editor
+            is_expand: true
+            title: The Script Content - test title
+            is_required: true
+            is_dont_change_value: false
+    - script:
+        title: Go Test
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # go test $GOLIST_WITHOUT_VENDOR
+            go test ./...
+    - script:
+        title: Go Vet
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            go vet $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Err check
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Go Lint
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # lint
+            while read -r line; do
+              golint -set_exit_status $line
+            done <<< "$GOLIST_WITHOUT_VENDOR"
+
+  # ----------------------------------------------------------------
+  # --- workflows for Releasing
+  create-release:
+    title: Create release
+    description: |
+        Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
+    steps:
+    - script:
+        title: Input required infos
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+
+            read -p "Enter new Workflow Editor version: " -r
+            if [[ $REPLY == $RELEASE_VERSION ]] ; then
+              echo "Workflow Editor is already on version $REPLY"
+              exit 1
+            fi
+
+            envman add --key NEW_RELEASE_VERSION --value "${REPLY}"
+
+            if [ -z "$GITHUB_RELEASE_API_TOKEN" ] ; then
+              read -p "Enter GitHub API token for release: " -r
+              envman add --key GITHUB_RELEASE_API_TOKEN --value "${REPLY}"
+            else
+                echo "Using GitHub API token for release: $GITHUB_RELEASE_API_TOKEN"
+            fi
+
+            if [ -z "$GITHUB_USERNAME" ] ; then
+              read -p "Enter GitHub username: " -r
+              envman add --key GITHUB_USERNAME --value "${REPLY}"
+            else
+                echo "Using GitHub username: $GITHUB_USERNAME"
+            fi
+
+            if [ -z "$DISCUSS_API_KEY" ] ; then
+              read -p "Enter Discuss API key for topic: " -r
+              envman add --key DISCUSS_API_KEY --value "${REPLY}"
+            else
+                echo "Using Discuss API key for topic: $DISCUSS_API_KEY"
+            fi
+
+            if [ -z "$DISCUSS_USERNAME" ] ; then
+              read -p "Enter Discuss username for topic: " -r
+              envman add --key DISCUSS_USERNAME --value "${REPLY}"
+            else
+                echo "Using Discuss username for topic: $DISCUSS_USERNAME"
+            fi
+    - script:
+        title: Confirm release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -e
+
+            echo
+            echo "This action will:"
+            echo "- Set Workflow editor to version $NEW_RELEASE_VERSION"
+            echo "- Create a new release on GitHub"
+            echo "- Create related article in discuss.bitrise.io changelog"
+            echo
+
+            read -p "Are you sure? [y/n] " -n 1 -r
+            echo
+            if [[ ! $REPLY =~ ^[Yy]$ ]] ; then
+              exit 1
+            fi
+    - script:
+        title: Set new version
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            cat bitrise.yml | sed -e "s/^  \- RELEASE_VERSION\: .*$/  - RELEASE_VERSION: ${NEW_RELEASE_VERSION}/" > new_bitrise.yml
+            mv new_bitrise.yml bitrise.yml
+
+            export RELEASE_VERSION="$NEW_RELEASE_VERSION"
+            envman add --key RELEASE_VERSION --value "$RELEASE_VERSION"
+    - script:
+        title: Create changelog
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get github.com/bitrise-tools/releaseman
+
+            export CI=true
+
+            releaseman create-changelog \
+              --version $NEW_RELEASE_VERSION \
+              --set-version-script "bash _scripts/set_version.sh version/version.go bitrise-plugin.yml"
+    - script:
+        title: Commit & push changes
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            git add -A
+            git commit -m "v$NEW_RELEASE_VERSION"
+            git push
+    - script:
+        title: Create description for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get -u github.com/bitrise-tools/releaseman
+
+            cd ./github_release
+            echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
+
+            envman add --key GITHUB_RELEASE_DESCRIPTION --value "$(cat CHANGELOG.md)"
+
+            rm CHANGELOG.md
+    - script:
+        title: Create binaries for GitHub release
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            bitrise run create-binaries
+    - github-release@0.9.3:
+        inputs:
+        - api_token: $GITHUB_RELEASE_API_TOKEN
+        - username: $GITHUB_USERNAME
+        - repository_url: https://github.com/bitrise-io/bitrise-workflow-editor.git
+        - tag: $NEW_RELEASE_VERSION
+        - commit: master
+        - draft: 'no'
+        - name: $NEW_RELEASE_VERSION
+        - body: $GITHUB_RELEASE_DESCRIPTION
+        - files_to_upload: |-
+            $BIN_PATH_DARWIN
+            $BIN_PATH_LINUX
+    - script:
+        title: Create description for Discuss topic
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            go get -u github.com/bitrise-tools/releaseman
+
+            cd ./discuss_topic
+            echo "YES" | releaseman create-changelog --version $NEW_RELEASE_VERSION
+
+            envman add --key DISCUSS_TOPIC_CONTENT --value "$(cat CHANGELOG.md)"
+
+            rm CHANGELOG.md
+    - script:
+        title: Create Discuss topic
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+
+            export DISCUSS_CHANGELOG_CATEGORY_ID=6
+
+            curl -X POST "https://discuss.bitrise.io/posts" \
+            -H "Content-Type: multipart/form-data;" \
+            -F "api_key=$DISCUSS_API_KEY" \
+            -F "api_username=$DISCUSS_USERNAME" \
+            -F "category=$DISCUSS_CHANGELOG_CATEGORY_ID" \
+            -F "title=Workflow Editor v$NEW_RELEASE_VERSION released" \
+            -F "raw=$DISCUSS_TOPIC_CONTENT"
+  create-binaries:
+    title: Create binaries
+    description: |
+        Creates Linux and Darwin binaries
+    before_run:
+    - assets-precompile
+    steps:
+    - script:
+        title: Create binaries
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+
+            echo
+            echo "Create final binaries"
+            echo "  Build number: $BITRISE_BUILD_NUMBER"
+
+            export GOARCH=amd64
+
+            # Create Darwin bin
+            export GOOS=darwin
+
+            echo "  Create final Darwin binary at: $BIN_PATH_DARWIN"
+
+            version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
+
+            go build \
+              -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
+              -o "$BIN_PATH_DARWIN"
+
+            cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
+
+
+            # Create Linux binary
+            export GOOS=linux
+
+            echo "  Create final Linux binary at: $BIN_PATH_LINUX"
+
+            go build \
+              -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
+              -o "$BIN_PATH_LINUX"
+
+            cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
+            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
