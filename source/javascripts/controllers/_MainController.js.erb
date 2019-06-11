@@ -26,8 +26,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 
 	viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 
-	$scope.warnings = ["asd","casd"]
-
 	$scope.$on('$locationChangeSuccess', function(event, next, current) {
 		$timeout(function() {
 			viewModel.changeMenuProgress.success();
