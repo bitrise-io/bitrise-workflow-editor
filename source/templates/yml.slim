@@ -4,7 +4,7 @@
 		.message
 			.title == data[:strings][:yml][:warn][:title]
 			ul
-				li[ng-repeat="warning in appService.validationWarnings"] {{warning}}
+				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
 	section.cardo
 		header
 			div
