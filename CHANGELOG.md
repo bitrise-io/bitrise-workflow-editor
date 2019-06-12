@@ -1,6 +1,182 @@
-## Changelog (Current version: 1.1.52)
+## Changelog (Current version: 1.1.57)
 
 -----------------
+
+## 1.1.57 (2019 Jun 04)
+
+### Release Notes
+
+* Open Workflow Editor on separate page in website mode (#376)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.57
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.56 -> 1.1.57
+
+* [29be5be] Norbert Kovach - Open Workflow Editor on separate page in website mode (#376) (2019 Jun 04)
+
+
+## 1.1.56 (2019 Jun 04)
+
+### Release Notes
+
+* UI always reloads the project file storages when there is an un-processed file #z1ttm (#375)
+* v1.1.55
+* Add breadcrumbs (with BetaTags) (#374)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.56
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.54 -> 1.1.56
+
+* [14b64d2] Daniel Serleg - UI always reloads the project file storages when there is an un-processed file #z1ttm (#375) (2019 Jun 04)
+* [c3db0a1] doomsayer13 - v1.1.55 (2019 May 31)
+* [49713ba] Norbert Kovach - Add breadcrumbs (with BetaTags) (#374) (2019 May 31)
+
+
+## 1.1.55 (2019 May 31)
+
+### Release Notes
+
+* Add breadcrumbs (with BetaTags) (#374)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.55
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.54 -> 1.1.55
+
+* [49713ba] Norbert Kovach - Add breadcrumbs (with BetaTags) (#374) (2019 May 31)
+
+
+## 1.1.54 (2019 May 21)
+
+### Release Notes
+
+* Saving bitrise.yml: display warnings #a3k79 (#371)
+* Remove fastlane project type (#368)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.54
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.53 -> 1.1.54
+
+* [2515b69] Daniel Serleg - Saving bitrise.yml: display warnings #a3k79 (#371) (2019 May 20)
+* [a32ae1a] Norbert Kovach - Remove fastlane project type (#368) (2019 Apr 25)
+
+
+## 1.1.53 (2019 Apr 16)
+
+### Release Notes
+
+* Always allow to expose secrets & code signing files for PRs (#369)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.53
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.52 -> 1.1.53
+
+* [2ae0c00] erosdome - Always allow to expose secrets & code signing files for PRs (#369) (2019 Apr 16)
+
 
 ## 1.1.52 (2019 Apr 04)
 
@@ -3332,4 +3508,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Apr 04
+Updated: 2019 Jun 04

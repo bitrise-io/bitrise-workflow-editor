@@ -41,13 +41,18 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 						.details
-							.icon = svg("code_signing/sheet-prov_profile")
+							.icon[ng-class="{unprocessed: !certificate.isProcessed}"] = svg("code_signing/sheet-prov_profile")
 							.column.left
 								.detail.protected-badge-and-name
 									.protected-badge[ng-if="provProfile.isProtected"]
 										.icon-wrapper = svg("lock-closed")
 										span protected
 									.name[ng-bind="provProfile.displayName()"]
+									.uploading[ng-if="!provProfile.isProcessed"]
+										.loader
+											span
+										.loading-text
+											span Uploading file...
 								div[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 									.detail.code.uuid[ng-bind="provProfile.uuid" ng-if="provProfile.uuid"]
 									.detail[ng-if="provProfile.expiresAt"]
@@ -70,18 +75,18 @@
 									span[ng-bind="provProfile.bundleID"]
 							.expose-and-actions
 								.expose-with-popover
-									.expose[ng-attr-trigger-popover="{{ appService.appDetails.isPublic ? '#{ data[:strings][:code_signing][:expose_for_public_app_pr_popover_content] }' : '#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }' }}"]
-										checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress || provProfile.isProtected || appService.appDetails.isPublic" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
+									.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress || provProfile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 										label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
 								.actions[floating-menu toggle="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
 									button.dropdown-toggle[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
-										a.dropdown-option.download[ng-if="!provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
-										button.dropdown-option.protect[ng-if="!provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
+										a.dropdown-option.download[ng-if="provProfile.isProcessed && !provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
+										button.dropdown-option.protect[ng-if="provProfile.isProcessed && !provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
 										button.dropdown-option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
 								.actions.small
-									a.option.download[ng-if="!provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
-									button.option.protect[ng-if="!provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
+									a.option.download[ng-if="provProfile.isProcessed && !provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
+									button.option.protect[ng-if="provProfile.isProcessed && !provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
 									button.option.delete[ng-click="provProfileCtrl.deleteProvProfile(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:delete]
 						.show-more-details[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 							button.show-more[ng-click="provProfileCtrl.showProvProfileDetails(provProfile)"]
@@ -170,7 +175,7 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="certificate in certificateService.certificates" ng-init="showPassword = false"]
 						.details
-							.icon = svg("code_signing/sheet-certificate")
+							.icon[ng-class="{unprocessed: !certificate.isProcessed}"] = svg("code_signing/sheet-certificate")
 							.column.left
 								div[ng-if="!certificate.details || certificate.details.length > 1 || !certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 									.detail.protected-badge-and-name
@@ -178,6 +183,11 @@
 												.icon-wrapper = svg("lock-closed")
 												span protected
 										.name[ng-bind="certificate.uploadFileName"]
+										.uploading[ng-if="!certificate.isProcessed"]
+											.loader
+												span
+											.loading-text
+												span Uploading file...
 								div[ng-if="certificate.details && certificate.details.length == 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
 									.detail.protected-badge-and-name
 										.protected-badge[ng-if="certificate.isProtected"]
@@ -211,18 +221,18 @@
 									span == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
 							.expose-and-actions
 								.expose-with-popover
-									.expose[ng-attr-trigger-popover="{{ appService.appDetails.isPublic ? '#{ data[:strings][:code_signing][:expose_for_public_app_pr_popover_content] }' : '#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }' }}"]
-										checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress || certificate.isProtected || appService.appDetails.isPublic" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
+									.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress || certificate.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
 										label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]
 								.actions[floating-menu toggle="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
 									button.dropdown-toggle[ng-click="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible = !certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
-										a.dropdown-option.download[ng-if="!certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
-										button.dropdown-option.protect[ng-if="!certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
+										a.dropdown-option.download[ng-if="certificate.isProcessed && !certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
+										button.dropdown-option.protect[ng-if="certificate.isProcessed && !certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
 										button.dropdown-option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
 								.actions.small
-									a.option.download[ng-if="!certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
-									button.option.protect[ng-if="!certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
+									a.option.download[ng-if="certificate.isProcessed && !certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
+									button.option.protect[ng-if="certificate.isProcessed && !certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
 									button.option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
 						.show-more-details[ng-if="certificate.details && certificate.details.length > 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle && !certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword"]
 							p.show-more-info == data[:strings][:code_signing][:certificate][:article][:details][:multiple_identities]
@@ -274,30 +284,35 @@
 					.uploaded-files
 						.uploaded-file
 							.details
-								.icon = svg("code_signing/sheet-certificate")
+								.icon[ng-class="{unprocessed: !genericFile.isProcessed}"] = svg("code_signing/sheet-certificate")
 								.column.left
 									.detail.protected-badge-and-name
 										.protected-badge[ng-if="androidKeystoreCtrl.keystoreFile.isProtected"]
 											.icon-wrapper = svg("lock-closed")
 											span protected
 										.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
+										.uploading[ng-if="!androidKeystoreCtrl.keystoreFile.isProcessed"]
+											.loader
+												span
+											.loading-text
+												span Uploading file...
 									.detail.code.env-var-key[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
 								.expose-and-actions
 									.expose-with-popover
-										.expose[ng-attr-trigger-popover="{{ appService.appDetails.isPublic ? '#{ data[:strings][:code_signing][:expose_for_public_app_pr_popover_content] }' : '#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }' }}"]
-											checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress || androidKeystoreCtrl.keystoreFile.isProtected || appService.appDetails.isPublic" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
+										.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+											checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress || androidKeystoreCtrl.keystoreFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
 											label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
 									.actions[floating-menu toggle="androidKeystoreCtrl.isMenuVisible"]
 										button.dropdown-toggle[ng-click="androidKeystoreCtrl.isMenuVisible = !androidKeystoreCtrl.isMenuVisible"] = svg("three-horizontal-dots")
 										.dropdown[ng-if="androidKeystoreCtrl.isMenuVisible"]
-											a.dropdown-option.download[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
-											button.dropdown-option.protect[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
+											a.dropdown-option.download[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
+											button.dropdown-option.protect[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
 											button.dropdown-option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
 									.actions.small
-										a.option.download[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
-										button.option.protect[ng-if="!androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
+										a.option.download[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
+										button.option.protect[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
 										button.option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
-					form.keystore-metadata[name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()"]
+					form.keystore-metadata[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed" name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()"]
 						section
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
@@ -346,28 +361,33 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							.icon = svg("code_signing/sheet-generic_file")
+							.icon[ng-class="{unprocessed: !genericFile.isProcessed}"] = svg("code_signing/sheet-generic_file")
 							.column
 								.detail.protected-badge-and-name
 									.protected-badge[ng-if="genericFile.isProtected"]
 										.icon-wrapper = svg("lock-closed")
 										span protected
 									.name[ng-bind="genericFile.displayName()"]
+									.uploading[ng-if="!genericFile.isProcessed"]
+										.loader
+											span
+										.loading-text
+											span Uploading file...
 								.detail.code.env-var-key[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 							.expose-and-actions
 								.expose-with-popover
-									.expose[ng-attr-trigger-popover="{{ appService.appDetails.isPublic ? '#{ data[:strings][:code_signing][:expose_for_public_app_pr_popover_content] }' : '#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }' }}"]
-										checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress || genericFile.isProtected || appService.appDetails.isPublic" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
+									.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
+										checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress || genericFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
 										label.on-small[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]
 								.actions[floating-menu toggle="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
 									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
 									.dropdown[ng-if="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
-										a.dropdown-option.download[ng-if="!genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
-										button.dropdown-option.protect[ng-if="!genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
+										a.dropdown-option.download[ng-if="genericFile.isProcessed && !genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
+										button.dropdown-option.protect[ng-if="genericFile.isProcessed && !genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
 										button.dropdown-option.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 								.actions.small
-									a.option.download[ng-if="!genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
-									button.option.protect[ng-if="!genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
+									a.option.download[ng-if="genericFile.isProcessed && !genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
+									button.option.protect[ng-if="genericFile.isProcessed && !genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
 									button.option.delete[ng-click="genericFileCtrl.deleteGenericFile(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:delete]
 				p.notification.error[ng-if="genericFileCtrl.genericFiles.length >= genericFileCtrl.maximumGenericFilesCount"] == data[:strings][:code_signing][:generic_file][:upload_count_limit_reached]
 				p.progress-indicator[progress-model="genericFileCtrl.uploadGenericFileProgress"]

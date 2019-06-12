@@ -93,7 +93,7 @@ angular.module("BitriseWorkflowEditor").controller("TriggersController", functio
 			}
 
 			viewModel.selectedTriggerType = triggerType;
-			$location.search("trigger_type", triggerType.urlParameterValue);
+			$location.search("trigger_type", triggerType.urlParameterValue).replace();
 			viewModel.triggerSelected(null);
 		}
 
