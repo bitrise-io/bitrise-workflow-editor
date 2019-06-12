@@ -515,6 +515,8 @@ yml:
   download: Download currently saved config
   load_progress:
     loading: Loading, wait a sec...
+  warn:
+    title: Uups, we found some warnings in your configuration, please considere to check them.
 image_service:
   broken_image: "Broken image: <image_url>."
   load_error: "Error loading image: <image_url>."

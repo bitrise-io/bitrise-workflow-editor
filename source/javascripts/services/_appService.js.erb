@@ -19,7 +19,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		denTags: undefined,
 		savedDenTags: undefined,
 		projectType: undefined,
-		availableProjectTypes: undefined
+		availableProjectTypes: undefined,
+		validationWarnings: []
 	};
 
 	appService.getAppDetails = function(requestConfig) {
@@ -306,10 +307,19 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	};
 
 	appService.saveAppConfigYML = function() {
-		return requestService.postAppConfigYML(appService.appConfigYML).then(function() {
+		return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
 			appService.appConfig = undefined;
 			appService.savedAppConfig = undefined;
 			appService.savedAppConfigYML = appService.appConfigYML;
+
+			appService.validationWarnings = []
+			if (validationData.warnings.config !== null) {
+				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config)
+			}
+
+			if (validationData.warnings.secrets !== null) {
+				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets)
+			}
 		});
 	};
 
