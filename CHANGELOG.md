@@ -1,6 +1,44 @@
-## Changelog (Current version: 1.1.58)
+## Changelog (Current version: 1.1.59)
 
 -----------------
+
+## 1.1.59 (2019 Jul 01)
+
+### Release Notes
+
+* Update to new Gem versions (#377)
+* Fix secret's save button (#383)
+* Fix App icon load (#381)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.59
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.58 -> 1.1.59
+
+* [5368e0f] Daniel Serleg - Update to new Gem versions (#377) (2019 Jul 01)
+* [a0224b0] Norbert Kovach - Fix secret's save button (#383) (2019 Jul 01)
+* [6b0a3ab] Norbert Kovach - Fix App icon load (#381) (2019 Jun 21)
+
 
 ## 1.1.58 (2019 Jun 12)
 
@@ -3544,4 +3582,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Jun 12
+Updated: 2019 Jul 01
