@@ -62,7 +62,7 @@ angular.module("BitriseWorkflowEditor").filter("projectTypeCSSClass", function()
 
 });
 
-angular.module("BitriseWorkflowEditor").filter("appAvatarURL", function(StyleGenerator) {
+angular.module("BitriseWorkflowEditor").filter("appAvatarURL", function() {
 	return function(url) {
 		if (!url || typeof url != "string" || url.length == 0) {
 			return "";

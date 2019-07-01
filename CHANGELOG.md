@@ -1,6 +1,114 @@
-## Changelog (Current version: 1.1.55)
+## Changelog (Current version: 1.1.58)
 
 -----------------
+
+## 1.1.58 (2019 Jun 12)
+
+### Release Notes
+
+* Allow update of protected Secret values (#380)
+* (FE) Saving bitrise.yml: display warnings to the user that was given by the CLI #a3k5r (#379)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.58
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.57 -> 1.1.58
+
+* [7608e87] Norbert Kovach - Allow update of protected Secret values (#380) (2019 Jun 12)
+* [4f6c792] Daniel Serleg - (FE) Saving bitrise.yml: display warnings to the user that was given by the CLI #a3k5r (#379) (2019 Jun 12)
+
+
+## 1.1.57 (2019 Jun 04)
+
+### Release Notes
+
+* Open Workflow Editor on separate page in website mode (#376)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.57
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.56 -> 1.1.57
+
+* [29be5be] Norbert Kovach - Open Workflow Editor on separate page in website mode (#376) (2019 Jun 04)
+
+
+## 1.1.56 (2019 Jun 04)
+
+### Release Notes
+
+* UI always reloads the project file storages when there is an un-processed file #z1ttm (#375)
+* v1.1.55
+* Add breadcrumbs (with BetaTags) (#374)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.56
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.54 -> 1.1.56
+
+* [14b64d2] Daniel Serleg - UI always reloads the project file storages when there is an un-processed file #z1ttm (#375) (2019 Jun 04)
+* [c3db0a1] doomsayer13 - v1.1.55 (2019 May 31)
+* [49713ba] Norbert Kovach - Add breadcrumbs (with BetaTags) (#374) (2019 May 31)
+
 
 ## 1.1.55 (2019 May 31)
 
@@ -3436,4 +3544,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 May 31
+Updated: 2019 Jun 12

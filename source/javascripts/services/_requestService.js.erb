@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("requestService", function($q, $injector, $location, $http, stringService, dateService) {
+angular.module("BitriseWorkflowEditor").service("requestService", function($q, $injector, $http, stringService, dateService) {
 
 	var requestService = {
 		mode: "<%= mode %>",
@@ -71,25 +71,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			url: "<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>",
 			async: false
 		});
-	};
-
-	// User
-
-	requestService.getBetaTagsOfUser = function(requestConfig) {
-		switch (requestService.mode) {
-			case "website":
-				var requestURL = "<%= webserver_path(data[:routes][:website][:current_user_beta_tags_get]) %>";
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(function (response) {
-						resolve(response.data.beta_tags);
-					}, function (response) {
-						reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_user_beta_tags][:default_error] %>", "<%= data[:strings][:request_service][:get_user_beta_tags][:error_prefix] %>"));
-					});
-				});
-			case "cli": {
-				return $q.when({});
-			}
-		}
 	};
 
 	// App details
@@ -222,7 +203,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				if (response && response.data && response.data.error) {
 					error.message = response.data.error;
 				}
-
 				reject(errorFromResponse(response, error.message, "<%= data[:strings][:request_service][:save_app_config][:error_prefix] %>"));
 			});
 		});

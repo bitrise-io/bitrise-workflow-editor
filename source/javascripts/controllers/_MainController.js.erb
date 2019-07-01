@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, iframeService, appService, stringService, dateService, osService, Progress, Popup, Stack) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, appService, stringService, dateService, osService, Progress, Popup, Stack) {
 
 	var viewModel = this;
 
@@ -18,7 +18,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 	viewModel.menus;
 	viewModel.menuProgress = new Progress();
 	viewModel.currentMenu;
-	viewModel.shouldShowBreadcrumbs = false;
 
 	viewModel.loadAppConfigProgress = new Progress();
 	viewModel.saveProgress = new Progress();
@@ -188,7 +187,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			_.each(_.without(viewModel.menus, menu), function(aMenu) {
 				_.each(aMenu.possibleURLParameterKeys, function(aMenuURLParameterKey) {
 					if (!_.contains(menu.possibleURLParameterKeys, aMenuURLParameterKey)) {
-						$location.search(aMenuURLParameterKey, null);
+						$location.search(aMenuURLParameterKey, null).replace();
 					}
 				});
 			});
@@ -201,7 +200,9 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 
 			viewModel.currentMenu = menu;
-			$location.path("/" + menu.path);
+			if ($location.path() != "/" + menu.path) {
+				$location.path("/" + menu.path).replace();
+			}
 
 			viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
 			if (shouldCallLoadAfterMenuChange) {
@@ -273,11 +274,14 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		if (originalOnbeforeunloadHandler) {
 			originalOnbeforeunloadHandler(event);
 		}
+
+		window.location.replace();
 	};
 
 	window.onpopstate = function(event) {
 		if (event.state && event.state.eventID == "backButtonPressedOnInitialWorkflowEditorPage") {
-			iframeService.sendMessage("backButtonPressedOnInitialWorkflowEditorPage");
+
+			window.location.replace();
 
 			return;
 		}
@@ -481,44 +485,15 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		$q(function(resolve, reject) {
 			switch (requestService.mode) {
 				case "website":
-					requestService.getBetaTagsOfUser().then(function(betaTagsOfCurrentUser) {
-						viewModel.shouldShowBreadcrumbs = _.indexOf(betaTagsOfCurrentUser, "visible-breadcrumbs") >= 0;
+					var appSlug = getAppFromCurrentPath();
 
-						if (viewModel.shouldShowBreadcrumbs) {
-							var appSlug = getAppFromCurrentPath();
+					if (appSlug) {
+						requestService.appSlug = appSlug;
 
-							if (appSlug) {
-								requestService.appSlug = appSlug;
-
-								resolve();
-							} else {
-								reject("No app slug specified.");
-							}
-						} else {
-							var configureMessageRegexp = new RegExp("configure-app_slug-([a-zA-Z0-9]*)");
-							iframeService.handleMessage(configureMessageRegexp, function(message) {
-								requestService.appSlug = configureMessageRegexp.exec(message)[1];
-
-								resolve();
-							});
-
-							iframeService.handleMessage("doesWorkflowEditorHaveUnsavedChanges", function() {
-								iframeService.sendMessage(viewModel.hasUnsavedChanges() ? "doesWorkflowEditorHaveUnsavedChanges:yes" : "doesWorkflowEditorHaveUnsavedChanges:no");
-							});
-
-							iframeService.sendMessage("requestingConfiguration");
-
-							var isScrollAtTop = $(window).scrollTop() == 0;
-							$(window).on("scroll", function() {
-								if (isScrollAtTop != ($(window).scrollTop() == 0)) {
-									iframeService.sendMessage($(window).scrollTop() > 0 ? "shouldMinimizeHeader:yes" : "shouldMinimizeHeader:no");
-								}
-
-								isScrollAtTop = $(window).scrollTop() == 0;
-							});
-						}
-					});
-
+						resolve();
+					} else {
+						reject("No app slug specified.");
+					}
 
 					break;
 				case "cli":

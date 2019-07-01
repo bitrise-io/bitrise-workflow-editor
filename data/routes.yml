@@ -20,7 +20,6 @@ templates:
 website:
   dashboard_path: /dashboard
   app_path: /app/<app_slug>
-  current_user_beta_tags_get: /me/profile/beta_tags
   app_data_get: /api/app/<app_slug>.json
   app_config_post: /api/app/<app_slug>/config.json
   app_config_get: /api/app/<app_slug>/config.json

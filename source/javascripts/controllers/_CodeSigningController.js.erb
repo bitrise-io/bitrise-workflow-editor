@@ -91,7 +91,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 	};
 
 	viewModel.placeholderForText = function(text) {
-		if (text === undefined) {
+		if (text === undefined || text === null) {
 			return;
 		}
 
