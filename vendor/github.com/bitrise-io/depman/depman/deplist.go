@@ -6,7 +6,7 @@ import (
 	"io"
 	"os"
 
-	"github.com/bitrise-tools/depman/pathutil"
+	"github.com/bitrise-io/depman/pathutil"
 )
 
 type DepLockStruct struct {

@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"github.com/bitrise-tools/depman/pathutil"
-	"github.com/bitrise-tools/depman/scanutil"
+	"github.com/bitrise-io/depman/pathutil"
+	"github.com/bitrise-io/depman/scanutil"
 )
 
 func runCommand(name string, args ...string) error {

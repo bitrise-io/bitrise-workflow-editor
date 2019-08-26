@@ -2,29 +2,45 @@
 
 
 [[projects]]
-  branch = "master"
-  digest = "1:69185d9c071efd1a3efa7362871906d74884b7268111932f98585cb15e1f2701"
+  digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
-  pruneopts = ""
-  revision = "cdb2f3857cfba7388d28dfe38316b0a39e694215"
+  pruneopts = "UT"
+  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
+  version = "v1.4.2"
 
 [[projects]]
   branch = "master"
-  digest = "1:d0807039f502a02cfbef18128db8a074db6f07fa2461e69ae85736b2badc9c4e"
+  digest = "1:eda2296387e3dae410b4ceb25e4db754d6bb552666584ef93ca1d98aa12920df"
+  name = "github.com/bitrise-io/colorstring"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "a8cd701151924e6beffb74a34a556b320e0cfcf7"
+
+[[projects]]
+  branch = "master"
+  digest = "1:2fda26dec1f06211916cb347065bd974f7fbd9e3624533bc3e14fc41456e320c"
   name = "github.com/bitrise-io/envman"
-  packages = ["models"]
-  pruneopts = ""
-  revision = "4a7ab5aae4a3db9a60dcc02ff472de7e47c82d71"
+  packages = [
+    ".",
+    "cli",
+    "envman",
+    "models",
+    "output",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "27a300a1ed43c2c4e5f87011e1743a6dcc770c44"
 
 [[projects]]
   branch = "master"
-  digest = "1:6083fc4e90fe661aad326c42fa16fb85774cb55711560d1208c82ff290534836"
+  digest = "1:81b69f2e9a7499db456730ffac31d11d6d8ab0ca207bfb6c5b8b5232bf6948dc"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
     "command",
     "command/git",
+    "envutil",
     "errorutil",
     "fileutil",
     "log",
@@ -33,131 +49,141 @@
     "pointers",
     "progress",
     "retry",
+    "sliceutil",
     "stringutil",
+    "urlutil",
     "versions",
   ]
-  pruneopts = ""
-  revision = "2a09aab8380d7842750328aebd5671bcccea89c8"
+  pruneopts = "UT"
+  revision = "fcff02f7bce9d2e56a989e6a78f4f4d12f9b516c"
 
 [[projects]]
   branch = "master"
-  digest = "1:6825c56bedbe125a302e7516f731fa841ce9db05f873dbc5745ee807a8c3d3a2"
+  digest = "1:980e760f25b82cb4ffe32b146956029f1f5c8bea3c39f9f973cc023d4ae965b1"
   name = "github.com/bitrise-io/goinp"
   packages = ["goinp"]
-  pruneopts = ""
-  revision = "f451b19ba4d087d8272d411ad91af5f4218fd517"
+  pruneopts = "UT"
+  revision = "bd18a8681e272db4696c50152b288f722d08b914"
 
 [[projects]]
   branch = "master"
-  digest = "1:a08599f6937ab2778d1ae1359b8ebe90a0985c046eddff850d47242dd01cd959"
-  name = "github.com/bitrise-io/stepman"
-  packages = ["models"]
-  pruneopts = ""
-  revision = "9a9514dd0aa576d51fffbd997d9b37d1660f4dd7"
-
-[[projects]]
-  branch = "master"
-  digest = "1:f3571d1392019a5ca17e0632f5374531f8b38994eeea456b85bfd5ccb86e081d"
-  name = "github.com/bitrise-tools/gows"
+  digest = "1:d57ff96212b8429c896b7a75b0557499998cc663fb2e7179035e39e519aaf3a9"
+  name = "github.com/bitrise-io/gows"
   packages = ["gows"]
-  pruneopts = ""
-  revision = "005d8a8baa6e3c6c76527554bb292061ef7d3af0"
+  pruneopts = "UT"
+  revision = "8cc2a6a92536486370c8a3daaf70a2886323725a"
 
 [[projects]]
-  digest = "1:0deddd908b6b4b768cfc272c16ee61e7088a60f7fe2f06c547bd3d8e1f8b8e77"
+  branch = "master"
+  digest = "1:f422b58803fc3ed8416326cea9ae66c2f15d175fb60ac8063e5f91694329b036"
+  name = "github.com/bitrise-io/stepman"
+  packages = [
+    ".",
+    "cli",
+    "models",
+    "stepman",
+    "version",
+  ]
+  pruneopts = "UT"
+  revision = "10564a4888a69c1f0de0afc4f4fd749bf54ce294"
+
+[[projects]]
+  digest = "1:ffe9824d294da03b391f44e1ae8281281b4afc1bdaa9588c9097785e3af10cec"
   name = "github.com/davecgh/go-spew"
   packages = ["spew"]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "8991bc29aa16c548c550c7ff78260e27b9ab7c73"
   version = "v1.1.1"
 
 [[projects]]
-  branch = "master"
-  digest = "1:b759103c9b4135568253c17d2866064cde398e93764b611caabf5aa8e3059685"
+  digest = "1:88e0b0baeb9072f0a4afbcf12dda615fc8be001d1802357538591155998da21b"
   name = "github.com/hashicorp/go-version"
   packages = ["."]
-  pruneopts = ""
-  revision = "d40cf49b3a77bba84a7afdbd7f1dc295d114efb1"
+  pruneopts = "UT"
+  revision = "ac23dc3fea5d1a983c43f6a0f6e2c13f0195d8bd"
+  version = "v1.2.0"
 
 [[projects]]
-  digest = "1:6a874e3ddfb9db2b42bd8c85b6875407c702fa868eed20634ff489bc896ccfd3"
+  digest = "1:31e761d97c76151dde79e9d28964a812c46efc5baee4085b86f68f0c654450de"
   name = "github.com/konsorten/go-windows-terminal-sequences"
   packages = ["."]
-  pruneopts = ""
-  revision = "5c8c8bd35d3832f5d134ae1e1e375b69a4d25242"
-  version = "v1.0.1"
+  pruneopts = "UT"
+  revision = "f55edac94c9bbba5d6182a4be46d86a2c9b5b50e"
+  version = "v1.0.2"
 
 [[projects]]
-  digest = "1:256484dbbcd271f9ecebc6795b2df8cad4c458dd0f5fd82a8c2fa0c29f233411"
+  digest = "1:0028cb19b2e4c3112225cd871870f2d9cf49b9b4276531f03438a88e94be86fe"
   name = "github.com/pmezard/go-difflib"
   packages = ["difflib"]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "792786c7400a136282c1664665ae0a8db921c6c2"
   version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:4244255905cb95c3c98894d671367f84a6292608ae528936fe46ba9c86f68393"
+  digest = "1:6baa565fe16f8657cf93469b2b8a6c61a277827734400d27e44d589547297279"
   name = "github.com/ryanuber/go-glob"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "51a8f68e6c24dc43f1e371749c89a267de4ebc53"
+  version = "v1.0.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:a7cd8604f0b92d5a43f723b6f13b6650cf2f6be5e40235a7c4f3cc5951f657bd"
+  digest = "1:5da8ce674952566deae4dbc23d07c85caafc6cfa815b0b3e03e41979cedb8750"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
-  pruneopts = ""
-  revision = "363ebb24d041ccea8068222281c2e963e997b9dc"
+  pruneopts = "UT"
+  revision = "ffdc059bfe9ce6a4e144ba849dbedead332c6053"
+  version = "v1.3.0"
 
 [[projects]]
-  branch = "master"
-  digest = "1:0c0682804b7a414090df12c40e1f28d8acc4fe8b626eb67daf060804a5da081d"
+  digest = "1:ca4df663ad76879ad38dbd736493679cbb1aa596c6d479fd9fc5e959e5ceb4fb"
   name = "github.com/urfave/cli"
   packages = ["."]
-  pruneopts = ""
-  revision = "693af58b4d51b8fcc7f9d89576da170765980581"
+  pruneopts = "UT"
+  revision = "e6cf83ec39f6e1158ced1927d4ed14578fda8edb"
+  version = "v1.21.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:5462386895a322b94a79a5de7314310edbd5f4d15f851ae032f146b2c951b3de"
+  digest = "1:bbe51412d9915d64ffaa96b51d409e070665efc5194fcf145c4a27d4133107a4"
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
-  pruneopts = ""
-  revision = "74369b46fc6756741c016591724fd1cb8e26845f"
+  pruneopts = "UT"
+  revision = "4def268fd1a49955bfb3dda92fe3db4f924f2285"
 
 [[projects]]
   branch = "master"
-  digest = "1:c05d7df4515a5ade109706194fbda5cfd23c1754b26e17b012281c2d247c01d9"
+  digest = "1:d52ccbb025caf0a2166e0204ed934567b8d0dfdd23a09d947f1f040708888a0a"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
-  pruneopts = ""
-  revision = "3b5209105503162ded1863c307ac66fec31120dd"
+  pruneopts = "UT"
+  revision = "fde4db37ae7ad8191b03d30d27f258b5291ae4e3"
 
 [[projects]]
-  branch = "v2"
-  digest = "1:cedccf16b71e86db87a24f8d4c70b0a855872eb967cb906a66b95de56aefbd0d"
+  digest = "1:4d2e5a73dc1500038e504a8d78b986630e3626dc027bc030ba5c75da257cdb96"
   name = "gopkg.in/yaml.v2"
   packages = ["."]
-  pruneopts = ""
+  pruneopts = "UT"
   revision = "51d6538a90f86fe93ac480b35f37b2be17fef232"
+  version = "v2.2.2"
 
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
   input-imports = [
     "github.com/Sirupsen/logrus",
+    "github.com/bitrise-io/envman",
     "github.com/bitrise-io/envman/models",
     "github.com/bitrise-io/go-utils/colorstring",
     "github.com/bitrise-io/go-utils/command",
     "github.com/bitrise-io/go-utils/command/git",
+    "github.com/bitrise-io/go-utils/envutil",
     "github.com/bitrise-io/go-utils/errorutil",
     "github.com/bitrise-io/go-utils/fileutil",
     "github.com/bitrise-io/go-utils/log",
@@ -165,11 +191,13 @@
     "github.com/bitrise-io/go-utils/pointers",
     "github.com/bitrise-io/go-utils/progress",
     "github.com/bitrise-io/go-utils/retry",
+    "github.com/bitrise-io/go-utils/sliceutil",
     "github.com/bitrise-io/go-utils/stringutil",
     "github.com/bitrise-io/go-utils/versions",
     "github.com/bitrise-io/goinp/goinp",
+    "github.com/bitrise-io/gows/gows",
+    "github.com/bitrise-io/stepman",
     "github.com/bitrise-io/stepman/models",
-    "github.com/bitrise-tools/gows/gows",
     "github.com/hashicorp/go-version",
     "github.com/ryanuber/go-glob",
     "github.com/stretchr/testify/require",
