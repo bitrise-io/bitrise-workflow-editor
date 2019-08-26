@@ -1,12 +1,13 @@
 package utility
 
 import (
-	// "encoding/base64"
+	"encoding/base64"
 	// "encoding/json"
-	// "fmt"
+	"fmt"
 	"os"
-	// "strings"
+	"strings"
 
+	"github.com/bitrise-io/bitrise/cli"
 	// "github.com/bitrise-io/go-utils/command"
 )
 
@@ -24,8 +25,14 @@ type WarningItems struct {
 // ValidateBitriseConfigAndSecret ...
 // `bitriseConfig` and `secretsConfig` can be either YML or JSON, both are accepted
 func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*WarningItems, error) {
-	// bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
-	// secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
+	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
+	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
+
+	fmt.Println("`" + secretsConfig + "`"+secretsConfigBase64+"`")
+	fmt.Println("`" + bitriseConfig + "`"+bitriseConfigBase64+"`")
+
+	_, bitriseWarns, bitriseErr := cli.CreateBitriseConfigFromCLIParams(bitriseConfigBase64, "")
+	_, secretsErr := cli.CreateInventoryFromCLIParams(secretsConfigBase64, "")
 
 	// validateCmd := command.New("bitrise",
 	// 	"-l=panic", "validate", "--format=json",
@@ -56,17 +63,17 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	// 	return nil, fmt.Errorf("Failed to parse bitrise validate output, error: %s | 'bitrise validate' command output: %s", outputParseErr, combinedOut)
 	// }
 
-	// errorStrs := []string{}
-	// if !validationOutput.Data.Config.IsValid {
-	// 	errorStrs = append(errorStrs, "Config validation error: "+validationOutput.Data.Config.Error)
-	// }
-	// if !validationOutput.Data.Secrets.IsValid {
-	// 	errorStrs = append(errorStrs, "Secret validation error: "+validationOutput.Data.Secrets.Error)
-	// }
+	errorStrs := []string{}
+	if bitriseErr != nil {
+		errorStrs = append(errorStrs, "Config validation error: "+bitriseErr.Error())
+	}
+	if secretsErr != nil {
+		errorStrs = append(errorStrs, "Secret validation error: "+secretsErr.Error())
+	}
 
-	// if len(errorStrs) > 0 {
-	// 	return nil, fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
-	// }
+	if len(errorStrs) > 0 {
+		return nil, fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
+	}
 
 	// if len(validationOutput.Error) > 0 {
 	// 	return nil, fmt.Errorf("bitrise validation command failed, error: %s", validationOutput.Error)
@@ -77,12 +84,12 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	// }
 
 	warningItems := &WarningItems{Config: []string{}, Secrets: []string{}}
-	// if len(validationOutput.Data.Config.Warnings) > 0 {
-	// 	warningItems.Config = validationOutput.Data.Config.Warnings
-	// }
-	// if len(validationOutput.Data.Config.Warnings) > 0 {
-	// 	warningItems.Secrets = validationOutput.Data.Secrets.Warnings
-	// }
+	if len(bitriseWarns) > 0 {
+		warningItems.Config = bitriseWarns
+	}
+	if len(bitriseWarns) > 0 {
+		warningItems.Secrets = bitriseWarns
+	}
 
 	return warningItems, nil
 }
