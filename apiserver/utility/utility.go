@@ -42,8 +42,7 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 		errorStrs = append(errorStrs, "Secret validation error: "+secretsErr.Error())
 	} else {
 		if secretsConfigBase64 == "" {
-			// leaving error string is it was originally constructed due to possible dependencies
-			errorStrs = append(errorStrs, "Secret validation error: Validation failed: Secret validation error: ")
+			errorStrs = append(errorStrs, "Secret validation error: Validation failed: Empty secrets configuration")
 		}
 	}
 
