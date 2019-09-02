@@ -34,54 +34,22 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	_, bitriseWarns, bitriseErr := cli.CreateBitriseConfigFromCLIParams(bitriseConfigBase64, "")
 	_, secretsErr := cli.CreateInventoryFromCLIParams(secretsConfigBase64, "")
 
-	// validateCmd := command.New("bitrise",
-	// 	"-l=panic", "validate", "--format=json",
-	// 	"--config-base64", bitriseConfigBase64,
-	// 	"--inventory-base64", secretsConfigBase64)
-
-	// combinedOut, cmdErr := validateCmd.RunAndReturnTrimmedCombinedOutput()
-
-	// type BitriseCLIValidateItemModel struct {
-	// 	IsValid  bool     `json:"is_valid"`
-	// 	Error    string   `json:"error"`
-	// 	Warnings []string `json:"warnings"`
-	// }
-	// type BitriseCLIValidateDataModel struct {
-	// 	Config  BitriseCLIValidateItemModel `json:"config"`
-	// 	Secrets BitriseCLIValidateItemModel `json:"secrets"`
-	// }
-	// type BitriseCLIValidateOutputModel struct {
-	// 	Data  BitriseCLIValidateDataModel `json:"data"`
-	// 	Error string                      `json:"error"`
-	// }
-
-	// var validationOutput BitriseCLIValidateOutputModel
-	// if outputParseErr := json.NewDecoder(strings.NewReader(combinedOut)).Decode(&validationOutput); outputParseErr != nil {
-	// 	if cmdErr != nil {
-	// 		return nil, fmt.Errorf("Failed to run bitrise validate command, error: %s | 'bitrise validate' command output: %s", cmdErr, combinedOut)
-	// 	}
-	// 	return nil, fmt.Errorf("Failed to parse bitrise validate output, error: %s | 'bitrise validate' command output: %s", outputParseErr, combinedOut)
-	// }
-
 	errorStrs := []string{}
 	if bitriseErr != nil {
 		errorStrs = append(errorStrs, "Config validation error: "+bitriseErr.Error())
 	}
 	if secretsErr != nil {
 		errorStrs = append(errorStrs, "Secret validation error: "+secretsErr.Error())
+	} else {
+		if secretsConfigBase64 == "" {
+			// leaving error string is it was originally constructed due to possible dependencies
+			errorStrs = append(errorStrs, "Secret validation error: Validation failed: Secret validation error: ")
+		}
 	}
 
 	if len(errorStrs) > 0 {
 		return nil, fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
 	}
-
-	// if len(validationOutput.Error) > 0 {
-	// 	return nil, fmt.Errorf("bitrise validation command failed, error: %s", validationOutput.Error)
-	// }
-
-	// if cmdErr != nil {
-	// 	return nil, fmt.Errorf("bitrise validation command failed, error: %s", cmdErr)
-	// }
 
 	warningItems := &WarningItems{Config: []string{}, Secrets: []string{}}
 	if len(bitriseWarns) > 0 {
