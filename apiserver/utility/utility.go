@@ -2,13 +2,11 @@ package utility
 
 import (
 	"encoding/base64"
-	// "encoding/json"
 	"fmt"
 	"os"
 	"strings"
 
 	"github.com/bitrise-io/bitrise/cli"
-	// "github.com/bitrise-io/go-utils/command"
 )
 
 // ValidationResponse ...
@@ -27,9 +25,6 @@ type WarningItems struct {
 func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*WarningItems, error) {
 	bitriseConfigBase64 := base64.StdEncoding.EncodeToString([]byte(bitriseConfig))
 	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
-
-	fmt.Println("`" + secretsConfig + "`" + secretsConfigBase64 + "`")
-	fmt.Println("`" + bitriseConfig + "`" + bitriseConfigBase64 + "`")
 
 	_, bitriseWarns, bitriseErr := cli.CreateBitriseConfigFromCLIParams(bitriseConfigBase64, "")
 	_, secretsErr := cli.CreateInventoryFromCLIParams(secretsConfigBase64, "")
