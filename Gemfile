@@ -1,6 +1,6 @@
 source "https://rubygems.org"
 
-gem "nokogiri", '~> 1.8.5'
+gem "nokogiri", '~> 1.10.4'
 gem "middleman", '~> 3.4.1'
 gem "slim", '~> 3'
 gem "underscore-rails"
