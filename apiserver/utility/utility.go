@@ -52,8 +52,8 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	if len(bitriseWarns) > 0 {
 		warningItems.Config = bitriseWarns
 	}
-	if len(bitriseWarns) > 0 {
-		warningItems.Secrets = bitriseWarns
+	if secretsErr != nil {
+		warningItems.Secrets = []string{secretsErr.Error()}
 	}
 
 	return warningItems, nil
