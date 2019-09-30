@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.59)
+## Changelog (Current version: 1.1.60)
 
 -----------------
+
+## 1.1.60 (2019 Sep 30)
+
+### Release Notes
+
+* Bump nokogiri from 1.8.5 to 1.10.4 (#386)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.60
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.59 -> 1.1.60
+
+* [37d5adf] dependabot[bot] - Bump nokogiri from 1.8.5 to 1.10.4 (#386) (2019 Sep 27)
+
 
 ## 1.1.59 (2019 Jul 01)
 
@@ -3582,4 +3616,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Jul 01
+Updated: 2019 Sep 30
