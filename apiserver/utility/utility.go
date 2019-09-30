@@ -27,7 +27,10 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	secretsConfigBase64 := base64.StdEncoding.EncodeToString([]byte(secretsConfig))
 
 	_, bitriseWarns, bitriseErr := cli.CreateBitriseConfigFromCLIParams(bitriseConfigBase64, "")
-	_, secretsErr := cli.CreateInventoryFromCLIParams(secretsConfigBase64, "")
+	var secretsErr error
+	if secretsConfigBase64 != "" {
+		_, secretsErr = cli.CreateInventoryFromCLIParams(secretsConfigBase64, "")
+	}
 
 	errorStrs := []string{}
 	if bitriseErr != nil {
