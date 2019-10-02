@@ -101,18 +101,11 @@ func TestTimeToFormattedSeconds(t *testing.T) {
 		require.Equal(t, "0.11 sec", timeStr)
 	}
 
-	t.Log("sec < 10.0")
+	t.Log("sec < 60.0")
 	{
-		timeStr, err := FormattedSecondsToMax8Chars(secToDuration(9.111))
+		timeStr, err := FormattedSecondsToMax8Chars(secToDuration(59.111))
 		require.NoError(t, err)
-		require.Equal(t, "9.11 sec", timeStr)
-	}
-
-	t.Log("sec < 600 | min < 10")
-	{
-		timeStr, err := FormattedSecondsToMax8Chars(secToDuration(599.111))
-		require.NoError(t, err)
-		require.Equal(t, "599 sec", timeStr)
+		require.Equal(t, "59.11 sec", timeStr)
 	}
 
 	t.Log("min < 60")
@@ -186,12 +179,12 @@ func TestRemoveConfigRedundantFieldsAndFillStepOutputs(t *testing.T) {
 								opts, err := input.GetOptions()
 								require.Equal(t, nil, err)
 
-								// script content should keep is_expand: true, becouse it's diffenet from spec default
+								// script content should keep is_expand: true, because it's different from spec default
 								require.Equal(t, true, *opts.IsExpand)
 							}
 						}
 					} else if stepID == "timestamp" {
-						// timestamp title should be nil, becouse it's the same as spec value
+						// timestamp title should be nil, because it's the same as spec value
 						require.Equal(t, (*string)(nil), step.Title)
 
 						for _, output := range step.Outputs {

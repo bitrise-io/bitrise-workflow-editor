@@ -43,13 +43,18 @@ func TestSudoNeeded(t *testing.T) {
 		require.Equal(t, false, sudoNeeded(RbenvRuby, "gem", "uninstall", "fastlane"))
 
 		require.Equal(t, false, sudoNeeded(Unkown, "bundle", "install"))
+		require.Equal(t, false, sudoNeeded(Unkown, "bundle", "_2.0.2_", "install"))
 		require.Equal(t, true, sudoNeeded(SystemRuby, "bundle", "install"))
+		require.Equal(t, true, sudoNeeded(SystemRuby, "bundle", "_2.0.2_", "install"))
+		require.Equal(t, false, sudoNeeded(SystemRuby, "bundle", "_2.0.2_"))
 		require.Equal(t, false, sudoNeeded(BrewRuby, "bundle", "install"))
 		require.Equal(t, false, sudoNeeded(RVMRuby, "bundle", "install"))
 		require.Equal(t, false, sudoNeeded(RbenvRuby, "bundle", "install"))
 
 		require.Equal(t, false, sudoNeeded(Unkown, "bundle", "update"))
+		require.Equal(t, false, sudoNeeded(Unkown, "bundle", "_2.0.2_", "update"))
 		require.Equal(t, true, sudoNeeded(SystemRuby, "bundle", "update"))
+		require.Equal(t, true, sudoNeeded(SystemRuby, "bundle", "_2.0.2_", "update"))
 		require.Equal(t, false, sudoNeeded(BrewRuby, "bundle", "update"))
 		require.Equal(t, false, sudoNeeded(RVMRuby, "bundle", "update"))
 		require.Equal(t, false, sudoNeeded(RbenvRuby, "bundle", "update"))

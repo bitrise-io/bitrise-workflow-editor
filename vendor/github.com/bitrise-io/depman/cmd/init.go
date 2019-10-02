@@ -3,7 +3,7 @@ package cmd
 import (
 	"fmt"
 
-	"github.com/bitrise-tools/depman/depman"
+	"github.com/bitrise-io/depman/depman"
 	"github.com/spf13/cobra"
 )
 

@@ -552,12 +552,13 @@ func activateAndRunSteps(
 		}
 
 		stepResults := models.StepRunResultsModel{
-			StepInfo: stepInfoCopy,
-			Status:   resultCode,
-			Idx:      buildRunResults.ResultsCount(),
-			RunTime:  time.Now().Sub(stepStartTime),
-			ErrorStr: errStr,
-			ExitCode: exitCode,
+			StepInfo:  stepInfoCopy,
+			Status:    resultCode,
+			Idx:       buildRunResults.ResultsCount(),
+			RunTime:   time.Now().Sub(stepStartTime),
+			ErrorStr:  errStr,
+			ExitCode:  exitCode,
+			StartTime: stepStartTime,
 		}
 
 		isExitStatusError := true
@@ -599,7 +600,7 @@ func activateAndRunSteps(
 			buildRunResults.SkippedSteps = append(buildRunResults.SkippedSteps, stepResults)
 			break
 		default:
-			log.Error("Unkown result code")
+			log.Error("Unknown result code")
 			return
 		}
 
@@ -886,7 +887,7 @@ func activateAndRunSteps(
 			})
 
 			// ensure a new testDirPath and if created successfuly then attach it to the step process by and env
-			testDirPath, err := ioutil.TempDir(os.Getenv(configs.BitriseTestResultDirEnvKey), "test_result")
+			testDirPath, err := ioutil.TempDir(os.Getenv(configs.BitriseTestDeployDirEnvKey), "test_result")
 			if err != nil {
 				log.Errorf("Failed to create test result dir, error: %s", err)
 			}
@@ -894,7 +895,7 @@ func activateAndRunSteps(
 			if testDirPath != "" {
 				// managed to create the test dir, set the env for it for the next step run
 				additionalEnvironments = append(additionalEnvironments, envmanModels.EnvironmentItemModel{
-					configs.BitriseTestResultDirEnvKey: testDirPath,
+					configs.BitrisePerStepTestResultDirEnvKey: testDirPath,
 				})
 			}
 
@@ -1081,6 +1082,7 @@ func runWorkflowWithConfiguration(
 	buildRunResults := models.BuildRunResultsModel{
 		StartTime:      startTime,
 		StepmanUpdates: map[string]int{},
+		ProjectType:    bitriseConfig.ProjectType,
 	}
 
 	buildRunResults, err = activateAndRunWorkflow(

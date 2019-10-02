@@ -1,52 +1,56 @@
+# Used by integration tests
+required = ["github.com/bitrise-io/go-utils/envutil",
+  "github.com/bitrise-io/envman",
+  "github.com/bitrise-io/stepman"]
+
 [[constraint]]
   name = "github.com/Sirupsen/logrus"
-  branch = "master"
+  version = "1.4.2"
 
 [[constraint]]
+  branch = "master"
   name = "github.com/bitrise-io/envman"
-  branch = "master"
 
 [[constraint]]
+  branch = "master"
   name = "github.com/bitrise-io/go-utils"
-  branch = "master"
 
 [[constraint]]
+  branch = "master"
   name = "github.com/bitrise-io/goinp"
-  branch = "master"
 
 [[constraint]]
+  branch = "master"
+  name = "github.com/bitrise-io/gows"
+
+[[constraint]]
+  branch = "master"
   name = "github.com/bitrise-io/stepman"
-  branch = "master"
-
-[[constraint]]
-  name = "github.com/bitrise-tools/gows"
-  branch = "master"
 
 [[constraint]]
   name = "github.com/hashicorp/go-version"
-  branch = "master"
-
-[[constraint]]
-  name = "github.com/pkg/errors"
-  branch = "master"
+  version = "1.2.0"
 
 [[constraint]]
   name = "github.com/ryanuber/go-glob"
-  branch = "master"
+  version = "1.0.0"
 
 [[constraint]]
   name = "github.com/stretchr/testify"
-  branch = "master"
+  version = "1.3.0"
 
-[[constraint]]
+[[override]]
   name = "github.com/urfave/cli"
-  branch = "master"
+  version = "v1.21.0"
 
 [[constraint]]
-  name = "golang.org/x/sys"
   branch = "master"
+  name = "golang.org/x/sys"
 
 [[constraint]]
   name = "gopkg.in/yaml.v2"
-  branch = "v2"
-  
+  version = "v2"
+
+[prune]
+  go-tests = true
+  unused-packages = true

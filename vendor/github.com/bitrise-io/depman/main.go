@@ -1,6 +1,6 @@
 package main
 
-import "github.com/bitrise-tools/depman/cmd"
+import "github.com/bitrise-io/depman/cmd"
 
 func main() {
 	cmd.Execute()

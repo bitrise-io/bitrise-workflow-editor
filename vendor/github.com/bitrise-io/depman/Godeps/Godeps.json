@@ -1,5 +1,5 @@
 {
-	"ImportPath": "github.com/bitrise-tools/depman",
+	"ImportPath": "github.com/bitrise-io/depman",
 	"GoVersion": "go1.6",
 	"GodepVersion": "v74",
 	"Packages": [

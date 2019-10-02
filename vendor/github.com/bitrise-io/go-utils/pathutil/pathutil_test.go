@@ -240,3 +240,13 @@ func TestNormalizedOSTempDirPath(t *testing.T) {
 	require.Equal(t, nil, err)
 	require.Equal(t, false, strings.HasSuffix(tmpPth, "/"))
 }
+
+func TestGetFileName(t *testing.T) {
+	samplePath1 := "one/two/three/filename.ext"
+	samplePath2 := "one/two/three/filename.tar.gz"
+	samplePath3 := "one/two/three/"
+
+	require.Equal(t, GetFileName(samplePath1), "filename")
+	require.Equal(t, GetFileName(samplePath2), "filename.tar")
+	require.Equal(t, GetFileName(samplePath3), "three")
+}

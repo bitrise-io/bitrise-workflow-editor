@@ -1,13 +1,12 @@
 package rubycommand
 
 import (
-	"errors"
-	"regexp"
-
 	"bufio"
 	"bytes"
-
+	"errors"
 	"fmt"
+	"regexp"
+	"strings"
 
 	"github.com/bitrise-io/go-utils/command"
 )
@@ -79,10 +78,23 @@ func sudoNeeded(installType InstallType, slice ...string) bool {
 	}
 
 	name := slice[0]
-	command := slice[1]
 	if name == "bundle" {
+		command := slice[1]
+		/*
+			bundle command can contain version:
+			`bundle _2.0.1_ install`
+		*/
+		const bundleVersionMarker = "_"
+		if strings.HasPrefix(slice[1], bundleVersionMarker) && strings.HasSuffix(slice[1], bundleVersionMarker) {
+			if len(slice) < 3 {
+				return false
+			}
+			command = slice[2]
+		}
+
 		return (command == "install" || command == "update")
 	} else if name == "gem" {
+		command := slice[1]
 		return (command == "install" || command == "uninstall")
 	}
 
