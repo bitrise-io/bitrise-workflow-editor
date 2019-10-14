@@ -20,7 +20,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedDenTags: undefined,
 		projectType: undefined,
 		availableProjectTypes: undefined,
-		validationWarnings: []
+		validationWarnings: [],
+		isOwnerOnPayAsYouBuildPlan: undefined
 	};
 
 	appService.getAppDetails = function(requestConfig) {

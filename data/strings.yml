@@ -8,6 +8,7 @@ main:
     env_vars: Env Vars
     triggers: Triggers
     stack: Stack
+    stack_and_machine: Stack & Machine
     yml: bitrise.yml
   discard: Discard
   save: Save
@@ -648,6 +649,10 @@ request_service:
   get_app_available_project_types:
     default_error: Error loading app available project types.
     error_prefix: "Error loading app available project types: "
+  get_organization_data:
+    default_error: Error loading Organization plans.
+    error_prefix: "Error loading Organization plans: "
+    not_website_mode_error: Organization plans get is only available in website mode.
   get_stack:
     default_error: Error loading stack.
     error_prefix: "Error loading stack: "
