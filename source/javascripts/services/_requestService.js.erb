@@ -504,6 +504,62 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
+	// Organization data
+
+	requestService.getOrganizationData = function(requestConfig) {
+		var requestURL;
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:organization_data_get]) %>", {
+					organization_slug: requestConfig.organizationSlug
+				});
+
+				break;
+			case "cli":
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_organization_data][:not_website_mode_error] %>"));
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				var organizationData = {
+					name: response.data.name,
+					billingEmail: response.data.email,
+					avatarURL: response.data.avatar_url
+				};
+
+				var currentPlan = {
+					id: "pay-as-you-build",
+					// response.data.current_plan.id,
+					name: response.data.current_plan.name,
+					price: response.data.current_plan.price,
+					expiresAt: dateService.dateFromString(response.data.current_plan.expires_at)
+				};
+
+				if (response.data.current_plan.container_count) {
+					currentPlan.containerCount = response.data.current_plan.container_count;
+				}
+
+				var pendingPlan = {};
+				if (response.data.still_active_higher_plan) {
+					pendingPlan.id = response.data.pending_lower_plan.id;
+					pendingPlan.price = response.data.pending_lower_plan.price;
+
+					if (response.data.pending_lower_plan.container_count) {
+						pendingPlan.containerCount = response.data.pending_lower_plan.container_count;
+					}
+				}
+
+				resolve({
+					organizationData: organizationData,
+					currentPlan: currentPlan,
+					pendingPlan: pendingPlan
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_organization_data][:default_error] %>", "<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"));
+			});
+		});
+	};
+
 	// Stacks
 
 	requestService.getStack = function(requestConfig) {

@@ -101,7 +101,27 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 						appService.getAppConfig(),
 						Stack.getAll().then(appService.getStack),
 						appService.getProjectType()
-					]).then(resolve, reject);
+					]).then(function() {
+						if (requestService.mode == "website" && appService.appDetails.ownerData.type == 'Organization') {
+							requestService.getOrganizationData({organizationSlug: appService.appDetails.ownerData.slug}).then(function(response) {
+								if (response.currentPlan.id == "pay-as-you-build" || (response.pendingPlan && response.pendingPlan.id == "pay-as-you-build")) {
+									appService.isOwnerOnPayAsYouBuildPlan = true;
+
+									viewModel.currentMenu.title = "<%= data[:strings][:main][:menus][:stack_and_machine] %>";
+								}
+
+								resolve();
+							}, function() {
+								resolve();
+							});
+						}
+						else {
+							// Not breaks the UI if the current user is an outside contributor admin on the app.
+							resolve();
+						}
+					}, function(error) {
+						reject(error);
+					});
 
 					break;
 				case "yml":
