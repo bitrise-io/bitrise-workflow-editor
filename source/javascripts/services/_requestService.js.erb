@@ -528,8 +528,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				};
 
 				var currentPlan = {
-					id: "pay-as-you-build",
-					// response.data.current_plan.id,
+					id: response.data.current_plan.id,
 					name: response.data.current_plan.name,
 					price: response.data.current_plan.price,
 					expiresAt: dateService.dateFromString(response.data.current_plan.expires_at)
@@ -556,6 +555,49 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				});
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_organization_data][:default_error] %>", "<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"));
+			});
+		});
+	};
+
+	// Machine Type
+
+	requestService.getMachineTypeConfigs = function(requestConfig) {
+		var requestURL;
+
+		switch (requestService.mode) {
+			case "website":
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:machine_type_configs_get]) %>", {
+					app_slug: requestService.appSlug
+				});
+
+				break;
+			case "cli":
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_machine_types][:not_website_mode_error] %>"));
+		}
+
+		return $q(function(resolve, reject) {
+			$http.get(requestURL, requestConfig).then(function(response) {
+				var machineTypeConfigs = _.each(response.data.available_machine_type_configs, function (aStackSpecificMachineTypeConfigs, aStackType) {
+					var machineTypeSpecificConfig = {};
+					var stackSpecificMachineTypeConfigs = {};
+					return stackSpecificMachineTypeConfigs[aStackType] = {
+						defaultMachineType: aStackSpecificMachineTypeConfigs.default_machine_type,
+						machineTypes: _.map(aStackSpecificMachineTypeConfigs.machine_types, function(aMachineTypeConfig, aMachineType) {
+							return machineTypeSpecificConfig[aMachineType] = {
+								name: aMachineTypeConfig.name,
+								cpuCount: aMachineTypeConfig.cpu_count,
+								cpuDescription: aMachineTypeConfig.cpu_description,
+								ram: aMachineTypeConfig.ram
+							};
+						})
+					};
+				});
+
+				resolve({
+					machineTypeConfigs: machineTypeConfigs
+				});
+			}, function(response) {
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_machine_types][:default_error] %>", "<%= data[:strings][:request_service][:get_machine_types][:error_prefix] %>"));
 			});
 		});
 	};

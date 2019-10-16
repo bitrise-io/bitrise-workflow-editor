@@ -509,6 +509,10 @@ stack:
   workflow_specific_settings:
     header_title: Workflow Specific Stacks
     header_description: This will appear as a default stack in your workflows.
+machine_type:
+  workflow_specific_settings:
+    header_title: Available Machine Types for this Stack
+  learn_more_about: Learn more about Machine types »
 yml:
   title: bitrise.yml editor
   info_1: "You can edit your current config in YAML format:"
@@ -653,6 +657,10 @@ request_service:
     default_error: Error loading Organization plans.
     error_prefix: "Error loading Organization plans: "
     not_website_mode_error: Organization plans get is only available in website mode.
+  get_machine_types:
+    default_error: Error loading machine types.
+    error_prefix: "Error loading machine types: "
+    not_website_mode_error: Machine Types get is only available in website mode.
   get_stack:
     default_error: Error loading stack.
     error_prefix: "Error loading stack: "

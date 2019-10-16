@@ -108,6 +108,121 @@
 				}
 			}
 		}
+
+		.machine-type-settings {
+			border-top: 1px solid $def-mediumlightgrey;
+
+			.machine-type-header {
+				font-size: 19px;
+				font-weight: bold;
+				font-style: normal;
+				font-stretch: normal;
+				line-height: normal;
+				letter-spacing: 0.08px;
+				color: #222222;
+				margin-top: 0;
+				margin-bottom: 0;
+			}
+
+			.machine-types {
+				display: flex;
+				flex-direction: row;
+				flex-wrap: wrap;
+
+				.machine-type-wrapper {
+					position: relative;
+					display: flex;
+					flex-direction: row;
+					width: 100%;
+					max-width: 380px;
+					min-width: 225px;
+					padding: 12px;
+					margin-top: 18px;
+					margin-right: 18px;
+					border-radius: 8px;
+					border: 1px solid $def-grey;
+
+					.machine-type-data {
+						display: flex;
+						flex-direction: column;
+						margin-left: 16px;
+						overflow: hidden;
+
+						.name {
+							font-size: 16px;
+							font-weight: bold;
+							font-style: normal;
+							font-stretch: normal;
+							line-height: 1.19;
+							letter-spacing: 0.07px;
+							margin-right: 28px;
+							color: $def-darkgrey;
+							@include ellipsis-oneliner;
+						}
+
+						.cpu-count, .cpu-description, .cpu-ram {
+							font-size: 13px;
+							font-weight: 500;
+							font-style: normal;
+							font-stretch: normal;
+							line-height: 1.46;
+							letter-spacing: 0.05px;
+							color: $def-darkgrey;
+							@include ellipsis-oneliner;
+						}
+					}
+
+					.machine-type-icon svg {
+						top: 0px;
+						@include size(70px, 70px);
+						fill: $def-darkgrey;
+					}
+
+					.stack-type-icon svg {
+						position: absolute;
+						width: 16px;
+						height: 18px;
+						top: 12px;
+						right: 12px;
+						fill: $def-darkgrey;
+					}
+
+					&.selected {
+						border: 1px solid $def-violet_blue;
+						background-color: $def-light-grape;
+
+						.machine-type-data {
+
+							.name, .cpu-count, .cpu-description, .cpu-ram {
+								color: $rebo-purple-gradient-hover-bottom;
+							}
+						}
+
+						.machine-type-icon svg, .stack-type-icon svg {
+							fill: $rebo-purple-gradient-hover-bottom;
+						}
+					}
+
+					&:not(.selected):hover {
+						cursor: pointer;
+						border: 1px solid $def-violet_blue;
+						background-color: $def-light-grape;
+
+						.machine-type-data {
+
+							.name, .cpu-count, .cpu-description, .cpu-ram {
+								cursor: pointer;
+								color: $def-violet_blue;
+							}
+						}
+
+						.machine-type-icon svg, .stack-type-icon svg {
+							fill: $def-violet_blue;
+						}
+					}
+				}
+			}
+		}
 	}
 
 	.stack-settings.default {
@@ -180,6 +295,13 @@
 							background-color: $def-blue;
 						}
 					}
+				}
+
+				.machine-type-settings {
+					margin-top: 18px;
+					padding-top: 18px;
+					padding-bottom: 0;
+
 				}
 			}
 		}

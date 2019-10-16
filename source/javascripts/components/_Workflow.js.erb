@@ -121,6 +121,39 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 		});
 	};
 
+	Workflow.prototype.machineType = function(stackID, machineType, machineTypes) {
+		if (machineType !== undefined) {
+			if (!this.workflowConfig.meta) {
+				this.workflowConfig.meta = {};
+			}
+			if (!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
+				this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+			}
+
+			if (machineType !== null) {
+				this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type = machineType.id.replace(stackID + "-", "");
+			}
+			else {
+				delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type;
+			}
+
+			if (_.isEmpty(this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"])) {
+				delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"];
+			}
+			if (_.isEmpty(this.workflowConfig.meta)) {
+				delete this.workflowConfig.meta;
+			}
+		}
+
+		if (!this.workflowConfig.meta || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type) {
+			return null;
+		}
+
+		return _.find(machineTypes, {
+			id: stackID + "-" + this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type
+		});
+	};
+
 	return Workflow;
 
 });

@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack) {
+angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
 
 	var appService = {
 		appDetails: undefined,
@@ -14,6 +14,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		savedAppConfigYML: undefined,
 		stack: undefined,
 		savedStack: undefined,
+		defaultMachineType: undefined,
+		savedDefaultMachineType: undefined,
 		dockerImage: undefined,
 		savedDockerImage: undefined,
 		denTags: undefined,
@@ -212,12 +214,31 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			});
 		}
 
+		if (appService.defaultMachineType) {
+			if (!appService.appConfig.meta) {
+				appService.appConfig.meta = {};
+			}
+			if (!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
+				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+			}
+
+			if (appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type != appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "")) {
+				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type = appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "");
+			}
+
+			appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
+		}
+
 		return validateVariables(variables).then(function() {
 			return requestService.postAppConfig(appService.appConfig, requestConfig);
 		}).then(function() {
 			appService.savedAppConfig = angular.copy(appService.appConfig);
 			appService.appConfigYML = undefined;
 			appService.savedAppConfigYML = undefined;
+
+			if (!appService.isOwnerOnPayAsYouBuildPlan) {
+				appService.getDefaultMachineType();
+			}
 		});
 	};
 
@@ -328,6 +349,62 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 	};
 
+	appService.availableMachineTypes = function(workflow) {
+		if (!appService.isOwnerOnPayAsYouBuildPlan || MachineType.all === undefined || appService.savedStack === undefined) {
+			return undefined;
+		}
+
+		var stack;
+		if (workflow) {
+			stack = workflow.stack(undefined, Stack.all);
+		}
+
+		if (!stack) {
+			stack = appService.savedStack;
+		}
+
+		var stackType = stack.id.split('-')[0];
+		return _.filter(MachineType.all, function(MachineType) {
+			return MachineType.id.startsWith(stackType, 0);
+		});
+	};
+
+	appService.getDefaultMachineType = function() {
+		if (appService.defaultMachineType && appService.defaultMachineType == appService.savedDefaultMachineType) {
+			return $q.when();
+		}
+
+		if (MachineType.all === undefined || appService.savedStack === undefined) {
+			return undefined;
+		}
+
+		var defaultMachineTypeID;
+		var stackType = appService.savedStack.id.split('-')[0];
+		if (!appService.appConfig.meta || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type) {
+			defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
+		}
+
+		if (!defaultMachineTypeID) {
+			defaultMachineTypeID = stackType + '-' + appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type;
+		}
+
+		appService.defaultMachineType = _.find(MachineType.all, {
+			id: defaultMachineTypeID
+		});
+
+		appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
+
+		return appService.defaultMachineType;
+	};
+
+	appService.defaultMachineTypeHasUnsavedChanges = function() {
+		return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
+	};
+
+	appService.discardDefaultMachineTypeChanges = function() {
+		appService.defaultMachineType = appService.savedDefaultMachineType;
+	};
+
 	appService.getStack = function() {
 		if (appService.stack) {
 			return $q.when();
@@ -344,7 +421,11 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 			appService.savedStack = angular.copy(appService.stack);
 			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
-			appService.denTags = appService.savedDenTags = data.denTags.join(", ");;
+			appService.denTags = appService.savedDenTags = data.denTags.join(", ");
+
+			if (!appService.isOwnerOnPayAsYouBuildPlan) {
+				MachineType.getAll().then(appService.getDefaultMachineType);
+			}
 		});
 	};
 
@@ -361,7 +442,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 				return _.contains(aStack.projectTypes, appService.projectType);
 			});
 		}
-	}
+	};
 
 	appService.stackHasUnsavedChanges = function() {
 		return !angular.equals(appService.stack, appService.savedStack) || appService.dockerImage !== appService.savedDockerImage || appService.denTags !== appService.savedDenTags;

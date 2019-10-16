@@ -1,0 +1,51 @@
+(function() {
+
+"use strict";
+
+angular.module("BitriseWorkflowEditor").factory("MachineType", function($q, requestService) {
+
+    var MachineType = function(stackType, id, name, cpuCount, cpuDescription, ram) {
+        this.id = stackType + '-' + id;
+        this.name = name;
+        this.cpuCount = cpuCount;
+        this.cpuDescription = cpuDescription;
+        this.ram = ram;
+        this.stackType = stackType;
+        this.cssClass = id;
+    };
+
+    MachineType.all;
+
+    MachineType.allConfig;
+
+    MachineType.getAll = function() {
+        if (MachineType.all && MachineType.all.length > 0) {
+            return $q.when();
+        }
+
+        return getMachineTypeConfigs().then(function(data) {
+            MachineType.all = [];
+
+            MachineType.all = _.flatten(_.map(MachineType.allConfig, function(aMachineTypeConfig, aStackType) {
+                return _.map(aMachineTypeConfig.machine_types, function(aMachineTypeDetails, aMachineTypeID) {
+                    return new MachineType(aStackType, aMachineTypeID, aMachineTypeDetails.name, aMachineTypeDetails.cpu_count, aMachineTypeDetails.cpu_description, aMachineTypeDetails.ram);
+                });
+            }));
+        });
+    };
+
+    function getMachineTypeConfigs() {
+        if (MachineType.allConfig) {
+            return $q.when();
+        }
+
+        return requestService.getMachineTypeConfigs().then(function(data) {
+            MachineType.allConfig = data.machineTypeConfigs;
+        });
+    }
+
+    return MachineType;
+
+});
+
+})();
