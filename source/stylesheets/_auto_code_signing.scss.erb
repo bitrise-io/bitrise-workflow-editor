@@ -1,0 +1,23 @@
+@import "default";
+@import "constants";
+
+.auto-code-signing {
+	header {
+		@include display-flex;
+		$spacing: 25px;
+
+		.icon {
+			svg {
+				fill: $def-yellow;
+			}
+		}
+
+		.summary {
+			margin-left: $spacing;
+		}
+
+		.manual-code-signing {
+			margin-left: $spacing;
+		}
+	}
+}

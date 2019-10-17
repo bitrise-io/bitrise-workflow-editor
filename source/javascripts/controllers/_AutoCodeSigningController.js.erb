@@ -1,0 +1,20 @@
+(function() {
+
+	"use strict";
+
+	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope) {
+
+		var canceler = $q.defer();
+		$scope.$on("$destroy", function() {
+			canceler.resolve();
+		});
+
+		var viewModel = this;
+
+		viewModel.init = function() {
+			console.log('Auto Code Signing initialized!');
+		};
+
+	});
+
+})();
