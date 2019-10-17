@@ -33,7 +33,7 @@
 		}
 	}
 
-	article {
+	article:not(.unpadded) {
 		padding: $cardo-verticalpadding $cardo-horizontalpadding;
 	}
 }

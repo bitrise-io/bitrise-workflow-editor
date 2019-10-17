@@ -57,6 +57,22 @@
 		}
 	}
 
+	.cardo:not(.unstyled) {
+		.cardo {
+			@include margin-x(20px);
+		}
+	}
+
+	.cardo.unstyled {
+		display: inline;
+		margin: 0;
+		border: none;
+
+		&:not(.ninja) > header {
+			display: none;
+		}
+	}
+
 	section.certificate-help {
 		margin: 25px $section-horizontalspacing;
 
