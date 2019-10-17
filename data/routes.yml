@@ -21,8 +21,11 @@ website:
   dashboard_path: /dashboard
   app_path: /app/<app_slug>
   app_data_get: /api/app/<app_slug>.json
+  app_update: /api/app/<app_slug>.json
   app_config_post: /api/app/<app_slug>/config.json
   app_config_get: /api/app/<app_slug>/config.json
+  app_codesigndoc_script_get: /api/app/<app_slug>/codesigndoc'
+  current_user_get: /me/profile.json
   yml_post: /api/app/<app_slug>/config.json
   yml_get:  /api/app/<app_slug>/config.yml
   yml_download:  /api/app/<app_slug>/config.yml?is_download=1
@@ -66,6 +69,13 @@ website:
   generic_file_delete: /api/app/<app_slug>/project_file_storage_document/<generic_file_id>/delete.json
   keystore_file_metadata_save: /project_file_storage_document/<keystore_file_id>/exposed_meta.json
   team_test_devices: /api/app/<app_slug>/team_test_devices.json
+  apple_developer_account_get: /me/profile/apple_developer_account.json
+  apple_developer_account_connect: /me/profile/apple_developer_account.json
+  apple_developer_account_connection_delete: /me/profile/apple_developer_account.json
+  apple_developer_account_two_step_auth_select_device_post: /me/profile/apple_developer_account/two_step_auth_select_device.json
+  apple_developer_account_two_step_auth_verify_code_post: /me/profile/apple_developer_account/two_step_auth_verify_code.json
+  apple_developer_account_two_factor_auth_verify_code_post: /me/profile/apple_developer_account/two_factor_auth_verify_code.json
+  apple_developer_account_default_team_post: /me/profile/apple_developer_account/default_team.json
 local_server:
   cancel_api_connection_close: /api/connection
   close_api_connection: /api/connection
