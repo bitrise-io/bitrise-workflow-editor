@@ -28,7 +28,7 @@
 	div[ng-if="!codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.provProfile) && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
 		.auto-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === true" ng-controller="AutoCodeSigningController as autoCodeSigningCtrl" ng-init="autoCodeSigningCtrl.init()"]
 			header
-				.icon
+				.icon = svg("bolt")
 				.summary
 					h2 == data[:strings][:code_signing][:auto_code_signing][:header][:title]
 					p == data[:strings][:code_signing][:auto_code_signing][:header][:summary]

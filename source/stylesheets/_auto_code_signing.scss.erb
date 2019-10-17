@@ -4,20 +4,63 @@
 .auto-code-signing {
 	header {
 		@include display-flex;
+		@include align-items(center);
 		$spacing: 25px;
 
 		.icon {
+			@include margin-x($spacing);
 			svg {
+				display: block;
+				@include size(32px, 41px);
 				fill: $def-yellow;
 			}
 		}
 
 		.summary {
-			margin-left: $spacing;
+			@include padding-y(15px);
+
+			h2 {
+				margin-top: 0;
+				margin-bottom: 5px;
+				font-size: 19px;
+				font-weight: 700;
+				color: $def-darkgrey;
+			}
+
+			p {
+				@include margin-y(0);
+				font-size: 16px;
+				font-weight: 500;
+				color: $def-darkgrey;
+			}
 		}
 
 		.manual-code-signing {
 			margin-left: $spacing;
+			border: none;
+			padding: 0;
+			font-size: 16px;
+			font-weight: 500;
+			background-color: transparent;
+			color: $def-violet_blue;
+
+			&:hover, &:focus {
+				text-decoration: underline;
+			}
+		}
+
+		@include media-below-mid {
+			@include align-items(flex-start);
+			@include flex-direction(column);
+
+			.icon {
+				@include margin-y($spacing);
+			}
+
+			.manual-code-signing {
+				margin-left: 0;
+				margin-top: $spacing;
+			}
 		}
 	}
 }
