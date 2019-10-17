@@ -13,6 +13,50 @@
 	$action_dropdown_icon-spacing: 15px;
 	$action_dropdown_icon-width: 26px;
 
+	.file-type-tabmenu {
+		border-bottom: 1px solid $def-lightgrey;
+		@include padding-x($section-horizontalspacing);
+
+		.file-type-tabmenu-item {
+			$verticalpadding: 18px;
+			padding: $verticalpadding 28px;
+			font-size: 16px;
+			font-weight: 500;
+			color: $def-darkgrey;
+			@include transition(border-width $def-transition_duration, padding-bottom $def-transition_duration, color $def-transition_duration);
+
+			&.active {
+				$borderwidth: 4px;
+				border-bottom: $borderwidth solid $def-aqua;
+				padding-bottom: $verticalpadding - $borderwidth;
+				color: $def-darkbluegrey;
+			}
+
+			&:hover, &:focus:not(.active) {
+				color: $def-violet_blue;
+			}
+		}
+
+		@include media-below-inclusive-mid {
+			display: none;
+		}
+	}
+
+	.file-type-dropdown-wrapper {
+		margin-top: 25px;
+		@include margin-x($section-horizontalspacing);
+
+		@include media-above-mid {
+			display: none;
+		}
+
+		.file-type-dropdown {
+			width: 100%;
+			border-radius: $cardo-borderradius;
+			padding: 18px;
+		}
+	}
+
 	section.certificate-help {
 		margin: 25px $section-horizontalspacing;
 
@@ -241,10 +285,10 @@
 									@include display-flex;
 									@include align-items(left);
 									flex-direction: column;
-									
+
 									.uploading {
 										*, ::after, ::before { -webkit-box-sizing: border-box; box-sizing: border-box; }
-										
+
 										@include display-flex;
 										@include align-items(center);
 										flex-direction: row;
@@ -309,7 +353,7 @@
 										}
 										.loading-text{
 											margin-left: 5px;
-										} 
+										}
 									}
 
 									.protected-badge {

@@ -13,9 +13,11 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 
 	var viewModel = this;
 
+	viewModel.showNewCodeSigningWizard;
 	viewModel.shouldShowCodeSigningHints;
 	viewModel.isCodeSigningHintsOpen;
 	var irrelevantProjectTypesForCodeSigningHints = ["android"];
+
 	viewModel.sectionConfigurations = {
 		provProfile: {
 			shouldShow: undefined,
@@ -50,15 +52,44 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 			})
 		}
 	};
+
+	viewModel.fileTypeMenus = [{
+		id: 'ios-code-signing',
+		name: 'iOS Code Signing',
+		shouldShow: undefined,
+		availableSections: [
+			viewModel.sectionConfigurations['provProfile'],
+			viewModel.sectionConfigurations['certificate']
+		]
+	}, {
+		id: 'android-code-signing',
+		name: 'Android Code Signing',
+		shouldShow: undefined,
+		availableSections: [
+			viewModel.sectionConfigurations['androidKeystore']
+		]
+	}, {
+		id: 'generic-file-storage',
+		name: 'Generic File Storage',
+		shouldShow: undefined,
+		availableSections: [
+			viewModel.sectionConfigurations['genericFile']
+		]
+	}];
+	viewModel.activeFileTypeMenu;
+
 	viewModel.loadProgress = new Progress();
 
 	viewModel.load = function() {
 		viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 
 		$q(function(resolve, reject) {
-			appService.getProjectType(undefined, {
+			$q.all([requestService.getCurrentUserData({
 				timeout: canceler.promise
-			}).then(function() {
+			}), appService.getProjectType(undefined, {
+				timeout: canceler.promise
+			})]).then(function(responses) {
+				viewModel.showNewCodeSigningWizard = responses[0].showNewCodeSigningWizard;
 				viewModel.shouldShowCodeSigningHints = !_.contains(irrelevantProjectTypesForCodeSigningHints, appService.projectType);
 
 				viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
@@ -73,13 +104,40 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 					return aSectionConfiguration.getAreThereAnyUploadedFilesPromise.then(function(areThereAnyUploadedFilesOfSection) {
 						aSectionConfiguration.shouldShow = areThereAnyUploadedFilesOfSection;
 					});
-				})).then(resolve, reject);
+				})).then(function() {
+					_.each(viewModel.fileTypeMenus, function(aFileTypeMenu) {
+						aFileTypeMenu.shouldShow = !!_.find(aFileTypeMenu.availableSections, {
+							shouldShow: true
+						});
+					});
+					viewModel.activeFileTypeMenu = _.first(viewModel.availableFileTypeMenus());
+
+					resolve();
+				}, reject);
 			}, reject);
 		}).then(function() {
 			viewModel.loadProgress.success();
 		}, function(error) {
 			viewModel.loadProgress.error(error);
 		});
+	};
+
+	viewModel.availableFileTypeMenus = function() {
+		return _.filter(viewModel.fileTypeMenus, {
+			shouldShow: true
+		});
+	};
+
+	viewModel.isSectionFilteredByFileTypeMenu = function(sectionConfiguration) {
+		if (!viewModel.showNewCodeSigningWizard) {
+			return false;
+		}
+
+		if (!viewModel.activeFileTypeMenu) {
+			return true;
+		}
+
+		return !_.contains(viewModel.activeFileTypeMenu.availableSections, sectionConfiguration);
 	};
 
 	viewModel.toggleCodeSigningHints = function() {
