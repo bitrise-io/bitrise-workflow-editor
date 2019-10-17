@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, appService, stringService, dateService, osService, Progress, Popup, Stack) {
+angular.module("BitriseWorkflowEditor").controller("MainController", function($scope, $rootScope, $q, $location, $timeout, requestService, appService, stringService, dateService, osService, Progress, Popup, Stack, MachineType) {
 
 	var viewModel = this;
 
@@ -111,12 +111,12 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 								}
 
 								resolve();
-							}, function() {
+							}, function(error) {
+								// Not breaks the UI if the current user is an outside contributor admin on the app.
 								resolve();
 							});
 						}
 						else {
-							// Not breaks the UI if the current user is an outside contributor admin on the app.
 							resolve();
 						}
 					}, function(error) {
@@ -272,7 +272,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "secrets":
 				return appService.secretsHaveUnsavedChanges();
 			case "stack":
-				return appService.appConfigHasUnsavedChanges() || appService.stackHasUnsavedChanges();
+				return appService.appConfigHasUnsavedChanges() || appService.stackHasUnsavedChanges() || appService.defaultMachineTypeHasUnsavedChanges();
 			case "yml":
 				return appService.appConfigYMLHasUnsavedChanges();
 		}
@@ -403,6 +403,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			case "stack":
 				appService.discardAppConfigChanges();
 				appService.discardStackChanges();
+				appService.discardDefaultMachineTypeChanges();
 
 			case "yml":
 				appService.discardAppConfigYMLChanges();

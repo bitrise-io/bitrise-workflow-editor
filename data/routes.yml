@@ -32,6 +32,7 @@ website:
   bitrise_steplib_get: https://bitrise-steplib-collection.s3.amazonaws.com/spec.json.gz
   default_outputs_get: /api/app/<app_slug>/default_step_outputs.json
   organization_data_get: /organization/<organization_slug>.json
+  machine_type_configs_get: /app/<app_slug>/machine_type_configs
   stack_get: /app/<app_slug>/stack
   stack_info_get: /app/<app_slug>/stack_info.json
   stacks_get: /app/<app_slug>/all_stack_info

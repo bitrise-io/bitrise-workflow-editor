@@ -2,12 +2,13 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, appService, Workflow, Stack) {
+angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, appService, Workflow, Stack, MachineType) {
 
 	var viewModel = this;
 
 	viewModel.workflows;
 	$scope.Stack = Stack;
+	$scope.MachineType = MachineType;
 	$scope.appService = appService;
 	viewModel.defaultDockerImagesByStackIDs = {
 		"linux-docker-android": "bitriseio/android-ndk:pinned"
@@ -41,7 +42,7 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		}
 
 		return stacks;
-	}
+	};
 
 	viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
 		if (shouldNormalize === undefined) {
@@ -69,6 +70,53 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		};
 	};
 
+	viewModel.defaultMachineTypeOptions = function() {
+		var machineTypes = appService.availableMachineTypes();
+
+		if (appService.defaultMachineType && _.find(machineTypes, function(machineType) {
+			return machineType.id === appService.defaultMachineType.id;
+		}) === undefined) {
+			machineTypes.push(appService.defaultMachineType);
+		}
+
+		return machineTypes;
+	};
+
+	viewModel.setNewDefaultMachineType = function(newMachineType, workflow) {
+		if (!newMachineType || appService.defaultMachineType ==  newMachineType) {
+			return;
+		}
+
+		if (workflow) {
+			var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
+			if (stack === null) {
+				stack = appService.stack;
+			}
+
+			var stackID = stack.id.split('-')[0];
+			var machineTypes = MachineType.all;
+			workflow.machineType(stackID, newMachineType, machineTypes);
+		}
+		else {
+			appService.defaultMachineType = newMachineType;
+		}
+	};
+
+	viewModel.selectedWorkflowSpecificMachineType = function(workflow) {
+		var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
+		if (stack === null) {
+			stack = appService.stack;
+		}
+
+		var stackID = stack.id.split('-')[0];
+		var machineTypes = MachineType.all;
+		var machineType = workflow.machineType(stackID, undefined, machineTypes);
+		if (machineType === null) {
+			return appService.defaultMachineType;
+		}
+
+		return machineType;
+	};
 });
 
 })();

@@ -21,6 +21,21 @@
 					.den-tag-settings[ng-if="appService.stack.id == 'self-hosted'"]
 						label.den-tag-label == data[:strings][:stack][:den_tags_label]
 						input.den-tags[type="text" ng-model="appService.denTags" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:stack][:den_tags_placeholder] }"]
+			section.machine-type-settings[ng-if="appService.isOwnerOnPayAsYouBuildPlan"]
+				h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
+				.machine-types
+					.machine-type-wrapper[ng-repeat="machineType in stackCtrl.defaultMachineTypeOptions() track by machineType.id" ng-click="stackCtrl.setNewDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id}" class="{{ machineType.stackType }}"]
+						.machine-type-icon[ng-if="machineType.cssClass == 'performance'"] == svg("performance-machine-type-icon")
+						.machine-type-icon[ng-if="machineType.cssClass == 'elite'"] == svg("elite-machine-type-icon")
+						.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
+						.machine-type-data
+							.name[ng-bind="machineType.name"]
+							.cpu-count[ng-bind="machineType.cpuCount"]
+							.cpu-description[ng-bind="machineType.cpuDescription"]
+							.cpu-ram[ng-bind="machineType.ram"]
+						.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
+						.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
+					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
@@ -41,3 +56,18 @@
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
+				.machine-type-settings[ng-if="appService.isOwnerOnPayAsYouBuildPlan"]
+					h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
+					.machine-types
+						.machine-type-wrapper[ng-repeat="machineType in appService.availableMachineTypes(workflow)" ng-click="stackCtrl.setNewDefaultMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.selectedWorkflowSpecificMachineType(workflow).id}" class="{{ machineType.stackType }}"]
+							.machine-type-icon[ng-if="machineType.cssClass == 'performance'"] == svg("performance-machine-type-icon")
+							.machine-type-icon[ng-if="machineType.cssClass == 'elite'"] == svg("elite-machine-type-icon")
+							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
+							.machine-type-data
+								.name[ng-bind="machineType.name"]
+								.cpu-count[ng-bind="machineType.cpuCount"]
+								.cpu-description[ng-bind="machineType.cpuDescription"]
+								.cpu-ram[ng-bind="machineType.ram"]
+							.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
+							.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
+						/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
