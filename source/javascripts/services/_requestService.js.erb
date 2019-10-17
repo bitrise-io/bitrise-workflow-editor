@@ -171,13 +171,13 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		}
 	};
 
-	requestService.updateAppWithAppleCredential = function(userSlug, requestConfig) {
+	requestService.updateAppleCredentialUser = function(userSlug, requestConfig) {
 		var requestURL;
 		var requestData;
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_apple_credential_update]) %>", {
+				requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_update]) %>", {
 					app_slug: requestService.appSlug
 				});
 
@@ -799,16 +799,16 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	// Apple Developer Portal
 
-	requestService.getAppleDeveloperAccountDataFromDatabase = function(requestConfig) {
+	requestService.getAppleDeveloperAccount = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:ada_get]) %>";
+				requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_get]) %>";
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:get_ada_data_from_database][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:get_apple_developer_account_data_from_database][:not_website_mode_error] %>"));
 
 				break;
 		}
@@ -822,7 +822,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				if (responseData.isAccepted) {
 					responseData.connectedAccount = {
 						appleID: response.data.connected_account.apple_id,
-						authExpiresAt: response.data.connected_account.auth_expires_at,
+						authExpiresAt: dateService.dateFromString(response.data.connected_account.auth_expires_at),
 						selectedTeamIDs: response.data.connected_account.selected_team_ids
 					};
 				}
@@ -830,21 +830,21 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(responseData);
 			});
 		}, function(response) {
-			reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_ada_data_from_database][:default_error] %>", "<%= data[:strings][:request_service][:get_ada_data_from_database][:error_prefix] %>"));
+			reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_apple_developer_account_data_from_database][:default_error] %>", "<%= data[:strings][:request_service][:get_apple_developer_account_data_from_database][:error_prefix] %>"));
 		});
 	};
 
-	requestService.addAppleDeveloperAccountDataToDatabaseAndAuthenticate = function(appleID, password, shouldReauthenticate, requestConfig) {
+	requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, shouldReauthenticate, requestConfig) {
 		var requestURL;
 		var requestData;
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:ada_connect]) %>";
+				requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_connect]) %>";
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:save_ada_data_to_database_and_authenticate][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:save_apple_developer_account_data_to_database_and_authenticate][:not_website_mode_error] %>"));
 
 				break;
 		}
@@ -915,8 +915,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 							"tvOS": undefined
 						};
 
-						_.each(aTeam.devices_data.devices_by_type, function(aDevices, aDeviceType) {
-							devicesByType[aDeviceType] = _.map(aDevices, function(aDevice) {
+						_.each(aTeam.devices_data.devices_by_type, function(devicesOfType, aDeviceType) {
+							devicesByType[aDeviceType] = _.map(devicesOfType, function(aDevice) {
 								return {
 									id: aDevice.id,
 									name: aDevice.name,
@@ -933,7 +933,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 							name: aTeam.name,
 							entityType: aTeam.entity_type,
 							status: aTeam.status,
-							createdAt: new Date(aTeam.created_at),
+							createdAt: dateService.dateFromString(aTeam.created_at),
 							teamAgent: aTeam.team_agent,
 							memberships: _.sortBy(_.map(aTeam.memberships, function (aMembership) {
 								return {
@@ -942,8 +942,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 									status: aMembership.status,
 									membershipID: aMembership.membershipId,
 									membershipProductID: aMembership.membershipProductId,
-									startAt: new Date(aMembership.dateStart),
-									expireAt: aMembership.dateExpire ? new Date(aMembership.dateExpire) : null
+									startAt: dateService.dateFromString(aMembership.dateStart),
+									expireAt: aMembership.dateExpire ? dateService.dateFromString(aMembership.dateExpire) : null
 								};
 							}), "expireAt"),
 							currentTeamMember: {
@@ -963,7 +963,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 									}
 								}
 							},
-							devicesData: aTeam.devices_data.error_type ? { error: "The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account." } : {
+							devicesData: aTeam.devices_data.error_type ? { error: new Error("The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account.") } : {
 								pageNumber: aTeam.devices_data.page_number,
 								pageSize: aTeam.devices_data.page_size,
 								totalRecords: aTeam.devices_data.total_records,
@@ -976,20 +976,20 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				resolve(responseData);
 			});
 		}, function(response) {
-			reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_ada_data_to_database_and_authenticate][:default_error] %>", "<%= data[:strings][:request_service][:save_ada_data_to_database_and_authenticate][:error_prefix] %>"));
+			reject(errorFromResponse(response, "<%= data[:strings][:request_service][:save_apple_developer_account_data_to_database_and_authenticate][:default_error] %>", "<%= data[:strings][:request_service][:save_apple_developer_account_data_to_database_and_authenticate][:error_prefix] %>"));
 		});
 	};
 
-	requestService.deleteAppleDeveloperAccountDataFromDatabase = function(requestConfig) {
+	requestService.deleteAppleDeveloperAccount = function(requestConfig) {
 		var requestURL;
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:ada_connection_delete]) %>";
+				requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_connection_delete]) %>";
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:delete_ada_data_from_database][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:delete_apple_developer_account_data_from_database][:not_website_mode_error] %>"));
 
 				break;
 		}
@@ -998,7 +998,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.delete(requestURL, requestConfig).then(function() {
 				resolve();
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_ada_data_from_database][:default_error] %>", "<%= data[:strings][:request_service][:get_ada_data_from_database][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:delete_apple_developer_account_data_from_database][:default_error] %>", "<%= data[:strings][:request_service][:get_apple_developer_account_data_from_database][:error_prefix] %>"));
 			});
 		});
 	};
@@ -1012,11 +1012,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:ada_two_step_auth_select_device_post]) %>";
+				requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_two_step_auth_select_device_post]) %>";
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:post_ada_two_step_auth_select_device][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:post_apple_developer_account_two_step_auth_select_device][:not_website_mode_error] %>"));
 
 				break;
 		}
@@ -1027,7 +1027,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					headers: response.data.headers
 				});
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:post_ada_two_step_auth_select_device][:default_error] %>", "<%= data[:strings][:request_service][:post_ada_two_step_auth_select_device][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:post_apple_developer_account_two_step_auth_select_device][:default_error] %>", "<%= data[:strings][:request_service][:post_apple_developer_account_two_step_auth_select_device][:error_prefix] %>"));
 			});
 		});
 	};
@@ -1038,6 +1038,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			headers: headers,
 			verification_code: verificationCode
 		};
+
+		if (selectedDeviceID !== null) {
+			requestData.selected_device_id = selectedDeviceID;
+		}
+
 		if (appleID !== null && password !== null) {
 			requestData.apple_id = appleID;
 			requestData.password = password;
@@ -1049,16 +1054,15 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		switch (requestService.mode) {
 			case "website":
 				if (selectedDeviceID == null) {
-					requestURL = "<%= webserver_path(data[:routes][:website][:ada_two_factor_auth_verify_code_post]) %>";
+					requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_two_factor_auth_verify_code_post]) %>";
 				}
 				else {
-					requestData.selected_device_id = selectedDeviceID;
-					requestURL = "<%= webserver_path(data[:routes][:website][:ada_two_step_auth_verify_code_post]) %>";
+					requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_two_step_auth_verify_code_post]) %>";
 				}
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:post_ada_verify_code][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:post_apple_developer_account_verify_code][:not_website_mode_error] %>"));
 
 				break;
 		}
@@ -1067,11 +1071,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				var responseData = {
 					connectedAccount: {
-						displayName: responseaccount_data.full_name,
-						email: responseaccount_data.email,
-						appleID: responseaccount_data.apple_id,
+						displayName: response.data.account_data.full_name,
+						email: response.data.account_data.email,
+						appleID: response.data.account_data.apple_id,
 						authExpiryDate: dateService.dateFromString(response.data.account_data.auth_expires_at),
-						selectedTeamIDs: responseaccount_data.selected_team_ids
+						selectedTeamIDs: response.data.account_data.selected_team_ids
 					}
 				};
 
@@ -1099,8 +1103,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						"tvOS": undefined
 					};
 
-					_.each(aTeam.devices_data.devices_by_type, function(aDevices, aDeviceType) {
-						devicesByType[aDeviceType] = _.map(aDevices, function(aDevice) {
+					_.each(aTeam.devices_data.devices_by_type, function(devicesOfType, aDeviceType) {
+						devicesByType[aDeviceType] = _.map(devicesOfType, function(aDevice) {
 							return {
 								id: aDevice.id,
 								name: aDevice.name,
@@ -1117,7 +1121,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 						name: aTeam.name,
 						entityType: aTeam.entity_type,
 						status: aTeam.status,
-						createdAt: new Date(aTeam.created_at),
+						createdAt: dateService.dateFromString(aTeam.created_at),
 						teamAgent: aTeam.team_agent,
 						memberships: _.sortBy(_.map(aTeam.memberships, function (aMembership) {
 							return {
@@ -1126,8 +1130,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 								status: aMembership.status,
 								membershipID: aMembership.membershipId,
 								membershipProductID: aMembership.membershipProductId,
-								startAt: new Date(aMembership.dateStart),
-								expireAt: aMembership.dateExpire ? new Date(aMembership.dateExpire) : null
+								startAt: dateService.dateFromString(aMembership.dateStart),
+								expireAt: aMembership.dateExpire ? dateService.dateFromString(aMembership.dateExpire) : null
 							};
 						}), "expireAt"),
 						currentTeamMember: {
@@ -1158,7 +1162,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 				resolve(responseData);
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:post_ada_verify_code][:default_error] %>", "<%= data[:strings][:request_service][:post_ada_verify_code][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:post_apple_developer_account_verify_code][:default_error] %>", "<%= data[:strings][:request_service][:post_apple_developer_account_verify_code][:error_prefix] %>"));
 			});
 		});
 	};
@@ -1172,11 +1176,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		switch (requestService.mode) {
 			case "website":
-				requestURL = "<%= webserver_path(data[:routes][:website][:ada_default_team_post]) %>";
+				requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_default_team_post]) %>";
 
 				break;
 			case "cli":
-				return $q.reject(new Error("<%= data[:strings][:request_service][:post_ada_default_team][:not_website_mode_error] %>"));
+				return $q.reject(new Error("<%= data[:strings][:request_service][:post_apple_developer_account_default_team][:not_website_mode_error] %>"));
 
 				break;
 		}
@@ -1185,7 +1189,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			$http.post(requestURL, requestData, requestConfig).then(function(response) {
 				resolve();
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:post_ada_default_team][:default_error] %>", "<%= data[:strings][:request_service][:post_ada_default_team][:error_prefix] %>"));
+				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:post_apple_developer_account_default_team][:default_error] %>", "<%= data[:strings][:request_service][:post_apple_developer_account_default_team][:error_prefix] %>"));
 			});
 		});
 	};
