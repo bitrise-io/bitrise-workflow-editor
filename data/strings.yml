@@ -571,6 +571,18 @@ request_service:
   create_keystore_file:
     default_error: Error uploading file.
     error_prefix: "Error uploading file: "
+  get_current_user_data:
+    default_error: Error getting current user data
+    error_prefix: "Error getting current user data: "
+    not_website_mode_error: Getting current user data is only available in website mode
+  get_codesigndoc_bash_script:
+    default_error: Error getting app specific bash command
+    error_prefix: "Error getting app specific bash command: "
+    not_website_mode_error: Getting app specific bash command is only available in website mode
+  get_ada_data_from_database:
+    default_error: Error getting connected apple developer account data
+    error_prefix: "Error getting connected apple developer account data: "
+    not_website_mode_error: Getting connected apple developer account data is only available in website mode
   get_details_of_prov_profile:
     default_error: Error getting details of uploaded provisioning profile.
     error_prefix: "Error getting details of uploaded provisioning profile: "
@@ -591,6 +603,10 @@ request_service:
   finalize_keystore_file_upload:
     default_error: Error finalizing file upload.
     error_prefix: "Error finalizing file upload: "
+  update_app_with_apple_credential:
+    default_error: Error saving Apple Credential User for app
+    error_prefix: "Error saving Apple Credential User for app: "
+    not_website_mode_error: Saving Apple Credential User for app is only available in website mode
   update_prov_profile_is_expose_state:
     default_error: Error updating Expose for Pull Requests state.
     error_prefix: "Error updating Expose for Pull Requests state: "
@@ -620,6 +636,10 @@ request_service:
     error_prefix: "Error saving metadata: "
   upload_file_to_storage:
     default_error: Error uploading file to storage.
+  delete_ada_data_from_database:
+    default_error: Error deleting connected apple developer account data
+    error_prefix: "Error deleting connected apple developer account data: "
+    not_website_mode_error: Deleting connected apple developer account data is only available in website mode
   delete_prov_profile:
     default_error: Error removing provisioning profile.
     error_prefix: "Error removing provisioning profile: "
@@ -638,6 +658,10 @@ request_service:
   delete_keystore_file:
     default_error: Error removing file.
     error_prefix: "Error removing file: "
+  save_ada_data_to_database_and_authenticate:
+    default_error: Error connecting to apple developer portal
+    error_prefix: "Error connecting to apple developer portal: "
+    not_website_mode_error: Connecting to apple developer portal is only available in website mode
   save_certificate_password:
     default_error: Error saving certificate password.
     error_prefix: "Error saving certificate password: "
@@ -681,6 +705,18 @@ request_service:
     default_error: Error getting secret environment value.
     error_prefix: "Error getting secret environment value: "
     not_website_mode_error: Getting secret environment value is only available in website mode
+  post_ada_two_step_auth_select_device:
+    default_error: Error selecting a trusted device
+    error_prefix: "Error selecting a trusted device: "
+    not_website_mode_error: Selecting a trusted device is only available in website mode
+  post_ada_verify_code:
+    default_error: Error validating verification code
+    error_prefix: "Error validating verification code: "
+    not_website_mode_error: Validating verification code is only available in website mode
+  post_ada_default_team:
+    default_error: Error saving selected development team for app
+    error_prefix: "Error saving selected development team for app: "
+    not_website_mode_error: Saving selected development team for app is only available in website mode
 step_source_service:
   step_from_cvs:
     no_path: Path not specified.
