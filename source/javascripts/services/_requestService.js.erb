@@ -834,7 +834,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, shouldReauthenticate, requestConfig) {
+	requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, requestConfig) {
 		var requestURL;
 		var requestData;
 
@@ -849,13 +849,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 		}
 
-		if (appleID !== null && password !== null) {
+		if (appleID && password) {
 			requestData.apple_id = appleID;
 			requestData.password = password;
 		}
 		else {
 			requestData.use_connected_account_credentials = true;
-			requestData.should_reauthenticate = shouldReauthenticate;
 		}
 
 		return $q(function(resolve, reject) {
@@ -879,8 +878,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 							phoneNumber: aTrustedDevice.phone_number
 						};
 					}) : [];
-					responseData.isTwoStepAuthenticationRequired = !!response.data.trusted_devices;
-					responseData.isTwoFactorAuthenticationRequired = !response.data.trusted_devices;
+					responseData.isTwoFactorAuthRequired = !response.data.trusted_devices;
+					responseData.isTwoStepAuthRequired = !responseData.isTwoFactorAuthRequired;
 				}
 				else {
 					responseData.connectedAccount = {
@@ -1043,7 +1042,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			requestData.selected_device_id = selectedDeviceID;
 		}
 
-		if (appleID !== null && password !== null) {
+		if (appleID && password) {
 			requestData.apple_id = appleID;
 			requestData.password = password;
 		}

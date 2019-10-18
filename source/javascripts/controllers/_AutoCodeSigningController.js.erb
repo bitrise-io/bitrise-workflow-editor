@@ -79,12 +79,37 @@
 
 		viewModel.loadAppleDeveloperAccountProgress = new Progress();
 		viewModel.appleDeveloperAccount;
+
 		viewModel.connectAppleDeveloperAccountForm;
 		viewModel.connectAppleDeveloperAccountFormData = {
 			appleID: '',
 			password: ''
 		};
 		viewModel.connectAppleDeveloperAccountProgress = new Progress();
+		viewModel.appleDeveloperAccountConnectionConfig;
+
+		viewModel.isTwoStepAuthRequired;
+		viewModel.selectedTrustedDevice;
+		viewModel.appleDeveloperAccountTwoStepAuthForm;
+		viewModel.appleDeveloperAccountTwoStepAuthFormData = {
+			firstDigit: '',
+			secondDigit: '',
+			thirdDigit: '',
+			fourthDigit: ''
+		};
+		viewModel.sendTwoStepAuthVerificationCodeProgress = new Progress();
+
+		viewModel.isTwoFactorAuthRequired;
+		viewModel.appleDeveloperAccountTwoFactorAuthForm;
+		viewModel.appleDeveloperAccountTwoFactorAuthFormData = {
+			firstDigit: '',
+			secondDigit: '',
+			thirdDigit: '',
+			fourthDigit: '',
+			fifthDigit: '',
+			sixthDigit: ''
+		};
+		viewModel.sendTwoFactorAuthVerificationCodeProgress = new Progress();
 
 		viewModel.loadAppleDeveloperAccount = function() {
 			viewModel.loadAppleDeveloperAccountProgress.start('Loading Apple Developer Account...');
@@ -103,15 +128,84 @@
 		viewModel.connectAppleDeveloperAccount = function() {
 			viewModel.connectAppleDeveloperAccountProgress.start('Connecting Apple Developer Account...');
 
-			if (!viewModel.connectAppleDeveloperAccountForm.$valid) {
-				viewModel.connectAppleDeveloperAccountProgress.error(new Error('Apple Developer Account credentials are invalid or not fully specified.'));
+			requestService.addAppleDeveloperAccountWithAuthentication(
+				viewModel.connectAppleDeveloperAccountFormData.appleID,
+				viewModel.connectAppleDeveloperAccountFormData.password,
+				{
+					timeout: canceler.promise
+				}
+			).then(function(data) {
+				viewModel.appleDeveloperAccountConnectionConfig = {
+					headers: data.headers
+				};
 
-				return;
-			}
+				if (data.isMoreInfoNeeded) {
+					viewModel.appleDeveloperAccountConnectionConfig.trustedDevices = angular.copy(data.trustedDevices);
+					viewModel.isTwoStepAuthRequired = data.isTwoStepAuthRequired;
+					viewModel.isTwoFactorAuthRequired = data.isTwoFactorAuthRequired;
+				}
 
-			// TODO: implement
+				viewModel.connectAppleDeveloperAccountProgress.success();
+			}, function(error) {
+				viewModel.connectAppleDeveloperAccountProgress.error(error);
+			});
+		};
 
-			console.log('Apple Developer Account connected!');
+		viewModel.sendTwoStepAuthVerificationCode = function() {
+			viewModel.sendTwoStepAuthVerificationCodeProgress.start('Sending verification code...');
+
+			var verificationCode = [
+				viewModel.twoStepAuthVerificationCodeFormData.firstDigit,
+				viewModel.twoStepAuthVerificationCodeFormData.secondDigit,
+				viewModel.twoStepAuthVerificationCodeFormData.thirdDigit,
+				viewModel.twoStepAuthVerificationCodeFormData.fourthDigit
+			].join("");
+
+			requestService.verifyCodeForAppleDeveloperAccountAuthentication(
+				viewModel.appleDeveloperAccountConnectionConfig.headers,
+				viewModel.connectAppleDeveloperAccountFormData.appleID,
+				viewModel.connectAppleDeveloperAccountFormData.password,
+				verificationCode,
+				viewModel.selectedTrustedDevice ? viewModel.selectedTrustedDevice.id : null,
+				{
+					timeout: canceler.promise
+				}
+			).then(function() {
+				viewModel.sendTwoStepAuthVerificationCodeProgress.success();
+
+				viewModel.goToNextStep();
+			}, function(error) {
+				viewModel.sendTwoStepAuthVerificationCodeProgress.error(error);
+			});
+		};
+
+		viewModel.sendTwoFactorAuthVerificationCode = function() {
+			viewModel.sendTwoFactorAuthVerificationCodeProgress.start('Sending verification code...');
+
+			var verificationCode = [
+				viewModel.twoFactorAuthVerificationCodeFormData.firstDigit,
+				viewModel.twoFactorAuthVerificationCodeFormData.secondDigit,
+				viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit,
+				viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit,
+				viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit,
+				viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit,
+			].join("");
+
+			requestService.verifyCodeForAppleDeveloperAccountAuthentication(
+				viewModel.appleDeveloperAccountConnectionConfig.headers,
+				viewModel.connectAppleDeveloperAccountFormData.appleID,
+				viewModel.connectAppleDeveloperAccountFormData.password,
+				verificationCode,
+				{
+					timeout: canceler.promise
+				}
+			).then(function() {
+				viewModel.sendTwoFactorAuthVerificationCodeProgress.success();
+
+				viewModel.goToNextStep();
+			}, function(error) {
+				viewModel.sendTwoFactorAuthVerificationCodeProgress.error(error);
+			});
 		};
 
 		// Select team
