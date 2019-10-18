@@ -31,7 +31,7 @@
 		// Steps
 
 		viewModel.numberForStep = function(step) {
-			return _.indexOf(viewModel.steps, step);
+			return _.indexOf(viewModel.steps, step) + 1;
 		};
 
 		viewModel.isUpcomingStep = function(step) {
