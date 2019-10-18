@@ -249,6 +249,45 @@
 			}
 		}
 
+		.step.connect-apple-developer-account {
+
+			h2 {
+				font-size: 19px;
+				font-weight: 500;
+				color: $def-verydarkgrey;
+			}
+
+			p:not(.notification) {
+				font-size: 16px;
+				font-weight: 200;
+				color: $def-verydarkgrey;
+			}
+
+			section {
+				margin-bottom: 20px;
+			}
+
+			input[type="text"], input[type="password"] {
+				@include box-sizing(border-box);
+				border: 1px solid $def-grey;
+				border-radius: $def-radius;
+				padding: 10px;
+			}
+
+			form {
+				width: 400px;
+
+				label {
+					display: block;
+					margin-bottom: 6px;
+				}
+
+				input[type="text"], input[type="password"], input[type="submit"] {
+					width: 100%;
+				}
+			}
+		}
+
 		.step.select-team {
 			.team {
 				margin-top: 20px;
@@ -263,6 +302,11 @@
 
 				&.active {
 					background-color: $def-green-neon-light;
+				}
+
+				.id {
+					display: block;
+					margin-top: 6px;
 				}
 			}
 
