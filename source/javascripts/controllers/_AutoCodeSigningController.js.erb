@@ -50,6 +50,10 @@
 			viewModel.activeStep = viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) + 1];
 		};
 
+		viewModel.goToPreviousStep = function() {
+			viewModel.activeStep = viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) - 1];
+		};
+
 		// Upload certificates step
 
 		viewModel.loadCodesigndocScriptProgress = new Progress();
@@ -111,6 +115,9 @@
 		};
 		viewModel.sendTwoFactorAuthVerificationCodeProgress = new Progress();
 
+		viewModel.selectableAppleDeveloperAccountTeams;
+		viewModel.shouldShowNoSelectableTeamNotification;
+
 		viewModel.loadAppleDeveloperAccount = function() {
 			viewModel.loadAppleDeveloperAccountProgress.start('Loading Apple Developer Account...');
 
@@ -118,6 +125,10 @@
 				timeout: canceler.promise
 			}).then(function(data) {
 				viewModel.appleDeveloperAccount = data.isAccepted ? data.connectedAccount : null;
+
+				if (viewModel.appleDeveloperAccount) {
+					viewModel.connectAppleDeveloperAccount();
+				}
 
 				viewModel.loadAppleDeveloperAccountProgress.success();
 			}, function(error) {
@@ -143,6 +154,9 @@
 					viewModel.appleDeveloperAccountConnectionConfig.trustedDevices = angular.copy(data.trustedDevices);
 					viewModel.isTwoStepAuthRequired = data.isTwoStepAuthRequired;
 					viewModel.isTwoFactorAuthRequired = data.isTwoFactorAuthRequired;
+				}
+				else {
+					handleConnectedAppleDeveloperAccountResponseData(data);
 				}
 
 				viewModel.connectAppleDeveloperAccountProgress.success();
@@ -170,10 +184,10 @@
 				{
 					timeout: canceler.promise
 				}
-			).then(function() {
+			).then(function(data) {
 				viewModel.sendTwoStepAuthVerificationCodeProgress.success();
 
-				viewModel.goToNextStep();
+				handleConnectedAppleDeveloperAccountResponseData(data);
 			}, function(error) {
 				viewModel.sendTwoStepAuthVerificationCodeProgress.error(error);
 			});
@@ -188,7 +202,7 @@
 				viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit,
 				viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit,
 				viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit,
-				viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit,
+				viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit
 			].join("");
 
 			requestService.verifyCodeForAppleDeveloperAccountAuthentication(
@@ -199,18 +213,105 @@
 				{
 					timeout: canceler.promise
 				}
-			).then(function() {
+			).then(function(data) {
 				viewModel.sendTwoFactorAuthVerificationCodeProgress.success();
 
-				viewModel.goToNextStep();
+				handleConnectedAppleDeveloperAccountResponseData(data);
 			}, function(error) {
 				viewModel.sendTwoFactorAuthVerificationCodeProgress.error(error);
 			});
 		};
 
+		function handleConnectedAppleDeveloperAccountResponseData(data) {
+			viewModel.selectableAppleDeveloperAccountTeams = _.filter(data.appleDeveloperAccountTeams, function(team) {
+				return team.currentTeamMember.roles.isAgent.status || team.currentTeamMember.roles.isAdmin.status;
+			});
+
+			viewModel.goToNextStep();
+		}
+
 		// Select team
 
 		viewModel.selectedTeam;
+		viewModel.removeConnectedAppleDeveloperAccountProgress = new Progress();
+		viewModel.saveSelectedTeamProgress = new Progress();
+
+		viewModel.changeAppleDeveloperAccount = function() {
+			viewModel.removeConnectedAppleDeveloperAccountProgress.start("Removing connected Apple Developer Account...");
+
+			requestService.deleteAppleDeveloperAccount({
+				timeout: canceler.promise
+			}).then(function() {
+				viewModel.appleDeveloperAccount = undefined;
+
+				viewModel.appleDeveloperAccountConnectionConfig = undefined;
+				viewModel.connectAppleDeveloperAccountFormData.appleID = '';
+				viewModel.connectAppleDeveloperAccountFormData.password = '';
+
+				viewModel.isTwoStepAuthRequired = undefined;
+				viewModel.selectedTrustedDevice = undefined;
+				viewModel.twoStepAuthVerificationCodeFormData.firstDigit = '';
+				viewModel.twoStepAuthVerificationCodeFormData.secondDigit = '';
+				viewModel.twoStepAuthVerificationCodeFormData.thirdDigit = '';
+				viewModel.twoStepAuthVerificationCodeFormData.fourthDigit = '';
+
+				viewModel.isTwoFactorAuthRequired = undefined;
+				viewModel.twoFactorAuthVerificationCodeFormData.firstDigit = '';
+				viewModel.twoFactorAuthVerificationCodeFormData.secondDigit = '';
+				viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit = '';
+				viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit = '';
+				viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit = '';
+				viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit = '';
+
+				viewModel.removeConnectedAppleDeveloperAccountProgress.success();
+
+				viewModel.goToPreviousStep();
+			}, function(error) {
+				viewModel.removeConnectedAppleDeveloperAccountProgress.error(error);
+			});
+		};
+
+		viewModel.saveSelectedTeam = function() {
+			viewModel.saveSelectedTeamProgress.start("Saving selected team...");
+
+			requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams(viewModel.selectedTeam.id, {
+				timeout: canceler.promise
+			}).then(function() {
+				viewModel.saveSelectedTeamProgress.success();
+
+				viewModel.goToNextStep();
+			}, function(error) {
+				viewModel.saveSelectedTeamProgress.error(error);
+			});
+		}
+
+		// Final step
+
+		viewModel.saveAppleCredentialUserProgress = new Progress();
+
+		viewModel.saveAppleCredentialUser = function() {
+			viewModel.saveAppleCredentialUserProgress.start("Saving Apple Credential User...");
+
+			$q(function(resolve, reject) {
+				requestService.getCurrentUserData({
+					timeout: canceler.promise,
+				}).then(function(data) {
+					requestService.updateAppleCredentialUser(data.slug, {
+						timeout: canceler.promise,
+					}).then(function() {
+						resolve();
+					}, function(error) {
+						reject(error);
+					});
+				}, function(error) {
+					reject(error)
+				});
+			}).then(function() {
+				viewModel.saveAppleCredentialUserProgress.success();
+			}, function(error) {
+				viewModel.saveAppleCredentialUserProgress.error(error);
+			})
+		};
 	});
 
 })();

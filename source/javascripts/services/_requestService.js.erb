@@ -836,7 +836,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 	requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, requestConfig) {
 		var requestURL;
-		var requestData;
+		var requestData = {};
 
 		switch (requestService.mode) {
 			case "website":
@@ -1166,11 +1166,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams = function(teamID, appSlug, requestConfig) {
+	requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams = function(teamID, requestConfig) {
 		var requestURL;
 		var requestData = {
 			team_id: teamID,
-			app_slug: appSlug
+			app_slug: requestService.appSlug
 		};
 
 		switch (requestService.mode) {
