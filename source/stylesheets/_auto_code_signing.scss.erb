@@ -5,7 +5,7 @@
 	header {
 		@include display-flex;
 		@include align-items(center);
-		$spacing: 25px;
+		$spacing: 36px;
 
 		.icon {
 			@include margin-x($spacing);
@@ -18,12 +18,15 @@
 
 		.summary {
 			@include padding-y(15px);
+			max-width: 580px;
+			margin-right: auto;
 
 			h2 {
 				margin-top: 0;
 				margin-bottom: 5px;
 				font-size: 19px;
 				font-weight: 700;
+				line-height: 1.26;
 				color: $def-darkgrey;
 			}
 
@@ -32,6 +35,7 @@
 				font-size: 16px;
 				font-weight: 500;
 				color: $def-darkgrey;
+				line-height: 1.5;
 			}
 		}
 
@@ -41,6 +45,7 @@
 			padding: 0;
 			font-size: 16px;
 			font-weight: 500;
+			line-height: 1.5;
 			background-color: transparent;
 			color: $def-violet_blue;
 
@@ -60,6 +65,105 @@
 			.manual-code-signing {
 				margin-left: 0;
 				margin-top: $spacing;
+			}
+		}
+	}
+
+	.auto-code-signing-body {
+		margin: 12px 0;
+
+		.step {
+
+			.upload-certificate, .connect-apple-developer-account, .select-team {
+
+				.upcoming, .completed {
+					@include display-flex;
+					@include align-items(center);
+					padding: 15px 20px;
+					background-color: $def-wizard-light-grey;
+				}
+			}
+
+			.upcoming, .in-progress, .completed {
+				@include border-radius(6px);
+				border: 3px solid $def-wizard-light-grey;
+				overflow: hidden;
+			}
+
+			.upcoming .icon {
+				@include flex-shrink(0);
+				margin-right: 20px;
+
+				svg {
+					@include size(48px);
+					fill: $def-wizard-grey;
+				}
+			}
+
+			.in-progress {
+				border-color: $def-green-neon;
+
+				.step-header {
+					@include display-flex;
+					padding: 15px 20px;
+					border-top-left-radius: 6px;
+					border-top-right-radius: 6px;
+					border-bottom-left-radius: 0;
+					border-bottom-right-radius: 0;
+					background-color: $def-green-neon-light;
+
+					.icon {
+						@include flex-shrink(0);
+						margin-left: 3px;
+
+						svg {
+							@include size(48px);
+							fill: $def-green-light-neon;
+						}
+					}
+
+					.text {
+						@include display-flex;
+						@include flex-direction(column);
+						font-size: 18px;
+						font-weight: 200;
+						line-height: 24px;
+						color: $def-mediumdarkgrey;
+
+						strong {
+							color: $def-green-light-neon;
+							font-weight: 500;
+						}
+
+						em {
+							font-style: normal;
+							font-weight: 200;
+							line-height: 24px;
+							color: $def-mediumdarkgrey;
+						}
+					}
+				}
+
+				.step-body {
+					padding: 25px 90px;
+					background-color: white;
+				}
+			}
+
+			.completed {
+
+				.icon {
+					@include flex-shrink(0);
+					@include size(48px);
+					@include border-radius(50%);
+					background-color: $def-green-light-neon;
+					margin-right: 20px;
+					margin-left: 3px;
+
+					svg {
+						fill: white;
+					}
+				}
 			}
 		}
 	}

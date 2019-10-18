@@ -2,7 +2,7 @@
 	.step.upload-certificate[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)}"]
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep)"]
 			.step-header
-				.icon
+				.icon = svg("wizard/certificate-icon")
 				.text
 					strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.uploadCertificatesStep) }}
 					em Upload your certificates
@@ -24,15 +24,15 @@
 					= partial "templates/tab-code_signing-certificates"
 					button.rebo.purple.wide.big[ng-disabled="certificateService.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)"]
-			.icon
+			.icon = svg("wizard/check")
 			.text Certificates uploaded
 	.step.connect-apple-developer-account[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)}"]
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
-			.icon
+			.icon = svg("wizard/apple-developer-account-icon")
 			.text Connect your Apple Developer Account
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.step-header
-				.icon
+				.icon = svg("wizard/apple-developer-account-icon")
 				.text
 					strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep) }}
 					em Connect your Apple Developer Account
@@ -101,11 +101,11 @@
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.sixthDigit" name="sixthDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 									input.rebo.purple.big.wide[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoFactorAuthVerificationCodeForm.$valid"]
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
-			.icon
+			.icon = svg("wizard/check")
 			.text Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.fullName }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.appleID }})
 	.step.select-team[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)}"]
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.selectTeamStep)"]
-			.icon
+			.icon = svg("wizard/rocket-icon")
 			.text Select a default Development Team for {{ appService.appDetails.title }}
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep)"]
 			.step-header
@@ -127,7 +127,7 @@
 						span.id Team ID: {{team.id}}
 					button.rebo.purple.big.wide[ng-disabled="!autoCodeSigningCtrl.selectedTeam" ng-click="autoCodeSigningCtrl.saveSelectedTeam()"] Select team
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)"]
-			.icon
+			.icon = svg("wizard/check")
 			.text Selected Development Team for {{ appService.appDetails.title }} is {{ autoCodeSigningCtrl.selectedTeam.name }}
 	.step.add-trigger
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.addTriggerStep)"]
