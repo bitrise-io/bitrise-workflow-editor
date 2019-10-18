@@ -16,7 +16,7 @@
 					.snippet
 						pre
 							code[ng-bind="autoCodeSigningCtrl.codesigndocScript"]
-						button[ng-click="autoCodeSigningCtrl.copyCodesigndocScriptToClipboard()"]
+						button.rebo.purple.small[copy-to-clipboard data-clipboard-text="{{ autoCodeSigningCtrl.codesigndocScript }}" ng-click="autoCodeSigningCtrl.copyCodesigndocScriptToClipboardSelected()"] {{ autoCodeSigningCtrl.copyCodesigndocScriptToClipboardProgress.statusMessage || 'Copy to clipboard' }}
 					p
 						span After running the script,
 						strong< upload all exported files
