@@ -70,7 +70,7 @@
 									h3 Enter the code to continue
 									p Check your device for the message with the verification code
 								p.progress-indicator[progress-model="autoCodeSigningCtrl.sendTwoStepAuthVerificationCodeProgress"]
-								form.enter-digits[ng-if="!autoCodeSigningCtrl.sendTwoStepAuthVerificationCodeProgress.isInProgress" name="autoCodeSigningCtrl.twoStepAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoStepAuthVerificationCode()"]
+								form.enter-digits[ng-if="!autoCodeSigningCtrl.sendTwoStepAuthVerificationCodeProgress.isInProgress" change-input-focus-when-filled name="autoCodeSigningCtrl.twoStepAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoStepAuthVerificationCode()"]
 									.digits
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.firstDigit" name="firstDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.secondDigit" name="secondDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
@@ -91,7 +91,7 @@
 									h3 Enter the code to continue
 									p Check your device for the message with the verification code
 								p.progress-indicator[progress-model="autoCodeSigningCtrl.sendTwoFactorAuthVerificationCodeProgress"]
-								form.enter-digits[ng-if="!autoCodeSigningCtrl.sendTwoFactorAuthVerificationCodeProgress.isInProgress" name="autoCodeSigningCtrl.twoFactorAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoFactorAuthVerificationCode()"]
+								form.enter-digits[ng-if="!autoCodeSigningCtrl.sendTwoFactorAuthVerificationCodeProgress.isInProgress" change-input-focus-when-filled name="autoCodeSigningCtrl.twoFactorAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoFactorAuthVerificationCode()"]
 									.digits
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.firstDigit" name="firstDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.secondDigit" name="secondDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
