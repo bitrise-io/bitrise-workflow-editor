@@ -14,6 +14,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 	var viewModel = this;
 
 	viewModel.showNewCodeSigningWizard;
+	viewModel.isAutoCodeSigningModeOn;
 	viewModel.shouldShowCodeSigningHints;
 	viewModel.isCodeSigningHintsOpen;
 	var irrelevantProjectTypesForCodeSigningHints = ["android"];
@@ -111,6 +112,12 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 						});
 					});
 					viewModel.activeFileTypeMenu = _.first(viewModel.availableFileTypeMenus());
+
+					if (viewModel.sectionConfigurations.certificate.shouldShow) {
+						viewModel.sectionConfigurations.certificate.getAreThereAnyUploadedFilesPromise.then(function(areThereAnyUploadedFilesOfSection) {
+							viewModel.isAutoCodeSigningModeOn = viewModel.showNewCodeSigningWizard && !areThereAnyUploadedFilesOfSection;
+						});
+					}
 
 					resolve();
 				}, reject);

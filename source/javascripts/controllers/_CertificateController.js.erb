@@ -288,6 +288,14 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		viewModel.listOfIdentitiesPopup.isVisible = true;
 	};
 
+	viewModel.placeholderForText = function(text) {
+		if (text === undefined || text === null) {
+			return;
+		}
+
+		return Array(text.length + 1).join("*");
+	};
+
 	loadCertificates();
 
 });

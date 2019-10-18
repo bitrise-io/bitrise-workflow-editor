@@ -834,9 +834,9 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, shouldReauthenticate, requestConfig) {
+	requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, requestConfig) {
 		var requestURL;
-		var requestData;
+		var requestData = {};
 
 		switch (requestService.mode) {
 			case "website":
@@ -849,13 +849,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 		}
 
-		if (appleID !== null && password !== null) {
+		if (appleID && password) {
 			requestData.apple_id = appleID;
 			requestData.password = password;
 		}
 		else {
 			requestData.use_connected_account_credentials = true;
-			requestData.should_reauthenticate = shouldReauthenticate;
 		}
 
 		return $q(function(resolve, reject) {
@@ -879,12 +878,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 							phoneNumber: aTrustedDevice.phone_number
 						};
 					}) : [];
-					responseData.isTwoStepAuthenticationRequired = !!response.data.trusted_devices;
-					responseData.isTwoFactorAuthenticationRequired = !response.data.trusted_devices;
+					responseData.isTwoFactorAuthRequired = !response.data.trusted_devices;
+					responseData.isTwoStepAuthRequired = !responseData.isTwoFactorAuthRequired;
 				}
 				else {
 					responseData.connectedAccount = {
-						displayName: response.data.account_data.full_name,
+						fullName: response.data.account_data.full_name,
 						email: response.data.account_data.email,
 						appleID: response.data.account_data.apple_id,
 						authExpiryDate: dateService.dateFromString(response.data.account_data.auth_expires_at),
@@ -1043,7 +1042,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 			requestData.selected_device_id = selectedDeviceID;
 		}
 
-		if (appleID !== null && password !== null) {
+		if (appleID && password) {
 			requestData.apple_id = appleID;
 			requestData.password = password;
 		}
@@ -1167,11 +1166,11 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 		});
 	};
 
-	requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams = function(teamID, appSlug, requestConfig) {
+	requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams = function(teamID, requestConfig) {
 		var requestURL;
 		var requestData = {
 			team_id: teamID,
-			app_slug: appSlug
+			app_slug: requestService.appSlug
 		};
 
 		switch (requestService.mode) {
