@@ -102,7 +102,7 @@
 									input.rebo.purple.big.wide[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.$valid"]
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.icon
-			.text Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.username }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.email }})
+			.text Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.fullName }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.appleID }})
 	.step.select-team[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)}"]
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.selectTeamStep)"]
 			.icon

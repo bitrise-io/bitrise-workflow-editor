@@ -883,7 +883,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				}
 				else {
 					responseData.connectedAccount = {
-						displayName: response.data.account_data.full_name,
+						fullName: response.data.account_data.full_name,
 						email: response.data.account_data.email,
 						appleID: response.data.account_data.apple_id,
 						authExpiryDate: dateService.dateFromString(response.data.account_data.auth_expires_at),

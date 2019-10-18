@@ -223,6 +223,7 @@
 		};
 
 		function handleConnectedAppleDeveloperAccountResponseData(data) {
+			viewModel.appleDeveloperAccount = data.connectedAccount;
 			viewModel.selectableAppleDeveloperAccountTeams = _.filter(data.appleDeveloperAccountTeams, function(team) {
 				return team.currentTeamMember.roles.isAgent.status || team.currentTeamMember.roles.isAdmin.status;
 			});
@@ -310,7 +311,7 @@
 				viewModel.saveAppleCredentialUserProgress.success();
 			}, function(error) {
 				viewModel.saveAppleCredentialUserProgress.error(error);
-			})
+			});
 		};
 	});
 
