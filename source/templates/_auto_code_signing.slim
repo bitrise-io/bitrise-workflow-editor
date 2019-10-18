@@ -76,7 +76,7 @@
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.secondDigit" name="secondDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.thirdDigit" name="thirdDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.fourthDigit" name="fourthDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
-									input.rebo.purple.big.wide[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.$valid"]
+									input.rebo.purple.big.wide[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoStepAuthVerificationCodeForm.$valid"]
 						.additional-authentication.two-factor[ng-if="autoCodeSigningCtrl.isTwoFactorAuthRequired"]
 							section.additional-authentication-required-message
 								h3
@@ -99,7 +99,7 @@
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.fourthDigit" name="fourthDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.fifthDigit" name="fifthDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.sixthDigit" name="sixthDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
-									input.rebo.purple.big.wide[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.$valid"]
+									input.rebo.purple.big.wide[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoFactorAuthVerificationCodeForm.$valid"]
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.icon
 			.text Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.fullName }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.appleID }})
