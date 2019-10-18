@@ -70,46 +70,45 @@
 	}
 
 	.auto-code-signing-body {
-		margin: 12px 0;
-
 		.step {
+			$icon-size: 48px;
+			$borderradius: 6px;
+			$verticalpadding: 15px;
+			$horizontalpadding: 20px;
+			$padding: $verticalpadding $horizontalpadding;
 
-			.upload-certificate, .connect-apple-developer-account, .select-team {
+			margin-top: 25px;
 
-				.upcoming, .completed {
-					@include display-flex;
-					@include align-items(center);
-					padding: 15px 20px;
-					background-color: $def-wizard-light-grey;
+			.upcoming {
+				@include display-flex;
+				@include align-items(center);
+				@include border-radius($borderradius);
+				padding: $padding;
+				background-color: $def-lightgrey;
+
+				.icon {
+					@include flex-shrink(0);
+
+					svg {
+						@include size(48px);
+						fill: $def-mediumdarkgrey;
+					}
+				}
+
+				.text {
+					margin-left: $horizontalpadding;
+					color: $def-mediumdarkgrey;
 				}
 			}
 
-			.upcoming, .in-progress, .completed {
-				@include border-radius(6px);
-				border: 3px solid $def-wizard-light-grey;
-				overflow: hidden;
-			}
-
-			.upcoming .icon {
-				@include flex-shrink(0);
-				margin-right: 20px;
-
-				svg {
-					@include size(48px);
-					fill: $def-wizard-grey;
-				}
-			}
-
-			.in-progress {
-				border-color: $def-green-neon;
+			.active {
+				@include border-radius($borderradius);
+				border: 3px solid $def-green-neon;
 
 				.step-header {
 					@include display-flex;
-					padding: 15px 20px;
-					border-top-left-radius: 6px;
-					border-top-right-radius: 6px;
-					border-bottom-left-radius: 0;
-					border-bottom-right-radius: 0;
+					@include border-top-radius($borderradius);
+					padding: $padding;
 					background-color: $def-green-neon-light;
 
 					.icon {
@@ -117,52 +116,190 @@
 						margin-left: 3px;
 
 						svg {
-							@include size(48px);
+							@include size($icon-size);
 							fill: $def-green-light-neon;
 						}
 					}
 
 					.text {
-						@include display-flex;
-						@include flex-direction(column);
-						font-size: 18px;
-						font-weight: 200;
-						line-height: 24px;
-						color: $def-mediumdarkgrey;
+						margin-left: 20px;
 
 						strong {
+							display: block;
+							font-size: 18px;
 							color: $def-green-light-neon;
 							font-weight: 500;
 						}
 
 						em {
+							display: block;
+							font-size: 18px;
 							font-style: normal;
 							font-weight: 200;
-							line-height: 24px;
 							color: $def-mediumdarkgrey;
 						}
 					}
 				}
 
 				.step-body {
-					padding: 25px 90px;
+					padding: $padding;
+					padding-left: $horizontalpadding + $icon-size + $horizontalpadding;
 					background-color: white;
 				}
 			}
 
 			.completed {
+				@include display-flex;
+				@include align-items(center);
+				border: 3px solid $def-green-neon-light;
+				@include border-radius(6px);
+				padding: $padding;
+				overflow: hidden;
+				background-color: $def-green-neon-light;
 
 				.icon {
 					@include flex-shrink(0);
-					@include size(48px);
+					@include display-flex;
+					@include justify-content(center);
+					@include align-items(center);
+					@include size($icon-size);
 					@include border-radius(50%);
 					background-color: $def-green-light-neon;
-					margin-right: 20px;
-					margin-left: 3px;
 
 					svg {
+						@include size(20px);
 						fill: white;
 					}
+				}
+
+				.text {
+					margin-left: $horizontalpadding;
+					font-size: 18px;
+					color: $def-mediumdarkgrey;
+					font-weight: 400;
+				}
+			}
+		}
+
+		.step.upload-certificate {
+
+			p:not(.notification) {
+				font-size: 16px;
+				font-weight: 200;
+				color: $def-verydarkgrey;
+
+				strong {
+					font-weight: 700;
+				}
+			}
+
+			.snippet {
+				display: flex;
+				border-radius: $def-radius;
+				overflow: hidden;
+
+				pre {
+					@include margin-y(0);
+					padding: 12px;
+					overflow: hidden;
+					background-color: #2c3e50;
+					color: #ececec;
+				}
+
+				.copy-snippet {
+					padding: 12px 16px;
+					background-color: $def-green-light-neon;
+
+					svg {
+						display: block;
+						@include size(16px);
+						fill: white;
+					}
+				}
+			}
+
+			.certificates {
+				header {
+					display: none;
+				}
+
+				.notification, .file-upload {
+					@include margin-x(0);
+				}
+
+				.file-uploader {
+					padding: 30px;
+					border-color: $def-mediumlightgrey;
+
+					.content {
+						font-size: 16px;
+						color: $def-verydarkgrey;
+					}
+				}
+
+				.uploaded-file {
+					border: 1px solid $def-mediumlightgrey;
+					border-radius: $def-radius;
+					padding: 18px;
+				}
+			}
+
+			button.next {
+				min-width: 160px;
+			}
+		}
+
+		.step.select-team {
+			.team {
+				margin-top: 20px;
+				border: 1px solid $def-mediumlightgrey;
+				border-radius: $def-radius;
+				padding: 20px;
+				text-align: left;
+
+				&:hover, &:focus {
+					border-color: $def-violet_blue;
+				}
+
+				&.active {
+					background-color: $def-green-neon-light;
+				}
+			}
+
+			.action {
+				display: block;
+				min-width: 160px;
+				margin-top: 20px;
+			}
+		}
+
+		.final-step {
+			@include padding-y(60px);
+			text-align: center;
+			color: $def-darkbluegrey;
+
+			h2 {
+				margin-bottom: 24px;
+				font-size: 34px;
+				font-weight: 700;
+			}
+
+			p {
+				margin-bottom: 34px;
+				font-size: 16px;
+				font-weight: 500;
+			}
+
+			ol {
+				@include display-flex;
+				@include flex-direction(column);
+				@include justify-content(center);
+				@include align-items(center);
+				font-size: 16px;
+				font-weight: 500;
+
+				li {
+					margin-bottom: 20px;
 				}
 			}
 		}

@@ -39,7 +39,7 @@
 			return _.indexOf(viewModel.steps, step) > _.indexOf(viewModel.steps, viewModel.activeStep);
 		};
 
-		viewModel.isStepInProgress = function(step) {
+		viewModel.isStepActive = function(step) {
 			return step == viewModel.activeStep;
 		};
 
@@ -75,14 +75,6 @@
 				viewModel.loadCodesigndocScriptProgress.error(error);
 			});
 		};
-
-		viewModel.copyCodesigndocScriptToClipboardSelected = function() {
-			viewModel.copyCodesigndocScriptToClipboardProgress.success('✔ Copied');
-
-			$timeout(function() {
-				viewModel.copyCodesigndocScriptToClipboardProgress.reset();
-			}, 5000);
-		}
 
 		// Connect Apple Developer Account
 

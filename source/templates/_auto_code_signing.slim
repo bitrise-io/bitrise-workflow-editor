@@ -1,6 +1,6 @@
 .auto-code-signing-body[ng-controller="AutoCodeSigningController as autoCodeSigningCtrl"]
-	.step.upload-certificate[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)}"]
-		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep)"]
+	.step.upload-certificate[ng-class="{'in-progress': autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.uploadCertificatesStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)}"]
+		.active[ng-if="autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.uploadCertificatesStep)"]
 			.step-header
 				.icon = svg("wizard/certificate-icon")
 				.text
@@ -16,21 +16,21 @@
 					.snippet
 						pre
 							code[ng-bind="autoCodeSigningCtrl.codesigndocScript"]
-						button.rebo.purple.small[copy-to-clipboard data-clipboard-text="{{ autoCodeSigningCtrl.codesigndocScript }}" ng-click="autoCodeSigningCtrl.copyCodesigndocScriptToClipboardSelected()"] {{ autoCodeSigningCtrl.copyCodesigndocScriptToClipboardProgress.statusMessage || 'Copy to clipboard' }}
+						button.copy-snippet[copy-to-clipboard data-clipboard-text="{{ autoCodeSigningCtrl.codesigndocScript }}"] = svg("copy")
 					p
 						span After running the script,
 						strong< upload all exported files
 						span< below:
 					= partial "templates/tab-code_signing-certificates"
-					button.rebo.purple.wide.big[ng-disabled="certificateService.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
+					button.rebo.purple.wide.big.next[ng-disabled="certificateService.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)"]
 			.icon = svg("wizard/check")
 			.text Certificates uploaded
-	.step.connect-apple-developer-account[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)}"]
+	.step.connect-apple-developer-account[ng-class="{'in-progress': autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.connectAppleDeveloperAccountStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)}"]
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.icon = svg("wizard/apple-developer-account-icon")
 			.text Connect your Apple Developer Account
-		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
+		.active[ng-if="autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.step-header
 				.icon = svg("wizard/apple-developer-account-icon")
 				.text
@@ -103,13 +103,13 @@
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.icon = svg("wizard/check")
 			.text Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.fullName }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.appleID }})
-	.step.select-team[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)}"]
+	.step.select-team[ng-class="{'in-progress': autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.selectTeamStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)}"]
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.selectTeamStep)"]
 			.icon = svg("wizard/rocket-icon")
 			.text Select a default Development Team for {{ appService.appDetails.title }}
-		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep)"]
+		.active[ng-if="autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.selectTeamStep)"]
 			.step-header
-				.icon
+				.icon = svg("wizard/rocket-icon")
 				.text
 					strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.selectTeamStep) }}
 					em Select a default Development Team for {{ appService.appDetails.title }}
@@ -125,13 +125,11 @@
 							strong[ng-bind="team.name"]
 							span<[ng-if="team.entityType"] ({{ team.entityType }})
 						span.id Team ID: {{team.id}}
-					button.rebo.purple.big.wide[ng-disabled="!autoCodeSigningCtrl.selectedTeam" ng-click="autoCodeSigningCtrl.saveSelectedTeam()"] Select team
+					button.rebo.purple.big.wide.action[ng-disabled="!autoCodeSigningCtrl.selectedTeam" ng-click="autoCodeSigningCtrl.saveSelectedTeam()"] Select team
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)"]
 			.icon = svg("wizard/check")
 			.text Selected Development Team for {{ appService.appDetails.title }} is {{ autoCodeSigningCtrl.selectedTeam.name }}
-	.step.add-trigger
-		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.addTriggerStep)"]
-		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.addTriggerStep)" ng-init="autoCodeSigningCtrl.saveAppleCredentialUser()"]
+	.final-step[ng-if="autoCodeSigningCtrl.isStepActive(autoCodeSigningCtrl.addTriggerStep)" ng-init="autoCodeSigningCtrl.saveAppleCredentialUser()"]
 			p.progress-indicator[progress-model="autoCodeSigningCtrl.saveAppleCredentialUserProgress"]
 			button.rebo.purple.big.wide[ng-if="autoCodeSigningCtrl.saveAppleCredentialUserProgress.isError" ng-click="autoCodeSigningCtrl.saveAppleCredentialUser()"] Try again
 			div[ng-if="!autoCodeSigningCtrl.saveAppleCredentialUserProgress.isInProgress && !autoCodeSigningCtrl.saveAppleCredentialUserProgress.isError"]
