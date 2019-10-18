@@ -6,6 +6,7 @@
 @import "index";
 @import "tab-workflows";
 @import "tab-code_signing";
+@import "tab-code_signing-certificates";
 @import "auto_code_signing";
 @import "tab-secrets";
 @import "tab-env_vars";
@@ -24,6 +25,7 @@
 @import "popup";
 @import "popover";
 @import "notification-progress-indicator";
+@import "file_uploader";
 @import "order-by-drag";
 @import "clear-value";
 

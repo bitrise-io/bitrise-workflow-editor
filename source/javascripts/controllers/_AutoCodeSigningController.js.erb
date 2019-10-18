@@ -2,7 +2,7 @@
 
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope, $timeout, Progress, appService, requestService) {
+	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope, $timeout, Progress, appService, requestService, certificateService) {
 
 		var canceler = $q.defer();
 		$scope.$on("$destroy", function() {
@@ -27,6 +27,7 @@
 		viewModel.activeStep = _.first(viewModel.steps);
 
 		$scope.appService = appService;
+		$scope.certificateService = certificateService;
 
 		// Steps
 

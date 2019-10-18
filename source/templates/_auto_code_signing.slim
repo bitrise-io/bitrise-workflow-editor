@@ -21,8 +21,8 @@
 						span After running the script,
 						strong< upload all exported files
 						span< below:
-					/ TODO: implement (remove false condition from button below)
-					button.rebo.purple.wide.big[ng-disabled="false && autoCodeSigningCtrl.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
+					= partial "templates/tab-code_signing-certificates"
+					button.rebo.purple.wide.big[ng-disabled="certificateService.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
 		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)"]
 			.icon
 			.text Certificates uploaded

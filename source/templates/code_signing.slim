@@ -177,123 +177,8 @@
 															.username[ng-bind="'@' + provProfileCtrl.deviceRegisteredBy(aProvisionedDevice.udid).username"]
 										ul.capabilities[ng-switch-when="capabilities"]
 											li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile() track by $index" ng-bind="description"]
-					section.cardo.uppercase.slim.files.certificates[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.sectionConfigurations.certificate.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
-						header
-							h2.label.title
-								span == data[:strings][:code_signing][:certificate][:header][:card_title]
-								span<[ng-if="certificateService.certificates.length > 0" ng-bind="'(' + certificateService.certificates.length + '/' + certificateCtrl.maximumCertificatesCount + ')'"]
-							h2.label.password[ng-if="certificateService.certificates.length > 0"]
-								span == data[:strings][:code_signing][:certificate][:header][:password]
-							h2.label.expose[ng-if="certificateService.certificates.length > 0"]
-								span.long-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pull_requests]
-								span.short-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pr]
-							.actions[ng-if="certificateService.certificates.length > 1" floating-menu toggle="certificateCtrl.isActionMenuForAllCertificatesVisible"]
-								button.dropdown-toggle[ng-click="certificateCtrl.isActionMenuForAllCertificatesVisible = !certificateCtrl.isActionMenuForAllCertificatesVisible" ng-disabled="certificateCtrl.deleteAllCertificatesProgress.isInProgress"] = svg("three-horizontal-dots")
-								.dropdown[ng-if="certificateCtrl.isActionMenuForAllCertificatesVisible"]
-									button.dropdown-option.delete-all[ng-click="certificateCtrl.deleteAllCertificates()"] == data[:strings][:code_signing][:certificate][:header][:actions][:delete_all]
-						article
-							p.progress-indicator[progress-model="certificateCtrl.loadCertificatesProgress"]
-							p.progress-indicator[progress-model="certificateCtrl.deleteCertificateProgress"]
-							p.progress-indicator[progress-model="certificateCtrl.deleteAllCertificatesProgress"]
-							p.progress-indicator[progress-model="certificateCtrl.changePasswordProgress"]
-							div[ng-if="certificateCtrl.loadCertificatesProgress.isIdle && !certificateCtrl.deleteCertificateProgress.isInProgress && !certificateCtrl.changePasswordProgress.isInProgress && !certificateCtrl.deleteAllCertificatesProgress.isInProgress"]
-								p.notification.no-icon[ng-if="certificateService.certificates.length == 0"] == data[:strings][:code_signing][:certificate][:no_certificates_added_yet]
-								ul.uploaded-files
-									li.uploaded-file[ng-repeat="certificate in certificateService.certificates" ng-init="showPassword = false"]
-										.details
-											.icon[ng-class="{unprocessed: !certificate.isProcessed}"] = svg("code_signing/sheet-certificate")
-											.column.left
-												div[ng-if="!certificate.details || certificate.details.length > 1 || !certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
-													.detail.protected-badge-and-name
-														.protected-badge[ng-if="certificate.isProtected"]
-																.icon-wrapper = svg("lock-closed")
-																span protected
-														.name[ng-bind="certificate.uploadFileName"]
-														.uploading[ng-if="!certificate.isProcessed"]
-															.loader
-																span
-															.loading-text
-																span Uploading file...
-												div[ng-if="certificate.details && certificate.details.length == 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
-													.detail.protected-badge-and-name
-														.protected-badge[ng-if="certificate.isProtected"]
-															.icon-wrapper = svg("lock-closed")
-															span protected
-														.name[ng-bind="certificate.details[0].commonName"]
-													.detail.code.serial[ng-bind="certificate.details[0].serial"]
-													.detail
-														strong.label> == data[:strings][:code_signing][:certificate][:article][:details][:team_data_label] + ":"
-														span[ng-bind="certificate.details[0].teamName + ' (' + certificate.details[0].teamID + ')'"]
-													.detail
-														strong.label>[ng-if="!dateService.isDateExpired(certificate.details[0].endDate)"] == data[:strings][:code_signing][:certificate][:article][:details][:expires_on_label] + ":"
-														.label.warning>[ng-if="dateService.isDateExpired(certificate.details[0].endDate)"] == data[:strings][:code_signing][:certificate][:article][:details][:expired_label] + ":"
-														time[ng-bind="(certificate.details[0].endDate | date: 'MMM, dd, yyyy, HH:mm (UTC)' : 'UTC')" datetime="{{ certificate.details[0].endDate | datetimeValue }}"]
-												p.progress-indicator[progress-model="certificateCtrl.certificateSettings[certificate.databaseID].progress"]
-													span.error-content
-														span[ng-bind-html="certificateCtrl.certificateSettings[certificate.databaseID].progress.statusMessage"]
-														a>[href="javascript:void(0)" ng-click="certificateCtrl.getDetails(certificate)"] == data[:strings][:code_signing][:certificate][:get_details_progress][:try_again_postfix]
-											.column.right.password
-												.label.on-small == data[:strings][:code_signing][:certificate][:header][:password]
-												form[ng-submit="certificateCtrl.changePassword()" name="certificatePasswordForm"]
-													.password-field-wrapper
-														input.password-field[ng-if="showPassword" type="text" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
-														input.password-field[ng-if="!showPassword" type="text" ng-model="codeSigningCtrl.placeholderForText(certificate.password)" ng-model-options="{getterSetter: true}" disabled]
-														eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
-													.change-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
-														input.action.ok.rebo.small.purple.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
-														button.action.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
-												.error-notice[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword && certificate != certificateCtrl.passwordEditedCertificate && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle"]
-													span.icon = svg("triangle")
-													span == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
-											.expose-and-actions
-												.expose-with-popover
-													.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
-														checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress || certificate.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
-														label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]
-												.actions[floating-menu toggle="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
-													button.dropdown-toggle[ng-click="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible = !certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
-													.dropdown[ng-if="certificateCtrl.certificateSettings[certificate.databaseID].isMenuVisible"]
-														a.dropdown-option.download[ng-if="certificate.isProcessed && !certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
-														button.dropdown-option.protect[ng-if="certificate.isProcessed && !certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
-														button.dropdown-option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
-												.actions.small
-													a.option.download[ng-if="certificate.isProcessed && !certificate.isProtected" href="{{ certificate.download() }}"] == data[:strings][:code_signing][:certificate][:article][:actions][:download]
-													button.option.protect[ng-if="certificate.isProcessed && !certificate.isProtected" ng-click="certificateCtrl.makeCertificateProtected(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:protect]
-													button.option.delete[ng-click="certificateCtrl.deleteCertificate(certificate)"] == data[:strings][:code_signing][:certificate][:article][:actions][:delete]
-										.show-more-details[ng-if="certificate.details && certificate.details.length > 1 && certificateCtrl.certificateSettings[certificate.databaseID].progress.isIdle && !certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword"]
-											p.show-more-info == data[:strings][:code_signing][:certificate][:article][:details][:multiple_identities]
-											button.show-more[ng-click="certificateCtrl.showIncludedIdentities(certificate)"]
-												span.container
-													span.icon = svg("member")
-													span == data[:strings][:code_signing][:certificate][:article][:details][:show_included_identities_button_label]
-													span.arrow = svg("arrow_slim-down")
-								p.notification.error[ng-if="certificateService.certificates.length >= certificateCtrl.maximumCertificatesCount"] == data[:strings][:code_signing][:certificate][:upload_count_limit_reached]
-								p.progress-indicator[progress-model="certificateCtrl.uploadCertificatesProgress"]
-								.file-upload[ng-if="!certificateCtrl.uploadCertificatesProgress.isInProgress && certificateService.certificates.length < certificateCtrl.maximumCertificatesCount"]
-									file-uploader[multiple onupload="certificateCtrl.uploadCertificates()" model="certificateCtrl.certificateUploader" on-file-change="certificateCtrl.filesSelectedForUpload($files)"]
-										strong == data[:strings][:code_signing][:certificate][:upload_action]
-										em == data[:strings][:code_signing][:certificate][:upload_instructions]
-						popup[model="certificateCtrl.listOfIdentitiesPopup"]
-							.popup-body.snowflake#list-identities-popup-body.vertical-scroll
-								header.closeable.left-aligned
-									.popup-title
-										.label == data[:strings][:code_signing][:certificate][:identities_list_popup][:header][:title]
-										.certificate-name[ng-bind="certificateCtrl.selectedCertificate.uploadFileName"]
-									button.popup-close[ng-click="certificateCtrl.listOfIdentitiesPopup.isVisible = false"] = svg("cross")
-								article.vertical-scroll
-									ul.identities
-										li.identity[ng-repeat="identity in certificateCtrl.selectedCertificate.details"]
-											.column.left
-												.detail.common-name[ng-bind="identity.commonName"]
-												.detail.serial[ng-bind="identity.serial"]
-											.column.right
-												.detail.team-data
-													strong.label> == data[:strings][:code_signing][:certificate][:article][:details][:team_data_label] + ":"
-													span[ng-bind="identity.teamName + ' (' + identity.teamID + ')'"]
-												.detail.expire-at[ng-class="{'expired': dateService.isDateExpired(identity.endDate)}"]
-													strong.label> == data[:strings][:code_signing][:certificate][:article][:details][:expires_on_label] + ":"
-													strong.label.expired-label> == data[:strings][:code_signing][:certificate][:article][:details][:expired_label] + ":"
-													time[ng-bind="(identity.endDate | date: 'MMM, dd, yyyy, HH:mm (UTC)' : 'UTC')" datetime="{{ identity.endDate | datetimeValue }}"]
+					section.cardo.uppercase.slim.files
+						= partial "templates/tab-code_signing-certificates"
 	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.androidKeystore)" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
 		header
 			h2.label
@@ -344,7 +229,7 @@
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
 								code.env-var[ng-bind="KeystoreFile.androidKeystorePasswordEnvVarKey | prettifiedKey"]
 							input.env-var[type="text" ng-if="androidKeystoreCtrl.showPassword" name="password" ng-model="androidKeystoreCtrl.keystoreFile.password" placeholder="#{ data[:strings][:code_signing][:android_keystore][:password_placeholder] }"]
-							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showPassword" ng-model="codeSigningCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.password)" ng-model-options="{getterSetter: true}" disabled]
+							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showPassword" ng-model="androidKeystoreCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.password)" ng-model-options="{getterSetter: true}" disabled]
 							.show-password
 								checkbox.small[ng-model="androidKeystoreCtrl.showPassword" checkbox-id-expression="'code-signin-android-keystore-show-password-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_password]
@@ -353,7 +238,7 @@
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_alias_as]
 								code.env-var[ng-bind="KeystoreFile.androidKeystoreAliasEnvVarKey | prettifiedKey"]
 							input.env-var[type="text" ng-if="androidKeystoreCtrl.showAlias" name="alias" ng-model="androidKeystoreCtrl.keystoreFile.alias" placeholder="#{ data[:strings][:code_signing][:android_keystore][:alias_placeholder] }"]
-							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showAlias" ng-model="codeSigningCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.alias)" ng-model-options="{getterSetter: true}" disabled]
+							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showAlias" ng-model="androidKeystoreCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.alias)" ng-model-options="{getterSetter: true}" disabled]
 							.show-password
 								checkbox.small[ng-model="androidKeystoreCtrl.showAlias" checkbox-id-expression="'code-signin-android-keystore-show-alias-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-alias-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_alias]
@@ -362,7 +247,7 @@
 								span> == data[:strings][:code_signing][:android_keystore][:private_key_password_as]
 								code.env-var[ng-bind="KeystoreFile.androidKeystorePrivateKeyPasswordEnvVarKey | prettifiedKey"]
 							input.env-var[type="text" ng-if="androidKeystoreCtrl.showPrivateKeyPassword" name="privateKeyPassword" ng-model="androidKeystoreCtrl.keystoreFile.privateKeyPassword" placeholder="#{ data[:strings][:code_signing][:android_keystore][:private_key_password_placeholder] }"]
-							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showPrivateKeyPassword" ng-model="codeSigningCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.privateKeyPassword)" ng-model-options="{getterSetter: true}" disabled]
+							input.env-var[type="text" ng-if="!androidKeystoreCtrl.showPrivateKeyPassword" ng-model="androidKeystoreCtrl.placeholderForText(androidKeystoreCtrl.keystoreFile.privateKeyPassword)" ng-model-options="{getterSetter: true}" disabled]
 							.show-password
 								checkbox.small[ng-model="androidKeystoreCtrl.showPrivateKeyPassword" checkbox-id-expression="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"]
 								label[for="'code-signin-android-keystore-show-private-key-password-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:show_private_key_password]
