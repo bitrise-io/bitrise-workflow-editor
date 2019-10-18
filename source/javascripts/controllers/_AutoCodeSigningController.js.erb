@@ -2,7 +2,7 @@
 
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope) {
+	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope, Progress, appService, requestService) {
 
 		var canceler = $q.defer();
 		$scope.$on("$destroy", function() {
@@ -11,10 +11,112 @@
 
 		var viewModel = this;
 
-		viewModel.init = function() {
-			console.log('Auto Code Signing initialized!');
+		viewModel.steps = [{
+			id: 'upload-certificates'
+		}, {
+			id: 'connect-apple-developer-account'
+		}, {
+			id: 'select-team'
+		}, {
+			id: 'add-trigger'
+		}];
+		viewModel.uploadCertificatesStep = _.find(viewModel.steps, { id: 'upload-certificates' });
+		viewModel.connectAppleDeveloperAccountStep = _.find(viewModel.steps, { id: 'connect-apple-developer-account' });
+		viewModel.selectTeamStep = _.find(viewModel.steps, { id: 'select-team' });
+		viewModel.addTriggerStep = _.find(viewModel.steps, { id: 'add-trigger' });
+		viewModel.activeStep = _.first(viewModel.steps);
+
+		$scope.appService = appService;
+
+		// Steps
+
+		viewModel.numberForStep = function(step) {
+			return _.indexOf(viewModel.steps, step);
 		};
 
+		viewModel.isUpcomingStep = function(step) {
+			return _.indexOf(viewModel.steps, step) > _.indexOf(viewModel.steps, viewModel.activeStep);
+		};
+
+		viewModel.isStepInProgress = function(step) {
+			return step == viewModel.activeStep;
+		};
+
+		viewModel.isStepCompleted = function(step) {
+			return _.indexOf(viewModel.steps, step) < _.indexOf(viewModel.steps, viewModel.activeStep);
+		};
+
+		viewModel.goToNextStep = function() {
+			viewModel.activeStep = viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) + 1];
+		};
+
+		// Upload certificates step
+
+		viewModel.loadCodesigndocScriptProgress = new Progress();
+		viewModel.codesigndocScript;
+		viewModel.certificates = [];
+
+		viewModel.loadCodesigndocScript = function() {
+			viewModel.loadCodesigndocScriptProgress.start('Loading codesigndoc script...');
+
+			requestService.getCodeSigningBashCommand({
+				timeout: canceler.promise
+			}).then(function(data) {
+				viewModel.codesigndocScript = data.bashScriptCommand;
+
+				viewModel.loadCodesigndocScriptProgress.success();
+			}, function(error) {
+				viewModel.loadCodesigndocScriptProgress.error(error);
+			});
+		};
+
+		viewModel.copyCodesigndocScriptToClipboard = function() {
+			console.log('Codesigndoc script copied to clipboard!');
+			// TODO: implement
+		};
+
+		// Connect Apple Developer Account
+
+		viewModel.loadAppleDeveloperAccountProgress = new Progress();
+		viewModel.appleDeveloperAccount;
+		viewModel.connectAppleDeveloperAccountForm;
+		viewModel.connectAppleDeveloperAccountFormData = {
+			appleID: '',
+			password: ''
+		};
+		viewModel.connectAppleDeveloperAccountProgress = new Progress();
+
+		viewModel.loadAppleDeveloperAccount = function() {
+			viewModel.loadAppleDeveloperAccountProgress.start('Loading Apple Developer Account...');
+
+			requestService.getAppleDeveloperAccount({
+				timeout: canceler.promise
+			}).then(function(data) {
+				viewModel.appleDeveloperAccount = data.isAccepted ? data.connectedAccount : null;
+
+				viewModel.loadAppleDeveloperAccountProgress.success();
+			}, function(error) {
+				viewModel.loadAppleDeveloperAccountProgress.error(error);
+			});
+		};
+
+		viewModel.connectAppleDeveloperAccount = function() {
+			viewModel.connectAppleDeveloperAccountProgress.start('Connecting Apple Developer Account...');
+
+			if (!viewModel.connectAppleDeveloperAccountForm.$valid) {
+				viewModel.connectAppleDeveloperAccountProgress.error(new Error('Apple Developer Account credentials are invalid or not fully specified.'));
+
+				return;
+			}
+
+			// TODO: implement
+
+			console.log('Apple Developer Account connected!');
+		};
+
+		// Select team
+
+		viewModel.selectedTeam;
 	});
 
 })();

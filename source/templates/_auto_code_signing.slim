@@ -1,0 +1,65 @@
+.auto-code-signing-body[ng-controller="AutoCodeSigningController as autoCodeSigningCtrl"]
+	.step.upload-certificate
+		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep)"]
+			.step-header
+				strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.uploadCertificatesStep) }}
+				em Upload your certificates
+			.step-body[ng-init="autoCodeSigningCtrl.loadCodesigndocScript()"]
+				p.progress-indicator[progress-model="autoCodeSigningCtrl.loadCodesigndocScriptProgress"]
+				button.rebo.purple[ng-if="autoCodeSigningCtrl.loadCodesigndocScriptProgress.isError" ng-click="autoCodeSigningCtrl.loadCodesigndocScript()"] Try again
+				div[ng-if="!autoCodeSigningCtrl.loadCodesigndocScriptProgress.isInProgress && !autoCodeSigningCtrl.loadCodesigndocScriptProgress.isError"]
+					p
+						strong Run this script from your terminal
+						span< - Codesigndoc will find and export your Certificates.
+					.snippet
+						pre
+							code[ng-bind="autoCodeSigningCtrl.codesigndocScript"]
+						button[ng-click="autoCodeSigningCtrl.copyCodesigndocScriptToClipboard()"]
+					p
+						span After running the script,
+						strong< upload all exported files
+						span< below:
+					/ TODO: implement (remove false condition from button below)
+					button[ng-disabled="false && autoCodeSigningCtrl.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
+		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)"] Certificates uploaded
+	.step.connect-apple-developer-account
+		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"] Connect your Apple Developer Account
+		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
+			.step-header
+				strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep) }}
+				em Connect your Apple Developer Account
+			.step-body[ng-init="autoCodeSigningCtrl.loadAppleDeveloperAccount()"]
+				p.progress-indicator[progress-model="autoCodeSigningCtrl.loadAppleDeveloperAccountProgress"]
+				button.rebo.purple[ng-if="autoCodeSigningCtrl.loadAppleDeveloperAccountProgress.isError" ng-click="autoCodeSigningCtrl.loadAppleDeveloperAccount()"] Try again
+				div[ng-if="autoCodeSigningCtrl.appleDeveloperAccount !== undefined"]
+					form[name="autoCodeSigningCtrl.connectAppleDeveloperAccountForm" ng-submit="autoCodeSigningCtrl.connectAppleDeveloperAccount()" ng-if="!autoCodeSigningCtrl.appleDeveloperAccount"]
+						h2 Sync your account with Bitrise
+						p Needed for seamless profile management
+						section
+							label Apple ID
+							input[name="appleID" type="text" required autocomplete="apple-id" autocorrect="off" autocapitalize="none" spellcheck="false" ng-model="autoCodeSigningCtrl.connectAppleDeveloperAccountFormData.appleID"]
+						section
+							label Password
+							input[name="password" type="password" required autocomplete="password" autocorrect="off" autocapitalize="none" spellcheck="false" ng-model="autoCodeSigningCtrl.connectAppleDeveloperAccountFormData.password"]
+						input[type="submit" value="Store credentials"]
+					div[ng-if="autoCodeSigningCtrl.appleDeveloperAccount"]
+					button[ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
+		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"] Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.username }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.email }})
+	.step.select-team
+		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.selectTeamStep)"] Select a default Development Team for {{ appService.appDetails.title }}
+		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep)"]
+			.step-header
+				strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.selectTeamStep) }}
+				em Select a default Development Team for {{ appService.appDetails.title }}
+			.step-body
+				button[ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
+		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)"] Selected Development Team for {{ appService.appDetails.title }} is {{ autoCodeSigningCtrl.selectedTeam.name }}
+	.step.add-trigger
+		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.addTriggerStep)"]
+		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.addTriggerStep)"]
+			h2 You're almost done!
+			p Now you just need to do finish up, sit back, and enjoy some smooth code signing:
+			ol
+				li Add the iOS Auto Provisioning Step to your Workflow.
+				li Start a build.
+			a[href="#{ data[:routes][:endpoints][:workflows] }"] Go to your Workflows

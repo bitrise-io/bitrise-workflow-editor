@@ -24,7 +24,7 @@ website:
   app_update: /api/app/<app_slug>.json
   app_config_post: /api/app/<app_slug>/config.json
   app_config_get: /api/app/<app_slug>/config.json
-  app_codesigndoc_script_get: /api/app/<app_slug>/codesigndoc'
+  app_codesigndoc_script_get: /api/app/<app_slug>/codesigndoc.json'
   current_user_get: /me/profile.json
   yml_post: /api/app/<app_slug>/config.json
   yml_get:  /api/app/<app_slug>/config.yml

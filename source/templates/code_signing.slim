@@ -26,13 +26,14 @@
 					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
 					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
 	div[ng-if="!codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.provProfile) && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
-		.auto-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === true" ng-controller="AutoCodeSigningController as autoCodeSigningCtrl" ng-init="autoCodeSigningCtrl.init()"]
+		.auto-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === true"]
 			header
 				.icon = svg("bolt")
 				.summary
 					h2 == data[:strings][:code_signing][:auto_code_signing][:header][:title]
 					p == data[:strings][:code_signing][:auto_code_signing][:header][:summary]
 				button.manual-code-signing[ng-click="codeSigningCtrl.isAutoCodeSigningModeOn = false"] == data[:strings][:code_signing][:auto_code_signing][:header][:action]
+			= partial "templates/auto_code_signing"
 		.manual-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === false"]
 			section.cardo.slim[ng-if="codeSigningCtrl.showNewCodeSigningWizard"]
 				header
