@@ -1,9 +1,11 @@
 .auto-code-signing-body[ng-controller="AutoCodeSigningController as autoCodeSigningCtrl"]
-	.step.upload-certificate
+	.step.upload-certificate[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)}"]
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.uploadCertificatesStep)"]
 			.step-header
-				strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.uploadCertificatesStep) }}
-				em Upload your certificates
+				.icon
+				.text
+					strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.uploadCertificatesStep) }}
+					em Upload your certificates
 			.step-body[ng-init="autoCodeSigningCtrl.loadCodesigndocScript()"]
 				p.progress-indicator[progress-model="autoCodeSigningCtrl.loadCodesigndocScriptProgress"]
 				button.rebo.purple[ng-if="autoCodeSigningCtrl.loadCodesigndocScriptProgress.isError" ng-click="autoCodeSigningCtrl.loadCodesigndocScript()"] Try again
@@ -20,14 +22,20 @@
 						strong< upload all exported files
 						span< below:
 					/ TODO: implement (remove false condition from button below)
-					button[ng-disabled="false && autoCodeSigningCtrl.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
-		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)"] Certificates uploaded
-	.step.connect-apple-developer-account
-		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"] Connect your Apple Developer Account
+					button.rebo.purple.wide.big[ng-disabled="false && autoCodeSigningCtrl.certificates.length == 0" ng-click="autoCodeSigningCtrl.goToNextStep()"] Next
+		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.uploadCertificatesStep)"]
+			.icon
+			.text Certificates uploaded
+	.step.connect-apple-developer-account[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)}"]
+		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
+			.icon
+			.text Connect your Apple Developer Account
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
 			.step-header
-				strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep) }}
-				em Connect your Apple Developer Account
+				.icon
+				.text
+					strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.connectAppleDeveloperAccountStep) }}
+					em Connect your Apple Developer Account
 			.step-body[ng-init="autoCodeSigningCtrl.loadAppleDeveloperAccount()"]
 				p.progress-indicator[progress-model="autoCodeSigningCtrl.loadAppleDeveloperAccountProgress"]
 				button.rebo.purple[ng-if="autoCodeSigningCtrl.loadAppleDeveloperAccountProgress.isError" ng-click="autoCodeSigningCtrl.loadAppleDeveloperAccount()"] Try again
@@ -35,7 +43,7 @@
 					div[ng-if="!autoCodeSigningCtrl.appleDeveloperAccount"]
 						p.progress-indicator[progress-model="autoCodeSigningCtrl.connectAppleDeveloperAccountProgress"]
 						div[ng-if="!autoCodeSigningCtrl.connectAppleDeveloperAccountProgress.isInProgress"]
-							form[ng-if="!autoCodeSigningCtrl.appleDeveloperAccountConnectionConfig" name="autoCodeSigningCtrl.connectAppleDeveloperAccountForm" ng-submit="autoCodeSigningCtrl.connectAppleDeveloperAccount()"]
+							form.connect-apple-developer-account[ng-if="!autoCodeSigningCtrl.appleDeveloperAccountConnectionConfig" name="autoCodeSigningCtrl.connectAppleDeveloperAccountForm" ng-submit="autoCodeSigningCtrl.connectAppleDeveloperAccount()"]
 								h2 Sync your account with Bitrise
 								p Needed for seamless profile management
 								section
@@ -44,8 +52,8 @@
 								section
 									label Password
 									input[name="password" type="password" required autocomplete="password" autocorrect="off" autocapitalize="none" spellcheck="false" ng-model="autoCodeSigningCtrl.connectAppleDeveloperAccountFormData.password"]
-								input.rebo.purple[type="submit" value="Store credentials" ng-disabled="!autoCodeSigningCtrl.connectAppleDeveloperAccountForm.$valid"]
-							div[ng-if="autoCodeSigningCtrl.isTwoStepAuthRequired"]
+								input.rebo.purple.big.wide[type="submit" value="Store credentials" ng-disabled="!autoCodeSigningCtrl.connectAppleDeveloperAccountForm.$valid"]
+							.additional-authentication.two-step[ng-if="autoCodeSigningCtrl.isTwoStepAuthRequired"]
 								section
 									p
 										span Accounts with Two step authentication will require a new verification code
@@ -54,21 +62,21 @@
 										span If you prefer to connect without it, please
 										a<[href="https://appleid.apple.com/account/manage" target="_blank" rel="noreferrer noopener"] disable it from your Apple Account
 										span .
-								section
+								section.select-device
 									p Select device to use for verification
-									button[ng-repeat="device in autoCodeSigningCtrl.appleDeveloperAccountConnectionConfig.trustedDevices track by $index" ng-click="autoCodeSigningCtrl.selectedTrustedDevice = device" ng-class="{ 'active' : autoCodeSigningCtrl.selectedTrustedDevice == device }"] ID: {{ device.id }} ({{ device.phoneNumber }})
-								section[ng-if="autoCodeSigningCtrl.selectedTrustedDevice"]
+									button.device[ng-repeat="device in autoCodeSigningCtrl.appleDeveloperAccountConnectionConfig.trustedDevices track by $index" ng-click="autoCodeSigningCtrl.selectedTrustedDevice = device" ng-class="{ 'active' : autoCodeSigningCtrl.selectedTrustedDevice == device }"] ID: {{ device.id }} ({{ device.phoneNumber }})
+								section.verification-code[ng-if="autoCodeSigningCtrl.selectedTrustedDevice"]
 									p Enter the code to continue
 									p Check your device for the message with the verification code
 									p.progress-indicator[progress-model="autoCodeSigningCtrl.sendTwoStepAuthVerificationCodeProgress"]
-									form[ng-if="!autoCodeSigningCtrl.sendTwoStepAuthVerificationCodeProgress.isInProgress" name="autoCodeSigningCtrl.twoStepAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoStepAuthVerificationCode()"]
+									form.enter-digits[ng-if="!autoCodeSigningCtrl.sendTwoStepAuthVerificationCodeProgress.isInProgress" name="autoCodeSigningCtrl.twoStepAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoStepAuthVerificationCode()"]
 										.digits
 											input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.firstDigit" name="firstDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 											input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.secondDigit" name="secondDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 											input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.thirdDigit" name="thirdDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 											input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.fourthDigit" name="fourthDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 										input.rebo.purple[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoStepAuthVerificationCodeFormData.$valid"]
-							div[ng-if="autoCodeSigningCtrl.isTwoFactorAuthRequired"]
+							.additional-authentication.two-factor[ng-if="autoCodeSigningCtrl.isTwoFactorAuthRequired"]
 								section
 									p
 										span Accounts with Two factor authentication will require a new verification code
@@ -77,11 +85,11 @@
 										span If you prefer to connect without it, please
 										a<[href="https://appleid.apple.com/account/manage" target="_blank" rel="noreferrer noopener"] disable it from your Apple Account
 										span .
-								section
+								section.verification-code
 									p Enter the code to continue
 									p Check your device for the message with the verification code
 									p.progress-indicator[progress-model="autoCodeSigningCtrl.sendTwoFactorAuthVerificationCodeProgress"]
-									form[ng-if="!autoCodeSigningCtrl.sendTwoFactorAuthVerificationCodeProgress.isInProgress" name="autoCodeSigningCtrl.twoFactorAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoFactorAuthVerificationCode()"]
+									form.enter-digits[ng-if="!autoCodeSigningCtrl.sendTwoFactorAuthVerificationCodeProgress.isInProgress" name="autoCodeSigningCtrl.twoFactorAuthVerificationCodeForm" ng-submit="autoCodeSigningCtrl.sendTwoFactorAuthVerificationCode()"]
 										.digits
 											input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.firstDigit" name="firstDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
 											input.digit[type="text" numbers-only min="0" max="9" maxlength="1" ng-model="autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.secondDigit" name="secondDigit" required autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false"]
@@ -92,16 +100,24 @@
 										input.rebo.purple[type="submit" value="Enter verification code" ng-disabled="!autoCodeSigningCtrl.twoFactorAuthVerificationCodeFormData.$valid"]
 					div[ng-if="autoCodeSigningCtrl.appleDeveloperAccount"]
 						/ TODO: implement
-		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"] Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.username }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.email }})
-	.step.select-team
-		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.selectTeamStep)"] Select a default Development Team for {{ appService.appDetails.title }}
+		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.connectAppleDeveloperAccountStep)"]
+			.icon
+			.text Apple account: {{ autoCodeSigningCtrl.appleDeveloperAccount.username }} ({{ autoCodeSigningCtrl.appleDeveloperAccount.email }})
+	.step.select-team[ng-class="{'in-progress': autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep), 'completed': autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)}"]
+		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.selectTeamStep)"]
+			.icon
+			.text Select a default Development Team for {{ appService.appDetails.title }}
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.selectTeamStep)"]
 			.step-header
-				strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.selectTeamStep) }}
-				em Select a default Development Team for {{ appService.appDetails.title }}
+				.icon
+				.text
+					strong Step {{ autoCodeSigningCtrl.numberForStep(autoCodeSigningCtrl.selectTeamStep) }}
+					em Select a default Development Team for {{ appService.appDetails.title }}
 			.step-body
 				/ TODO: implement
-		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)"] Selected Development Team for {{ appService.appDetails.title }} is {{ autoCodeSigningCtrl.selectedTeam.name }}
+		.completed[ng-if="autoCodeSigningCtrl.isStepCompleted(autoCodeSigningCtrl.selectTeamStep)"]
+			.icon
+			.text Selected Development Team for {{ appService.appDetails.title }} is {{ autoCodeSigningCtrl.selectedTeam.name }}
 	.step.add-trigger
 		.upcoming[ng-if="autoCodeSigningCtrl.isUpcomingStep(autoCodeSigningCtrl.addTriggerStep)"]
 		.in-progress[ng-if="autoCodeSigningCtrl.isStepInProgress(autoCodeSigningCtrl.addTriggerStep)"]
@@ -110,4 +126,4 @@
 			ol
 				li Add the iOS Auto Provisioning Step to your Workflow.
 				li Start a build.
-			a[href="#{ data[:routes][:endpoints][:workflows] }"] Go to your Workflows
+			a.rebo.purple.big.wide[href="#{ data[:routes][:endpoints][:workflows] }"] Go to your Workflows
