@@ -1,6 +1,54 @@
-## Changelog (Current version: 1.1.60)
+## Changelog (Current version: 1.1.61)
 
 -----------------
+
+## 1.1.61 (2019 Oct 21)
+
+### Release Notes
+
+* Add changInputFocusWhenFilled functionality (#394)
+* Add auto code signing mode to code signing tab (#393)
+* Add copy-to-clipboard functionality (#392)
+* Add file type menus to code signing tab (#391)
+* Add apple developer portal endpoints (#390)
+* Add machine type selector (#389)
+* Get plan of an organization (for machine type selector) (#388)
+* Tool 709 review workflow editor validation (#384)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.61
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.60 -> 1.1.61
+
+* [7000281] Norbert Kovach - Add changInputFocusWhenFilled functionality (#394) (2019 Oct 18)
+* [62f1c7b] erosdome - Add auto code signing mode to code signing tab (#393) (2019 Oct 18)
+* [b84a5ad] Norbert Kovach - Add copy-to-clipboard functionality (#392) (2019 Oct 18)
+* [5337def] erosdome - Add file type menus to code signing tab (#391) (2019 Oct 18)
+* [7045c92] Norbert Kovach - Add apple developer portal endpoints (#390) (2019 Oct 17)
+* [985de7e] Norbert Kovach - Add machine type selector (#389) (2019 Oct 17)
+* [bcd4250] Norbert Kovach - Get plan of an organization (for machine type selector) (#388) (2019 Oct 14)
+* [0850828] lszucs - Tool 709 review workflow editor validation (#384) (2019 Oct 02)
+
 
 ## 1.1.60 (2019 Sep 30)
 
@@ -3616,4 +3664,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Sep 30
+Updated: 2019 Oct 21
