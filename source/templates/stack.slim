@@ -25,16 +25,25 @@
 				h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
 				.machine-types
 					.machine-type-wrapper[ng-repeat="machineType in stackCtrl.defaultMachineTypeOptions() track by machineType.id" ng-click="stackCtrl.setNewDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id}" class="{{ machineType.stackType }}"]
-						.machine-type-icon[ng-if="machineType.cssClass == 'performance'"] == svg("performance-machine-type-icon")
+						.machine-type-icon[ng-if="machineType.cssClass == 'elite_xl'"] == svg("elite_xl-machine-type-icon")
 						.machine-type-icon[ng-if="machineType.cssClass == 'elite'"] == svg("elite-machine-type-icon")
 						.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 						.machine-type-data
-							.name[ng-bind="machineType.name"]
-							.cpu-count[ng-bind="machineType.cpuCount"]
-							.cpu-description[ng-bind="machineType.cpuDescription"]
-							.cpu-ram[ng-bind="machineType.ram"]
-						.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
-						.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
+							.top
+								span.icon-and-name
+									span.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
+									span.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
+									span.name[ng-bind="machineType.name"]
+								span.credit-per-min
+									span.value[ng-bind="machineType.creditPerMin"]
+									span.unit< credit/min
+							.separator
+							.bottom
+								span.cpu
+									span.count[ng-bind="machineType.cpuCount"]
+									span.at @
+									span.description[ng-bind="machineType.cpuDescription"]
+								span.ram[ng-bind="machineType.ram"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
 	section.cardo.stack-settings.workflow-specific
 		header
@@ -60,14 +69,23 @@
 					h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
 					.machine-types
 						.machine-type-wrapper[ng-repeat="machineType in appService.availableMachineTypes(workflow)" ng-click="stackCtrl.setNewDefaultMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.selectedWorkflowSpecificMachineType(workflow).id}" class="{{ machineType.stackType }}"]
-							.machine-type-icon[ng-if="machineType.cssClass == 'performance'"] == svg("performance-machine-type-icon")
+							.machine-type-icon[ng-if="machineType.cssClass == 'elite_xl'"] == svg("elite_xl-machine-type-icon")
 							.machine-type-icon[ng-if="machineType.cssClass == 'elite'"] == svg("elite-machine-type-icon")
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 							.machine-type-data
-								.name[ng-bind="machineType.name"]
-								.cpu-count[ng-bind="machineType.cpuCount"]
-								.cpu-description[ng-bind="machineType.cpuDescription"]
-								.cpu-ram[ng-bind="machineType.ram"]
-							.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
-							.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
+								.top
+									span.icon-and-name
+										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
+										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
+										span.name[ng-bind="machineType.name"]
+									span.credit-per-min
+										span.value[ng-bind="machineType.creditPerMin"]
+										span.unit< credit/min
+								.separator
+								.bottom
+									span.cpu
+										span.count[ng-bind="machineType.cpuCount"]
+										span.at @
+										span.description[ng-bind="machineType.cpuDescription"]
+									span.ram[ng-bind="machineType.ram"]
 						/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
