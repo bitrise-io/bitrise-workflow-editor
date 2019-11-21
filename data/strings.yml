@@ -8,7 +8,7 @@ main:
     env_vars: Env Vars
     triggers: Triggers
     stack: Stack
-    stack_and_machine: Stack & Machine
+    stacks_and_machines: Stacks & Machines
     yml: bitrise.yml
   discard: Discard
   save: Save

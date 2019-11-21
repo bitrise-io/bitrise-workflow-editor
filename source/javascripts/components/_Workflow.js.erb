@@ -131,10 +131,10 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 			}
 
 			if (machineType !== null) {
-				this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type = machineType.id.replace(stackID + "-", "");
+				this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id = machineType.id.replace(stackID + "-", "");
 			}
 			else {
-				delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type;
+				delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 			}
 
 			if (_.isEmpty(this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"])) {
@@ -145,12 +145,12 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 			}
 		}
 
-		if (!this.workflowConfig.meta || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type) {
+		if (!this.workflowConfig.meta || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id) {
 			return null;
 		}
 
 		return _.find(machineTypes, {
-			id: stackID + "-" + this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type
+			id: stackID + "-" + this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
 		});
 	};
 

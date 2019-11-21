@@ -145,46 +145,117 @@
 					.machine-type-data {
 						display: flex;
 						flex-direction: column;
+						justify-content: space-around;
 						margin-left: 16px;
+						width: 100%;
 						overflow: hidden;
 
-						.name {
-							font-size: 16px;
-							font-weight: bold;
-							font-style: normal;
-							font-stretch: normal;
-							line-height: 1.19;
-							letter-spacing: 0.07px;
-							margin-right: 28px;
-							color: $def-darkgrey;
-							@include ellipsis-oneliner;
+						.top {
+							display: flex;
+							align-items: center;
+							width: 100%;
+
+							.icon-and-name {
+								display: flex;
+								align-items: center;
+								margin-right: 12px;
+
+								.stack-type-icon {
+									margin-right: 8px;
+
+									svg {
+										width: 16px;
+										height: 18px;
+										fill: $def-darkgrey;
+									}
+								}
+
+								.name {
+									font-size: 20px;
+									font-weight: bold;
+									font-style: normal;
+									font-stretch: normal;
+									line-height: 1;
+									letter-spacing: 0.08px;
+									color: $def-darkgrey;
+									@include ellipsis-oneliner;
+								}
+							}
+
+							.credit-per-min {
+								width: 100%;
+								text-align: right;
+
+								.value, .unit {
+									font-size: 16px;
+									font-weight: bold;
+									font-style: normal;
+									font-stretch: normal;
+									line-height: initial;
+									letter-spacing: 0.07px;
+									color: $def-darkgrey;
+									@include ellipsis-oneliner;
+								}
+							}
 						}
 
-						.cpu-count, .cpu-description, .cpu-ram {
-							font-size: 13px;
-							font-weight: 500;
-							font-style: normal;
-							font-stretch: normal;
-							line-height: 1.46;
-							letter-spacing: 0.05px;
-							color: $def-darkgrey;
-							@include ellipsis-oneliner;
+						.separator {
+							height: 1px;
+							margin-bottom: 3px;
+							background-color: $def-verylightgrey;
+						}
+
+						.bottom {
+							display: flex;
+							align-items: center;
+							width: 100%;
+
+							.cpu {
+								display: flex;
+								align-items: center;
+								margin-right: 12px;
+
+								.count, .at, .description {
+									font-size: 16px;
+									font-weight: 500;
+									font-style: normal;
+									font-stretch: normal;
+									line-height: 1.19;
+									letter-spacing: 0.07px;
+									color: $def-darkgrey;
+									@include ellipsis-oneliner;
+								}
+
+								.at {
+									margin-left: 2px;
+									margin-right: 2px;
+								}
+							}
+
+							.ram {
+								width: 100%;
+								font-size: 16px;
+								font-weight: 500;
+								font-style: normal;
+								font-stretch: normal;
+								line-height: 1.19;
+								letter-spacing: 0.07px;
+								text-align: right;
+								color: $def-darkgrey;
+								@include ellipsis-oneliner;
+							}
 						}
 					}
 
-					.machine-type-icon svg {
-						top: 0px;
-						@include size(70px, 70px);
-						fill: $def-darkgrey;
-					}
+					.machine-type-icon {
+						display: flex;
+						align-items: center;
 
-					.stack-type-icon svg {
-						position: absolute;
-						width: 16px;
-						height: 18px;
-						top: 12px;
-						right: 12px;
-						fill: $def-darkgrey;
+						svg {
+							top: 0px;
+							@include size(70px, 70px);
+							fill: $def-darkgrey;
+						}
 					}
 
 					&.selected {
@@ -193,12 +264,23 @@
 
 						.machine-type-data {
 
-							.name, .cpu-count, .cpu-description, .cpu-ram {
-								color: $rebo-purple-gradient-hover-bottom;
+							.top, .bottom {
+
+								.name, .count, .at, .description, .ram, .value, .unit {
+									color: $rebo-purple-gradient-hover-bottom;
+								}
+
+								.stack-type-icon svg {
+									fill: $rebo-purple-gradient-hover-bottom;
+								}
+							}
+
+							.separator {
+								background-color: $def-violet_blue;
 							}
 						}
 
-						.machine-type-icon svg, .stack-type-icon svg {
+						.machine-type-icon svg {
 							fill: $rebo-purple-gradient-hover-bottom;
 						}
 					}
@@ -210,14 +292,70 @@
 
 						.machine-type-data {
 
-							.name, .cpu-count, .cpu-description, .cpu-ram {
-								cursor: pointer;
-								color: $def-violet_blue;
+							.top, .bottom {
+
+								.name, .count, .at, .description, .ram, .value, .unit {
+									cursor: pointer;
+									color: $def-violet_blue;
+								}
+
+								.stack-type-icon svg {
+									fill: $def-violet_blue;
+								}
+							}
+
+							.separator {
+								background-color: $def-violet_blue;
 							}
 						}
 
-						.machine-type-icon svg, .stack-type-icon svg {
+						.machine-type-icon svg {
 							fill: $def-violet_blue;
+						}
+					}
+
+					@include media-below-mid {
+
+						.machine-type-data {
+							.separator {
+								margin-top: 9px;
+								margin-bottom: 9px;
+							}
+
+							.top, .bottom {
+								flex-direction: column;
+								align-items: flex-start;
+
+								.icon-and-name {
+									margin-right: 0;
+								}
+
+								.credit-per-min, .ram {
+									text-align: left;
+								}
+
+								.cpu {
+									flex-direction: column;
+									align-items: flex-start;
+									margin-right: 0;
+								}
+
+								.at {
+									display: none;
+								}
+
+								.name, .credit-per-min .cpu {
+									margin-bottom: 6px;
+								}
+							}
+						}
+					}
+
+					@media only screen and (max-width: 360px) {
+						min-width: auto;
+
+						.machine-type-icon {
+							display: none;
 						}
 					}
 				}

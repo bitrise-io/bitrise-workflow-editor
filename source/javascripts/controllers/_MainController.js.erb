@@ -101,27 +101,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 						appService.getAppConfig(),
 						Stack.getAll().then(appService.getStack),
 						appService.getProjectType()
-					]).then(function() {
-						if (requestService.mode == "website" && appService.appDetails.ownerData.type == 'Organization') {
-							requestService.getOrganizationData({organizationSlug: appService.appDetails.ownerData.slug}).then(function(response) {
-								if (response.currentPlan.id == "pay-as-you-build") {
-									appService.isOwnerOnPayAsYouBuildPlan = true;
-
-									viewModel.currentMenu.title = "<%= data[:strings][:main][:menus][:stack_and_machine] %>";
-								}
-
-								resolve();
-							}, function(error) {
-								// Not breaks the UI if the current user is an outside contributor admin on the app.
-								resolve();
-							});
-						}
-						else {
-							resolve();
-						}
-					}, function(error) {
-						reject(error);
-					});
+					]).then(resolve, reject);
 
 					break;
 				case "yml":
@@ -224,7 +204,10 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 				$location.path("/" + menu.path).replace();
 			}
 
-			viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
+			if (!selectInitialMenu) {
+				viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
+			}
+
 			if (shouldCallLoadAfterMenuChange) {
 				load();
 			}
@@ -523,9 +506,20 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					break;
 			}
 		}).then(function() {
-			appService.getAppDetails();
-			viewModel.initAppProgress.success();
-			selectInitialMenu();
+			appService.getAppDetails().then(function() {
+				appService.getAccountData().then(function() {
+					if (requestService.mode == "website" && appService.isOwnerOnPayAsYouBuildPlan) {
+						var stackMenu = _.find(viewModel.menus, {
+							id: "stack"
+						});
+
+						stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+					}
+
+					viewModel.initAppProgress.success();
+					selectInitialMenu();
+				});
+			});
 		}).catch( function(hasError) {
 			viewModel.initAppProgress.error(hasError);
 		});

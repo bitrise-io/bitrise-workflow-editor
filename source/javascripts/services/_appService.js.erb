@@ -23,7 +23,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		projectType: undefined,
 		availableProjectTypes: undefined,
 		validationWarnings: [],
-		isOwnerOnPayAsYouBuildPlan: undefined
+		isOwnerOnPayAsYouBuildPlan: undefined,
+		accountData: undefined
 	};
 
 	appService.getAppDetails = function(requestConfig) {
@@ -222,8 +223,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 			}
 
-			if (appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type != appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "")) {
-				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type = appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "");
+			if (appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id != appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "")) {
+				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id = appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "");
 			}
 
 			appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
@@ -236,7 +237,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.appConfigYML = undefined;
 			appService.savedAppConfigYML = undefined;
 
-			if (!appService.isOwnerOnPayAsYouBuildPlan) {
+			if (appService.isOwnerOnPayAsYouBuildPlan) {
 				appService.getDefaultMachineType();
 			}
 		});
@@ -349,6 +350,25 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 	};
 
+	appService.getAccountData = function(requestConfig) {
+		if (!appService.appDetails) {
+			return undefined;
+		}
+
+		switch (appService.appDetails.ownerData.type) {
+			case "User":
+				return undefined;
+			case "Organization":
+				return requestService.getOrganizationData({organizationSlug: appService.appDetails.ownerData.slug}).then(function(organizationData) {
+					appService.accountData = organizationData;
+
+					if (appService.accountData.currentPlan.id == "pay-as-you-build") {
+						appService.isOwnerOnPayAsYouBuildPlan = true;
+					}
+				});
+		}
+	};
+
 	appService.availableMachineTypes = function(workflow) {
 		if (!appService.isOwnerOnPayAsYouBuildPlan || MachineType.all === undefined || appService.savedStack === undefined) {
 			return undefined;
@@ -380,12 +400,12 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 		var defaultMachineTypeID;
 		var stackType = appService.savedStack.id.split('-')[0];
-		if (!appService.appConfig.meta || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type) {
+		if (!appService.appConfig.meta || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id) {
 			defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
 		}
 
 		if (!defaultMachineTypeID) {
-			defaultMachineTypeID = stackType + '-' + appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type;
+			defaultMachineTypeID = stackType + '-' + appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 		}
 
 		appService.defaultMachineType = _.find(MachineType.all, {
@@ -423,7 +443,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
 			appService.denTags = appService.savedDenTags = data.denTags.join(", ");
 
-			if (!appService.isOwnerOnPayAsYouBuildPlan) {
+			if (appService.isOwnerOnPayAsYouBuildPlan) {
 				MachineType.getAll().then(appService.getDefaultMachineType);
 			}
 		});
