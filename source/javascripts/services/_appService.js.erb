@@ -352,12 +352,12 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 	appService.getAccountData = function(requestConfig) {
 		if (!appService.appDetails) {
-			return undefined;
+			return $q.when();
 		}
 
 		switch (appService.appDetails.ownerData.type) {
 			case "User":
-				return undefined;
+				return $q.when();
 			case "Organization":
 				return requestService.getOrganizationData({organizationSlug: appService.appDetails.ownerData.slug}).then(function(organizationData) {
 					appService.accountData = organizationData;
