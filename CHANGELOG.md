@@ -1,8 +1,8 @@
-## Changelog (Current version: 1.62)
+## Changelog (Current version: 1.1.62)
 
 -----------------
 
-## 1.62 (2019 Nov 21)
+## 1.1.62 (2019 Nov 21)
 
 ### Release Notes
 
@@ -15,7 +15,7 @@
 To install this version, run the following commands (in a bash shell):
 
 ```
-bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.62
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.62
 ```
 
 To update the already installed plugin to the latest version:
@@ -32,7 +32,7 @@ To run the workflow editor plugin call:
 bitrise :workflow-editor
 ```
 
-### Release Commits - 1.1.61 -> 1.62
+### Release Commits - 1.1.61 -> 1.1.62
 
 * [70ba43f] Norbert Kovach - Update machine type selector (#396) (2019 Nov 21)
 * [84df9e0] Norbert Kovach - Fix machine type selector visibility (#395) (2019 Oct 24)
