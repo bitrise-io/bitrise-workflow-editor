@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.62)
+## Changelog (Current version: 1.1.63)
 
 -----------------
+
+## 1.1.63 (2019 Nov 21)
+
+### Release Notes
+
+* Fix tag (#399)
+* Return with promise instead of undefined (#398)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.63
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.62 -> 1.1.63
+
+* [023d9f0] Norbert Kovach - Fix tag (#399) (2019 Nov 21)
+* [0851dfd] erosdome - Return with promise instead of undefined (#398) (2019 Nov 21)
+
 
 ## 1.1.62 (2019 Nov 21)
 
