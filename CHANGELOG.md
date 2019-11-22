@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.63)
+## Changelog (Current version: 1.1.64)
 
 -----------------
+
+## 1.1.64 (2019 Nov 22)
+
+### Release Notes
+
+* Fix issue related to Outside contributor authorization (#400)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.64
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.63 -> 1.1.64
+
+* [3a0330e] Norbert Kovach - Fix issue related to Outside contributor authorization (#400) (2019 Nov 22)
+
 
 ## 1.1.63 (2019 Nov 21)
 
@@ -3736,4 +3770,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Nov 21
+Updated: 2019 Nov 22
