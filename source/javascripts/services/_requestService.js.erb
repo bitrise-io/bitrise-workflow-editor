@@ -644,7 +644,12 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					pendingPlan: pendingPlan
 				});
 			}, function(response) {
-				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_organization_data][:default_error] %>", "<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"));
+				if (response && response.status == 404) {
+					resolve();
+				}
+				else {
+					reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_organization_data][:default_error] %>", "<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"));
+				}
 			});
 		});
 	};

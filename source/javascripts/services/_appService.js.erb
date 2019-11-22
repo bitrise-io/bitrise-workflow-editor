@@ -360,6 +360,10 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 				return $q.when();
 			case "Organization":
 				return requestService.getOrganizationData({organizationSlug: appService.appDetails.ownerData.slug}).then(function(organizationData) {
+					if (!organizationData) {
+						return;
+					}
+
 					appService.accountData = organizationData;
 
 					if (appService.accountData.currentPlan.id == "pay-as-you-build") {
