@@ -55,4 +55,12 @@ BitriseWorkflowEditor.config(function($routeProvider) {
 
 });
 
+BitriseWorkflowEditor.config([
+	'$httpProvider',
+	function($httpProvider) {
+		$httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
+		$httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
+	}
+])
+
 })();
