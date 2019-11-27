@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.64)
+## Changelog (Current version: 1.1.65)
 
 -----------------
+
+## 1.1.65 (2019 Nov 27)
+
+### Release Notes
+
+* Rename XSRF token (#401)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.65
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.64 -> 1.1.65
+
+* [376756d] Simon Márton - Rename XSRF token (#401) (2019 Nov 27)
+
 
 ## 1.1.64 (2019 Nov 22)
 
@@ -3770,4 +3804,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Nov 22
+Updated: 2019 Nov 27
