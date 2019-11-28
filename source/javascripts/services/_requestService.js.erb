@@ -645,7 +645,10 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				});
 			}, function(response) {
 				if (response && response.status == 404) {
-					resolve();
+					reject({
+						errorCode: 404,
+						errorMessage: errorFromResponse(response, "<%= data[:strings][:request_service][:get_organization_data][:not_found_error] %>", "<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>")
+					});
 				}
 				else {
 					reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_organization_data][:default_error] %>", "<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"));
