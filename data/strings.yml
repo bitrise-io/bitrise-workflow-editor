@@ -694,6 +694,7 @@ request_service:
     error_prefix: "Error loading app available project types: "
   get_organization_data:
     default_error: Error loading Organization plans.
+    not_found_error: You are not a member of the Organization or Organization does not exist.
     error_prefix: "Error loading Organization plans: "
     not_website_mode_error: Organization plans get is only available in website mode.
   get_machine_types:

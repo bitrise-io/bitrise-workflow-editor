@@ -507,17 +507,34 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 			}
 		}).then(function() {
 			appService.getAppDetails().then(function() {
-				appService.getAccountData().then(function() {
-					if (requestService.mode == "website" && appService.isOwnerOnPayAsYouBuildPlan) {
-						var stackMenu = _.find(viewModel.menus, {
-							id: "stack"
-						});
-
-						stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+				$q(function(resolve, reject) {
+					if (requestService.mode != "website") {
+						return resolve();
 					}
 
+					appService.getAccountData().then(function() {
+						if (appService.isOwnerOnPayAsYouBuildPlan) {
+							var stackMenu = _.find(viewModel.menus, {
+								id: "stack"
+							});
+
+							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+						}
+
+						resolve();
+					}, function(error) {
+						reject(error);
+					});
+				}).then(function() {
 					viewModel.initAppProgress.success();
 					selectInitialMenu();
+				}, function(error) {
+					if (error.errorCode && error.errorCode == 404) {
+						viewModel.initAppProgress.success();
+						selectInitialMenu();
+					} else {
+						viewModel.initAppProgress.error(error);
+					}
 				});
 			});
 		}).catch( function(hasError) {
