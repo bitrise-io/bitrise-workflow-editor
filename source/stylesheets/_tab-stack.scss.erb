@@ -258,7 +258,11 @@
 						}
 					}
 
-					&.selected {
+					&.not-available {
+						opacity: 0.7;
+					}
+
+					&.selected:not(.not-available) {
 						border: 1px solid $def-violet_blue;
 						background-color: $def-light-grape;
 
@@ -285,7 +289,7 @@
 						}
 					}
 
-					&:not(.selected):hover {
+					&:not(.selected):not(.not-available):hover {
 						cursor: pointer;
 						border: 1px solid $def-violet_blue;
 						background-color: $def-light-grape;

@@ -4,7 +4,7 @@
 
 angular.module("BitriseWorkflowEditor").factory("MachineType", function($q, requestService) {
 
-    var MachineType = function(stackType, id, name, cpuCount, cpuDescription, ram, creditPerMin) {
+    var MachineType = function(stackType, id, name, cpuCount, cpuDescription, ram, creditPerMin, isAvailable) {
         this.id = stackType + '-' + id;
         this.name = name;
         this.cpuCount = cpuCount;
@@ -12,6 +12,7 @@ angular.module("BitriseWorkflowEditor").factory("MachineType", function($q, requ
         this.creditPerMin = creditPerMin;
         this.ram = ram;
         this.stackType = stackType;
+        this.isAvailable = isAvailable;
         this.cssClass = id;
     };
 
@@ -29,7 +30,7 @@ angular.module("BitriseWorkflowEditor").factory("MachineType", function($q, requ
 
             MachineType.all = _.flatten(_.map(MachineType.allConfig, function(aMachineTypeConfig, aStackType) {
                 return _.map(aMachineTypeConfig.machine_types, function(aMachineTypeDetails, aMachineTypeID) {
-                    return new MachineType(aStackType, aMachineTypeID, aMachineTypeDetails.name, aMachineTypeDetails.cpu_count, aMachineTypeDetails.cpu_description, aMachineTypeDetails.ram, aMachineTypeDetails.credit_per_min);
+                    return new MachineType(aStackType, aMachineTypeID, aMachineTypeDetails.name, aMachineTypeDetails.cpu_count, aMachineTypeDetails.cpu_description, aMachineTypeDetails.ram, aMachineTypeDetails.credit_per_min, aMachineTypeDetails.is_available);
                 });
             }));
         });

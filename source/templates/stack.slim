@@ -24,8 +24,8 @@
 			section.machine-type-settings[ng-if="appService.isOwnerOnPayAsYouBuildPlan"]
 				h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
 				.machine-types
-					.machine-type-wrapper[ng-repeat="machineType in stackCtrl.defaultMachineTypeOptions() track by machineType.id" ng-click="stackCtrl.setNewDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id}" class="{{ machineType.stackType }}"]
-						.machine-type-icon[ng-if="machineType.cssClass == 'elite_xl'"] == svg("elite_xl-machine-type-icon")
+					.machine-type-wrapper[ng-repeat="machineType in stackCtrl.defaultMachineTypeOptions() track by machineType.id" ng-click="machineType.isAvailable && machineType.id !== appService.defaultMachineType.id ? stackCtrl.setNewDefaultMachineType(machineType) : ''" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
+						.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"] == svg("elite_xl-machine-type-icon")
 						.machine-type-icon[ng-if="machineType.cssClass == 'elite'"] == svg("elite-machine-type-icon")
 						.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 						.machine-type-data
@@ -68,8 +68,8 @@
 				.machine-type-settings[ng-if="appService.isOwnerOnPayAsYouBuildPlan"]
 					h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
 					.machine-types
-						.machine-type-wrapper[ng-repeat="machineType in appService.availableMachineTypes(workflow)" ng-click="stackCtrl.setNewDefaultMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.selectedWorkflowSpecificMachineType(workflow).id}" class="{{ machineType.stackType }}"]
-							.machine-type-icon[ng-if="machineType.cssClass == 'elite_xl'"] == svg("elite_xl-machine-type-icon")
+						.machine-type-wrapper[ng-repeat="machineType in appService.availableMachineTypes(workflow)" ng-click="machineType.isAvailable && machineType.id != stackCtrl.selectedWorkflowSpecificMachineType(workflow).id ? stackCtrl.setNewDefaultMachineType(machineType, workflow) : ''" ng-class="{'selected': machineType.id == stackCtrl.selectedWorkflowSpecificMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
+							.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"] == svg("elite_xl-machine-type-icon")
 							.machine-type-icon[ng-if="machineType.cssClass == 'elite'"] == svg("elite-machine-type-icon")
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 							.machine-type-data

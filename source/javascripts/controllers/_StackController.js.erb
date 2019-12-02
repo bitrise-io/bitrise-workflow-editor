@@ -83,7 +83,7 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 	};
 
 	viewModel.setNewDefaultMachineType = function(newMachineType, workflow) {
-		if (!newMachineType || appService.defaultMachineType ==  newMachineType) {
+		if (!newMachineType || !workflow && appService.defaultMachineType == newMachineType) {
 			return;
 		}
 
