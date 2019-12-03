@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.66)
+## Changelog (Current version: 1.1.67)
 
 -----------------
+
+## 1.1.67 (2019 Dec 03)
+
+### Release Notes
+
+* Fix MachineType selector issue caused by changing stack type (#406)
+* Disable selection of not available machine types (#405)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.67
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.66 -> 1.1.67
+
+* [0d440e6] Norbert Kovach - Fix MachineType selector issue caused by changing stack type (#406) (2019 Dec 03)
+* [d13684c] Norbert Kovach - Disable selection of not available machine types (#405) (2019 Dec 03)
+
 
 ## 1.1.66 (2019 Nov 28)
 
@@ -3838,4 +3874,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Nov 28
+Updated: 2019 Dec 03
