@@ -223,8 +223,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 			}
 
-			if (appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id != appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "")) {
-				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id = appService.defaultMachineType.id.replace(appService.savedStack.id.split('-')[0] + "-", "");
+			if (appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id != appService.defaultMachineType.id.replace(appService.stack.id.split('-')[0] + "-", "")) {
+				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.id.split('-')[0] + "-", "");
 			}
 
 			appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
@@ -384,7 +384,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 
 		if (!stack) {
-			stack = appService.savedStack;
+			stack = appService.stack ? appService.stack : appService.savedStack;
 		}
 
 		var stackType = stack.id.split('-')[0];
@@ -403,7 +403,8 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		}
 
 		var defaultMachineTypeID;
-		var stackType = appService.savedStack.id.split('-')[0];
+		var stack = appService.stack ? appService.stack : appService.savedStack;
+		var stackType = stack.id.split('-')[0];
 		if (!appService.appConfig.meta || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id) {
 			defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
 		}

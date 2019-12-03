@@ -28,6 +28,14 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 		});
 	}
 
+	$scope.$watch(function () {
+		return appService.stack;
+	}, function (newValue) {
+		if (newValue) {
+			viewModel.defaultMachineTypeOptions();
+		}
+	});
+
 	viewModel.stackOptionTitle = function(stack) {
 		return stack ? (stack.name ? stack.name : stack.id) : stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:default_stack] %>", {
 			stack_name: viewModel.stackOptionTitle(appService.stack)
@@ -72,6 +80,11 @@ angular.module("BitriseWorkflowEditor").controller("StackController", function($
 
 	viewModel.defaultMachineTypeOptions = function() {
 		var machineTypes = appService.availableMachineTypes();
+
+		if (appService.defaultMachineType.stackType !== appService.stack.id.split('-')[0]) {
+			appService.getDefaultMachineType();
+			return machineTypes;
+		}
 
 		if (appService.defaultMachineType && _.find(machineTypes, function(machineType) {
 			return machineType.id === appService.defaultMachineType.id;
