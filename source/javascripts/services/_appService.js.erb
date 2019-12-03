@@ -398,7 +398,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			return $q.when();
 		}
 
-		if (MachineType.all === undefined || appService.savedStack === undefined) {
+		if (appService.appConfig === undefined || MachineType.all === undefined || appService.savedStack === undefined) {
 			return undefined;
 		}
 
@@ -430,10 +430,6 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 	};
 
 	appService.getStack = function() {
-		if (appService.stack) {
-			return $q.when();
-		}
-
 		return requestService.getStack().then(function(data) {
 			appService.stack = _.find(Stack.all, {
 				id: data.stackID
