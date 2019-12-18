@@ -7,7 +7,7 @@ gem "underscore-rails"
 gem "jquery-middleman"
 gem "middleman-jasmine"
 
-gem "rack", "~> 1.6.11"
+gem "rack", "~> 1.6.12"
 gem "ffi", "~> 1.9.24"
 
 source 'https://rails-assets.org' do
