@@ -1,6 +1,40 @@
-## Changelog (Current version: 1.1.67)
+## Changelog (Current version: 1.1.68)
 
 -----------------
+
+## 1.1.68 (2020 Jan 13)
+
+### Release Notes
+
+* Add 'Coming soon' label to EliteXL MacOS machines (#409)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.68
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.67 -> 1.1.68
+
+* [144733d] Norbert Kovach - Add 'Coming soon' label to EliteXL MacOS machines (#409) (2020 Jan 13)
+
 
 ## 1.1.67 (2019 Dec 03)
 
@@ -3874,4 +3908,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2019 Dec 03
+Updated: 2020 Jan 13
