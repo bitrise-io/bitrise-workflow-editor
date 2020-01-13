@@ -30,10 +30,11 @@
 						.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 						.machine-type-data
 							.top
-								span.icon-and-name
+								span.icon-and-name-and-note
 									span.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
 									span.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
 									span.name[ng-bind="machineType.name"]
+									span.note[ng-if="machineType.note" ng-bind="machineType.note"]
 								span.credit-per-min
 									span.value[ng-bind="machineType.creditPerMin"]
 									span.unit< credit/min
@@ -74,10 +75,11 @@
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 							.machine-type-data
 								.top
-									span.icon-and-name
+									span.icon-and-name-note
 										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
 										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
 										span.name[ng-bind="machineType.name"]
+										span.note[ng-if="machineType.note" ng-bind="machineType.note"]
 									span.credit-per-min
 										span.value[ng-bind="machineType.creditPerMin"]
 										span.unit< credit/min

@@ -155,7 +155,7 @@
 							align-items: center;
 							width: 100%;
 
-							.icon-and-name {
+							.icon-and-name-and-note {
 								display: flex;
 								align-items: center;
 								margin-right: 12px;
@@ -179,6 +179,23 @@
 									letter-spacing: 0.08px;
 									color: $def-darkgrey;
 									@include ellipsis-oneliner;
+								}
+
+								.note {
+									position: absolute;
+									top: -12px;
+									right: 10px;
+									padding: 4px 6px;
+									padding-top: 5px;
+									border-radius: 4px;
+									font-size: 12px;
+									font-weight: 500;
+									font-style: normal;
+									font-stretch: normal;
+									line-height: normal;
+									text-transform: uppercase;
+									color: $def-darkbluegrey;
+									background-color: $def-yellow;
 								}
 							}
 
@@ -330,7 +347,7 @@
 								flex-direction: column;
 								align-items: flex-start;
 
-								.icon-and-name {
+								.icon-and-name-and-note {
 									margin-right: 0;
 								}
 
@@ -348,7 +365,7 @@
 									display: none;
 								}
 
-								.name, .credit-per-min .cpu {
+								.name, .note, .credit-per-min .cpu {
 									margin-bottom: 6px;
 								}
 							}

@@ -85,8 +85,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_current_user_data][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -119,8 +117,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_codesigndoc_bash_script][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -188,8 +184,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:update_app_with_apple_credential][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -351,7 +345,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				requestData = {
 					app_secrets: {
 						envs: _.map(secrets, function(aSecret) {
-							return aSecret.userVariableConfig
+							return aSecret.userVariableConfig;
 						})
 					}
 				};
@@ -361,7 +355,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_post]) %>";
 				requestData = {
 					envs: _.map(secrets, function(aSecret) {
-						return aSecret.userVariableConfig
+						return aSecret.userVariableConfig;
 					})
 				};
 
@@ -415,8 +409,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_secret_environment_value][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -490,7 +482,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 					var githubGitURLRegexp = new RegExp("^(?:(?:http|https)\:\/\/){0,1}(?:www\.){0,1}(?:(?:github)\.com\/)(.*?)(?:\.git){0,1}$");
 					if (githubGitURLRegexp.test(step.gitURL)) {
-						var stepYMLurl = stringService.stringReplacedWithParameters("<%= data[:routes][:other][:github_step_yml_path] %>", {
+						stepYMLurl = stringService.stringReplacedWithParameters("<%= data[:routes][:other][:github_step_yml_path] %>", {
 							step_path: githubGitURLRegexp.exec(step.gitURL)[1],
 							step_version: step.version ? step.version : "master"
 						});
@@ -514,6 +506,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					else {
 						return $q.reject(new Error("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>"));
 					}
+
+					break;
 				case "cli":
 					requestData.library = "git";
 					requestData.id = step.gitURL;
@@ -687,7 +681,8 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 								cpuDescription: aMachineTypeConfig.cpu_description,
 								ram: aMachineTypeConfig.ram,
 								creditPerMin: aMachineTypeConfig.credit_per_min,
-								isAvailable: aMachineTypeConfig.is_available
+								isAvailable: aMachineTypeConfig.is_available,
+								note: aMachineTypeConfig.note
 							};
 						})
 					};
@@ -819,8 +814,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_apple_developer_account_data_from_database][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -855,8 +848,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:save_apple_developer_account_data_to_database_and_authenticate][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		if (appleID && password) {
@@ -999,8 +990,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:delete_apple_developer_account_data_from_database][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1026,8 +1015,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:post_apple_developer_account_two_step_auth_select_device][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1072,8 +1059,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:post_apple_developer_account_verify_code][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1190,8 +1175,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:post_apple_developer_account_default_team][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1217,8 +1200,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_of_prov_profile][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1265,8 +1246,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_all_test_devices_of_repository][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1354,7 +1333,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		var requestData = {
 			is_expose: isExpose
-		}
+		};
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function() {
@@ -1428,8 +1407,6 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 				break;
 			case "cli":
 				return $q.reject(new Error("<%= data[:strings][:request_service][:get_details_of_certificate][:not_website_mode_error] %>"));
-
-				break;
 		}
 
 		return $q(function(resolve, reject) {
@@ -1520,7 +1497,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		var requestData = {
 			is_expose: isExpose
-		}
+		};
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function() {
@@ -1674,7 +1651,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		var requestData = {
 			is_expose: isExpose
-		}
+		};
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function() {
@@ -1809,7 +1786,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 
 		var requestData = {
 			is_expose: isExpose
-		}
+		};
 
 		return $q(function(resolve, reject) {
 			$http.post(requestURL, requestData, requestConfig).then(function() {

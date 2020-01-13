@@ -44,7 +44,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 
 	appService.appConfigHasUnsavedChanges = function() {
 		return !angular.equals(appService.appConfig, appService.savedAppConfig);
-	}
+	};
 
 	function normalizeAppConfig() {
 		var variableConfigs = [];
@@ -335,13 +335,13 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.savedAppConfig = undefined;
 			appService.savedAppConfigYML = appService.appConfigYML;
 
-			appService.validationWarnings = []
+			appService.validationWarnings = [];
 			if (validationData.warnings.config !== null) {
-				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config)
+				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
 			}
 
 			if (validationData.warnings.secrets !== null) {
-				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets)
+				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
 			}
 		});
 	};
