@@ -11,6 +11,34 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		gitSteps: []
 	};
 
+	var VER_ANY = 'x';
+
+	var isVersionMatching = function(wildcard, version) {
+		var semverParts = version.split('.');
+		var wildcardParts = wildcard.split('.');
+
+		var matchingNonMajor = true;
+		for (var i = 1; matchingNonMajor && i < semverParts.length; i++) {
+			matchingNonMajor = semverParts[i] == wildcardParts[i] || wildcardParts[i] == VER_ANY;
+		}
+
+		return semverParts[0] == wildcardParts[0] && matchingNonMajor;
+	};
+
+	var getLatestFromWildcardVersion = function(step, wVersion) {
+		var matcher = _.partial(isVersionMatching, wVersion);
+
+		return _.chain(Object.keys(step))
+			.sort()
+			.reverse()
+			.find(matcher)
+			.value();
+	};
+
+	var isStepVersionable = function() {
+		return step.libraryURL !== undefined;
+	};
+
 	stepSourceService.stepFromCVS = function(cvs) {
 		var step = new Step(cvs);
 
@@ -95,30 +123,26 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 	};
 
 	stepSourceService.versionsOfStep = function(step) {
-		if (step.libraryURL !== undefined) {
-			var library = _.find(stepSourceService.libraries, {
-				url: step.libraryURL
-			});
+		if (!isStepVersionable(step) && !step.gitURL) {
+			return !step.localPath ? undefined : [step.version];
+		}
 
-			return _.chain(Object.keys(library.steps[step.id]))
-				.map(function(version) {
-					var semVerParts = version.split(".");
-					var major = semVerParts[0];
-					var minor = semVerParts[1];
+		var library = _.find(stepSourceService.libraries, {
+			url: step.libraryURL
+		});
 
-					return [major + '.x.x', major + '.' + minor + '.x'];
-				})
-				.flatten()
-				.uniq()
-				.reverse()
-				.value();
-		}
-		else if (step.localPath !== undefined) {
-			return undefined;
-		}
-		else if (step.gitURL !== undefined) {
-			return [step.version];
-		}
+		return _.chain(Object.keys(library.steps[step.id]))
+			.map(function(version) {
+				var semVerParts = version.split(".");
+				var major = semVerParts[0];
+				var minor = semVerParts[1];
+
+				return [major + '.x.x', major + '.' + minor + '.x'];
+			})
+			.flatten()
+			.uniq()
+			.reverse()
+			.value();
 	};
 
 	stepSourceService.isLatestStepVersion = function(step) {
@@ -137,33 +161,31 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		}
 	};
 
-	stepSourceService.changeStepToVersion = function(step, version) {
-		if (step.libraryURL !== undefined) {
-			var library = _.find(stepSourceService.libraries, {
-				url: step.libraryURL
-			});
-
-			var indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") != -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
-			if (indexOfVersionInCurrentCVS != -1) {
-				step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
-			}
-
-			if (version !== null) {
-				step.cvs += "@" + version;
-				step.version = version;
-			}
-			else {
-				step.version = library.latestStepVersions[step.id];
-			}
-
-			step.defaultStepConfig = library.steps[step.id][step.version].defaultStepConfig;
+	stepSourceService.changeStepToVersion = function(step, wVersion) {
+		if (!isStepVersionable(step)) {
+			return ;
 		}
-		else if (step.localPath !== undefined) {
-			return;
+
+		var library = _.find(stepSourceService.libraries, {
+			url: step.libraryURL
+		});
+
+		var version = getLatestFromWildcardVersion(library.steps[step.id], wVersion);
+
+		var indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") != -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
+		if (indexOfVersionInCurrentCVS != -1) {
+			step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
 		}
-		else if (step.gitURL !== undefined) {
-			return;
+
+		if (version !== null) {
+			step.cvs += "@" + version;
+			step.version = version;
 		}
+		else {
+			step.version = library.latestStepVersions[step.id];
+		}
+
+		step.defaultStepConfig = library.steps[step.id][step.version].defaultStepConfig;
 	};
 
 	stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
