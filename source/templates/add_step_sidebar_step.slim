@@ -5,6 +5,6 @@
 		.details
 			h4
 				span[ng-bind="step.displayName()"]
-				span.verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
-				span.community-created[ng-if="!step.isVerified()"] = svg("step/badge-community_created")
+				span.step-badge[ng-if="step.isVerified()"] = svg("step/badge-verified")
+				span.step-badge[ng-if="step.isOfficial()"] = svg("step/badge-official")
 			.summary[sanitized-markdown="step.summary()"]
