@@ -166,18 +166,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 	};
 
 	stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
-		// var libraryStepCVSs = _.filter(CVSs, function(aCVS) {
-		// 	var step;
-		// 	try {
-		// 		step = stepSourceService.stepFromCVS(aCVS);
-		// 	}
-		// 	catch (error) {
-		// 		return false;
-		// 	}
-
-		// 	return step.libraryURL !== undefined;
-		// });
-
 		var loadPromises = [];
 		var libraryURLs = [];
 		var error;
@@ -286,7 +274,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 			}
 
 			return requestService.libraryFetch(notLoadedLibraryURLs, requestConfig).then(function(data) {
-				console.log('libraryFetch 1');
 				_.each(data, function(aLibraryData, aLibraryURL) {
 					try {
 						var library = {
@@ -318,7 +305,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 							}
 						});
 
-						console.log('libraryFetch 2');
 						stepSourceService.libraries.push(library);
 
 						resolve();
