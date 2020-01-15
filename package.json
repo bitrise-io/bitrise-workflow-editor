@@ -1,0 +1,33 @@
+{
+  "name": "bitrise-workflow-editor",
+  "version": "1.0.0",
+  "description": "Bitrise workflow editor",
+  "main": "index.js",
+  "scripts": {
+    "test": "karma start"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bitrise-io/bitrise-workflow-editor.git"
+  },
+  "keywords": [
+    "workflow",
+    "steps"
+  ],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/bitrise-io/bitrise-workflow-editor/issues"
+  },
+  "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
+  "devDependencies": {
+    "karma": "^4.4.1",
+    "karma-chrome-launcher": "^3.1.0",
+    "karma-cli": "^2.0.0",
+    "karma-jasmine": "^3.1.0"
+  },
+  "dependencies": {
+    "jquery": "^3.4.1",
+    "underscore": "^1.9.2"
+  }
+}
