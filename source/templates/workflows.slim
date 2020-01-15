@@ -59,8 +59,8 @@
 											strong
 												span.title[ng-bind="step.displayName()"]
 												span[ng-if="!step.isDeprecated()"]
-													span.step-badge[ng-if="step.isOfficial()"] = svg("step/badge-official")
-													span.step-badge[ng-if="step.isVerified()"] = svg("step/badge-verified")
+													.step-badge[ng-if="step.isOfficial()"] = svg("step/badge-official")
+													.step-badge[ng-if="step.isVerified()"] = svg("step/badge-verified")
 												span.step-badge[ng-if="step.isDeprecated()"] = svg("step/badge-deprecated")
 											em.version[ng-if="step.version !== undefined"]
 												span<[ng-if="step.requestedVersion() != null" ng-bind="step.version"]

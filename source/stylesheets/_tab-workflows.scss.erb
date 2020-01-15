@@ -578,8 +578,10 @@ header.sticky section.manage-workflows {
 												@include ellipsis-oneliner;
 											}
 
-											span.step-badge {
+											.step-badge {
 												margin-left: 5px;
+												height: 15px;
+												padding-bottom: 2px;
 
 												svg {
 													@include size(16px);
@@ -705,6 +707,7 @@ header.sticky section.manage-workflows {
 									span.step-badge {
 										@include flex-shrink(0);
 										@include align-self(center);
+										padding-bottom: 3px;
 
 										&:not(:first-of-type) {
 											margin-left: 4px;
