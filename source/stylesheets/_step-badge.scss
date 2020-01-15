@@ -1,0 +1,12 @@
+@import "default";
+@import "constants";
+
+.step-badge {
+  &--official svg {
+    fill: $def-aqua-4;
+  }
+
+  &--verified svg {
+    fill: $def-blue-3;
+  }
+}
