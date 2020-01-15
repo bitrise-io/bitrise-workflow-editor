@@ -31,7 +31,7 @@ workflows:
             go install
             bitrise-workflow-editor
 
-  setup-middleman:
+  setup-client:
     steps:
     - script:
         deps:
@@ -50,10 +50,11 @@ workflows:
             set -ex
             gem install bundler:1.17.3
             bundle install --path .bundle/inst
+            npm ci
 
   middleman-build:
     before_run:
-    - setup-middleman
+    - setup-client
     steps:
     - script:
         inputs:
@@ -70,7 +71,7 @@ workflows:
 
   up-middleman-server:
     before_run:
-    - setup-middleman
+    - setup-client
     steps:
     - script:
         inputs:
@@ -78,31 +79,11 @@ workflows:
             #!/bin/bash
             set -ex
             bundle exec middleman server
-
-  up-middleman-jasmine:
-    before_run:
-    - setup-middleman
-    steps:
-    - script:
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            bundle exec middleman build
-            mkdir -p ./spec/javascripts/src/
-            cp -f ./build/javascripts/jquery_cache.js ./spec/javascripts/src/
-            cp -f ./build/javascripts/angular_cache.js ./spec/javascripts/src/
-            cp -f ./build/javascripts/underscore_cache.js ./spec/javascripts/src/
-            cp -f ./build/javascripts/vendor.js ./spec/javascripts/src/
-            cp -f ./build/javascripts/main.js ./spec/javascripts/src/
-            rm -rf ./build
-            bundle exec middleman server
-            rm -rf ./spec/javascripts/src/
 
   ci:
     before_run:
     - _install_test_tools
-    - setup-middleman
+    - setup-client
     - test-api
     - test-client
 
@@ -186,7 +167,7 @@ workflows:
     - script:
         title: Karma tests
         inputs:
-        - content: yarn test
+        - content: npm test
 
   test-api:
     steps:
