@@ -1,3 +1,5 @@
+"use strict";
+
 angular.module("BitriseWorkflowEditor").filter("wildcardVersions", ["stepSourceService", function(stepSourceService) {
     var shouldInsertLatest = function(step) {
         return step.libraryURL !== undefined;
