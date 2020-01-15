@@ -1,10 +1,5 @@
-const process = require('process');
-
 // Karma configuration
 // Generated on Wed Jan 15 2020 13:26:53 GMT+0100 (Central European Standard Time)
-
-// need to set this env var to be able to start chromium
-process.env.CHROME_BIN = require('puppeteer').executablePath();
 
 // verbose logging
 process.on('infrastructure_error', (error) => {
@@ -12,7 +7,7 @@ process.on('infrastructure_error', (error) => {
 });
 
 
-module.exports = function(config) {
+module.exports = (config) => {
   config.set({
 
     // base path that will be used to resolve all patterns (eg. files, exclude)
@@ -70,7 +65,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['ChromeHeadless'],
+    browsers: ['jsdom'],
 
 
     // Continuous Integration mode
