@@ -11,6 +11,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		this.libraryURL;
 		this.id;
 		this.version;
+		this.info;
 
 		this.userStepConfig = userStepConfig;
 		if (!this.userStepConfig) {
@@ -129,7 +130,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return parameterGetterSetter(this, "is_always_run", newIsAlwaysRun);
 	}
 
-	Step.prototype.isVerified = function() {
+	Step.prototype.isOfficial = function() {
 		var sourceURL = this.sourceURL();
 
 		if (sourceURL === undefined) {
@@ -139,6 +140,10 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
 
 		return regexpForVerifiedStepSourceURL.test(sourceURL);
+	}
+
+	Step.prototype.isVerified = function() {
+		return (this.info || {}).maintainer === 'community';
 	};
 
 	Step.prototype.isDeprecated = function() {

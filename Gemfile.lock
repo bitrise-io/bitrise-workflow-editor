@@ -33,7 +33,11 @@ GEM
     compass-import-once (1.0.5)
       sass (>= 3.2, < 3.5)
     diff-lcs (1.3)
+    em-websocket (0.5.1)
+      eventmachine (>= 0.12.9)
+      http_parser.rb (~> 0.6.0)
     erubis (2.7.0)
+    eventmachine (1.2.7)
     execjs (2.7.0)
     ffi (1.9.25)
     haml (5.1.1)
@@ -42,6 +46,7 @@ GEM
     hike (1.2.3)
     hooks (0.4.1)
       uber (~> 0.0.14)
+    http_parser.rb (0.6.0)
     i18n (0.7.0)
     jasmine (1.3.2)
       jasmine-core (~> 1.3.1)
@@ -82,6 +87,10 @@ GEM
     middleman-jasmine (0.4.0)
       jasmine (~> 1.3)
       middleman-core
+    middleman-livereload (3.4.6)
+      em-websocket (~> 0.5.1)
+      middleman-core (>= 3.3)
+      rack-livereload (~> 0.3.15)
     middleman-sprockets (3.5.0)
       middleman-core (>= 3.3)
       sprockets (~> 2.12.1)
@@ -102,6 +111,8 @@ GEM
     padrino-support (0.12.9)
       activesupport (>= 3.1)
     rack (1.6.11)
+    rack-livereload (0.3.17)
+      rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
     rails-assets-ace-builds (1.4.4)
@@ -166,6 +177,7 @@ DEPENDENCIES
   jquery-middleman
   middleman (~> 3.4.1)
   middleman-jasmine
+  middleman-livereload
   nokogiri (~> 1.10.4)
   rack (~> 1.6.11)
   rails-assets-angular-ui-ace!

@@ -76,10 +76,13 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				if (!library) {
 					break;
 				}
+				var stepInLibrary = library.steps[step.id];
 
-				if (!library.steps[step.id]) {
+				if (!stepInLibrary) {
 					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>" + step.id);
 				}
+
+				step.info = stepInLibrary.info;
 
 				var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
 
@@ -163,18 +166,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 	};
 
 	stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
-		var libraryStepCVSs = _.filter(CVSs, function(aCVS) {
-			var step;
-			try {
-				step = stepSourceService.stepFromCVS(aCVS);
-			}
-			catch (error) {
-				return false;
-			}
-
-			return step.libraryURL !== undefined;
-		});
-
 		var loadPromises = [];
 		var libraryURLs = [];
 		var error;
@@ -305,6 +296,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 
 								return step;
 							});
+							library.steps[aStepID].info = aLibraryData.steps[aStepID].info;
 
 							if (aLibraryData.steps[aStepID].info !== undefined && aLibraryData.steps[aStepID].info.deprecate_notes !== undefined) {
 								_.each(library.steps[aStepID], function(aStep) {
