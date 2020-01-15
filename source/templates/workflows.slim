@@ -95,7 +95,7 @@
 							section.version[ng-if="workflowsCtrl.selectedStep.version !== undefined"]
 								span.icon[ng-class="{'latest': stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)}"]
 								label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
-								select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (workflowsCtrl.selectedStep.libraryURL !== undefined ? [null] : []).concat(stepSourceService.versionsOfStep(workflowsCtrl.selectedStep))" ng-model="workflowsCtrl.requestedStepVersion"]
+								select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (workflowsCtrl.selectedStep | wildcardVersions)" ng-model="workflowsCtrl.requestedStepVersion"]
 							section.always-run[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
 								span.icon
 									= svg("step/is_always_run")
