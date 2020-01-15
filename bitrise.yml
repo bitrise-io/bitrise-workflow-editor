@@ -163,8 +163,6 @@ workflows:
             go get -u golang.org/x/lint/golint
 
   test-client:
-    envs:
-      - CHROME_BIN: /usr/bin/chromium-browser
     steps:
     - script:
         title: Karma tests

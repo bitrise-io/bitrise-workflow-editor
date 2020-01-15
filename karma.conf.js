@@ -1,5 +1,16 @@
+const process = require('process');
+
 // Karma configuration
 // Generated on Wed Jan 15 2020 13:26:53 GMT+0100 (Central European Standard Time)
+
+// need to set this env var to be able to start chromium
+process.env.CHROME_BIN = require('puppeteer').executablePath();
+
+// verbose logging
+process.on('infrastructure_error', (error) => {
+  console.error('infrastructure_error', error);
+});
+
 
 module.exports = function(config) {
   config.set({
@@ -75,7 +86,3 @@ module.exports = function(config) {
     }
   })
 }
-
-process.on('infrastructure_error', (error) => {
-  console.error('infrastructure_error', error);
-});
