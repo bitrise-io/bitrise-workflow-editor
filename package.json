@@ -4,7 +4,8 @@
   "description": "Bitrise workflow editor",
   "main": "index.js",
   "scripts": {
-    "test": "MODE=WEBSITE bundle exec middleman build && karma start"
+    "test": "MODE=WEBSITE bundle exec middleman build && karma start",
+    "test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test"
   },
   "repository": {
     "type": "git",
@@ -36,6 +37,7 @@
     "karma-cli": "^2.0.0",
     "karma-coverage": "^2.0.1",
     "karma-jasmine": "^3.1.0",
-    "karma-spec-reporter": "^0.0.32"
+    "karma-spec-reporter": "^0.0.32",
+    "onchange": "^6.1.0"
   }
 }
