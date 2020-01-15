@@ -60,6 +60,6 @@ end
 set :images_dir, mode_dependant_asset_path("images")
 set :fonts_dir, mode_dependant_asset_path("fonts")
 
-
+# in order to support require sprockets annotations
 sprockets.append_path File.join root, 'node_modules'
 sprockets.append_path File.join root, 'vendor-js'
