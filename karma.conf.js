@@ -59,7 +59,7 @@ module.exports = function(config) {
 
     // start these browsers
     // available browser launchers: https://npmjs.org/browse/keyword/karma-launcher
-    browsers: ['jsdom'],
+    browsers: ['ChromeHeadless'],
 
 
     // Continuous Integration mode
@@ -69,12 +69,6 @@ module.exports = function(config) {
     // Concurrency level
     // how many browser should be started simultaneous
     concurrency: 4,
-
-    jsdomLauncher: {
-      jsdom: {
-        runScripts: 'dangerously'
-      }
-    },
 
     coverageReporter: {
       type: 'text-summary'

@@ -32,14 +32,13 @@
   },
   "devDependencies": {
     "angular-mocks": "1.7.2",
-    "jsdom": "^16.0.0",
     "karma": "^4.4.1",
     "karma-chrome-launcher": "^3.1.0",
     "karma-cli": "^2.0.0",
     "karma-coverage": "^2.0.1",
     "karma-jasmine": "^3.1.0",
-    "karma-jsdom-launcher": "^8.0.0",
     "karma-spec-reporter": "^0.0.32",
-    "onchange": "^6.1.0"
+    "onchange": "^6.1.0",
+    "puppeteer": "^2.0.0"
   }
 }
