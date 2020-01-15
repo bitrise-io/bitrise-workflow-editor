@@ -102,8 +102,8 @@ workflows:
   ci:
     before_run:
     - _install_test_tools
-    - middleman-build
-    - test
+    - test-api
+    - test-client
 
   go-install:
     before_run:
@@ -180,7 +180,14 @@ workflows:
             # Go lint
             go get -u golang.org/x/lint/golint
 
-  test:
+  test-client:
+    steps:
+    - script:
+        title: Karma tests
+        inputs:
+        - content: yarn test
+
+  test-api:
     steps:
     - script:
         title: GOLIST_WITHOUT_VENDOR
