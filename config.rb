@@ -4,8 +4,6 @@ config[:layout] = false
 
 activate :directory_indexes
 
-activate :jasmine
-
 activate :livereload
 
 helpers do
