@@ -102,6 +102,7 @@ workflows:
   ci:
     before_run:
     - _install_test_tools
+    - setup-middleman
     - test-api
     - test-client
 
