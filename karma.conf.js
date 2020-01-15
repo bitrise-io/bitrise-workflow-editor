@@ -70,6 +70,12 @@ module.exports = function(config) {
     // how many browser should be started simultaneous
     concurrency: 4,
 
+    jsdomLauncher: {
+      jsdom: {
+        runScripts: 'dangerously'
+      }
+    },
+
     coverageReporter: {
       type: 'text-summary'
     }
