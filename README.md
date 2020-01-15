@@ -20,7 +20,7 @@ bitrise plugin update workflow-editor
 
 ## Install requirements
 
-Workflow editor uses middleman for static asset compilation and concatenation (compile slim templates and concatenate javascripts). Therefore it needs to use bundler to install required gems. In addition it uses karma and jasmine for frontend tests execution so it needs `node` and `yarn` or `npm` installed to get the dependencies for testing and also production.
+Workflow editor uses middleman for static asset compilation and concatenation (compile slim templates and concatenate javascripts). Therefore it needs to use bundler to install required gems. In addition it uses karma and jasmine for frontend tests execution so it needs `node` and `npm` installed to get the dependencies for testing and also production.
 
 Finally the local executable is written in GO. so you need to have go set up as well and dependencies.
 
@@ -29,7 +29,7 @@ Something like this:
 ```bash
 bundle install
 go install
-yarn install
+npm install
 ```
 
 ## Development
@@ -48,7 +48,7 @@ bitrise run go-install
 
 ### Run client tests
 
-Use `yarn test` for a single run or `yarn test-watch` for a continous test execution. __Note__ the latter option might have some delays since middleman needs to compile assets upon every change before karma runner kicks in.
+Use `npm test` for a single run or `npm run test-watch` for a continous test execution. __Note__ the latter option might have some delays since middleman needs to compile assets upon every change before karma runner kicks in.
 
 ## New version release
 
