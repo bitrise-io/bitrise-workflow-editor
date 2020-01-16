@@ -22,11 +22,11 @@
   },
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "dependencies": {
-    "angular": "1.7.2",
-    "angular-animate": "1.7.2",
-    "angular-cookies": "1.7.2",
-    "angular-route": "1.7.2",
-    "angular-sanitize": "1.7.2",
+    "angular": "^1.7.9",
+    "angular-animate": "1.7.9",
+    "angular-cookies": "1.7.9",
+    "angular-route": "1.7.9",
+    "angular-sanitize": "1.7.9",
     "jquery": "^3.4.1",
     "underscore": "^1.9.2"
   },

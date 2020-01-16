@@ -23,7 +23,7 @@ module.exports = (config) => {
     files: [
       'javascripts/angular_cache.js',
       '../node_modules/angular-mocks/angular-mocks.js',
-      'javascripts/**/*.js',
+      'javascripts/*.js',
       '../spec/javascripts/**/*.spec.js'
     ],
 
