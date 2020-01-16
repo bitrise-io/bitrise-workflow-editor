@@ -6,6 +6,11 @@
 	script[src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-animate.min.js"]
 	script[src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-sanitize.min.js"]
 	script[src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-route.min.js"]
+	- if mode == 'website'
+		= partial "google_analytics"
+		script[src="https://www.googletagmanager.com/gtag/js?id=UA-53276411-11"]
+		= partial "global_site_tag_with_optimize"
+		= partial "gtm"
 - else
 	script[src="https://ajax.googleapis.com/ajax/libs/jquery/3.2.1/jquery.js"]
 	script[src="https://cdnjs.cloudflare.com/ajax/libs/underscore.js/1.8.3/underscore.js"]

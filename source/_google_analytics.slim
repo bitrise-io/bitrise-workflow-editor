@@ -1,0 +1,32 @@
+javascript:
+    (function(){
+        // store the name of the Analytics object
+        window.GoogleAnalyticsObject = 'ga';
+        // check whether the Analytics object is defined
+        if (!('ga' in window)){
+            // define the Analytics object
+            window.ga = function(){
+                // add the tasks to the queue
+                window.ga.q.push(arguments);
+            };
+            // create the queue
+            window.ga.q = [];
+        }
+        // store the current timestamp
+        window.ga.l = (new Date()).getTime();
+        // create a new script element
+        var script = document.createElement('script');
+        script.src = '//www.google-analytics.com/analytics.js';
+        script.async = true;
+        // insert the script element into the document
+        var firstScript = document.getElementsByTagName('script')[0];
+        firstScript.parentNode.insertBefore(script, firstScript);
+
+        var parameters = {
+            name: 'Workflow Editor',
+            allowLinker: true
+        };
+
+        ga('create', 'UA-53276411-1', 'auto', parameters );
+        ga('send', 'pageview');
+    })();
