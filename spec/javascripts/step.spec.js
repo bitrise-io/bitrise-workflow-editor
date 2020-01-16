@@ -7,17 +7,16 @@ describe("Step", function() {
 		Step = _Step_;
 	}));
 
+	var step;
+
+	beforeEach(function() {
+		step = new Step();
+	});
 
 	describe("title", function() {
-
-		var step;
 		var defaultStepConfig = {
 			title: "Default title"
 		};
-
-		beforeEach(function() {
-			step = new Step();
-		});
 
 		it("should return overridden title", function() {
 			step.defaultStepConfig = defaultStepConfig;
@@ -98,12 +97,6 @@ describe("Step", function() {
 	});
 
 	describe("iconURL", function() {
-		var step;
-
-		beforeEach(function() {
-			step = new Step();
-		});
-
 		it("should return default svg if no user step config is defined", function() {
 			step.defaultStepConfig = {
 				asset_urls: {
@@ -267,51 +260,56 @@ describe("Step", function() {
 
 	});
 
-	describe("isVerified", function() {
-
-		var step;
-		beforeEach(function() {
-			step = new Step();
-		});
+	describe("isOfficial", function() {
 
 		it("should return undefined if source is not defined", function() {
-			expect(step.isVerified()).toBeUndefined();
+			expect(step.isOfficial()).toBeUndefined();
 		});
 
 		it("should return true if is from bitrise-io on GitHub", function() {
 			step.sourceURL("https://www.github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBeTruthy();
+			expect(step.isOfficial()).toBeTruthy();
 
 			step.sourceURL("https://github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBeTruthy();
+			expect(step.isOfficial()).toBeTruthy();
 
 			step.sourceURL("www.github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBeTruthy();
+			expect(step.isOfficial()).toBeTruthy();
 
 			step.sourceURL("github.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBeTruthy();
+			expect(step.isOfficial()).toBeTruthy();
 		});
 
 		it("should return true if is from bitrise-steplib on GitHub", function() {
 			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
-			expect(step.isVerified()).toBeTruthy();
+			expect(step.isOfficial()).toBeTruthy();
 		});
 
 		it("should return false if is from any other user or host", function() {
 			step.sourceURL("https://www.github.com/red-user/red-step");
-			expect(step.isVerified()).toBeFalsy();
+			expect(step.isOfficial()).toBeFalsy();
 
 			step.sourceURL("https://www.red.com/bitrise-io/red-step");
-			expect(step.isVerified()).toBeFalsy();
+			expect(step.isOfficial()).toBeFalsy();
 		});
 
 		it("should return false if step specs define a verified path, but step is a fork of that path, referenced by git URL", function() {
 			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
 			step.gitURL = "https://www.github.com/bitrise-forked-steplib/red-step";
+			expect(step.isOfficial()).toBeFalsy();
+		});
+	});
+
+	describe("verified", function() {
+		it("should not be verified if there is no information exists", function() {
 			expect(step.isVerified()).toBeFalsy();
 		});
 
-	});
+		it("should be verified when the maintainer is the community", function() {
+			step.info = { maintainer: 'community' };
+			expect(step.isVerified()).toBeTruthy();
+		});
+	})
 
 	describe("requestedVersion", function() {
 
