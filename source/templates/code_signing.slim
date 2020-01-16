@@ -1,11 +1,11 @@
 .tab-code-signing[ng-controller="CodeSigningController as codeSigningCtrl" ng-init="codeSigningCtrl.load()"]
-	div[ng-if="codeSigningCtrl.showNewCodeSigningWizard"]
+	div
 		.file-type-tabmenu[ng-if="codeSigningCtrl.loadProgress.isIdle"]
 			button.file-type-tabmenu-item[ng-repeat="fileTypeMenu in codeSigningCtrl.availableFileTypeMenus()" ng-class="{'active': fileTypeMenu == codeSigningCtrl.activeFileTypeMenu}" ng-bind="fileTypeMenu.name" ng-click="codeSigningCtrl.activeFileTypeMenu = fileTypeMenu"]
 		.file-type-dropdown-wrapper
 			select.file-type-dropdown[ng-model="codeSigningCtrl.activeFileTypeMenu" ng-model-options="{getterSetter: true}" ng-options="fileTypeMenu.name for fileTypeMenu in codeSigningCtrl.availableFileTypeMenus()" ng-class="{ 'active' : fileTypeMenu == codeSigningCtrl.activeFileTypeMenu }"]
 	section.progress-indicator[progress-model="codeSigningCtrl.loadProgress"]
-	section.certificate-help.toggleable-info[ng-if="codeSigningCtrl.shouldShowCodeSigningHints && !codeSigningCtrl.showNewCodeSigningWizard"]
+	section.certificate-help.toggleable-info[ng-if="codeSigningCtrl.shouldShowCodeSigningHints && codeSigningCtrl.activeFileTypeMenu && codeSigningCtrl.activeFileTypeMenu.id == 'ios-code-signing'"]
 		h2.info-heading
 			.content
 				span.icon = svg("support")
@@ -25,7 +25,7 @@
 				div
 					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
 					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
-	div[ng-if="!codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.provProfile) && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
+	div[ng-if="codeSigningCtrl.activeFileTypeMenu && codeSigningCtrl.activeFileTypeMenu.id == 'ios-code-signing'"]
 		.auto-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === true"]
 			header
 				.icon = svg("bolt")
@@ -35,18 +35,18 @@
 				button.manual-code-signing[ng-click="codeSigningCtrl.isAutoCodeSigningModeOn = false"] == data[:strings][:code_signing][:auto_code_signing][:header][:action]
 			= partial "templates/auto_code_signing"
 		.manual-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === false"]
-			section.cardo.slim[ng-if="codeSigningCtrl.showNewCodeSigningWizard"]
+			section.cardo.slim.use-wizard
 				header
 					h2 == data[:strings][:code_signing][:manual_code_signing][:auto_code_signing][:header][:title]
 					p == data[:strings][:code_signing][:manual_code_signing][:auto_code_signing][:header][:description]
 				article
 					button.rebo.big.purple[ng-click="codeSigningCtrl.isAutoCodeSigningModeOn = true"] == data[:strings][:code_signing][:manual_code_signing][:auto_code_signing][:body][:action]
-			section.cardo.slim[ng-class="{'unstyled': !codeSigningCtrl.showNewCodeSigningWizard}"]
+			section.cardo.slim.update-manually
 				header
 					h2 == data[:strings][:code_signing][:manual_code_signing][:header][:title]
 					p == data[:strings][:code_signing][:manual_code_signing][:header][:description]
 				article.unpadded
-					section.cardo.uppercase.slim.files.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-init="provProfileCtrl.init()" ng-if="codeSigningCtrl.sectionConfigurations.provProfile.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.provProfile)"]
+					section.cardo.uppercase.slim.files.provisioning-profiles[ng-controller="ProvProfileController as provProfileCtrl" ng-init="provProfileCtrl.init()" ng-if="codeSigningCtrl.sectionConfigurations.provProfile.shouldShow"]
 						header
 							h2.label
 								span == data[:strings][:code_signing][:prov_profile][:header][:card_title]
@@ -179,7 +179,7 @@
 											li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile() track by $index" ng-bind="description"]
 					section.cardo.uppercase.slim.files
 						= partial "templates/tab-code_signing-certificates"
-	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.androidKeystore)" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
+	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
 		header
 			h2.label
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
@@ -257,7 +257,7 @@
 				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
 					strong[ng-bind="androidKeystoreCtrl.uploadInstruction"]
 					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
-	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl" ng-if="codeSigningCtrl.sectionConfigurations.genericFile.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.genericFile)"]
+	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl" ng-show="codeSigningCtrl.sectionConfigurations.genericFile.shouldShow && codeSigningCtrl.activeFileTypeMenu && codeSigningCtrl.activeFileTypeMenu.id == 'generic-file-storage'"]
 		header
 			h2.label
 				span == data[:strings][:code_signing][:generic_file][:header][:card_title]

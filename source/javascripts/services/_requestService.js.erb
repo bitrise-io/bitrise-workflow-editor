@@ -94,8 +94,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 					slug: response.data.slug,
 					email: response.data.email,
 					unconfirmedEmail: response.data.unconfirmed_email,
-					avatarURL: response.data.avatar_url,
-					showNewCodeSigningWizard: response.data.show_new_code_signing_wizard
+					avatarURL: response.data.avatar_url
 				});
 			}, function(response) {
 				reject(errorFromResponse(response, "<%= data[:strings][:request_service][:get_current_user_data][:default_error] %>", "<%= data[:strings][:request_service][:get_current_user_data][:error_prefix] %>"));
