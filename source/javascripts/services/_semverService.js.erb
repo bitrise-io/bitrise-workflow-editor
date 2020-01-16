@@ -11,20 +11,37 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
         semver: _.template('{{ major }}.{{ minor }}.{{ patch }}'),
     };
 
-    semverService.isVersionMatching = function(wildcard, version) {
+    var isVersionCompatible = function(wildcard, version) {
         var semverParts = version.split('.');
         var wildcardParts = wildcard.split('.');
 
-        var matchingNonMajor = true;
-        for (var i = 1; matchingNonMajor && i < semverParts.length; i++) {
-            matchingNonMajor = semverParts[i] == wildcardParts[i] || wildcardParts[i] == WILDCARD;
+        var matchingVersionPart = true;
+        for (var i = 0; matchingVersionPart && i < semverParts.length; i++) {
+            matchingVersionPart = semverParts[i] == wildcardParts[i] || wildcardParts[i] == WILDCARD;
         }
 
-        return semverParts[0] == wildcardParts[0] && matchingNonMajor;
+        return matchingVersionPart;
     };
 
-    semverService.removeWildcardVersionParts = function(version) {
-        return version.replace(WILDCARD_REGEX, '');
+    var reverseSorter = function(verStr1, verStr2) {
+        var ver1 = verStr1.split('.');
+        var ver2 = verStr2.split('.');
+
+        var notEqInd = 0;
+        while (ver1[notEqInd] == ver2[notEqInd] && notEqInd < Math.max(ver1.length, ver2.length)) {
+            notEqInd++;
+        }
+
+        // make WILDCARD always the lowest priority than everything else
+        ver1[notEqInd] = ver1[notEqInd] === WILDCARD ? -1 : ver1[notEqInd];
+        ver2[notEqInd] = ver2[notEqInd] === WILDCARD ? -1 : ver2[notEqInd];
+
+        // comply with compare interface
+        return Math.sign(ver1[notEqInd] - ver2[notEqInd]) * -1;
+    };
+
+    semverService.shortenWildcardVersion = function(version) {
+        return version && version.replace(WILDCARD_REGEX, '');
     };
 
     semverService.normalizeVersion = function(version) {
@@ -41,7 +58,11 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
         });
     };
 
-    semverService.convertListToWildcardVersions = function(versions) {
+    semverService.extractWildcardVersions = function(versions) {
+        if (!versions) {
+            return versions;
+        }
+
         return _.chain(versions)
             .map(function(version) {
                 var semVerParts = version.split(".");
@@ -49,14 +70,14 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
                 var minor = semVerParts[1];
 
                 return [
-                    semverService.semver({ major: major, minor: WILDCARD, patch: WILDCARD }),
-                    semverService.semver({ major: major, minor: minor, patch: WILDCARD })
+                    semverService.semver({ major: major, minor: minor, patch: WILDCARD }),
+                    semverService.semver({ major: major, minor: WILDCARD, patch: WILDCARD })
                 ];
             })
             .flatten()
             .uniq()
-            .reverse()
-            .value();
+            .value()
+            .sort(reverseSorter);
     };
 
     semverService.resolveVersion = function(version, stepId, stepCatalogue) {
@@ -66,13 +87,11 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
             return stepCatalogue.latestStepVersions[stepId];
         }
 
-        var matcher = _.partial(semverService.isVersionMatching, version);
-        var stepVersions = Object.keys(stepCatalogue.steps[stepId]);
+        var compatibleToVersion = _.partial(isVersionCompatible, version);
+        var stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(reverseSorter);
 
         return _.chain(stepVersions)
-            .sort()
-            .reverse()
-            .find(matcher)
+            .find(compatibleToVersion)
             .value();
     };
 

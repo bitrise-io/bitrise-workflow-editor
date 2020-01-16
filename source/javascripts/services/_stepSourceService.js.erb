@@ -110,7 +110,7 @@
             });
 
             var stepVersions = Object.keys(library.steps[step.id]);
-            return semverService.convertListToWildcardVersions(stepVersions);
+            return semverService.extractWildcardVersions(stepVersions);
         };
 
         stepSourceService.isLatestStepVersion = function(step) {
@@ -144,7 +144,7 @@
             }
 
             if (version !== null) {
-                step.cvs += "@" + semverService.removeWildcardVersionParts(version);
+                step.cvs += "@" + semverService.shortenWildcardVersion(version);
                 step.version = version;
             }
             else {
@@ -156,18 +156,6 @@
         };
 
         stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
-            var libraryStepCVSs = _.filter(CVSs, function(aCVS) {
-                var step;
-                try {
-                    step = stepSourceService.stepFromCVS(aCVS);
-                }
-                catch (error) {
-                    return false;
-                }
-
-                return step.libraryURL !== undefined;
-            });
-
             var loadPromises = [];
             var libraryURLs = [];
             var error;
