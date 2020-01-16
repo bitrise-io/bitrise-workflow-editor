@@ -4,8 +4,6 @@ config[:layout] = false
 
 activate :directory_indexes
 
-activate :jasmine
-
 activate :livereload
 
 helpers do
@@ -40,7 +38,7 @@ helpers do
 
 	def replaced_string(string, replacements)
 		replacements.each do |replacement|
-			string = string.sub(/<[a-zA-Z0-9\-\_\.]+>/, replacement)
+			string = string.sub(/<[a-zA-Z0-9\-\_\.]+>/, replacement) unless replacement.nil?
 		end
 
 		return string
@@ -62,11 +60,6 @@ end
 set :images_dir, mode_dependant_asset_path("images")
 set :fonts_dir, mode_dependant_asset_path("fonts")
 
-sprockets.import_asset "jquery"
-sprockets.import_asset "underscore"
-sprockets.import_asset "angular"
-sprockets.import_asset "angular-route"
-sprockets.import_asset "angular-sanitize"
-sprockets.import_asset "angular-animate"
-sprockets.import_asset "angular-cookies"
-sprockets.import_asset "angular-mocks"
+# in order to support require sprockets annotations
+sprockets.append_path File.join root, 'node_modules'
+sprockets.append_path File.join root, 'vendor-js'

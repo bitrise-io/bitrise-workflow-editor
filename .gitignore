@@ -8,3 +8,5 @@ build/
 rice-box.go
 _bin/
 .vscode
+
+node_modules
