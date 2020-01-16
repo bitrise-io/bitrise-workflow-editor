@@ -16,7 +16,7 @@
     "steps"
   ],
   "author": "",
-  "license": "ISC",
+  "license": "MIT",
   "bugs": {
     "url": "https://github.com/bitrise-io/bitrise-workflow-editor/issues"
   },
