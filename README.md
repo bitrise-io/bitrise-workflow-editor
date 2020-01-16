@@ -18,6 +18,20 @@ bitrise plugin update workflow-editor
 *Join the Workflow Editor's discussion at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39)*
 
 
+## Install requirements
+
+Workflow editor uses middleman for static asset compilation and concatenation (compile slim templates and concatenate javascripts). Therefore it needs to use bundler to install required gems. In addition it uses karma and jasmine for frontend tests execution so it needs `node` and `npm` installed to get the dependencies for testing and also production.
+
+Finally the local executable is written in GO. so you need to have go set up as well and dependencies.
+
+Something like this:
+
+```bash
+bundle install
+go install
+npm install
+```
+
 ## Development
 
 ### Build a stand-alone binary, with embedded resources
@@ -32,11 +46,9 @@ bitrise run go-install
 1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
-### Run tests
+### Run client tests
 
-1. In the Workflow Editor's directory, run `up-middleman-jasmine`.
-1. In your browser, you can reach the tests on `localhost:4567/jasmine`.
-1. Every time you make a change to the code, you have to exit the running workflow and start it up again. You can make changes to the specs without having to do this.
+Use `npm test` for a single run or `npm run test-watch` for a continous test execution. __Note__ the latter option might have some delays since middleman needs to compile assets upon every change before karma runner kicks in.
 
 ## New version release
 

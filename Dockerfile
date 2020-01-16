@@ -12,8 +12,7 @@ ENV LANG="en_US.UTF-8" \
 # Configs - tool versions
     TOOL_VER_BITRISE_CLI="1.37.0" \
     TOOL_VER_RUBY="2.3.4" \
-    TOOL_VER_GO="1.13.5"
-
+    TOOL_VER_GO="1.13.6"
 
 # ------------------------------------------------------
 # --- Base pre-installed tools

@@ -14,7 +14,22 @@ app:
   - MIDDLEMAN_SERVER_PORT: "4567"
   - MODE: CLI
 workflows:
-  _install_test_tools:
+  up-api:
+    envs:
+      - BITRISE_CONFIG: "$TEST_BITRISE_CONFIG_PATH"
+      - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
+      - USE_MIDDLEMAN_SERVER: "true"
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            go get github.com/codegangsta/gin
+            go install
+            bitrise-workflow-editor
+
+  setup-client:
     steps:
     - script@1.1.5:
         title: Install required testing tools
@@ -22,33 +37,46 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            # Check for unhandled errors
-            go get -u github.com/kisielk/errcheck
-            # Go lint
-            go get -u golang.org/x/lint/golint
-  assets-precompile:
+            gem install bundler:1.17.3
+            bundle install --path .bundle/inst
+            npm ci
+
+  middleman-build:
     before_run:
-    - middleman-build
+    - setup-client
     steps:
     - script:
         inputs:
-        - content: |-
+        - content: |
             #!/bin/bash
             set -ex
-            go get github.com/GeertJohan/go.rice/rice
-            rm -rf ./apiserver/www/
-            mv ./build/ ./apiserver/www/
-            cd ./apiserver
-            rice embed-go
+            bundle exec middleman build --clean --verbose
+
+  middleman-build-for-bitrise-io:
+    envs:
+      - MODE: "WEBSITE"
+    after_run:
+    - middleman-build
+
+  up-middleman-server:
+    before_run:
+    - setup-client
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            bundle exec middleman server
+
   ci:
     before_run:
     - _install_test_tools
-    - middleman-build
-    - test
-  create-binaries:
-    title: Create binaries
-    description: |
-      Creates Linux and Darwin binaries
+    - setup-client
+    - test-api
+    - test-client
+
+  go-install:
     before_run:
     - assets-precompile
     steps:
@@ -70,7 +98,60 @@ workflows:
 
             echo "  Create final Darwin binary at: $BIN_PATH_DARWIN"
 
-            version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
+  test-client:
+    steps:
+    - script:
+        title: Karma tests
+        inputs:
+        - content: npm test
+
+  test-api:
+    steps:
+    - script:
+        title: GOLIST_WITHOUT_VENDOR
+        inputs:
+        - content: |-
+            set -ex
+            no_vendor_paths="$(go list ./... | grep -v vendor)"
+            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
+          opts:
+            # opts, for bitrise.yml parsing test in the workflow editor
+            is_expand: true
+            title: The Script Content - test title
+            is_required: true
+            is_dont_change_value: false
+    - script:
+        title: Go Test
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # go test $GOLIST_WITHOUT_VENDOR
+            go test ./...
+    - script:
+        title: Go Vet
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            go vet $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Err check
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+    - script:
+        title: Go Lint
+        inputs:
+        - content: |-
+            #!/bin/bash
+            set -ex
+            # lint
+            while read -r line; do
+              golint -set_exit_status $line
+            done <<< "$GOLIST_WITHOUT_VENDOR"
 
             go build \
               -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
