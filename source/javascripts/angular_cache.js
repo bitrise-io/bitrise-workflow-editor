@@ -1,6 +1,5 @@
-//= require angular_cache_modules/_angular
-//= require angular_cache_modules/_angular-cookies
-//= require angular_cache_modules/_angular-animate
-//= require angular_cache_modules/_angular-sanitize
-//= require angular_cache_modules/_angular-route
-//= require angular_cache_modules/_angular-mocks
+//= require angular/angular.min
+//= require angular-cookies/angular-cookies.min
+//= require angular-animate/angular-animate.min
+//= require angular-sanitize/angular-sanitize.min
+//= require angular-route/angular-route.min
