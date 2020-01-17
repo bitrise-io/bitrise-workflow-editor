@@ -13,7 +13,11 @@
         };
 
         var isStepVersionable = function(step) {
-            return step.libraryURL !== undefined;
+            return !!step.libraryURL;
+        };
+
+        var isStepLocal = function(step) {
+            return !!step.localPath;
         };
 
         stepSourceService.stepFromCVS = function(cvs) {
@@ -102,12 +106,16 @@
 
         stepSourceService.versionsOfStep = function(step) {
             if (!isStepVersionable(step) && !step.gitURL) {
-                return !step.localPath ? undefined : [step.version];
+                return isStepLocal(step) ? [step.version] : null;
             }
 
             var library = _.find(stepSourceService.libraries, {
                 url: step.libraryURL
             });
+
+            if (!library) {
+                return null;
+            }
 
             var stepVersions = Object.keys(library.steps[step.id]);
             return semverService.extractWildcardVersions(stepVersions);
@@ -143,7 +151,7 @@
                 step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
             }
 
-            if (version !== null) {
+            if (version) {
                 step.cvs += "@" + semverService.shortenWildcardVersion(version);
                 step.version = version;
             }

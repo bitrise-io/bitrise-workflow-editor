@@ -1,84 +1,214 @@
 describe("stepSourceService", function() {
 
-	var stepSourceService;
+    var stepSourceService;
+    var TEST_STEP_ID = 'mockStep';
+    var TEST_LIB_URL = 'http://tempuri.org';
+    var mockSemverService;
 
-	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function(_stepSourceService_) {
-		stepSourceService = _stepSourceService_;
-		stepSourceService.defaultLibraryURL = "default-library-url.git";
-	}));
+    beforeEach(() => {
+        mockSemverService = {
+            extractWildcardVersions: jasmine.createSpy("extractWildcardVersions"),
+            resolveVersion: jasmine.createSpy("resolveVersion"),
+            shortenWildcardVersion: jasmine.createSpy("shortenWildcardVersion"),
+            normalizeVersion: jasmine.createSpy("normalizeVersion"),
+        };
 
-	describe("stepFromCVS", function() {
+        module("BitriseWorkflowEditor");
+        module(($provide) => {
+            $provide.value('semverService', mockSemverService);
+        });
+    });
 
-		it("should return local step", function() {
-			expect(stepSourceService.stepFromCVS("path::path/to/step").localPath).not.toBeUndefined();
-			expect(stepSourceService.stepFromCVS("path::path/to/step").localPath).toBe("path/to/step");
-			expect(stepSourceService.stepFromCVS("path::path/to/step::another/path/to/step@1.0@2.0").localPath).toBe("path/to/step::another/path/to/step@1.0");
-			expect(stepSourceService.stepFromCVS("path::::").localPath).toBe("::");
-			expect(stepSourceService.stepFromCVS("path::::@1.0").localPath).toBe("::");
-		});
+    beforeEach(inject((_stepSourceService_) => {
+        stepSourceService = _stepSourceService_;
+        stepSourceService.defaultLibraryURL = TEST_LIB_URL;
 
-		it("should raise error on invalid local step CVS", function() {
-			expect(function() { stepSourceService.stepFromCVS("path::"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("path::@"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("path::@1.0"); }).toThrow();
-		});
+        stepSourceService.libraries = [{
+            url: TEST_LIB_URL,
+            steps: {
+                [TEST_STEP_ID]: {
+                    '2.2.1': { defaultStepConfig: '2.2.1 config' },
+                    '1.2.1': { defaultStepConfig: '1.2.1 config' },
+                    '1.1.1': { defaultStepConfig: '1.1.1 config' },
+                    '1.0.0': { defaultStepConfig: '1.0.0 config' },
+                }
+            },
+            latestStepVersions: {
+                [TEST_STEP_ID]: '2.2.1'
+            }
+        }];
+    }));
 
-		it("should return git step", function() {
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").gitURL).not.toBeUndefined();
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").gitURL).toBe("git-url.git");
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").version).toBe("1.0");
-			expect(stepSourceService.stepFromCVS("git::git-url.git").version).toBeNull();
-			expect(stepSourceService.stepFromCVS("git::git-url.git@").version).toBeNull();
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@").gitURL).toBe("git-url.git@1.0");
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@").version).toBeNull();
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@2.0").gitURL).toBe("git-url.git@1.0");
-			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@2.0").version).toBe("2.0");
-			expect(stepSourceService.stepFromCVS("git::git-url.git::another-git-url.git@1.0@2.0").gitURL).toBe("git-url.git::another-git-url.git@1.0");
-		});
+    describe("stepFromCVS", function() {
 
-		it("should raise error on invalid git step CVS", function() {
-			expect(function() { stepSourceService.stepFromCVS("git::"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("git::@"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("git::@1.0"); }).toThrow();
-		});
+        it("should return local step", function() {
+            expect(stepSourceService.stepFromCVS("path::path/to/step").localPath).not.toBeUndefined();
+            expect(stepSourceService.stepFromCVS("path::path/to/step").localPath).toBe("path/to/step");
+            expect(stepSourceService.stepFromCVS("path::path/to/step::another/path/to/step@1.0@2.0").localPath).toBe("path/to/step::another/path/to/step@1.0");
+            expect(stepSourceService.stepFromCVS("path::::").localPath).toBe("::");
+            expect(stepSourceService.stepFromCVS("path::::@1.0").localPath).toBe("::");
+        });
 
-		it("should return library step", function() {
-			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").libraryURL).not.toBeUndefined();
-			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").libraryURL).toBe("library-url.git");
-			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").id).toBe("step-id");
-			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").version).toBe("1.0");
-			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").libraryURL).toBe("git@library-url.git");
-			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").id).toBe("step-id");
-			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").version).toBe("1.0");
-			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id").version).toBeNull();
-			expect(stepSourceService.stepFromCVS("step-id@1.0").libraryURL).toBe("default-library-url.git");
-			expect(stepSourceService.stepFromCVS("::step-id@1.0").libraryURL).toBe("default-library-url.git");
-			expect(stepSourceService.stepFromCVS("library-url.git::step-id").version).toBeNull();
-			expect(stepSourceService.stepFromCVS("library-url.git::step-id@").version).toBeNull();
-			expect(stepSourceService.stepFromCVS("library-url.git::another-library-url.git::step-id@1.0@2.0").libraryURL).toBe("library-url.git");
-			expect(stepSourceService.stepFromCVS("library-url.git::another-library-url.git::step-id@1.0@2.0").id).toBe("another-library-url.git::step-id@1.0");
-			expect(stepSourceService.stepFromCVS("library-url.git::another-library-url.git::step-id@1.0@2.0").version).toBe("2.0");
-			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").id).toBe("@1.0");
-			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").version).toBe("2.0");
-		});
+        it("should raise error on invalid local step CVS", function() {
+            expect(function() { stepSourceService.stepFromCVS("path::"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("path::@"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("path::@1.0"); }).toThrow();
+        });
 
-		it("should raise error on invalid library step CVS", function() {
-			expect(function() { stepSourceService.stepFromCVS("::"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("::@"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("::@1.0"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("library-url::"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("library-url::@"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("library-url::@1.0"); }).toThrow();
-		});
+        it("should return git step", function() {
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").gitURL).not.toBeUndefined();
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").gitURL).toBe("git-url.git");
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").version).toBe("1.0");
+            expect(stepSourceService.stepFromCVS("git::git-url.git").version).toBeNull();
+            expect(stepSourceService.stepFromCVS("git::git-url.git@").version).toBeNull();
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@").gitURL).toBe("git-url.git@1.0");
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@").version).toBeNull();
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@2.0").gitURL).toBe("git-url.git@1.0");
+            expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@2.0").version).toBe("2.0");
+            expect(stepSourceService.stepFromCVS("git::git-url.git::another-git-url.git@1.0@2.0").gitURL).toBe("git-url.git::another-git-url.git@1.0");
+        });
 
-		it("should raise error if library step has no library specified nor is default library specified", function() {
-			stepSourceService.defaultLibraryURL = null;
+        it("should raise error on invalid git step CVS", function() {
+            expect(function() { stepSourceService.stepFromCVS("git::"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("git::@"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("git::@1.0"); }).toThrow();
+        });
 
-			expect(function() { stepSourceService.stepFromCVS("step-id@1.0"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("::step-id@1.0"); }).toThrow();
-		});
+        it("should return library step", function() {
+            mockSemverService.resolveVersion.and.returnValue('1.0.0');
 
-	});
+            expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).not.toBeUndefined();
+            expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).toBe("library-url.git");
+            expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).id).toBe(TEST_STEP_ID);
+            expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).version).toBe("1.0");
+            expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).toBe("git@library-url.git");
+            expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).id).toBe(TEST_STEP_ID);
+            expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).version).toBe("1.0");
+            expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}`).version).toBeNull();
+            expect(stepSourceService.stepFromCVS(`${TEST_STEP_ID}@1.0.0`).libraryURL).toBe(TEST_LIB_URL);
+            expect(stepSourceService.stepFromCVS(`::${TEST_STEP_ID}@1.0.0`).libraryURL).toBe(TEST_LIB_URL);
+            expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}`).version).toBeNull();
+            expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@`).version).toBeNull();
+            expect(stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).libraryURL).toBe("library-url.git");
+            expect(stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).id).toBe(`another-library-url.git::${TEST_STEP_ID}@1.0`);
+            expect(stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).version).toBe("2.0");
+            expect(stepSourceService.stepFromCVS(`library-url.git::@1.0@2.0`).id).toBe("@1.0");
+            expect(stepSourceService.stepFromCVS(`library-url.git::@1.0@2.0`).version).toBe("2.0");
+        });
 
+        it("should raise error on invalid library step CVS", function() {
+            expect(function() { stepSourceService.stepFromCVS("::"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("::@"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("::@1.0"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("library-url::"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("library-url::@"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("library-url::@1.0"); }).toThrow();
+        });
+
+        it("should raise error if library step has no library specified nor is default library specified", function() {
+            stepSourceService.defaultLibraryURL = null;
+
+            expect(function() { stepSourceService.stepFromCVS("${TEST_STEP_ID}@1.0"); }).toThrow();
+            expect(function() { stepSourceService.stepFromCVS("::${TEST_STEP_ID}@1.0"); }).toThrow();
+        });
+
+        it("should be able to create wildcard version library steps", () => {
+            mockSemverService.normalizeVersion.and.returnValue('1.x.x');
+            mockSemverService.resolveVersion.and.returnValue('1.2.1');
+
+            var step = stepSourceService.stepFromCVS(`${TEST_STEP_ID}@1`);
+
+            expect(step.version).toEqual('1.x.x');
+            expect(step.defaultStepConfig).toEqual('1.2.1 config');
+        });
+    });
+
+    describe("changeStepToVersion", () => {
+        var MOCK_STEP;
+
+        beforeEach(() => {
+            MOCK_STEP = {
+                id: TEST_STEP_ID,
+                cvs: 'MOCK_STEP@1.1.1',
+                version: '1.1.1',
+                defaultStepConfig: '1.1.1 config',
+                libraryURL: 'http://tempuri.org'
+            };
+        });
+
+        it("should update step configs to wildcard change", () => {
+            var newVersion = '2.x.x';
+            mockSemverService.resolveVersion.and.returnValue('2.2.1');
+            mockSemverService.shortenWildcardVersion.and.returnValue('2');
+
+            stepSourceService.changeStepToVersion(MOCK_STEP, newVersion);
+
+            expect(MOCK_STEP.version).toEqual(newVersion);
+            expect(MOCK_STEP.cvs).toEqual('MOCK_STEP@2');
+            expect(MOCK_STEP.defaultStepConfig).toEqual('2.2.1 config');
+        });
+
+        it("should not do anything if the step library URL is undefined", () => {
+            var mockStep = { defaultStepConfig: '1.1.1 config' };
+
+            stepSourceService.changeStepToVersion(mockStep, '1.2.x');
+
+            expect(mockStep.defaultStepConfig).toEqual('1.1.1 config');
+        });
+
+        it("should set latest if the passed version is null", () => {
+            mockSemverService.resolveVersion.and.returnValue('2.2.1');
+
+            stepSourceService.changeStepToVersion(MOCK_STEP, null);
+
+            expect(MOCK_STEP.version).toEqual('2.2.1');
+            expect(MOCK_STEP.cvs).toEqual('MOCK_STEP');
+            expect(MOCK_STEP.defaultStepConfig).toEqual('2.2.1 config');
+        });
+    });
+
+    describe("versionsOfStep", () => {
+        var MOCK_STEP;
+
+        beforeEach(() => {
+            MOCK_STEP = {
+                id: TEST_STEP_ID,
+                cvs: 'MOCK_STEP@1.1.1',
+                version: '1.1.1',
+                defaultStepConfig: '1.1.1 config',
+                libraryURL: 'http://tempuri.org'
+            };
+        });
+
+        it("should return its own version if the step is not versionable but local", () => {
+            MOCK_STEP.libraryURL = null;
+            MOCK_STEP.localPath = 'path::./var/step';
+
+            var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+
+            expect(versions).toEqual([MOCK_STEP.version]);
+        });
+
+        it("should return null if the step is not versionable and not local", () => {
+            MOCK_STEP.libraryURL = null;
+
+            var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+
+            expect(versions).toBeNull();
+        });
+
+        it("should return null if the step is pointing to a wrong library", () => {
+            MOCK_STEP.libraryURL = 'http://this-does-not-exist';
+
+            var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+
+            expect(versions).toBeNull();
+        });
+
+        it('should use existing step versions in the library', () => {
+            stepSourceService.versionsOfStep(MOCK_STEP);
+
+            expect(mockSemverService.extractWildcardVersions).toHaveBeenCalledWith(['2.2.1', '1.2.1', '1.1.1', '1.0.0']);
+        });
+    });
 });

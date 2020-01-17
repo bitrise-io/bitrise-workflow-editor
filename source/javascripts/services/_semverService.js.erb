@@ -3,7 +3,7 @@
 angular.module("BitriseWorkflowEditor").factory("semverService", function() {
     var WILDCARD = 'x';
     var WILDCARD_REGEX = new RegExp('\.' + WILDCARD, 'g');
-    var validVersionRegex = /^\d+\.\d+\.\d+$/g;
+    var fullVersionRegex = /^\d+\.\d+\.\d+$/g;
 
     var semverService = {
         WILDCARD: WILDCARD,
@@ -45,7 +45,7 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
     };
 
     semverService.normalizeVersion = function(version) {
-        if (!version || validVersionRegex.test(version)) {
+        if (!version || fullVersionRegex.test(version)) {
             return version;
         }
 
