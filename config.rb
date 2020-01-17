@@ -6,8 +6,6 @@ activate :directory_indexes
 
 activate :livereload
 
-activate :livereload
-
 helpers do
 
 	# path helpers
