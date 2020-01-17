@@ -2,13 +2,13 @@
 
 angular.module("BitriseWorkflowEditor").filter("wildcardVersions", ["stepSourceService", function(stepSourceService) {
     var shouldInsertLatest = function(step) {
-        return step.libraryURL !== undefined;
+        return step.isLibraryStep();
     };
 
-    return function(selectedStep) {
-        var wildcardVersions = stepSourceService.versionsOfStep(selectedStep);
-        var latestVal = shouldInsertLatest(selectedStep) ? [null] : [];
+    return function(step) {
+        var baseVersion = shouldInsertLatest(step) ? [null, step.version] : [step.version];
+        var wildcardVersions = stepSourceService.versionsOfStep(step);
 
-        return latestVal.concat(wildcardVersions);
+        return _.union(baseVersion, wildcardVersions);
     };
 }]);
