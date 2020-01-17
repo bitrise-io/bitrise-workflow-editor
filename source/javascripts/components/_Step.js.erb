@@ -146,6 +146,14 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return (this.info || {}).maintainer === 'community';
 	};
 
+	Step.prototype.isLocal = function() {
+		return !!this.localPath;
+	};
+
+	Step.prototype.isLibraryStep = function() {
+		return !!this.libraryURL;
+	};
+
 	Step.prototype.isDeprecated = function() {
 		if (this.libraryURL === undefined) {
 			return undefined;
@@ -239,7 +247,7 @@ angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() 
 		if (regexpForBitbucketStepSourceURL.test(sourceURL)) {
 			return "bitbucket";
 		}
-		
+
 		var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
 		if (regexpForGitlabStepSourceURL.test(sourceURL)) {
 			return "gitlab";

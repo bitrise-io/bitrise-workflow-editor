@@ -132,7 +132,8 @@ describe("stepSourceService", function() {
 				cvs: 'MOCK_STEP@1.1.1',
 				version: '1.1.1',
 				defaultStepConfig: '1.1.1 config',
-				libraryURL: 'http://tempuri.org'
+				libraryURL: 'http://tempuri.org',
+				isLibraryStep: () => true,
 			};
 		});
 
@@ -148,12 +149,12 @@ describe("stepSourceService", function() {
 			expect(MOCK_STEP.defaultStepConfig).toEqual('2.2.1 config');
 		});
 
-		it("should not do anything if the step library URL is undefined", () => {
-			var mockStep = { defaultStepConfig: '1.1.1 config' };
+		it("should not do anything if the step is not library step", () => {
+			MOCK_STEP.isLibraryStep = () => false;
 
-			stepSourceService.changeStepToVersion(mockStep, '1.2.x');
+			stepSourceService.changeStepToVersion(MOCK_STEP, '1.2.x');
 
-			expect(mockStep.defaultStepConfig).toEqual('1.1.1 config');
+			expect(MOCK_STEP.defaultStepConfig).toEqual('1.1.1 config');
 		});
 
 		it("should set latest if the passed version is null", () => {
@@ -176,25 +177,27 @@ describe("stepSourceService", function() {
 				cvs: 'MOCK_STEP@1.1.1',
 				version: '1.1.1',
 				defaultStepConfig: '1.1.1 config',
-				libraryURL: 'http://tempuri.org'
+				libraryURL: 'http://tempuri.org',
+				isLibraryStep: () => true,
 			};
 		});
 
-		it("should return its own version if the step is not versionable but local", () => {
-			MOCK_STEP.libraryURL = null;
-			MOCK_STEP.localPath = 'path::./var/step';
-
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(versions).toEqual([MOCK_STEP.version]);
-		});
-
-		it("should return null if the step is not versionable and not local", () => {
-			MOCK_STEP.libraryURL = null;
+		it("should return null version if the step is local", () => {
+			MOCK_STEP.isLibraryStep = () => false;
+			MOCK_STEP.isLocal = () => true;
 
 			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
 
 			expect(versions).toBeNull();
+		});
+
+		it("should return its own version if the step is github step", () => {
+			MOCK_STEP.isLibraryStep = () => false;
+			MOCK_STEP.isLocal = () => false;
+
+			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+
+			expect(versions).toEqual(['1.1.1'])
 		});
 
 		it("should return null if the step is pointing to a wrong library", () => {

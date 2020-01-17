@@ -12,14 +12,6 @@
 			gitSteps: []
 		};
 
-		var isStepVersionable = function(step) {
-			return !!step.libraryURL;
-		};
-
-		var isStepLocal = function(step) {
-			return !!step.localPath;
-		};
-
 		stepSourceService.stepFromCVS = function(cvs) {
 			var step = new Step(cvs);
 
@@ -106,8 +98,8 @@
 		};
 
 		stepSourceService.versionsOfStep = function(step) {
-			if (!isStepVersionable(step) && !step.gitURL) {
-				return isStepLocal(step) ? [step.version] : null;
+			if (!step.isLibraryStep()) {
+				return step.isLocal() ? null : [step.version];
 			}
 
 			var library = _.find(stepSourceService.libraries, {
@@ -139,7 +131,7 @@
 		};
 
 		stepSourceService.changeStepToVersion = function(step, version) {
-			if (!isStepVersionable(step)) {
+			if (!step.isLibraryStep()) {
 				return ;
 			}
 
