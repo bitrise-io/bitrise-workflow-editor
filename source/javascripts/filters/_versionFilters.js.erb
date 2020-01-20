@@ -1,14 +1,36 @@
 "use strict";
 
-angular.module("BitriseWorkflowEditor").filter("wildcardVersions", ["stepSourceService", function(stepSourceService) {
-    var shouldInsertLatest = function(step) {
-        return step.isLibraryStep();
-    };
+var VERSION_LABEL_KEY = "label";
 
-    return function(step) {
-        var baseVersion = shouldInsertLatest(step) ? [null, step.version] : [step.version];
-        var wildcardVersions = stepSourceService.versionsOfStep(step);
+angular.module("BitriseWorkflowEditor")
+    .filter("versionLabel", function() {
+        return function(version) {
+            var label = version && version[VERSION_LABEL_KEY];
+            return !label ? "#{ data[:strings][:workflows][:steps][:always_latest] }" : label;
+        };
+    })
+    .filter("stepVersions", ["stepSourceService", function(stepSourceService) {
+        var shouldInsertLatest = function(step) {
+            return step.isLibraryStep();
+        };
 
-        return _.union(baseVersion, wildcardVersions);
-    };
-}]);
+        var versionList = function(versions, disabled) {
+            return _.map(versions, function(ver) {
+                var versionModel = {disabled: disabled };
+                versionModel[VERSION_LABEL_KEY] = ver;
+                return versionModel;
+            });
+        };
+
+        var baseVersions = function(step) {
+            var baseVersions = shouldInsertLatest(step) ? _.uniq([null, step.version]) : [step.version];
+            return versionList(baseVersions, true);
+        };
+
+        return function(step) {
+            var bases = baseVersions(step);
+            var wildcards = versionList(stepSourceService.versionsOfStep(step), false);
+
+            return _.union(bases, wildcards);
+        };
+    }]);
