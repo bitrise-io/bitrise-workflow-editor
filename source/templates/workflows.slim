@@ -62,7 +62,7 @@
 													.step-badge.step-badge--official[ng-if="step.isOfficial()"] = svg("step/badge-official")
 													.step-badge.step-badge--verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 												span.step-badge[ng-if="step.isDeprecated()"] = svg("step/badge-deprecated")
-											em.version[ng-if="step.version"]
+											em.version[ng-if="step.version !== undefined"]
 												span<[ng-if="step.requestedVersion()" ng-bind="step.version"]
 												span<[ng-if="!step.requestedVersion()"]
 													span == + data[:strings][:workflows][:steps][:always_latest]
@@ -94,7 +94,7 @@
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
 									= svg("arrow-down")
-							section.version[ng-if="workflowsCtrl.selectedStep.version"]
+							section.version[ng-if="!!workflowsCtrl.selectedStep.version !== undefined"]
 								span.icon[ng-class="{'latest': stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)}"]
 								label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
 								select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (workflowsCtrl.selectedStep | wildcardVersions)" ng-model="workflowsCtrl.requestedStepVersion"]
