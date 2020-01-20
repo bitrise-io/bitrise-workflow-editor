@@ -1,6 +1,8 @@
 "use strict";
 
 angular.module("BitriseWorkflowEditor").filter("wildcardVersions", ["stepSourceService", function(stepSourceService) {
+    var LATEST_VER = null;
+
     var shouldInsertLatest = function(step) {
         return step.isLibraryStep();
     };
@@ -15,8 +17,8 @@ angular.module("BitriseWorkflowEditor").filter("wildcardVersions", ["stepSourceS
     return function(step) {
         var versions = stepVersions(step);
 
-        if (shouldInsertLatest(step) && !_.contains(versions, null)) {
-            return [null].concat(versions);
+        if (shouldInsertLatest(step)) {
+            return _.union([LATEST_VER], versions);
         }
 
         return versions;

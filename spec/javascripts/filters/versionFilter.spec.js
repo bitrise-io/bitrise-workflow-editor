@@ -44,4 +44,13 @@ describe("VersionFilter", () => {
 
         expect(versions).toEqual(["1.2.x", "1.2.3"]);
     });
+
+    it("should always state step version first even if the version is null (latest)", () => {
+        mockStepSourceService.versionsOfStep.and.returnValue(["2.0.x", "1.2.x"]);
+        mockStep.version = null;
+
+        var versions = versionFilter(mockStep);
+
+        expect(versions).toEqual([null, "2.0.x", "1.2.x"]);
+    });
 });
