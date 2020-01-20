@@ -15,12 +15,9 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
         var semverParts = version.split('.');
         var wildcardParts = wildcard.split('.');
 
-        var matchingVersionPart = true;
-        for (var i = 0; matchingVersionPart && i < semverParts.length; i++) {
-            matchingVersionPart = semverParts[i] == wildcardParts[i] || wildcardParts[i] == WILDCARD;
-        }
-
-        return matchingVersionPart;
+        return _.every(semverParts, function(aSemverPart, index) {
+            return aSemverPart == wildcardParts[index] || wildcardParts[index] == WILDCARD;
+        });
     };
 
     var reverseSorter = function(verStr1, verStr2) {
