@@ -214,4 +214,38 @@ describe("stepSourceService", function() {
 			expect(mockSemverService.extractWildcardVersions).toHaveBeenCalledWith(["2.2.1", "1.2.1", "1.1.1", "1.0.0"]);
 		});
 	});
+
+	describe("isLatestStepVersion", () => {
+		it("should return false for local step", () => {
+			var isLatest = stepSourceService.isLatestStepVersion({
+				isLibraryStep: () => false,
+				isLocal: () => true,
+			});
+
+			expect(isLatest).toBeFalsy();
+		});
+
+		it("should return true for github step", () => {
+			var isLatest = stepSourceService.isLatestStepVersion({
+				isLibraryStep: () => false,
+				isLocal: () => false,
+			});
+
+			expect(isLatest).toBeTruthy();
+		});
+
+		it("should check resolved versions for library steps", () => {
+			var mockStep = {
+				id: TEST_STEP_ID,
+				isLibraryStep: () => true,
+				libraryURL: TEST_LIB_URL,
+			};
+
+			mockSemverService.resolveVersion.and.returnValue("1.3.4");
+			expect(stepSourceService.isLatestStepVersion(mockStep)).toBeFalsy();
+
+			mockSemverService.resolveVersion.and.returnValue("2.2.1");
+			expect(stepSourceService.isLatestStepVersion(mockStep)).toBeTruthy();
+		});
+	});
 });
