@@ -55,10 +55,8 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
         });
     };
 
-    semverService.extractWildcardVersions = function(versions) {
-        if (!versions) {
-            return versions;
-        }
+    semverService.extractWildcardVersions = function(step, stepCatalogue) {
+        var versions = Object.keys(stepCatalogue.steps[step.id]);
 
         return _.chain(versions)
             .map(function(version) {
@@ -72,20 +70,26 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
                 ];
             })
             .flatten()
+            .tap(function(wVersions) {
+                if (step.version) {
+                    // adding step own version if any
+                    wVersions.push(step.version);
+                }
+            })
             .uniq()
             .value()
             .sort(reverseSorter);
     };
 
-    semverService.resolveVersion = function(version, stepId, stepCatalogue) {
-        version = semverService.normalizeVersion(version);
+    semverService.resolveVersion = function(step, stepCatalogue) {
+        var version = semverService.normalizeVersion(step.version);
 
         if (!version) {
-            return stepCatalogue.latestStepVersions[stepId];
+            return stepCatalogue.latestStepVersions[step.id];
         }
 
         var compatibleToVersion = _.partial(isVersionCompatible, version);
-        var stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(reverseSorter);
+        var stepVersions = Object.keys(stepCatalogue.steps[step.id]).sort(reverseSorter);
 
         return _.chain(stepVersions)
             .find(compatibleToVersion)

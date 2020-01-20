@@ -1,26 +1,20 @@
 "use strict";
 
-angular.module("BitriseWorkflowEditor").filter("wildcardVersions", ["stepSourceService", function(stepSourceService) {
-    var LATEST_VER = null;
+angular.module("BitriseWorkflowEditor")
+    .filter("stepVersions", ["stepSourceService", function(stepSourceService) {
+        var LATEST_VER = null;
 
-    var shouldInsertLatest = function(step) {
-        return step.isLibraryStep();
-    };
+        var shouldInsertLatest = function(step) {
+            return step.isLibraryStep();
+        };
 
-    var stepVersions = function(step) {
-        var wildcardVersions = stepSourceService.versionsOfStep(step);
+        return function(step) {
+            var wildcardVersions = stepSourceService.versionsOfStep(step);
 
-        // inserts step version and remove duplication
-        return _.union(wildcardVersions, [step.version]);
-    };
+            if (shouldInsertLatest(step)) {
+                return _.union([LATEST_VER], wildcardVersions);
+            }
 
-    return function(step) {
-        var versions = stepVersions(step);
-
-        if (shouldInsertLatest(step)) {
-            return _.union([LATEST_VER], versions);
-        }
-
-        return versions;
-    };
-}]);
+            return wildcardVersions;
+        };
+    }]);

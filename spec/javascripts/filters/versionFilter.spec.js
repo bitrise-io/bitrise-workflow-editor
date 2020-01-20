@@ -1,7 +1,7 @@
-describe("VersionFilter", () => {
-    var versionFilter;
-    var mockStepSourceService;
-    var mockStep;
+describe("VersionFilters", () => {
+    let stepVersions;
+    let mockStepSourceService;
+    let mockStep;
 
     beforeEach(() => {
         mockStepSourceService = {
@@ -13,44 +13,34 @@ describe("VersionFilter", () => {
 			$provide.value("stepSourceService", mockStepSourceService);
         });
 
-        mockStep = {
-            version: "1.2.3",
-            isLibraryStep: () => true,
-        };
+        mockStep = { isLibraryStep: () => true };
     });
 
-    beforeEach(inject((_wildcardVersionsFilter_) => {
-        versionFilter = _wildcardVersionsFilter_;
+    beforeEach(inject((_stepVersionsFilter_) => {
+        stepVersions = _stepVersionsFilter_;
     }));
 
-    it("should use stepSource service to calculate wildcard versions", () => {
-        versionFilter(mockStep);
-        expect(mockStepSourceService.versionsOfStep).toHaveBeenCalledWith(mockStep);
-    });
+    describe("stepVersionsFilter", () => {
+        it("should use stepSource service to calculate wildcard versions", () => {
+            stepVersions(mockStep);
+            expect(mockStepSourceService.versionsOfStep).toHaveBeenCalledWith(mockStep);
+        });
 
-    it("should include latest version and own version as well in the list if the step is a library step", () => {
-        mockStepSourceService.versionsOfStep.and.returnValue(["2.0.x", "1.2.x"]);
+        it("should include latest version and own version as well in the list if the step is a library step", () => {
+            mockStepSourceService.versionsOfStep.and.returnValue(["2.0.x", "1.2.x", "1.1.1"]);
 
-        var versions = versionFilter(mockStep);
+            const versions = stepVersions(mockStep);
 
-        expect(versions).toEqual([null, "2.0.x", "1.2.x", "1.2.3"]);
-    });
+            expect(versions).toEqual([null, "2.0.x", "1.2.x", "1.1.1"]);
+        });
 
-    it("should not include latest version in the list if the step is not library step", () => {
-        mockStep.isLibraryStep = () => false;
-        mockStepSourceService.versionsOfStep.and.returnValue(["1.2.x"]);
+        it("should not include latest version in the list if the step is not library step", () => {
+            mockStep.isLibraryStep = () => false;
+            mockStepSourceService.versionsOfStep.and.returnValue(["1.2.x"]);
 
-        var versions = versionFilter(mockStep);
+            const versions = stepVersions(mockStep);
 
-        expect(versions).toEqual(["1.2.x", "1.2.3"]);
-    });
-
-    it("should always state step version first even if the version is null (latest)", () => {
-        mockStepSourceService.versionsOfStep.and.returnValue(["2.0.x", "1.2.x"]);
-        mockStep.version = null;
-
-        var versions = versionFilter(mockStep);
-
-        expect(versions).toEqual([null, "2.0.x", "1.2.x"]);
+            expect(versions).toEqual(["1.2.x"]);
+        });
     });
 });

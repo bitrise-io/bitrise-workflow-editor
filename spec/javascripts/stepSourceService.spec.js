@@ -211,7 +211,8 @@ describe("stepSourceService", function() {
 		it("should use existing step versions in the library to calculate wildcard ones", () => {
 			stepSourceService.versionsOfStep(MOCK_STEP);
 
-			expect(mockSemverService.extractWildcardVersions).toHaveBeenCalledWith(["2.2.1", "1.2.1", "1.1.1", "1.0.0"]);
+			expect(mockSemverService.extractWildcardVersions)
+				.toHaveBeenCalledWith(MOCK_STEP, stepSourceService.libraries[0]);
 		});
 	});
 

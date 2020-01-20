@@ -82,14 +82,13 @@
 						throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>" + step.id);
 					}
 
-					var normalizedVersion = semverService.normalizeVersion(step.version);
-					var requestedVersion = semverService.resolveVersion(normalizedVersion, step.id, library);
+					step.version = semverService.normalizeVersion(step.version);
+					var requestedVersion = semverService.resolveVersion(step, library);
 
 					if (!library.steps[step.id][requestedVersion]) {
 						throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_version_error_prefix] %>"+ requestedVersion);
 					}
 
-					step.version = normalizedVersion;
 					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
 				break;
 			}
@@ -110,8 +109,7 @@
 				return null;
 			}
 
-			var stepVersions = Object.keys(library.steps[step.id]);
-			return semverService.extractWildcardVersions(stepVersions);
+			return semverService.extractWildcardVersions(step, library);
 		};
 
 		stepSourceService.isLatestStepVersion = function(step) {
@@ -128,7 +126,7 @@
 				return false;
 			}
 
-			var stepVersion = semverService.resolveVersion(step.version, step.id, library);
+			var stepVersion = semverService.resolveVersion(step, library);
 			return stepVersion === library.latestStepVersions[step.id];
 		};
 
@@ -154,7 +152,7 @@
 				step.version = library.latestStepVersions[step.id];
 			}
 
-			var stepVersion = semverService.resolveVersion(step.version, step.id, library);
+			var stepVersion = semverService.resolveVersion(step, library);
 			step.defaultStepConfig = library.steps[step.id][stepVersion].defaultStepConfig;
 		};
 
