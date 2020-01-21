@@ -6,14 +6,13 @@ angular.module("BitriseWorkflowEditor").service("stringService", function() {
 
 	var stringService = {};
 
+	// underscore template settings
+	_.templateSettings = {
+		interpolate: /<([a-zA-Z0-9\-\_\.]+)>/g
+	};
+
 	stringService.stringReplacedWithParameters = function(string, parameters) {
-		_.each(parameters, function(aValue, aKey) {
-			var regexpForParameter = new RegExp("([^\<]*)\<" + aKey + "\>(.*)")
-
-			string = string.replace(regexpForParameter, "$1" + aValue + "$2");
-		});
-
-		return string;
+		return _.template(string)(parameters);
 	};
 
 	stringService.joinedString = function(strings, separator, shouldLeaveSpaceAfterSeparator) {
