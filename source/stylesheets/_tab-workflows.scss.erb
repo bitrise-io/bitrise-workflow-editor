@@ -607,16 +607,16 @@ header.sticky section.manage-workflows {
 									}
 								}
 
-								button.update-step {
-									$size: 14px;
+								.update-step {
+									$size: 6px;
 
-									@include position(absolute, 0, null, null, 52px);
 									@include size($size);
-									margin-top: (- $size / 2) + 3px;
-									margin-left: (- $size / 2) - 3px;
 									@include border-radius($size / 2);
-									background-color: $def-danger;
 									@include transition(background-color $def-transition_duration);
+
+									background-color: $def-danger;
+									display: inline-block;
+									margin: 0 .25em 1px 0;
 
 									&:hover, &:focus {
 										background-color: $def-danger-shade;
