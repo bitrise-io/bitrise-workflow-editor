@@ -300,6 +300,30 @@ describe("Step", function() {
 		});
 	});
 
+	describe("isLocal", () => {
+		it("should be local if localPath defined", () => {
+			step.localPath = "/path-to-file";
+			expect(step.isLocal()).toBeTruthy();
+		});
+
+		it("should not be local if localPath not defined", () => {
+			step.localPath = null;
+			expect(step.isLocal()).toBeFalsy();
+		});
+	});
+
+	describe("isLibraryStep", () => {
+		it("should be library step if libraryURL defined", () => {
+			step.libraryURL = "https://tempuri.org";
+			expect(step.isLibraryStep()).toBeTruthy();
+		});
+
+		it("should not be library step if libraryURL not defined", () => {
+			step.libraryURL = null;
+			expect(step.isLibraryStep()).toBeFalsy();
+		});
+	});
+
 	describe("verified", function() {
 		it("should not be verified if there is no information exists", function() {
 			expect(step.isVerified()).toBeFalsy();
