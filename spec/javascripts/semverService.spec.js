@@ -62,7 +62,7 @@ describe("SemverService", () => {
     });
 
     describe("extractWildcardVersions", () => {
-        it("should add step own version to wildcard versions", () => {
+        it("should add the step's own version to wildcard versions", () => {
             const mockStep = {
                 id: TEST_STEP_ID,
                 version: "1.2.1",
@@ -88,7 +88,7 @@ describe("SemverService", () => {
             ]);
         });
 
-        it("should add step version even if null to the beginning", () => {
+        it("should add the step's version at the beginning of the list if that is set to latest", () => {
             const mockStep = {
                 id: TEST_STEP_ID,
                 version: null,
