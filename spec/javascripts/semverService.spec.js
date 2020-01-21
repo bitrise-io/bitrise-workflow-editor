@@ -88,7 +88,7 @@ describe("SemverService", () => {
             ]);
         });
 
-        it("should only add step version if not null", () => {
+        it("should add step version even if null to the beginning", () => {
             const mockStep = {
                 id: TEST_STEP_ID,
                 version: null,
@@ -97,7 +97,7 @@ describe("SemverService", () => {
             const wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
 
             expect(wVersions).toEqual([
-                "12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
+                null, "12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
             ]);
         });
     });

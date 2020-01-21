@@ -26,14 +26,6 @@ describe("VersionFilters", () => {
             expect(mockStepSourceService.versionsOfStep).toHaveBeenCalledWith(mockStep);
         });
 
-        it("should include latest version and own version as well in the list if the step is a library step", () => {
-            mockStepSourceService.versionsOfStep.and.returnValue(["2.0.x", "1.2.x", "1.1.1"]);
-
-            const versions = stepVersions(mockStep);
-
-            expect(versions).toEqual([null, "2.0.x", "1.2.x", "1.1.1"]);
-        });
-
         it("should not include latest version in the list if the step is not library step", () => {
             mockStep.isLibraryStep = () => false;
             mockStepSourceService.versionsOfStep.and.returnValue(["1.2.x"]);

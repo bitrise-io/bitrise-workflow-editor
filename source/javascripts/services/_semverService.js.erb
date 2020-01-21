@@ -1,17 +1,26 @@
 "use strict";
 
 angular.module("BitriseWorkflowEditor").factory("semverService", function() {
-    var WILDCARD = 'x';
-    var WILDCARD_REGEX = new RegExp('\.' + WILDCARD, 'g');
-    var fullVersionRegex = /^\d+\.\d+\.\d+$/g;
-
     var semverService = {
         WILDCARD: WILDCARD,
         WILDCARD_REGEX: WILDCARD_REGEX,
         semver: _.template('{{ major }}.{{ minor }}.{{ patch }}'),
     };
 
+    var WILDCARD = 'x';
+    var WILDCARD_REGEX = new RegExp('\.' + WILDCARD, 'g');
+    var fullVersionRegex = /^\d+\.\d+\.\d+$/g;
+    var MAXSEMVER = semverService.semver({
+        major: Number.MAX_SAFE_INTEGER,
+        minor: Number.MAX_SAFE_INTEGER,
+        patch: Number.MAX_SAFE_INTEGER
+    });
+
     var isVersionCompatible = function(wildcard, version) {
+        if (!version) {
+            return false;
+        }
+
         var semverParts = version.split('.');
         var wildcardParts = wildcard.split('.');
 
@@ -21,8 +30,8 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
     };
 
     var reverseSorter = function(verStr1, verStr2) {
-        var ver1 = verStr1.split('.');
-        var ver2 = verStr2.split('.');
+        var ver1 = (verStr1 || MAXSEMVER).split('.');
+        var ver2 = (verStr2 || MAXSEMVER).split('.');
 
         var notEqInd = 0;
         while (ver1[notEqInd] == ver2[notEqInd] && notEqInd < Math.max(ver1.length, ver2.length)) {
@@ -75,10 +84,8 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
             })
             .flatten()
             .tap(function(wVersions) {
-                if (step.version) {
-                    // adding step own version if any
-                    wVersions.push(step.version);
-                }
+                // adding step own version
+                wVersions.push(step.version);
             })
             .uniq()
             .value()
