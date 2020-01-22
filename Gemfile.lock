@@ -1,6 +1,5 @@
 GEM
   remote: https://rubygems.org/
-  remote: https://rails-assets.org/
   specs:
     activesupport (4.2.11.1)
       i18n (~> 0.7)
@@ -101,11 +100,6 @@ GEM
       rack
     rack-test (1.1.0)
       rack (>= 1.0, < 3)
-    rails-assets-ace-builds (1.4.4)
-    rails-assets-angular (1.7.8)
-    rails-assets-angular-ui-ace (0.2.3)
-      rails-assets-ace-builds (>= 1, < 2)
-      rails-assets-angular (~> 1.0)
     rb-fsevent (0.10.3)
     rb-inotify (0.10.1)
       ffi (~> 1.0)
@@ -145,7 +139,6 @@ DEPENDENCIES
   middleman-livereload (>= 3.4.6)
   nokogiri (~> 1.10.4)
   rack (~> 1.6.11)
-  rails-assets-angular-ui-ace!
   slim (~> 3)
 
 BUNDLED WITH
