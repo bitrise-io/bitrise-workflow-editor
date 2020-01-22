@@ -117,9 +117,7 @@ describe("SemverService", () => {
 
         _.forEach(testCases, (test) => {
             it(`should resolve ${test[0]} to ${test[1]} against the library`, () => {
-                const mockStep = { id: TEST_STEP_ID, version: test[0] };
-
-                expect(semverService.resolveVersion(mockStep, mockCatalogue))
+                expect(semverService.resolveVersion(test[0], TEST_STEP_ID, mockCatalogue))
                     .toEqual(test[1]);
             });
         });

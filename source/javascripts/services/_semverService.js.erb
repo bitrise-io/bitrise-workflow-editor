@@ -94,15 +94,15 @@ angular.module("BitriseWorkflowEditor").factory("semverService", ["stringService
             .sort(reverseSorter);
     };
 
-    semverService.resolveVersion = function(step, stepCatalogue) {
-        var version = semverService.normalizeVersion(step.version);
+    semverService.resolveVersion = function(version, stepId, stepCatalogue) {
+        var version = semverService.normalizeVersion(version);
 
         if (!version) {
-            return stepCatalogue.latestStepVersions[step.id];
+            return stepCatalogue.latestStepVersions[stepId];
         }
 
         var compatibleToVersion = _.partial(isVersionCompatible, version);
-        var stepVersions = Object.keys(stepCatalogue.steps[step.id]).sort(reverseSorter);
+        var stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(reverseSorter);
 
         return _.chain(stepVersions)
             .find(compatibleToVersion)

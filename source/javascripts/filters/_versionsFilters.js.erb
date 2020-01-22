@@ -1,0 +1,26 @@
+"use strict";
+
+angular.module("BitriseWorkflowEditor")
+    .filter("isVersionDisabled", ["semverService", function(semverService) {
+        return _.negate(semverService.isVersionWildcard);
+    }])
+    .filter("versionLabel", function() {
+        return function(label) {
+            return label ? label : "<%= data[:strings][:workflows][:steps][:always_latest] %>";
+        };
+    })
+    .filter("resolveVersion", ["stepSourceService", "versionLabelFilter", function(stepService, versionLabelFilter) {
+        return function(requestedVersion, step) {
+            var label = stepService.resolveRequestedStepVersion(requestedVersion, step);
+            return versionLabelFilter(label);
+        }
+    }])
+    .filter("isLatestVersion", ["stepSourceService", function(stepService) {
+        return stepService.isLatestStepVersion;
+    }])
+    .filter("latestVersion", ["stepSourceService", function(stepService) {
+        return stepService.latestVersion;
+    }])
+    .filter("stepVersions", ["stepSourceService", function(stepService) {
+        return stepService.versionsOfStep;
+    }]);
