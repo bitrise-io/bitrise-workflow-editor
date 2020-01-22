@@ -62,7 +62,7 @@ describe("SemverService", () => {
     });
 
     describe("extractWildcardVersions", () => {
-        it("should add step own version to wildcard versions", () => {
+        it("should add the step's own version to wildcard versions", () => {
             const mockStep = {
                 id: TEST_STEP_ID,
                 version: "1.2.1",
@@ -88,7 +88,7 @@ describe("SemverService", () => {
             ]);
         });
 
-        it("should only add step version if not null", () => {
+        it("should add the step's version at the beginning of the list if that is set to latest", () => {
             const mockStep = {
                 id: TEST_STEP_ID,
                 version: null,
@@ -97,7 +97,7 @@ describe("SemverService", () => {
             const wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
 
             expect(wVersions).toEqual([
-                "12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
+                null, "12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
             ]);
         });
     });
