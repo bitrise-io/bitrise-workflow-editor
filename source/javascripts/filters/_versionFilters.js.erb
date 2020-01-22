@@ -1,20 +1,14 @@
 "use strict";
 
 angular.module("BitriseWorkflowEditor")
+    .filter("isVersionDisabled", ["semverService", function(semverService) {
+        return _.negate(semverService.isVersionWildcard);
+    }])
+    .filter("versionLabel", function() {
+        return function(label) {
+            return label ? label : "<%= data[:strings][:workflows][:steps][:always_latest] %>";
+        };
+    })
     .filter("stepVersions", ["stepSourceService", function(stepSourceService) {
-        var LATEST_VER = null;
-
-        var shouldInsertLatest = function(step) {
-            return step.isLibraryStep();
-        };
-
-        return function(step) {
-            var wildcardVersions = stepSourceService.versionsOfStep(step);
-
-            if (shouldInsertLatest(step)) {
-                return _.union([LATEST_VER], wildcardVersions);
-            }
-
-            return wildcardVersions;
-        };
+        return stepSourceService.versionsOfStep;
     }]);
