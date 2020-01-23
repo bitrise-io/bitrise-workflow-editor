@@ -7,7 +7,3 @@ gem "slim", '~> 3'
 
 gem "rack", "~> 1.6.11"
 gem "ffi", "~> 1.9.24"
-
-source 'https://rails-assets.org' do
-	gem "rails-assets-angular-ui-ace"
-end
