@@ -41,7 +41,7 @@ bitrise run go-install
 
 ### Run in development mode
 
-1. In the Workflow Editor's directory, run `docker-compose up`.
+1. In the Workflow Editor's directory, run `bitrise run up`.
 1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
