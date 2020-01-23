@@ -22,14 +22,15 @@ workflows:
       - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
       - USE_MIDDLEMAN_SERVER: "true"
     steps:
+    - change-workdir@1.0.2:
+        inputs:
+        - path: /bitrise/go/src/github.com/bitrise-io/bitrise-workflow-editor
     - script:
         inputs:
         - content: |
             #!/bin/bash
             set -ex
-            go get github.com/codegangsta/gin
-            go install
-            bitrise-workflow-editor
+            gin --immediate --appPort=$PORT
 
   setup-client:
     steps:
@@ -48,9 +49,29 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
-            gem install bundler:1.17.3
-            bundle install --path .bundle/inst
             npm ci
+  up:
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            ./_scripts/forkpty-run.sh docker-sync-stack start
+  setup:
+    steps:
+    - script:
+        inputs:
+        - content: |
+            #!/bin/bash
+            set -ex
+            docker-sync clean
+            docker-sync start
+            docker-sync stop
+
+            docker-compose kill
+            docker-compose rm -f -v
+            docker-compose build
 
   middleman-build:
     before_run:
