@@ -93,18 +93,10 @@ workflows:
     - middleman-build
 
   up-middleman-server:
+    before_run:
+    - setup-client
     steps:
     - script:
-        deps:
-          apt_get:
-          - name: ruby
-          - name: ruby-dev
-          - name: build-essential
-          - name: nodejs
-          # for nokogiri
-          - name: patch
-          - name: zlib1g-dev
-          - name: liblzma-dev
         inputs:
         - content: |
             #!/bin/bash
