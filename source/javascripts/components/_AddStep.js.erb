@@ -98,20 +98,6 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL], {
 					timeout: canceler.promise
-				}).then(function() {
-					var stepIconLoadPromises = [];
-					_.each(stepSourceService.libraries, function(aLibrary) {
-						_.each(aLibrary.steps, function(aStep, stepID) {
-							var step = aLibrary.steps[stepID][aLibrary.latestStepVersions[stepID]];
-							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)));
-						});
-					});
-
-					return $q.all(stepIconLoadPromises).then(function() {
-						return $q.when();
-					}, function() {
-						return $q.when();
-					});
 				}));
 			}
 			if (requestService.mode == "website") {
@@ -463,7 +449,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 	};
 
-}).directive("addStepSidebarStep", function($animate) {
+}).directive("addStepSidebarStep", function($filter, imageService) {
 
 	return {
 		restrict: "C",
@@ -471,6 +457,19 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		scope: {
 			step: "=",
 			selected: "&selectCallback"
+		},
+		link: function(scope, element) {
+			var intersectionObserver = new IntersectionObserver(function(entries) {
+				if (!entries[0].isIntersecting) {
+					return;
+				}
+
+				var stepIcon = $filter("normalizedStepIconURL")(scope.step);
+				imageService.loadImageWithURL(stepIcon).then(function() {
+					scope.stepIcon = stepIcon;
+				});
+			});
+			intersectionObserver.observe(element[0]);
 		}
 	};
 
