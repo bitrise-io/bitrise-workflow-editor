@@ -12,7 +12,7 @@
 			@include position(absolute, 0, 0);
 			@include size(100%);
 			border: 1px solid $def-lightgrey;
-			@include border-radius(6px);
+			@include border-radius($def-box-radius);
 			@include transition(border-width $def-transition_duration, border-color $def-transition_duration);
 
 			svg {
@@ -33,7 +33,7 @@
 				@include flex-shrink(0);
 				@include size($icon-size);
 				margin-right: 15px;
-				@include border-radius($def-radius);
+				@include border-radius($def-box-radius);
 				background-size: cover;
 
 				&:before {
