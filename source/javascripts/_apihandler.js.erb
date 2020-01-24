@@ -1,11 +1,11 @@
 window.onload = function() {
-	if ("<%= mode %>" == "cli") {
+	if ("<%= mode %>" == "cli" && "<%= build? %>" == "true") {
 		cancelAPIConnectionClose();
 	}
 };
 
 window.onbeforeunload = function() {
-	if ("<%= mode %>" == "cli") {
+	if ("<%= mode %>" == "cli" && "<%= build? %>" == "true") {
 		closeAPIConnection();
 	}
 };
