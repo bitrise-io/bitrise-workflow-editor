@@ -169,7 +169,6 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			});
 		}
 		else {
-			addStepService.stepIntersectionObserver.disconnect();
 			viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
 			viewModel.stepFilter = "";
 			viewModel.selectedTypeFilter = null;
@@ -484,6 +483,10 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 				});
 			};
 			addStepService.stepIntersectionObserver.observe(element[0]);
+
+			scope.$on("$destroy", function() {
+				addStepService.stepIntersectionObserver.unobserve(element[0]);
+			});
 		}
 	};
 
