@@ -7,7 +7,19 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 	var addStepService = {
 		isVisible: false,
 		stepSelected: undefined,
-		steps: undefined
+		steps: undefined,
+		stepIconLoadedStatesByStepIds: {},
+		stepIntersectionObserverCallbacks: {},
+		stepIntersectionObserver: new IntersectionObserver(function(entries) {
+			var targetStepIDs = _.map(_.filter(entries, function(entry) {
+				return entry.isIntersecting;
+			}), function(entry) {
+				return entry.target.getAttribute('step-id');
+			});
+			_.each(targetStepIDs, function(aStepID) {
+				addStepService.stepIntersectionObserverCallbacks[aStepID]();
+			});
+		})
 	};
 
 	addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {
@@ -449,7 +461,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 	};
 
-}).directive("addStepSidebarStep", function($filter, imageService) {
+}).directive("addStepSidebarStep", function($filter, addStepService, imageService) {
 
 	return {
 		restrict: "C",
@@ -459,17 +471,18 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			selected: "&selectCallback"
 		},
 		link: function(scope, element) {
-			var intersectionObserver = new IntersectionObserver(function(entries) {
-				if (!entries[0].isIntersecting) {
+			scope.addStepService = addStepService;
+			addStepService.stepIntersectionObserverCallbacks[scope.step.id] = function() {
+				addStepService.stepIntersectionObserver.unobserve(element[0]);
+
+				if (addStepService.stepIconLoadedStatesByStepIds[scope.step.id]) {
 					return;
 				}
-
-				var stepIcon = $filter("normalizedStepIconURL")(scope.step);
-				imageService.loadImageWithURL(stepIcon).then(function() {
-					scope.stepIcon = stepIcon;
+				imageService.loadImageWithURL($filter("normalizedStepIconURL")(scope.step)).then(function() {
+					addStepService.stepIconLoadedStatesByStepIds[scope.step.id] = true;
 				});
-			});
-			intersectionObserver.observe(element[0]);
+			};
+			addStepService.stepIntersectionObserver.observe(element[0]);
 		}
 	};
 
