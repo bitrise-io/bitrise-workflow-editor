@@ -511,7 +511,7 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 					}
 
 					appService.getAccountData().then(function() {
-						if (appService.isOwnerOnPayAsYouBuildPlan) {
+						if (appService.appDetails.isMachineTypeSelectorAvailable) {
 							var stackMenu = _.find(viewModel.menus, {
 								id: "stack"
 							});

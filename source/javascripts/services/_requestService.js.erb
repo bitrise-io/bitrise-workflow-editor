@@ -151,6 +151,7 @@ angular.module("BitriseWorkflowEditor").service("requestService", function($q, $
 							stack: response.data.stack_identifier,
 							isPublic: response.data.is_public,
 							isCurrentUserOwner: response.data.owner_is_current_user,
+							isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
 							ownerData: {
 								slug: response.data.owner_slug,
 								type: response.data.owner_type,
