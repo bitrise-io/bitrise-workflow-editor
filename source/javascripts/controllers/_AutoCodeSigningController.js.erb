@@ -2,7 +2,7 @@
 
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope, $timeout, Progress, appService, requestService, certificateService) {
+	angular.module("BitriseWorkflowEditor").controller("AutoCodeSigningController", function($q, $scope, Progress, appService, requestService, certificateService) {
 
 		var canceler = $q.defer();
 		$scope.$on("$destroy", function() {

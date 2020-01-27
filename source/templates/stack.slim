@@ -21,7 +21,7 @@
 					.den-tag-settings[ng-if="appService.stack.id == 'self-hosted'"]
 						label.den-tag-label == data[:strings][:stack][:den_tags_label]
 						input.den-tags[type="text" ng-model="appService.denTags" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:stack][:den_tags_placeholder] }"]
-			section.machine-type-settings[ng-if="appService.isOwnerOnPayAsYouBuildPlan"]
+			section.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
 				h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
 				.machine-types
 					.machine-type-wrapper[ng-repeat="machineType in stackCtrl.defaultMachineTypeOptions() track by machineType.id" ng-click="machineType.isAvailable && machineType.id !== appService.defaultMachineType.id ? stackCtrl.setNewDefaultMachineType(machineType) : ''" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
@@ -66,7 +66,7 @@
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
-				.machine-type-settings[ng-if="appService.isOwnerOnPayAsYouBuildPlan"]
+				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
 					h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
 					.machine-types
 						.machine-type-wrapper[ng-repeat="machineType in appService.availableMachineTypes(workflow)" ng-click="machineType.isAvailable && machineType.id != stackCtrl.selectedWorkflowSpecificMachineType(workflow).id ? stackCtrl.setNewDefaultMachineType(machineType, workflow) : ''" ng-class="{'selected': machineType.id == stackCtrl.selectedWorkflowSpecificMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
@@ -75,7 +75,7 @@
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"] == svg("standard-machine-type-icon")
 							.machine-type-data
 								.top
-									span.icon-and-name-note
+									span.icon-and-name-and-note
 										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"] == svg("osx-stack-type-icon")
 										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"] == svg("ubuntu-stack-type-icon")
 										span.name[ng-bind="machineType.name"]
