@@ -169,6 +169,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			});
 		}
 		else {
+			addStepService.stepIntersectionObserver.disconnect();
 			viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
 			viewModel.stepFilter = "";
 			viewModel.selectedTypeFilter = null;
