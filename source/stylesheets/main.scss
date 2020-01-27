@@ -155,15 +155,15 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		}
 
 		svg[check] {
-			@include size(12px, 11px);
-			top: 5px;
-			left: 6px;
+			@include size(24px, 24px);
+			top: -1px;
+			left: 0;
 		}
 
 		svg[cross] {
-			@include size(10px, 10px);
-			top: 6px;
-			left: 7px;
+			@include size(24px, 24px);
+			top: -1px;
+			left: 0;
 		}
 	}
 

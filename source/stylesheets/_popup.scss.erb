@@ -63,8 +63,8 @@
 			}
 
 			&.closeable {
-				$close_button_width: 12px;
-				$close_button_height: 12px;
+				$close_button_width: 24px;
+				$close_button_height: 24px;
 
 				position: relative;
 				padding-right: $close_button_width + (2 * $padding-x);
@@ -190,7 +190,7 @@
 			background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
 				fill: rgba(white, 0.99)
 			));
-			background-size: auto 16px;
+			background-size: auto 32px;
 			background-color: $def-green;
 		}
 
@@ -262,7 +262,7 @@
 			background-image: background_image_from_svg_content_with_attributes('<%= svg("cross") %>', (
 				fill: rgba(white, 0.99)
 			));
-			background-size: auto 16px;
+			background-size: auto 32px;
 			background-color: $def-danger;
 		}
 
@@ -288,10 +288,10 @@
 	.popup-body#default-alert-popup-body.notice {
 
 		&:before {
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("bulb") %>', (
+			background-image: background_image_from_svg_content_with_attributes('<%= svg("lightbulb") %>', (
 				fill: rgba(white, 0.99)
 			));
-			background-size: auto 34px;
+			background-size: auto 24px;
 			background-color: $def-blue;
 		}
 
