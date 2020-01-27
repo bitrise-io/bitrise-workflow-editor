@@ -23,7 +23,6 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 		projectType: undefined,
 		availableProjectTypes: undefined,
 		validationWarnings: [],
-		isOwnerOnPayAsYouBuildPlan: undefined,
 		accountData: undefined
 	};
 
@@ -237,7 +236,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.appConfigYML = undefined;
 			appService.savedAppConfigYML = undefined;
 
-			if (appService.isOwnerOnPayAsYouBuildPlan) {
+			if (appService.appDetails.isMachineTypeSelectorAvailable) {
 				appService.getDefaultMachineType();
 			}
 		});
@@ -365,16 +364,12 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 					}
 
 					appService.accountData = organizationData;
-
-					if (appService.accountData.currentPlan.id == "pay-as-you-build") {
-						appService.isOwnerOnPayAsYouBuildPlan = true;
-					}
 				});
 		}
 	};
 
 	appService.availableMachineTypes = function(workflow) {
-		if (!appService.isOwnerOnPayAsYouBuildPlan || MachineType.all === undefined || appService.savedStack === undefined) {
+		if (!appService.appDetails.isMachineTypeSelectorAvailable || MachineType.all === undefined || appService.savedStack === undefined) {
 			return undefined;
 		}
 
@@ -444,7 +439,7 @@ angular.module("BitriseWorkflowEditor").service("appService", function($q, reque
 			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
 			appService.denTags = appService.savedDenTags = data.denTags.join(", ");
 
-			if (appService.isOwnerOnPayAsYouBuildPlan) {
+			if (appService.appDetails.isMachineTypeSelectorAvailable) {
 				MachineType.getAll().then(appService.getDefaultMachineType);
 			}
 		});

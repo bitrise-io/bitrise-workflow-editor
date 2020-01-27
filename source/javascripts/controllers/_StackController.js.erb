@@ -81,7 +81,7 @@
 		viewModel.defaultMachineTypeOptions = function() {
 			var machineTypes = appService.availableMachineTypes();
 
-			if (appService.defaultMachineType.stackType !== appService.stack.id.split('-')[0]) {
+			if (appService.defaultMachineType && appService.defaultMachineType.stackType !== appService.stack.id.split('-')[0]) {
 				appService.getDefaultMachineType();
 				return machineTypes;
 			}

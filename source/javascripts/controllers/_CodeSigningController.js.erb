@@ -27,7 +27,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 				timeout: canceler.promise
 			}).then(function(data) {
 				return data.length > 0;
-			})
+			}).catch(angular.noop)
 		},
 		certificate: {
 			shouldShow: undefined,
@@ -36,7 +36,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 				timeout: canceler.promise
 			}).then(function(data) {
 				return data.length > 0;
-			})
+			}).catch(angular.noop)
 		},
 		genericFile: {
 			shouldShow: undefined,
@@ -50,7 +50,7 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 				timeout: canceler.promise
 			}).then(function(data) {
 				return data !== null;
-			})
+			}).catch(angular.noop)
 		}
 	};
 
