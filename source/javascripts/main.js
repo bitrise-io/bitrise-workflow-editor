@@ -6,7 +6,3 @@
 //= require_tree ./components/
 //= require_tree ./directives/
 //= require_tree ./controllers/
-
-_.templateSettings = {
-    interpolate: /\{\{(.+?)\}\}/g
-};

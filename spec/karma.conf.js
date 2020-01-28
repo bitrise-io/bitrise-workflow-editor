@@ -22,7 +22,6 @@ module.exports = (config) => {
     // list of files / patterns to load in the browser
     files: [
       'javascripts/angular_cache.js',
-      'javascripts/vendor.js',
       '../node_modules/angular-mocks/angular-mocks.js',
       'javascripts/*.js',
       '../spec/javascripts/**/*.spec.js'
