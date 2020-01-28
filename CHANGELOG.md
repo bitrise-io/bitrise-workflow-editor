@@ -1,6 +1,54 @@
-## Changelog (Current version: 1.1.68)
+## Changelog (Current version: 1.1.69)
 
 -----------------
+
+## 1.1.69 (2020 Jan 27)
+
+### Release Notes
+
+* Update notification styling to match new design (#419)
+* Fix/Update visibility of machine type selector (#418)
+* [WEB-2016] Change PNGs to emojis (#417)
+* [WEB-3337] disable non wildcard versions in version selector (#416)
+* [WEB-3334] version strings extraction (#411)
+* fix: Gemfile & Gemfile.lock to reduce vulnerabilities (#414)
+* [WEB-3355] housekeeping (#413)
+* [WEB-2963] Update Verified and Official step badges (#410)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.69
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.68 -> 1.1.69
+
+* [f248331] erosdome - Update notification styling to match new design (#419) (2020 Jan 27)
+* [cf4a8d3] Norbert Kovach - Fix/Update visibility of machine type selector (#418) (2020 Jan 27)
+* [60d76bc] Gergely Békési - [WEB-2016] Change PNGs to emojis (#417) (2020 Jan 23)
+* [b146115] Adam Pelle - [WEB-3337] disable non wildcard versions in version selector (#416) (2020 Jan 21)
+* [7988bb2] Adam Pelle - [WEB-3334] version strings extraction (#411) (2020 Jan 21)
+* [52146d5] Snyk bot - fix: Gemfile & Gemfile.lock to reduce vulnerabilities (#414) (2020 Jan 20)
+* [320812a] Adam Pelle - [WEB-3355] housekeeping (#413) (2020 Jan 16)
+* [9dda72d] Simon Márton - [WEB-2963] Update Verified and Official step badges (#410) (2020 Jan 15)
+
 
 ## 1.1.68 (2020 Jan 13)
 
@@ -3908,4 +3956,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Jan 13
+Updated: 2020 Jan 27
