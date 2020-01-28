@@ -277,8 +277,6 @@ angular.module("BitriseWorkflowEditor").controller("MainController", function($s
 		if (originalOnbeforeunloadHandler) {
 			originalOnbeforeunloadHandler(event);
 		}
-
-		window.location.replace();
 	};
 
 	window.onpopstate = function(event) {

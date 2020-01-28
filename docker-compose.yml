@@ -7,6 +7,7 @@ services:
       - nsync_wfe:/bitrise/src
     ports:
       - "4567:4567"
+      - "35729:35729"
   api-server:
     command: bitrise run up-api
     build:
