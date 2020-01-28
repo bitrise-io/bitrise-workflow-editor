@@ -7,12 +7,6 @@
 //= require_tree ./directives/
 //= require_tree ./controllers/
 
-// underscore template settings
 _.templateSettings = {
     interpolate: /\{\{(.+?)\}\}/g
 };
-
-// polyfill for IE
-if (!Number.MAX_SAFE_INTEGER) {
-    Number.MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
-}
