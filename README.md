@@ -43,8 +43,8 @@ bitrise run go-install
 ### Run in development mode
 
 1. __DOCKER__: In the Workflow Editor's directory, run `bitrise run up`. This utilizes `docker-compose` behind the scenes. // __LOCAL__: You need to start the api `bitrise run up-api` and middleman  `bitrise run up-middleman-server`.
-2. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until middleman starts up.
-3. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
+1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until middleman starts up.
+1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
 ### Run client tests
 
