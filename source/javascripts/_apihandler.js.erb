@@ -1,4 +1,4 @@
-var isPluginMode = "<%= mode %>" == "cli" && "<%= build? %>" == "true";
+var isPluginMode = <%= mode == "cli" && build? %>;
 
 window.onload = function() {
 	if (isPluginMode) {
