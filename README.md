@@ -42,13 +42,22 @@ bitrise run go-install
 
 ### Run in development mode
 
-1. In the Workflow Editor's directory, run `bitrise run up`.
-1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while.
+1. __DOCKER__: In the Workflow Editor's directory, run `bitrise run up`. This utilizes `docker-compose` behind the scenes. // __LOCAL__: You need to start the api `bitrise run up-api` and middleman  `bitrise run up-middleman-server`.
+1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until middleman starts up.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
 ### Run client tests
 
 Use `npm test` for a single run or `npm run test-watch` for a continous test execution. __Note__ the latter option might have some delays since middleman needs to compile assets upon every change before karma runner kicks in.
+
+If you only iterate on tests, you can also use `npm run karma` as it skips middleman and the transpilation and run the tests on an already transpiled JS. (faster)
+
+# Contributing
+
+This project is using squash & merge model, feel free to have as many commits as you like but at the end the work will end up on master as a single commit.
+
+**IMPORTANT** Please make sure every commit on the master is released, there are no expections. Someone from bitrise should be able to assist with that!
+If you are planning to break down the tasks into multiple master commits (aka milestones) please use a long-living feature branch and fork that to create additional branches.
 
 ## New version release
 
