@@ -63,7 +63,7 @@
 													.step-badge.step-badge--verified[ng-if="step.isVerified()"] = svg("step/badge-verified")
 												span.step-badge[ng-if="step.isDeprecated()"] = svg("step/badge-deprecated")
 											em.version[ng-if="step.version !== undefined"]
-												span<[ng-if="step.requestedVersion()" ng-bind="step.version"]
+												span<[ng-if="step.requestedVersion() != null" ng-bind="step.version"]
 												span<[ng-if="step.requestedVersion() == null"]
 													span == + data[:strings][:workflows][:steps][:always_latest]
 													span<[ng-bind="'(' + step.version + ')'" ng-if="step.version"]
@@ -97,7 +97,7 @@
 							section.version[ng-if="workflowsCtrl.selectedStep.version !== undefined"]
 								span.icon[ng-class="{'latest': stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)}"]
 								label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
-								select#selected-step-version-select[ng-options="(version | versionLabel) disable when (version | isVersionDisabled) for version in (workflowsCtrl.selectedStep | stepVersions)" ng-model="workflowsCtrl.requestedStepVersion"]
+								select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (workflowsCtrl.selectedStep.libraryURL !== undefined ? [null] : []).concat(stepSourceService.versionsOfStep(workflowsCtrl.selectedStep))" ng-model="workflowsCtrl.requestedStepVersion"]
 							section.always-run[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
 								span.icon
 									= svg("step/is_always_run")

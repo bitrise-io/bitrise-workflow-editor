@@ -1,42 +1,11 @@
 describe("stepSourceService", function() {
 
 	var stepSourceService;
-	var TEST_STEP_ID = "mockStep";
-	var TEST_LIB_URL = "http://tempuri.org";
-	var mockSemverService;
 
-	beforeEach(() => {
-		mockSemverService = {
-			extractWildcardVersions: jasmine.createSpy("extractWildcardVersions"),
-			resolveVersion: jasmine.createSpy("resolveVersion"),
-			shortenWildcardVersion: jasmine.createSpy("shortenWildcardVersion"),
-			normalizeVersion: jasmine.createSpy("normalizeVersion"),
-		};
-
-		module("BitriseWorkflowEditor");
-		module(($provide) => {
-			$provide.value("semverService", mockSemverService);
-		});
-	});
-
-	beforeEach(inject((_stepSourceService_) => {
+	beforeEach(module("BitriseWorkflowEditor"));
+	beforeEach(inject(function(_stepSourceService_) {
 		stepSourceService = _stepSourceService_;
-		stepSourceService.defaultLibraryURL = TEST_LIB_URL;
-
-		stepSourceService.libraries = [{
-			url: TEST_LIB_URL,
-			steps: {
-				[TEST_STEP_ID]: {
-					"2.2.1": { defaultStepConfig: "2.2.1 config" },
-					"1.2.1": { defaultStepConfig: "1.2.1 config" },
-					"1.1.1": { defaultStepConfig: "1.1.1 config" },
-					"1.0.0": { defaultStepConfig: "1.0.0 config" },
-				}
-			},
-			latestStepVersions: {
-				[TEST_STEP_ID]: "2.2.1"
-			}
-		}];
+		stepSourceService.defaultLibraryURL = "default-library-url.git";
 	}));
 
 	describe("stepFromCVS", function() {
@@ -75,25 +44,23 @@ describe("stepSourceService", function() {
 		});
 
 		it("should return library step", function() {
-			mockSemverService.resolveVersion.and.returnValue("1.0.0");
-
-			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).not.toBeUndefined();
-			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).toBe("library-url.git");
-			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).id).toBe(TEST_STEP_ID);
-			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).version).toBe("1.0");
-			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).toBe("git@library-url.git");
-			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).id).toBe(TEST_STEP_ID);
-			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).version).toBe("1.0");
-			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}`).version).toBeNull();
-			expect(stepSourceService.stepFromCVS(`${TEST_STEP_ID}@1.0.0`).libraryURL).toBe(TEST_LIB_URL);
-			expect(stepSourceService.stepFromCVS(`::${TEST_STEP_ID}@1.0.0`).libraryURL).toBe(TEST_LIB_URL);
-			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}`).version).toBeNull();
-			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@`).version).toBeNull();
-			expect(stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).libraryURL).toBe("library-url.git");
-			expect(stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).id).toBe(`another-library-url.git::${TEST_STEP_ID}@1.0`);
-			expect(stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).version).toBe("2.0");
-			expect(stepSourceService.stepFromCVS(`library-url.git::@1.0@2.0`).id).toBe("@1.0");
-			expect(stepSourceService.stepFromCVS(`library-url.git::@1.0@2.0`).version).toBe("2.0");
+			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").libraryURL).not.toBeUndefined();
+			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").libraryURL).toBe("library-url.git");
+			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").id).toBe("step-id");
+			expect(stepSourceService.stepFromCVS("library-url.git::step-id@1.0").version).toBe("1.0");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").libraryURL).toBe("git@library-url.git");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").id).toBe("step-id");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id@1.0").version).toBe("1.0");
+			expect(stepSourceService.stepFromCVS("git@library-url.git::step-id").version).toBeNull();
+			expect(stepSourceService.stepFromCVS("step-id@1.0").libraryURL).toBe("default-library-url.git");
+			expect(stepSourceService.stepFromCVS("::step-id@1.0").libraryURL).toBe("default-library-url.git");
+			expect(stepSourceService.stepFromCVS("library-url.git::step-id").version).toBeNull();
+			expect(stepSourceService.stepFromCVS("library-url.git::step-id@").version).toBeNull();
+			expect(stepSourceService.stepFromCVS("library-url.git::another-library-url.git::step-id@1.0@2.0").libraryURL).toBe("library-url.git");
+			expect(stepSourceService.stepFromCVS("library-url.git::another-library-url.git::step-id@1.0@2.0").id).toBe("another-library-url.git::step-id@1.0");
+			expect(stepSourceService.stepFromCVS("library-url.git::another-library-url.git::step-id@1.0@2.0").version).toBe("2.0");
+			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").id).toBe("@1.0");
+			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").version).toBe("2.0");
 		});
 
 		it("should raise error on invalid library step CVS", function() {
@@ -108,145 +75,10 @@ describe("stepSourceService", function() {
 		it("should raise error if library step has no library specified nor is default library specified", function() {
 			stepSourceService.defaultLibraryURL = null;
 
-			expect(function() { stepSourceService.stepFromCVS("${TEST_STEP_ID}@1.0"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("::${TEST_STEP_ID}@1.0"); }).toThrow();
+			expect(function() { stepSourceService.stepFromCVS("step-id@1.0"); }).toThrow();
+			expect(function() { stepSourceService.stepFromCVS("::step-id@1.0"); }).toThrow();
 		});
 
-		it("should be able to create wildcard version library steps", () => {
-			mockSemverService.normalizeVersion.and.returnValue("1.x.x");
-			mockSemverService.resolveVersion.and.returnValue("1.2.1");
-
-			var step = stepSourceService.stepFromCVS(`${TEST_STEP_ID}@1`);
-
-			expect(step.version).toEqual("1.x.x");
-			expect(step.defaultStepConfig).toEqual("1.2.1 config");
-		});
 	});
 
-	describe("changeStepToVersion", () => {
-		var MOCK_STEP;
-
-		beforeEach(() => {
-			MOCK_STEP = {
-				id: TEST_STEP_ID,
-				cvs: "MOCK_STEP@1.1.1",
-				version: "1.1.1",
-				defaultStepConfig: "1.1.1 config",
-				libraryURL: "http://tempuri.org",
-				isLibraryStep: () => true,
-			};
-		});
-
-		it("should update step configs to wildcard change", () => {
-			var newVersion = "2.x.x";
-			mockSemverService.resolveVersion.and.returnValue("2.2.1");
-			mockSemverService.shortenWildcardVersion.and.returnValue("2");
-
-			stepSourceService.changeStepToVersion(MOCK_STEP, newVersion);
-
-			expect(MOCK_STEP.version).toEqual(newVersion);
-			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP@2");
-			expect(MOCK_STEP.defaultStepConfig).toEqual("2.2.1 config");
-		});
-
-		it("should not do anything if the step is not library step", () => {
-			MOCK_STEP.isLibraryStep = () => false;
-
-			stepSourceService.changeStepToVersion(MOCK_STEP, "1.2.x");
-
-			expect(MOCK_STEP.defaultStepConfig).toEqual("1.1.1 config");
-		});
-
-		it("should set latest if the passed version is null", () => {
-			mockSemverService.resolveVersion.and.returnValue("2.2.1");
-
-			stepSourceService.changeStepToVersion(MOCK_STEP, null);
-
-			expect(MOCK_STEP.version).toEqual("2.2.1");
-			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP");
-			expect(MOCK_STEP.defaultStepConfig).toEqual("2.2.1 config");
-		});
-	});
-
-	describe("versionsOfStep", () => {
-		var MOCK_STEP;
-
-		beforeEach(() => {
-			MOCK_STEP = {
-				id: TEST_STEP_ID,
-				cvs: "MOCK_STEP@1.1.1",
-				version: "1.1.1",
-				defaultStepConfig: "1.1.1 config",
-				libraryURL: "http://tempuri.org",
-				isLibraryStep: () => true,
-			};
-		});
-
-		it("should return null version if the step is local", () => {
-			MOCK_STEP.isLibraryStep = () => false;
-			MOCK_STEP.isLocal = () => true;
-
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(versions).toBeNull();
-		});
-
-		it("should return its own version if the step is github step", () => {
-			MOCK_STEP.isLibraryStep = () => false;
-			MOCK_STEP.isLocal = () => false;
-
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(versions).toEqual(["1.1.1"])
-		});
-
-		it("should return null if the step is pointing to a wrong library", () => {
-			MOCK_STEP.libraryURL = "http://this-does-not-exist";
-
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(versions).toBeNull();
-		});
-
-		it("should use existing step versions in the library to calculate wildcard ones", () => {
-			stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(mockSemverService.extractWildcardVersions)
-				.toHaveBeenCalledWith(MOCK_STEP, stepSourceService.libraries[0]);
-		});
-	});
-
-	describe("isLatestStepVersion", () => {
-		it("should return false for local step", () => {
-			var isLatest = stepSourceService.isLatestStepVersion({
-				isLibraryStep: () => false,
-				isLocal: () => true,
-			});
-
-			expect(isLatest).toBeFalsy();
-		});
-
-		it("should return true for github step", () => {
-			var isLatest = stepSourceService.isLatestStepVersion({
-				isLibraryStep: () => false,
-				isLocal: () => false,
-			});
-
-			expect(isLatest).toBeTruthy();
-		});
-
-		it("should check resolved versions for library steps", () => {
-			var mockStep = {
-				id: TEST_STEP_ID,
-				isLibraryStep: () => true,
-				libraryURL: TEST_LIB_URL,
-			};
-
-			mockSemverService.resolveVersion.and.returnValue("1.3.4");
-			expect(stepSourceService.isLatestStepVersion(mockStep)).toBeFalsy();
-
-			mockSemverService.resolveVersion.and.returnValue("2.2.1");
-			expect(stepSourceService.isLatestStepVersion(mockStep)).toBeTruthy();
-		});
-	});
 });
