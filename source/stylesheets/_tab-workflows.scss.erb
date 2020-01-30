@@ -877,7 +877,6 @@ header.sticky section.manage-workflows {
 								@include padding-y(18px);
 								padding-left: $leftpadding;
 								padding-right: $rightpadding;
-								font-size: 13px;
 								font-weight: 300;
 								color: $def-darkgrey;
 
@@ -885,9 +884,20 @@ header.sticky section.manage-workflows {
 									border-top: $border;
 								}
 
+								.version__desc {
+									font-weight: 700;
+									line-height: 2em;
+								}
+
+								.latest-version {
+									font-size: 13px;
+								}
+
 								span.icon {
+									display: inline-block;
 									width: 20px;
 									margin-right: 10px;
+									vertical-align: middle;
 								}
 
 								@include media-below-big {
@@ -958,26 +968,6 @@ header.sticky section.manage-workflows {
 							}
 
 							section.version {
-
-								span.icon {
-
-									&:before {
-										$radius: 5px;
-
-										content: "";
-										@include position(relative, -1px);
-										display: inline-block;
-										@include size(2 * $radius);
-										@include border-radius($radius);
-										background-color: $def-danger;
-										@include transition(background-color $def-transition_duration);
-									}
-
-									&.latest:before {
-										background-color: $def-green;
-									}
-								}
-
 								select {
 									@include flex-grow(1);
 									max-width: 50%;
