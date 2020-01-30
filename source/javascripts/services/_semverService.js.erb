@@ -48,8 +48,9 @@ angular.module("BitriseWorkflowEditor").factory("semverService", ["stringService
         return Math.sign(ver1[notEqInd] - ver2[notEqInd]) * -1;
     };
 
-    semverService.isVersionWildcard = function(version) {
-        return version && version.endsWith('.' + WILDCARD);
+    semverService.checkVersionPartsLocked = function(version, lockedParts) {
+        var expectedPostfix = _.times(lockedParts || 1, _.constant('.' + WILDCARD)).join('');
+        return version && version.endsWith(expectedPostfix);
     };
 
     semverService.shortenWildcardVersion = function(version) {

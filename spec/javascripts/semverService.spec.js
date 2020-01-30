@@ -46,6 +46,22 @@ describe("SemverService", () => {
         });
     });
 
+    describe("checkVersionPartsLocked", () => {
+        it("should detect wildcard versions", () => {
+            expect(semverService.checkVersionPartsLocked('1.2.x')).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked('1.x.x')).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked('12.3')).toBeFalsy();
+            expect(semverService.checkVersionPartsLocked('12.3')).toBeFalsy();
+        });
+
+        it("should check for arbitrary locked parts", () => {
+            expect(semverService.checkVersionPartsLocked('1.x.x', 2)).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked('1.x.x', 1)).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked('1.1.x', 2)).toBeFalsy();
+            expect(semverService.checkVersionPartsLocked('1.1.2', 1)).toBeFalsy();
+        });
+    });
+
     describe("normalizeVersion", () => {
         it("should handle null versions", () => {
             expect(semverService.normalizeVersion()).toBeUndefined();

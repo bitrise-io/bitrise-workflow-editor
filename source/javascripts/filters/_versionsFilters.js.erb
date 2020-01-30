@@ -2,7 +2,8 @@
 
 angular.module("BitriseWorkflowEditor")
     .filter("isVersionDisabled", ["semverService", function(semverService) {
-        return _.negate(semverService.isVersionWildcard);
+        // checks whether it has any version part locked -> wildcard version
+        return _.negate(semverService.checkVersionPartsLocked);
     }])
     .filter("versionLabel", function() {
         return function(label) {
@@ -14,6 +15,24 @@ angular.module("BitriseWorkflowEditor")
             var label = stepService.resolveRequestedStepVersion(requestedVersion, step);
             return versionLabelFilter(label);
         }
+    }])
+    .filter("versionRemark", ["semverService", "stringService", "versionLabelFilter", function(semverService, stringService, versionLabelFilter) {
+        var exactVersionRemark = "<%= data[:strings][:workflows][:steps][:exact_version_remark] %>";
+        var patchUpdatesRemark = "<%= data[:strings][:workflows][:steps][:patch_update_remark] %>";
+        var minorUpdateRemarks = "<%= data[:strings][:workflows][:steps][:minor_update_remark] %>";
+
+        return function(step) {
+            var minorLocked = semverService.checkVersionPartsLocked(step.version, 2);
+            var patchLocked = semverService.checkVersionPartsLocked(step.version, 1);
+
+            if (minorLocked) {
+                return minorUpdateRemarks;
+            } else if (patchLocked) {
+                return patchUpdatesRemark;
+            }
+
+            return stringService.stringReplacedWithParameters(exactVersionRemark, { version: versionLabelFilter(step.version) });
+        };
     }])
     .filter("isLatestVersion", ["stepSourceService", function(stepService) {
         return stepService.isLatestStepVersion;
