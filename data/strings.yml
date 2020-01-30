@@ -95,7 +95,7 @@ workflows:
     source_popover_info: Source code
     delete: "Delete Step: <step_title>"
     version: "Version: <version>"
-    always_latest: always latest
+    always_latest: Always latest
     latest_version: "Step\\'s latest version is: <latest_version>"
     is_always_run: Run if previous Step failed
     inputs_removed_popup_title: "The following inputs are not available in this version:"
