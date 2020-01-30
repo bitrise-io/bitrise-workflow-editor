@@ -127,7 +127,6 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 						return aLibrary.steps[stepID][aStepVersion].isDeprecated();
 					}), function(aStepVersion, stepID) {
 						var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
-						step.info = aLibrary.steps[stepID].info;
 
 						if (aLibrary.url != stepSourceService.defaultLibraryURL) {
 							step.libraryURL = aLibrary.url;

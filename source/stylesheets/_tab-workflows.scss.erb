@@ -585,13 +585,11 @@ header.sticky section.manage-workflows {
 												@include ellipsis-oneliner;
 											}
 
-											.step-badge {
+											span.verified, span.deprecated {
 												margin-left: 5px;
-												height: 15px;
-												padding-bottom: 2px;
 
 												svg {
-													@include size(16px);
+													@include size(10px);
 												}
 											}
 										}
@@ -711,10 +709,9 @@ header.sticky section.manage-workflows {
 										border-color: $def-grey;
 									}
 
-									span.step-badge {
+									span.verified, span.community-created, span.deprecated {
 										@include flex-shrink(0);
 										@include align-self(center);
-										padding-bottom: 3px;
 
 										&:not(:first-of-type) {
 											margin-left: 4px;
@@ -722,7 +719,7 @@ header.sticky section.manage-workflows {
 
 										svg {
 											display: block;
-											@include size(24px);
+											@include size(17px);
 										}
 									}
 								}

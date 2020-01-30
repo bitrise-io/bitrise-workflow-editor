@@ -88,7 +88,6 @@ workflows:
       load:
         in_progress: Loading steps, wait a sec...
     verified: Verified
-    official: Official
     deprecated: Deprecated
     community_created: Community created
     clone_popover_info: Clone this step
