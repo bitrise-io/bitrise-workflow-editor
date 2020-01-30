@@ -28,6 +28,7 @@ Something like this:
 
 ```bash
 bundle install
+go install
 npm install
 ```
 
@@ -41,13 +42,22 @@ bitrise run go-install
 
 ### Run in development mode
 
-1. In the Workflow Editor's directory, run `bitrise run up`.
-1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while.
+1. __DOCKER__: In the Workflow Editor's directory, run `bitrise run up`. This utilizes `docker-compose` behind the scenes. // __LOCAL__: You need to start the api `bitrise run up-api` and middleman  `bitrise run up-middleman-server`.
+1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until middleman starts up.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
 ### Run client tests
 
 Use `npm test` for a single run or `npm run test-watch` for a continous test execution. __Note__ the latter option might have some delays since middleman needs to compile assets upon every change before karma runner kicks in.
+
+If you only iterate on tests, you can also use `npm run karma` as it skips middleman and the transpilation and run the tests on an already transpiled JS. (faster)
+
+# Contributing
+
+This project is using squash & merge model, feel free to have as many commits as you like but at the end the work will end up on master as a single commit.
+
+**IMPORTANT** Please make sure every commit on the master is released, there are no expections. Someone from bitrise should be able to assist with that!
+If you are planning to break down the tasks into multiple master commits (aka milestones) please use a long-living feature branch and fork that to create additional branches.
 
 ## New version release
 
@@ -67,11 +77,3 @@ Use `npm test` for a single run or `npm run test-watch` for a continous test exe
 - In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
 - In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
 - After the test release process, don't forget to delete the draft release and the internal changelog topic.
-
-## Contribution guide
-
-...Process TBD...
-
-### Javascript
-
-For production code we still use ES5 standard as we do not do any transpilation during the build (only concatenation). For tests you are safe to use whatever standards jsdom executes (ES6 supported).
