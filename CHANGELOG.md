@@ -1,6 +1,82 @@
-## Changelog (Current version: 1.1.69)
+## Changelog (Current version: 1.1.71)
 
 -----------------
+
+## 1.1.71 (2020 Jan 30)
+
+### Release Notes
+
+* Revert verified & official step badge feature for now (#427)
+* Lock Ruby version to 2.5.3 (#426)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.71
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.70 -> 1.1.71
+
+* [1285832] erosdome - Revert verified & official step badge feature for now (#427) (2020 Jan 30)
+* [0c76dc4] erosdome - Lock Ruby version to 2.5.3 (#426) (2020 Jan 30)
+
+
+## 1.1.70 (2020 Jan 30)
+
+### Release Notes
+
+* Skip API disconnection on browser close when running in development mode (#420)
+* [WEB-3482] release (#425)
+* Revert "[WEB-3334] version strings extraction (#411)"
+* Revert "[WEB-3337] disable non wildcard versions in version selector (#416)" (#423)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.70
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.69 -> 1.1.70
+
+* [ad1ddd4] erosdome - Skip API disconnection on browser close when running in development mode (#420) (2020 Jan 29)
+* [f6b5ce4] Adam Pelle - [WEB-3482] release (#425) (2020 Jan 29)
+* [9b7062c] Adam Pelle - Revert "[WEB-3334] version strings extraction (#411)" (2020 Jan 28)
+* [9446551] Adam Pelle - Revert "[WEB-3337] disable non wildcard versions in version selector (#416)" (#423) (2020 Jan 28)
+
 
 ## 1.1.69 (2020 Jan 27)
 
@@ -3956,4 +4032,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Jan 27
+Updated: 2020 Jan 30

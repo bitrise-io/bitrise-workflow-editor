@@ -58,18 +58,19 @@
 				font-size: 13px;
 
 				h4 {
-					@include display-flex;
 					@include flex-shrink(0);
-					@include align-items(center);
 					margin-top: 0;
 					margin-bottom: 2px;
 					font-weight: 900;
 
-					span.step-badge svg {
-						display: inline-block;
-						vertical-align: sub;
-						@include size(20px);
-						margin-left: 5px;
+					span.verified, span.community-created {
+
+						svg {
+							display: inline-block;
+							vertical-align: sub;
+							@include size(14px);
+							margin-left: 5px;
+						}
 					}
 				}
 

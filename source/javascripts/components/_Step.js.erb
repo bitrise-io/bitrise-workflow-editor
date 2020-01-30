@@ -11,7 +11,6 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		this.libraryURL;
 		this.id;
 		this.version;
-		this.info;
 
 		this.userStepConfig = userStepConfig;
 		if (!this.userStepConfig) {
@@ -130,7 +129,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return parameterGetterSetter(this, "is_always_run", newIsAlwaysRun);
 	}
 
-	Step.prototype.isOfficial = function() {
+	Step.prototype.isVerified = function() {
 		var sourceURL = this.sourceURL();
 
 		if (sourceURL === undefined) {
@@ -140,18 +139,6 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
 
 		return regexpForVerifiedStepSourceURL.test(sourceURL);
-	}
-
-	Step.prototype.isVerified = function() {
-		return (this.info || {}).maintainer === 'community';
-	};
-
-	Step.prototype.isLocal = function() {
-		return !!this.localPath;
-	};
-
-	Step.prototype.isLibraryStep = function() {
-		return !!this.libraryURL;
 	};
 
 	Step.prototype.isDeprecated = function() {
@@ -247,7 +234,7 @@ angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() 
 		if (regexpForBitbucketStepSourceURL.test(sourceURL)) {
 			return "bitbucket";
 		}
-
+		
 		var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
 		if (regexpForGitlabStepSourceURL.test(sourceURL)) {
 			return "gitlab";
