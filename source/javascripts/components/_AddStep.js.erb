@@ -2,7 +2,7 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("addStepService", function() {
+angular.module("BitriseWorkflowEditor").service("addStepService", function($filter, imageService) {
 
 	var addStepService = {
 		isVisible: false,
@@ -19,7 +19,23 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 			_.each(targetStepIDs, function(aStepID) {
 				addStepService.stepIntersectionObserverCallbacks[aStepID]();
 			});
-		})
+		}),
+		observe: function(element, step) {
+			addStepService.stepIntersectionObserverCallbacks[step.id] = function() {
+				addStepService.unobserve(element);
+
+				if (addStepService.stepIconLoadedStatesByStepIds[step.id]) {
+					return;
+				}
+				imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)).then(function() {
+					addStepService.stepIconLoadedStatesByStepIds[step.id] = true;
+				});
+			};
+			addStepService.stepIntersectionObserver.observe(element[0]);
+		},
+		unobserve:function(element) {
+			addStepService.stepIntersectionObserver.unobserve(element[0]);
+		}
 	};
 
 	addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {
@@ -471,20 +487,10 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		},
 		link: function(scope, element) {
 			scope.addStepService = addStepService;
-			addStepService.stepIntersectionObserverCallbacks[scope.step.id] = function() {
-				addStepService.stepIntersectionObserver.unobserve(element[0]);
-
-				if (addStepService.stepIconLoadedStatesByStepIds[scope.step.id]) {
-					return;
-				}
-				imageService.loadImageWithURL($filter("normalizedStepIconURL")(scope.step)).then(function() {
-					addStepService.stepIconLoadedStatesByStepIds[scope.step.id] = true;
-				});
-			};
-			addStepService.stepIntersectionObserver.observe(element[0]);
+			addStepService.observe(element, scope.step);
 
 			scope.$on("$destroy", function() {
-				addStepService.stepIntersectionObserver.unobserve(element[0]);
+				addStepService.unobserve(element);
 			});
 		}
 	};
