@@ -899,6 +899,16 @@ header.sticky section.manage-workflows {
 									width: 20px;
 									margin-right: 10px;
 									vertical-align: middle;
+
+									&.icon-danger circle {
+										@include transition(fill $def-transition_duration);
+
+										fill: $def-danger;
+
+										&:hover {
+											fill: $def-danger-shade;
+										}
+									}
 								}
 
 								@include media-below-big {
@@ -927,6 +937,11 @@ header.sticky section.manage-workflows {
 								@include media-below-mid {
 									margin: .5em auto;
 									text-align: initial;
+
+									select {
+										display: block;
+										margin: 1em auto;
+									}
 								}
 							}
 

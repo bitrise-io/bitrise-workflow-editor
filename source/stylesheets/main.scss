@@ -382,3 +382,7 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 .vertical-scroll {
 	overflow-y: auto;
 }
+
+[ng-click] {
+	cursor: pointer;
+}
