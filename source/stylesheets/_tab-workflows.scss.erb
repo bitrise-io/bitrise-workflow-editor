@@ -874,6 +874,7 @@ header.sticky section.manage-workflows {
 							section.description, section.version, section.always-run {
 								@include display-flex;
 								@include align-items(center);
+								@include justify-content(space-between);
 								@include padding-y(18px);
 								padding-left: $leftpadding;
 								padding-right: $rightpadding;
@@ -902,6 +903,30 @@ header.sticky section.manage-workflows {
 
 								@include media-below-big {
 									@include padding-x($horizontalpadding_small);
+								}
+
+								@include media-below-mid {
+									display: block;
+								}
+							}
+
+							.version-info {
+								flex: 1;
+							}
+
+							.version-selector {
+								flex: 2;
+								text-align: right;
+
+								.remark {
+									display: inline-block;
+									font-size: 13px;
+									margin-right: .5em;
+								}
+
+								@include media-below-mid {
+									margin: .5em auto;
+									text-align: initial;
 								}
 							}
 
