@@ -9,6 +9,9 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function($filt
 		stepSelected: undefined,
 		steps: undefined,
 		stepIconLoadedStatesByStepIds: {},
+		isStepIconLoaded: function(step) {
+			return !!addStepService.stepIconLoadedStatesByStepIds[step.id];
+		},
 		stepIntersectionObserverCallbacks: {},
 		stepIntersectionObserver: new IntersectionObserver(function(entries) {
 			var targetStepIDs = _.map(_.filter(entries, function(entry) {
@@ -24,7 +27,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function($filt
 			addStepService.stepIntersectionObserverCallbacks[step.id] = function() {
 				addStepService.unobserve(element);
 
-				if (addStepService.stepIconLoadedStatesByStepIds[step.id]) {
+				if (addStepService.isStepIconLoaded(step)) {
 					return;
 				}
 				imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)).then(function() {
