@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.71)
+## Changelog (Current version: 1.1.72)
 
 -----------------
+
+## 1.1.72 (2020 Jan 31)
+
+### Release Notes
+
+* Lazy load add step sidebar icons [WEB-2014] (#421)
+* Exclude "add step" button from ordering drag area of adjacent step (#422)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.72
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.71 -> 1.1.72
+
+* [825d0aa] erosdome - Lazy load add step sidebar icons [WEB-2014] (#421) (2020 Jan 31)
+* [77e2eca] erosdome - Exclude "add step" button from ordering drag area of adjacent step (#422) (2020 Jan 31)
+
 
 ## 1.1.71 (2020 Jan 30)
 
@@ -4032,4 +4068,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Jan 30
+Updated: 2020 Jan 31
