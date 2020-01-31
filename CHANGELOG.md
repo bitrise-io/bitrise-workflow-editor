@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.1.70)
+## Changelog (Current version: 1.1.71)
 
 -----------------
+
+## 1.1.71 (2020 Jan 30)
+
+### Release Notes
+
+* Revert verified & official step badge feature for now (#427)
+* Lock Ruby version to 2.5.3 (#426)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.71
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.70 -> 1.1.71
+
+* [1285832] erosdome - Revert verified & official step badge feature for now (#427) (2020 Jan 30)
+* [0c76dc4] erosdome - Lock Ruby version to 2.5.3 (#426) (2020 Jan 30)
+
 
 ## 1.1.70 (2020 Jan 30)
 
