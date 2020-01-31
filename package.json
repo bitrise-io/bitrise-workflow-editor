@@ -28,6 +28,7 @@
     "angular-cookies": "1.7.9",
     "angular-route": "1.7.9",
     "angular-sanitize": "1.7.9",
+    "intersection-observer": "^0.7.0",
     "jquery": "^3.4.1",
     "underscore": "^1.9.2"
   },

@@ -2,12 +2,43 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").service("addStepService", function() {
+angular.module("BitriseWorkflowEditor").service("addStepService", function($filter, imageService) {
 
 	var addStepService = {
 		isVisible: false,
 		stepSelected: undefined,
-		steps: undefined
+		steps: undefined,
+		stepIconLoadedStatesByStepIds: {},
+		isStepIconLoaded: function(step) {
+			return !!addStepService.stepIconLoadedStatesByStepIds[step.id];
+		},
+		stepIntersectionObserverCallbacks: {},
+		stepIntersectionObserver: new IntersectionObserver(function(entries) {
+			var targetStepIDs = _.map(_.filter(entries, function(entry) {
+				return entry.isIntersecting;
+			}), function(entry) {
+				return entry.target.getAttribute('step-id');
+			});
+			_.each(targetStepIDs, function(aStepID) {
+				addStepService.stepIntersectionObserverCallbacks[aStepID]();
+			});
+		}),
+		observe: function(element, step) {
+			addStepService.stepIntersectionObserverCallbacks[step.id] = function() {
+				addStepService.unobserve(element);
+
+				if (addStepService.isStepIconLoaded(step)) {
+					return;
+				}
+				imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)).then(function() {
+					addStepService.stepIconLoadedStatesByStepIds[step.id] = true;
+				});
+			};
+			addStepService.stepIntersectionObserver.observe(element[0]);
+		},
+		unobserve:function(element) {
+			addStepService.stepIntersectionObserver.unobserve(element[0]);
+		}
 	};
 
 	addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {
@@ -98,20 +129,6 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 
 				loadPromises.push(stepSourceService.loadLibrariesWithURLs([stepSourceService.defaultLibraryURL], {
 					timeout: canceler.promise
-				}).then(function() {
-					var stepIconLoadPromises = [];
-					_.each(stepSourceService.libraries, function(aLibrary) {
-						_.each(aLibrary.steps, function(aStep, stepID) {
-							var step = aLibrary.steps[stepID][aLibrary.latestStepVersions[stepID]];
-							stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)));
-						});
-					});
-
-					return $q.all(stepIconLoadPromises).then(function() {
-						return $q.when();
-					}, function() {
-						return $q.when();
-					});
 				}));
 			}
 			if (requestService.mode == "website") {
@@ -462,7 +479,7 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		}
 	};
 
-}).directive("addStepSidebarStep", function($animate) {
+}).directive("addStepSidebarStep", function($filter, addStepService, imageService) {
 
 	return {
 		restrict: "C",
@@ -470,6 +487,14 @@ angular.module("BitriseWorkflowEditor").service("addStepService", function() {
 		scope: {
 			step: "=",
 			selected: "&selectCallback"
+		},
+		link: function(scope, element) {
+			scope.addStepService = addStepService;
+			addStepService.observe(element, scope.step);
+
+			scope.$on("$destroy", function() {
+				addStepService.unobserve(element);
+			});
 		}
 	};
 

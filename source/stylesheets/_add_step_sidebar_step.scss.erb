@@ -12,7 +12,7 @@
 			@include position(absolute, 0, 0);
 			@include size(100%);
 			border: 1px solid $def-lightgrey;
-			@include border-radius(6px);
+			@include border-radius($def-box-radius);
 			@include transition(border-width $def-transition_duration, border-color $def-transition_duration);
 
 			svg {
@@ -29,11 +29,24 @@
 			padding: 13px;
 
 			.icon {
+				position: relative;
 				@include flex-shrink(0);
 				@include size($icon-size);
 				margin-right: 15px;
-				@include border-radius($def-radius);
+				@include border-radius($def-box-radius);
 				background-size: cover;
+
+				&:before {
+					content: "";
+					@include position(absolute, 0, 0);
+					z-index: -1;
+					@include size(100%);
+					@include border-radius(inherit);
+					background-color: $def-verylightgrey;
+					background-image: background_image_from_svg_content_with_styling('<%= svg("spinner") %>', "circle {stroke: #{rgba($def-grey, 0.99)};}");
+					background-position: center;
+					background-repeat: no-repeat;
+				}
 			}
 
 			.details {
