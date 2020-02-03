@@ -260,78 +260,9 @@ describe("Step", function() {
 
 	});
 
-	describe("isOfficial", function() {
-
-		it("should return undefined if source is not defined", function() {
-			expect(step.isOfficial()).toBeUndefined();
-		});
-
-		it("should return true if is from bitrise-io on GitHub", function() {
-			step.sourceURL("https://www.github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-
-			step.sourceURL("https://github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-
-			step.sourceURL("www.github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-
-			step.sourceURL("github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-		});
-
-		it("should return true if is from bitrise-steplib on GitHub", function() {
-			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-		});
-
-		it("should return false if is from any other user or host", function() {
-			step.sourceURL("https://www.github.com/red-user/red-step");
-			expect(step.isOfficial()).toBeFalsy();
-
-			step.sourceURL("https://www.red.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeFalsy();
-		});
-
-		it("should return false if step specs define a verified path, but step is a fork of that path, referenced by git URL", function() {
-			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
-			step.gitURL = "https://www.github.com/bitrise-forked-steplib/red-step";
-			expect(step.isOfficial()).toBeFalsy();
-		});
-	});
-
-	describe("isLocal", () => {
-		it("should be local if localPath defined", () => {
-			step.localPath = "/path-to-file";
-			expect(step.isLocal()).toBeTruthy();
-		});
-
-		it("should not be local if localPath not defined", () => {
-			step.localPath = null;
-			expect(step.isLocal()).toBeFalsy();
-		});
-	});
-
-	describe("isLibraryStep", () => {
-		it("should be library step if libraryURL defined", () => {
-			step.libraryURL = "https://tempuri.org";
-			expect(step.isLibraryStep()).toBeTruthy();
-		});
-
-		it("should not be library step if libraryURL not defined", () => {
-			step.libraryURL = null;
-			expect(step.isLibraryStep()).toBeFalsy();
-		});
-	});
-
 	describe("verified", function() {
 		it("should not be verified if there is no information exists", function() {
 			expect(step.isVerified()).toBeFalsy();
-		});
-
-		it("should be verified when the maintainer is the community", function() {
-			step.info = { maintainer: 'community' };
-			expect(step.isVerified()).toBeTruthy();
 		});
 	})
 

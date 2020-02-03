@@ -555,7 +555,7 @@ header.sticky section.manage-workflows {
 										@include box-sizing(border-box);
 										@include size($icon-size);
 										border: 1px solid $def-lightgrey;
-										@include border-radius($def-radius);
+										@include border-radius($def-box-radius);
 										background-size: cover;
 									}
 
@@ -568,10 +568,10 @@ header.sticky section.manage-workflows {
 										@include size($steptitle-width, $icon-size);
 										margin-left: $icon-size + $spacing;
 										border: 1px solid $def-mediumlightgrey;
-										@include border-radius($def-radius);
+										@include border-radius($def-box-radius);
 										@include padding-x(20px);
 										@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
-										background-color: $def-verylightgrey;
+										background-color: $def-ultralightgrey;
 
 										strong {
 											@include display-flex;
@@ -585,13 +585,11 @@ header.sticky section.manage-workflows {
 												@include ellipsis-oneliner;
 											}
 
-											.step-badge {
+											span.verified, span.deprecated {
 												margin-left: 5px;
-												height: 15px;
-												padding-bottom: 2px;
 
 												svg {
-													@include size(16px);
+													@include size(10px);
 												}
 											}
 										}
@@ -602,7 +600,7 @@ header.sticky section.manage-workflows {
 											font-size: 13px;
 											font-style: normal;
 											font-weight: 300;
-											color: $def-grey;
+											color: $def-darkgrey;
 										}
 									}
 								}
@@ -626,7 +624,7 @@ header.sticky section.manage-workflows {
 						}
 
 						li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info {
-							background-color: $def-mediumlightgrey;
+							background-color: $def-verylightgrey;
 						}
 
 						li.selected .step-actions button.step span.info {
@@ -673,7 +671,7 @@ header.sticky section.manage-workflows {
 
 							@include box-sizing(border-box);
 							border: $border;
-							@include border-radius($def-radius);
+							@include border-radius($def-box-radius);
 							overflow: hidden;
 							background-color: white;
 
@@ -711,10 +709,9 @@ header.sticky section.manage-workflows {
 										border-color: $def-grey;
 									}
 
-									span.step-badge {
+									span.verified, span.community-created, span.deprecated {
 										@include flex-shrink(0);
 										@include align-self(center);
-										padding-bottom: 3px;
 
 										&:not(:first-of-type) {
 											margin-left: 4px;
@@ -722,7 +719,7 @@ header.sticky section.manage-workflows {
 
 										svg {
 											display: block;
-											@include size(24px);
+											@include size(17px);
 										}
 									}
 								}
