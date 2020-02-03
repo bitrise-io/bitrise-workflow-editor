@@ -607,16 +607,16 @@ header.sticky section.manage-workflows {
 									}
 								}
 
-								button.update-step {
-									$size: 14px;
+								.update-step {
+									$size: 6px;
 
-									@include position(absolute, 0, null, null, 52px);
 									@include size($size);
-									margin-top: (- $size / 2) + 3px;
-									margin-left: (- $size / 2) - 3px;
 									@include border-radius($size / 2);
-									background-color: $def-danger;
 									@include transition(background-color $def-transition_duration);
+
+									background-color: $def-danger;
+									display: inline-block;
+									margin: 0 .25em 1px 0;
 
 									&:hover, &:focus {
 										background-color: $def-danger-shade;
@@ -874,10 +874,10 @@ header.sticky section.manage-workflows {
 							section.description, section.version, section.always-run {
 								@include display-flex;
 								@include align-items(center);
+								@include justify-content(space-between);
 								@include padding-y(18px);
 								padding-left: $leftpadding;
 								padding-right: $rightpadding;
-								font-size: 13px;
 								font-weight: 300;
 								color: $def-darkgrey;
 
@@ -885,16 +885,61 @@ header.sticky section.manage-workflows {
 									border-top: $border;
 								}
 
-								span.icon {
-									@include flex-shrink(0);
-									@include display-flex;
-									@include align-items(center);
+								.version__text {
+									font-weight: 700;
+									line-height: 2em;
+								}
+
+								.latest-version {
+									font-size: 13px;
+								}
+
+								.icon {
+									display: inline-block;
 									width: 20px;
 									margin-right: 10px;
+									vertical-align: middle;
+
+									&.icon-ok circle {
+										@include svg-icon($def-green);
+									}
+
+									&.icon-danger circle {
+										@include svg-icon($def-danger, $def-danger-shade);
+									}
 								}
 
 								@include media-below-big {
 									@include padding-x($horizontalpadding_small);
+								}
+
+								@include media-below-mid {
+									display: block;
+								}
+							}
+
+							.version-info {
+								flex: 1;
+							}
+
+							.version-selector {
+								flex: 2;
+								text-align: right;
+
+								.remark {
+									display: inline-block;
+									font-size: 13px;
+									margin-right: .5em;
+								}
+
+								@include media-below-mid {
+									margin: .5em auto;
+									text-align: initial;
+
+									select {
+										display: block;
+										margin: 1em auto;
+									}
 								}
 							}
 
@@ -961,28 +1006,7 @@ header.sticky section.manage-workflows {
 							}
 
 							section.version {
-
-								span.icon {
-
-									&:before {
-										$radius: 5px;
-
-										content: "";
-										@include position(relative, -1px);
-										display: inline-block;
-										@include size(2 * $radius);
-										@include border-radius($radius);
-										background-color: $def-danger;
-										@include transition(background-color $def-transition_duration);
-									}
-
-									&.latest:before {
-										background-color: $def-green;
-									}
-								}
-
 								select {
-									@include flex-grow(1);
 									max-width: 50%;
 									margin-left: auto;
 								}

@@ -695,3 +695,15 @@ $screen-minimum: 320px;
 	-webkit-focus-ring-color:  rgba(0, 0, 0, 0);
 	outline: none;
 }
+
+@mixin svg-icon($color, $hover-color: null) {
+	@include transition(fill $def-transition_duration);
+
+	fill: $color;
+
+	@if $hover-color {
+		&:hover {
+			fill: $hover-color;
+		}
+	}
+}

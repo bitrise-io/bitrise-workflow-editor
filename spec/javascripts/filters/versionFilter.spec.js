@@ -12,7 +12,7 @@ describe("VersionFilters", () => {
         };
 
         mockSemverService = {
-            isVersionWildcard: jasmine.createSpy("isVersionWildcard"),
+            checkVersionPartsLocked: jasmine.createSpy("checkVersionPartsLocked"),
         };
 
         module("BitriseWorkflowEditor");
@@ -58,10 +58,10 @@ describe("VersionFilters", () => {
 
     describe("isVersionDisabled", () => {
         it("should return disable if version is not wildcard", () => {
-            mockSemverService.isVersionWildcard.and.returnValue(false);
+            mockSemverService.checkVersionPartsLocked.and.returnValue(false);
             expect(isVersionDisabledFilter("test-version-non-wildcard")).toBeTruthy();
 
-            mockSemverService.isVersionWildcard.and.returnValue(true);
+            mockSemverService.checkVersionPartsLocked.and.returnValue(true);
             expect(isVersionDisabledFilter("test-version-wildcard")).toBeFalsy();
         });
     });

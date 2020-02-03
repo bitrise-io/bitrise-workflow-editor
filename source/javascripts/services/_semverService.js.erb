@@ -1,14 +1,16 @@
 "use strict";
 
-angular.module("BitriseWorkflowEditor").factory("semverService", function() {
+angular.module("BitriseWorkflowEditor").factory("semverService", ["stringService", function(stringService) {
     var semverService = {
         WILDCARD: WILDCARD,
         WILDCARD_REGEX: WILDCARD_REGEX,
-        semver: _.template('{{ major }}.{{ minor }}.{{ patch }}'),
+        semver: function(verPayload) {
+            return stringService.stringReplacedWithParameters("<major>.<minor>.<patch>", verPayload)
+        }
     };
 
-    var WILDCARD = 'x';
-    var WILDCARD_REGEX = new RegExp('\.' + WILDCARD, 'g');
+    var WILDCARD = "x";
+    var WILDCARD_REGEX = new RegExp("\." + WILDCARD, "g");
     var fullVersionRegex = /^\d+\.\d+\.\d+$/g;
     var MAXSEMVER = semverService.semver({
         major: Number.MAX_SAFE_INTEGER,
@@ -21,8 +23,8 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
             return false;
         }
 
-        var semverParts = version.split('.');
-        var wildcardParts = wildcard.split('.');
+        var semverParts = version.split(".");
+        var wildcardParts = wildcard.split(".");
 
         return _.every(semverParts, function(aSemverPart, index) {
             return aSemverPart == wildcardParts[index] || wildcardParts[index] == WILDCARD;
@@ -30,8 +32,8 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
     };
 
     var reverseSorter = function(verStr1, verStr2) {
-        var ver1 = (verStr1 || MAXSEMVER).split('.');
-        var ver2 = (verStr2 || MAXSEMVER).split('.');
+        var ver1 = (verStr1 || MAXSEMVER).split(".");
+        var ver2 = (verStr2 || MAXSEMVER).split(".");
 
         var notEqInd = 0;
         while (ver1[notEqInd] == ver2[notEqInd] && notEqInd < Math.max(ver1.length, ver2.length)) {
@@ -46,12 +48,15 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
         return Math.sign(ver1[notEqInd] - ver2[notEqInd]) * -1;
     };
 
-    semverService.isVersionWildcard = function(version) {
-        return version && version.endsWith('.' + WILDCARD);
+    semverService.checkVersionPartsLocked = function(version, lockedParts) {
+        var wildcardPart = _.constant("." + WILDCARD);
+        var expectedPostfix = _.times(lockedParts || 1, wildcardPart).join("");
+
+        return version && version.endsWith(expectedPostfix);
     };
 
     semverService.shortenWildcardVersion = function(version) {
-        return version && version.replace(WILDCARD_REGEX, '');
+        return version && version.replace(WILDCARD_REGEX, "");
     };
 
     semverService.normalizeVersion = function(version) {
@@ -59,7 +64,7 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
             return version;
         }
 
-        var semverParts = version.split('.');
+        var semverParts = version.split(".");
 
         return semverService.semver({
             major: semverParts[0] || WILDCARD,
@@ -92,15 +97,15 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
             .sort(reverseSorter);
     };
 
-    semverService.resolveVersion = function(step, stepCatalogue) {
-        var version = semverService.normalizeVersion(step.version);
+    semverService.resolveVersion = function(version, stepId, stepCatalogue) {
+        var version = semverService.normalizeVersion(version);
 
         if (!version) {
-            return stepCatalogue.latestStepVersions[step.id];
+            return stepCatalogue.latestStepVersions[stepId];
         }
 
         var compatibleToVersion = _.partial(isVersionCompatible, version);
-        var stepVersions = Object.keys(stepCatalogue.steps[step.id]).sort(reverseSorter);
+        var stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(reverseSorter);
 
         return _.chain(stepVersions)
             .find(compatibleToVersion)
@@ -108,4 +113,4 @@ angular.module("BitriseWorkflowEditor").factory("semverService", function() {
     };
 
     return semverService;
-});
+}]);
