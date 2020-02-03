@@ -98,7 +98,7 @@
 								.version-info
 									.resolved-version
 										span.icon.icon-ok[ng-show="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"] = svg("step/latest")
-										span.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" ng-click="workflowsCtrl.updateStep(workflowsCtrl.selectedStep, workflowIndex)"] = svg("step/upgrade")
+										button.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" ng-click="workflowsCtrl.updateStep(workflowsCtrl.selectedStep, workflowIndex)"] = svg("step/upgrade")
 										label.version__text[for="selected-step-version-select" ng-bind="'#{ data[:strings][:workflows][:steps][:version] }' | replace:{version: (workflowsCtrl.requestedStepVersion | resolveVersion:workflowsCtrl.selectedStep )}"]
 									.latest-version[ng-bind="'#{ data[:strings][:workflows][:steps][:latest_version] }' | replace:{latest_version: (workflowsCtrl.selectedStep | latestVersion)}"]
 								.version-selector

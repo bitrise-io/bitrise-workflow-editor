@@ -695,3 +695,17 @@ $screen-minimum: 320px;
 	-webkit-focus-ring-color:  rgba(0, 0, 0, 0);
 	outline: none;
 }
+
+@mixin icon($color, $shade-color: null) {
+	circle {
+		@include transition(fill $def-transition_duration);
+
+		fill: $color;
+
+		@if $shade-color {
+			&:hover {
+				fill: $def-danger-shade;
+			}
+		}
+	}
+}

@@ -894,20 +894,18 @@ header.sticky section.manage-workflows {
 									font-size: 13px;
 								}
 
-								span.icon {
+								.icon {
 									display: inline-block;
 									width: 20px;
 									margin-right: 10px;
 									vertical-align: middle;
 
-									&.icon-danger circle {
-										@include transition(fill $def-transition_duration);
+									&.icon-ok {
+										@include icon($def-green);
+									}
 
-										fill: $def-danger;
-
-										&:hover {
-											fill: $def-danger-shade;
-										}
+									&.icon-danger {
+										@include icon($def-danger, $def-danger-shade);
 									}
 								}
 
