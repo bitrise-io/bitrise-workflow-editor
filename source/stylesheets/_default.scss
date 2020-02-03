@@ -696,16 +696,14 @@ $screen-minimum: 320px;
 	outline: none;
 }
 
-@mixin icon($color, $shade-color: null) {
-	circle {
-		@include transition(fill $def-transition_duration);
+@mixin svg-icon($color, $hover-color: null) {
+	@include transition(fill $def-transition_duration);
 
-		fill: $color;
+	fill: $color;
 
-		@if $shade-color {
-			&:hover {
-				fill: $def-danger-shade;
-			}
+	@if $hover-color {
+		&:hover {
+			fill: $hover-color;
 		}
 	}
 }
