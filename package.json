@@ -27,10 +27,16 @@
     "angular": "^1.7.9",
     "angular-animate": "1.7.9",
     "angular-cookies": "1.7.9",
+    "angular-elastic": "^2.5.1",
     "angular-route": "1.7.9",
     "angular-sanitize": "1.7.9",
+    "esprima": "^3.1.3",
     "intersection-observer": "^0.7.0",
     "jquery": "^3.4.1",
+    "js-yaml": "^3.13.1",
+    "monaco-editor": "^0.14.3",
+    "ng-showdown": "^1.1.0",
+    "showdown": "^1.7.3",
     "underscore": "^1.9.2"
   },
   "devDependencies": {
@@ -45,11 +51,13 @@
     "karma-jasmine": "^3.1.0",
     "karma-jsdom-launcher": "^8.0.0",
     "karma-spec-reporter": "^0.0.32",
+    "monaco-editor-webpack-plugin": "^1.8.2",
     "node-sass": "^4.13.1",
     "onchange": "^6.1.0",
     "sass-loader": "^8.0.2",
     "shell-loader": "^1.1.2",
     "slim-lang-loader": "0.0.9",
+    "style-loader": "^1.1.3",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10"
   }

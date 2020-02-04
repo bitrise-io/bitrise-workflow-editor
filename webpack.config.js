@@ -1,5 +1,6 @@
-const path = require("path")
-const ExtractTextPlugin = require("extract-text-webpack-plugin")
+const path = require("path");
+const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const webpack = require("webpack");
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
@@ -29,6 +30,7 @@ const assetExporter = (regex, folder) => ({
 
 module.exports = {
   entry: {
+    vendor: "./source/javascripts/vendor.js",
     main: [
       "./source/javascripts/index.js",
       "./source/stylesheets/main.scss"
@@ -36,7 +38,7 @@ module.exports = {
   },
 
   output: {
-    filename: "source/javascripts/[name].js",
+    filename: "javascripts/[name].js",
     path: path.resolve(__dirname, "build")
   },
 
@@ -63,7 +65,7 @@ module.exports = {
     assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
 
     {
-      test: /\.scss(.erb)?$/,
+      test: /\.s?css(.erb)?$/,
       use: ExtractTextPlugin.extract({
         use: [
           "css-loader",
@@ -75,6 +77,9 @@ module.exports = {
   plugins: [
     new ExtractTextPlugin({
       filename: "stylesheets/[name].css"
+    }),
+    new webpack.IgnorePlugin({
+      resourceRegExp: /vs\/editor\/editor\.main/
     })
   ]
 };
