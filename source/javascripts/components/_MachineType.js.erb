@@ -1,54 +1,80 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.factory("MachineType", function($q, requestService) {
+			var MachineType = function(
+				stackType,
+				id,
+				name,
+				cpuCount,
+				cpuDescription,
+				ram,
+				creditPerMin,
+				isAvailable,
+				note
+			) {
+				this.id = stackType + "-" + id;
+				this.name = name;
+				this.cpuCount = cpuCount;
+				this.cpuDescription = cpuDescription;
+				this.creditPerMin = creditPerMin;
+				this.ram = ram;
+				this.stackType = stackType;
+				this.isAvailable = isAvailable;
+				this.note = note;
+				this.cssClass = id;
+			};
 
-angular.module("BitriseWorkflowEditor").factory("MachineType", function($q, requestService) {
+			MachineType.all;
 
-    var MachineType = function(stackType, id, name, cpuCount, cpuDescription, ram, creditPerMin, isAvailable, note) {
-        this.id = stackType + '-' + id;
-        this.name = name;
-        this.cpuCount = cpuCount;
-        this.cpuDescription = cpuDescription;
-        this.creditPerMin = creditPerMin;
-        this.ram = ram;
-        this.stackType = stackType;
-        this.isAvailable = isAvailable;
-        this.note = note;
-        this.cssClass = id;
-    };
+			MachineType.allConfig;
 
-    MachineType.all;
+			MachineType.getAll = function() {
+				if (MachineType.all && MachineType.all.length > 0) {
+					return $q.when();
+				}
 
-    MachineType.allConfig;
+				return getMachineTypeConfigs().then(function(data) {
+					MachineType.all = [];
 
-    MachineType.getAll = function() {
-        if (MachineType.all && MachineType.all.length > 0) {
-            return $q.when();
-        }
+					MachineType.all = _.flatten(
+						_.map(MachineType.allConfig, function(
+							aMachineTypeConfig,
+							aStackType
+						) {
+							return _.map(aMachineTypeConfig.machine_types, function(
+								aMachineTypeDetails,
+								aMachineTypeID
+							) {
+								return new MachineType(
+									aStackType,
+									aMachineTypeID,
+									aMachineTypeDetails.name,
+									aMachineTypeDetails.cpu_count,
+									aMachineTypeDetails.cpu_description,
+									aMachineTypeDetails.ram,
+									aMachineTypeDetails.credit_per_min,
+									aMachineTypeDetails.is_available,
+									aMachineTypeDetails.note
+								);
+							});
+						})
+					);
+				});
+			};
 
-        return getMachineTypeConfigs().then(function(data) {
-            MachineType.all = [];
+			function getMachineTypeConfigs() {
+				if (MachineType.allConfig) {
+					return $q.when();
+				}
 
-            MachineType.all = _.flatten(_.map(MachineType.allConfig, function(aMachineTypeConfig, aStackType) {
-                return _.map(aMachineTypeConfig.machine_types, function(aMachineTypeDetails, aMachineTypeID) {
-                    return new MachineType(aStackType, aMachineTypeID, aMachineTypeDetails.name, aMachineTypeDetails.cpu_count, aMachineTypeDetails.cpu_description, aMachineTypeDetails.ram, aMachineTypeDetails.credit_per_min, aMachineTypeDetails.is_available, aMachineTypeDetails.note);
-                });
-            }));
-        });
-    };
+				return requestService.getMachineTypeConfigs().then(function(data) {
+					MachineType.allConfig = data.machineTypeConfigs;
+				});
+			}
 
-    function getMachineTypeConfigs() {
-        if (MachineType.allConfig) {
-            return $q.when();
-        }
-
-        return requestService.getMachineTypeConfigs().then(function(data) {
-            MachineType.allConfig = data.machineTypeConfigs;
-        });
-    }
-
-    return MachineType;
-
-});
-
+			return MachineType;
+		});
 })();

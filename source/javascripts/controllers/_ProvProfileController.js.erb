@@ -1,399 +1,564 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.controller("ProvProfileController", function(
+			$scope,
+			$q,
+			requestService,
+			stringService,
+			dateService,
+			certificateService,
+			Popup,
+			Progress,
+			ProvProfile
+		) {
+			var viewModel = this;
 
-angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, requestService, stringService, dateService, certificateService, Popup, Progress, ProvProfile) {
+			$scope.dateService = dateService;
+			$scope.certificateService = certificateService;
 
-	var viewModel = this;
+			viewModel.maximumProvProfilesCount = 30;
 
-	$scope.dateService = dateService;
-	$scope.certificateService = certificateService;
+			viewModel.loadProvProfilesProgress = new Progress();
+			viewModel.uploadProvProfilesProgress = new Progress();
+			viewModel.deleteProvProfileProgress = new Progress();
+			viewModel.deleteAllProvProfilesProgress = new Progress();
+			viewModel.loadTestDevicesProgress = new Progress();
 
-	viewModel.maximumProvProfilesCount = 30;
+			viewModel.provProfiles;
+			viewModel.provProfilesToUpload;
+			viewModel.provProfileUploader;
+			viewModel.provProfileSettings = {};
+			viewModel.isActionMenuForAllProvisioningProfilesVisible = false;
 
-	viewModel.loadProvProfilesProgress = new Progress();
-	viewModel.uploadProvProfilesProgress = new Progress();
-	viewModel.deleteProvProfileProgress = new Progress();
-	viewModel.deleteAllProvProfilesProgress = new Progress();
-	viewModel.loadTestDevicesProgress = new Progress();
+			var testDevicesOfApp;
 
-	viewModel.provProfiles;
-	viewModel.provProfilesToUpload;
-	viewModel.provProfileUploader;
-	viewModel.provProfileSettings = {};
-	viewModel.isActionMenuForAllProvisioningProfilesVisible = false;
+			viewModel.provProfileDetailsPopup = new Popup();
+			viewModel.provProfileDetailsPopup.afterDismissCallback = function() {
+				viewModel.selectedProvProfile = null;
+				viewModel.selectedMenu = null;
+			};
 
-	var testDevicesOfApp;
+			viewModel.menus = [
+				{
+					id: "matching-certificates",
+					title:
+						"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:matching_certificates] %>",
+					cssClass: "matching-certificates"
+				},
+				{
+					id: "devices",
+					title:
+						"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:devices] %>",
+					cssClass: "devices"
+				},
+				{
+					id: "capabilities",
+					title:
+						"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:capabilities] %>",
+					cssClass: "capabilities"
+				}
+			];
+			viewModel.selectedMenu;
 
-	viewModel.provProfileDetailsPopup = new Popup();
-	viewModel.provProfileDetailsPopup.afterDismissCallback = function() {
-		viewModel.selectedProvProfile = null;
-		viewModel.selectedMenu = null;
-	};
+			viewModel.init = function() {
+				load();
+			};
 
-	viewModel.menus = [{
-		id: "matching-certificates",
-		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:matching_certificates] %>",
-		cssClass: "matching-certificates"
-	}, {
-		id: "devices",
-		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:devices] %>",
-		cssClass: "devices"
-	}, {
-		id: "capabilities",
-		title: "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:menus][:capabilities] %>",
-		cssClass: "capabilities"
-	}];
-	viewModel.selectedMenu;
+			function load() {
+				$q.all([
+					loadProvProfiles(),
+					loadTestDevices(),
+					function() {
+						return $q(function(resolve, reject) {
+							var unwatch = $scope.$watch(
+								function() {
+									return certificateService.loadProgress.isInProgress;
+								},
+								function(
+									isCertificateLoadInProgress,
+									wasCertificateLoadInProgress
+								) {
+									if (!isCertificateLoadInProgress) {
+										if (certificateService.loadProgress.isError) {
+											unwatch();
 
-	viewModel.init = function() {
-		load();
-	};
+											reject(
+												new Error(certificateService.loadProgress.statusMessage)
+											);
+										} else if (certificateService.certificates !== undefined) {
+											unwatch();
 
-	function load() {
-		$q.all([
-			loadProvProfiles(),
-			loadTestDevices(),
-			function() {
-				return $q(function(resolve, reject) {
-					var unwatch = $scope.$watch(function() {
-						return certificateService.loadProgress.isInProgress;
-					}, function(isCertificateLoadInProgress, wasCertificateLoadInProgress) {
-						if (!isCertificateLoadInProgress) {
-							if (certificateService.loadProgress.isError) {
-								unwatch();
-
-								reject(new Error(certificateService.loadProgress.statusMessage));
-							}
-							else if (certificateService.certificates !== undefined) {
-								unwatch();
-
-								resolve();
-							}
-						}
-					})
-				})
-			}
-		]).then()
-	}
-
-	function loadProvProfiles(shouldClearPreviousLoad) {
-		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
-		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
-			viewModel.uploadProvProfilesProgress.reset();
-		}
-
-		if (shouldClearPreviousLoad === undefined) {
-			shouldClearPreviousLoad = false;
-		}
-
-		if (shouldClearPreviousLoad) {
-			viewModel.provProfiles = undefined;
-		}
-
-		return $q(function(resolve, reject) {
-			requestService.getProvProfiles().then(function(provProfileDatas) {
-				viewModel.provProfiles = _.map(provProfileDatas, function(aProvProfileData) {
-					var provProfile = new ProvProfile();
-
-					provProfile.databaseID = aProvProfileData.databaseID;
-					provProfile.isProcessed = aProvProfileData.isProcessed;
-					provProfile.uploadFileName = aProvProfileData.uploadFileName;
-					provProfile.isExpose = aProvProfileData.isExpose;
-					provProfile.isProtected = aProvProfileData.isProtected;
-
-					var provProfileIsExposeGetterSetterProgress = new Progress();
-
-					viewModel.provProfileSettings[provProfile.databaseID] = {
-						getDetailsProgress: new Progress(),
-						isMenuVisible: false,
-						isExposeGetterSetter: isExposeGetterSetterForProvProfile(provProfile, provProfileIsExposeGetterSetterProgress),
-						isExposeGetterSetterProgress: provProfileIsExposeGetterSetterProgress,
-					};
-
-					if (!provProfile.uuid && provProfile.isProcessed) {
-						viewModel.getDetails(provProfile);
+											resolve();
+										}
+									}
+								}
+							);
+						});
 					}
+				]).then();
+			}
+
+			function loadProvProfiles(shouldClearPreviousLoad) {
+				viewModel.loadProvProfilesProgress.start(
+					"<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>"
+				);
+				if (
+					viewModel.uploadProvProfilesProgress.isIdle &&
+					viewModel.uploadProvProfilesProgress.statusMessage !== null
+				) {
+					viewModel.uploadProvProfilesProgress.reset();
+				}
+
+				if (shouldClearPreviousLoad === undefined) {
+					shouldClearPreviousLoad = false;
+				}
+
+				if (shouldClearPreviousLoad) {
+					viewModel.provProfiles = undefined;
+				}
+
+				return $q(function(resolve, reject) {
+					requestService.getProvProfiles().then(
+						function(provProfileDatas) {
+							viewModel.provProfiles = _.map(provProfileDatas, function(
+								aProvProfileData
+							) {
+								var provProfile = new ProvProfile();
+
+								provProfile.databaseID = aProvProfileData.databaseID;
+								provProfile.isProcessed = aProvProfileData.isProcessed;
+								provProfile.uploadFileName = aProvProfileData.uploadFileName;
+								provProfile.isExpose = aProvProfileData.isExpose;
+								provProfile.isProtected = aProvProfileData.isProtected;
+
+								var provProfileIsExposeGetterSetterProgress = new Progress();
+
+								viewModel.provProfileSettings[provProfile.databaseID] = {
+									getDetailsProgress: new Progress(),
+									isMenuVisible: false,
+									isExposeGetterSetter: isExposeGetterSetterForProvProfile(
+										provProfile,
+										provProfileIsExposeGetterSetterProgress
+									),
+									isExposeGetterSetterProgress: provProfileIsExposeGetterSetterProgress
+								};
+
+								if (!provProfile.uuid && provProfile.isProcessed) {
+									viewModel.getDetails(provProfile);
+								}
+
+								return provProfile;
+							});
+
+							viewModel.loadProvProfilesProgress.success();
+							resolve();
+						},
+						function(error) {
+							viewModel.loadProvProfilesProgress.error(error);
+							reject(error);
+						}
+					);
+				});
+			}
+
+			function loadTestDevices() {
+				viewModel.loadTestDevicesProgress.start(
+					"<%= data[:strings][:code_signing][:prov_profile][:validate_test_devices][:in_progress] %>"
+				);
+
+				return $q(function(resolve, reject) {
+					requestService.fetchAllTestDevicesOfRepository().then(
+						function(testDeviceDatas) {
+							testDevicesOfApp = _.map(testDeviceDatas, function(
+								aTestDeviceData
+							) {
+								return {
+									udid: aTestDeviceData.udid,
+									registeredBy: aTestDeviceData.ownerUsername
+								};
+							});
+
+							viewModel.loadTestDevicesProgress.success();
+							resolve();
+						},
+						function(error) {
+							viewModel.loadTestDevicesProgress.error(error);
+							reject();
+						}
+					);
+				});
+			}
+
+			viewModel.hasValidIdentity = function() {
+				return _.any(
+					viewModel.selectedProvProfile.developerCertificateIdentities,
+					function(anIdentity) {
+						return (
+							viewModel.identityStatus(anIdentity) == "ok" &&
+							!viewModel.isIdentityExpired(anIdentity)
+						);
+					}
+				);
+			};
+
+			function isIdentityWithSerialAddedToApp(identitySerial) {
+				if (certificateService.loadProgress.isInProgress) {
+					return undefined;
+				}
+
+				return _.any(certificateService.certificates, function(aCertificate) {
+					return _.any(aCertificate.details, { serial: identitySerial });
+				});
+			}
+
+			viewModel.isIdentityExpired = function(identity) {
+				return identity.endDate < new Date();
+			};
+
+			function isDeviceWithUDIDaddedToApp(deviceUDID) {
+				if (testDevicesOfApp === undefined) {
+					return undefined;
+				}
+
+				return _.any(testDevicesOfApp, { udid: deviceUDID });
+			}
+
+			viewModel.identityStatus = function(identity) {
+				if (!viewModel.selectedProvProfile) {
+					return undefined;
+				}
+
+				if (certificateService.loadProgress.isInProgress) {
+					return "loading";
+				}
+
+				return _.any(certificateService.certificates, function(aCertificate) {
+					return (
+						_.any(aCertificate.details, { serial: identity.serial }) &&
+						!viewModel.isIdentityExpired(identity.endDate)
+					);
+				})
+					? "ok"
+					: viewModel.isIdentityExpired(identity.endDate)
+					? "expired"
+					: "missing";
+			};
+
+			viewModel.deviceStatusCSSclass = function(deviceUDID) {
+				if (!viewModel.selectedProvProfile) {
+					return undefined;
+				}
+
+				if (testDevicesOfApp === undefined) {
+					return "loading";
+				}
+
+				return _.any(testDevicesOfApp, { udid: deviceUDID }) ? "ok" : "missing";
+			};
+
+			viewModel.deviceRegisteredBy = function(deviceUDID) {
+				if (testDevicesOfApp === undefined) {
+					return undefined;
+				}
+
+				var registeredTestDevice = _.find(testDevicesOfApp, {
+					udid: deviceUDID
+				});
+
+				return registeredTestDevice
+					? registeredTestDevice.registeredBy
+					: undefined;
+			};
+
+			viewModel.identitiesStatusCSSclass = function() {
+				if (!viewModel.selectedProvProfile) {
+					return undefined;
+				}
+
+				if (certificateService.loadProgress.isInProgress) {
+					return "loading";
+				}
+
+				return _.any(
+					viewModel.selectedProvProfile.developerCertificateIdentities,
+					function(anIdentity) {
+						return (
+							isIdentityWithSerialAddedToApp(anIdentity.serial) &&
+							!viewModel.isIdentityExpired(anIdentity.endDate)
+						);
+					}
+				)
+					? "ok"
+					: "missing";
+			};
+
+			viewModel.devicesStatusCSSclass = function() {
+				if (!viewModel.selectedProvProfile) {
+					return undefined;
+				}
+
+				if (testDevicesOfApp === undefined) {
+					return "loading";
+				}
+
+				return _.every(
+					viewModel.selectedProvProfile.provisionedDevices,
+					function(aDevice) {
+						return isDeviceWithUDIDaddedToApp(aDevice.udid);
+					}
+				)
+					? "ok"
+					: "missing";
+			};
+
+			viewModel.provProfileStatusCSSclass = function(provProfile) {
+				if (
+					certificateService.loadProgress.isInProgress ||
+					testDevicesOfApp === undefined
+				) {
+					return "loading";
+				} else if (
+					_.any(provProfile.developerCertificateIdentities, function(
+						anIdentity
+					) {
+						return (
+							isIdentityWithSerialAddedToApp(anIdentity.serial) &&
+							!viewModel.isIdentityExpired(anIdentity.endDate)
+						);
+					})
+				) {
+					return "ok";
+				} else {
+					return "missing";
+				}
+			};
+
+			viewModel.filesSelectedForUpload = function(files) {
+				if (files.length == 0) {
+					return;
+				}
+
+				viewModel.provProfilesToUpload = _.map(files, function(aFile) {
+					var provProfile = new ProvProfile();
+					provProfile.file = aFile;
 
 					return provProfile;
 				});
+			};
 
-				viewModel.loadProvProfilesProgress.success();
-				resolve();
-			}, function (error) {
-				viewModel.loadProvProfilesProgress.error(error);
-				reject(error);
-			});
-		});
-	};
+			viewModel.uploadProvProfiles = function() {
+				viewModel.uploadProvProfilesProgress.start(
+					"<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:in_progress] %>"
+				);
 
-	function loadTestDevices() {
-		viewModel.loadTestDevicesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:validate_test_devices][:in_progress] %>");
+				if (
+					viewModel.provProfiles.length +
+						viewModel.provProfilesToUpload.length >
+					viewModel.maximumProvProfilesCount
+				) {
+					viewModel.uploadProvProfilesProgress.error(
+						new Error(
+							stringService.stringReplacedWithParameters(
+								"<%= data[:strings][:code_signing][:prov_profile][:can_only_upload_x_more] %>",
+								{
+									count:
+										viewModel.maximumProvProfilesCount -
+										viewModel.provProfiles.length
+								}
+							)
+						)
+					);
 
-		return $q(function(resolve, reject) {
-			requestService.fetchAllTestDevicesOfRepository().then(function(testDeviceDatas) {
-				testDevicesOfApp = _.map(testDeviceDatas, function(aTestDeviceData) {
-					return {
-						udid: aTestDeviceData.udid,
-						registeredBy: aTestDeviceData.ownerUsername
-					};
+					viewModel.provProfilesToUpload = undefined;
+
+					return;
+				}
+
+				var uploadPromise = $q.when();
+				_.each(viewModel.provProfilesToUpload, function(aProvProfile) {
+					uploadPromise = uploadPromise.then(function() {
+						return aProvProfile.upload();
+					});
 				});
 
-				viewModel.loadTestDevicesProgress.success();
-				resolve();
-			}, function(error) {
-				viewModel.loadTestDevicesProgress.error(error);
-				reject();
-			});
-		});
-	}
+				$q(function(resolve, reject) {
+					uploadPromise.then(
+						function() {
+							resolve();
+						},
+						function(error) {
+							reject(error);
+						}
+					);
+				}).then(
+					function() {
+						viewModel.uploadProvProfilesProgress.success();
 
-	viewModel.hasValidIdentity = function() {
-		return _.any(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
-			return viewModel.identityStatus(anIdentity) == "ok" && !viewModel.isIdentityExpired(anIdentity);
-		});
-	};
+						viewModel.provProfilesToUpload = undefined;
+						loadProvProfiles(true);
+					},
+					function(error) {
+						viewModel.uploadProvProfilesProgress.error(error);
+					}
+				);
+			};
 
-	function isIdentityWithSerialAddedToApp(identitySerial) {
-		if (certificateService.loadProgress.isInProgress) {
-			return undefined;
-		}
+			viewModel.makeProvProfileProtected = function(provProfile) {
+				Popup.showConfirmPopup(
+					"<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_cancel] %>"
+				).then(function() {
+					provProfile.protect();
+				});
+			};
 
-		return _.any(certificateService.certificates, function(aCertificate) {
-			return _.any(aCertificate.details, { serial: identitySerial });
-		});
-	}
+			viewModel.deleteProvProfile = function(provProfile) {
+				Popup.showConfirmPopup(
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question_short] %>",
+					stringService.stringReplacedWithParameters(
+						"<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question] %>",
+						{
+							provisioning_profile_name: provProfile.displayName()
+						}
+					),
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:yes_title] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:no_title] %>",
+					function() {
+						viewModel.deleteProvProfileProgress.start(
+							"<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>"
+						);
 
-	viewModel.isIdentityExpired = function(identity) {
-		return identity.endDate < new Date();
-	};
+						if (
+							viewModel.uploadProvProfilesProgress.isIdle &&
+							viewModel.uploadProvProfilesProgress.statusMessage !== null
+						) {
+							viewModel.uploadProvProfilesProgress.reset();
+						}
 
-	function isDeviceWithUDIDaddedToApp(deviceUDID) {
-		if (testDevicesOfApp === undefined) {
-			return undefined;
-		}
+						provProfile.delete().then(
+							function() {
+								viewModel.deleteProvProfileProgress.success();
 
-		return _.any(testDevicesOfApp, { udid: deviceUDID });
-	}
+								loadProvProfiles(true);
+							},
+							function(error) {
+								viewModel.deleteProvProfileProgress.error(error);
+							}
+						);
+					}
+				);
+			};
 
-	viewModel.identityStatus = function(identity) {
-		if (!viewModel.selectedProvProfile) {
-			return undefined;
-		}
+			viewModel.deleteAllProvProfiles = function() {
+				Popup.showConfirmPopup(
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:yes_title] %>",
+					"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:no_title] %>",
+					function() {
+						viewModel.deleteAllProvProfilesProgress.start(
+							"<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>"
+						);
 
-		if (certificateService.loadProgress.isInProgress) {
-			return "loading";
-		}
+						if (
+							viewModel.uploadProvProfilesProgress.isIdle &&
+							viewModel.uploadProvProfilesProgress.statusMessage !== null
+						) {
+							viewModel.uploadProvProfilesProgress.reset();
+						}
 
-		return _.any(certificateService.certificates, function(aCertificate) {
-			return _.any(aCertificate.details, { serial: identity.serial }) && !viewModel.isIdentityExpired(identity.endDate);
-		}) ? "ok" : viewModel.isIdentityExpired(identity.endDate) ? "expired" : "missing";
-	};
+						requestService.deleteAllProvProfiles().then(
+							function() {
+								viewModel.deleteAllProvProfilesProgress.success();
 
-	viewModel.deviceStatusCSSclass = function(deviceUDID) {
-		if (!viewModel.selectedProvProfile) {
-			return undefined;
-		}
+								loadProvProfiles(true);
+							},
+							function(error) {
+								viewModel.deleteAllProvProfilesProgress.error(error);
+							}
+						);
+					}
+				);
+			};
 
-		if (testDevicesOfApp === undefined) {
-			return "loading";
-		}
+			viewModel.getDetails = function(provProfile) {
+				viewModel.provProfileSettings[
+					provProfile.databaseID
+				].getDetailsProgress.start(
+					"<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>"
+				);
+				if (
+					viewModel.uploadProvProfilesProgress.isIdle &&
+					viewModel.uploadProvProfilesProgress.statusMessage !== null
+				) {
+					viewModel.uploadProvProfilesProgress.reset();
+				}
 
-		return _.any(testDevicesOfApp, { udid: deviceUDID }) ? "ok" : "missing";
-	};
+				provProfile.getDetails().then(
+					function() {
+						viewModel.provProfileSettings[
+							provProfile.databaseID
+						].getDetailsProgress.success();
+					},
+					function(error) {
+						viewModel.provProfileSettings[
+							provProfile.databaseID
+						].getDetailsProgress.error(error);
+					}
+				);
+			};
 
-	viewModel.deviceRegisteredBy = function(deviceUDID) {
-		if (testDevicesOfApp === undefined) {
-			return undefined;
-		}
+			viewModel.capabilityDescriptionsOfProvProfile = function() {
+				return _.compact(
+					_.uniq(
+						_.map(viewModel.selectedProvProfile.capabilityKeys, function(
+							aCapabilityKey
+						) {
+							return ProvProfile.descriptionForCapabilityKey(aCapabilityKey);
+						})
+					)
+				);
+			};
 
-		var registeredTestDevice = _.find(testDevicesOfApp, { udid: deviceUDID });
+			function isExposeGetterSetterForProvProfile(aProvProfile, progress) {
+				return function(isExpose) {
+					if (isExpose === undefined) {
+						return aProvProfile.isExpose;
+					}
 
-		return registeredTestDevice ? registeredTestDevice.registeredBy : undefined;
-	};
+					var oldIsExpose = aProvProfile.isExpose;
+					aProvProfile.isExpose = isExpose;
 
-	viewModel.identitiesStatusCSSclass = function() {
-		if (!viewModel.selectedProvProfile) {
-			return undefined;
-		}
-
-		if (certificateService.loadProgress.isInProgress) {
-			return "loading";
-		}
-
-		return _.any(viewModel.selectedProvProfile.developerCertificateIdentities, function(anIdentity) {
-			return isIdentityWithSerialAddedToApp(anIdentity.serial) && !viewModel.isIdentityExpired(anIdentity.endDate);
-		}) ? "ok" : "missing";
-	};
-
-	viewModel.devicesStatusCSSclass = function() {
-		if (!viewModel.selectedProvProfile) {
-			return undefined;
-		}
-
-		if (testDevicesOfApp === undefined) {
-			return "loading";
-		}
-
-		return _.every(viewModel.selectedProvProfile.provisionedDevices, function(aDevice) {
-			return isDeviceWithUDIDaddedToApp(aDevice.udid);
-		}) ? "ok" : "missing";
-	};
-
-	viewModel.provProfileStatusCSSclass = function(provProfile) {
-		if (certificateService.loadProgress.isInProgress || testDevicesOfApp === undefined) {
-			return "loading";
-		}
-		else if (_.any(provProfile.developerCertificateIdentities, function(anIdentity) {
-			return isIdentityWithSerialAddedToApp(anIdentity.serial) && !viewModel.isIdentityExpired(anIdentity.endDate);
-		})) {
-			return "ok";
-		}
-		else {
-			return "missing";
-		}
-	};
-
-	viewModel.filesSelectedForUpload = function(files) {
-		if (files.length == 0) {
-			return;
-		}
-
-		viewModel.provProfilesToUpload = _.map(files, function(aFile) {
-			var provProfile = new ProvProfile();
-			provProfile.file = aFile;
-
-			return provProfile;
-		});
-	};
-
-	viewModel.uploadProvProfiles = function() {
-		viewModel.uploadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:upload_progress][:in_progress] %>");
-
-		if (viewModel.provProfiles.length + viewModel.provProfilesToUpload.length > viewModel.maximumProvProfilesCount) {
-			viewModel.uploadProvProfilesProgress.error(new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:can_only_upload_x_more] %>", {
-				count: viewModel.maximumProvProfilesCount - viewModel.provProfiles.length
-			})));
-
-			viewModel.provProfilesToUpload = undefined;
-
-			return;
-		}
-
-		var uploadPromise = $q.when();
-		_.each(viewModel.provProfilesToUpload, function(aProvProfile) {
-			uploadPromise = uploadPromise.then(function() {
-				return aProvProfile.upload();
-			});
-		});
-
-		$q(function(resolve, reject) {
-			uploadPromise.then(function() {
-				resolve();
-			}, function(error) {
-				reject(error);
-			});
-		}).then(function() {
-			viewModel.uploadProvProfilesProgress.success();
-
-			viewModel.provProfilesToUpload = undefined;
-			loadProvProfiles(true);
-		}, function(error) {
-			viewModel.uploadProvProfilesProgress.error(error);
-		});
-	};
-
-	viewModel.makeProvProfileProtected = function(provProfile) {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_question] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_details] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_ok] %>", "<%= data[:strings][:code_signing][:prov_profile][:make_protected][:confirm_cancel] %>").then(function() {
-			provProfile.protect();
-		});
-	};
-
-	viewModel.deleteProvProfile = function(provProfile) {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question_short] %>", stringService.stringReplacedWithParameters("<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:question] %>", {
-			provisioning_profile_name: provProfile.displayName()
-		}), "<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_confirm][:no_title] %>", function() {
-			viewModel.deleteProvProfileProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_progress][:in_progress] %>");
-
-			if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
-				viewModel.uploadProvProfilesProgress.reset();
+					progress.start();
+					requestService
+						.updateProvProfileIsExposeState(
+							aProvProfile.databaseID,
+							aProvProfile.isExpose
+						)
+						.then(
+							function() {
+								progress.success();
+							},
+							function(error) {
+								aProvProfile.isExpose = oldIsExpose;
+								progress.reset();
+								Popup.showErrorPopup(error.message);
+							}
+						);
+				};
 			}
 
-			provProfile.delete().then(function() {
-				viewModel.deleteProvProfileProgress.success();
+			viewModel.showProvProfileDetails = function(aSelectedProvProfile) {
+				viewModel.selectedProvProfile = aSelectedProvProfile;
 
-				loadProvProfiles(true);
-			}, function(error) {
-				viewModel.deleteProvProfileProgress.error(error);
-			});
+				viewModel.selectedMenu = viewModel.menus[0];
+
+				viewModel.provProfileDetailsPopup.isVisible = true;
+			};
 		});
-	};
-
-	viewModel.deleteAllProvProfiles = function() {
-		Popup.showConfirmPopup("<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question_short] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:question] %>",
-		"<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:yes_title] %>", "<%= data[:strings][:code_signing][:prov_profile][:delete_all_confirm][:no_title] %>", function() {
-			viewModel.deleteAllProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:delete_all_progress][:in_progress] %>");
-
-			if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
-				viewModel.uploadProvProfilesProgress.reset();
-			}
-
-			requestService.deleteAllProvProfiles().then(function() {
-				viewModel.deleteAllProvProfilesProgress.success();
-
-				loadProvProfiles(true);
-			}, function(error) {
-				viewModel.deleteAllProvProfilesProgress.error(error);
-			});
-		});
-	};
-
-	viewModel.getDetails = function(provProfile) {
-		viewModel.provProfileSettings[provProfile.databaseID].getDetailsProgress.start("<%= data[:strings][:code_signing][:prov_profile][:get_details_progress][:in_progress] %>");
-		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
-			viewModel.uploadProvProfilesProgress.reset();
-		}
-
-		provProfile.getDetails().then(function() {
-			viewModel.provProfileSettings[provProfile.databaseID].getDetailsProgress.success();
-		}, function(error) {
-			viewModel.provProfileSettings[provProfile.databaseID].getDetailsProgress.error(error);
-		});
-	};
-
-	viewModel.capabilityDescriptionsOfProvProfile = function() {
-		return _.compact(_.uniq(_.map(viewModel.selectedProvProfile.capabilityKeys, function(aCapabilityKey) {
-			return ProvProfile.descriptionForCapabilityKey(aCapabilityKey);
-		})));
-	};
-
-	function isExposeGetterSetterForProvProfile(aProvProfile, progress) {
-		return function(isExpose) {
-			if (isExpose === undefined) {
-				return aProvProfile.isExpose;
-			}
-
-			var oldIsExpose = aProvProfile.isExpose;
-			aProvProfile.isExpose = isExpose;
-
-			progress.start();
-			requestService.updateProvProfileIsExposeState(aProvProfile.databaseID, aProvProfile.isExpose).then(function() {
-				progress.success();
-			}, function(error) {
-				aProvProfile.isExpose = oldIsExpose;
-				progress.reset();
-				Popup.showErrorPopup(error.message);
-			});
-		}
-	};
-
-	viewModel.showProvProfileDetails = function(aSelectedProvProfile) {
-		viewModel.selectedProvProfile = aSelectedProvProfile;
-
-		viewModel.selectedMenu = viewModel.menus[0];
-
-		viewModel.provProfileDetailsPopup.isVisible = true;
-	};
-});
-
 })();

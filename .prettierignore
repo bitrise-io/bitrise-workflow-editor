@@ -1,0 +1,4 @@
+source/javascripts/monaco-editor
+
+# Has ruby template notation
+source/javascripts/_apihandler.js.erb

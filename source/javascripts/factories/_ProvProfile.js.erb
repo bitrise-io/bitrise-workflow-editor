@@ -1,169 +1,234 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.factory("ProvProfile", function($q, requestService) {
+			var capabilities = {
+				"com.apple.security.application-groups":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.security.application-groups'] %>",
+				"com.apple.developer.in-app-payments":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.in-app-payments'] %>",
+				"com.apple.developer.associated-domains":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.associated-domains'] %>",
+				"com.apple.developer.healthkit":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.healthkit'] %>",
+				"com.apple.developer.homekit":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.homekit'] %>",
+				"com.apple.developer.networking.HotspotConfiguration":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.HotspotConfiguration'] %>",
+				"com.apple.InAppPurchase":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.InAppPurchase'] %>",
+				"inter-app-audio":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['inter-app-audio'] %>",
+				"com.apple.developer.networking.multipath":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.multipath'] %>",
+				"com.apple.developer.networking.networkextension":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.networkextension'] %>",
+				"com.apple.developer.nfc.readersession.formats":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.nfc.readersession.formats'] %>",
+				"com.apple.developer.networking.vpn.api":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.vpn.api'] %>",
+				"aps-environment":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['aps-environment'] %>",
+				"com.apple.developer.siri":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.siri'] %>",
+				"com.apple.developer.pass-type-identifiers":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.pass-type-identifiers'] %>",
+				"com.apple.external-accessory.wireless-configuration":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.external-accessory.wireless-configuration'] %>",
+				"com.apple.developer.default-data-protection":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.default-data-protection'] %>",
+				"com.apple.developer.ubiquity-kvstore-identifier":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.ubiquity-kvstore-identifier'] %>",
+				"com.apple.developer.icloud-services":
+					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.icloud-services'] %>"
+			};
 
-angular.module("BitriseWorkflowEditor").factory("ProvProfile", function($q, requestService) {
+			var ProvProfile = function() {
+				this.databaseID;
+				this.file;
+				this.isProcessed;
+				this.uploadFileName;
+				this.isExpose;
+				this.isProtected;
+				this.uuid;
+				this.expiresAt;
+				this.exportType;
+				this.teamName;
+				this.teamID;
+				this.bundleID;
+				this.developerCertificateIdentities;
+				this.provisionedDevices;
+				this.capabilityKeys;
+			};
 
-	var capabilities = {
-		'com.apple.security.application-groups': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.security.application-groups'] %>",
-		'com.apple.developer.in-app-payments': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.in-app-payments'] %>",
-		'com.apple.developer.associated-domains': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.associated-domains'] %>",
-		'com.apple.developer.healthkit': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.healthkit'] %>",
-		'com.apple.developer.homekit': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.homekit'] %>",
-		'com.apple.developer.networking.HotspotConfiguration': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.HotspotConfiguration'] %>",
-		'com.apple.InAppPurchase': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.InAppPurchase'] %>",
-		'inter-app-audio': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['inter-app-audio'] %>",
-		'com.apple.developer.networking.multipath': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.multipath'] %>",
-		'com.apple.developer.networking.networkextension': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.networkextension'] %>",
-		'com.apple.developer.nfc.readersession.formats': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.nfc.readersession.formats'] %>",
-		'com.apple.developer.networking.vpn.api': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.vpn.api'] %>",
-		'aps-environment': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['aps-environment'] %>",
-		'com.apple.developer.siri': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.siri'] %>",
-		'com.apple.developer.pass-type-identifiers': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.pass-type-identifiers'] %>",
-		'com.apple.external-accessory.wireless-configuration': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.external-accessory.wireless-configuration'] %>",
-		'com.apple.developer.default-data-protection': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.default-data-protection'] %>",
-		'com.apple.developer.ubiquity-kvstore-identifier': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.ubiquity-kvstore-identifier'] %>",
-		'com.apple.developer.icloud-services': "<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.icloud-services'] %>"
-	};
+			ProvProfile.provisionURLEnvVarKey = "BITRISE_PROVISION_URL";
+			ProvProfile.defaultProvisionURLEnvVarKey =
+				"BITRISE_DEFAULT_PROVISION_URL";
 
-	var ProvProfile = function() {
-		this.databaseID;
-		this.file;
-		this.isProcessed;
-		this.uploadFileName;
-		this.isExpose;
-		this.isProtected;
-		this.uuid;
-		this.expiresAt;
-		this.exportType;
-		this.teamName;
-		this.teamID;
-		this.bundleID;
-		this.developerCertificateIdentities;
-		this.provisionedDevices;
-		this.capabilityKeys;
-	};
+			ProvProfile.prototype.displayName = function() {
+				if (this.uploadFileName) {
+					var nameRegexp = new RegExp(
+						"^(.+).(?:mobileprovision|provisionprofile)$"
+					);
 
-	ProvProfile.provisionURLEnvVarKey = "BITRISE_PROVISION_URL";
-	ProvProfile.defaultProvisionURLEnvVarKey = "BITRISE_DEFAULT_PROVISION_URL";
+					if (
+						nameRegexp.test(this.uploadFileName) &&
+						nameRegexp.exec(this.uploadFileName)[1]
+					) {
+						return nameRegexp.exec(this.uploadFileName)[1];
+					}
+				}
 
-	ProvProfile.prototype.displayName = function() {
-		if (this.uploadFileName) {
-			var nameRegexp = new RegExp("^(.+)\.(?:mobileprovision|provisionprofile)$");
+				if (this.file) {
+					return this.file.name;
+				}
 
-			if (nameRegexp.test(this.uploadFileName) && nameRegexp.exec(this.uploadFileName)[1]) {
-				return nameRegexp.exec(this.uploadFileName)[1];
-			}
-		}
+				return "<%= data[:strings][:code_signing][:prov_profile][:no_name_for_file] %>";
+			};
 
-		if (this.file) {
-			return this.file.name;
-		}
+			ProvProfile.prototype.fileSize = function() {
+				if (!this.file) {
+					return undefined;
+				}
 
-		return "<%= data[:strings][:code_signing][:prov_profile][:no_name_for_file] %>";
-	};
+				if (this.file.size !== undefined) {
+					return this.file.size;
+				}
 
-	ProvProfile.prototype.fileSize = function() {
-		if (!this.file) {
-			return undefined;
-		}
+				if (this.file.fileSize !== undefined) {
+					return this.file.fileSize;
+				}
+			};
 
-		if (this.file.size !== undefined) {
-			return this.file.size;
-		}
+			ProvProfile.prototype.validationError = function() {
+				if (
+					!_.contains(
+						["mobileprovision", "provisionprofile"],
+						_.last(this.file.name.split("."))
+					)
+				) {
+					return new TypeError(
+						"<%= data[:strings][:code_signing][:prov_profile][:invalid_file_type] %>"
+					);
+				}
+			};
 
-		if (this.file.fileSize !== undefined) {
-			return this.file.fileSize;
-		}
-	};
+			ProvProfile.prototype.upload = function(requestConfig) {
+				if (this.validationError()) {
+					return $q.reject(this.validationError());
+				}
 
-	ProvProfile.prototype.validationError = function() {
-		if (!_.contains(["mobileprovision", "provisionprofile"], _.last(this.file.name.split(".")))) {
-			return new TypeError("<%= data[:strings][:code_signing][:prov_profile][:invalid_file_type] %>");
-		}
-	};
+				var self = this;
 
-	ProvProfile.prototype.upload = function(requestConfig) {
-		if (this.validationError()) {
-			return $q.reject(this.validationError());
-		}
+				return $q(function(resolve, reject) {
+					requestService
+						.postProvProfileCreate(
+							self.file.name,
+							self.fileSize(),
+							requestConfig
+						)
+						.then(
+							function(data) {
+								var provProfileDatabaseID = data.databaseID;
+								var uploadURL = data.uploadURL;
 
-		var self = this;
-
-		return $q(function(resolve, reject) {
-			requestService.postProvProfileCreate(self.file.name, self.fileSize(), requestConfig).then(function(data) {
-				var provProfileDatabaseID = data.databaseID;
-				var uploadURL = data.uploadURL;
-
-				requestService.uploadFileToStorage(uploadURL, self.file).then(function() {
-					requestService.finalizeProvProfileUpload(provProfileDatabaseID, true, requestConfig).then(resolve, function(error) {
-						reject(error);
-					});
-				}, function(error) {
-					requestService.finalizeProvProfileUpload(provProfileDatabaseID, false, requestConfig).then(function() {
-						reject(error);
-					}, function(finalizeProvProfileUploadError) {
-						reject(error);
-					});
+								requestService.uploadFileToStorage(uploadURL, self.file).then(
+									function() {
+										requestService
+											.finalizeProvProfileUpload(
+												provProfileDatabaseID,
+												true,
+												requestConfig
+											)
+											.then(resolve, function(error) {
+												reject(error);
+											});
+									},
+									function(error) {
+										requestService
+											.finalizeProvProfileUpload(
+												provProfileDatabaseID,
+												false,
+												requestConfig
+											)
+											.then(
+												function() {
+													reject(error);
+												},
+												function(finalizeProvProfileUploadError) {
+													reject(error);
+												}
+											);
+									}
+								);
+							},
+							function(error) {
+								reject(error);
+							}
+						);
 				});
-			}, function(error) {
-				reject(error);
-			});
-		})
-	};
+			};
 
-	ProvProfile.prototype.protect = function(requestConfig) {
-		var self = this;
+			ProvProfile.prototype.protect = function(requestConfig) {
+				var self = this;
 
-		return requestService.protectProvProfile(this.databaseID, requestConfig).then(function() {
-			self.isProtected = true;
+				return requestService
+					.protectProvProfile(this.databaseID, requestConfig)
+					.then(function() {
+						self.isProtected = true;
+					});
+			};
+
+			ProvProfile.prototype.getDetails = function(requestConfig) {
+				var self = this;
+
+				return requestService
+					.getDetailsOfProvProfile(self.databaseID)
+					.then(function(data) {
+						self.uuid = data.uuid;
+						self.expiresAt = data.expiresAt;
+						self.exportType = data.exportType;
+						self.teamName = data.teamName;
+						self.teamID = data.teamID;
+						self.bundleID = data.bundleID;
+						self.developerCertificateIdentities = _.map(
+							data.developerCertificateIdentities,
+							function(anIdentity) {
+								return {
+									commonName: anIdentity.commonName,
+									startDate: anIdentity.startDate,
+									endDate: anIdentity.endDate,
+									teamName: anIdentity.teamName,
+									teamID: anIdentity.teamID,
+									serial: anIdentity.serial
+								};
+							}
+						);
+						self.provisionedDevices = _.map(data.provisionedDevices, function(
+							aProvisionedDevice
+						) {
+							return {
+								udid: aProvisionedDevice.udid
+							};
+						});
+						self.capabilityKeys = data.capabilityKeys;
+					});
+			};
+
+			ProvProfile.prototype.download = function() {
+				return requestService.downloadProvProfile(this.databaseID);
+			};
+
+			ProvProfile.prototype.delete = function(requestConfig) {
+				return requestService.deleteProvProfile(this.databaseID, requestConfig);
+			};
+
+			ProvProfile.descriptionForCapabilityKey = function(key) {
+				return capabilities[key];
+			};
+
+			return ProvProfile;
 		});
-	};
-
-	ProvProfile.prototype.getDetails = function(requestConfig) {
-		var self = this;
-
-		return requestService.getDetailsOfProvProfile(self.databaseID).then(function(data) {
-			self.uuid = data.uuid;
-			self.expiresAt = data.expiresAt;
-			self.exportType = data.exportType;
-			self.teamName = data.teamName;
-			self.teamID = data.teamID;
-			self.bundleID = data.bundleID;
-			self.developerCertificateIdentities = _.map(data.developerCertificateIdentities, function(anIdentity) {
-				return {
-					commonName: anIdentity.commonName,
-					startDate: anIdentity.startDate,
-					endDate: anIdentity.endDate,
-					teamName: anIdentity.teamName,
-					teamID: anIdentity.teamID,
-					serial: anIdentity.serial
-				};
-			});
-			self.provisionedDevices = _.map(data.provisionedDevices, function(aProvisionedDevice) {
-				return {
-					udid: aProvisionedDevice.udid
-				};
-			});
-			self.capabilityKeys = data.capabilityKeys;
-		});
-	};
-
-	ProvProfile.prototype.download = function() {
-		return requestService.downloadProvProfile(this.databaseID);
-	};
-
-	ProvProfile.prototype.delete = function(requestConfig) {
-		return requestService.deleteProvProfile(this.databaseID, requestConfig);
-	};
-
-	ProvProfile.descriptionForCapabilityKey = function(key) {
-		return capabilities[key];
-	};
-
-	return ProvProfile;
-
-});
-
-
 })();

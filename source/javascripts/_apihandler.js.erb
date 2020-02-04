@@ -15,13 +15,15 @@ window.onbeforeunload = function() {
 function cancelAPIConnectionClose() {
 	$.ajax({
 		type: "POST",
-		url: "<%= local_server_path(data[:routes][:local_server][:cancel_api_connection_close]) %>"
+		url:
+			"<%= local_server_path(data[:routes][:local_server][:cancel_api_connection_close]) %>"
 	});
 }
 
 function closeAPIConnection() {
 	$.ajax({
 		type: "DELETE",
-		url: "<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>"
+		url:
+			"<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>"
 	});
 }
