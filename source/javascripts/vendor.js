@@ -1,3 +1,4 @@
+//= require @bitrise/steplib-search/dist/bitrise-steplib-search.umd.js
 //= require jquery/dist/jquery.min.js
 //= require underscore/underscore.js
 //= require elastic
