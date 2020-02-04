@@ -33,7 +33,7 @@
 					h2 == data[:strings][:code_signing][:auto_code_signing][:header][:title]
 					p == data[:strings][:code_signing][:auto_code_signing][:header][:summary]
 				button.manual-code-signing[ng-click="codeSigningCtrl.isAutoCodeSigningModeOn = false"] == data[:strings][:code_signing][:auto_code_signing][:header][:action]
-			= partial "templates/auto_code_signing"
+			== include_slim "_auto_code_signing"
 		.manual-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === false"]
 			section.cardo.slim[ng-if="codeSigningCtrl.showNewCodeSigningWizard"]
 				header
@@ -178,7 +178,7 @@
 										ul.capabilities[ng-switch-when="capabilities"]
 											li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile() track by $index" ng-bind="description"]
 					section.cardo.uppercase.slim.files
-						= partial "templates/tab-code_signing-certificates"
+						== include_slim "_tab-code_signing-certificates"
 	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.androidKeystore)" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
 		header
 			h2.label

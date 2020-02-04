@@ -11,7 +11,8 @@ const railsTransformer = (mode) => ({
 const htmlExporter = {
   loader: "file-loader",
   options: {
-    name: "[path][name].html",
+    outputPath: "templates/",
+    name: "[name].html",
   },
 };
 
@@ -21,13 +22,14 @@ const assetExporter = (regex, folder) => ({
     loader: "file-loader",
     options: {
       outputPath: folder,
+      name: "[name].[ext]",
     }
   }],
 });
 
 module.exports = {
   entry: {
-    site: [
+    main: [
       "./source/javascripts/index.js",
       "./source/stylesheets/main.scss"
     ],

@@ -14,20 +14,5 @@
 	script[src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-animate.js"]
 	script[src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-sanitize.js"]
 	script[src="https://ajax.googleapis.com/ajax/libs/angularjs/1.7.2/angular-route.js"]
-javascript:
-	if (typeof jQuery == "undefined") {
-		console.log("jQuery CDN not available, loading from fallback path.");
-		document.write("#{ escape_javascript(%(<script src=') + (mode_dependant_asset_path %(javascripts/jquery_cache.js)) + %('></script>)) }");
-	}
-
-	if (typeof _ == "undefined") {
-		console.log("CDNJS not available, loading from fallback path.");
-		document.write("#{ escape_javascript(%(<script src=') + (mode_dependant_asset_path %(javascripts/underscore_cache.js)) + %('></script>)) }");
-	}
-
-	if (typeof angular == "undefined") {
-		console.log("Google APIs CDN not available, loading from fallback path.");
-		document.write("#{ escape_javascript(%(<script src=') + (mode_dependant_asset_path %(javascripts/angular_cache.js)) + %('></script>)) }");
-	}
 script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }"]
 script[src="#{ mode_dependant_asset_path 'javascripts/main.js' }"]
