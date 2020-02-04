@@ -41,6 +41,10 @@
     "karma-jasmine": "^3.1.0",
     "karma-jsdom-launcher": "^8.0.0",
     "karma-spec-reporter": "^0.0.32",
-    "onchange": "^6.1.0"
+    "onchange": "^6.1.0",
+    "prettier": "1.19.1"
+  },
+  "prettier" :{
+    "useTabs": true
   }
 }
