@@ -12,8 +12,7 @@ const railsTransformer = (mode) => ({
 const htmlExporter = {
   loader: "file-loader",
   options: {
-    outputPath: "templates/",
-    name: "[name].html",
+    name: "[path][name].html",
   },
 };
 
@@ -29,11 +28,19 @@ const assetExporter = (regex, folder) => ({
 });
 
 module.exports = {
+  context: path.join(__dirname, 'source'),
+
+  devServer: {
+    contentBase: path.join(__dirname, 'build'),
+    compress: true,
+    port: 4567
+  },
+
   entry: {
-    vendor: "./source/javascripts/vendor.js",
+    vendor: "./javascripts/vendor.js",
     main: [
-      "./source/javascripts/index.js",
-      "./source/stylesheets/main.scss"
+      "./javascripts/index.js",
+      "./stylesheets/main.scss"
     ],
   },
 
@@ -48,12 +55,12 @@ module.exports = {
 
   module: {
     rules: [{
-      test: /\.(erb)/,
+      test: /\.(erb)$/,
       use: railsTransformer("erb")
     },
 
     {
-      test: /\.(slim)/,
+      test: /\.(slim)$/,
       use: [
         htmlExporter,
         railsTransformer("slim")
@@ -65,11 +72,12 @@ module.exports = {
     assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
 
     {
-      test: /\.s?css(.erb)?$/,
+      test: /\.s?css(\.erb)?$/,
       use: ExtractTextPlugin.extract({
         use: [
           "css-loader",
           "sass-loader",
+          railsTransformer("erb")
         ]
       })
     }]

@@ -55,23 +55,23 @@ def svg(filename)
     return File.read(file_path).gsub("\n", "").gsub("\r", "").gsub("\t", "")
 end
 
-def favicon_tag(name, rel: "icon", href: nil, type: "image/icon", sizes: "16x16")
-    href ||= name
-    "<link href=\"#{href}\" rel=\"#{rel}\" type=\"#{type}\" sizes=\"#{sizes}\" />"
-end
-
 def data
     get_data
 end
 
 def build?
-    true
+    false
 end
 
 case command
 when "erb"
     puts ERB.new(input).result
 when "slim"
+    def favicon_tag(name, rel: "icon", href: nil, type: "image/icon", sizes: "16x16")
+        href ||= name
+        "<link href=\"#{href}\" rel=\"#{rel}\" type=\"#{type}\" sizes=\"#{sizes}\" />"
+    end
+
     def include_slim(name, options = {}, &block)
         path = "#{Dir.pwd}/source/templates/"
         Slim::Template.new("#{path}#{name}.slim", options).render(self, &block)

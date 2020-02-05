@@ -8,7 +8,7 @@
 				ul.angular-animated[ng-show="workflowsCtrl.workflowSelectorIsVisible"]
 					li[ng-repeat="workflow in workflowsCtrl.workflows" ng-class="{'selected': workflow == workflowsCtrl.selectedWorkflow, 'rename-in-progress': workflow == workflowsCtrl.renamedWorkflow}"]
 						.workflow
-							= svg("check")
+							== svg("check")
 							span.workflow-id[ng-bind="workflow.id"]
 							button.select-workflow[ng-click="workflowsCtrl.selectedWorkflow = workflow" ng-bind="workflow.id"]
 							button.rename-workflow[ng-click="workflowsCtrl.renamedWorkflow = workflow"]
@@ -16,20 +16,20 @@
 							input.name[type="text" name="name" ng-model="workflowsCtrl.renamedWorkflowID" custom-validators="{'id': workflowsCtrl.isRenamedWorkflowIDValid()}"]
 							input.ok[type="submit" ng-disabled="renameWorkflowForm.name.$invalid" value=""]
 			button.manage-button.add-workflow.rebo.light-purple[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
-				= svg("plus")
+				== svg("plus")
 				span == data[:strings][:workflows][:add_workflow][:action]
 			button.manage-button.add-before-run-workflow.rebo.light-grey[ng-click="workflowsCtrl.addRunWorkflowSelected('before')" ng-if="workflowsCtrl.selectedWorkflow"]
-				= svg("workflow/icon-before_run")
+				== svg("workflow/icon-before_run")
 				span == data[:strings][:workflows][:add_run_workflow][:before_run][:action]
 			button.manage-button.add-after-run-workflow.rebo.light-grey[ng-click="workflowsCtrl.addRunWorkflowSelected('after')" ng-if="workflowsCtrl.selectedWorkflow"]
-				= svg("workflow/icon-after_run")
+				== svg("workflow/icon-after_run")
 				span == data[:strings][:workflows][:add_run_workflow][:after_run][:action]
 			button.manage-button.rearrange.rebo.light-grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true" ng-if="workflowsCtrl.selectedWorkflow"]
-				= svg("arrow_tailed-down")
-				= svg("arrow_tailed-down")
+				== svg("arrow_tailed-down")
+				== svg("arrow_tailed-down")
 				span == data[:strings][:workflows][:rearrange][:action]
 			button.manage-button.delete-workflow.rebo.light-danger[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-if="workflowsCtrl.selectedWorkflow" ng-disabled="workflowsCtrl.workflows.length == 1"]
-				= svg("cross")
+				== svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows
 			section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
@@ -38,13 +38,13 @@
 						h2
 							button.edit[ng-click="workflowsCtrl.editWorkflowAtIndex(workflowIndex); workflowsCtrl.stepSelected(null)"]
 							span.icons-and-name
-								span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] = svg("workflow/icon-before_run")
-								span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] = svg("workflow/icon-after_run")
+								span.icon[ng-if="workflowChainLink.isBeforeRunWorkflow"] == svg("workflow/icon-before_run")
+								span.icon[ng-if="workflowChainLink.isAfterRunWorkflow"] == svg("workflow/icon-after_run")
 								span.workflow-name[ng-bind="workflow.id"]
-								span.edit-icon = svg("code")
-							button.remove[ng-if="workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1 || workflowChainLink.selectedWorkflowAfterRunWorkflowIndex != -1" ng-click="workflowsCtrl.deleteBeforeAfterWorkflowAtWorkflowChainLink(workflowChainLink)"] = svg("cross")
+								span.edit-icon == svg("code")
+							button.remove[ng-if="workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1 || workflowChainLink.selectedWorkflowAfterRunWorkflowIndex != -1" ng-click="workflowsCtrl.deleteBeforeAfterWorkflowAtWorkflowChainLink(workflowChainLink)"] == svg("cross")
 						.stack[ng-if="requestService.mode == 'website' && workflow == workflowsCtrl.selectedWorkflow"]
-							.icon = svg("layers")
+							.icon == svg("layers")
 							.name[ng-bind="workflowsCtrl.stackForWorkflow(workflow, true).name"]
 							label.default-badge[ng-if="workflowsCtrl.stackForWorkflow(workflow) === null"] == data[:strings][:stack][:default]
 				article
@@ -58,8 +58,8 @@
 										span.info
 											strong
 												span.title[ng-bind="step.displayName()"]
-												span.verified[ng-if="step.isVerified() && !step.isDeprecated()"] = svg("step/badge-verified")
-												span.deprecated[ng-if="step.isDeprecated()"] = svg("step/badge-deprecated")
+												span.verified[ng-if="step.isVerified() && !step.isDeprecated()"] == svg("step/badge-verified")
+												span.deprecated[ng-if="step.isDeprecated()"] == svg("step/badge-deprecated")
 											em.version[ng-if="step.version !== undefined"]
 												span<[ng-if="step.requestedVersion() != null" ng-bind="step.version"]
 												span<[ng-if="step.requestedVersion() == null"]
@@ -74,31 +74,31 @@
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
 									button.rename[ng-bind="workflowsCtrl.selectedStep.displayName()" ng-click="workflowsCtrl.renamedStep = workflowsCtrl.selectedStep"]
-									span.verified[ng-if="workflowsCtrl.selectedStep.isVerified() && !workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:verified] }"] = svg("step/badge-verified")
-									span.community-created[ng-if="!workflowsCtrl.selectedStep.isVerified() && !workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:community_created] }"] = svg("step/badge-community_created")
-									span.deprecated[ng-if="workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:deprecated] }"] = svg("step/badge-deprecated")
+									span.verified[ng-if="workflowsCtrl.selectedStep.isVerified() && !workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:verified] }"] == svg("step/badge-verified")
+									span.community-created[ng-if="!workflowsCtrl.selectedStep.isVerified() && !workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:community_created] }"] == svg("step/badge-community_created")
+									span.deprecated[ng-if="workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:deprecated] }"] == svg("step/badge-deprecated")
 								.rename-title[ng-if="workflowsCtrl.renamedStep"]
 									input[type="text" ng-model="workflowsCtrl.renamedStepTitle" ng-model-options="{getterSetter: true}" ng-blur="workflowsCtrl.renamedStep = null"]
-									button.ok.rebo.purple[ng-click="workflowsCtrl.renamedStep = null" ng-disabled="!Step.isValidTitle(workflowsCtrl.renamedStepTitle)"] = svg("check")
+									button.ok.rebo.purple[ng-click="workflowsCtrl.renamedStep = null" ng-disabled="!Step.isValidTitle(workflowsCtrl.renamedStepTitle)"] == svg("check")
 								aside
-									button.clone[ng-click="workflowsCtrl.cloneStepSelected()" trigger-popover="#{ data[:strings][:workflows][:steps][:clone_popover_info] }"] = svg("step/clone")
-									a.source[ng-if="workflowsCtrl.selectedStep.sourceURL()" href="{{ workflowsCtrl.selectedStep.sourceURL() }}" target="_blank" rel="noreferrer noopener" ng-class="workflowsCtrl.selectedStep | stepSourceCSSClass" trigger-popover="#{ data[:strings][:workflows][:steps][:source_popover_info] }"] = svg("logo/github")
-									button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] = svg("trash")
+									button.clone[ng-click="workflowsCtrl.cloneStepSelected()" trigger-popover="#{ data[:strings][:workflows][:steps][:clone_popover_info] }"] == svg("step/clone")
+									a.source[ng-if="workflowsCtrl.selectedStep.sourceURL()" href="{{ workflowsCtrl.selectedStep.sourceURL() }}" target="_blank" rel="noreferrer noopener" ng-class="workflowsCtrl.selectedStep | stepSourceCSSClass" trigger-popover="#{ data[:strings][:workflows][:steps][:source_popover_info] }"] == svg("logo/github")
+									button.delete[ng-click="workflowsCtrl.deleteStepSelected()"] == svg("trash")
 							section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
 								span.icon
-									= svg("code")
+									== svg("code")
                                 .markdown[ng-if="workflowsCtrl.shouldShowDescription" sanitized-markdown="workflowsCtrl.selectedStep.description() ? workflowsCtrl.selectedStep.description() : workflowsCtrl.selectedStep.summary()"]
 								.markdown.oneliner[ng-if="!workflowsCtrl.shouldShowDescription" sanitized-markdown="workflowsCtrl.selectedStep.summary() ? workflowsCtrl.selectedStep.summary() : workflowsCtrl.selectedStep.description()"]
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
-									= svg("arrow-down")
+									== svg("arrow-down")
 							section.version[ng-if="workflowsCtrl.selectedStep.version !== undefined"]
 								span.icon[ng-class="{'latest': stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)}"]
 								label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
 								select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (workflowsCtrl.selectedStep.libraryURL !== undefined ? [null] : []).concat(stepSourceService.versionsOfStep(workflowsCtrl.selectedStep))" ng-model="workflowsCtrl.requestedStepVersion"]
 							section.always-run[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
 								span.icon
-									= svg("step/is_always_run")
+									== svg("step/is_always_run")
 								label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
 								checkbox[ng-model="workflowsCtrl.selectedStep.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
 							section.inputs[ng-if="workflowsCtrl.inputCategoriesOfSelectedStep[0] && workflowsCtrl.inputCategoriesOfSelectedStep[0].inputs.length > 0"]
@@ -106,7 +106,7 @@
 								ol.input-category[ng-repeat="inputCategory in workflowsCtrl.inputCategoriesOfSelectedStep" ng-class="{'open': workflowsCtrl.openedInputCategories.indexOf(inputCategory) != -1, 'main': inputCategory == workflowsCtrl.mainInputCategory}"]
 									h4[ng-if="inputCategory != workflowsCtrl.mainInputCategory"]
 										strong.category-name[ng-bind="inputCategory.name"]
-										button.toggle-category[ng-click="workflowsCtrl.inputCategoryToggled(inputCategory)"] = svg("plus")
+										button.toggle-category[ng-click="workflowsCtrl.inputCategoryToggled(inputCategory)"] == svg("plus")
 									ol.inputs-list[ng-if="workflowsCtrl.openedInputCategories.indexOf(inputCategory) != -1"]
 										li.input[ng-repeat="input in inputCategory.inputs" ng-class="{'selected': isOpen, 'dont-change': input.isDontChangeValue(), 'sensitive': input.isSensitive(), 'required-empty': input.isRequired() && (!input.value() || input.value().length == 0)}" ng-attr-title="{{ input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}" opened-input-flag-setter="{{ isOpen = workflowsCtrl.openedInputs.indexOf(input) != -1 }}"]
 											.input-info
@@ -131,16 +131,16 @@
 												select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="!isOpen" ng-options="valueOption for valueOption in (input.valueOptions().indexOf(input.value()) != -1 ? input.valueOptions() : input.valueOptions().concat([input.value()]))"]
 												.is-expand[ng-if="isOpen"]
 													p.expanded[ng-if="input.isExpand()"]
-														= svg("check")
+														== svg("check")
 														span == data[:strings][:workflows][:inputs][:will_be_replaced]
 													p.not-expanded[ng-if="!input.isExpand()"]
-														= svg("cross")
+														== svg("cross")
 														span == data[:strings][:workflows][:inputs][:wont_be_replaced]
 													a.devcenter-info[href="#{ data[:routes][:devcenter][:env_var_is_expand] }" target="_blank"]
 											.input-change
 												button[ng-click="workflowsCtrl.inputSelected(input)"]
 												span == data[:strings][:workflows][:inputs][:change]
-												= svg("arrow-down")
+												== svg("arrow-down")
 							section.outputs
 								h3 == data[:strings][:workflows][:outputs][:header]
 								p.no-outputs[ng-if="!workflowsCtrl.outputsOfSelectedStep || workflowsCtrl.outputsOfSelectedStep.length == 0"] == data[:strings][:workflows][:outputs][:no_outputs]
@@ -154,7 +154,7 @@
 												button[ng-click="workflowsCtrl.outputSelected(output)"]
 												.toggleabble-description
 													p[sanitized-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
-													= svg("arrow-down")
+													== svg("arrow-down")
 						button.delete-step.rebo.big.hollow-danger[ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
 		form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()"]

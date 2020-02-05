@@ -1,22 +1,21 @@
-require.context("./components", true);
-require.context("./controllers", true);
-require.context("./factories", true);
-require.context("./services", true);
-require.context("./filters", true);
-require.context("./directives", true);
-
-import "./_apihandler";
 import "./_BitriseWorkflowEditor";
+import "./_apihandler";
 
-// include templates
-require.context("../templates", true, /^[^_].*\.slim$/);
+import "../index.slim";
 
+var ctxs = [
+    // app
+    require.context("./controllers", true),
+    require.context("./components", true),
+    require.context("./factories", true),
+    require.context("./services", true),
+    require.context("./filters", true),
+    require.context("./directives", true),
 
-$(document).ready(function() {
-    document.body.addEventListener('DOMSubtreeModified', function() {
-        _.each($('*[sanitized-markdown] a[href]'), function(anAnchor) {
-            $(anAnchor).attr('target', '_blank');
-            $(anAnchor).attr('rel', 'noreferrer noopener nofollow');
-        });
-    });
+    // templates
+    require.context("../templates", true, /^[^_].*\.slim$/)
+];
+
+ctxs.forEach(function(ctx) {
+    ctx.keys().forEach(ctx);
 });
