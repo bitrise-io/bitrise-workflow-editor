@@ -24,7 +24,7 @@
   },
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "dependencies": {
-    "@bitrise/steplib-search": "^1.2.0",
+    "@bitrise/steplib-search": "^1.3.0",
     "angular": "^1.7.9",
     "angular-animate": "1.7.9",
     "angular-cookies": "1.7.9",
@@ -46,7 +46,7 @@
     "onchange": "^6.1.0",
     "prettier": "1.19.1"
   },
-  "prettier" :{
+  "prettier": {
     "useTabs": true
   }
 }
