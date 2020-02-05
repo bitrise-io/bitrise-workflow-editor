@@ -1,10 +1,16 @@
 require "slim"
 
-config[:layout] = false
+# config[:layout] = false
 
 activate :directory_indexes
 
 activate :livereload
+
+activate :external_pipeline,
+   name: :webpack,
+   command: 'npm run build',
+   source: '.tmp/dist',
+   latency: 10
 
 helpers do
 
@@ -57,9 +63,23 @@ helpers do
 
 end
 
+def mode_dependant_asset_path(path)
+	case mode
+	when "website" then "/bitrise_workflow_editor-#{ENV['RELEASE_VERSION']}/" + path
+	when "cli" then build? ? "/#{ENV['RELEASE_VERSION']}/" + path : path
+	end
+end
+
+def mode
+	case "#{ENV['MODE']}"
+	when "WEBSITE" then "website"
+	when "CLI" then "cli"
+	end
+end
+
 set :images_dir, mode_dependant_asset_path("images")
 set :fonts_dir, mode_dependant_asset_path("fonts")
 
-# in order to support require sprockets annotations
-sprockets.append_path File.join root, 'node_modules'
-sprockets.append_path File.join root, 'vendor-js'
+# # in order to support require sprockets annotations
+# sprockets.append_path File.join root, 'node_modules'
+# sprockets.append_path File.join root, 'vendor-js'

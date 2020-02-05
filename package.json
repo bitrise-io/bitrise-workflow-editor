@@ -5,7 +5,7 @@
   "main": "index.js",
   "scripts": {
     "karma": "karma start spec/karma.conf.js",
-    "test": "MODE=WEBSITE bundle exec middleman build && npm run karma",
+    "test": "MODE=WEBSITE npm run build && npm run karma",
     "test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",
     "build": "webpack --bail -p",
     "start:dev": "webpack-dev-server"

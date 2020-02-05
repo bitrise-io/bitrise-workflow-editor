@@ -75,7 +75,13 @@ module.exports = {
     assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
 
     {
-      test: /\.s?css(\.erb)?$/,
+      test: /\.css$/,
+      include: path.join(__dirname, "node_modules", "monaco-editor"),
+      use: ["style-loader", "css-loader"],
+    },
+
+    {
+      test: /\.scss(\.erb)?$/,
       use: [
         MiniCssExtractPlugin.loader,
         "css-loader",
@@ -90,7 +96,46 @@ module.exports = {
     }),
     new MonacoWebpackPlugin({
       languages: ["yaml"],
-      features: ["accessibilityHelp", "caretOperations", "colorDetector", "comment", "contextmenu", "coreCommands", "cursorUndo", "find", "folding", "fontZoom", "format", "gotoLine", "hover", "iPadShowKeyboard", "inPlaceReplace", "linesOperations", "links", "parameterHints",  "quickOutline", "suggest", "toggleHighContrast", "toggleTabFocusMode", "transpose", "wordHighlighter", "wordOperations"]
+      features: [
+        "!accessibilityHelp",
+        "!bracketMatching",
+        "!caretOperations",
+        "!clipboard",
+        "!codeAction",
+        "!codelens",
+        "!colorDetector",
+        "!comment",
+        "!contextmenu",
+        "!cursorUndo",
+        "!dnd",
+        "!folding",
+        "!fontZoom",
+        "!format",
+        "!gotoError",
+        "!gotoLine",
+        "!gotoSymbol",
+        "!hover",
+        "!iPadShowKeyboard",
+        "!inPlaceReplace",
+        "!inspectTokens",
+        "!linesOperations",
+        "!links",
+        "!multicursor",
+        "!parameterHints",
+        "!quickCommand",
+        "!quickOutline",
+        "!referenceSearch",
+        "!rename",
+        "!smartSelect",
+        "!snippets",
+        "!suggest",
+        "!toggleHighContrast",
+        "!toggleTabFocusMode",
+        "!transpose",
+        "!wordHighlighter",
+        "!wordOperations",
+        "!wordPartOperations"
+      ]
     }),
     new ProvidePlugin({
       "window.jQuery": "jquery",
