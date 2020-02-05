@@ -1,6 +1,10 @@
 const path = require("path");
-const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const { IgnorePlugin, ProvidePlugin } = require("webpack");
+const MiniCssExtractPlugin = require("mini-css-extract-plugin");
+const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+const { ProvidePlugin } = require("webpack");
+
+const OUTPUT_FOLDER = path.join(__dirname, "build");
+const CODEBASE = path.join(__dirname, "source");
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
@@ -30,10 +34,10 @@ const assetExporter = (regex, folder) => ({
 });
 
 module.exports = {
-  context: path.join(__dirname, 'source'),
+  context: CODEBASE,
 
   devServer: {
-    contentBase: path.join(__dirname, 'build'),
+    contentBase: OUTPUT_FOLDER,
     compress: true,
     port: 4567
   },
@@ -45,11 +49,11 @@ module.exports = {
 
   output: {
     filename: "javascripts/[name].js",
-    path: path.resolve(__dirname, "build")
+    path: OUTPUT_FOLDER
   },
 
   resolve: {
-    extensions: [".js", ".js.erb", ".json", ".scss", ".scss.erb"]
+    extensions: [".js", ".js.erb", ".json", ".scss", ".scss.erb"],
   },
 
   module: {
@@ -84,8 +88,9 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "stylesheets/[name].css"
     }),
-    new IgnorePlugin({
-      resourceRegExp: /vs\/editor\/editor\.main/
+    new MonacoWebpackPlugin({
+      languages: ["yaml"],
+      features: ["accessibilityHelp", "caretOperations", "colorDetector", "comment", "contextmenu", "coreCommands", "cursorUndo", "find", "folding", "fontZoom", "format", "gotoLine", "hover", "iPadShowKeyboard", "inPlaceReplace", "linesOperations", "links", "parameterHints",  "quickOutline", "suggest", "toggleHighContrast", "toggleTabFocusMode", "transpose", "wordHighlighter", "wordOperations"]
     }),
     new ProvidePlugin({
       "window.jQuery": "jquery",
