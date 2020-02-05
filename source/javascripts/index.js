@@ -1,9 +1,6 @@
 import "./_BitriseWorkflowEditor";
 import "./_apihandler";
 
-import "../index.slim";
-import "../stylesheets/main.scss";
-
 var ctxs = [
     // app
     require.context("./controllers", true),
@@ -16,6 +13,9 @@ var ctxs = [
     // templates
     require.context("../templates", true, /^[^_].*\.slim$/)
 ];
+
+import "../index.slim";
+import "../stylesheets/main.scss";
 
 ctxs.forEach(function(ctx) {
     ctx.keys().forEach(ctx);

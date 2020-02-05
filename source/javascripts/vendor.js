@@ -1,5 +1,8 @@
-import $ from "jquery";
+import $ from 'jquery';
 import _ from 'underscore';
+
+global.$ = $;
+global._ = _;
 
 import 'angular';
 import 'angular-cookies';
@@ -13,9 +16,6 @@ import 'ng-showdown';
 
 import 'esprima';
 import 'js-yaml'
-
-global.$ = $;
-global._ = _;
 
 $(document).ready(function() {
     document.body.addEventListener('DOMSubtreeModified', function() {

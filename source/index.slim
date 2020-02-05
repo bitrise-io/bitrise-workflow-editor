@@ -6,11 +6,12 @@ html
 		meta[name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"]
 		base[href="/"]
 		link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }"]
-		== include_slim "_javascripts"
-		== favicon_tag "favicon.ico"
+		script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }"]
+		script[src="#{ mode_dependant_asset_path 'javascripts/main.js' }"]
 		== favicon_tag "apple-touch-icon.png", href: image_path("apple-touch-icon.png"), rel: 'apple-touch-icon', type: 'image/png'
 		== favicon_tag "apple-touch-icon-76x76.png", href: image_path("apple-touch-icon-76x76.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "76x76"
 		== favicon_tag "apple-touch-icon-120x120.png", href: image_path("apple-touch-icon-120x120.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "120x120"
 		== favicon_tag "apple-touch-icon-152x152.png", href: image_path("apple-touch-icon-152x152.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "152x152"
+		== favicon_tag "favicon.ico"
 	body[ng-app="BitriseWorkflowEditor" ng-cloak]
 		== include_slim "_main"

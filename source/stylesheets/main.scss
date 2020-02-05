@@ -105,7 +105,7 @@ select, .mak {
 	font-size: 16px;
 	@include transition(background-color $def-transition_duration);
 	background-color: white;
-	background-image: image-url("../images/arrow-down.svg");
+	background-image: url("../images/arrow-down.svg");
 	background-size: $arrow_width auto;
 	background-position: right $select-horizontalpadding center;
 	background-repeat: no-repeat;

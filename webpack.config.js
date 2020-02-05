@@ -1,6 +1,6 @@
 const path = require("path");
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
-const webpack = require("webpack");
+const { IgnorePlugin, ProvidePlugin } = require("webpack");
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
@@ -24,6 +24,7 @@ const assetExporter = (regex, folder) => ({
     options: {
       outputPath: folder,
       name: "[name].[ext]",
+      publicPath: `/${folder}`,
     }
   }],
 });
@@ -83,8 +84,12 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: "stylesheets/[name].css"
     }),
-    new webpack.IgnorePlugin({
+    new IgnorePlugin({
       resourceRegExp: /vs\/editor\/editor\.main/
+    }),
+    new ProvidePlugin({
+      "window.jQuery": "jquery",
+      "window._": "underscore",
     })
   ]
 };
