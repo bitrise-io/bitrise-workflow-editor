@@ -1,4 +1,4 @@
-def get_data
+def strings
     {
         constants: {
             default_save_delay_in_milliseconds: 1000,

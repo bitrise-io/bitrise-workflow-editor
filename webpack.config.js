@@ -1,15 +1,18 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
+const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
 const { ProvidePlugin } = require("webpack");
 
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
+const isProd = process.env.NODE_ENV === "prod";
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
   options: {
-    script: `bundle exec ruby rails_transformer.rb ${mode}`,
+    script: `bundle exec ruby transformer.rb ${mode}`,
+    cwd: "./rails",
     maxBuffer: Math.pow(1024, 3)
   }
 });
@@ -46,6 +49,18 @@ module.exports = {
     vendor: "./javascripts/vendor.js",
     main: "./javascripts/index.js",
   },
+
+  optimization: {
+    minimizer: isProd ? [
+      new UglifyJsPlugin({
+        uglifyOptions: {
+          cache: true,
+          parallel: true,
+          mangle: false
+        }
+      })
+    ] : [],
+	},
 
   output: {
     filename: "javascripts/[name].js",

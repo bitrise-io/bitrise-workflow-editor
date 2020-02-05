@@ -1,7 +1,7 @@
 require "erb"
 require "slim"
 require "slim/include"
-require "./data"
+require "./strings"
 
 input = STDIN.read
 command = ARGV[0]
@@ -49,14 +49,14 @@ def image_path(image)
 end
 
 def svg(filename)
-    file_path = "source/images/#{filename}.svg"
+    file_path = "../source/images/#{filename}.svg"
 
     return "(svg not found)" unless File.exists?(file_path)
     return File.read(file_path).gsub("\n", "").gsub("\r", "").gsub("\t", "")
 end
 
 def data
-    get_data
+    strings
 end
 
 def build?
@@ -73,7 +73,7 @@ when "slim"
     end
 
     def include_slim(name, options = {}, &block)
-        path = "#{Dir.pwd}/source/templates/"
+        path = "#{Dir.pwd}/../source/templates/"
         Slim::Template.new("#{path}#{name}.slim", options).render(self, &block)
     end
 

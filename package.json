@@ -8,6 +8,7 @@
     "test": "MODE=WEBSITE npm run build && npm run karma",
     "test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",
     "build": "webpack --bail -p",
+    "build:prod": "NODE_ENV=prod npm run build",
     "start:dev": "webpack-dev-server"
   },
   "repository": {
@@ -58,6 +59,7 @@
     "sass-loader": "^8.0.2",
     "shell-loader": "git@github.com:tadam313/shell-loader.git#add-script-options",
     "style-loader": "^1.1.3",
+    "uglifyjs-webpack-plugin": "^2.2.0",
     "webpack": "^4.41.5",
     "webpack-cli": "^3.3.10",
     "webpack-dev-server": "^3.10.2"
