@@ -1,11 +1,12 @@
 const path = require("path");
-const ExtractTextPlugin = require("extract-text-webpack-plugin");
+const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const webpack = require("webpack");
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
   options: {
-    script: `bundle exec ruby rails_transformer.rb ${mode}`
+    script: `bundle exec ruby rails_transformer.rb ${mode}`,
+    maxBuffer: Math.pow(1024, 3)
   }
 });
 
@@ -38,10 +39,7 @@ module.exports = {
 
   entry: {
     vendor: "./javascripts/vendor.js",
-    main: [
-      "./javascripts/index.js",
-      "./stylesheets/main.scss"
-    ],
+    main: "./javascripts/index.js",
   },
 
   output: {
@@ -55,7 +53,7 @@ module.exports = {
 
   module: {
     rules: [{
-      test: /\.(erb)$/,
+      test: /\.erb$/,
       use: railsTransformer("erb")
     },
 
@@ -73,17 +71,16 @@ module.exports = {
 
     {
       test: /\.s?css(\.erb)?$/,
-      use: ExtractTextPlugin.extract({
-        use: [
-          "css-loader",
-          "sass-loader",
-          railsTransformer("erb")
-        ]
-      })
+      use: [
+        MiniCssExtractPlugin.loader,
+        "css-loader",
+        railsTransformer("erb"),
+        "sass-loader",
+      ]
     }]
   },
   plugins: [
-    new ExtractTextPlugin({
+    new MiniCssExtractPlugin({
       filename: "stylesheets/[name].css"
     }),
     new webpack.IgnorePlugin({

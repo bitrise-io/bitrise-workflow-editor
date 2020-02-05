@@ -2,6 +2,7 @@ import "./_BitriseWorkflowEditor";
 import "./_apihandler";
 
 import "../index.slim";
+import "../stylesheets/main.scss";
 
 var ctxs = [
     // app
