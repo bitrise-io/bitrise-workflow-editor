@@ -60,7 +60,7 @@ def data
 end
 
 def build?
-    false
+    ENV['NODE_ENV'] == 'prod'
 end
 
 case command
