@@ -11,6 +11,19 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		gitSteps: []
 	};
 
+	var loadStep = function(step, library) {
+		var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
+		var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
+
+		if (shouldLoadOnlyStepIcon) {
+			requestedVersion = library.latestStepVersions[step.id];
+			step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
+		} else {
+			step.version = requestedVersion;
+			step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+		}
+	};
+
 	stepSourceService.stepFromCVS = function(cvs) {
 		var step = new Step(cvs);
 
@@ -81,14 +94,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>" + step.id);
 				}
 
-				var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
-
-				if (!library.steps[step.id][requestedVersion]) {
-					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_version_error_prefix] %>"+ requestedVersion);
-				}
-
-				step.version = requestedVersion;
-				step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+				loadStep(step, library);
 		}
 
 		return step;
@@ -163,17 +169,6 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 	};
 
 	stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
-		var libraryStepCVSs = _.filter(CVSs, function(aCVS) {
-			var step;
-			try {
-				step = stepSourceService.stepFromCVS(aCVS);
-			}
-			catch (error) {
-				return false;
-			}
-
-			return step.libraryURL !== undefined;
-		});
 
 		var loadPromises = [];
 		var libraryURLs = [];

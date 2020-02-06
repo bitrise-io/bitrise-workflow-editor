@@ -119,6 +119,14 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return undefined;
 	};
 
+	Step.prototype.assetUrls = function(newAssetUrls) {
+		return parameterGetterSetter(this, "asset_urls", newAssetUrls);
+	};
+
+	Step.prototype.isConfigLoaded = function() {
+		return !!this.defaultStepConfig;
+	};
+
 	Step.prototype.typeTags = function(newTypeTags) {
 		return parameterGetterSetter(this, "type_tags", newTypeTags);
 	};
