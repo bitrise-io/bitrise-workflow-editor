@@ -3,16 +3,7 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("appService", function(
-			$q,
-			requestService,
-			stringService,
-			Trigger,
-			Step,
-			Variable,
-			Stack,
-			MachineType
-		) {
+		.service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
 			var appService = {
 				appDetails: undefined,
 				appConfig: undefined,
@@ -36,22 +27,18 @@
 			};
 
 			appService.getAppDetails = function(requestConfig) {
-				return requestService
-					.getAppDetails(requestConfig)
-					.then(function(appDetails) {
-						appService.appDetails = appDetails;
-					});
+				return requestService.getAppDetails(requestConfig).then(function(appDetails) {
+					appService.appDetails = appDetails;
+				});
 			};
 
 			appService.getAppConfig = function(requestConfig) {
-				return requestService
-					.getAppConfig(requestConfig)
-					.then(function(appConfig) {
-						appService.appConfig = appConfig;
-						normalizeAppConfig();
+				return requestService.getAppConfig(requestConfig).then(function(appConfig) {
+					appService.appConfig = appConfig;
+					normalizeAppConfig();
 
-						appService.savedAppConfig = angular.copy(appService.appConfig);
-					});
+					appService.savedAppConfig = angular.copy(appService.appConfig);
+				});
 			};
 
 			appService.appConfigHasUnsavedChanges = function() {
@@ -62,36 +49,23 @@
 				var variableConfigs = [];
 
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
-					variableConfigs = _.union(
-						variableConfigs,
-						appService.appConfig.app.envs
-					);
+					variableConfigs = _.union(variableConfigs, appService.appConfig.app.envs);
 				}
 
 				if (appService.appConfig.workflows) {
-					_.each(appService.appConfig.workflows, function(
-						aWorkflowConfig,
-						aWorkflowID
-					) {
+					_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 						if (!aWorkflowConfig) {
-							appService.appConfig.workflows[
-								aWorkflowID
-							] = aWorkflowConfig = {};
+							appService.appConfig.workflows[aWorkflowID] = aWorkflowConfig = {};
 						}
 
 						variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
-						if (
-							aWorkflowConfig.steps !== undefined &&
-							_.isEmpty(aWorkflowConfig.steps)
-						) {
+						if (aWorkflowConfig.steps !== undefined && _.isEmpty(aWorkflowConfig.steps)) {
 							delete aWorkflowConfig["steps"];
 						}
 
 						_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
-							var stepCVS = Step.cvsFromWrappedStepConfig(
-								aWrappedUserStepConfig
-							);
+							var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
 							if (!aWrappedUserStepConfig[stepCVS]) {
 								aWrappedUserStepConfig[stepCVS] = {};
 							}
@@ -113,10 +87,7 @@
 				_.each(variableConfigs, Variable.minimizeVariableConfig);
 
 				if (appService.appConfig.app) {
-					if (
-						appService.appConfig.app.envs &&
-						appService.appConfig.app.envs.length == 0
-					) {
+					if (appService.appConfig.app.envs && appService.appConfig.app.envs.length == 0) {
 						delete appService.appConfig.app["envs"];
 					}
 
@@ -129,70 +100,41 @@
 					if (appService.appConfig.trigger_map.length == 0) {
 						delete appService.appConfig["trigger_map"];
 					} else {
-						appService.appConfig.trigger_map = _.sortBy(
-							appService.appConfig.trigger_map,
-							function(aTriggerConfig) {
-								var trigger = new Trigger(aTriggerConfig);
+						appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function(aTriggerConfig) {
+							var trigger = new Trigger(aTriggerConfig);
 
-								return _.indexOf(
-									["push", "pull-request", "tag"],
-									trigger.type()
-								);
-							}
-						);
+							return _.indexOf(["push", "pull-request", "tag"], trigger.type());
+						});
 					}
 				}
 
-				if (
-					appService.appConfig.workflows &&
-					angular.equals(appService.appConfig.workflows, {})
-				) {
+				if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {
 					delete appService.appConfig["workflows"];
 				}
 			}
 
-			function validateVariables(
-				variables,
-				shouldKeysBeUnique,
-				shouldValuesBeNotEmpty
-			) {
+			function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
 				return $q(function(resolve, reject) {
 					var errors = [];
 
 					if (
 						_.any(variables, function(aVariable) {
-							return !Variable.isValidKey(
-								aVariable.key(),
-								shouldKeysBeUnique ? variables : null
-							);
+							return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
 						})
 					) {
-						errors.push(
-							new Error(
-								"<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"
-							)
-						);
+						errors.push(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
 
 						if (shouldKeysBeUnique) {
-							errors.push(
-								new Error("<%= data[:strings][:env_vars][:should_be_unique] %>")
-							);
+							errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
 						}
 					}
 
 					if (
 						_.any(variables, function(aVariable) {
-							return !Variable.isValidValue(
-								aVariable.value(),
-								shouldValuesBeNotEmpty
-							);
+							return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
 						})
 					) {
-						errors.push(
-							new Error(
-								"<%= data[:strings][:env_vars][:invalid_env_var_value] %>"
-							)
-						);
+						errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_value] %>"));
 					}
 
 					if (errors.length == 0) {
@@ -204,9 +146,7 @@
 			}
 
 			appService.appConfigHasDeprecatedTriggerMap = function() {
-				return _.any(appService.appConfig.trigger_map, function(
-					aTriggerConfig
-				) {
+				return _.any(appService.appConfig.trigger_map, function(aTriggerConfig) {
 					return aTriggerConfig.pattern !== undefined;
 				});
 			};
@@ -244,10 +184,7 @@
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
 						_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
-							return new Variable(
-								anEnvVarConfig,
-								Variable.defaultVariableConfig()
-							);
+							return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 						}),
 						function(anEnvVar) {
 							return _.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value());
@@ -255,19 +192,13 @@
 					);
 
 					_.each(variablesWithoutKeyAndValue, function(aVariable) {
-						var index = _.findIndex(
-							appService.appConfig.app.envs,
-							aVariable.userVariableConfig
-						);
+						var index = _.findIndex(appService.appConfig.app.envs, aVariable.userVariableConfig);
 						appService.appConfig.app.envs.splice(index, 1);
 					});
 
 					variables = variables.concat(
 						_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
-							return new Variable(
-								anEnvVarConfig,
-								Variable.defaultVariableConfig()
-							);
+							return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 						})
 					);
 				}
@@ -275,10 +206,7 @@
 					_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
 						var variablesWithoutKeyAndValue = _.filter(
 							_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-								return new Variable(
-									anEnvVarConfig,
-									Variable.defaultVariableConfig()
-								);
+								return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 							}),
 							function(anEnvVar) {
 								return _.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value());
@@ -286,19 +214,13 @@
 						);
 
 						_.each(variablesWithoutKeyAndValue, function(aVariable) {
-							var index = _.findIndex(
-								aWorkflowConfig.envs,
-								aVariable.userVariableConfig
-							);
+							var index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
 							aWorkflowConfig.envs.splice(index, 1);
 						});
 
 						variables = variables.concat(
 							_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-								return new Variable(
-									anEnvVarConfig,
-									Variable.defaultVariableConfig()
-								);
+								return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
 							})
 						);
 					});
@@ -308,44 +230,25 @@
 					if (!appService.appConfig.meta) {
 						appService.appConfig.meta = {};
 					}
-					if (
-						!appService.appConfig.meta[
-							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						]
-					) {
-						appService.appConfig.meta[
-							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						] = {};
+					if (!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
 					if (
-						appService.appConfig.meta[
-							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						].machine_type_id !=
-						appService.defaultMachineType.id.replace(
-							appService.stack.id.split("-")[0] + "-",
-							""
-						)
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id !=
+						appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "")
 					) {
 						appService.appConfig.meta[
 							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						].machine_type_id = appService.defaultMachineType.id.replace(
-							appService.stack.id.split("-")[0] + "-",
-							""
-						);
+						].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "");
 					}
 
-					appService.savedDefaultMachineType = angular.copy(
-						appService.defaultMachineType
-					);
+					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
 
 				return validateVariables(variables)
 					.then(function() {
-						return requestService.postAppConfig(
-							appService.appConfig,
-							requestConfig
-						);
+						return requestService.postAppConfig(appService.appConfig, requestConfig);
 					})
 					.then(function() {
 						appService.savedAppConfig = angular.copy(appService.appConfig);
@@ -367,32 +270,20 @@
 					return $q.when();
 				}
 
-				return requestService
-					.getSecrets(requestConfig)
-					.then(function(secretConfigs) {
-						normalizeSecretConfigs(secretConfigs);
+				return requestService.getSecrets(requestConfig).then(function(secretConfigs) {
+					normalizeSecretConfigs(secretConfigs);
 
-						appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
-							switch (requestService.mode) {
-								case "website":
-									return new Variable(
-										aSecretConfig,
-										Variable.defaultVariableConfig(),
-										false,
-										false
-									);
-								case "cli":
-									return new Variable(
-										aSecretConfig,
-										Variable.defaultVariableConfig(),
-										true,
-										true
-									);
-							}
-						});
-
-						appService.savedSecrets = angular.copy(appService.secrets);
+					appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
+						switch (requestService.mode) {
+							case "website":
+								return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
+							case "cli":
+								return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
+						}
 					});
+
+					appService.savedSecrets = angular.copy(appService.secrets);
+				});
 			};
 
 			appService.getSecretValue = function(secret, requestConfig) {
@@ -400,18 +291,14 @@
 					return $q.when();
 				}
 
-				return requestService
-					.getSecretValue(secret, requestConfig)
-					.then(function(secretValue) {
-						secret.value(secretValue);
+				return requestService.getSecretValue(secret, requestConfig).then(function(secretValue) {
+					secret.value(secretValue);
 
-						var savedEnvVar = _.find(appService.savedSecrets, function(
-							aSavedSecret
-						) {
-							return aSavedSecret.key() == secret.key();
-						});
-						savedEnvVar.value(secretValue);
+					var savedEnvVar = _.find(appService.savedSecrets, function(aSavedSecret) {
+						return aSavedSecret.key() == secret.key();
 					});
+					savedEnvVar.value(secretValue);
+				});
 			};
 
 			function normalizeSecretConfigs(secretConfigs) {
@@ -465,33 +352,24 @@
 			};
 
 			appService.appConfigYMLHasUnsavedChanges = function() {
-				return !angular.equals(
-					appService.appConfigYML,
-					appService.savedAppConfigYML
-				);
+				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
 			};
 
 			appService.saveAppConfigYML = function() {
-				return requestService
-					.postAppConfigYML(appService.appConfigYML)
-					.then(function(validationData) {
-						appService.appConfig = undefined;
-						appService.savedAppConfig = undefined;
-						appService.savedAppConfigYML = appService.appConfigYML;
+				return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
+					appService.appConfig = undefined;
+					appService.savedAppConfig = undefined;
+					appService.savedAppConfigYML = appService.appConfigYML;
 
-						appService.validationWarnings = [];
-						if (validationData.warnings.config !== null) {
-							appService.validationWarnings = appService.validationWarnings.concat(
-								validationData.warnings.config
-							);
-						}
+					appService.validationWarnings = [];
+					if (validationData.warnings.config !== null) {
+						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
+					}
 
-						if (validationData.warnings.secrets !== null) {
-							appService.validationWarnings = appService.validationWarnings.concat(
-								validationData.warnings.secrets
-							);
-						}
-					});
+					if (validationData.warnings.secrets !== null) {
+						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
+					}
+				});
 			};
 
 			appService.discardAppConfigYMLChanges = function() {
@@ -546,10 +424,7 @@
 			};
 
 			appService.getDefaultMachineType = function() {
-				if (
-					appService.defaultMachineType &&
-					appService.defaultMachineType == appService.savedDefaultMachineType
-				) {
+				if (appService.defaultMachineType && appService.defaultMachineType == appService.savedDefaultMachineType) {
 					return $q.when();
 				}
 
@@ -566,44 +441,30 @@
 				var stackType = stack.id.split("-")[0];
 				if (
 					!appService.appConfig.meta ||
-					!appService.appConfig.meta[
-						"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-					] ||
-					!appService.appConfig.meta[
-						"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-					].machine_type_id
+					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] ||
+					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
 				) {
-					defaultMachineTypeID =
-						stackType +
-						"-" +
-						MachineType.allConfig[stackType].default_machine_type;
+					defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
 				}
 
 				if (!defaultMachineTypeID) {
 					defaultMachineTypeID =
 						stackType +
 						"-" +
-						appService.appConfig.meta[
-							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						].machine_type_id;
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 				}
 
 				appService.defaultMachineType = _.find(MachineType.all, {
 					id: defaultMachineTypeID
 				});
 
-				appService.savedDefaultMachineType = angular.copy(
-					appService.defaultMachineType
-				);
+				appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 
 				return appService.defaultMachineType;
 			};
 
 			appService.defaultMachineTypeHasUnsavedChanges = function() {
-				return !angular.equals(
-					appService.defaultMachineType,
-					appService.savedDefaultMachineType
-				);
+				return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
 			};
 
 			appService.discardDefaultMachineTypeChanges = function() {
@@ -621,11 +482,8 @@
 					}
 
 					appService.savedStack = angular.copy(appService.stack);
-					appService.dockerImage = appService.savedDockerImage =
-						data.dockerImage;
-					appService.denTags = appService.savedDenTags = data.denTags.join(
-						", "
-					);
+					appService.dockerImage = appService.savedDockerImage = data.dockerImage;
+					appService.denTags = appService.savedDenTags = data.denTags.join(", ");
 
 					if (appService.appDetails.isMachineTypeSelectorAvailable) {
 						MachineType.getAll().then(appService.getDefaultMachineType);
@@ -663,11 +521,7 @@
 					: undefined;
 
 				return requestService
-					.saveStack(
-						appService.stack.id,
-						appService.dockerImage,
-						bitriseDENtagsArray
-					)
+					.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray)
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
@@ -690,26 +544,19 @@
 			};
 
 			appService.getProjectType = function(requestConfig) {
-				return requestService
-					.getAppProjectType(requestConfig)
-					.then(function(projectType) {
-						appService.projectType = projectType;
-					});
+				return requestService.getAppProjectType(requestConfig).then(function(projectType) {
+					appService.projectType = projectType;
+				});
 			};
 
-			appService.getAvailableProjectTypes = function(
-				shouldForceReload,
-				requestConfig
-			) {
+			appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {
 				if (!shouldForceReload && appService.availableProjectTypes) {
 					return $q.when();
 				}
 
-				return requestService
-					.getAppAvailableProjectTypes(requestConfig)
-					.then(function(availableProjectTypes) {
-						appService.availableProjectTypes = availableProjectTypes;
-					});
+				return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
+					appService.availableProjectTypes = availableProjectTypes;
+				});
 			};
 
 			return appService;
