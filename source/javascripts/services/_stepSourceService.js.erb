@@ -1,7 +1,7 @@
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q, requestService, Step) {
+	angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q, requestService, appService, stepLibSearchService, Step) {
 		var stepSourceService = {
 			defaultLibraryURL: undefined,
 			libraries: [],
@@ -179,6 +179,7 @@
 			var stepLibSearchCVSs = [];
 			var error;
 
+			var defaultStepLibUrl = appService.appConfig.default_step_lib_source;
 			_.every(CVSs, function(aCVS) {
 				var step;
 				try {
@@ -190,7 +191,11 @@
 				}
 
 				if (step.libraryURL !== undefined) {
+					if (step.libraryURL === defaultStepLibUrl) {
+						stepLibSearchCVSs.push(aCVS);
+					} else {
 						libraryURLs.push(step.libraryURL);
+					}
 				} else if (step.localPath !== undefined) {
 					if (requestService.mode == "cli") {
 						loadPromises.push(loadStepWithCVS(aCVS, requestConfig));
@@ -223,9 +228,12 @@
 				return $q.reject(error);
 			}
 
-				loadPromises.push(
-					stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig)
-				);
+			var stepLibSearchPromise = stepLibSearchService.list(stepLibSearchCVSs, true).then(function(steps) {
+				var library = normalizeStepLib(steps, defaultStepLibUrl);
+				stepSourceService.libraries.push(library);
+			});
+
+			loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig), stepLibSearchPromise);
 
 			return $q.all(loadPromises);
 		};
@@ -276,72 +284,64 @@
 					// TODO: implement single library step load if neccessary
 				}
 			});
+		}
 
-			stepSourceService.loadLibrariesWithURLs = function(
-				libraryURLs,
-				requestConfig
-			) {
-				return $q(function(resolve, reject) {
-					var notLoadedLibraryURLs = _.reject(_.uniq(libraryURLs), function(
-						aLibraryURL
-					) {
-						return _.find(stepSourceService.libraries, {
-							url: aLibraryURL
-						});
+		function normalizeStepLib(steps, libraryURL) {
+			var library = {
+				url: libraryURL
+			};
+
+			var stepIDs = _.keys(steps).sort();
+
+			library.steps = {};
+			library.latestStepVersions = {};
+			library.deprecatedSteps = [];
+			_.each(stepIDs, function(aStepID) {
+				var stepData = steps[aStepID];
+				var latestVersion =
+					stepData.latest_version_number || Object.values(stepData.versions).shift().latest_version_number;
+
+				library.steps[aStepID] = {};
+				library.latestStepVersions[aStepID] = latestVersion;
+				library.steps[aStepID] = _.mapObject(stepData.versions, function(aStepConfig, version) {
+					var cvs = aStepID + "@" + version;
+
+					var step = stepSourceService.stepFromCVS(cvs);
+					step.defaultStepConfig = aStepConfig;
+
+					return step;
+				});
+
+				if (stepData.info !== undefined && stepData.info.deprecate_notes !== undefined) {
+					_.each(library.steps[aStepID], function(aStep) {
+						library.deprecatedSteps.push(aStep);
 					});
+				}
+			});
 
-					if (notLoadedLibraryURLs.length == 0) {
-						resolve();
-
-						return;
-					}
-
-					return requestService
-						.libraryFetch(notLoadedLibraryURLs, requestConfig)
-						.then(
-							function(data) {
-								_.each(data, function(aLibraryData, aLibraryURL) {
-									try {
-										var library = {
-											url: aLibraryURL
-										};
-
-										var stepIDs = _.keys(aLibraryData.steps).sort();
-
-										library.steps = {};
-										library.latestStepVersions = {};
-										library.deprecatedSteps = [];
-										_.each(stepIDs, function(aStepID) {
-											library.steps[aStepID] = {};
-											library.latestStepVersions[aStepID] =
-												aLibraryData.steps[aStepID].latest_version_number;
-											library.steps[aStepID] = _.mapObject(
-												aLibraryData.steps[aStepID].versions,
-												function(aStepConfig, version) {
-													var cvs = aStepID + "@" + version;
-
-													var step = stepSourceService.stepFromCVS(cvs);
-													step.defaultStepConfig = aStepConfig;
-
-													return step;
-												}
-											);
-
-											if (
-												aLibraryData.steps[aStepID].info !== undefined &&
-												aLibraryData.steps[aStepID].info.deprecate_notes !==
-													undefined
-											) {
-												_.each(library.steps[aStepID], function(aStep) {
-													library.deprecatedSteps.push(aStep);
-												});
-											}
-										});
-
+			return library;
+		}
 
 		stepSourceService.loadLibrariesWithURLs = function(libraryURLs, requestConfig) {
 			return $q(function(resolve, reject) {
 				var notLoadedLibraryURLs = _.reject(_.uniq(libraryURLs), function(aLibraryURL) {
+					return _.find(stepSourceService.libraries, {
+						url: aLibraryURL
+					});
+				});
+
+				if (notLoadedLibraryURLs.length == 0) {
+					resolve();
+
+					return;
+				}
+
+				return requestService.libraryFetch(notLoadedLibraryURLs, requestConfig).then(
+					function(data) {
+						_.each(data, function(aLibraryData, aLibraryURL) {
+							try {
+								var library = normalizeStepLib(aLibraryData.steps, aLibraryURL);
+
 								stepSourceService.libraries.push(library);
 
 								resolve();
