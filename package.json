@@ -1,52 +1,53 @@
 {
-  "name": "bitrise-workflow-editor",
-  "version": "1.0.0",
-  "description": "Bitrise workflow editor",
-  "main": "index.js",
-  "scripts": {
-    "karma": "karma start spec/karma.conf.js",
-    "prettier": "prettier --parser babel --write 'source/javascripts/**/*.js?(.erb)'",
-    "test": "MODE=WEBSITE bundle exec middleman build && npm run karma",
-    "test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test"
-  },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/bitrise-io/bitrise-workflow-editor.git"
-  },
-  "keywords": [
-    "workflow",
-    "steps"
-  ],
-  "author": "",
-  "license": "MIT",
-  "bugs": {
-    "url": "https://github.com/bitrise-io/bitrise-workflow-editor/issues"
-  },
-  "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
-  "dependencies": {
-    "@bitrise/steplib-search": "^1.3.0",
-    "angular": "^1.7.9",
-    "angular-animate": "1.7.9",
-    "angular-cookies": "1.7.9",
-    "angular-route": "1.7.9",
-    "angular-sanitize": "1.7.9",
-    "intersection-observer": "^0.7.0",
-    "jquery": "^3.4.1",
-    "underscore": "^1.9.2"
-  },
-  "devDependencies": {
-    "angular-mocks": "1.7.2",
-    "jsdom": "^15.2.0",
-    "karma": "^4.4.1",
-    "karma-cli": "^2.0.0",
-    "karma-coverage": "^2.0.1",
-    "karma-jasmine": "^3.1.0",
-    "karma-jsdom-launcher": "^8.0.0",
-    "karma-spec-reporter": "^0.0.32",
-    "onchange": "^6.1.0",
-    "prettier": "1.19.1"
-  },
-  "prettier": {
-    "useTabs": true
-  }
+	"name": "bitrise-workflow-editor",
+	"version": "1.0.0",
+	"description": "Bitrise workflow editor",
+	"main": "index.js",
+	"scripts": {
+		"karma": "karma start spec/karma.conf.js",
+		"prettier": "prettier --parser babel --write 'source/javascripts/**/*.js?(.erb)'",
+		"test": "MODE=WEBSITE bundle exec middleman build && npm run karma",
+		"test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test"
+	},
+	"repository": {
+		"type": "git",
+		"url": "git+https://github.com/bitrise-io/bitrise-workflow-editor.git"
+	},
+	"keywords": [
+		"workflow",
+		"steps"
+	],
+	"author": "",
+	"license": "MIT",
+	"bugs": {
+		"url": "https://github.com/bitrise-io/bitrise-workflow-editor/issues"
+	},
+	"homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
+	"dependencies": {
+		"@bitrise/steplib-search": "^2.0.0",
+		"angular": "^1.7.9",
+		"angular-animate": "1.7.9",
+		"angular-cookies": "1.7.9",
+		"angular-route": "1.7.9",
+		"angular-sanitize": "1.7.9",
+		"intersection-observer": "^0.7.0",
+		"jquery": "^3.4.1",
+		"underscore": "^1.9.2"
+	},
+	"devDependencies": {
+		"angular-mocks": "1.7.2",
+		"jsdom": "^15.2.0",
+		"karma": "^4.4.1",
+		"karma-cli": "^2.0.0",
+		"karma-coverage": "^2.0.1",
+		"karma-jasmine": "^3.1.0",
+		"karma-jsdom-launcher": "^8.0.0",
+		"karma-spec-reporter": "^0.0.32",
+		"onchange": "^6.1.0",
+		"prettier": "1.19.1"
+	},
+	"prettier": {
+		"useTabs": true,
+		"printWidth": 120
+	}
 }
