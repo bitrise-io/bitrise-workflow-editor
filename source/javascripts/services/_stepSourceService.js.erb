@@ -11,7 +11,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		gitSteps: []
 	};
 
-	var loadStep = function(step, library) {
+	var configureStepFromLib = function(step, library) {
 		var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
 		var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
 
@@ -94,7 +94,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>" + step.id);
 				}
 
-				loadStep(step, library);
+				configureStepFromLib(step, library);
 		}
 
 		return step;
