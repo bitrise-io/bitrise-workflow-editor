@@ -106,7 +106,7 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				url: step.libraryURL
 			});
 
-			return _.sortBy(_.keys(library.steps[step.id]), function(version) {
+			var steps = _.sortBy(_.keys(library.steps[step.id]), function(version) {
 				return _.map(version.split("."), function(aVersionPart) {
 					var pad = "000000";
 					var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
@@ -114,6 +114,9 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 					return versionPartWithLeadingZeros;
 				}).join(".");
 			}).reverse();
+
+			steps.splice(0, 0, step.version);
+			return _.uniq(steps);
 		}
 		else if (step.localPath !== undefined) {
 			return undefined;
@@ -154,11 +157,8 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 				step.cvs += "@" + version;
 				step.version = version;
 			}
-			else {
-				step.version = library.latestStepVersions[step.id];
-			}
 
-			step.defaultStepConfig = library.steps[step.id][step.version].defaultStepConfig;
+			configureStepFromLib(step, library);
 		}
 		else if (step.localPath !== undefined) {
 			return;

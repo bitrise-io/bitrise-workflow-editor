@@ -128,7 +128,10 @@ def strings
                     always_latest: "always latest",
                     is_always_run: "Run if previous Step failed",
                     inputs_removed_popup_title: "The following inputs are not available in this version:",
-                    wrong_version: "This version does not exist. Please select a valid version."
+                    invalid_version: {
+                        title: "Invalid version",
+                        message: "This version does not exist. Please select a valid version."
+                    }
             },
             inputs: {
                 header: "Input variables",

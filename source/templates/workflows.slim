@@ -94,7 +94,8 @@
 									== svg("arrow-down")
 							section.version[ng-if="step.version !== undefined"]
 								span.icon[ng-class="{'latest': stepSourceService.isLatestStepVersion(step)}"]
-								label[for="selected-step-version-select"] == data[:strings][:workflows][:steps][:version]
+								label[for="selected-step-version-select" ng-show="step.isConfigured()"] == data[:strings][:workflows][:steps][:version]
+								label[for="selected-step-version-select" ng-show="!step.isConfigured()" class="error"] == data[:strings][:workflows][:steps][:invalid_version][:title]
 								select#selected-step-version-select[ng-options="(version ? version : '#{ data[:strings][:workflows][:steps][:always_latest] }') for version in (step.libraryURL !== undefined ? [null] : []).concat(stepSourceService.versionsOfStep(step))" ng-model="workflowsCtrl.requestedStepVersion"]
 							section.always-run[ng-if="step.isAlwaysRun() !== undefined"]
 								span.icon
@@ -155,7 +156,7 @@
 												.toggleabble-description
 													p[sanitized-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
 													== svg("arrow-down")
-						errornotification[message="'#{ data[:strings][:workflows][:steps][:wrong_version] }'" ng-show="!step.isConfigured()"]
+						errornotification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!step.isConfigured()"]
 						button.delete-step.rebo.big.hollow-danger[ng-show="step.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
 		form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()"]
