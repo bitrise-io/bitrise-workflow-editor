@@ -141,7 +141,7 @@
 												button[ng-click="workflowsCtrl.inputSelected(input)"]
 												span == data[:strings][:workflows][:inputs][:change]
 												== svg("arrow-down")
-							section.outputs[ng-if="step.isConfigLoaded()"]
+							section.outputs[ng-if="step.isConfigured()"]
 								h3 == data[:strings][:workflows][:outputs][:header]
 								p.no-outputs[ng-if="!workflowsCtrl.outputsOfSelectedStep || workflowsCtrl.outputsOfSelectedStep.length == 0"] == data[:strings][:workflows][:outputs][:no_outputs]
 								.output-box[ng-if="workflowsCtrl.outputsOfSelectedStep && workflowsCtrl.outputsOfSelectedStep.length > 0"]
@@ -155,7 +155,8 @@
 												.toggleabble-description
 													p[sanitized-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
 													== svg("arrow-down")
-						button.delete-step.rebo.big.hollow-danger[ng-show="step.isConfigLoaded()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
+						errornotification[message="'#{ data[:strings][:workflows][:steps][:wrong_version] }'" ng-show="!step.isConfigured()"]
+						button.delete-step.rebo.big.hollow-danger[ng-show="step.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
 		form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()"]
 			header == data[:strings][:workflows][:add_workflow][:add_new_workflow]

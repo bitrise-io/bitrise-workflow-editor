@@ -5,7 +5,7 @@ type Props = {
   message: string
 };
 
-const ErrorNotification: FunctionComponent<Props> = ({ message }: Props) => (
+const ErrorNotification: FunctionComponent<Props> = ({ message } : Props) => (
   <Notification type="alert">{message}</Notification>
 );
 
