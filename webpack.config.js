@@ -68,13 +68,19 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".js", ".js.erb", ".json", ".scss", ".scss.erb"],
+    extensions: [".js", ".js.erb", ".tsx", ".css", ".scss", ".scss.erb"],
   },
 
   module: {
     rules: [{
       test: /\.erb$/,
       use: railsTransformer("erb")
+    },
+
+    {
+      test: /\.tsx?$/,
+      use: "ts-loader",
+      exclude: /node_modules/,
     },
 
     {
@@ -90,8 +96,8 @@ module.exports = {
     assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
 
     {
-      test: /\.css$/,
-      include: path.join(__dirname, "node_modules", "monaco-editor"),
+      test: /\.css$/i,
+      include: path.join(__dirname, "node_modules"),
       use: ["style-loader", "css-loader"],
     },
 
@@ -103,6 +109,11 @@ module.exports = {
         railsTransformer("erb"),
         "sass-loader",
       ]
+    },
+
+    {
+      test: path.resolve(__dirname, 'node_modules/normalize.css'),
+      use: 'null-loader',
     }]
   },
   plugins: [
