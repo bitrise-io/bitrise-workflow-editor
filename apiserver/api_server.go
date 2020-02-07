@@ -45,7 +45,7 @@ func LaunchServer() error {
 
 	log.Printf("Starting API server at http://localhost:%s", port)
 
-	isServeFilesThroughMiddlemanServer := (utility.EnvString("USE_MIDDLEMAN_SERVER", "false") == "true")
+	isServeFilesThroughMiddlemanServer := (utility.EnvString("USE_DEV_SERVER", "false") == "true")
 	if isServeFilesThroughMiddlemanServer {
 		log.Printf(" (!) Serving non api resources through middleman server!")
 	}
