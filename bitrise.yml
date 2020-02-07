@@ -75,7 +75,7 @@ workflows:
             docker-compose rm -f -v
             docker-compose build
 
-  client_build:
+  client-build:
     before_run:
     - setup-client
     steps:
@@ -89,7 +89,7 @@ workflows:
     envs:
       - MODE: "WEBSITE"
     after_run:
-    - client_build
+    - client-build
 
   up-dev-server:
     before_run:
@@ -157,7 +157,7 @@ workflows:
 
   assets-precompile:
     before_run:
-    - client_build
+    - client-build
     steps:
     - script:
         inputs:
