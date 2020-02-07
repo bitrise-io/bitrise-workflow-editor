@@ -123,7 +123,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return parameterGetterSetter(this, "asset_urls", newAssetUrls);
 	};
 
-	Step.prototype.isConfigLoaded = function() {
+	Step.prototype.isConfigured = function() {
 		return !!this.defaultStepConfig;
 	};
 
