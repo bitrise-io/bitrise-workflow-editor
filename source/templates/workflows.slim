@@ -91,17 +91,17 @@
 								.markdown.oneliner[ng-if="!workflowsCtrl.shouldShowDescription" sanitized-markdown="step.summary() ? step.summary() : step.description()"]
 								span.toggle-visibility
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
-									= svg("arrow-down")
+									== svg("arrow-down")
 							section.version[ng-if="step.version !== undefined"]
 								.version-info
 									.resolved-version
-										span.icon.icon-ok[ng-show="stepSourceService.isLatestStepVersion(step)"] = svg("step/latest")
-										button.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(step)" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"] = svg("step/upgrade")
-										label.version__text[for="selected-step-version-select" ng-show="!step.isConfigured()" ng-bind="'#{ data[:strings][:workflows][:steps][:version] }' | replace:{version: (workflowsCtrl.requestedStepVersion | resolveVersion:step )}"]
+										span.icon.icon-ok[ng-show="stepSourceService.isLatestStepVersion(step)"] == svg("step/latest")
+										button.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(step)" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"] == svg("step/upgrade")
+										label.version__text[for="selected-step-version-select" ng-show="step.isConfigured()" ng-bind="'#{ data[:strings][:workflows][:steps][:version] }' | replace:{version: (workflowsCtrl.requestedStepVersion | resolveVersion:step )}"]
 										label.version__text[for="selected-step-version-select" ng-show="!step.isConfigured()" class="error"] == data[:strings][:workflows][:steps][:invalid_version][:title]
 									.latest-version[ng-bind="'#{ data[:strings][:workflows][:steps][:latest_version] }' | replace:{latest_version: (step | latestVersion)}"]
 								.version-selector
-									label.remark[ng-bind-html="step | versionRemark"]
+									label.remark[ng-bind-html="step | versionRemark" ng-class="{ error: !step.isConfigured() }"]
 									select#selected-step-version-select[ng-options="(version | versionLabel) disable when (version | isVersionDisabled) for version in (step | stepVersions)" ng-model="workflowsCtrl.requestedStepVersion"]
 							section.always-run[ng-if="step.isAlwaysRun() !== undefined"]
 								span.icon
