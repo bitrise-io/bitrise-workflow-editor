@@ -4,4 +4,4 @@ import ErrorNotification from "./components/ErrorNotification";
 var register = react2angular;
 
 angular.module("BitriseWorkflowEditor")
-    .component("errornotification", react2angular(ErrorNotification, ["message"]));
+    .component("errornotification", register(ErrorNotification, ["message"]));

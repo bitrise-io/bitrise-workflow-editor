@@ -11,6 +11,22 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		gitSteps: []
 	};
 
+	var getLibraryForStep = function(step) {
+		if (!step.isLibraryStep()) {
+			return null;
+		}
+
+		var library = _.find(stepSourceService.libraries, {
+			url: step.libraryURL
+		});
+
+		if (!library) {
+			throw new Error("Library can not found for step");
+		}
+
+		return library;
+	}
+
 	var configureStepFromLib = function(step, library) {
 		var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
 		var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
@@ -101,45 +117,44 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 	};
 
 	stepSourceService.versionsOfStep = function(step) {
-		if (step.libraryURL !== undefined) {
-			var library = _.find(stepSourceService.libraries, {
-				url: step.libraryURL
-			});
+		var library;
 
-			var steps = _.sortBy(_.keys(library.steps[step.id]), function(version) {
-				return _.map(version.split("."), function(aVersionPart) {
-					var pad = "000000";
-					var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
+		try {
+			library = getLibraryForStep(step);
 
-					return versionPartWithLeadingZeros;
-				}).join(".");
-			}).reverse();
+			if (!library) {
+				return step.isLocal() ? null : [step.version];
+			}
+		} catch (err) {
+			return null;
+		}
 
-			steps.splice(0, 0, step.version);
-			return _.uniq(steps);
-		}
-		else if (step.localPath !== undefined) {
-			return undefined;
-		}
-		else if (step.gitURL !== undefined) {
-			return [step.version];
-		}
+		var steps = _.sortBy(_.keys(library.steps[step.id]), function(version) {
+			return _.map(version.split("."), function(aVersionPart) {
+				var pad = "000000";
+				var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
+
+				return versionPartWithLeadingZeros;
+			}).join(".");
+		}).reverse();
+
+		steps.splice(0, 0, step.version);
+		return _.uniq(steps);
+	};
+
+	stepSourceService.latestVersion = function(step) {
+		var library = getLibraryForStep(step);
+		return library && library.latestStepVersions[step.id];
 	};
 
 	stepSourceService.isLatestStepVersion = function(step) {
-		if (step.libraryURL !== undefined) {
-			var library = _.find(stepSourceService.libraries, {
-				url: step.libraryURL
-			});
+		var library = getLibraryForStep(step);
 
-			return step.version === null || step.version == library.latestStepVersions[step.id];
+		if (!library) {
+			return !step.isLocal();
 		}
-		else if (step.localPath !== undefined) {
-			return undefined;
-		}
-		else if (step.gitURL !== undefined) {
-			return true;
-		}
+
+		return step.version === stepSourceService.latestVersion(step);
 	};
 
 	stepSourceService.changeStepToVersion = function(step, version) {

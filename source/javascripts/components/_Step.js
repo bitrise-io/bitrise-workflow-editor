@@ -151,6 +151,14 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 		return regexpForVerifiedStepSourceURL.test(sourceURL);
 	};
 
+	Step.prototype.isLocal = function() {
+		return !!this.localPath;
+	};
+
+	Step.prototype.isLibraryStep = function() {
+		return !!this.libraryURL;
+	};
+
 	Step.prototype.isDeprecated = function() {
 		if (this.libraryURL === undefined) {
 			return undefined;
