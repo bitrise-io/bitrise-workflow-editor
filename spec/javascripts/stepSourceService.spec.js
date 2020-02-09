@@ -142,6 +142,7 @@ describe("stepSourceService", function() {
 			var newVersion = "2.x.x";
 			mockSemverService.resolveVersion.and.returnValue("2.2.1");
 			mockSemverService.shortenWildcardVersion.and.returnValue("2");
+			mockSemverService.normalizeVersion.and.returnValue(newVersion);
 
 			stepSourceService.changeStepToVersion(MOCK_STEP, newVersion);
 
@@ -159,11 +160,14 @@ describe("stepSourceService", function() {
 		});
 
 		it("should set latest if the passed version is null", () => {
-			mockSemverService.resolveVersion.and.returnValue("2.2.1");
+			var newVersion = "2.2.1";
+
+			mockSemverService.resolveVersion.and.returnValue(newVersion);
+			mockSemverService.normalizeVersion.and.returnValue(newVersion);
 
 			stepSourceService.changeStepToVersion(MOCK_STEP, null);
 
-			expect(MOCK_STEP.version).toBeNull();
+			expect(MOCK_STEP.version).toEqual(newVersion);
 			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP");
 			expect(MOCK_STEP.defaultStepConfig).toEqual(TEST_STEP_LATEST_CONFIG);
 		});
