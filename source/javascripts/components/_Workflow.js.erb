@@ -19,7 +19,7 @@ angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope,
 
 			try {
 				step = stepSourceService.stepFromCVS(stepCVS);
-				step.userStepConfig = userStepConfig;
+				step.userStepConfig = _.extend(step.userStepConfig, userStepConfig);
 			}
 			catch (error) {
 				console.log(error.message);

@@ -3,6 +3,7 @@ describe("stepSourceService", function() {
 	var stepSourceService;
 	var TEST_STEP_ID = "mockStep";
 	var TEST_LIB_URL = "http://tempuri.org";
+	var TEST_STEP_LATEST_CONFIG = { asset_urls: "test_urls", name: "2.2.1 config" };
 	var mockSemverService;
 
 	beforeEach(() => {
@@ -27,7 +28,7 @@ describe("stepSourceService", function() {
 			url: TEST_LIB_URL,
 			steps: {
 				[TEST_STEP_ID]: {
-					"2.2.1": { defaultStepConfig: "2.2.1 config" },
+					"2.2.1": { defaultStepConfig: TEST_STEP_LATEST_CONFIG },
 					"1.2.1": { defaultStepConfig: "1.2.1 config" },
 					"1.1.1": { defaultStepConfig: "1.1.1 config" },
 					"1.0.0": { defaultStepConfig: "1.0.0 config" },
@@ -146,7 +147,7 @@ describe("stepSourceService", function() {
 
 			expect(MOCK_STEP.version).toEqual(newVersion);
 			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP@2");
-			expect(MOCK_STEP.defaultStepConfig).toEqual("2.2.1 config");
+			expect(MOCK_STEP.defaultStepConfig).toEqual(TEST_STEP_LATEST_CONFIG);
 		});
 
 		it("should not do anything if the step is not library step", () => {
@@ -162,9 +163,40 @@ describe("stepSourceService", function() {
 
 			stepSourceService.changeStepToVersion(MOCK_STEP, null);
 
-			expect(MOCK_STEP.version).toEqual("2.2.1");
+			expect(MOCK_STEP.version).toBeNull();
 			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP");
-			expect(MOCK_STEP.defaultStepConfig).toEqual("2.2.1 config");
+			expect(MOCK_STEP.defaultStepConfig).toEqual(TEST_STEP_LATEST_CONFIG);
+		});
+	});
+
+	describe("versionsOfStep", () => {
+		var MOCK_STEP;
+
+		beforeEach(() => {
+			MOCK_STEP = {
+				id: TEST_STEP_ID,
+				cvs: "MOCK_STEP@1.1.1",
+				version: "1.1.1",
+				defaultStepConfig: "1.1.1 config",
+				libraryURL: "http://tempuri.org",
+				isLibraryStep: () => true,
+			};
+		});
+
+		it("should return null version if the step is local", () => {
+			MOCK_STEP.isLibraryStep = () => false;
+			MOCK_STEP.isLocal = () => true;
+
+			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+
+			expect(versions).toBeNull();
+		});
+
+		it("should only configure asset path for steps with invalid version", () => {
+			const step = stepSourceService.stepFromCVS(`${TEST_STEP_ID}@fake_version`);
+
+			expect(step.userStepConfig.asset_urls).toEqual("test_urls");
+			expect(step.defaultStepConfig).toBeUndefined();
 		});
 	});
 

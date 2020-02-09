@@ -12,10 +12,37 @@
 			gitSteps: []
 		};
 
-		var getLibraryForStep = function(step) {
-			if (!step.isLibraryStep()) {
-				return null;
-			}
+	var getLibraryForStep = function(step) {
+		if (!step.isLibraryStep()) {
+			return null;
+		}
+
+		var library = _.find(stepSourceService.libraries, {
+			url: step.libraryURL
+		});
+
+		if (!library) {
+			throw new Error("Library can not found for step");
+		}
+
+		return library;
+	}
+
+	var configureStepFromLib = function(step, library) {
+		var requestedVersion = semverService.resolveVersion(step.version, step.id, library);
+		var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
+
+		if (shouldLoadOnlyStepIcon) {
+			requestedVersion = library.latestStepVersions[step.id];
+			step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
+		} else {
+			step.version = semverService.normalizeVersion(step.version);
+			step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+		}
+	};
+
+	stepSourceService.stepFromCVS = function(cvs) {
+		var step = new Step(cvs);
 
 			var library = _.find(stepSourceService.libraries, {
 				url: step.libraryURL
@@ -98,16 +125,9 @@
 						throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>" + step.id);
 					}
 
-					step.version = semverService.normalizeVersion(step.version);
-					var requestedVersion = semverService.resolveVersion(step.version, step.id, library);
-
-					if (!library.steps[step.id][requestedVersion]) {
-						throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_version_error_prefix] %>"+ requestedVersion);
-					}
-
-					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+					configureStepFromLib(step, library);
 				break;
-			}
+		}
 
 			return step;
 		};
@@ -149,7 +169,6 @@
 			var library = getLibraryForStep(step);
 
 			if (!library) {
-				// broken state
 				return ;
 			}
 
@@ -162,12 +181,8 @@
 				step.cvs += "@" + semverService.shortenWildcardVersion(version);
 				step.version = version;
 			}
-			else {
-				step.version = library.latestStepVersions[step.id];
-			}
 
-			var stepVersion = semverService.resolveVersion(step.version, step.id, library);
-			step.defaultStepConfig = library.steps[step.id][stepVersion].defaultStepConfig;
+			configureStepFromLib(step, library);
 		};
 
 		stepSourceService.resolveRequestedStepVersion = function(requestedVersion, step) {

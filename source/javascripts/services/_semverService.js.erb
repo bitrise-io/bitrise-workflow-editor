@@ -9,6 +9,10 @@ angular.module("BitriseWorkflowEditor").factory("semverService", ["stringService
         }
     };
 
+    if (!Number.MAX_SAFE_INTEGER) {
+        Number.MAX_SAFE_INTEGER = Math.pow(2, 53) - 1;
+    }
+
     var WILDCARD = "x";
     var WILDCARD_REGEX = new RegExp("\." + WILDCARD, "g");
     var fullVersionRegex = /^\d+\.\d+\.\d+$/g;

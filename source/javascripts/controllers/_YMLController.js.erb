@@ -1,3 +1,5 @@
+import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
+
 (function() {
 
 "use strict";
@@ -17,21 +19,18 @@ angular.module("BitriseWorkflowEditor").controller("YMLController", function($sc
 	});
 
 	function configureEditor() {
-		require.config({ paths: { 'vs': '<%= mode_dependant_asset_path("javascripts/monaco-editor/min/vs") %>' }});
-			require(['vs/editor/editor.main'], function() {
-				editor = monaco.editor.create(document.getElementById('code-container'), {
-					value: appService.appConfigYML,
-					language: 'yaml',
-					lineNumbers: "on",
-					roundedSelection: false,
-					scrollBeyondLastLine: false,
-					readOnly: false,
-					theme: "vs-dark",
-				});
-				editor.layout();
-				editor.focus();
-				editor.onDidChangeModelContent(updateAppConfigYML);
-			});
+		editor = monaco.editor.create(document.getElementById('code-container'), {
+			value: appService.appConfigYML,
+			language: 'yaml',
+			lineNumbers: "on",
+			roundedSelection: false,
+			scrollBeyondLastLine: false,
+			readOnly: false,
+			theme: "vs-dark",
+		});
+		editor.layout();
+		editor.focus();
+		editor.onDidChangeModelContent(updateAppConfigYML);
 	}
 
 	function updateAppConfigYML() {

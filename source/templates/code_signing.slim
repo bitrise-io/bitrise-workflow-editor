@@ -8,9 +8,9 @@
 	section.certificate-help.toggleable-info[ng-if="codeSigningCtrl.shouldShowCodeSigningHints && !codeSigningCtrl.showNewCodeSigningWizard"]
 		h2.info-heading
 			.content
-				span.icon = svg("support")
+				span.icon  == svg("support")
 				span == data[:strings][:code_signing][:certificate_help][:title]
-			button.toggle[ng-click="codeSigningCtrl.toggleCodeSigningHints()" ng-class="{'open': codeSigningCtrl.isCodeSigningHintsOpen}"] = svg("arrow-down")
+			button.toggle[ng-click="codeSigningCtrl.toggleCodeSigningHints()" ng-class="{'open': codeSigningCtrl.isCodeSigningHintsOpen}"]  == svg("arrow-down")
 		ul[ng-if="codeSigningCtrl.isCodeSigningHintsOpen"]
 			li.codesigndoc
 				div
@@ -28,12 +28,12 @@
 	div[ng-if="!codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.provProfile) && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
 		.auto-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === true"]
 			header
-				.icon = svg("bolt")
+				.icon  == svg("bolt")
 				.summary
 					h2 == data[:strings][:code_signing][:auto_code_signing][:header][:title]
 					p == data[:strings][:code_signing][:auto_code_signing][:header][:summary]
 				button.manual-code-signing[ng-click="codeSigningCtrl.isAutoCodeSigningModeOn = false"] == data[:strings][:code_signing][:auto_code_signing][:header][:action]
-			= partial "templates/auto_code_signing"
+			== include_slim "_auto_code_signing"
 		.manual-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === false"]
 			section.cardo.slim[ng-if="codeSigningCtrl.showNewCodeSigningWizard"]
 				header
@@ -55,7 +55,7 @@
 								span.long-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pull_requests]
 								span.short-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pr]
 							.actions[ng-if="provProfileCtrl.provProfiles.length > 1" floating-menu toggle="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible"]
-								button.dropdown-toggle[ng-click="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible = !provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible" ng-disabled="provProfileCtrl.deleteAllProvProfilesProgress.isInProgress"] = svg("three-horizontal-dots")
+								button.dropdown-toggle[ng-click="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible = !provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible" ng-disabled="provProfileCtrl.deleteAllProvProfilesProgress.isInProgress"]  == svg("three-horizontal-dots")
 								.dropdown[ng-if="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible"]
 									button.dropdown-option.delete-all[ng-click="provProfileCtrl.deleteAllProvProfiles()"] == data[:strings][:code_signing][:prov_profile][:header][:actions][:delete_all]
 						article
@@ -67,11 +67,11 @@
 								ul.uploaded-files
 									li.uploaded-file[ng-repeat="provProfile in provProfileCtrl.provProfiles"]
 										.details
-											.icon[ng-class="{unprocessed: !certificate.isProcessed}"] = svg("code_signing/sheet-prov_profile")
+											.icon[ng-class="{unprocessed: !certificate.isProcessed}"]  == svg("code_signing/sheet-prov_profile")
 											.column.left
 												.detail.protected-badge-and-name
 													.protected-badge[ng-if="provProfile.isProtected"]
-														.icon-wrapper = svg("lock-closed")
+														.icon-wrapper  == svg("lock-closed")
 														span protected
 													.name[ng-bind="provProfile.displayName()"]
 													.uploading[ng-if="!provProfile.isProcessed"]
@@ -105,7 +105,7 @@
 														checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress || provProfile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 														label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
 												.actions[floating-menu toggle="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
-													button.dropdown-toggle[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
+													button.dropdown-toggle[ng-click="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible = !provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]  == svg("three-horizontal-dots")
 													.dropdown[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].isMenuVisible"]
 														a.dropdown-option.download[ng-if="provProfile.isProcessed && !provProfile.isProtected" href="{{ provProfile.download() }}"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:download]
 														button.dropdown-option.protect[ng-if="provProfile.isProcessed && !provProfile.isProtected" ng-click="provProfileCtrl.makeProvProfileProtected(provProfile)"] == data[:strings][:code_signing][:prov_profile][:article][:actions][:protect]
@@ -117,9 +117,9 @@
 										.show-more-details[ng-if="provProfileCtrl.provProfileSettings[provProfile.databaseID].getDetailsProgress.isIdle"]
 											button.show-more[ng-click="provProfileCtrl.showProvProfileDetails(provProfile)"]
 												span.container
-													span.icon[ng-class="provProfileCtrl.provProfileStatusCSSclass(provProfile)"] = svg("dot")
+													span.icon[ng-class="provProfileCtrl.provProfileStatusCSSclass(provProfile)"]  == svg("dot")
 													span == data[:strings][:code_signing][:prov_profile][:article][:details][:show_prov_profile_validated_details_button]
-													span.arrow = svg("arrow_slim-down")
+													span.arrow  == svg("arrow_slim-down")
 								p.notification.error[ng-if="provProfileCtrl.provProfiles.length >= provProfileCtrl.maximumProvProfilesCount"] == data[:strings][:code_signing][:prov_profile][:upload_count_limit_reached]
 								p.progress-indicator[progress-model="provProfileCtrl.uploadProvProfilesProgress"]
 								.file-upload[ng-if="!provProfileCtrl.uploadProvProfilesProgress.isInProgress && provProfileCtrl.provProfiles.length < provProfileCtrl.maximumProvProfilesCount"]
@@ -130,14 +130,14 @@
 							.popup-body.snowflake#prov-profile-details-popup-body.vertical-scroll
 								header.closeable.left-aligned
 									span.popup-title[ng-bind="provProfileCtrl.selectedProvProfile.displayName()"]
-									span.popup-close[ng-click="provProfileCtrl.provProfileDetailsPopup.isVisible = false"] = svg("cross")
+									span.popup-close[ng-click="provProfileCtrl.provProfileDetailsPopup.isVisible = false"]  == svg("cross")
 								article.vertical-scroll
 									aside.sidebar
 										.menu
 											button.menu-option[ng-repeat="menu in provProfileCtrl.menus" ng-click="provProfileCtrl.selectedMenu = menu" class="{{ menu.cssClass }}" ng-class="{'selected': menu == provProfileCtrl.selectedMenu}"]
 												span.title[ng-bind="menu.title"]
-												span.status[ng-class="provProfileCtrl.identitiesStatusCSSclass()"] = svg("dot")
-												span.arrow = svg("arrow_slim-down")
+												span.status[ng-class="provProfileCtrl.identitiesStatusCSSclass()"]  == svg("dot")
+												span.arrow  == svg("arrow_slim-down")
 										.menu.small
 											select.menu-selector[ng-model="provProfileCtrl.selectedMenu" ng-model-options="{getterSetter: true}" ng-options="menu.title for menu in provProfileCtrl.menus" ng-class="{ 'selected' : menu == provProfileCtrl.selectedMenu }"]
 									.content.vertical-scroll[ng-switch="provProfileCtrl.selectedMenu.id"]
@@ -147,10 +147,10 @@
 										ul.matching-certificates[ng-switch-when="matching-certificates"]
 											li.identity[ng-repeat="identity in provProfileCtrl.selectedProvProfile.developerCertificateIdentities" ng-class="{'missing': provProfileCtrl.identityStatus(identity) == 'missing'}"]
 												.status[ng-class="provProfileCtrl.identityStatus(identity)"]
-													.icon-wrapper.loading-icon-wrapper = svg("dot")
-													.icon-wrapper.missing-icon-wrapper = svg("dot")
-													.icon-wrapper.expired-icon-wrapper = svg("warning-in-circle")
-													.icon-wrapper.ok-icon-wrapper = svg("tick-in-circle")
+													.icon-wrapper.loading-icon-wrapper  == svg("dot")
+													.icon-wrapper.missing-icon-wrapper  == svg("dot")
+													.icon-wrapper.expired-icon-wrapper  == svg("warning-in-circle")
+													.icon-wrapper.ok-icon-wrapper  == svg("tick-in-circle")
 												.details
 													.column
 														.common-name[ng-bind="identity.commonName"]
@@ -162,9 +162,9 @@
 										ul.devices[ng-switch-when="devices"]
 											li.device[ng-repeat="aProvisionedDevice in provProfileCtrl.selectedProvProfile.provisionedDevices"]
 												.status[ng-class="provProfileCtrl.deviceStatusCSSclass(aProvisionedDevice.udid)"]
-													.icon-wrapper.loading-icon-wrapper = svg("dot")
-													.icon-wrapper.missing-icon-wrapper = svg("warning-in-circle")
-													.icon-wrapper.ok-icon-wrapper = svg("tick-in-circle")
+													.icon-wrapper.loading-icon-wrapper  == svg("dot")
+													.icon-wrapper.missing-icon-wrapper  == svg("warning-in-circle")
+													.icon-wrapper.ok-icon-wrapper  == svg("tick-in-circle")
 												.details
 													.udid-info
 														strong.label> == data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:devices][:udid] + ":"
@@ -178,7 +178,7 @@
 										ul.capabilities[ng-switch-when="capabilities"]
 											li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile() track by $index" ng-bind="description"]
 					section.cardo.uppercase.slim.files
-						= partial "templates/tab-code_signing-certificates"
+						== include_slim "_tab-code_signing-certificates"
 	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.androidKeystore)" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
 		header
 			h2.label
@@ -195,11 +195,11 @@
 					.uploaded-files
 						.uploaded-file
 							.details
-								.icon[ng-class="{unprocessed: !genericFile.isProcessed}"] = svg("code_signing/sheet-certificate")
+								.icon[ng-class="{unprocessed: !genericFile.isProcessed}"]  == svg("code_signing/sheet-certificate")
 								.column.left
 									.detail.protected-badge-and-name
 										.protected-badge[ng-if="androidKeystoreCtrl.keystoreFile.isProtected"]
-											.icon-wrapper = svg("lock-closed")
+											.icon-wrapper  == svg("lock-closed")
 											span protected
 										.name[ng-bind="androidKeystoreCtrl.keystoreFile.displayName()"]
 										.uploading[ng-if="!androidKeystoreCtrl.keystoreFile.isProcessed"]
@@ -214,7 +214,7 @@
 											checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress || androidKeystoreCtrl.keystoreFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
 											label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
 									.actions[floating-menu toggle="androidKeystoreCtrl.isMenuVisible"]
-										button.dropdown-toggle[ng-click="androidKeystoreCtrl.isMenuVisible = !androidKeystoreCtrl.isMenuVisible"] = svg("three-horizontal-dots")
+										button.dropdown-toggle[ng-click="androidKeystoreCtrl.isMenuVisible = !androidKeystoreCtrl.isMenuVisible"]  == svg("three-horizontal-dots")
 										.dropdown[ng-if="androidKeystoreCtrl.isMenuVisible"]
 											a.dropdown-option.download[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
 											button.dropdown-option.protect[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
@@ -272,11 +272,11 @@
 				ul.uploaded-files
 					li.uploaded-file[ng-repeat="genericFile in genericFileCtrl.genericFiles"]
 						.details
-							.icon[ng-class="{unprocessed: !genericFile.isProcessed}"] = svg("code_signing/sheet-generic_file")
+							.icon[ng-class="{unprocessed: !genericFile.isProcessed}"]  == svg("code_signing/sheet-generic_file")
 							.column
 								.detail.protected-badge-and-name
 									.protected-badge[ng-if="genericFile.isProtected"]
-										.icon-wrapper = svg("lock-closed")
+										.icon-wrapper  == svg("lock-closed")
 										span protected
 									.name[ng-bind="genericFile.displayName()"]
 									.uploading[ng-if="!genericFile.isProcessed"]
@@ -291,7 +291,7 @@
 										checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress || genericFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
 										label.on-small[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]
 								.actions[floating-menu toggle="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
-									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"] = svg("three-horizontal-dots")
+									button.dropdown-toggle[ng-click="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible = !genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]  == svg("three-horizontal-dots")
 									.dropdown[ng-if="genericFileCtrl.genericFileSettings[genericFile.databaseID].isMenuVisible"]
 										a.dropdown-option.download[ng-if="genericFile.isProcessed && !genericFile.isProtected" href="{{ genericFile.download() }}"] == data[:strings][:code_signing][:generic_file][:article][:actions][:download]
 										button.dropdown-option.protect[ng-if="genericFile.isProcessed && !genericFile.isProtected" ng-click="genericFileCtrl.makeGenericFileProtected(genericFile)"] == data[:strings][:code_signing][:generic_file][:article][:actions][:protect]
@@ -311,6 +311,6 @@
 					p.progress-indicator.error[ng-if="genericFileCtrl.uploadedGenericFileErrorMessage() && genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0" ng-bind="genericFileCtrl.uploadedGenericFileErrorMessage()"]
 					file-uploader[onupload="genericFileCtrl.uploadGenericFile()" model="genericFileCtrl.genericFileUploader" on-file-change="$files.length > 0 ? genericFileCtrl.uploadedGenericFile.updateFile($files[0]) : null" ng-class="{'disabled': genericFileCtrl.uploadedGenericFileErrorMessage()}" ng-disabled="genericFileCtrl.uploadedGenericFileErrorMessage()"]
 						.file-uploader-message[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length == 0"]
-							.info-badge-wrapper = svg("info_badge")
+							.info-badge-wrapper  == svg("info_badge")
 							.info-message == data[:strings][:code_signing][:generic_file][:upload_instructions]
 						strong[ng-if="genericFileCtrl.uploadedGenericFile.envVarPartialID.length > 0" ng-bind="genericFileCtrl.uploadInstruction"]

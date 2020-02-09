@@ -39,8 +39,8 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
-		frontendServerHost := utility.EnvString("MIDDLEMAN_SERVER_HOST", config.DefaultFrontendHost)
-		frontendServerPort := utility.EnvString("MIDDLEMAN_SERVER_PORT", config.DefaultFrontendPort)
+		frontendServerHost := utility.EnvString("DEV_SERVER_HOST", config.DefaultFrontendHost)
+		frontendServerPort := utility.EnvString("DEV_SERVER_PORT", config.DefaultFrontendPort)
 
 		log.Printf("Starting reverse proxy for frontend => http://%s:%s", frontendServerHost, frontendServerPort)
 
