@@ -1,4 +1,4 @@
-import { normalizeIconUrl } from "./StepItem";
+import { normalizeIconUrl } from "./StepItem/StepItem";
 
 (function() {
 

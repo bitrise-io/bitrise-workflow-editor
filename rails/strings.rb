@@ -125,7 +125,7 @@ def strings
                     source_popover_info: "Source code",
                     delete: "Delete Step: <step_title>",
                     version: "Version",
-                    always_latest: "always latest",
+                    always_latest: "Always latest",
                     is_always_run: "Run if previous Step failed",
                     inputs_removed_popup_title: "The following inputs are not available in this version:",
                     invalid_version: {

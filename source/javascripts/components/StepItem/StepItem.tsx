@@ -1,13 +1,15 @@
 import React, { FunctionComponent } from "react";
-import { Text } from "@bitrise/bitkit";
-import { Step } from "../models";
+import { Text, Badge, Icon } from "@bitrise/bitkit";
+import { Step } from "../../models";
+
+import "./StepItem.scss";
 
 // @ts-ignore
-import defaultStepIcon from "../../images/step/icon-default.svg";
+import defaultStepIcon from "../../../images/step/icon-default.svg";
 // @ts-ignore
-import verifiedIcon from "../../images/step/badge-verified.svg";
+import verifiedIcon from "../../../images/step/badge-verified.svg";
 // @ts-ignore
-import deprecatedIcon from "../../images/step/badge-deprecated.svg";
+import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
 
 type StringProps = {
     alwaysLatest: string
@@ -16,7 +18,8 @@ type StringProps = {
 type StepItemProps = {
   step: Step,
   strings: StringProps,
-  tabindex: number,
+  selected: boolean,
+  isLatest: boolean,
   stepIndex: number,
   onSelected: (step: Step, index: number) => void
 }
@@ -27,9 +30,26 @@ export const normalizeIconUrl = (step: Step): string => {
 
   return stepIconURL || defaultStepIconURL;
 };
+``
+const tabIndex = (selected: boolean): number => selected ? -1 : 0;
 
-const StepItem: FunctionComponent<StepItemProps> = ({ step, strings, tabindex, stepIndex, onSelected } : StepItemProps) => (
-  <button className="step" tabIndex={tabindex} onClick={() => onSelected(step, stepIndex)}>
+const stepVersion = (step: Step, isLatest: boolean) => (isLatest
+  ? <Text>{step.version}</Text>
+  : <Badge backgroundColor="red-3" color="white">
+      <Icon name="ArrowUp" />
+      {step.version}
+    </Badge>
+);
+
+const StepItem: FunctionComponent<StepItemProps> = ({
+  step,
+  strings,
+  selected,
+  isLatest,
+  stepIndex,
+  onSelected
+} : StepItemProps) => (
+  <button className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
     <img className="icon" src={normalizeIconUrl(step)} />
     <span className="info">
       <strong>
@@ -39,7 +59,7 @@ const StepItem: FunctionComponent<StepItemProps> = ({ step, strings, tabindex, s
       </strong>
       <em className="version">
         {step.requestedVersion()
-            ? <Text>{step.version}</Text>
+            ? stepVersion(step, isLatest)
             : <Text>{strings.alwaysLatest + (step.version && ` (${step.version})`)}</Text>}
       </em>
     </span>
