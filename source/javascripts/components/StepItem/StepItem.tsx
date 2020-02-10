@@ -29,10 +29,8 @@ export const normalizeIconUrl = (step?: Step): string | undefined => {
     return;
   }
 
-  var defaultStepIconURL = defaultStepIcon;
-  var stepIconURL = step.iconURL();
-
-  return stepIconURL || defaultStepIconURL;
+  const stepIconURL = step.iconURL();
+  return stepIconURL || defaultStepIcon;
 };
 ``
 const tabIndex = (selected: boolean): number => selected ? -1 : 0;
