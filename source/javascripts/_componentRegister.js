@@ -5,5 +5,5 @@ import StepItem from "./components/StepItem/StepItem";
 var register = react2angular;
 
 angular.module("BitriseWorkflowEditor")
-    .component("errornotification", register(ErrorNotification, ["message"]))
-    .component("stepItem", register(StepItem, ["step", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"]));
+    .component("rErrorNotification", register(ErrorNotification, ["message"]))
+    .component("rStepItem", register(StepItem, ["step", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"]));

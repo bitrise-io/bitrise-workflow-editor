@@ -106,7 +106,7 @@ describe("stepSourceService", function() {
 	});
 
 	describe("versionsOfStep", () => {
-		var MOCK_STEP;
+		const MOCK_STEP;
 
 		beforeEach(() => {
 			MOCK_STEP = {

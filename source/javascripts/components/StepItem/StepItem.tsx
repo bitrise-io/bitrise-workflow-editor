@@ -32,7 +32,7 @@ export const normalizeIconUrl = (step?: Step): string | undefined => {
   const stepIconURL = step.iconURL();
   return stepIconURL || defaultStepIcon;
 };
-``
+
 const tabIndex = (selected: boolean): number => selected ? -1 : 0;
 
 const stepVersion = (step: Step, highlightVersionUpdate: boolean) => (highlightVersionUpdate

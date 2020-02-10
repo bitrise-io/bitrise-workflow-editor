@@ -21,14 +21,14 @@ angular.module("BitriseWorkflowEditor").factory("stepSourceService", function($q
 		});
 
 		if (!library) {
-			throw new Error("Library can not found for step");
+			throw new Error("Library not found for step");
 		}
 
 		return library;
 	}
 
 	var configureStepFromLib = function(step, library) {
-		var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
+		var requestedVersion = step.version || library.latestStepVersions[step.id];
 		var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
 
 		if (shouldLoadOnlyStepIcon) {
