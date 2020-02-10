@@ -1,4 +1,4 @@
-import defaultStepIcon from "../../images/step/icon-default.svg";
+import { normalizeIconUrl } from "./StepItem";
 
 (function() {
 
@@ -148,7 +148,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 
 		var regexpForVerifiedStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?github\.com\/(?:bitrise-steplib|bitrise-io)\/.+");
 
-		return regexpForVerifiedStepSourceURL.test(sourceURL);
+		return regexpForVerifiedStepSourceURL.test(sourceURL) && !this.isDeprecated();
 	};
 
 	Step.prototype.isLocal = function() {
@@ -220,18 +220,7 @@ angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Vari
 });
 
 angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function() {
-
-	return function(step) {
-		if (!step) {
-			return undefined;
-		}
-
-		var defaultStepIconURL = defaultStepIcon;
-		var stepIconURL = step.iconURL();
-
-		return stepIconURL ? stepIconURL : defaultStepIconURL;
-	};
-
+	return normalizeIconUrl;
 });
 
 angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() {

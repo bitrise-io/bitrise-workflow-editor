@@ -68,7 +68,7 @@ module.exports = {
   },
 
   resolve: {
-    extensions: [".js", ".js.erb", ".tsx", ".css", ".scss", ".scss.erb"],
+    extensions: [".js", ".js.erb", ".ts", ".tsx", ".css", ".scss", ".scss.erb"],
   },
 
   module: {

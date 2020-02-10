@@ -53,18 +53,7 @@
 							li[ng-repeat="step in workflow.steps" step-index-setter="{{ stepIndex = $index }}" ng-class="{'selected': step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex}" ng-mousedown="workflowsCtrl.stepOrderWorkflow = workflow"]
 								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(stepIndex, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex" skip-drag-order]
 								.step-actions
-									button.step[ng-click="workflowsCtrl.stepSelected(step, workflowIndex); workflowsCtrl.cacheSelectionState()" tabindex="{{ step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex ? '-1' : '0' }}"]
-										span.icon[ng-style="{'background-image': (step | normalizedStepIconURL | backgroundImagePropertyValue)}"]
-										span.info
-											strong
-												span.title[ng-bind="step.displayName()"]
-												span.verified[ng-if="step.isVerified() && !step.isDeprecated()"] == svg("step/badge-verified")
-												span.deprecated[ng-if="step.isDeprecated()"] == svg("step/badge-deprecated")
-											em.version[ng-if="step.version !== undefined"]
-												span<[ng-if="step.requestedVersion() != null" ng-bind="step.version"]
-												span<[ng-if="step.requestedVersion() == null"]
-													span == + data[:strings][:workflows][:steps][:always_latest]
-													span<[ng-bind="'(' + step.version + ')'" ng-if="step.version"]
+									step-item[step="step" strings="{ alwaysLatest: '#{ data[:strings][:workflows][:steps][:always_latest] }' }" tabindex="step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex ? '-1' : '0'" step-index="workflowIndex" on-selected="workflowsCtrl.stepSelected"]
 									button.update-step[ng-if="stepSourceService.isLatestStepVersion(step) === false" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"]
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
