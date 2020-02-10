@@ -6,4 +6,4 @@ var register = react2angular;
 
 angular.module("BitriseWorkflowEditor")
     .component("errornotification", register(ErrorNotification, ["message"]))
-    .component("stepItem", register(StepItem, ["step", "strings", "selected", "stepIndex", "onSelected"]));
+    .component("stepItem", register(StepItem, ["step", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"]));

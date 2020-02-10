@@ -19,7 +19,7 @@ type StepItemProps = {
   step: Step,
   strings: StringProps,
   selected: boolean,
-  isLatest: boolean,
+  highlightVersionUpdate: boolean,
   stepIndex: number,
   onSelected: (step: Step, index: number) => void
 }
@@ -33,7 +33,7 @@ export const normalizeIconUrl = (step: Step): string => {
 ``
 const tabIndex = (selected: boolean): number => selected ? -1 : 0;
 
-const stepVersion = (step: Step, isLatest: boolean) => (isLatest
+const stepVersion = (step: Step, highlightVersionUpdate: boolean) => (highlightVersionUpdate
   ? <Text>{step.version}</Text>
   : <Badge backgroundColor="red-3" color="white">
       <Icon name="ArrowUp" />
@@ -45,7 +45,7 @@ const StepItem: FunctionComponent<StepItemProps> = ({
   step,
   strings,
   selected,
-  isLatest,
+  highlightVersionUpdate,
   stepIndex,
   onSelected
 } : StepItemProps) => (
@@ -59,7 +59,7 @@ const StepItem: FunctionComponent<StepItemProps> = ({
       </strong>
       <em className="version">
         {step.requestedVersion()
-            ? stepVersion(step, isLatest)
+            ? stepVersion(step, highlightVersionUpdate)
             : <Text>{strings.alwaysLatest + (step.version && ` (${step.version})`)}</Text>}
       </em>
     </span>
