@@ -24,7 +24,11 @@ type StepItemProps = {
   onSelected: (step: Step, index: number) => void
 }
 
-export const normalizeIconUrl = (step: Step): string => {
+export const normalizeIconUrl = (step?: Step): string | undefined => {
+  if (!step) {
+    return;
+  }
+
   var defaultStepIconURL = defaultStepIcon;
   var stepIconURL = step.iconURL();
 
