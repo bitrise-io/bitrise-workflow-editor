@@ -1,7 +1,8 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const { ProvidePlugin } = require("webpack");
 
 const OUTPUT_FOLDER = path.join(__dirname, "build");
@@ -11,7 +12,7 @@ const { NODE_ENV, RELEASE_VERSION, MODE } = process.env;
 const isProd = NODE_ENV === "prod";
 
 const urlPrefix = MODE === "website" ? "bitrise_workflow_editor-" : "";
-const publicPath = isProd ? `/${urlPrefix}${RELEASE_VERSION}` : "";
+const publicPath = isProd ? `/${urlPrefix}${RELEASE_VERSION}/` : "";
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
@@ -36,7 +37,7 @@ const assetExporter = (regex, folder) => ({
     options: {
       outputPath: folder,
       name: "[name].[ext]",
-      publicPath: `${publicPath}/${folder}`,
+      publicPath: path.join(publicPath, `/${folder}`),
     }
   }],
 });
@@ -157,6 +158,9 @@ module.exports = {
     new ProvidePlugin({
       "window.jQuery": "jquery",
       "window._": "underscore",
-    })
+    }),
+    new CopyPlugin([
+      { from: "images/favicons/*", to: OUTPUT_FOLDER },
+    ]),
   ]
 };

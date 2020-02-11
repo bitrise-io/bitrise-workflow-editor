@@ -81,9 +81,7 @@ workflows:
     steps:
     - script:
         inputs:
-        - content: |
-            #!/bin/bash
-            npm run build
+        - content: "npm run build"
 
   client-build-website:
     envs:
@@ -413,6 +411,8 @@ workflows:
     title: Create binaries
     description: |
         Creates Linux and Darwin binaries
+    envs:
+      - NODE_ENV: "prod"
     before_run:
     - assets-precompile
     steps:
