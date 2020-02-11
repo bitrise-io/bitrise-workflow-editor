@@ -1,9 +1,3 @@
 source "https://rubygems.org"
 
-gem "nokogiri", '~> 1.10.4'
-gem "middleman", '~> 3.4.1'
-gem "middleman-livereload", ">= 3.4.6"
-gem "slim", '~> 3'
-
-gem "rack", "~> 1.6.11"
-gem "ffi", "~> 1.9.24"
+gem "slim"

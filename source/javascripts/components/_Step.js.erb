@@ -1,3 +1,5 @@
+import defaultStepIcon from "../../images/step/icon-default.svg";
+
 (function() {
 
 "use strict";
@@ -208,7 +210,7 @@ angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function
 			return undefined;
 		}
 
-		var defaultStepIconURL = "<%= image_path('step/icon-default.svg') %>";
+		var defaultStepIconURL = defaultStepIcon;
 		var stepIconURL = step.iconURL();
 
 		return stepIconURL ? stepIconURL : defaultStepIconURL;
@@ -234,7 +236,7 @@ angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() 
 		if (regexpForBitbucketStepSourceURL.test(sourceURL)) {
 			return "bitbucket";
 		}
-		
+
 		var regexpForGitlabStepSourceURL = new RegExp("^(?:https?:\/\/)?(?:www.)?gitlab\.com\/.+");
 		if (regexpForGitlabStepSourceURL.test(sourceURL)) {
 			return "gitlab";
