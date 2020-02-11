@@ -24,6 +24,8 @@ workflows:
 	}
 	validSecrets := []string{
 		config.MinimalValidSecrets,
+		"",
+		"#",
 		" ",
 		"\n",
 		"{}",
