@@ -24,7 +24,7 @@
 	},
 	"homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
 	"dependencies": {
-		"@bitrise/steplib-search": "^2.0.0",
+		"@bitrise/steplib-search": "^2.0.1",
 		"angular": "^1.7.9",
 		"angular-animate": "1.7.9",
 		"angular-cookies": "1.7.9",
