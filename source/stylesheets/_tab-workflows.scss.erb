@@ -602,6 +602,10 @@ header.sticky section.manage-workflows {
 											font-style: normal;
 											font-weight: 300;
 											color: $def-darkgrey;
+
+											@include media-below-big {
+												display: none;
+											}
 										}
 									}
 								}
@@ -1623,7 +1627,7 @@ header.sticky section.manage-workflows {
 
 						.step-actions {
 
-							button.step span.icon {
+							button.step img.icon {
 								@include size($icon-size_small);
 							}
 
