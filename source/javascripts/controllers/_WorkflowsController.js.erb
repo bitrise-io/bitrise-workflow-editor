@@ -646,6 +646,7 @@ angular.module("BitriseWorkflowEditor").controller("WorkflowsController", functi
 		}
 
 		viewModel.selectedStep = step;
+		$scope.$digest();
 	};
 
 	$scope.$watch(function() {

@@ -104,30 +104,34 @@ def strings
                 },
                 steps: {
                     start: "Start",
-                end: "End",
-                add: {
-                    search_placeholder: "Search steps",
-                    all_project_types: "All",
-                    show_all_steps: "Show all steps",
-                    categories: {
-                        new_releases: "New releases",
-                        essentials: "Essentials",
-                        test: "Test"
+                    end: "End",
+                    add: {
+                        search_placeholder: "Search steps",
+                        all_project_types: "All",
+                        show_all_steps: "Show all steps",
+                        categories: {
+                            new_releases: "New releases",
+                            essentials: "Essentials",
+                            test: "Test"
+                        },
+                        load: {
+                            in_progress: "Loading steps, wait a sec..."
+                        }
                     },
-                    load: {
-                        in_progress: "Loading steps, wait a sec..."
+                    verified: "Verified",
+                    deprecated: "Deprecated",
+                    community_created: "Community created",
+                    clone_popover_info: "Clone this step",
+                    source_popover_info: "Source code",
+                    delete: "Delete Step: <step_title>",
+                    version: "Version",
+                    always_latest: "Always latest",
+                    is_always_run: "Run if previous Step failed",
+                    inputs_removed_popup_title: "The following inputs are not available in this version:",
+                    invalid_version: {
+                        title: "Invalid version",
+                        message: "This version does not exist. Please select a valid version."
                     }
-                },
-                verified: "Verified",
-                deprecated: "Deprecated",
-                community_created: "Community created",
-                clone_popover_info: "Clone this step",
-                source_popover_info: "Source code",
-                delete: "Delete Step: <step_title>",
-                version: "Version",
-                always_latest: "always latest",
-                is_always_run: "Run if previous Step failed",
-                inputs_removed_popup_title: "The following inputs are not available in this version:"
             },
             inputs: {
                 header: "Input variables",
