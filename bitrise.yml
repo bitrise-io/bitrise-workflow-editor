@@ -85,6 +85,7 @@ workflows:
 
   client-build-website:
     envs:
+      - NODE_ENV: "prod"
       - MODE: "WEBSITE"
     after_run:
     - client-build
