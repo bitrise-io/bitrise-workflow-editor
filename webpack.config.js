@@ -1,12 +1,18 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
-const UglifyJsPlugin = require('uglifyjs-webpack-plugin');
+const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const CopyPlugin = require("copy-webpack-plugin");
 const { ProvidePlugin } = require("webpack");
 
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
-const isProd = process.env.NODE_ENV === "prod";
+
+const { NODE_ENV, RELEASE_VERSION, MODE } = process.env;
+const isProd = NODE_ENV === "prod";
+
+const urlPrefix = MODE === "website" ? "bitrise_workflow_editor-" : "";
+const publicPath = isProd ? `/${urlPrefix}${RELEASE_VERSION}/` : "";
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",
@@ -31,7 +37,7 @@ const assetExporter = (regex, folder) => ({
     options: {
       outputPath: folder,
       name: "[name].[ext]",
-      publicPath: `/${folder}`,
+      publicPath: path.join(publicPath, `/${folder}`),
     }
   }],
 });
@@ -53,18 +59,15 @@ module.exports = {
   optimization: {
     minimizer: isProd ? [
       new UglifyJsPlugin({
-        uglifyOptions: {
-          cache: true,
-          parallel: true,
-          mangle: false
-        }
+        uglifyOptions: { cache: true, parallel: true, mangle: false }
       })
     ] : [],
 	},
 
   output: {
     filename: "javascripts/[name].js",
-    path: OUTPUT_FOLDER
+    path: OUTPUT_FOLDER,
+    publicPath
   },
 
   resolve: {
@@ -155,6 +158,9 @@ module.exports = {
     new ProvidePlugin({
       "window.jQuery": "jquery",
       "window._": "underscore",
-    })
+    }),
+    new CopyPlugin([
+      { from: "images/favicons/*", to: OUTPUT_FOLDER },
+    ]),
   ]
 };

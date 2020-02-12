@@ -45,7 +45,7 @@ end
 # asset helpers
 
 def image_path(image)
-    "images/#{image}"
+    mode_dependant_asset_path("images/#{image}")
 end
 
 def svg(filename)
