@@ -138,10 +138,9 @@ describe("stepSourceService", function() {
 		});
 
 		it("should only configure asset path for steps with invalid version", () => {
-			const step = stepSourceService.stepFromCVS(`${TEST_STEP_ID}@fake_version`);
-
-			expect(step.userStepConfig.asset_urls).toEqual("test_urls");
-			expect(step.defaultStepConfig).toBeUndefined();
+			expect(function() {
+				stepSourceService.stepFromCVS(`${TEST_STEP_ID}@fake_version`);
+			}).toThrow();
 		});
 	});
 
