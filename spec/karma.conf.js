@@ -58,6 +58,10 @@ module.exports = config => {
 
 		coverageReporter: {
 			type: "text-summary"
+		},
+		specReporter: {
+			// do not print information about skipped tests
+			suppressSkipped: true
 		}
 	});
 };
