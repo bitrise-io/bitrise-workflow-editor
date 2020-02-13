@@ -240,6 +240,28 @@
 				return $q.all(loadPromises);
 			};
 
+			stepSourceService.loadStepVersions = function(stepId) {
+				// This only works for official Bitrise steps
+				return stepLibSearchService.getStepVersions(stepId).then(function(step) {
+					var stepVersions = {};
+					Object.values(step.versions).forEach(function(stepVersion) {
+						var step = new Step(stepVersion.cvs);
+						step.libraryURL = stepSourceService.defaultLibraryURL;
+						step.id = stepVersion.id;
+						step.version = stepVersion.version;
+						step.defaultStepConfig = stepVersion;
+
+						stepVersions[stepVersion.version] = step;
+					});
+
+					var library = stepSourceService.libraries.find(function(library) {
+						return library.url === appService.appConfig.default_step_lib_source;
+					});
+
+					Object.assign(library.steps[stepId], stepVersions);
+				});
+			};
+
 			function loadStepWithCVS(cvs, requestConfig) {
 				var step;
 				try {

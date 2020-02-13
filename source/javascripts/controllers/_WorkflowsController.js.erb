@@ -785,6 +785,12 @@
 			};
 
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
+				if (step.libraryURL === appService.appConfig.default_step_lib_source) {
+					stepSourceService.loadStepVersions(step.id).then(function() {
+						$scope.$digest();
+					});
+				}
+
 				if (workflowIndex === undefined) {
 					workflowIndex = viewModel.editedWorkflowIndex;
 				}
