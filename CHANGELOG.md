@@ -1,6 +1,52 @@
-## Changelog (Current version: 1.1.72)
+## Changelog (Current version: 1.1.73)
 
 -----------------
+
+## 1.1.73 (2020 Feb 13)
+
+### Release Notes
+
+* [WEB-3426] invalid version handling (#430)
+* Fix webpack deploy (#435)
+* Revert "version bump (1.1.72 -> 1.1.73) (#433)" (#434)
+* remove unnecessary check (#431)
+* version bump (1.1.72 -> 1.1.73) (#433)
+* godeps update to pull new versions of bitrise and stepman (#432)
+* Webpack integration (#429)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.73
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.72 -> 1.1.73
+
+* [f3057e4] Adam Pelle - [WEB-3426] invalid version handling (#430) (2020 Feb 12)
+* [cda30bf] Adam Pelle - Fix webpack deploy (#435) (2020 Feb 12)
+* [8d6ca14] Krisztián Gödrei - Revert "version bump (1.1.72 -> 1.1.73) (#433)" (#434) (2020 Feb 11)
+* [f7bc272] lszucs - remove unnecessary check (#431) (2020 Feb 11)
+* [e786e6f] Krisztián Gödrei - version bump (1.1.72 -> 1.1.73) (#433) (2020 Feb 11)
+* [e1bdd9c] Krisztián Gödrei - godeps update to pull new versions of bitrise and stepman (#432) (2020 Feb 11)
+* [9c9e021] Adam Pelle - Webpack integration (#429) (2020 Feb 07)
+
 
 ## 1.1.72 (2020 Jan 31)
 
@@ -4068,4 +4114,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Jan 31
+Updated: 2020 Feb 13

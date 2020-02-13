@@ -20,7 +20,7 @@ bitrise plugin update workflow-editor
 
 ## Install requirements
 
-Workflow editor uses middleman for static asset compilation and concatenation (compile slim templates and concatenate javascripts). Therefore it needs to use bundler to install required gems. In addition it uses karma and jasmine for frontend tests execution so it needs `node` and `npm` installed to get the dependencies for testing and also production.
+Workflow editor uses webpack for static asset compilation and asset bundling. For transformation we need to use some rails related transformation hence it also uses bundler to install ruby dependencies. In addition it uses karma and jasmine for frontend tests execution so it needs `node` and `npm` installed to get the dependencies for testing and also production.
 
 Finally the local executable is written in GO. so you need to have go set up as well and dependencies.
 
@@ -42,15 +42,14 @@ bitrise run go-install
 
 ### Run in development mode
 
-1. __DOCKER__: In the Workflow Editor's directory, run `bitrise run up`. This utilizes `docker-compose` behind the scenes. // __LOCAL__: You need to start the api `bitrise run up-api` and middleman  `bitrise run up-middleman-server`.
-1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until middleman starts up.
+1. __DOCKER__: In the Workflow Editor's directory, run `bitrise run up`. This utilizes `docker-compose` behind the scenes. // __LOCAL__: You need to start the api `bitrise run up-api` and webpack dev server  `bitrise run up-dev-server`.
+1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until dev server starts up.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
 ### Run client tests
 
-Use `npm test` for a single run or `npm run test-watch` for a continous test execution. __Note__ the latter option might have some delays since middleman needs to compile assets upon every change before karma runner kicks in.
-
-If you only iterate on tests, you can also use `npm run karma` as it skips middleman and the transpilation and run the tests on an already transpiled JS. (faster)
+Use `npm test` for a single test run.
+If you only iterate on tests, you can also use `npm run karma` as it skips transpilation and the transpilation and run the tests on an already transpiled JS. (faster)
 
 # Contributing
 

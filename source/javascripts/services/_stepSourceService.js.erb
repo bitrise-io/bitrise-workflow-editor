@@ -11,6 +11,35 @@
 				gitSteps: []
 			};
 
+			var getLibraryForStep = function(step) {
+				if (!step.isLibraryStep()) {
+					return null;
+				}
+
+				var library = _.find(stepSourceService.libraries, {
+					url: step.libraryURL
+				});
+
+				if (!library) {
+					throw new Error("Library not found for step");
+				}
+
+				return library;
+			};
+
+			var configureStepFromLib = function(step, library) {
+				var requestedVersion = step.version || library.latestStepVersions[step.id];
+				var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
+
+				if (shouldLoadOnlyStepIcon) {
+					requestedVersion = library.latestStepVersions[step.id];
+					step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
+				} else {
+					step.version = requestedVersion;
+					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+				}
+			};
+
 			stepSourceService.stepFromCVS = function(cvs) {
 				var step = new Step(cvs);
 
@@ -152,11 +181,9 @@
 					if (version !== null) {
 						step.cvs += "@" + version;
 						step.version = version;
-					} else {
-						step.version = library.latestStepVersions[step.id];
 					}
 
-					step.defaultStepConfig = library.steps[step.id][step.version].defaultStepConfig;
+					configureStepFromLib(step, library);
 				} else if (step.localPath !== undefined) {
 					return;
 				} else if (step.gitURL !== undefined) {
@@ -164,18 +191,48 @@
 				}
 			};
 
-			stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
-				var libraryStepCVSs = _.filter(CVSs, function(aCVS) {
-					var step;
-					try {
-						step = stepSourceService.stepFromCVS(aCVS);
-					} catch (error) {
-						return false;
+			stepSourceService.versionsOfStep = function(step) {
+				var library;
+
+				try {
+					library = getLibraryForStep(step);
+
+					if (!library) {
+						return step.isLocal() ? null : [step.version];
 					}
+				} catch (err) {
+					return null;
+				}
 
-					return step.libraryURL !== undefined;
-				});
+				var steps = _.sortBy(_.keys(library.steps[step.id]), function(version) {
+					return _.map(version.split("."), function(aVersionPart) {
+						var pad = "000000";
+						var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
 
+						return versionPartWithLeadingZeros;
+					}).join(".");
+				}).reverse();
+
+				steps.splice(0, 0, step.version);
+				return _.uniq(steps);
+			};
+
+			stepSourceService.latestVersion = function(step) {
+				var library = getLibraryForStep(step);
+				return library && library.latestStepVersions[step.id];
+			};
+
+			stepSourceService.isLatestStepVersion = function(step) {
+				var library = getLibraryForStep(step);
+
+				if (!library) {
+					return !step.isLocal();
+				}
+
+				return step.version === stepSourceService.latestVersion(step);
+			};
+
+			stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
 				var loadPromises = [];
 				var libraryURLs = [];
 				var stepLibSearchCVSs = [];

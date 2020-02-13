@@ -1,0 +1,35 @@
+{
+    "compilerOptions": {
+        "outDir": "build",
+        "module": "commonjs",
+        "target": "es5",
+        "lib": ["es6", "dom"],
+        "sourceMap": true,
+        "allowJs": true,
+        "jsx": "react",
+        "moduleResolution": "node",
+        "experimentalDecorators": true,
+        "noImplicitReturns": true,
+        "noImplicitThis": true,
+        "noUnusedParameters": true,
+        "noUnusedLocals": true,
+        "skipLibCheck": true,
+        "noImplicitAny": true,
+        "allowSyntheticDefaultImports": true,
+        "esModuleInterop": true,
+        "strictNullChecks": true,
+        "suppressImplicitAnyIndexErrors": true,
+        "strict": true,
+    },
+    "exclude": [
+        "node_modules",
+        "build",
+        "scripts",
+    ],
+    "lib": [
+        "dom", "es2015"
+      ],
+    "types": [
+        "typePatches"
+    ]
+}

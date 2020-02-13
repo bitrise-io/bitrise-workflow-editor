@@ -1,14 +1,27 @@
-//= require algoliasearch/dist/algoliasearch.umd.js
-//= require @bitrise/steplib-search/dist/bitrise-steplib-search.umd.js
-//= require jquery/dist/jquery.min.js
-//= require underscore/underscore.js
-//= require elastic
-//= require ng-showdown-dep.js
-//= require showdown
-//= require markdown
-//= require esprima.js
-//= require js-yaml.min.js
-//= require ng-showdown.min.js
-//= require monaco-editor/min/vs/loader.js
-//= require monaco-editor/min/vs/editor/editor.main.nls.js
-//= require monaco-editor/min/vs/editor/editor.main.js
+import $ from "jquery";
+import _ from "underscore";
+
+global.$ = $;
+global._ = _;
+
+import "angular";
+import "angular-cookies";
+import "angular-sanitize";
+import "angular-route";
+import "angular-animate";
+import "angular-elastic";
+
+import "showdown";
+import "ng-showdown";
+
+import "esprima";
+import "js-yaml";
+
+$(document).ready(function() {
+	document.body.addEventListener("DOMSubtreeModified", function() {
+		_.each($("*[sanitized-markdown] a[href]"), function(anAnchor) {
+			$(anAnchor).attr("target", "_blank");
+			$(anAnchor).attr("rel", "noreferrer noopener nofollow");
+		});
+	});
+});

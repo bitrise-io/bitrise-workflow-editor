@@ -1,9 +1,9 @@
 .workflow-description[ng-class="{'edit-mode': workflowDescriptionCtrl.isEditMode}"]
 	button.edit[ng-if="!workflowDescriptionCtrl.isEditMode" ng-click="workflowDescriptionCtrl.isEditMode = !workflowDescriptionCtrl.isEditMode"]
 	h3
-		span.description-icon = svg("code")
+		span.description-icon  == svg("code")
 		strong[ng-bind="descriptionHeader()"]
-		span.edit-icon[ng-if="!workflowDescriptionCtrl.isEditMode"] = svg("pencil")
+		span.edit-icon[ng-if="!workflowDescriptionCtrl.isEditMode"]  == svg("pencil")
 	article
 		.description[ng-if="!workflowDescriptionCtrl.isEditMode"]
 			span[ng-if="workflow.description()" sanitized-markdown="workflow.description()"]

@@ -24,7 +24,7 @@
 							.trigger-info.pattern.tag[ng-switch-when="tag"]
 								label == data[:strings][:triggers][:tag]
 								input.value[type="text" ng-model="triggersCtrl.editedTriggerTagPattern" ng-change="triggersCtrl.editedTrigger.tagPattern(triggersCtrl.editedTriggerTagPattern)" placeholder="*"]
-							= svg("arrow_tailed_slim-down")
+							== svg("arrow_tailed_slim-down")
 							select.trigger-info.workflow[ng-model="triggersCtrl.editedTrigger.workflowID" ng-model-options="{getterSetter: true}" ng-options="workflow.id as workflow.id for workflow in triggersCtrl.workflows"]
 						.actions
 							button.done.rebo.purple[ng-click="triggersCtrl.triggerEditFinished()" ng-disabled="triggersCtrl.triggerIsInvalid()"] == data[:strings][:triggers][:done]
@@ -43,9 +43,9 @@
 						span.trigger-info.pattern.tag[ng-switch-when="tag"]
 							span.label == data[:strings][:triggers][:tag]
 							strong.value[ng-bind="trigger.tagPattern()"]
-						= svg("arrow_tailed_slim-down")
+						== svg("arrow_tailed_slim-down")
 						span.trigger-info.workflow
 							span.label == data[:strings][:triggers][:workflow]
 							strong.value[ng-bind="trigger.workflowID()"]
-					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTrigger(trigger)"] == svg("trash")
+					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTrigger(trigger)"]  == svg("trash")
 				button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]

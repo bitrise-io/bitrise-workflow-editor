@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 1.1.72
+  - RELEASE_VERSION: 1.1.73
   - BIN_NAME: workflow-editor
   - BIN_ARCH: x86_64
   - BIN_OS_DARWIN: Darwin
@@ -12,7 +12,7 @@ app:
   - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
 
   - PORT: "1234"
-  - MIDDLEMAN_SERVER_PORT: "4567"
+  - DEV_SERVER_PORT: "4567"
   - MODE: "CLI"
 
 workflows:
@@ -20,7 +20,7 @@ workflows:
     envs:
       - BITRISE_CONFIG: "$TEST_BITRISE_CONFIG_PATH"
       - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
-      - USE_MIDDLEMAN_SERVER: "true"
+      - USE_DEV_SERVER: "true"
     steps:
     - change-workdir@1.0.2:
         inputs:
@@ -75,24 +75,22 @@ workflows:
             docker-compose rm -f -v
             docker-compose build
 
-  middleman-build:
+  client-build:
     before_run:
     - setup-client
     steps:
     - script:
         inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            bundle exec middleman build --clean --verbose
+        - content: "npm run build"
 
-  middleman-build-for-bitrise-io:
+  client-build-website:
     envs:
+      - NODE_ENV: "prod"
       - MODE: "WEBSITE"
     after_run:
-    - middleman-build
+    - client-build
 
-  up-middleman-server:
+  up-dev-server:
     before_run:
     - setup-client
     steps:
@@ -100,8 +98,7 @@ workflows:
         inputs:
         - content: |
             #!/bin/bash
-            set -ex
-            bundle exec middleman server
+            npm run start:dev
 
   ci:
     before_run:
@@ -159,7 +156,7 @@ workflows:
 
   assets-precompile:
     before_run:
-    - middleman-build
+    - client-build
     steps:
     - script:
         inputs:
@@ -415,6 +412,8 @@ workflows:
     title: Create binaries
     description: |
         Creates Linux and Darwin binaries
+    envs:
+      - NODE_ENV: "prod"
     before_run:
     - assets-precompile
     steps:
