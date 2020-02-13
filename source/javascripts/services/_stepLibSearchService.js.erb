@@ -1,20 +1,19 @@
 import StepLib from "@bitrise/steplib-search";
 
+angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", function() {
+	return new StepLib("<%= data[:constants][:algolia][:appID] %>", "<%= data[:constants][:algolia][:apiKey] %>");
+});
+
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").service("stepLibSearchService", function($q) {
-		var stepLib = new StepLib(
-			"<%= data[:constants][:algolia][:appID] %>",
-			"<%= data[:constants][:algolia][:apiKey] %>"
-		);
-
+	angular.module("BitriseWorkflowEditor").service("stepLibSearchService", function($q, stepLibSearchInstance) {
 		var stepLibSearchService = {};
 
 		stepLibSearchService.list = function(stepCVSs, includeInputs, attributesToRetrieve) {
 			attributesToRetrieve = attributesToRetrieve || ["*"];
 
-			return stepLib
+			return stepLibSearchInstance
 				.list({
 					stepIds: stepCVSs,
 					includeInputs: includeInputs,
@@ -22,7 +21,7 @@ import StepLib from "@bitrise/steplib-search";
 						attributesToRetrieve: attributesToRetrieve
 					}
 				})
-				.then(convertSteps)
+				.then(stepLibSearchService.convertSteps)
 				.catch(function(err) {
 					return $q.reject(err);
 				});
@@ -31,7 +30,7 @@ import StepLib from "@bitrise/steplib-search";
 		stepLibSearchService.getStepVersions = function(stepId, attributesToRetrieve) {
 			attributesToRetrieve = attributesToRetrieve || ["*"];
 
-			return stepLib
+			return stepLibSearchInstance
 				.list({
 					query: stepId,
 					includeInputs: true,
@@ -39,7 +38,7 @@ import StepLib from "@bitrise/steplib-search";
 						attributesToRetrieve: attributesToRetrieve
 					}
 				})
-				.then(convertSteps)
+				.then(stepLibSearchService.convertSteps)
 				.then(function(stepObj) {
 					return stepObj[stepId];
 				})
@@ -48,19 +47,22 @@ import StepLib from "@bitrise/steplib-search";
 				});
 		};
 
-		function convertSteps(steps) {
+		stepLibSearchService.convertSteps = function(steps) {
 			return steps.reduce(function(stepObj, stepVersion) {
-				var versions = (stepObj[stepVersion.id] || {}).versions || {};
+				var step = stepObj[stepVersion.id] || {};
+				var versions = step.versions || {};
 				versions[stepVersion.version] = Object.assign({}, stepVersion, stepVersion.info);
 
-				var step = {
-					info: stepVersion.info,
-					versions: versions
-				};
+				var info = Object.assign({}, step.info, stepVersion.info);
 
-				return Object.assign({}, stepObj, { [stepVersion.id]: step });
+				return Object.assign({}, stepObj, {
+					[stepVersion.id]: {
+						info: info,
+						versions: versions
+					}
+				});
 			}, {});
-		}
+		};
 
 		return stepLibSearchService;
 	});
