@@ -27,19 +27,15 @@
 					});
 				}),
 				observe: function(element, step) {
-					addStepService.stepIntersectionObserverCallbacks[
-						step.id
-					] = function() {
+					addStepService.stepIntersectionObserverCallbacks[step.id] = function() {
 						addStepService.unobserve(element);
 
 						if (addStepService.isStepIconLoaded(step)) {
 							return;
 						}
-						imageService
-							.loadImageWithURL($filter("normalizedStepIconURL")(step))
-							.then(function() {
-								addStepService.stepIconLoadedStatesByStepIds[step.id] = true;
-							});
+						imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)).then(function() {
+							addStepService.stepIconLoadedStatesByStepIds[step.id] = true;
+						});
 					};
 					addStepService.stepIntersectionObserver.observe(element[0]);
 				},
@@ -48,10 +44,7 @@
 				}
 			};
 
-			addStepService.showWithInsertIndex = function(
-				insertIndex,
-				stepSelectedCallback
-			) {
+			addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {
 				this.stepSelected = function(step) {
 					this.isVisible = false;
 
@@ -79,8 +72,7 @@
 			var viewModel = this;
 			var canceler = $q.defer();
 
-			var shouldFilterByProjectTypeDefaultValue =
-				requestService.mode == "website";
+			var shouldFilterByProjectTypeDefaultValue = requestService.mode == "website";
 
 			$scope.addStepService = addStepService;
 			$scope.appService = appService;
@@ -91,8 +83,7 @@
 			viewModel.categories = [
 				{
 					id: "new_releases",
-					title:
-						"<%= data[:strings][:workflows][:steps][:add][:categories][:new_releases] %>",
+					title: "<%= data[:strings][:workflows][:steps][:add][:categories][:new_releases] %>",
 					cssClass: "new-releases",
 					steps: undefined,
 					paginateStepsConfig: {
@@ -140,18 +131,11 @@
 					}
 
 					if (isVisible) {
-						viewModel.loadProgress.start(
-							"<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>"
-						);
+						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
 
 						var loadPromises = [];
 
-						if (
-							!_.contains(
-								stepSourceService.libraries,
-								stepSourceService.defaultLibraryURL
-							)
-						) {
+						if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
 							canceler.resolve();
 							canceler = $q.defer();
 
@@ -160,7 +144,8 @@
 									[stepSourceService.defaultLibraryURL],
 									{
 										timeout: canceler.promise
-									}
+									},
+									true
 								)
 							);
 						}
@@ -176,22 +161,13 @@
 								_.each(stepSourceService.libraries, function(aLibrary) {
 									steps = steps.concat(
 										_.map(
-											_.omit(aLibrary.latestStepVersions, function(
-												aStepVersion,
-												stepID
-											) {
-												return aLibrary.steps[stepID][
-													aStepVersion
-												].isDeprecated();
+											_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
+												return aLibrary.steps[stepID][aStepVersion].isDeprecated();
 											}),
 											function(aStepVersion, stepID) {
-												var step = angular.copy(
-													aLibrary.steps[stepID][aStepVersion]
-												);
+												var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
 
-												if (
-													aLibrary.url != stepSourceService.defaultLibraryURL
-												) {
+												if (aLibrary.url != stepSourceService.defaultLibraryURL) {
 													step.libraryURL = aLibrary.url;
 													step.cvs = step.libraryURL + "::" + step.cvs;
 												}
@@ -216,9 +192,7 @@
 											aCategory.steps = _.map(
 												_.first(
 													_.sortBy(steps, function(aStep) {
-														return -new Date(
-															aStep.defaultStepConfig.published_at
-														);
+														return -new Date(aStep.defaultStepConfig.published_at);
 													}),
 													5
 												)
@@ -284,8 +258,7 @@
 				_.each(viewModel.categories, function(aCategory) {
 					aCategory.paginateStepsConfig.pageCount = aCategory.steps
 						? Math.ceil(
-								viewModel.filteredSteps(aCategory.steps).length /
-									aCategory.paginateStepsConfig.stepsCountPerPage
+								viewModel.filteredSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage
 						  )
 						: undefined;
 					aCategory.paginateStepsConfig.currentPageIndex = 0;
@@ -318,10 +291,7 @@
 
 					filteredSteps = _.filter(filteredSteps, function(aStep) {
 						return (
-							stringService.isStringMatchingTerm(
-								aStep.title(),
-								viewModel.stepFilter
-							) ||
+							stringService.isStringMatchingTerm(aStep.title(), viewModel.stepFilter) ||
 							stringService.isStringMatchingTerm(aStep.id, viewModel.stepFilter)
 						);
 					});
@@ -370,12 +340,10 @@
 
 				return (
 					stepIndex <
-						category.paginateStepsConfig.stepsCountPerPage *
-							category.paginateStepsConfig.currentPageIndex +
+						category.paginateStepsConfig.stepsCountPerPage * category.paginateStepsConfig.currentPageIndex +
 							category.paginateStepsConfig.currentOffsetInPage ||
 					stepIndex >=
-						category.paginateStepsConfig.stepsCountPerPage *
-							(category.paginateStepsConfig.currentPageIndex + 1) +
+						category.paginateStepsConfig.stepsCountPerPage * (category.paginateStepsConfig.currentPageIndex + 1) +
 							category.paginateStepsConfig.currentOffsetInPage
 				);
 			};
@@ -384,8 +352,7 @@
 			return {
 				restrict: "E",
 				replace: true,
-				templateUrl:
-					"<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar] )%>",
+				templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar] )%>",
 				link: function(scope, element, attrs) {
 					function keyupHandler(event) {
 						if (event.keyCode != 27) {
@@ -418,13 +385,9 @@
 
 					function windowSizeHandler() {
 						var contentElement = _.first(element.children(".content"));
-						var isWindowSizeTooSmallForCategoryMode =
-							$(contentElement).width() < 600;
+						var isWindowSizeTooSmallForCategoryMode = $(contentElement).width() < 600;
 
-						$parse(attrs.forceListModeFlag).assign(
-							scope,
-							isWindowSizeTooSmallForCategoryMode
-						);
+						$parse(attrs.forceListModeFlag).assign(scope, isWindowSizeTooSmallForCategoryMode);
 						if (isWindowSizeTooSmallForCategoryMode) {
 							$parse(attrs.isCategoryModeFlag).assign(scope, false);
 						}
@@ -440,12 +403,7 @@
 				}
 			};
 		})
-		.directive("addStepDragger", function(
-			$parse,
-			$document,
-			$timeout,
-			addStepService
-		) {
+		.directive("addStepDragger", function($parse, $document, $timeout, addStepService) {
 			return {
 				restrict: "A",
 				link: function(scope, element, attrs) {
@@ -463,19 +421,11 @@
 					function mouseMoveHandler(event) {
 						$parse(attrs.dragInProgressFlag).assign(scope, true);
 
-						var originalScrollPositionX = -parseFloat(
-							element.css("left").replace("px", "")
-						);
-						var scrollPositionX =
-							originalScrollPositionX - (event.pageX - latestDragPositionX);
+						var originalScrollPositionX = -parseFloat(element.css("left").replace("px", ""));
+						var scrollPositionX = originalScrollPositionX - (event.pageX - latestDragPositionX);
 						scrollPositionX = Math.max(scrollPositionX, 0);
-						var lastStepElementPositionX = $(
-							_.last(element.children())
-						).position().left;
-						scrollPositionX = Math.min(
-							scrollPositionX,
-							lastStepElementPositionX
-						);
+						var lastStepElementPositionX = $(_.last(element.children())).position().left;
+						scrollPositionX = Math.min(scrollPositionX, lastStepElementPositionX);
 
 						element.css("left", -scrollPositionX + "px");
 
@@ -495,17 +445,13 @@
 						var stepIndex = 0;
 						var minimumStepElementScrolledPositionX;
 						_.each(element.children(), function(aStepElement, index) {
-							var originalScrollPositionX = -parseFloat(
-								element.css("left").replace("px", "")
-							);
+							var originalScrollPositionX = -parseFloat(element.css("left").replace("px", ""));
 							var stepElementPositionX = $(aStepElement).position().left;
-							var stepElementScrolledPositionX =
-								stepElementPositionX - originalScrollPositionX;
+							var stepElementScrolledPositionX = stepElementPositionX - originalScrollPositionX;
 
 							if (
 								minimumStepElementScrolledPositionX === undefined ||
-								Math.abs(stepElementScrolledPositionX) <
-									Math.abs(minimumStepElementScrolledPositionX)
+								Math.abs(stepElementScrolledPositionX) < Math.abs(minimumStepElementScrolledPositionX)
 							) {
 								minimumStepElementScrolledPositionX = stepElementScrolledPositionX;
 								stepIndex = index;
@@ -514,11 +460,8 @@
 
 						scrollToStepWithIndex(stepIndex);
 
-						paginateStepsConfig.currentPageIndex = Math.floor(
-							stepIndex / paginateStepsConfig.stepsCountPerPage
-						);
-						paginateStepsConfig.currentOffsetInPage =
-							stepIndex % paginateStepsConfig.stepsCountPerPage;
+						paginateStepsConfig.currentPageIndex = Math.floor(stepIndex / paginateStepsConfig.stepsCountPerPage);
+						paginateStepsConfig.currentOffsetInPage = stepIndex % paginateStepsConfig.stepsCountPerPage;
 						scope.$apply();
 
 						$timeout(function() {
@@ -536,15 +479,13 @@
 						}
 
 						scrollToStepWithIndex(
-							paginateStepsConfig.currentPageIndex *
-								paginateStepsConfig.stepsCountPerPage +
+							paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage +
 								paginateStepsConfig.currentOffsetInPage
 						);
 					}
 
 					function scrollToStepWithIndex(stepIndex) {
-						var scrollPositionX = $(element.children()[stepIndex]).position()
-							.left;
+						var scrollPositionX = $(element.children()[stepIndex]).position().left;
 						element.addClass("animated-scroll");
 						element.css("left", -scrollPositionX + "px");
 
@@ -561,17 +502,13 @@
 									return false;
 								}
 
-								var transitionDurations = _.map(
-									element.css(property).split(", "),
-									function(aTransitionDurationPropertyValue) {
-										return parseFloat(
-											aTransitionDurationPropertyValue.replace("s", "")
-										);
-									}
-								);
+								var transitionDurations = _.map(element.css(property).split(", "), function(
+									aTransitionDurationPropertyValue
+								) {
+									return parseFloat(aTransitionDurationPropertyValue.replace("s", ""));
+								});
 
-								transitionDuration =
-									Math.max.apply(null, transitionDurations) * 1000;
+								transitionDuration = Math.max.apply(null, transitionDurations) * 1000;
 
 								return true;
 							}
@@ -586,17 +523,12 @@
 					scope.$watch(
 						function() {
 							return (
-								paginateStepsConfig.currentPageIndex *
-									paginateStepsConfig.stepsCountPerPage +
+								paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage +
 								paginateStepsConfig.currentOffsetInPage
 							);
 						},
 						function(stepIndex) {
-							if (
-								stepIndex === undefined ||
-								element === undefined ||
-								element.children().length == 0
-							) {
+							if (stepIndex === undefined || element === undefined || element.children().length == 0) {
 								return;
 							}
 
@@ -616,15 +548,10 @@
 				}
 			};
 		})
-		.directive("addStepSidebarStep", function(
-			$filter,
-			addStepService,
-			imageService
-		) {
+		.directive("addStepSidebarStep", function($filter, addStepService, imageService) {
 			return {
 				restrict: "C",
-				templateUrl:
-					"<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar_step] )%>",
+				templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar_step] )%>",
 				scope: {
 					step: "=",
 					selected: "&selectCallback"
