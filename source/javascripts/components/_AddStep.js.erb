@@ -140,6 +140,7 @@
 							canceler = $q.defer();
 
 							loadPromises.push(
+								stepSourceService.loadLatestOfficialSteps(),
 								stepSourceService.loadLibrariesWithURLs(
 									[stepSourceService.defaultLibraryURL],
 									{

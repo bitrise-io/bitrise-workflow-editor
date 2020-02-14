@@ -287,35 +287,57 @@
 					return $q.reject(error);
 				}
 
-				var stepLibSearchPromise = stepLibSearchService.list(stepLibSearchCVSs, true).then(function(steps) {
-					var library = normalizeStepLib(steps, defaultStepLibUrl);
-					stepSourceService.libraries.push(library);
-				});
+				var stepLibSearchPromise = stepLibSearchService
+					.list({ stepCVSs: stepLibSearchCVSs, includeInputs: true })
+					.then(function(steps) {
+						addStepsToDefaultLibrary(steps);
+					});
 
 				loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig), stepLibSearchPromise);
 
 				return $q.all(loadPromises);
 			};
 
-			stepSourceService.loadStepVersions = function(stepId) {
-				// This only works for official Bitrise steps
-				return stepLibSearchService.getStepVersions(stepId).then(function(step) {
+			function addStepsToDefaultLibrary(steps) {
+				Object.keys(steps).forEach(function(stepId) {
 					var stepVersions = {};
-					Object.values(step.versions).forEach(function(stepVersion) {
+					var latestStepVersion;
+					Object.values(steps[stepId].versions).forEach(function(stepVersion) {
 						var step = new Step(stepVersion.cvs);
+						latestStepVersion = stepVersion.latest_version_number;
 						step.libraryURL = stepSourceService.defaultLibraryURL;
 						step.id = stepVersion.id;
 						step.version = stepVersion.version;
-						step.defaultStepConfig = stepVersion;
-
+						step.defaultStepConfig = Object.assign({}, stepVersion, stepVersion.step);
 						stepVersions[stepVersion.version] = step;
 					});
 
-					var library = stepSourceService.libraries.find(function(library) {
-						return library.url === appService.appConfig.default_step_lib_source;
+					var library;
+					library = stepSourceService.libraries.find(function(library) {
+						return library.url === stepSourceService.defaultLibraryURL;
 					});
 
-					Object.assign(library.steps[stepId], stepVersions);
+					if (!library) {
+						library = {
+							url: stepSourceService.defaultLibraryURL,
+							steps: {},
+							latestStepVersions: {}
+						};
+
+						stepSourceService.libraries.push(library);
+					}
+
+					library.steps[stepId] = Object.assign({}, library.steps[stepId], stepVersions);
+					library.latestStepVersions[stepId] = latestStepVersion;
+				});
+			}
+
+			stepSourceService.loadStepVersions = function(stepId) {
+				// This only works for official Bitrise steps
+				return stepLibSearchService.getStepVersions(stepId).then(function(step) {
+					var steps = {};
+					steps[stepId] = step;
+					addStepsToDefaultLibrary(steps);
 				});
 			};
 
@@ -402,6 +424,12 @@
 
 				return library;
 			}
+
+			stepSourceService.loadLatestOfficialSteps = function() {
+				return stepLibSearchService.list({ latestOnly: true }).then(function(steps) {
+					addStepsToDefaultLibrary(steps);
+				});
+			};
 
 			stepSourceService.loadLibrariesWithURLs = function(libraryURLs, requestConfig) {
 				return $q(function(resolve, reject) {

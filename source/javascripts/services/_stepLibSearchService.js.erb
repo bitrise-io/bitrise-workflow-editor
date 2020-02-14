@@ -10,13 +10,14 @@ angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", functio
 	angular.module("BitriseWorkflowEditor").service("stepLibSearchService", function($q, stepLibSearchInstance) {
 		var stepLibSearchService = {};
 
-		stepLibSearchService.list = function(stepCVSs, includeInputs, attributesToRetrieve) {
+		stepLibSearchService.list = function({ stepCVSs, includeInputs, latestOnly, attributesToRetrieve }) {
 			attributesToRetrieve = attributesToRetrieve || ["*"];
 
 			return stepLibSearchInstance
 				.list({
 					stepIds: stepCVSs,
-					includeInputs: includeInputs,
+					includeInputs: !!includeInputs,
+					latestOnly: !!latestOnly,
 					algoliaOptions: {
 						attributesToRetrieve: attributesToRetrieve
 					}

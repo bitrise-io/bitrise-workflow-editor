@@ -1,4 +1,4 @@
-describe("stepLibSearchService", function() {
+fdescribe("stepLibSearchService", function() {
 	var stepLibSearchService, mockStepLibSearchInstance;
 
 	beforeEach(module("BitriseWorkflowEditor"));
@@ -9,17 +9,19 @@ describe("stepLibSearchService", function() {
 		mockStepLibSearchInstance = _stepLibSearchInstance_;
 	}));
 
+	// function({ stepCVSs, includeInputs, latestOnly, attributesToRetrieve })
 	describe("list", () => {
 		beforeEach(() => {
 			spyOn(mockStepLibSearchInstance, "list").and.returnValue(Promise.resolve([]));
 		});
 
 		it("works with a given step list", () => {
-			stepLibSearchService.list(["a-step-cvs@1.0.0"], true);
+			stepLibSearchService.list({ stepCVSs: ["a-step-cvs@1.0.0"], includeInputs: true });
 
 			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith({
 				stepIds: ["a-step-cvs@1.0.0"],
 				includeInputs: true,
+				latestOnly: false,
 				algoliaOptions: {
 					attributesToRetrieve: ["*"]
 				}
@@ -27,13 +29,33 @@ describe("stepLibSearchService", function() {
 		});
 
 		it("works with custom attributes", () => {
-			stepLibSearchService.list(["a-step-cvs@1.0.0"], false, ["abc", "def"]);
+			stepLibSearchService.list({
+				stepCVSs: ["a-step-cvs@1.0.0"],
+				includeInputs: false,
+				attributesToRetrieve: ["abc", "def"]
+			});
 
 			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith({
 				stepIds: ["a-step-cvs@1.0.0"],
 				includeInputs: false,
+				latestOnly: false,
 				algoliaOptions: {
 					attributesToRetrieve: ["abc", "def"]
+				}
+			});
+		});
+
+		it("loads latest steps only", () => {
+			stepLibSearchService.list({
+				latestOnly: true
+			});
+
+			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith({
+				stepIds: undefined,
+				includeInputs: false,
+				latestOnly: true,
+				algoliaOptions: {
+					attributesToRetrieve: ["*"]
 				}
 			});
 		});
@@ -91,7 +113,11 @@ describe("stepLibSearchService", function() {
 				])
 			);
 
-			const converted = await stepLibSearchService.list(["does"], false, ["matter"]);
+			const converted = await stepLibSearchService.list({
+				stepCVSs: ["does"],
+				includeInputs: false,
+				attributesToRetrieve: ["matter"]
+			});
 
 			expect(converted).toEqual({
 				"some-step": {
