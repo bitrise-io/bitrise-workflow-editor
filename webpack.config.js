@@ -11,7 +11,7 @@ const CODEBASE = path.join(__dirname, "source");
 const { NODE_ENV, RELEASE_VERSION, MODE } = process.env;
 const isProd = NODE_ENV === "prod";
 
-const urlPrefix = MODE === "website" ? "bitrise_workflow_editor-" : "";
+const urlPrefix = MODE === "WEBSITE" ? "bitrise_workflow_editor-" : "";
 const publicPath = isProd ? `/${urlPrefix}${RELEASE_VERSION}/` : "";
 
 const railsTransformer = (mode) => ({
