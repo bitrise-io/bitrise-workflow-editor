@@ -4,6 +4,7 @@ import (
 	"encoding/base64"
 	"fmt"
 	"os"
+	"reflect"
 	"strings"
 
 	"github.com/bitrise-io/bitrise/cli"
@@ -44,12 +45,15 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 		return nil, fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
 	}
 
-	warningItems := &WarningItems{Config: []string{}, Secrets: []string{}}
+	warningItems := WarningItems{}
 	if len(bitriseWarns) > 0 {
 		warningItems.Config = bitriseWarns
 	}
+	if reflect.DeepEqual(warningItems, WarningItems{}) {
+		return nil, nil
+	}
 
-	return warningItems, nil
+	return &warningItems, nil
 }
 
 // EnvString ...
