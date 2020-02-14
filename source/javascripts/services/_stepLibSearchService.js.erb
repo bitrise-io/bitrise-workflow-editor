@@ -21,7 +21,7 @@ angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", functio
 						attributesToRetrieve: attributesToRetrieve
 					}
 				})
-				.then(stepLibSearchService.convertSteps)
+				.then(convertSteps)
 				.catch(function(err) {
 					return $q.reject(err);
 				});
@@ -38,7 +38,7 @@ angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", functio
 						attributesToRetrieve: attributesToRetrieve
 					}
 				})
-				.then(stepLibSearchService.convertSteps)
+				.then(convertSteps)
 				.then(function(stepObj) {
 					return stepObj[stepId];
 				})
@@ -47,7 +47,7 @@ angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", functio
 				});
 		};
 
-		stepLibSearchService.convertSteps = function(steps) {
+		function convertSteps(steps) {
 			return steps.reduce(function(stepObj, stepVersion) {
 				var step = stepObj[stepVersion.id] || {};
 				var versions = step.versions || {};
@@ -62,7 +62,7 @@ angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", functio
 					}
 				});
 			}, {});
-		};
+		}
 
 		return stepLibSearchService;
 	});

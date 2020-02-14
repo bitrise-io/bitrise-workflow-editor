@@ -70,24 +70,28 @@ describe("stepLibSearchService", function() {
 	});
 
 	describe("convertSteps", () => {
-		it("converts an array of steps to an object", () => {
-			const converted = stepLibSearchService.convertSteps([
-				{
-					id: "some-step",
-					version: "1.0.0",
-					info: { a: "b" }
-				},
-				{
-					id: "some-step",
-					version: "1.1.0",
-					info: { c: "d" }
-				},
-				{
-					id: "some-other-step",
-					version: "2.1.0",
-					info: { e: "f" }
-				}
-			]);
+		it("converts an array of steps to an object", async () => {
+			spyOn(mockStepLibSearchInstance, "list").and.returnValue(
+				Promise.resolve([
+					{
+						id: "some-step",
+						version: "1.0.0",
+						info: { a: "b" }
+					},
+					{
+						id: "some-step",
+						version: "1.1.0",
+						info: { c: "d" }
+					},
+					{
+						id: "some-other-step",
+						version: "2.1.0",
+						info: { e: "f" }
+					}
+				])
+			);
+
+			const converted = await stepLibSearchService.list(["does"], false, ["matter"]);
 
 			expect(converted).toEqual({
 				"some-step": {
