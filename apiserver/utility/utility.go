@@ -44,12 +44,13 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 		return nil, fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
 	}
 
-	warningItems := &WarningItems{Config: []string{}, Secrets: []string{}}
+	warningItems := WarningItems{}
 	if len(bitriseWarns) > 0 {
 		warningItems.Config = bitriseWarns
+		return &warningItems, nil
 	}
 
-	return warningItems, nil
+	return nil, nil
 }
 
 // EnvString ...
