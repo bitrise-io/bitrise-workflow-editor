@@ -3,32 +3,33 @@
 
 // Major layouts
 
-@import "index";
-@import "tab-workflows";
-@import "tab-code_signing";
-@import "tab-code_signing-certificates";
-@import "auto_code_signing";
-@import "tab-secrets";
-@import "tab-env_vars";
-@import "tab-triggers";
-@import "tab-stack";
-@import "tab-yml";
-@import "workflows-workflow_description";
-@import "add_step_sidebar";
-@import "add_step_sidebar_step";
+@import "_index";
+@import "_tab-workflows";
+@import "_tab-code_signing";
+@import "_tab-code_signing-certificates";
+@import "_auto_code_signing";
+@import "_tab-secrets";
+@import "_tab-env_vars";
+@import "_tab-triggers";
+@import "_tab-stack";
+@import "_tab-yml";
+@import "_workflows-workflow_description";
+@import "_add_step_sidebar";
+@import "_add_step_sidebar_step";
 
 // Common elements
 
-@import "rebo";
-@import "cardo";
-@import "furto";
-@import "popup";
-@import "popover";
-@import "notification-progress-indicator";
-@import "file_uploader";
-@import "order-by-drag";
-@import "clear-value";
-@import "step-badge";
+@import "_rebo";
+@import "_cardo";
+@import "_furto";
+@import "_popup";
+@import "_popover";
+@import "_notification-progress-indicator";
+@import "_file_uploader";
+@import "_order-by-drag";
+@import "_clear-value";
+
+@import "~monaco-editor/min/vs/editor/editor.main";
 
 // Basic settings
 
@@ -104,7 +105,7 @@ select, .mak {
 	font-size: 16px;
 	@include transition(background-color $def-transition_duration);
 	background-color: white;
-	background-image: image-url("arrow-down.svg");
+	background-image: url("../images/arrow-down.svg");
 	background-size: $arrow_width auto;
 	background-position: right $select-horizontalpadding center;
 	background-repeat: no-repeat;
@@ -155,15 +156,15 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		}
 
 		svg[check] {
-			@include size(12px, 11px);
-			top: 5px;
-			left: 6px;
+			@include size(24px, 24px);
+			top: -1px;
+			left: 0;
 		}
 
 		svg[cross] {
-			@include size(10px, 10px);
-			top: 6px;
-			left: 7px;
+			@include size(24px, 24px);
+			top: -1px;
+			left: 0;
 		}
 	}
 

@@ -78,7 +78,7 @@ section.manage-workflows {
 
 				&.selected .workflow svg, &:not(.selected) .workflow button.select-workflow:before {
 					@include flex-shrink(0);
-					@include size(12px, 11px);
+					@include size(24px);
 					margin-right: 10px;
 				}
 
@@ -185,10 +185,10 @@ section.manage-workflows {
 					}
 
 					input.ok {
-						width: 12px;
+						width: 24px;
 						@include box-sizing(content-box);
 						border: none;
-						padding: 10px 13px;
+						padding: 10px 7px;
 						background-color: $def-purple;
 						background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
 							fill: rgba(white, 0.99)
@@ -273,7 +273,13 @@ section.manage-workflows {
 	button.delete-workflow {
 
 		svg {
-			@include size(8px);
+			@include size(24px);
+			margin-top: -4px;
+			margin-bottom: -7px;
+		}
+
+		svg:last-of-type {
+			margin-right: 0;
 		}
 	}
 
@@ -344,10 +350,12 @@ header.sticky section.manage-workflows {
 							$color: $def-mediumdarkgrey;
 
 							@include flex-grow(1);
+							@include flex-shrink(0);
 							position: relative;
 							@include display-flex;
 							@include align-items(center);
 							@include box-sizing(border-box);
+							width: 100%;
 							max-width: $steptitle-width;
 							@include margin-y(0);
 							border: 1px solid $color;
@@ -411,12 +419,13 @@ header.sticky section.manage-workflows {
 								@include flex-shrink(0);
 								@include align-self(stretch);
 								margin-left: auto;
-								@include padding-x(12px);
+								@include padding-x(4px);
 								background-color: $color;
 								@include transition(background-color $def-transition_duration);
 
 								svg {
-									@include size(8px);
+									display: block;
+									@include size(24px);
 									fill: white;
 								}
 							}
@@ -543,12 +552,12 @@ header.sticky section.manage-workflows {
 									display: block;
 									text-align: left;
 
-									span.icon {
+									img.icon {
 										@include position(absolute, 0, null, null, 0);
 										@include box-sizing(border-box);
 										@include size($icon-size);
 										border: 1px solid $def-lightgrey;
-										@include border-radius($def-radius);
+										@include border-radius($def-box-radius);
 										background-size: cover;
 									}
 
@@ -561,10 +570,10 @@ header.sticky section.manage-workflows {
 										@include size($steptitle-width, $icon-size);
 										margin-left: $icon-size + $spacing;
 										border: 1px solid $def-mediumlightgrey;
-										@include border-radius($def-radius);
+										@include border-radius($def-box-radius);
 										@include padding-x(20px);
 										@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
-										background-color: $def-verylightgrey;
+										background-color: $def-ultralightgrey;
 
 										strong {
 											@include display-flex;
@@ -578,13 +587,12 @@ header.sticky section.manage-workflows {
 												@include ellipsis-oneliner;
 											}
 
-											.step-badge {
+											.verified, span.deprecated {
 												margin-left: 5px;
-												height: 15px;
-												padding-bottom: 2px;
+												@include size(15px);
 
 												svg {
-													@include size(16px);
+													@include size(10px);
 												}
 											}
 										}
@@ -595,7 +603,11 @@ header.sticky section.manage-workflows {
 											font-size: 13px;
 											font-style: normal;
 											font-weight: 300;
-											color: $def-grey;
+											color: $def-darkgrey;
+
+											@include media-below-big {
+												display: none;
+											}
 										}
 									}
 								}
@@ -619,7 +631,7 @@ header.sticky section.manage-workflows {
 						}
 
 						li .step-actions button.step:hover span.info, li .step-actions button.step:focus span.info {
-							background-color: $def-mediumlightgrey;
+							background-color: $def-verylightgrey;
 						}
 
 						li.selected .step-actions button.step span.info {
@@ -628,6 +640,10 @@ header.sticky section.manage-workflows {
 							border-color: $color;
 							color: white;
 							background-color: $color;
+
+							em.version {
+								color: white;
+							}
 						}
 					}
 
@@ -666,7 +682,7 @@ header.sticky section.manage-workflows {
 
 							@include box-sizing(border-box);
 							border: $border;
-							@include border-radius($def-radius);
+							@include border-radius($def-box-radius);
 							overflow: hidden;
 							background-color: white;
 
@@ -704,10 +720,9 @@ header.sticky section.manage-workflows {
 										border-color: $def-grey;
 									}
 
-									span.step-badge {
+									.verified, span.community-created, span.deprecated {
 										@include flex-shrink(0);
 										@include align-self(center);
-										padding-bottom: 3px;
 
 										&:not(:first-of-type) {
 											margin-left: 4px;
@@ -715,7 +730,7 @@ header.sticky section.manage-workflows {
 
 										svg {
 											display: block;
-											@include size(24px);
+											@include size(17px);
 										}
 									}
 								}
@@ -740,7 +755,8 @@ header.sticky section.manage-workflows {
 										margin-left: 6px;
 
 										svg {
-											@include size(12px, 11px);
+											@include size(24px);
+											margin-top: -4px;
 										}
 									}
 								}
@@ -887,6 +903,10 @@ header.sticky section.manage-workflows {
 
 								@include media-below-big {
 									@include padding-x($horizontalpadding_small);
+								}
+
+								label.error {
+									color: $def-danger;
 								}
 							}
 
@@ -1591,7 +1611,7 @@ header.sticky section.manage-workflows {
 
 						.step-actions {
 
-							button.step span.icon {
+							button.step img.icon {
 								position: static;
 								display: block;
 							}
@@ -1613,7 +1633,7 @@ header.sticky section.manage-workflows {
 
 						.step-actions {
 
-							button.step span.icon {
+							button.step img.icon {
 								@include size($icon-size_small);
 							}
 
@@ -1652,6 +1672,7 @@ header.sticky section.manage-workflows {
 
 					&:before {
 						content: "";
+						@include flex-shrink(0);
 						@include box-sizing(border-box);
 						width: $arrow_end-width;
 						@include margin-x(($icon-size - $arrow_end-width) / 2);

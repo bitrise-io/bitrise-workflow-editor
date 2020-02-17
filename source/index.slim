@@ -1,80 +1,24 @@
----
-layout: layout
----
-
-header.sticky
-main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
-	header.menu[sticky sticking-index="1"]
-		.breadcrumb[ng-if="requestService.mode == 'website'"]
-			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
-			.app-topbar[ng-if="mainCtrl.initAppProgress.isIdle"]
-				span.app-icon[ng-if="appService.appDetails.avatarURL" ng-style="{'background-image': (appService.appDetails.avatarURL | appAvatarURL) }"]
-				span.app-icon[ng-if="!appService.appDetails.avatarURL" ng-style="{'background-color': (appService.appDetails.title | colorFromString)}" ng-bind="appService.appDetails.title | shorthandFromString"]
-				span.project-type-icon[ng-class="appService.appDetails.projectTypeID | projectTypeCSSClass"]
-					span.platform-icon.apple = svg("logo/apple")
-					span.platform-icon.macos = svg("logo/macos")
-					span.platform-icon.android = svg("logo/android")
-					span.platform-icon.xamarin = svg("logo/xamarin")
-					span.platform-icon.cordova = svg("logo/cordova")
-					span.platform-icon.react-native = svg("logo/react")
-					span.platform-icon.flutter = svg("logo/flutter")
-					span.platform-icon.ionic = svg("logo/ionic")
-					span.platform-icon.other = svg("logo/other")
-				span.privacy-settings-icon[ng-class="appService.appDetails.isPublic ? 'public' : 'private'"]
-					span.public = svg("public-repo-icon")
-					span.private = svg("private-repo-icon")
-				ol.breadcrumbs
-					li.level
-						a[href="{{ mainCtrl.dashboardPath() }}" title="Dashboard" tabindex="-1"] Dashboard
-					li.level
-						a[ng-if="mainCtrl.breadCrumbsAccountPath()" href="{{ mainCtrl.breadCrumbsAccountPath() }}" ng-bind="appService.appDetails.ownerData.name" title="{{ appService.appDetails.ownerData.name }}" tabindex="-1"]
-						span[ng-if="!mainCtrl.breadCrumbsAccountPath()" ng-bind="appService.appDetails.ownerData.name"]
-					li.level
-						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="appService.appDetails.title" href="{{ mainCtrl.appPath() }}" title="{{ appService.appDetails.title }}" tabindex="-1"]
-					li.level.current
-						span Workflow Editor
-		.workflow-editor-menubar
-			nav
-				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
-					span.icon[ng-if="menu.cssClass == 'workflows'"] == svg("main/menuicon-workflows")
-					span.icon[ng-if="menu.cssClass == 'code-signing'"] == svg("main/menuicon-code_signing")
-					span.icon[ng-if="menu.cssClass == 'secrets'"] == svg("main/menuicon-secrets")
-					span.icon[ng-if="menu.cssClass == 'env-vars'"] == svg("env_var_prefix")
-					span.icon[ng-if="menu.cssClass == 'triggers'"] == svg("main/menuicon-triggers")
-					span.icon[ng-if="menu.cssClass == 'stack'"] == svg("main/menuicon-stack")
-					span.icon[ng-if="menu.cssClass == 'yml'"] == svg("main/menuicon-yml")
-					span.title[ng-bind="menu.title"]
-			aside.discard-save[ng-class="{'not-available': !mainCtrl.isDiscardSaveAvailable()}"]
-				button.discard.rebo.hollow-danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.menuProgress.isIdle || mainCtrl.loadAppConfigProgress.isInProgress || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
-				button.save.rebo.purple[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]
-					span[ng-if="!mainCtrl.saveProgress.isInProgress"]
-						span.save[ng-if="mainCtrl.hasUnsavedChanges()" ng-class="osService.cssClass()"]
-						span.saved[ng-if="!mainCtrl.hasUnsavedChanges()"] == svg("check")
-					span.in-progress[ng-if="mainCtrl.saveProgress.isInProgress"] == svg("in_progress")
-	article.menu-content
-		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
-		p.progress-indicator[progress-model="mainCtrl.loadAppConfigProgress"]
-		p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
-		p.progress-indicator[progress-model="mainCtrl.initAppProgress"]
-		.tab-content[ng-view ng-if="mainCtrl.initAppProgress.isIdle && !mainCtrl.menuProgress.isError && !mainCtrl.loadAppConfigProgress.isInProgress  && mainCtrl.changeMenuProgress.isIdle"]
-	footer
-		p == data[:strings][:main][:footer][:editor_open_source]
-		== svg("heart")
-		p == replaced_string(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
-		a.version[href="#{ replaced_string(data[:routes][:other][:bitrise_workflow_editor_current_release], [ENV['RELEASE_VERSION']]) }" target="_blank" rel="noreferrer noopener"] v#{ ENV['RELEASE_VERSION'] }
-aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
-	popup[model="defaultPopupCtrl.alertPopup"]
-		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
-			article.vertical-scroll
-				h2[ng-bind="defaultPopupCtrl.alertPopup.parameters.title"]
-				p[ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details" ng-bind-html="detail"]
-			footer
-				button[ng-click="defaultPopupCtrl.alertPopup.isVisible = false" ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"]
-	popup[model="defaultPopupCtrl.confirmPopup"]
-		.popup-body#default-confirm-popup-body
-			article.vertical-scroll
-				h2[ng-bind="defaultPopupCtrl.confirmPopup.parameters.title"]
-				p[ng-repeat="detail in defaultPopupCtrl.confirmPopup.parameters.details" ng-bind-html="detail"]
-			footer
-				button.yes[ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle"]
-				button.no[ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle"]
+doctype html
+html
+	head
+		meta[charset="utf-8"]
+		title = data[:strings][:meta][:title]
+		meta[name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=0"]
+		base[href="/"]
+		link[rel="stylesheet" type="text/css" href="#{ mode_dependant_asset_path('stylesheets/main.css') }"]
+		script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }"]
+		script[src="#{ mode_dependant_asset_path 'javascripts/main.js' }"]
+		- if build? && mode == 'website'
+			= include_slim "_google_analytics"
+			script[src="https://www.googletagmanager.com/gtag/js?id=UA-53276411-11"]
+			= include_slim "_global_site_tag_with_optimize"
+			= include_slim "_gtm"
+		== favicon_tag "apple-touch-icon.png", href: image_path("favicons/apple-touch-icon.png"), rel: 'apple-touch-icon', type: 'image/png'
+		== favicon_tag "apple-touch-icon-76x76.png", href: image_path("favicons/apple-touch-icon-76x76.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "76x76"
+		== favicon_tag "apple-touch-icon-120x120.png", href: image_path("favicons/apple-touch-icon-120x120.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "120x120"
+		== favicon_tag "apple-touch-icon-152x152.png", href: image_path("favicons/apple-touch-icon-152x152.png"), rel: 'apple-touch-icon', type: 'image/png', sizes: "152x152"
+		== favicon_tag image_path("favicons/favicon.ico")
+	body[ng-app="BitriseWorkflowEditor" ng-cloak]
+		- if build? && mode == 'website'
+			== include_slim "_gtm_iframe"
+		== include_slim "_main"

@@ -13,67 +13,75 @@ describe("Step", function() {
 		step = new Step();
 	});
 
-	describe("title", function() {
-		var defaultStepConfig = {
-			title: "Default title"
-		};
+	const fields = [
+		{name: "title", config_name: "title"},
+		{name: "summary", config_name: "summary"},
+		{name: "description", config_name: "description"},
+		{name: "assetUrls", config_name: "asset_urls"}
+	];
 
-		it("should return overridden title", function() {
-			step.defaultStepConfig = defaultStepConfig;
-
-			step.userStepConfig = {
-				title: "New title"
+	_.each(fields, (field) => {
+		describe(`Getter/Setters: ${field.name}`, () => {
+			const defaultStepConfig = {
+				[field.config_name]: `Default ${field.name}`
 			};
 
-			expect(step.title()).toBe("New title");
+			it(`should return overridden ${field.name}`, () => {
+				step.defaultStepConfig = defaultStepConfig;
+
+				step.userStepConfig = {
+					[field.config_name]: `New ${field.name}`
+				};
+
+				expect(step[field.name]()).toBe(`New ${field.name}`);
+			});
+
+			it(`should return default ${field.name} if not overridden`, () => {
+				step.defaultStepConfig = defaultStepConfig;
+
+				expect(step[field.name]()).toBe(`Default ${field.name}`);
+
+				step.userStepConfig = {
+					test: "New description"
+				};
+
+				expect(step[field.name]()).toBe(`Default ${field.name}`);
+			});
+
+			it(`should return undefined if nor default nor user defines ${field.name}`, () => {
+				step.defaultStepConfig = {
+					test: "Default description"
+				};
+
+				expect(step[field.name]()).toBeUndefined();
+			});
+
+			it(`should override ${field.name}`, () => {
+				step.defaultStepConfig = defaultStepConfig;
+				step.userStepConfig = {};
+
+				expect(step[field.name](`New ${field.name}`)).toBe(`New ${field.name}`);
+				expect(step.userStepConfig[field.config_name]).toBe(`New ${field.name}`);
+			});
+
+			it("should set user step config if not defined yet", () => {
+				step.defaultStepConfig = defaultStepConfig;
+
+				step[field.name](`New ${field.name}`);
+
+				expect(step.userStepConfig).not.toBeUndefined();
+				expect(step.userStepConfig[field.config_name]).toBe(`New ${field.name}`);
+			});
+
+			it("should remove title from user config if new is default", () => {
+				step.defaultStepConfig = defaultStepConfig;
+
+				expect(step[field.name](`New ${field.name}`)).toBe(`New ${field.name}`);
+				expect(step[field.name](`Default ${field.name}`)).toBe(`Default ${field.name}`);
+				expect(step.userStepConfig[field.config_name]).toBeUndefined();
+				expect(step.defaultStepConfig[field.config_name]).toBe(`Default ${field.name}`);
+			});
 		});
-
-		it("should return default title if not overridden", function() {
-			step.defaultStepConfig = defaultStepConfig;
-
-			expect(step.title()).toBe("Default title");
-
-			step.userStepConfig = {
-				description: "New description"
-			};
-
-			expect(step.title()).toBe("Default title");
-		});
-
-		it("should return undefined if nor default nor user defines title", function() {
-			step.defaultStepConfig = {
-				description: "Default description"
-			};
-
-			expect(step.title()).toBeUndefined();
-		});
-
-		it("should override title", function() {
-			step.defaultStepConfig = defaultStepConfig;
-			step.userStepConfig = {};
-
-			expect(step.title("New title")).toBe("New title");
-			expect(step.userStepConfig.title).toBe("New title");
-		});
-
-		it("should set user step config if not defined yet", function() {
-			step.defaultStepConfig = defaultStepConfig;
-
-			step.title("New title");
-
-			expect(step.userStepConfig).not.toBeUndefined();
-			expect(step.userStepConfig.title).toBe("New title");
-		});
-
-		it("should remove title from user config if new is default", function() {
-			step.defaultStepConfig = defaultStepConfig;
-
-			expect(step.title("New title")).toBe("New title");
-			expect(step.title("Default title")).toBe("Default title");
-			expect(step.userStepConfig.title).toBeUndefined();
-			expect(step.defaultStepConfig.title).toBe("Default title");
-		});
-
 	});
 
 	describe("isValidTitle", function() {
@@ -260,54 +268,9 @@ describe("Step", function() {
 
 	});
 
-	describe("isOfficial", function() {
-
-		it("should return undefined if source is not defined", function() {
-			expect(step.isOfficial()).toBeUndefined();
-		});
-
-		it("should return true if is from bitrise-io on GitHub", function() {
-			step.sourceURL("https://www.github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-
-			step.sourceURL("https://github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-
-			step.sourceURL("www.github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-
-			step.sourceURL("github.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-		});
-
-		it("should return true if is from bitrise-steplib on GitHub", function() {
-			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
-			expect(step.isOfficial()).toBeTruthy();
-		});
-
-		it("should return false if is from any other user or host", function() {
-			step.sourceURL("https://www.github.com/red-user/red-step");
-			expect(step.isOfficial()).toBeFalsy();
-
-			step.sourceURL("https://www.red.com/bitrise-io/red-step");
-			expect(step.isOfficial()).toBeFalsy();
-		});
-
-		it("should return false if step specs define a verified path, but step is a fork of that path, referenced by git URL", function() {
-			step.sourceURL("https://www.github.com/bitrise-steplib/red-step");
-			step.gitURL = "https://www.github.com/bitrise-forked-steplib/red-step";
-			expect(step.isOfficial()).toBeFalsy();
-		});
-	});
-
 	describe("verified", function() {
 		it("should not be verified if there is no information exists", function() {
 			expect(step.isVerified()).toBeFalsy();
-		});
-
-		it("should be verified when the maintainer is the community", function() {
-			step.info = { maintainer: 'community' };
-			expect(step.isVerified()).toBeTruthy();
 		});
 	})
 

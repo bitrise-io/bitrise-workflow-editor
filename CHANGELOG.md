@@ -1,6 +1,250 @@
-## Changelog (Current version: 1.1.68)
+## Changelog (Current version: 1.1.74)
 
 -----------------
+
+## 1.1.74 (2020 Feb 17)
+
+### Release Notes
+
+* Fix flex bug (#439)
+* [WEB-3293] Handle null response at YML validation (#440)
+* master deploy fixes (#436)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.74
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.73 -> 1.1.74
+
+* [4543173] erosdome - Fix flex bug (#439) (2020 Feb 17)
+* [efc4f51] Gergely Békési - [WEB-3293] Handle null response at YML validation (#440) (2020 Feb 17)
+* [11ab7a6] Adam Pelle - master deploy fixes (#436) (2020 Feb 14)
+
+
+## 1.1.73 (2020 Feb 13)
+
+### Release Notes
+
+* [WEB-3426] invalid version handling (#430)
+* Fix webpack deploy (#435)
+* Revert "version bump (1.1.72 -> 1.1.73) (#433)" (#434)
+* remove unnecessary check (#431)
+* version bump (1.1.72 -> 1.1.73) (#433)
+* godeps update to pull new versions of bitrise and stepman (#432)
+* Webpack integration (#429)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.73
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.72 -> 1.1.73
+
+* [f3057e4] Adam Pelle - [WEB-3426] invalid version handling (#430) (2020 Feb 12)
+* [cda30bf] Adam Pelle - Fix webpack deploy (#435) (2020 Feb 12)
+* [8d6ca14] Krisztián Gödrei - Revert "version bump (1.1.72 -> 1.1.73) (#433)" (#434) (2020 Feb 11)
+* [f7bc272] lszucs - remove unnecessary check (#431) (2020 Feb 11)
+* [e786e6f] Krisztián Gödrei - version bump (1.1.72 -> 1.1.73) (#433) (2020 Feb 11)
+* [e1bdd9c] Krisztián Gödrei - godeps update to pull new versions of bitrise and stepman (#432) (2020 Feb 11)
+* [9c9e021] Adam Pelle - Webpack integration (#429) (2020 Feb 07)
+
+
+## 1.1.72 (2020 Jan 31)
+
+### Release Notes
+
+* Lazy load add step sidebar icons [WEB-2014] (#421)
+* Exclude "add step" button from ordering drag area of adjacent step (#422)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.72
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.71 -> 1.1.72
+
+* [825d0aa] erosdome - Lazy load add step sidebar icons [WEB-2014] (#421) (2020 Jan 31)
+* [77e2eca] erosdome - Exclude "add step" button from ordering drag area of adjacent step (#422) (2020 Jan 31)
+
+
+## 1.1.71 (2020 Jan 30)
+
+### Release Notes
+
+* Revert verified & official step badge feature for now (#427)
+* Lock Ruby version to 2.5.3 (#426)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.71
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.70 -> 1.1.71
+
+* [1285832] erosdome - Revert verified & official step badge feature for now (#427) (2020 Jan 30)
+* [0c76dc4] erosdome - Lock Ruby version to 2.5.3 (#426) (2020 Jan 30)
+
+
+## 1.1.70 (2020 Jan 30)
+
+### Release Notes
+
+* Skip API disconnection on browser close when running in development mode (#420)
+* [WEB-3482] release (#425)
+* Revert "[WEB-3334] version strings extraction (#411)"
+* Revert "[WEB-3337] disable non wildcard versions in version selector (#416)" (#423)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.70
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.69 -> 1.1.70
+
+* [ad1ddd4] erosdome - Skip API disconnection on browser close when running in development mode (#420) (2020 Jan 29)
+* [f6b5ce4] Adam Pelle - [WEB-3482] release (#425) (2020 Jan 29)
+* [9b7062c] Adam Pelle - Revert "[WEB-3334] version strings extraction (#411)" (2020 Jan 28)
+* [9446551] Adam Pelle - Revert "[WEB-3337] disable non wildcard versions in version selector (#416)" (#423) (2020 Jan 28)
+
+
+## 1.1.69 (2020 Jan 27)
+
+### Release Notes
+
+* Update notification styling to match new design (#419)
+* Fix/Update visibility of machine type selector (#418)
+* [WEB-2016] Change PNGs to emojis (#417)
+* [WEB-3337] disable non wildcard versions in version selector (#416)
+* [WEB-3334] version strings extraction (#411)
+* fix: Gemfile & Gemfile.lock to reduce vulnerabilities (#414)
+* [WEB-3355] housekeeping (#413)
+* [WEB-2963] Update Verified and Official step badges (#410)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.69
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.68 -> 1.1.69
+
+* [f248331] erosdome - Update notification styling to match new design (#419) (2020 Jan 27)
+* [cf4a8d3] Norbert Kovach - Fix/Update visibility of machine type selector (#418) (2020 Jan 27)
+* [60d76bc] Gergely Békési - [WEB-2016] Change PNGs to emojis (#417) (2020 Jan 23)
+* [b146115] Adam Pelle - [WEB-3337] disable non wildcard versions in version selector (#416) (2020 Jan 21)
+* [7988bb2] Adam Pelle - [WEB-3334] version strings extraction (#411) (2020 Jan 21)
+* [52146d5] Snyk bot - fix: Gemfile & Gemfile.lock to reduce vulnerabilities (#414) (2020 Jan 20)
+* [320812a] Adam Pelle - [WEB-3355] housekeeping (#413) (2020 Jan 16)
+* [9dda72d] Simon Márton - [WEB-2963] Update Verified and Official step badges (#410) (2020 Jan 15)
+
 
 ## 1.1.68 (2020 Jan 13)
 
@@ -3908,4 +4152,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Jan 13
+Updated: 2020 Feb 17

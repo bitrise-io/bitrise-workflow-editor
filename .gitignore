@@ -10,3 +10,5 @@ _bin/
 .vscode
 
 node_modules
+.docker-sync
+.env

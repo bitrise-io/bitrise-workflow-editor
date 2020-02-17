@@ -1,11 +1,13 @@
+var isPluginMode = '<%= mode == "cli" && build? %>' == 'true';
+
 window.onload = function() {
-	if ("<%= mode %>" == "cli") {
+	if (isPluginMode) {
 		cancelAPIConnectionClose();
 	}
 };
 
 window.onbeforeunload = function() {
-	if ("<%= mode %>" == "cli") {
+	if (isPluginMode) {
 		closeAPIConnection();
 	}
 };

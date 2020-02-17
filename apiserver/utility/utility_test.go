@@ -24,6 +24,8 @@ workflows:
 	}
 	validSecrets := []string{
 		config.MinimalValidSecrets,
+		"",
+		"#",
 		" ",
 		"\n",
 		"{}",
@@ -31,10 +33,10 @@ workflows:
 		"envs: ",
 		`envs: []`,
 		//
-		`envs: 
+		`envs:
 - SECRET_ONE: secret value one`,
 		//
-		`envs: 
+		`envs:
 - SECRET_ONE: secret value one
 `,
 		//
@@ -58,8 +60,7 @@ workflows:
 				t.Log("Secret: ", aValidSecret)
 				warningItems, err := ValidateBitriseConfigAndSecret(aValidConfig, aValidSecret)
 				require.NoError(t, err)
-				require.True(t, len(warningItems.Config) == 0)
-				require.True(t, len(warningItems.Secrets) == 0)
+				require.Nil(t, warningItems)
 			}
 		}
 	}
@@ -112,15 +113,6 @@ workflows:
 
 		require.Error(t, err)
 		require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: Failed to get config (bitrise.yml) from base 64 data, err: Failed to parse bitrise config, error: missing format_version"), err.Error())
-	}
-
-	t.Log("Invalid secrets - empty")
-	{
-		{
-			_, err := ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, "")
-			require.Error(t, err)
-			require.True(t, strings.Contains(err.Error(), "Validation failed: Secret validation error: "), err.Error())
-		}
 	}
 
 	t.Log("Invalid secrets - envs as empty hash")
