@@ -1,4 +1,4 @@
-fdescribe("stepLibSearchService", function() {
+describe("stepLibSearchService", function() {
 	var stepLibSearchService, mockStepLibSearchInstance;
 
 	beforeEach(module("BitriseWorkflowEditor"));
@@ -9,7 +9,6 @@ fdescribe("stepLibSearchService", function() {
 		mockStepLibSearchInstance = _stepLibSearchInstance_;
 	}));
 
-	// function({ stepCVSs, includeInputs, latestOnly, attributesToRetrieve })
 	describe("list", () => {
 		beforeEach(() => {
 			spyOn(mockStepLibSearchInstance, "list").and.returnValue(Promise.resolve([]));
