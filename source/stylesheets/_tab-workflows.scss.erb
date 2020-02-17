@@ -350,10 +350,12 @@ header.sticky section.manage-workflows {
 							$color: $def-mediumdarkgrey;
 
 							@include flex-grow(1);
+							@include flex-shrink(0);
 							position: relative;
 							@include display-flex;
 							@include align-items(center);
 							@include box-sizing(border-box);
+							width: 100%;
 							max-width: $steptitle-width;
 							@include margin-y(0);
 							border: 1px solid $color;
@@ -1670,6 +1672,7 @@ header.sticky section.manage-workflows {
 
 					&:before {
 						content: "";
+						@include flex-shrink(0);
 						@include box-sizing(border-box);
 						width: $arrow_end-width;
 						@include margin-x(($icon-size - $arrow_end-width) / 2);
