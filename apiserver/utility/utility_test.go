@@ -33,10 +33,10 @@ workflows:
 		"envs: ",
 		`envs: []`,
 		//
-		`envs: 
+		`envs:
 - SECRET_ONE: secret value one`,
 		//
-		`envs: 
+		`envs:
 - SECRET_ONE: secret value one
 `,
 		//
@@ -60,8 +60,7 @@ workflows:
 				t.Log("Secret: ", aValidSecret)
 				warningItems, err := ValidateBitriseConfigAndSecret(aValidConfig, aValidSecret)
 				require.NoError(t, err)
-				require.True(t, len(warningItems.Config) == 0)
-				require.True(t, len(warningItems.Secrets) == 0)
+				require.Nil(t, warningItems)
 			}
 		}
 	}
