@@ -11,3 +11,4 @@ _bin/
 
 node_modules
 .docker-sync
+.env
