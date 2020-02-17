@@ -204,7 +204,10 @@
 					return null;
 				}
 
-				var steps = _.sortBy(_.keys(library.steps[step.id]), function(version) {
+				var versions = _.keys(library.steps[step.id]);
+				versions.splice(0, 0, step.version);
+
+				versions = _.sortBy(versions, function(version) {
 					return _.map(version.split("."), function(aVersionPart) {
 						var pad = "000000";
 						var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
@@ -213,8 +216,7 @@
 					}).join(".");
 				}).reverse();
 
-				steps.splice(0, 0, step.version);
-				return _.uniq(steps);
+				return _.uniq(versions);
 			};
 
 			stepSourceService.latestVersion = function(step) {

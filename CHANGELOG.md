@@ -1,6 +1,44 @@
-## Changelog (Current version: 1.1.73)
+## Changelog (Current version: 1.1.74)
 
 -----------------
+
+## 1.1.74 (2020 Feb 17)
+
+### Release Notes
+
+* Fix flex bug (#439)
+* [WEB-3293] Handle null response at YML validation (#440)
+* master deploy fixes (#436)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.1.74
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.73 -> 1.1.74
+
+* [4543173] erosdome - Fix flex bug (#439) (2020 Feb 17)
+* [efc4f51] Gergely Békési - [WEB-3293] Handle null response at YML validation (#440) (2020 Feb 17)
+* [11ab7a6] Adam Pelle - master deploy fixes (#436) (2020 Feb 14)
+
 
 ## 1.1.73 (2020 Feb 13)
 
@@ -4114,4 +4152,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Feb 13
+Updated: 2020 Feb 17
