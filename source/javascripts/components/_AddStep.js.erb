@@ -60,9 +60,7 @@
 		.controller("AddStepController", function(
 			$scope,
 			$q,
-			$filter,
 			stringService,
-			imageService,
 			addStepService,
 			requestService,
 			stepSourceService,
@@ -78,6 +76,7 @@
 			$scope.appService = appService;
 
 			viewModel.isDragInProgress = false;
+			viewModel.allStepsHaveBeenLoaded = false;
 
 			var steps;
 			viewModel.categories = [
@@ -121,6 +120,63 @@
 
 			viewModel.loadProgress = new Progress();
 
+			function parseStepsInfo() {
+				_.each(stepSourceService.libraries, function(aLibrary) {
+					steps = steps.concat(
+						_.map(
+							_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
+								var version = aLibrary.steps[stepID][aStepVersion];
+								return !version || version.isDeprecated();
+							}),
+							function(aStepVersion, stepID) {
+								var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
+
+								if (aLibrary.url != stepSourceService.defaultLibraryURL) {
+									step.libraryURL = aLibrary.url;
+									step.cvs = step.libraryURL + "::" + step.cvs;
+								}
+
+								_.each(step.typeTags(), function(aTypeTag) {
+									if (!_.contains(viewModel.typeFilters, aTypeTag)) {
+										viewModel.typeFilters.push(aTypeTag);
+									}
+								});
+
+								return step;
+							}
+						)
+					);
+				});
+
+				_.each(viewModel.categories, function(aCategory) {
+					var stepIDsOfCategory;
+
+					switch (aCategory.id) {
+						case "new_releases":
+							aCategory.steps = _.map(
+								_.first(
+									_.sortBy(steps, function(aStep) {
+										return -new Date(aStep.defaultStepConfig.published_at);
+									}),
+									5
+								)
+							);
+
+							break;
+						default:
+							aCategory.steps = _.filter(steps, function(aStep) {
+								return _.contains(aStep.typeTags(), aCategory.id);
+							});
+
+							break;
+					}
+				});
+
+				updatePagination();
+
+				viewModel.loadProgress.success();
+			}
+
 			$scope.$watch(
 				function() {
 					return addStepService.isVisible;
@@ -134,89 +190,38 @@
 						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
 
 						var loadPromises = [];
+						var projectTypePromise = Promise.resolve();
+
+						if (requestService.mode === "website") {
+							projectTypePromise = appService.getProjectType();
+						}
 
 						if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
 							canceler.resolve();
 							canceler = $q.defer();
 
 							loadPromises.push(
-								stepSourceService.loadLatestOfficialSteps(),
 								stepSourceService.loadLibrariesWithURLs(
 									[stepSourceService.defaultLibraryURL],
 									{
 										timeout: canceler.promise
 									},
 									true
-								)
+								),
+								projectTypePromise.then(function() {
+									return stepSourceService.loadLatestOfficialSteps(appService.projectType);
+								})
 							);
 						}
-						if (requestService.mode == "website") {
-							loadPromises.push(appService.getProjectType());
-						}
+
+						loadPromises.push(projectTypePromise);
 
 						steps = [];
 						viewModel.typeFilters = [];
 
-						$q.all(loadPromises).then(
-							function() {
-								_.each(stepSourceService.libraries, function(aLibrary) {
-									steps = steps.concat(
-										_.map(
-											_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
-												return aLibrary.steps[stepID][aStepVersion].isDeprecated();
-											}),
-											function(aStepVersion, stepID) {
-												var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
-
-												if (aLibrary.url != stepSourceService.defaultLibraryURL) {
-													step.libraryURL = aLibrary.url;
-													step.cvs = step.libraryURL + "::" + step.cvs;
-												}
-
-												_.each(step.typeTags(), function(aTypeTag) {
-													if (!_.contains(viewModel.typeFilters, aTypeTag)) {
-														viewModel.typeFilters.push(aTypeTag);
-													}
-												});
-
-												return step;
-											}
-										)
-									);
-								});
-
-								_.each(viewModel.categories, function(aCategory) {
-									var stepIDsOfCategory;
-
-									switch (aCategory.id) {
-										case "new_releases":
-											aCategory.steps = _.map(
-												_.first(
-													_.sortBy(steps, function(aStep) {
-														return -new Date(aStep.defaultStepConfig.published_at);
-													}),
-													5
-												)
-											);
-
-											break;
-										default:
-											aCategory.steps = _.filter(steps, function(aStep) {
-												return _.contains(aStep.typeTags(), aCategory.id);
-											});
-
-											break;
-									}
-								});
-
-								updatePagination();
-
-								viewModel.loadProgress.success();
-							},
-							function(error) {
-								viewModel.loadProgress.error(error);
-							}
-						);
+						$q.all(loadPromises).then(parseStepsInfo, function(error) {
+							viewModel.loadProgress.error(error);
+						});
 					} else {
 						viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
 						viewModel.stepFilter = "";
@@ -251,7 +256,20 @@
 					return viewModel.shouldFilterByProjectType;
 				},
 				function(shouldFilterByProjectType) {
-					updatePagination();
+					if (!shouldFilterByProjectType && !viewModel.allStepsHaveBeenLoaded) {
+						steps = [];
+						viewModel.typeFilters = [];
+						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
+						stepSourceService
+							.loadLatestOfficialSteps()
+							.then(parseStepsInfo)
+							.then(function() {
+								viewModel.allStepsHaveBeenLoaded = true;
+								$scope.$apply();
+							});
+					} else {
+						updatePagination();
+					}
 				}
 			);
 

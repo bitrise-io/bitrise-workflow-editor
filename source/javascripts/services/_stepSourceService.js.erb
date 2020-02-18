@@ -427,8 +427,10 @@
 				return library;
 			}
 
-			stepSourceService.loadLatestOfficialSteps = function() {
-				return stepLibSearchService.list({ latestOnly: true }).then(function(steps) {
+			stepSourceService.loadLatestOfficialSteps = function(projectType) {
+				var projectTypes = projectType && [projectType];
+
+				return stepLibSearchService.list({ latestOnly: true, projectTypes: projectTypes }).then(function(steps) {
 					addStepsToDefaultLibrary(steps);
 				});
 			};

@@ -17,14 +17,15 @@ describe("stepLibSearchService", function() {
 		it("works with a given step list", () => {
 			stepLibSearchService.list({ stepCVSs: ["a-step-cvs@1.0.0"], includeInputs: true });
 
-			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith({
-				stepIds: ["a-step-cvs@1.0.0"],
-				includeInputs: true,
-				latestOnly: false,
-				algoliaOptions: {
-					attributesToRetrieve: ["*"]
-				}
-			});
+			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
+				jasmine.objectContaining({
+					stepIds: ["a-step-cvs@1.0.0"],
+					includeInputs: true,
+					algoliaOptions: {
+						attributesToRetrieve: ["*"]
+					}
+				})
+			);
 		});
 
 		it("works with custom attributes", () => {
@@ -34,14 +35,15 @@ describe("stepLibSearchService", function() {
 				attributesToRetrieve: ["abc", "def"]
 			});
 
-			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith({
-				stepIds: ["a-step-cvs@1.0.0"],
-				includeInputs: false,
-				latestOnly: false,
-				algoliaOptions: {
-					attributesToRetrieve: ["abc", "def"]
-				}
-			});
+			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
+				jasmine.objectContaining({
+					stepIds: ["a-step-cvs@1.0.0"],
+					includeInputs: false,
+					algoliaOptions: {
+						attributesToRetrieve: ["abc", "def"]
+					}
+				})
+			);
 		});
 
 		it("loads latest steps only", () => {
@@ -49,14 +51,21 @@ describe("stepLibSearchService", function() {
 				latestOnly: true
 			});
 
-			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith({
-				stepIds: undefined,
-				includeInputs: false,
-				latestOnly: true,
-				algoliaOptions: {
-					attributesToRetrieve: ["*"]
-				}
+			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
+				jasmine.objectContaining({
+					latestOnly: true
+				})
+			);
+		});
+
+		it("fetches selected project types", () => {
+			stepLibSearchService.list({
+				projectTypes: ["symbian", "bada", "blackberry"]
 			});
+
+			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
+				jasmine.objectContaining({ projectTypes: ["symbian", "bada", "blackberry"] })
+			);
 		});
 	});
 
