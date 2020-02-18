@@ -78,7 +78,6 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	}
 
 	function loadProvProfiles(shouldClearPreviousLoad) {
-		viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
 		if (viewModel.uploadProvProfilesProgress.isIdle && viewModel.uploadProvProfilesProgress.statusMessage !== null) {
 			viewModel.uploadProvProfilesProgress.reset();
 		}
@@ -89,6 +88,9 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 		if (shouldClearPreviousLoad) {
 			viewModel.provProfiles = undefined;
+		}
+		if (!viewModel.provProfiles) {
+			viewModel.loadProvProfilesProgress.start("<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>");
 		}
 
 		return $q(function(resolve, reject) {
@@ -117,6 +119,14 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 					return provProfile;
 				});
+
+				if (_.find(viewModel.provProfiles, {
+					isProcessed: false
+				})) {
+					$timeout(function() {
+						loadProvProfiles(true);
+					}, 1000);
+				}
 
 				viewModel.loadProvProfilesProgress.success();
 				resolve();
