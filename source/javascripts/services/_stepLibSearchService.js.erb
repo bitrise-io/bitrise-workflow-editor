@@ -1,0 +1,70 @@
+import StepLib from "@bitrise/steplib-search";
+
+angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", function() {
+	return new StepLib("<%= data[:constants][:algolia][:appID] %>", "<%= data[:constants][:algolia][:apiKey] %>");
+});
+
+(function() {
+	"use strict";
+
+	angular.module("BitriseWorkflowEditor").service("stepLibSearchService", function($q, stepLibSearchInstance) {
+		var stepLibSearchService = {};
+
+		stepLibSearchService.list = function(options) {
+			var attributesToRetrieve = options.attributesToRetrieve || ["*"];
+
+			return stepLibSearchInstance
+				.list({
+					stepIds: options.stepCVSs,
+					includeInputs: !!options.includeInputs,
+					latestOnly: !!options.latestOnly,
+					algoliaOptions: {
+						attributesToRetrieve: attributesToRetrieve
+					}
+				})
+				.then(convertSteps)
+				.catch(function(err) {
+					return $q.reject(err);
+				});
+		};
+
+		stepLibSearchService.getStepVersions = function(stepId, attributesToRetrieve) {
+			attributesToRetrieve = attributesToRetrieve || ["*"];
+
+			return stepLibSearchInstance
+				.list({
+					query: stepId,
+					includeInputs: true,
+					algoliaOptions: {
+						attributesToRetrieve: attributesToRetrieve
+					}
+				})
+				.then(convertSteps)
+				.then(function(stepObj) {
+					return stepObj[stepId];
+				})
+				.catch(function(err) {
+					return $q.reject(err);
+				});
+		};
+
+		function convertSteps(steps) {
+			return steps.reduce(function(stepObj, stepVersion) {
+				var step = stepObj[stepVersion.id] || {};
+				var versions = step.versions || {};
+				versions[stepVersion.version] = Object.assign({}, stepVersion, stepVersion.info);
+
+				var info = Object.assign({}, step.info, stepVersion.info);
+
+				return Object.assign({}, stepObj, {
+					[stepVersion.id]: {
+						info: info,
+						versions: versions
+					}
+				});
+			}, {});
+		}
+
+		return stepLibSearchService;
+	});
+})();

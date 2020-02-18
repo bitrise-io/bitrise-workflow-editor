@@ -1,53 +1,63 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular.module("BitriseWorkflowEditor").directive("eyeCheckbox", function() {
+		var inheritedAttributes = [
+			"ng-model",
+			"ng-model-options",
+			"ng-change",
+			"ng-checked"
+		];
 
-angular.module("BitriseWorkflowEditor").directive("eyeCheckbox", function() {
+		return {
+			restrict: "E",
+			replace: true,
+			transclude: false,
+			priority: 1000000,
+			template: function(tElement, tAttrs) {
+				var parentElement = angular.element("<div></div>");
+				$(parentElement).addClass("eye-checkbox");
 
-	var inheritedAttributes = ["ng-model", "ng-model-options", "ng-change", "ng-checked"];
+				var inputCheckboxElement = angular.element(
+					"<input type='checkbox'></input>"
+				);
+				_.each(inheritedAttributes, function(anAttribute) {
+					inputCheckboxElement.attr(anAttribute, tElement.attr(anAttribute));
+				});
+				inputCheckboxElement.attr(
+					"id",
+					"{{" + tAttrs.checkboxIdExpression + "}}"
+				);
 
-	return {
-		restrict: "E",
-		replace: true,
-		transclude: false,
-		priority: 1000000,
-		template: function(tElement, tAttrs) {
-			var parentElement = angular.element("<div></div>");
-			$(parentElement).addClass("eye-checkbox");
+				$(parentElement).append(inputCheckboxElement);
 
-			var inputCheckboxElement = angular.element("<input type='checkbox'></input>");
-			_.each(inheritedAttributes, function(anAttribute) {
-				inputCheckboxElement.attr(anAttribute, tElement.attr(anAttribute));
-			});
-			inputCheckboxElement.attr("id", "{{" + tAttrs.checkboxIdExpression + "}}");
+				var checkboxSVGWrapperElement = angular.element("<div></div>");
+				$(checkboxSVGWrapperElement).addClass("checkbox-svg-wrapper");
+				$(parentElement).append(checkboxSVGWrapperElement);
 
-			$(parentElement).append(inputCheckboxElement);
+				var defaultEyeSVGWrapperElement = angular.element("<span></span>");
+				var defaultEyeSVGElement = angular.element(
+					'<%= svg("eye").split("\n").join("").split("\r").join("").split("\t").join("") %>'
+				);
+				$(defaultEyeSVGWrapperElement).addClass("eye");
+				$(defaultEyeSVGWrapperElement).append(defaultEyeSVGElement);
+				$(checkboxSVGWrapperElement).append(defaultEyeSVGWrapperElement);
 
-			var checkboxSVGWrapperElement = angular.element("<div></div>");
-			$(checkboxSVGWrapperElement).addClass("checkbox-svg-wrapper");
-			$(parentElement).append(checkboxSVGWrapperElement);
+				var crossedEyeSVGWrapperElement = angular.element("<span></span>");
+				var crossedEyeSVGElement = angular.element(
+					'<%= svg("crossed-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>'
+				);
+				$(crossedEyeSVGWrapperElement).addClass("crossed-eye");
+				$(crossedEyeSVGWrapperElement).append(crossedEyeSVGElement);
+				$(checkboxSVGWrapperElement).append(crossedEyeSVGWrapperElement);
 
-			var defaultEyeSVGWrapperElement = angular.element("<span></span>");
-			var defaultEyeSVGElement = angular.element('<%= svg("eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
-			$(defaultEyeSVGWrapperElement).addClass("eye");
-			$(defaultEyeSVGWrapperElement).append(defaultEyeSVGElement);
-			$(checkboxSVGWrapperElement).append(defaultEyeSVGWrapperElement);
-
-			var crossedEyeSVGWrapperElement = angular.element("<span></span>");
-			var crossedEyeSVGElement = angular.element('<%= svg("crossed-eye").split("\n").join("").split("\r").join("").split("\t").join("") %>');
-			$(crossedEyeSVGWrapperElement).addClass("crossed-eye");
-			$(crossedEyeSVGWrapperElement).append(crossedEyeSVGElement);
-			$(checkboxSVGWrapperElement).append(crossedEyeSVGWrapperElement);
-
-			return parentElement.prop("outerHTML");
-		},
-		link: function(scope, element) {
-			_.each(inheritedAttributes, function(anAttribute) {
-				$(element).removeAttr(anAttribute);
-			});
-		}
-	};
-
-});
-
+				return parentElement.prop("outerHTML");
+			},
+			link: function(scope, element) {
+				_.each(inheritedAttributes, function(anAttribute) {
+					$(element).removeAttr(anAttribute);
+				});
+			}
+		};
+	});
 })();

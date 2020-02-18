@@ -1,168 +1,228 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.controller("CodeSigningController", function(
+			$q,
+			$cookies,
+			$scope,
+			requestService,
+			appService,
+			Progress
+		) {
+			var canceler = $q.defer();
+			$scope.$on("$destroy", function() {
+				canceler.resolve();
+			});
 
-angular.module("BitriseWorkflowEditor").controller("CodeSigningController", function($q, $cookies, $scope, requestService, appService, Progress) {
+			$scope.appService = appService;
 
-	var canceler = $q.defer();
-	$scope.$on("$destroy", function() {
-		canceler.resolve();
-	});
+			var viewModel = this;
 
-	$scope.appService = appService;
+			viewModel.showNewCodeSigningWizard;
+			viewModel.isAutoCodeSigningModeOn;
+			viewModel.shouldShowCodeSigningHints;
+			viewModel.isCodeSigningHintsOpen;
+			var irrelevantProjectTypesForCodeSigningHints = ["android"];
 
-	var viewModel = this;
+			viewModel.sectionConfigurations = {
+				provProfile: {
+					shouldShow: undefined,
+					irrelevantProjectTypes: ["android"],
+					getAreThereAnyUploadedFilesPromise: requestService
+						.getProvProfiles({
+							timeout: canceler.promise
+						})
+						.then(function(data) {
+							return data.length > 0;
+						})
+						.catch(angular.noop)
+				},
+				certificate: {
+					shouldShow: undefined,
+					irrelevantProjectTypes: ["android"],
+					getAreThereAnyUploadedFilesPromise: requestService
+						.getCertificates({
+							timeout: canceler.promise
+						})
+						.then(function(data) {
+							return data.length > 0;
+						})
+						.catch(angular.noop)
+				},
+				genericFile: {
+					shouldShow: undefined,
+					irrelevantProjectTypes: [],
+					getAreThereAnyUploadedFilesPromise: $q.when(true)
+				},
+				androidKeystore: {
+					shouldShow: undefined,
+					irrelevantProjectTypes: ["ios", "osx", "macos"],
+					getAreThereAnyUploadedFilesPromise: requestService
+						.getKeystoreFile({
+							timeout: canceler.promise
+						})
+						.then(function(data) {
+							return data !== null;
+						})
+						.catch(angular.noop)
+				}
+			};
 
-	viewModel.showNewCodeSigningWizard;
-	viewModel.isAutoCodeSigningModeOn;
-	viewModel.shouldShowCodeSigningHints;
-	viewModel.isCodeSigningHintsOpen;
-	var irrelevantProjectTypesForCodeSigningHints = ["android"];
+			viewModel.fileTypeMenus = [
+				{
+					id: "ios-code-signing",
+					name: "iOS Code Signing",
+					shouldShow: undefined,
+					availableSections: [
+						viewModel.sectionConfigurations["provProfile"],
+						viewModel.sectionConfigurations["certificate"]
+					]
+				},
+				{
+					id: "android-code-signing",
+					name: "Android Code Signing",
+					shouldShow: undefined,
+					availableSections: [
+						viewModel.sectionConfigurations["androidKeystore"]
+					]
+				},
+				{
+					id: "generic-file-storage",
+					name: "Generic File Storage",
+					shouldShow: undefined,
+					availableSections: [viewModel.sectionConfigurations["genericFile"]]
+				}
+			];
+			viewModel.activeFileTypeMenu;
 
-	viewModel.sectionConfigurations = {
-		provProfile: {
-			shouldShow: undefined,
-			irrelevantProjectTypes: ["android"],
-			getAreThereAnyUploadedFilesPromise: requestService.getProvProfiles({
-				timeout: canceler.promise
-			}).then(function(data) {
-				return data.length > 0;
-			}).catch(angular.noop)
-		},
-		certificate: {
-			shouldShow: undefined,
-			irrelevantProjectTypes: ["android"],
-			getAreThereAnyUploadedFilesPromise: requestService.getCertificates({
-				timeout: canceler.promise
-			}).then(function(data) {
-				return data.length > 0;
-			}).catch(angular.noop)
-		},
-		genericFile: {
-			shouldShow: undefined,
-			irrelevantProjectTypes: [],
-			getAreThereAnyUploadedFilesPromise: $q.when(true)
-		},
-		androidKeystore: {
-			shouldShow: undefined,
-			irrelevantProjectTypes: ["ios", "osx", "macos"],
-			getAreThereAnyUploadedFilesPromise: requestService.getKeystoreFile({
-				timeout: canceler.promise
-			}).then(function(data) {
-				return data !== null;
-			}).catch(angular.noop)
-		}
-	};
+			viewModel.loadProgress = new Progress();
 
-	viewModel.fileTypeMenus = [{
-		id: 'ios-code-signing',
-		name: 'iOS Code Signing',
-		shouldShow: undefined,
-		availableSections: [
-			viewModel.sectionConfigurations['provProfile'],
-			viewModel.sectionConfigurations['certificate']
-		]
-	}, {
-		id: 'android-code-signing',
-		name: 'Android Code Signing',
-		shouldShow: undefined,
-		availableSections: [
-			viewModel.sectionConfigurations['androidKeystore']
-		]
-	}, {
-		id: 'generic-file-storage',
-		name: 'Generic File Storage',
-		shouldShow: undefined,
-		availableSections: [
-			viewModel.sectionConfigurations['genericFile']
-		]
-	}];
-	viewModel.activeFileTypeMenu;
+			viewModel.load = function() {
+				viewModel.loadProgress.start(
+					"<%= data[:strings][:code_signing][:available_project_types_load] %>"
+				);
 
-	viewModel.loadProgress = new Progress();
+				$q(function(resolve, reject) {
+					$q.all([
+						requestService.getCurrentUserData({
+							timeout: canceler.promise
+						}),
+						appService.getProjectType(undefined, {
+							timeout: canceler.promise
+						})
+					]).then(function(responses) {
+						viewModel.showNewCodeSigningWizard =
+							responses[0].showNewCodeSigningWizard;
+						viewModel.shouldShowCodeSigningHints = !_.contains(
+							irrelevantProjectTypesForCodeSigningHints,
+							appService.projectType
+						);
 
-	viewModel.load = function() {
-		viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
+						viewModel.isCodeSigningHintsOpen =
+							$cookies.get("code_signing_hints_hidden") == "true";
 
-		$q(function(resolve, reject) {
-			$q.all([requestService.getCurrentUserData({
-				timeout: canceler.promise
-			}), appService.getProjectType(undefined, {
-				timeout: canceler.promise
-			})]).then(function(responses) {
-				viewModel.showNewCodeSigningWizard = responses[0].showNewCodeSigningWizard;
-				viewModel.shouldShowCodeSigningHints = !_.contains(irrelevantProjectTypesForCodeSigningHints, appService.projectType);
+						$q.all(
+							_.map(viewModel.sectionConfigurations, function(
+								aSectionConfiguration
+							) {
+								if (
+									!_.contains(
+										aSectionConfiguration.irrelevantProjectTypes,
+										appService.projectType
+									)
+								) {
+									aSectionConfiguration.shouldShow = true;
 
-				viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
+									return $q.when();
+								}
 
-				$q.all(_.map(viewModel.sectionConfigurations, function(aSectionConfiguration) {
-					if (!_.contains(aSectionConfiguration.irrelevantProjectTypes, appService.projectType)) {
-						aSectionConfiguration.shouldShow = true;
+								return aSectionConfiguration.getAreThereAnyUploadedFilesPromise.then(
+									function(areThereAnyUploadedFilesOfSection) {
+										aSectionConfiguration.shouldShow = areThereAnyUploadedFilesOfSection;
+									}
+								);
+							})
+						).then(function() {
+							_.each(viewModel.fileTypeMenus, function(aFileTypeMenu) {
+								aFileTypeMenu.shouldShow = !!_.find(
+									aFileTypeMenu.availableSections,
+									{
+										shouldShow: true
+									}
+								);
+							});
+							viewModel.activeFileTypeMenu = _.first(
+								viewModel.availableFileTypeMenus()
+							);
 
-						return $q.when();
+							if (viewModel.sectionConfigurations.certificate.shouldShow) {
+								viewModel.sectionConfigurations.certificate.getAreThereAnyUploadedFilesPromise.then(
+									function(areThereAnyUploadedFilesOfSection) {
+										viewModel.isAutoCodeSigningModeOn =
+											viewModel.showNewCodeSigningWizard &&
+											!areThereAnyUploadedFilesOfSection;
+									}
+								);
+							}
+
+							resolve();
+						}, reject);
+					}, reject);
+				}).then(
+					function() {
+						viewModel.loadProgress.success();
+					},
+					function(error) {
+						viewModel.loadProgress.error(error);
 					}
+				);
+			};
 
-					return aSectionConfiguration.getAreThereAnyUploadedFilesPromise.then(function(areThereAnyUploadedFilesOfSection) {
-						aSectionConfiguration.shouldShow = areThereAnyUploadedFilesOfSection;
-					});
-				})).then(function() {
-					_.each(viewModel.fileTypeMenus, function(aFileTypeMenu) {
-						aFileTypeMenu.shouldShow = !!_.find(aFileTypeMenu.availableSections, {
-							shouldShow: true
-						});
-					});
-					viewModel.activeFileTypeMenu = _.first(viewModel.availableFileTypeMenus());
+			viewModel.availableFileTypeMenus = function() {
+				return _.filter(viewModel.fileTypeMenus, {
+					shouldShow: true
+				});
+			};
 
-					if (viewModel.sectionConfigurations.certificate.shouldShow) {
-						viewModel.sectionConfigurations.certificate.getAreThereAnyUploadedFilesPromise.then(function(areThereAnyUploadedFilesOfSection) {
-							viewModel.isAutoCodeSigningModeOn = viewModel.showNewCodeSigningWizard && !areThereAnyUploadedFilesOfSection;
-						});
+			viewModel.isSectionFilteredByFileTypeMenu = function(
+				sectionConfiguration
+			) {
+				if (!viewModel.showNewCodeSigningWizard) {
+					return false;
+				}
+
+				if (!viewModel.activeFileTypeMenu) {
+					return true;
+				}
+
+				return !_.contains(
+					viewModel.activeFileTypeMenu.availableSections,
+					sectionConfiguration
+				);
+			};
+
+			viewModel.toggleCodeSigningHints = function() {
+				viewModel.isCodeSigningHintsOpen = !viewModel.isCodeSigningHintsOpen;
+
+				$cookies.put(
+					"code_signing_hints_hidden",
+					viewModel.isCodeSigningHintsOpen,
+					{
+						expires: new Date(
+							new Date().setFullYear(new Date().getFullYear() + 1)
+						)
 					}
+				);
+			};
 
-					resolve();
-				}, reject);
-			}, reject);
-		}).then(function() {
-			viewModel.loadProgress.success();
-		}, function(error) {
-			viewModel.loadProgress.error(error);
+			viewModel.placeholderForText = function(text) {
+				if (text === undefined || text === null) {
+					return;
+				}
+
+				return Array(text.length + 1).join("*");
+			};
 		});
-	};
-
-	viewModel.availableFileTypeMenus = function() {
-		return _.filter(viewModel.fileTypeMenus, {
-			shouldShow: true
-		});
-	};
-
-	viewModel.isSectionFilteredByFileTypeMenu = function(sectionConfiguration) {
-		if (!viewModel.showNewCodeSigningWizard) {
-			return false;
-		}
-
-		if (!viewModel.activeFileTypeMenu) {
-			return true;
-		}
-
-		return !_.contains(viewModel.activeFileTypeMenu.availableSections, sectionConfiguration);
-	};
-
-	viewModel.toggleCodeSigningHints = function() {
-		viewModel.isCodeSigningHintsOpen = !viewModel.isCodeSigningHintsOpen;
-
-		$cookies.put("code_signing_hints_hidden", viewModel.isCodeSigningHintsOpen, {
-			expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-		});
-	};
-
-	viewModel.placeholderForText = function(text) {
-		if (text === undefined || text === null) {
-			return;
-		}
-
-		return Array(text.length + 1).join("*");
-	};
-
-});
-
 })();

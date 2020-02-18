@@ -1,31 +1,27 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular.module("BitriseWorkflowEditor").service("osService", function() {
+		var osService = {};
 
-angular.module("BitriseWorkflowEditor").service("osService", function() {
+		osService.cssClass = function() {
+			if (osService.isWindows()) {
+				return "windows";
+			}
+			if (osService.isMac()) {
+				return "osx";
+			}
+			return "other";
+		};
 
-	var osService = {};
+		osService.isWindows = function() {
+			return navigator.platform.toLowerCase().indexOf("win") != -1;
+		};
 
-	osService.cssClass = function() {
-		if (osService.isWindows()) {
-			return "windows";
-		}
-		if (osService.isMac()) {
-			return "osx";
-		}
-		return "other";
-	};
+		osService.isMac = function() {
+			return navigator.platform.toLowerCase().indexOf("mac") != -1;
+		};
 
-	osService.isWindows = function() {
-		return navigator.platform.toLowerCase().indexOf("win") != -1;
-	};
-
-	osService.isMac = function() {
-		return navigator.platform.toLowerCase().indexOf("mac") != -1;
-	};
-
-	return osService;
-
-});
-
+		return osService;
+	});
 })();

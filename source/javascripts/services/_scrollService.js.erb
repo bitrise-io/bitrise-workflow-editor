@@ -1,35 +1,34 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular.module("BitriseWorkflowEditor").service("scrollService", function() {
+		var scrollDurationInMilliseconds = 300;
 
-angular.module("BitriseWorkflowEditor").service("scrollService", function() {
+		var scrollService = {};
 
-	var scrollDurationInMilliseconds = 300;
+		scrollService.scrollToTarget = function() {
+			var element = $("[scroll-target]").first();
 
-	var scrollService = {};
+			if (element.length == 0) {
+				return;
+			}
 
-	scrollService.scrollToTarget = function() {
-		var element = $("[scroll-target]").first();
+			var scrollTop = element.offset().top;
+			scrollTop -= $("header.sticky").outerHeight();
 
-		if (element.length == 0) {
-			return;
-		}
+			var scrollPadding = element.attr("scroll-padding");
+			if (scrollPadding !== undefined) {
+				scrollTop -= scrollPadding;
+			}
 
-		var scrollTop = element.offset().top;
-		scrollTop -= $("header.sticky").outerHeight();
+			$("html, body").animate(
+				{
+					scrollTop: scrollTop
+				},
+				scrollDurationInMilliseconds
+			);
+		};
 
-		var scrollPadding = element.attr("scroll-padding");
-		if (scrollPadding !== undefined) {
-			scrollTop -= scrollPadding;
-		}
-
-		$("html, body").animate({
-			scrollTop: scrollTop
-		}, scrollDurationInMilliseconds);
-	};
-
-	return scrollService;
-
-});
-
+		return scrollService;
+	});
 })();

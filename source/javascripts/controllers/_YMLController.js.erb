@@ -1,49 +1,54 @@
-import * as monaco from 'monaco-editor/esm/vs/editor/editor.api.js';
+import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.controller("YMLController", function($scope, $timeout, $rootScope, $q, appService, requestService, Progress) {
+			var viewModel = this;
+			var editor;
+			viewModel.downloadAppConfigYMLPath =
+				requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
-angular.module("BitriseWorkflowEditor").controller("YMLController", function($scope, $timeout, $rootScope, $q, appService, requestService, Progress) {
+			$scope.$watch(
+				function() {
+					return appService.appConfigYML;
+				},
+				function() {
+					if (appService.appConfigYML !== editor.getValue()) {
+						editor.setValue(appService.appConfigYML);
+					}
+				}
+			);
 
-	var viewModel = this;
-	var editor;
-	viewModel.downloadAppConfigYMLPath = requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
+			function configureEditor() {
+				editor = monaco.editor.create(document.getElementById("code-container"), {
+					value: appService.appConfigYML,
+					language: "yaml",
+					lineNumbers: "on",
+					roundedSelection: false,
+					scrollBeyondLastLine: false,
+					readOnly: false,
+					theme: "vs-dark"
+				});
+				editor.layout();
+				editor.focus();
+				editor.onDidChangeModelContent(updateAppConfigYML);
+			}
 
-	$scope.$watch(function(){
-		return appService.appConfigYML;
-	}, function() {
-		if (appService.appConfigYML !== editor.getValue()) {
-			editor.setValue(appService.appConfigYML);
-		}
-	});
+			function updateAppConfigYML() {
+				$timeout(function() {
+					appService.appConfigYML = editor.getValue();
+				}, 100);
+			}
 
-	function configureEditor() {
-		editor = monaco.editor.create(document.getElementById('code-container'), {
-			value: appService.appConfigYML,
-			language: 'yaml',
-			lineNumbers: "on",
-			roundedSelection: false,
-			scrollBeyondLastLine: false,
-			readOnly: false,
-			theme: "vs-dark",
+			configureEditor();
+
+			$scope.$on("$destroy", function() {
+				if (editor) {
+					editor.dispose();
+				}
+			});
 		});
-		editor.layout();
-		editor.focus();
-		editor.onDidChangeModelContent(updateAppConfigYML);
-	}
-
-	function updateAppConfigYML() {
-		$timeout(function () { appService.appConfigYML = editor.getValue(); }, 100);
-	}
-
-	configureEditor();
-
-	$scope.$on('$destroy', function() {
-		if (editor) {
-			editor.dispose();
-		}
-	});
-});
-
 })();

@@ -1,139 +1,160 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
+		var Trigger = function(triggerConfig) {
+			this.triggerConfig = triggerConfig ? triggerConfig : {};
+		};
 
-angular.module("BitriseWorkflowEditor").factory("Trigger", function() {
+		Trigger.prototype.type = function(type) {
+			if (type !== undefined) {
+				delete this.triggerConfig["push_branch"];
+				delete this.triggerConfig["pull_request_source_branch"];
+				delete this.triggerConfig["pull_request_target_branch"];
+				delete this.triggerConfig["tag"];
 
-	var Trigger = function(triggerConfig) {
-		this.triggerConfig = triggerConfig ? triggerConfig : {};
-	};
+				switch (type) {
+					case "push":
+						this.triggerConfig.push_branch = "";
 
-	Trigger.prototype.type = function(type) {
-		if (type !== undefined) {
-			delete this.triggerConfig["push_branch"];
-			delete this.triggerConfig["pull_request_source_branch"];
-			delete this.triggerConfig["pull_request_target_branch"];
-			delete this.triggerConfig["tag"];
+						break;
+					case "pull-request":
+						this.triggerConfig.pull_request_source_branch = "";
+						this.triggerConfig.pull_request_target_branch = "";
 
-			switch (type) {
-				case "push":
-					this.triggerConfig.push_branch = "";
+						break;
+					case "tag":
+						this.triggerConfig.tag = "";
 
-					break;
-				case "pull-request":
-					this.triggerConfig.pull_request_source_branch = "";
-					this.triggerConfig.pull_request_target_branch = "";
-
-					break;
-				case "tag":
-					this.triggerConfig.tag = "";
-
-					break;
+						break;
+				}
 			}
-		}
 
-		if (this.triggerConfig.push_branch !== undefined) {
-			return "push";
-		}
+			if (this.triggerConfig.push_branch !== undefined) {
+				return "push";
+			}
 
-		if (this.triggerConfig.pull_request_source_branch !== undefined || this.triggerConfig.pull_request_target_branch !== undefined) {
-			return "pull-request";
-		}
+			if (
+				this.triggerConfig.pull_request_source_branch !== undefined ||
+				this.triggerConfig.pull_request_target_branch !== undefined
+			) {
+				return "pull-request";
+			}
 
-		if (this.triggerConfig.tag !== undefined) {
-			return "tag";
-		}
-	};
+			if (this.triggerConfig.tag !== undefined) {
+				return "tag";
+			}
+		};
 
-	Trigger.prototype.workflowID = function(workflowID) {
-		if (workflowID !== undefined) {
-			this.triggerConfig.workflow = workflowID;
-		}
+		Trigger.prototype.workflowID = function(workflowID) {
+			if (workflowID !== undefined) {
+				this.triggerConfig.workflow = workflowID;
+			}
 
-		return this.triggerConfig.workflow;
-	};
+			return this.triggerConfig.workflow;
+		};
 
-	Trigger.prototype.pushBranchPattern = function(pushBranchPattern) {
-		if (pushBranchPattern !== undefined) {
+		Trigger.prototype.pushBranchPattern = function(pushBranchPattern) {
+			if (pushBranchPattern !== undefined) {
+				if (this.type() != "push") {
+					this.type("push");
+				}
+
+				this.triggerConfig.push_branch = pushBranchPattern
+					? pushBranchPattern
+					: "*";
+			}
+
 			if (this.type() != "push") {
-				this.type("push");
+				return undefined;
 			}
 
-			this.triggerConfig.push_branch = pushBranchPattern ? pushBranchPattern : "*";
-		}
+			return this.triggerConfig.push_branch;
+		};
 
-		if (this.type() != "push") {
-			return undefined;
-		}
+		Trigger.prototype.pullRequestSourceBranchPattern = function(
+			pullRequestSourceBranchPattern
+		) {
+			if (pullRequestSourceBranchPattern !== undefined) {
+				if (this.type() != "pull-request") {
+					this.type("pull-request");
+				}
 
-		return this.triggerConfig.push_branch;
-	};
+				this.triggerConfig.pull_request_source_branch =
+					pullRequestSourceBranchPattern &&
+					pullRequestSourceBranchPattern != "*"
+						? pullRequestSourceBranchPattern
+						: this.triggerConfig.pull_request_target_branch
+						? undefined
+						: "*";
+			}
 
-	Trigger.prototype.pullRequestSourceBranchPattern = function(pullRequestSourceBranchPattern) {
-		if (pullRequestSourceBranchPattern !== undefined) {
 			if (this.type() != "pull-request") {
-				this.type("pull-request");
+				return undefined;
 			}
 
-			this.triggerConfig.pull_request_source_branch = (pullRequestSourceBranchPattern && pullRequestSourceBranchPattern != "*") ? pullRequestSourceBranchPattern : (this.triggerConfig.pull_request_target_branch ? undefined : "*");
-		}
+			return this.triggerConfig.pull_request_source_branch
+				? this.triggerConfig.pull_request_source_branch
+				: "*";
+		};
 
-		if (this.type() != "pull-request") {
-			return undefined;
-		}
+		Trigger.prototype.pullRequestTargetBranchPattern = function(
+			pullRequestTargetBranchPattern
+		) {
+			if (pullRequestTargetBranchPattern !== undefined) {
+				if (this.type() != "pull-request") {
+					this.type("pull-request");
+				}
 
-		return this.triggerConfig.pull_request_source_branch ? this.triggerConfig.pull_request_source_branch : "*";
-	};
+				this.triggerConfig.pull_request_target_branch =
+					pullRequestTargetBranchPattern &&
+					pullRequestTargetBranchPattern != "*"
+						? pullRequestTargetBranchPattern
+						: this.triggerConfig.pull_request_source_branch
+						? undefined
+						: "*";
+			}
 
-	Trigger.prototype.pullRequestTargetBranchPattern = function(pullRequestTargetBranchPattern) {
-		if (pullRequestTargetBranchPattern !== undefined) {
 			if (this.type() != "pull-request") {
-				this.type("pull-request");
+				return undefined;
 			}
 
-			this.triggerConfig.pull_request_target_branch = (pullRequestTargetBranchPattern && pullRequestTargetBranchPattern != "*") ? pullRequestTargetBranchPattern : (this.triggerConfig.pull_request_source_branch ? undefined : "*");
-		}
+			return this.triggerConfig.pull_request_target_branch
+				? this.triggerConfig.pull_request_target_branch
+				: "*";
+		};
 
-		if (this.type() != "pull-request") {
-			return undefined;
-		}
+		Trigger.prototype.tagPattern = function(tagPattern) {
+			if (tagPattern !== undefined) {
+				if (this.type() != "tag") {
+					this.type("tag");
+				}
 
-		return this.triggerConfig.pull_request_target_branch ? this.triggerConfig.pull_request_target_branch : "*";
-	};
+				this.triggerConfig.tag = tagPattern ? tagPattern : "*";
+			}
 
-	Trigger.prototype.tagPattern = function(tagPattern) {
-		if (tagPattern !== undefined) {
 			if (this.type() != "tag") {
-				this.type("tag");
+				return undefined;
 			}
 
-			this.triggerConfig.tag = tagPattern ? tagPattern : "*";
-		}
+			return this.triggerConfig.tag;
+		};
 
-		if (this.type() != "tag") {
-			return undefined;
-		}
+		return Trigger;
+	});
 
-		return this.triggerConfig.tag;
-	};
-
-	return Trigger;
-
-});
-
-angular.module("BitriseWorkflowEditor").filter("displayNameForTriggerType", function() {
-
-	return function(triggerType) {
-		switch (triggerType) {
-			case "push":
-				return "<%= data[:strings][:triggers][:types][:push] %>";
-			case "pull-request":
-				return "<%= data[:strings][:triggers][:types][:pull_request] %>";
-			case "tag":
-				return "<%= data[:strings][:triggers][:types][:tag] %>";
-		}
-	};
-
-});
-
+	angular
+		.module("BitriseWorkflowEditor")
+		.filter("displayNameForTriggerType", function() {
+			return function(triggerType) {
+				switch (triggerType) {
+					case "push":
+						return "<%= data[:strings][:triggers][:types][:push] %>";
+					case "pull-request":
+						return "<%= data[:strings][:triggers][:types][:pull_request] %>";
+					case "tag":
+						return "<%= data[:strings][:triggers][:types][:tag] %>";
+				}
+			};
+		});
 })();
