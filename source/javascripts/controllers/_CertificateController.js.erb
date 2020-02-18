@@ -30,20 +30,28 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 		viewModel.selectedCertificate = null;
 	};
 
-	function loadCertificates() {
-		viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
+	viewModel.init = function() {
+		loadCertificates();
+	};
+
+	function loadCertificates(shouldClearPreviousLoad) {
+		if (shouldClearPreviousLoad === undefined) {
+			shouldClearPreviousLoad = false;
+		};
+
+		if (shouldClearPreviousLoad) {
+			certificateService.certificates = undefined;
+		}
+
+		if (!certificateService.certificates) {
+			viewModel.loadCertificatesProgress.start("<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>");
+		}
 		if (viewModel.uploadCertificatesProgress.isIdle && viewModel.uploadCertificatesProgress.statusMessage !== null) {
 			viewModel.uploadCertificatesProgress.reset();
 		}
 
-		certificateService.certificates = []
-		refreshCertificates();
-	};
-
-	function refreshCertificates() {
 		requestService.getCertificates().then(function(certificateDatas) {
-			var certificates = {};
-			_.each(certificateDatas, function(aCertificateData) {
+			certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
 				var certificate = new Certificate();
 
 				certificate.databaseID = aCertificateData.databaseID;
@@ -53,44 +61,30 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 				certificate.isExpose = aCertificateData.isExpose;
 				certificate.isProtected = aCertificateData.isProtected;
 
-				certificates[certificate.databaseID] = certificate;
+				var isExposeGetterSetterProgress = new Progress();
+
+				viewModel.certificateSettings[certificate.databaseID] = {
+					progress: new Progress(),
+					isMenuVisible: false,
+					isInvalidPassword: false,
+					isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
+					isExposeGetterSetterProgress: isExposeGetterSetterProgress
+				};
+
+				if (!certificate.details && certificate.isProcessed) {
+					viewModel.getDetails(certificate);
+				}
+
+				return certificate;
 			});
-
-			if (certificateService.certificates.length != _.size(certificates)) {
-				certificateService.certificates = []
-				_.each(certificates, function(value, key) {
-					certificateService.certificates.push(value);
-
-					var isExposeGetterSetterProgress = new Progress();
-
-					viewModel.certificateSettings[value.databaseID] = {
-						progress: new Progress(),
-						isMenuVisible: false,
-						isInvalidPassword: false,
-						isExposeGetterSetter: isExposeGetterSetterForCertificate(value, isExposeGetterSetterProgress),
-						isExposeGetterSetterProgress: isExposeGetterSetterProgress
-					};
-
-					if (!value.details && value.isProcessed) {
-						viewModel.getDetails(value);
-					}
-				});
-			} else {
-				_.each(certificateService.certificates, function(aCertificate) {
-					var elementValue = certificates[aCertificate.databaseID];
-					if (elementValue !== undefined && !angular.equals(elementValue, aCertificate)) {
-						aCertificate = elementValue;
-					}
-				});
-			}
 
 			viewModel.loadCertificatesProgress.success();
 
-			if (certificateService.certificates.length == 0 || _.find(certificateService.certificates, {
+			if (_.find(certificateService.certificates, {
 				isProcessed: false
 			})) {
 				$timeout(function() {
-					refreshCertificates();
+					loadCertificates();
 				}, certificatesReloadIntervalInSeconds * 1000);
 			}
 		}, function(error) {
@@ -141,7 +135,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.uploadCertificatesProgress.success();
 
 			viewModel.certificatesToUpload = undefined;
-			loadCertificates();
+			loadCertificates(true);
 		}, function(error) {
 			viewModel.uploadCertificatesProgress.error(error);
 		});
@@ -166,7 +160,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			certificate.delete().then(function() {
 				viewModel.deleteCertificateProgress.success();
 
-				loadCertificates();
+				loadCertificates(true);
 			}, function(error) {
 				viewModel.deleteCertificateProgress.error(error);
 			});
@@ -185,7 +179,7 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			requestService.deleteAllCertificates().then(function() {
 				viewModel.deleteAllCertificatesProgress.success();
 
-				loadCertificates();
+				loadCertificates(true);
 			}, function(error) {
 				viewModel.deleteAllCertificatesProgress.error(error);
 			});
@@ -295,9 +289,6 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 		return Array(text.length + 1).join("*");
 	};
-
-	loadCertificates();
-
 });
 
 })();

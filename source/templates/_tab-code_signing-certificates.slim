@@ -1,4 +1,4 @@
-.files.certificates[ng-controller="CertificateController as certificateCtrl" ng-if="codeSigningCtrl.sectionConfigurations.certificate.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
+.filese.certificates[ng-controller="CertificateController as certificateCtrl" ng-init="certificateCtrl.init()" ng-if="codeSigningCtrl.sectionConfigurations.certificate.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
 	header
 		h2.label.title
 			span == data[:strings][:code_signing][:certificate][:header][:card_title]
