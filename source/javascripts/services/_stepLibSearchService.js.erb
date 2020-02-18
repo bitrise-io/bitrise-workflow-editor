@@ -49,6 +49,26 @@ angular.module("BitriseWorkflowEditor").factory("stepLibSearchInstance", functio
 				});
 		};
 
+		stepLibSearchService.fuzzySearch = function(options) {
+			var attributesToRetrieve = options.attributesToRetrieve || ["*"];
+
+			return stepLibSearchInstance
+				.list({
+					query: options.query,
+					latestOnly: !!options.latestOnly,
+					includeInputs: !!options.includeInputs,
+					algoliaOptions: {
+						attributesToRetrieve: attributesToRetrieve,
+						restrictSearchableAttributes: ["step.title"],
+						typoTolerance: true
+					}
+				})
+				.then(convertSteps)
+				.catch(function(err) {
+					return $q.reject(err);
+				});
+		};
+
 		function convertSteps(steps) {
 			return steps.reduce(function(stepObj, stepVersion) {
 				var step = stepObj[stepVersion.id] || {};

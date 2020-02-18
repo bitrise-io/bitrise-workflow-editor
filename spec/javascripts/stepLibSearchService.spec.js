@@ -99,6 +99,28 @@ describe("stepLibSearchService", function() {
 		});
 	});
 
+	describe("fuzzySearch", () => {
+		beforeEach(() => {
+			spyOn(mockStepLibSearchInstance, "list").and.returnValue(Promise.resolve([]));
+		});
+
+		it("fetches step with the correct config", () => {
+			stepLibSearchService.fuzzySearch({ query: "Anbroib", latestOnly: true });
+
+			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
+				jasmine.objectContaining({
+					query: "Anbroib",
+					latestOnly: true,
+					algoliaOptions: {
+						attributesToRetrieve: ["*"],
+						restrictSearchableAttributes: ["step.title"],
+						typoTolerance: true
+					}
+				})
+			);
+		});
+	});
+
 	describe("convertSteps", () => {
 		it("converts an array of steps to an object", async () => {
 			spyOn(mockStepLibSearchInstance, "list").and.returnValue(
