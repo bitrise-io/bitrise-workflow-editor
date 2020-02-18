@@ -2,13 +2,14 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, requestService, stringService, dateService, certificateService, Popup, Progress, ProvProfile) {
+angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, $timeout, requestService, stringService, dateService, certificateService, Popup, Progress, ProvProfile) {
 
 	var viewModel = this;
 
 	$scope.dateService = dateService;
 	$scope.certificateService = certificateService;
 
+	var provProfilesReloadIntervalInSeconds = 2;
 	viewModel.maximumProvProfilesCount = 30;
 
 	viewModel.loadProvProfilesProgress = new Progress();
@@ -124,8 +125,8 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 					isProcessed: false
 				})) {
 					$timeout(function() {
-						loadProvProfiles(true);
-					}, 1000);
+						loadProvProfiles();
+					}, provProfilesReloadIntervalInSeconds * 1000);
 				}
 
 				viewModel.loadProvProfilesProgress.success();
@@ -251,7 +252,7 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 	};
 
 	viewModel.provProfileStatusCSSclass = function(provProfile) {
-		if (certificateService.loadProgress.isInProgress || testDevicesOfApp === undefined) {
+		if ((certificateService.loadProgress === undefined || certificateService.loadProgress.isInProgress) || testDevicesOfApp === undefined) {
 			return "loading";
 		}
 		else if (_.any(provProfile.developerCertificateIdentities, function(anIdentity) {

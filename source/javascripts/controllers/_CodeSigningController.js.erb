@@ -118,6 +118,9 @@ angular.module("BitriseWorkflowEditor").controller("CodeSigningController", func
 							viewModel.isAutoCodeSigningModeOn = viewModel.showNewCodeSigningWizard && !areThereAnyUploadedFilesOfSection;
 						});
 					}
+					else {
+						viewModel.isAutoCodeSigningModeOn = false;
+					}
 
 					resolve();
 				}, reject);
