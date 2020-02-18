@@ -5,11 +5,13 @@
 angular.module("BitriseWorkflowEditor").controller("CertificateController", function($scope, $q, $timeout, requestService, stringService, dateService, certificateService, Popup, Progress, Certificate) {
 
 	var viewModel = this;
+	var canceler = $q.defer();
 
 	$scope.dateService = dateService;
 	$scope.certificateService = certificateService;
 
 	var certificatesReloadIntervalInSeconds = 2;
+	var unresolvedCertificateReloadPromise = null;
 	viewModel.maximumCertificatesCount = 30;
 
 	viewModel.loadCertificatesProgress = certificateService.loadProgress = new Progress();
@@ -50,7 +52,9 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			viewModel.uploadCertificatesProgress.reset();
 		}
 
-		requestService.getCertificates().then(function(certificateDatas) {
+		requestService.getCertificates({
+			timeout: canceler.promise
+		}).then(function(certificateDatas) {
 			certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
 				var certificate = new Certificate();
 
@@ -83,7 +87,8 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 			if (_.find(certificateService.certificates, {
 				isProcessed: false
 			})) {
-				$timeout(function() {
+				unresolvedCertificateReloadPromise = $timeout(function() {
+					unresolvedCertificateReloadPromise = null;
 					loadCertificates();
 				}, certificatesReloadIntervalInSeconds * 1000);
 			}
@@ -289,6 +294,13 @@ angular.module("BitriseWorkflowEditor").controller("CertificateController", func
 
 		return Array(text.length + 1).join("*");
 	};
+
+	$scope.$on("$destroy", function() {
+		canceler.resolve();
+		if (unresolvedCertificateReloadPromise) {
+			$timeout.cancel(unresolvedCertificateReloadPromise);
+		}
+	});
 });
 
 })();

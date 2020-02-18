@@ -2,12 +2,14 @@
 
 "use strict";
 
-angular.module("BitriseWorkflowEditor").controller("GenericFileController", function($q, $timeout, $filter, requestService, stringService, Popup, Progress, GenericFile) {
+angular.module("BitriseWorkflowEditor").controller("GenericFileController", function($scope, $q, $timeout, $filter, requestService, stringService, Popup, Progress, GenericFile) {
 
 	var viewModel = this;
+	var canceler = $q.defer();
 
 	var maximumFileSizeInMegabytes = 5;
 	var genericFilesReloadIntervalInSeconds = 2;
+	var unresolvedGenericFileReloadPromise = null;
 	viewModel.maximumGenericFilesCount = 5;
 
 	viewModel.genericFiles;
@@ -41,7 +43,9 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			viewModel.uploadGenericFileProgress.reset();
 		}
 
-		requestService.getGenericFiles().then(function(genericFileDatas) {
+		requestService.getGenericFiles({
+			timeout: canceler.promise
+		}).then(function(genericFileDatas) {
 			viewModel.genericFiles = _.map(genericFileDatas, function(aGenericFileData) {
 				var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
 
@@ -71,7 +75,8 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			if (_.find(viewModel.genericFiles, {
 				isProcessed: false
 			})) {
-				$timeout(function() {
+				unresolvedGenericFileReloadPromise = $timeout(function() {
+					unresolvedGenericFileReloadPromise = null;
 					loadGenericFiles();
 				}, genericFilesReloadIntervalInSeconds * 1000);
 			}
@@ -170,6 +175,13 @@ angular.module("BitriseWorkflowEditor").controller("GenericFileController", func
 			});
 		}
 	};
+
+	$scope.$on("$destroy", function() {
+		canceler.resolve();
+		if (unresolvedGenericFileReloadPromise) {
+			$timeout.cancel(unresolvedGenericFileReloadPromise);
+		}
+	});
 
 });
 

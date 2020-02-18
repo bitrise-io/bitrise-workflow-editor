@@ -5,11 +5,13 @@
 angular.module("BitriseWorkflowEditor").controller("ProvProfileController", function($scope, $q, $timeout, requestService, stringService, dateService, certificateService, Popup, Progress, ProvProfile) {
 
 	var viewModel = this;
+	var canceler = $q.defer();
 
 	$scope.dateService = dateService;
 	$scope.certificateService = certificateService;
 
 	var provProfilesReloadIntervalInSeconds = 2;
+	var unresolvedProvProfileReloadPromise = null;
 	viewModel.maximumProvProfilesCount = 30;
 
 	viewModel.loadProvProfilesProgress = new Progress();
@@ -95,7 +97,9 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 		}
 
 		return $q(function(resolve, reject) {
-			requestService.getProvProfiles().then(function(provProfileDatas) {
+			requestService.getProvProfiles({
+				timeout: canceler.promise
+			}).then(function(provProfileDatas) {
 				viewModel.provProfiles = _.map(provProfileDatas, function(aProvProfileData) {
 					var provProfile = new ProvProfile();
 
@@ -124,7 +128,8 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 				if (_.find(viewModel.provProfiles, {
 					isProcessed: false
 				})) {
-					$timeout(function() {
+					unresolvedProvProfileReloadPromise = $timeout(function() {
+						unresolvedProvProfileReloadPromise = null;
 						loadProvProfiles();
 					}, provProfilesReloadIntervalInSeconds * 1000);
 				}
@@ -405,6 +410,13 @@ angular.module("BitriseWorkflowEditor").controller("ProvProfileController", func
 
 		viewModel.provProfileDetailsPopup.isVisible = true;
 	};
+
+	$scope.$on("$destroy", function() {
+		canceler.resolve();
+		if (unresolvedProvProfileReloadPromise) {
+			$timeout.cancel(unresolvedProvProfileReloadPromise);
+		}
+	});
 });
 
 })();
