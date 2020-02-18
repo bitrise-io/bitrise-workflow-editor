@@ -257,7 +257,7 @@
 				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
 					strong[ng-bind="androidKeystoreCtrl.uploadInstruction"]
 					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
-	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl" ng-if="codeSigningCtrl.sectionConfigurations.genericFile.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.genericFile)"]
+	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl" ng-init="genericFileCtrl.init()" ng-if="codeSigningCtrl.sectionConfigurations.genericFile.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.genericFile)"]
 		header
 			h2.label
 				span == data[:strings][:code_signing][:generic_file][:header][:card_title]
