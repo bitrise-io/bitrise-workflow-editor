@@ -435,6 +435,14 @@
 				});
 			};
 
+			stepSourceService.searchOfficialSteps = function(query) {
+				return stepLibSearchService
+					.fuzzySearch({ query: query, latestOnly: true, attributesToRetrieve: ["id", "version", "cvs"] })
+					.then(function(steps) {
+						return Object.keys(steps);
+					});
+			};
+
 			stepSourceService.loadLibrariesWithURLs = function(libraryURLs, requestConfig) {
 				return $q(function(resolve, reject) {
 					var notLoadedLibraryURLs = _.reject(_.uniq(libraryURLs), function(aLibraryURL) {

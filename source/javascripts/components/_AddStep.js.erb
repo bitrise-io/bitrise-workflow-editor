@@ -114,6 +114,7 @@
 			viewModel.isWindowSizeForcingListMode;
 
 			viewModel.stepFilter = "";
+			viewModel.filteredStepIds = null;
 
 			viewModel.typeFilters;
 			viewModel.selectedTypeFilter = null;
@@ -308,12 +309,11 @@
 						});
 					}
 
-					filteredSteps = _.filter(filteredSteps, function(aStep) {
-						return (
-							stringService.isStringMatchingTerm(aStep.title(), viewModel.stepFilter) ||
-							stringService.isStringMatchingTerm(aStep.id, viewModel.stepFilter)
-						);
-					});
+					if (viewModel.filteredStepIds) {
+						filteredSteps = _.filter(filteredSteps, function(aStep) {
+							return viewModel.filteredStepIds.includes(aStep.id);
+						});
+					}
 				}
 
 				return filteredSteps;
@@ -365,6 +365,16 @@
 						category.paginateStepsConfig.stepsCountPerPage * (category.paginateStepsConfig.currentPageIndex + 1) +
 							category.paginateStepsConfig.currentOffsetInPage
 				);
+			};
+
+			viewModel.search = function() {
+				if (viewModel.stepFilter) {
+					stepSourceService.searchOfficialSteps(viewModel.stepFilter).then(function(stepIds) {
+						viewModel.filteredStepIds = stepIds;
+					});
+				} else {
+					viewModel.filteredStepIds = null;
+				}
 			};
 		})
 		.directive("addStepSidebar", function($parse, $document, addStepService) {
