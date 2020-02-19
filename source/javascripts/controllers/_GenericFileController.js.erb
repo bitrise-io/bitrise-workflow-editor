@@ -41,15 +41,8 @@
 				loadGenericFiles();
 			};
 
-			function loadGenericFiles(shouldClearPreviousLoad) {
-				if (shouldClearPreviousLoad === undefined) {
-					shouldClearPreviousLoad = false;
-				}
-
-				if (shouldClearPreviousLoad) {
-					viewModel.genericFiles = undefined;
-				}
-				if (!viewModel.genericFiles) {
+			function loadGenericFiles(shouldHideLoadingIndicator) {
+				if (!shouldHideLoadingIndicator) {
 					viewModel.loadGenericFilesProgress.start(
 						"<%= data[:strings][:code_signing][:generic_file][:load_progress][:in_progress] %>"
 					);
@@ -97,7 +90,7 @@
 							) {
 								unresolvedGenericFileReloadPromise = $timeout(function() {
 									unresolvedGenericFileReloadPromise = null;
-									loadGenericFiles();
+									loadGenericFiles(true);
 								}, genericFilesReloadIntervalInSeconds * 1000);
 							}
 						},
@@ -156,7 +149,7 @@
 						viewModel.uploadGenericFileProgress.success();
 
 						viewModel.uploadedGenericFile = new GenericFile("");
-						loadGenericFiles(true);
+						loadGenericFiles();
 					},
 					function(error) {
 						viewModel.uploadGenericFileProgress.error(error);
@@ -202,7 +195,7 @@
 							function() {
 								viewModel.deleteGenericFileProgress.success();
 
-								loadGenericFiles(true);
+								loadGenericFiles();
 							},
 							function(error) {
 								viewModel.deleteGenericFileProgress.error(error);

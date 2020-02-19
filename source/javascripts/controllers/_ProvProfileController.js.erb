@@ -99,7 +99,7 @@
 				]).then();
 			}
 
-			function loadProvProfiles(shouldClearPreviousLoad) {
+			function loadProvProfiles(shouldHideLoadingIndicator) {
 				if (
 					viewModel.uploadProvProfilesProgress.isIdle &&
 					viewModel.uploadProvProfilesProgress.statusMessage !== null
@@ -107,14 +107,7 @@
 					viewModel.uploadProvProfilesProgress.reset();
 				}
 
-				if (shouldClearPreviousLoad === undefined) {
-					shouldClearPreviousLoad = false;
-				}
-
-				if (shouldClearPreviousLoad) {
-					viewModel.provProfiles = undefined;
-				}
-				if (!viewModel.provProfiles) {
+				if (!shouldHideLoadingIndicator) {
 					viewModel.loadProvProfilesProgress.start(
 						"<%= data[:strings][:code_signing][:prov_profile][:load_progress][:in_progress] %>"
 					);
@@ -162,7 +155,7 @@
 								) {
 									unresolvedProvProfileReloadPromise = $timeout(function() {
 										unresolvedProvProfileReloadPromise = null;
-										loadProvProfiles();
+										loadProvProfiles(true);
 									}, provProfilesReloadIntervalInSeconds * 1000);
 								}
 
@@ -384,7 +377,7 @@
 						viewModel.uploadProvProfilesProgress.success();
 
 						viewModel.provProfilesToUpload = undefined;
-						loadProvProfiles(true);
+						loadProvProfiles();
 					},
 					function(error) {
 						viewModel.uploadProvProfilesProgress.error(error);
@@ -430,7 +423,7 @@
 							function() {
 								viewModel.deleteProvProfileProgress.success();
 
-								loadProvProfiles(true);
+								loadProvProfiles();
 							},
 							function(error) {
 								viewModel.deleteProvProfileProgress.error(error);
@@ -462,7 +455,7 @@
 							function() {
 								viewModel.deleteAllProvProfilesProgress.success();
 
-								loadProvProfiles(true);
+								loadProvProfiles();
 							},
 							function(error) {
 								viewModel.deleteAllProvProfilesProgress.error(error);

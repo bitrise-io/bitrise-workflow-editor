@@ -47,16 +47,8 @@
 				loadCertificates();
 			};
 
-			function loadCertificates(shouldClearPreviousLoad) {
-				if (shouldClearPreviousLoad === undefined) {
-					shouldClearPreviousLoad = false;
-				}
-
-				if (shouldClearPreviousLoad) {
-					certificateService.certificates = undefined;
-				}
-
-				if (!certificateService.certificates) {
+			function loadCertificates(shouldHideLoadingIndicator) {
+				if (!shouldHideLoadingIndicator) {
 					viewModel.loadCertificatesProgress.start(
 						"<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>"
 					);
@@ -110,7 +102,7 @@
 							) {
 								unresolvedCertificateReloadPromise = $timeout(function() {
 									unresolvedCertificateReloadPromise = null;
-									loadCertificates();
+									loadCertificates(true);
 								}, certificatesReloadIntervalInSeconds * 1000);
 							}
 						},
@@ -179,7 +171,7 @@
 						viewModel.uploadCertificatesProgress.success();
 
 						viewModel.certificatesToUpload = undefined;
-						loadCertificates(true);
+						loadCertificates();
 					},
 					function(error) {
 						viewModel.uploadCertificatesProgress.error(error);
@@ -225,7 +217,7 @@
 							function() {
 								viewModel.deleteCertificateProgress.success();
 
-								loadCertificates(true);
+								loadCertificates();
 							},
 							function(error) {
 								viewModel.deleteCertificateProgress.error(error);
@@ -257,7 +249,7 @@
 							function() {
 								viewModel.deleteAllCertificatesProgress.success();
 
-								loadCertificates(true);
+								loadCertificates();
 							},
 							function(error) {
 								viewModel.deleteAllCertificatesProgress.error(error);
