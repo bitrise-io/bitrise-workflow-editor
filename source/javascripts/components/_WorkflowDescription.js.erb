@@ -1,55 +1,67 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.directive("workflowDescription", function($timeout) {
+			return {
+				restrict: "A",
+				transclude: true,
+				templateUrl:
+					"<%= mode_dependant_asset_path(data[:routes][:templates][:workflows_workflow_description] )%>",
+				scope: {
+					workflow: "=workflowDescription"
+				},
+				controller: "WorkflowDescriptionController",
+				controllerAs: "workflowDescriptionCtrl",
+				link: function(scope, element, attrs) {
+					scope.$watch(
+						function() {
+							return scope.workflowDescriptionCtrl.isEditMode;
+						},
+						function(isEditMode) {
+							if (isEditMode) {
+								$timeout(function() {
+									var descriptionEditorElement = element.find(
+										"[description-editor]"
+									);
 
-angular.module("BitriseWorkflowEditor").directive("workflowDescription", function($timeout) {
-
-	return {
-		restrict: "A",
-		transclude: true,
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:workflows_workflow_description] )%>",
-		scope: {
-			workflow: "=workflowDescription"
-		},
-		controller: "WorkflowDescriptionController",
-		controllerAs: "workflowDescriptionCtrl",
-		link: function(scope, element, attrs) {
-
-			scope.$watch(function() {
-				return scope.workflowDescriptionCtrl.isEditMode;
-			}, function(isEditMode) {
-				if (isEditMode) {
-					$timeout(function() {
-						var descriptionEditorElement = element.find("[description-editor]");
-
-						descriptionEditorElement.focus();						
-					}, 0);
+									descriptionEditorElement.focus();
+								}, 0);
+							}
+						}
+					);
 				}
-			})
-		}
-	};
+			};
+		})
+		.controller("WorkflowDescriptionController", function(
+			$scope,
+			stringService
+		) {
+			var viewModel = this;
 
-}).controller("WorkflowDescriptionController", function($scope, stringService) {
+			viewModel.isEditMode = false;
 
-	var viewModel = this;
+			$scope.descriptionHeader = function() {
+				if (!$scope.workflow) {
+					return;
+				}
 
-	viewModel.isEditMode = false;
+				return stringService.stringReplacedWithParameters(
+					"<%= data[:strings][:workflows][:description][:header] %>",
+					{
+						workflow_id: $scope.workflow.id
+					}
+				);
+			};
 
-	$scope.descriptionHeader = function() {
-		if (!$scope.workflow) {
-			return;
-		}
-
-		return stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:description][:header] %>", {
-			workflow_id: $scope.workflow.id
+			$scope.$watch(
+				function() {
+					return $scope.workflow;
+				},
+				function(workflow) {
+					viewModel.isEditMode = false;
+				}
+			);
 		});
-	};
-
-	$scope.$watch(function() {
-		return $scope.workflow;
-	}, function(workflow) {
-		viewModel.isEditMode = false;
-	});
-});
-
 })();

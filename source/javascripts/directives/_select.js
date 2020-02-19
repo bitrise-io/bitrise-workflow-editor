@@ -1,26 +1,24 @@
 (function() {
+	"use strict";
 
-"use strict";
+	angular
+		.module("BitriseWorkflowEditor")
+		.directive("select", function($interpolate) {
+			return {
+				restrict: "E",
+				require: "ngModel",
+				link: function(scope, element, attrs) {
+					if (attrs.noPlaceholder == "") {
+						return;
+					}
 
-angular.module("BitriseWorkflowEditor").directive("select", function($interpolate) {
+					scope.placeholderText = attrs.placeholder || "Please select...";
 
-	return {
-		restrict: "E",
-		require: "ngModel",
-		link: function(scope, element, attrs) {
+					var placeholderOption =
+						"<option value='' disabled>{{ placeholderText }}</option>";
 
-			if (attrs.noPlaceholder == "") {
-				return;
-			}
-
-			scope.placeholderText = attrs.placeholder || "Please select...";
-
-			var placeholderOption = "<option value='' disabled>{{ placeholderText }}</option>";
-
-			element.prepend($interpolate(placeholderOption)(scope));
-		}
-	};
-
-});
-
+					element.prepend($interpolate(placeholderOption)(scope));
+				}
+			};
+		});
 })();

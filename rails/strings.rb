@@ -4,6 +4,10 @@ def strings
             default_save_delay_in_milliseconds: 1000,
             meta_bundle_ids: {
                 bitrise_io: "bitrise.io"
+            },
+            algolia: {
+              appID: "HI1538U2K4",
+              apiKey: "708f890e859e7c44f309a1bbad3d2de8"
             }
         },
         strings: {
