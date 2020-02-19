@@ -17,6 +17,8 @@ type StringProps = {
 
 type StepItemProps = {
 	step: Step;
+	title: string;
+	version: string;
 	strings: StringProps;
 	selected: boolean;
 	highlightVersionUpdate: boolean;
@@ -47,6 +49,8 @@ const stepVersion = (step: Step, highlightVersionUpdate: boolean) =>
 
 const StepItem: FunctionComponent<StepItemProps> = ({
 	step,
+	title,
+	version,
 	strings,
 	selected,
 	highlightVersionUpdate,
@@ -58,16 +62,16 @@ const StepItem: FunctionComponent<StepItemProps> = ({
 		<span className="info">
 			<strong>
 				<Text className="title" ellipsis>
-					{step.displayName()}
+					{title}
 				</Text>
 				{step.isVerified() && <img className="verified" src={verifiedIcon} />}
 				{step.isDeprecated() && <img className="deprecated" src={deprecatedIcon} />}
 			</strong>
 			<em className="version">
-				{step.requestedVersion() ? (
+				{version ? (
 					stepVersion(step, highlightVersionUpdate)
 				) : (
-					<Text>{strings.alwaysLatest + (step.version && ` (${step.version})`)}</Text>
+					<Text>{strings.alwaysLatest + (version ? ` (${version})` : "")}</Text>
 				)}
 			</em>
 		</span>
