@@ -57,7 +57,9 @@ const StepItem: FunctionComponent<StepItemProps> = ({
 		<img className="icon" src={normalizeIconUrl(step)} />
 		<span className="info">
 			<strong>
-				<Text className="title">{step.displayName()}</Text>
+				<Text className="title" ellipsis>
+					{step.displayName()}
+				</Text>
 				{step.isVerified() && <img className="verified" src={verifiedIcon} />}
 				{step.isDeprecated() && <img className="deprecated" src={deprecatedIcon} />}
 			</strong>
