@@ -24,7 +24,7 @@ workflows:
     steps:
     - change-workdir@1.0.2:
         inputs:
-        - path: /bitrise/go/src/github.com/bitrise-io/bitrise-workflow-editor
+        - path: $GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor
     - script:
         inputs:
         - content: |
