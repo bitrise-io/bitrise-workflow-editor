@@ -16,11 +16,13 @@
 			Certificate
 		) {
 			var viewModel = this;
+			var canceler = $q.defer();
 
 			$scope.dateService = dateService;
 			$scope.certificateService = certificateService;
 
 			var certificatesReloadIntervalInSeconds = 2;
+			var unresolvedCertificateReloadPromise = null;
 			viewModel.maximumCertificatesCount = 30;
 
 			viewModel.loadCertificatesProgress = certificateService.loadProgress = new Progress();
@@ -41,10 +43,16 @@
 				viewModel.selectedCertificate = null;
 			};
 
-			function loadCertificates() {
-				viewModel.loadCertificatesProgress.start(
-					"<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>"
-				);
+			viewModel.init = function() {
+				loadCertificates();
+			};
+
+			function loadCertificates(shouldHideLoadingIndicator) {
+				if (!shouldHideLoadingIndicator) {
+					viewModel.loadCertificatesProgress.start(
+						"<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>"
+					);
+				}
 				if (
 					viewModel.uploadCertificatesProgress.isIdle &&
 					viewModel.uploadCertificatesProgress.statusMessage !== null
@@ -52,80 +60,56 @@
 					viewModel.uploadCertificatesProgress.reset();
 				}
 
-				certificateService.certificates = [];
-				refreshCertificates();
-			}
+				requestService
+					.getCertificates({
+						timeout: canceler.promise
+					})
+					.then(
+						function(certificateDatas) {
+							certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
+								var certificate = new Certificate();
 
-			function refreshCertificates() {
-				requestService.getCertificates().then(
-					function(certificateDatas) {
-						var certificates = {};
-						_.each(certificateDatas, function(aCertificateData) {
-							var certificate = new Certificate();
-
-							certificate.databaseID = aCertificateData.databaseID;
-							certificate.isProcessed = aCertificateData.isProcessed;
-							certificate.uploadFileName = aCertificateData.uploadFileName;
-							certificate.password = aCertificateData.password;
-							certificate.isExpose = aCertificateData.isExpose;
-							certificate.isProtected = aCertificateData.isProtected;
-
-							certificates[certificate.databaseID] = certificate;
-						});
-
-						if (
-							certificateService.certificates.length != _.size(certificates)
-						) {
-							certificateService.certificates = [];
-							_.each(certificates, function(value, key) {
-								certificateService.certificates.push(value);
+								certificate.databaseID = aCertificateData.databaseID;
+								certificate.isProcessed = aCertificateData.isProcessed;
+								certificate.uploadFileName = aCertificateData.uploadFileName;
+								certificate.password = aCertificateData.password;
+								certificate.isExpose = aCertificateData.isExpose;
+								certificate.isProtected = aCertificateData.isProtected;
 
 								var isExposeGetterSetterProgress = new Progress();
 
-								viewModel.certificateSettings[value.databaseID] = {
+								viewModel.certificateSettings[certificate.databaseID] = {
 									progress: new Progress(),
 									isMenuVisible: false,
 									isInvalidPassword: false,
-									isExposeGetterSetter: isExposeGetterSetterForCertificate(
-										value,
-										isExposeGetterSetterProgress
-									),
+									isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
 									isExposeGetterSetterProgress: isExposeGetterSetterProgress
 								};
 
-								if (!value.details && value.isProcessed) {
-									viewModel.getDetails(value);
+								if (!certificate.details && certificate.isProcessed) {
+									viewModel.getDetails(certificate);
 								}
-							});
-						} else {
-							_.each(certificateService.certificates, function(aCertificate) {
-								var elementValue = certificates[aCertificate.databaseID];
-								if (
-									elementValue !== undefined &&
-									!angular.equals(elementValue, aCertificate)
-								) {
-									aCertificate = elementValue;
-								}
-							});
-						}
 
-						viewModel.loadCertificatesProgress.success();
+								return certificate;
+							});
 
-						if (
-							certificateService.certificates.length == 0 ||
-							_.find(certificateService.certificates, {
-								isProcessed: false
-							})
-						) {
-							$timeout(function() {
-								refreshCertificates();
-							}, certificatesReloadIntervalInSeconds * 1000);
+							viewModel.loadCertificatesProgress.success();
+
+							if (
+								_.find(certificateService.certificates, {
+									isProcessed: false
+								})
+							) {
+								unresolvedCertificateReloadPromise = $timeout(function() {
+									unresolvedCertificateReloadPromise = null;
+									loadCertificates(true);
+								}, certificatesReloadIntervalInSeconds * 1000);
+							}
+						},
+						function(error) {
+							viewModel.loadCertificatesProgress.error(error);
 						}
-					},
-					function(error) {
-						viewModel.loadCertificatesProgress.error(error);
-					}
-				);
+					);
 			}
 
 			viewModel.filesSelectedForUpload = function(files) {
@@ -147,8 +131,7 @@
 				);
 
 				if (
-					certificateService.certificates.length +
-						viewModel.certificatesToUpload.length >
+					certificateService.certificates.length + viewModel.certificatesToUpload.length >
 					viewModel.maximumCertificatesCount
 				) {
 					viewModel.uploadCertificatesProgress.error(
@@ -156,9 +139,7 @@
 							stringService.stringReplacedWithParameters(
 								"<%= data[:strings][:code_signing][:certificate][:can_only_upload_x_more] %>",
 								{
-									count:
-										viewModel.maximumCertificatesCount -
-										certificateService.certificates.length
+									count: viewModel.maximumCertificatesCount - certificateService.certificates.length
 								}
 							)
 						)
@@ -326,53 +307,41 @@
 					viewModel.uploadCertificatesProgress.reset();
 				}
 
-				requestService
-					.getDetailsOfCertificate(certificate.databaseID, certificate.password)
-					.then(
-						function(data) {
-							certificate.isDetailsLoaded = true;
+				requestService.getDetailsOfCertificate(certificate.databaseID, certificate.password).then(
+					function(data) {
+						certificate.isDetailsLoaded = true;
 
-							var certificateFileDetails = [];
-							_.each(data, function(aCertificateDetail) {
-								certificateFileDetails.push({
-									commonName: aCertificateDetail.commonName,
-									startDate: aCertificateDetail.startDate,
-									endDate: aCertificateDetail.endDate,
-									teamName: aCertificateDetail.teamName,
-									teamID: aCertificateDetail.teamID,
-									serial: aCertificateDetail.serial
-								});
+						var certificateFileDetails = [];
+						_.each(data, function(aCertificateDetail) {
+							certificateFileDetails.push({
+								commonName: aCertificateDetail.commonName,
+								startDate: aCertificateDetail.startDate,
+								endDate: aCertificateDetail.endDate,
+								teamName: aCertificateDetail.teamName,
+								teamID: aCertificateDetail.teamID,
+								serial: aCertificateDetail.serial
 							});
+						});
 
-							certificate.details = certificateFileDetails;
+						certificate.details = certificateFileDetails;
 
-							viewModel.certificateSettings[
-								certificate.databaseID
-							].isInvalidPassword = false;
+						viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = false;
 
-							viewModel.certificateSettings[
-								certificate.databaseID
-							].progress.success();
-						},
-						function(error) {
-							var errorTypes = error.name ? error.name.split(",") : [];
-							if (_.contains(errorTypes, "invalid_password")) {
-								certificate.details = null;
+						viewModel.certificateSettings[certificate.databaseID].progress.success();
+					},
+					function(error) {
+						var errorTypes = error.name ? error.name.split(",") : [];
+						if (_.contains(errorTypes, "invalid_password")) {
+							certificate.details = null;
 
-								viewModel.certificateSettings[
-									certificate.databaseID
-								].progress.reset();
+							viewModel.certificateSettings[certificate.databaseID].progress.reset();
 
-								viewModel.certificateSettings[
-									certificate.databaseID
-								].isInvalidPassword = true;
-							} else {
-								viewModel.certificateSettings[
-									certificate.databaseID
-								].progress.error(error);
-							}
+							viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
+						} else {
+							viewModel.certificateSettings[certificate.databaseID].progress.error(error);
 						}
-					);
+					}
+				);
 			};
 
 			function isExposeGetterSetterForCertificate(certificate, progress) {
@@ -385,21 +354,16 @@
 					certificate.isExpose = isExpose;
 
 					progress.start();
-					requestService
-						.updateCertificateIsExposeState(
-							certificate.databaseID,
-							certificate.isExpose
-						)
-						.then(
-							function() {
-								progress.success();
-							},
-							function(error) {
-								certificate.isExpose = oldIsExpose;
-								progress.reset();
-								Popup.showErrorPopup(error.message);
-							}
-						);
+					requestService.updateCertificateIsExposeState(certificate.databaseID, certificate.isExpose).then(
+						function() {
+							progress.success();
+						},
+						function(error) {
+							certificate.isExpose = oldIsExpose;
+							progress.reset();
+							Popup.showErrorPopup(error.message);
+						}
+					);
 				};
 			}
 
@@ -417,6 +381,11 @@
 				return Array(text.length + 1).join("*");
 			};
 
-			loadCertificates();
+			$scope.$on("$destroy", function() {
+				canceler.resolve();
+				if (unresolvedCertificateReloadPromise) {
+					$timeout.cancel(unresolvedCertificateReloadPromise);
+				}
+			});
 		});
 })();
