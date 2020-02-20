@@ -19,6 +19,8 @@ type StepItemProps = {
 	step: Step;
 	title: string;
 	version: string;
+	isDeprecated: boolean;
+	isVerified: boolean;
 	strings: StringProps;
 	selected: boolean;
 	highlightVersionUpdate: boolean;
@@ -51,6 +53,8 @@ const StepItem: FunctionComponent<StepItemProps> = ({
 	step,
 	title,
 	version,
+	isDeprecated,
+	isVerified,
 	strings,
 	selected,
 	highlightVersionUpdate,
@@ -64,8 +68,8 @@ const StepItem: FunctionComponent<StepItemProps> = ({
 				<Text className="title" ellipsis>
 					{title}
 				</Text>
-				{step.isVerified() && <img className="verified" src={verifiedIcon} />}
-				{step.isDeprecated() && <img className="deprecated" src={deprecatedIcon} />}
+				{isVerified && <img className="verified" src={verifiedIcon} />}
+				{isDeprecated && <img className="deprecated" src={deprecatedIcon} />}
 			</strong>
 			<em className="version">
 				{version ? (

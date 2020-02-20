@@ -13,6 +13,8 @@ angular
 			"step",
 			"title",
 			"version",
+			"isDeprecated",
+			"isVerified",
 			"strings",
 			"selected",
 			"stepIndex",
