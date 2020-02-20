@@ -369,9 +369,14 @@
 
 			viewModel.search = function() {
 				if (viewModel.stepFilter) {
-					stepSourceService.searchOfficialSteps(viewModel.stepFilter).then(function(stepIds) {
-						viewModel.filteredStepIds = stepIds;
-					});
+					stepSourceService
+						.searchOfficialSteps(viewModel.stepFilter)
+						.then(function(stepIds) {
+							viewModel.filteredStepIds = stepIds;
+						})
+						.catch(function(error) {
+							viewModel.loadProgress.error(error);
+						});
 				} else {
 					viewModel.filteredStepIds = null;
 				}
