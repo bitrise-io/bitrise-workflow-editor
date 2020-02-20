@@ -4,6 +4,7 @@
 	angular
 		.module("BitriseWorkflowEditor")
 		.controller("GenericFileController", function(
+			$scope,
 			$q,
 			$timeout,
 			$filter,
@@ -14,9 +15,11 @@
 			GenericFile
 		) {
 			var viewModel = this;
+			var canceler = $q.defer();
 
 			var maximumFileSizeInMegabytes = 5;
 			var genericFilesReloadIntervalInSeconds = 2;
+			var unresolvedGenericFileReloadPromise = null;
 			viewModel.maximumGenericFilesCount = 5;
 
 			viewModel.genericFiles;
@@ -34,91 +37,67 @@
 			viewModel.genericFileUploader;
 			viewModel.genericFileSettings = {};
 
-			function loadGenericFiles() {
-				viewModel.loadGenericFilesProgress.start(
-					"<%= data[:strings][:code_signing][:generic_file][:load_progress][:in_progress] %>"
-				);
-				if (
-					viewModel.uploadGenericFileProgress.isIdle &&
-					viewModel.uploadGenericFileProgress.statusMessage !== null
-				) {
+			viewModel.init = function() {
+				loadGenericFiles();
+			};
+
+			function loadGenericFiles(shouldHideLoadingIndicator) {
+				if (!shouldHideLoadingIndicator) {
+					viewModel.loadGenericFilesProgress.start(
+						"<%= data[:strings][:code_signing][:generic_file][:load_progress][:in_progress] %>"
+					);
+				}
+				if (viewModel.uploadGenericFileProgress.isIdle && viewModel.uploadGenericFileProgress.statusMessage !== null) {
 					viewModel.uploadGenericFileProgress.reset();
 				}
 
-				viewModel.genericFiles = [];
-				refreshGenericFiles();
-			}
+				requestService
+					.getGenericFiles({
+						timeout: canceler.promise
+					})
+					.then(
+						function(genericFileDatas) {
+							viewModel.genericFiles = _.map(genericFileDatas, function(aGenericFileData) {
+								var genericFile = new GenericFile(aGenericFileData.envVarPartialID);
 
-			function refreshGenericFiles() {
-				requestService.getGenericFiles().then(
-					function(genericFileDatas) {
-						var genericFiles = {};
-						_.each(genericFileDatas, function(aGenericFileData) {
-							var genericFile = new GenericFile(
-								aGenericFileData.envVarPartialID
-							);
+								genericFile.databaseID = aGenericFileData.databaseID;
+								genericFile.isProcessed = aGenericFileData.isProcessed;
+								genericFile.uploadFileName = aGenericFileData.uploadFileName;
+								genericFile.isExpose = aGenericFileData.isExpose;
+								genericFile.isProtected = aGenericFileData.isProtected;
 
-							genericFile.databaseID = aGenericFileData.databaseID;
-							genericFile.isProcessed = aGenericFileData.isProcessed;
-							genericFile.uploadFileName = aGenericFileData.uploadFileName;
-							genericFile.isExpose = aGenericFileData.isExpose;
-							genericFile.isProtected = aGenericFileData.isProtected;
-
-							genericFiles[aGenericFileData.envVarPartialID] = genericFile;
-						});
-
-						if (viewModel.genericFiles.length != _.size(genericFiles)) {
-							viewModel.genericFiles = [];
-							_.each(genericFiles, function(value, key) {
-								viewModel.genericFiles.push(value);
-
-								viewModel.genericFileSettings[key] = {
+								viewModel.genericFileSettings[genericFile.databaseID] = {
 									isMenuVisible: false
 								};
-							});
-						} else {
-							_.each(viewModel.genericFiles, function(aGenericFile) {
-								var elementValue = genericFiles[aGenericFile.envVarPartialID];
-								if (
-									elementValue !== undefined &&
-									!angular.equals(elementValue, aGenericFile)
-								) {
-									aGenericFile = elementValue;
-								}
-							});
-						}
 
-						viewModel.genericFileIsExposeGetterSetterConfigs = _.map(
-							viewModel.genericFiles,
-							function(aGenericFile) {
+								return genericFile;
+							});
+
+							viewModel.genericFileIsExposeGetterSetterConfigs = _.map(viewModel.genericFiles, function(aGenericFile) {
 								var progress = new Progress();
 								return {
-									getterSetter: isExposeGetterSetterForGenericFile(
-										aGenericFile,
-										progress
-									),
+									getterSetter: isExposeGetterSetterForGenericFile(aGenericFile, progress),
 									progress: progress
 								};
+							});
+
+							viewModel.loadGenericFilesProgress.success();
+
+							if (
+								_.find(viewModel.genericFiles, {
+									isProcessed: false
+								})
+							) {
+								unresolvedGenericFileReloadPromise = $timeout(function() {
+									unresolvedGenericFileReloadPromise = null;
+									loadGenericFiles(true);
+								}, genericFilesReloadIntervalInSeconds * 1000);
 							}
-						);
-
-						viewModel.loadGenericFilesProgress.success();
-
-						if (
-							viewModel.genericFiles.length == 0 ||
-							_.find(viewModel.genericFiles, {
-								isProcessed: false
-							})
-						) {
-							$timeout(function() {
-								refreshGenericFiles();
-							}, genericFilesReloadIntervalInSeconds * 1000);
+						},
+						function(error) {
+							viewModel.loadGenericFilesProgress.error(error);
 						}
-					},
-					function(error) {
-						viewModel.loadGenericFilesProgress.error(error);
-					}
-				);
+					);
 			}
 
 			viewModel.downloadURLEnvVarKeyPrettifiedPreview = function() {
@@ -132,9 +111,7 @@
 					return "<%= data[:strings][:code_signing][:generic_file][:invalid_id_preview_placeholder] %>";
 				}
 
-				return $filter("prettifiedKey")(
-					viewModel.uploadedGenericFile.downloadURLEnvVarKey()
-				);
+				return $filter("prettifiedKey")(viewModel.uploadedGenericFile.downloadURLEnvVarKey());
 			};
 
 			viewModel.uploadedGenericFileErrorMessage = function() {
@@ -238,24 +215,24 @@
 					aGenericFile.isExpose = isExpose;
 
 					progress.start();
-					requestService
-						.updateGenericFileIsExposeState(
-							aGenericFile.databaseID,
-							aGenericFile.isExpose
-						)
-						.then(
-							function() {
-								progress.success();
-							},
-							function(error) {
-								aGenericFile.isExpose = oldIsExpose;
-								progress.reset();
-								Popup.showErrorPopup(error.message);
-							}
-						);
+					requestService.updateGenericFileIsExposeState(aGenericFile.databaseID, aGenericFile.isExpose).then(
+						function() {
+							progress.success();
+						},
+						function(error) {
+							aGenericFile.isExpose = oldIsExpose;
+							progress.reset();
+							Popup.showErrorPopup(error.message);
+						}
+					);
 				};
 			}
 
-			loadGenericFiles();
+			$scope.$on("$destroy", function() {
+				canceler.resolve();
+				if (unresolvedGenericFileReloadPromise) {
+					$timeout.cancel(unresolvedGenericFileReloadPromise);
+				}
+			});
 		});
 })();
