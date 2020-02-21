@@ -210,7 +210,7 @@
 									true
 								),
 								projectTypePromise.then(function() {
-									return stepSourceService.loadLatestOfficialSteps(appService.projectType);
+									return stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID);
 								})
 							);
 						}
@@ -297,7 +297,7 @@
 						return (
 							!aStep.projectTypeTags() ||
 							aStep.projectTypeTags().length == 0 ||
-							_.contains(aStep.projectTypeTags(), appService.projectType)
+							_.contains(aStep.projectTypeTags(), appService.appDetails.projectTypeID)
 						);
 					});
 				}

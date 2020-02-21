@@ -105,14 +105,14 @@
 						viewModel.showNewCodeSigningWizard = responses[0].showNewCodeSigningWizard;
 						viewModel.shouldShowCodeSigningHints = !_.contains(
 							irrelevantProjectTypesForCodeSigningHints,
-							appService.projectType
+							appService.appDetails.projectTypeID
 						);
 
 						viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
 
 						$q.all(
 							_.map(viewModel.sectionConfigurations, function(aSectionConfiguration) {
-								if (!_.contains(aSectionConfiguration.irrelevantProjectTypes, appService.projectType)) {
+								if (!_.contains(aSectionConfiguration.irrelevantProjectTypes, appService.appDetails.projectTypeID)) {
 									aSectionConfiguration.shouldShow = true;
 
 									return $q.when();

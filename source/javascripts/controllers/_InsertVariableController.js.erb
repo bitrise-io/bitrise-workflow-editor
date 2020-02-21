@@ -127,7 +127,7 @@
 								availableKeys.push(ProvProfile.provisionURLEnvVarKey);
 							}
 
-							if (appService.projectType != "xamarin") {
+							if (appService.appDetails.projectTypeID != "xamarin") {
 								availableKeys.push(ProvProfile.defaultProvisionURLEnvVarKey);
 							}
 
@@ -142,7 +142,7 @@
 								availableKeys.push(Certificate.certificatePassphraseEnvVarKey);
 							}
 
-							if (appService.projectType != "xamarin") {
+							if (appService.appDetails.projectTypeID != "xamarin") {
 								availableKeys.push(Certificate.defaultCertificateURLEnvVarKey);
 								availableKeys.push(
 									Certificate.defaultCertificatePassphraseEnvVarKey

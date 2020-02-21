@@ -496,15 +496,15 @@
 			};
 
 			appService.availableStacks = function() {
-				if (Stack.all === undefined || appService.projectType === undefined) {
+				if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
 					return undefined;
 				}
 
-				if (appService.projectType == "other") {
+				if (appService.appDetails.projectTypeID == "other") {
 					return Stack.all;
 				} else {
 					return _.filter(Stack.all, function(aStack) {
-						return _.contains(aStack.projectTypes, appService.projectType);
+						return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
 					});
 				}
 			};
@@ -549,7 +549,7 @@
 
 			appService.getProjectType = function(requestConfig) {
 				return requestService.getAppProjectType(requestConfig).then(function(projectType) {
-					appService.projectType = projectType;
+					appService.appDetails.projectTypeID = projectType;
 				});
 			};
 

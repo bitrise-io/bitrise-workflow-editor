@@ -5,8 +5,8 @@
 			.filters
 				button.category-mode[ng-click="addStepCtrl.isCategoryMode = true" ng-if="!addStepCtrl.isCategoryMode && !addStepCtrl.isWindowSizeForcingListMode"]  == svg("arrow-down")
 				input.step-filter[type="text" placeholder="#{ data[:strings][:workflows][:steps][:add][:search_placeholder] }" ng-model="addStepCtrl.stepFilter" ng-focus="addStepCtrl.isCategoryMode = false" ng-model-options='{ debounce: 500 }'  ng-change='addStepCtrl.search()']
-				.project-type-filter[ng-if="appService.projectType"]
-					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.projectType | projectTypeCSSClass"]
+				.project-type-filter[ng-if="appService.appDetails.projectTypeID"]
+					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.appDetails.projectTypeID | projectTypeCSSClass"]
 						span.platform-icon.apple  == svg("logo/apple")
 						span.platform-icon.macos  == svg("logo/macos")
 						span.platform-icon.android  == svg("logo/android")
