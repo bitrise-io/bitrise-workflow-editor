@@ -1,6 +1,7 @@
 import "./_BitriseWorkflowEditor";
 import "./_apihandler";
 import "./_componentRegister";
+import "./_serviceRegister";
 
 var ctxs = [
     // app
