@@ -13,7 +13,11 @@ type StepVersionInfoProps = {
     isLatestVersion :boolean
     workflowIndex :number
     onUpdateStep: (step :Step, index :number) => void
-    strings :Map<string, string>
+    strings :{
+        versionText :string,
+        latestVersionText :string,
+        invalidVersionText: string
+    }
 };
 
 const StepVersionInfo: FunctionComponent<StepVersionInfoProps> = ({
@@ -36,11 +40,11 @@ const StepVersionInfo: FunctionComponent<StepVersionInfoProps> = ({
             )}
 
             <Text className={classNames("version__text", { "error": !step.isConfigured() })}>
-                {step.isConfigured() ? strings["version-text"] : strings["invalid-version-text"]}
+                {step.isConfigured() ? strings.versionText : strings.invalidVersionText}
             </Text>
         </div>
 
-        <Text className="latest-version">{strings["latest-version-text"]}</Text>
+        <Text className="latest-version">{strings.latestVersionText}</Text>
     </div>
 );
 

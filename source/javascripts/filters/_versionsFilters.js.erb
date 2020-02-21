@@ -47,16 +47,17 @@ angular.module("BitriseWorkflowEditor")
     function(stringsService, stepSourceService, resolveVersion) {
         var versionText = "<%= data[:strings][:workflows][:steps][:version] %>";
         var latestVersionText = "<%= data[:strings][:workflows][:steps][:latest_version] %>";
-        var invalidVersionText = "<%= data[:strings][:workflows][:steps][:invalid_version][:title] %>";
 
-        var strings = {};
+        var strings = {
+            invalidVersionText: "<%= data[:strings][:workflows][:steps][:invalid_version][:title] %>"
+        };
 
         return function(step, requestedVersion) {
-            strings["invalid-version-text"] = invalidVersionText;
-            strings["version-text"] = stringsService.stringReplacedWithParameters(versionText, {
+            strings.versionText = stringsService.stringReplacedWithParameters(versionText, {
                 version: resolveVersion(requestedVersion, step)
             });
-            strings["latest-version-text"] = stringsService.stringReplacedWithParameters(latestVersionText, {
+
+            strings.latestVersionText = stringsService.stringReplacedWithParameters(latestVersionText, {
                     latest_version: stepSourceService.latestVersion(step)
             });
 
