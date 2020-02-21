@@ -82,13 +82,7 @@
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
 									== svg("arrow-down")
 							section.version[ng-if="workflowsCtrl.selectedStep.version !== undefined"]
-								.version-info
-									.resolved-version
-										span.icon.icon-ok[ng-show="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"] == svg("step/latest")
-										button.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" ng-click="workflowsCtrl.updateStep(workflowsCtrl.selectedStep, workflowIndex)"] == svg("step/upgrade")
-										label.version__text[for="selected-step-version-select" ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-bind="'#{ data[:strings][:workflows][:steps][:version] }' | replace:{version: (workflowsCtrl.requestedStepVersion | resolveVersion:step )}"]
-										label.version__text[for="selected-step-version-select" ng-show="!workflowsCtrl.selectedStep.isConfigured()" class="error"] == data[:strings][:workflows][:steps][:invalid_version][:title]
-									.latest-version[ng-bind="'#{ data[:strings][:workflows][:steps][:latest_version] }' | replace:{latest_version: (workflowsCtrl.selectedStep | latestVersion)}"]
+								r-step-version-info[step="workflowsCtrl.selectedStep" is-latest-version="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" strings="workflowsCtrl.selectedStep | versionInfoStrings:workflowsCtrl.requestedStepVersion" workflow-index="workflowIndex" on-update-step="workflowsCtrl.updateStep"]
 								.version-selector
 									label.remark[ng-bind-html="workflowsCtrl.selectedStep | versionRemark" ng-class="{ error: !workflowsCtrl.selectedStep.isConfigured() }"]
 									select#selected-step-version-select[ng-options="(version | versionLabel) disable when (version | isVersionDisabled) for version in (workflowsCtrl.selectedStep | stepVersions)" ng-model="workflowsCtrl.requestedStepVersion"]

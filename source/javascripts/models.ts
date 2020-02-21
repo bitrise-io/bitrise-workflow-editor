@@ -10,6 +10,7 @@ export interface Step {
     requestedVersion(): string
     displayName(): string
     isVerified(): boolean,
+    isConfigured(): boolean,
     isDeprecated(): boolean
     iconURL(): string
 };

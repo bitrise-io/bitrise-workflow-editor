@@ -1,3 +1,5 @@
+import { safeDigest } from "../components/utils";
+
 (function() {
 	"use strict";
 
@@ -426,9 +428,7 @@
 							$parse(attrs.isCategoryModeFlag).assign(scope, false);
 						}
 
-						if (!scope.$$phase) {
-							scope.$apply();
-						}
+						safeDigest(scope);
 					}
 
 					scope.$on("$destroy", function() {

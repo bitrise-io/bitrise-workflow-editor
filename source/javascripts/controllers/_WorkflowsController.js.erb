@@ -1,3 +1,5 @@
+import { safeDigest } from "../components/utils";
+
 (function() {
 	"use strict";
 
@@ -894,6 +896,7 @@
 				}
 
 				changeStepToVersion(step, _.first(stepSourceService.versionsOfStep(step)));
+				safeDigest($scope);
 			};
 
 			$scope.$watch(

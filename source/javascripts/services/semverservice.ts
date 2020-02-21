@@ -111,4 +111,4 @@ class SemverService {
     };
 }
 
-export default SemverService;
+export default new SemverService();
