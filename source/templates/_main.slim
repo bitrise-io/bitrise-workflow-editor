@@ -29,7 +29,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="appService.appDetails.title" href="{{ mainCtrl.appPath() }}" title="{{ appService.appDetails.title }}" tabindex="-1"]
 					li.level.current
 						span Workflow Editor
-		.workflow-editor-menubar
+		.workflow-editor-menubar[ng-if="mainCtrl.initAppProgress.isIdle"]
 			nav
 				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
 					span.icon[ng-if="menu.cssClass == 'workflows'"]  == svg("main/menuicon-workflows")

@@ -392,29 +392,6 @@
 				appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 			};
 
-			appService.getAccountData = function(requestConfig) {
-				if (!appService.appDetails) {
-					return $q.when();
-				}
-
-				switch (appService.appDetails.ownerData.type) {
-					case "User":
-						return $q.when();
-					case "Organization":
-						return requestService
-							.getOrganizationData({
-								organizationSlug: appService.appDetails.ownerData.slug
-							})
-							.then(function(organizationData) {
-								if (!organizationData) {
-									return;
-								}
-
-								appService.accountData = organizationData;
-							});
-				}
-			};
-
 			appService.availableMachineTypes = function(workflow) {
 				if (
 					!appService.appDetails.isMachineTypeSelectorAvailable ||

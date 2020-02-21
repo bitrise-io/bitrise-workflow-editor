@@ -541,74 +541,15 @@
 					"<%= data[:strings][:main][:load_progress][:loading] %>"
 				);
 
-				viewModel.menus = _.compact([
-					{
-						id: "workflows",
-						title: "<%= data[:strings][:main][:menus][:workflows] %>",
-						path: "<%= data[:routes][:endpoints][:workflows] %>",
-						possibleURLParameterKeys: ["workflow_id"],
-						cssClass: "workflows"
-					},
-					requestService.mode == "website"
-						? {
-								id: "code-signing",
-								title: "<%= data[:strings][:main][:menus][:code_signing] %>",
-								path: "<%= data[:routes][:endpoints][:code_signing] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "code-signing"
-						  }
-						: null,
-					{
-						id: "secrets",
-						title: "<%= data[:strings][:main][:menus][:secrets] %>",
-						path: "<%= data[:routes][:endpoints][:secrets] %>",
-						possibleURLParameterKeys: [],
-						cssClass: "secrets"
-					},
-					{
-						id: "env-vars",
-						title: "<%= data[:strings][:main][:menus][:env_vars] %>",
-						path: "<%= data[:routes][:endpoints][:env_vars] %>",
-						possibleURLParameterKeys: [],
-						cssClass: "env-vars"
-					},
-					{
-						id: "triggers",
-						title: "<%= data[:strings][:main][:menus][:triggers] %>",
-						path: "<%= data[:routes][:endpoints][:triggers] %>",
-						possibleURLParameterKeys: ["trigger_type"],
-						cssClass: "triggers"
-					},
-					requestService.mode == "website"
-						? {
-								id: "stack",
-								title: "<%= data[:strings][:main][:menus][:stack] %>",
-								path: "<%= data[:routes][:endpoints][:stack] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "stack"
-						  }
-						: null,
-					{
-						id: "yml",
-						title: "<%= data[:strings][:main][:menus][:yml] %>",
-						path: "<%= data[:routes][:endpoints][:yml] %>",
-						possibleURLParameterKeys: [],
-						cssClass: "yml"
-					}
-				]);
-
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
 						case "website":
-							var appSlug = getAppFromCurrentPath();
-
-							if (appSlug) {
-								requestService.appSlug = appSlug;
-
-								resolve();
-							} else {
-								reject("No app slug specified.");
+							requestService.appSlug = getAppFromCurrentPath();
+							if (!requestService.appSlug) {
+								return reject("No app slug specified.");
 							}
+
+							appService.getAppDetails().then(resolve, reject);
 
 							break;
 						case "cli":
@@ -616,50 +557,68 @@
 
 							break;
 					}
-				})
-					.then(function() {
-						appService.getAppDetails().then(function() {
-							$q(function(resolve, reject) {
-								if (requestService.mode != "website") {
-									return resolve();
-								}
+				}).then(function() {
+					viewModel.menus = _.compact([
+						{
+							id: "workflows",
+							title: "<%= data[:strings][:main][:menus][:workflows] %>",
+							path: "<%= data[:routes][:endpoints][:workflows] %>",
+							possibleURLParameterKeys: ["workflow_id"],
+							cssClass: "workflows"
+						},
+						requestService.mode == "website"
+							? {
+									id: "code-signing",
+									title: "<%= data[:strings][:main][:menus][:code_signing] %>",
+									path: "<%= data[:routes][:endpoints][:code_signing] %>",
+									possibleURLParameterKeys: [],
+									cssClass: "code-signing"
+							}
+							: null,
+						{
+							id: "secrets",
+							title: "<%= data[:strings][:main][:menus][:secrets] %>",
+							path: "<%= data[:routes][:endpoints][:secrets] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "secrets"
+						},
+						{
+							id: "env-vars",
+							title: "<%= data[:strings][:main][:menus][:env_vars] %>",
+							path: "<%= data[:routes][:endpoints][:env_vars] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "env-vars"
+						},
+						{
+							id: "triggers",
+							title: "<%= data[:strings][:main][:menus][:triggers] %>",
+							path: "<%= data[:routes][:endpoints][:triggers] %>",
+							possibleURLParameterKeys: ["trigger_type"],
+							cssClass: "triggers"
+						},
+						requestService.mode == "website"
+							? {
+									id: "stack",
+									title: appService.appDetails.isMachineTypeSelectorAvailable ? "<%= data[:strings][:main][:menus][:stacks_and_machines] %>" : "<%= data[:strings][:main][:menus][:stack] %>",
+									path: "<%= data[:routes][:endpoints][:stack] %>",
+									possibleURLParameterKeys: [],
+									cssClass: "stack"
+							}
+							: null,
+						{
+							id: "yml",
+							title: "<%= data[:strings][:main][:menus][:yml] %>",
+							path: "<%= data[:routes][:endpoints][:yml] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "yml"
+						}
+					]);
 
-								appService.getAccountData().then(
-									function() {
-										if (appService.appDetails.isMachineTypeSelectorAvailable) {
-											var stackMenu = _.find(viewModel.menus, {
-												id: "stack"
-											});
-
-											stackMenu.title =
-												"<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
-										}
-
-										resolve();
-									},
-									function(error) {
-										reject(error);
-									}
-								);
-							}).then(
-								function() {
-									viewModel.initAppProgress.success();
-									selectInitialMenu();
-								},
-								function(error) {
-									if (error.errorCode && error.errorCode == 404) {
-										viewModel.initAppProgress.success();
-										selectInitialMenu();
-									} else {
-										viewModel.initAppProgress.error(error);
-									}
-								}
-							);
-						});
-					})
-					.catch(function(hasError) {
-						viewModel.initAppProgress.error(hasError);
-					});
+					viewModel.initAppProgress.success();
+					selectInitialMenu();
+				}, function(error) {
+					viewModel.initAppProgress.error(error);
+				});
 			};
 		});
 })();
