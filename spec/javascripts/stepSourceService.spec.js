@@ -223,7 +223,7 @@ describe("stepSourceService", function() {
 				cvs: "MOCK_STEP@1.1.1",
 				version: "1.1.1",
 				defaultStepConfig: "1.1.1 config",
-				libraryURL: "http://tempuri.org",
+				libraryURL: TEST_LIB_URL,
 				isLibraryStep: () => true
 			};
 		});
@@ -254,20 +254,13 @@ describe("stepSourceService", function() {
 			expect(versions).toBeNull();
 		});
 
-		it("should include step own version into the list", () => {
-			MOCK_STEP.isLibraryStep = () => true;
-			MOCK_STEP.version = "fake_version";
+		it("should use existing step versions in the library to calculate wildcard ones", () => {
+			const mockVersions = [null, "2.2.1"];
+			mockSemverService.extractWildcardVersions.and.returnValue(mockVersions);
 
 			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(versions).toEqual(["fake_version", "2.2.1", "1.2.1", "1.1.1", "1.0.0"]);
-		});
-
-		it("should use existing step versions in the library to calculate wildcard ones", () => {
-			stepSourceService.versionsOfStep(MOCK_STEP);
-
-			expect(mockSemverService.extractWildcardVersions)
-				.toHaveBeenCalledWith(MOCK_STEP, stepSourceService.libraries[0]);
+			expect(versions).toEqual(mockVersions);
+			expect(mockSemverService.extractWildcardVersions).toHaveBeenCalledWith(MOCK_STEP, stepSourceService.libraries[0]);
 		});
 	});
 
