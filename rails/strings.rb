@@ -883,10 +883,6 @@ def strings
                 default_error: "Error loading app data.",
                 error_prefix: "Error loading app data: "
             },
-            get_app_project_type: {
-                default_error: "Error loading app project type.",
-                error_prefix: "Error loading app project type: "
-            },
             get_app_available_project_types: {
                 default_error: "Error loading app available project types.",
                 error_prefix: "Error loading app available project types: "
@@ -1002,7 +998,6 @@ def strings
             stack_info_get: "/app/<app_slug>/stack_info.json",
             stacks_get: "/app/<app_slug>/all_stack_info",
             stack_save: "/app/<app_slug>/stack",
-            app_project_type_get: "/app/<app_slug>/project_type",
             prov_profile_create: "/api/app/<app_slug>/prov_profile_document/create.json",
             prov_profile_get_details: "/prov_profile_document/details/<prov_profile_id>.json",
             prov_profiles_get: "/api/app/<app_slug>/prov_profile_document/show.json",

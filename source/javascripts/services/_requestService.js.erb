@@ -798,32 +798,6 @@
 
 			// Project types
 
-			requestService.getAppProjectType = function(requestConfig) {
-				var requestURL = stringService.stringReplacedWithParameters(
-					"<%= webserver_path(data[:routes][:website][:app_project_type_get]) %>",
-					{
-						app_slug: requestService.appSlug
-					}
-				);
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve(response.data.project_type);
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:get_app_project_type][:default_error] %>",
-									"<%= data[:strings][:request_service][:get_app_project_type][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			requestService.getAppAvailableProjectTypes = function(requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:stack_info_get]) %>",

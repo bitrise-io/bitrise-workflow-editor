@@ -94,15 +94,10 @@
 				viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 
 				$q(function(resolve, reject) {
-					$q.all([
-						requestService.getCurrentUserData({
-							timeout: canceler.promise
-						}),
-						appService.getProjectType(undefined, {
-							timeout: canceler.promise
-						})
-					]).then(function(responses) {
-						viewModel.showNewCodeSigningWizard = responses[0].showNewCodeSigningWizard;
+					requestService.getCurrentUserData({
+						timeout: canceler.promise
+					}).then(function(responseData) {
+						viewModel.showNewCodeSigningWizard = responseData.showNewCodeSigningWizard;
 						viewModel.shouldShowCodeSigningHints = !_.contains(
 							irrelevantProjectTypesForCodeSigningHints,
 							appService.appDetails.projectTypeID

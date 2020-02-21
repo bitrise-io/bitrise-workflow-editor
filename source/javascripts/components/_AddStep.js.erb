@@ -191,11 +191,6 @@
 						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
 
 						var loadPromises = [];
-						var projectTypePromise = Promise.resolve();
-
-						if (requestService.mode === "website") {
-							projectTypePromise = appService.getProjectType();
-						}
 
 						if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
 							canceler.resolve();
@@ -209,13 +204,9 @@
 									},
 									true
 								),
-								projectTypePromise.then(function() {
-									return stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID);
-								})
+								stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID)
 							);
 						}
-
-						loadPromises.push(projectTypePromise);
 
 						steps = [];
 						viewModel.typeFilters = [];

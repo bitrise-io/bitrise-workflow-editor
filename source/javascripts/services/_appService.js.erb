@@ -547,12 +547,6 @@
 				appService.denTags = appService.savedDenTags;
 			};
 
-			appService.getProjectType = function(requestConfig) {
-				return requestService.getAppProjectType(requestConfig).then(function(projectType) {
-					appService.appDetails.projectTypeID = projectType;
-				});
-			};
-
 			appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {
 				if (!shouldForceReload && appService.availableProjectTypes) {
 					return $q.when();
