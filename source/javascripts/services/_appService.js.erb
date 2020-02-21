@@ -26,13 +26,21 @@
 				accountData: undefined
 			};
 
-			appService.getAppDetails = function(requestConfig) {
+			appService.getAppDetails = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.appDetails) {
+					return $q.when();
+				}
+
 				return requestService.getAppDetails(requestConfig).then(function(appDetails) {
 					appService.appDetails = appDetails;
 				});
 			};
 
-			appService.getAppConfig = function(requestConfig) {
+			appService.getAppConfig = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.appConfig) {
+					return $q.when();
+				}
+
 				return requestService.getAppConfig(requestConfig).then(function(appConfig) {
 					appService.appConfig = appConfig;
 					normalizeAppConfig();
@@ -334,7 +342,11 @@
 				appService.secrets = angular.copy(appService.savedSecrets);
 			};
 
-			appService.getAppConfigYML = function(requestConfig) {
+			appService.getAppConfigYML = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.appConfigYML) {
+					return $q.when();
+				}
+
 				return requestService.getAppConfigYML(requestConfig).then(
 					function(appConfigYML) {
 						appService.appConfigYML = appConfigYML;
@@ -475,8 +487,12 @@
 				appService.defaultMachineType = appService.savedDefaultMachineType;
 			};
 
-			appService.getStack = function() {
-				return requestService.getStack().then(function(data) {
+			appService.getStack = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.stack) {
+					return $q.when();
+				}
+
+				return requestService.getStack(requestConfig).then(function(data) {
 					appService.stack = _.find(Stack.all, {
 						id: data.stackID
 					});
