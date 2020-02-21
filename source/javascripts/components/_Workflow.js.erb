@@ -17,7 +17,7 @@
 
 				try {
 					step = stepSourceService.stepFromCVS(stepCVS);
-					step.userStepConfig = userStepConfig;
+					step.userStepConfig = _.extend(userStepConfig, step.userStepConfig);
 				} catch (error) {
 					step = new Step(stepCVS, userStepConfig);
 				}
