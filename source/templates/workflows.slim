@@ -84,8 +84,8 @@
 							section.version[ng-if="workflowsCtrl.selectedStep.version !== undefined"]
 								.version-info
 									.resolved-version
-										span.icon.icon-ok[ng-show="stepSourceService.isLatestStepVersion(step)"] == svg("step/latest")
-										button.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(step)" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"] == svg("step/upgrade")
+										span.icon.icon-ok[ng-show="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"] == svg("step/latest")
+										button.icon.icon-danger[ng-hide="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" ng-click="workflowsCtrl.updateStep(workflowsCtrl.selectedStep, workflowIndex)"] == svg("step/upgrade")
 										label.version__text[for="selected-step-version-select" ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-bind="'#{ data[:strings][:workflows][:steps][:version] }' | replace:{version: (workflowsCtrl.requestedStepVersion | resolveVersion:step )}"]
 										label.version__text[for="selected-step-version-select" ng-show="!workflowsCtrl.selectedStep.isConfigured()" class="error"] == data[:strings][:workflows][:steps][:invalid_version][:title]
 									.latest-version[ng-bind="'#{ data[:strings][:workflows][:steps][:latest_version] }' | replace:{latest_version: (workflowsCtrl.selectedStep | latestVersion)}"]
