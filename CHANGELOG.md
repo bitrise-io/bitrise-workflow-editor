@@ -1,6 +1,50 @@
-## Changelog (Current version: 1.1.74)
+## Changelog (Current version: 1.2.0)
 
 -----------------
+
+## 1.2.0 (2020 Feb 21)
+
+### Release Notes
+
+* Port StepLib search service to TS (#447)
+* Reference Workflow Editor inside Go path in API dev mode (#444)
+* [WEB-3399] Use steplib search service for fuzzy search  (#443)
+* Fix unnecessary polling on Code Signing tab
+* [WEB-3398] Load selected project type in step selector by default (#441)
+* [WEB-3397] Integrate and use StepLib Search NPM package (#437)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.2.0
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.1.74 -> 1.2.0
+
+* [d488da0] Simon Márton - Port StepLib search service to TS (#447) (2020 Feb 21)
+* [655323a] erosdome - Reference Workflow Editor inside Go path in API dev mode (#444) (2020 Feb 20)
+* [cb964c1] Simon Márton - [WEB-3399] Use steplib search service for fuzzy search  (#443) (2020 Feb 20)
+* [c1cb6de] erosdome - Fix unnecessary polling on Code Signing tab (2020 Feb 20)
+* [fcef8a1] Simon Márton - [WEB-3398] Load selected project type in step selector by default (#441) (2020 Feb 18)
+* [9a298e1] Simon Márton - [WEB-3397] Integrate and use StepLib Search NPM package (#437) (2020 Feb 18)
+
 
 ## 1.1.74 (2020 Feb 17)
 
@@ -4152,4 +4196,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Feb 17
+Updated: 2020 Feb 21
