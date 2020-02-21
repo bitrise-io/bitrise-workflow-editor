@@ -3,7 +3,8 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.factory("stepSourceService", function($q, requestService, appService, stepLibSearchService, Step) {
+		.factory("stepSourceService",["$q", "requestService", "appService", "semverService", "stepLibSearchService", "Step",
+		function($q, requestService, appService, semverService, stepLibSearchService, Step) {
 			var stepSourceService = {
 				defaultLibraryURL: undefined,
 				libraries: [],
@@ -423,5 +424,5 @@
 			};
 
 			return stepSourceService;
-		});
+		}]);
 })();
