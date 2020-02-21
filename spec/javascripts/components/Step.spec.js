@@ -22,7 +22,7 @@ describe("Step", function() {
 
 	_.each(fields, (field) => {
 		describe(`Getter/Setters: ${field.name}`, () => {
-			var defaultStepConfig = {
+			const defaultStepConfig = {
 				[field.config_name]: `Default ${field.name}`
 			};
 

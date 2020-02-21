@@ -1,135 +1,174 @@
 (function() {
-
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").controller("StackController", function($scope, $rootScope, stringService, appService, Workflow, Stack, MachineType) {
+	angular
+		.module("BitriseWorkflowEditor")
+		.controller("StackController", function(
+			$scope,
+			$rootScope,
+			stringService,
+			appService,
+			Workflow,
+			Stack,
+			MachineType
+		) {
+			var viewModel = this;
 
-		var viewModel = this;
-
-		viewModel.workflows;
-		$scope.Stack = Stack;
-		$scope.MachineType = MachineType;
-		$scope.appService = appService;
-		viewModel.defaultDockerImagesByStackIDs = {
-			"linux-docker-android": "bitriseio/android-ndk:pinned"
-		};
-
-		viewModel.init = function() {
-			configure();
-		};
-
-		$scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
-			configure();
-		}));
-
-		function configure() {
-			viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, workflowID) {
-				return new Workflow(workflowID, aWorkflowConfig);
-			});
-		}
-
-		$scope.$watch(function () {
-			return appService.stack;
-		}, function (newValue) {
-			if (newValue) {
-				viewModel.defaultMachineTypeOptions();
-			}
-		});
-
-		viewModel.stackOptionTitle = function(stack) {
-			return stack ? (stack.name ? stack.name : stack.id) : stringService.stringReplacedWithParameters("<%= data[:strings][:stack][:default_stack] %>", {
-				stack_name: viewModel.stackOptionTitle(appService.stack)
-			});
-		};
-
-		viewModel.defaultStackOptions = function() {
-			var stacks = appService.availableStacks();
-
-			if (!_.contains(stacks, appService.stack)) {
-				stacks.push(appService.stack);
-			}
-
-			return stacks;
-		};
-
-		viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
-			if (shouldNormalize === undefined) {
-				shouldNormalize = false;
-			}
-
-			return function(stack) {
-				if (stack === null && shouldNormalize) {
-					stack = appService.stack;
-				}
-
-				var stacks = [];
-				if (stack && !_.contains(Stack.all, stack)) {
-					stacks.push(stack);
-				}
-				stacks = stacks.concat(Stack.all);
-
-				stack = workflow.stack(stack, stacks);
-
-				if (stack === null && shouldNormalize) {
-					return appService.stack;
-				}
-
-				return stack;
+			viewModel.workflows;
+			$scope.Stack = Stack;
+			$scope.MachineType = MachineType;
+			$scope.appService = appService;
+			viewModel.defaultDockerImagesByStackIDs = {
+				"linux-docker-android": "bitriseio/android-ndk:pinned"
 			};
-		};
 
-		viewModel.defaultMachineTypeOptions = function() {
-			var machineTypes = appService.availableMachineTypes();
+			viewModel.init = function() {
+				configure();
+			};
 
-			if (appService.defaultMachineType && appService.defaultMachineType.stackType !== appService.stack.id.split('-')[0]) {
-				appService.getDefaultMachineType();
+			$scope.$on(
+				"$destroy",
+				$rootScope.$on("MainController::changesDiscarded", function() {
+					configure();
+				})
+			);
+
+			function configure() {
+				viewModel.workflows = _.map(appService.appConfig.workflows, function(
+					aWorkflowConfig,
+					workflowID
+				) {
+					return new Workflow(workflowID, aWorkflowConfig);
+				});
+			}
+
+			$scope.$watch(
+				function() {
+					return appService.stack;
+				},
+				function(newValue) {
+					if (newValue) {
+						viewModel.defaultMachineTypeOptions();
+					}
+				}
+			);
+
+			viewModel.stackOptionTitle = function(stack) {
+				return stack
+					? stack.name
+						? stack.name
+						: stack.id
+					: stringService.stringReplacedWithParameters(
+							"<%= data[:strings][:stack][:default_stack] %>",
+							{
+								stack_name: viewModel.stackOptionTitle(appService.stack)
+							}
+					  );
+			};
+
+			viewModel.defaultStackOptions = function() {
+				var stacks = appService.availableStacks();
+
+				if (!_.contains(stacks, appService.stack)) {
+					stacks.push(appService.stack);
+				}
+
+				return stacks;
+			};
+
+			viewModel.stackGetterSetterForWorkflow = function(
+				workflow,
+				shouldNormalize
+			) {
+				if (shouldNormalize === undefined) {
+					shouldNormalize = false;
+				}
+
+				return function(stack) {
+					if (stack === null && shouldNormalize) {
+						stack = appService.stack;
+					}
+
+					var stacks = [];
+					if (stack && !_.contains(Stack.all, stack)) {
+						stacks.push(stack);
+					}
+					stacks = stacks.concat(Stack.all);
+
+					stack = workflow.stack(stack, stacks);
+
+					if (stack === null && shouldNormalize) {
+						return appService.stack;
+					}
+
+					return stack;
+				};
+			};
+
+			viewModel.defaultMachineTypeOptions = function() {
+				var machineTypes = appService.availableMachineTypes();
+
+				if (
+					appService.defaultMachineType &&
+					appService.defaultMachineType.stackType !==
+						appService.stack.id.split("-")[0]
+				) {
+					appService.getDefaultMachineType();
+					return machineTypes;
+				}
+
+				if (
+					appService.defaultMachineType &&
+					_.find(machineTypes, function(machineType) {
+						return machineType.id === appService.defaultMachineType.id;
+					}) === undefined
+				) {
+					machineTypes.push(appService.defaultMachineType);
+				}
+
 				return machineTypes;
-			}
+			};
 
-			if (appService.defaultMachineType && _.find(machineTypes, function(machineType) {
-				return machineType.id === appService.defaultMachineType.id;
-			}) === undefined) {
-				machineTypes.push(appService.defaultMachineType);
-			}
+			viewModel.setNewDefaultMachineType = function(newMachineType, workflow) {
+				if (
+					!newMachineType ||
+					(!workflow && appService.defaultMachineType == newMachineType)
+				) {
+					return;
+				}
 
-			return machineTypes;
-		};
+				if (workflow) {
+					var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
+					if (stack === null) {
+						stack = appService.stack;
+					}
 
-		viewModel.setNewDefaultMachineType = function(newMachineType, workflow) {
-			if (!newMachineType || !workflow && appService.defaultMachineType == newMachineType) {
-				return;
-			}
+					var stackID = stack.id.split("-")[0];
+					var machineTypes = MachineType.all;
+					workflow.machineType(stackID, newMachineType, machineTypes);
+				} else {
+					appService.defaultMachineType = newMachineType;
+				}
+			};
 
-			if (workflow) {
+			viewModel.selectedWorkflowSpecificMachineType = function(workflow) {
 				var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
 				if (stack === null) {
 					stack = appService.stack;
 				}
 
-				var stackID = stack.id.split('-')[0];
+				var stackID = stack.id.split("-")[0];
 				var machineTypes = MachineType.all;
-				workflow.machineType(stackID, newMachineType, machineTypes);
-			}
-			else {
-				appService.defaultMachineType = newMachineType;
-			}
-		};
+				var machineType = workflow.machineType(
+					stackID,
+					undefined,
+					machineTypes
+				);
+				if (machineType === null) {
+					return appService.defaultMachineType;
+				}
 
-		viewModel.selectedWorkflowSpecificMachineType = function(workflow) {
-			var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
-			if (stack === null) {
-				stack = appService.stack;
-			}
-
-			var stackID = stack.id.split('-')[0];
-			var machineTypes = MachineType.all;
-			var machineType = workflow.machineType(stackID, undefined, machineTypes);
-			if (machineType === null) {
-				return appService.defaultMachineType;
-			}
-
-			return machineType;
-		};
-	});
-
+				return machineType;
+			};
+		});
 })();

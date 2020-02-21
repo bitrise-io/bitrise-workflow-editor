@@ -179,7 +179,7 @@
 											li.capability[ng-repeat="description in provProfileCtrl.capabilityDescriptionsOfProvProfile() track by $index" ng-bind="description"]
 					section.cardo.uppercase.slim.files
 						== include_slim "_tab-code_signing-certificates"
-	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.androidKeystore)" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
+	section.cardo.uppercase.slim.files.android-keystore[ng-controller="AndroidKeystoreController as androidKeystoreCtrl" ng-init="androidKeystoreCtrl.init()" ng-if="codeSigningCtrl.sectionConfigurations.androidKeystore.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.androidKeystore)" ng-class="{'expired' : dateService.isDateExpired(identity.endDate) }"]
 		header
 			h2.label
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
@@ -257,7 +257,7 @@
 				file-uploader[onupload="androidKeystoreCtrl.uploadKeystoreFile()" model="androidKeystoreCtrl.keystoreFileUploader" on-file-change="$files.length > 0 ? androidKeystoreCtrl.uploadedKeystoreFile.updateFile($files[0]) : null"]
 					strong[ng-bind="androidKeystoreCtrl.uploadInstruction"]
 					em == data[:strings][:code_signing][:android_keystore][:upload_instructions]
-	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl" ng-if="codeSigningCtrl.sectionConfigurations.genericFile.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.genericFile)"]
+	section.cardo.uppercase.slim.files.generic-files[ng-controller="GenericFileController as genericFileCtrl" ng-init="genericFileCtrl.init()" ng-if="codeSigningCtrl.sectionConfigurations.genericFile.shouldShow && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.genericFile)"]
 		header
 			h2.label
 				span == data[:strings][:code_signing][:generic_file][:header][:card_title]

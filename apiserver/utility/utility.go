@@ -38,22 +38,19 @@ func ValidateBitriseConfigAndSecret(bitriseConfig, secretsConfig string) (*Warni
 	}
 	if secretsErr != nil {
 		errorStrs = append(errorStrs, "Secret validation error: "+secretsErr.Error())
-	} else {
-		if secretsConfigBase64 == "" {
-			errorStrs = append(errorStrs, "Secret validation error: Validation failed: Empty secrets configuration")
-		}
 	}
 
 	if len(errorStrs) > 0 {
 		return nil, fmt.Errorf("Validation failed: %s", strings.Join(errorStrs, " | "))
 	}
 
-	warningItems := &WarningItems{Config: []string{}, Secrets: []string{}}
+	warningItems := WarningItems{}
 	if len(bitriseWarns) > 0 {
 		warningItems.Config = bitriseWarns
+		return &warningItems, nil
 	}
 
-	return warningItems, nil
+	return nil, nil
 }
 
 // EnvString ...

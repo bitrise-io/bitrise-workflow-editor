@@ -3,7 +3,7 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - RELEASE_VERSION: 1.1.72
+  - RELEASE_VERSION: 1.1.74
   - BIN_NAME: workflow-editor
   - BIN_ARCH: x86_64
   - BIN_OS_DARWIN: Darwin
@@ -24,7 +24,7 @@ workflows:
     steps:
     - change-workdir@1.0.2:
         inputs:
-        - path: /bitrise/go/src/github.com/bitrise-io/bitrise-workflow-editor
+        - path: $GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor
     - script:
         inputs:
         - content: |
@@ -81,12 +81,11 @@ workflows:
     steps:
     - script:
         inputs:
-        - content: |
-            #!/bin/bash
-            npm run build
+        - content: "npm run build"
 
   client-build-website:
     envs:
+      - NODE_ENV: "prod"
       - MODE: "WEBSITE"
     after_run:
     - client-build
@@ -413,6 +412,8 @@ workflows:
     title: Create binaries
     description: |
         Creates Linux and Darwin binaries
+    envs:
+      - NODE_ENV: "prod"
     before_run:
     - assets-precompile
     steps:

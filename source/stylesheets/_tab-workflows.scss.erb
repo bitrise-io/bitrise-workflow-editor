@@ -350,10 +350,12 @@ header.sticky section.manage-workflows {
 							$color: $def-mediumdarkgrey;
 
 							@include flex-grow(1);
+							@include flex-shrink(0);
 							position: relative;
 							@include display-flex;
 							@include align-items(center);
 							@include box-sizing(border-box);
+							width: 100%;
 							max-width: $steptitle-width;
 							@include margin-y(0);
 							border: 1px solid $color;
@@ -550,7 +552,7 @@ header.sticky section.manage-workflows {
 									display: block;
 									text-align: left;
 
-									span.icon {
+									img.icon {
 										@include position(absolute, 0, null, null, 0);
 										@include box-sizing(border-box);
 										@include size($icon-size);
@@ -585,8 +587,9 @@ header.sticky section.manage-workflows {
 												@include ellipsis-oneliner;
 											}
 
-											span.verified, span.deprecated {
+											.verified, span.deprecated {
 												margin-left: 5px;
+												@include size(15px);
 
 												svg {
 													@include size(10px);
@@ -601,6 +604,10 @@ header.sticky section.manage-workflows {
 											font-style: normal;
 											font-weight: 300;
 											color: $def-darkgrey;
+
+											@include media-below-big {
+												display: none;
+											}
 										}
 									}
 								}
@@ -633,6 +640,10 @@ header.sticky section.manage-workflows {
 							border-color: $color;
 							color: white;
 							background-color: $color;
+
+							em.version {
+								color: white;
+							}
 						}
 					}
 
@@ -709,7 +720,7 @@ header.sticky section.manage-workflows {
 										border-color: $def-grey;
 									}
 
-									span.verified, span.community-created, span.deprecated {
+									.verified, span.community-created, span.deprecated {
 										@include flex-shrink(0);
 										@include align-self(center);
 
@@ -941,6 +952,10 @@ header.sticky section.manage-workflows {
 										display: block;
 										margin: 1em auto;
 									}
+								}
+
+								label.error {
+									color: $def-danger;
 								}
 							}
 
@@ -1624,7 +1639,7 @@ header.sticky section.manage-workflows {
 
 						.step-actions {
 
-							button.step span.icon {
+							button.step img.icon {
 								position: static;
 								display: block;
 							}
@@ -1646,7 +1661,7 @@ header.sticky section.manage-workflows {
 
 						.step-actions {
 
-							button.step span.icon {
+							button.step img.icon {
 								@include size($icon-size_small);
 							}
 
@@ -1685,6 +1700,7 @@ header.sticky section.manage-workflows {
 
 					&:before {
 						content: "";
+						@include flex-shrink(0);
 						@include box-sizing(border-box);
 						width: $arrow_end-width;
 						@include margin-x(($icon-size - $arrow_end-width) / 2);

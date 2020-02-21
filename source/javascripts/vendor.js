@@ -1,27 +1,27 @@
-import $ from 'jquery';
-import _ from 'underscore';
+import $ from "jquery";
+import _ from "underscore";
 
 global.$ = $;
 global._ = _;
 
-import 'angular';
-import 'angular-cookies';
-import 'angular-sanitize';
-import 'angular-route';
-import 'angular-animate';
-import 'angular-elastic';
+import "angular";
+import "angular-cookies";
+import "angular-sanitize";
+import "angular-route";
+import "angular-animate";
+import "angular-elastic";
 
-import 'showdown';
-import 'ng-showdown';
+import "showdown";
+import "ng-showdown";
 
-import 'esprima';
-import 'js-yaml'
+import "esprima";
+import "js-yaml";
 
 $(document).ready(function() {
-    document.body.addEventListener('DOMSubtreeModified', function() {
-        _.each($('*[sanitized-markdown] a[href]'), function(anAnchor) {
-            $(anAnchor).attr('target', '_blank');
-            $(anAnchor).attr('rel', 'noreferrer noopener nofollow');
-        });
-    });
+	document.body.addEventListener("DOMSubtreeModified", function() {
+		_.each($("*[sanitized-markdown] a[href]"), function(anAnchor) {
+			$(anAnchor).attr("target", "_blank");
+			$(anAnchor).attr("rel", "noreferrer noopener nofollow");
+		});
+	});
 });

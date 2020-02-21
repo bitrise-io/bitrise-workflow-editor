@@ -1,513 +1,568 @@
 (function() {
+	"use strict";
 
-"use strict";
-
-angular.module("BitriseWorkflowEditor").service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
-
-	var appService = {
-		appDetails: undefined,
-		appConfig: undefined,
-		savedAppConfig: undefined,
-		secrets: undefined,
-		savedSecrets: undefined,
-		appConfigYML: undefined,
-		savedAppConfigYML: undefined,
-		stack: undefined,
-		savedStack: undefined,
-		defaultMachineType: undefined,
-		savedDefaultMachineType: undefined,
-		dockerImage: undefined,
-		savedDockerImage: undefined,
-		denTags: undefined,
-		savedDenTags: undefined,
-		projectType: undefined,
-		availableProjectTypes: undefined,
-		validationWarnings: [],
-		accountData: undefined
-	};
-
-	appService.getAppDetails = function(requestConfig) {
-		return requestService.getAppDetails(requestConfig).then(function(appDetails) {
-			appService.appDetails = appDetails;
-		});
-	};
-
-	appService.getAppConfig = function(requestConfig) {
-		return requestService.getAppConfig(requestConfig).then(function(appConfig) {
-			appService.appConfig = appConfig;
-			normalizeAppConfig();
-
-			appService.savedAppConfig = angular.copy(appService.appConfig);
-		});
-	};
-
-	appService.appConfigHasUnsavedChanges = function() {
-		return !angular.equals(appService.appConfig, appService.savedAppConfig);
-	};
-
-	function normalizeAppConfig() {
-		var variableConfigs = [];
-
-		if (appService.appConfig.app && appService.appConfig.app.envs) {
-			variableConfigs = _.union(variableConfigs, appService.appConfig.app.envs);
-		}
-
-		if (appService.appConfig.workflows) {
-			_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
-				if (!aWorkflowConfig) {
-					appService.appConfig.workflows[aWorkflowID] = aWorkflowConfig = {};
-				}
-
-				variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
-
-				if (aWorkflowConfig.steps !== undefined && _.isEmpty(aWorkflowConfig.steps)) {
-					delete aWorkflowConfig["steps"];
-				}
-
-				_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
-					var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
-					if (!aWrappedUserStepConfig[stepCVS]) {
-						aWrappedUserStepConfig[stepCVS] = {};
-					}
-					var stepConfig = aWrappedUserStepConfig[stepCVS];
-
-					if (stepConfig.source && _.isEmpty(stepConfig.source)) {
-						delete stepConfig["source"];
-					}
-
-					if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
-						delete stepConfig["deps"];
-					}
-
-					variableConfigs = _.union(variableConfigs, stepConfig.inputs);
-				});
-			});
-		}
-
-		_.each(variableConfigs, Variable.minimizeVariableConfig);
-
-		if (appService.appConfig.app) {
-			if (appService.appConfig.app.envs && appService.appConfig.app.envs.length == 0) {
-				delete appService.appConfig.app["envs"];
-			}
-
-			if (angular.equals(appService.appConfig.app, {})) {
-				delete appService.appConfig["app"];
-			}
-		}
-
-		if (appService.appConfig.trigger_map) {
-			if (appService.appConfig.trigger_map.length == 0) {
-				delete appService.appConfig["trigger_map"];
-			}
-			else {
-				appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function(aTriggerConfig) {
-					var trigger = new Trigger(aTriggerConfig);
-
-					return _.indexOf(["push", "pull-request", "tag"], trigger.type());
-				});
-			}
-		}
-
-		if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {
-			delete appService.appConfig["workflows"];
-		}
-	}
-
-	function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
-		return $q(function(resolve, reject) {
-			var errors = [];
-
-			if (_.any(variables, function(aVariable) {
-				return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
-			})) {
-				errors.push(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
-
-				if (shouldKeysBeUnique) {
-					errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
-				}
-			}
-
-			if (_.any(variables, function(aVariable) {
-				return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
-			})) {
-				errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_value] %>"));
-			}
-
-			if (errors.length == 0) {
-				resolve();
-			}
-			else {
-				reject(new Error(stringService.errorMessageFromErrors(errors)));
-			}
-		});
-	}
-
-	appService.appConfigHasDeprecatedTriggerMap = function() {
-		return _.any(appService.appConfig.trigger_map, function(aTriggerConfig) {
-			return aTriggerConfig.pattern !== undefined;
-		});
-	};
-
-	appService.updateDeprecatedTriggerMap = function() {
-		var updatedTriggerMap = [];
-		_.each(appService.appConfig.trigger_map, function(aTriggerConfig) {
-			if (aTriggerConfig.pattern === undefined) {
-				updatedTriggerMap.push(aTriggerConfig);
-
-				return;
-			}
-
-			var pushTriggerConfig = {
-				workflow: aTriggerConfig.workflow,
-				push_branch: aTriggerConfig.pattern
+	angular
+		.module("BitriseWorkflowEditor")
+		.service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
+			var appService = {
+				appDetails: undefined,
+				appConfig: undefined,
+				savedAppConfig: undefined,
+				secrets: undefined,
+				savedSecrets: undefined,
+				appConfigYML: undefined,
+				savedAppConfigYML: undefined,
+				stack: undefined,
+				savedStack: undefined,
+				defaultMachineType: undefined,
+				savedDefaultMachineType: undefined,
+				dockerImage: undefined,
+				savedDockerImage: undefined,
+				denTags: undefined,
+				savedDenTags: undefined,
+				projectType: undefined,
+				availableProjectTypes: undefined,
+				validationWarnings: [],
+				accountData: undefined
 			};
-			updatedTriggerMap.push(pushTriggerConfig);
 
-			if (aTriggerConfig.is_pull_request_allowed) {
-				var pullRequestTriggerConfig = {
-					workflow: aTriggerConfig.workflow,
-					pull_request_source_branch: aTriggerConfig.pattern,
-					pull_request_target_branch: "*"
-				};
-				updatedTriggerMap.push(pullRequestTriggerConfig);
-			}
-		});
-
-		appService.appConfig.trigger_map = updatedTriggerMap;
-	};
-
-	appService.saveAppConfig = function(requestConfig) {
-		var variables = [];
-		if (appService.appConfig.app && appService.appConfig.app.envs) {
-			var variablesWithoutKeyAndValue = _.filter(_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
-				return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
-			}), function(anEnvVar){
-				return (_.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value()));
-			});
-
-			_.each(variablesWithoutKeyAndValue, function(aVariable) {
-				var index = _.findIndex(appService.appConfig.app.envs, aVariable.userVariableConfig);
-				appService.appConfig.app.envs.splice(index, 1);
-			});
-
-			variables = variables.concat(_.map(appService.appConfig.app.envs, function (anEnvVarConfig) {
-				return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
-			}));
-		}
-		if (appService.appConfig.workflows) {
-			_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
-				var variablesWithoutKeyAndValue = _.filter(_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
-					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
-				}), function(anEnvVar){
-					return (_.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value()));
+			appService.getAppDetails = function(requestConfig) {
+				return requestService.getAppDetails(requestConfig).then(function(appDetails) {
+					appService.appDetails = appDetails;
 				});
+			};
 
-				_.each(variablesWithoutKeyAndValue, function(aVariable) {
-					var index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
-					aWorkflowConfig.envs.splice(index, 1);
+			appService.getAppConfig = function(requestConfig) {
+				return requestService.getAppConfig(requestConfig).then(function(appConfig) {
+					appService.appConfig = appConfig;
+					normalizeAppConfig();
+
+					appService.savedAppConfig = angular.copy(appService.appConfig);
 				});
+			};
 
-				variables = variables.concat(_.map(aWorkflowConfig.envs, function (anEnvVarConfig) {
-					return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
-				}));
-			});
-		}
+			appService.appConfigHasUnsavedChanges = function() {
+				return !angular.equals(appService.appConfig, appService.savedAppConfig);
+			};
 
-		if (appService.defaultMachineType) {
-			if (!appService.appConfig.meta) {
-				appService.appConfig.meta = {};
-			}
-			if (!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
-				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
-			}
+			function normalizeAppConfig() {
+				var variableConfigs = [];
 
-			if (appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id != appService.defaultMachineType.id.replace(appService.stack.id.split('-')[0] + "-", "")) {
-				appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.id.split('-')[0] + "-", "");
-			}
-
-			appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
-		}
-
-		return validateVariables(variables).then(function() {
-			return requestService.postAppConfig(appService.appConfig, requestConfig);
-		}).then(function() {
-			appService.savedAppConfig = angular.copy(appService.appConfig);
-			appService.appConfigYML = undefined;
-			appService.savedAppConfigYML = undefined;
-
-			if (appService.appDetails.isMachineTypeSelectorAvailable) {
-				appService.getDefaultMachineType();
-			}
-		});
-	};
-
-	appService.discardAppConfigChanges = function() {
-		appService.appConfig = angular.copy(appService.savedAppConfig);
-	};
-
-	appService.getSecrets = function(shouldForceReload, requestConfig) {
-		if (!shouldForceReload && appService.secrets) {
-			return $q.when();
-		}
-
-		return requestService.getSecrets(requestConfig).then(function(secretConfigs) {
-			normalizeSecretConfigs(secretConfigs);
-
-			appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
-				switch (requestService.mode) {
-					case "website":
-						return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
-					case "cli":
-						return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
+				if (appService.appConfig.app && appService.appConfig.app.envs) {
+					variableConfigs = _.union(variableConfigs, appService.appConfig.app.envs);
 				}
-			});
 
-			appService.savedSecrets = angular.copy(appService.secrets);
-		});
-	};
+				if (appService.appConfig.workflows) {
+					_.each(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+						if (!aWorkflowConfig) {
+							appService.appConfig.workflows[aWorkflowID] = aWorkflowConfig = {};
+						}
 
-	appService.getSecretValue = function(secret, requestConfig) {
-		if (!_.isNull(secret.value()) && appService.secrets) {
-			return $q.when();
-		}
+						variableConfigs = _.union(variableConfigs, aWorkflowConfig.envs);
 
-		return requestService.getSecretValue(secret, requestConfig).then(function(secretValue) {
-			secret.value(secretValue);
+						if (aWorkflowConfig.steps !== undefined && _.isEmpty(aWorkflowConfig.steps)) {
+							delete aWorkflowConfig["steps"];
+						}
 
-			var savedEnvVar = _.find(appService.savedSecrets, function(aSavedSecret) {
-				return aSavedSecret.key() == secret.key();
-			});
-			savedEnvVar.value(secretValue);
-		});
-	};
+						_.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+							var stepCVS = Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig);
+							if (!aWrappedUserStepConfig[stepCVS]) {
+								aWrappedUserStepConfig[stepCVS] = {};
+							}
+							var stepConfig = aWrappedUserStepConfig[stepCVS];
 
-	function normalizeSecretConfigs(secretConfigs) {
-		_.each(secretConfigs, Variable.minimizeVariableConfig);
-	}
+							if (stepConfig.source && _.isEmpty(stepConfig.source)) {
+								delete stepConfig["source"];
+							}
 
-	appService.secretsHaveUnsavedChanges = function() {
-		return !angular.equals(_.map(appService.secrets, "userVariableConfig"), _.map(appService.savedSecrets, "userVariableConfig"));
-	};
+							if (stepConfig.deps && _.isEmpty(stepConfig.deps)) {
+								delete stepConfig["deps"];
+							}
 
-	appService.saveSecrets = function() {
-		appService.secrets = _.filter(appService.secrets, function(aSecretVar){
-			return (!_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value()));
-		});
+							variableConfigs = _.union(variableConfigs, stepConfig.inputs);
+						});
+					});
+				}
 
-		return validateVariables(appService.secrets, true, true).then(function() {
-			return requestService.postSecrets(appService.secrets);
-		}).then(function() {
-			_.each(appService.secrets, function(aSecret) {
-				aSecret.isKeyChangeable = false;
-				aSecret.shouldShowValue = false;
-			});
-			appService.savedSecrets = angular.copy(appService.secrets);
-		});
-	};
+				_.each(variableConfigs, Variable.minimizeVariableConfig);
 
-	appService.discardSecretsChanges = function() {
-		appService.secrets = angular.copy(appService.savedSecrets);
-	};
+				if (appService.appConfig.app) {
+					if (appService.appConfig.app.envs && appService.appConfig.app.envs.length == 0) {
+						delete appService.appConfig.app["envs"];
+					}
 
-	appService.getAppConfigYML = function(requestConfig) {
-		return requestService.getAppConfigYML(requestConfig).then(function(appConfigYML) {
-			appService.appConfigYML = appConfigYML;
-			appService.savedAppConfigYML = appConfigYML;
-		}, function(response) {
-			if (response.bitrise_yml) {
-				appService.appConfigYML = response.bitrise_yml;
-				appService.savedAppConfigYML = response.bitrise_yml;
+					if (angular.equals(appService.appConfig.app, {})) {
+						delete appService.appConfig["app"];
+					}
+				}
+
+				if (appService.appConfig.trigger_map) {
+					if (appService.appConfig.trigger_map.length == 0) {
+						delete appService.appConfig["trigger_map"];
+					} else {
+						appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function(aTriggerConfig) {
+							var trigger = new Trigger(aTriggerConfig);
+
+							return _.indexOf(["push", "pull-request", "tag"], trigger.type());
+						});
+					}
+				}
+
+				if (appService.appConfig.workflows && angular.equals(appService.appConfig.workflows, {})) {
+					delete appService.appConfig["workflows"];
+				}
 			}
 
-			return $q.reject(response);
-		});
-	};
+			function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
+				return $q(function(resolve, reject) {
+					var errors = [];
 
-	appService.appConfigYMLHasUnsavedChanges = function() {
-		return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
-	};
+					if (
+						_.any(variables, function(aVariable) {
+							return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
+						})
+					) {
+						errors.push(new Error("<%= data[:strings][:env_vars][:one_or_more_invalid_env_var_key] %>"));
 
-	appService.saveAppConfigYML = function() {
-		return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
-			appService.appConfig = undefined;
-			appService.savedAppConfig = undefined;
-			appService.savedAppConfigYML = appService.appConfigYML;
+						if (shouldKeysBeUnique) {
+							errors.push(new Error("<%= data[:strings][:env_vars][:should_be_unique] %>"));
+						}
+					}
 
-			appService.validationWarnings = [];
-			if (validationData.warnings.config !== null) {
-				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
+					if (
+						_.any(variables, function(aVariable) {
+							return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
+						})
+					) {
+						errors.push(new Error("<%= data[:strings][:env_vars][:invalid_env_var_value] %>"));
+					}
+
+					if (errors.length == 0) {
+						resolve();
+					} else {
+						reject(new Error(stringService.errorMessageFromErrors(errors)));
+					}
+				});
 			}
 
-			if (validationData.warnings.secrets !== null) {
-				appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
-			}
-		});
-	};
+			appService.appConfigHasDeprecatedTriggerMap = function() {
+				return _.any(appService.appConfig.trigger_map, function(aTriggerConfig) {
+					return aTriggerConfig.pattern !== undefined;
+				});
+			};
 
-	appService.discardAppConfigYMLChanges = function() {
-		appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
-	};
+			appService.updateDeprecatedTriggerMap = function() {
+				var updatedTriggerMap = [];
+				_.each(appService.appConfig.trigger_map, function(aTriggerConfig) {
+					if (aTriggerConfig.pattern === undefined) {
+						updatedTriggerMap.push(aTriggerConfig);
 
-	appService.getAccountData = function(requestConfig) {
-		if (!appService.appDetails) {
-			return $q.when();
-		}
-
-		switch (appService.appDetails.ownerData.type) {
-			case "User":
-				return $q.when();
-			case "Organization":
-				return requestService.getOrganizationData({organizationSlug: appService.appDetails.ownerData.slug}).then(function(organizationData) {
-					if (!organizationData) {
 						return;
 					}
 
-					appService.accountData = organizationData;
+					var pushTriggerConfig = {
+						workflow: aTriggerConfig.workflow,
+						push_branch: aTriggerConfig.pattern
+					};
+					updatedTriggerMap.push(pushTriggerConfig);
+
+					if (aTriggerConfig.is_pull_request_allowed) {
+						var pullRequestTriggerConfig = {
+							workflow: aTriggerConfig.workflow,
+							pull_request_source_branch: aTriggerConfig.pattern,
+							pull_request_target_branch: "*"
+						};
+						updatedTriggerMap.push(pullRequestTriggerConfig);
+					}
 				});
-		}
-	};
 
-	appService.availableMachineTypes = function(workflow) {
-		if (!appService.appDetails.isMachineTypeSelectorAvailable || MachineType.all === undefined || appService.savedStack === undefined) {
-			return undefined;
-		}
+				appService.appConfig.trigger_map = updatedTriggerMap;
+			};
 
-		var stack;
-		if (workflow) {
-			stack = workflow.stack(undefined, Stack.all);
-		}
+			appService.saveAppConfig = function(requestConfig) {
+				var variables = [];
+				if (appService.appConfig.app && appService.appConfig.app.envs) {
+					var variablesWithoutKeyAndValue = _.filter(
+						_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
+							return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+						}),
+						function(anEnvVar) {
+							return _.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value());
+						}
+					);
 
-		if (!stack) {
-			stack = appService.stack ? appService.stack : appService.savedStack;
-		}
+					_.each(variablesWithoutKeyAndValue, function(aVariable) {
+						var index = _.findIndex(appService.appConfig.app.envs, aVariable.userVariableConfig);
+						appService.appConfig.app.envs.splice(index, 1);
+					});
 
-		var stackType = stack.id.split('-')[0];
-		return _.filter(MachineType.all, function(MachineType) {
-			return MachineType.id.startsWith(stackType, 0);
-		});
-	};
+					variables = variables.concat(
+						_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
+							return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+						})
+					);
+				}
+				if (appService.appConfig.workflows) {
+					_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
+						var variablesWithoutKeyAndValue = _.filter(
+							_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
+								return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+							}),
+							function(anEnvVar) {
+								return _.isEmpty(anEnvVar.key()) && _.isEmpty(anEnvVar.value());
+							}
+						);
 
-	appService.getDefaultMachineType = function() {
-		if (appService.defaultMachineType && appService.defaultMachineType == appService.savedDefaultMachineType) {
-			return $q.when();
-		}
+						_.each(variablesWithoutKeyAndValue, function(aVariable) {
+							var index = _.findIndex(aWorkflowConfig.envs, aVariable.userVariableConfig);
+							aWorkflowConfig.envs.splice(index, 1);
+						});
 
-		if (appService.appConfig === undefined || MachineType.all === undefined || appService.savedStack === undefined) {
-			return undefined;
-		}
+						variables = variables.concat(
+							_.map(aWorkflowConfig.envs, function(anEnvVarConfig) {
+								return new Variable(anEnvVarConfig, Variable.defaultVariableConfig());
+							})
+						);
+					});
+				}
 
-		var defaultMachineTypeID;
-		var stack = appService.stack ? appService.stack : appService.savedStack;
-		var stackType = stack.id.split('-')[0];
-		if (!appService.appConfig.meta || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] || !appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id) {
-			defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
-		}
+				if (appService.defaultMachineType) {
+					if (!appService.appConfig.meta) {
+						appService.appConfig.meta = {};
+					}
+					if (!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+					}
 
-		if (!defaultMachineTypeID) {
-			defaultMachineTypeID = stackType + '-' + appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
-		}
+					if (
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id !=
+						appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "")
+					) {
+						appService.appConfig.meta[
+							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
+						].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "");
+					}
 
-		appService.defaultMachineType = _.find(MachineType.all, {
-			id: defaultMachineTypeID
-		});
+					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
+				}
 
-		appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
+				return validateVariables(variables)
+					.then(function() {
+						return requestService.postAppConfig(appService.appConfig, requestConfig);
+					})
+					.then(function() {
+						appService.savedAppConfig = angular.copy(appService.appConfig);
+						appService.appConfigYML = undefined;
+						appService.savedAppConfigYML = undefined;
 
-		return appService.defaultMachineType;
-	};
+						if (appService.appDetails.isMachineTypeSelectorAvailable) {
+							appService.getDefaultMachineType();
+						}
+					});
+			};
 
-	appService.defaultMachineTypeHasUnsavedChanges = function() {
-		return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
-	};
+			appService.discardAppConfigChanges = function() {
+				appService.appConfig = angular.copy(appService.savedAppConfig);
+			};
 
-	appService.discardDefaultMachineTypeChanges = function() {
-		appService.defaultMachineType = appService.savedDefaultMachineType;
-	};
+			appService.getSecrets = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.secrets) {
+					return $q.when();
+				}
 
-	appService.getStack = function() {
-		return requestService.getStack().then(function(data) {
-			appService.stack = _.find(Stack.all, {
-				id: data.stackID
-			});
+				return requestService.getSecrets(requestConfig).then(function(secretConfigs) {
+					normalizeSecretConfigs(secretConfigs);
 
-			if (appService.stack === undefined) {
-				appService.stack = new Stack(data.stackID);
+					appService.secrets = _.map(secretConfigs, function(aSecretConfig) {
+						switch (requestService.mode) {
+							case "website":
+								return new Variable(aSecretConfig, Variable.defaultVariableConfig(), false, false);
+							case "cli":
+								return new Variable(aSecretConfig, Variable.defaultVariableConfig(), true, true);
+						}
+					});
+
+					appService.savedSecrets = angular.copy(appService.secrets);
+				});
+			};
+
+			appService.getSecretValue = function(secret, requestConfig) {
+				if (!_.isNull(secret.value()) && appService.secrets) {
+					return $q.when();
+				}
+
+				return requestService.getSecretValue(secret, requestConfig).then(function(secretValue) {
+					secret.value(secretValue);
+
+					var savedEnvVar = _.find(appService.savedSecrets, function(aSavedSecret) {
+						return aSavedSecret.key() == secret.key();
+					});
+					savedEnvVar.value(secretValue);
+				});
+			};
+
+			function normalizeSecretConfigs(secretConfigs) {
+				_.each(secretConfigs, Variable.minimizeVariableConfig);
 			}
 
-			appService.savedStack = angular.copy(appService.stack);
-			appService.dockerImage = appService.savedDockerImage = data.dockerImage;
-			appService.denTags = appService.savedDenTags = data.denTags.join(", ");
+			appService.secretsHaveUnsavedChanges = function() {
+				return !angular.equals(
+					_.map(appService.secrets, "userVariableConfig"),
+					_.map(appService.savedSecrets, "userVariableConfig")
+				);
+			};
 
-			if (appService.appDetails.isMachineTypeSelectorAvailable) {
-				MachineType.getAll().then(appService.getDefaultMachineType);
-			}
+			appService.saveSecrets = function() {
+				appService.secrets = _.filter(appService.secrets, function(aSecretVar) {
+					return !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value());
+				});
+
+				return validateVariables(appService.secrets, true, true)
+					.then(function() {
+						return requestService.postSecrets(appService.secrets);
+					})
+					.then(function() {
+						_.each(appService.secrets, function(aSecret) {
+							aSecret.isKeyChangeable = false;
+							aSecret.shouldShowValue = false;
+						});
+						appService.savedSecrets = angular.copy(appService.secrets);
+					});
+			};
+
+			appService.discardSecretsChanges = function() {
+				appService.secrets = angular.copy(appService.savedSecrets);
+			};
+
+			appService.getAppConfigYML = function(requestConfig) {
+				return requestService.getAppConfigYML(requestConfig).then(
+					function(appConfigYML) {
+						appService.appConfigYML = appConfigYML;
+						appService.savedAppConfigYML = appConfigYML;
+					},
+					function(response) {
+						if (response.bitrise_yml) {
+							appService.appConfigYML = response.bitrise_yml;
+							appService.savedAppConfigYML = response.bitrise_yml;
+						}
+
+						return $q.reject(response);
+					}
+				);
+			};
+
+			appService.appConfigYMLHasUnsavedChanges = function() {
+				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
+			};
+
+			appService.saveAppConfigYML = function() {
+				return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
+					appService.appConfig = undefined;
+					appService.savedAppConfig = undefined;
+					appService.savedAppConfigYML = appService.appConfigYML;
+
+					if (!validationData.warnings) {
+						return;
+					}
+
+					appService.validationWarnings = [];
+					if (validationData.warnings.config !== null) {
+						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
+					}
+
+					if (validationData.warnings.secrets !== null) {
+						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
+					}
+				});
+			};
+
+			appService.discardAppConfigYMLChanges = function() {
+				appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
+			};
+
+			appService.getAccountData = function(requestConfig) {
+				if (!appService.appDetails) {
+					return $q.when();
+				}
+
+				switch (appService.appDetails.ownerData.type) {
+					case "User":
+						return $q.when();
+					case "Organization":
+						return requestService
+							.getOrganizationData({
+								organizationSlug: appService.appDetails.ownerData.slug
+							})
+							.then(function(organizationData) {
+								if (!organizationData) {
+									return;
+								}
+
+								appService.accountData = organizationData;
+							});
+				}
+			};
+
+			appService.availableMachineTypes = function(workflow) {
+				if (
+					!appService.appDetails.isMachineTypeSelectorAvailable ||
+					MachineType.all === undefined ||
+					appService.savedStack === undefined
+				) {
+					return undefined;
+				}
+
+				var stack;
+				if (workflow) {
+					stack = workflow.stack(undefined, Stack.all);
+				}
+
+				if (!stack) {
+					stack = appService.stack ? appService.stack : appService.savedStack;
+				}
+
+				var stackType = stack.id.split("-")[0];
+				return _.filter(MachineType.all, function(MachineType) {
+					return MachineType.id.startsWith(stackType, 0);
+				});
+			};
+
+			appService.getDefaultMachineType = function() {
+				if (appService.defaultMachineType && appService.defaultMachineType == appService.savedDefaultMachineType) {
+					return $q.when();
+				}
+
+				if (
+					appService.appConfig === undefined ||
+					MachineType.all === undefined ||
+					appService.savedStack === undefined
+				) {
+					return undefined;
+				}
+
+				var defaultMachineTypeID;
+				var stack = appService.stack ? appService.stack : appService.savedStack;
+				var stackType = stack.id.split("-")[0];
+				if (
+					!appService.appConfig.meta ||
+					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] ||
+					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+				) {
+					defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
+				}
+
+				if (!defaultMachineTypeID) {
+					defaultMachineTypeID =
+						stackType +
+						"-" +
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
+				}
+
+				appService.defaultMachineType = _.find(MachineType.all, {
+					id: defaultMachineTypeID
+				});
+
+				appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
+
+				return appService.defaultMachineType;
+			};
+
+			appService.defaultMachineTypeHasUnsavedChanges = function() {
+				return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
+			};
+
+			appService.discardDefaultMachineTypeChanges = function() {
+				appService.defaultMachineType = appService.savedDefaultMachineType;
+			};
+
+			appService.getStack = function() {
+				return requestService.getStack().then(function(data) {
+					appService.stack = _.find(Stack.all, {
+						id: data.stackID
+					});
+
+					if (appService.stack === undefined) {
+						appService.stack = new Stack(data.stackID);
+					}
+
+					appService.savedStack = angular.copy(appService.stack);
+					appService.dockerImage = appService.savedDockerImage = data.dockerImage;
+					appService.denTags = appService.savedDenTags = data.denTags.join(", ");
+
+					if (appService.appDetails.isMachineTypeSelectorAvailable) {
+						MachineType.getAll().then(appService.getDefaultMachineType);
+					}
+				});
+			};
+
+			appService.availableStacks = function() {
+				if (Stack.all === undefined || appService.projectType === undefined) {
+					return undefined;
+				}
+
+				if (appService.projectType == "other") {
+					return Stack.all;
+				} else {
+					return _.filter(Stack.all, function(aStack) {
+						return _.contains(aStack.projectTypes, appService.projectType);
+					});
+				}
+			};
+
+			appService.stackHasUnsavedChanges = function() {
+				return (
+					!angular.equals(appService.stack, appService.savedStack) ||
+					appService.dockerImage !== appService.savedDockerImage ||
+					appService.denTags !== appService.savedDenTags
+				);
+			};
+
+			appService.saveStack = function() {
+				var bitriseDENtagsArray = appService.denTags
+					? _.map(appService.denTags.split(","), function(string) {
+							return string.trim();
+					  })
+					: undefined;
+
+				return requestService
+					.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray)
+					.then(function() {
+						appService.savedStack = angular.copy(appService.stack);
+						appService.savedDockerImage = appService.dockerImage;
+						appService.savedDenTags = appService.denTags;
+						appService.availableProjectTypes = undefined;
+					});
+			};
+
+			appService.discardStackChanges = function() {
+				appService.stack = _.find(Stack.all, {
+					id: appService.savedStack.id
+				});
+
+				if (appService.stack === undefined) {
+					appService.stack = new Stack(appService.savedStack.id);
+				}
+
+				appService.dockerImage = appService.savedDockerImage;
+				appService.denTags = appService.savedDenTags;
+			};
+
+			appService.getProjectType = function(requestConfig) {
+				return requestService.getAppProjectType(requestConfig).then(function(projectType) {
+					appService.projectType = projectType;
+				});
+			};
+
+			appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.availableProjectTypes) {
+					return $q.when();
+				}
+
+				return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
+					appService.availableProjectTypes = availableProjectTypes;
+				});
+			};
+
+			return appService;
 		});
-	};
-
-	appService.availableStacks = function() {
-		if (Stack.all === undefined || appService.projectType === undefined) {
-			return undefined;
-		}
-
-		if (appService.projectType == "other") {
-			return Stack.all;
-		}
-		else {
-			return _.filter(Stack.all, function(aStack) {
-				return _.contains(aStack.projectTypes, appService.projectType);
-			});
-		}
-	};
-
-	appService.stackHasUnsavedChanges = function() {
-		return !angular.equals(appService.stack, appService.savedStack) || appService.dockerImage !== appService.savedDockerImage || appService.denTags !== appService.savedDenTags;
-	};
-
-	appService.saveStack = function() {
-		var bitriseDENtagsArray = appService.denTags ? _.map(appService.denTags.split(","), function(string) {
-			return string.trim();
-		}) : undefined;
-
-		return requestService.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray).then(function() {
-			appService.savedStack = angular.copy(appService.stack);
-			appService.savedDockerImage = appService.dockerImage;
-			appService.savedDenTags = appService.denTags;
-			appService.availableProjectTypes = undefined;
-		});
-	};
-
-	appService.discardStackChanges = function() {
-		appService.stack = _.find(Stack.all, {
-			id: appService.savedStack.id
-		});
-
-		if (appService.stack === undefined) {
-			appService.stack = new Stack(appService.savedStack.id);
-		}
-
-		appService.dockerImage = appService.savedDockerImage;
-		appService.denTags = appService.savedDenTags;
-	};
-
-	appService.getProjectType = function(requestConfig) {
-		return requestService.getAppProjectType(requestConfig).then(function(projectType) {
-			appService.projectType = projectType;
-		});
-	};
-
-	appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {
-		if (!shouldForceReload && appService.availableProjectTypes) {
-			return $q.when();
-		}
-
-		return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
-			appService.availableProjectTypes = availableProjectTypes;
-		});
-	};
-
-	return appService;
-
-});
-
 })();

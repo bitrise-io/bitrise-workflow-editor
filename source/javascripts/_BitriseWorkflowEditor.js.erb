@@ -1,66 +1,71 @@
 (function() {
+	"use strict";
 
-"use strict";
+	var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
+		"ngRoute",
+		"ngSanitize",
+		"ngAnimate",
+		"ngCookies",
+		"monospaced.elastic",
+		"ng-showdown"
+	]);
 
-var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
-	"ngRoute",
-	"ngSanitize",
-	"ngAnimate",
-	"ngCookies",
-	"monospaced.elastic",
-	"ng-showdown"
-]);
-
-BitriseWorkflowEditor.config(function($compileProvider) {
-	$compileProvider.debugInfoEnabled(false);
-	$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
-});
-
-BitriseWorkflowEditor.config(function($animateProvider) {
-	$animateProvider.classNameFilter(/angular-animated/);
-});
-
-BitriseWorkflowEditor.config(function($routeProvider) {
-
-	$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
-		reloadOnSearch: false
+	BitriseWorkflowEditor.config(function($compileProvider) {
+		$compileProvider.debugInfoEnabled(false);
+		$compileProvider.aHrefSanitizationWhitelist(
+			/^\s*(https?|ftp|mailto|blob|itms-services):/
+		);
 	});
 
-	$routeProvider.when("/<%= data[:routes][:endpoints][:code_signing] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:code_signing]) %>"
+	BitriseWorkflowEditor.config(function($animateProvider) {
+		$animateProvider.classNameFilter(/angular-animated/);
 	});
 
-	$routeProvider.when("/<%= data[:routes][:endpoints][:secrets] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:secrets] )%>",
+	BitriseWorkflowEditor.config(function($routeProvider) {
+		$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
+			reloadOnSearch: false
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:code_signing] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:code_signing]) %>"
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:secrets] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:secrets] )%>"
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:env_vars] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:env_vars] )%>"
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:triggers] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:triggers]) %>",
+			reloadOnSearch: false
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:stack] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:stack]) %>",
+			reloadOnSearch: false
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
+			templateUrl:
+				"<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
+		});
 	});
 
-	$routeProvider.when("/<%= data[:routes][:endpoints][:env_vars] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:env_vars] )%>",
-	});
-
-	$routeProvider.when("/<%= data[:routes][:endpoints][:triggers] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:triggers]) %>",
-		reloadOnSearch: false
-	});
-
-	$routeProvider.when("/<%= data[:routes][:endpoints][:stack] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:stack]) %>",
-		reloadOnSearch: false
-	});
-
-	$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
-		templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
-	});
-
-});
-
-BitriseWorkflowEditor.config([
-	'$httpProvider',
-	function($httpProvider) {
-		$httpProvider.defaults.xsrfCookieName = 'CSRF-TOKEN';
-		$httpProvider.defaults.xsrfHeaderName = 'X-CSRF-TOKEN';
-	}
-]);
-
+	BitriseWorkflowEditor.config([
+		"$httpProvider",
+		function($httpProvider) {
+			$httpProvider.defaults.xsrfCookieName = "CSRF-TOKEN";
+			$httpProvider.defaults.xsrfHeaderName = "X-CSRF-TOKEN";
+		}
+	]);
 })();
