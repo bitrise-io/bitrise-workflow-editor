@@ -268,7 +268,7 @@ import { safeDigest } from "../services/react-compat";
 							.then(parseStepsInfo)
 							.then(function() {
 								viewModel.allStepsHaveBeenLoaded = true;
-								$scope.$apply();
+								safeDigest($scope);
 							});
 					} else {
 						updatePagination();
