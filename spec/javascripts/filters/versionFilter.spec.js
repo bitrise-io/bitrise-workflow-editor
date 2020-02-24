@@ -1,7 +1,6 @@
 describe("VersionFilters", () => {
     let stepVersionsFilter;
     let versionLabelFilter;
-    let isVersionDisabledFilter;
     let mockStepSourceService;
     let mockSemverService;
     let mockStep;
@@ -24,10 +23,9 @@ describe("VersionFilters", () => {
         mockStep = { isLibraryStep: () => true };
     });
 
-    beforeEach(inject((_stepVersionsFilter_, _versionLabelFilter_, _isVersionDisabledFilter_) => {
+    beforeEach(inject((_stepVersionsFilter_, _versionLabelFilter_) => {
         stepVersionsFilter = _stepVersionsFilter_;
         versionLabelFilter = _versionLabelFilter_;
-        isVersionDisabledFilter = _isVersionDisabledFilter_;
     }));
 
     describe("stepVersionsFilter", () => {
@@ -53,16 +51,6 @@ describe("VersionFilters", () => {
 
         it("should display latest version if version descriptor not set", () => {
             expect(versionLabelFilter(null)).toContain("latest");
-        });
-    });
-
-    describe("isVersionDisabled", () => {
-        it("should return disable if version is not wildcard", () => {
-            mockSemverService.checkVersionPartsLocked.and.returnValue(false);
-            expect(isVersionDisabledFilter("test-version-non-wildcard")).toBeTruthy();
-
-            mockSemverService.checkVersionPartsLocked.and.returnValue(true);
-            expect(isVersionDisabledFilter("test-version-wildcard")).toBeFalsy();
         });
     });
 });

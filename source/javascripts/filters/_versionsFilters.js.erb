@@ -1,7 +1,5 @@
 "use strict";
 
-import { cachedFn } from "../components/utils";
-
 angular.module("BitriseWorkflowEditor")
     .filter("versionLabel", function() {
         return function(label) {
@@ -38,8 +36,8 @@ angular.module("BitriseWorkflowEditor")
     .filter("latestVersion", ["stepSourceService", function(stepService) {
         return stepService.latestVersion;
     }])
-    .filter("stepVersions", ["stepSourceService", function(stepService) {
-        return cachedFn(stepService.versionsOfStep);
+    .filter("stepVersions", ["stepSourceService", "reactCompatService", function(stepService, reactCompat) {
+        return reactCompat.cachedFn(stepService.versionsOfStep);
     }])
     .filter("versionSelectorOptions", ["stepSourceService", function(stepSourceService) {
         var result = {

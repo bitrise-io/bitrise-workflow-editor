@@ -5,13 +5,15 @@ type AngularScope = {
     $digest: () => void
 };
 
+type GenFn<T> = (...args: any) => T;
+
 export const safeDigest = (scope: AngularScope) => {
     if (!scope.$$phase) {
         scope.$digest();
     }
 };
 
-export const cachedFn = <T>(fn: (...args: any) => T) => {
+export const cachedFn = <T>(fn: GenFn<T>): GenFn<T> => {
     let cached: T;
 
     return (...args: any): T => {

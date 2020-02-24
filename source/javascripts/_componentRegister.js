@@ -28,10 +28,9 @@ angular
 			"isLatestVersion",
 			"onUpdateStep",
 			"workflowIndex",
-			"isConfigured",
 			"versions",
-			"versionSelectorOpts",
 			"selectedVersion",
+			"versionSelectorOpts",
 			"strings"
 		])
 	);

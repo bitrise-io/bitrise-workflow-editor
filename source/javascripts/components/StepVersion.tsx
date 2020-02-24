@@ -2,7 +2,7 @@ import React, { FC } from "react";
 import { Text } from "@bitrise/bitkit";
 import classNames from "classnames";
 import { Step } from "../models";
-import semverService from "../services/semverservice";
+import semverService from "../services/semver-service";
 
 // @ts-ignore
 import stepLatestIcon from "../../images/step/latest.svg";
