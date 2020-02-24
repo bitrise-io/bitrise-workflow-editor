@@ -27,7 +27,7 @@ describe("stepSourceService", function() {
 			url: TEST_LIB_URL,
 			steps: {
 				[TEST_STEP_ID]: {
-					"2.2.1": { defaultStepConfig: { asset_urls: "test_urls", name: "2.2.1 config" } },
+					"2.2.1": { defaultStepConfig: TEST_STEP_LATEST_CONFIG },
 					"1.2.1": { defaultStepConfig: "1.2.1 config" },
 					"1.1.1": { defaultStepConfig: "1.1.1 config" },
 					"1.0.0": { defaultStepConfig: "1.0.0 config" },
@@ -195,13 +195,12 @@ describe("stepSourceService", function() {
 
 		it("should set latest if the passed version is null", () => {
 			var newVersion = "2.2.1";
-
 			mockSemverService.resolveVersion.and.returnValue(newVersion);
-			mockSemverService.normalizeVersion.and.returnValue(newVersion);
+			mockSemverService.normalizeVersion.and.returnValue(null);
 
 			stepSourceService.changeStepToVersion(MOCK_STEP, null);
 
-			expect(MOCK_STEP.version).toEqual(newVersion);
+			expect(MOCK_STEP.version).toBeNull();
 			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP");
 			expect(MOCK_STEP.defaultStepConfig).toEqual(TEST_STEP_LATEST_CONFIG);
 		});

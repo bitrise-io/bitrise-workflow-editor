@@ -782,6 +782,9 @@ import { safeDigest } from "../services/react-compat";;
 				addStepService.showWithInsertIndex(index, function(step, insertIndex) {
 					viewModel.editedWorkflow.steps.splice(insertIndex, 0, step);
 
+					// force to set latest version for step being added
+					stepSourceService.changeStepToVersion(step, null);
+
 					viewModel.stepSelected(step);
 				});
 			};

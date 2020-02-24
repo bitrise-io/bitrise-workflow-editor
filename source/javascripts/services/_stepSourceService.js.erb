@@ -12,6 +12,8 @@
 				gitSteps: []
 			};
 
+			var LATEST_VERSION = null;
+
 			var getLibraryForStep = function(step) {
 				if (!step.isLibraryStep()) {
 					return null;
@@ -51,7 +53,7 @@
 				var source =
 					idStartIndex > 0 && cvs.slice(0, idStartIndex - 2).length > 0 ? cvs.slice(0, idStartIndex - 2) : null;
 				var id = cvs.slice(idStartIndex, versionStartIndex != -1 ? versionStartIndex - 1 : undefined);
-				var version = versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : null;
+				var version = versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : LATEST_VERSION;
 
 				switch (source) {
 					case "path":
@@ -163,6 +165,8 @@
 				if (version) {
 					step.cvs += "@" + semverService.shortenWildcardVersion(version);
 					step.version = version;
+				} else {
+					step.version = LATEST_VERSION;
 				}
 
 				configureStepFromLib(step, library);
