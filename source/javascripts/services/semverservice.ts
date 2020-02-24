@@ -83,7 +83,7 @@ class SemverService {
 
         return _.chain(wildCards)
             .flatten()
-            .tap(function(wVersions) {
+            .tap((wVersions: Array<string>) => {
                 // adding step own version
                 wVersions.push(step.version);
             })
@@ -105,7 +105,7 @@ class SemverService {
             .find(stepVersion => this.isVersionCompatible(<string>version, stepVersion));
     };
 
-    checkVersionPartsLocked = (version: string|null, lockedParts: number|undefined): boolean|undefined => {
+    checkVersionPartsLocked = (version: string|null, lockedParts?: number): boolean|undefined => {
         const expectedPostfix = `.${this.WILDCARD}`.repeat(lockedParts || 1);
         return version?.endsWith(expectedPostfix);
     };

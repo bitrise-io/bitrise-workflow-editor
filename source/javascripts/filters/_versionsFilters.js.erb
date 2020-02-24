@@ -1,10 +1,8 @@
 "use strict";
 
+import { cachedFn } from "../components/utils";
+
 angular.module("BitriseWorkflowEditor")
-    .filter("isVersionDisabled", ["semverService", function(semverService) {
-        // checks whether it has any version part locked -> wildcard version
-        return _.negate(semverService.checkVersionPartsLocked);
-    }])
     .filter("versionLabel", function() {
         return function(label) {
             return label ? label : "<%= data[:strings][:workflows][:steps][:always_latest] %>";
@@ -41,10 +39,22 @@ angular.module("BitriseWorkflowEditor")
         return stepService.latestVersion;
     }])
     .filter("stepVersions", ["stepSourceService", function(stepService) {
-        return stepService.versionsOfStep;
+        return cachedFn(stepService.versionsOfStep);
     }])
-    .filter("versionInfoStrings", ["stringService", "stepSourceService", "resolveVersionFilter",
-    function(stringsService, stepSourceService, resolveVersion) {
+    .filter("versionSelectorOptions", ["stepSourceService", function(stepSourceService) {
+        var result = {
+            strings: {
+                alwaysLatest: "<%= data[:strings][:workflows][:steps][:always_latest] %>"
+            }
+        };
+
+        return function(versionUpdater) {
+            result.onUpdateVersion = versionUpdater;
+            return result;
+        };
+    }])
+    .filter("versionInfoStrings", ["stringService", "stepSourceService", "resolveVersionFilter", "versionRemarkFilter",
+    function(stringsService, stepSourceService, resolveVersion, versionRemarkFilter) {
         var versionText = "<%= data[:strings][:workflows][:steps][:version] %>";
         var latestVersionText = "<%= data[:strings][:workflows][:steps][:latest_version] %>";
 
@@ -60,6 +70,8 @@ angular.module("BitriseWorkflowEditor")
             strings.latestVersionText = stringsService.stringReplacedWithParameters(latestVersionText, {
                     latest_version: stepSourceService.latestVersion(step)
             });
+
+            strings.versionRemark = versionRemarkFilter(step);
 
             return strings;
         };

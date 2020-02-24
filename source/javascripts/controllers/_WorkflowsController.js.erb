@@ -815,6 +815,11 @@ import { safeDigest } from "../components/utils";
 				$scope.$digest();
 			};
 
+			viewModel.changeSelectedStepVersion = function(version) {
+				viewModel.requestedStepVersion = version;
+				safeDigest($scope);
+			};
+
 			$scope.$watch(
 				function() {
 					return viewModel.selectedStep;

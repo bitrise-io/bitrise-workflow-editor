@@ -1,7 +1,7 @@
 import { react2angular } from "react2angular";
 import ErrorNotification from "./components/ErrorNotification";
 import StepItem from "./components/StepItem/StepItem";
-import StepVersionInfo from "./components/StepVersionInfo/StepVersionInfo";
+import StepVersion from "./components/StepVersion";
 
 var register = react2angular;
 
@@ -23,12 +23,15 @@ angular
 		])
 	)
 	.component(
-		"rStepVersionInfo", register(StepVersionInfo, [
+		"rStepVersion", register(StepVersion, [
 			"step",
 			"isLatestVersion",
 			"onUpdateStep",
 			"workflowIndex",
 			"isConfigured",
+			"versions",
+			"versionSelectorOpts",
+			"selectedVersion",
 			"strings"
 		])
 	);
