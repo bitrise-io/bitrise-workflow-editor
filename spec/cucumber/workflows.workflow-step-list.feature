@@ -1,6 +1,6 @@
 Feature: Workflow Step list
 
-  Steps of any Workflow can be selected, some of its properties can be viewed & altered, some just viewed, and some are not visible at all.
+  Steps of any Workflow are listed, they can be selected, and their name, version, icon & badges are displayed.
 
   Background:
     Given there is Workflows called ci, with a before run Workflow _setup
