@@ -162,12 +162,10 @@
 					step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
 				}
 
-				if (version) {
-					step.cvs += "@" + semverService.shortenWildcardVersion(version);
-					step.version = version;
-				} else {
-					step.version = LATEST_VERSION;
-				}
+				version = version || semverService.findLatestMajorVersion(step, library);
+
+				step.cvs += "@" + semverService.shortenWildcardVersion(version);
+				step.version = version;
 
 				configureStepFromLib(step, library);
 			};

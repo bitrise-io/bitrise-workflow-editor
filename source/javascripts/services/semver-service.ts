@@ -67,10 +67,10 @@ class SemverService {
             minor: semverParts[1] || this.WILDCARD,
             patch: semverParts[2] || this.WILDCARD,
         });
-    }
+    };
 
     extractWildcardVersions = (step: Step, stepCatalogue: StepCatalouge): Array<string> => {
-        const wildCards = Object.keys(stepCatalogue.steps[step.id]).map(version => {
+        const wildCards = Object.keys(stepCatalogue.steps[step.id]).map((version :string) => {
             const semVerParts = version.split(".");
             const major = semVerParts[0];
             const minor = semVerParts[1];
@@ -103,6 +103,15 @@ class SemverService {
 
         return stepVersions
             .find(stepVersion => this.isVersionCompatible(<string>version, stepVersion));
+    };
+
+    findLatestMajorVersion = (step: Step, stepCatalogue: StepCatalouge): string => {
+        const MAJORLOCK = 2;
+        const wVersions = this.extractWildcardVersions(step, stepCatalogue);
+
+        return <string>wVersions.find(
+            (version: string|null) => this.checkVersionPartsLocked(version, MAJORLOCK)
+        );
     };
 
     checkVersionPartsLocked = (version: string|null, lockedParts?: number): boolean|undefined => {

@@ -11,6 +11,7 @@ describe("stepSourceService", function() {
 			resolveVersion: jasmine.createSpy("resolveVersion"),
 			shortenWildcardVersion: jasmine.createSpy("shortenWildcardVersion"),
 			normalizeVersion: jasmine.createSpy("normalizeVersion"),
+			findLatestMajorVersion: jasmine.createSpy("findLatestMajorVersion"),
 		};
 
 		module("BitriseWorkflowEditor");
@@ -194,14 +195,18 @@ describe("stepSourceService", function() {
 		});
 
 		it("should set latest if the passed version is null", () => {
-			var newVersion = "2.2.1";
+			const newVersion = "2.2.1";
+			const latestMajorWildcard = "2.x.x";
+
+			mockSemverService.findLatestMajorVersion.and.returnValue(latestMajorWildcard);
 			mockSemverService.resolveVersion.and.returnValue(newVersion);
-			mockSemverService.normalizeVersion.and.returnValue(null);
+			mockSemverService.shortenWildcardVersion.and.returnValue("2");
+			mockSemverService.normalizeVersion.and.returnValue(latestMajorWildcard);
 
-			stepSourceService.changeStepToVersion(MOCK_STEP, null);
+			stepSourceService.changeStepToVersion(MOCK_STEP);
 
-			expect(MOCK_STEP.version).toBeNull();
-			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP");
+			expect(MOCK_STEP.version).toEqual(latestMajorWildcard);
+			expect(MOCK_STEP.cvs).toEqual("MOCK_STEP@2");
 			expect(MOCK_STEP.defaultStepConfig).toEqual(TEST_STEP_LATEST_CONFIG);
 		});
 

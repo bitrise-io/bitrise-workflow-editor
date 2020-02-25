@@ -138,4 +138,17 @@ describe("SemverService", () => {
             });
         });
     });
+
+    describe("findLatestMajorVersion", () => {
+        it("should find latest major version locked for the step", () => {
+            const mockStep = {
+                id: TEST_STEP_ID,
+                version: null,
+            };
+
+            const actualLatest = semverService.findLatestMajorVersion(mockStep, mockCatalogue);
+
+            expect(actualLatest).toEqual("12.x.x");
+        });
+    });
 });
