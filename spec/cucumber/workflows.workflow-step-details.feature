@@ -3,8 +3,8 @@ Feature: Workflow Step details
   The selected Step's properties can be viewed & some of them can be edited.
 
   Background:
-    Given there is Workflows called ci, with a Script Step
-    And the Script is selected
+    Given there is Workflows called ci, with a Step
+    And the Step is selected
 
   Scenario: Step has a custom name
     Given the Step has the title 'Custom Step' property set in bitrise.yml
@@ -104,3 +104,41 @@ Feature: Workflow Step details
     And it has summary
     When User expands the description
     Then the description will be visible as markdown
+
+  Scenario: Green Step version indicator due to Step being on Always latest
+    Given the Step has Always latest selected in the version dropdown
+    Then a green circle is visible on the left of the version section
+
+  Scenario: Green Step version indicator due to Step being on the latest version
+    Given the Step has the latest version selected in the version dropdown
+    Then a green circle is visible on the left of the version section
+
+  Scenario: Red Step version indicator due to Step being on an older version
+    Given the Step has an older version selected in the version dropdown
+    Then a red circle is visible on the left of the version section
+
+  Scenario: Warning message for Step from a library having an invalid version set
+    Given the Step is from a library
+    And its version is not in the library
+    Then the Invalid version message will appear
+
+  Scenario: User views versions of a Step from a library, in dropdown
+    Given the Step is specified as a part of a library
+    When User selects the dropdown
+    Then an entry for Always latest, and an entry for each version will be visible
+
+  Scenario: User selects a different version in the dropdown
+    Given the Step is on the latest version
+    When User selects an older version in the dropdown
+    Then the circle gets updated accordingly
+    And all the non-overwritten properties of the Step gets updated to that older version's
+    And the Step sidebar too (along with the update Step version bubble)
+
+  Scenario: User views versions of a Step from a git URL, in dropdown
+    Given the Step is specified with a git URL
+    When User selects the dropdown
+    Then a single entry for the Step's version will be visible
+
+  Scenario: There is no version section for Step with a local path
+    Given the Step is from a local path
+    Then there will be no version section
