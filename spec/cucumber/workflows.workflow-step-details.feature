@@ -3,7 +3,8 @@ Feature: Workflow Step details
   The selected Step's properties can be viewed & some of them can be edited.
 
   Background:
-    Given there is Workflows called ci, with a Step
+    Given there is Workflows called ci
+    And it has a Step
     And the Step is selected
 
   Scenario: Step's title from the library config is displayed as its name
@@ -46,6 +47,17 @@ Feature: Workflow Step details
     When User changes the Step name
     And selects the confirm button
     Then the Step name gets updated
+
+  Scenario Outline: Step with other custom properties
+    Given the Step has a default <property> in properties, in its default config
+    But a custom <property> is provided in properties, in bitrise.yml
+    Then the Step's custom <property> will be used instead of the default one
+
+    Examples:
+      | property              |
+      | summary               |
+      | description           |
+      | is always run         |
 
   Scenario: Verified Steps have the green badge displayed
     Given the Step is verified
@@ -169,3 +181,24 @@ Feature: Workflow Step details
   Scenario: There is no version section for Step with a local path
     Given the Step is from a local path
     Then there will be no version section
+
+  Scenario: Step does not have the Run if previous Step failed setting
+    Given the Step does not have the is always run opt defined with any value
+    Then there will be no Run if previous Step failed section
+
+  Scenario: Step has the Run if previous Step failed setting set
+    Given the Step has the is always run opt defined with a value
+    Then the Run if previous Step failed section will be displayed, with a checkbox having the corresponding value
+
+  Scenario: User changes the Run if previous Step failed setting
+    Given the Step has the is always run opt defined with true value
+    When User toggles the Run if previous Step failed checkbox to false
+    Then the Step's is always run opt will be updated to false
+
+  Scenario: Inputs section is not displayed if Step has no Inputs
+    Given the Step has no Inputs
+    Then there is no Inputs section
+
+  Scenario: Inputs section is displayed if Step has Inputs
+    Given the Step has Inputs
+    Then the Inputs section is visible
