@@ -789,7 +789,7 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
 					stepSourceService.loadStepVersions(step.id).then(function() {
-						viewModel.selectedStep = stepSourceService.stepFromCVS(step.cvs);
+						viewModel.selectedStep = step;
 						safeDigest($scope);
 					});
 				} else {

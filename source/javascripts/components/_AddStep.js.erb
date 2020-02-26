@@ -5,7 +5,7 @@ import { safeDigest } from "../services/react-compat";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("addStepService", function($filter, imageService) {
+		.service("addStepService", function($filter, imageService, stepSourceService) {
 			var addStepService = {
 				isVisible: false,
 				stepSelected: undefined,
@@ -50,8 +50,10 @@ import { safeDigest } from "../services/react-compat";
 				this.stepSelected = function(step) {
 					this.isVisible = false;
 
-					var stepToAdd = angular.copy(step);
-					stepSelectedCallback(stepToAdd, insertIndex);
+					stepSourceService.loadStepVersions(step.id).then(function() {
+						var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
+						stepSelectedCallback(stepToAdd, insertIndex);
+					});
 				};
 
 				this.isVisible = true;
