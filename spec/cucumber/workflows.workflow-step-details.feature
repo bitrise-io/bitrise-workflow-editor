@@ -6,9 +6,46 @@ Feature: Workflow Step details
     Given there is Workflows called ci, with a Step
     And the Step is selected
 
-  Scenario: Step has a custom name
-    Given the Step has the title 'Custom Step' property set in bitrise.yml
-    Then the displayed name will be 'Custom Step'
+  Scenario: Step's title from the library config is displayed as its name
+    Given the Step has a title in its library config
+    Then it will be displayed in the Step's entry
+    And it will be the initial value when entering edit mode
+
+  Scenario: Step's title set in the bitrise.yml is displayed as its name, instead of library name
+    Given the Step has a title in its library config
+    But title is also set in the bitrise.yml
+    Then that will be displayed in the Step's entry
+    And it will be the initial value when entering edit mode
+
+  Scenario: Step only has a title in bitrise.yml
+    Given the Step does not have title set in its default config
+    But it has one set in bitrise.yml
+    Then that will be displayed in the Step's entry
+    And it will be the initial value when entering edit mode
+
+  Scenario: Step does not have a title, but has ID
+    Given the Step does not have title set in its default config
+    And it does not have one set in bitrise.yml
+    But it has ID set
+    Then the ID will be displayed in the Step's entry
+    But the initial value when entering edit mode, will be empty
+
+  Scenario: Step does not have a title, nor ID
+    Given the Step does not have title set
+    And it does not have one set in bitrise.yml
+    And it does not have ID set
+    Then the CVS will be displayed in the Step's entry
+    But the initial value when entering edit mode, will be empty
+
+  Scenario: User starts to rename the Step
+    When User selects the Step name
+    Then the Step name enters edit mode
+
+  Scenario: User confirms renaming the Step
+    Given the Step name is in edit mode
+    When User changes the Step name
+    And selects the confirm button
+    Then the Step name gets updated
 
   Scenario: Verified Steps have the green badge displayed
     Given the Step is verified
@@ -36,16 +73,6 @@ Feature: Workflow Step details
     Given the Step is deprecated
     When User hovers the green deprecated badge
     Then the phrase Deprecated shows up in a tooltip
-
-  Scenario: User starts to rename the Step
-    When User selects the Step name
-    Then the Step name enters edit mode
-
-  Scenario: User confirms renaming the Step
-    Given the Step name is in edit mode
-    When User changes the Step name
-    And selects the confirm button
-    Then the Step name gets updated
 
   Scenario: User clones Step
     When User selects the clone button on the right

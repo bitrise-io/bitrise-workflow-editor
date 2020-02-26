@@ -6,17 +6,52 @@ Feature: Workflow Step list
     Given there is Workflows called ci, with a before run Workflow _setup
     And the ci Workflow is selected
 
-  Scenario: Step's version is latest due to not being set in bitrise.yml
-    Given a Step's version is not set in bitrise.yml
+  Scenario: Step's title from the library config is displayed as its name
+    Given a Step has a title in its library config
+    Then it will be displayed in the Step's entry
+
+  Scenario: Step's title set in the bitrise.yml is displayed as its name, instead of library name
+    Given a Step has a title in its library config
+    But title is also set in the bitrise.yml
+    Then that will be displayed in the Step's entry
+
+  Scenario: Step only has a title in bitrise.yml
+    Given a Step does not have title set in its default config
+    But it has one set in bitrise.yml
+    Then that will be displayed in the Step's entry
+
+  Scenario: Step does not have a title, but has ID
+    Given a Step does not have title set in its default config
+    And it does not have one set in bitrise.yml
+    But it has ID set
+    Then the ID will be displayed in the Step's entry
+
+  Scenario: Step does not have a title, nor ID
+    Given a Step does not have title set
+    And it does not have one set in bitrise.yml
+    And it does not have ID set
+    Then the CVS will be displayed in the Step's entry
+
+  Scenario: Step from a library's version is latest due to not being set in bitrise.yml
+    Given a Step is from a library
+    And Step's version is not set in bitrise.yml
     Then the Step will have Always latest and the latest version number, displayed under its title
 
-  Scenario: Step's version is latest due to being set to the latest in bitrise.yml
-    Given a Step's version is set to the latest in bitrise.yml
+  Scenario: Step from a library's version is latest due to being set to the latest in bitrise.yml
+    Given a Step is from a library
+    And Step's version is set to the latest in bitrise.yml
     Then the Step will have the latest version number displayed under its title
 
-  Scenario: Step's version is an older one
-    Given a Step's version is set to an older one in bitrise.yml
+  Scenario: Step from a library's version is an older one
+    Given a Step is from a library
+    And Step's version is set to an older one in bitrise.yml
     Then the Step will have that older version number displayed under its title, in a red box
+    And in the Step icon's corner, there will be a bubble indicating that the Step is not on the latest version
+
+  Scenario: Step with an invalid version
+    Given a Step is from a library
+    And its version is not in the library
+    Then the Step will have the version version number displayed under its title, in a red box
     And in the Step icon's corner, there will be a bubble indicating that the Step is not on the latest version
 
   Scenario: Step is verified due to source not being set, and Bitrise Steplib being the library
