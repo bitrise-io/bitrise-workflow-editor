@@ -252,6 +252,8 @@ import { safeDigest } from "../services/react-compat";
 							aCategory.paginateStepsConfig.currentPageIndex = 0;
 							aCategory.paginateStepsConfig.currentOffsetInPage = 0;
 						});
+					} else {
+						viewModel.filteredStepIds = null;
 					}
 				}
 			);
