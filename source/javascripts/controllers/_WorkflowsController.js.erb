@@ -783,7 +783,7 @@ import { safeDigest } from "../services/react-compat";;
 					viewModel.editedWorkflow.steps.splice(insertIndex, 0, step);
 
 					// force to set latest version for step being added
-					stepSourceService.changeStepToVersion(step, null);
+					changeStepToVersion(step, null);
 
 					viewModel.stepSelected(step);
 				});
@@ -903,7 +903,7 @@ import { safeDigest } from "../services/react-compat";;
 					viewModel.stepSelected(step, workflowIndex);
 				}
 
-				changeStepToVersion(step, _.first(stepSourceService.versionsOfStep(step)));
+				changeStepToVersion(step, null);
 				safeDigest($scope);
 			};
 

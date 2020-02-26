@@ -85,7 +85,7 @@ const StepVersion: FC<StepVersionInfoProps> = ({
                     </Text>
                 </div>
 
-                <Text className="latest-version">{strings.latestVersionText}</Text>
+                {step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
             </div>
             <div className="version-selector">
                 <Text className={classNames("remark", { error: !step.isConfigured() })} dangerouslySetInnerHTML={html(strings.versionRemark)} />

@@ -5,12 +5,13 @@ export interface StepCatalouge {
 };
 
 export interface Step {
-    id: string,
-    version: string,
-    requestedVersion(): string
-    displayName(): string
-    isVerified(): boolean,
-    isConfigured(): boolean,
-    isDeprecated(): boolean
-    iconURL(): string
+    id: string;
+    version: string;
+    requestedVersion(): string;
+    displayName(): string;
+    isVerified(): boolean;
+    isConfigured(): boolean;
+    isDeprecated(): boolean;
+    isLibraryStep(): boolean;
+    iconURL(): string;
 };
