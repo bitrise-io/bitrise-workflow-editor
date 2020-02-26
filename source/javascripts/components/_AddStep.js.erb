@@ -1,3 +1,5 @@
+import { safeDigest } from "../services/react-compat";
+
 (function() {
 	"use strict";
 
@@ -266,7 +268,7 @@
 							.then(parseStepsInfo)
 							.then(function() {
 								viewModel.allStepsHaveBeenLoaded = true;
-								$scope.$apply();
+								safeDigest($scope);
 							});
 					} else {
 						updatePagination();
@@ -394,7 +396,7 @@
 						}
 
 						addStepService.isVisible = false;
-						scope.$apply();
+						safeDigest(scope);
 					}
 
 					scope.$watch(
@@ -426,9 +428,7 @@
 							$parse(attrs.isCategoryModeFlag).assign(scope, false);
 						}
 
-						if (!scope.$$phase) {
-							scope.$apply();
-						}
+						safeDigest(scope);
 					}
 
 					scope.$on("$destroy", function() {
@@ -496,7 +496,7 @@
 
 						paginateStepsConfig.currentPageIndex = Math.floor(stepIndex / paginateStepsConfig.stepsCountPerPage);
 						paginateStepsConfig.currentOffsetInPage = stepIndex % paginateStepsConfig.stepsCountPerPage;
-						scope.$apply();
+						safeDigest(scope);
 
 						$timeout(function() {
 							$parse(attrs.dragInProgressFlag).assign(scope, false);
