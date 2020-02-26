@@ -375,6 +375,7 @@ import { safeDigest } from "../services/react-compat";
 						.searchOfficialSteps(viewModel.stepFilter)
 						.then(function(stepIds) {
 							viewModel.filteredStepIds = stepIds;
+							safeDigest($scope);
 						})
 						.catch(function(error) {
 							viewModel.loadProgress.error(error);
