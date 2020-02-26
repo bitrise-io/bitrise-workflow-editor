@@ -1,3 +1,5 @@
+import { safeDigest } from "../services/react-compat";
+
 (function() {
 	"use strict";
 
@@ -787,8 +789,12 @@
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
 					stepSourceService.loadStepVersions(step.id).then(function() {
-						$scope.$digest();
+						viewModel.selectedStep = step;
+						safeDigest($scope);
 					});
+				} else {
+					viewModel.selectedStep = step;
+					safeDigest($scope);
 				}
 
 				if (workflowIndex === undefined) {
@@ -808,9 +814,6 @@
 						scrollService.scrollToTarget();
 					}, 300);
 				}
-
-				viewModel.selectedStep = step;
-				$scope.$digest();
 			};
 
 			$scope.$watch(
