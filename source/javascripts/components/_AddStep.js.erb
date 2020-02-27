@@ -5,7 +5,7 @@ import { safeDigest } from "../services/react-compat";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("addStepService", function($filter, imageService) {
+		.service("addStepService", function($filter, imageService, stepSourceService) {
 			var addStepService = {
 				isVisible: false,
 				stepSelected: undefined,
@@ -50,8 +50,10 @@ import { safeDigest } from "../services/react-compat";
 				this.stepSelected = function(step) {
 					this.isVisible = false;
 
-					var stepToAdd = angular.copy(step);
-					stepSelectedCallback(stepToAdd, insertIndex);
+					stepSourceService.loadStepVersions(step.id).then(function() {
+						var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
+						stepSelectedCallback(stepToAdd, insertIndex);
+					});
 				};
 
 				this.isVisible = true;
@@ -250,6 +252,8 @@ import { safeDigest } from "../services/react-compat";
 							aCategory.paginateStepsConfig.currentPageIndex = 0;
 							aCategory.paginateStepsConfig.currentOffsetInPage = 0;
 						});
+					} else {
+						viewModel.filteredStepIds = null;
 					}
 				}
 			);
@@ -375,6 +379,7 @@ import { safeDigest } from "../services/react-compat";
 						.searchOfficialSteps(viewModel.stepFilter)
 						.then(function(stepIds) {
 							viewModel.filteredStepIds = stepIds;
+							safeDigest($scope);
 						})
 						.catch(function(error) {
 							viewModel.loadProgress.error(error);
@@ -396,7 +401,7 @@ import { safeDigest } from "../services/react-compat";
 						}
 
 						addStepService.isVisible = false;
-						scope.$apply();
+						safeDigest(scope);
 					}
 
 					scope.$watch(
@@ -496,7 +501,7 @@ import { safeDigest } from "../services/react-compat";
 
 						paginateStepsConfig.currentPageIndex = Math.floor(stepIndex / paginateStepsConfig.stepsCountPerPage);
 						paginateStepsConfig.currentOffsetInPage = stepIndex % paginateStepsConfig.stepsCountPerPage;
-						scope.$apply();
+						safeDigest(scope);
 
 						$timeout(function() {
 							$parse(attrs.dragInProgressFlag).assign(scope, false);

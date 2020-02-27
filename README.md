@@ -59,9 +59,11 @@ If you are planning to break down the tasks into multiple master commits (aka mi
 
 ## New version release
 
-- Generate a GitHub personal access token for your user (one who has rights to create releases on the repository) - you can generate one here: https://github.com/settings/tokens
-- Generate a Discuss API key: you need to be a Discourse admin for this, then you can generate an API key for yourself at: https://discuss.bitrise.io/admin/api/keys
-- Ensure clean git
+- Generate a GitHub personal access token for your user with `repo` access (one who has rights to create releases on the repository) - you can generate one here: https://github.com/settings/tokens
+  ![](https://user-images.githubusercontent.com/15610939/75050804-0361ee80-54cd-11ea-85c6-0c89974051b7.png)
+- Generate a Discuss API key or use the common key for _All Users_.
+  You need to be a Discourse admin for this, then you can generate an API key for yourself at: https://discuss.bitrise.io/admin/api/keys
+- Make sure you're on the latest `master`
 - If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` change `min_version` requirement of the `bitrise` tool to the required CLI version
 - Optional: set the following secrets: $GITHUB_RELEASE_API_TOKEN, $GITHUB_USERNAME, $DISCUSS_API_KEY, $DISCUSS_USERNAME
 - Call `bitrise run create-release`

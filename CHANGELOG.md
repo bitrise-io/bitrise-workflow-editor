@@ -1,6 +1,42 @@
-## Changelog (Current version: 1.2.0)
+## Changelog (Current version: 1.2.1)
 
 -----------------
+
+## 1.2.1 (2020 Feb 27)
+
+### Release Notes
+
+* Add Workflows tab specification for Workflow control bar, Step list, Step details, Step Inputs (part of it) (#450)
+* Fix steplib issues (#451)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.2.1
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.2.0 -> 1.2.1
+
+* [7cae6ce] erosdome - Add Workflows tab specification for Workflow control bar, Step list, Step details, Step Inputs (part of it) (#450) (2020 Feb 26)
+* [bfa7c87] Simon Márton - Fix steplib issues (#451) (2020 Feb 26)
+
 
 ## 1.2.0 (2020 Feb 21)
 
@@ -4196,4 +4232,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Feb 21
+Updated: 2020 Feb 27
