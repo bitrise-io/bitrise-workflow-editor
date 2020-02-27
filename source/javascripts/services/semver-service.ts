@@ -83,7 +83,7 @@ class SemverService {
 
         return _.chain(wildCards)
             .flatten()
-            .tap((wVersions: Array<string>) => {
+            .tap((wVersions: Array<string|null>) => {
                 // adding step own version
                 wVersions.push(step.version);
             })
