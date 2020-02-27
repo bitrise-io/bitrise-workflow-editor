@@ -15,7 +15,6 @@ import "showdown";
 import "ng-showdown";
 
 import "esprima";
-import "js-yaml";
 
 $(document).ready(function() {
 	document.body.addEventListener("DOMSubtreeModified", function() {
