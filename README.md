@@ -84,4 +84,4 @@ If you are planning to break down the tasks into multiple master commits (aka mi
 
 ### Javascript
 
-For production code we still use ES5 standard as we do not do any transpilation during the build (only concatenation). For tests you are safe to use whatever standards jsdom executes (ES6 supported).
+For production code we still use ES5 standard as we do not do any transpilation during the build (only minification). For tests you are safe to use whatever standards jsdom executes (ES6 supported).
