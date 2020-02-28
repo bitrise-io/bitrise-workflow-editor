@@ -263,7 +263,7 @@
 						appService.appConfigYML = undefined;
 						appService.savedAppConfigYML = undefined;
 
-						if (appService.appDetails.isMachineTypeSelectorAvailable) {
+						if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
 							appService.getDefaultMachineType();
 						}
 					});

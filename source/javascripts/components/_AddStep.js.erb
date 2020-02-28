@@ -208,8 +208,11 @@ import { safeDigest } from "../services/react-compat";
 									},
 									true
 								),
-								stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID)
 							);
+
+							if (viewModel.shouldFilterByProjectType) {
+								loadPromises.push(stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID));
+							}
 						}
 
 						steps = [];
