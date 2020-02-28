@@ -13,7 +13,7 @@ describe("ReactCompatService", () => {
             const first = mockFn();
             const second = mockFn();
 
-            expect(first === second).toBeTruthy();
+            expect(first).toBe(second);
         });
 
         it("should return different reference when underlying object changed", () => {
