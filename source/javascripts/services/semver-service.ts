@@ -109,8 +109,8 @@ class SemverService {
         const MAJORLOCK = 2;
         const wVersions = this.extractWildcardVersions(step, stepCatalogue);
 
-        return <string>wVersions.find(
-            (version: string|null) => this.checkVersionPartsLocked(version, MAJORLOCK)
+        return wVersions.find(
+            (version: string|null) => this.checkVersionPartsLocked(version, MAJORLOCK)!;
         );
     };
 
