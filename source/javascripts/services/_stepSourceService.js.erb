@@ -114,19 +114,7 @@
 							);
 						}
 
-						var requestedVersion = step.version ? step.version : library.latestStepVersions[step.id];
-
-						if (!library.steps[step.id][requestedVersion]) {
-							throw new Error(
-								"<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_version_error_prefix] %>" +
-									step.id +
-									"@" +
-									requestedVersion
-							);
-						}
-
-						step.version = requestedVersion;
-						step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+						configureStepFromLib(step, library);
 				}
 
 				return step;
