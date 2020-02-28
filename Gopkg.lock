@@ -22,7 +22,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:eeb4ad822bd20a4a6a114dd8161ed2710c722f3a42cf0cd93a55744a386b2f0b"
+  digest = "1:9f1a9e5079504f9d94656784c4d300e7fd058ca7781f17eba18ddc895310056c"
   name = "github.com/bitrise-io/bitrise"
   packages = [
     "bitrise",
@@ -39,7 +39,7 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "e572640601727bb9fcf37a68458a6b7e19a1f15b"
+  revision = "15535322dc6592a3168d16ec97b8d3fc658bd939"
 
 [[projects]]
   branch = "master"
@@ -67,7 +67,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:2ea1144b4b15f404d8ab5103d483008470a5c968cf59982bfd7ebdc58f61dfe1"
+  digest = "1:35b313765d2976d188676d878a2c652b48d98989051ae104285000471cf131e7"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -88,7 +88,7 @@
     "versions",
   ]
   pruneopts = "UT"
-  revision = "948e80486906fb74dfa6012c80cbda6a6dac151a"
+  revision = "e212188d99b41373b4ff8b69e7b1f677bc427bde"
 
 [[projects]]
   branch = "master"
@@ -108,7 +108,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:9b74de0f1685917249ba136212cde8eaaed4b030a53572fbd21b05274b9b4233"
+  digest = "1:c41616c1bb09acdb2f9cf9c65bd2b78a55f9d3ab04526e1b77703ed156581ee3"
   name = "github.com/bitrise-io/stepman"
   packages = [
     "cli",
@@ -117,7 +117,7 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "dabf2163ea4336d68451e999570fbd5baa366e45"
+  revision = "15ac97d3ea158d6bf4ee951927de5df145c78ead"
 
 [[projects]]
   digest = "1:8e8da6cc8cca12851d4e089d970a0f7387b3a6bcc8c459ff432213b03076a66d"
@@ -136,12 +136,12 @@
   version = "v1.1.1"
 
 [[projects]]
-  digest = "1:cbec35fe4d5a4fba369a656a8cd65e244ea2c743007d8f6c1ccb132acf9d1296"
+  digest = "1:25ebe6496abb289ef977c081b2d49f56dd97c32db4ca083d37f95923909ced02"
   name = "github.com/gorilla/mux"
   packages = ["."]
   pruneopts = "UT"
-  revision = "00bdffe0f3c77e27d2cf6f5c70232a2d3e4d9c15"
-  version = "v1.7.3"
+  revision = "75dcda0896e109a2a22c9315bca3bb21b87b2ba5"
+  version = "v1.7.4"
 
 [[projects]]
   digest = "1:88e0b0baeb9072f0a4afbcf12dda615fc8be001d1802357538591155998da21b"
@@ -184,12 +184,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:e096613fb7cf34743d49af87d197663cfccd61876e2219853005a57baedfa562"
+  digest = "1:6a13467c76490975b05609344b3d882a9185fd11a44a04ede7427d684e0819b9"
   name = "github.com/spf13/cobra"
   packages = ["."]
   pruneopts = "UT"
-  revision = "f2b07da1e2c38d5f12845a4f607e2e1018cbb1f5"
-  version = "v0.0.5"
+  revision = "0da06874266c88228b8f14615396a1f6bfc90ed7"
+  version = "v0.0.6"
 
 [[projects]]
   digest = "1:524b71991fc7d9246cc7dc2d9e0886ccb97648091c63e30eef619e6862c955dd"
@@ -200,15 +200,15 @@
   version = "v1.0.5"
 
 [[projects]]
-  digest = "1:99d32780e5238c2621fff621123997c3e3cca96db8be13179013aea77dfab551"
+  digest = "1:49b1087f45b1e49687da2f8eb49d9e07919d4bad3813344251c722141dcb31d6"
   name = "github.com/stretchr/testify"
   packages = [
     "assert",
     "require",
   ]
   pruneopts = "UT"
-  revision = "221dbe5ed46703ee255b1da0dec05086f5035f62"
-  version = "v1.4.0"
+  revision = "3ebf1ddaeb260c4b1ae502a01c7844fa8c1fa0e9"
+  version = "v1.5.1"
 
 [[projects]]
   digest = "1:ca4df663ad76879ad38dbd736493679cbb1aa596c6d479fd9fc5e959e5ceb4fb"
@@ -223,18 +223,18 @@
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "86ce3cb696783b739e41e834e2eead3e1b4aa3fb"
+  revision = "2aa609cf4a9d7d1126360de73b55b6002f9e052a"
 
 [[projects]]
   branch = "master"
-  digest = "1:b40521580b68b3cd78f87d1820116ba94090f426b7da3c4e3124e874e1f431dd"
+  digest = "1:e6f3eca022d18ff28112534a46d8bad7400b1523724061dff2d1bfc737bee376"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "d101bd2416d505c0448a6ce8a282482678040a89"
+  revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
 
 [[projects]]
   digest = "1:55b110c99c5fdc4f14930747326acce56b52cfce60b24b1c03ef686ac0e46bb1"
@@ -249,6 +249,7 @@
   analyzer-version = 1
   input-imports = [
     "github.com/GeertJohan/go.rice",
+    "github.com/GeertJohan/go.rice/embedded",
     "github.com/bitrise-io/bitrise/cli",
     "github.com/bitrise-io/bitrise/models",
     "github.com/bitrise-io/depman/pathutil",
