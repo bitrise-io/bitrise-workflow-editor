@@ -4,11 +4,8 @@ import { Step } from "../../models";
 
 import "./StepItem.scss";
 
-// @ts-ignore
 import defaultStepIcon from "../../../images/step/icon-default.svg";
-// @ts-ignore
 import verifiedIcon from "../../../images/step/badge-verified.svg";
-// @ts-ignore
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
 
 type StringProps = {

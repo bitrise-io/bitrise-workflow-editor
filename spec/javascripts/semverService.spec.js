@@ -92,7 +92,7 @@ describe("SemverService", () => {
         });
 
         it("should not contain wildcard duplicates", () => {
-            var mockStep = {
+            const mockStep = {
                 id: TEST_STEP_ID,
                 version: "2.3.x",
             };

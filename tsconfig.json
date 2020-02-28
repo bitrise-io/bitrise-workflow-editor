@@ -26,6 +26,9 @@
         "build",
         "scripts",
     ],
+    "include": [
+        "source/javascripts/typings/declarations.d.ts"
+    ],
     "lib": [
         "dom", "es2015"
       ],
