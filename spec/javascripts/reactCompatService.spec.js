@@ -23,7 +23,7 @@ describe("ReactCompatService", () => {
             const first = mockFn();
             const second = mockFn();
 
-            expect(first === second).toBeFalsy();
+            expect(first).not.toBe(second);
         });
     });
 });
