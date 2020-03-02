@@ -231,7 +231,11 @@ import jsyaml from 'js-yaml';
 							);
 						});
 					case "cli": {
-						return $q.when({});
+						return $q.reject(
+							new Error(
+								"<%= data[:strings][:request_service][:update_app_with_apple_credential][:not_website_mode_error] %>"
+							)
+						);
 					}
 				}
 			};
@@ -800,32 +804,6 @@ import jsyaml from 'js-yaml';
 
 			// Project types
 
-			requestService.getAppProjectType = function(requestConfig) {
-				var requestURL = stringService.stringReplacedWithParameters(
-					"<%= webserver_path(data[:routes][:website][:app_project_type_get]) %>",
-					{
-						app_slug: requestService.appSlug
-					}
-				);
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve(response.data.project_type);
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:get_app_project_type][:default_error] %>",
-									"<%= data[:strings][:request_service][:get_app_project_type][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			requestService.getAppAvailableProjectTypes = function(requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:stack_info_get]) %>",
@@ -847,92 +825,6 @@ import jsyaml from 'js-yaml';
 									"<%= data[:strings][:request_service][:get_app_available_project_types][:error_prefix] %>"
 								)
 							);
-						}
-					);
-				});
-			};
-
-			// Organization data
-
-			requestService.getOrganizationData = function(requestConfig) {
-				var requestURL;
-				switch (requestService.mode) {
-					case "website":
-						requestURL = stringService.stringReplacedWithParameters(
-							"<%= webserver_path(data[:routes][:website][:organization_data_get]) %>",
-							{
-								organization_slug: requestConfig.organizationSlug
-							}
-						);
-
-						break;
-					case "cli":
-						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:get_organization_data][:not_website_mode_error] %>"
-							)
-						);
-				}
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							var organizationData = {
-								name: response.data.name,
-								billingEmail: response.data.email,
-								avatarURL: response.data.avatar_url
-							};
-
-							var currentPlan = {
-								id: response.data.current_plan.id,
-								name: response.data.current_plan.name,
-								price: response.data.current_plan.price,
-								expiresAt: dateService.dateFromString(
-									response.data.current_plan.expires_at
-								)
-							};
-
-							if (response.data.current_plan.container_count) {
-								currentPlan.containerCount =
-									response.data.current_plan.container_count;
-							}
-
-							var pendingPlan = {};
-							if (response.data.still_active_higher_plan) {
-								pendingPlan.id = response.data.pending_lower_plan.id;
-								pendingPlan.price = response.data.pending_lower_plan.price;
-
-								if (response.data.pending_lower_plan.container_count) {
-									pendingPlan.containerCount =
-										response.data.pending_lower_plan.container_count;
-								}
-							}
-
-							resolve({
-								organizationData: organizationData,
-								currentPlan: currentPlan,
-								pendingPlan: pendingPlan
-							});
-						},
-						function(response) {
-							if (response && response.status == 404) {
-								reject({
-									errorCode: 404,
-									errorMessage: errorFromResponse(
-										response,
-										"<%= data[:strings][:request_service][:get_organization_data][:not_found_error] %>",
-										"<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"
-									)
-								});
-							} else {
-								reject(
-									errorFromResponse(
-										response,
-										"<%= data[:strings][:request_service][:get_organization_data][:default_error] %>",
-										"<%= data[:strings][:request_service][:get_organization_data][:error_prefix] %>"
-									)
-								);
-							}
 						}
 					);
 				});

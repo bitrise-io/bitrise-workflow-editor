@@ -887,19 +887,9 @@ def strings
                 default_error: "Error loading app data.",
                 error_prefix: "Error loading app data: "
             },
-            get_app_project_type: {
-                default_error: "Error loading app project type.",
-                error_prefix: "Error loading app project type: "
-            },
             get_app_available_project_types: {
                 default_error: "Error loading app available project types.",
                 error_prefix: "Error loading app available project types: "
-            },
-            get_organization_data: {
-                default_error: "Error loading Organization plans.",
-                not_found_error: "You are not a member of the Organization or Organization does not exist.",
-                error_prefix: "Error loading Organization plans: ",
-                not_website_mode_error: "Organization plans get is only available in website mode."
             },
             get_machine_types: {
                 default_error: "Error loading machine types.",
@@ -1000,13 +990,11 @@ def strings
             secret_value_get: "/api/app/<app_slug>/secrets/<secret_key>.json",
             bitrise_steplib_get: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json.gz",
             default_outputs_get: "/api/app/<app_slug>/default_step_outputs.json",
-            organization_data_get: "/organization/<organization_slug>.json",
             machine_type_configs_get: "/app/<app_slug>/machine_type_configs",
             stack_get: "/app/<app_slug>/stack",
             stack_info_get: "/app/<app_slug>/stack_info.json",
             stacks_get: "/app/<app_slug>/all_stack_info",
             stack_save: "/app/<app_slug>/stack",
-            app_project_type_get: "/app/<app_slug>/project_type",
             prov_profile_create: "/api/app/<app_slug>/prov_profile_document/create.json",
             prov_profile_get_details: "/prov_profile_document/details/<prov_profile_id>.json",
             prov_profiles_get: "/api/app/<app_slug>/prov_profile_document/show.json",

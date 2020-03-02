@@ -195,11 +195,6 @@ import { safeDigest } from "../services/react-compat";
 						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
 
 						var loadPromises = [];
-						var projectTypePromise = Promise.resolve();
-
-						if (requestService.mode === "website") {
-							projectTypePromise = appService.getProjectType();
-						}
 
 						if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
 							canceler.resolve();
@@ -213,13 +208,12 @@ import { safeDigest } from "../services/react-compat";
 									},
 									true
 								),
-								projectTypePromise.then(function() {
-									return stepSourceService.loadLatestOfficialSteps(appService.projectType);
-								})
 							);
-						}
 
-						loadPromises.push(projectTypePromise);
+							if (viewModel.shouldFilterByProjectType) {
+								loadPromises.push(stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID));
+							}
+						}
 
 						steps = [];
 						viewModel.typeFilters = [];
@@ -303,7 +297,7 @@ import { safeDigest } from "../services/react-compat";
 						return (
 							!aStep.projectTypeTags() ||
 							aStep.projectTypeTags().length == 0 ||
-							_.contains(aStep.projectTypeTags(), appService.projectType)
+							_.contains(aStep.projectTypeTags(), appService.appDetails.projectTypeID)
 						);
 					});
 				}
