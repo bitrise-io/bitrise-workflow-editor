@@ -1,6 +1,50 @@
-## Changelog (Current version: 1.2.1)
+## Changelog (Current version: 1.3.0)
 
 -----------------
+
+## 1.3.0 (2020 Mar 02)
+
+### Release Notes
+
+* [TOOL-1197] step version lock release (#446)
+* Remove some unnecessary AJAX request duplications [WEB-2015] (#445)
+* update go dependencies (#452)
+* Import js-yaml (#453)
+* Import js-yaml (#453)
+* Separate GH and Discuss release WF (#448)
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.3.0
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.2.1 -> 1.3.0
+
+* [64e0149] Adam Pelle - [TOOL-1197] step version lock release (#446) (2020 Mar 02)
+* [8dbb6de] erosdome - Remove some unnecessary AJAX request duplications [WEB-2015] (#445) (2020 Mar 02)
+* [6a29b11] Adam Pelle - update go dependencies (#452) (2020 Feb 28)
+* [8a2ac46] Simon Márton - Import js-yaml (#453) (2020 Feb 27)
+* [8a64976] Simon Márton - Import js-yaml (#453) (2020 Feb 27)
+* [87921b8] Simon Márton - Separate GH and Discuss release WF (#448) (2020 Feb 27)
+
 
 ## 1.2.1 (2020 Feb 27)
 
@@ -4232,4 +4276,4 @@ bitrise :workflow-editor
 
 -----------------
 
-Updated: 2020 Feb 27
+Updated: 2020 Mar 02

@@ -1,7 +1,7 @@
 const path = require("path");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
-const UglifyJsPlugin = require("uglifyjs-webpack-plugin");
+const TerserPLugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const { ProvidePlugin } = require("webpack");
 
@@ -57,11 +57,15 @@ module.exports = {
   },
 
   optimization: {
-    minimizer: isProd ? [
-      new UglifyJsPlugin({
-        uglifyOptions: { cache: true, parallel: true, mangle: false }
+    minimize: isProd,
+    minimizer: [
+      new TerserPLugin({
+        terserOptions: {
+          mangle: false,
+          safari10: true
+        }
       })
-    ] : [],
+    ],
 	},
 
   output: {
