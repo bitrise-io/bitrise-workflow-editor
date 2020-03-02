@@ -356,6 +356,7 @@ workflows:
             #!/bin/bash
             set -ex
 
+            export GIT_RELEASE_VERSION=$RELEASE_VERSION
             envman add --key GIT_RELEASE_VERSION --value "$RELEASE_VERSION"
             bitrise run create-github-release
     - script:
@@ -365,8 +366,10 @@ workflows:
             #!/bin/bash
             set -ex
 
+            export DSICUSS_RELEASE_VERSION=$RELEASE_VERSION
             envman add --key DSICUSS_RELEASE_VERSION --value "$RELEASE_VERSION"
             bitrise run create-discuss-release
+
   create-binaries:
     title: Create binaries
     description: |
