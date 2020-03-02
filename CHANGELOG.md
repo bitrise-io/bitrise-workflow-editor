@@ -1,6 +1,44 @@
-## Changelog (Current version: 1.3.0)
+## Changelog (Current version: 1.3.1)
 
 -----------------
+
+## 1.3.1 (2020 Mar 02)
+
+### Release Notes
+
+* Fix search deprecated steps, List steps by ID not CVS (#455)
+* change terser config to preserve licence (#454)
+* fix master deploy
+
+
+### Install or upgrade
+
+To install this version, run the following commands (in a bash shell):
+
+```
+bitrise plugin install --source https://github.com/bitrise-io/bitrise-workflow-editor.git --version 1.3.1
+```
+
+To update the already installed plugin to the latest version:
+
+```
+bitrise plugin update workflow-editor
+```
+
+That's all, you're ready to go!
+
+To run the workflow editor plugin call:
+
+```
+bitrise :workflow-editor
+```
+
+### Release Commits - 1.3.0 -> 1.3.1
+
+* [6c0b75b] Simon Márton - Fix search deprecated steps, List steps by ID not CVS (#455) (2020 Mar 02)
+* [b937ffb] Adam Pelle - change terser config to preserve licence (#454) (2020 Mar 02)
+* [8dfef43] Adam Pelle - fix master deploy (2020 Mar 02)
+
 
 ## 1.3.0 (2020 Mar 02)
 
