@@ -60,9 +60,14 @@ module.exports = {
     minimize: isProd,
     minimizer: [
       new TerserPLugin({
+        extractComments: true,
+        parallel: true,
         terserOptions: {
           mangle: false,
-          safari10: true
+          safari10: true,
+          output: {
+            comments: /@license/i,
+          },
         }
       })
     ],
