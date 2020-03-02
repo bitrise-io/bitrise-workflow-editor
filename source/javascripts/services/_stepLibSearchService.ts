@@ -3,6 +3,7 @@ import { Step, SearchOptions } from "@bitrise/steplib-search";
 type ListOptions = {
 	attributesToRetrieve?: string[];
 	stepCVSs: string[];
+	stepIDs: string[];
 	includeInputs?: boolean;
 	latestOnly?: boolean;
 	projectTypes?: string[];
@@ -53,6 +54,12 @@ angular.module("BitriseWorkflowEditor").service(
 			list(options) {
 				var attributesToRetrieve = options.attributesToRetrieve || ["*"];
 
+				let filters;
+
+				if (options.stepIDs) {
+					filters = `(${options.stepIDs.map(id => `id:${id}`).join(" OR ")})`;
+				}
+
 				return stepLibSearchInstance
 					.list({
 						stepIds: options.stepCVSs,
@@ -61,7 +68,8 @@ angular.module("BitriseWorkflowEditor").service(
 						includeDeprecated: options.includeDeprecated,
 						projectTypes: options.projectTypes,
 						algoliaOptions: {
-							attributesToRetrieve: attributesToRetrieve
+							attributesToRetrieve,
+							filters
 						}
 					})
 					.then(convertSteps)

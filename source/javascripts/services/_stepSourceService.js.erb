@@ -241,7 +241,12 @@
 				}
 
 				var stepLibSearchPromise = stepLibSearchService
-					.list({ stepCVSs: stepLibSearchCVSs, includeInputs: true })
+					.list({
+						stepIDs: stepLibSearchCVSs.map(function(cvs) {
+							return cvs.split("@").shift();
+						}),
+						includeInputs: true
+					})
 					.then(function(steps) {
 						addStepsToDefaultLibrary(steps);
 					});
