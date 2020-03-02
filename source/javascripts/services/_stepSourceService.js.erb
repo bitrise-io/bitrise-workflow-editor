@@ -1,9 +1,13 @@
 (function() {
 	"use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.factory("stepSourceService",["$q", "requestService", "appService", "semverService", "stepLibSearchService", "Step",
+	angular.module("BitriseWorkflowEditor").factory("stepSourceService", [
+		"$q",
+		"requestService",
+		"appService",
+		"semverService",
+		"stepLibSearchService",
+		"Step",
 		function($q, requestService, appService, semverService, stepLibSearchService, Step) {
 			var stepSourceService = {
 				defaultLibraryURL: undefined,
@@ -53,7 +57,8 @@
 				var source =
 					idStartIndex > 0 && cvs.slice(0, idStartIndex - 2).length > 0 ? cvs.slice(0, idStartIndex - 2) : null;
 				var id = cvs.slice(idStartIndex, versionStartIndex != -1 ? versionStartIndex - 1 : undefined);
-				var version = versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : LATEST_VERSION;
+				var version =
+					versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : LATEST_VERSION;
 
 				switch (source) {
 					case "path":
@@ -154,7 +159,7 @@
 				var library = getLibraryForStep(step);
 
 				if (!library) {
-					return ;
+					return;
 				}
 
 				var indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") != -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
@@ -376,9 +381,11 @@
 			stepSourceService.loadLatestOfficialSteps = function(projectType) {
 				var projectTypes = projectType && [projectType];
 
-				return stepLibSearchService.list({ latestOnly: true, projectTypes: projectTypes }).then(function(steps) {
-					addStepsToDefaultLibrary(steps);
-				});
+				return stepLibSearchService
+					.list({ latestOnly: true, projectTypes: projectTypes, includeDeprecated: false })
+					.then(function(steps) {
+						addStepsToDefaultLibrary(steps);
+					});
 			};
 
 			stepSourceService.searchOfficialSteps = function(query) {
@@ -426,5 +433,6 @@
 			};
 
 			return stepSourceService;
-		}]);
+		}
+	]);
 })();
