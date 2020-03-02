@@ -128,8 +128,12 @@ def strings
                     clone_popover_info: "Clone this step",
                     source_popover_info: "Source code",
                     delete: "Delete Step: <step_title>",
-                    version: "Version",
+                    version: "Version: <version>",
                     always_latest: "Always latest",
+                    latest_version: "Step\\'s latest version is: <latest_version>",
+                    exact_version_remark: "Step version set to \\“<version>\\” in the <b>bitrise.yml</b> file",
+                    patch_update_remark: "You will get patch updates on this step",
+                    minor_update_remark: "You will get minor and patch updates on this step",
                     is_always_run: "Run if previous Step failed",
                     inputs_removed_popup_title: "The following inputs are not available in this version:",
                     invalid_version: {

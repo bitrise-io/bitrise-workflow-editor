@@ -28,7 +28,6 @@ Something like this:
 
 ```bash
 bundle install
-go install
 npm install
 ```
 
@@ -78,3 +77,11 @@ If you are planning to break down the tasks into multiple master commits (aka mi
 - In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
 - In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
 - After the test release process, don't forget to delete the draft release and the internal changelog topic.
+
+## Contribution guide
+
+...Process TBD...
+
+### Javascript
+
+For production code we still use ES5 standard as we do not do any transpilation during the build (only minification). For tests you are safe to use whatever standards jsdom executes (ES6 supported).

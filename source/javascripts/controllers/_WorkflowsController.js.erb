@@ -782,6 +782,9 @@ import { safeDigest } from "../services/react-compat";
 				addStepService.showWithInsertIndex(index, function(step, insertIndex) {
 					viewModel.editedWorkflow.steps.splice(insertIndex, 0, step);
 
+					// force to set latest version for step being added
+					changeStepToVersion(step, null);
+
 					viewModel.stepSelected(step);
 				});
 			};
@@ -814,6 +817,13 @@ import { safeDigest } from "../services/react-compat";
 						scrollService.scrollToTarget();
 					}, 300);
 				}
+
+				safeDigest($scope);
+			};
+
+			viewModel.changeSelectedStepVersion = function(version) {
+				viewModel.requestedStepVersion = version;
+				safeDigest($scope);
 			};
 
 			$scope.$watch(
@@ -896,7 +906,8 @@ import { safeDigest } from "../services/react-compat";
 					viewModel.stepSelected(step, workflowIndex);
 				}
 
-				changeStepToVersion(step, _.first(stepSourceService.versionsOfStep(step)));
+				changeStepToVersion(step, null);
+				safeDigest($scope);
 			};
 
 			$scope.$watch(

@@ -882,10 +882,10 @@ header.sticky section.manage-workflows {
 							section.description, section.version, section.always-run {
 								@include display-flex;
 								@include align-items(center);
+								@include justify-content(space-between);
 								@include padding-y(18px);
 								padding-left: $leftpadding;
 								padding-right: $rightpadding;
-								font-size: 13px;
 								font-weight: 300;
 								color: $def-darkgrey;
 
@@ -893,16 +893,66 @@ header.sticky section.manage-workflows {
 									border-top: $border;
 								}
 
-								span.icon {
-									@include flex-shrink(0);
-									@include display-flex;
-									@include align-items(center);
+								.version__text {
+									display: inline-block;
+									font-weight: 700;
+									line-height: 2em;
+								}
+
+								label.error {
+									color: $def-danger;
+								}
+
+								.latest-version {
+									font-size: 13px;
+								}
+
+								.icon {
+									display: inline-block;
 									width: 20px;
 									margin-right: 10px;
+									vertical-align: middle;
+
+									&.icon-ok circle {
+										@include svg-icon($def-green);
+									}
+
+									&.icon-danger circle {
+										@include svg-icon($def-danger, $def-danger-shade);
+									}
 								}
 
 								@include media-below-big {
 									@include padding-x($horizontalpadding_small);
+								}
+
+								@include media-below-mid {
+									display: block;
+								}
+							}
+
+							.version-info {
+								flex: 1;
+							}
+
+							.version-selector {
+								flex: 2;
+								text-align: right;
+
+								.remark {
+									display: inline-block;
+									font-size: 13px;
+									margin-right: .5em;
+								}
+
+								@include media-below-mid {
+									margin: .5em auto;
+									text-align: initial;
+
+									select {
+										display: block;
+										margin: 1em auto;
+									}
 								}
 
 								label.error {
@@ -973,28 +1023,8 @@ header.sticky section.manage-workflows {
 							}
 
 							section.version {
-
-								span.icon {
-
-									&:before {
-										$radius: 5px;
-
-										content: "";
-										@include position(relative, -1px);
-										display: inline-block;
-										@include size(2 * $radius);
-										@include border-radius($radius);
-										background-color: $def-danger;
-										@include transition(background-color $def-transition_duration);
-									}
-
-									&.latest:before {
-										background-color: $def-green;
-									}
-								}
-
-								select {
-									@include flex-grow(1);
+								#selected-step-version-select {
+									min-width: 140px;
 									max-width: 50%;
 									margin-left: auto;
 								}

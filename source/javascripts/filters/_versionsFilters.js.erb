@@ -1,0 +1,76 @@
+"use strict";
+
+angular.module("BitriseWorkflowEditor")
+    .filter("versionLabel", function() {
+        return function(label) {
+            return label ? label : "<%= data[:strings][:workflows][:steps][:always_latest] %>";
+        };
+    })
+    .filter("resolveVersion", ["stepSourceService", "versionLabelFilter", function(stepService, versionLabelFilter) {
+        return function(requestedVersion, step) {
+            var label = stepService.resolveRequestedStepVersion(requestedVersion, step);
+            return versionLabelFilter(label);
+        }
+    }])
+    .filter("versionRemark", ["semverService", "stringService", "versionLabelFilter", function(semverService, stringService, versionLabelFilter) {
+        var exactVersionRemark = "<%= data[:strings][:workflows][:steps][:exact_version_remark] %>";
+        var patchUpdatesRemark = "<%= data[:strings][:workflows][:steps][:patch_update_remark] %>";
+        var minorUpdateRemarks = "<%= data[:strings][:workflows][:steps][:minor_update_remark] %>";
+
+        return function(step) {
+            var minorLocked = semverService.checkVersionPartsLocked(step.version, 2);
+            var patchLocked = semverService.checkVersionPartsLocked(step.version, 1);
+
+            if (minorLocked) {
+                return minorUpdateRemarks;
+            } else if (patchLocked) {
+                return patchUpdatesRemark;
+            }
+
+            return stringService.stringReplacedWithParameters(exactVersionRemark, { version: versionLabelFilter(step.version) });
+        };
+    }])
+    .filter("isLatestVersion", ["stepSourceService", function(stepService) {
+        return stepService.isLatestStepVersion;
+    }])
+    .filter("latestVersion", ["stepSourceService", function(stepService) {
+        return stepService.latestVersion;
+    }])
+    .filter("stepVersions", ["stepSourceService", "reactCompatService", function(stepService, reactCompat) {
+        return reactCompat.cachedFn(stepService.versionsOfStep);
+    }])
+    .filter("versionSelectorOptions", ["stepSourceService", function(stepSourceService) {
+        var result = {
+            strings: {
+                alwaysLatest: "<%= data[:strings][:workflows][:steps][:always_latest] %>"
+            }
+        };
+
+        return function(versionUpdater) {
+            result.onUpdateVersion = versionUpdater;
+            return result;
+        };
+    }])
+    .filter("versionInfoStrings", ["stringService", "stepSourceService", "resolveVersionFilter", "versionRemarkFilter",
+    function(stringsService, stepSourceService, resolveVersion, versionRemarkFilter) {
+        var versionText = "<%= data[:strings][:workflows][:steps][:version] %>";
+        var latestVersionText = "<%= data[:strings][:workflows][:steps][:latest_version] %>";
+
+        var strings = {
+            invalidVersionText: "<%= data[:strings][:workflows][:steps][:invalid_version][:title] %>"
+        };
+
+        return function(step, requestedVersion) {
+            strings.versionText = stringsService.stringReplacedWithParameters(versionText, {
+                version: resolveVersion(requestedVersion, step)
+            });
+
+            strings.latestVersionText = stringsService.stringReplacedWithParameters(latestVersionText, {
+                    latest_version: stepSourceService.latestVersion(step)
+            });
+
+            strings.versionRemark = versionRemarkFilter(step);
+
+            return strings;
+        };
+    }]);;

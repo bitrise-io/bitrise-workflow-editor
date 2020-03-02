@@ -4,14 +4,34 @@
 	angular.module("BitriseWorkflowEditor").service("stringService", function() {
 		var stringService = {};
 
+		var templateRegex = /<([a-zA-Z0-9\-\_\.]+)>/g;
+
+		var defaultTemplateDataFromString = function(string) {
+			var match, data = {};
+			while (match = templateRegex.exec(string)) {
+				data[match[1]] = match[0];
+			}
+			return data;
+		};
+
+		// underscore template settings
+		_.templateSettings = {
+			interpolate: templateRegex
+		};
+
 		stringService.stringReplacedWithParameters = function(string, parameters) {
-			_.each(parameters, function(aValue, aKey) {
-				var regexpForParameter = new RegExp("([^<]*)<" + aKey + ">(.*)");
+			var resStr = "";
+			var compiled = _.template(string);
 
-				string = string.replace(regexpForParameter, "$1" + aValue + "$2");
-			});
+			try {
+				resStr = compiled(parameters);
+			} catch {
+				// if we did not specify every params
+				var defaultParams = defaultTemplateDataFromString(string);
+				resStr = compiled(_.defaults(parameters, defaultParams));
+			}
 
-			return string;
+			return resStr;
 		};
 
 		stringService.joinedString = function(

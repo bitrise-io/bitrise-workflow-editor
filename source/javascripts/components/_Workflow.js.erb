@@ -19,7 +19,6 @@
 					step = stepSourceService.stepFromCVS(stepCVS);
 					step.userStepConfig = _.extend(userStepConfig, step.userStepConfig);
 				} catch (error) {
-					console.log(error.message);
 					step = new Step(stepCVS, userStepConfig);
 				}
 

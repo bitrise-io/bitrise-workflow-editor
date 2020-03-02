@@ -3,13 +3,16 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.factory("stepSourceService", function($q, requestService, appService, stepLibSearchService, Step) {
+		.factory("stepSourceService",["$q", "requestService", "appService", "semverService", "stepLibSearchService", "Step",
+		function($q, requestService, appService, semverService, stepLibSearchService, Step) {
 			var stepSourceService = {
 				defaultLibraryURL: undefined,
 				libraries: [],
 				localSteps: [],
 				gitSteps: []
 			};
+
+			var LATEST_VERSION = null;
 
 			var getLibraryForStep = function(step) {
 				if (!step.isLibraryStep()) {
@@ -28,14 +31,14 @@
 			};
 
 			var configureStepFromLib = function(step, library) {
-				var requestedVersion = step.version || library.latestStepVersions[step.id];
+				var requestedVersion = semverService.resolveVersion(step.version, step.id, library);
 				var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
 
 				if (shouldLoadOnlyStepIcon) {
 					requestedVersion = library.latestStepVersions[step.id];
 					step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
 				} else {
-					step.version = requestedVersion;
+					step.version = semverService.normalizeVersion(step.version);
 					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
 				}
 			};
@@ -50,7 +53,7 @@
 				var source =
 					idStartIndex > 0 && cvs.slice(0, idStartIndex - 2).length > 0 ? cvs.slice(0, idStartIndex - 2) : null;
 				var id = cvs.slice(idStartIndex, versionStartIndex != -1 ? versionStartIndex - 1 : undefined);
-				var version = versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : null;
+				var version = versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : LATEST_VERSION;
 
 				switch (source) {
 					case "path":
@@ -108,75 +111,10 @@
 							break;
 						}
 
-						if (!library.steps[step.id]) {
-							throw new Error(
-								"<%= data[:strings][:step_source_service][:step_from_cvs][:no_step_with_id_error_prefix] %>" + step.id
-							);
-						}
-
 						configureStepFromLib(step, library);
 				}
 
 				return step;
-			};
-
-			stepSourceService.versionsOfStep = function(step) {
-				if (step.libraryURL !== undefined) {
-					var library = _.find(stepSourceService.libraries, {
-						url: step.libraryURL
-					});
-
-					return _.sortBy(_.keys(library.steps[step.id]), function(version) {
-						return _.map(version.split("."), function(aVersionPart) {
-							var pad = "000000";
-							var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
-
-							return versionPartWithLeadingZeros;
-						}).join(".");
-					}).reverse();
-				} else if (step.localPath !== undefined) {
-					return undefined;
-				} else if (step.gitURL !== undefined) {
-					return [step.version];
-				}
-			};
-
-			stepSourceService.isLatestStepVersion = function(step) {
-				if (step.libraryURL !== undefined) {
-					var library = _.find(stepSourceService.libraries, {
-						url: step.libraryURL
-					});
-
-					return step.version === null || step.version == library.latestStepVersions[step.id];
-				} else if (step.localPath !== undefined) {
-					return undefined;
-				} else if (step.gitURL !== undefined) {
-					return true;
-				}
-			};
-
-			stepSourceService.changeStepToVersion = function(step, version) {
-				if (step.libraryURL !== undefined) {
-					var library = _.find(stepSourceService.libraries, {
-						url: step.libraryURL
-					});
-
-					var indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") != -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
-					if (indexOfVersionInCurrentCVS != -1) {
-						step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
-					}
-
-					if (version !== null) {
-						step.cvs += "@" + version;
-						step.version = version;
-					}
-
-					configureStepFromLib(step, library);
-				} else if (step.localPath !== undefined) {
-					return;
-				} else if (step.gitURL !== undefined) {
-					return;
-				}
 			};
 
 			stepSourceService.versionsOfStep = function(step) {
@@ -192,19 +130,7 @@
 					return null;
 				}
 
-				var versions = _.keys(library.steps[step.id]);
-				versions.splice(0, 0, step.version);
-
-				versions = _.sortBy(versions, function(version) {
-					return _.map(version.split("."), function(aVersionPart) {
-						var pad = "000000";
-						var versionPartWithLeadingZeros = pad.substring(0, pad.length - aVersionPart.length) + aVersionPart;
-
-						return versionPartWithLeadingZeros;
-					}).join(".");
-				}).reverse();
-
-				return _.uniq(versions);
+				return semverService.extractWildcardVersions(step, library);
 			};
 
 			stepSourceService.latestVersion = function(step) {
@@ -216,10 +142,42 @@
 				var library = getLibraryForStep(step);
 
 				if (!library) {
+					// broken state
 					return !step.isLocal();
 				}
 
-				return step.version === stepSourceService.latestVersion(step);
+				var stepVersion = semverService.resolveVersion(step.version, step.id, library);
+				return stepVersion === stepSourceService.latestVersion(step);
+			};
+
+			stepSourceService.changeStepToVersion = function(step, version) {
+				var library = getLibraryForStep(step);
+
+				if (!library) {
+					return ;
+				}
+
+				var indexOfVersionInCurrentCVS = step.cvs.lastIndexOf("@") != -1 ? step.cvs.lastIndexOf("@") + 1 : -1;
+				if (indexOfVersionInCurrentCVS != -1) {
+					step.cvs = step.cvs.slice(0, indexOfVersionInCurrentCVS - 1);
+				}
+
+				version = version || semverService.findLatestMajorVersion(step, library);
+
+				step.cvs += "@" + semverService.shortenWildcardVersion(version);
+				step.version = version;
+
+				configureStepFromLib(step, library);
+			};
+
+			stepSourceService.resolveRequestedStepVersion = function(requestedVersion, step) {
+				var library = getLibraryForStep(step);
+
+				if (!library) {
+					return requestedVersion;
+				}
+
+				return semverService.resolveVersion(requestedVersion, step.id, library);
 			};
 
 			stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
@@ -468,5 +426,5 @@
 			};
 
 			return stepSourceService;
-		});
+		}]);
 })();
