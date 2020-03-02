@@ -817,6 +817,8 @@ import { safeDigest } from "../services/react-compat";
 						scrollService.scrollToTarget();
 					}, 300);
 				}
+
+				safeDigest($scope);
 			};
 
 			viewModel.changeSelectedStepVersion = function(version) {
