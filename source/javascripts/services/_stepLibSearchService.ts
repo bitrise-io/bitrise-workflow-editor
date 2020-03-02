@@ -3,9 +3,11 @@ import { Step, SearchOptions } from "@bitrise/steplib-search";
 type ListOptions = {
 	attributesToRetrieve?: string[];
 	stepCVSs: string[];
+	stepIDs: string[];
 	includeInputs?: boolean;
 	latestOnly?: boolean;
 	projectTypes?: string[];
+	includeDeprecated: boolean;
 };
 
 type FuzzySearchOptions = ListOptions & {
@@ -52,14 +54,22 @@ angular.module("BitriseWorkflowEditor").service(
 			list(options) {
 				var attributesToRetrieve = options.attributesToRetrieve || ["*"];
 
+				let filters;
+
+				if (options.stepIDs) {
+					filters = `(${options.stepIDs.map(id => `id:${id}`).join(" OR ")})`;
+				}
+
 				return stepLibSearchInstance
 					.list({
 						stepIds: options.stepCVSs,
 						includeInputs: !!options.includeInputs,
 						latestOnly: !!options.latestOnly,
+						includeDeprecated: options.includeDeprecated,
 						projectTypes: options.projectTypes,
 						algoliaOptions: {
-							attributesToRetrieve: attributesToRetrieve
+							attributesToRetrieve,
+							filters
 						}
 					})
 					.then(convertSteps)
@@ -82,14 +92,19 @@ angular.module("BitriseWorkflowEditor").service(
 					.then((stepObj: { [stepId: string]: StepVersion }) => stepObj[stepId])
 					.catch((err: Error) => $q.reject(err));
 			},
-			fuzzySearch({ attributesToRetrieve, query, latestOnly, includeInputs }: FuzzySearchOptions) {
-				attributesToRetrieve = attributesToRetrieve || ["*"];
-
+			fuzzySearch({
+				attributesToRetrieve = ["*"],
+				query,
+				latestOnly,
+				includeInputs,
+				includeDeprecated
+			}: FuzzySearchOptions) {
 				return stepLibSearchInstance
 					.list({
 						query,
 						latestOnly: !!latestOnly,
 						includeInputs: !!includeInputs,
+						includeDeprecated,
 						algoliaOptions: {
 							attributesToRetrieve,
 							restrictSearchableAttributes: ["step.title"],
