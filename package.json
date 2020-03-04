@@ -9,7 +9,9 @@
 		"test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",
 		"build": "webpack --bail -p",
 		"build:prod": "NODE_ENV=prod npm run build",
-		"start:dev": "webpack-dev-server"
+		"start:dev": "webpack-dev-server",
+		"e2e:open": "cypress open",
+		"e2e:run": "cypress run"
 	},
 	"repository": {
 		"type": "git",
@@ -56,6 +58,8 @@
 		"angular-mocks": "1.7.2",
 		"copy-webpack-plugin": "^5.1.1",
 		"css-loader": "^3.4.2",
+		"cypress": "^4.1.0",
+		"cypress-cucumber-preprocessor": "^2.0.1",
 		"file-loader": "^5.0.2",
 		"jsdom": "^15.2.0",
 		"karma": "^4.4.1",
@@ -84,5 +88,8 @@
 	"prettier": {
 		"useTabs": true,
 		"printWidth": 120
+	},
+	"cypress-cucumber-preprocessor": {
+		"nonGlobalStepDefinitions": true
 	}
 }

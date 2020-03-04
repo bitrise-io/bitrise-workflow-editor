@@ -1,0 +1,4 @@
+{
+    "integrationFolder": "spec/integration",
+    "testFiles": "**/*.feature"
+}
