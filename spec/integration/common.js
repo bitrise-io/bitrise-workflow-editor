@@ -1,8 +1,10 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
 import el from "./elements";
 
+const PORT = Cypress.env('PORT')
+
 Given('editor is open', () => {
-  cy.visit("http://localhost:57850/1.3.0/#!/workflows");
+  cy.visit(`http://localhost:${PORT}/1.3.0/#!/workflows`);
 });
 
 When('I click on {string}', (element) => {

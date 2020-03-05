@@ -10,8 +10,10 @@
 		"build": "webpack --bail -p",
 		"build:prod": "NODE_ENV=prod npm run build",
 		"start:dev": "webpack-dev-server",
-		"e2e:open": "cypress open",
-		"e2e:run": "cypress run"
+		"e2e:dashboard": "cypress open",
+		"e2e:run": "cypress run",
+		"e2e:run-api": "PORT=4000 ./_scripts/run_api.sh ./spec/integration/test_bitrise.yml",
+		"e2e": "concurrently -k --kill-others-on-fail \"npm:e2e:run-api\" \"npm:e2e:run\""
 	},
 	"repository": {
 		"type": "git",
@@ -56,6 +58,7 @@
 		"@types/react-dom": "^16.9.5",
 		"@types/underscore": "^1.9.4",
 		"angular-mocks": "1.7.2",
+		"concurrently": "^5.1.0",
 		"copy-webpack-plugin": "^5.1.1",
 		"css-loader": "^3.4.2",
 		"cypress": "^4.1.0",

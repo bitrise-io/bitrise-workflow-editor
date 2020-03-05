@@ -1,4 +1,7 @@
 {
     "integrationFolder": "spec/integration",
-    "testFiles": "**/*.feature"
+    "testFiles": "**/*.feature",
+    "env": {
+        "PORT": 4000
+    }
 }
