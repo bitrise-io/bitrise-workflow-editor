@@ -1,6 +1,9 @@
 {
     "integrationFolder": "spec/integration",
     "testFiles": "**/*.feature",
+    "pluginsFile": "spec/integration/cypress/plugins",
+    "supportFile": "spec/integration/cypress/support",
+    "video": false,
     "env": {
         "PORT": 4000
     }

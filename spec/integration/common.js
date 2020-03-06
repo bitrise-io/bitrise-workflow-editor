@@ -1,5 +1,5 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
-import el from "./elements";
+import $el, { selector, elements } from "./elements";
 
 const PORT = Cypress.env('PORT')
 
@@ -8,37 +8,49 @@ Given('editor is open', () => {
 });
 
 When('I click on {string}', (element) => {
-    cy.get(el(element)).click();
+    $el(element).click();
 });
 
 When('I select {string} from {string}', (value, element) => {
-  cy.get(el(element)).select(value);
+  $el(element).select(value);
 });
 
 When('I type {string} in {string}', (text, element) => {
-  cy.get(el(element)).type(text, { force: true }).trigger('input');
+  $el(element).type(text, { force: true }).trigger('input');
 });
 
-When('I confirm on popup', () => {
-  cy.get('#default-confirm-popup-body .yes').click();
+When('I confirm on {string} popup', (type) => {
+  let selector = '#default-confirm-popup-body .yes';
+
+  if (type === 'alert') {
+    selector = '#default-alert-popup-body button';
+  }
+
+  cy.get(selector).click();
 });
 
-Then('I should see {string}', (element) => {
-    cy.get(el(element)).should('be.visible');
+Then('I should see {string} in {string}', (text, element) => {
+  $el(element).should($el => {
+    expect($el).to.contain(text);
+  });
 });
 
-Then('I should not see text {string} in {string}', (text, element) => {
-  cy.get(el(element)).should($el => {
+Then('I should not see {string} in {string}', (text, element) => {
+  $el(element).should($el => {
     expect($el).not.to.contain(text);
   })
 });
 
-Then('I should not see {string}', (element) => {
-  cy.get(el(element)).should('not.be.visible');
+Then('{string} should {string}', (element, expectation) => {
+  const cExpectation = expectation.replace(/\s/g, '.');
+  $el(element).should(cExpectation);
 });
 
-// force saving workflow if we can after every scenario!
-afterEach(() => {
+Then('I should not see {string}', (element) => {
+  $el(element).should('not.be.visible');
+});
+
+Then('I save', () => {
   cy.get('button.save.rebo').then(btn => {
     if (!btn.is(':disabled')) {
       btn.click();
