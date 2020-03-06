@@ -1,22 +1,23 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
-import $el, { selector, elements } from "./elements";
+import $ from "./elements";
+import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT')
 
 Given('editor is open', () => {
-  cy.visit(`http://localhost:${PORT}/1.3.0/#!/workflows`);
+  cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 });
 
 When('I click on {string}', (element) => {
-    $el(element).click();
+  $(element).click();
 });
 
 When('I select {string} from {string}', (value, element) => {
-  $el(element).select(value);
+  $(element).select(value);
 });
 
 When('I type {string} in {string}', (text, element) => {
-  $el(element).type(text, { force: true }).trigger('input');
+  $(element).type(text, { force: true }).trigger('input');
 });
 
 When('I confirm on {string} popup', (type) => {
@@ -30,24 +31,24 @@ When('I confirm on {string} popup', (type) => {
 });
 
 Then('I should see {string} in {string}', (text, element) => {
-  $el(element).should($el => {
+  $(element).should($el => {
     expect($el).to.contain(text);
   });
 });
 
 Then('I should not see {string} in {string}', (text, element) => {
-  $el(element).should($el => {
+  $(element).should($el => {
     expect($el).not.to.contain(text);
   })
 });
 
 Then('{string} should {string}', (element, expectation) => {
   const cExpectation = expectation.replace(/\s/g, '.');
-  $el(element).should(cExpectation);
+  $(element).should(cExpectation);
 });
 
 Then('I should not see {string}', (element) => {
-  $el(element).should('not.be.visible');
+  $(element).should('not.be.visible');
 });
 
 Then('I save', () => {

@@ -103,7 +103,6 @@ workflows:
   ci:
     before_run:
     - _install_test_tools
-    - setup-client
     - test-api
     - test-client
 
@@ -163,9 +162,12 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            DIST=./apiserver/www/
             go get github.com/GeertJohan/go.rice/rice
-            rm -rf ./apiserver/www/
-            mv ./build/ ./apiserver/www/
+
+            mkdir -p $DIST
+            cp -rf ./build/ $DIST
+
             cd ./apiserver
             rice embed-go
 
@@ -183,11 +185,19 @@ workflows:
             go get -u golang.org/x/lint/golint
 
   test-client:
+    envs:
+      - NODE_ENV: "prod"
+    before_run:
+      - create-binaries
     steps:
     - script:
-        title: Karma tests
+        title: Unit tests
         inputs:
-        - content: npm test
+        - content: npm run karma
+    - script:
+        title: E2E tests
+        inputs:
+        - content: npm run e2e
 
   test-api:
     steps:
@@ -418,6 +428,7 @@ workflows:
 
             cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
             echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
+
   create-github-release:
     title: Create GitHub release
     description: |
