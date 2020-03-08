@@ -41,10 +41,9 @@ workflows:
           - name: ruby-dev
           - name: build-essential
           - name: nodejs
-          # for nokogiri
-          - name: patch
-          - name: zlib1g-dev
-          - name: liblzma-dev
+          # for cypress
+          - name: xvfb
+          - name: xauth
         inputs:
         - content: |
             #!/bin/bash
