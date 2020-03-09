@@ -106,6 +106,8 @@ workflows:
             npm run start:dev
 
   ci:
+    envs:
+      - NODE_ENV: "prod"
     before_run:
     - _install_test_tools
     - test-api
