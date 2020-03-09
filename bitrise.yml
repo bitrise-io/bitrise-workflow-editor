@@ -203,6 +203,7 @@ workflows:
         title: E2E tests
         inputs:
         - content: npm run e2e-ci
+    - deploy-to-bitrise-io: {}
 
   test-api:
     steps:
