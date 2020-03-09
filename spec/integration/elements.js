@@ -31,7 +31,7 @@ export const elements = {
 export const selector = (elementSelector) => elements[elementSelector] || elementSelector;
 
 const elementIndex = (expression) => {
-    const matches = /\:eq\((\d)\)/gm.exec(expr);
+    const matches = /\:eq\((\d)\)/gm.exec(expression);
 
     return matches && {
         expression: matches[0],
