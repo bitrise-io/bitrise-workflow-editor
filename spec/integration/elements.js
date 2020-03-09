@@ -28,27 +28,26 @@ export const elements = {
     "Success Icon": ".icon-ok"
 };
 
-const getIndex = (selector) => {
-    const regex = /\:eq\((\d)\)/gm;
-    const matches = regex.exec(selector);
-
-    if (matches) {
-        return [selector.replace(matches[0], ''), parseInt(matches[1])];
-    }
-
-    return null;
-};
-
 export const selector = (elementSelector) => elements[elementSelector] || elementSelector;
+
+const elementIndex = (expression) => {
+    const matches = /\:eq\((\d)\)/gm.exec(expr);
+
+    return matches && {
+        expression: matches[0],
+        index: parseInt(matches[1])
+    };
+};
 
 export default (elementName) => {
     let expr = selector(elementName);
     let index = 0;
 
-    const indexRes = getIndex(expr);
-    if (indexRes) {
-        expr = indexRes[0];
-        index = indexRes[1];
+    const elementPosition = elementIndex(expr);
+
+    if (elementPosition) {
+        expr = expr.replace(elementPosition.expression, '');
+        index = elementPosition.index;
     }
 
     return cy.get(expr).eq(index);
