@@ -11,8 +11,9 @@
 		"build:prod": "NODE_ENV=prod npm run build",
 		"start:dev": "webpack-dev-server",
 		"e2e:dev": "cypress open",
-		"e2e:run": "cypress run --record --key 7af6cee4-8cc2-4d68-bf06-dda30b737dab",
+		"e2e:run": "cypress run",
 		"e2e:api": "PORT=4000 ./_scripts/run_api.sh ./spec/integration/test_bitrise.yml",
+		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key 7af6cee4-8cc2-4d68-bf06-dda30b737dab\"",
 		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\""
 	},
 	"repository": {
