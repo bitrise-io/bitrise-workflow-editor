@@ -202,15 +202,7 @@ workflows:
     - script:
         title: E2E tests
         inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -ex
-            npm run e2e
-
-            if [[ $? != 0 ]]; then
-              cp cypress/screenshots/workflows.feature/* $BITRISE_DEPLOY_DIR/
-            fi
-    - deploy-to-bitrise-io: {}
+        - content: npm run e2e
 
   test-api:
     steps:

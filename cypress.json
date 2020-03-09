@@ -4,7 +4,9 @@
   "testFiles": "**/*.feature",
   "pluginsFile": "spec/integration/cypress/plugins",
   "supportFile": "spec/integration/cypress/support",
-  "video": false,
+  "screenshotsFolder": "spec/integration/cypress/screenshots",
+  "videosFolder": "spec/integration/cypress/videos",
+  "videoUploadOnPasses": false,
   "env": {
     "PORT": 4000
   }
