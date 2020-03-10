@@ -47,7 +47,16 @@ export const save = () => {
 };
 
 Given('editor is open', () => {
+  cy.server()
+    .route('POST', '/1/indexes/steplib_steps/browse**').as('steplib-steps')
+    .route('POST', '/1/indexes/steplib_inputs/browse**').as('steplib-inputs');
+
   cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
+
+  cy.wait(['@steplib-steps', '@steplib-inputs']);
+  // // TODO: cypress does not support polling :(
+  // // https://github.com/cypress-io/cypress/issues/3308
+  cy.wait(2000);
 });
 
 When('I click on {string}', click);

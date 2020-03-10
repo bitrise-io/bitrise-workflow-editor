@@ -7,6 +7,7 @@
   "screenshotsFolder": "spec/integration/cypress/screenshots",
   "videosFolder": "spec/integration/cypress/videos",
   "videoUploadOnPasses": false,
+  "requestTimeout": 10000,
   "env": {
     "PORT": 4000
   }
