@@ -1,9 +1,9 @@
-import { Given, Then } from "cypress-cucumber-preprocessor/steps";
+import { Given, Then } from 'cypress-cucumber-preprocessor/steps';
 import $el, { elements } from '../elements';
-import { click, select, type } from "../common";
+import { click, select, type } from '../common';
 
 afterEach(() => {
-  $el(elements["Discard Button"]).then(btn => {
+  $el(elements['Discard Button']).then(btn => {
     if (!btn.is(':disabled')) {
       btn.click();
     }
@@ -11,10 +11,10 @@ afterEach(() => {
 });
 
 Given('Workflow with name {string}', (name) => {
-  click("Add Workflow Button");
-  select("Empty workflow", "Workflow Type Dropdown");
-  type(name, "Workflow Name");
-  click("Workflow Add Button");
+  click('Add Workflow Button');
+  select('Empty workflow', 'Workflow Type Dropdown');
+  type(name, 'Workflow Name');
+  click('Workflow Add Button');
 });
 
 Then('Workflow appeared with name {string}', (name) => {
