@@ -1,0 +1,10 @@
+import { datadogLogs } from "@datadog/browser-logs";
+import DataDogLoggerService from "./logger-service";
+
+var loggerService = new DataDogLoggerService(datadogLogs, "<%= data[:constants][:datadog][:apiKey] %>");
+
+angular.module("BitriseWorkflowEditor").factory("loggerService", function() {
+	return loggerService;
+});
+
+export default loggerService;
