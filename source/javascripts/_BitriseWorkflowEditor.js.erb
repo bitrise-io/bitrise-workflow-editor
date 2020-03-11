@@ -52,9 +52,9 @@ window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
 		$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
 			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
 		});
-  });
+	});
 
-  BitriseWorkflowEditor.constant('DATADOG_API_KEY', window.DATADOG_API_KEY);
+	BitriseWorkflowEditor.constant("DATADOG_API_KEY", window.DATADOG_API_KEY);
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
@@ -62,9 +62,9 @@ window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
 			$httpProvider.defaults.xsrfCookieName = "CSRF-TOKEN";
 			$httpProvider.defaults.xsrfHeaderName = "X-CSRF-TOKEN";
 		}
-  ]);
+	]);
 
-  BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
+	BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
 		return function myExceptionHandler(error) {
 			logger.error(error.message, error);
 			$log.error(error);
