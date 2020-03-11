@@ -167,12 +167,6 @@ workflows:
           opts:
             is_expand: true
             title: Script input with metadata
-            meta:
-              bitrise.io:
-                description: Input config part for the Bitrise website.
-                environment: website
-              ship.bitrise.io:
-                summary: Input config part for the Ship add-on.
   wf3:
     after_run:
     - wf1
@@ -181,10 +175,3 @@ workflows:
     - opts:
         is_expand: false
       project: vrbo
-  wf-with-metadata:
-    meta:
-      bitrise.io:
-        description: Workflow config part for the Bitrise website.
-        environment: website
-      ship.bitrise.io:
-        summary: Workflow config part for the Ship add-on.
