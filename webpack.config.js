@@ -4,15 +4,17 @@ const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const TerserPLugin = require("terser-webpack-plugin");
 const CopyPlugin = require("copy-webpack-plugin");
 const { ProvidePlugin } = require("webpack");
+const { version } = require("./package.json");
 
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
 const { NODE_ENV, RELEASE_VERSION, MODE } = process.env;
 const isProd = NODE_ENV === "prod";
+const wfVersion = RELEASE_VERSION || version;
 
 const urlPrefix = MODE === "WEBSITE" ? "bitrise_workflow_editor-" : "";
-const publicPath = isProd ? `/${urlPrefix}${RELEASE_VERSION}/` : "";
+const publicPath = isProd ? `/${urlPrefix}${wfVersion}/` : "";
 
 const railsTransformer = (mode) => ({
   loader: "shell-loader",

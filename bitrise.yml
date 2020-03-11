@@ -35,16 +35,22 @@ workflows:
   setup-client:
     steps:
     - script:
+        title: Install NPM and Bundler
         deps:
           apt_get:
           - name: ruby
           - name: ruby-dev
           - name: build-essential
           - name: nodejs
-          # for nokogiri
-          - name: patch
-          - name: zlib1g-dev
-          - name: liblzma-dev
+          # for cypress
+          - name: xvfb
+          - name: libgtk2.0-0
+          - name: libgtk-3-0
+          - name: libgconf-2-4
+          - name: libnss3
+          - name: libxss1
+          - name: libasound2
+          - name: libxtst6
         inputs:
         - content: |
             #!/bin/bash
@@ -52,6 +58,11 @@ workflows:
             gem install -f bundler:2.1.4
             bundle install
             npm install
+    - script:
+        title: Build client
+        inputs:
+        - content: "npm run build"
+
   up:
     steps:
     - script:
@@ -75,35 +86,18 @@ workflows:
             docker-compose rm -f -v
             docker-compose build
 
-  client-build:
-    before_run:
-    - setup-client
-    steps:
-    - script:
-        inputs:
-        - content: "npm run build"
-
   client-build-website:
     envs:
       - NODE_ENV: "prod"
       - MODE: "WEBSITE"
     after_run:
-    - client-build
-
-  up-dev-server:
-    before_run:
     - setup-client
-    steps:
-    - script:
-        inputs:
-        - content: |
-            #!/bin/bash
-            npm run start:dev
 
   ci:
+    envs:
+      - NODE_ENV: "prod"
     before_run:
     - _install_test_tools
-    - setup-client
     - test-api
     - test-client
 
@@ -156,16 +150,19 @@ workflows:
 
   assets-precompile:
     before_run:
-    - client-build
+    - setup-client
     steps:
     - script:
         inputs:
         - content: |-
             #!/bin/bash
             set -ex
+            DIST=./apiserver/www/
             go get github.com/GeertJohan/go.rice/rice
-            rm -rf ./apiserver/www/
-            mv ./build/ ./apiserver/www/
+
+            mkdir -p $DIST
+            cp -rf ./build/* $DIST
+
             cd ./apiserver
             rice embed-go
 
@@ -183,11 +180,19 @@ workflows:
             go get -u golang.org/x/lint/golint
 
   test-client:
+    envs:
+      - NODE_ENV: "prod"
+    before_run:
+      - create-binaries
     steps:
     - script:
-        title: Karma tests
+        title: Unit tests
         inputs:
-        - content: npm test
+        - content: npm run karma
+    - script:
+        title: E2E tests
+        inputs:
+        - content: npm run e2e-ci
 
   test-api:
     steps:
@@ -312,8 +317,8 @@ workflows:
             #!/bin/bash
             set -ex
 
-            cat bitrise.yml | sed -e "s/^  \- RELEASE_VERSION\: .*$/  - RELEASE_VERSION: ${NEW_RELEASE_VERSION}/" > new_bitrise.yml
-            mv new_bitrise.yml bitrise.yml
+            sed -i "" -e "s/^  \- RELEASE_VERSION\: .*$/  - RELEASE_VERSION: ${NEW_RELEASE_VERSION}/" bitrise.yml
+            sed -i "" "s/\"version\": \".*\"/\"version\": \"$NEW_RELEASE_VERSION\"/" package.json
 
             export RELEASE_VERSION="$NEW_RELEASE_VERSION"
             envman add --key RELEASE_VERSION --value "$RELEASE_VERSION"
@@ -418,6 +423,7 @@ workflows:
 
             cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
             echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
+
   create-github-release:
     title: Create GitHub release
     description: |
