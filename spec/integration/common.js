@@ -1,5 +1,5 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
-import $, { selector } from "./elements";
+import $ from "./elements";
 import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT');
