@@ -113,15 +113,66 @@ workflows:
         is_expand: false
       project: test
     steps:
-    - build-router-start@0.11.3:
+    - git::https://github.com/bitrise-steplib/steps-script:
+        title: A script step referenced by git URL
+        summary: All non-overwritten attributes should be the step's default value
+          from step.yml in the step's repository.
         inputs:
-        - workflows: |-
-            wf3
-            wf4
-        - environment_key_list: ""
-    - build-router-wait@0.9.1:
+        - content: |
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -e
+            # debug log
+            set -x
+
+            # This step is referenced by git URL
+    - git::https://github.com/bitrise-steplib/steps-script@1.0.0:
+        title: A script step referenced by git URL with version 1.0.0
+    - path::./spec/integration: {}
+    - path::./spec/integration:
+        title: A local step with overwritten title & input
         inputs:
-        - access_token: $ACCESS_KEY
+        - company_name: Bitrise 2
+    - script:
+        title: A script step with overwritten title & input opts
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -e
+            # debug log
+            set -x
+
+            # The 'content' key was needed to be specified, that's how the input is identified. Even if we don't want to change its value, only the opts, like in this situation.
+          opts:
+            is_expand: true
+            title: Modified script input
+    - script:
+        title: A script step with metadata in it
+        meta:
+          bitrise.io:
+            description: Step config part for the Bitrise website.
+            environment: website
+          ship.bitrise.io:
+            summary: Step config part for the Ship add-on.
+    - script:
+        title: A script step with metadata in its input
+        inputs:
+        - content: |
+            #!/usr/bin/env bash
+            # fail if any commands fails
+            set -e
+            # debug log
+            set -x
+          opts:
+            is_expand: true
+            title: Script input with metadata
+            meta:
+              bitrise.io:
+                description: Input config part for the Bitrise website.
+                environment: website
+              ship.bitrise.io:
+                summary: Input config part for the Ship add-on.
   wf3:
     after_run:
     - wf1
@@ -130,3 +181,10 @@ workflows:
     - opts:
         is_expand: false
       project: vrbo
+  wf-with-metadata:
+    meta:
+      bitrise.io:
+        description: Workflow config part for the Bitrise website.
+        environment: website
+      ship.bitrise.io:
+        summary: Workflow config part for the Ship add-on.
