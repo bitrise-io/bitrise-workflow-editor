@@ -20,6 +20,7 @@ import { safeDigest } from "../services/react-compat";
 			stepSourceService,
 			workflowsTabService,
 			addStepService,
+			loggerService,
 			Progress,
 			Popup,
 			Workflow,
@@ -204,6 +205,7 @@ import { safeDigest } from "../services/react-compat";
 										}
 									);
 								} catch (error) {
+									loggerService.error(error.message, error);
 									reject(error);
 								}
 							},
