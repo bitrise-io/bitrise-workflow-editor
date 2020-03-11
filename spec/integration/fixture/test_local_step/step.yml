@@ -21,3 +21,8 @@ inputs:
     opts:
       title: "Product name"
       is_required: true
+outputs:
+  - COMPANY_NAME:
+    opts:
+      title: "Company name as output"
+      description: "The company name as available output for future steps"

@@ -147,6 +147,12 @@ workflows:
           opts:
             is_expand: true
             title: Modified script input
+    - activate-ssh-key:
+        title: An Activate SSH key step with aliased output
+        outputs:
+        - SSH_AUTH_SOCK: ALIASED_SSH_AUTH_SOCK
+          opts:
+            title: SSH Auth Socket info - aliased to `ALIASED_SSH_AUTH_SOCK`
     - script:
         title: A script step with metadata in it
         meta:
