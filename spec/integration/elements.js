@@ -8,7 +8,7 @@ export const elements = {
   "Workflow Add Popup": "#add-workflow-popup-body",
 
   "Default popup": "#default-confirm-popup-body",
-  "Alert popup": "##default-alert-popup-body button",
+  "Alert popup": "#default-alert-popup-body button",
 
   "Done Button": "button.done",
   "Save Button": "button.save",
@@ -31,7 +31,7 @@ export const elements = {
   "Third step": ".step-actions:eq(2)",
 
   "Add before Workflow popup": "#add-run-workflow-popup-body",
-  "Before Workflow Name": ".workflow.edited .icons-and-name workflow-name",
+  "Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 
   "Danger Icon": ".icon-danger",
   "Success Icon": ".icon-ok"

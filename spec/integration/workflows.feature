@@ -20,7 +20,7 @@ Feature: Workflows
   Scenario: Delete Workflow
     Given Workflow with name "ToBeDeleted"
     When I click on "Delete Workflow Button"
-    And I confirm on "default" popup
+    And I confirm on "Default popup" popup
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
     And I should see "wf1" in "Selected Workflow Name"
 

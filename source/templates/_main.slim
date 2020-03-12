@@ -65,7 +65,7 @@ aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 				h2[ng-bind="defaultPopupCtrl.alertPopup.parameters.title"]
 				p[ng-repeat="detail in defaultPopupCtrl.alertPopup.parameters.details" ng-bind-html="detail"]
 			footer
-				button[ng-click="defaultPopupCtrl.alertPopup.isVisible = false" ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"]
+				button.confirm[ng-click="defaultPopupCtrl.alertPopup.isVisible = false" ng-bind="defaultPopupCtrl.alertPopup.parameters.okTitle"]
 	popup[model="defaultPopupCtrl.confirmPopup"]
 		.popup-body#default-confirm-popup-body
 			article.vertical-scroll
