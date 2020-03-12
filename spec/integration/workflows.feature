@@ -30,9 +30,21 @@ Feature: Workflows
     And I confirm on "Add before Workflow" popup
     Then I should see "wf4" in "Before Workflow Name"
 
+  Scenario: User cancels adding a before workflow
+    When I click on "Add Workflow Before Button"
+    And I select "wf4" from "Before Workflow Dropdown"
+    And I cancel on "Add before Workflow" popup
+    Then "Workflow Section" should have number of "1"
+
   Scenario: User adds a after workflow
     When I click on "Add Workflow After Button"
     And I select "wf4" from "After Workflow Dropdown"
     And I confirm on "Add After Workflow" popup
     Then I should see "wf4" in "After Workflow Name"
+
+  Scenario: User cancels adding an after workflow
+    When I click on "Add Workflow After Button"
+    And I select "wf4" from "After Workflow Dropdown"
+    And I confirm on "Add After Workflow" popup
+    Then "Workflow Section" should have number of "1"
 

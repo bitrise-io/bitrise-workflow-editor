@@ -17,9 +17,17 @@ export const type = (text, element) => {
   $(element).type(text, { force: true }).trigger('input');
 };
 
-export const popupConfirm = (type) => {
-  const popup = `${selector(type)} button.confirm`;
+export const popupButtonClick = (button) => {
+  const popup = `${selector(button)} button.confirm`;
   click(popup);
+};
+
+export const popupConfirm = (type) => {
+  popupButtonClick("confirm");
+};
+
+export const popupCancel = (type) => {
+  popupButtonClick("cancel");
 };
 
 export const assertInputValueEQ = (value, element) => {
@@ -59,12 +67,16 @@ When('I click on {string}', click);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
 When('I confirm on {string} popup', popupConfirm);
+When('I cancel on {string} popup', popupCancel);
 Then('I should see {string} in {string}', assertInputValueEQ);
 Then('I should not see {string} in {string}', assertNotInputValueNotEQ);
 
 Then('{string} should {string}', (element, expectation) => {
   const cExpectation = expectation.replace(/\s/g, '.');
   $(element).should(cExpectation);
+});
+Then('{string} should have number of {string}', (element, expectation) => {
+  $(element).should("have.count", expectation);
 });
 
 Then('I save', save);
