@@ -60,9 +60,9 @@
 		}
 	]);
 
-	BitriseWorkflowEditor.factory("$exceptionHandler", function($log, loggerService) {
+	BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
 		return function myExceptionHandler(error) {
-			loggerService.error(error.message, error);
+			logger.error(error.message, error);
 			$log.error(error);
 		};
 	});
