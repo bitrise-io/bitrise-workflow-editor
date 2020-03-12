@@ -2,7 +2,6 @@ export const elements = {
   "Add Workflow Button": ".add-workflow",
   "Add Workflow Before Button": ".add-before-run-workflow",
   "Workflow Type Dropdown": "#add-workflow-popup-based-on-select",
-  "Before Workflow Dropdown": ".run-workflow-selector.before-run",
   "Workflow Name": "#add-workflow-popup-body input[type=text]",
   "Workflow Add Button": "input.rebo.big.purple[type=submit]",
   "Workflow Add Popup": "#add-workflow-popup-body",
@@ -31,7 +30,12 @@ export const elements = {
   "Third step": ".step-actions:eq(2)",
 
   "Add before Workflow popup": "#add-run-workflow-popup-body",
+  "Before Workflow Dropdown": ".run-workflow-selector.before-run",
   "Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
+
+  "Add After Workflow popup": "#add-run-workflow-popup-body",
+  "After Workflow Dropdown": ".run-workflow-selector.after-run",
+  "After Workflow Name": ".workflow .icons-and-name .workflow-name",
 
   "Danger Icon": ".icon-danger",
   "Success Icon": ".icon-ok"

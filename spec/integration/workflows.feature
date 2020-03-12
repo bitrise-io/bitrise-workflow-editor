@@ -30,3 +30,9 @@ Feature: Workflows
     And I confirm on "Add before Workflow popup" popup
     Then I should see "wf4" in "Before Workflow Name"
 
+  Scenario: User adds a after workflow
+    When I click on "Add Workflow After Button"
+    And I select "wf4" from "After Workflow Dropdown"
+    And I confirm on "Add After Workflow popup" popup
+    Then I should see "wf4" in "After Workflow Name"
+
