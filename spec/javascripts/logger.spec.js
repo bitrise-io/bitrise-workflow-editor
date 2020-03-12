@@ -2,11 +2,14 @@ describe("DataDogLoggerService", () => {
   const testApiKey = "some-api-key";
 
   let logger;
-  let mockDatadogLogs = {};
+  let mockDatadogLogs = {
+    // TODO: leave it here because we are using Ddog singleton logger -> removal results in test failure
+    init: jasmine.createSpy("init")
+  };
+
+  window.datadogLogs = mockDatadogLogs;
 
 	beforeEach(() => {
-    window.datadogLogs = mockDatadogLogs;
-
     module("BitriseWorkflowEditor");
     module(($provide) => {
 			$provide.constant("DATADOG_API_KEY", testApiKey);
