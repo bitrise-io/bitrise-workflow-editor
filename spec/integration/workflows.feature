@@ -27,13 +27,13 @@ Feature: Workflows
   Scenario: User adds a before workflow
     When I click on "Add Before Workflow button"
     And I select "wf4" from "Before Workflow Dropdown"
-    And I confirm on "Add before Workflow" popup
+    And I confirm on "Add Before Workflow" popup
     Then I should see "wf4" in "Before Workflow Name"
 
   Scenario: User cancels adding a before workflow
     When I click on "Add Before Workflow button"
     And I select "wf4" from "Before Workflow Dropdown"
-    And I cancel on "Add before Workflow" popup
+    And I cancel on "Add Before Workflow" popup
     Then "Workflow Sections" should have number of "1"
 
   Scenario: User adds a after workflow
