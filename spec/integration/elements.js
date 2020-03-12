@@ -8,7 +8,7 @@ export const elements = {
   "Workflow Add Popup": "#add-workflow-popup-body",
 
   "Default popup": "#default-confirm-popup-body",
-  "Alert popup": "#default-alert-popup-body button",
+  "Alert popup": "#default-alert-popup-body",
 
   "Done Button": "button.done",
   "Save Button": "button.save",
