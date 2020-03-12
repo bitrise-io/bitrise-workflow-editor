@@ -1,16 +1,17 @@
-import DataDogLoggerService from "../../source/javascripts/services/logger-service";
+fdescribe("DataDogLoggerService", () => {
+	let logger;
 
-describe("DataDogLoggerService", () => {
-	var mockLogs;
-
+	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(() => {
-		mockLogs = jasmine.createSpyObj("logs", ["init"]);
+		global.logger = jasmine.createSpyObj("logs", ["init"]);
 	});
+	beforeEach(inject(function(_logger_) {
+		logger = _logger_;
+	}));
 
 	it("initialized correctly", () => {
 		const apiKey = "some-api-key";
-		new DataDogLoggerService(mockLogs, apiKey);
 
-		expect(mockLogs.init).toHaveBeenCalledWith({ apiKey });
+		expect(global.logger.init).toHaveBeenCalledWith({ apiKey });
 	});
 });
