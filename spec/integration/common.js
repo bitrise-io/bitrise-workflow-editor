@@ -1,6 +1,5 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
-import $ from "./elements";
-import { selector } from "./elements";
+import $, { selector } from "./elements";
 import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT');
@@ -17,17 +16,17 @@ export const type = (text, element) => {
   $(element).type(text, { force: true }).trigger('input');
 };
 
-export const popupButtonClick = (button) => {
-  const popup = `${selector(button)} button.confirm`;
-  click(popup);
+export const popupButtonClick = (popup, buttonType) => {
+  const popupButton = `${selector(popup)} button.${buttonType}`;
+  click(popupButton);
 };
 
-export const popupConfirm = (type) => {
-  popupButtonClick("confirm");
+export const popupConfirm = (popup) => {
+  popupButtonClick(popup, "confirm");
 };
 
-export const popupCancel = (type) => {
-  popupButtonClick("cancel");
+export const popupCancel = (popup) => {
+  popupButtonClick(popup, "cancel");
 };
 
 export const assertInputValueEQ = (value, element) => {
