@@ -12,7 +12,7 @@ afterEach(() => {
 
 Given('Workflow with name {string}', (name) => {
   click('Add Workflow Button');
-  select('Empty workflow', 'Workflow Type Dropdown');
+  select('Empty workflow', 'Base Workflow Dropdown');
   type(name, 'Workflow Name');
   click('Workflow Add Button');
 });

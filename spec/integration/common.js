@@ -62,11 +62,15 @@ Given('editor is open', () => {
   cy.wait(2000);
 });
 
+Given('add workflow popup is open', () => {
+  click('Add Worklow Button');
+});
+
 When('I click on {string}', click);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
-When('I confirm on {string} popup', popupConfirm);
-When('I cancel on {string} popup', popupCancel);
+When('I confirm on {string}', popupConfirm);
+When('I cancel on {string}', popupCancel);
 Then('I should see {string} in {string}', assertInputValueEQ);
 Then('I should not see {string} in {string}', assertNotInputValueNotEQ);
 

@@ -17,6 +17,8 @@ trigger_map:
   workflow: wf3
 workflows:
   wf1:
+    after_run:
+    - wf4
     envs:
     - TEST: test
       opts:
@@ -131,6 +133,13 @@ workflows:
         is_expand: false
       project: vrbo
   wf4:
+    envs:
+    - opts:
+        is_expand: false
+      project: testproject
+    steps:
+    - script@1: {}
+  wf5:
     envs:
     - opts:
         is_expand: false

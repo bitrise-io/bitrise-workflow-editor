@@ -1,12 +1,12 @@
 export const elements = {
   "Add Workflow Button": ".add-workflow",
-  "Workflow Type Dropdown": "#add-workflow-popup-based-on-select",
+  "Base Workflow Dropdown": "#add-workflow-popup-based-on-select",
   "Workflow Name": "#add-workflow-popup-body input[type=text]",
   "Workflow Add Button": "input.rebo.big.purple[type=submit]",
-  "Workflow Add Popup": "#add-workflow-popup-body",
+  "Workflow Add popup": "#add-workflow-popup-body",
 
-  "default": "#default-confirm-popup-body",
-  "alert": "#default-alert-popup-body",
+  "Default popup": "#default-confirm-popup-body",
+  "Alert popup": "#default-alert-popup-body",
 
   "Done Button": "button.done",
   "Save Button": "button.save",
@@ -24,18 +24,19 @@ export const elements = {
   "Step Latest Version Updater": ".selected-step .icon-danger",
 
   "First step": ".step-actions:eq(0)",
+  "First step name": ".step-actions:eq(0) .info .title",
   "First step version indicator": ".step-actions:eq(0) em.version",
   "Second step": ".step-actions:eq(1)",
   "Third step": ".step-actions:eq(2)",
 
   "Add Before Workflow button": ".add-before-run-workflow",
-  "Add Before Workflow": "#add-run-workflow-popup-body",
+  "Add Before Workflow popup": "#add-run-workflow-popup-body",
   "Before Workflow Dropdown": ".run-workflow-selector.before-run",
   "Workflow Sections": "section.workflow",
   "Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 
   "Add After Workflow button": ".add-after-run-workflow",
-  "Add After Workflow": "#add-run-workflow-popup-body",
+  "Add After Workflow popup": "#add-run-workflow-popup-body",
   "After Workflow Dropdown": ".run-workflow-selector.after-run",
   "After Workflow Name": ".workflow:last-child .icons-and-name .workflow-name",
 
