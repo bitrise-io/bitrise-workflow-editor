@@ -20,7 +20,8 @@ export const type = (text, element) => {
 export const popupConfirm = (type) => {
   let popup = selector(type)
   popup += " button.confirm"
-  $(popup).click();
+const popup = `${selector(type)} button.confirm`;
+click(popup);
 };
 
 export const assertInputValueEQ = (value, element) => {
