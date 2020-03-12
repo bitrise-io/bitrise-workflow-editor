@@ -75,7 +75,7 @@ Then('{string} should {string}', (element, expectation) => {
   $(element).should(cExpectation);
 });
 Then('{string} should have number of {string}', (element, expectation) => {
-  $(element).should("have.count", expectation);
+  $(element).should("have.length", expectation);
 });
 
 Then('I save', save);

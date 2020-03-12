@@ -31,7 +31,7 @@ export const elements = {
   "Add Before Workflow button": ".add-before-run-workflow",
   "Add Before Workflow": "#add-run-workflow-popup-body",
   "Before Workflow Dropdown": ".run-workflow-selector.before-run",
-  "Workflow Sections": "secrion.workflow",
+  "Workflow Sections": "section.workflow",
   "Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 
   "Add After Workflow button": ".add-after-run-workflow",
