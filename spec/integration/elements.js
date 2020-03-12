@@ -37,7 +37,7 @@ export const elements = {
   "Add After Workflow button": ".add-after-run-workflow",
   "Add After Workflow": "#add-run-workflow-popup-body",
   "After Workflow Dropdown": ".run-workflow-selector.after-run",
-  "After Workflow Name": ".workflow .icons-and-name .workflow-name",
+  "After Workflow Name": ".workflow:last-child .icons-and-name .workflow-name",
 
   "Danger Icon": ".icon-danger",
   "Success Icon": ".icon-ok"
