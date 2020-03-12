@@ -130,3 +130,8 @@ workflows:
     - opts:
         is_expand: false
       project: vrbo
+  wf4:
+    envs:
+    - opts:
+        is_expand: false
+      project: testproject

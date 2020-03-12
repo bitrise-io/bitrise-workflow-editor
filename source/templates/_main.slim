@@ -72,5 +72,5 @@ aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 				h2[ng-bind="defaultPopupCtrl.confirmPopup.parameters.title"]
 				p[ng-repeat="detail in defaultPopupCtrl.confirmPopup.parameters.details" ng-bind-html="detail"]
 			footer
-				button.yes[ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle"]
-				button.no[ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle"]
+				button.yes.confirm[ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle"]
+				button.no.cancel[ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle"]

@@ -1,5 +1,6 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
 import $ from "./elements";
+import { selector } from "./elements";
 import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT');
@@ -17,13 +18,9 @@ export const type = (text, element) => {
 };
 
 export const popupConfirm = (type) => {
-  let selector = '#default-confirm-popup-body .yes';
-
-  if (type === 'alert') {
-    selector = '#default-alert-popup-body button';
-  }
-
-  cy.get(selector).click();
+  let popup = selector(type)
+  popup += " button.confirm"
+  $(popup).click();
 };
 
 export const assertInputValueEQ = (value, element) => {

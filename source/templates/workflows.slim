@@ -170,7 +170,7 @@
 					ul.workflow-subchain.after-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'after-run'})"]
 						li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
 			footer
-				button.done[ng-click="workflowsCtrl.addRunWorkflow()" ng-disabled="!workflowsCtrl.runWorkflowToAdd"] == data[:strings][:workflows][:add_run_workflow][:done]
+				button.done.confirm[ng-click="workflowsCtrl.addRunWorkflow()" ng-disabled="!workflowsCtrl.runWorkflowToAdd"] == data[:strings][:workflows][:add_run_workflow][:done]
 				button.cancel[ng-click="workflowsCtrl.addRunWorkflowPopup.isVisible = false"] == data[:strings][:workflows][:add_run_workflow][:cancel]
 	popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
 		.popup-body.snowflake#rearrange-workflow-chain-popup-body

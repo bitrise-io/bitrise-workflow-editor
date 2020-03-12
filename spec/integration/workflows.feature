@@ -24,3 +24,9 @@ Feature: Workflows
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
     And I should see "wf1" in "Selected Workflow Name"
 
+  Scenario: User adds a before workflow
+    When I click on "Add Workflow Before Button"
+    And I select "wf4" from "Before Workflow Dropdown"
+    And I confirm on "Add before Workflow popup" popup
+    Then I should see "wf4" in "Before Workflow Name"
+
