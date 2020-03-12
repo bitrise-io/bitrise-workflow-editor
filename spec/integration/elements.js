@@ -6,8 +6,8 @@ export const elements = {
   "Workflow Add Button": "input.rebo.big.purple[type=submit]",
   "Workflow Add Popup": "#add-workflow-popup-body",
 
-  "Default popup": "#default-confirm-popup-body",
-  "Alert popup": "#default-alert-popup-body",
+  "default": "#default-confirm-popup-body",
+  "alert": "#default-alert-popup-body",
 
   "Done Button": "button.done",
   "Save Button": "button.save",

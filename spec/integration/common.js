@@ -18,10 +18,8 @@ export const type = (text, element) => {
 };
 
 export const popupConfirm = (type) => {
-  let popup = selector(type)
-  popup += " button.confirm"
-const popup = `${selector(type)} button.confirm`;
-click(popup);
+  const popup = `${selector(type)} button.confirm`;
+  click(popup);
 };
 
 export const assertInputValueEQ = (value, element) => {

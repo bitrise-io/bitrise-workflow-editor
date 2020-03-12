@@ -20,19 +20,19 @@ Feature: Workflows
   Scenario: Delete Workflow
     Given Workflow with name "ToBeDeleted"
     When I click on "Delete Workflow Button"
-    And I confirm on "Default popup" popup
+    And I confirm on "default" popup
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
     And I should see "wf1" in "Selected Workflow Name"
 
   Scenario: User adds a before workflow
     When I click on "Add Workflow Before Button"
     And I select "wf4" from "Before Workflow Dropdown"
-    And I confirm on "Add before Workflow popup" popup
+    And I confirm on "Add before Workflow" popup
     Then I should see "wf4" in "Before Workflow Name"
 
   Scenario: User adds a after workflow
     When I click on "Add Workflow After Button"
     And I select "wf4" from "After Workflow Dropdown"
-    And I confirm on "Add After Workflow popup" popup
+    And I confirm on "Add After Workflow" popup
     Then I should see "wf4" in "After Workflow Name"
 
