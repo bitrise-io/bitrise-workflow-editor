@@ -1,5 +1,6 @@
 import { datadogLogs, StatusType, HandlerType, Logger as DLogger } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
+import { getAppSlug } from "./app-service";
 
 interface Logger {
 	debug(message: string): void;
@@ -62,6 +63,7 @@ export default (opts: LoggerOptions): Logger => {
   const tags = {
     service: (<any>window).serviceName,
     mode: (<any>window).mode,
+    appSlug: getAppSlug()
   };
 
   // D-Dog supports console logging as well depends on the environment

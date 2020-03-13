@@ -16,12 +16,10 @@
 			osService,
 			Progress,
 			Popup,
-			Stack,
-			MachineType
+      Stack,
+      appServiceUtil
 		) {
 			var viewModel = this;
-
-			var appPathRegexp = new RegExp(".*/app/([a-z|0-9]+).*");
 
 			var originalOnbeforeunloadHandler = window.onbeforeunload;
 
@@ -46,16 +44,6 @@
 					viewModel.changeMenuProgress.success();
 				}, 0);
 			});
-
-			function getAppFromCurrentPath() {
-				var path = $location.absUrl();
-
-				if (appPathRegexp.test(path)) {
-					return appPathRegexp.exec(path)[1];
-				}
-
-				return null;
-			}
 
 			function selectInitialMenu() {
 				var initialMenu = _.find(viewModel.menus, function(aMenu) {
@@ -544,7 +532,8 @@
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
 						case "website":
-							requestService.appSlug = getAppFromCurrentPath();
+              requestService.appSlug = appServiceUtil.getAppSlug();
+
 							if (!requestService.appSlug) {
 								return reject("No app slug specified.");
 							}
