@@ -24,7 +24,7 @@ describe("DataDogLoggerService", () => {
       info: jasmine.createSpy("info"),
       error: jasmine.createSpy("error"),
       warn: jasmine.createSpy("warn"),
-      setContext: jasmine.createSpy("contextSetter"),
+      addContext: jasmine.createSpy("contextSetter"),
     };
 
     spyOn(mockDatadogLogs, "init");
@@ -36,15 +36,20 @@ describe("DataDogLoggerService", () => {
   }));
 
 	it("initialized correctly", () => {
-		expect(mockDatadogLogs.init).toHaveBeenCalledWith({ clientToken: testApiKey });
-    expect(mockDatadogLogs.createLogger).toHaveBeenCalledWith(testServiceName, jasmine.any(Object));
+		expect(mockDatadogLogs.init).toHaveBeenCalledWith({ clientToken: testApiKey, forwardErrorsToLogs: false });
+    expect(mockDatadogLogs.createLogger).toHaveBeenCalledWith(testServiceName, jasmine.objectContaining({
+      handler: 'http',
+      level: 'warn'
+    }));
   });
 
   it("setContext", () => {
-    const mockContext = { test: 'test' };
+    const mockContext = { test: 'test-val', test2: 'test2-val' };
 
     logger.setContext(mockContext);
-    expect(mockInnerLogger.setContext).toHaveBeenCalledWith(mockContext);
+
+    expect(mockInnerLogger.addContext).toHaveBeenCalledWith('test', 'test-val');
+    expect(mockInnerLogger.addContext).toHaveBeenCalledWith('test2', 'test2-val');
   });
 
   it("should use datadog info logging", () => {

@@ -1,3 +1,4 @@
+import _ from "underscore";
 import { datadogLogs, StatusType, HandlerType, Logger as DLogger } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
 import { getAppSlug } from "./app-service";
@@ -28,7 +29,7 @@ class DataDogLoggerService implements Logger {
   }: LoggerOptions,
   context: Context,
   dLogger: typeof datadogLogs) {
-    dLogger.init({ clientToken });
+    dLogger.init({ clientToken, forwardErrorsToLogs: false });
     this.logger = dLogger.createLogger(name, {
       level, context,
       handler: isProd ? HandlerType.http : HandlerType.console
@@ -36,7 +37,9 @@ class DataDogLoggerService implements Logger {
   }
 
   setContext = (ctx: Context) => {
-    this.logger.setContext(ctx);
+    Object.keys(ctx).forEach((key) => {
+      this.logger.addContext(key, ctx[key]);
+    });
   };
 
 	debug = (message: string, ctx?: Context) => {
@@ -59,12 +62,14 @@ class DataDogLoggerService implements Logger {
 // testing purposes
 (<any>window).datadogLogs = datadogLogs;
 
+const getDefaultTags = (): Context => _.pick({
+  service: (<any>window).serviceName,
+  mode: (<any>window).mode,
+  appSlug: getAppSlug()
+}, _.identity) as Context;
+
 export default (opts: LoggerOptions): Logger => {
-  const tags = {
-    service: (<any>window).serviceName,
-    mode: (<any>window).mode,
-    appSlug: getAppSlug()
-  };
+  const tags = getDefaultTags();
 
   // D-Dog supports console logging as well depends on the environment
   // if we are using some other service we need to create other type of loggers here for environments

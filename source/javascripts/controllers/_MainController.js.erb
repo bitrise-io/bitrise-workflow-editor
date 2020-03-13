@@ -17,7 +17,8 @@
 			Progress,
 			Popup,
       Stack,
-      appServiceUtil
+      appServiceUtil,
+      logger
 		) {
 			var viewModel = this;
 
@@ -190,6 +191,7 @@
 					cleanupMenu();
 
 					if (!viewModel.hasUnsavedChanges()) {
+            logger.setContext({ menuID: menu.id });
 						resolve();
 
 						return;
