@@ -1,5 +1,6 @@
 describe("DataDogLoggerService", () => {
   const testApiKey = "some-api-key";
+  const testServiceName = "testService";
 
   let logger;
   let mockInnerLogger;
@@ -16,6 +17,7 @@ describe("DataDogLoggerService", () => {
     module(($provide) => {
       $provide.constant("DATADOG_API_KEY", testApiKey);
       $provide.constant("IS_PROD", true);
+      $provide.constant("SERVICE_NAME", testServiceName);
     });
 
     mockInnerLogger = {
@@ -35,7 +37,7 @@ describe("DataDogLoggerService", () => {
 
 	it("initialized correctly", () => {
 		expect(mockDatadogLogs.init).toHaveBeenCalledWith({ clientToken: testApiKey });
-    expect(mockDatadogLogs.createLogger).toHaveBeenCalled();
+    expect(mockDatadogLogs.createLogger).toHaveBeenCalledWith(testServiceName, jasmine.any(Object));
   });
 
   it("setContext", () => {

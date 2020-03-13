@@ -1,4 +1,5 @@
-window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
+window.serviceName = "workflow-editor";
+window.datadogApiKey = "<%= data[:constants][:datadog][:apiKey] %>";
 window.isProd = <%= prod? %>;
 window.mode = "<%= mode %>";
 
@@ -57,7 +58,8 @@ window.mode = "<%= mode %>";
   });
 
   BitriseWorkflowEditor
-    .constant('DATADOG_API_KEY', window.DATADOG_API_KEY)
+    .constant('SERVICE_NAME', window.serviceName)
+    .constant('DATADOG_API_KEY', window.datadogApiKey)
     .constant('IS_PROD', window.isProd);
 
 	BitriseWorkflowEditor.config([

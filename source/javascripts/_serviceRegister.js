@@ -3,8 +3,8 @@ import semverService from "./services/semver-service";
 import loggerFactory from "./services/logger";
 
 angular.module("BitriseWorkflowEditor")
-    .factory("logger", ["DATADOG_API_KEY", "IS_PROD", function(token, isProd) {
-      return loggerFactory({ name: "workflow_editor_logger", isProd: isProd, clientToken: token });
+    .factory("logger", ["SERVICE_NAME", "DATADOG_API_KEY", "IS_PROD", function(serviceName, token, isProd) {
+      return loggerFactory({ name: serviceName, isProd: isProd, clientToken: token });
     }])
     .factory("semverService", function() { return semverService; })
     .factory("reactCompatService", function() {

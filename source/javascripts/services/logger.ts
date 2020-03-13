@@ -1,4 +1,4 @@
-import { datadogLogs, StatusType, HandlerType } from "@datadog/browser-logs";
+import { datadogLogs, StatusType, HandlerType, Logger as DLogger } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
 
 interface Logger {
@@ -17,7 +17,7 @@ type LoggerOptions = {
 }
 
 class DataDogLoggerService implements Logger {
-  private logger: typeof datadogLogs.logger
+  private logger: DLogger
 
 	constructor({
     name,
@@ -60,7 +60,7 @@ class DataDogLoggerService implements Logger {
 
 export default (opts: LoggerOptions): Logger => {
   const tags = {
-    service: 'workflow_editor',
+    service: (<any>window).serviceName,
     mode: (<any>window).mode,
   };
 
