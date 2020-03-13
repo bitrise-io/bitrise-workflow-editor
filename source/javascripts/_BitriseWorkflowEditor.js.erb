@@ -1,4 +1,6 @@
 window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
+window.isProd = <%= prod? %>;
+window.mode = "<%= mode %>";
 
 (function() {
 	"use strict";
@@ -54,7 +56,9 @@ window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
 		});
   });
 
-  BitriseWorkflowEditor.constant('DATADOG_API_KEY', window.DATADOG_API_KEY);
+  BitriseWorkflowEditor
+    .constant('DATADOG_API_KEY', window.DATADOG_API_KEY)
+    .constant('IS_PROD', window.isProd);
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
