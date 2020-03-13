@@ -17,7 +17,7 @@ export const type = (text, element) => {
 };
 
 export const popupButtonClick = (popup, buttonType) => {
-  const popupButton = `${selector(popup)} button.${buttonType}`;
+  const popupButton = `${selector(popup)} .${buttonType}`;
   click(popupButton);
 };
 

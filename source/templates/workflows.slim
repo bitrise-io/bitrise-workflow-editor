@@ -153,7 +153,7 @@
 				label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
 				select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowSourceWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
 			footer
-				input.rebo.big.purple[type="submit" ng-disabled="!Workflow.isValidID(workflowsCtrl.addWorkflowID) || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0" value="#{ data[:strings][:workflows][:add_workflow][:done] }"]
+				input.rebo.big.purple.confirm[type="submit" ng-disabled="!Workflow.isValidID(workflowsCtrl.addWorkflowID) || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0" value="#{ data[:strings][:workflows][:add_workflow][:done] }"]
 	popup[model="workflowsCtrl.addRunWorkflowPopup"]
 		.popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
 			header
