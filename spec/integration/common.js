@@ -63,7 +63,7 @@ Given('editor is open', () => {
 });
 
 Given('add workflow popup is open', () => {
-  click('Add Worklow Button');
+  click('Add Workflow Button');
 });
 
 When('I click on {string}', click);
