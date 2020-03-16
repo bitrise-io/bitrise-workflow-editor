@@ -44,10 +44,10 @@ describe("DataDogLoggerService", () => {
     }));
   });
 
-  it("setContext", () => {
+  it("setTags", () => {
     const mockContext = { test: 'test-val', test2: 'test2-val' };
 
-    logger.setContext(mockContext);
+    logger.setTags(mockContext);
 
     expect(mockInnerLogger.addContext).toHaveBeenCalledWith('test', 'test-val');
     expect(mockInnerLogger.addContext).toHaveBeenCalledWith('test2', 'test2-val');

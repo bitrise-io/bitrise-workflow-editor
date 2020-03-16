@@ -191,7 +191,7 @@
 					cleanupMenu();
 
 					if (!viewModel.hasUnsavedChanges()) {
-            logger.setContext({ menuID: menu.id });
+            logger.setTags({ menuID: menu.id });
 						resolve();
 
 						return;

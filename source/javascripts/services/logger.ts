@@ -11,7 +11,7 @@ interface Logger {
 	info(message: string): void;
 	warn(message: string): void;
   error(message: string): void;
-  setContext(ctx: Context): void;
+  setTags(ctx: Context): void;
 }
 
 type LoggerOptions = {
@@ -39,7 +39,7 @@ class DataDogLoggerService implements Logger {
     });
   }
 
-  setContext = (ctx: Context) => {
+  setTags = (ctx: Context) => {
     Object.keys(ctx).forEach((key) => {
       this.logger.addContext(key, ctx[key]);
     });
@@ -65,11 +65,16 @@ class DataDogLoggerService implements Logger {
 // testing purposes
 w.datadogLogs = datadogLogs;
 
-const getDefaultTags = (): Context => pick({
-  service: w.serviceName,
-  mode: w.mode,
-  appSlug: getAppSlug()
-}, (val: string|null): boolean => !!val) as Context;
+const getDefaultTags = (): Context => {
+  const defaultTags = {
+    service: w.serviceName,
+    mode: w.mode,
+    appSlug: getAppSlug()
+  };
+
+  const nullCheck = (val: string|null) => !!val;
+  return pick(defaultTags, nullCheck) as Context;
+};
 
 export default (opts: LoggerOptions): Logger => {
   const tags = getDefaultTags();
