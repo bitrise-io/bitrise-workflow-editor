@@ -63,10 +63,6 @@ Given('editor is open', () => {
   cy.wait(2000);
 });
 
-Given('add workflow popup is open', () => {
-  click('Add Workflow Button');
-});
-
 When('I click on {string}', click);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
@@ -79,11 +75,8 @@ Then('{string} should {string}', (element, expectation) => {
   const cExpectation = expectation.replace(/\s/g, '.');
   $(element).should(cExpectation);
 });
-Then('{string} should contain {string} {string}', (element, expectation, childElement) => {
+Then('{string} should contain {int} {string}', (element, expectation, childElement) => {
   $(element).find(selector(childElement)).should("have.length", expectation);
-});
-Then('{string} should have {string} {string} style', (element, cssValue, cssProperty) => {
-  $(element).should("have.css", cssProperty, styleValueSelector(cssValue));
 });
 
 Then('I save', save);
