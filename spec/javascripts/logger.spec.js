@@ -1,6 +1,7 @@
 describe("DataDogLoggerService", () => {
   const testApiKey = "some-api-key";
   const testServiceName = "testService";
+  const mockContext = { test: 'test-val', test2: 'test2-val' };
 
   let logger;
   let mockInnerLogger;
@@ -45,8 +46,6 @@ describe("DataDogLoggerService", () => {
   });
 
   it("setTags", () => {
-    const mockContext = { test: 'test-val', test2: 'test2-val' };
-
     logger.setTags(mockContext);
 
     expect(mockInnerLogger.addContext).toHaveBeenCalledWith('test', 'test-val');
@@ -54,22 +53,22 @@ describe("DataDogLoggerService", () => {
   });
 
   it("should use datadog debug logging", () => {
-		logger.debug("test", { test: "ctx" });
-		expect(mockInnerLogger.debug).toHaveBeenCalledWith("test", { test: "ctx" });
+		logger.debug("test", mockContext);
+		expect(mockInnerLogger.debug).toHaveBeenCalledWith("test", mockContext);
 	});
 
   it("should use datadog info logging", () => {
-    logger.info("test", "test-ctx");
-    expect(mockInnerLogger.info).toHaveBeenCalledWith("test", "test-ctx");
+    logger.info("test", mockContext);
+    expect(mockInnerLogger.info).toHaveBeenCalledWith("test", mockContext);
   });
 
   it("should use datadog error logging", () => {
-    logger.error("test", "test-ctx");
-    expect(mockInnerLogger.error).toHaveBeenCalledWith("test", "test-ctx");
+    logger.error("test", mockContext);
+    expect(mockInnerLogger.error).toHaveBeenCalledWith("test", mockContext);
   });
 
   it("should use datadog warning logging", () => {
-    logger.warn("test", "test-ctx");
-    expect(mockInnerLogger.warn).toHaveBeenCalledWith("test", "test-ctx");
+    logger.warn("test", mockContext);
+    expect(mockInnerLogger.warn).toHaveBeenCalledWith("test", mockContext);
   });
 });
