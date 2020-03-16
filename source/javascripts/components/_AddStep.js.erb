@@ -64,7 +64,6 @@ import { safeDigest } from "../services/react-compat";
 		.controller("AddStepController", function(
 			$scope,
 			$q,
-			stringService,
 			addStepService,
 			requestService,
 			stepSourceService,
@@ -154,8 +153,6 @@ import { safeDigest } from "../services/react-compat";
 				});
 
 				_.each(viewModel.categories, function(aCategory) {
-					var stepIDsOfCategory;
-
 					switch (aCategory.id) {
 						case "new_releases":
 							aCategory.steps = _.map(
@@ -207,7 +204,7 @@ import { safeDigest } from "../services/react-compat";
 										timeout: canceler.promise
 									},
 									true
-								),
+								)
 							);
 
 							if (viewModel.shouldFilterByProjectType) {
@@ -581,7 +578,7 @@ import { safeDigest } from "../services/react-compat";
 				}
 			};
 		})
-		.directive("addStepSidebarStep", function($filter, addStepService, imageService) {
+		.directive("addStepSidebarStep", function(addStepService) {
 			return {
 				restrict: "C",
 				templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar_step] )%>",
