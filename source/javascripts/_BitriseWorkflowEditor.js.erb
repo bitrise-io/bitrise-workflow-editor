@@ -1,3 +1,5 @@
+window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
+
 (function() {
 	"use strict";
 
@@ -12,9 +14,7 @@
 
 	BitriseWorkflowEditor.config(function($compileProvider) {
 		$compileProvider.debugInfoEnabled(false);
-		$compileProvider.aHrefSanitizationWhitelist(
-			/^\s*(https?|ftp|mailto|blob|itms-services):/
-		);
+		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
 	});
 
 	BitriseWorkflowEditor.config(function($animateProvider) {
@@ -23,43 +23,38 @@
 
 	BitriseWorkflowEditor.config(function($routeProvider) {
 		$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
 			reloadOnSearch: false
 		});
 
 		$routeProvider.when("/<%= data[:routes][:endpoints][:code_signing] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:code_signing]) %>"
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:code_signing]) %>"
 		});
 
 		$routeProvider.when("/<%= data[:routes][:endpoints][:secrets] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:secrets] )%>"
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:secrets] )%>"
 		});
 
 		$routeProvider.when("/<%= data[:routes][:endpoints][:env_vars] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:env_vars] )%>"
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:env_vars] )%>"
 		});
 
 		$routeProvider.when("/<%= data[:routes][:endpoints][:triggers] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:triggers]) %>",
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:triggers]) %>",
 			reloadOnSearch: false
 		});
 
 		$routeProvider.when("/<%= data[:routes][:endpoints][:stack] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:stack]) %>",
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:stack]) %>",
 			reloadOnSearch: false
 		});
 
 		$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
-			templateUrl:
-				"<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
 		});
-	});
+  });
+
+  BitriseWorkflowEditor.constant('DATADOG_API_KEY', window.DATADOG_API_KEY);
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
@@ -67,5 +62,12 @@
 			$httpProvider.defaults.xsrfCookieName = "CSRF-TOKEN";
 			$httpProvider.defaults.xsrfHeaderName = "X-CSRF-TOKEN";
 		}
-	]);
+  ]);
+
+  BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
+		return function myExceptionHandler(error) {
+			logger.error(error.message, error);
+			$log.error(error);
+		};
+	});
 })();
