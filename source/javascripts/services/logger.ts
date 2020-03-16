@@ -1,7 +1,10 @@
-import _ from "underscore";
+import { pick } from "underscore";
 import { datadogLogs, StatusType, HandlerType, Logger as DLogger } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
 import { getAppSlug } from "./app-service";
+import { WFEWindow } from "../typings/global";
+
+const w = window as WFEWindow;
 
 interface Logger {
 	debug(message: string): void;
@@ -23,8 +26,8 @@ class DataDogLoggerService implements Logger {
 
 	constructor({
     name,
-    clientToken = (<any>window).DATADOG_API_KEY,
-    isProd = (<any>window).isProd,
+    clientToken = w.DATADOG_API_KEY,
+    isProd = w.isProd,
     level = StatusType.warn
   }: LoggerOptions,
   context: Context,
@@ -60,13 +63,13 @@ class DataDogLoggerService implements Logger {
 }
 
 // testing purposes
-(<any>window).datadogLogs = datadogLogs;
+w.datadogLogs = datadogLogs;
 
-const getDefaultTags = (): Context => _.pick({
-  service: (<any>window).serviceName,
-  mode: (<any>window).mode,
+const getDefaultTags = (): Context => pick({
+  service: w.serviceName,
+  mode: w.mode,
   appSlug: getAppSlug()
-}, _.identity) as Context;
+}, (val: string|null): boolean => !!val) as Context;
 
 export default (opts: LoggerOptions): Logger => {
   const tags = getDefaultTags();
@@ -76,6 +79,6 @@ export default (opts: LoggerOptions): Logger => {
   // this works for every environment
   return new DataDogLoggerService(
     opts, tags,
-    (<any>window).datadogLogs
+    w.datadogLogs
   );
 }
