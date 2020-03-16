@@ -1,10 +1,10 @@
 import { Given, Then } from 'cypress-cucumber-preprocessor/steps';
-import $el, { elements } from '../elements';
+import $, { selector } from '../elements';
 import { styleValueSelector } from "./styles";
 import { click, select, type } from '../common';
 
 afterEach(() => {
-  $el(elements['Discard Button']).then(btn => {
+  $(selector('Discard Button')).then(btn => {
     if (!btn.is(':disabled')) {
       btn.click();
     }
