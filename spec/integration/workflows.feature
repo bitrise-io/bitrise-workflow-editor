@@ -34,7 +34,7 @@ Feature: Workflows
     When I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
       And I cancel on "Add Before Workflow popup"
-    Then "Workflow Sections" should contain "1" "Workflow section"
+    Then "Workflow Sections" should contain "1" "Workflow Section"
 
   Scenario: User adds a after workflow
     When I click on "Add After Workflow button"
@@ -46,7 +46,7 @@ Feature: Workflows
     When I click on "Add After Workflow button"
       And I select "wf4" from "After Workflow Dropdown"
       And I cancel on "Add After Workflow popup"
-    Then "Workflow Sections" should contain "1" "Workflow section"
+    Then "Workflow Sections" should contain "1" "Workflow Section"
 
   Scenario: User creates a Workflow based on another workflow
     Given add workflow popup is open
