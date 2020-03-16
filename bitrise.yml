@@ -386,8 +386,8 @@ workflows:
         Creates Linux and Darwin binaries
     envs:
       - NODE_ENV: "prod"
-    # before_run:
-    # - assets-precompile
+    before_run:
+    - assets-precompile
     steps:
     - script:
         title: Create binaries
