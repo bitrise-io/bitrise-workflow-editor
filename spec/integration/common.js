@@ -18,7 +18,7 @@ export const type = (text, element) => {
 };
 
 export const popupButtonClick = (popup, buttonType) => {
-  const popupButton = `${selector(popup)} .${buttonType}`;
+  const popupButton = `${selector(popup)} [data-e2e-tag="${buttonType}-button"]`;
   click(popupButton);
 };
 
