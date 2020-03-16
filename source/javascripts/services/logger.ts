@@ -1,5 +1,6 @@
 import { datadogLogs } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
+import { WFEWindow } from "../typings/global";
 
 interface Logger {
 	debug(message: string): void;
@@ -9,11 +10,11 @@ interface Logger {
 }
 
 class DataDogLoggerService implements Logger {
-  private logger: typeof datadogLogs.logger
+	private logger: typeof datadogLogs.logger;
 
 	constructor(clientToken: string, dLogger: typeof datadogLogs) {
-    dLogger.init({ clientToken, forwardErrorsToLogs: false });
-    this.logger = dLogger.logger;
+		dLogger.init({ clientToken, forwardErrorsToLogs: false });
+		this.logger = dLogger.logger;
 	}
 
 	debug(message: string, ctx?: Context): void {
@@ -34,9 +35,7 @@ class DataDogLoggerService implements Logger {
 }
 
 // testing purposes
-(<any>window).datadogLogs = datadogLogs;
+(window as WFEWindow).datadogLogs = datadogLogs;
 
-export default (token: string|undefined): Logger => new DataDogLoggerService(
-    token || (<any>window).DATADOG_API_KEY,
-    (<any>window).datadogLogs
-);
+export default (token: string | undefined): Logger =>
+	new DataDogLoggerService(token || (window as WFEWindow).DATADOG_API_KEY, (window as WFEWindow).datadogLogs);
