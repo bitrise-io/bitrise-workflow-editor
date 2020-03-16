@@ -8,6 +8,9 @@ def strings
             algolia: {
               appID: "HI1538U2K4",
               apiKey: "708f890e859e7c44f309a1bbad3d2de8"
+            },
+            datadog: {
+              apiKey: "pub3ee8559ad1bc8c3c8cd788bd71fe5995"
             }
         },
         strings: {
