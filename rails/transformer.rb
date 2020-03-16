@@ -63,6 +63,10 @@ def prod?
     ENV['NODE_ENV'] == 'prod'
 end
 
+def analytics?
+    ENV['ANALYTICS'] == 'true'
+end
+
 case command
 when "erb"
     puts ERB.new(input).result

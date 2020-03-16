@@ -16,8 +16,8 @@ interface Logger {
 
 type LoggerOptions = {
   name: string,
-  clientToken: string|undefined,
-  isProd: boolean|undefined,
+  clientToken: string,
+  isAnalyticsOn: boolean,
   level: StatusType
 }
 
@@ -27,7 +27,7 @@ class DataDogLoggerService implements Logger {
 	constructor({
     name,
     clientToken = window.DATADOG_API_KEY,
-    isProd = window.isProd,
+    isAnalyticsOn = window.isAnalyticsOn,
     level = StatusType.warn
   }: LoggerOptions,
   context: Context,
@@ -35,7 +35,7 @@ class DataDogLoggerService implements Logger {
     dLogger.init({ clientToken, forwardErrorsToLogs: false });
     this.logger = dLogger.createLogger(name, {
       level, context,
-      handler: isProd ? HandlerType.http : HandlerType.console
+      handler: isAnalyticsOn ? HandlerType.http : HandlerType.console
     });
   }
 

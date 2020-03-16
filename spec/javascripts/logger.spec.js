@@ -17,7 +17,7 @@ describe("DataDogLoggerService", () => {
     module("BitriseWorkflowEditor");
     module(($provide) => {
       $provide.constant("DATADOG_API_KEY", testApiKey);
-      $provide.constant("IS_PROD", true);
+      $provide.constant("IS_ANALYTICS", true);
       $provide.constant("SERVICE_NAME", testServiceName);
     });
 
