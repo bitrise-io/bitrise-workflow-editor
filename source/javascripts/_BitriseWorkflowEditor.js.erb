@@ -71,7 +71,7 @@ window.mode = "<%= mode %>";
   ]);
 
   BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
-		return function myExceptionHandler(error) {
+		return function(error) {
 			logger.error(error.message, error);
 			$log.error(error);
 		};
