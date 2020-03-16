@@ -66,7 +66,7 @@ Feature: Workflows
       And I should see "wf6" in "Last After Workflow Name"
       And "wf4 steps" should contain "1" "Step element"
       And "wf3 steps" should contain "3" "Step element"
-      And "wf5 steps" should contain "1" "Step element"
+      And "first wf5 steps" should contain "1" "Step element"
       And "wf6 steps" should contain "0" "Step element"
       And "Selected Workflow" should have "white" "background-color" style
     # And it has its stack displayed - WEBSITE MODE ONLY
@@ -74,11 +74,11 @@ Feature: Workflows
       And "wf3 steps container" should contain "4" "Add Step element"
       And "Workflow Sections" should have "grey" "background-color" style
       And "wf4 Remove button" should "be visible"
-      And "wf5 Remove button" should "be visible"
+      And "first wf5 Remove button" should "be visible"
       And "wf6 Remove button" should "be visible"
     # And they don't have their stack displayed  - WEBSITE MODE ONLY
       And "wf4 steps add step icons" should "not be visible"
-      And "wf5 steps add step icons" should "not be visible"
+      And "first wf5 steps add step icons" should "not be visible"
       And "wf6 steps container" should contain "1" "Add Step element"
 
   Scenario: User selects a duplicate Workflow in the chain
@@ -86,3 +86,9 @@ Feature: Workflows
     When I click on "wf4 workflow name"
     Then "wf4 workflow description" should "be visible"
       And "wf4 steps container" should contain "2" "Add Step element"
+
+  Scenario: User selects the delete button of an after run Workflow
+    Given "wf3" workflow is selected
+    When I click on "first wf5 Remove button"
+    Then that first _cleanup after run Workflow will disappear from the list, along with its Steps
+    But the second _cleanup after run Workflow will remain there

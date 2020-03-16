@@ -63,14 +63,13 @@ export const elements = {
   "wf4 steps add step icons": ".workflow:nth-child(1) ul.steps .add-step",
   "wf4 Remove button": ".workflow:nth-child(1) .header-info .remove",
 
-  "wf5 steps": ".workflow:nth-child(3) ul.steps ul",
-  "wf5 steps container": ".workflow:nth-child(3) ul.steps",
-  "wf5 steps add step icons": ".workflow:nth-child(3) ul.steps .add-step",
-  "wf5 Remove button": ".workflow:nth-child(3) .header-info .remove",
+  "first wf5 steps": ".workflow:nth-child(3) ul.steps ul",
+  "first wf5 steps add step icons": ".workflow:nth-child(3) ul.steps .add-step",
+  "first wf5 Remove button": ".workflow:nth-child(3) .header-info .remove",
 
-  "wf6 steps": ".workflow:nth-child(4) ul.steps ul",
-  "wf6 steps container": ".workflow:nth-child(4) ul.steps",
-  "wf6 Remove button": ".workflow:nth-child(4) .header-info .remove"
+  "wf6 steps": ".workflow:nth-child(5) ul.steps ul",
+  "wf6 steps container": ".workflow:nth-child(5) ul.steps",
+  "wf6 Remove button": ".workflow:nth-child(5) .header-info .remove"
 };
 
 export const selector = (elementSelector) => elements[elementSelector] || elementSelector;
