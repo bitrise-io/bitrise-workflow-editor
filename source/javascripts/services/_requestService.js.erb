@@ -5,7 +5,7 @@ import jsyaml from "js-yaml";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("requestService", function($q, $injector, $http, stringService, dateService) {
+		.service("requestService", function($q, $injector, $http, stringService, dateService, logger) {
 			var requestService = {
 				mode: "<%= mode %>",
 				appSlug: undefined
@@ -53,6 +53,8 @@ import jsyaml from "js-yaml";
 				if (errorMessagePrefix && error.message != defaultErrorMessage) {
 					error.message = errorMessagePrefix += error.message;
 				}
+
+				logger.error(error.message, error);
 
 				return error;
 			}
