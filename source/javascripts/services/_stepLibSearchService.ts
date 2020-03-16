@@ -1,4 +1,5 @@
 import { Step, SearchOptions } from "@bitrise/steplib-search";
+import { Logger } from "./logger";
 
 type ListOptions = {
 	attributesToRetrieve?: string[];
@@ -33,7 +34,7 @@ type StepLibSearchService = {
 // @ts-ignore
 angular.module("BitriseWorkflowEditor").service(
 	"stepLibSearchService",
-	($q: any, stepLibSearchInstance: StepLibSearchInstance): StepLibSearchService => {
+	($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
 		const convertSteps = (steps: StepVersion[]) =>
 			steps.reduce((stepObj: object, stepVersion: StepVersion) => {
 				var step = stepObj[stepVersion.id] || {};
@@ -73,7 +74,8 @@ angular.module("BitriseWorkflowEditor").service(
 						}
 					})
 					.then(convertSteps)
-					.catch(function(err: any) {
+					.catch(function(err: Error) {
+						logger.error(err.message, err);
 						return $q.reject(err);
 					});
 			},
@@ -90,7 +92,10 @@ angular.module("BitriseWorkflowEditor").service(
 					})
 					.then(convertSteps)
 					.then((stepObj: { [stepId: string]: StepVersion }) => stepObj[stepId])
-					.catch((err: Error) => $q.reject(err));
+					.catch((err: Error) => {
+						logger.error(err.message, err);
+						return $q.reject(err);
+					});
 			},
 			fuzzySearch({
 				attributesToRetrieve = ["*"],
@@ -112,7 +117,8 @@ angular.module("BitriseWorkflowEditor").service(
 						}
 					})
 					.then(convertSteps)
-					.catch(function(err: any) {
+					.catch(function(err: Error) {
+						logger.error(err.message, err);
 						return $q.reject(err);
 					});
 			}

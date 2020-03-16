@@ -2,11 +2,11 @@ import { datadogLogs } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
 import { WFEWindow } from "../typings/global";
 
-interface Logger {
-	debug(message: string): void;
-	info(message: string): void;
-	warn(message: string): void;
-	error(message: string): void;
+export interface Logger {
+	debug(message: string, ctx?: any): void;
+	info(message: string, ctx?: any): void;
+	warn(message: string, ctx?: any): void;
+	error(message: string, ctx?: any): void;
 }
 
 class DataDogLoggerService implements Logger {
