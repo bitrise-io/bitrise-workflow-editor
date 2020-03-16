@@ -56,6 +56,8 @@ export const elements = {
   "wf3 steps": ".workflow:nth-child(2) ul.steps ul",
   "wf3 steps container": ".workflow:nth-child(2) ul.steps",
 
+  "wf4 workflow name": ".workflow:nth-child(1) .workflow-header .edit",
+  "wf4 workflow description": ".workflow:nth-child(1) article aside",
   "wf4 steps": ".workflow:nth-child(1) ul.steps ul",
   "wf4 steps container": ".workflow:nth-child(1) ul.steps",
   "wf4 steps add step icons": ".workflow:nth-child(1) ul.steps .add-step",

@@ -80,3 +80,9 @@ Feature: Workflows
       And "wf4 steps add step icons" should "not be visible"
       And "wf5 steps add step icons" should "not be visible"
       And "wf6 steps container" should contain "1" "Add Step element"
+
+  Scenario: User selects a duplicate Workflow in the chain
+    Given "wf3" workflow is selected
+    When I click on "wf4 workflow name"
+    Then "wf4 workflow description" should "be visible"
+      And "wf4 steps container" should contain "2" "Add Step element"

@@ -67,6 +67,11 @@ Given('add workflow popup is open', () => {
   click('Add Workflow Button');
 });
 
+Given('{string} workflow is selected', (workflow) => {
+  click("Selected Workflow Name");
+  click(`${workflow} workflow`);
+});
+
 When('I click on {string}', click);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
