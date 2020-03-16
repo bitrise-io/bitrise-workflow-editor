@@ -7,8 +7,9 @@
 		"appService",
 		"semverService",
 		"stepLibSearchService",
+		"logger",
 		"Step",
-		function($q, requestService, appService, semverService, stepLibSearchService, Step) {
+		function($q, requestService, appService, semverService, stepLibSearchService, logger, Step) {
 			var stepSourceService = {
 				defaultLibraryURL: undefined,
 				libraries: [],
@@ -132,6 +133,7 @@
 						return step.isLocal() ? null : [step.version];
 					}
 				} catch (err) {
+					logger.error(err.message, err);
 					return null;
 				}
 
@@ -223,7 +225,7 @@
 										if (requestService.mode == "cli") {
 											reject(_error);
 										} else {
-											console.log(_error.message);
+											logger.error(_error.message, _error);
 
 											resolve(null);
 										}
@@ -237,6 +239,7 @@
 				});
 
 				if (error) {
+					logger.error(error.message, error);
 					return $q.reject(error);
 				}
 
@@ -332,6 +335,7 @@
 						return $q.when();
 					}
 				} catch (error) {
+					logger.error(error.message, error);
 					return $q.reject(error);
 				}
 
@@ -343,6 +347,7 @@
 						stepSourceService.gitSteps.push(step);
 					} else {
 						// TODO: implement single library step load if neccessary
+						logger.warn("Single library step load not implemented");
 					}
 				});
 			}
@@ -425,12 +430,13 @@
 
 									resolve();
 								} catch (error) {
-									console.log(error.message);
+									logger.error(error.message, error);
 									reject(new Error("<%= data[:strings][:step_source_service][:load_library][:default_error] %>"));
 								}
 							});
 						},
 						function(error) {
+							logger.error(error.message, error);
 							reject(error);
 						}
 					);
