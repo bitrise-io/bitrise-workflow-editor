@@ -21,6 +21,11 @@ Given('add workflow popup is open', () => {
   click('Add Workflow Button');
 });
 
+Given('{string} workflow is selected', (workflow) => {
+  click("Selected Workflow Name");
+  click(`${workflow} workflow`);
+});
+
 Then('Workflow appeared with name {string}', (name) => {
   cy.get('.selected-workflow button.mak').contains(name);
 });
