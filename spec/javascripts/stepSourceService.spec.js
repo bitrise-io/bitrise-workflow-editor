@@ -11,33 +11,35 @@ describe("stepSourceService", function() {
 			resolveVersion: jasmine.createSpy("resolveVersion"),
 			shortenWildcardVersion: jasmine.createSpy("shortenWildcardVersion"),
 			normalizeVersion: jasmine.createSpy("normalizeVersion"),
-			findLatestMajorVersion: jasmine.createSpy("findLatestMajorVersion"),
+			findLatestMajorVersion: jasmine.createSpy("findLatestMajorVersion")
 		};
 
 		module("BitriseWorkflowEditor");
-		module(($provide) => {
+		module($provide => {
 			$provide.value("semverService", mockSemverService);
 		});
 	});
 
-	beforeEach(inject((_stepSourceService_) => {
+	beforeEach(inject(_stepSourceService_ => {
 		stepSourceService = _stepSourceService_;
 		stepSourceService.defaultLibraryURL = TEST_LIB_URL;
 
-		stepSourceService.libraries = [{
-			url: TEST_LIB_URL,
-			steps: {
-				[TEST_STEP_ID]: {
-					"2.2.1": { defaultStepConfig: TEST_STEP_LATEST_CONFIG },
-					"1.2.1": { defaultStepConfig: "1.2.1 config" },
-					"1.1.1": { defaultStepConfig: "1.1.1 config" },
-					"1.0.0": { defaultStepConfig: "1.0.0 config" },
+		stepSourceService.libraries = [
+			{
+				url: TEST_LIB_URL,
+				steps: {
+					[TEST_STEP_ID]: {
+						"2.2.1": { defaultStepConfig: TEST_STEP_LATEST_CONFIG },
+						"1.2.1": { defaultStepConfig: "1.2.1 config" },
+						"1.1.1": { defaultStepConfig: "1.1.1 config" },
+						"1.0.0": { defaultStepConfig: "1.0.0 config" }
+					}
+				},
+				latestStepVersions: {
+					[TEST_STEP_ID]: "2.2.1"
 				}
-			},
-			latestStepVersions: {
-				[TEST_STEP_ID]: "2.2.1"
 			}
-		}];
+		];
 	}));
 
 	describe("stepFromCVS", function() {
@@ -144,8 +146,12 @@ describe("stepSourceService", function() {
 		it("should raise error if library step has no library specified nor is default library specified", function() {
 			stepSourceService.defaultLibraryURL = null;
 
-			expect(function() { stepSourceService.stepFromCVS("${TEST_STEP_ID}@1.0"); }).toThrow();
-			expect(function() { stepSourceService.stepFromCVS("::${TEST_STEP_ID}@1.0"); }).toThrow();
+			expect(function() {
+				stepSourceService.stepFromCVS("${TEST_STEP_ID}@1.0");
+			}).toThrow();
+			expect(function() {
+				stepSourceService.stepFromCVS("::${TEST_STEP_ID}@1.0");
+			}).toThrow();
 		});
 
 		it("should be able to create wildcard version library steps", () => {
@@ -169,7 +175,7 @@ describe("stepSourceService", function() {
 				version: "1.1.1",
 				defaultStepConfig: "1.1.1 config",
 				libraryURL: "http://tempuri.org",
-				isLibraryStep: () => true,
+				isLibraryStep: () => true
 			};
 		});
 
@@ -272,7 +278,7 @@ describe("stepSourceService", function() {
 		it("should return false for local step", () => {
 			var isLatest = stepSourceService.isLatestStepVersion({
 				isLibraryStep: () => false,
-				isLocal: () => true,
+				isLocal: () => true
 			});
 
 			expect(isLatest).toBeFalsy();
@@ -281,7 +287,7 @@ describe("stepSourceService", function() {
 		it("should return true for github step", () => {
 			var isLatest = stepSourceService.isLatestStepVersion({
 				isLibraryStep: () => false,
-				isLocal: () => false,
+				isLocal: () => false
 			});
 
 			expect(isLatest).toBeTruthy();
@@ -291,7 +297,7 @@ describe("stepSourceService", function() {
 			var mockStep = {
 				id: TEST_STEP_ID,
 				isLibraryStep: () => true,
-				libraryURL: TEST_LIB_URL,
+				libraryURL: TEST_LIB_URL
 			};
 
 			mockSemverService.resolveVersion.and.returnValue("1.3.4");
