@@ -21,8 +21,9 @@ export const elements = {
 	"Selected Workflow Name": ".selected-workflow button.mak",
 	"Workflow selector": ".workflow-selector",
 
-	"Step Title": ".selected-step .title",
-	"Step Edit Title": ".selected-step .rename-title",
+	"Step Title": ".selected-step .title .rename",
+	"Step Title Edit Box": ".selected-step .rename-title input",
+	"Step Rename Confirm Button": ".selected-step .rename-title button.ok",
   "Step Inputs": ".selected-step .inputs",
   "Step Versions": ".selected-step .version",
   "Step Version": ".selected-step .version__text",

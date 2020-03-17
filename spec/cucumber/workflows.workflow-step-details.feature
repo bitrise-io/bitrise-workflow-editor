@@ -7,23 +7,6 @@ Feature: Workflow Step details
     And it has a Step
     And the Step is selected
 
-  Scenario: Step's title from the library config is displayed as its name
-    Given the Step has a title in its library config
-    Then it will be displayed in the Step's entry
-    And it will be the initial value when entering edit mode
-
-  Scenario: Step's title set in the bitrise.yml is displayed as its name, instead of library name
-    Given the Step has a title in its library config
-    But title is also set in the bitrise.yml
-    Then that will be displayed in the Step's entry
-    And it will be the initial value when entering edit mode
-
-  Scenario: Step only has a title in bitrise.yml
-    Given the Step does not have title set in its default config
-    But it has one set in bitrise.yml
-    Then that will be displayed in the Step's entry
-    And it will be the initial value when entering edit mode
-
   Scenario: Step does not have a title, but has ID
     Given the Step does not have title set in its default config
     And it does not have one set in bitrise.yml
@@ -37,16 +20,6 @@ Feature: Workflow Step details
     And it does not have ID set
     Then the CVS will be displayed in the Step's entry
     But the initial value when entering edit mode, will be empty
-
-  Scenario: User starts to rename the Step
-    When User selects the Step name
-    Then the Step name enters edit mode
-
-  Scenario: User confirms renaming the Step
-    Given the Step name is in edit mode
-    When User changes the Step name
-    And selects the confirm button
-    Then the Step name gets updated
 
   Scenario Outline: Step with other custom properties
     Given the Step has a default <property> in properties, in its default config

@@ -127,7 +127,6 @@ workflows:
 
             # This step is referenced by git URL
     - git::https://github.com/bitrise-steplib/steps-script@1.0.0:
-        title: A script step referenced by git URL with version 1.0.0
     - path::./spec/integration/fixture/test_local_step: {}
     - path::./spec/integration/fixture/test_local_step:
         title: A local step with overwritten title & input

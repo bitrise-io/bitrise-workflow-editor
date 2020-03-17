@@ -96,8 +96,14 @@ Then('I should see {string} in {string}', assertInputValueEQ);
 Then('I should not see {string} in {string}', assertNotInputValueNotEQ);
 
 Then('{string} should {string}', (element, expectation) => {
-  const cExpectation = expectation.replace(/\s/g, '.');
-  $(element).should(cExpectation);
+	let [shouldExpr, value] = expectation.split(':');
+	shouldExpr = shouldExpr.replace(/\s/g, '.');
+
+	if (value) {
+		return $(element).should(shouldExpr, value.trim());
+	}
+
+  $(element).should(shouldExpr);
 });
 Then('{string} should contain {int} {string}', (element, expectation, childElement) => {
   $(element).find(selector(childElement)).should("have.length", expectation);
