@@ -42,9 +42,10 @@ bitrise run go-install
 ### Run in development mode
 
 ```bash
-bitrise run up-api # start api in dev mode
+npm start          # start both local api and dev server
 
-npm run start:dev # start service in dev mode (webpack build server)
+bitrise run up-api # start local api in dev mode
+npm run start:dev  # start service in dev mode (webpack build server)
 ```
 
 1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until dev server starts up.
