@@ -6,11 +6,11 @@ import { WFEWindow } from "../typings/global";
 
 declare var window: WFEWindow;
 
-interface Logger {
-	debug(message: string): void;
-	info(message: string): void;
-	warn(message: string): void;
-	error(message: string): void;
+export interface Logger {
+	debug(message: string, ctx?: any): void;
+	info(message: string, ctx?: any): void;
+	warn(message: string, ctx?: any): void;
+	error(message: string, ctx?: any): void;
 	setTags(ctx: Context): void;
 }
 

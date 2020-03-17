@@ -147,6 +147,8 @@ import { safeDigest } from "../services/react-compat";
 			});
 
 			viewModel.init = function() {
+				logger.info("Loading workflows");
+
 				workflowsTabService.shouldWatchSelectionChanges = false;
 
 				loadWorkflows()
