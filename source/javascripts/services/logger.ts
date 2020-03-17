@@ -10,40 +10,43 @@ interface Logger {
 	debug(message: string): void;
 	info(message: string): void;
 	warn(message: string): void;
-  error(message: string): void;
-  setTags(ctx: Context): void;
+	error(message: string): void;
+	setTags(ctx: Context): void;
 }
 
 type LoggerOptions = {
-  name: string,
-  clientToken: string,
-  isAnalyticsOn: boolean,
-  level: StatusType
-}
+	name: string;
+	clientToken: string;
+	isAnalyticsOn: boolean;
+	level: StatusType;
+};
 
 class DataDogLoggerService implements Logger {
-  private logger: DLogger
+	private logger: DLogger;
 
-	constructor({
-    name,
-    clientToken = window.DATADOG_API_KEY,
-    isAnalyticsOn = window.isAnalyticsOn,
-    level = StatusType.warn
-  }: LoggerOptions,
-  context: Context,
-  dLogger: typeof datadogLogs) {
-    dLogger.init({ clientToken, forwardErrorsToLogs: false });
-    this.logger = dLogger.createLogger(name, {
-      level, context,
-      handler: isAnalyticsOn ? HandlerType.http : HandlerType.console
-    });
-  }
+	constructor(
+		{
+			name,
+			clientToken = window.DATADOG_API_KEY,
+			isAnalyticsOn = window.isAnalyticsOn,
+			level = StatusType.warn
+		}: LoggerOptions,
+		context: Context,
+		dLogger: typeof datadogLogs
+	) {
+		dLogger.init({ clientToken, forwardErrorsToLogs: false });
+		this.logger = dLogger.createLogger(name, {
+			level,
+			context,
+			handler: isAnalyticsOn ? HandlerType.http : HandlerType.console
+		});
+	}
 
-  setTags = (ctx: Context) => {
-    Object.keys(ctx).forEach((key) => {
-      this.logger.addContext(key, ctx[key]);
-    });
-  };
+	setTags = (ctx: Context) => {
+		Object.keys(ctx).forEach(key => {
+			this.logger.addContext(key, ctx[key]);
+		});
+	};
 
 	debug = (message: string, ctx?: Context) => {
 		this.logger.debug(message, ctx);
@@ -66,24 +69,21 @@ class DataDogLoggerService implements Logger {
 window.datadogLogs = datadogLogs;
 
 const getDefaultTags = (): Context => {
-  const defaultTags = {
-    service: window.serviceName,
-    mode: window.mode,
-    appSlug: getAppSlug()
-  };
+	const defaultTags = {
+		service: window.serviceName,
+		mode: window.mode,
+		appSlug: getAppSlug()
+	};
 
-  const nullCheck = (val: string|null) => !!val;
-  return pick(defaultTags, nullCheck) as Context;
+	const nullCheck = (val: string | null) => !!val;
+	return pick(defaultTags, nullCheck) as Context;
 };
 
 export default (opts: LoggerOptions): Logger => {
-  const tags = getDefaultTags();
+	const tags = getDefaultTags();
 
-  // D-Dog supports console logging as well depends on the environment
-  // if we are using some other service we need to create other type of loggers here for environments
-  // this works for every environment
-  return new DataDogLoggerService(
-    opts, tags,
-    window.datadogLogs
-  );
-}
+	// D-Dog supports console logging as well depends on the environment
+	// if we are using some other service we need to create other type of loggers here for environments
+	// this works for every environment
+	return new DataDogLoggerService(opts, tags, window.datadogLogs);
+};
