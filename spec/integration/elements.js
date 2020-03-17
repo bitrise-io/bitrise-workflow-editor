@@ -6,6 +6,7 @@ export const elements = {
   "Workflow Add popup": "#add-workflow-popup-body",
 
   "Default popup": "#default-confirm-popup-body",
+  "Default popup message": "#default-confirm-popup-body article p",
   "Alert popup": "#default-alert-popup-body",
 
   "Done Button": "button.done",
@@ -52,7 +53,9 @@ export const elements = {
   "Step element": "li",
   "Add Step element": ".add-step",
 
-  "wf3 workflow": ".workflow-selector ul li:nth-child(3)",
+  "Workflow selector options": ".workflow-selector ul li .workflow .workflow-id",
+
+  "wf3 workflow": '.workflow-selector ul li:has(.workflow .workflow-id:contains("wf3"))',
   "wf3 steps": ".workflow:nth-child(2) ul.steps ul",
   "wf3 steps container": ".workflow:nth-child(2) ul.steps",
 
@@ -67,6 +70,7 @@ export const elements = {
   "first wf5 steps add step icons": ".workflow:nth-child(3) ul.steps .add-step",
   "first wf5 Remove button": ".workflow:nth-child(3) .header-info .remove",
 
+  "wf6 workflow": '.workflow-selector ul li:has(.workflow .workflow-id:contains("wf6"))',
   "wf6 steps": ".workflow:nth-child(5) ul.steps ul",
   "wf6 steps container": ".workflow:nth-child(5) ul.steps",
   "wf6 Remove button": ".workflow:nth-child(5) .header-info .remove"

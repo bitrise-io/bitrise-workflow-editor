@@ -17,13 +17,6 @@ Feature: Workflows
     Then "Workflow Add popup" should "not be visible"
       And Workflow appeared with name "Test"
 
-  Scenario: Delete Workflow
-    Given Workflow with name "ToBeDeleted"
-    When I click on "Delete Workflow Button"
-      And I confirm on "Default popup"
-    Then I should not see "ToBeDeleted" in "Selected Workflow Name"
-      And I should see "wf1" in "Selected Workflow Name"
-
   Scenario: User adds a before workflow
     When I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
@@ -93,3 +86,26 @@ Feature: Workflows
     Then "Workflow Sections" should contain 4 "Workflow Section"
       And I should see "wf5" in "First After Workflow Name"
       And I should see "wf6" in "Last After Workflow Name"
+
+  Scenario: Delete Workflow
+    Given Workflow with name "ToBeDeleted"
+    When I click on "Delete Workflow Button"
+      And I confirm on "Default popup"
+    Then I should not see "ToBeDeleted" in "Selected Workflow Name"
+      And I should see "wf1" in "Selected Workflow Name"
+
+  Scenario: User opens the Delete Workflow
+    Given "wf3" workflow is selected
+    When I click on "Delete Workflow Button"
+    Then "Default popup" should "be visible"
+      And I should see "Are you sure you want to delete the wf3 workflow?" in "Default popup message"
+
+  Scenario: User confirms deleting a Workflow
+    Given "wf6" workflow is selected
+      And Delete popup is open
+    When I confirm on "Default popup"
+    Then "Default popup" should "not be visible"
+      And I click on "Selected Workflow Name"
+      And Workflow selector options should not contain "wf6"
+      And I click on "wf3 workflow"
+      And I should see "wf5" in "Last After Workflow Name"
