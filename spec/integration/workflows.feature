@@ -109,3 +109,12 @@ Feature: Workflows
       And Workflow selector options should not contain "wf6"
       And I click on "wf3 workflow"
       And I should see "wf5" in "Last After Workflow Name"
+
+  Scenario: User cancels deleting a Workflow
+    Given "wf6" workflow is selected
+      And Delete popup is open
+    When I cancel on "Default popup"
+    Then "Default popup" should "not be visible"
+      And I click on "Selected Workflow Name"
+      And "wf6 workflow" should "be visible"
+      And I should see "wf6" in "Last After Workflow Name"
