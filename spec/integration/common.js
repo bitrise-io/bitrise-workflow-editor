@@ -1,5 +1,5 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
-import $, { selector, typeKeys } from "./elements";
+import $, { selector } from "./elements";
 import { styleValueSelector } from "./styles";
 import { typeKeySelector } from "./typeKeys";
 import { version } from '../../package.json';

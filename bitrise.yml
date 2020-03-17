@@ -90,6 +90,7 @@ workflows:
     envs:
       - NODE_ENV: "prod"
       - MODE: "WEBSITE"
+      - ANALYTICS: true
     after_run:
     - setup-client
 
@@ -248,6 +249,10 @@ workflows:
     title: Create release
     description: |
         Creates a new version release, with attached binaries on GitHub and related article on discuss.bitrise.io
+    envs:
+      - NODE_ENV: "prod"
+      - MODE: "WEBSITE"
+      - ANALYTICS: true
     steps:
     - script:
         title: Input required infos
@@ -390,6 +395,8 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
+
+            echo "aaa $ANALYTICS"
 
             echo
             echo "Create final binaries"

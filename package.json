@@ -10,6 +10,7 @@
 		"build": "webpack --bail -p",
 		"build:prod": "NODE_ENV=prod npm run build",
 		"start:dev": "webpack-dev-server",
+		"start": "concurrently \"npm:start:dev\" \"gin --immediate --appPort=1234\"",
 		"e2e:dev": "cypress open",
 		"e2e:run": "cypress run",
 		"e2e:api": "PORT=4000 ./_scripts/run_api.sh ./spec/integration/test_bitrise.yml",
