@@ -18,9 +18,11 @@ export const elements = {
   "Discard Button": "button.discard",
 
   "Delete Workflow Button": ".manage-button.delete-workflow",
-  "Selected Workflow Name": ".selected-workflow button.mak",
+	"Selected Workflow Name": ".selected-workflow button.mak",
+	"Workflow selector": ".workflow-selector",
 
-  "Step Title": ".selected-step .title",
+	"Step Title": ".selected-step .title",
+	"Step Edit Title": ".selected-step .rename-title",
   "Step Inputs": ".selected-step .inputs",
   "Step Versions": ".selected-step .version",
   "Step Version": ".selected-step .version__text",
@@ -28,11 +30,13 @@ export const elements = {
   "Step Version Success Icon": ".selected-step .icon-ok",
   "Step Latest Version Updater": ".selected-step .icon-danger",
 
-  "First step": ".step-actions:eq(0)",
-  "First step name": ".step-actions:eq(0) .info .title",
-  "First step version indicator": ".step-actions:eq(0) em.version",
-  "Second step": ".step-actions:eq(1)",
-  "Third step": ".step-actions:eq(2)",
+  "First step": ".workflow.edited .step-actions:eq(0)",
+  "First step name": ".workflow.edited .step-actions:eq(0) .info .title",
+  "First step version indicator": ".workflow.edited .step-actions:eq(0) em.version",
+  "Second step": ".workflow.edited .step-actions:eq(1)",
+	"Third step": ".workflow.edited .step-actions:eq(2)",
+	"Sixth step": ".workflow.edited .step-actions:eq(5)",
+	"Seventeenth step": ".workflow.edited .step-actions:eq(16)",
 
   "Add Before Workflow button": ".add-before-run-workflow",
   "Add Before Workflow popup": "#add-run-workflow-popup-body",

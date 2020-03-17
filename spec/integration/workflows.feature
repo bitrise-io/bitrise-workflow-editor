@@ -51,8 +51,7 @@ Feature: Workflows
       And I should see "Script" in "First step name"
 
   Scenario: User selects a Workflow
-    When I click on "Selected Workflow Name"
-      And I click on "wf3 workflow"
+    When I select "wf3 workflow" from "Workflow selector"
     Then I should see "wf3" in "Selected Workflow Name"
       And I should see "wf4" in "First Before Workflow Name"
       And I should see "wf5" in "First After Workflow Name"

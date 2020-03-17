@@ -23,7 +23,14 @@ export const pressKey = (key) => {
 };
 
 export const select = (value, element) => {
-  $(element).select(value);
+	$(element).then(elem => {
+		if (!elem.is('select')) {
+			click(element);
+			return click(value);
+		}
+
+		$(elem).select(value);
+	});
 };
 
 export const type = (text, element) => {
@@ -70,10 +77,11 @@ Given('editor is open', () => {
 
   cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 
-  cy.wait(['@steplib-steps', '@steplib-inputs']);
+	cy.wait(['@steplib-steps', '@steplib-inputs']);
+
   // // TODO: cypress does not support polling :(
   // // https://github.com/cypress-io/cypress/issues/3308
-  cy.wait(2000);
+  cy.wait(3000);
 });
 
 When('I click on {string}', click);
