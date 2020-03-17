@@ -162,10 +162,36 @@ workflows:
           ship.bitrise.io:
             summary: Step config part for the Ship add-on.
   wf3:
+    description: The wf3 test workflow
+    before_run:
+    - wf4
     after_run:
-    - wf1
-    - wf2
+    - wf5
+    - wf6
     envs:
     - opts:
         is_expand: false
       project: vrbo
+    steps:
+    - activate-ssh-key: {}
+    - git-clone@4.0.17: {}
+    - script@1: {}
+  wf4:
+    envs:
+    - opts:
+        is_expand: false
+      project: testproject
+    steps:
+    - script@1: {}
+  wf5:
+    envs:
+    - opts:
+        is_expand: false
+      project: testproject
+    steps:
+    - script@1: {}
+  wf6:
+    envs:
+    - opts:
+        is_expand: false
+      project: testproject
