@@ -1,9 +1,9 @@
 import { Given, Then } from 'cypress-cucumber-preprocessor/steps';
-import $el, { elements } from '../elements';
+import $ from '../elements';
 import { click, select, type } from '../common';
 
 afterEach(() => {
-  $el(elements['Discard Button']).then(btn => {
+  $('Discard Button').then(btn => {
     if (!btn.is(':disabled')) {
       btn.click();
     }
@@ -17,6 +17,11 @@ Given('Workflow with name {string}', (name) => {
   click('Workflow Add Button');
 });
 
+Given('add workflow popup is open', () => {
+  click('Add Workflow Button');
+});
+
 Then('Workflow appeared with name {string}', (name) => {
   cy.get('.selected-workflow button.mak').contains(name);
 });
+

@@ -20,6 +20,7 @@ import { safeDigest } from "../services/react-compat";
 			stepSourceService,
 			workflowsTabService,
 			addStepService,
+			logger,
 			Progress,
 			Popup,
 			Workflow,
@@ -198,12 +199,13 @@ import { safeDigest } from "../services/react-compat";
 											resolve();
 										},
 										function(error) {
-											console.error(error);
+											logger.error(error.message, error);
 
 											resolve();
 										}
 									);
 								} catch (error) {
+									logger.error(error.message, error);
 									reject(error);
 								}
 							},
@@ -217,7 +219,7 @@ import { safeDigest } from "../services/react-compat";
 					},
 					function(error) {
 						viewModel.workflows = undefined;
-						console.error(error);
+						logger.error(error.message, error);
 						viewModel.loadWorkflowsProgress.error(
 							new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>")
 						);
