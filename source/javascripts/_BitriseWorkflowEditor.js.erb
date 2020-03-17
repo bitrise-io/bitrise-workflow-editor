@@ -1,4 +1,7 @@
-window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
+window.serviceName = "workflow-editor";
+window.datadogApiKey = "<%= data[:constants][:datadog][:apiKey] %>";
+window.isAnalyticsOn = <%= analytics? %>;
+window.mode = "<%= mode %>";
 
 (function() {
 	"use strict";
@@ -54,7 +57,10 @@ window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
 		});
   });
 
-  BitriseWorkflowEditor.constant('DATADOG_API_KEY', window.DATADOG_API_KEY);
+	BitriseWorkflowEditor
+		.constant('SERVICE_NAME', window.serviceName)
+		.constant('DATADOG_API_KEY', window.datadogApiKey)
+		.constant('IS_ANALYTICS', window.isAnalyticsOn);
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
@@ -65,7 +71,7 @@ window.DATADOG_API_KEY = "<%= data[:constants][:datadog][:apiKey] %>";
   ]);
 
   BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
-		return function myExceptionHandler(error) {
+		return function(error) {
 			logger.error(error.message, error);
 			$log.error(error);
 		};
