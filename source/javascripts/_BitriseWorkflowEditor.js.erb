@@ -57,10 +57,10 @@ window.mode = "<%= mode %>";
 		});
   });
 
-  BitriseWorkflowEditor
-    .constant('SERVICE_NAME', window.serviceName)
-    .constant('DATADOG_API_KEY', window.datadogApiKey)
-    .constant('IS_ANALYTICS', window.isAnalyticsOn);
+	BitriseWorkflowEditor
+		.constant('SERVICE_NAME', window.serviceName)
+		.constant('DATADOG_API_KEY', window.datadogApiKey)
+		.constant('IS_ANALYTICS', window.isAnalyticsOn);
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
