@@ -3,7 +3,7 @@ describe("stepSourceService", function() {
 	var TEST_STEP_ID = "mockStep";
 	var TEST_LIB_URL = "http://tempuri.org";
 	var TEST_STEP_LATEST_CONFIG = { asset_urls: "test_urls", name: "2.2.1 config" };
-	var mockSemverService;
+	var mockSemverService, mockLogger;
 
 	beforeEach(() => {
 		mockSemverService = {
@@ -14,9 +14,15 @@ describe("stepSourceService", function() {
 			findLatestMajorVersion: jasmine.createSpy("findLatestMajorVersion")
 		};
 
+		mockLogger = {
+			warn: jasmine.createSpy("warn"),
+			error: jasmine.createSpy("error")
+		};
+
 		module("BitriseWorkflowEditor");
 		module($provide => {
 			$provide.value("semverService", mockSemverService);
+			$provide.value("logger", mockLogger);
 		});
 	});
 
@@ -163,6 +169,12 @@ describe("stepSourceService", function() {
 			expect(step.version).toEqual("1.x.x");
 			expect(step.defaultStepConfig).toEqual("1.2.1 config");
 		});
+
+		it("Should log a warning for an invalid step version", () => {
+			stepSourceService.stepFromCVS(`${TEST_STEP_ID}@invalid`);
+
+			expect(mockLogger.warn).toHaveBeenCalledWith("Step is not configured", { id: TEST_STEP_ID, version: "invalid" });
+		});
 	});
 
 	describe("changeStepToVersion", () => {
@@ -256,12 +268,15 @@ describe("stepSourceService", function() {
 			expect(versions).toEqual(["1.1.1"]);
 		});
 
-		it("should return null if the step is pointing to a wrong library", () => {
+		it("should return null if the step is pointing to a wrong library and log an error", () => {
 			MOCK_STEP.libraryURL = "http://this-does-not-exist";
 
 			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
 
 			expect(versions).toBeNull();
+
+			const error = new Error("Library not found for step");
+			expect(mockLogger.error).toHaveBeenCalledWith(error.message, error);
 		});
 
 		it("should use existing step versions in the library to calculate wildcard ones", () => {
