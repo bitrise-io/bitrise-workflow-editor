@@ -41,11 +41,29 @@ bitrise run go-install
 
 ### Run in development mode
 
-1. __DOCKER__: In the Workflow Editor's directory, run `bitrise run up`. This utilizes `docker-compose` behind the scenes. // __LOCAL__: You need to start the api `bitrise run up-api` and webpack dev server  `bitrise run up-dev-server`.
+```bash
+npm start          # start both local api and dev server
+
+bitrise run up-api # start local api in dev mode
+npm run start:dev  # start service in dev mode (webpack build server)
+```
+
 1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until dev server starts up.
 1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
 
 ### Run client tests
+
+```bash
+npm test        # for single run unit test with code compilation
+npm run karma   # for single run unit test without code compilation (using already compiled code)
+
+npm run e2e:api # run only the local binary api for e2e tests
+npm run e2e:dev # run e2e test dashboard (cypress dashboard)
+npm run e2e:run # run e2e tests itself (cypress)
+npm run e2e     # for self contained e2e tests (local binary api + testing logic) e2e:api + e2e:run
+```
+
+*NOTE*: for e2e test you need to have binaries built! in order to do that please use `bitrise run create-binaries`. It is still need to be solved to run e2e tests against live code.
 
 Use `npm test` for a single test run.
 If you only iterate on tests, you can also use `npm run karma` as it skips transpilation and the transpilation and run the tests on an already transpiled JS. (faster)

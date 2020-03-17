@@ -19,7 +19,7 @@ end
 def mode_dependant_asset_path(path)
     case mode
     when "website" then "/bitrise_workflow_editor-#{ENV['RELEASE_VERSION']}/" + path
-    when "cli" then build? ? "/#{ENV['RELEASE_VERSION']}/" + path : path
+    when "cli" then prod? ? "/#{ENV['RELEASE_VERSION']}/" + path : path
     end
 end
 
@@ -59,8 +59,12 @@ def data
     strings
 end
 
-def build?
+def prod?
     ENV['NODE_ENV'] == 'prod'
+end
+
+def analytics?
+    ENV['ANALYTICS'] == 'true'
 end
 
 case command

@@ -19,7 +19,7 @@
   Scenario: Version Downgrade
     When I click on "First step"
     And I select "1.0.x" from "Version selector"
-    And I confirm on "alert" popup
+    And I confirm on "Alert popup"
     Then "First step version indicator" should "be visible"
     And I should see "Version: 1.0.4" in "Step Versions"
     And "Step Latest Version Updater" should "be visible"
@@ -34,7 +34,7 @@
   Scenario: Latest Version Update
     When I click on "First step"
     And I select "1.0.x" from "Version selector"
-    And I confirm on "alert" popup
+    And I confirm on "Alert popup"
     And I click on "Step Latest Version Updater"
     Then I should see "Version: 2.2.2" in "Step Versions"
     And "Step Version Success Icon" should "be visible"

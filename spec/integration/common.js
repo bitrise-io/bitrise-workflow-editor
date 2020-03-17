@@ -1,5 +1,6 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
-import $ from "./elements";
+import $, { selector } from "./elements";
+import { styleValueSelector } from "./styles";
 import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT');
@@ -16,14 +17,17 @@ export const type = (text, element) => {
   $(element).type(text, { force: true }).trigger('input');
 };
 
-export const popupConfirm = (type) => {
-  let selector = '#default-confirm-popup-body .yes';
+export const popupButtonClick = (popup, buttonType) => {
+  const popupButton = `${selector(popup)} [data-e2e-tag="${buttonType}-button"]`;
+  click(popupButton);
+};
 
-  if (type === 'alert') {
-    selector = '#default-alert-popup-body button';
-  }
+export const popupConfirm = (popup) => {
+  popupButtonClick(popup, "confirm");
+};
 
-  cy.get(selector).click();
+export const popupCancel = (popup) => {
+  popupButtonClick(popup, "cancel");
 };
 
 export const assertInputValueEQ = (value, element) => {
@@ -62,13 +66,21 @@ Given('editor is open', () => {
 When('I click on {string}', click);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
-When('I confirm on {string} popup', popupConfirm);
+When('I confirm on {string}', popupConfirm);
+When('I cancel on {string}', popupCancel);
 Then('I should see {string} in {string}', assertInputValueEQ);
 Then('I should not see {string} in {string}', assertNotInputValueNotEQ);
 
 Then('{string} should {string}', (element, expectation) => {
   const cExpectation = expectation.replace(/\s/g, '.');
   $(element).should(cExpectation);
+});
+Then('{string} should contain {int} {string}', (element, expectation, childElement) => {
+  $(element).find(selector(childElement)).should("have.length", expectation);
+});
+
+Then('{string} should have {string} {string} style', (element, cssValue, cssProperty) => {
+  $(element).should("have.css", cssProperty, styleValueSelector(cssValue));
 });
 
 Then('I save', save);
