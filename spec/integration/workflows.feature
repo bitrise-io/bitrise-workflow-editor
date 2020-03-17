@@ -118,3 +118,16 @@ Feature: Workflows
       And I click on "Selected Workflow Name"
       And "wf6 workflow" should "be visible"
       And I should see "wf6" in "Last After Workflow Name"
+
+  Scenario: User opens the Workflow dropdown
+    Given "wf3" workflow is selected
+    When I click on "Selected Workflow Name"
+    Then "wf1 workflow" should "be visible"
+      And "wf2 workflow" should "be visible"
+      And "wf3 workflow" should "be visible"
+      And "wf4 workflow" should "be visible"
+      And "wf5 workflow" should "be visible"
+      And "wf6 workflow" should "be visible"
+      And "wf3 workflow list element" should have "purple" "background-color" style
+      And "wf3 workflow list element" should contain 1 "svg"
+      And "wf3 workflow rename button" should "be visible"

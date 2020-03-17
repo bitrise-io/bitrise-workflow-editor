@@ -1,3 +1,7 @@
+const workflowSelectElement = (workflowName) => {
+  return `.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`
+};
+
 export const elements = {
   "Add Workflow Button": ".add-workflow",
   "Base Workflow Dropdown": "#add-workflow-popup-based-on-select",
@@ -55,10 +59,15 @@ export const elements = {
 
   "Workflow selector options": ".workflow-selector ul li .workflow .workflow-id",
 
-  "wf3 workflow": '.workflow-selector ul li:has(.workflow .workflow-id:contains("wf3"))',
+  "wf1 workflow": workflowSelectElement("wf1"),
+  "wf2 workflow": workflowSelectElement("wf2"),
+  "wf3 workflow": workflowSelectElement("wf3"),
+  "wf3 workflow list element": `${workflowSelectElement("wf3")} .workflow`,
+  "wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
   "wf3 steps": ".workflow:nth-child(2) ul.steps ul",
   "wf3 steps container": ".workflow:nth-child(2) ul.steps",
 
+  "wf4 workflow": workflowSelectElement("wf4"),
   "wf4 workflow name": ".workflow:nth-child(1) .workflow-header .edit",
   "wf4 workflow description": ".workflow:nth-child(1) article aside",
   "wf4 steps": ".workflow:nth-child(1) ul.steps ul",
@@ -66,11 +75,12 @@ export const elements = {
   "wf4 steps add step icons": ".workflow:nth-child(1) ul.steps .add-step",
   "wf4 Remove button": ".workflow:nth-child(1) .header-info .remove",
 
+  "wf5 workflow": workflowSelectElement("wf5"),
   "first wf5 steps": ".workflow:nth-child(3) ul.steps ul",
   "first wf5 steps add step icons": ".workflow:nth-child(3) ul.steps .add-step",
   "first wf5 Remove button": ".workflow:nth-child(3) .header-info .remove",
 
-  "wf6 workflow": '.workflow-selector ul li:has(.workflow .workflow-id:contains("wf6"))',
+  "wf6 workflow": workflowSelectElement("wf6"),
   "wf6 steps": ".workflow:nth-child(5) ul.steps ul",
   "wf6 steps container": ".workflow:nth-child(5) ul.steps",
   "wf6 Remove button": ".workflow:nth-child(5) .header-info .remove"
