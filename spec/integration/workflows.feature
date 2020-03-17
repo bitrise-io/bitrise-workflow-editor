@@ -131,3 +131,43 @@ Feature: Workflows
       And "wf3 workflow list element" should have "purple" "background-color" style
       And "wf3 workflow list element" should contain 1 "svg"
       And "wf3 workflow rename button" should "be visible"
+
+  Scenario: User selects a Workflow from the Workflow dropdown
+    Given the Workflow dropdown is open
+    When I click on "wf3 workflow"
+    Then I should see "wf3" in "Selected Workflow Name"
+
+  Scenario: User selects rename for a Workflow in the Workflow dropdown
+    Given "wf3" workflow is selected
+      And the Workflow dropdown is open
+    When I click on "wf3 workflow rename button"
+    Then "wf3 workflow rename field" should "be visible"
+      And "wf3 workflow rename field" should "be enabled"
+      And "wf3 workflow rename submit" should "be visible"
+      And "wf3 workflow rename submit" should "be enabled"
+
+  Scenario: User confirms renaming a Workflow in the Workflow dropdown
+    Given "wf3" workflow is selected
+      And the Workflow dropdown is open
+    When I click on "wf3 workflow rename button"
+      And I clear "wf3 workflow rename field"
+      And I type "my_new_wf_name" in "wf3 workflow rename field"
+      And I click on "wf3 workflow rename submit"
+    Then I should see "my_new_wf_name" in "Selected Workflow Name"
+      And "my_new_wf_name workflow rename submit" should "not be visible"
+      And "my_new_wf_name workflow rename submit" should "not be enabled"
+
+  Scenario: User leaves the Workflow dropdown by clicking outside of it
+    Given the Workflow dropdown is open
+    When I click away
+    Then "Workflow selector dropdown" should "not be visible"
+
+  Scenario: User leaves the Workflow dropdown by pressing the ESC key
+    Given the Workflow dropdown is open
+    When I press "ESC"
+    Then "Workflow selector dropdown" should "not be visible"
+
+  Scenario: User leaves the Workflow dropdown by selecting its opener button
+    Given the Workflow dropdown is open
+    When I click on "Selected Workflow Name"
+    Then "Workflow selector dropdown" should "not be visible"

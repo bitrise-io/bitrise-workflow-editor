@@ -58,12 +58,18 @@ export const elements = {
   "Add Step element": ".add-step",
 
   "Workflow selector options": ".workflow-selector ul li .workflow .workflow-id",
+  "Workflow selector dropdown": ".workflow-selector ul",
 
   "wf1 workflow": workflowSelectElement("wf1"),
   "wf2 workflow": workflowSelectElement("wf2"),
   "wf3 workflow": workflowSelectElement("wf3"),
   "wf3 workflow list element": `${workflowSelectElement("wf3")} .workflow`,
   "wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
+  "wf3 workflow rename field": `${workflowSelectElement("wf3")} .workflow-rename .name`,
+  "wf3 workflow rename submit": `${workflowSelectElement("wf3")} .workflow-rename .ok`,
+  "wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
+  "my_new_wf_name workflow rename field": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .name`,
+  "my_new_wf_name workflow rename submit": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .ok`,
   "wf3 steps": ".workflow:nth-child(2) ul.steps ul",
   "wf3 steps container": ".workflow:nth-child(2) ul.steps",
 

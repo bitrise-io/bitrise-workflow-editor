@@ -25,6 +25,10 @@ Given('Delete popup is open', () => {
   click('Delete Workflow Button');
 });
 
+Given('the Workflow dropdown is open', () => {
+  click("Selected Workflow Name");
+});
+
 Given('{string} workflow is selected', (workflow) => {
   click("Selected Workflow Name");
   click(`${workflow} workflow`);
