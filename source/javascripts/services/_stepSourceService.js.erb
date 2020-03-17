@@ -46,6 +46,10 @@
 					step.version = semverService.normalizeVersion(step.version);
 					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
 				}
+
+				if (!step.isConfigured()) {
+					logger.warn("Step is not configured", { id: step.id, version: step.version });
+				}
 			};
 
 			stepSourceService.stepFromCVS = function(cvs) {
