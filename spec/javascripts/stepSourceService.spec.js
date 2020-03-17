@@ -187,7 +187,8 @@ describe("stepSourceService", function() {
 				version: "1.1.1",
 				defaultStepConfig: "1.1.1 config",
 				libraryURL: "http://tempuri.org",
-				isLibraryStep: () => true
+				isLibraryStep: () => true,
+				isConfigured: () => true
 			};
 		});
 

@@ -47,9 +47,7 @@
 					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
 				}
 
-				console.log(step.defaultStepConfig);
 				if (!step.isConfigured()) {
-					console.log("HUJUJ", step.cvs);
 					logger.warn("Step is not configured", { id: step.id, version: step.version });
 				}
 			};
