@@ -3,7 +3,7 @@ import $, { selector } from '../elements';
 import { click, select, type } from '../common';
 
 afterEach(() => {
-  $(selector('Discard Button')).then(btn => {
+  $('Discard Button').then(btn => {
     if (!btn.is(':disabled')) {
       btn.click();
     }
