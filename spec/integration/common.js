@@ -1,5 +1,6 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
 import $, { selector } from "./elements";
+import { styleValueSelector } from "../styles";
 import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT');
@@ -76,6 +77,10 @@ Then('{string} should {string}', (element, expectation) => {
 });
 Then('{string} should contain {int} {string}', (element, expectation, childElement) => {
   $(element).find(selector(childElement)).should("have.length", expectation);
+});
+
+Then('{string} should have {string} {string} style', (element, cssValue, cssProperty) => {
+  $(element).should("have.css", cssProperty, styleValueSelector(cssValue));
 });
 
 Then('I save', save);

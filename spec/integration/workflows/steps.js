@@ -1,6 +1,5 @@
 import { Given, Then } from 'cypress-cucumber-preprocessor/steps';
 import $, { selector } from '../elements';
-import { styleValueSelector } from "./styles";
 import { click, select, type } from '../common';
 
 afterEach(() => {
@@ -26,6 +25,3 @@ Then('Workflow appeared with name {string}', (name) => {
   cy.get('.selected-workflow button.mak').contains(name);
 });
 
-Then('{string} should have {string} {string} style', (element, cssValue, cssProperty) => {
-  $(element).should("have.css", cssProperty, styleValueSelector(cssValue));
-});
