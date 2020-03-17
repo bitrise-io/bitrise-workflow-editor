@@ -55,7 +55,7 @@ window.mode = "<%= mode %>";
 		$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
 			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
 		});
-  });
+	});
 
 	BitriseWorkflowEditor
 		.constant('SERVICE_NAME', window.serviceName)
@@ -68,7 +68,7 @@ window.mode = "<%= mode %>";
 			$httpProvider.defaults.xsrfCookieName = "CSRF-TOKEN";
 			$httpProvider.defaults.xsrfHeaderName = "X-CSRF-TOKEN";
 		}
-  ]);
+	]);
 
   BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
 		return function(error) {
