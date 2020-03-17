@@ -86,3 +86,10 @@ Feature: Workflows
     When I click on "wf4 workflow name"
     Then "wf4 workflow description" should "be visible"
       And "wf4 steps container" should contain 2 "Add Step element"
+
+  Scenario: User selects the delete button of an after run Workflow
+    Given "wf3" workflow is selected
+    When I click on "first wf5 Remove button"
+    Then "Workflow Sections" should contain 4 "Workflow Section"
+      And I should see "wf5" in "First After Workflow Name"
+      And I should see "wf6" in "Last After Workflow Name"
