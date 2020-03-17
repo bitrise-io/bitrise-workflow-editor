@@ -10,5 +10,7 @@ _bin/
 .vscode
 
 node_modules
+spec/integration/cypress/videos
+spec/integration/cypress/screenshots
 .docker-sync
 .env
