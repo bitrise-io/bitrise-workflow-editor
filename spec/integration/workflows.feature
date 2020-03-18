@@ -17,13 +17,6 @@ Feature: Workflows
     Then "Workflow Add popup" should "not be visible"
       And Workflow appeared with name "Test"
 
-  Scenario: Delete Workflow
-    Given Workflow with name "ToBeDeleted"
-    When I click on "Delete Workflow Button"
-      And I confirm on "Default popup"
-    Then I should not see "ToBeDeleted" in "Selected Workflow Name"
-      And I should see "wf1" in "Selected Workflow Name"
-
   Scenario: User adds a before workflow
     When I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
@@ -66,7 +59,7 @@ Feature: Workflows
       And I should see "wf6" in "Last After Workflow Name"
       And "wf4 steps" should contain 1 "Step element"
       And "wf3 steps" should contain 3 "Step element"
-      And "wf5 steps" should contain 1 "Step element"
+      And "first wf5 steps" should contain 1 "Step element"
       And "wf6 steps" should contain 0 "Step element"
       And "Selected Workflow" should have "white" "background-color" style
     # And it has its stack displayed - WEBSITE MODE ONLY
@@ -74,9 +67,104 @@ Feature: Workflows
       And "wf3 steps container" should contain 4 "Add Step element"
       And "Workflow Sections" should have "grey" "background-color" style
       And "wf4 Remove button" should "be visible"
-      And "wf5 Remove button" should "be visible"
+      And "first wf5 Remove button" should "be visible"
       And "wf6 Remove button" should "be visible"
     # And they don't have their stack displayed  - WEBSITE MODE ONLY
       And "wf4 steps add step icons" should "not be visible"
-      And "wf5 steps add step icons" should "not be visible"
+      And "first wf5 steps add step icons" should "not be visible"
       And "wf6 steps container" should contain 1 "Add Step element"
+
+  Scenario: User selects a duplicate Workflow in the chain
+    Given "wf3" workflow is selected
+    When I click on "wf4 workflow name"
+    Then "wf4 workflow description" should "be visible"
+      And "wf4 steps container" should contain 2 "Add Step element"
+
+  Scenario: User selects the delete button of an after run Workflow
+    Given "wf3" workflow is selected
+    When I click on "first wf5 Remove button"
+    Then "Workflow Sections" should contain 4 "Workflow Section"
+      And I should see "wf5" in "First After Workflow Name"
+      And I should see "wf6" in "Last After Workflow Name"
+
+  Scenario: Delete Workflow
+    Given Workflow with name "ToBeDeleted"
+    When I click on "Delete Workflow Button"
+      And I confirm on "Default popup"
+    Then I should not see "ToBeDeleted" in "Selected Workflow Name"
+      And I should see "wf1" in "Selected Workflow Name"
+
+  Scenario: User opens the Delete Workflow
+    Given "wf3" workflow is selected
+    When I click on "Delete Workflow Button"
+    Then "Default popup" should "be visible"
+      And I should see "Are you sure you want to delete the wf3 workflow?" in "Default popup message"
+
+  Scenario: User confirms deleting a Workflow
+    Given "wf6" workflow is selected
+      And Delete popup is open
+    When I confirm on "Default popup"
+    Then "Default popup" should "not be visible"
+      And I click on "Selected Workflow Name"
+      And Workflow selector options should not contain "wf6"
+      And I click on "wf3 workflow"
+      And I should see "wf5" in "Last After Workflow Name"
+
+  Scenario: User cancels deleting a Workflow
+    Given "wf6" workflow is selected
+      And Delete popup is open
+    When I cancel on "Default popup"
+    Then "Default popup" should "not be visible"
+      And I click on "Selected Workflow Name"
+      And "wf6 workflow" should "be visible"
+      And I should see "wf6" in "Last After Workflow Name"
+
+  Scenario: User opens the Workflow dropdown
+    Given "wf3" workflow is selected
+    When I click on "Selected Workflow Name"
+    Then "wf1 workflow" should "be visible"
+      And "wf2 workflow" should "be visible"
+      And "wf3 workflow" should "be visible"
+      And "wf4 workflow" should "be visible"
+      And "wf5 workflow" should "be visible"
+      And "wf6 workflow" should "be visible"
+      And "wf3 workflow list element" should have "purple" "background-color" style
+      And "wf3 workflow list element" should contain 1 "svg"
+      And "wf3 workflow rename button" should "be visible"
+
+  Scenario: User selects a Workflow from the Workflow dropdown
+    Given the Workflow dropdown is open
+    When I click on "wf3 workflow"
+    Then I should see "wf3" in "Selected Workflow Name"
+
+  Scenario: User selects rename for a Workflow in the Workflow dropdown
+    Given "wf3" workflow is selected
+      And the Workflow dropdown is open
+    When I click on "wf3 workflow rename button"
+    Then "wf3 workflow rename field" should "be visible"
+      And "wf3 workflow rename field" should "be enabled"
+      And "wf3 workflow rename submit" should "be visible"
+      And "wf3 workflow rename submit" should "be enabled"
+
+  Scenario: User confirms renaming a Workflow in the Workflow dropdown
+    Given "wf3" workflow is selected
+      And the Workflow dropdown is open
+    When I click on "wf3 workflow rename button"
+      And I clear "wf3 workflow rename field"
+      And I type "my_new_wf_name" in "wf3 workflow rename field"
+      And I click on "wf3 workflow rename submit"
+    Then I should see "my_new_wf_name" in "Selected Workflow Name"
+      And "my_new_wf_name workflow rename submit" should "not be visible"
+      And "my_new_wf_name workflow rename submit" should "not be enabled"
+
+  Scenario: User leaves the Workflow dropdown by clicking outside of it
+    Given the Workflow dropdown is open
+    When I click on "Selected Workflow Name"
+      And I click away
+    Then "Workflow selector dropdown" should "not be visible"
+    When I click on "Selected Workflow Name"
+      And I press "ESC"
+    Then "Workflow selector dropdown" should "not be visible"
+    When I click on "Selected Workflow Name"
+      And I click on "Selected Workflow Name"
+    Then "Workflow selector dropdown" should "not be visible"

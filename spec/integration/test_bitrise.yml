@@ -167,6 +167,7 @@ workflows:
     - wf4
     after_run:
     - wf5
+    - wf5
     - wf6
     envs:
     - opts:

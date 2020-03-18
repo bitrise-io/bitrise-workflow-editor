@@ -1,5 +1,5 @@
 import { Given, Then } from 'cypress-cucumber-preprocessor/steps';
-import $ from '../elements';
+import $, { selector } from '../elements';
 import { click, select, type } from '../common';
 
 afterEach(() => {
@@ -21,7 +21,26 @@ Given('add workflow popup is open', () => {
   click('Add Workflow Button');
 });
 
+Given('Delete popup is open', () => {
+  click('Delete Workflow Button');
+});
+
+Given('the Workflow dropdown is open', () => {
+  click("Selected Workflow Name");
+});
+
+Given('{string} workflow is selected', (workflow) => {
+  click("Selected Workflow Name");
+  click(`${workflow} workflow`);
+});
+
 Then('Workflow appeared with name {string}', (name) => {
   cy.get('.selected-workflow button.mak').contains(name);
 });
 
+Then('Workflow selector options should not contain {string}', (workflow) => {
+  cy.get(selector("Workflow selector options")).then((el) => {
+    const exists = el.contents().map((_, wf) => wf.data).toArray().includes(workflow);
+    expect(exists).to.be.false
+  });
+});

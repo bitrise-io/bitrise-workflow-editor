@@ -1,12 +1,25 @@
 import { Given, When, Then } from "cypress-cucumber-preprocessor/steps";
 import $, { selector } from "./elements";
 import { styleValueSelector } from "./styles";
+import { typeKeySelector } from "./typeKeys";
 import { version } from '../../package.json';
 
 const PORT = Cypress.env('PORT');
 
 export const click = (element) => {
   $(element).click();
+};
+
+export const clickAway = () => {
+  click('main header');
+};
+
+export const clear = (element) => {
+  $(element).clear();
+};
+
+export const pressKey = (key) => {
+  $("body").type(typeKeySelector(key));
 };
 
 export const select = (value, element) => {
@@ -64,6 +77,9 @@ Given('editor is open', () => {
 });
 
 When('I click on {string}', click);
+When('I click away', clickAway);
+When('I clear {string}', clear);
+When('I press {string}', pressKey);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
 When('I confirm on {string}', popupConfirm);
