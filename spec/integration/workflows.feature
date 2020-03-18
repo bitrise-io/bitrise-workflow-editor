@@ -159,15 +159,12 @@ Feature: Workflows
 
   Scenario: User leaves the Workflow dropdown by clicking outside of it
     Given the Workflow dropdown is open
-    When I click away
-    Then "Workflow selector dropdown" should "not be visible"
-
-  Scenario: User leaves the Workflow dropdown by pressing the ESC key
-    Given the Workflow dropdown is open
-    When I press "ESC"
-    Then "Workflow selector dropdown" should "not be visible"
-
-  Scenario: User leaves the Workflow dropdown by selecting its opener button
-    Given the Workflow dropdown is open
     When I click on "Selected Workflow Name"
+      And I click away
+    Then "Workflow selector dropdown" should "not be visible"
+    When I click on "Selected Workflow Name"
+      And I press "ESC"
+    Then "Workflow selector dropdown" should "not be visible"
+    When I click on "Selected Workflow Name"
+      And I click on "Selected Workflow Name"
     Then "Workflow selector dropdown" should "not be visible"
