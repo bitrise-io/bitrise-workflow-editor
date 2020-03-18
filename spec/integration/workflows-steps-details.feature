@@ -23,7 +23,8 @@ Feature: Workflow steps details
     When I click on "Sixth step"
     And I click on "Step Title"
     Then "Step Title Edit Box" should "have value: Install Swiftlint 0.35"
-    When I type "my custom name" in "Step Title Edit Box"
+    When I clear "Step Title Edit Box"
+      And I type "my custom name" in "Step Title Edit Box"
       And I click on "Step Rename Confirm Button"
     Then I should see "my custom name" in "Step Title"
 
