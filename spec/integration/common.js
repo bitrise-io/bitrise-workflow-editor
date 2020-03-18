@@ -11,7 +11,7 @@ export const click = (element) => {
 };
 
 export const clickAway = () => {
-  $("main header").click();
+  click('main header');
 };
 
 export const clear = (element) => {
