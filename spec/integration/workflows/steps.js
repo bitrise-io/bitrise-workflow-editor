@@ -39,9 +39,8 @@ Then('Workflow appeared with name {string}', (name) => {
 });
 
 Then('Workflow selector options should not contain {string}', (workflow) => {
-  var exists = false;
   cy.get(selector("Workflow selector options")).then((el) => {
-    el.contents().map((_idx, wf) => { exists = exists || wf.data === workflow })
+    const exists = el.contents().map((_, wf) => wf.data).toArray().includes(workflow);
     expect(exists).to.be.false
   });
 });
