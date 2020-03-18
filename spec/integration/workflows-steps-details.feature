@@ -19,14 +19,15 @@ Feature: Workflow steps details
     When I click on "Third step"
     Then I should see "A local step" in "Step Title"
 
-  # Scenario: Step rename
-  #   When I click on "Sixth step"
-  #   And I click on "Step Title"
-  #   Then "Step Title Edit Box" should "have value: Install Swiftlint 0.35"
-  #   When I clear "Step Title Edit Box"
-  #     And I type "my custom name" in "Step Title Edit Box"
-  #     And I click on "Step Rename Confirm Button"
-  #   Then I should see "my custom name" in "Step Title"
+  Scenario: Step rename
+    When I click on "Sixth step"
+    And I click on "Step Title"
+    Then "Step Title Edit Box" should "have value: Install Swiftlint 0.35"
+    When I clear "Step Title Edit Box"
+      And I type "my custom name" in "Step Title Edit Box"
+      And I wait 300
+      And I click on "Step Rename Confirm Button"
+    Then I should see "my custom name" in "Step Title"
 
   Scenario: Version Downgrade
     When I click on "First step"
