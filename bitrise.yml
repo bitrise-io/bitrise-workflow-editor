@@ -396,8 +396,6 @@ workflows:
             #!/bin/bash
             set -ex
 
-            echo "aaa $ANALYTICS"
-
             echo
             echo "Create final binaries"
             echo "  Build number: $BITRISE_BUILD_NUMBER"

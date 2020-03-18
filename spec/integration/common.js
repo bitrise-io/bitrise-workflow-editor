@@ -23,7 +23,14 @@ export const pressKey = (key) => {
 };
 
 export const select = (value, element) => {
-  $(element).select(value);
+	$(element).then(elem => {
+		if (!elem.is('select')) {
+			click(element);
+			return click(value);
+		}
+
+		$(elem).select(value);
+	});
 };
 
 export const type = (text, element) => {
@@ -70,10 +77,11 @@ Given('editor is open', () => {
 
   cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 
-  cy.wait(['@steplib-steps', '@steplib-inputs']);
+	cy.wait(['@steplib-steps', '@steplib-inputs']);
+
   // // TODO: cypress does not support polling :(
   // // https://github.com/cypress-io/cypress/issues/3308
-  cy.wait(2000);
+  cy.wait(3000);
 });
 
 When('I click on {string}', click);
@@ -88,8 +96,14 @@ Then('I should see {string} in {string}', assertInputValueEQ);
 Then('I should not see {string} in {string}', assertNotInputValueNotEQ);
 
 Then('{string} should {string}', (element, expectation) => {
-  const cExpectation = expectation.replace(/\s/g, '.');
-  $(element).should(cExpectation);
+	let [shouldExpr, value] = expectation.split(':');
+	shouldExpr = shouldExpr.replace(/\s/g, '.');
+
+	if (value) {
+		return $(element).should(shouldExpr, value.trim());
+	}
+
+  $(element).should(shouldExpr);
 });
 Then('{string} should contain {int} {string}', (element, expectation, childElement) => {
   $(element).find(selector(childElement)).should("have.length", expectation);
