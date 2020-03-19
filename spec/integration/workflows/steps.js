@@ -29,11 +29,6 @@ Given('the Workflow dropdown is open', () => {
   click("Selected Workflow Name");
 });
 
-Given('{string} workflow is selected', (workflow) => {
-  click("Selected Workflow Name");
-  click(`${workflow} workflow`);
-});
-
 Then('Workflow appeared with name {string}', (name) => {
   cy.get('.selected-workflow button.mak').contains(name);
 });

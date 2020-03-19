@@ -7,30 +7,12 @@ Feature: Workflow Step details
     And it has a Step
     And the Step is selected
 
-  Scenario: Step does not have a title, but has ID
-    Given the Step does not have title set in its default config
-    And it does not have one set in bitrise.yml
-    But it has ID set
-    Then the ID will be displayed in the Step's entry
-    But the initial value when entering edit mode, will be empty
-
   Scenario: Step does not have a title, nor ID
     Given the Step does not have title set
     And it does not have one set in bitrise.yml
     And it does not have ID set
     Then the CVS will be displayed in the Step's entry
     But the initial value when entering edit mode, will be empty
-
-  Scenario Outline: Step with other custom properties
-    Given the Step has a default <property> in properties, in its default config
-    But a custom <property> is provided in properties, in bitrise.yml
-    Then the Step's custom <property> will be used instead of the default one
-
-    Examples:
-      | property              |
-      | summary               |
-      | description           |
-      | is always run         |
 
   Scenario: Verified Steps have the green badge displayed
     Given the Step is verified

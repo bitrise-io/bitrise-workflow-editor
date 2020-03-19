@@ -88,6 +88,11 @@ Given('editor is open', () => {
   cy.wait(3000);
 });
 
+Given('{string} workflow is selected', (workflow) => {
+  click("Selected Workflow Name");
+  click(`${workflow} workflow`);
+});
+
 When('I click on {string}', click);
 When('I click away', clickAway);
 When('I clear {string}', clear);
