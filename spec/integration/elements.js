@@ -1,6 +1,5 @@
-const workflowSelectElement = (workflowName) => {
-  return `.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`
-};
+const workflowSelectElement = (workflowName) => `.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
+const stepSelector = (index) => `.workflow.edited .step-actions:eq(${index - 1})`;
 
 export const elements = {
   "Add Workflow Button": ".add-workflow",
@@ -24,6 +23,11 @@ export const elements = {
 	"Step Title": ".selected-step .title .rename",
 	"Step Title Edit Box": ".selected-step .rename-title input",
 	"Step Rename Confirm Button": ".selected-step .rename-title button.ok",
+	"Step Description": ".step-details .description .markdown",
+	"Step Description Toggle": ".step-details .description .toggle-visibility",
+	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
+	"Step Verified Badge": ".selected-step .manage-step .title .verified svg",
+	"Step Community Badge": ".selected-step .manage-step .title .community-created svg",
   "Step Inputs": ".selected-step .inputs",
   "Step Versions": ".selected-step .version",
   "Step Version": ".selected-step .version__text",
@@ -31,13 +35,14 @@ export const elements = {
   "Step Version Success Icon": ".selected-step .icon-ok",
   "Step Latest Version Updater": ".selected-step .icon-danger",
 
-  "First step": ".workflow.edited .step-actions:eq(0)",
-  "First step name": ".workflow.edited .step-actions:eq(0) .info .title",
-  "First step version indicator": ".workflow.edited .step-actions:eq(0) em.version",
-  "Second step": ".workflow.edited .step-actions:eq(1)",
-	"Third step": ".workflow.edited .step-actions:eq(2)",
-	"Sixth step": ".workflow.edited .step-actions:eq(5)",
-	"Seventeenth step": ".workflow.edited .step-actions:eq(16)",
+	"First step": stepSelector(1),
+	"Second step": stepSelector(2),
+	"Third step": stepSelector(3),
+	"Fourth step": stepSelector(4),
+	"Sixth step": stepSelector(6),
+	"Seventeenth step": stepSelector(17),
+  "First step name": `${stepSelector(1)} .info .title`,
+  "First step version indicator": `${stepSelector(1)} em.version`,
 
   "Add Before Workflow button": ".add-before-run-workflow",
   "Add Before Workflow popup": "#add-run-workflow-popup-body",
@@ -85,17 +90,6 @@ export const elements = {
   "wf4 steps container": ".workflow:nth-child(1) ul.steps",
   "wf4 steps add step icons": ".workflow:nth-child(1) ul.steps .add-step",
 	"wf4 Remove button": ".workflow:nth-child(1) .header-info .remove",
-	"wf4 titleless step": ".workflow.edited ul.steps ul li:nth-child(2)",
-	"wf4 edited step title": ".selected-step .manage-step .title button",
-	"wf4 edited step verified badge": ".selected-step .manage-step .title .verified svg",
-	"wf4 edited step community-edited badge": ".selected-step .manage-step .title .community-created svg",
-	"wf4 edited step title in edit mode": ".selected-step .manage-step .rename-title input",
-	"wf4 edited step description": ".step-details .description .markdown",
-	"wf4 edited step description dropdown": ".step-details .description .toggle-visibility",
-	"wf4 edited step is_always_run": "#selected-step-is-always-run-checkbox",
-	"wf4 custom local step": ".workflow.edited ul.steps ul li:nth-child(3)",
-	"wf4 Script step": ".workflow.edited ul.steps ul li:first-child",
-	"wf4 Azure DevOps Status step": ".workflow.edited ul.steps ul li:nth-child(4)",
 
   "wf5 workflow": workflowSelectElement("wf5"),
   "first wf5 steps": ".workflow:nth-child(3) ul.steps ul",

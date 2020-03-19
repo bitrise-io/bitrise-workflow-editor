@@ -18,6 +18,11 @@ Feature: Workflow steps details
     Then I should see "Script" in "Step Title"
     When I click on "Third step"
     Then I should see "A local step" in "Step Title"
+    When I select "wf4 workflow" from "Workflow selector"
+        And I click on "Second step"
+    Then I should see "path::./spec/integration/fixture/titleless_step" in "Step Title"
+    When I click on "Step Title"
+    Then "Step Title Edit Box" should "be empty"
 
   Scenario: Step rename
     When I click on "Sixth step"
@@ -58,24 +63,17 @@ Feature: Workflow steps details
     When I select "4.x.x" from "Version selector"
     Then I should see "Version: 4.0.5" in "Step Versions"
 
-  Scenario: Step does not have a title, but has ID
-    Given "wf4" workflow is selected
-    When I click on "wf4 titleless step"
-    Then I should see "path::./spec/integration/fixture/titleless_step" in "wf4 edited step title"
-    When I click on "wf4 edited step title"
-    Then "wf4 edited step title in edit mode" should "be empty"
-
   Scenario: Step with other custom properties
     Given "wf4" workflow is selected
-    When I click on "wf4 custom local step"
-    Then I should see "A local step with overwritten summary" in "wf4 edited step description"
-      And "wf4 edited step is_always_run" should be switched "on"
-    When I click on "wf4 edited step description dropdown"
-    Then I should see "This local step has its description overwritten" in "wf4 edited step description"
+    When I click on "Third step"
+    Then I should see "A local step with overwritten summary" in "Step Description"
+      And "Step Always run indicator" should be switched "on"
+    When I click on "Step Description Toggle"
+    Then I should see "This local step has its description overwritten" in "Step Description"
 
-  # Scenario: Verified Steps have the green badge displayed
-  #   Given "wf4" workflow is selected
-  #   When I click on "wf4 Script step"
-  #   Then "wf4 edited step verified badge" should "be visible"
-  #   When I click on "wf4 Azure DevOps Status step"
-  #   Then "wf4 edited step community-edited badge" should "be visible"
+  Scenario: Verified Steps have the green badge displayed
+    Given "wf4" workflow is selected
+    When I click on "First step"
+    Then "Step Verified Badge" should "be visible"
+    When I click on "Fourth step"
+    Then "Step Community Badge" should "be visible"

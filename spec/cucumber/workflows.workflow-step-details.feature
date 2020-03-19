@@ -7,23 +7,6 @@ Feature: Workflow Step details
     And it has a Step
     And the Step is selected
 
-  Scenario: Step does not have a title, nor ID
-    Given the Step does not have title set
-    And it does not have one set in bitrise.yml
-    And it does not have ID set
-    Then the CVS will be displayed in the Step's entry
-    But the initial value when entering edit mode, will be empty
-
-  Scenario: Verified badges display their category in a tooltip on hover
-    Given the Step is verified
-    When User hovers the green verified badge
-    Then the phrase Verified shows up in a tooltip
-
-  Scenario: Community-created badges display their category in a tooltip on hover
-    Given the Step is community-created
-    When User hovers the green community-created badge
-    Then the phrase Community-created shows up in a tooltip
-
   Scenario: Deprecated Steps have the purple badge displayed
     Given the Step is deprecated
     Then the purple deprecated badge appears next to the Step's name
@@ -33,10 +16,12 @@ Feature: Workflow Step details
     When User hovers the green deprecated badge
     Then the phrase Deprecated shows up in a tooltip
 
+
   Scenario: User clones Step
     When User selects the clone button on the right
     Then a duplication of the Step (along with all its modified properties) is added to the Workflow, right after the original Step
     And the new Step gets selected
+
 
   Scenario: User visits the source code of a Step having one
     Given the Step has source code URL set
