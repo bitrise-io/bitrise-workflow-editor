@@ -30,12 +30,12 @@ Given('the Workflow dropdown is open', () => {
 });
 
 Then('Workflow appeared with name {string}', (name) => {
-  cy.get('.selected-workflow button.mak').contains(name);
+  $('.selected-workflow button.mak').contains(name);
 });
 
 Then('Workflow selector options should not contain {string}', (workflow) => {
-  cy.get(selector("Workflow selector options")).then((el) => {
+  $("Workflow selector options").then((el) => {
     const exists = el.contents().map((_, wf) => wf.data).toArray().includes(workflow);
-    expect(exists).to.be.false
+    expect(exists).to.be.false;
   });
 });

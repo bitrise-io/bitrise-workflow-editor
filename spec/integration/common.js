@@ -74,6 +74,17 @@ export const wait = (ms) => {
 	cy.wait(ms);
 };
 
+export const should = (element, expectation) => {
+	let [shouldExpr, value] = expectation.split(':');
+	shouldExpr = shouldExpr.replace(/\s/g, '.');
+
+	if (value) {
+		return $(element).should(shouldExpr, value.trim());
+	}
+
+  $(element).should(shouldExpr);
+};
+
 Given('editor is open', () => {
   cy.server()
     .route('POST', '/1/indexes/steplib_steps/browse**').as('steplib-steps')
@@ -104,17 +115,8 @@ When('I cancel on {string}', popupCancel);
 Then('I should see {string} in {string}', assertInputValueEQ);
 Then('I should not see {string} in {string}', assertNotInputValueNotEQ);
 Then('I wait {int}', wait);
+Then('{string} should {string}', should);
 
-Then('{string} should {string}', (element, expectation) => {
-	let [shouldExpr, value] = expectation.split(':');
-	shouldExpr = shouldExpr.replace(/\s/g, '.');
-
-	if (value) {
-		return $(element).should(shouldExpr, value.trim());
-	}
-
-  $(element).should(shouldExpr);
-});
 Then('{string} should contain {int} {string}', (element, expectation, childElement) => {
   $(element).find(selector(childElement)).should("have.length", expectation);
 });

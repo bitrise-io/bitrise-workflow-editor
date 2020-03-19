@@ -25,6 +25,7 @@ export const elements = {
 	"Step Rename Confirm Button": ".selected-step .rename-title button.ok",
 	"Step Description": ".step-details .description .markdown",
 	"Step Description Toggle": ".step-details .description .toggle-visibility",
+	"Step Delete Button": ".selected-step button.delete-step",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
 	"Step Verified Badge": ".selected-step .manage-step .title .verified svg",
 	"Step Community Badge": ".selected-step .manage-step .title .community-created svg",
@@ -35,6 +36,7 @@ export const elements = {
   "Step Version Success Icon": ".selected-step .icon-ok",
   "Step Latest Version Updater": ".selected-step .icon-danger",
 
+	"Steps": ".workflow.edited .step-actions",
 	"First step": stepSelector(1),
 	"Second step": stepSelector(2),
 	"Third step": stepSelector(3),

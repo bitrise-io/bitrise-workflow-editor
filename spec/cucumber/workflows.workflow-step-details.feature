@@ -16,7 +16,6 @@ Feature: Workflow Step details
     When User hovers the green deprecated badge
     Then the phrase Deprecated shows up in a tooltip
 
-
   Scenario: User clones Step
     When User selects the clone button on the right
     Then a duplication of the Step (along with all its modified properties) is added to the Workflow, right after the original Step
@@ -31,12 +30,6 @@ Feature: Workflow Step details
   Scenario: Step without source code
     Given the Step does not have source code URL set
     Then there will be no source code button on the right
-
-  Scenario: User deletes the Step
-    When User selects the delete button on the right
-    Then the Step gets removed from the Workflow
-    And there will be no selected Step
-    But the Workflow itself will remain selected in the chain
 
   Scenario: Step without description and summary
     Given the Step does not have description set

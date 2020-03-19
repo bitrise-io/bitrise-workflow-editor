@@ -77,3 +77,10 @@ Feature: Workflow steps details
     Then "Step Verified Badge" should "be visible"
     When I click on "Fourth step"
     Then "Step Community Badge" should "be visible"
+
+  Scenario: User deletes the Step
+    When I click on "First step"
+      And I click on "Step Delete Button"
+    Then I should not see "GitHub Status" in "First step"
+      And I should see "Script" in "First step"
+      And no step selected

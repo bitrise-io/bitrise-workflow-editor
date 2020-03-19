@@ -1,6 +1,6 @@
 import { Then } from "cypress-cucumber-preprocessor/steps";
 import $ from '../elements';
-import "../common";
+import "../common"
 
 afterEach(() => {
   $('Discard Button').then(btn => {
@@ -8,6 +8,12 @@ afterEach(() => {
       btn.click();
     }
   });
+});
+
+Then('no step selected', () => {
+	$("Steps").each($el => {
+		cy.wrap($el).should('not.have.class', 'selected');
+	});
 });
 
 Then("{string} should be switched {string}", (element, switchValue) => {
