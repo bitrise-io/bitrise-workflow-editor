@@ -14,18 +14,10 @@ Feature: Workflow Step details
     Then the CVS will be displayed in the Step's entry
     But the initial value when entering edit mode, will be empty
 
-  Scenario: Verified Steps have the green badge displayed
-    Given the Step is verified
-    Then the green verified badge appears next to the Step's name
-
   Scenario: Verified badges display their category in a tooltip on hover
     Given the Step is verified
     When User hovers the green verified badge
     Then the phrase Verified shows up in a tooltip
-
-  Scenario: Community-created Steps have the purple badge displayed
-    Given the Step is community-created
-    Then the purple community-created badge appears next to the Step's name
 
   Scenario: Community-created badges display their category in a tooltip on hover
     Given the Step is community-created

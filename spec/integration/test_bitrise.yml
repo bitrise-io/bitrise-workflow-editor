@@ -188,6 +188,7 @@ workflows:
         summary: A local step with overwritten summary
         description: This local step has its description overwritten
         is_always_run: true
+    - azure-devops-status@1: {}
   wf5:
     envs:
     - opts:
