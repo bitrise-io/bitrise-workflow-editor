@@ -107,18 +107,6 @@ Feature: Workflow Step details
     Given the Step is from a local path
     Then there will be no version section
 
-  Scenario: Step does not have the Run if previous Step failed setting
-    Given the Step does not have the is always run opt defined with any value
-    Then there will be no Run if previous Step failed section
-
-  Scenario: Step has the Run if previous Step failed setting set
-    Given the Step has the is always run opt defined with a value
-    Then the Run if previous Step failed section will be displayed, with a checkbox having the corresponding value
-
-  Scenario: User changes the Run if previous Step failed setting
-    Given the Step has the is always run opt defined with true value
-    When User toggles the Run if previous Step failed checkbox to false
-    Then the Step's is always run opt will be updated to false
 
   Scenario: Inputs section is not displayed if Step has no Inputs
     Given the Step has no Inputs

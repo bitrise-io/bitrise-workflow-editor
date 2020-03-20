@@ -15,11 +15,3 @@ Then('no step selected', () => {
 		cy.wrap($el).should('not.have.class', 'selected');
 	});
 });
-
-Then("{string} should be switched {string}", (element, switchValue) => {
-	if (switchValue === "on") {
-		$(element).should('have.class', 'ng-not-empty');
-	} else {
-		$(element).should('have.class', 'ng-empty');
-	}
-});

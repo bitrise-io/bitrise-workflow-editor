@@ -67,9 +67,15 @@ Feature: Workflow steps details
     Given "wf4" workflow is selected
     When I click on "Third step"
     Then I should see "A local step with overwritten summary" in "Step Description"
-      And "Step Always run indicator" should be switched "on"
+      And "Step Always run indicator" should "be checked"
     When I click on "Step Description Toggle"
     Then I should see "This local step has its description overwritten" in "Step Description"
+    Then I click on "Fourth step"
+      And "Step Always run indicator" should "not be checked"
+    When I check "Step Always run indicator"
+    Then "Discard Button" should "be enabled"
+    When I uncheck "Step Always run indicator"
+    Then "Discard Button" should "be disabled"
 
   Scenario: Verified Steps have the green badge displayed
     Given "wf4" workflow is selected

@@ -10,10 +10,10 @@
 		"build": "webpack --bail -p",
 		"build:prod": "NODE_ENV=prod npm run build",
 		"start:dev": "webpack-dev-server",
-		"start": "concurrently \"npm:start:dev\" \"gin --immediate --appPort=1234\"",
+		"start": "concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 1234\"",
 		"e2e:dev": "cypress open",
 		"e2e:run": "cypress run",
-		"e2e:api": "PORT=4000 ./_scripts/run_api.sh ./spec/integration/test_bitrise.yml",
+		"e2e:api": "./_scripts/run_api.sh",
 		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY\"",
 		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\""
 	},

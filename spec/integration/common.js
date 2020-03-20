@@ -37,6 +37,14 @@ export const type = (text, element) => {
   $(element).type(text, { force: true }).trigger('input');
 };
 
+export const toggleCheckbox = (element, checked) => {
+	if (checked) {
+		$(element).check();
+	} else {
+		$(element).uncheck();
+	}
+};
+
 export const popupButtonClick = (popup, buttonType) => {
   const popupButton = `${selector(popup)} [data-e2e-tag="${buttonType}-button"]`;
   click(popupButton);
@@ -110,6 +118,8 @@ When('I clear {string}', clear);
 When('I press {string}', pressKey);
 When('I select {string} from {string}', select);
 When('I type {string} in {string}', type);
+When('I check {string}', (element) => toggleCheckbox(element, true));
+When('I uncheck {string}', (element) => toggleCheckbox(element));
 When('I confirm on {string}', popupConfirm);
 When('I cancel on {string}', popupCancel);
 Then('I should see {string} in {string}', assertInputValueEQ);
