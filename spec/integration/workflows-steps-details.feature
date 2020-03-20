@@ -93,3 +93,7 @@ Feature: Workflow steps details
     Then I should not see "GitHub Status" in "First step"
       And I should see "Script" in "First step"
       And no step selected
+    When I click on "Second step"
+      And I click on "Step Delete Icon"
+    Then I should not see "Activate SSH key (RSA private key)" in "Second step"
+      And no step selected

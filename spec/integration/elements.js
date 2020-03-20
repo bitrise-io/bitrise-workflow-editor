@@ -3,7 +3,7 @@ const stepSelector = (index) => `.workflow.edited .step-actions:eq(${index - 1})
 const badgeSelector = (type) => `.selected-step .manage-step .title .${type} svg`;
 
 export const elements = {
-  "Add Workflow Button": ".add-workflow",
+"Add Workflow Button": ".add-workflow",
   "Base Workflow Dropdown": "#add-workflow-popup-based-on-select",
   "Workflow Name": "#add-workflow-popup-body input[type=text]",
   "Workflow Add Button": "input.rebo.big.purple[type=submit]",
@@ -27,6 +27,7 @@ export const elements = {
 	"Step Description": ".step-details .description .markdown",
 	"Step Description Toggle": ".step-details .description .toggle-visibility",
 	"Step Delete Button": ".selected-step button.delete-step",
+	"Step Delete Icon": ".selected-step button.delete",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
 	"Step Verified Badge": badgeSelector("verified"),
 	"Step Community Badge": badgeSelector("community-created"),
