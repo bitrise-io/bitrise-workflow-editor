@@ -63,7 +63,7 @@ Feature: Workflow steps details
     When I select "4.x.x" from "Version selector"
     Then I should see "Version: 4.0.5" in "Step Versions"
 
-  Scenario: Step with other custom properties
+  Scenario: Step with always run capabilities
     Given "wf4" workflow is selected
     When I click on "Third step"
     Then I should see "A local step with overwritten summary" in "Step Description"
