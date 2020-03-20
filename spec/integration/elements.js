@@ -1,5 +1,5 @@
 const workflowSelectElement = (workflowName) => `.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
-const stepSelector = (index) => `.workflow.edited .step-actions:eq(${index - 1})`;
+const stepSelector = (index) => `.workflow.edited .steps ul li:eq(${index - 1})`;
 const badgeSelector = (type) => `.selected-step .manage-step .title .${type} svg`;
 
 export const elements = {
@@ -39,7 +39,8 @@ export const elements = {
   "Step Version Success Icon": ".selected-step .icon-ok",
   "Step Latest Version Updater": ".selected-step .icon-danger",
 
-	"Steps": ".workflow.edited .step-actions",
+	"Steps": ".workflow.edited .steps ul li",
+	"Step Icons": ".workflow.edited .steps ul li .icon",
 	"First step": stepSelector(1),
 	"Second step": stepSelector(2),
 	"Third step": stepSelector(3),
@@ -126,8 +127,9 @@ export default (elementName) => {
 
   if (elementPosition) {
     expr = expr.replace(elementPosition.expression, '');
-    index = elementPosition.index;
+		index = elementPosition.index;
+		return cy.get(expr).eq(index);
   }
 
-  return cy.get(expr).eq(index);
+  return cy.get(expr);
 };

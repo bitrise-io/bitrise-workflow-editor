@@ -8,6 +8,9 @@ Feature: Workflows
   Scenario: Steps sidebar
     Then I should see "GitHub Status" in "First step"
       And I should see "Script" in "Second step"
+    When I click on "First step"
+    Then "First step" should "have class: selected"
+      And all the steps are loaded
 
   Scenario: User creates a Workflow
     When I click on "Add Workflow Button"

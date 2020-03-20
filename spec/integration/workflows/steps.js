@@ -1,6 +1,6 @@
 import { Given, Then } from 'cypress-cucumber-preprocessor/steps';
 import $, { selector } from '../elements';
-import { click, select, type } from '../common';
+import { click, select, type, clickAway } from '../common';
 
 afterEach(() => {
   $('Discard Button').then(btn => {
@@ -26,11 +26,17 @@ Given('Delete popup is open', () => {
 });
 
 Given('the Workflow dropdown is open', () => {
-  click("Selected Workflow Name");
+  click('Selected Workflow Name');
 });
 
 Then('Workflow appeared with name {string}', (name) => {
   $('.selected-workflow button.mak').contains(name);
+});
+
+Then('all the steps are loaded', () => {
+	$('Step Icons').each($el => {
+		cy.wrap($el).invoke('attr', 'src').should('not.contain', 'images/icon-default.svg');
+	});
 });
 
 Then('Workflow selector options should not contain {string}', (workflow) => {

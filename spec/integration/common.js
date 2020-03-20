@@ -83,11 +83,13 @@ export const wait = (ms) => {
 };
 
 export const should = (element, expectation) => {
-	let [shouldExpr, value] = expectation.split(':');
+	let [shouldExpr, ...values] = expectation.split(':');
+	const trimmedValues = values.map(val => val.trim());
+
 	shouldExpr = shouldExpr.replace(/\s/g, '.');
 
-	if (value) {
-		return $(element).should(shouldExpr, value.trim());
+	if (trimmedValues) {
+		return $(element).should(shouldExpr, ...trimmedValues);
 	}
 
   $(element).should(shouldExpr);
