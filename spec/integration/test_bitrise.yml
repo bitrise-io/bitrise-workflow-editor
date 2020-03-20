@@ -197,6 +197,7 @@ workflows:
       project: testproject
     steps:
     - script@1: {}
+    - xamarin-user-management: {}
   wf6:
     envs:
     - opts:

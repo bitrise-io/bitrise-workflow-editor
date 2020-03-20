@@ -1,5 +1,6 @@
 const workflowSelectElement = (workflowName) => `.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
 const stepSelector = (index) => `.workflow.edited .step-actions:eq(${index - 1})`;
+const badgeSelector = (type) => `.selected-step .manage-step .title .${type} svg`;
 
 export const elements = {
   "Add Workflow Button": ".add-workflow",
@@ -27,8 +28,9 @@ export const elements = {
 	"Step Description Toggle": ".step-details .description .toggle-visibility",
 	"Step Delete Button": ".selected-step button.delete-step",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
-	"Step Verified Badge": ".selected-step .manage-step .title .verified svg",
-	"Step Community Badge": ".selected-step .manage-step .title .community-created svg",
+	"Step Verified Badge": badgeSelector("verified"),
+	"Step Community Badge": badgeSelector("community-created"),
+	"Step Deprecation Badge": badgeSelector("deprecated"),
   "Step Inputs": ".selected-step .inputs",
   "Step Versions": ".selected-step .version",
   "Step Version": ".selected-step .version__text",

@@ -77,12 +77,15 @@ Feature: Workflow steps details
     When I uncheck "Step Always run indicator"
     Then "Discard Button" should "be disabled"
 
-  Scenario: Verified Steps have the green badge displayed
+  Scenario: Steps badges: community, verified, deprecation
     Given "wf4" workflow is selected
     When I click on "First step"
     Then "Step Verified Badge" should "be visible"
     When I click on "Fourth step"
     Then "Step Community Badge" should "be visible"
+    When I select "wf5 workflow" from "Workflow selector"
+      And I click on "Second step"
+    Then "Step Deprecation Badge" should "be visible"
 
   Scenario: User deletes the Step
     When I click on "First step"

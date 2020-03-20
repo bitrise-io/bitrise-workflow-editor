@@ -168,11 +168,10 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 				url: this.libraryURL
 			});
 
-			if (!library) {
-				return undefined;
-			}
+			var stepDeprecatedInLibrary = library && _.contains(library.deprecatedSteps, library.steps[this.id][this.version]);
+			var ownDeprecation = parameterGetterSetter(this, "is_deprecated");
 
-			return _.contains(library.deprecatedSteps, library.steps[this.id][this.version]);
+			return stepDeprecatedInLibrary || ownDeprecation;
 		};
 
 		Step.prototype.isLocal = function() {

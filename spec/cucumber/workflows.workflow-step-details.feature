@@ -7,10 +7,6 @@ Feature: Workflow Step details
     And it has a Step
     And the Step is selected
 
-  Scenario: Deprecated Steps have the purple badge displayed
-    Given the Step is deprecated
-    Then the purple deprecated badge appears next to the Step's name
-
   Scenario: Deprecated badges display their category in a tooltip on hover
     Given the Step is deprecated
     When User hovers the green deprecated badge
@@ -86,17 +82,6 @@ Feature: Workflow Step details
     And its version is not in the library
     Then the Invalid version message will appear
 
-  Scenario: User views versions of a Step from a library, in dropdown
-    Given the Step is specified as a part of a library
-    When User selects the dropdown
-    Then an entry for Always latest, and an entry for each version will be visible
-
-  Scenario: User selects a different version in the dropdown
-    Given the Step is on the latest version
-    When User selects an older version in the dropdown
-    Then the circle gets updated accordingly
-    And all the non-overwritten properties of the Step gets updated to that older version's
-    And the Step sidebar too (along with the update Step version bubble)
 
   Scenario: User views versions of a Step from a git URL, in dropdown
     Given the Step is specified with a git URL
