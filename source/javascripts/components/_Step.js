@@ -158,20 +158,7 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 		};
 
 		Step.prototype.isDeprecated = function() {
-			if (this.libraryURL === undefined) {
-				return undefined;
-			}
-
-			var stepSourceService = $injector.get("stepSourceService");
-
-			var library = _.find(stepSourceService.libraries, {
-				url: this.libraryURL
-			});
-
-			var stepDeprecatedInLibrary = library && _.contains(library.deprecatedSteps, library.steps[this.id][this.version]);
-			var ownDeprecation = parameterGetterSetter(this, "is_deprecated");
-
-			return stepDeprecatedInLibrary || ownDeprecation;
+			return parameterGetterSetter(this, "is_deprecated");
 		};
 
 		Step.prototype.isLocal = function() {
