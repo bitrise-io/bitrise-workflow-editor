@@ -5,7 +5,11 @@ angular
 	.constant("STRINGS_VERSION", {
 		versionText: "<%= data[:strings][:workflows][:steps][:version] %>",
 		branchText: "<%= data[:strings][:workflows][:steps][:branch] %>",
-		latestVersionText: "<%= data[:strings][:workflows][:steps][:latest_version] %>"
+		latestVersionText: "<%= data[:strings][:workflows][:steps][:latest_version] %>",
+		alwaysLatest: "<%= data[:strings][:workflows][:steps][:always_latest] %>",
+		exactVersionRemark: "<%= data[:strings][:workflows][:steps][:exact_version_remark] %>",
+		patchUpdatesRemark: "<%= data[:strings][:workflows][:steps][:patch_update_remark] %>",
+		minorUpdateRemarks: "<%= data[:strings][:workflows][:steps][:minor_update_remark] %>"
 	})
 	.filter("versionLabel", function() {
 		return function(label) {
@@ -26,22 +30,19 @@ angular
 		"semverService",
 		"stringService",
 		"versionLabelFilter",
-		function(semverService, stringService, versionLabelFilter) {
-			var exactVersionRemark = "<%= data[:strings][:workflows][:steps][:exact_version_remark] %>";
-			var patchUpdatesRemark = "<%= data[:strings][:workflows][:steps][:patch_update_remark] %>";
-			var minorUpdateRemarks = "<%= data[:strings][:workflows][:steps][:minor_update_remark] %>";
-
+		"STRINGS_VERSION",
+		function(semverService, stringService, versionLabelFilter, versionStrings) {
 			return function(step) {
 				var minorLocked = semverService.checkVersionPartsLocked(step.version, 2);
 				var patchLocked = semverService.checkVersionPartsLocked(step.version, 1);
 
 				if (minorLocked) {
-					return minorUpdateRemarks;
+					return versionStrings.minorUpdateRemarks;
 				} else if (patchLocked) {
-					return patchUpdatesRemark;
+					return versionStrings.patchUpdatesRemark;
 				}
 
-				return stringService.stringReplacedWithParameters(exactVersionRemark, {
+				return stringService.stringReplacedWithParameters(versionStrings.exactVersionRemark, {
 					version: versionLabelFilter(step.version)
 				});
 			};
@@ -66,19 +67,23 @@ angular
 			return reactCompat.cachedFn(stepService.versionsOfStep);
 		}
 	])
-	.filter("versionSelectorOptions", ["versionRemarkFilter", function(versionRemarkFilter) {
-		var result = {
-			strings: {
-				alwaysLatest: "<%= data[:strings][:workflows][:steps][:always_latest] %>"
-			}
-		};
+	.filter("versionSelectorOptions", [
+		"versionRemarkFilter",
+		"STRINGS_VERSION",
+		function(versionRemarkFilter, versionStrings) {
+			var result = {
+				strings: {
+					alwaysLatest: versionStrings.alwaysLatest
+				}
+			};
 
-		return function(step, versionUpdater) {
-			result.strings.versionRemark = versionRemarkFilter(step);
-			result.onUpdateVersion = versionUpdater;
-			return result;
-		};
-	}])
+			return function(step, versionUpdater) {
+				result.strings.versionRemark = versionRemarkFilter(step);
+				result.onUpdateVersion = versionUpdater;
+				return result;
+			};
+		}
+	])
 	.filter("versionInfoStrings", [
 		"stringService",
 		"stepSourceService",

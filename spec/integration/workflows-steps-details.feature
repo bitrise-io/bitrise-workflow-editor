@@ -34,13 +34,23 @@ Feature: Workflow steps details
       And I click on "Step Rename Confirm Button"
     Then I should see "my custom name" in "Step Title"
 
-  Scenario: Version Downgrade
+  Scenario: Step details check (versioning etc...)
+    Given "wf2" workflow is selected
+    When I click on "Second step"
+    Then "Step Versions" should "be visible"
+      And "Version selector" should "not be visible"
+    When I click on "Third step"
+    Then "Step Versions" should "not be visible"
+    When I click on "Sixth step"
+    Then "Step Versions" should "be visible"
+      And "Version selector" should "be visible"
+
+  Scenario: Version Update
     When I click on "First step"
-      And I select "1.0.x" from "Version selector"
-      And I confirm on "Alert popup"
-    Then "First step version indicator" should "be visible"
-      And I should see "Version: 1.0.4" in "Step Versions"
-      And "Step Latest Version Updater" should "be visible"
+      And I select "2.x.x" from "Version selector"
+    Then I should see "Version: 2.2.2" in "Step Versions"
+      And "Step Version Success Icon" should "be visible"
+      And "Save Button" should "not be disabled"
 
   Scenario: Version Update
     When I click on "First step"
