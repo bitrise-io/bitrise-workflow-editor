@@ -169,6 +169,10 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 			return !!this.libraryURL;
 		};
 
+		Step.prototype.isVCSStep = function() {
+			return !this.isLocal() && !this.isLibraryStep();
+		};
+
 		Step.prototype.requestedVersion = function() {
 			if (this.cvs.indexOf("@") == -1) {
 				return null;
