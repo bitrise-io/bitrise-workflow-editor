@@ -109,6 +109,7 @@ Then("{string} should {string}", (element, expectation) => {
 
 	$(element).should(shouldExpr);
 });
+Then("{string} should not exist", element => cy.get(element).should("not.exist"));
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
 	$(element)
 		.find(selector(childElement))
