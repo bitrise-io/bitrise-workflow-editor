@@ -11,7 +11,7 @@ export const click = (element) => {
 };
 
 export const clickAway = () => {
-  click('main header');
+  click('main header:eq(0)');
 };
 
 export const clear = (element) => {
