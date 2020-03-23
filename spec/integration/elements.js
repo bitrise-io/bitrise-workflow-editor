@@ -30,6 +30,21 @@ export const elements = {
 	"Version selector": "#selected-step-version-select",
 	"Step Version Success Icon": ".selected-step .icon-ok",
 	"Step Latest Version Updater": ".selected-step .icon-danger",
+	"First Step Input": ".selected-step .input:eq(0)",
+	"First Step Input Title": ".selected-step .input .input-info .title span:eq(0)",
+	"First Step Input Sensitive Badge": ".selected-step .input .input-info .sensitive:eq(0)",
+	"First Step Input Required Badge": ".selected-step .input .input-info .required:eq(0)",
+	"First Step Input Change Button": ".selected-step .input .input-change:eq(0)",
+	"First Step Input Clear Button": ".selected-step .input .clear-value:eq(0)",
+	"First Step Input Description": ".selected-step .input:eq(0) .input-description",
+	"First Step Input Insert Variable Button": ".selected-step .input .insert-variable:eq(0)",
+	"Insert Variable Popup": "#insert-variable-popup-body",
+	"Second Step Input Category": ".selected-step .input-category:eq(1)",
+	"Second Step Input Category Toggle Button": ".selected-step .input-category:eq(1) .toggle-category",
+	"Second Step Input Category Title": ".selected-step .input-category:eq(1) .category-name",
+	"Second Step Input Category Inputs": ".selected-step .input-category:eq(1) .inputs-list",
+	"Step Inputs Without Category": ".selected-step .inputs h3 + .input-category.open.main",
+	"Selected Input Textarea": ".input.selected textarea",
 
 	"First step": ".workflow.edited .step-actions:eq(0)",
 	"First step name": ".workflow.edited .step-actions:eq(0) .info .title",
@@ -110,16 +125,27 @@ const elementIndex = expression => {
 	);
 };
 
-export default elementName => {
-	let expr = selector(elementName);
-	let index = 0;
+const addressElementAt = (expression, pos) => {
+	const [rootEl, childEl] = expression.split(pos.expression);
 
-	const elementPosition = elementIndex(expr);
-
-	if (elementPosition) {
-		expr = expr.replace(elementPosition.expression, "");
-		index = elementPosition.index;
+	if (childEl) {
+		return cy
+			.get(rootEl)
+			.eq(pos.index)
+			.find(childEl);
 	}
 
-	return cy.get(expr).eq(index);
+	return cy.get(rootEl).eq(pos.index);
+};
+
+export default elementName => {
+	let expression = selector(elementName);
+
+	const elementPosition = elementIndex(expression);
+
+	if (elementPosition) {
+		return addressElementAt(expression, elementPosition);
+	}
+
+	return cy.get(expression);
 };
