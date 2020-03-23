@@ -38,9 +38,10 @@ export const elements = {
 	"Step Version": ".selected-step .version__text",
 	"Version selector": "#selected-step-version-select",
 	"Step Version Success Icon": ".selected-step .icon-ok",
+	"Step Version Danger Icon": ".selected-step .icon-danger",
 	"Step Latest Version Updater": ".selected-step .icon-danger",
 
-	Steps: ".workflow.edited .steps ul li",
+	"Steps": ".workflow.edited .steps ul li",
 	"Step Icons": ".workflow.edited .steps ul li .icon",
 	"First step": stepSelector(1),
 	"Second step": stepSelector(2),
@@ -50,6 +51,7 @@ export const elements = {
 	"Seventeenth step": stepSelector(17),
 	"First step name": `${stepSelector(1)} .info .title`,
 	"First step version indicator": `${stepSelector(1)} em.version`,
+	"Second step version updater": `${stepSelector(2)} div[data-e2e-tag="version-update"]`,
 
 	"Add Before Workflow button": ".add-before-run-workflow",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
@@ -122,17 +124,24 @@ const elementIndex = expression => {
 	);
 };
 
-export default elementName => {
-	let expr = selector(elementName);
-	let index = 0;
+const addressElementAt = (expression, pos) => {
+	const [ rootEl, childEl ] = expression.split(pos.expression);
 
-	const elementPosition = elementIndex(expr);
-
-	if (elementPosition) {
-		expr = expr.replace(elementPosition.expression, "");
-		index = elementPosition.index;
-		return cy.get(expr).eq(index);
+	if (childEl) {
+		return cy.get(rootEl).eq(pos.index).find(childEl);
 	}
 
-	return cy.get(expr);
+	return cy.get(rootEl).eq(pos.index);
+}
+
+export default elementName => {
+	let expression = selector(elementName);
+
+	const elementPosition = elementIndex(expression);
+
+	if (elementPosition) {
+		return addressElementAt(expression, elementPosition);
+	}
+
+	return cy.get(expression);
 };

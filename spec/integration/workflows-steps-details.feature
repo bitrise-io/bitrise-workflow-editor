@@ -45,17 +45,22 @@ Feature: Workflow steps details
     Then "Step Versions" should "be visible"
       And "Version selector" should "be visible"
 
-  Scenario: Version Update
+  Scenario: Version Downgrade
     When I click on "First step"
-      And I select "2.x.x" from "Version selector"
-    Then I should see "Version: 2.2.2" in "Step Versions"
-      And "Step Version Success Icon" should "be visible"
+      And I select "1.0.x" from "Version selector"
+      And I confirm on "Alert popup"
+      And "Step Version Danger Icon" should "be visible"
       And "Save Button" should "not be disabled"
+    Then "First step version indicator" should "be visible"
+      And I should see "Version: 1.0.4" in "Step Versions"
+      And "Step Latest Version Updater" should "be visible"
 
   Scenario: Version Update
-    When I click on "First step"
-      And I select "2.x.x" from "Version selector"
-    Then I should see "Version: 2.2.2" in "Step Versions"
+    When I click on "Second step"
+    Then I should see "Version: 1.1.5" in "Step Versions"
+      And I should see "1.1.5" in "Second step version updater"
+    When I select "1.x.x" from "Version selector"
+    Then I should see "Version: 1.1.6" in "Step Versions"
       And "Step Version Success Icon" should "be visible"
       And "Save Button" should "not be disabled"
 

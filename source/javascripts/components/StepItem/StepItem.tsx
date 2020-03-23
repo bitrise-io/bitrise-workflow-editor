@@ -40,7 +40,7 @@ const stepVersion = (step: Step, highlightVersionUpdate: boolean) =>
 	highlightVersionUpdate ? (
 		<Text>{step.version}</Text>
 	) : (
-		<Badge backgroundColor="red-3" color="white">
+		<Badge backgroundColor="red-3" color="white" data-e2e-tag="version-update">
 			<Icon name="ArrowUp" />
 			{step.version}
 		</Badge>
