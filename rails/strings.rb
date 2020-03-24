@@ -132,6 +132,7 @@ def strings
                     source_popover_info: "Source code",
                     delete: "Delete Step: <step_title>",
                     version: "Version: <version>",
+                    branch: "Branch: <version>",
                     always_latest: "Always latest",
                     latest_version: "Step\\'s latest version is: <latest_version>",
                     exact_version_remark: "Step version set to \\“<version>\\” in the <b>bitrise.yml</b> file",

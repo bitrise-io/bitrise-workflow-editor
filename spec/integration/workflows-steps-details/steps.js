@@ -8,3 +8,9 @@ afterEach(() => {
     }
   });
 });
+
+Then('no step selected', () => {
+	$("Steps").each($el => {
+		cy.wrap($el).should('not.have.class', 'selected');
+	});
+});

@@ -365,7 +365,6 @@
 
 				library.steps = {};
 				library.latestStepVersions = {};
-				library.deprecatedSteps = [];
 				_.each(stepIDs, function(aStepID) {
 					var stepData = steps[aStepID];
 					var latestVersion =
@@ -381,12 +380,6 @@
 
 						return step;
 					});
-
-					if (stepData.info !== undefined && stepData.info.deprecate_notes !== undefined) {
-						_.each(library.steps[aStepID], function(aStep) {
-							library.deprecatedSteps.push(aStep);
-						});
-					}
 				});
 
 				return library;
