@@ -20,7 +20,7 @@ Feature: Workflow steps details
     Then I should see "A local step" in "Step Title"
     When I select "wf4 workflow" from "Workflow selector"
         And I click on "Second step"
-    Then I should see "path::./spec/integration/fixture/titleless_step" in "Step Title"
+    Then I should see "path::./spec/integration/fixture/untitled_step" in "Step Title"
     When I click on "Step Title"
     Then "Step Title Edit Box" should "be empty"
 

@@ -183,7 +183,7 @@ workflows:
       project: testproject
     steps:
     - script@1: {}
-    - path::./spec/integration/fixture/titleless_step: {}
+    - path::./spec/integration/fixture/untitled_step: {}
     - path::./spec/integration/fixture/test_local_step:
         summary: A local step with overwritten summary
         description: This local step has its description overwritten
