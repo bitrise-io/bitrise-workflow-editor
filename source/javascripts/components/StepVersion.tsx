@@ -8,11 +8,13 @@ import stepLatestIcon from "../../images/step/latest.svg";
 import stepOutDatedIcon from "../../images/step/upgrade.svg";
 
 type VersionSelectorProps = {
+	step: Step;
 	versions: Array<string | null>;
 	selectedVersion: string;
 	onUpdateVersion: (version: string) => void;
 	strings: {
 		alwaysLatest: string;
+		versionRemark: string;
 	};
 };
 
@@ -28,35 +30,47 @@ type StepVersionInfoProps = {
 		versionText: string;
 		latestVersionText: string;
 		invalidVersionText: string;
-		versionRemark: string;
 	};
 };
 
 const html = (text: string) => ({ __html: text });
 
 const VersionSelector: FC<VersionSelectorProps> = ({
+	step,
 	versions,
 	selectedVersion,
 	onUpdateVersion,
 	strings
-}: VersionSelectorProps) => (
-	<select
-		id="selected-step-version-select"
-		value={selectedVersion}
-		onChange={({ target }) => {
-			onUpdateVersion(target.value);
-		}}
-	>
-		{versions.map(version => {
-			version = version || "";
-			return (
-				<option key={version} value={version} disabled={!semverService.checkVersionPartsLocked(version)}>
-					{version || strings.alwaysLatest}
-				</option>
-			);
-		})}
-	</select>
-);
+}: VersionSelectorProps) => {
+	if (!step.isLibraryStep()) {
+		return null;
+	}
+
+	return (
+		<div className="version-selector">
+			<Text
+				className={classNames("remark", { error: !step.isConfigured() })}
+				dangerouslySetInnerHTML={html(strings.versionRemark)}
+			/>
+			<select
+				id="selected-step-version-select"
+				value={selectedVersion}
+				onChange={({ target }) => {
+					onUpdateVersion(target.value);
+				}}
+			>
+				{versions.map(version => {
+					version = version || "";
+					return (
+						<option key={version} value={version} disabled={!semverService.checkVersionPartsLocked(version)}>
+							{version || strings.alwaysLatest}
+						</option>
+					);
+				})}
+			</select>
+		</div>
+	);
+};
 
 const StepVersion: FC<StepVersionInfoProps> = ({
 	step,
@@ -95,13 +109,7 @@ const StepVersion: FC<StepVersionInfoProps> = ({
 
 				{step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
 			</div>
-			<div className="version-selector">
-				<Text
-					className={classNames("remark", { error: !step.isConfigured() })}
-					dangerouslySetInnerHTML={html(strings.versionRemark)}
-				/>
-				<VersionSelector {...versionSelectorOpts} versions={versions} selectedVersion={selectedVersion} />
-			</div>
+			<VersionSelector {...versionSelectorOpts} step={step} versions={versions} selectedVersion={selectedVersion} />
 		</section>
 	);
 };
