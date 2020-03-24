@@ -60,7 +60,7 @@ func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 			return
 		}
 		if len(opts.Meta) > 0 {
-			meta := ymlToJSONKeyTypeConversion(opts.Meta)
+			meta := core.YmlToJSONKeyTypeConversion(opts.Meta)
 			casted, ok := meta.(map[string]interface{})
 			if ok {
 				opts.Meta = casted
@@ -75,26 +75,4 @@ func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RespondWithJSON(w, 200, envsSerializeModel)
-}
-
-func ymlToJSONKeyTypeConversion(i interface{}) interface{} {
-	switch x := i.(type) {
-	case map[string]interface{}:
-		m2 := map[string]interface{}{}
-		for k, v := range x {
-			m2[k] = ymlToJSONKeyTypeConversion(v)
-		}
-		return m2
-	case map[interface{}]interface{}:
-		m2 := map[string]interface{}{}
-		for k, v := range x {
-			m2[k.(string)] = ymlToJSONKeyTypeConversion(v)
-		}
-		return m2
-	case []interface{}:
-		for i, v := range x {
-			x[i] = ymlToJSONKeyTypeConversion(v)
-		}
-	}
-	return i
 }

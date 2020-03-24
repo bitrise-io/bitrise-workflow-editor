@@ -5,10 +5,6 @@ import (
 
 	"encoding/json"
 
-	"fmt"
-
-	"github.com/bitrise-io/depman/pathutil"
-	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 	core "github.com/bitrise-io/workflow-editor-core"
@@ -22,44 +18,6 @@ type PostSpecRequestBodyModel struct {
 // PostSpecResponseModel ...
 type PostSpecResponseModel struct {
 	LibraryMap map[string]stepmanModels.StepCollectionModel `json:"library_map,omitempty"`
-}
-
-func loadSpec(specPth string) (stepmanModels.StepCollectionModel, error) {
-	if exist, err := pathutil.IsPathExists(specPth); err != nil {
-		return stepmanModels.StepCollectionModel{}, fmt.Errorf("failed to check if spec exists at: %s, error: %s", specPth, err)
-	} else if !exist {
-		return stepmanModels.StepCollectionModel{}, fmt.Errorf("spec not exists at: %s", specPth)
-	}
-
-	specBytes, err := fileutil.ReadBytesFromFile(specPth)
-	if err != nil {
-		return stepmanModels.StepCollectionModel{}, fmt.Errorf("failed to read spec at: %s, error: %s", specPth, err)
-	}
-
-	var spec stepmanModels.StepCollectionModel
-	if err := json.Unmarshal(specBytes, &spec); err != nil {
-		return stepmanModels.StepCollectionModel{}, fmt.Errorf("failed to serialize spec, error: %s", err)
-	}
-
-	return spec, nil
-}
-
-func isLibrarySetup(libraryURI string, libraryInfos []stepmanModels.SteplibInfoModel) bool {
-	for _, libraryInfo := range libraryInfos {
-		if libraryInfo.URI == libraryURI {
-			return true
-		}
-	}
-	return false
-}
-
-func libraryInfo(URI string, infos []stepmanModels.SteplibInfoModel) (stepmanModels.SteplibInfoModel, bool) {
-	for _, info := range infos {
-		if info.URI == URI {
-			return info, true
-		}
-	}
-	return stepmanModels.SteplibInfoModel{}, false
 }
 
 // PostSpecHandler ...
@@ -89,7 +47,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 	shouldReloadLocalLibraryInfos := false
 
 	for _, libraryURI := range requestedLibraryURIs {
-		isSetup := isLibrarySetup(libraryURI, libraryInfos)
+		isSetup := core.IsLibrarySetup(libraryURI, libraryInfos)
 
 		if !isSetup {
 			if err := core.StepmanSetupLibrary(libraryURI); err != nil {
@@ -116,7 +74,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 	if len(requestedLibraryURIs) == 0 {
 		// If no library URI specified in the request, return all local library
 		for _, libraryInfo := range libraryInfos {
-			spec, err := loadSpec(libraryInfo.SpecPath)
+			spec, err := core.LoadSpec(libraryInfo.SpecPath)
 			if err != nil {
 				log.Errorf("Failed to load spec of library (%s), error: %s", libraryInfo.URI, err)
 				RespondWithJSONBadRequestErrorMessage(w, "Failed to load spec of library (%s), error: %s", libraryInfo.URI, err)
@@ -127,14 +85,14 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	} else {
 		for _, libraryURI := range requestedLibraryURIs {
-			info, found := libraryInfo(libraryURI, libraryInfos)
+			info, found := core.LibraryInfo(libraryURI, libraryInfos)
 			if !found {
 				log.Errorf("Failed to find info of library (%s), error: %s", libraryURI, err)
 				RespondWithJSONBadRequestErrorMessage(w, "Failed to find info of library (%s), error: %s", libraryURI, err)
 				return
 			}
 
-			spec, err := loadSpec(info.SpecPath)
+			spec, err := core.LoadSpec(info.SpecPath)
 			if err != nil {
 				log.Errorf("Failed to load spec of library (%s), error: %s", libraryURI, err)
 				RespondWithJSONBadRequestErrorMessage(w, "Failed to load spec of library (%s), error: %s", libraryURI, err)
