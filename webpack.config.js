@@ -20,7 +20,11 @@ const railsTransformer = mode => ({
 	options: {
 		script: `bundle exec ruby transformer.rb ${mode}`,
 		cwd: "./rails",
-		maxBuffer: Math.pow(1024, 3)
+		maxBuffer: Math.pow(1024, 3),
+		env: {
+			...process.env,
+			RELEASE_VERSION: version
+		}
 	}
 });
 
