@@ -1,6 +1,7 @@
-const workflowSelectElement = workflowName => {
-	return `.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
-};
+const workflowSelectElement = workflowName =>
+	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
+const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
+const badgeSelector = type => `.selected-step .manage-step .title .${type} svg`;
 
 export const elements = {
 	"Add Workflow Button": ".add-workflow",
@@ -24,6 +25,14 @@ export const elements = {
 	"Step Title": ".selected-step .title .rename",
 	"Step Title Edit Box": ".selected-step .rename-title input",
 	"Step Rename Confirm Button": ".selected-step .rename-title button.ok",
+	"Step Description": ".step-details .description .markdown",
+	"Step Description Toggle": ".step-details .description .toggle-visibility",
+	"Step Delete Button": ".selected-step button.delete-step",
+	"Step Delete Icon": ".selected-step button.delete",
+	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
+	"Step Verified Badge": badgeSelector("verified"),
+	"Step Community Badge": badgeSelector("community-created"),
+	"Step Deprecation Badge": badgeSelector("deprecated"),
 	"Step Inputs": ".selected-step .inputs",
 	"Step Versions": ".selected-step .version",
 	"Step Version": ".selected-step .version__text",
@@ -45,14 +54,20 @@ export const elements = {
 	"Second Step Input Category Inputs": ".selected-step .input-category:eq(1) .inputs-list",
 	"Step Inputs Without Category": ".selected-step .inputs h3 + .input-category.open.main",
 	"Selected Input Textarea": ".input.selected textarea",
+	"Step Version Danger Icon": ".selected-step .icon-danger",
+	"Step Latest Version Updater": ".selected-step .icon-danger",
 
-	"First step": ".workflow.edited .step-actions:eq(0)",
-	"First step name": ".workflow.edited .step-actions:eq(0) .info .title",
-	"First step version indicator": ".workflow.edited .step-actions:eq(0) em.version",
-	"Second step": ".workflow.edited .step-actions:eq(1)",
-	"Third step": ".workflow.edited .step-actions:eq(2)",
-	"Sixth step": ".workflow.edited .step-actions:eq(5)",
-	"Seventeenth step": ".workflow.edited .step-actions:eq(16)",
+	Steps: ".workflow.edited .steps ul li",
+	"Step Icons": ".workflow.edited .steps ul li .icon",
+	"First step": stepSelector(1),
+	"Second step": stepSelector(2),
+	"Third step": stepSelector(3),
+	"Fourth step": stepSelector(4),
+	"Sixth step": stepSelector(6),
+	"Seventeenth step": stepSelector(17),
+	"First step name": `${stepSelector(1)} .info .title`,
+	"First step version indicator": `${stepSelector(1)} em.version`,
+	"Second step version updater": `${stepSelector(2)} div[data-e2e-tag="version-update"]`,
 
 	"Add Before Workflow button": ".add-before-run-workflow",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
@@ -87,7 +102,6 @@ export const elements = {
 	"wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
 	"wf3 workflow rename field": `${workflowSelectElement("wf3")} .workflow-rename .name`,
 	"wf3 workflow rename submit": `${workflowSelectElement("wf3")} .workflow-rename .ok`,
-	"wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
 	"my_new_wf_name workflow rename field": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .name`,
 	"my_new_wf_name workflow rename submit": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .ok`,
 	"wf3 steps": ".workflow:nth-child(2) ul.steps ul",

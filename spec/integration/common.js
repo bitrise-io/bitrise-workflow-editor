@@ -39,6 +39,14 @@ export const type = (text, element) => {
 		.trigger("input");
 };
 
+export const toggleCheckbox = (element, checked) => {
+	if (checked) {
+		$(element).check();
+	} else {
+		$(element).uncheck();
+	}
+};
+
 export const popupButtonClick = (popup, buttonType) => {
 	const popupButton = `${selector(popup)} [data-e2e-tag="${buttonType}-button"]`;
 	click(popupButton);
@@ -72,6 +80,23 @@ export const save = () => {
 	});
 };
 
+export const wait = ms => {
+	cy.wait(ms);
+};
+
+export const should = (element, expectation) => {
+	let [shouldExpr, ...values] = expectation.split(":");
+	const trimmedValues = values.map(val => val.trim());
+
+	shouldExpr = shouldExpr.replace(/\s/g, ".");
+
+	if (trimmedValues) {
+		return $(element).should(shouldExpr, ...trimmedValues);
+	}
+
+	$(element).should(shouldExpr);
+};
+
 Given("editor is open", () => {
 	cy.server()
 		.route("POST", "/1/indexes/steplib_steps/browse**")
@@ -88,27 +113,25 @@ Given("editor is open", () => {
 	cy.wait(3000);
 });
 
+Given("{string} workflow is selected", workflow => {
+	click("Selected Workflow Name");
+	click(`${workflow} workflow`);
+});
+
 When("I click on {string}", click);
 When("I click away", clickAway);
 When("I clear {string}", clear);
 When("I press {string}", pressKey);
 When("I select {string} from {string}", select);
 When("I type {string} in {string}", type);
+When("I check {string}", element => toggleCheckbox(element, true));
+When("I uncheck {string}", element => toggleCheckbox(element));
 When("I confirm on {string}", popupConfirm);
 When("I cancel on {string}", popupCancel);
 Then("I should see {string} in {string}", assertInputValueEQ);
 Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
-
-Then("{string} should {string}", (element, expectation) => {
-	let [shouldExpr, value] = expectation.split(":");
-	shouldExpr = shouldExpr.replace(/\s/g, ".");
-
-	if (value) {
-		return $(element).should(shouldExpr, value.trim());
-	}
-
-	$(element).should(shouldExpr);
-});
+Then("I wait {int}", wait);
+Then("{string} should {string}", should);
 Then("{string} should not exist", element => cy.get(element).should("not.exist"));
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
 	$(element)
