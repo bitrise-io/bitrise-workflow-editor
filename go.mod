@@ -5,6 +5,7 @@ go 1.13
 require (
 	github.com/GeertJohan/go.rice v1.0.0
 	github.com/Sirupsen/logrus v1.4.2 // indirect
+	github.com/bitrise-io/api-utils v0.0.0-20200323161256-ee41834663a4
 	github.com/bitrise-io/bitrise v0.0.0-20200225155458-15535322dc65
 	github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 // indirect
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
@@ -14,11 +15,13 @@ require (
 	github.com/bitrise-io/gows v0.0.0-20190624113808-8cc2a6a92536 // indirect
 	github.com/bitrise-io/stepman v0.0.0-20200225151805-15ac97d3ea15
 	github.com/daaku/go.zipexe v1.0.1 // indirect
+	github.com/gofrs/uuid v3.2.0+incompatible
 	github.com/gorilla/mux v1.7.4
 	github.com/hashicorp/go-version v1.2.0 // indirect
 	github.com/konsorten/go-windows-terminal-sequences v1.0.2 // indirect
 	github.com/ryanuber/go-glob v1.0.0 // indirect
-	github.com/sirupsen/logrus v1.4.2 // indirect
+	github.com/satori/go.uuid v1.2.0
+	github.com/sirupsen/logrus v1.5.0 // indirect
 	github.com/spf13/cobra v0.0.6
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/stretchr/testify v1.5.1

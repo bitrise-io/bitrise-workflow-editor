@@ -1,7 +1,6 @@
 package service
 
 import (
-	"encoding/json"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -13,28 +12,6 @@ import (
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
 )
-
-func ymlToJSONKeyTypeConversion(i interface{}) interface{} {
-	switch x := i.(type) {
-	case map[string]interface{}:
-		m2 := map[string]interface{}{}
-		for k, v := range x {
-			m2[k] = ymlToJSONKeyTypeConversion(v)
-		}
-		return m2
-	case map[interface{}]interface{}:
-		m2 := map[string]interface{}{}
-		for k, v := range x {
-			m2[k.(string)] = ymlToJSONKeyTypeConversion(v)
-		}
-		return m2
-	case []interface{}:
-		for i, v := range x {
-			x[i] = ymlToJSONKeyTypeConversion(v)
-		}
-	}
-	return i
-}
 
 // GetSecretsAsJSONHandler ...
 func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
@@ -100,46 +77,24 @@ func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	RespondWithJSON(w, 200, envsSerializeModel)
 }
 
-// PostSecretsYMLFromJSONHandler ...
-func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
-	if r.Body == nil {
-		log.Errorf("Empty request body")
-		RespondWithJSONBadRequestErrorMessage(w, "Empty request body")
-		return
-	}
-
-	defer func() {
-		if err := r.Body.Close(); err != nil {
-			log.Errorf("Failed to close request body, error: %s", err)
+func ymlToJSONKeyTypeConversion(i interface{}) interface{} {
+	switch x := i.(type) {
+	case map[string]interface{}:
+		m2 := map[string]interface{}{}
+		for k, v := range x {
+			m2[k] = ymlToJSONKeyTypeConversion(v)
 		}
-	}()
-
-	var reqObj envmanModels.EnvsSerializeModel
-	if err := json.NewDecoder(r.Body).Decode(&reqObj); err != nil {
-		log.Errorf("Failed to read JSON input, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to read JSON input, error: %s", err)
-		return
+		return m2
+	case map[interface{}]interface{}:
+		m2 := map[string]interface{}{}
+		for k, v := range x {
+			m2[k.(string)] = ymlToJSONKeyTypeConversion(v)
+		}
+		return m2
+	case []interface{}:
+		for i, v := range x {
+			x[i] = ymlToJSONKeyTypeConversion(v)
+		}
 	}
-
-	contAsYAML, err := yaml.Marshal(reqObj)
-	if err != nil {
-		log.Errorf("Failed to serialize env model as YAML, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize env model as YAML, error: %s", err)
-		return
-	}
-
-	warnings, validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contAsYAML))
-	if validationErr != nil {
-		log.Errorf("Invalid secrets: %s", validationErr)
-		RespondWithJSONBadRequestErrorMessage(w, "Invalid secrets: %s", validationErr)
-		return
-	}
-
-	if err := fileutil.WriteBytesToFile(config.SecretsYMLPath.Get(), contAsYAML); err != nil {
-		log.Errorf("Failed to write content into file, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to write content into file, error: %s", err)
-		return
-	}
-
-	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
+	return i
 }

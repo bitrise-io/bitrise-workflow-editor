@@ -13,8 +13,7 @@ import (
 )
 
 func TestPostSpecHandler(t *testing.T) {
-	t.Log("empty request body")
-	{
+	t.Run("empty request body", func(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/spec", nil)
 		require.NoError(t, err)
 
@@ -26,10 +25,9 @@ func TestPostSpecHandler(t *testing.T) {
 
 		var response PostSpecResponseModel
 		require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &response))
-	}
+	})
 
-	t.Log("request for default steplib")
-	{
+	t.Run("request for default steplib", func(t *testing.T) {
 		defaultSteplib := "https://github.com/bitrise-io/bitrise-steplib.git"
 		require.NoError(t, tools.StepmanSetupLibrary(defaultSteplib))
 
@@ -57,5 +55,5 @@ func TestPostSpecHandler(t *testing.T) {
 
 		_, found := response.LibraryMap[defaultSteplib]
 		require.Equal(t, true, found)
-	}
+	})
 }

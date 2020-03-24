@@ -12,8 +12,7 @@ import (
 )
 
 func TestPostStepInfoHandler(t *testing.T) {
-	t.Log("invalid body - empty")
-	{
+	t.Run("invalid body - empty", func(t *testing.T) {
 		req, err := http.NewRequest("POST", "/api/step-info", nil)
 		require.NoError(t, err)
 
@@ -27,10 +26,9 @@ func TestPostStepInfoHandler(t *testing.T) {
 		require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &response))
 
 		require.Equal(t, "Empty body", response.ErrorMessage, rr.Body.String())
-	}
+	})
 
-	t.Log("invalid body - not a json")
-	{
+	t.Run("invalid body - not a json", func(t *testing.T) {
 		reader := strings.NewReader("not a json")
 		req, err := http.NewRequest("POST", "/api/step-info", reader)
 		require.NoError(t, err)
@@ -45,10 +43,9 @@ func TestPostStepInfoHandler(t *testing.T) {
 		require.NoError(t, json.Unmarshal(rr.Body.Bytes(), &response))
 
 		require.Equal(t, "Failed to read request body, error: invalid character 'o' in literal null (expecting 'u')", response.ErrorMessage, rr.Body.String())
-	}
+	})
 
-	t.Log("library step")
-	{
+	t.Run("library step", func(t *testing.T) {
 		body := PostStepInfoRequestBodyModel{
 			Library: "https://github.com/bitrise-io/bitrise-steplib.git",
 			ID:      "apk-info",
@@ -74,10 +71,9 @@ func TestPostStepInfoHandler(t *testing.T) {
 		require.Equal(t, stepInfo.ID, body.ID)
 		require.Equal(t, stepInfo.Version, body.Version)
 		require.Equal(t, stepInfo.Library, body.Library)
-	}
+	})
 
-	t.Log("local step")
-	{
+	t.Run("local step", func(t *testing.T) {
 		body := PostStepInfoRequestBodyModel{
 			Library: "path",
 			ID:      "./test-step",
@@ -103,10 +99,9 @@ func TestPostStepInfoHandler(t *testing.T) {
 		require.Equal(t, stepInfo.ID, body.ID)
 		require.Equal(t, stepInfo.Version, body.Version)
 		require.Equal(t, stepInfo.Library, body.Library)
-	}
+	})
 
-	t.Log("git step")
-	{
+	t.Run("git step", func(t *testing.T) {
 		body := PostStepInfoRequestBodyModel{
 			Library: "git",
 			ID:      "https://github.com/bitrise-steplib/steps-xamarin-user-management.git",
@@ -132,5 +127,5 @@ func TestPostStepInfoHandler(t *testing.T) {
 		require.Equal(t, stepInfo.ID, body.ID)
 		require.Equal(t, stepInfo.Version, body.Version)
 		require.Equal(t, stepInfo.Library, body.Library)
-	}
+	})
 }
