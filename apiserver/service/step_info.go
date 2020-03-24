@@ -4,8 +4,8 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/tools"
 	"github.com/bitrise-io/go-utils/log"
+	core "github.com/bitrise-io/workflow-editor-core"
 )
 
 // PostStepInfoRequestBodyModel ...
@@ -31,7 +31,7 @@ func PostStepInfoHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	stepInfo, err := tools.StepmanStepInfo(requestBody.Library, requestBody.ID, requestBody.Version)
+	stepInfo, err := core.StepmanStepInfo(requestBody.Library, requestBody.ID, requestBody.Version)
 	if err != nil {
 		log.Errorf(err.Error())
 		RespondWithJSONBadRequestErrorMessage(w, err.Error())

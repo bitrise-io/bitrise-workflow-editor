@@ -6,10 +6,10 @@ import (
 
 	"github.com/bitrise-io/api-utils/httprequest"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/bitrise/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	core "github.com/bitrise-io/workflow-editor-core"
 	"gopkg.in/yaml.v2"
 )
 
@@ -41,7 +41,7 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	warnings, validationErr := utility.ValidateBitriseConfigAndSecret(string(contAsYAML), config.MinimalValidSecrets)
+	warnings, validationErr := core.ValidateBitriseConfigAndSecret(string(contAsYAML), config.MinimalValidSecrets)
 	if validationErr != nil {
 		log.Errorf("Validation error: %s", validationErr)
 		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(string(contAsYAML), validationErr.Error()))
@@ -54,5 +54,5 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
+	RespondWithJSON(w, 200, core.ValidationResponse{Warnings: warnings})
 }

@@ -7,11 +7,11 @@ import (
 
 	"fmt"
 
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/tools"
 	"github.com/bitrise-io/depman/pathutil"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	stepmanModels "github.com/bitrise-io/stepman/models"
+	core "github.com/bitrise-io/workflow-editor-core"
 )
 
 // PostSpecRequestBodyModel ...
@@ -79,7 +79,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	// Ensure requested libraries are setup locally
-	libraryInfos, err := tools.StepmanLocalLibraryInfos()
+	libraryInfos, err := core.StepmanLocalLibraryInfos()
 	if err != nil {
 		log.Errorf(err.Error())
 		RespondWithJSONBadRequestErrorMessage(w, err.Error())
@@ -92,7 +92,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 		isSetup := isLibrarySetup(libraryURI, libraryInfos)
 
 		if !isSetup {
-			if err := tools.StepmanSetupLibrary(libraryURI); err != nil {
+			if err := core.StepmanSetupLibrary(libraryURI); err != nil {
 				log.Errorf("Failed to setup library (%s), error: %s", libraryURI, err)
 				RespondWithJSONBadRequestErrorMessage(w, "Failed to setup library (%s), error: %s", libraryURI, err)
 				return
@@ -102,7 +102,7 @@ func PostSpecHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	if shouldReloadLocalLibraryInfos {
-		libraryInfos, err = tools.StepmanLocalLibraryInfos()
+		libraryInfos, err = core.StepmanLocalLibraryInfos()
 		if err != nil {
 			log.Errorf(err.Error())
 			RespondWithJSONBadRequestErrorMessage(w, err.Error())

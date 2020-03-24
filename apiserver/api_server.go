@@ -8,9 +8,9 @@ import (
 	"runtime"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/bitrise-workflow-editor/version"
 	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/envutil"
 	"github.com/bitrise-io/go-utils/log"
 )
 
@@ -45,17 +45,17 @@ func LaunchServer() error {
 
 	log.Printf("Starting API server at http://localhost:%s", port)
 
-	isServeFilesThroughMiddlemanServer := (utility.EnvString("USE_DEV_SERVER", "false") == "true")
+	isServeFilesThroughMiddlemanServer := (envutil.GetenvWithDefault("USE_DEV_SERVER", "false") == "true")
 	if isServeFilesThroughMiddlemanServer {
 		log.Printf(" (!) Serving non api resources through middleman server!")
 	}
 
-	if err := config.BitriseYMLPath.Set(utility.EnvString("BITRISE_CONFIG", "bitrise.yml")); err != nil {
+	if err := config.BitriseYMLPath.Set(envutil.GetenvWithDefault("BITRISE_CONFIG", "bitrise.yml")); err != nil {
 		return fmt.Errorf("Failed to set bitriseYMLPath, error: %s", err)
 	}
 	config.BitriseYMLPath.Freeze()
 
-	if err := config.SecretsYMLPath.Set(utility.EnvString("BITRISE_SECRETS", ".bitrise.secrets.yml")); err != nil {
+	if err := config.SecretsYMLPath.Set(envutil.GetenvWithDefault("BITRISE_SECRETS", ".bitrise.secrets.yml")); err != nil {
 		return fmt.Errorf("Failed to set secretsYMLPath, error: %s", err)
 	}
 	config.SecretsYMLPath.Freeze()

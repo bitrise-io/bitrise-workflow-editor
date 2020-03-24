@@ -5,10 +5,10 @@ import (
 	"net/http"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	core "github.com/bitrise-io/workflow-editor-core"
 	"gopkg.in/yaml.v2"
 )
 
@@ -40,7 +40,7 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	warnings, validationErr := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contAsYAML))
+	warnings, validationErr := core.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contAsYAML))
 	if validationErr != nil {
 		log.Errorf("Invalid secrets: %s", validationErr)
 		RespondWithJSONBadRequestErrorMessage(w, "Invalid secrets: %s", validationErr)
@@ -53,5 +53,5 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
+	RespondWithJSON(w, 200, core.ValidationResponse{Warnings: warnings})
 }

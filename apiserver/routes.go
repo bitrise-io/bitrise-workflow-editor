@@ -7,11 +7,11 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/GeertJohan/go.rice"
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/service"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/bitrise-workflow-editor/version"
+	"github.com/bitrise-io/go-utils/envutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/gorilla/mux"
 )
@@ -39,8 +39,8 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
-		frontendServerHost := utility.EnvString("DEV_SERVER_HOST", config.DefaultFrontendHost)
-		frontendServerPort := utility.EnvString("DEV_SERVER_PORT", config.DefaultFrontendPort)
+		frontendServerHost := envutil.GetenvWithDefault("DEV_SERVER_HOST", config.DefaultFrontendHost)
+		frontendServerPort := envutil.GetenvWithDefault("DEV_SERVER_PORT", config.DefaultFrontendPort)
 
 		log.Printf("Starting reverse proxy for frontend => http://%s:%s", frontendServerHost, frontendServerPort)
 

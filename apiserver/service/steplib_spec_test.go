@@ -8,7 +8,7 @@ import (
 
 	"encoding/json"
 
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/tools"
+	core "github.com/bitrise-io/workflow-editor-core"
 	"github.com/stretchr/testify/require"
 )
 
@@ -29,7 +29,7 @@ func TestPostSpecHandler(t *testing.T) {
 
 	t.Run("request for default steplib", func(t *testing.T) {
 		defaultSteplib := "https://github.com/bitrise-io/bitrise-steplib.git"
-		require.NoError(t, tools.StepmanSetupLibrary(defaultSteplib))
+		require.NoError(t, core.StepmanSetupLibrary(defaultSteplib))
 
 		body := PostSpecRequestBodyModel{
 			Libraries: []string{defaultSteplib},

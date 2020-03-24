@@ -4,9 +4,9 @@ import (
 	"net/http"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	core "github.com/bitrise-io/workflow-editor-core"
 )
 
 // GetBitriseYMLHandler ...
@@ -18,7 +18,7 @@ func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := utility.ValidateBitriseConfigAndSecret(contStr, config.MinimalValidSecrets); err != nil {
+	if _, err := core.ValidateBitriseConfigAndSecret(contStr, config.MinimalValidSecrets); err != nil {
 		log.Errorf("Validation error: %s", err)
 		RespondWithJSON(w, http.StatusBadRequest, NewErrorResponseWithConfig(contStr, err.Error()))
 		return

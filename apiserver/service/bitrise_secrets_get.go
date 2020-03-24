@@ -6,11 +6,11 @@ import (
 	"gopkg.in/yaml.v2"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
-	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
 	"github.com/bitrise-io/go-utils/pathutil"
+	core "github.com/bitrise-io/workflow-editor-core"
 )
 
 // GetSecretsAsJSONHandler ...
@@ -33,7 +33,7 @@ func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if _, err := utility.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contBytes)); err != nil {
+	if _, err := core.ValidateBitriseConfigAndSecret(config.MinimalValidBitriseYML, string(contBytes)); err != nil {
 		log.Errorf("Validation error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Invalid secrets: %s", err)
 		return
