@@ -132,7 +132,6 @@ Then("I should see {string} in {string}", assertInputValueEQ);
 Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);
 Then("{string} should {string}", should);
-Then("{string} should not exist", element => cy.get(element).should("not.exist"));
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
 	$(element)
 		.find(selector(childElement))
