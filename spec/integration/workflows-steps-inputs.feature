@@ -19,33 +19,34 @@ Feature: Workflow steps inputs
 
   Scenario: Inputs with categories get wrapped into expandable container
     When I click on "Second step"
-    Then I should see "Config" in "Second Step Input Category Title"
-    When I click on "Second Step Input Category"
-    Then "Second Step Input Category Inputs" should "be visible"
+    Then I should see "Config" in "Selected Step Second Input Category Title"
+    When I click on "Selected Step Second Input Category"
+    Then "Selected Step Second Input Category Inputs" should "be visible"
 
   Scenario: Expanding and Closing Input categories' container
     When I click on "Second step"
-    Then I should see "Config" in "Second Step Input Category Title"
-    When I click on "Second Step Input Category"
-    Then "Second Step Input Category Inputs" should "be visible"
-    When I click on "Second Step Input Category Toggle Button"
-    Then "Second Step Input Category Inputs" should "not be visible"
+    Then I should see "Config" in "Selected Step Second Input Category Title"
+    When I click on "Selected Step Second Input Category"
+    Then "Selected Step Second Input Category Inputs" should "be visible"
+    When I click on "Selected Step Second Input Category Toggle Button"
+    Then "Selected Step Second Input Category Inputs" should "not be visible"
 
   Scenario: A changeable Input
     When I click on "First step"
-    And I click on "First Step Input"
-    Then "First Step Input Insert Variable Button" should "be visible"
-    When I click on "First Step Input Insert Variable Button"
+    And I click on "Selected Step First Input"
+    Then "Selected Step First Input Insert Variable Button" should "be visible"
+    When I click on "Selected Step First Input Insert Variable Button"
     Then "Insert Variable Popup" should "be visible"
 
+  @focus
   Scenario: Input in non-edit mode
     When I click on "First step"
-    Then "First Step Input Change Button" should "be visible"
-  # And "First Step Input Description" should "be visible" # Fails locally
+    Then "Selected Step First Input Change Button" should "be visible"
+    And "Selected Step First Input Description" should "be visible"
 
   Scenario: User changes Input text value
     When I click on "Second step"
-    And I click on "First Step Input"
+    And I click on "Selected Step First Input"
     And I click on "Selected Input Textarea"
     And I clear "Selected Input Textarea"
     And I type "whatever" in "Selected Input Textarea"
@@ -53,26 +54,26 @@ Feature: Workflow steps inputs
 
   Scenario: Sensitive Input
     When I click on "First step"
-    Then I should see "GitHub auth token" in "First Step Input Title"
-    Then "First Step Input Sensitive Badge" should "be visible"
-    And I click on "First Step Input"
-    Then "First Step Input Clear Button" should "be visible"
+    Then I should see "GitHub auth token" in "Selected Step First Input Title"
+    Then "Selected Step First Input Sensitive Badge" should "be visible"
+    And I click on "Selected Step First Input"
+    Then "Selected Step First Input Clear Button" should "be visible"
 
   Scenario: Clearing the sensitive Input's value
     When I click on "First step"
-    And I click on "First Step Input"
-    When I click on "First Step Input Clear Button"
+    And I click on "Selected Step First Input"
+    When I click on "Selected Step First Input Clear Button"
     Then "Selected Input Textarea" should "be empty"
-    Then "First Step Input Clear Button" should not exist
+    Then "Selected Step First Input Clear Button" should not exist
 
   Scenario: Required Input
     When I click on "First step"
-    Then I should see "GitHub auth token" in "First Step Input Title"
-    Then "First Step Input Required Badge" should "be visible"
+    Then I should see "GitHub auth token" in "Selected Step First Input Title"
+    Then "Selected Step First Input Required Badge" should "be visible"
 
   Scenario: Empty required Input
     When I click on "First step"
-    Then I should see "GitHub auth token" in "First Step Input Title"
-    And I click on "First Step Input"
+    Then I should see "GitHub auth token" in "Selected Step First Input Title"
+    And I click on "Selected Step First Input"
     Then "Selected Input Textarea" should "be empty"
 # Then "Selected Input Textarea" should have "purple" "border-color" style
