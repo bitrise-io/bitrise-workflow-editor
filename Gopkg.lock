@@ -244,6 +244,14 @@
   revision = "53403b58ad1b561927d19068c655246f2db79d48"
   version = "v2.2.8"
 
+[[projects]]
+  branch = "v3"
+  digest = "1:55d59c3399c684c4e3edc6c404e5dc85b072363918bf2a2c6b0e6e4807ea73bf"
+  name = "gopkg.in/yaml.v3"
+  packages = ["."]
+  pruneopts = "UT"
+  revision = "9f266ea9e77c4c7aab4cf02650570e7c7b3031a5"
+
 [solve-meta]
   analyzer-name = "dep"
   analyzer-version = 1
@@ -264,6 +272,7 @@
     "github.com/spf13/cobra",
     "github.com/stretchr/testify/require",
     "gopkg.in/yaml.v2",
+    "gopkg.in/yaml.v3",
   ]
   solver-name = "gps-cdcl"
   solver-version = 1
