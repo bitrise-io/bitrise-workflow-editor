@@ -44,7 +44,6 @@ export const elements = {
 	"Selected Step First Input Sensitive Badge": ".selected-step .input .input-info .sensitive:eq(0)",
 	"Selected Step First Input Required Badge": ".selected-step .input .input-info .required:eq(0)",
 	"Selected Step First Input Change Button": ".selected-step .input .input-change:eq(0)",
-	"Selected Step First Input Clear Button": ".selected-step .input .clear-value:eq(0)",
 	"Selected Step First Input Description": ".selected-step .input:eq(0) .input-description",
 	"Selected Step First Input Insert Variable Button": ".selected-step .input .insert-variable:eq(0)",
 	"Insert Variable Popup": "#insert-variable-popup-body",
@@ -53,7 +52,9 @@ export const elements = {
 	"Selected Step Second Input Category Title": ".selected-step .input-category:eq(1) .category-name",
 	"Selected Step Second Input Category Inputs": ".selected-step .input-category:eq(1) .inputs-list",
 	"Step Inputs Without Category": ".selected-step .inputs h3 + .input-category.open.main",
+	"Selected Input": ".input.selected",
 	"Selected Input Textarea": ".input.selected textarea",
+	"Selected Input Clear Button": ".input.selected .clear-value",
 	"Step Version Danger Icon": ".selected-step .icon-danger",
 	"Step Latest Version Updater": ".selected-step .icon-danger",
 

@@ -38,15 +38,14 @@ Feature: Workflow steps inputs
     When I click on "Selected Step First Input Insert Variable Button"
     Then "Insert Variable Popup" should "be visible"
 
-  @focus
   Scenario: Input in non-edit mode
     When I click on "First step"
     Then "Selected Step First Input Change Button" should "be visible"
-    And "Selected Step First Input Description" should "be visible"
 
   Scenario: User changes Input text value
     When I click on "Second step"
     And I click on "Selected Step First Input"
+    Then "Selected Step First Input Description" should "be visible"
     And I click on "Selected Input Textarea"
     And I clear "Selected Input Textarea"
     And I type "whatever" in "Selected Input Textarea"
@@ -57,14 +56,14 @@ Feature: Workflow steps inputs
     Then I should see "GitHub auth token" in "Selected Step First Input Title"
     Then "Selected Step First Input Sensitive Badge" should "be visible"
     And I click on "Selected Step First Input"
-    Then "Selected Step First Input Clear Button" should "be visible"
+    Then "Selected Input Clear Button" should "be visible"
 
   Scenario: Clearing the sensitive Input's value
     When I click on "First step"
     And I click on "Selected Step First Input"
-    When I click on "Selected Step First Input Clear Button"
+    When I click on "Selected Input Clear Button"
     Then "Selected Input Textarea" should "be empty"
-    Then "Selected Step First Input Clear Button" should not exist
+    Then "Selected Input Clear Button" should "not exist"
 
   Scenario: Required Input
     When I click on "First step"
@@ -75,5 +74,6 @@ Feature: Workflow steps inputs
     When I click on "First step"
     Then I should see "GitHub auth token" in "Selected Step First Input Title"
     And I click on "Selected Step First Input"
+    And I click on "Selected Input Clear Button"
     Then "Selected Input Textarea" should "be empty"
-# Then "Selected Input Textarea" should have "purple" "border-color" style
+    Then "Selected Input Textarea" should have "purple" "border-color" style
