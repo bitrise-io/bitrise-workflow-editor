@@ -34,8 +34,8 @@ Feature: Workflow steps inputs
   Scenario: A changeable Input
     When I click on "First step"
     And I click on "Selected Step First Input"
-    Then "Selected Step First Input Insert Variable Button" should "be visible"
-    When I click on "Selected Step First Input Insert Variable Button"
+    Then "Selected Input Insert Variable Button" should "be visible"
+    When I click on "Selected Input Insert Variable Button"
     Then "Insert Variable Popup" should "be visible"
 
   Scenario: Input in non-edit mode
