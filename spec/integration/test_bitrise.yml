@@ -21,6 +21,9 @@ workflows:
     - TEST: test
       opts:
         is_expand: false
+    meta:
+      bitrise.io:
+        stack: osx-xcode-11.3.x
     steps:
     - github-status@2.2.2:
         inputs:
@@ -38,6 +41,10 @@ workflows:
 
             # write your script here
             git config --global user.name "Bitrise"
+          opts:
+            meta:
+              bitrise.io:
+                stack: osx-xcode-11.3.x
     - activate-ssh-key: {}
     - certificate-and-profile-installer@1.10.2: {}
     - authenticate-host-with-netrc@0.9.4:
