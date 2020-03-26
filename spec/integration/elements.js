@@ -38,10 +38,27 @@ export const elements = {
 	"Step Version": ".selected-step .version__text",
 	"Version selector": "#selected-step-version-select",
 	"Step Version Success Icon": ".selected-step .icon-ok",
+	"Step Latest Version Updater": ".selected-step .icon-danger",
+	"Selected Step First Input": ".selected-step .input:eq(0)",
+	"Selected Step First Input Title": ".selected-step .input .input-info .title span:eq(0)",
+	"Selected Step First Input Sensitive Badge": ".selected-step .input .input-info .sensitive:eq(0)",
+	"Selected Step First Input Required Badge": ".selected-step .input .input-info .required:eq(0)",
+	"Selected Step First Input Change Button": ".selected-step .input .input-change:eq(0)",
+	"Selected Step First Input Description": ".selected-step .input:eq(0) .input-description",
+	"Insert Variable Popup": "#insert-variable-popup-body",
+	"Selected Step Second Input Category": ".selected-step .input-category:eq(1)",
+	"Selected Step Second Input Category Toggle Button": ".selected-step .input-category:eq(1) .toggle-category",
+	"Selected Step Second Input Category Title": ".selected-step .input-category:eq(1) .category-name",
+	"Selected Step Second Input Category Inputs": ".selected-step .input-category:eq(1) .inputs-list",
+	"Step Inputs Without Category": ".selected-step .inputs h3 + .input-category.open.main",
+	"Selected Input": ".input.selected",
+	"Selected Input Textarea": ".input.selected textarea",
+	"Selected Input Insert Variable Button": ".input.selected .insert-variable",
+	"Selected Input Clear Button": ".input.selected .clear-value",
 	"Step Version Danger Icon": ".selected-step .icon-danger",
 	"Step Latest Version Updater": ".selected-step .icon-danger",
 
-	"Steps": ".workflow.edited .steps ul li",
+	Steps: ".workflow.edited .steps ul li",
 	"Step Icons": ".workflow.edited .steps ul li .icon",
 	"First step": stepSelector(1),
 	"Second step": stepSelector(2),
@@ -86,7 +103,6 @@ export const elements = {
 	"wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
 	"wf3 workflow rename field": `${workflowSelectElement("wf3")} .workflow-rename .name`,
 	"wf3 workflow rename submit": `${workflowSelectElement("wf3")} .workflow-rename .ok`,
-	"wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
 	"my_new_wf_name workflow rename field": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .name`,
 	"my_new_wf_name workflow rename submit": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .ok`,
 	"wf3 steps": ".workflow:nth-child(2) ul.steps ul",
@@ -125,14 +141,17 @@ const elementIndex = expression => {
 };
 
 const addressElementAt = (expression, pos) => {
-	const [ rootEl, childEl ] = expression.split(pos.expression);
+	const [rootEl, childEl] = expression.split(pos.expression);
 
 	if (childEl) {
-		return cy.get(rootEl).eq(pos.index).find(childEl);
+		return cy
+			.get(rootEl)
+			.eq(pos.index)
+			.find(childEl);
 	}
 
 	return cy.get(rootEl).eq(pos.index);
-}
+};
 
 export default elementName => {
 	let expression = selector(elementName);
