@@ -68,12 +68,8 @@ Feature: Workflow steps inputs
   Scenario: Required Input
     When I click on "First step"
     Then I should see "GitHub auth token" in "Selected Step First Input Title"
-    Then "Selected Step First Input Required Badge" should "be visible"
-
-  Scenario: Empty required Input
-    When I click on "First step"
-    Then I should see "GitHub auth token" in "Selected Step First Input Title"
-    And I click on "Selected Step First Input"
+    And "Selected Step First Input Required Badge" should "be visible"
+    When I click on "Selected Step First Input"
     And I click on "Selected Input Clear Button"
     Then "Selected Input Textarea" should "be empty"
-    Then "Selected Input Textarea" should have "purple" "border-color" style
+    And "Selected Input Textarea" should have "purple" "border-color" style
