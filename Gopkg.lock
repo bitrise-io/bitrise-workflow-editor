@@ -13,16 +13,16 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:04457f9f6f3ffc5fea48e71d62f2ca256637dee0a04d710288e27e05c8b41976"
+  digest = "1:0599141a8403114d34f1e546604ad6c5361b70dfa80e80c635f438cdbf71b43a"
   name = "github.com/Sirupsen/logrus"
   packages = ["."]
   pruneopts = "UT"
-  revision = "839c75faf7f98a33d445d181f3018b5c3409a45e"
-  version = "v1.4.2"
+  revision = "d417be0fe654de640a82370515129985b407c7e3"
+  version = "v1.5.0"
 
 [[projects]]
   branch = "master"
-  digest = "1:9f1a9e5079504f9d94656784c4d300e7fd058ca7781f17eba18ddc895310056c"
+  digest = "1:7535af380259a23dc89715ed7ed4d70841c8e909f15701294e1da520aac44bad"
   name = "github.com/bitrise-io/bitrise"
   packages = [
     "bitrise",
@@ -39,7 +39,7 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "15535322dc6592a3168d16ec97b8d3fc658bd939"
+  revision = "1ca1a1fd2abe593dad3a2d194409757d4560f772"
 
 [[projects]]
   branch = "master"
@@ -108,7 +108,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:c41616c1bb09acdb2f9cf9c65bd2b78a55f9d3ab04526e1b77703ed156581ee3"
+  digest = "1:788ac82fc0eb106579eeef4e3ba0cb23644561b712b01338bc4805ca82feac37"
   name = "github.com/bitrise-io/stepman"
   packages = [
     "cli",
@@ -117,7 +117,7 @@
     "version",
   ]
   pruneopts = "UT"
-  revision = "15ac97d3ea158d6bf4ee951927de5df145c78ead"
+  revision = "32658664414b6aee27ea23d6848026a2fb0b490e"
 
 [[projects]]
   digest = "1:8e8da6cc8cca12851d4e089d970a0f7387b3a6bcc8c459ff432213b03076a66d"
@@ -184,12 +184,12 @@
   version = "v1.0.0"
 
 [[projects]]
-  digest = "1:6a13467c76490975b05609344b3d882a9185fd11a44a04ede7427d684e0819b9"
+  digest = "1:1e80255eea46af2e2db7da90f95e4b5cfe84f3b58d9a8598ec35b0f2a75c60e4"
   name = "github.com/spf13/cobra"
   packages = ["."]
   pruneopts = "UT"
-  revision = "0da06874266c88228b8f14615396a1f6bfc90ed7"
-  version = "v0.0.6"
+  revision = "6607e6b8603f56adb027298ee6695e06ffb3a819"
+  version = "0.0.7"
 
 [[projects]]
   digest = "1:524b71991fc7d9246cc7dc2d9e0886ccb97648091c63e30eef619e6862c955dd"
@@ -223,18 +223,18 @@
   name = "golang.org/x/crypto"
   packages = ["ssh/terminal"]
   pruneopts = "UT"
-  revision = "2aa609cf4a9d7d1126360de73b55b6002f9e052a"
+  revision = "0ec3e9974c59449edd84298612e9f16fa13368e8"
 
 [[projects]]
   branch = "master"
-  digest = "1:e6f3eca022d18ff28112534a46d8bad7400b1523724061dff2d1bfc737bee376"
+  digest = "1:444c6b6bf2d8aa38e4810ef1d5ac556f2c5038cd328ee5c0f5c348e77804864b"
   name = "golang.org/x/sys"
   packages = [
     "unix",
     "windows",
   ]
   pruneopts = "UT"
-  revision = "d5e6a3e2c0ae16fc7480523ebcb7fd4dd3215489"
+  revision = "9dae0f8f577553e0f21298e18926efc9644c281d"
 
 [[projects]]
   digest = "1:55b110c99c5fdc4f14930747326acce56b52cfce60b24b1c03ef686ac0e46bb1"
