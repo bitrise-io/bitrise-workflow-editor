@@ -54,7 +54,7 @@ import jsyaml from "js-yaml";
 					error.message = errorMessagePrefix += error.message;
 				}
 
-				logger.error(error.message, error);
+				logger.error(error);
 
 				return error;
 			}

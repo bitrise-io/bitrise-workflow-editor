@@ -10,7 +10,7 @@ export interface Logger {
 	debug(message: string, ctx?: any): void;
 	info(message: string, ctx?: any): void;
 	warn(message: string, ctx?: any): void;
-	error(message: string, ctx?: any): void;
+	error(error: Error, ctx?: any): void;
 	setTags(ctx: Context): void;
 }
 
@@ -60,7 +60,12 @@ class DataDogLoggerService implements Logger {
 		this.logger.warn(message, ctx);
 	};
 
-	error = (message: string, ctx?: Context) => {
+	error = (error: Error, ctx?: Context) => {
+		if (!error) {
+			return;
+		}
+
+		const message = `${error.message}\n${error.stack || 'No stack'}`;
 		this.logger.error(message, ctx);
 	};
 }

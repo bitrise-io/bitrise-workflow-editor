@@ -75,7 +75,7 @@ angular.module("BitriseWorkflowEditor").service(
 					})
 					.then(convertSteps)
 					.catch(function(err: Error) {
-						logger.error(err.message, err);
+						logger.error(err);
 						return $q.reject(err);
 					});
 			},
@@ -93,7 +93,7 @@ angular.module("BitriseWorkflowEditor").service(
 					.then(convertSteps)
 					.then((stepObj: { [stepId: string]: StepVersion }) => stepObj[stepId])
 					.catch((err: Error) => {
-						logger.error(err.message, err);
+						logger.error(err);
 						return $q.reject(err);
 					});
 			},
@@ -118,7 +118,7 @@ angular.module("BitriseWorkflowEditor").service(
 					})
 					.then(convertSteps)
 					.catch(function(err: Error) {
-						logger.error(err.message, err);
+						logger.error(err);
 						return $q.reject(err);
 					});
 			}

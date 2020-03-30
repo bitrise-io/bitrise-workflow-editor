@@ -277,7 +277,7 @@ describe("stepSourceService", function() {
 			expect(versions).toBeNull();
 
 			const error = new Error("Library not found for step");
-			expect(mockLogger.error).toHaveBeenCalledWith(error.message, error);
+			expect(mockLogger.error).toHaveBeenCalledWith(error);
 		});
 
 		it("should use existing step versions in the library to calculate wildcard ones", () => {

@@ -137,7 +137,7 @@
 						return step.isLocal() ? null : [step.version];
 					}
 				} catch (err) {
-					logger.error(err.message, err);
+					logger.error(err);
 					return null;
 				}
 
@@ -229,7 +229,7 @@
 										if (requestService.mode == "cli") {
 											reject(_error);
 										} else {
-											logger.error(_error.message, _error);
+											logger.error(_error);
 
 											resolve(null);
 										}
@@ -243,7 +243,7 @@
 				});
 
 				if (error) {
-					logger.error(error.message, error);
+					logger.error(error);
 					return $q.reject(error);
 				}
 
@@ -339,7 +339,7 @@
 						return $q.when();
 					}
 				} catch (error) {
-					logger.error(error.message, error);
+					logger.error(error);
 					return $q.reject(error);
 				}
 
@@ -427,13 +427,13 @@
 
 									resolve();
 								} catch (error) {
-									logger.error(error.message, error);
+									logger.error(error);
 									reject(new Error("<%= data[:strings][:step_source_service][:load_library][:default_error] %>"));
 								}
 							});
 						},
 						function(error) {
-							logger.error(error.message, error);
+							logger.error(error);
 							reject(error);
 						}
 					);
