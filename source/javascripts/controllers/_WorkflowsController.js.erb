@@ -201,13 +201,13 @@ import { safeDigest } from "../services/react-compat";
 											resolve();
 										},
 										function(error) {
-											logger.error(error.message, error);
+											logger.error(error);
 
 											resolve();
 										}
 									);
 								} catch (error) {
-									logger.error(error.message, error);
+									logger.error(error);
 									reject(error);
 								}
 							},
@@ -221,7 +221,7 @@ import { safeDigest } from "../services/react-compat";
 					},
 					function(error) {
 						viewModel.workflows = undefined;
-						logger.error(error.message, error);
+						logger.error(error);
 						viewModel.loadWorkflowsProgress.error(
 							new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>")
 						);

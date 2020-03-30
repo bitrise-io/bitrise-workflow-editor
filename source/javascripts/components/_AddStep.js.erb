@@ -217,7 +217,7 @@ import { safeDigest } from "../services/react-compat";
 						viewModel.typeFilters = [];
 
 						$q.all(loadPromises).then(parseStepsInfo, function(error) {
-							logger.error(error.message, error);
+							logger.error(error);
 							viewModel.loadProgress.error(error);
 						});
 					} else {
@@ -375,7 +375,7 @@ import { safeDigest } from "../services/react-compat";
 							safeDigest($scope);
 						})
 						.catch(function(error) {
-							logger.error(error.message, error);
+							logger.error(error);
 							viewModel.loadProgress.error(error);
 						});
 				} else {
