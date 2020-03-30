@@ -43,7 +43,8 @@ describe("DataDogLoggerService", () => {
 			testServiceName,
 			jasmine.objectContaining({
 				handler: "http",
-				level: "warn"
+				level: "warn",
+				level: "info"
 			})
 		);
 	});

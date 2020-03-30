@@ -13,7 +13,8 @@ angular
 			return loggerFactory({
 				name: serviceName,
 				isAnalyticsOn: isAnalyticsOn,
-				clientToken: token
+				clientToken: token,
+				level: "info"
 			});
 		}
 	])
