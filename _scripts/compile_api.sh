@@ -10,8 +10,9 @@ function assetst_precompile {
     mkdir -p $DIST
     cp -rf ./build/* $DIST
 
-    cd ./apiserver
-    rice embed-go
+    pushd ./apiserver
+        rice embed-go
+    popd
 }
 
 function compile_bin {
@@ -28,7 +29,7 @@ function compile_bin {
         -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
         -o "$BIN_PATH_DARWIN"
 
-    cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+    # cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
     echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
 
 
@@ -41,11 +42,10 @@ function compile_bin {
         -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
         -o "$BIN_PATH_LINUX"
 
-    cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
+    # cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
     echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
 }
 
-echo
 echo "Create final binaries"
 echo "  Package version: $NPM_PACKAGE_VERSION"
 echo "  Build number: $BITRISE_BUILD_NUMBER"
