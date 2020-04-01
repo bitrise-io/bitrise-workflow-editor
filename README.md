@@ -2,6 +2,8 @@
 
 # Bitrise Workflow Editor
 
+> **Note: project is going through angularjs -> React transition. Please read more about this in the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).**
+
 ## How to install & use the Workflow Editor on your Mac/Linux
 
 1. Install [Go](https://golang.org) `brew install go`(on macOS)
@@ -26,11 +28,8 @@ Workflow editor uses webpack for static asset compilation and asset bundling. Fo
 
 Finally the local executable is written in GO. so you need to have go set up as well and dependencies.
 
-Something like this:
-
 ```bash
-bundle install
-npm install
+bitrise run setup-client
 ```
 
 ## Development
@@ -44,14 +43,11 @@ bitrise run go-install
 ### Run in development mode
 
 ```bash
-npm start          # start both local api and dev server
-
-bitrise run up-api # start local api in dev mode
-npm run start:dev  # start service in dev mode (webpack build server)
+npm start          # start both local plugin api and webpack dev server
 ```
 
 1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until dev server starts up.
-1. By default, the Workflow Editor will open the bitrise.yml and .bitrise.secrets.yml found in this folder. For testing purposes, you probably want to be able to edit custom files. This can be achieved by setting the `TEST_BITRISE_CONFIG_PATH` and `TEST_BITRISE_SECRETS_PATH` environment variables with the path pointing to the custom files' paths.
+1. By default, the Workflow Editor will open the `test_bitrise.yml` from integration folder (used for integration testing). Please do not commit this file if you have any changes with it (e2e tests would fail).
 
 ### Run client tests
 
@@ -70,25 +66,32 @@ npm run e2e     # for self contained e2e tests (local binary api + testing logic
 Use `npm test` for a single test run.
 If you only iterate on tests, you can also use `npm run karma` as it skips transpilation and the transpilation and run the tests on an already transpiled JS. (faster)
 
+### Releasing
+
+Every master commit is gonna released to S3 and Bitrise will integrate it with the website manually (CD is planned when test coverage and confidence is increasing with the editor). If you wanna do a plugin release as well you need to tag the PRs with `#plugin` wherever in the PR title (like: "new feature #plugin".
+
 # Contributing
 
 This project is using squash & merge model, feel free to have as many commits as you like but at the end the work will end up on master as a single commit.
 
-**IMPORTANT** Please make sure every commit on the master is released, there are no expections. Someone from bitrise should be able to assist with that!
-If you are planning to break down the tasks into multiple master commits (aka milestones) please use a long-living feature branch and fork that to create additional branches.
+## Tech standards
+
+1. Every new feature has to be created in typescript and React (see [wiki](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/React-from-angularjs-best-practices) for integration guides).
+1. If you touch legacy code, consider porting it to new standards or if that's not possible use ES5 syntax! There are no transpilation for legacy codes (only minification).
+1. For tests you are safe to use whatever standards jsdom executes (ES6 supported).
+1. Use SCSS for styling (try to use local components style if possible)
+
+## Testing standards
+
+1. Unit tests are required for every new feature
+1. Consider write E2E tests as well (with cucumber and cypress)
+
 
 ## New version release
 
-- Generate a GitHub personal access token for your user with `repo` access (one who has rights to create releases on the repository) - you can generate one here: https://github.com/settings/tokens
-  ![](https://user-images.githubusercontent.com/15610939/75050804-0361ee80-54cd-11ea-85c6-0c89974051b7.png)
-- Generate a Discuss API key or use the common key for _All Users_.
-  You need to be a Discourse admin for this, then you can generate an API key for yourself at: https://discuss.bitrise.io/admin/api/keys
-- Make sure you're on the latest `master`
-- If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` change `min_version` requirement of the `bitrise` tool to the required CLI version
-- Optional: set the following secrets: $GITHUB_RELEASE_API_TOKEN, $GITHUB_USERNAME, $DISCUSS_API_KEY, $DISCUSS_USERNAME
-- Call `bitrise run create-release`
-- During the build you will need to specify a new version number, and if you did not specify any of the secrets above, you will need to specify those as well.
-- After the build has finished, close the related GitHub issues, and milestones if the issues were assigned to any.
+Every master commit is released to an S3 bucket and Bitrise will integrate it with the website manually (CD is planned when test coverage and confidence is increasing with the editor). If you wanna do a plugin release as well you need to tag the PRs with `#plugin` wherever in the PR title (like: "new feature #plugin".
+
+If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` change `min_version` requirement of the `bitrise` tool to the required CLI version
 
 ## Testing if version release works, without actually releasing
 
@@ -97,11 +100,3 @@ If you are planning to break down the tasks into multiple master commits (aka mi
 - In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
 - In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
 - After the test release process, don't forget to delete the draft release and the internal changelog topic.
-
-## Contribution guide
-
-...Process TBD...
-
-### Javascript
-
-For production code we still use ES5 standard as we do not do any transpilation during the build (only minification). For tests you are safe to use whatever standards jsdom executes (ES6 supported).
