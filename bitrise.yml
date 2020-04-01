@@ -94,8 +94,6 @@ workflows:
     - test-client
 
   go-install:
-    before_run:
-    - assets-precompile
     steps:
     - script:
         inputs:
@@ -140,24 +138,6 @@ workflows:
             go get github.com/inconshreveable/mousetrap
             godep save ./...
 
-  assets-precompile:
-    before_run:
-    - setup-client
-    steps:
-    - script:
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            DIST=./apiserver/www/
-            go get github.com/GeertJohan/go.rice/rice
-
-            mkdir -p $DIST
-            cp -rf ./build/* $DIST
-
-            cd ./apiserver
-            rice embed-go
-
   _install_test_tools:
     steps:
     - script:
@@ -175,7 +155,7 @@ workflows:
     envs:
       - NODE_ENV: "prod"
     before_run:
-      - create-binaries
+      - setup-plugin-api
     steps:
     - script:
         title: Unit tests
@@ -234,51 +214,28 @@ workflows:
               golint -set_exit_status $line
             done <<< "$GOLIST_WITHOUT_VENDOR"
 
-  create-binaries:
-    title: Create binaries
+  setup-plugin-api:
+    title: Set up local plugin api
     description: |
-        Creates Linux and Darwin binaries
+        Set up and build plugin api from clean state
     envs:
       - NODE_ENV: "prod"
     before_run:
-    - assets-precompile
+      - setup-client
     steps:
-    - script:
-        title: Create binaries
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
+      - script:
+          title: Compile Api
+          inputs:
+          - content: ./_scripts/compile_api.sh
 
-            echo
-            echo "Create final binaries"
-            echo "  Build number: $BITRISE_BUILD_NUMBER"
-
-            export GOARCH=amd64
-
-            # Create Darwin bin
-            export GOOS=darwin
-
-            echo "  Create final Darwin binary at: $BIN_PATH_DARWIN"
-
-            version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
-
-            go build \
-              -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$BIN_PATH_DARWIN"
-
-            cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
-            echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
-
-
-            # Create Linux binary
-            export GOOS=linux
-
-            echo "  Create final Linux binary at: $BIN_PATH_LINUX"
-
-            go build \
-              -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
-              -o "$BIN_PATH_LINUX"
-
-            cp $BIN_PATH_LINUX $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
-            echo "  Copy final Linux binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH"
+  create-binaries:
+    title: Create binaries
+    description: |
+        Creates Linux and Darwin binaries with embedded assets
+    envs:
+      - NODE_ENV: "prod"
+    steps:
+      - script:
+          title: Compile Api
+          inputs:
+          - content: ./_scripts/compile_api.sh

@@ -9,7 +9,7 @@
 		"test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",
 		"build": "webpack --bail -p",
 		"build:website": "MODE=WEBSITE ANALYTICS=true npm run build",
-		"build:plugin": "MODE=CLI ANALYTICS=true npm run build",
+		"build:plugin": "MODE=CLI ANALYTICS=true npm run build && bitrise run create-binaries",
 		"start:dev": "webpack-dev-server",
 		"start": "concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 1234\"",
 		"e2e:dev": "cypress open",
