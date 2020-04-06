@@ -101,12 +101,10 @@ Given("editor is open", () => {
 	cy.server()
 		.route("POST", "/1/indexes/steplib_steps/**", "fixture:steps.json")
 		.as("steplib-steps")
-		.route("POST", "/1/indexes/steplib_inputs/**")
+		.route("POST", "/1/indexes/steplib_inputs/**", "fixture:inputs.json")
 		.as("steplib-inputs");
 
 	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
-
-	cy.wait(["@steplib-inputs"]);
 
 	// // TODO: cypress does not support polling :(
 	// // https://github.com/cypress-io/cypress/issues/3308
