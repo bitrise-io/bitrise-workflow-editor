@@ -98,31 +98,7 @@ export const should = (element, expectation) => {
 };
 
 Given("editor is open", () => {
-	cy.fixture("steps.json").then(steps => {
-		cy.server()
-			.route({
-				method: "POST",
-				url: "/1/indexes/steplib_steps/**",
-				// TODO: https://github.com/cypress-io/cypress/issues/4843 cypress can't filter on reuqest body
-				onResponse: (xhr) => {
-					const { body } = xhr.request;
-					const listAllRequest = body.query === "";
-					if (listAllRequest) {
-						xhr.response.body = steps;
-					}
-				}
-			})
-			.as("steplib-steps")
-			.route("POST", "/1/indexes/steplib_inputs/**")
-			.as("steplib-inputs");
-
-		cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
-
-		// TODO: cypress does not support polling :(
-		// https://github.com/cypress-io/cypress/issues/3308
-		cy.wait(["@steplib-inputs"]);
-		cy.wait(3000);
-	});
+	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 });
 
 Given("{string} workflow is selected", workflow => {
