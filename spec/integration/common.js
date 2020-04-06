@@ -99,14 +99,14 @@ export const should = (element, expectation) => {
 
 Given("editor is open", () => {
 	cy.server()
-		.route("POST", "/1/indexes/steplib_steps/browse**")
+		.route("POST", "/1/indexes/steplib_steps/**", "fixture:steps.json")
 		.as("steplib-steps")
-		.route("POST", "/1/indexes/steplib_inputs/browse**")
+		.route("POST", "/1/indexes/steplib_inputs/**")
 		.as("steplib-inputs");
 
 	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 
-	cy.wait(["@steplib-steps", "@steplib-inputs"]);
+	cy.wait(["@steplib-inputs"]);
 
 	// // TODO: cypress does not support polling :(
 	// // https://github.com/cypress-io/cypress/issues/3308

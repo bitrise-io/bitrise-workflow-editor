@@ -1,6 +1,7 @@
 {
   "projectId": "rnnyfb",
-  "integrationFolder": "spec/integration",
+	"integrationFolder": "spec/integration",
+	"fixturesFolder": "spec/integration/fixture",
   "testFiles": "**/*.feature",
   "pluginsFile": "spec/integration/cypress/plugins",
   "supportFile": "spec/integration/cypress/support",
