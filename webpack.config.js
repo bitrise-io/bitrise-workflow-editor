@@ -13,7 +13,7 @@ const { NODE_ENV, MODE } = process.env;
 const isProd = NODE_ENV === "prod";
 
 const urlPrefix = MODE === "WEBSITE" ? "bitrise_workflow_editor-" : "";
-const publicPath = isProd ? `/${urlPrefix}${version}/` : "";
+const publicPath = `/${urlPrefix}${version}/`;
 
 const railsTransformer = mode => ({
 	loader: "shell-loader",
@@ -51,9 +51,12 @@ module.exports = {
 
 	devServer: {
 		contentBase: OUTPUT_FOLDER,
+		contentBasePublicPath: publicPath,
 		compress: true,
 		port: 4567
 	},
+
+	devtool: "inline-source-map",
 
 	entry: {
 		vendor: "./javascripts/vendor.js",
@@ -96,8 +99,15 @@ module.exports = {
 
 			{
 				test: /\.tsx?$/,
-				use: "ts-loader",
-				exclude: /node_modules/
+				use: {
+					loader: "ts-loader",
+					options: {
+						compilerOptions: {
+							"sourceMap": !isProd,
+						}
+					}
+				},
+				exclude: /node_modules/,
 			},
 
 			{

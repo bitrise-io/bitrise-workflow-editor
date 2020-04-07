@@ -46,7 +46,7 @@ bitrise run go-install
 npm start          # start both local plugin api and webpack dev server
 ```
 
-1. In your browser, you can reach the Workflow Editor on `localhost:1234`. Be aware that you usually have to wait a while until dev server starts up.
+1. In your browser, you can reach the Workflow Editor on `localhost:4000/{version}`. Be aware that you usually have to wait a while until dev server starts up (then refresh)
 1. By default, the Workflow Editor will open the `test_bitrise.yml` from integration folder (used for integration testing). Please do not commit this file if you have any changes with it (e2e tests would fail).
 
 ### Run client tests
@@ -61,7 +61,7 @@ npm run e2e:run # run e2e tests itself (cypress)
 npm run e2e     # for self contained e2e tests (local binary api + testing logic) e2e:api + e2e:run
 ```
 
-*NOTE*: for e2e test you need to have binaries built! in order to do that please use `bitrise run create-binaries`. It is still need to be solved to run e2e tests against live code.
+*NOTE*: for e2e testing you could start a service normally (to develop and run tests on it parallel) or have a binary ready by `bitrise run create-binaries` if you only want to verify the correctness of an already built feature.
 
 Use `npm test` for a single test run.
 If you only iterate on tests, you can also use `npm run karma` as it skips transpilation and the transpilation and run the tests on an already transpiled JS. (faster)
@@ -85,7 +85,6 @@ This project is using squash & merge model, feel free to have as many commits as
 
 1. Unit tests are required for every new feature
 1. Consider write E2E tests as well (with cucumber and cypress)
-
 
 ## New version release
 
