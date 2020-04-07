@@ -101,7 +101,7 @@ class SemverService {
 
 		const stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(this.reverseSorter);
 
-		return stepVersions.find(stepVersion => this.isVersionCompatible(version as string, stepVersion));
+		return stepVersions.find(stepVersion => this.isVersionCompatible(version!, stepVersion));
 	};
 
 	findLatestMajorVersion = (step: Step, stepCatalogue: StepCatalouge): string => {
