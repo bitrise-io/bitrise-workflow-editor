@@ -5,7 +5,7 @@ type AngularScope = {
 	$digest: () => void;
 };
 
-type GenFn<T> = (...args) => T;
+type GenFn<T> = (...args: any) => T;
 
 export const safeDigest = (scope: AngularScope): void => {
 	if (!scope.$$phase) {
@@ -16,7 +16,7 @@ export const safeDigest = (scope: AngularScope): void => {
 export const cachedFn = <T>(fn: GenFn<T>): GenFn<T> => {
 	let cached: T;
 
-	return (...args): T => {
+	return (...args: any): T => {
 		const current = fn(...args);
 
 		if (!_.isEqual(current, cached)) {
