@@ -1,6 +1,6 @@
 export interface StepCatalouge {
-	steps: Array<Map<string, Record<string, any>>>;
-	latestStepVersions: Map<string, Record<string, any>>;
+	steps: Array<Map<string, Record<string, unknown>>>;
+	latestStepVersions: Map<string, Record<string, unknown>>;
 }
 
 export interface Step {

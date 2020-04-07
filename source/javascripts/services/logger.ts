@@ -65,7 +65,7 @@ class DataDogLoggerService implements Logger {
 			return;
 		}
 
-		const message = `${error.message}\n${error.stack || 'No stack'}`;
+		const message = `${error.message}\n${error.stack || "No stack"}`;
 		this.logger.error(message, ctx);
 	};
 }
@@ -80,7 +80,7 @@ const getDefaultTags = (): Context => {
 		appSlug: getAppSlug()
 	};
 
-	const nullCheck = (val: string | null) => !!val;
+	const nullCheck = (val: string | null): boolean => !!val;
 	return pick(defaultTags, nullCheck) as Context;
 };
 

@@ -1,6 +1,6 @@
 export type WFEWindow = Window &
 	typeof globalThis & {
-		datadogLogs: any;
+		datadogLogs: unknown;
     DATADOG_API_KEY: string;
     isAnalyticsOn: boolean;
     mode: string;

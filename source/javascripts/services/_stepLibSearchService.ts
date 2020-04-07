@@ -31,10 +31,11 @@ type StepLibSearchService = {
 	fuzzySearch: (options: FuzzySearchOptions) => Promise<StepVersion[]>;
 };
 
+// eslint-disable-next-line
 // @ts-ignore
 angular.module("BitriseWorkflowEditor").service(
 	"stepLibSearchService",
-	($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
+	($q: unknown, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
 		const convertSteps = (steps: StepVersion[]) =>
 			steps.reduce((stepObj: object, stepVersion: StepVersion) => {
 				const step = stepObj[stepVersion.id] || {};

@@ -30,4 +30,4 @@ Cypress.Commands.overwrite("visit", (originalFn, url) => {
 		cy.wait(["@steplib-inputs"]);
 		cy.wait(3000);
 	});
- })
+ });
