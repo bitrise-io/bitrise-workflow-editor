@@ -7,7 +7,7 @@ type AngularScope = {
 
 type GenFn<T> = (...args: any) => T;
 
-export const safeDigest = (scope: AngularScope) => {
+export const safeDigest = (scope: AngularScope): void => {
 	if (!scope.$$phase) {
 		scope.$digest();
 	}

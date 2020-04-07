@@ -31,17 +31,18 @@ type StepLibSearchService = {
 	fuzzySearch: (options: FuzzySearchOptions) => Promise<StepVersion[]>;
 };
 
+// eslint-disable-next-line
 // @ts-ignore
 angular.module("BitriseWorkflowEditor").service(
 	"stepLibSearchService",
 	($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
 		const convertSteps = (steps: StepVersion[]) =>
 			steps.reduce((stepObj: object, stepVersion: StepVersion) => {
-				var step = stepObj[stepVersion.id] || {};
-				var versions = step.versions || {};
+				const step = stepObj[stepVersion.id] || {};
+				const versions = step.versions || {};
 				versions[stepVersion.version] = Object.assign({}, stepVersion, stepVersion.info);
 
-				var info = Object.assign({}, step.info, stepVersion.info);
+				const info = Object.assign({}, step.info, stepVersion.info);
 
 				return Object.assign({}, stepObj, {
 					[stepVersion.id]: {
@@ -53,7 +54,7 @@ angular.module("BitriseWorkflowEditor").service(
 
 		return {
 			list(options) {
-				var attributesToRetrieve = options.attributesToRetrieve || ["*"];
+				const attributesToRetrieve = options.attributesToRetrieve || ["*"];
 
 				let filters;
 

@@ -158,9 +158,9 @@ workflows:
       - setup-plugin-api
     steps:
     - script:
-        title: Unit tests
+        title: Unit tests & linting
         inputs:
-        - content: npm run karma
+        - content: npm run test-ci
     - script:
         title: E2E tests
         inputs:

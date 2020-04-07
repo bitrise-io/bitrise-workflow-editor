@@ -4,13 +4,13 @@ import { Context } from "@datadog/browser-core";
 import { getAppSlug } from "./app-service";
 import { WFEWindow } from "../typings/global";
 
-declare var window: WFEWindow;
+declare let window: WFEWindow;
 
 export interface Logger {
-	debug(message: string, ctx?: any): void;
-	info(message: string, ctx?: any): void;
-	warn(message: string, ctx?: any): void;
-	error(error: Error, ctx?: any): void;
+	debug(message: string, ctx?: Record<string, string>): void;
+	info(message: string, ctx?: Record<string, string>): void;
+	warn(message: string, ctx?: Record<string, string>): void;
+	error(error: Error, ctx?: Record<string, string>): void;
 	setTags(ctx: Context): void;
 }
 
@@ -42,30 +42,30 @@ class DataDogLoggerService implements Logger {
 		});
 	}
 
-	setTags = (ctx: Context) => {
+	setTags = (ctx: Context): void => {
 		Object.keys(ctx).forEach(key => {
 			this.logger.addContext(key, ctx[key]);
 		});
 	};
 
-	debug = (message: string, ctx?: Context) => {
+	debug = (message: string, ctx?: Context): void => {
 		this.logger.debug(message, ctx);
 	};
 
-	info = (message: string, ctx?: Context) => {
+	info = (message: string, ctx?: Context): void => {
 		this.logger.info(message, ctx);
 	};
 
-	warn = (message: string, ctx?: Context) => {
+	warn = (message: string, ctx?: Context): void => {
 		this.logger.warn(message, ctx);
 	};
 
-	error = (error: Error, ctx?: Context) => {
+	error = (error: Error, ctx?: Context): void => {
 		if (!error) {
 			return;
 		}
 
-		const message = `${error.message}\n${error.stack || 'No stack'}`;
+		const message = `${error.message}\n${error.stack || "No stack"}`;
 		this.logger.error(message, ctx);
 	};
 }
@@ -80,7 +80,7 @@ const getDefaultTags = (): Context => {
 		appSlug: getAppSlug()
 	};
 
-	const nullCheck = (val: string | null) => !!val;
+	const nullCheck = (val: string | null): boolean => !!val;
 	return pick(defaultTags, nullCheck) as Context;
 };
 
