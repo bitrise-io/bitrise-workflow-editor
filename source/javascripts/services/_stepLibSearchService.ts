@@ -35,7 +35,7 @@ type StepLibSearchService = {
 // @ts-ignore
 angular.module("BitriseWorkflowEditor").service(
 	"stepLibSearchService",
-	($q: unknown, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
+	($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
 		const convertSteps = (steps: StepVersion[]) =>
 			steps.reduce((stepObj: object, stepVersion: StepVersion) => {
 				const step = stepObj[stepVersion.id] || {};

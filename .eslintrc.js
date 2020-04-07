@@ -24,7 +24,7 @@ module.exports = {
 	rules: {
 		"quotes": [2, "double"],
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
-		"@typescript-eslint/no-explicit-any": ["warn", { fixToUnknown: true, ignoreRestArgs: true }],
+		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
 		"@typescript-eslint/no-non-null-assertion": "off"
 	}
 };
