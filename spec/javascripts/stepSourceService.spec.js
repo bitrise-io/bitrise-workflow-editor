@@ -323,4 +323,36 @@ describe("stepSourceService", function() {
 			expect(stepSourceService.isLatestStepVersion(mockStep)).toBeTruthy();
 		});
 	});
+
+	describe("resolveRequestedStepVersion", () => {
+		let MOCK_STEP;
+
+		beforeEach(() => {
+			MOCK_STEP = {
+				id: TEST_STEP_ID,
+				version: "1.2.3",
+				libraryURL: TEST_LIB_URL,
+				isLibraryStep: () => true
+			};
+		});
+
+		it("should get library and call mock semver service", () => {
+			mockSemverService.resolveVersion.and.returnValue("2.2.1");
+
+			const actual = stepSourceService.resolveRequestedStepVersion("1.2.x", MOCK_STEP);
+			expect(actual).toEqual("2.2.1");
+		});
+
+		it("should log if step version could not be resolved", () => {
+			const actual = stepSourceService.resolveRequestedStepVersion("1.2.x", MOCK_STEP);
+
+			expect(mockLogger.warn).toHaveBeenCalledWith(jasmine.any(String), {
+				id: TEST_STEP_ID,
+				version: "1.2.3",
+				requestedVersion: "1.2.x"
+			});
+
+			expect(actual).toBeUndefined();
+		});
+	});
 });

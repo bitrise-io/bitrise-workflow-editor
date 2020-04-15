@@ -188,7 +188,17 @@
 					return requestedVersion;
 				}
 
-				return semverService.resolveVersion(requestedVersion, step.id, library);
+				var version = semverService.resolveVersion(requestedVersion, step.id, library);
+
+				if (!version) {
+					logger.warn("Step version could not be resolved", {
+						id: step.id,
+						version: step.version,
+						requestedVersion: requestedVersion
+					});
+				}
+
+				return version;
 			};
 
 			stepSourceService.loadStepsWithCVSs = function(CVSs, requestConfig) {
