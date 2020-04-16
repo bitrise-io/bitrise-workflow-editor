@@ -194,7 +194,8 @@
 					logger.warn("Step version could not be resolved", {
 						id: step.id,
 						version: step.version,
-						requestedVersion: requestedVersion
+						requestedVersion: requestedVersion,
+						stepsLength: Object.keys(library.steps).length,
 					});
 				}
 

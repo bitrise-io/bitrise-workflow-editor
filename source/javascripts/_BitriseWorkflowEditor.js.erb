@@ -15,8 +15,9 @@ window.mode = "<%= mode %>";
 		"ng-showdown"
 	]);
 
-	BitriseWorkflowEditor.config(function($compileProvider) {
+	BitriseWorkflowEditor.config(function($compileProvider, $qProvider) {
 		$compileProvider.debugInfoEnabled(false);
+		$qProvider.errorOnUnhandledRejections(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
 	});
 
