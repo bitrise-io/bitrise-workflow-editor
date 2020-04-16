@@ -61,7 +61,7 @@ npm run e2e:run # run e2e tests itself (cypress)
 npm run e2e     # for self contained e2e tests (local binary api + testing logic) e2e:api + e2e:run
 ```
 
-*NOTE*: for e2e testing you could start a service normally (to develop and run tests on it parallel) or have a binary ready by `bitrise run create-binaries` if you only want to verify the correctness of an already built feature.
+*NOTE: for e2e testing you could start a service normally (to develop and run tests on it parallel) or have a binary ready by `bitrise run setup-plugin-api` if you only want to verify the correctness of an already built feature.*
 
 Use `npm test` for a single test run.
 If you only iterate on tests, you can also use `npm run karma` as it skips transpilation and the transpilation and run the tests on an already transpiled JS. (faster)
