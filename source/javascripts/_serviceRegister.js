@@ -1,7 +1,8 @@
 import { cachedFn } from "./services/react-compat";
 import semverService from "./services/semver-service";
 import loggerFactory from "./services/logger";
-import { workflowSelectionStore, serviceFactory } from "./services/workflows-selection-service";
+import workflowSelectionserviceFactory from "./services/workflows-selection-service";
+import workflowSelectionStore from "./services/workflow-selection-store";
 import * as appService from "./services/app-service";
 
 angular
@@ -31,7 +32,7 @@ angular
 	.factory("workflowSelectionService", [
 		"$location",
 		function($location) {
-			return serviceFactory(workflowSelectionStore, $location);
+			return workflowSelectionserviceFactory(workflowSelectionStore, $location);
 		}
 	])
 	.factory("reactCompatService", function() {
