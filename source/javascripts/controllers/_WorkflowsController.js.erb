@@ -11,7 +11,6 @@ import { safeDigest } from "../services/react-compat";
 			$q,
 			$filter,
 			$location,
-			$timeout,
 			stringService,
 			imageService,
 			requestService,
@@ -19,6 +18,7 @@ import { safeDigest } from "../services/react-compat";
 			appService,
 			stepSourceService,
 			workflowSelectionStore,
+			workflowSelectionService,
 			addStepService,
 			logger,
 			Progress,
@@ -130,7 +130,7 @@ import { safeDigest } from "../services/react-compat";
 								workflowSelectionStore.reset();
 							}
 
-							configureSelectionsFromCache();
+							workflowSelectionService.configureSelection(viewModel);
 						})
 						.then(function() {
 							workflowSelectionStore.enable();
@@ -150,11 +150,10 @@ import { safeDigest } from "../services/react-compat";
 
 				workflowSelectionStore.disable();
 
-				loadWorkflows()
-					.then(configureSelectionsFromCache)
-					.then(function() {
-						workflowSelectionStore.enable();
-					});
+				loadWorkflows().then(function() {
+					workflowSelectionService.configureSelection(viewModel);
+					workflowSelectionStore.enable();
+				});
 			};
 
 			function loadWorkflows() {
@@ -228,56 +227,6 @@ import { safeDigest } from "../services/react-compat";
 				);
 			}
 
-			function configureSelectionsFromCache() {
-				return $q(function(resolve) {
-					if (workflowSelectionStore.lastSelectedWorkflowID !== null) {
-						viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-							id: workflowSelectionStore.lastSelectedWorkflowID
-						});
-
-						if (workflowSelectionStore.lastEditedWorkflowIndex !== null) {
-							$timeout(function() {
-								if (
-									viewModel.selectedWorkflowChain[workflowSelectionStore.lastEditedWorkflowIndex] &&
-									viewModel.selectedWorkflowChain[workflowSelectionStore.lastEditedWorkflowIndex].workflow.id ==
-									workflowSelectionStore.lastEditedWorkflowID
-								) {
-									viewModel.editWorkflowAtIndex(workflowSelectionStore.lastEditedWorkflowIndex);
-								}
-
-								if (workflowSelectionStore.lastSelectedStepIndex !== null) {
-
-									$timeout(function() {
-										if (
-											viewModel.editedWorkflow.steps[workflowSelectionStore.lastSelectedStepIndex] &&
-											viewModel.editedWorkflow.steps[workflowSelectionStore.lastSelectedStepIndex].cvs ==
-											workflowSelectionStore.lastSelectedStepCVS
-										) {
-											viewModel.stepSelected(
-												viewModel.editedWorkflow.steps[workflowSelectionStore.lastSelectedStepIndex],
-												undefined,
-												!(
-													workflowSelectionStore.lastEditedWorkflowIndex === 0 &&
-													workflowSelectionStore.lastSelectedStepIndex === 0
-												)
-											);
-										}
-
-										resolve();
-									}, 0);
-								} else {
-									resolve();
-								}
-							}, 0);
-						} else {
-							resolve();
-						}
-					} else {
-						resolve();
-					}
-				});
-			}
-
 			viewModel.workflowSelectorIsVisible = false;
 
 			// Workflow chains
@@ -295,24 +244,8 @@ import { safeDigest } from "../services/react-compat";
 						return;
 					}
 
-					if (viewModel.selectedWorkflow) {
-						viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-							id: viewModel.selectedWorkflow.id
-						});
-					}
-					if (!viewModel.selectedWorkflow) {
-						viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-							id: $location.search().workflow_id
-						});
-					}
-					if (!viewModel.selectedWorkflow) {
-						viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-							id: "primary"
-						});
-					}
-					if (!viewModel.selectedWorkflow) {
-						viewModel.selectedWorkflow = _.first(viewModel.workflows);
-					}
+					var wf = workflowSelectionService.findSelectedWorkflow(viewModel);
+					workflowSelectionService.selectWorkflow(viewModel, wf);
 
 					appService.appConfig.workflows = {};
 					_.each(workflows, function(aWorkflow) {
@@ -334,59 +267,17 @@ import { safeDigest } from "../services/react-compat";
 						viewModel.workflowSelectorIsVisible = false;
 					}
 
-					workflowSelectionStore.applyState({ lastSelectedWorkflow: selectedWorkflow });
-
 					if (!selectedWorkflow) {
 						return;
 					}
 
+					workflowSelectionService.selectWorkflow(viewModel, selectedWorkflow);
+
 					if ($location.search().workflow_id != selectedWorkflow.id) {
 						$location.search("workflow_id", selectedWorkflow.id).replace();
 					}
-
-					updateSelectedWorkflowChain();
 				}
 			);
-
-			function updateSelectedWorkflowChain() {
-				viewModel.selectedWorkflowChain = [];
-
-				if (!viewModel.selectedWorkflow) {
-					return;
-				}
-
-				_.each(viewModel.selectedWorkflow.beforeRunWorkflows(viewModel.workflows), function(aBeforeRunWorkflow, index) {
-					_.each(aBeforeRunWorkflow.workflowChain(viewModel.workflows), function(aWorkflow) {
-						viewModel.selectedWorkflowChain.push({
-							workflow: aWorkflow,
-							isBeforeRunWorkflow: true,
-							isAfterRunWorkflow: false,
-							selectedWorkflowBeforeRunWorkflowIndex: aWorkflow == aBeforeRunWorkflow ? index : -1,
-							selectedWorkflowAfterRunWorkflowIndex: -1
-						});
-					});
-				});
-
-				viewModel.selectedWorkflowChain.push({
-					workflow: viewModel.selectedWorkflow,
-					isBeforeRunWorkflow: false,
-					isAfterRunWorkflow: false,
-					selectedWorkflowBeforeRunWorkflowIndex: -1,
-					selectedWorkflowAfterRunWorkflowIndex: -1
-				});
-
-				_.each(viewModel.selectedWorkflow.afterRunWorkflows(viewModel.workflows), function(anAfterRunWorkflow, index) {
-					_.each(anAfterRunWorkflow.workflowChain(viewModel.workflows), function(aWorkflow) {
-						viewModel.selectedWorkflowChain.push({
-							workflow: aWorkflow,
-							isBeforeRunWorkflow: false,
-							isAfterRunWorkflow: true,
-							selectedWorkflowBeforeRunWorkflowIndex: -1,
-							selectedWorkflowAfterRunWorkflowIndex: aWorkflow == anAfterRunWorkflow ? index : -1
-						});
-					});
-				});
-			}
 
 			// Workflow add
 
@@ -410,7 +301,7 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.addWorkflowPopup.isVisible = false;
 
-				viewModel.selectedWorkflow = workflow;
+				workflowSelectionService.selectWorkflow(viewModel, workflow);
 			};
 
 			// Workflow delete
@@ -466,13 +357,29 @@ import { safeDigest } from "../services/react-compat";
 
 			// Before/after run workflows
 
-			$scope.$watchCollection(function() {
-				return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.before_run : undefined;
-			}, updateSelectedWorkflowChain);
+			$scope.$watchCollection(
+				function() {
+					return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.before_run : undefined;
+				},
+				function() {
+					if (viewModel.selectedWorkflow) {
+						// select itself to update chain
+						workflowSelectionService.selectWorkflow(viewModel, viewModel.selectedWorkflow);
+					}
+				}
+			);
 
-			$scope.$watchCollection(function() {
-				return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.after_run : undefined;
-			}, updateSelectedWorkflowChain);
+			$scope.$watchCollection(
+				function() {
+					return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.after_run : undefined;
+				},
+				function() {
+					if (viewModel.selectedWorkflow) {
+						// select itself to update chain
+						workflowSelectionService.selectWorkflow(viewModel, viewModel.selectedWorkflow);
+					}
+				}
+			);
 
 			viewModel.addRunWorkflowPopup = new Popup();
 			viewModel.addRunWorkflowMode;
@@ -659,7 +566,7 @@ import { safeDigest } from "../services/react-compat";
 						lastSelectedWorkflow: viewModel.selectedWorkflow,
 						lastEditedWorkflow: viewModel.editedWorkflow,
 						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
-						lastSelectedStep: viewModel.selectedStep,
+						lastSelectedStep: viewModel.selectedStep
 					});
 				}
 
@@ -691,12 +598,12 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.editedWorkflow =
 					workflowIndex === null ? null : viewModel.selectedWorkflowChain[workflowIndex].workflow;
 
-					workflowSelectionStore.applyState({
-						lastSelectedWorkflow: viewModel.selectedWorkflow,
-						lastEditedWorkflow: viewModel.editedWorkflow,
-						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
-						lastSelectedStep: viewModel.selectedStep,
-					});
+				workflowSelectionStore.applyState({
+					lastSelectedWorkflow: viewModel.selectedWorkflow,
+					lastEditedWorkflow: viewModel.editedWorkflow,
+					lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+					lastSelectedStep: viewModel.selectedStep
+				});
 			};
 
 			viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
@@ -782,6 +689,10 @@ import { safeDigest } from "../services/react-compat";
 			};
 
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
+				if (!step) {
+					return;
+				}
+
 				if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
 					stepSourceService.loadStepVersions(step.id).then(function() {
 						viewModel.selectedStep = step;

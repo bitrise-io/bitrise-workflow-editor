@@ -5,6 +5,9 @@ export interface StepCatalouge {
 export interface Workflow {
 	id: string;
 	steps: Array<Step>;
+	beforeRunWorkflows: (arg0: Array<Workflow>) => Array<Workflow>;
+	afterRunWorkflows: (arg0: Array<Workflow>) => Array<Workflow>;
+	workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
 export interface Step {
