@@ -90,6 +90,9 @@ export const elements = {
 
 	"Selected Workflow": "section.workflow.selected",
 	"Selected Workflow description": ".workflow-description .description p",
+	"Selected Workflow description container": ".workflow-description",
+	"Selected Workflow description button": ".workflow-description button.edit",
+	"Selected Workflow description textarea": ".workflow-description textarea",
 	"Step element": "li",
 	"Add Step element": ".add-step",
 

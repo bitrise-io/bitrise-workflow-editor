@@ -29,6 +29,10 @@ Given("the Workflow dropdown is open", () => {
 	click("Selected Workflow Name");
 });
 
+Given("Workflow description is in edit mode", () => {
+	click("Selected Workflow description button");
+});
+
 Then("Workflow appeared with name {string}", name => {
 	$(".selected-workflow button.mak").contains(name);
 });

@@ -170,3 +170,17 @@ Feature: Workflows
     When I click on "Selected Workflow Name"
       And I click on "Selected Workflow Name"
     Then "Workflow selector dropdown" should "not be visible"
+
+  Scenario: User focuses to a Workflow's description box
+    Given "wf3" workflow is selected
+    When I click on "Selected Workflow description button"
+    Then "Selected Workflow description container" should "have class: edit-mode"
+
+  Scenario: User updates a Workflow's description
+    Given "wf3" workflow is selected
+      And Workflow description is in edit mode
+    When I clear "Selected Workflow description textarea"
+      And I type "Changed description" in "Selected Workflow description textarea"
+      And I click away
+    Then I should see "Changed description" in "Selected Workflow description"
+      And "Selected Workflow description container" should "not have class: edit-mode"
