@@ -172,7 +172,6 @@
 					cleanupMenu();
 
 					if (!viewModel.hasUnsavedChanges()) {
-						logger.setTags({ menuID: menu.id });
 						resolve();
 
 						return;
@@ -207,6 +206,8 @@
 					);
 				}).then(
 					function() {
+						logger.setTags({ menuID: menu.id });
+
 						_.each(_.without(viewModel.menus, menu), function(aMenu) {
 							_.each(aMenu.possibleURLParameterKeys, function(aMenuURLParameterKey) {
 								if (!_.contains(menu.possibleURLParameterKeys, aMenuURLParameterKey)) {
@@ -485,6 +486,8 @@
 
 			viewModel.init = function() {
 				viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+
+				logger.info("App start");
 
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
