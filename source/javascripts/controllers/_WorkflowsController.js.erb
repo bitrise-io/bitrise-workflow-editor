@@ -18,7 +18,7 @@ import { safeDigest } from "../services/react-compat";
 			scrollService,
 			appService,
 			stepSourceService,
-			workflowsTabService,
+			workflowSelectionStore,
 			addStepService,
 			logger,
 			Progress,
@@ -119,22 +119,21 @@ import { safeDigest } from "../services/react-compat";
 			$scope.$on(
 				"$destroy",
 				$rootScope.$on("MainController::changesDiscarded", function() {
-					workflowsTabService.shouldWatchSelectionChanges = false;
+					workflowSelectionStore.disable();
+					var lastSelectedWorkflowNotFound = !_.find(viewModel.workflows, {
+						id: workflowSelectionStore.lastSelectedWorkflowID
+					});
 
 					loadWorkflows()
 						.then(function() {
-							if (
-								!_.find(viewModel.workflows, {
-									id: workflowsTabService.lastSelectedWorkflowID
-								})
-							) {
-								workflowsTabService.storeSelectionState(null, null, null, null);
+							if (lastSelectedWorkflowNotFound) {
+								workflowSelectionStore.reset();
 							}
 
 							configureSelectionsFromCache();
 						})
 						.then(function() {
-							workflowsTabService.shouldWatchSelectionChanges = true;
+							workflowSelectionStore.enable();
 						});
 				})
 			);
@@ -149,12 +148,12 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.init = function() {
 				logger.info("Loading workflows");
 
-				workflowsTabService.shouldWatchSelectionChanges = false;
+				workflowSelectionStore.disable();
 
 				loadWorkflows()
 					.then(configureSelectionsFromCache)
 					.then(function() {
-						workflowsTabService.shouldWatchSelectionChanges = true;
+						workflowSelectionStore.enable();
 					});
 			};
 
@@ -231,34 +230,35 @@ import { safeDigest } from "../services/react-compat";
 
 			function configureSelectionsFromCache() {
 				return $q(function(resolve) {
-					if (workflowsTabService.lastSelectedWorkflowID !== null) {
+					if (workflowSelectionStore.lastSelectedWorkflowID !== null) {
 						viewModel.selectedWorkflow = _.find(viewModel.workflows, {
-							id: workflowsTabService.lastSelectedWorkflowID
+							id: workflowSelectionStore.lastSelectedWorkflowID
 						});
 
-						if (workflowsTabService.lastEditedWorkflowIndex !== null) {
+						if (workflowSelectionStore.lastEditedWorkflowIndex !== null) {
 							$timeout(function() {
 								if (
-									viewModel.selectedWorkflowChain[workflowsTabService.lastEditedWorkflowIndex] &&
-									viewModel.selectedWorkflowChain[workflowsTabService.lastEditedWorkflowIndex].workflow.id ==
-										workflowsTabService.lastEditedWorkflowID
+									viewModel.selectedWorkflowChain[workflowSelectionStore.lastEditedWorkflowIndex] &&
+									viewModel.selectedWorkflowChain[workflowSelectionStore.lastEditedWorkflowIndex].workflow.id ==
+									workflowSelectionStore.lastEditedWorkflowID
 								) {
-									viewModel.editWorkflowAtIndex(workflowsTabService.lastEditedWorkflowIndex);
+									viewModel.editWorkflowAtIndex(workflowSelectionStore.lastEditedWorkflowIndex);
 								}
 
-								if (workflowsTabService.lastSelectedStepIndex !== null) {
+								if (workflowSelectionStore.lastSelectedStepIndex !== null) {
+
 									$timeout(function() {
 										if (
-											viewModel.editedWorkflow.steps[workflowsTabService.lastSelectedStepIndex] &&
-											viewModel.editedWorkflow.steps[workflowsTabService.lastSelectedStepIndex].cvs ==
-												workflowsTabService.lastSelectedStepCVS
+											viewModel.editedWorkflow.steps[workflowSelectionStore.lastSelectedStepIndex] &&
+											viewModel.editedWorkflow.steps[workflowSelectionStore.lastSelectedStepIndex].cvs ==
+											workflowSelectionStore.lastSelectedStepCVS
 										) {
 											viewModel.stepSelected(
-												viewModel.editedWorkflow.steps[workflowsTabService.lastSelectedStepIndex],
+												viewModel.editedWorkflow.steps[workflowSelectionStore.lastSelectedStepIndex],
 												undefined,
 												!(
-													workflowsTabService.lastEditedWorkflowIndex === 0 &&
-													workflowsTabService.lastSelectedStepIndex === 0
+													workflowSelectionStore.lastEditedWorkflowIndex === 0 &&
+													workflowSelectionStore.lastSelectedStepIndex === 0
 												)
 											);
 										}
@@ -334,14 +334,12 @@ import { safeDigest } from "../services/react-compat";
 						viewModel.workflowSelectorIsVisible = false;
 					}
 
-					if (workflowsTabService.shouldWatchSelectionChanges) {
-						workflowsTabService.storeSelectionState(
-							selectedWorkflow,
-							viewModel.editedWorkflow,
-							viewModel.editedWorkflowIndex,
-							viewModel.selectedStep
-						);
-					}
+					workflowSelectionStore.applyState({
+						lastSelectedWorkflow: selectedWorkflow,
+						lastEditedWorkflow: viewModel.editedWorkflow,
+						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+						lastSelectedStep: viewModel.selectedStep
+					});
 
 					if (!selectedWorkflow) {
 						return;
@@ -661,16 +659,13 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.renamedWorkflow.id = newWorkflowID;
 
-				if (
-					workflowsTabService.shouldWatchSelectionChanges &&
-					viewModel.selectedWorkflow == viewModel.renamedWorkflow
-				) {
-					workflowsTabService.storeSelectionState(
-						viewModel.selectedWorkflow,
-						viewModel.editedWorkflow,
-						viewModel.editedWorkflowIndex,
-						viewModel.selectedStep
-					);
+				if (viewModel.selectedWorkflow == viewModel.renamedWorkflow) {
+					workflowSelectionStore.applyState({
+						lastSelectedWorkflow: viewModel.selectedWorkflow,
+						lastEditedWorkflow: viewModel.editedWorkflow,
+						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+						lastSelectedStep: viewModel.selectedStep,
+					});
 				}
 
 				viewModel.renamedWorkflow = null;
@@ -701,14 +696,12 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.editedWorkflow =
 					workflowIndex === null ? null : viewModel.selectedWorkflowChain[workflowIndex].workflow;
 
-				if (workflowsTabService.shouldWatchSelectionChanges) {
-					workflowsTabService.storeSelectionState(
-						viewModel.selectedWorkflow,
-						viewModel.editedWorkflow,
-						viewModel.editedWorkflowIndex,
-						viewModel.selectedStep
-					);
-				}
+					workflowSelectionStore.applyState({
+						lastSelectedWorkflow: viewModel.selectedWorkflow,
+						lastEditedWorkflow: viewModel.editedWorkflow,
+						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+						lastSelectedStep: viewModel.selectedStep,
+					});
 			};
 
 			viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
@@ -836,15 +829,12 @@ import { safeDigest } from "../services/react-compat";
 				},
 				function(selectedStep) {
 					viewModel.shouldShowDescription = false;
-
-					if (workflowsTabService.shouldWatchSelectionChanges) {
-						workflowsTabService.storeSelectionState(
-							viewModel.selectedWorkflow,
-							viewModel.editedWorkflow,
-							viewModel.editedWorkflowIndex,
-							selectedStep
-						);
-					}
+					workflowSelectionStore.applyState({
+						lastSelectedWorkflow: viewModel.selectedWorkflow,
+						lastEditedWorkflow: viewModel.editedWorkflow,
+						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+						lastSelectedStep: selectedStep
+					});
 				}
 			);
 
@@ -1224,31 +1214,5 @@ import { safeDigest } from "../services/react-compat";
 					viewModel.openedOutputs.push(output);
 				}
 			};
-		})
-		.service("workflowsTabService", function() {
-			var workflowsTabService = {
-				lastSelectedWorkflowID: null,
-				lastEditedWorkflowID: null,
-				lastEditedWorkflowIndex: null,
-				lastSelectedStepCVS: null,
-				lastSelectedStepIndex: null,
-				shouldWatchSelectionChanges: false
-			};
-
-			workflowsTabService.storeSelectionState = function(
-				lastSelectedWorkflow,
-				lastEditedWorkflow,
-				lastEditedWorkflowIndex,
-				lastSelectedStep
-			) {
-				workflowsTabService.lastSelectedWorkflowID = lastSelectedWorkflow ? lastSelectedWorkflow.id : null;
-				workflowsTabService.lastEditedWorkflowID = lastEditedWorkflow ? lastEditedWorkflow.id : null;
-				workflowsTabService.lastEditedWorkflowIndex = lastEditedWorkflow ? lastEditedWorkflowIndex : null;
-				workflowsTabService.lastSelectedStepCVS = lastSelectedStep ? lastSelectedStep.cvs : null;
-				workflowsTabService.lastSelectedStepIndex =
-					lastEditedWorkflow && lastSelectedStep ? lastEditedWorkflow.steps.indexOf(lastSelectedStep) : null;
-			};
-
-			return workflowsTabService;
 		});
 })();
