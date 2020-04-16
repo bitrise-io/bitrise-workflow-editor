@@ -6,12 +6,6 @@ Feature: Rearrange Workflows
     Given there are Workflows called ci, deploy, _setup, _send-reports, _cleanup
     And the _setup is the before, the _send-reports and the _cleanup are the after run Workflows of the ci Workflow
 
-  Scenario: User opens the Rearrange
-    Given the ci Workflow is selected
-    When User selects the Rearrange button
-    Then the Rearrange popup appears
-    And it has the _setup, the ci, the _send-reports and the _cleanup Workflow listed respectively
-
   Scenario: User moves the selected Workflow
     Given the ci Workflow is selected
     And the Rearrange popup is open

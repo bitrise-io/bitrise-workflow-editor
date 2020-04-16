@@ -127,7 +127,17 @@ export const elements = {
 	"wf6 workflow": workflowSelectElement("wf6"),
 	"wf6 steps": ".workflow:nth-child(5) ul.steps ul",
 	"wf6 steps container": ".workflow:nth-child(5) ul.steps",
-	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove"
+	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
+
+	"Rearrange button": ".manage-button.rearrange",
+	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
+	"Workflow chain": ".workflow-chain",
+	"Workflow chain before workflows": ".workflow-chain .before-run",
+	"Workflow chain before wf4 workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .before-run li:first",
+	"Workflow chain after workflows": ".workflow-chain .after-run",
+	"Workflow chain first after wf5 workflow": ".workflow-chain .after-run li:nth(0)",
+	"Workflow chain second after wf5 workflow": ".workflow-chain .after-run li:nth(1)",
+	"Workflow chain after wf6 workflow": ".workflow-chain .after-run li:nth(2)"
 };
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;
