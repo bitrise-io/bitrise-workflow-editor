@@ -334,12 +334,7 @@ import { safeDigest } from "../services/react-compat";
 						viewModel.workflowSelectorIsVisible = false;
 					}
 
-					workflowSelectionStore.applyState({
-						lastSelectedWorkflow: selectedWorkflow,
-						lastEditedWorkflow: viewModel.editedWorkflow,
-						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
-						lastSelectedStep: viewModel.selectedStep
-					});
+					workflowSelectionStore.applyState({ lastSelectedWorkflow: selectedWorkflow });
 
 					if (!selectedWorkflow) {
 						return;
@@ -830,7 +825,6 @@ import { safeDigest } from "../services/react-compat";
 				function(selectedStep) {
 					viewModel.shouldShowDescription = false;
 					workflowSelectionStore.applyState({
-						lastSelectedWorkflow: viewModel.selectedWorkflow,
 						lastEditedWorkflow: viewModel.editedWorkflow,
 						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
 						lastSelectedStep: selectedStep

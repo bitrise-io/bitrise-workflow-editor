@@ -4,6 +4,9 @@ describe("Workflow selection store", () => {
 	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(inject((_workflowSelectionStore_) => {
 		selectionStore = _workflowSelectionStore_;
+
+		// selection store is singleton
+		selectionStore.reset();
 	}));
 
 	it("should have required properties", () => {
@@ -38,8 +41,11 @@ describe("Workflow selection store", () => {
 			steps: [mockStep]
 		};
 
-		it("should set properties based on values passed", () => {
+		beforeEach(() => {
 			selectionStore.enable();
+		});
+
+		it("should set properties based on values passed", () => {
 			selectionStore.applyState({
 				lastSelectedWorkflow: mockWorkflow,
 				lastEditedWorkflow: mockWorkflow,
@@ -53,6 +59,18 @@ describe("Workflow selection store", () => {
 				lastEditedWorkflowIndex: 10,
 				lastSelectedStepCVS: "mockStep@1.1",
 				lastSelectedStepIndex: 0,
+			}));
+		});
+
+		it("should be able to partially apply", () => {
+			selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
+
+			expect(selectionStore).toEqual(jasmine.objectContaining({
+				lastSelectedWorkflowID: "wf1",
+				lastEditedWorkflowID: null,
+				lastEditedWorkflowIndex: null,
+				lastSelectedStepCVS: null,
+				lastSelectedStepIndex: null,
 			}));
 		});
 

@@ -21,12 +21,22 @@ class WorkflowSelectionStore {
 			return;
 		}
 
-		this.lastSelectedWorkflowID = lastSelectedWorkflow?.id;
-		this.lastEditedWorkflowID = lastEditedWorkflow?.id;
-		this.lastEditedWorkflowIndex = lastEditedWorkflow && lastEditedWorkflowIndex;
-		this.lastSelectedStepCVS = lastSelectedStep?.cvs;
-		this.lastSelectedStepIndex =
-			lastEditedWorkflow && lastSelectedStep ? lastEditedWorkflow.steps.indexOf(lastSelectedStep) : null;
+		if (lastSelectedWorkflow) {
+			this.lastSelectedWorkflowID = lastSelectedWorkflow.id;
+		}
+
+		if (lastEditedWorkflow) {
+			this.lastEditedWorkflowID = lastEditedWorkflow.id;
+			this.lastEditedWorkflowIndex = lastEditedWorkflowIndex;
+		}
+
+		if (lastSelectedStep) {
+			this.lastSelectedStepCVS = lastSelectedStep.cvs;
+		}
+
+		if (lastEditedWorkflow && lastSelectedStep) {
+			this.lastSelectedStepIndex = lastEditedWorkflow.steps.indexOf(lastSelectedStep);
+		}
 	};
 
 	reset = (): void => {

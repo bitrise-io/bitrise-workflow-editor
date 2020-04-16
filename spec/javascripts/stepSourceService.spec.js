@@ -173,7 +173,8 @@ describe("stepSourceService", function() {
 		it("Should log a warning for an invalid step version", () => {
 			stepSourceService.stepFromCVS(`${TEST_STEP_ID}@invalid`);
 
-			expect(mockLogger.warn).toHaveBeenCalledWith("Step is not configured", { id: TEST_STEP_ID, version: "invalid" });
+			expect(mockLogger.warn)
+				.toHaveBeenCalledWith("Step is not configured", jasmine.objectContaining({ id: TEST_STEP_ID, version: "invalid" }));
 		});
 	});
 
