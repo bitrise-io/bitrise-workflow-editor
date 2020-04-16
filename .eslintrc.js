@@ -22,6 +22,7 @@ module.exports = {
 		"plugin:react/recommended",
 	],
 	rules: {
+		"max-len": ["error", { "code": 120 }],
 		"quotes": [2, "double"],
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
