@@ -35,9 +35,19 @@
 				return library;
 			};
 
+			var logStepVersionMissing = function(step, requestedVersion, library) {
+				logger.warn("Step version could not be resolved", {
+					id: step.id,
+					version: step.version,
+					requestedVersion: requestedVersion,
+					stepsLength: Object.keys(library.steps).length,
+				});
+			};
+
 			var configureStepFromLib = function(step, library) {
 				var requestedVersion = semverService.resolveVersion(step.version, step.id, library);
-				var shouldLoadOnlyStepIcon = !library.steps[step.id][requestedVersion];
+				var stepVersions = library.steps[step.id];
+				var shouldLoadOnlyStepIcon = !requestedVersion || !(stepVersions && stepVersions[requestedVersion]);
 
 				if (shouldLoadOnlyStepIcon) {
 					requestedVersion = library.latestStepVersions[step.id];
@@ -48,7 +58,11 @@
 				}
 
 				if (!step.isConfigured()) {
-					logger.warn("Step is not configured", { id: step.id, version: step.version });
+					logger.warn("Step is not configured", {
+						id: step.id,
+						version: step.version,
+						stepsLength: Object.keys(library.steps).length
+					});
 				}
 			};
 
@@ -158,6 +172,11 @@
 				}
 
 				var stepVersion = semverService.resolveVersion(step.version, step.id, library);
+
+				if (!stepVersion) {
+					logStepVersionMissing(step, step.version, library);
+				}
+
 				return stepVersion === stepSourceService.latestVersion(step);
 			};
 
@@ -191,12 +210,7 @@
 				var version = semverService.resolveVersion(requestedVersion, step.id, library);
 
 				if (!version) {
-					logger.warn("Step version could not be resolved", {
-						id: step.id,
-						version: step.version,
-						requestedVersion: requestedVersion,
-						stepsLength: Object.keys(library.steps).length,
-					});
+					logStepVersionMissing(step, requestedVersion, library);
 				}
 
 				return version;

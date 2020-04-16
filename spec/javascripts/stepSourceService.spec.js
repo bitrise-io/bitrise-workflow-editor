@@ -346,11 +346,11 @@ describe("stepSourceService", function() {
 		it("should log if step version could not be resolved", () => {
 			const actual = stepSourceService.resolveRequestedStepVersion("1.2.x", MOCK_STEP);
 
-			expect(mockLogger.warn).toHaveBeenCalledWith(jasmine.any(String), {
+			expect(mockLogger.warn).toHaveBeenCalledWith(jasmine.any(String), jasmine.objectContaining({
 				id: TEST_STEP_ID,
 				version: "1.2.3",
 				requestedVersion: "1.2.x"
-			});
+			}));
 
 			expect(actual).toBeUndefined();
 		});
