@@ -130,7 +130,7 @@ import { safeDigest } from "../services/react-compat";
 								workflowSelectionStore.reset();
 							}
 
-							workflowSelectionService.configureSelection(viewModel);
+							workflowSelectionService.restoreSelection(viewModel);
 						})
 						.then(function() {
 							workflowSelectionStore.enable();
@@ -151,7 +151,7 @@ import { safeDigest } from "../services/react-compat";
 				workflowSelectionStore.disable();
 
 				loadWorkflows().then(function() {
-					workflowSelectionService.configureSelection(viewModel);
+					workflowSelectionService.restoreSelection(viewModel);
 					workflowSelectionStore.enable();
 				});
 			};

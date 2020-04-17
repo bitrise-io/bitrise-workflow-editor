@@ -30,9 +30,10 @@ angular
 		return workflowSelectionStore;
 	})
 	.factory("workflowSelectionService", [
+		"workflowSelectionStore",
 		"$location",
-		function($location) {
-			return workflowSelectionserviceFactory(workflowSelectionStore, $location);
+		function(selectionStore, $location) {
+			return workflowSelectionserviceFactory(selectionStore, $location);
 		}
 	])
 	.factory("reactCompatService", function() {

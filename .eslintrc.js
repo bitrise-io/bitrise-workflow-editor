@@ -4,14 +4,16 @@ module.exports = {
 	root: true,
 	env: {
 		browser: true,
-		node: true
+		node: true,
+		jasmine: true
 	},
-	plugins: ["@typescript-eslint"],
+	plugins: ["@typescript-eslint", "jasmine"],
 	globals: {
 		cy: false,
 		Cypress: false,
 		angular: false,
-		_: false
+		_: false,
+		inject: false
 	},
 	extends: [
 		"eslint:recommended",

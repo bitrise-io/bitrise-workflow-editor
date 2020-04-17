@@ -1,3 +1,4 @@
+import { flatten, isNull } from "underscore";
 import { Step, Workflow } from "../models";
 import { WorkflowSelectionStore } from "./workflow-selection-store";
 
@@ -31,9 +32,10 @@ const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper => ({
 	...wrapper
 });
 
-class WorkflowsSelectionService {
+export class WorkflowsSelectionService {
 	private store: WorkflowSelectionStore;
 	private location: AngularLocationService;
+	private static primaryWorkflowName = "primary";
 
 	constructor(store: WorkflowSelectionStore, locationService: AngularLocationService) {
 		this.store = store;
@@ -44,13 +46,13 @@ class WorkflowsSelectionService {
 		potentialIndex: number | null,
 		list: Array<T> | null,
 		checker: (arg0: T) => boolean
-	): number | null => {
-		if (!potentialIndex) {
-			return null;
+	): boolean => {
+		if (isNull(potentialIndex)) {
+			return false;
 		}
 
-		const lastEditedWorkflow = list && list[potentialIndex];
-		return lastEditedWorkflow && checker(lastEditedWorkflow) ? potentialIndex : null;
+		const entity = list && list[potentialIndex!];
+		return !!entity && checker(entity);
 	};
 
 	findSelectedWorkflow = (viewModel: WorkflowViewModel): Workflow => {
@@ -58,7 +60,7 @@ class WorkflowsSelectionService {
 			viewModel.selectedWorkflow?.id,
 			this.store.lastSelectedWorkflowID,
 			this.location.search().workflow_id,
-			"primary"
+			WorkflowsSelectionService.primaryWorkflowName
 		];
 
 		let selectedWf = null;
@@ -72,7 +74,7 @@ class WorkflowsSelectionService {
 		return selectedWf || viewModel.workflows[0];
 	};
 
-	configureSelection = (viewModel: WorkflowViewModel): void => {
+	restoreSelection = (viewModel: WorkflowViewModel): void => {
 		this.selectWorkflow(viewModel, this.findSelectedWorkflow(viewModel));
 
 		if (
@@ -112,15 +114,17 @@ class WorkflowsSelectionService {
 		viewModel.selectedWorkflowChain = [];
 
 		const constructWorkflowChain = (wfs: Array<Workflow>, before: boolean): Array<WfChainWrapper> =>
-			wfs.flatMap((innerWf: Workflow, index: number) =>
-				innerWf.workflowChain(viewModel.workflows).map((aWorkflow: Workflow) =>
-					wfChainWrapper({
-						workflow: aWorkflow,
-						isBeforeRunWorkflow: before,
-						isAfterRunWorkflow: !before,
-						selectedWorkflowBeforeRunWorkflowIndex: before && aWorkflow == innerWf ? index : -1,
-						selectedWorkflowAfterRunWorkflowIndex: !before && aWorkflow == innerWf ? index : -1
-					})
+			flatten(
+				wfs.map((innerWf: Workflow, index: number) =>
+					innerWf.workflowChain(viewModel.workflows).map((aWorkflow: Workflow) =>
+						wfChainWrapper({
+							workflow: aWorkflow,
+							isBeforeRunWorkflow: before,
+							isAfterRunWorkflow: !before,
+							selectedWorkflowBeforeRunWorkflowIndex: before && aWorkflow == innerWf ? index : -1,
+							selectedWorkflowAfterRunWorkflowIndex: !before && aWorkflow == innerWf ? index : -1
+						})
+					)
 				)
 			);
 
