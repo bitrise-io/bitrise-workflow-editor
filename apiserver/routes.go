@@ -7,7 +7,7 @@ import (
 	"net/url"
 	"time"
 
-	"github.com/GeertJohan/go.rice"
+	rice "github.com/GeertJohan/go.rice"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/service"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
@@ -37,6 +37,8 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 	r.HandleFunc("/api/connection", wrapHandlerFunc(service.DeleteConnectionHandler)).Methods("DELETE")
 	r.HandleFunc("/api/connection", wrapHandlerFunc(service.PostConnectionHandler)).Methods("POST")
 
+	var assetServer http.Handler
+
 	// Anything else: pass to the frontend
 	if isServeFilesThroughMiddlemanServer {
 		frontendServerHost := utility.EnvString("DEV_SERVER_HOST", config.DefaultFrontendHost)
@@ -48,14 +50,16 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 		if err != nil {
 			return nil, fmt.Errorf("Failed to initialize frontend proxy URL, error: %s", err)
 		}
-		r.NotFoundHandler = httputil.NewSingleHostReverseProxy(u)
+
+		assetServer = httputil.NewSingleHostReverseProxy(u)
 	} else {
 		box := rice.MustFindBox("www")
-		http.Handle("/"+version.VERSION+"/", http.StripPrefix("/"+version.VERSION+"/", http.FileServer(box.HTTPBox())))
+		assetServer = http.StripPrefix("/"+version.VERSION+"/", http.FileServer(box.HTTPBox()))
 	}
 	//
 
 	http.Handle("/", r)
+	http.Handle("/"+version.VERSION+"/", assetServer)
 
 	return r, nil
 }

@@ -8,10 +8,10 @@ type Version = {
 };
 
 class SemverService {
-	private WILDCARD: string = "x";
-	private WILDCARD_REGEX: RegExp = / /;
-	private MAXSEMVER: string = "";
-	private fullVersionRegex: RegExp = /^\d+\.\d+\.\d+$/g;
+	private WILDCARD = "x";
+	private WILDCARD_REGEX = / /;
+	private MAXSEMVER = "";
+	private fullVersionRegex = /^\d+\.\d+\.\d+$/g;
 
 	constructor() {
 		this.MAXSEMVER = this.semver({});
@@ -101,7 +101,7 @@ class SemverService {
 
 		const stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(this.reverseSorter);
 
-		return stepVersions.find(stepVersion => this.isVersionCompatible(<string>version, stepVersion));
+		return stepVersions.find(stepVersion => this.isVersionCompatible(version!, stepVersion));
 	};
 
 	findLatestMajorVersion = (step: Step, stepCatalogue: StepCatalouge): string => {

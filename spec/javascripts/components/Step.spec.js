@@ -17,7 +17,8 @@ describe("Step", function() {
 		{name: "title", config_name: "title"},
 		{name: "summary", config_name: "summary"},
 		{name: "description", config_name: "description"},
-		{name: "assetUrls", config_name: "asset_urls"}
+		{name: "assetUrls", config_name: "asset_urls"},
+		{name: "isDeprecated", config_name: "is_deprecated", readOnly: true}
 	];
 
 	_.each(fields, (field) => {
@@ -56,31 +57,33 @@ describe("Step", function() {
 				expect(step[field.name]()).toBeUndefined();
 			});
 
-			it(`should override ${field.name}`, () => {
-				step.defaultStepConfig = defaultStepConfig;
-				step.userStepConfig = {};
+			if (!field.readOnly) {
+				it(`should override ${field.name}`, () => {
+					step.defaultStepConfig = defaultStepConfig;
+					step.userStepConfig = {};
 
-				expect(step[field.name](`New ${field.name}`)).toBe(`New ${field.name}`);
-				expect(step.userStepConfig[field.config_name]).toBe(`New ${field.name}`);
-			});
+					expect(step[field.name](`New ${field.name}`)).toBe(`New ${field.name}`);
+					expect(step.userStepConfig[field.config_name]).toBe(`New ${field.name}`);
+				});
 
-			it("should set user step config if not defined yet", () => {
-				step.defaultStepConfig = defaultStepConfig;
+				it("should set user step config if not defined yet", () => {
+					step.defaultStepConfig = defaultStepConfig;
 
-				step[field.name](`New ${field.name}`);
+					step[field.name](`New ${field.name}`);
 
-				expect(step.userStepConfig).not.toBeUndefined();
-				expect(step.userStepConfig[field.config_name]).toBe(`New ${field.name}`);
-			});
+					expect(step.userStepConfig).not.toBeUndefined();
+					expect(step.userStepConfig[field.config_name]).toBe(`New ${field.name}`);
+				});
 
-			it("should remove title from user config if new is default", () => {
-				step.defaultStepConfig = defaultStepConfig;
+				it("should remove title from user config if new is default", () => {
+					step.defaultStepConfig = defaultStepConfig;
 
-				expect(step[field.name](`New ${field.name}`)).toBe(`New ${field.name}`);
-				expect(step[field.name](`Default ${field.name}`)).toBe(`Default ${field.name}`);
-				expect(step.userStepConfig[field.config_name]).toBeUndefined();
-				expect(step.defaultStepConfig[field.config_name]).toBe(`Default ${field.name}`);
-			});
+					expect(step[field.name](`New ${field.name}`)).toBe(`New ${field.name}`);
+					expect(step[field.name](`Default ${field.name}`)).toBe(`Default ${field.name}`);
+					expect(step.userStepConfig[field.config_name]).toBeUndefined();
+					expect(step.defaultStepConfig[field.config_name]).toBe(`Default ${field.name}`);
+				});
+			}
 		});
 	});
 

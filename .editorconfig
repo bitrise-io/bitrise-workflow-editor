@@ -8,5 +8,9 @@ insert_final_newline = true
 trim_trailing_whitespace = true
 
 [*.{ts,js,tsx,erb,json}]
+indent_style = tab
+indent_size = 2
+
+[*.{feature}]
 indent_style = space
 indent_size = 2

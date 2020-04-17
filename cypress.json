@@ -1,13 +1,14 @@
 {
   "projectId": "rnnyfb",
-  "integrationFolder": "spec/integration",
+	"integrationFolder": "spec/integration",
+	"fixturesFolder": "spec/integration/fixture",
   "testFiles": "**/*.feature",
   "pluginsFile": "spec/integration/cypress/plugins",
-  "supportFile": "spec/integration/cypress/support",
+  "supportFile": "spec/integration/cypress",
   "screenshotsFolder": "spec/integration/cypress/screenshots",
   "videosFolder": "spec/integration/cypress/videos",
   "videoUploadOnPasses": false,
-  "requestTimeout": 10000,
+  "requestTimeout": 12000,
   "env": {
     "PORT": 4000
   }

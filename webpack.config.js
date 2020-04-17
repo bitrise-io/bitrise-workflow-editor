@@ -9,180 +9,184 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, RELEASE_VERSION, MODE } = process.env;
+const { NODE_ENV, MODE } = process.env;
 const isProd = NODE_ENV === "prod";
-const wfVersion = RELEASE_VERSION || version;
 
 const urlPrefix = MODE === "WEBSITE" ? "bitrise_workflow_editor-" : "";
-const publicPath = isProd ? `/${urlPrefix}${wfVersion}/` : "";
+const publicPath = `/${urlPrefix}${version}/`;
 
-const railsTransformer = (mode) => ({
-  loader: "shell-loader",
-  options: {
-    script: `bundle exec ruby transformer.rb ${mode}`,
-    cwd: "./rails",
-    maxBuffer: Math.pow(1024, 3)
-  }
+const railsTransformer = mode => ({
+	loader: "shell-loader",
+	options: {
+		script: `bundle exec ruby transformer.rb ${mode}`,
+		cwd: "./rails",
+		maxBuffer: Math.pow(1024, 3),
+		env: { ...process.env, version },
+	}
 });
 
 const htmlExporter = {
-  loader: "file-loader",
-  options: {
-    name: "[path][name].html",
-  },
+	loader: "file-loader",
+	options: {
+		name: "[path][name].html"
+	}
 };
 
 const assetExporter = (regex, folder) => ({
-  test: regex,
-  use: [{
-    loader: "file-loader",
-    options: {
-      outputPath: folder,
-      name: "[name].[ext]",
-      publicPath: path.join(publicPath, `/${folder}`),
-    }
-  }],
+	test: regex,
+	use: [
+		{
+			loader: "file-loader",
+			options: {
+				outputPath: folder,
+				name: "[name].[ext]",
+				publicPath: path.join(publicPath, `/${folder}`)
+			}
+		}
+	]
 });
 
 module.exports = {
-  context: CODEBASE,
+	context: CODEBASE,
 
-  devServer: {
-    contentBase: OUTPUT_FOLDER,
-    compress: true,
-    port: 4567
-  },
-
-  entry: {
-    vendor: "./javascripts/vendor.js",
-    main: "./javascripts/index.js",
-  },
-
-  optimization: {
-    minimize: isProd,
-    minimizer: [
-      new TerserPLugin({
-        extractComments: true,
-        parallel: true,
-        terserOptions: {
-          mangle: false,
-          safari10: true,
-          output: {
-            comments: /@license/i,
-          },
-        }
-      })
-    ],
+	devServer: {
+		contentBase: OUTPUT_FOLDER,
+		contentBasePublicPath: publicPath,
+		compress: true,
+		port: 4567
 	},
 
-  output: {
-    filename: "javascripts/[name].js",
-    path: OUTPUT_FOLDER,
-    publicPath
-  },
+	devtool: "inline-source-map",
 
-  resolve: {
-    extensions: [".js", ".js.erb", ".ts", ".tsx", ".css", ".scss", ".scss.erb"],
-  },
+	entry: {
+		vendor: "./javascripts/vendor.js",
+		main: "./javascripts/index.js"
+	},
 
-  module: {
-    rules: [{
-      test: /\.erb$/,
-      use: railsTransformer("erb")
-    },
+	optimization: {
+		minimize: isProd,
+		minimizer: [
+			new TerserPLugin({
+				extractComments: true,
+				parallel: true,
+				terserOptions: {
+					mangle: false,
+					safari10: true,
+					output: {
+						comments: /@license/i
+					}
+				}
+			})
+		]
+	},
 
-    {
-      test: /\.tsx?$/,
-      use: "ts-loader",
-      exclude: /node_modules/,
-    },
+	output: {
+		filename: "javascripts/[name].js",
+		path: OUTPUT_FOLDER,
+		publicPath
+	},
 
-    {
-      test: /\.(slim)$/,
-      use: [
-        htmlExporter,
-        railsTransformer("slim")
-      ]
-    },
+	resolve: {
+		extensions: [".js", ".js.erb", ".ts", ".tsx", ".css", ".scss", ".scss.erb"]
+	},
 
-    assetExporter(/\.(png|jpe?g|gif|svg)$/i, "images"),
+	module: {
+		rules: [
+			{
+				test: /\.erb$/,
+				use: railsTransformer("erb")
+			},
 
-    assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
+			{
+				test: /\.tsx?$/,
+				use: {
+					loader: "ts-loader",
+					options: {
+						compilerOptions: {
+							"sourceMap": !isProd,
+						}
+					}
+				},
+				exclude: /node_modules/,
+			},
 
-    {
-      test: /\.css$/i,
-      include: path.join(__dirname, "node_modules"),
-      use: ["style-loader", "css-loader"],
-    },
+			{
+				test: /\.(slim)$/,
+				use: [htmlExporter, railsTransformer("slim")]
+			},
 
-    {
-      test: /\.scss(\.erb)?$/,
-      use: [
-        MiniCssExtractPlugin.loader,
-        "css-loader",
-        railsTransformer("erb"),
-        "sass-loader",
-      ]
-    },
+			assetExporter(/\.(png|jpe?g|gif|svg)$/i, "images"),
 
-    {
-      test: path.resolve(__dirname, 'node_modules/normalize.css'),
-      use: 'null-loader',
-    }]
-  },
-  plugins: [
-    new MiniCssExtractPlugin({
-      filename: "stylesheets/[name].css"
-    }),
-    new MonacoWebpackPlugin({
-      languages: ["yaml"],
-      features: [
-        "!accessibilityHelp",
-        "!bracketMatching",
-        "!caretOperations",
-        "!clipboard",
-        "!codeAction",
-        "!codelens",
-        "!colorDetector",
-        "!comment",
-        "!contextmenu",
-        "!cursorUndo",
-        "!dnd",
-        "!folding",
-        "!fontZoom",
-        "!format",
-        "!gotoError",
-        "!gotoLine",
-        "!gotoSymbol",
-        "!hover",
-        "!iPadShowKeyboard",
-        "!inPlaceReplace",
-        "!inspectTokens",
-        "!linesOperations",
-        "!links",
-        "!multicursor",
-        "!parameterHints",
-        "!quickCommand",
-        "!quickOutline",
-        "!referenceSearch",
-        "!rename",
-        "!smartSelect",
-        "!snippets",
-        "!suggest",
-        "!toggleHighContrast",
-        "!toggleTabFocusMode",
-        "!transpose",
-        "!wordHighlighter",
-        "!wordOperations",
-        "!wordPartOperations"
-      ]
-    }),
-    new ProvidePlugin({
-      "window.jQuery": "jquery",
-      "window._": "underscore",
-    }),
-    new CopyPlugin([
-      { from: "images/favicons/*", to: OUTPUT_FOLDER },
-    ]),
-  ]
+			assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
+
+			{
+				test: /\.css$/i,
+				include: path.join(__dirname, "node_modules"),
+				use: ["style-loader", "css-loader"]
+			},
+
+			{
+				test: /\.scss(\.erb)?$/,
+				use: [MiniCssExtractPlugin.loader, "css-loader", railsTransformer("erb"), "sass-loader"]
+			},
+
+			{
+				test: path.resolve(__dirname, "node_modules/normalize.css"),
+				use: "null-loader"
+			}
+		]
+	},
+	plugins: [
+		new MiniCssExtractPlugin({
+			filename: "stylesheets/[name].css"
+		}),
+		new MonacoWebpackPlugin({
+			languages: ["yaml"],
+			features: [
+				"!accessibilityHelp",
+				"!bracketMatching",
+				"!caretOperations",
+				"!clipboard",
+				"!codeAction",
+				"!codelens",
+				"!colorDetector",
+				"!comment",
+				"!contextmenu",
+				"!cursorUndo",
+				"!dnd",
+				"!folding",
+				"!fontZoom",
+				"!format",
+				"!gotoError",
+				"!gotoLine",
+				"!gotoSymbol",
+				"!hover",
+				"!iPadShowKeyboard",
+				"!inPlaceReplace",
+				"!inspectTokens",
+				"!linesOperations",
+				"!links",
+				"!multicursor",
+				"!parameterHints",
+				"!quickCommand",
+				"!quickOutline",
+				"!referenceSearch",
+				"!rename",
+				"!smartSelect",
+				"!snippets",
+				"!suggest",
+				"!toggleHighContrast",
+				"!toggleTabFocusMode",
+				"!transpose",
+				"!wordHighlighter",
+				"!wordOperations",
+				"!wordPartOperations"
+			]
+		}),
+		new ProvidePlugin({
+			"window.jQuery": "jquery",
+			"window._": "underscore"
+		}),
+		new CopyPlugin([{ from: "images/favicons/*", to: OUTPUT_FOLDER }])
+	]
 };

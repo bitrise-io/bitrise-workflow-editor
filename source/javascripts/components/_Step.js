@@ -158,21 +158,7 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 		};
 
 		Step.prototype.isDeprecated = function() {
-			if (this.libraryURL === undefined) {
-				return undefined;
-			}
-
-			var stepSourceService = $injector.get("stepSourceService");
-
-			var library = _.find(stepSourceService.libraries, {
-				url: this.libraryURL
-			});
-
-			if (!library) {
-				return undefined;
-			}
-
-			return _.contains(library.deprecatedSteps, library.steps[this.id][this.version]);
+			return parameterGetterSetter(this, "is_deprecated");
 		};
 
 		Step.prototype.isLocal = function() {
@@ -181,6 +167,10 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 
 		Step.prototype.isLibraryStep = function() {
 			return !!this.libraryURL;
+		};
+
+		Step.prototype.isVCSStep = function() {
+			return !this.isLocal() && !this.isLibraryStep();
 		};
 
 		Step.prototype.requestedVersion = function() {

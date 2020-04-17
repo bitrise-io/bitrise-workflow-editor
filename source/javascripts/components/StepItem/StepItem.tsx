@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import React, { FC } from "react";
 import { Text, Badge, Icon } from "@bitrise/bitkit";
 import { Step } from "../../models";
 
@@ -40,13 +40,13 @@ const stepVersion = (step: Step, highlightVersionUpdate: boolean) =>
 	highlightVersionUpdate ? (
 		<Text>{step.version}</Text>
 	) : (
-		<Badge backgroundColor="red-3" color="white">
+		<Badge backgroundColor="red-3" color="white" data-e2e-tag="version-update">
 			<Icon name="ArrowUp" />
 			{step.version}
 		</Badge>
 	);
 
-const StepItem: FunctionComponent<StepItemProps> = ({
+const StepItem: FC<StepItemProps> = ({
 	step,
 	title,
 	version,

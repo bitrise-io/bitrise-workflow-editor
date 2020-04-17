@@ -2,6 +2,8 @@ package service
 
 import (
 	"encoding/json"
+	"errors"
+	"fmt"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -9,8 +11,10 @@ import (
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/bitrise/models"
+	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
+	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
 // GetBitriseYMLHandler ...
@@ -103,6 +107,14 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
+	workflows, err := convertWorkflowElementTypes(yamlContObj.Workflows)
+	if err != nil {
+		log.Errorf("Failed to convert workflow types, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to convert workflow types")
+		return
+	}
+	yamlContObj.Workflows = workflows
+
 	RespondWithJSON(w, 200, yamlContObj)
 }
 
@@ -151,4 +163,65 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
+}
+
+func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map[string]models.WorkflowModel, error) {
+	for wfKey, wf := range workflows {
+		err := convertWorkflowMetadataType(&wf)
+		if err != nil {
+			return nil, err
+		}
+
+		for stepIdx, sItem := range wf.Steps {
+			for stepID, step := range sItem {
+				if len(step.Inputs) == 0 {
+					continue
+				}
+				for inputIdx, input := range step.Inputs {
+					convertedInput, err := convertStepInputMetadataType(input)
+					if err != nil {
+						return nil, err
+					}
+					step.Inputs[inputIdx] = convertedInput
+				}
+				wf.Steps[stepIdx] = map[string]stepmanModels.StepModel{stepID: step}
+			}
+		}
+		workflows[wfKey] = wf
+	}
+
+	return workflows, nil
+}
+
+func convertWorkflowMetadataType(workflow *models.WorkflowModel) error {
+	if workflow.Meta == nil {
+		return nil
+	}
+
+	wfMeta, ok := ymlToJSONKeyTypeConversion(workflow.Meta).(map[string]interface{})
+	if !ok {
+		return errors.New("Failed to convert metadata")
+	}
+	workflow.Meta = wfMeta
+	return nil
+}
+
+func convertStepInputMetadataType(input envmanModels.EnvironmentItemModel) (envmanModels.EnvironmentItemModel, error) {
+	if input["opts"] == nil {
+		return input, nil
+	}
+	opts, ok := input["opts"].(envmanModels.EnvironmentItemOptionsModel)
+	if !ok {
+		return envmanModels.EnvironmentItemModel{}, fmt.Errorf("Failed to convert opts: %#v", input["opts"])
+	}
+	if opts.Meta == nil {
+		return input, nil
+	}
+	meta, ok := ymlToJSONKeyTypeConversion(opts.Meta).(map[string]interface{})
+	if !ok {
+		return envmanModels.EnvironmentItemModel{}, errors.New("Failed to convert metadata")
+	}
+	opts.Meta = meta
+	input["opts"] = opts
+	return input, nil
 }

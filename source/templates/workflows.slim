@@ -82,7 +82,7 @@
 									button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
 									== svg("arrow-down")
 
-							r-step-version[step="workflowsCtrl.selectedStep" is-latest-version="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" strings="workflowsCtrl.selectedStep | versionInfoStrings:workflowsCtrl.requestedStepVersion" workflow-index="workflowIndex" on-update-step="workflowsCtrl.updateStep" versions="workflowsCtrl.selectedStep | stepVersions" selected-version="workflowsCtrl.requestedStepVersion" version-selector-opts="workflowsCtrl.changeSelectedStepVersion | versionSelectorOptions"]
+							r-step-version[step="workflowsCtrl.selectedStep" is-latest-version="stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)" strings="workflowsCtrl.selectedStep | versionInfoStrings:workflowsCtrl.requestedStepVersion" workflow-index="workflowIndex" on-update-step="workflowsCtrl.updateStep" versions="workflowsCtrl.selectedStep | stepVersions" selected-version="workflowsCtrl.requestedStepVersion" version-selector-opts="workflowsCtrl.selectedStep | versionSelectorOptions:workflowsCtrl.changeSelectedStepVersion"]
 
 							section.always-run[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
 								span.icon

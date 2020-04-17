@@ -1,34 +1,19 @@
-import jsyaml from 'js-yaml';
+import jsyaml from "js-yaml";
 
 (function() {
 	"use strict";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("requestService", function(
-			$q,
-			$injector,
-			$http,
-			stringService,
-			dateService
-		) {
+		.service("requestService", function($q, $injector, $http, stringService, dateService, logger) {
 			var requestService = {
 				mode: "<%= mode %>",
 				appSlug: undefined
 			};
 
-			function errorFromResponse(
-				response,
-				defaultErrorMessage,
-				errorMessagePrefix
-			) {
+			function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
 				if (response && (response.status == -1 || response.status == 408)) {
-					return new Error(
-						response.config.method.toUpperCase() +
-							" " +
-							response.config.url +
-							" - Request aborted"
-					);
+					return new Error(response.config.method.toUpperCase() + " " + response.config.url + " - Request aborted");
 				}
 
 				var error = new Error(defaultErrorMessage);
@@ -55,12 +40,9 @@ import jsyaml from 'js-yaml';
 								});
 							}
 						} else if (angular.isObject(response.data.errors)) {
-							errors = _.map(
-								_.flatten(_.values(response.data.errors)),
-								function(anErrorMessage) {
-									return new Error(anErrorMessage);
-								}
-							);
+							errors = _.map(_.flatten(_.values(response.data.errors)), function(anErrorMessage) {
+								return new Error(anErrorMessage);
+							});
 						}
 
 						error.name = _.pluck(errors, "name").join();
@@ -71,6 +53,8 @@ import jsyaml from 'js-yaml';
 				if (errorMessagePrefix && error.message != defaultErrorMessage) {
 					error.message = errorMessagePrefix += error.message;
 				}
+
+				logger.error(error);
 
 				return error;
 			}
@@ -88,8 +72,7 @@ import jsyaml from 'js-yaml';
 			requestService.closeAPIConnection = function() {
 				return $.ajax({
 					type: "DELETE",
-					url:
-						"<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>",
+					url: "<%= local_server_path(data[:routes][:local_server][:close_api_connection]) %>",
 					async: false
 				});
 			};
@@ -101,15 +84,12 @@ import jsyaml from 'js-yaml';
 
 				switch (requestService.mode) {
 					case "website":
-						requestURL =
-							"<%= webserver_path(data[:routes][:website][:current_user_get]) %>";
+						requestURL = "<%= webserver_path(data[:routes][:website][:current_user_get]) %>";
 
 						break;
 					case "cli":
 						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:get_current_user_data][:not_website_mode_error] %>"
-							)
+							new Error("<%= data[:strings][:request_service][:get_current_user_data][:not_website_mode_error] %>")
 						);
 				}
 
@@ -122,8 +102,7 @@ import jsyaml from 'js-yaml';
 								email: response.data.email,
 								unconfirmedEmail: response.data.unconfirmed_email,
 								avatarURL: response.data.avatar_url,
-								showNewCodeSigningWizard:
-									response.data.show_new_code_signing_wizard
+								showNewCodeSigningWizard: response.data.show_new_code_signing_wizard
 							});
 						},
 						function(response) {
@@ -207,15 +186,11 @@ import jsyaml from 'js-yaml';
 										stack: response.data.stack_identifier,
 										isPublic: response.data.is_public,
 										isCurrentUserOwner: response.data.owner_is_current_user,
-										isMachineTypeSelectorAvailable:
-											response.data.is_machine_type_selector_available,
+										isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
 										ownerData: {
 											slug: response.data.owner_slug,
 											type: response.data.owner_type,
-											name:
-												response.data.owner_type == "User"
-													? response.data.owner_username
-													: response.data.owner_name
+											name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name
 										}
 									});
 								},
@@ -240,10 +215,7 @@ import jsyaml from 'js-yaml';
 				}
 			};
 
-			requestService.updateAppleCredentialUser = function(
-				userSlug,
-				requestConfig
-			) {
+			requestService.updateAppleCredentialUser = function(userSlug, requestConfig) {
 				var requestURL;
 				var requestData;
 
@@ -307,8 +279,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:app_config_post]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_post]) %>";
 						requestData = {
 							bitrise_yml: appConfig
 						};
@@ -348,8 +319,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:app_config_get]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:app_config_get]) %>";
 
 						break;
 				}
@@ -392,8 +362,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:yml_post]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_post]) %>";
 						requestData = {
 							bitrise_yml: appConfigYML
 						};
@@ -407,9 +376,7 @@ import jsyaml from 'js-yaml';
 							resolve(response.data);
 						},
 						function(response) {
-							var error = new Error(
-								"<%= data[:strings][:request_service][:save_app_config][:default_error] %>"
-							);
+							var error = new Error("<%= data[:strings][:request_service][:save_app_config][:default_error] %>");
 							if (response && response.data && response.data.error) {
 								error.message = response.data.error;
 							}
@@ -439,8 +406,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:yml_get]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_get]) %>";
 
 						break;
 				}
@@ -507,8 +473,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:secrets_post]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_post]) %>";
 						requestData = {
 							envs: _.map(secrets, function(aSecret) {
 								return aSecret.userVariableConfig;
@@ -550,8 +515,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:secrets_get]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:secrets_get]) %>";
 
 						break;
 				}
@@ -630,14 +594,12 @@ import jsyaml from 'js-yaml';
 				switch (requestService.mode) {
 					case "website":
 						requestMethod = "get";
-						requestURL =
-							"<%= webserver_path(data[:routes][:website][:bitrise_steplib_get]) %>";
+						requestURL = "<%= webserver_path(data[:routes][:website][:bitrise_steplib_get]) %>";
 
 						break;
 					case "cli":
 						requestMethod = "post";
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:libraries_fetch]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:libraries_fetch]) %>";
 
 						break;
 				}
@@ -673,8 +635,7 @@ import jsyaml from 'js-yaml';
 			};
 
 			requestService.stepConfigFetch = function(step, requestConfig) {
-				var requestURL =
-					"<%= local_server_path(data[:routes][:local_server][:step_config_fetch]) %>";
+				var requestURL = "<%= local_server_path(data[:routes][:local_server][:step_config_fetch]) %>";
 				var requestData = {};
 
 				if (step.localPath) {
@@ -707,9 +668,7 @@ import jsyaml from 'js-yaml';
 												resolve(defaultStepConfig);
 											} catch (error) {
 												reject(
-													new Error(
-														"<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"
-													)
+													new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>")
 												);
 											}
 										},
@@ -778,8 +737,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						requestURL =
-							"<%= local_server_path(data[:routes][:local_server][:default_outputs_get]) %>";
+						requestURL = "<%= local_server_path(data[:routes][:local_server][:default_outputs_get]) %>";
 
 						break;
 				}
@@ -847,40 +805,37 @@ import jsyaml from 'js-yaml';
 						break;
 					case "cli":
 						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:get_machine_types][:not_website_mode_error] %>"
-							)
+							new Error("<%= data[:strings][:request_service][:get_machine_types][:not_website_mode_error] %>")
 						);
 				}
 
 				return $q(function(resolve, reject) {
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
-							var machineTypeConfigs = _.each(
-								response.data.available_machine_type_configs,
-								function(aStackSpecificMachineTypeConfigs, aStackType) {
-									var machineTypeSpecificConfig = {};
-									var stackSpecificMachineTypeConfigs = {};
-									return (stackSpecificMachineTypeConfigs[aStackType] = {
-										defaultMachineType:
-											aStackSpecificMachineTypeConfigs.default_machine_type,
-										machineTypes: _.map(
-											aStackSpecificMachineTypeConfigs.machine_types,
-											function(aMachineTypeConfig, aMachineType) {
-												return (machineTypeSpecificConfig[aMachineType] = {
-													name: aMachineTypeConfig.name,
-													cpuCount: aMachineTypeConfig.cpu_count,
-													cpuDescription: aMachineTypeConfig.cpu_description,
-													ram: aMachineTypeConfig.ram,
-													creditPerMin: aMachineTypeConfig.credit_per_min,
-													isAvailable: aMachineTypeConfig.is_available,
-													note: aMachineTypeConfig.note
-												});
-											}
-										)
-									});
-								}
-							);
+							var machineTypeConfigs = _.each(response.data.available_machine_type_configs, function(
+								aStackSpecificMachineTypeConfigs,
+								aStackType
+							) {
+								var machineTypeSpecificConfig = {};
+								var stackSpecificMachineTypeConfigs = {};
+								return (stackSpecificMachineTypeConfigs[aStackType] = {
+									defaultMachineType: aStackSpecificMachineTypeConfigs.default_machine_type,
+									machineTypes: _.map(aStackSpecificMachineTypeConfigs.machine_types, function(
+										aMachineTypeConfig,
+										aMachineType
+									) {
+										return (machineTypeSpecificConfig[aMachineType] = {
+											name: aMachineTypeConfig.name,
+											cpuCount: aMachineTypeConfig.cpu_count,
+											cpuDescription: aMachineTypeConfig.cpu_description,
+											ram: aMachineTypeConfig.ram,
+											creditPerMin: aMachineTypeConfig.credit_per_min,
+											isAvailable: aMachineTypeConfig.is_available,
+											note: aMachineTypeConfig.note
+										});
+									})
+								});
+							});
 
 							resolve({
 								machineTypeConfigs: machineTypeConfigs
@@ -915,11 +870,7 @@ import jsyaml from 'js-yaml';
 
 						break;
 					case "cli":
-						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:get_stack][:not_website_mode_error] %>"
-							)
-						);
+						return $q.reject(new Error("<%= data[:strings][:request_service][:get_stack][:not_website_mode_error] %>"));
 				}
 
 				return $q(function(resolve, reject) {
@@ -959,19 +910,14 @@ import jsyaml from 'js-yaml';
 						break;
 					case "cli":
 						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:get_stacks][:not_website_mode_error] %>"
-							)
+							new Error("<%= data[:strings][:request_service][:get_stacks][:not_website_mode_error] %>")
 						);
 				}
 
 				return $q(function(resolve, reject) {
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
-							var stackDatas = _.map(response.data.available_stacks, function(
-								aStackData,
-								stackID
-							) {
+							var stackDatas = _.map(response.data.available_stacks, function(aStackData, stackID) {
 								return {
 									id: stackID,
 									name: aStackData.title,
@@ -983,15 +929,15 @@ import jsyaml from 'js-yaml';
 								};
 							});
 
-							var projecTypeDatas = _.map(
-								response.data.project_types_with_default_stacks,
-								function(aProjectTypeData, projectTypeID) {
-									return {
-										id: projectTypeID,
-										defaultStackID: aProjectTypeData.default_stack
-									};
-								}
-							);
+							var projecTypeDatas = _.map(response.data.project_types_with_default_stacks, function(
+								aProjectTypeData,
+								projectTypeID
+							) {
+								return {
+									id: projectTypeID,
+									defaultStackID: aProjectTypeData.default_stack
+								};
+							});
 
 							resolve({
 								stackDatas: stackDatas,
@@ -1011,12 +957,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.saveStack = function(
-				stackID,
-				dockerImage,
-				denTags,
-				requestConfig
-			) {
+			requestService.saveStack = function(stackID, dockerImage, denTags, requestConfig) {
 				var requestURL;
 				var requestData;
 
@@ -1039,9 +980,7 @@ import jsyaml from 'js-yaml';
 						break;
 					case "cli":
 						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>"
-							)
+							new Error("<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>")
 						);
 				}
 
@@ -1070,8 +1009,7 @@ import jsyaml from 'js-yaml';
 
 				switch (requestService.mode) {
 					case "website":
-						requestURL =
-							"<%= webserver_path(data[:routes][:website][:apple_developer_account_get]) %>";
+						requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_get]) %>";
 
 						break;
 					case "cli":
@@ -1092,11 +1030,8 @@ import jsyaml from 'js-yaml';
 							if (responseData.isAccepted) {
 								responseData.connectedAccount = {
 									appleID: response.data.connected_account.apple_id,
-									authExpiresAt: dateService.dateFromString(
-										response.data.connected_account.auth_expires_at
-									),
-									selectedTeamIDs:
-										response.data.connected_account.selected_team_ids
+									authExpiresAt: dateService.dateFromString(response.data.connected_account.auth_expires_at),
+									selectedTeamIDs: response.data.connected_account.selected_team_ids
 								};
 							}
 
@@ -1115,18 +1050,13 @@ import jsyaml from 'js-yaml';
 				);
 			};
 
-			requestService.addAppleDeveloperAccountWithAuthentication = function(
-				appleID,
-				password,
-				requestConfig
-			) {
+			requestService.addAppleDeveloperAccountWithAuthentication = function(appleID, password, requestConfig) {
 				var requestURL;
 				var requestData = {};
 
 				switch (requestService.mode) {
 					case "website":
-						requestURL =
-							"<%= webserver_path(data[:routes][:website][:apple_developer_account_connect]) %>";
+						requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_connect]) %>";
 
 						break;
 					case "cli":
@@ -1146,167 +1076,134 @@ import jsyaml from 'js-yaml';
 
 				return $q(
 					function(resolve, reject) {
-						$http
-							.post(requestURL, requestData, requestConfig)
-							.then(function(response) {
-								var responseData = {
-									isMoreInfoNeeded: response.data.status == 100
+						$http.post(requestURL, requestData, requestConfig).then(function(response) {
+							var responseData = {
+								isMoreInfoNeeded: response.data.status == 100
+							};
+
+							if (response.data.headers) {
+								responseData.headers = response.data.headers;
+							}
+
+							if (response.data.cookies) {
+								responseData.cookies = response.data.cookies;
+							}
+
+							if (responseData.isMoreInfoNeeded) {
+								responseData.trustedDevices = response.data.trusted_devices
+									? _.map(response.data.trusted_devices, function(aTrustedDevice) {
+											return {
+												id: aTrustedDevice.id,
+												phoneNumber: aTrustedDevice.phone_number
+											};
+									  })
+									: [];
+								responseData.isTwoFactorAuthRequired = !response.data.trusted_devices;
+								responseData.isTwoStepAuthRequired = !responseData.isTwoFactorAuthRequired;
+							} else {
+								responseData.connectedAccount = {
+									fullName: response.data.account_data.full_name,
+									email: response.data.account_data.email,
+									appleID: response.data.account_data.apple_id,
+									authExpiryDate: dateService.dateFromString(response.data.account_data.auth_expires_at),
+									selectedTeamIDs: response.data.account_data.selected_team_ids
 								};
 
-								if (response.data.headers) {
-									responseData.headers = response.data.headers;
-								}
+								var teamsWithAgentRole = [];
+								var teamsWithAdminRole = [];
+								var teamsWithMemberRole = [];
+								_.each(response.data.apple_developer_account_teams, function(aTeam) {
+									if (aTeam.current_team_member.is_agent) {
+										teamsWithAgentRole.push(aTeam);
+									} else if (aTeam.current_team_member.is_admin) {
+										teamsWithAdminRole.push(aTeam);
+									} else {
+										teamsWithMemberRole.push(aTeam);
+									}
+								});
 
-								if (response.data.cookies) {
-									responseData.cookies = response.data.cookies;
-								}
+								responseData.appleDeveloperAccountTeams = response.data.apple_developer_account_teams
+									? _.map(_.union(teamsWithAgentRole, teamsWithAdminRole, teamsWithMemberRole), function(aTeam) {
+											var devicesByType = {
+												ipad: undefined,
+												iphone: undefined,
+												ipod: undefined,
+												watch: undefined,
+												tvOS: undefined
+											};
 
-								if (responseData.isMoreInfoNeeded) {
-									responseData.trustedDevices = response.data.trusted_devices
-										? _.map(response.data.trusted_devices, function(
-												aTrustedDevice
-										  ) {
-												return {
-													id: aTrustedDevice.id,
-													phoneNumber: aTrustedDevice.phone_number
-												};
-										  })
-										: [];
-									responseData.isTwoFactorAuthRequired = !response.data
-										.trusted_devices;
-									responseData.isTwoStepAuthRequired = !responseData.isTwoFactorAuthRequired;
-								} else {
-									responseData.connectedAccount = {
-										fullName: response.data.account_data.full_name,
-										email: response.data.account_data.email,
-										appleID: response.data.account_data.apple_id,
-										authExpiryDate: dateService.dateFromString(
-											response.data.account_data.auth_expires_at
-										),
-										selectedTeamIDs:
-											response.data.account_data.selected_team_ids
-									};
-
-									var teamsWithAgentRole = [];
-									var teamsWithAdminRole = [];
-									var teamsWithMemberRole = [];
-									_.each(response.data.apple_developer_account_teams, function(
-										aTeam
-									) {
-										if (aTeam.current_team_member.is_agent) {
-											teamsWithAgentRole.push(aTeam);
-										} else if (aTeam.current_team_member.is_admin) {
-											teamsWithAdminRole.push(aTeam);
-										} else {
-											teamsWithMemberRole.push(aTeam);
-										}
-									});
-
-									responseData.appleDeveloperAccountTeams = response.data
-										.apple_developer_account_teams
-										? _.map(
-												_.union(
-													teamsWithAgentRole,
-													teamsWithAdminRole,
-													teamsWithMemberRole
-												),
-												function(aTeam) {
-													var devicesByType = {
-														ipad: undefined,
-														iphone: undefined,
-														ipod: undefined,
-														watch: undefined,
-														tvOS: undefined
-													};
-
-													_.each(aTeam.devices_data.devices_by_type, function(
-														devicesOfType,
-														aDeviceType
-													) {
-														devicesByType[aDeviceType] = _.map(
-															devicesOfType,
-															function(aDevice) {
-																return {
-																	id: aDevice.id,
-																	name: aDevice.name,
-																	model: aDevice.model,
-																	number: aDevice.number,
-																	status: aDevice.status,
-																	platform: aDevice.platform
-																};
-															}
-														);
-													});
-
+											_.each(aTeam.devices_data.devices_by_type, function(devicesOfType, aDeviceType) {
+												devicesByType[aDeviceType] = _.map(devicesOfType, function(aDevice) {
 													return {
-														id: aTeam.id,
-														name: aTeam.name,
-														entityType: aTeam.entity_type,
-														status: aTeam.status,
-														createdAt: dateService.dateFromString(
-															aTeam.created_at
-														),
-														teamAgent: aTeam.team_agent,
-														memberships: _.sortBy(
-															_.map(aTeam.memberships, function(aMembership) {
-																return {
-																	name: aMembership.name,
-																	platform: aMembership.platform,
-																	status: aMembership.status,
-																	membershipID: aMembership.membershipId,
-																	membershipProductID:
-																		aMembership.membershipProductId,
-																	startAt: dateService.dateFromString(
-																		aMembership.dateStart
-																	),
-																	expireAt: aMembership.dateExpire
-																		? dateService.dateFromString(
-																				aMembership.dateExpire
-																		  )
-																		: null
-																};
-															}),
-															"expireAt"
-														),
-														currentTeamMember: {
-															teamMemberID:
-																aTeam.current_team_member.team_member_id,
-															roles: {
-																isAdmin: {
-																	name: "Admin",
-																	status: aTeam.current_team_member.is_admin
-																},
-																isMember: {
-																	name: "Member",
-																	status: aTeam.current_team_member.is_member
-																},
-																isAgent: {
-																	name: "Agent",
-																	status: aTeam.current_team_member.is_agent
-																}
-															}
-														},
-														devicesData: aTeam.devices_data.error_type
-															? {
-																	error: new Error(
-																		"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
-																	)
-															  }
-															: {
-																	pageNumber: aTeam.devices_data.page_number,
-																	pageSize: aTeam.devices_data.page_size,
-																	totalRecords:
-																		aTeam.devices_data.total_records,
-																	devicesByType: devicesByType
-															  }
+														id: aDevice.id,
+														name: aDevice.name,
+														model: aDevice.model,
+														number: aDevice.number,
+														status: aDevice.status,
+														platform: aDevice.platform
 													};
-												}
-										  )
-										: [];
-								}
+												});
+											});
 
-								resolve(responseData);
-							});
+											return {
+												id: aTeam.id,
+												name: aTeam.name,
+												entityType: aTeam.entity_type,
+												status: aTeam.status,
+												createdAt: dateService.dateFromString(aTeam.created_at),
+												teamAgent: aTeam.team_agent,
+												memberships: _.sortBy(
+													_.map(aTeam.memberships, function(aMembership) {
+														return {
+															name: aMembership.name,
+															platform: aMembership.platform,
+															status: aMembership.status,
+															membershipID: aMembership.membershipId,
+															membershipProductID: aMembership.membershipProductId,
+															startAt: dateService.dateFromString(aMembership.dateStart),
+															expireAt: aMembership.dateExpire
+																? dateService.dateFromString(aMembership.dateExpire)
+																: null
+														};
+													}),
+													"expireAt"
+												),
+												currentTeamMember: {
+													teamMemberID: aTeam.current_team_member.team_member_id,
+													roles: {
+														isAdmin: {
+															name: "Admin",
+															status: aTeam.current_team_member.is_admin
+														},
+														isMember: {
+															name: "Member",
+															status: aTeam.current_team_member.is_member
+														},
+														isAgent: {
+															name: "Agent",
+															status: aTeam.current_team_member.is_agent
+														}
+													}
+												},
+												devicesData: aTeam.devices_data.error_type
+													? {
+															error: new Error(
+																"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
+															)
+													  }
+													: {
+															pageNumber: aTeam.devices_data.page_number,
+															pageSize: aTeam.devices_data.page_size,
+															totalRecords: aTeam.devices_data.total_records,
+															devicesByType: devicesByType
+													  }
+											};
+									  })
+									: [];
+							}
+
+							resolve(responseData);
+						});
 					},
 					function(response) {
 						reject(
@@ -1325,8 +1222,7 @@ import jsyaml from 'js-yaml';
 
 				switch (requestService.mode) {
 					case "website":
-						requestURL =
-							"<%= webserver_path(data[:routes][:website][:apple_developer_account_connection_delete]) %>";
+						requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_connection_delete]) %>";
 
 						break;
 					case "cli":
@@ -1452,9 +1348,7 @@ import jsyaml from 'js-yaml';
 									displayName: response.data.account_data.full_name,
 									email: response.data.account_data.email,
 									appleID: response.data.account_data.apple_id,
-									authExpiryDate: dateService.dateFromString(
-										response.data.account_data.auth_expires_at
-									),
+									authExpiryDate: dateService.dateFromString(response.data.account_data.auth_expires_at),
 									selectedTeamIDs: response.data.account_data.selected_team_ids
 								}
 							};
@@ -1462,9 +1356,7 @@ import jsyaml from 'js-yaml';
 							var teamsWithAgentRole = [];
 							var teamsWithAdminRole = [];
 							var teamsWithMemberRole = [];
-							_.each(response.data.apple_developer_account_teams, function(
-								aTeam
-							) {
+							_.each(response.data.apple_developer_account_teams, function(aTeam) {
 								if (aTeam.current_team_member.is_agent) {
 									teamsWithAgentRole.push(aTeam);
 								} else if (aTeam.current_team_member.is_admin) {
@@ -1474,102 +1366,80 @@ import jsyaml from 'js-yaml';
 								}
 							});
 
-							responseData.appleDeveloperAccountTeams = response.data
-								.apple_developer_account_teams
-								? _.map(
-										_.union(
-											teamsWithAgentRole,
-											teamsWithAdminRole,
-											teamsWithMemberRole
-										),
-										function(aTeam) {
-											var devicesByType = {
-												ipad: undefined,
-												iphone: undefined,
-												ipod: undefined,
-												watch: undefined,
-												tvOS: undefined
-											};
+							responseData.appleDeveloperAccountTeams = response.data.apple_developer_account_teams
+								? _.map(_.union(teamsWithAgentRole, teamsWithAdminRole, teamsWithMemberRole), function(aTeam) {
+										var devicesByType = {
+											ipad: undefined,
+											iphone: undefined,
+											ipod: undefined,
+											watch: undefined,
+											tvOS: undefined
+										};
 
-											_.each(aTeam.devices_data.devices_by_type, function(
-												devicesOfType,
-												aDeviceType
-											) {
-												devicesByType[aDeviceType] = _.map(
-													devicesOfType,
-													function(aDevice) {
-														return {
-															id: aDevice.id,
-															name: aDevice.name,
-															model: aDevice.model,
-															number: aDevice.number,
-															status: aDevice.status,
-															platform: aDevice.platform
-														};
-													}
-												);
+										_.each(aTeam.devices_data.devices_by_type, function(devicesOfType, aDeviceType) {
+											devicesByType[aDeviceType] = _.map(devicesOfType, function(aDevice) {
+												return {
+													id: aDevice.id,
+													name: aDevice.name,
+													model: aDevice.model,
+													number: aDevice.number,
+													status: aDevice.status,
+													platform: aDevice.platform
+												};
 											});
+										});
 
-											return {
-												id: aTeam.id,
-												name: aTeam.name,
-												entityType: aTeam.entity_type,
-												status: aTeam.status,
-												createdAt: dateService.dateFromString(aTeam.created_at),
-												teamAgent: aTeam.team_agent,
-												memberships: _.sortBy(
-													_.map(aTeam.memberships, function(aMembership) {
-														return {
-															name: aMembership.name,
-															platform: aMembership.platform,
-															status: aMembership.status,
-															membershipID: aMembership.membershipId,
-															membershipProductID:
-																aMembership.membershipProductId,
-															startAt: dateService.dateFromString(
-																aMembership.dateStart
-															),
-															expireAt: aMembership.dateExpire
-																? dateService.dateFromString(
-																		aMembership.dateExpire
-																  )
-																: null
-														};
-													}),
-													"expireAt"
-												),
-												currentTeamMember: {
-													teamMemberID:
-														aTeam.current_team_member.team_member_id,
-													roles: {
-														isAdmin: {
-															name: "Admin",
-															status: aTeam.current_team_member.is_admin
-														},
-														isMember: {
-															name: "Member",
-															status: aTeam.current_team_member.is_member
-														},
-														isAgent: {
-															name: "Agent",
-															status: aTeam.current_team_member.is_agent
-														}
+										return {
+											id: aTeam.id,
+											name: aTeam.name,
+											entityType: aTeam.entity_type,
+											status: aTeam.status,
+											createdAt: dateService.dateFromString(aTeam.created_at),
+											teamAgent: aTeam.team_agent,
+											memberships: _.sortBy(
+												_.map(aTeam.memberships, function(aMembership) {
+													return {
+														name: aMembership.name,
+														platform: aMembership.platform,
+														status: aMembership.status,
+														membershipID: aMembership.membershipId,
+														membershipProductID: aMembership.membershipProductId,
+														startAt: dateService.dateFromString(aMembership.dateStart),
+														expireAt: aMembership.dateExpire ? dateService.dateFromString(aMembership.dateExpire) : null
+													};
+												}),
+												"expireAt"
+											),
+											currentTeamMember: {
+												teamMemberID: aTeam.current_team_member.team_member_id,
+												roles: {
+													isAdmin: {
+														name: "Admin",
+														status: aTeam.current_team_member.is_admin
+													},
+													isMember: {
+														name: "Member",
+														status: aTeam.current_team_member.is_member
+													},
+													isAgent: {
+														name: "Agent",
+														status: aTeam.current_team_member.is_agent
 													}
-												},
-												devicesData: aTeam.devices_data.error_type
-													? {
-															error:
-																"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
-													  }
-													: {
-															pageNumber: aTeam.devices_data.page_number,
-															pageSize: aTeam.devices_data.page_size,
-															totalRecords: aTeam.devices_data.total_records,
-															devicesByType: devicesByType
-													  }
-											};
-										}
-								  )
+												}
+											},
+											devicesData: aTeam.devices_data.error_type
+												? {
+														error:
+															"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
+												  }
+												: {
+														pageNumber: aTeam.devices_data.page_number,
+														pageSize: aTeam.devices_data.page_size,
+														totalRecords: aTeam.devices_data.total_records,
+														devicesByType: devicesByType
+												  }
+										};
+								  })
 								: [];
 
 							resolve(responseData);
@@ -1587,10 +1457,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams = function(
-				teamID,
-				requestConfig
-			) {
+			requestService.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams = function(teamID, requestConfig) {
 				var requestURL;
 				var requestData = {
 					team_id: teamID,
@@ -1599,8 +1466,7 @@ import jsyaml from 'js-yaml';
 
 				switch (requestService.mode) {
 					case "website":
-						requestURL =
-							"<%= webserver_path(data[:routes][:website][:apple_developer_account_default_team_post]) %>";
+						requestURL = "<%= webserver_path(data[:routes][:website][:apple_developer_account_default_team_post]) %>";
 
 						break;
 					case "cli":
@@ -1631,10 +1497,7 @@ import jsyaml from 'js-yaml';
 
 			// Provisioning profiles
 
-			requestService.getDetailsOfProvProfile = function(
-				databaseID,
-				requestConfig
-			) {
+			requestService.getDetailsOfProvProfile = function(databaseID, requestConfig) {
 				var requestURL;
 
 				switch (requestService.mode) {
@@ -1660,9 +1523,7 @@ import jsyaml from 'js-yaml';
 						function(response) {
 							resolve({
 								uuid: response.data.prov_profile_details.uuid,
-								expiresAt: dateService.dateFromString(
-									response.data.prov_profile_details.expiration_date
-								),
+								expiresAt: dateService.dateFromString(response.data.prov_profile_details.expiration_date),
 								exportType: response.data.prov_profile_details.export_type,
 								teamName: response.data.prov_profile_details.team_name,
 								teamID: response.data.prov_profile_details.team_id,
@@ -1672,29 +1533,20 @@ import jsyaml from 'js-yaml';
 									function(aCertificateIdentity) {
 										return {
 											commonName: aCertificateIdentity.common_name,
-											startDate: dateService.dateFromString(
-												aCertificateIdentity.start_date
-											),
-											endDate: dateService.dateFromString(
-												aCertificateIdentity.end_date
-											),
+											startDate: dateService.dateFromString(aCertificateIdentity.start_date),
+											endDate: dateService.dateFromString(aCertificateIdentity.end_date),
 											teamName: aCertificateIdentity.team_name,
 											teamID: aCertificateIdentity.team_id,
 											serial: aCertificateIdentity.serial
 										};
 									}
 								),
-								capabilityKeys: _.keys(
-									response.data.prov_profile_details.entitlements
-								),
-								provisionedDevices: _.map(
-									response.data.prov_profile_details.provisioned_devices,
-									function(udid) {
-										return {
-											udid: udid
-										};
-									}
-								)
+								capabilityKeys: _.keys(response.data.prov_profile_details.entitlements),
+								provisionedDevices: _.map(response.data.prov_profile_details.provisioned_devices, function(udid) {
+									return {
+										udid: udid
+									};
+								})
 							});
 						},
 						function(response) {
@@ -1758,11 +1610,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.postProvProfileCreate = function(
-				fileName,
-				fileSize,
-				requestConfig
-			) {
+			requestService.postProvProfileCreate = function(fileName, fileSize, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:prov_profile_create]) %>",
 					{
@@ -1796,11 +1644,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.finalizeProvProfileUpload = function(
-				databaseID,
-				isSuccess,
-				requestConfig
-			) {
+			requestService.finalizeProvProfileUpload = function(databaseID, isSuccess, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:prov_profile_finalize_upload]) %>",
 					{
@@ -1842,9 +1686,7 @@ import jsyaml from 'js-yaml';
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
 							resolve(
-								_.map(response.data.prov_profile_documents, function(
-									aProvProfileData
-								) {
+								_.map(response.data.prov_profile_documents, function(aProvProfileData) {
 									return {
 										databaseID: aProvProfileData.id,
 										isProcessed: aProvProfileData.processed,
@@ -1868,11 +1710,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.updateProvProfileIsExposeState = function(
-				databaseID,
-				isExpose,
-				requestConfig
-			) {
+			requestService.updateProvProfileIsExposeState = function(databaseID, isExpose, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:prov_profile_is_expose_state_update]) %>",
 					{
@@ -1991,11 +1829,7 @@ import jsyaml from 'js-yaml';
 
 			// Certificates
 
-			requestService.getDetailsOfCertificate = function(
-				certificateDatabaseID,
-				certificatePassword,
-				requestConfig
-			) {
+			requestService.getDetailsOfCertificate = function(certificateDatabaseID, certificatePassword, requestConfig) {
 				var requestURL;
 
 				switch (requestService.mode) {
@@ -2011,9 +1845,7 @@ import jsyaml from 'js-yaml';
 						break;
 					case "cli":
 						return $q.reject(
-							new Error(
-								"<%= data[:strings][:request_service][:get_details_of_certificate][:not_website_mode_error] %>"
-							)
+							new Error("<%= data[:strings][:request_service][:get_details_of_certificate][:not_website_mode_error] %>")
 						);
 				}
 
@@ -2021,17 +1853,11 @@ import jsyaml from 'js-yaml';
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
 							resolve(
-								_.map(response.data.build_certificate_details, function(
-									aCertificateData
-								) {
+								_.map(response.data.build_certificate_details, function(aCertificateData) {
 									return {
 										commonName: aCertificateData.common_name,
-										startDate: dateService.dateFromString(
-											aCertificateData.start_date
-										),
-										endDate: dateService.dateFromString(
-											aCertificateData.end_date
-										),
+										startDate: dateService.dateFromString(aCertificateData.start_date),
+										endDate: dateService.dateFromString(aCertificateData.end_date),
 										teamName: aCertificateData.team_name,
 										teamID: aCertificateData.team_id,
 										serial: aCertificateData.serial
@@ -2052,11 +1878,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.postCertificateCreate = function(
-				fileName,
-				fileSize,
-				requestConfig
-			) {
+			requestService.postCertificateCreate = function(fileName, fileSize, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:certificate_create]) %>",
 					{
@@ -2090,11 +1912,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.finalizeCertificateUpload = function(
-				databaseID,
-				isSuccess,
-				requestConfig
-			) {
+			requestService.finalizeCertificateUpload = function(databaseID, isSuccess, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:certificate_finalize_upload]) %>",
 					{
@@ -2136,9 +1954,7 @@ import jsyaml from 'js-yaml';
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
 							resolve(
-								_.map(response.data.build_certificates, function(
-									aCertificateData
-								) {
+								_.map(response.data.build_certificates, function(aCertificateData) {
 									return {
 										databaseID: aCertificateData.id,
 										isProcessed: aCertificateData.processed,
@@ -2163,11 +1979,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.updateCertificateIsExposeState = function(
-				databaseID,
-				isExpose,
-				requestConfig
-			) {
+			requestService.updateCertificateIsExposeState = function(databaseID, isExpose, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:certificate_is_expose_state_update]) %>",
 					{
@@ -2232,11 +2044,7 @@ import jsyaml from 'js-yaml';
 				);
 			};
 
-			requestService.putCertificatePasswordSave = function(
-				databaseID,
-				password,
-				requestConfig
-			) {
+			requestService.putCertificatePasswordSave = function(databaseID, password, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:certificate_password_save]) %>",
 					{
@@ -2320,12 +2128,7 @@ import jsyaml from 'js-yaml';
 
 			// Generic files
 
-			requestService.postGenericFileCreate = function(
-				envVarPartialID,
-				fileName,
-				fileSize,
-				requestConfig
-			) {
+			requestService.postGenericFileCreate = function(envVarPartialID, fileName, fileSize, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:generic_file_create]) %>",
 					{
@@ -2360,11 +2163,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.finalizeGenericFileUpload = function(
-				databaseID,
-				isSuccess,
-				requestConfig
-			) {
+			requestService.finalizeGenericFileUpload = function(databaseID, isSuccess, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:generic_file_finalize_upload]) %>",
 					{
@@ -2409,15 +2208,9 @@ import jsyaml from 'js-yaml';
 
 							resolve(
 								_.map(
-									_.filter(
-										response.data.project_file_storage_documents,
-										function(aGenericFileData) {
-											return (
-												aGenericFileData.user_env_key !=
-												KeystoreFile.downloadURLEnvVarPartialID
-											);
-										}
-									),
+									_.filter(response.data.project_file_storage_documents, function(aGenericFileData) {
+										return aGenericFileData.user_env_key != KeystoreFile.downloadURLEnvVarPartialID;
+									}),
 									function(aGenericFileData) {
 										return {
 											databaseID: aGenericFileData.id,
@@ -2444,11 +2237,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.updateGenericFileIsExposeState = function(
-				databaseID,
-				isExpose,
-				requestConfig
-			) {
+			requestService.updateGenericFileIsExposeState = function(databaseID, isExpose, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:generic_file_is_expose_state_update]) %>",
 					{
@@ -2541,11 +2330,7 @@ import jsyaml from 'js-yaml';
 
 			// Android Keystore file
 
-			requestService.postKeystoreFileCreate = function(
-				fileName,
-				fileSize,
-				requestConfig
-			) {
+			requestService.postKeystoreFileCreate = function(fileName, fileSize, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:generic_file_create]) %>",
 					{
@@ -2582,11 +2367,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.finalizeKeystoreFileUpload = function(
-				databaseID,
-				isSuccess,
-				requestConfig
-			) {
+			requestService.finalizeKeystoreFileUpload = function(databaseID, isSuccess, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:generic_file_finalize_upload]) %>",
 					{
@@ -2628,12 +2409,9 @@ import jsyaml from 'js-yaml';
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
 							var KeystoreFile = $injector.get("KeystoreFile");
-							var keystoreFileData = _.find(
-								response.data.project_file_storage_documents,
-								{
-									user_env_key: KeystoreFile.downloadURLEnvVarPartialID
-								}
-							);
+							var keystoreFileData = _.find(response.data.project_file_storage_documents, {
+								user_env_key: KeystoreFile.downloadURLEnvVarPartialID
+							});
 
 							var responseData = null;
 
@@ -2648,12 +2426,9 @@ import jsyaml from 'js-yaml';
 								};
 
 								if (keystoreFileData.exposed_meta_datastore) {
-									responseData.password =
-										keystoreFileData.exposed_meta_datastore.PASSWORD;
-									responseData.alias =
-										keystoreFileData.exposed_meta_datastore.ALIAS;
-									responseData.privateKeyPassword =
-										keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
+									responseData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
+									responseData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
+									responseData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
 								}
 							}
 
@@ -2672,11 +2447,7 @@ import jsyaml from 'js-yaml';
 				});
 			};
 
-			requestService.updateKeystoreFileIsExposeState = function(
-				databaseID,
-				isExpose,
-				requestConfig
-			) {
+			requestService.updateKeystoreFileIsExposeState = function(databaseID, isExpose, requestConfig) {
 				var requestURL = stringService.stringReplacedWithParameters(
 					"<%= webserver_path(data[:routes][:website][:generic_file_is_expose_state_update]) %>",
 					{
@@ -2822,11 +2593,7 @@ import jsyaml from 'js-yaml';
 							resolve();
 						},
 						function(response) {
-							reject(
-								new Error(
-									"<%= data[:strings][:request_service][:upload_file_to_storage][:default_error] %>"
-								)
-							);
+							reject(new Error("<%= data[:strings][:request_service][:upload_file_to_storage][:default_error] %>"));
 						}
 					);
 				});

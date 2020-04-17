@@ -96,44 +96,14 @@ func failf(format string, v ...interface{}) {
 	os.Exit(1)
 }
 
-func main() {
-	version := os.Getenv("BITRISE_WORKFLOW_EDITOR_VERSION")
-	versionPth := os.Getenv("BITRISE_WORKFLOW_EDITOR_VERSION_FILE")
-	pluginDefinitionPth := os.Getenv("BITRISE_WORKFLOW_EDITOR_PLUGIN_DEFINITION_FILE")
-
-	if version == "" {
-		failf("Missing BITRISE_WORKFLOW_EDITOR_VERSION environment\n")
-	}
-
-	if versionPth == "" {
-		failf("Missing version-file BITRISE_WORKFLOW_EDITOR_VERSION_FILE environment\n")
-	}
-	if exist, err := isPathExists(versionPth); err != nil {
-		failf("Failed to check if version.go file path (%s) exists, error: %s", versionPth, err)
+func bumpPluginVersion(version string, pluginDefinitionPath string) {
+	if exist, err := isPathExists(pluginDefinitionPath); err != nil {
+		failf("Failed to check if bitrise-plugin.yml file path (%s) exists, error: %s", pluginDefinitionPath, err)
 	} else if !exist {
-		failf("version.go file path not exist at: %s", versionPth)
+		failf("bitrise-plugin.yml file path not exist at: %s", pluginDefinitionPath)
 	}
 
-	if pluginDefinitionPth == "" {
-		failf("Missing plugin-definition-file BITRISE_WORKFLOW_EDITOR_PLUGIN_DEFINITION_FILE environment\n")
-	}
-	if exist, err := isPathExists(pluginDefinitionPth); err != nil {
-		failf("Failed to check if bitrise-plugin.yml file path (%s) exists, error: %s", pluginDefinitionPth, err)
-	} else if !exist {
-		failf("bitrise-plugin.yml file path not exist at: %s", pluginDefinitionPth)
-	}
-
-	versionContent := fmt.Sprintf(`package version
-
-// VERSION ...
-const VERSION = "%s"
-`, version)
-
-	if err := writeStringToFile(versionPth, versionContent); err != nil {
-		failf("Failed to update version.go file, error: %s", err)
-	}
-
-	pluginDefinition, err := readStringFromFile(pluginDefinitionPth)
+	pluginDefinition, err := readStringFromFile(pluginDefinitionPath)
 	if err != nil {
 		failf("Failed to read plugin definition, error: %s", err)
 	}
@@ -166,7 +136,43 @@ const VERSION = "%s"
 
 	updatedLines = append(updatedLines, "")
 	updatedContent := strings.Join(updatedLines, "\n")
-	if err := writeStringToFile(pluginDefinitionPth, updatedContent); err != nil {
+	if err := writeStringToFile(pluginDefinitionPath, updatedContent); err != nil {
 		failf("Failed to update bitrise-plugin.yml, error: %s", err)
+	}
+}
+
+func bumpBinaryVersion(version string, versionFilePath string) {
+	if exist, err := isPathExists(versionFilePath); err != nil {
+		failf("Failed to check if version.go file path (%s) exists, error: %s", versionFilePath, err)
+	} else if !exist {
+		failf("version.go file path not exist at: %s", versionFilePath)
+	}
+
+	versionContent := fmt.Sprintf(`package version
+
+// VERSION ...
+const VERSION = "%s"
+	`, version)
+
+	if err := writeStringToFile(versionFilePath, versionContent); err != nil {
+		failf("Failed to update version.go file, error: %s", err)
+	}
+}
+
+func main() {
+	version := os.Getenv("BITRISE_WORKFLOW_EDITOR_VERSION")
+	versionFilePath := os.Getenv("BITRISE_WORKFLOW_EDITOR_VERSION_FILE")
+	pluginDefinitionPath := os.Getenv("BITRISE_WORKFLOW_EDITOR_PLUGIN_DEFINITION_FILE")
+
+	if version == "" {
+		failf("Missing BITRISE_WORKFLOW_EDITOR_VERSION environment\n")
+	}
+
+	if versionFilePath != "" {
+		bumpBinaryVersion(version, versionFilePath)
+	}
+
+	if pluginDefinitionPath != "" {
+		bumpPluginVersion(version, pluginDefinitionPath)
 	}
 }

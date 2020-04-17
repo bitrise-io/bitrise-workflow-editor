@@ -43,7 +43,8 @@ describe("DataDogLoggerService", () => {
 			testServiceName,
 			jasmine.objectContaining({
 				handler: "http",
-				level: "warn"
+				level: "warn",
+				level: "info"
 			})
 		);
 	});
@@ -66,8 +67,17 @@ describe("DataDogLoggerService", () => {
 	});
 
 	it("should use datadog error logging", () => {
-		logger.error("test", mockContext);
-		expect(mockInnerLogger.error).toHaveBeenCalledWith("test", mockContext);
+		const mockError = new Error('test');
+		const expectedMessage = `test\n${mockError.stack}`;
+
+		logger.error(mockError, mockContext);
+
+		expect(mockInnerLogger.error).toHaveBeenCalledWith(expectedMessage, mockContext);
+	});
+
+	it("should handle null errors", () => {
+		logger.error();
+		expect(mockInnerLogger.error).not.toHaveBeenCalled();
 	});
 
 	it("should use datadog warning logging", () => {

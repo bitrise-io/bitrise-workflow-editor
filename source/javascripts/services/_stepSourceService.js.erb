@@ -7,8 +7,9 @@
 		"appService",
 		"semverService",
 		"stepLibSearchService",
+		"logger",
 		"Step",
-		function($q, requestService, appService, semverService, stepLibSearchService, Step) {
+		function($q, requestService, appService, semverService, stepLibSearchService, logger, Step) {
 			var stepSourceService = {
 				defaultLibraryURL: undefined,
 				libraries: [],
@@ -44,6 +45,10 @@
 				} else {
 					step.version = semverService.normalizeVersion(step.version);
 					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+				}
+
+				if (!step.isConfigured()) {
+					logger.warn("Step is not configured", { id: step.id, version: step.version });
 				}
 			};
 
@@ -132,6 +137,7 @@
 						return step.isLocal() ? null : [step.version];
 					}
 				} catch (err) {
+					logger.error(err);
 					return null;
 				}
 
@@ -223,7 +229,7 @@
 										if (requestService.mode == "cli") {
 											reject(_error);
 										} else {
-											console.log(_error.message);
+											logger.error(_error);
 
 											resolve(null);
 										}
@@ -237,6 +243,7 @@
 				});
 
 				if (error) {
+					logger.error(error);
 					return $q.reject(error);
 				}
 
@@ -332,6 +339,7 @@
 						return $q.when();
 					}
 				} catch (error) {
+					logger.error(error);
 					return $q.reject(error);
 				}
 
@@ -343,6 +351,7 @@
 						stepSourceService.gitSteps.push(step);
 					} else {
 						// TODO: implement single library step load if neccessary
+						logger.warn("Single library step load not implemented");
 					}
 				});
 			}
@@ -356,7 +365,6 @@
 
 				library.steps = {};
 				library.latestStepVersions = {};
-				library.deprecatedSteps = [];
 				_.each(stepIDs, function(aStepID) {
 					var stepData = steps[aStepID];
 					var latestVersion =
@@ -372,12 +380,6 @@
 
 						return step;
 					});
-
-					if (stepData.info !== undefined && stepData.info.deprecate_notes !== undefined) {
-						_.each(library.steps[aStepID], function(aStep) {
-							library.deprecatedSteps.push(aStep);
-						});
-					}
 				});
 
 				return library;
@@ -425,12 +427,13 @@
 
 									resolve();
 								} catch (error) {
-									console.log(error.message);
+									logger.error(error);
 									reject(new Error("<%= data[:strings][:step_source_service][:load_library][:default_error] %>"));
 								}
 							});
 						},
 						function(error) {
+							logger.error(error);
 							reject(error);
 						}
 					);
