@@ -13,7 +13,7 @@ const { NODE_ENV, MODE, PUBLIC_URL_ROOT } = process.env;
 const isProd = NODE_ENV === "prod";
 
 const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
-const publicPath = `${urlPrefix}/${version}`;
+const publicPath = `${urlPrefix}/${version}/`;
 
 const railsTransformer = mode => ({
 	loader: "shell-loader",
@@ -40,7 +40,7 @@ const assetExporter = (regex, folder) => ({
 			options: {
 				outputPath: folder,
 				name: "[name].[ext]",
-				publicPath: `${publicPath}/${folder}`
+				publicPath: `${publicPath}${folder}`
 			}
 		}
 	]
