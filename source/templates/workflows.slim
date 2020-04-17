@@ -10,7 +10,7 @@
 						.workflow
 							== svg("check")
 							span.workflow-id[ng-bind="workflow.id"]
-							button.select-workflow[ng-click="workflowsCtrl.selectedWorkflow = workflow" ng-bind="workflow.id"]
+							button.select-workflow[ng-click="workflowsCtrl.selectWorkflow(workflow)" ng-bind="workflow.id"]
 							button.rename-workflow[ng-click="workflowsCtrl.renamedWorkflow = workflow"]
 						form.workflow-rename[name="renameWorkflowForm" ng-submit="workflowsCtrl.renameWorkflowConfirmed()"]
 							input.name[type="text" name="name" ng-model="workflowsCtrl.renamedWorkflowID" custom-validators="{'id': workflowsCtrl.isRenamedWorkflowIDValid()}"]

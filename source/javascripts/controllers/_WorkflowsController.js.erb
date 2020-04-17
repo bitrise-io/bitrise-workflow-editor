@@ -271,8 +271,6 @@ import { safeDigest } from "../services/react-compat";
 						return;
 					}
 
-					workflowSelectionService.selectWorkflow(viewModel, selectedWorkflow);
-
 					if ($location.search().workflow_id != selectedWorkflow.id) {
 						$location.search("workflow_id", selectedWorkflow.id).replace();
 					}
@@ -592,6 +590,10 @@ import { safeDigest } from "../services/react-compat";
 					);
 				}
 			);
+
+			viewModel.selectWorkflow = function(workflow) {
+				workflowSelectionService.selectWorkflow(viewModel, workflow);
+			};
 
 			viewModel.editWorkflowAtIndex = function(workflowIndex) {
 				viewModel.editedWorkflowIndex = workflowIndex === null ? null : workflowIndex;
