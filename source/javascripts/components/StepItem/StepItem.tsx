@@ -14,7 +14,7 @@ type StringProps = {
 
 type StepItemProps = {
 	step: Step;
-	title: string;
+	displayName: string;
 	version: string;
 	isDeprecated: boolean;
 	isVerified: boolean;
@@ -48,7 +48,7 @@ const stepVersion = (step: Step, highlightVersionUpdate: boolean) =>
 
 const StepItem: FC<StepItemProps> = ({
 	step,
-	title,
+	displayName,
 	version,
 	isDeprecated,
 	isVerified,
@@ -62,8 +62,8 @@ const StepItem: FC<StepItemProps> = ({
 		<img className="icon" src={normalizeIconUrl(step)} />
 		<span className="info">
 			<strong>
-				<Text className="title" ellipsis>
-					{title}
+				<Text className="display-name" ellipsis>
+					{displayName}
 				</Text>
 				{isVerified && <img className="verified" src={verifiedIcon} />}
 				{isDeprecated && <img className="deprecated" src={deprecatedIcon} />}
