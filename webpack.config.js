@@ -9,11 +9,11 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, MODE } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT } = process.env;
 const isProd = NODE_ENV === "prod";
 
-const urlPrefix = MODE === "WEBSITE" ? "bitrise_workflow_editor-" : "";
-const publicPath = `/${urlPrefix}${version}/`;
+const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
+const publicPath = isProd ? `${urlPrefix}/${version}` : "";
 
 const railsTransformer = mode => ({
 	loader: "shell-loader",
@@ -21,7 +21,7 @@ const railsTransformer = mode => ({
 		script: `bundle exec ruby transformer.rb ${mode}`,
 		cwd: "./rails",
 		maxBuffer: Math.pow(1024, 3),
-		env: { ...process.env, version },
+		env: { ...process.env, version }
 	}
 });
 
@@ -40,7 +40,7 @@ const assetExporter = (regex, folder) => ({
 			options: {
 				outputPath: folder,
 				name: "[name].[ext]",
-				publicPath: path.join(publicPath, `/${folder}`)
+				publicPath: isProd ? `${publicPath}/${folder}` : path.join(publicPath, folder)
 			}
 		}
 	]
@@ -103,11 +103,11 @@ module.exports = {
 					loader: "ts-loader",
 					options: {
 						compilerOptions: {
-							"sourceMap": !isProd,
+							sourceMap: !isProd
 						}
 					}
 				},
-				exclude: /node_modules/,
+				exclude: /node_modules/
 			},
 
 			{
