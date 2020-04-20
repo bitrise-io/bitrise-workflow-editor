@@ -1,8 +1,10 @@
 import React, { FC } from "react";
 import { Text, Badge, Icon } from "@bitrise/bitkit";
+import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Step } from "../../models";
 
 import "./StepItem.scss";
+import "react-lazy-load-image-component/src/effects/blur.css";
 
 import defaultStepIcon from "../../../images/step/icon-default.svg";
 import verifiedIcon from "../../../images/step/badge-verified.svg";
@@ -59,7 +61,7 @@ const StepItem: FC<StepItemProps> = ({
 	onSelected
 }: StepItemProps) => (
 	<button className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
-		<img className="icon" src={normalizeIconUrl(step)} />
+		<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} placeholderSrc={defaultStepIcon} />
 		<span className="info">
 			<strong>
 				<Text className="title" ellipsis>
