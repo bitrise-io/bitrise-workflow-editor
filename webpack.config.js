@@ -57,7 +57,7 @@ module.exports = {
 		stats: "errors-only",
 	},
 
-	devtool: "inline-source-map",
+	devtool: `${isProd ? "hidden-" : ""}source-map`,
 
 	entry: {
 		vendor: "./javascripts/vendor.js",
