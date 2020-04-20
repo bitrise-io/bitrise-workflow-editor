@@ -140,7 +140,8 @@ export const elements = {
 	"Workflow chain second after wf5 workflow": ".workflow-chain .after-run li:nth(1)",
 	"Workflow chain after wf6 workflow": ".workflow-chain .after-run li:nth(2)",
 
-	"Step clone button": "button.clone"
+	"Step clone button": "button.clone",
+	"Step source link": "a.source"
 };
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;

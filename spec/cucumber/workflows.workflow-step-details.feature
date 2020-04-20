@@ -13,11 +13,6 @@ Feature: Workflow Step details
     Then the phrase Deprecated shows up in a tooltip
 
 
-  Scenario: User visits the source code of a Step having one
-    Given the Step has source code URL set
-    When User selects the source code button on the right
-    Then the Step's GitHub repository opens in a new tab
-
   Scenario: Step without source code
     Given the Step does not have source code URL set
     Then there will be no source code button on the right

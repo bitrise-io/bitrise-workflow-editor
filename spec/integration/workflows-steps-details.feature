@@ -118,3 +118,8 @@ Feature: Workflow steps details
       And First step is selected
     When I click on "Step clone button"
     Then I should see "Script" in "Second step"
+
+  Scenario: User visits the source code of a Step having one
+    Given "wf5" workflow is selected
+      And First step is selected
+    Then "Step source link" should have attribute "target" with value "_blank"
