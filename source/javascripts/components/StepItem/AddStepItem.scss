@@ -6,6 +6,8 @@
 		display: block;
 	}
 
+	$spacing: 8px;
+
 	.step {
 		$icon-size: 52px;
 		position: relative;
@@ -20,8 +22,11 @@
 				@include position(absolute, 8px, 8px);
 				@include size(10px);
 				vertical-align: top;
-				fill: transparent;
 				@include transition(fill $def-transition_duration);
+
+				use {
+					fill: transparent;
+				}
 			}
 		}
 
@@ -30,6 +35,7 @@
 
 			@include display-flex;
 			padding: 13px;
+			text-align: left;
 
 			.icon {
 				position: relative;
@@ -43,6 +49,7 @@
 				@include flex-grow(1);
 				@include display-flex;
 				@include flex-direction(column);
+				margin-left: $spacing;
 				height: $icon-size;
 				overflow: hidden;
 				font-size: 13px;

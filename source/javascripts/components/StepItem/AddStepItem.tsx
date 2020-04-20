@@ -28,7 +28,7 @@ const AddStepItem: FC<AddStepItemProps> = ({ step, onSelected }: AddStepItemProp
 						{step.isVerified() && <img className="icon verified" src={verifiedIcon} />}
 						{!step.isVerified() && <img className="icon community-created" src={communityCreatedIcon} />}
 					</h4>
-					<MarkdownText markdown={step.summary()} />
+					<MarkdownText className="summary" markdown={step.summary()} />
 				</Base>
 			</Base>
 		</button>
