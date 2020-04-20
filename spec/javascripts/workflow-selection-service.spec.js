@@ -145,7 +145,11 @@ describe("WorkflowsSelectionService", () => {
 			selectionService.selectWorkflow(mockVm, mockWf);
 
 			expect(mockVm.selectedWorkflow).toBe(mockWf);
-			expect(mockStore.applyState).toHaveBeenCalledWith({ lastSelectedWorkflow: mockWf });
+			expect(mockStore.applyState).toHaveBeenCalledWith({
+				lastSelectedWorkflow: mockWf,
+				lastEditedWorkflow: mockWf,
+				lastEditedWorkflowIndex: 0
+			});
 		});
 
 		it("should recalculate the selected workflow chain", () => {

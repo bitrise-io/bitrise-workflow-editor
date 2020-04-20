@@ -107,9 +107,6 @@ export class WorkflowsSelectionService {
 	selectWorkflow = (viewModel: WorkflowViewModel, wf: Workflow): void => {
 		viewModel.selectedWorkflow = wf;
 
-		// save it to the store
-		this.store.applyState({ lastSelectedWorkflow: wf });
-
 		// update selection chain
 		viewModel.selectedWorkflowChain = [];
 
