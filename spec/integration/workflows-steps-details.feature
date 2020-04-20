@@ -112,3 +112,9 @@ Feature: Workflow steps details
       And I click on "Step Delete Icon"
     Then I should not see "Activate SSH key (RSA private key)" in "Second step"
       And no step selected
+
+  Scenario: User clones Step
+    Given "wf5" workflow is selected
+      And First step is selected
+    When I click on "Step clone button"
+    Then I should see "Script" in "Second step"

@@ -33,6 +33,10 @@ Given("Workflow description is in edit mode", () => {
 	click("Selected Workflow description button");
 });
 
+Given("Rearrange popup is open", () => {
+	click("Rearrange button");
+});
+
 Then("Workflow appeared with name {string}", name => {
 	$(".selected-workflow button.mak").contains(name);
 });

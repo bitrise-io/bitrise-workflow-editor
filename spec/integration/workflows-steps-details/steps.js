@@ -1,16 +1,21 @@
-import $ from '../elements';
-import "../common";
+import { Given, Then } from "cypress-cucumber-preprocessor/steps";
+import $ from "../elements";
+import { click } from "../common";
 
 afterEach(() => {
-  $('Discard Button').then(btn => {
-    if (!btn.is(':disabled')) {
-      btn.click();
-    }
-  });
+	$("Discard Button").then(btn => {
+		if (!btn.is(":disabled")) {
+			btn.click();
+		}
+	});
 });
 
-Then('no step selected', () => {
+Given("First step is selected", () => {
+	click("First step");
+});
+
+Then("no step selected", () => {
 	$("Steps").each($el => {
-		cy.wrap($el).should('not.have.class', 'selected');
+		cy.wrap($el).should("not.have.class", "selected");
 	});
 });
