@@ -136,6 +136,14 @@ export class WorkflowsSelectionService {
 			wfChainWrapper({ workflow: viewModel.selectedWorkflow }),
 			...afterWfs
 		);
+
+		// save it to the store
+		const editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow == wf);
+		this.store.applyState({
+			lastSelectedWorkflow: wf,
+			lastEditedWorkflow: wf,
+			lastEditedWorkflowIndex: editedIndex === -1 ? 0 : editedIndex
+		});
 	};
 }
 
