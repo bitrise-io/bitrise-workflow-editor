@@ -73,6 +73,7 @@
 		"cypress-cucumber-preprocessor": "^2.0.1",
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.10.1",
+		"eslint-plugin-jasmine": "^4.1.1",
 		"eslint-plugin-react": "^7.19.0",
 		"file-loader": "^5.0.2",
 		"jsdom": "^15.2.0",
