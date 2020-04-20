@@ -31,17 +31,120 @@
 
 @import "~monaco-editor/min/vs/editor/editor.main";
 
+// Fonts
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/35C30F_7_0.eot");
+	src: url("../fonts/35C30F_7_0.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/35C30F_7_0.woff2") format("woff2"), url("../fonts/35C30F_7_0.woff") format("woff"),
+		url("../fonts/35C30F_7_0.ttf") format("truetype"), url("../fonts/35C30F_7_0.svg#wf") format("svg");
+	font-weight: 100;
+}
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/35C30F_C_0.eot");
+	src: url("../fonts/35C30F_C_0.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/35C30F_C_0.woff2") format("woff2"), url("../fonts/35C30F_C_0.woff") format("woff"),
+		url("../fonts/35C30F_C_0.ttf") format("truetype"), url("../fonts/35C30F_C_0.svg#wf") format("svg");
+	font-weight: 200;
+}
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/35C30F_F_0.eot");
+	src: url("../fonts/35C30F_F_0.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/35C30F_F_0.woff2") format("woff2"), url("../fonts/35C30F_F_0.woff") format("woff"),
+		url("../fonts/35C30F_F_0.ttf") format("truetype"), url("../fonts/35C30F_F_0.svg#wf") format("svg");
+	font-weight: 400;
+}
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/35C30F_D_0.eot");
+	src: url("../fonts/35C30F_D_0.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/35C30F_D_0.woff2") format("woff2"), url("../fonts/35C30F_D_0.woff") format("woff"),
+		url("../fonts/35C30F_D_0.ttf") format("truetype"), url("../fonts/35C30F_D_0.svg#wf") format("svg");
+	font-weight: 500;
+}
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/35C30F_1_0.eot");
+	src: url("../fonts/35C30F_1_0.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/35C30F_1_0.woff2") format("woff2"), url("../fonts/35C30F_1_0.woff") format("woff"),
+		url("../fonts/35C30F_1_0.ttf") format("truetype"), url("../fonts/35C30F_1_0.svg#wf") format("svg");
+	font-weight: 700;
+}
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/35C30F_3_0.eot");
+	src: url("../fonts/35C30F_3_0.eot?#iefix") format("embedded-opentype"),
+		url("../fonts/35C30F_3_0.woff2") format("woff2"), url("../fonts/35C30F_3_0.woff") format("woff"),
+		url("../fonts/35C30F_3_0.ttf") format("truetype"), url("../fonts/35C30F_3_0.svg#wf") format("svg");
+	font-weight: 900;
+}
+
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 200;
+	src: url("../fonts/SourceCodePro-ExtraLight.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 300;
+	src: url("../fonts/SourceCodePro-Light.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 400;
+	src: url("../fonts/SourceCodePro-Regular.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 500;
+	src: url("../fonts/SourceCodePro-Medium.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 600;
+	src: url("../fonts/SourceCodePro-Semibold.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 700;
+	src: url("../fonts/SourceCodePro-Bold.ttf") format("truetype");
+}
+@font-face {
+	font-family: "SourceCodePro";
+	font-style: normal;
+	font-weight: 900;
+	src: url("../fonts/SourceCodePro-Black.ttf") format("truetype");
+}
+
 // Basic settings
 
 :focus {
 	outline: none;
 }
 
-input, textarea, select {
+input,
+textarea,
+select {
 	font-family: inherit;
 }
 
-input::-moz-focus-inner, button::-moz-focus-inner, select::-moz-focus-inner {
+input::-moz-focus-inner,
+button::-moz-focus-inner,
+select::-moz-focus-inner {
 	border: 0;
 	padding: 0;
 }
@@ -69,7 +172,9 @@ body {
 	@include TTNormsWithFallback;
 }
 
-button, input[type="submit"], input[type="radio"] {
+button,
+input[type="submit"],
+input[type="radio"] {
 	cursor: pointer;
 
 	&:disabled {
@@ -91,7 +196,8 @@ input[type="submit"] {
 	@include appearance(none);
 }
 
-select, .mak {
+select,
+.mak {
 	$select-horizontalpadding: 12px;
 	$arrow_width: 8px;
 
@@ -112,7 +218,10 @@ select, .mak {
 	cursor: pointer;
 }
 
-select:hover, select:focus, .mak:hover, .mak:focus {
+select:hover,
+select:focus,
+.mak:hover,
+.mak:focus {
 	background-color: $def-verylightgrey;
 }
 
@@ -146,10 +255,15 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		z-index: -1;
 		@include position(absolute, 0, 0);
 		@include size(50%, 100%);
-		@include transition(right $transition_duration, background-color $transition_duration, opacity $transition_duration);
+		@include transition(
+			right $transition_duration,
+			background-color $transition_duration,
+			opacity $transition_duration
+		);
 		background-color: $def-green;
 
-		svg[check], svg[cross] {
+		svg[check],
+		svg[cross] {
 			position: absolute;
 			@include transition(opacity $transition_duration);
 			fill: white;
@@ -177,15 +291,18 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		opacity: 0.5;
 	}
 
-	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper svg[check], input[type="checkbox"]:checked + .checkbox-svg-wrapper svg[cross] {
+	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper svg[check],
+	input[type="checkbox"]:checked + .checkbox-svg-wrapper svg[cross] {
 		opacity: 0;
 	}
 
-	input[type="checkbox"]:checked:not(:disabled):hover + .checkbox-svg-wrapper, input[type="checkbox"]:checked:not(:disabled):focus + .checkbox-svg-wrapper {
+	input[type="checkbox"]:checked:not(:disabled):hover + .checkbox-svg-wrapper,
+	input[type="checkbox"]:checked:not(:disabled):focus + .checkbox-svg-wrapper {
 		background-color: $def-green-shade;
 	}
 
-	input[type="checkbox"]:not(:checked):not(:disabled):hover + .checkbox-svg-wrapper, input[type="checkbox"]:not(:checked):not(:disabled):focus + .checkbox-svg-wrapper {
+	input[type="checkbox"]:not(:checked):not(:disabled):hover + .checkbox-svg-wrapper,
+	input[type="checkbox"]:not(:checked):not(:disabled):focus + .checkbox-svg-wrapper {
 		background-color: $def-danger-shade;
 	}
 
@@ -193,7 +310,6 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		@include size(36px, 16px);
 
 		.checkbox-svg-wrapper {
-
 			svg[check] {
 				@include size(10px, 9px);
 				top: 3px;
@@ -232,7 +348,8 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 		@include size(100%);
 		opacity: 0.6;
 
-		span.eye, span.crossed-eye {
+		span.eye,
+		span.crossed-eye {
 			@include position(absolute, 50%, null, null, 50%);
 			@include transform(translateX(-50%) translateY(-50%));
 			@include transition(opacity $transition_duration);
@@ -246,20 +363,19 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 	}
 
 	input[type="checkbox"]:not(:checked) + .checkbox-svg-wrapper {
-
 		span.eye {
 			display: none;
 		}
 	}
 
 	input[type="checkbox"]:checked + .checkbox-svg-wrapper {
-
 		span.crossed-eye {
 			display: none;
 		}
 	}
 
-	input[type="checkbox"]:hover + .checkbox-svg-wrapper, input[type="checkbox"]:focus + .checkbox-svg-wrapper {
+	input[type="checkbox"]:hover + .checkbox-svg-wrapper,
+	input[type="checkbox"]:focus + .checkbox-svg-wrapper {
 		opacity: 1;
 	}
 }
@@ -329,7 +445,6 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 }
 
 [sanitized-markdown] {
-
 	a {
 		color: $def-green;
 
@@ -359,7 +474,8 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 			text-decoration: none;
 		}
 
-		ul, ol {
+		ul,
+		ol {
 			padding-left: 0;
 			list-style: none;
 
@@ -383,4 +499,3 @@ select:hover, select:focus, .mak:hover, .mak:focus {
 .vertical-scroll {
 	overflow-y: auto;
 }
-

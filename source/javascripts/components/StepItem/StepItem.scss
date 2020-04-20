@@ -7,19 +7,9 @@ r-step-item {
 }
 
 button.step {
+	@include lazy-loaded-image-container($step-icon-size);
+
 	display: flex;
-
-	& > span.lazy-load-image-background {
-		@include size($step-icon-size);
-
-		&.blur {
-			filter: blur(3px);
-		}
-
-		&.lazy-load-image-loaded {
-			filter: none;
-		}
-	}
 
 	.version {
 		.Badge {
