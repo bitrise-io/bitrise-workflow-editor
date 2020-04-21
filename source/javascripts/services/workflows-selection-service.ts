@@ -135,12 +135,8 @@ export class WorkflowsSelectionService {
 		);
 
 		// save it to the store
-		const editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow == wf);
-		this.store.applyState({
-			lastSelectedWorkflow: wf,
-			lastEditedWorkflow: wf,
-			lastEditedWorkflowIndex: editedIndex === -1 ? 0 : editedIndex
-		});
+		const editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow === wf);
+		viewModel.editWorkflowAtIndex(editedIndex);
 	};
 }
 

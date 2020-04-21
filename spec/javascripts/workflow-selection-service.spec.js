@@ -128,7 +128,8 @@ describe("WorkflowsSelectionService", () => {
 
 		beforeEach(() => {
 			mockVm = {
-				workflows: []
+				workflows: [],
+				editWorkflowAtIndex: jasmine.createSpy("editWorkflowAtIndex")
 			};
 
 			mockWf = {
@@ -138,18 +139,14 @@ describe("WorkflowsSelectionService", () => {
 			};
 		});
 
-		it("should apply state to the store", () => {
+		it("should set selected workflow and edit workflow as well", () => {
 			mockWf.beforeRunWorkflows.and.returnValue([]);
 			mockWf.afterRunWorkflows.and.returnValue([]);
 
 			selectionService.selectWorkflow(mockVm, mockWf);
 
 			expect(mockVm.selectedWorkflow).toBe(mockWf);
-			expect(mockStore.applyState).toHaveBeenCalledWith({
-				lastSelectedWorkflow: mockWf,
-				lastEditedWorkflow: mockWf,
-				lastEditedWorkflowIndex: 0
-			});
+			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0);
 		});
 
 		it("should recalculate the selected workflow chain", () => {
