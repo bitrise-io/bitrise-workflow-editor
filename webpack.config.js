@@ -53,10 +53,11 @@ module.exports = {
 		contentBase: OUTPUT_FOLDER,
 		contentBasePublicPath: publicPath,
 		compress: true,
-		port: 4567
+		port: 4567,
+		stats: "errors-only",
 	},
 
-	devtool: "inline-source-map",
+	devtool: `${isProd ? "hidden-" : ""}source-map`,
 
 	entry: {
 		vendor: "./javascripts/vendor.js",

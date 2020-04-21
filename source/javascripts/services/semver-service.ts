@@ -94,13 +94,17 @@ class SemverService {
 
 	resolveVersion = (version: string | null, stepId: string, stepCatalogue: StepCatalouge): string | undefined => {
 		version = this.normalizeVersion(version);
+		const step = stepCatalogue.steps[stepId];
 
 		if (!version) {
 			return stepCatalogue.latestStepVersions[stepId];
 		}
 
-		const stepVersions = Object.keys(stepCatalogue.steps[stepId]).sort(this.reverseSorter);
+		if (!step) {
+			return undefined;
+		}
 
+		const stepVersions = Object.keys(step).sort(this.reverseSorter);
 		return stepVersions.find(stepVersion => this.isVersionCompatible(version!, stepVersion));
 	};
 
