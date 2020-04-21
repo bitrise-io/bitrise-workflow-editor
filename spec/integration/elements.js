@@ -162,7 +162,7 @@ export const elements = {
 	"Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE": inputVariableSelector(
 		"BITRISE_TRIGGERED_WORKFLOW_TITLE"
 	),
-	"Insert variable element called BITRISE_TRIGGERsED_WORKFLOW_TITLE source": `${inputVariableSelector(
+	"Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE source": `${inputVariableSelector(
 		"BITRISE_TRIGGERED_WORKFLOW_TITLE"
 	)} em`,
 	"Insert variable element called CI": inputVariableSelector("CI"),
@@ -175,6 +175,10 @@ export const elements = {
 	"Insert variable element called project source": `${inputVariableSelector("project")} em`,
 	"Insert variable element called SLACK_WEBHOOK": inputVariableSelector("SLACK_WEBHOOK"),
 	"Insert variable element called SLACK_WEBHOOK source": `${inputVariableSelector("SLACK_WEBHOOK")} em`,
+	"Insert variable element called ACCESS_KEY": inputVariableSelector("ACCESS_KEY"),
+	"Insert variable element called ACCESS_KEY source": `${inputVariableSelector("ACCESS_KEY")} em`,
+	"Insert variable element called GITHUB_TOKEN": inputVariableSelector("GITHUB_TOKEN"),
+	"Insert variable element called GITHUB_TOKEN source": `${inputVariableSelector("GITHUB_TOKEN")} em`,
 	"Insert variable element called COMPANY_NAME": inputVariableSelector("COMPANY_NAME"),
 	"Insert variable element called COMPANY_NAME source": `${inputVariableSelector("COMPANY_NAME")} em`,
 	"Insert variable filter field": "#insert-variable-popup-body header input"
