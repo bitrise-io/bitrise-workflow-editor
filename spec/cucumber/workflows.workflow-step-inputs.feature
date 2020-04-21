@@ -56,16 +56,6 @@ Feature: Workflow Step Inputs
     Then the not allowed cursor is displayed
     And the Insert Variable popup appears, in secret-only mode
 
-  Scenario: Inserting Variable into a selected place
-    When User puts cursor in a selected place in the Input's field
-    And User inserts Variable
-    Then the Variable will be inserted at the place the cursor was in the field
-
-  Scenario: Inserting Variable into a selected space
-    When User selects a couple of characters in the Input's field
-    And User inserts Variable
-    Then the Variable will replace those couple of characters in the field
-
   Scenario: Insert Variable popup's Variable list
     Given the Insert Variable popup is open
     And app has uploaded code signing files
