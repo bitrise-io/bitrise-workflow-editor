@@ -97,7 +97,10 @@ const StepVersion: FC<StepVersionInfoProps> = ({
 							<img src={stepLatestIcon} />
 						</Text>
 					) : (
-						<button className={classNames("icon", "icon-danger")} onClick={() => onUpdateStep(step, workflowIndex)}>
+						<button
+							className={classNames("icon", "icon-danger")}
+							onClick={() => onUpdateStep(step, workflowIndex)}
+						>
 							<img src={stepOutDatedIcon} />
 						</button>
 					)}
@@ -109,7 +112,12 @@ const StepVersion: FC<StepVersionInfoProps> = ({
 
 				{step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
 			</div>
-			<VersionSelector {...versionSelectorOpts} step={step} versions={versions} selectedVersion={selectedVersion} />
+			<VersionSelector
+				{...versionSelectorOpts}
+				step={step}
+				versions={versions}
+				selectedVersion={selectedVersion}
+			/>
 		</section>
 	);
 };
