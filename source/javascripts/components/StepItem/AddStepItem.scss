@@ -33,7 +33,6 @@
 		.step-content {
 			@include lazy-loaded-image-container($icon-size);
 
-			@include display-flex;
 			padding: 13px;
 			text-align: left;
 
@@ -46,12 +45,8 @@
 			}
 
 			.details {
-				@include flex-grow(1);
-				@include display-flex;
-				@include flex-direction(column);
 				margin-left: $spacing;
 				height: $icon-size;
-				overflow: hidden;
 				font-size: 13px;
 
 				h4 {

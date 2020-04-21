@@ -8,8 +8,7 @@ import { safeDigest } from "../services/react-compat";
 		.service("addStepService", function(stepSourceService) {
 			var addStepService = {
 				isVisible: false,
-				stepSelected: undefined,
-				steps: undefine
+				stepSelected: undefined
 			};
 
 			addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {

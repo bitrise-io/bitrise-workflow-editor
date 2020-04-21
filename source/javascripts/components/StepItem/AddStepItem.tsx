@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Base, Icon } from "@bitrise/bitkit";
+import { Base, Icon, Flex } from "@bitrise/bitkit";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 
 import MarkdownText from "../MarkdownText";
@@ -7,7 +7,6 @@ import { normalizeIconUrl } from "./StepItem";
 
 import { Step } from "../../models";
 
-import defaultStepIcon from "../../../images/step/icon-default.svg";
 import verifiedIcon from "../../../images/step/badge-verified.svg";
 import communityCreatedIcon from "../../../images/step/badge-community_created.svg";
 
@@ -20,17 +19,17 @@ const AddStepItem: FC<AddStepItemProps> = ({ step, onSelected }: AddStepItemProp
 	<Base clickable={true} className="step">
 		<button className="select" onClick={() => onSelected(step)}>
 			<Icon name="PlusOpen" />
-			<Base className="step-content">
-				<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} placeholderSrc={defaultStepIcon} />
-				<Base className="details">
+			<Flex className="step-content" direction="horizontal" overflow="hidden" shrink="x1">
+				<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
+				<Flex grow="x1" shrink="x1" direction="vertical" className="details" overflow="hidden">
 					<h4>
-						<span>{step.displayName()}</span>
-						{step.isVerified() && <img className="icon verified" src={verifiedIcon} />}
-						{!step.isVerified() && <img className="icon community-created" src={communityCreatedIcon} />}
+						<Base Component="span">{step.displayName()}</Base>
+						{step.isVerified() && <img className="verified" src={verifiedIcon} />}
+						{!step.isVerified() && <img className="community-created" src={communityCreatedIcon} />}
 					</h4>
 					<MarkdownText className="summary" markdown={step.summary()} />
-				</Base>
-			</Base>
+				</Flex>
+			</Flex>
 		</button>
 	</Base>
 );

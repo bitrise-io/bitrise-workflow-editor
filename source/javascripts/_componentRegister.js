@@ -1,7 +1,6 @@
 import { react2angular } from "react2angular";
 import ErrorNotification from "./components/ErrorNotification";
-import StepItem from "./components/StepItem/StepItem";
-import AddStepItem from "./components/StepItem/AddStepItem";
+import { StepItem, AddStepItem } from "./components/StepItem";
 import StepVersion from "./components/StepVersion";
 
 var register = react2angular;

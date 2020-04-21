@@ -61,7 +61,7 @@ const StepItem: FC<StepItemProps> = ({
 	onSelected
 }: StepItemProps) => (
 	<button className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
-		<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} placeholderSrc={defaultStepIcon} />
+		<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
 		<span className="info">
 			<strong>
 				<Text className="title" ellipsis>

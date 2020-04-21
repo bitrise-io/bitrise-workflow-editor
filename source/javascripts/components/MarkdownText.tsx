@@ -1,4 +1,5 @@
 import React, { FC } from "react";
+import { Base } from "@bitrise/bitkit";
 import { Converter } from "showdown";
 
 type MarkdownTextProps = {
@@ -12,7 +13,7 @@ const MarkdownText: FC<MarkdownTextProps> = ({ markdown, ...rest }: MarkdownText
 	const converter = new Converter();
 	const markdownHtml = converter.makeHtml(stripHtml(markdown));
 
-	return <div dangerouslySetInnerHTML={{ __html: markdownHtml }} {...rest}></div>;
+	return <Base dangerouslySetInnerHTML={{ __html: markdownHtml }} {...rest}></Base>;
 };
 
 export default MarkdownText;
