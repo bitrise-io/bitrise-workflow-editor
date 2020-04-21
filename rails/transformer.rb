@@ -18,7 +18,7 @@ end
 
 def mode_dependant_asset_path(path)
     case mode
-    when "website" then "/bitrise_workflow_editor-#{ENV['version']}/" + path
+    when "website" then "#{ENV['PUBLIC_URL_ROOT']}/#{ENV['version']}/" + path
     when "cli" then "/#{ENV['version']}/" + path
     end
 end
