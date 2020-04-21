@@ -75,7 +75,7 @@ export class WorkflowsSelectionService {
 	};
 
 	restoreSelection = (viewModel: WorkflowViewModel): void => {
-		this.selectWorkflow(viewModel, this.findSelectedWorkflow(viewModel));
+		this.rearrangeSelection(viewModel, this.findSelectedWorkflow(viewModel));
 
 		if (
 			this.verifySelectedIndex(
@@ -90,7 +90,7 @@ export class WorkflowsSelectionService {
 		const editedWorkflow = viewModel.editedWorkflow;
 
 		if (
-			this.store.lastSelectedStepIndex &&
+			this.store.lastSelectedStepIndex !== null &&
 			this.verifySelectedIndex(
 				this.store.lastSelectedStepIndex,
 				editedWorkflow?.steps,
@@ -104,7 +104,7 @@ export class WorkflowsSelectionService {
 		}
 	};
 
-	selectWorkflow = (viewModel: WorkflowViewModel, wf: Workflow): void => {
+	rearrangeSelection = (viewModel: WorkflowViewModel, wf: Workflow, editedId?: string): void => {
 		viewModel.selectedWorkflow = wf;
 
 		// update selection chain
@@ -135,7 +135,8 @@ export class WorkflowsSelectionService {
 		);
 
 		// save it to the store
-		const editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow === wf);
+		editedId = editedId || wf.id;
+		const editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === editedId);
 		viewModel.editWorkflowAtIndex(editedIndex);
 	};
 }

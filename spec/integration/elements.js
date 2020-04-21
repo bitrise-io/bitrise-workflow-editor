@@ -58,7 +58,7 @@ export const elements = {
 	"Step Version Danger Icon": ".selected-step .icon-danger",
 
 	Steps: ".workflow.edited .steps ul li",
-	"Step Icons": ".workflow.edited .steps ul li .icon",
+	"Step Icons": ".workflow.edited .steps ul li img",
 	"First step": stepSelector(1),
 	"Second step": stepSelector(2),
 	"Third step": stepSelector(3),

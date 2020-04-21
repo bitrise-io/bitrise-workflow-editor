@@ -223,7 +223,7 @@ import { safeDigest } from "../services/react-compat";
 					}
 
 					var wf = workflowSelectionService.findSelectedWorkflow(viewModel);
-					workflowSelectionService.selectWorkflow(viewModel, wf);
+					workflowSelectionService.rearrangeSelection(viewModel, wf);
 
 					appService.appConfig.workflows = {};
 					_.each(workflows, function(aWorkflow) {
@@ -277,7 +277,7 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.addWorkflowPopup.isVisible = false;
 
-				workflowSelectionService.selectWorkflow(viewModel, workflow);
+				workflowSelectionService.rearrangeSelection(viewModel, workflow);
 			};
 
 			// Workflow delete
@@ -330,32 +330,6 @@ import { safeDigest } from "../services/react-compat";
 					}
 				);
 			};
-
-			// Before/after run workflows
-
-			$scope.$watchCollection(
-				function() {
-					return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.before_run : undefined;
-				},
-				function() {
-					if (viewModel.selectedWorkflow) {
-						// select itself to update chain
-						workflowSelectionService.selectWorkflow(viewModel, viewModel.selectedWorkflow);
-					}
-				}
-			);
-
-			$scope.$watchCollection(
-				function() {
-					return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.after_run : undefined;
-				},
-				function() {
-					if (viewModel.selectedWorkflow) {
-						// select itself to update chain
-						workflowSelectionService.selectWorkflow(viewModel, viewModel.selectedWorkflow);
-					}
-				}
-			);
 
 			viewModel.addRunWorkflowPopup = new Popup();
 			viewModel.addRunWorkflowMode;
@@ -418,6 +392,9 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.selectedWorkflow.workflowConfig[runKey].push(viewModel.runWorkflowToAdd.id);
 				viewModel.addRunWorkflowPopup.isVisible = false;
+
+				// select the current one and edit newly generated one
+				workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, viewModel.runWorkflowToAdd.id);
 			};
 
 			viewModel.deleteBeforeAfterWorkflowAtWorkflowChainLink = function(workflowChainLink) {
@@ -432,6 +409,9 @@ import { safeDigest } from "../services/react-compat";
 						1
 					);
 				}
+
+				// select the current one and regenerate workflowchain
+				workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow);
 			};
 
 			viewModel.rearrangeWorkflowsPopup = new Popup();
@@ -471,6 +451,8 @@ import { safeDigest } from "../services/react-compat";
 				}
 
 				viewModel.rearrangeWorkflowsPopup.isVisible = false;
+
+				workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, viewModel.editedWorkflow.id);
 			};
 
 			// Workflow rename
@@ -555,7 +537,7 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.editedWorkflowIndex;
 
 			viewModel.selectWorkflow = function(workflow) {
-				workflowSelectionService.selectWorkflow(viewModel, workflow);
+				workflowSelectionService.rearrangeSelection(viewModel, workflow);
 			};
 
 			viewModel.editWorkflowAtIndex = function(workflowIndex) {
