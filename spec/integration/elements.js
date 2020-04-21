@@ -56,7 +56,6 @@ export const elements = {
 	"Selected Input Insert Variable Button": ".input.selected .insert-variable",
 	"Selected Input Clear Button": ".input.selected .clear-value",
 	"Step Version Danger Icon": ".selected-step .icon-danger",
-	"Step Latest Version Updater": ".selected-step .icon-danger",
 
 	Steps: ".workflow.edited .steps ul li",
 	"Step Icons": ".workflow.edited .steps ul li .icon",
@@ -124,7 +123,10 @@ export const elements = {
 	"wf6 workflow": workflowSelectElement("wf6"),
 	"wf6 steps": ".workflow:nth-child(5) ul.steps ul",
 	"wf6 steps container": ".workflow:nth-child(5) ul.steps",
-	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove"
+	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
+
+	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
+	"Workflows tab": "button[data-e2e-tag='workflows-tab']"
 };
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;

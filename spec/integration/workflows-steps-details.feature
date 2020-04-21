@@ -44,6 +44,9 @@ Feature: Workflow steps details
     When I click on "Sixth step"
     Then "Step Versions" should "be visible"
       And "Version selector" should "be visible"
+    When I change tab to "Trigger tab"
+      And I change tab to "Workflows tab"
+    Then "Sixth step" should be the selected step
 
   Scenario: Version Downgrade
     When I click on "First step"
