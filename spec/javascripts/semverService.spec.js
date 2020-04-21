@@ -134,8 +134,13 @@ describe("SemverService", () => {
         _.forEach(testCases, (test) => {
             it(`should resolve ${test[0]} to ${test[1]} against the library`, () => {
                 expect(semverService.resolveVersion(test[0], TEST_STEP_ID, mockCatalogue))
-                    .toEqual(test[1]);
+                .toEqual(test[1]);
             });
+        });
+
+        it('should return undefined for non-existent step', () => {
+            const actual = semverService.resolveVersion("1.x.x", "do-not-exists", mockCatalogue);
+            expect(actual).toBeUndefined();
         });
     });
 
