@@ -17,7 +17,13 @@ Feature: Workflow steps details
     When I click on "Second step"
     Then I should see "Script" in "Step Title"
     When I click on "Third step"
+    Then I should see "git::https://github.com/bitrise-steplib/steps-script@master" in "Step Title"
+    When I click on "Fourth step"
     Then I should see "A local step" in "Step Title"
+    When I click on "Fifth step"
+    Then I should see "A local step with overwritten title & input" in "Step Title"
+    When I click on "Sixth step"
+    Then I should see "path::./spec/integration/fixture/test_local_step" in "Step Title"
     When I select "wf4 workflow" from "Workflow selector"
         And I click on "Second step"
     Then I should see "path::./spec/integration/fixture/untitled_step" in "Step Title"
@@ -39,14 +45,14 @@ Feature: Workflow steps details
     When I click on "Second step"
     Then "Step Versions" should "be visible"
       And "Version selector" should "not be visible"
-    When I click on "Third step"
+    When I click on "Fourth step"
     Then "Step Versions" should "not be visible"
-    When I click on "Sixth step"
+    When I click on "Eighth step"
     Then "Step Versions" should "be visible"
       And "Version selector" should "be visible"
     When I change tab to "Trigger tab"
       And I change tab to "Workflows tab"
-    Then "Sixth step" should be the selected step
+    Then "Eighth step" should be the selected step
 
   Scenario: Version Downgrade
     When I click on "First step"
