@@ -1,2 +1,3 @@
 source/javascripts/**/*.js
 source/javascripts/**/*.js.erb
+webpack.config.js
