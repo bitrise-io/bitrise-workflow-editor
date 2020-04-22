@@ -97,6 +97,14 @@ export const should = (element, expectation) => {
 	$(element).should(shouldExpr);
 };
 
+const changeTab = newTab => {
+	click(newTab);
+
+	if (newTab === "Workflows tab") {
+		cy.waitForSteps();
+	}
+};
+
 Given("editor is open", () => {
 	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 });
@@ -116,10 +124,14 @@ When("I check {string}", element => toggleCheckbox(element, true));
 When("I uncheck {string}", element => toggleCheckbox(element));
 When("I confirm on {string}", popupConfirm);
 When("I cancel on {string}", popupCancel);
+When("I change tab to {string}", changeTab);
 Then("I should see {string} in {string}", assertInputValueEQ);
 Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);
 Then("{string} should {string}", should);
+Then("{string} should be the selected step", element => {
+	should(element, "have class: selected");
+});
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
 	$(element)
 		.find(selector(childElement))

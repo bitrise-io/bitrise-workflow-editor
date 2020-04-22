@@ -1,17 +1,27 @@
+@import "../../../stylesheets/default";
+
+$step-icon-size: 52px;
+
 r-step-item {
-    display: block;
+	display: block;
 }
 
-button.step .version {
-    .Badge {
-        padding: 0 0.18rem;
-        font-weight: 700;
-    }
+button.step {
+	@include lazy-loaded-image-container($step-icon-size);
 
-    .Icon {
-        height: 15px !important;
-        width: auto !important;
-        display: inline-block;
-        vertical-align: middle;
-    }
+	display: flex;
+
+	.version {
+		.Badge {
+			padding: 0 0.18rem;
+			font-weight: 700;
+		}
+
+		.Icon {
+			height: 15px !important;
+			width: auto !important;
+			display: inline-block;
+			vertical-align: middle;
+		}
+	}
 }

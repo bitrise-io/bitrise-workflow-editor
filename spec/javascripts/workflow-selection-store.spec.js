@@ -70,9 +70,9 @@ describe("Workflow selection store", () => {
 
 			expect(selectionStore).toEqual(
 				jasmine.objectContaining({
-					lastSelectedWorkflowID: "wf1",
-					lastEditedWorkflowID: null,
-					lastEditedWorkflowIndex: null,
+					lastSelectedWorkflowID: mockWorkflow.id,
+					lastEditedWorkflowID: mockWorkflow.id,
+					lastEditedWorkflowIndex: 0,
 					lastSelectedStepCVS: null,
 					lastSelectedStepIndex: null
 				})

@@ -9,7 +9,7 @@ Feature: Workflows
     Then I should see "GitHub Status" in "First step"
       And I should see "Script" in "Second step"
     When I click on "First step"
-    Then "First step" should "have class: selected"
+    Then "First step" should be the selected step
       And all the steps are loaded
 
   Scenario: User creates a Workflow

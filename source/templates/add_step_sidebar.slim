@@ -32,6 +32,7 @@
 						.steps-wrapper
 							ol.steps[add-step-dragger drag-in-progress-flag="addStepCtrl.isDragInProgress" paginate-steps-config="category.paginateStepsConfig"]
 								li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps(category.steps)" ng-style="{'width': (100 / category.paginateStepsConfig.stepsCountPerPage) + '%'}" step="step" step-id="{{ step.id }}" select-callback="addStepCtrl.stepSelected(step)"]
+									r-add-step-item[step="step" on-selected="addStepCtrl.stepSelected"]
 							button.paginate.left[ng-click="addStepCtrl.paginateSelected(category, 'left')" ng-disabled="category.paginateStepsConfig.currentPageIndex == 0 && category.paginateStepsConfig.currentOffsetInPage == 0" tabindex="-1"]
 							button.paginate.right[ng-click="addStepCtrl.paginateSelected(category, 'right')" ng-disabled="category.paginateStepsConfig.currentPageIndex == category.paginateStepsConfig.pageCount - 1" tabindex="-1"]
 				button.show-all-steps[ng-click="addStepCtrl.isCategoryMode = false"]
@@ -39,3 +40,4 @@
 					span == data[:strings][:workflows][:steps][:add][:show_all_steps]
 			ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
 				li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)" step-id="{{ step.id }}"]
+					r-add-step-item[step="step" on-selected="addStepCtrl.stepSelected"]

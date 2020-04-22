@@ -21,4 +21,5 @@ export interface Step {
 	isDeprecated(): boolean;
 	isLibraryStep(): boolean;
 	iconURL(): string;
+	summary(): string;
 }

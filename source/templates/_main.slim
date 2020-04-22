@@ -31,7 +31,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 						span Workflow Editor
 		.workflow-editor-menubar[ng-if="mainCtrl.initAppProgress.isIdle"]
 			nav
-				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}"]
+				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadAppConfigProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}" data-e2e-tag="{{ menu.cssClass }}-tab"]
 					span.icon[ng-if="menu.cssClass == 'workflows'"]  == svg("main/menuicon-workflows")
 					span.icon[ng-if="menu.cssClass == 'code-signing'"]  == svg("main/menuicon-code_signing")
 					span.icon[ng-if="menu.cssClass == 'secrets'"]  == svg("main/menuicon-secrets")

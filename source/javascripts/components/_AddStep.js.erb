@@ -5,45 +5,10 @@ import { safeDigest } from "../services/react-compat";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("addStepService", function($filter, imageService, stepSourceService) {
+		.service("addStepService", function(stepSourceService) {
 			var addStepService = {
 				isVisible: false,
-				stepSelected: undefined,
-				steps: undefined,
-				stepIconLoadedStatesByStepIds: {},
-				isStepIconLoaded: function(step) {
-					return !!addStepService.stepIconLoadedStatesByStepIds[step.id];
-				},
-				stepIntersectionObserverCallbacks: {},
-				stepIntersectionObserver: new IntersectionObserver(function(entries) {
-					var targetStepIDs = _.map(
-						_.filter(entries, function(entry) {
-							return entry.isIntersecting;
-						}),
-						function(entry) {
-							return entry.target.getAttribute("step-id");
-						}
-					);
-					_.each(targetStepIDs, function(aStepID) {
-						addStepService.stepIntersectionObserverCallbacks[aStepID]();
-					});
-				}),
-				observe: function(element, step) {
-					addStepService.stepIntersectionObserverCallbacks[step.id] = function() {
-						addStepService.unobserve(element);
-
-						if (addStepService.isStepIconLoaded(step)) {
-							return;
-						}
-						imageService.loadImageWithURL($filter("normalizedStepIconURL")(step)).then(function() {
-							addStepService.stepIconLoadedStatesByStepIds[step.id] = true;
-						});
-					};
-					addStepService.stepIntersectionObserver.observe(element[0]);
-				},
-				unobserve: function(element) {
-					addStepService.stepIntersectionObserver.unobserve(element[0]);
-				}
+				stepSelected: undefined
 			};
 
 			addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {
@@ -577,24 +542,6 @@ import { safeDigest } from "../services/react-compat";
 						$document.unbind("mousemove", mouseMoveHandler);
 						$document.unbind("mouseup", mouseUpHandler);
 						$(window).unbind("resize", windowSizeHandler);
-					});
-				}
-			};
-		})
-		.directive("addStepSidebarStep", function(addStepService) {
-			return {
-				restrict: "C",
-				templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar_step] )%>",
-				scope: {
-					step: "=",
-					selected: "&selectCallback"
-				},
-				link: function(scope, element) {
-					scope.addStepService = addStepService;
-					addStepService.observe(element, scope.step);
-
-					scope.$on("$destroy", function() {
-						addStepService.unobserve(element);
 					});
 				}
 			};
