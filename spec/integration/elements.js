@@ -2,6 +2,8 @@ const workflowSelectElement = workflowName =>
 	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
 const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
 const badgeSelector = type => `.selected-step .manage-step .title .${type} svg`;
+const inputVariableSelector = name =>
+	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
 
 export const elements = {
 	"Add Workflow Button": ".add-workflow",
@@ -55,6 +57,8 @@ export const elements = {
 	"Selected Input Textarea": ".input.selected textarea",
 	"Selected Input Insert Variable Button": ".input.selected .insert-variable",
 	"Selected Input Clear Button": ".input.selected .clear-value",
+	"Variables for insert": "#insert-variable-popup-body .variable-source:has(li)",
+	"First variable for insert": "#insert-variable-popup-body .variable-source > li:eq(0)",
 	"Step Version Danger Icon": ".selected-step .icon-danger",
 
 	Steps: ".workflow.edited .steps ul li",
@@ -89,6 +93,9 @@ export const elements = {
 
 	"Selected Workflow": "section.workflow.selected",
 	"Selected Workflow description": ".workflow-description .description p",
+	"Selected Workflow description container": ".workflow-description",
+	"Selected Workflow description button": ".workflow-description button.edit",
+	"Selected Workflow description textarea": ".workflow-description textarea",
 	"Step element": "li",
 	"Add Step element": ".add-step",
 
@@ -126,7 +133,57 @@ export const elements = {
 	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
 
 	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
-	"Workflows tab": "button[data-e2e-tag='workflows-tab']"
+	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
+
+	"Rearrange button": ".manage-button.rearrange",
+	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
+	"Workflow chain": ".workflow-chain",
+	"Workflow chain selected workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .selected",
+	"Workflow chain before workflows": ".workflow-chain .before-run",
+	"Workflow chain before wf4 workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .before-run li:first",
+	"Workflow chain after workflows": ".workflow-chain .after-run",
+	"Workflow chain first after wf5 workflow": ".workflow-chain .after-run li:nth(0)",
+	"Workflow chain second after wf5 workflow": ".workflow-chain .after-run li:nth(1)",
+	"Workflow chain after wf6 workflow": ".workflow-chain .after-run li:nth(2)",
+
+	"Step clone button": "button.clone",
+	"Step source link": "a.source",
+
+	"Insert variable element called BITRISE_SOURCE_DIR": inputVariableSelector("BITRISE_SOURCE_DIR"),
+	"Insert variable element called BITRISE_SOURCE_DIR source": `${inputVariableSelector("BITRISE_SOURCE_DIR")} em`,
+	"Insert variable element called BITRISE_DEPLOY_DIR": inputVariableSelector("BITRISE_DEPLOY_DIR"),
+	"Insert variable element called BITRISE_DEPLOY_DIR source": `${inputVariableSelector("BITRISE_DEPLOY_DIR")} em`,
+	"Insert variable element called BITRISE_BUILD_STATUS": inputVariableSelector("BITRISE_BUILD_STATUS"),
+	"Insert variable element called BITRISE_BUILD_STATUS source": `${inputVariableSelector("BITRISE_BUILD_STATUS")} em`,
+	"Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID": inputVariableSelector(
+		"BITRISE_TRIGGERED_WORKFLOW_ID"
+	),
+	"Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID source": `${inputVariableSelector(
+		"BITRISE_TRIGGERED_WORKFLOW_ID"
+	)} em`,
+	"Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE": inputVariableSelector(
+		"BITRISE_TRIGGERED_WORKFLOW_TITLE"
+	),
+	"Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE source": `${inputVariableSelector(
+		"BITRISE_TRIGGERED_WORKFLOW_TITLE"
+	)} em`,
+	"Insert variable element called CI": inputVariableSelector("CI"),
+	"Insert variable element called CI source": `${inputVariableSelector("CI")} em`,
+	"Insert variable element called PR": inputVariableSelector("PR"),
+	"Insert variable element called PR source": `${inputVariableSelector("PR")} em`,
+	"Insert variable element called VERYSECRET": inputVariableSelector("VERYSECRET"),
+	"Insert variable element called VERYSECRET source": `${inputVariableSelector("VERYSECRET")} em`,
+	"Insert variable element called project": inputVariableSelector("project"),
+	"Insert variable element called project source": `${inputVariableSelector("project")} em`,
+	"Insert variable element called SLACK_WEBHOOK": inputVariableSelector("SLACK_WEBHOOK"),
+	"Insert variable element called SLACK_WEBHOOK source": `${inputVariableSelector("SLACK_WEBHOOK")} em`,
+	"Insert variable element called ACCESS_KEY": inputVariableSelector("ACCESS_KEY"),
+	"Insert variable element called ACCESS_KEY source": `${inputVariableSelector("ACCESS_KEY")} em`,
+	"Insert variable element called GITHUB_TOKEN": inputVariableSelector("GITHUB_TOKEN"),
+	"Insert variable element called GITHUB_TOKEN source": `${inputVariableSelector("GITHUB_TOKEN")} em`,
+	"Insert variable element called COMPANY_NAME": inputVariableSelector("COMPANY_NAME"),
+	"Insert variable element called COMPANY_NAME source": `${inputVariableSelector("COMPANY_NAME")} em`,
+	"Insert variable filter field": "#insert-variable-popup-body header input"
 };
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;
