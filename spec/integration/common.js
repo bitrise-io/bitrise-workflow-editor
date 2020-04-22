@@ -130,4 +130,8 @@ Then("{string} should have {string} {string} style", (element, cssValue, cssProp
 	$(element).should("have.css", cssProperty, styleValueSelector(cssValue));
 });
 
+Then("{string} should have attribute {string} with value {string}", (element, attrName, attrValue) => {
+	$(element).should("have.attr", attrName, attrValue);
+});
+
 Then("I save", save);

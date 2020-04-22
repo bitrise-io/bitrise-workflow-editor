@@ -73,3 +73,62 @@ Feature: Workflow steps inputs
     And I click on "Selected Input Clear Button"
     Then "Selected Input Textarea" should "be empty"
     And "Selected Input Textarea" should have "purple" "border-color" style
+
+  Scenario: Inserting Variable into a selected place
+    Given "wf5" workflow is selected
+      And "First" step is selected
+    When I click on "Selected Step First Input"
+      And I click on "Selected Input Textarea"
+      And I click on "Selected Input Insert Variable Button"
+      And I click on "First variable for insert"
+    Then "Selected Input Textarea" should "have value:#!/usr/bin/env bash$BITRISE_SOURCE_DIR"
+
+
+  Scenario: Inserting Variable into a selected space
+    Given "wf5" workflow is selected
+      And "First" step is selected
+    When I click on "Selected Step First Input"
+      And I click on "Selected Input Textarea"
+      And Highlight all text in "Selected Input Textarea"
+      And I click on "Selected Input Insert Variable Button"
+      And I click on "First variable for insert"
+      Then "Selected Input Textarea" should "have value:$BITRISE_SOURCE_DIR"
+      And "Insert Variable Popup" should "not be visible"
+
+  Scenario: Insert Variable popup's Variable list
+    Given "wf3" workflow is selected
+      And "Third" step is selected
+      And Insert Variable popup is open
+    Then "Insert variable element called BITRISE_SOURCE_DIR" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_SOURCE_DIR source"
+      And "Insert variable element called BITRISE_DEPLOY_DIR" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_DEPLOY_DIR source"
+      And "Insert variable element called BITRISE_BUILD_STATUS" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_BUILD_STATUS source"
+      And "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID source"
+      And "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE source"
+      And "Insert variable element called CI" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called CI source"
+      And "Insert variable element called PR" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called PR source"
+      And "Insert variable element called VERYSECRET" should "exist"
+      And I should see "from secrets" in "Insert variable element called VERYSECRET source"
+      And "Insert variable element called ACCESS_KEY" should "exist"
+      And I should see "from app env vars" in "Insert variable element called ACCESS_KEY source"
+      And "Insert variable element called GITHUB_TOKEN" should "exist"
+      And I should see "from app env vars" in "Insert variable element called GITHUB_TOKEN source"
+      And "Insert variable element called SLACK_WEBHOOK" should "exist"
+      And I should see "from app env vars" in "Insert variable element called SLACK_WEBHOOK source"
+      And "Insert variable element called COMPANY_NAME" should "exist"
+      And I should see "output of step: A local step" in "Insert variable element called COMPANY_NAME source"
+      And "Insert variable element called project" should "exist"
+      And I should see "env var of workflow: wf3" in "Insert variable element called project source"
+
+  Scenario: Insert Variable popup's filter
+    Given "wf3" workflow is selected
+      And "Third" step is selected
+      And Insert Variable popup is open
+    When I type "proj" in "Insert variable filter field"
+    Then "Variables for insert" should contain 1 "li"
