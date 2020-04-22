@@ -122,13 +122,14 @@ describe("WorkflowsSelectionService", () => {
 		});
 	});
 
-	describe("selectWorkflow", () => {
+	describe("rearrangeSelection", () => {
 		let mockWf;
 		let mockVm;
 
 		beforeEach(() => {
 			mockVm = {
-				workflows: []
+				workflows: [],
+				editWorkflowAtIndex: jasmine.createSpy("editWorkflowAtIndex")
 			};
 
 			mockWf = {
@@ -138,14 +139,31 @@ describe("WorkflowsSelectionService", () => {
 			};
 		});
 
-		it("should apply state to the store", () => {
+		it("should set selected workflow and edit workflow as well", () => {
 			mockWf.beforeRunWorkflows.and.returnValue([]);
 			mockWf.afterRunWorkflows.and.returnValue([]);
 
-			selectionService.selectWorkflow(mockVm, mockWf);
+			selectionService.rearrangeSelection(mockVm, mockWf);
 
 			expect(mockVm.selectedWorkflow).toBe(mockWf);
-			expect(mockStore.applyState).toHaveBeenCalledWith({ lastSelectedWorkflow: mockWf });
+			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0);
+		});
+
+		it("should set editedWorkflow different than selected if passed", () => {
+			const mockedCopyWf = { ...mockWf, id: "test-before" };
+
+			mockWf.beforeRunWorkflows.and.returnValue([
+				{
+					workflowChain: () => [mockedCopyWf]
+				}
+			]);
+
+			mockWf.afterRunWorkflows.and.returnValue([]);
+
+			selectionService.rearrangeSelection(mockVm, mockWf, mockedCopyWf.id);
+
+			expect(mockVm.selectedWorkflow).toBe(mockWf);
+			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0);
 		});
 
 		it("should recalculate the selected workflow chain", () => {
@@ -171,7 +189,7 @@ describe("WorkflowsSelectionService", () => {
 				}
 			]);
 
-			selectionService.selectWorkflow(mockVm, mockWf);
+			selectionService.rearrangeSelection(mockVm, mockWf);
 
 			expect(mockVm.selectedWorkflowChain[0].isBeforeRunWorkflow).toBeTrue();
 			expect(mockVm.selectedWorkflowChain[7].isBeforeRunWorkflow).toBeFalse();

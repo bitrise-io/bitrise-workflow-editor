@@ -1,6 +1,6 @@
 import { react2angular } from "react2angular";
 import ErrorNotification from "./components/ErrorNotification";
-import StepItem from "./components/StepItem/StepItem";
+import { StepItem, AddStepItem } from "./components/StepItem";
 import StepVersion from "./components/StepVersion";
 
 var register = react2angular;
@@ -9,7 +9,8 @@ angular
 	.module("BitriseWorkflowEditor")
 	.component("rErrorNotification", register(ErrorNotification, ["message"]))
 	.component(
-		"rStepItem", register(StepItem, [
+		"rStepItem",
+		register(StepItem, [
 			"step",
 			"title",
 			"version",
@@ -23,7 +24,8 @@ angular
 		])
 	)
 	.component(
-		"rStepVersion", register(StepVersion, [
+		"rStepVersion",
+		register(StepVersion, [
 			"step",
 			"isLatestVersion",
 			"onUpdateStep",
@@ -33,4 +35,5 @@ angular
 			"versionSelectorOpts",
 			"strings"
 		])
-	);
+	)
+	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]));

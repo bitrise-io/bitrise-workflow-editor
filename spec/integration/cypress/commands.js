@@ -10,6 +10,13 @@ const mockRequest = (method, url, fn) => ({
 	}
 });
 
+Cypress.Commands.add("waitForSteps", () => {
+		// TODO: cypress does not support polling :(
+		// https://github.com/cypress-io/cypress/issues/3308
+		cy.wait(["@steplib-inputs"]);
+		cy.wait(3000);
+});
+
 Cypress.Commands.overwrite("visit", (originalFn, url) => {
 	cy.server();
 	cy.route("POST", "/1/indexes/steplib_inputs/**").as("steplib-inputs");
@@ -25,9 +32,6 @@ Cypress.Commands.overwrite("visit", (originalFn, url) => {
 
 		originalFn(url);
 
-		// TODO: cypress does not support polling :(
-		// https://github.com/cypress-io/cypress/issues/3308
-		cy.wait(["@steplib-inputs"]);
-		cy.wait(3000);
+		cy.waitForSteps();
 	});
  });

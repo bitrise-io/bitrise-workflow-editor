@@ -14,7 +14,7 @@ $def-purple: #8151a8;
 $def-darkbluegrey: #351d48;
 $def-purple-shade: #492f5c;
 $def-purple-light: #ebdef6;
-$def-blue-shade: #1375B2;
+$def-blue-shade: #1375b2;
 $def-blue: #0d83cd;
 $def-blue-light: #e6f2fa;
 $def-verydarkgrey: #444444;
@@ -27,9 +27,9 @@ $def-verylightgrey: #ececec;
 $def-ultralightgrey: #f8f8f8;
 $def-yellow-5: #daa900;
 $def-yellow: #ffc500;
-$def-yellow-1: #FFF9E5;
+$def-yellow-1: #fff9e5;
 $def-yellow-light: #ffc50066;
-$def-yellow-sade:#ffc500cc;
+$def-yellow-sade: #ffc500cc;
 
 $def-light-grape: #f8f0ff;
 $def-grape: #492f5c;
@@ -66,91 +66,6 @@ $cardo-horizontalpadding: 18px;
 $cardo-verticalpadding: 12px;
 $cardo-borderradius: 6px;
 
-@font-face {
-	font-family: "TTNorms";
-	src: url("../fonts/35C30F_7_0.eot");
-	src: url("../fonts/35C30F_7_0.eot?#iefix") format("embedded-opentype"), url("../fonts/35C30F_7_0.woff2") format("woff2"), url("../fonts/35C30F_7_0.woff") format("woff"), url("../fonts/35C30F_7_0.ttf") format("truetype"), url("../fonts/35C30F_7_0.svg#wf") format("svg");
-	font-weight: 100;
-}
-
-@font-face {
-	font-family: "TTNorms";
-	src: url("../fonts/35C30F_C_0.eot");
-	src: url("../fonts/35C30F_C_0.eot?#iefix") format("embedded-opentype"), url("../fonts/35C30F_C_0.woff2") format("woff2"), url("../fonts/35C30F_C_0.woff") format("woff"), url("../fonts/35C30F_C_0.ttf") format("truetype"), url("../fonts/35C30F_C_0.svg#wf") format("svg");
-	font-weight: 200;
-}
-
-@font-face {
-	font-family: "TTNorms";
-	src: url("../fonts/35C30F_F_0.eot");
-	src: url("../fonts/35C30F_F_0.eot?#iefix") format("embedded-opentype"), url("../fonts/35C30F_F_0.woff2") format("woff2"), url("../fonts/35C30F_F_0.woff") format("woff"), url("../fonts/35C30F_F_0.ttf") format("truetype"), url("../fonts/35C30F_F_0.svg#wf") format("svg");
-	font-weight: 400;
-}
-
-@font-face {
-	font-family: "TTNorms";
-	src: url("../fonts/35C30F_D_0.eot");
-	src: url("../fonts/35C30F_D_0.eot?#iefix") format("embedded-opentype"), url("../fonts/35C30F_D_0.woff2") format("woff2"), url("../fonts/35C30F_D_0.woff") format("woff"), url("../fonts/35C30F_D_0.ttf") format("truetype"), url("../fonts/35C30F_D_0.svg#wf") format("svg");
-	font-weight: 500;
-}
-
-@font-face {
-	font-family: "TTNorms";
-	src: url("../fonts/35C30F_1_0.eot");
-	src: url("../fonts/35C30F_1_0.eot?#iefix") format("embedded-opentype"), url("../fonts/35C30F_1_0.woff2") format("woff2"), url("../fonts/35C30F_1_0.woff") format("woff"), url("../fonts/35C30F_1_0.ttf") format("truetype"), url("../fonts/35C30F_1_0.svg#wf") format("svg");
-	font-weight: 700;
-}
-
-@font-face {
-	font-family: "TTNorms";
-	src: url("../fonts/35C30F_3_0.eot");
-	src: url("../fonts/35C30F_3_0.eot?#iefix") format("embedded-opentype"), url("../fonts/35C30F_3_0.woff2") format("woff2"), url("../fonts/35C30F_3_0.woff") format("woff"), url("../fonts/35C30F_3_0.ttf") format("truetype"), url("../fonts/35C30F_3_0.svg#wf") format("svg");
-	font-weight: 900;
-}
-
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 200;
-	src: url("../fonts/SourceCodePro-ExtraLight.ttf") format("truetype");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 300;
-	src: url("../fonts/SourceCodePro-Light.ttf") format("truetype");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 400;
-	src: url("../fonts/SourceCodePro-Regular.ttf") format("truetype");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 500;
-	src: url("../fonts/SourceCodePro-Medium.ttf") format("truetype");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 600;
-	src: url("../fonts/SourceCodePro-Semibold.ttf") format("truetype");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 700;
-	src: url("../fonts/SourceCodePro-Bold.ttf") format("truetype");
-}
-@font-face {
-	font-family: "SourceCodePro";
-	font-style: normal;
-	font-weight: 900;
-	src: url("../fonts/SourceCodePro-Black.ttf") format("truetype");
-}
-
 @mixin TTNormsWithFallback {
 	font-family: "TTNorms", sans-serif;
 }
@@ -160,5 +75,9 @@ $cardo-borderradius: 6px;
 }
 
 @function triangle_as_svg_content($width, $height) {
-	@return svg_with_content("<polygon points='#{ $width / 2 },0 #{ $width },#{ $height }, 0,#{ $height }'/>", $width, $height);
+	@return svg_with_content(
+		"<polygon points='#{ $width / 2 },0 #{ $width },#{ $height }, 0,#{ $height }'/>",
+		$width,
+		$height
+	);
 }

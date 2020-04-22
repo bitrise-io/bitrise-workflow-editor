@@ -29,11 +29,13 @@ export class WorkflowSelectionStore {
 
 		if (lastSelectedWorkflow) {
 			this.lastSelectedWorkflowID = lastSelectedWorkflow.id;
+			this.lastEditedWorkflowID = lastSelectedWorkflow.id;
 		}
 
-		if (lastEditedWorkflow && lastEditedWorkflowIndex) {
+		this.lastEditedWorkflowIndex = lastEditedWorkflowIndex || 0;
+
+		if (lastEditedWorkflow) {
 			this.lastEditedWorkflowID = lastEditedWorkflow.id;
-			this.lastEditedWorkflowIndex = lastEditedWorkflowIndex;
 		}
 
 		if (lastSelectedStep) {

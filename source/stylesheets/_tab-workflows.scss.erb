@@ -549,7 +549,6 @@ header.sticky section.manage-workflows {
 
 								button.step {
 									position: relative;
-									display: block;
 									text-align: left;
 
 									img.icon {
@@ -568,7 +567,7 @@ header.sticky section.manage-workflows {
 										@include align-items(flex-start);
 										@include box-sizing(border-box);
 										@include size($steptitle-width, $icon-size);
-										margin-left: $icon-size + $spacing;
+										margin-left: $spacing;
 										border: 1px solid $def-mediumlightgrey;
 										@include border-radius($def-box-radius);
 										@include padding-x(20px);

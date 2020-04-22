@@ -182,32 +182,10 @@ import { safeDigest } from "../services/react-compat";
 						})
 						.then(
 							function() {
-								try {
-									viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
-										return new Workflow(aWorkflowID, aWorkflowConfig);
-									});
-
-									var stepIconLoadPromises = [];
-									_.each(viewModel.workflows, function(aWorkflow) {
-										_.each(aWorkflow.steps, function(aStep) {
-											stepIconLoadPromises.push(imageService.loadImageWithURL($filter("normalizedStepIconURL")(aStep)));
-										});
-									});
-
-									$q.all(stepIconLoadPromises).then(
-										function() {
-											resolve();
-										},
-										function(error) {
-											logger.error(error);
-
-											resolve();
-										}
-									);
-								} catch (error) {
-									logger.error(error);
-									reject(error);
-								}
+								viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+									return new Workflow(aWorkflowID, aWorkflowConfig);
+								});
+								resolve();
 							},
 							function(error) {
 								reject(error);
@@ -245,7 +223,7 @@ import { safeDigest } from "../services/react-compat";
 					}
 
 					var wf = workflowSelectionService.findSelectedWorkflow(viewModel);
-					workflowSelectionService.selectWorkflow(viewModel, wf);
+					workflowSelectionService.rearrangeSelection(viewModel, wf);
 
 					appService.appConfig.workflows = {};
 					_.each(workflows, function(aWorkflow) {
@@ -299,7 +277,7 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.addWorkflowPopup.isVisible = false;
 
-				workflowSelectionService.selectWorkflow(viewModel, workflow);
+				workflowSelectionService.rearrangeSelection(viewModel, workflow);
 			};
 
 			// Workflow delete
@@ -352,32 +330,6 @@ import { safeDigest } from "../services/react-compat";
 					}
 				);
 			};
-
-			// Before/after run workflows
-
-			$scope.$watchCollection(
-				function() {
-					return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.before_run : undefined;
-				},
-				function() {
-					if (viewModel.selectedWorkflow) {
-						// select itself to update chain
-						workflowSelectionService.selectWorkflow(viewModel, viewModel.selectedWorkflow);
-					}
-				}
-			);
-
-			$scope.$watchCollection(
-				function() {
-					return viewModel.selectedWorkflow ? viewModel.selectedWorkflow.workflowConfig.after_run : undefined;
-				},
-				function() {
-					if (viewModel.selectedWorkflow) {
-						// select itself to update chain
-						workflowSelectionService.selectWorkflow(viewModel, viewModel.selectedWorkflow);
-					}
-				}
-			);
 
 			viewModel.addRunWorkflowPopup = new Popup();
 			viewModel.addRunWorkflowMode;
@@ -440,6 +392,9 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.selectedWorkflow.workflowConfig[runKey].push(viewModel.runWorkflowToAdd.id);
 				viewModel.addRunWorkflowPopup.isVisible = false;
+
+				// select the current one and edit newly generated one
+				workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, viewModel.runWorkflowToAdd.id);
 			};
 
 			viewModel.deleteBeforeAfterWorkflowAtWorkflowChainLink = function(workflowChainLink) {
@@ -454,6 +409,9 @@ import { safeDigest } from "../services/react-compat";
 						1
 					);
 				}
+
+				// select the current one and regenerate workflowchain
+				workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow);
 			};
 
 			viewModel.rearrangeWorkflowsPopup = new Popup();
@@ -493,6 +451,8 @@ import { safeDigest } from "../services/react-compat";
 				}
 
 				viewModel.rearrangeWorkflowsPopup.isVisible = false;
+
+				workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, viewModel.editedWorkflow.id);
 			};
 
 			// Workflow rename
@@ -576,23 +536,8 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.editedWorkflow;
 			viewModel.editedWorkflowIndex;
 
-			$scope.$watch(
-				function() {
-					return viewModel.selectedWorkflow;
-				},
-				function(selectedWorkflow) {
-					viewModel.editWorkflowAtIndex(
-						selectedWorkflow
-							? _.findIndex(viewModel.selectedWorkflowChain, {
-									workflow: selectedWorkflow
-							  })
-							: null
-					);
-				}
-			);
-
 			viewModel.selectWorkflow = function(workflow) {
-				workflowSelectionService.selectWorkflow(viewModel, workflow);
+				workflowSelectionService.rearrangeSelection(viewModel, workflow);
 			};
 
 			viewModel.editWorkflowAtIndex = function(workflowIndex) {

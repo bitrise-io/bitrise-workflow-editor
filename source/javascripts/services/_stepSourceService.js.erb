@@ -40,7 +40,7 @@
 					id: step.id,
 					version: step.version,
 					requestedVersion: requestedVersion,
-					stepsLength: Object.keys(library.steps).length,
+					stepsLength: Object.keys(library.steps).length
 				});
 			};
 
@@ -49,20 +49,26 @@
 				var stepVersions = library.steps[step.id];
 				var shouldLoadOnlyStepIcon = !requestedVersion || !(stepVersions && stepVersions[requestedVersion]);
 
-				if (shouldLoadOnlyStepIcon) {
-					requestedVersion = library.latestStepVersions[step.id];
-					step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
-				} else {
-					step.version = semverService.normalizeVersion(step.version);
-					step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
-				}
+				var logParams = {
+					id: step.id,
+					version: step.version,
+					stepsLength: Object.keys(library.steps).length
+				};
 
-				if (!step.isConfigured()) {
-					logger.warn("Step is not configured", {
-						id: step.id,
-						version: step.version,
-						stepsLength: Object.keys(library.steps).length
-					});
+				try {
+					if (shouldLoadOnlyStepIcon) {
+						requestedVersion = library.latestStepVersions[step.id];
+						step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
+					} else {
+						step.version = semverService.normalizeVersion(step.version);
+						step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+					}
+
+					if (!step.isConfigured()) {
+						logger.warn("Step is not configured", logParams);
+					}
+				} catch (error) {
+					logger.error(error, logParams);
 				}
 			};
 

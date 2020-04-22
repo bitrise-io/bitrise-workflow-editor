@@ -60,10 +60,9 @@ export const elements = {
 	"Variables for insert": "#insert-variable-popup-body .variable-source:has(li)",
 	"First variable for insert": "#insert-variable-popup-body .variable-source > li:eq(0)",
 	"Step Version Danger Icon": ".selected-step .icon-danger",
-	"Step Latest Version Updater": ".selected-step .icon-danger",
 
 	Steps: ".workflow.edited .steps ul li",
-	"Step Icons": ".workflow.edited .steps ul li .icon",
+	"Step Icons": ".workflow.edited .steps ul li img",
 	"First step": stepSelector(1),
 	"Second step": stepSelector(2),
 	"Third step": stepSelector(3),
@@ -132,6 +131,9 @@ export const elements = {
 	"wf6 steps": ".workflow:nth-child(5) ul.steps ul",
 	"wf6 steps container": ".workflow:nth-child(5) ul.steps",
 	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
+
+	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
+	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
 	"Rearrange button": ".manage-button.rearrange",
 	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
