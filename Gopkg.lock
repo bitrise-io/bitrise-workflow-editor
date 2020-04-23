@@ -249,7 +249,6 @@
   analyzer-version = 1
   input-imports = [
     "github.com/GeertJohan/go.rice",
-    "github.com/GeertJohan/go.rice/embedded",
     "github.com/bitrise-io/bitrise/cli",
     "github.com/bitrise-io/bitrise/models",
     "github.com/bitrise-io/depman/pathutil",
