@@ -50,9 +50,8 @@
 				var shouldLoadOnlyStepIcon = !requestedVersion || !(stepVersions && stepVersions[requestedVersion]);
 
 				var logParams = {
-					id: step.id,
-					version: step.version,
-					stepsLength: Object.keys(library.steps).length
+					stepCVS: step.cvs,
+					library: library.url
 				};
 
 				try {

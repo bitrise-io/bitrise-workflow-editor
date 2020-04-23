@@ -12,9 +12,15 @@ import jsyaml from "js-yaml";
 			};
 
 			function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
-				if (response && (response.status == -1 || response.status == 408)) {
+				var status = response && response.status;
+
+				if (status == -1 || status == 408) {
 					return new Error(response.config.method.toUpperCase() + " " + response.config.url + " - Request aborted");
 				}
+
+				var loggerPayload = {
+					status: status
+				};
 
 				var error = new Error(defaultErrorMessage);
 
@@ -54,7 +60,11 @@ import jsyaml from "js-yaml";
 					error.message = errorMessagePrefix += error.message;
 				}
 
-				logger.error(error);
+				if (status < 500) {
+					logger.warn(error.message, loggerPayload);
+				} else {
+					logger.error(error, loggerPayload);
+				}
 
 				return error;
 			}
