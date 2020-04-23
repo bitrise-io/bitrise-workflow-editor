@@ -16,6 +16,7 @@ export interface Step {
 	version: string;
 	requestedVersion(): string;
 	displayName(): string;
+	displayTooltip(): string;
 	isVerified(): boolean;
 	isOfficial(): boolean;
 	isConfigured(): boolean;

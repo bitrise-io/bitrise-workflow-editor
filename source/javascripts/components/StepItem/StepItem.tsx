@@ -6,7 +6,6 @@ import { Step } from "../../models";
 import "./StepItem.scss";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
-import defaultStepIcon from "../../../images/step/icon-default.svg";
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
 
 type StringProps = {
@@ -15,7 +14,7 @@ type StringProps = {
 
 type StepItemProps = {
 	step: Step;
-	title: string;
+	displayName: string;
 	version: string;
 	strings: StringProps;
 	selected: boolean;
@@ -47,7 +46,7 @@ const stepVersion = (step: Step, highlightVersionUpdate: boolean): JSX.Element =
 
 const StepItem: FC<StepItemProps> = ({
 	step,
-	title,
+	displayName,
 	version,
 	strings,
 	selected,
@@ -60,7 +59,7 @@ const StepItem: FC<StepItemProps> = ({
 		<span className="info">
 			<strong>
 				<Text className="title" ellipsis>
-					{title}
+					{displayName}
 				</Text>
 				{step.isVerified() && (
 					<Base title="Verified step" paddingHorizontal="x1" data-e2e-tag="verified-badge">
