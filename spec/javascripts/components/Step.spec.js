@@ -1,27 +1,26 @@
 describe("Step", function() {
-
-	var Step;
+	let Step;
 
 	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(inject(function(_Step_) {
 		Step = _Step_;
 	}));
 
-	var step;
+	let step;
 
 	beforeEach(function() {
 		step = new Step();
 	});
 
 	const fields = [
-		{name: "title", config_name: "title"},
-		{name: "summary", config_name: "summary"},
-		{name: "description", config_name: "description"},
-		{name: "assetUrls", config_name: "asset_urls"},
-		{name: "isDeprecated", config_name: "is_deprecated", readOnly: true}
+		{ name: "title", "config_name": "title" },
+		{ name: "summary", "config_name": "summary" },
+		{ name: "description", "config_name": "description" },
+		{ name: "assetUrls", "config_name": "asset_urls" },
+		{ name: "isDeprecated", "config_name": "is_deprecated", readOnly: true }
 	];
 
-	_.each(fields, (field) => {
+	_.each(fields, field => {
 		describe(`Getter/Setters: ${field.name}`, () => {
 			const defaultStepConfig = {
 				[field.config_name]: `Default ${field.name}`
@@ -88,7 +87,6 @@ describe("Step", function() {
 	});
 
 	describe("isValidTitle", function() {
-
 		it("should return undefined if title is not defined", function() {
 			expect(Step.isValidTitle(undefined)).toBeUndefined();
 		});
@@ -104,13 +102,12 @@ describe("Step", function() {
 			expect(Step.isValidTitle("ABC DEF")).toBeTruthy();
 			expect(Step.isValidTitle("ABC?DEF")).toBeTruthy();
 		});
-
 	});
 
 	describe("iconURL", function() {
 		it("should return default svg if no user step config is defined", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
@@ -120,7 +117,7 @@ describe("Step", function() {
 
 		it("should return default png if no svg and user step config is defined", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.png": "red-icon.png"
 				}
 			};
@@ -130,7 +127,7 @@ describe("Step", function() {
 
 		it("should return default svg even if default png is also defined", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg",
 					"icon.png": "blue-icon.png"
 				}
@@ -141,30 +138,30 @@ describe("Step", function() {
 
 		it("should return user defined svg if defined", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
 			step.userStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "blue-icon.svg"
 				}
-			}
+			};
 
 			expect(step.iconURL()).toBe("blue-icon.svg");
 		});
 
 		it("should return user defined png if defined", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
 			step.userStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.png": "blue-icon.png"
 				}
-			}
+			};
 
 			expect(step.iconURL()).toBe("blue-icon.png");
 		});
@@ -180,7 +177,7 @@ describe("Step", function() {
 
 		it("should change icon URL svg", function() {
 			step.userStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
@@ -192,7 +189,7 @@ describe("Step", function() {
 
 		it("should keep png, add svg", function() {
 			step.userStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.png": "red-icon.png"
 				}
 			};
@@ -205,7 +202,7 @@ describe("Step", function() {
 
 		it("should not change anything if icon type is not supported", function() {
 			step.userStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
@@ -218,12 +215,12 @@ describe("Step", function() {
 
 		it("should clear svg if is set to default", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
 			step.userStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "blue-icon.svg",
 					"icon.png": "blue-icon.png"
 				}
@@ -236,13 +233,13 @@ describe("Step", function() {
 
 		it("should clear asset URLs if all icon URLs are set to default", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
 			step.userStepConfig = {
 				title: "red-title",
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "blue-icon.svg"
 				}
 			};
@@ -254,13 +251,13 @@ describe("Step", function() {
 
 		it("should clear user step config if all is set to default", function() {
 			step.defaultStepConfig = {
-				asset_urls: {
+				"asset_urls": {
 					"icon.svg": "red-icon.svg"
 				}
 			};
 			step.userStepConfig = {
-				asset_urls: {
-					"icon.svg": "blue-icon.svg",
+				"asset_urls": {
+					"icon.svg": "blue-icon.svg"
 				}
 			};
 
@@ -268,19 +265,17 @@ describe("Step", function() {
 
 			expect(step.userStepConfig).toEqual({});
 		});
-
 	});
 
 	describe("verified", function() {
 		it("should not be verified if there is no information exists", function() {
 			expect(step.isVerified()).toBeFalsy();
 		});
-	})
+	});
 
 	describe("requestedVersion", function() {
-
 		it("should return null if cvs requests version to always latest", function() {
-			var step = new Step("red-step");
+			const step = new Step("red-step");
 
 			expect(step.requestedVersion()).toBeNull();
 
@@ -290,35 +285,32 @@ describe("Step", function() {
 		});
 
 		it("should return cvs requested version of step", function() {
-			var step = new Step("red-step@1.0");
+			const step = new Step("red-step@1.0");
 			step.version = "1.0";
 
 			expect(step.requestedVersion()).toBe("1.0");
 		});
-
 	});
 
 	describe("cvsFromWrappedStepConfig", function() {
-
 		it("should return CVS", function() {
-			expect(Step.cvsFromWrappedStepConfig({
-				"red-source::green-step@1.0": {
-					title: "Green step"
-				}
-			})).toBe("red-source::green-step@1.0");
+			expect(
+				Step.cvsFromWrappedStepConfig({
+					"red-source::green-step@1.0": {
+						title: "Green step"
+					}
+				})
+			).toBe("red-source::green-step@1.0");
 		});
-
-	})
-
+	});
 });
 
 describe("normalizedStepIconURL", function() {
-
-	var $filter;
-	var Step;
+	let $filter;
+	let Step;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function (_$filter_, _Step_) {
+	beforeEach(inject(function(_$filter_, _Step_) {
 		$filter = _$filter_;
 		Step = _Step_;
 	}));
@@ -328,13 +320,13 @@ describe("normalizedStepIconURL", function() {
 	});
 
 	it("should return default icon URL if step icon is not defined", function() {
-		var step = new Step();
+		const step = new Step();
 
 		expect($filter("normalizedStepIconURL")(step)).not.toBeUndefined();
 	});
 
 	it("should return set icon svg", function() {
-		var step = new Step();
+		const step = new Step();
 
 		step.iconURL("icon-url.svg");
 
@@ -342,22 +334,20 @@ describe("normalizedStepIconURL", function() {
 	});
 
 	it("should return set icon png", function() {
-		var step = new Step();
+		const step = new Step();
 
 		step.iconURL("icon-url.png");
 
 		expect($filter("normalizedStepIconURL")(step)).toBe("icon-url.png");
 	});
-
 });
 
 describe("stepSourceCSSClass", function() {
-
-	var $filter;
-	var Step;
+	let $filter;
+	let Step;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function (_$filter_, _Step_) {
+	beforeEach(inject(function(_$filter_, _Step_) {
 		$filter = _$filter_;
 		Step = _Step_;
 	}));
@@ -367,7 +357,7 @@ describe("stepSourceCSSClass", function() {
 	});
 
 	it("should return a provider css class if source URL matches one", function() {
-		var step = new Step();
+		const step = new Step();
 
 		step.sourceURL("https://www.github.com/red-step");
 		expect($filter("stepSourceCSSClass")(step)).toBe("github");
@@ -380,10 +370,9 @@ describe("stepSourceCSSClass", function() {
 	});
 
 	it("should return unknown if source URL doesn't match any providers", function() {
-		var step = new Step();
+		const step = new Step();
 
 		step.sourceURL("https://www.red.com/red-step");
 		expect($filter("stepSourceCSSClass")(step)).toBe("unknown");
 	});
-
 });

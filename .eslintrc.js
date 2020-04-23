@@ -13,7 +13,8 @@ module.exports = {
 		Cypress: false,
 		angular: false,
 		_: false,
-		inject: false
+		inject: false,
+		Promise: false
 	},
 	extends: [
 		"eslint:recommended",
@@ -22,10 +23,25 @@ module.exports = {
 		"plugin:react/recommended"
 	],
 	rules: {
-		"max-len": ["error", { code: 120, tabWidth: 2 }],
+		"max-len": ["error", { code: 120, tabWidth: 1 }],
 		quotes: [2, "double"],
+		"no-with": "off",
+		"prefer-const": ["error", { destructuring: "all" }],
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
 		"@typescript-eslint/no-non-null-assertion": "off"
-	}
+	},
+	overrides: [
+		{
+			files: ["*.js"],
+			rules: {
+				"@typescript-eslint/explicit-function-return-type": "off"
+			}
+		}, {
+			files: ["*.config.js"],
+			rules: {
+				"@typescript-eslint/no-var-requires": "off"
+			}
+		}
+	]
 };

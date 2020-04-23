@@ -5,7 +5,7 @@ describe("DataDogLoggerService", () => {
 
 	let logger;
 	let mockInnerLogger;
-	let mockDatadogLogs = {
+	const mockDatadogLogs = {
 		// TODO: leave it here because we are using Ddog singleton logger -> removal results in test failure
 		init: _.identity,
 		createLogger: _.identity
@@ -43,7 +43,6 @@ describe("DataDogLoggerService", () => {
 			testServiceName,
 			jasmine.objectContaining({
 				handler: "http",
-				level: "warn",
 				level: "info"
 			})
 		);
@@ -67,7 +66,7 @@ describe("DataDogLoggerService", () => {
 	});
 
 	it("should use datadog error logging", () => {
-		const mockError = new Error('test');
+		const mockError = new Error("test");
 		const expectedMessage = `test\n${mockError.stack}`;
 
 		logger.error(mockError, mockContext);

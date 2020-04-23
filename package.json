@@ -5,7 +5,7 @@
 	"main": "index.js",
 	"scripts": {
 		"karma": "karma start spec/karma.conf.js",
-		"lint": "eslint source/javascripts --ext .ts,.tsx",
+		"lint": "eslint source/javascripts spec --ext .ts,.tsx,.js",
 		"test": "npm run build && npm run karma",
 		"test-ci": "npm run lint && npm run karma",
 		"test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",

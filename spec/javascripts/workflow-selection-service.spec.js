@@ -13,7 +13,7 @@ describe("WorkflowsSelectionService", () => {
 		};
 
 		mockLocationService = {
-			search: () => ({ workflow_id: "test-location" })
+			search: () => ({ "workflow_id": "test-location" })
 		};
 
 		module($provide => {
