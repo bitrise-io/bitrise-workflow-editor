@@ -21,7 +21,7 @@ const railsTransformer = mode => ({
 		script: `bundle exec ruby transformer.rb ${mode}`,
 		cwd: "./rails",
 		maxBuffer: Math.pow(1024, 3),
-		env: { ...process.env, version }
+		env: { ...process.env, wfe_version: version }
 	}
 });
 
