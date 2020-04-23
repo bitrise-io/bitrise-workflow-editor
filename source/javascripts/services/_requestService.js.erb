@@ -18,7 +18,7 @@ import jsyaml from "js-yaml";
 					return new Error(response.config.method.toUpperCase() + " " + response.config.url + " - Request aborted");
 				}
 
-				var loggerPayload = {
+				var messageTags = {
 					status: status
 				};
 
@@ -61,9 +61,9 @@ import jsyaml from "js-yaml";
 				}
 
 				if (status < 500) {
-					logger.warn(error.message, loggerPayload);
+					logger.warn(error.message, messageTags);
 				} else {
-					logger.error(error, loggerPayload);
+					logger.error(error, messageTags);
 				}
 
 				return error;

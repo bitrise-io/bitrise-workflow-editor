@@ -49,7 +49,7 @@
 				var stepVersions = library.steps[step.id];
 				var shouldLoadOnlyStepIcon = !requestedVersion || !(stepVersions && stepVersions[requestedVersion]);
 
-				var logParams = {
+				var messageTags = {
 					stepCVS: step.cvs,
 					library: library.url
 				};
@@ -64,10 +64,10 @@
 					}
 
 					if (!step.isConfigured()) {
-						logger.warn("Step is not configured", logParams);
+						logger.warn("Step is not configured", messageTags);
 					}
 				} catch (error) {
-					logger.error(error, logParams);
+					logger.error(error, messageTags);
 				}
 			};
 
