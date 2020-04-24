@@ -1,6 +1,6 @@
 describe("backgroundImagePropertyValue", function() {
 
-    var $filter;
+    let $filter;
 
     beforeEach(module("BitriseWorkflowEditor"));
     beforeEach(inject(function (_$filter_) {

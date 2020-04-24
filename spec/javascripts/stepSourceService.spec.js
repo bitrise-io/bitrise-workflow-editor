@@ -1,9 +1,9 @@
 describe("stepSourceService", function() {
-	var stepSourceService;
-	var TEST_STEP_ID = "mockStep";
-	var TEST_LIB_URL = "http://tempuri.org";
-	var TEST_STEP_LATEST_CONFIG = { asset_urls: "test_urls", name: "2.2.1 config" };
-	var mockSemverService, mockLogger;
+	let stepSourceService;
+	const TEST_STEP_ID = "mockStep";
+	const TEST_LIB_URL = "http://tempuri.org";
+	const TEST_STEP_LATEST_CONFIG = { "asset_urls": "test_urls", name: "2.2.1 config" };
+	let mockSemverService, mockLogger;
 
 	beforeEach(() => {
 		mockSemverService = {
@@ -124,8 +124,8 @@ describe("stepSourceService", function() {
 			expect(
 				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).version
 			).toBe("2.0");
-			expect(stepSourceService.stepFromCVS(`library-url.git::@1.0@2.0`).id).toBe("@1.0");
-			expect(stepSourceService.stepFromCVS(`library-url.git::@1.0@2.0`).version).toBe("2.0");
+			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").id).toBe("@1.0");
+			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").version).toBe("2.0");
 		});
 
 		it("should raise error on invalid library step CVS", function() {
@@ -164,7 +164,7 @@ describe("stepSourceService", function() {
 			mockSemverService.normalizeVersion.and.returnValue("1.x.x");
 			mockSemverService.resolveVersion.and.returnValue("1.2.1");
 
-			var step = stepSourceService.stepFromCVS(`${TEST_STEP_ID}@1`);
+			const step = stepSourceService.stepFromCVS(`${TEST_STEP_ID}@1`);
 
 			expect(step.version).toEqual("1.x.x");
 			expect(step.defaultStepConfig).toEqual("1.2.1 config");
@@ -173,13 +173,15 @@ describe("stepSourceService", function() {
 		it("Should log a warning for an invalid step version", () => {
 			stepSourceService.stepFromCVS(`${TEST_STEP_ID}@invalid`);
 
-			expect(mockLogger.warn)
-				.toHaveBeenCalledWith("Step is not configured", jasmine.objectContaining({ id: TEST_STEP_ID, version: "invalid" }));
+			expect(mockLogger.warn).toHaveBeenCalledWith(
+				"Step is not configured",
+				jasmine.objectContaining({ stepCVS: `${TEST_STEP_ID}@invalid`, library: "http://tempuri.org" })
+			);
 		});
 	});
 
 	describe("changeStepToVersion", () => {
-		var MOCK_STEP;
+		let MOCK_STEP;
 
 		beforeEach(() => {
 			MOCK_STEP = {
@@ -194,7 +196,7 @@ describe("stepSourceService", function() {
 		});
 
 		it("should update step configs to wildcard change", () => {
-			var newVersion = "2.x.x";
+			const newVersion = "2.x.x";
 			mockSemverService.resolveVersion.and.returnValue("2.2.1");
 			mockSemverService.shortenWildcardVersion.and.returnValue("2");
 			mockSemverService.normalizeVersion.and.returnValue(newVersion);
@@ -256,7 +258,7 @@ describe("stepSourceService", function() {
 			MOCK_STEP.isLibraryStep = () => false;
 			MOCK_STEP.isLocal = () => true;
 
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+			const versions = stepSourceService.versionsOfStep(MOCK_STEP);
 
 			expect(versions).toBeNull();
 		});
@@ -265,7 +267,7 @@ describe("stepSourceService", function() {
 			MOCK_STEP.isLibraryStep = () => false;
 			MOCK_STEP.isLocal = () => false;
 
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+			const versions = stepSourceService.versionsOfStep(MOCK_STEP);
 
 			expect(versions).toEqual(["1.1.1"]);
 		});
@@ -273,7 +275,7 @@ describe("stepSourceService", function() {
 		it("should return null if the step is pointing to a wrong library and log an error", () => {
 			MOCK_STEP.libraryURL = "http://this-does-not-exist";
 
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+			const versions = stepSourceService.versionsOfStep(MOCK_STEP);
 
 			expect(versions).toBeNull();
 
@@ -285,7 +287,7 @@ describe("stepSourceService", function() {
 			const mockVersions = [null, "2.2.1"];
 			mockSemverService.extractWildcardVersions.and.returnValue(mockVersions);
 
-			var versions = stepSourceService.versionsOfStep(MOCK_STEP);
+			const versions = stepSourceService.versionsOfStep(MOCK_STEP);
 			expect(versions).toEqual(mockVersions);
 			expect(mockSemverService.extractWildcardVersions).toHaveBeenCalledWith(MOCK_STEP, stepSourceService.libraries[0]);
 		});
@@ -293,7 +295,7 @@ describe("stepSourceService", function() {
 
 	describe("isLatestStepVersion", () => {
 		it("should return false for local step", () => {
-			var isLatest = stepSourceService.isLatestStepVersion({
+			const isLatest = stepSourceService.isLatestStepVersion({
 				isLibraryStep: () => false,
 				isLocal: () => true
 			});
@@ -302,7 +304,7 @@ describe("stepSourceService", function() {
 		});
 
 		it("should return true for github step", () => {
-			var isLatest = stepSourceService.isLatestStepVersion({
+			const isLatest = stepSourceService.isLatestStepVersion({
 				isLibraryStep: () => false,
 				isLocal: () => false
 			});
@@ -311,7 +313,7 @@ describe("stepSourceService", function() {
 		});
 
 		it("should check resolved versions for library steps", () => {
-			var mockStep = {
+			const mockStep = {
 				id: TEST_STEP_ID,
 				isLibraryStep: () => true,
 				libraryURL: TEST_LIB_URL
@@ -347,11 +349,14 @@ describe("stepSourceService", function() {
 		it("should log if step version could not be resolved", () => {
 			const actual = stepSourceService.resolveRequestedStepVersion("1.2.x", MOCK_STEP);
 
-			expect(mockLogger.warn).toHaveBeenCalledWith(jasmine.any(String), jasmine.objectContaining({
-				id: TEST_STEP_ID,
-				version: "1.2.3",
-				requestedVersion: "1.2.x"
-			}));
+			expect(mockLogger.warn).toHaveBeenCalledWith(
+				jasmine.any(String),
+				jasmine.objectContaining({
+					id: TEST_STEP_ID,
+					version: "1.2.3",
+					requestedVersion: "1.2.x"
+				})
+			);
 
 			expect(actual).toBeUndefined();
 		});

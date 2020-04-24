@@ -189,7 +189,7 @@ export const elements = {
 export const selector = elementSelector => elements[elementSelector] || elementSelector;
 
 const elementIndex = expression => {
-	const matches = /\:eq\((\d)\)/gm.exec(expression);
+	const matches = /:eq\((\d)\)/gm.exec(expression);
 
 	return (
 		matches && {
@@ -213,7 +213,7 @@ const addressElementAt = (expression, pos) => {
 };
 
 export default elementName => {
-	let expression = selector(elementName);
+	const expression = selector(elementName);
 
 	const elementPosition = elementIndex(expression);
 

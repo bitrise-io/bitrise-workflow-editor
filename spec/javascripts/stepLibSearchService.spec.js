@@ -1,5 +1,5 @@
 describe("stepLibSearchService", function() {
-	var stepLibSearchService, mockStepLibSearchInstance;
+	let stepLibSearchService, mockStepLibSearchInstance;
 
 	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(inject(function(_stepLibSearchService_) {

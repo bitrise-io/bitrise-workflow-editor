@@ -48,17 +48,17 @@ describe("SemverService", () => {
 
     describe("checkVersionPartsLocked", () => {
         it("should detect wildcard versions", () => {
-            expect(semverService.checkVersionPartsLocked('1.2.x')).toBeTruthy();
-            expect(semverService.checkVersionPartsLocked('1.x.x')).toBeTruthy();
-            expect(semverService.checkVersionPartsLocked('12.3')).toBeFalsy();
-            expect(semverService.checkVersionPartsLocked('12.3')).toBeFalsy();
+            expect(semverService.checkVersionPartsLocked("1.2.x")).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked("1.x.x")).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked("12.3")).toBeFalsy();
+            expect(semverService.checkVersionPartsLocked("12.3")).toBeFalsy();
         });
 
         it("should check for arbitrary locked parts", () => {
-            expect(semverService.checkVersionPartsLocked('1.x.x', 2)).toBeTruthy();
-            expect(semverService.checkVersionPartsLocked('1.x.x', 1)).toBeTruthy();
-            expect(semverService.checkVersionPartsLocked('1.1.x', 2)).toBeFalsy();
-            expect(semverService.checkVersionPartsLocked('1.1.2', 1)).toBeFalsy();
+            expect(semverService.checkVersionPartsLocked("1.x.x", 2)).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked("1.x.x", 1)).toBeTruthy();
+            expect(semverService.checkVersionPartsLocked("1.1.x", 2)).toBeFalsy();
+            expect(semverService.checkVersionPartsLocked("1.1.2", 1)).toBeFalsy();
         });
     });
 
@@ -97,7 +97,7 @@ describe("SemverService", () => {
                 version: "2.3.x",
             };
 
-            var wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
+            const wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
 
             expect(wVersions).toEqual([
                 "12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
@@ -138,7 +138,7 @@ describe("SemverService", () => {
             });
         });
 
-        it('should return undefined for non-existent step', () => {
+        it("should return undefined for non-existent step", () => {
             const actual = semverService.resolveVersion("1.x.x", "do-not-exists", mockCatalogue);
             expect(actual).toBeUndefined();
         });

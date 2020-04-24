@@ -13,7 +13,7 @@ describe("AppService", () => {
   };
 
   describe("getAppSlug", () => {
-    it('should return app slug from the path', () => {
+    it("should return app slug from the path", () => {
       const testSlug = "testId01"
 
       runWithUrl(`https://app.bitrise.io/app/${testSlug}/workflow_editor#!/workflows?workflow_id=primary`, () => {
@@ -21,7 +21,7 @@ describe("AppService", () => {
       });
     });
 
-    it('should return null if url not in expected format', () => {
+    it("should return null if url not in expected format", () => {
       const testSlug = "testId01"
 
       runWithUrl(`https://app.bitrise.io/test${testSlug}/something`, () => {
