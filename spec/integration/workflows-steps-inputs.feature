@@ -72,7 +72,7 @@ Feature: Workflow steps inputs
     When I click on "Selected Step First Input"
     And I click on "Selected Input Clear Button"
     Then "Selected Input Textarea" should "be empty"
-    And "Selected Input Textarea" should have "purple" "border-color" style
+    And "Selected Input Textarea" should have "red" "border-color" style
 
   Scenario: Inserting Variable into a selected place
     Given "wf5" workflow is selected
