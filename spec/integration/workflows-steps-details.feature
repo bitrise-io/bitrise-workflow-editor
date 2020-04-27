@@ -126,3 +126,9 @@ Feature: Workflow steps details
     Given "wf5" workflow is selected
       And First step is selected
     Then "Step source link" should have attribute "target" with value "_blank"
+
+  Scenario: Step maintinaer badges
+    Given "wf5" workflow is selected
+    And First step is selected
+    Then I should see "GitHub Status" in "Step Title"
+    Then I should see the "Official Maintianer Badge" badge in "First step name" with the title "Bitrise step"

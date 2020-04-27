@@ -19,3 +19,10 @@ Then("no step selected", () => {
 		cy.wrap($el).should("not.have.class", "selected");
 	});
 });
+
+Then("I should see the {string} badge in {string} with the title {string}", (badge, element, title) => {
+	$(element)
+		.children($(badge))
+		.invoke("attr", "title")
+		.should("contain", title);
+});

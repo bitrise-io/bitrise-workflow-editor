@@ -90,6 +90,8 @@ export const elements = {
 
 	"Danger Icon": ".icon-danger",
 	"Success Icon": ".icon-ok",
+  "Verified Maintianer Badge": "div[data-e2e-tag=\"verified-badge\"]",
+  "Official Maintianer Badge": "div[data-e2e-tag=\"official-badge\"]",
 
 	"Selected Workflow": "section.workflow.selected",
 	"Selected Workflow description": ".workflow-description .description p",
