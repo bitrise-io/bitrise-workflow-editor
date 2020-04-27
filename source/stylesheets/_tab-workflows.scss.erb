@@ -3,6 +3,7 @@
 
 section.manage-workflows {
 	$button-spacing: 8px;
+	$button-wrapping-point: 580px;
 
 	@include flex-shrink(0);
 	@include display-flex;
@@ -64,8 +65,8 @@ section.manage-workflows {
 			z-index: $zindex-workflow_selector;
 			margin-top: 10px;
 			margin-bottom: 0;
-			width: 548px;
-			@include media-below(580px) {
+			width: $button-wrapping-point - (2 * $main-horizontalpadding_small);
+			@include media-below($button-wrapping-point) {
 				width: 100%;
 			}
 			border: $border;
@@ -215,7 +216,7 @@ section.manage-workflows {
 			opacity: 0;
 		}
 
-		@include media-below(580px) {
+		@include media-below($button-wrapping-point) {
 			width: 100%;
 		}
 	}
