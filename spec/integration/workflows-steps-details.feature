@@ -95,14 +95,12 @@ Feature: Workflow steps details
     When I uncheck "Step Always run indicator"
     Then "Discard Button" should "be disabled"
 
-  Scenario: Steps badges: community, verified, deprecation
-    Given "wf4" workflow is selected
-    When I click on "First step"
-    Then "Step Verified Badge" should "be visible"
-    When I click on "Fourth step"
-    Then "Step Community Badge" should "be visible"
-    When I select "wf5 workflow" from "Workflow selector"
-      And I click on "Second step"
+  Scenario: Steps badges: official, community, verified, deprecation
+    Given "wf5" workflow is selected
+    When First step is selected
+    Then I should see "Script" in "First step"
+      And I should see the "Official Maintianer Badge" badge in "First step name" with the title "Bitrise step"
+    When I click on "Second step"
     Then "Step Deprecation Badge" should "be visible"
 
   Scenario: User deletes the Step
@@ -126,9 +124,3 @@ Feature: Workflow steps details
     Given "wf5" workflow is selected
       And First step is selected
     Then "Step source link" should have attribute "target" with value "_blank"
-
-  Scenario: Step maintinaer badges
-    Given "wf5" workflow is selected
-    And First step is selected
-    Then I should see "GitHub Status" in "Step Title"
-    Then I should see the "Official Maintianer Badge" badge in "First step name" with the title "Bitrise step"

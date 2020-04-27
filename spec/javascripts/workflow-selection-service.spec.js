@@ -13,8 +13,11 @@ describe("WorkflowsSelectionService", () => {
 		};
 
 		mockLocationService = {
-			search: () => ({ "workflow_id": "test-location" })
+			search: _.identity
 		};
+
+		// eslint-disable-next-line @typescript-eslint/camelcase
+		spyOn(mockLocationService, "search").and.returnValue({ workflow_id: "test-location" });
 
 		module($provide => {
 			$provide.value("workflowSelectionStore", mockStore);
@@ -43,8 +46,8 @@ describe("WorkflowsSelectionService", () => {
 		});
 
 		it("should check location to find workflow", () => {
-			const result = selectionService.findSelectedWorkflow(mockVm);
-			expect(result).toEqual(mockVm.workflows[2]);
+			selectionService.findSelectedWorkflow(mockVm);
+			expect(mockLocationService.search).toHaveBeenCalled();
 		});
 
 		it("should check primary name to find workflow", () => {
