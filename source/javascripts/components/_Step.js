@@ -40,11 +40,7 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 		};
 
 		Step.prototype.displayCvs = function() {
-			return (
-				(this.cvs.startsWith("git::") || this.cvs.startsWith("path::")) 
-					? this.cvs.replace(/(git|path)::/g, "")
-					: this.cvs
-			);
+			return this.cvs.replace(/^(git|path)::/g, "");
 		}
 
 		Step.prototype.displayTooltip = function() {

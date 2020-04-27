@@ -6,6 +6,7 @@ import { Step } from "../../models";
 import "./StepItem.scss";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
+import defaultStepIcon from "../../../images/step/icon-default.svg";
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
 
 type StringProps = {

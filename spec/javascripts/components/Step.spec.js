@@ -86,6 +86,80 @@ describe("Step", function() {
 		});
 	});
 
+	describe("displayName", function() {
+		it("should return title if title is defined and not empty", function() {
+			const stepTitle = "Test step";
+			step.defaultStepConfig = {
+				"title": stepTitle,
+			};
+
+			expect(step.displayName()).toBe(stepTitle);
+		});
+
+		it("should return id if title is not defined but id is defined", function() {
+			const stepId = "step-1";
+			step.id = stepId;
+
+			expect(step.displayName()).toBe(stepId);
+		});
+
+		it("should return the last cvs segment, no fragment", function() {
+			const testStepName = "test_step";
+			step.cvs = `path::${testStepName}`;
+
+			expect(step.displayName()).toBe(testStepName);
+		});
+
+		it("should return the last cvs fragment, single fragment", function() {
+			const testStepName = "test_step";
+			step.cvs = `path::./${testStepName}`;
+
+			expect(step.displayName()).toBe(testStepName);
+		});
+
+		it("should return last cvs fragment, multiple fragments", function() {
+			const testStepName = "test_step";
+			step.cvs = `path::./dir/sub/${testStepName}`;
+
+			expect(step.displayName()).toBe(testStepName);
+		});
+	});
+
+	describe("displayCvs", function() {
+		it("should return cvs itself when not starting with git:: or path::", function() {
+			step.cvs = "./test/step";
+			
+			expect(step.displayCvs()).toBe(step.cvs);
+		})
+
+		it("should return cvs without git:: prefix", function() {
+			const githubUrl = "https://github.com/bitrise-steplib/step-scripts"; 
+			step.cvs = `git::${githubUrl}`;
+
+			expect(step.displayCvs()).toBe(githubUrl);
+		})
+
+		it("should return cvs without path:: prefix", function() {
+			const path = "./steps/test_step";
+			step.cvs = `path::${path}`;
+
+			expect(step.displayCvs()).toBe(path);
+		})
+	});
+
+	describe("displayTooltip", function() {
+		it("should return displayName and cvs concatenated", function () {
+			const stepTitle = "Step title";
+			const path = "./dir/sub/step";
+			step.defaultStepConfig = {
+				title: "Step title"
+			}
+			step.cvs = `path::${path}`;
+
+			expect(step.displayTooltip()).toBe(`${stepTitle}<br>${path}`);
+		})
+	});
+
 	describe("isValidTitle", function() {
 		it("should return undefined if title is not defined", function() {
 			expect(Step.isValidTitle(undefined)).toBeUndefined();
