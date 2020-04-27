@@ -4,6 +4,12 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 	"use strict";
 
 	angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Variable) {
+		var MAINTAINER = {
+			VERIFIED: "verified",
+			OFFICIAL: "bitrise",
+			COMMUNITY: "community"
+		};
+
 		var Step = function(cvs, userStepConfig, defaultStepConfig) {
 			this.cvs = cvs;
 			this.localPath;
@@ -11,6 +17,7 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 			this.libraryURL;
 			this.id;
 			this.version;
+			this.info = {};
 
 			this.userStepConfig = userStepConfig;
 			if (!this.userStepConfig) {
@@ -144,17 +151,11 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 		};
 
 		Step.prototype.isVerified = function() {
-			var sourceURL = this.sourceURL();
+			return this.info.maintainer === MAINTAINER.VERIFIED && !this.isDeprecated();
+		};
 
-			if (sourceURL === undefined) {
-				return undefined;
-			}
-
-			var regexpForVerifiedStepSourceURL = new RegExp(
-				"^(?:https?://)?(?:www.)?github.com/(?:bitrise-steplib|bitrise-io)/.+"
-			);
-
-			return regexpForVerifiedStepSourceURL.test(sourceURL) && !this.isDeprecated();
+		Step.prototype.isOfficial = function() {
+			return this.info.maintainer === MAINTAINER.OFFICIAL && !this.isDeprecated();
 		};
 
 		Step.prototype.isDeprecated = function() {

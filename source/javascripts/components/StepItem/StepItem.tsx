@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Text, Badge, Icon } from "@bitrise/bitkit";
+import { Base, Text, Badge, Icon } from "@bitrise/bitkit";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Step } from "../../models";
 
@@ -7,7 +7,6 @@ import "./StepItem.scss";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
 import defaultStepIcon from "../../../images/step/icon-default.svg";
-import verifiedIcon from "../../../images/step/badge-verified.svg";
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
 
 type StringProps = {
@@ -20,6 +19,7 @@ type StepItemProps = {
 	version: string;
 	isDeprecated: boolean;
 	isVerified: boolean;
+	isOfficial: boolean;
 	strings: StringProps;
 	selected: boolean;
 	highlightVersionUpdate: boolean;
@@ -38,7 +38,7 @@ export const normalizeIconUrl = (step?: Step): string | undefined => {
 
 const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 
-const stepVersion = (step: Step, highlightVersionUpdate: boolean) =>
+const stepVersion = (step: Step, highlightVersionUpdate: boolean): JSX.Element =>
 	highlightVersionUpdate ? (
 		<Text>{step.version}</Text>
 	) : (
@@ -53,7 +53,6 @@ const StepItem: FC<StepItemProps> = ({
 	title,
 	version,
 	isDeprecated,
-	isVerified,
 	strings,
 	selected,
 	highlightVersionUpdate,
@@ -67,7 +66,16 @@ const StepItem: FC<StepItemProps> = ({
 				<Text className="title" ellipsis>
 					{title}
 				</Text>
-				{isVerified && <img className="verified" src={verifiedIcon} />}
+				{step.isVerified() && (
+					<Base title="Verified step" paddingHorizontal="x1" data-e2e-tag="verified-badge">
+						<Icon name="StepThirdParty" color="blue-3" />
+					</Base>
+				)}
+				{step.isOfficial() && (
+					<Base title="Bitrise step" paddingHorizontal="x1" data-e2e-tag="official-badge">
+						<Icon name="BitriseCertified" color="aqua-3" />
+					</Base>
+				)}
 				{isDeprecated && <img className="deprecated" src={deprecatedIcon} />}
 			</strong>
 			<em className="version">

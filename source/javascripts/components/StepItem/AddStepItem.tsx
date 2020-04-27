@@ -7,9 +7,6 @@ import { normalizeIconUrl } from "./StepItem";
 
 import { Step } from "../../models";
 
-import verifiedIcon from "../../../images/step/badge-verified.svg";
-import communityCreatedIcon from "../../../images/step/badge-community_created.svg";
-
 type AddStepItemProps = {
 	step: Step;
 	onSelected: (step: Step) => void;
@@ -24,9 +21,17 @@ const AddStepItem: FC<AddStepItemProps> = ({ step, onSelected }: AddStepItemProp
 				<Flex grow="x1" shrink="x1" direction="vertical" className="details" overflow="hidden">
 					<h4>
 						<Base Component="span">{step.displayName()}</Base>
-						{step.isVerified() && <img className="verified" src={verifiedIcon} />}
-						{!step.isVerified() && <img className="community-created" src={communityCreatedIcon} />}
 					</h4>
+					{step.isVerified() && (
+						<Base title="Verified step">
+							<Icon name="StepThirdParty" color="blue-3" />
+						</Base>
+					)}
+					{step.isOfficial() && (
+						<Base title="Official step">
+							<Icon name="BitriseCertified" color="aqua-3" />
+						</Base>
+					)}
 					<MarkdownText className="summary" markdown={step.summary()} />
 				</Flex>
 			</Flex>

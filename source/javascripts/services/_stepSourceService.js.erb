@@ -61,7 +61,9 @@
 						step.assetUrls(library.steps[step.id][requestedVersion].defaultStepConfig.asset_urls);
 					} else {
 						step.version = semverService.normalizeVersion(step.version);
-						step.defaultStepConfig = library.steps[step.id][requestedVersion].defaultStepConfig;
+						var stepInLibrary = library.steps[step.id][requestedVersion];
+						step.defaultStepConfig = stepInLibrary.defaultStepConfig;
+						step.info = stepInLibrary.info;
 					}
 
 					if (!step.isConfigured()) {
@@ -300,6 +302,7 @@
 					var latestStepVersion;
 					Object.values(steps[stepId].versions).forEach(function(stepVersion) {
 						var step = new Step(stepVersion.cvs);
+						step.info = stepVersion.info;
 						latestStepVersion = stepVersion.latest_version_number;
 						step.libraryURL = stepSourceService.defaultLibraryURL;
 						step.id = stepVersion.id;
