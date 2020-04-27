@@ -1,6 +1,6 @@
 describe("Variable", function() {
 
-	var Variable;
+	let Variable;
 
 	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(inject(function(_Variable_) {
@@ -10,25 +10,26 @@ describe("Variable", function() {
 	describe("key", function() {
 
 		it("should return user defined key if is defined", function() {
-			var variable = new Variable({
-				blue_key: "blue_variable"
+			const variable = new Variable({
+				"blue_key": "blue_variable"
 			}, {
-				red_key: "red_variable"
+				"red_key": "red_variable"
 			});
 
 			expect(variable.key()).toBe("blue_key");
 		});
 
 		it("should return default if no user variable config is defined", function() {
-			var variable = new Variable(undefined, {
-				red_key: "red_variable"
+			const variable = new Variable(undefined, {
+				"red_key": "red_variable"
 			});
 
 			expect(variable.key()).toBe("red_key");
 		});
 
-		it("should return undefined if no user variable config is defined and default variable config has no key defined", function() {
-			var variable = new Variable(undefined, {
+		it(`should return undefined if no user variable config is defined
+		and default variable config has no key defined`, () => {
+			const variable = new Variable(undefined, {
 				opts: {
 					title: "Red title"
 				}
@@ -38,8 +39,8 @@ describe("Variable", function() {
 		});
 
 		it("should change key", function() {
-			var variable = new Variable(undefined, {
-				red_key: "red_variable"
+			const variable = new Variable(undefined, {
+				"red_key": "red_variable"
 			});
 
 			expect(variable.key("blue_key")).toBe("blue_key");
@@ -47,8 +48,8 @@ describe("Variable", function() {
 		});
 
 		it("should delete old key from user variable config if it was defined", function() {
-			var variable = new Variable(undefined, {
-				red_key: "red_variable"
+			const variable = new Variable(undefined, {
+				"red_key": "red_variable"
 			});
 
 			variable.key("green_key");
@@ -59,13 +60,13 @@ describe("Variable", function() {
 		});
 
 		it("should keep key in user variable config if it is the default and options are defined", function() {
-			var variable = new Variable({
-				new_red_key: "red_variable",
+			const variable = new Variable({
+				"new_red_key": "red_variable",
 				opts: {
 					title: "New red title"
 				}
 			}, {
-				red_key: "red_variable",
+				"red_key": "red_variable",
 				opts: {
 					title: "Red title"
 				}
@@ -77,10 +78,10 @@ describe("Variable", function() {
 		});
 
 		it("should keep user variable config even if key is the default and options are not defined", function() {
-			var variable = new Variable({
-				new_red_key: "red_variable"
+			const variable = new Variable({
+				"new_red_key": "red_variable"
 			}, {
-				red_key: "red_variable"
+				"red_key": "red_variable"
 			});
 
 			expect(variable.key("red_key")).toBe("red_key");
@@ -129,28 +130,28 @@ describe("Variable", function() {
 	describe("value", function() {
 
 		it("should return user defined value if is defined", function() {
-			var variable = new Variable({
-				blue_key: "blue_variable"
+			const variable = new Variable({
+				"blue_key": "blue_variable"
 			}, {
-				red_key: "red_variable"
+				"red_key": "red_variable"
 			});
 
 			expect(variable.value()).toBe("blue_variable");
 		});
 
 		it("should return default if no user variable config is defined", function() {
-			var variable = new Variable(undefined, {
-				red_key: "red_variable"
+			const variable = new Variable(undefined, {
+				"red_key": "red_variable"
 			});
 
 			expect(variable.value()).toBe("red_variable");
 		});
 
 		it("should change value", function() {
-			var variable = new Variable({
-				red_key: "green_variable"
+			const variable = new Variable({
+				"red_key": "green_variable"
 			}, {
-				red_key: "red_variable"
+				"red_key": "red_variable"
 			});
 
 			expect(variable.value("blue_variable")).toBe("blue_variable");
@@ -158,8 +159,8 @@ describe("Variable", function() {
 		});
 
 		it("should create user variable config if not defined", function() {
-			var variable = new Variable(undefined, {
-				red_key: "red_variable"
+			const variable = new Variable(undefined, {
+				"red_key": "red_variable"
 			});
 
 			expect(variable.value("blue_variable")).toBe("blue_variable");
@@ -167,13 +168,13 @@ describe("Variable", function() {
 		});
 
 		it("should keep value in user variable config if it is the default and options are defined", function() {
-			var variable = new Variable({
-				red_key: "new_red_variable",
+			const variable = new Variable({
+				"red_key": "new_red_variable",
 				opts: {
 					title: "New red title"
 				}
 			}, {
-				red_key: "red_variable",
+				"red_key": "red_variable",
 				opts: {
 					title: "Red title"
 				}
@@ -185,10 +186,10 @@ describe("Variable", function() {
 		});
 
 		it("should keep user variable config even if value is the default and options are not defined", function() {
-			var variable = new Variable({
-				red_key: "new_red_variable"
+			const variable = new Variable({
+				"red_key": "new_red_variable"
 			}, {
-				red_key: "red_variable"
+				"red_key": "red_variable"
 			});
 
 			expect(variable.value("red_variable")).toBe("red_variable");
@@ -200,7 +201,7 @@ describe("Variable", function() {
 
 	describe("title", function() {
 
-		var defaultVariableConfig = {
+		const defaultVariableConfig = {
 			key: "value",
 			opts: {
 				title: "Red title"
@@ -208,7 +209,7 @@ describe("Variable", function() {
 		};
 
 		it("should get title from user variable config", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "value",
 				opts: {
 					title: "Blue title"
@@ -219,13 +220,13 @@ describe("Variable", function() {
 		});
 
 		it("should get title from default variable config if user variable config is not defined", function() {
-			var variable = new Variable(undefined, defaultVariableConfig);
+			const variable = new Variable(undefined, defaultVariableConfig);
 
 			expect(variable.title()).toBe("Red title");
 		});
 
 		it("should get title from default variable config if user variable config opts is not defined", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "new-value"
 			}, defaultVariableConfig);
 
@@ -233,7 +234,7 @@ describe("Variable", function() {
 		});
 
 		it("should get title from default variable config if is not defined in user variable config", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "value",
 				opts: {
 					title: "Blue title"
@@ -245,7 +246,7 @@ describe("Variable", function() {
 
 		it("should override title", function() {
 
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "new-value"
 			}, defaultVariableConfig);
 
@@ -254,7 +255,7 @@ describe("Variable", function() {
 		});
 
 		it("should create user variable config (and add key-value) during override if it's not defined yet", function() {
-			var variable = new Variable(undefined, defaultVariableConfig);
+			const variable = new Variable(undefined, defaultVariableConfig);
 			variable.title("Blue title");
 
 			expect(variable.userVariableConfig).not.toBeUndefined();
@@ -263,7 +264,7 @@ describe("Variable", function() {
 		});
 
 		it("should clear user variable config title if set back to default", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "new-value",
 				opts: {
 					title: "Blue title",
@@ -277,7 +278,7 @@ describe("Variable", function() {
 		});
 
 		it("should clear user variable config options if all set back to default", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "new-value",
 				opts: {
 					title: "Blue title",
@@ -290,7 +291,7 @@ describe("Variable", function() {
 		});
 
 		it("should keep user variable config even if options set back to default and key-value is default", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				key: "value",
 				opts: {
 					title: "Blue title",
@@ -335,7 +336,7 @@ describe("Variable", function() {
 	describe("minimizeVariableConfig", function() {
 
 		it("should remove opts if empty", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				opts: {}
 			});
 
@@ -345,7 +346,7 @@ describe("Variable", function() {
 		});
 
 		it("should leave variable untouched", function() {
-			var variable = new Variable({
+			const variable = new Variable({
 				opts: {
 					title: "Red title"
 				}
@@ -363,8 +364,8 @@ describe("Variable", function() {
 
 describe("prettifiedVariableKey", function() {
 
-	var $filter;
-	var Variable;
+	let $filter;
+	let Variable;
 
 	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(inject(function (_$filter_, _Variable_) {
@@ -381,7 +382,7 @@ describe("prettifiedVariableKey", function() {
 	});
 
 	it("should return prettified variable key if is defined in user variable config", function() {
-		var variable = new Variable({
+		const variable = new Variable({
 			"RED-KEY": "RED-VALUE"
 		});
 
@@ -389,7 +390,7 @@ describe("prettifiedVariableKey", function() {
 	});
 
 	it("should return prettified variable key if is defined in default variable config", function() {
-		var variable = new Variable(undefined, {
+		const variable = new Variable(undefined, {
 			"RED-KEY": "RED-VALUE"
 		});
 

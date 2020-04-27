@@ -1,6 +1,6 @@
 describe("stringService", function() {
 
-	var stringService;
+	let stringService;
 
 	beforeEach(module("BitriseWorkflowEditor"));
 	beforeEach(inject(function(_stringService_) {
@@ -17,7 +17,7 @@ describe("stringService", function() {
 
 		it("should skip not found keys", function() {
 			expect(stringService.stringReplacedWithParameters("red, <color>, blue", {
-				other_color: "green"
+				"other_color": "green"
 			})).toBe("red, <color>, blue");
 		});
 
@@ -75,7 +75,7 @@ describe("stringService", function() {
 			expect(stringService.isStringMatchingTerm("redgreenblue", "Red")).toBe(true);
 			expect(stringService.isStringMatchingTerm("redGreenblue", "green")).toBe(true);
 		});
-		
+
 	});
 
 });

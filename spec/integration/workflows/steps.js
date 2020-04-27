@@ -1,6 +1,6 @@
 import { Given, Then } from "cypress-cucumber-preprocessor/steps";
-import $, { selector } from "../elements";
-import { click, select, type, clickAway } from "../common";
+import $ from "../elements";
+import { click, select, type } from "../common";
 
 afterEach(() => {
 	$("Discard Button").then(btn => {

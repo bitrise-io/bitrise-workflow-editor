@@ -1,7 +1,7 @@
 describe("Progress", function() {
 
-    var Progress;
-    var progress;
+    let Progress;
+    let progress;
 
     beforeEach(module("BitriseWorkflowEditor"));
     beforeEach(inject(function(_Progress_) {

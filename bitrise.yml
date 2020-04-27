@@ -100,6 +100,8 @@ workflows:
         - content: |
             #!/bin/bash
             set -ex
+            go get -u -v github.com/golang/dep/cmd/dep
+            dep ensure -v
             go install
 
   dep-update:
