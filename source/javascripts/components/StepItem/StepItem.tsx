@@ -17,9 +17,6 @@ type StepItemProps = {
 	step: Step;
 	title: string;
 	version: string;
-	isDeprecated: boolean;
-	isVerified: boolean;
-	isOfficial: boolean;
 	strings: StringProps;
 	selected: boolean;
 	highlightVersionUpdate: boolean;
@@ -52,7 +49,6 @@ const StepItem: FC<StepItemProps> = ({
 	step,
 	title,
 	version,
-	isDeprecated,
 	strings,
 	selected,
 	highlightVersionUpdate,
@@ -76,7 +72,7 @@ const StepItem: FC<StepItemProps> = ({
 						<Icon name="BitriseCertified" color="aqua-3" />
 					</Base>
 				)}
-				{isDeprecated && <img className="deprecated" src={deprecatedIcon} />}
+				{step.isDeprecated() && <img className="deprecated" src={deprecatedIcon} />}
 			</strong>
 			<em className="version">
 				{version ? (
