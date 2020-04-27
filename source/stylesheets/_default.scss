@@ -542,6 +542,12 @@ $screen-minimum: 320px;
 	text-overflow: ellipsis;
 }
 
+@mixin wordbreak-oneliner {
+	overflow: hidden;
+	white-space: normal;
+	word-break: break-word;
+}
+
 @mixin column-count($value) {
 	-webkit-column-count: $value;
 	-moz-column-count: $value;

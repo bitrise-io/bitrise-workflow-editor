@@ -3,6 +3,7 @@
 
 section.manage-workflows {
 	$button-spacing: 8px;
+	$button-wrapping-point: 580px;
 
 	@include flex-shrink(0);
 	@include display-flex;
@@ -60,11 +61,14 @@ section.manage-workflows {
 			$li_padding: 12px;
 			$li_fontsize: 16px;
 
-			@include position(absolute, 100%, 0);
+			@include position(absolute, 100%, null, null, 0);
 			z-index: $zindex-workflow_selector;
-			width: 100%;
 			margin-top: 10px;
 			margin-bottom: 0;
+			width: $button-wrapping-point - (2 * $main-horizontalpadding_small);
+			@include media-below($button-wrapping-point) {
+				width: 100%;
+			}
 			border: $border;
 			@include border-radius($def-radius);
 			padding-left: 0;
@@ -95,7 +99,7 @@ section.manage-workflows {
 
 					span.workflow-id {
 						@include flex-grow(1);
-						@include ellipsis-oneliner;
+						@include wordbreak-oneliner;
 					}
 
 					button.select-workflow {
@@ -130,10 +134,12 @@ section.manage-workflows {
 					}
 
 					button.select-workflow {
+						display: inline-flex;
+						align-items: center;
 						width: 100%;
 						padding: $li_padding;
 						text-align: left;
-						@include ellipsis-oneliner;
+						@include wordbreak-oneliner;
 						background-color: white;
 						@include transition(color $def-transition_duration, background-color $def-transition_duration);
 
@@ -210,7 +216,7 @@ section.manage-workflows {
 			opacity: 0;
 		}
 
-		@include media-below(580px) {
+		@include media-below($button-wrapping-point) {
 			width: 100%;
 		}
 	}
@@ -1618,7 +1624,6 @@ header.sticky section.manage-workflows {
 
 							h2 {
 								overflow: hidden;
-								max-width: none;
 							}
 
 							.stack {
