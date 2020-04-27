@@ -97,6 +97,7 @@ Feature: Workflow steps details
 
   Scenario: Steps badges: official, community, verified, deprecation
     Given "wf5" workflow is selected
+      And I click away
     When First step is selected
     Then I should see "Script" in "First step"
       And I should see the "Official Maintianer Badge" badge in "First step name" with the title "Bitrise step"
