@@ -85,6 +85,7 @@ Feature: Workflows
   Scenario: User selects the delete button of an after run Workflow
     Given "wf3" workflow is selected
       And I click away
+      And I scroll to the "top"
     When I click on "first wf5 Remove button"
     Then "Workflow Sections" should contain 4 "Workflow Section"
       And I should see "wf5" in "First After Workflow Name"
@@ -188,7 +189,7 @@ Feature: Workflows
 
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
-      And I click away
+      And I scroll to the "top"
     When I click on "Rearrange button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
