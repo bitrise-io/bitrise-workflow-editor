@@ -102,7 +102,7 @@ Feature: Workflow steps details
     Then I should see "Script" in "First step"
       And I should see the "Official Maintianer Badge" badge in "First step name" with the title "Bitrise step"
     When I click on "Second step"
-    Then "Step Deprecation Badge" should "be visible"
+    Then "Deprecated Maintianer Badge" should "be visible"
 
   Scenario: User deletes the Step
     When I click on "First step"

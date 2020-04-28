@@ -1,7 +1,6 @@
 const workflowSelectElement = workflowName =>
 	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
 const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
-const badgeSelector = type => `.selected-step .manage-step .title .${type} svg`;
 const inputVariableSelector = name =>
 	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
 
@@ -32,9 +31,6 @@ export const elements = {
 	"Step Delete Button": ".selected-step button.delete-step",
 	"Step Delete Icon": ".selected-step button.delete",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
-	"Step Verified Badge": badgeSelector("verified"),
-	"Step Community Badge": badgeSelector("community-created"),
-	"Step Deprecation Badge": badgeSelector("deprecated"),
 	"Step Inputs": ".selected-step .inputs",
 	"Step Versions": ".selected-step .version",
 	"Step Version": ".selected-step .version__text",
@@ -90,8 +86,9 @@ export const elements = {
 
 	"Danger Icon": ".icon-danger",
 	"Success Icon": ".icon-ok",
-  "Verified Maintianer Badge": "div[data-e2e-tag=\"verified-badge\"]",
-  "Official Maintianer Badge": "div[data-e2e-tag=\"official-badge\"]",
+  "Verified Maintianer Badge": "[data-e2e-tag=\"verified-badge\"]",
+  "Official Maintianer Badge": "[data-e2e-tag=\"official-badge\"]",
+  "Deprecated Maintianer Badge": "[data-e2e-tag=\"deprecated-badge\"]",
 
 	"Selected Workflow": "section.workflow.selected",
 	"Selected Workflow description": ".workflow-description .description p",
