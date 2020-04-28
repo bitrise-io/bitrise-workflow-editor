@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Base, Text, Badge, Icon } from "@bitrise/bitkit";
+import { Base, Text, Badge, Icon, Flex } from "@bitrise/bitkit";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Step } from "../../models";
 
@@ -72,7 +72,16 @@ const StepItem: FC<StepItemProps> = ({
 						<Icon name="BitriseCertified" color="aqua-3" />
 					</Base>
 				)}
-				{step.isDeprecated() && <img className="deprecated" src={deprecatedIcon} />}
+				{step.isDeprecated() && (
+					<Flex
+						title="Deprecated step"
+						direction="horizontal"
+						alignChildrenVertical="middle"
+						data-e2e-tag="deprecated-badge"
+					>
+						<img className="deprecated" src={deprecatedIcon} />
+					</Flex>
+				)}
 			</strong>
 			<em className="version">
 				{version ? (
