@@ -1,5 +1,5 @@
 import { react2angular } from "react2angular";
-import { Icon } from "@bitrise/bitkit";
+import { Icon } from "./components/Bitkit";
 import ErrorNotification from "./components/ErrorNotification";
 import { StepItem, AddStepItem } from "./components/StepItem";
 import StepVersion from "./components/StepVersion";
