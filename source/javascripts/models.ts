@@ -17,6 +17,7 @@ export interface Step {
 	requestedVersion(): string;
 	displayName(): string;
 	isVerified(): boolean;
+	isOfficial(): boolean;
 	isConfigured(): boolean;
 	isDeprecated(): boolean;
 	isLibraryStep(): boolean;

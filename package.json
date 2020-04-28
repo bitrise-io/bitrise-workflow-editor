@@ -35,7 +35,7 @@
 	},
 	"homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
 	"dependencies": {
-		"@bitrise/bitkit": "^4.2.1",
+		"@bitrise/bitkit": "^4.11.0",
 		"@bitrise/steplib-search": "^2.2.2",
 		"@datadog/browser-logs": "^1.7.0",
 		"angular": "^1.7.9",
@@ -71,7 +71,7 @@
 		"concurrently": "^5.1.0",
 		"copy-webpack-plugin": "^5.1.1",
 		"css-loader": "^3.4.2",
-		"cypress": "^4.2.0",
+		"cypress": "^4.4.1",
 		"cypress-cucumber-preprocessor": "^2.0.1",
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.10.1",

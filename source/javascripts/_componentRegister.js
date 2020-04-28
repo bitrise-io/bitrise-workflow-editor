@@ -1,4 +1,5 @@
 import { react2angular } from "react2angular";
+import { Icon } from "./components/Bitkit";
 import ErrorNotification from "./components/ErrorNotification";
 import { StepItem, AddStepItem } from "./components/StepItem";
 import StepVersion from "./components/StepVersion";
@@ -14,8 +15,6 @@ angular
 			"step",
 			"title",
 			"version",
-			"isDeprecated",
-			"isVerified",
 			"strings",
 			"selected",
 			"stepIndex",
@@ -36,4 +35,5 @@ angular
 			"strings"
 		])
 	)
-	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]));
+	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]))
+	.component("rIcon", register(Icon, ["name", "size", "color"]));

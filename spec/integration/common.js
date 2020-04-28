@@ -105,6 +105,10 @@ const changeTab = newTab => {
 	}
 };
 
+const scrollTo = position => {
+	cy.scrollTo(position);
+};
+
 Given("editor is open", () => {
 	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
 });
@@ -125,6 +129,7 @@ When("I uncheck {string}", element => toggleCheckbox(element));
 When("I confirm on {string}", popupConfirm);
 When("I cancel on {string}", popupCancel);
 When("I change tab to {string}", changeTab);
+When("I scroll to the {string}", scrollTo);
 Then("I should see {string} in {string}", assertInputValueEQ);
 Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);
