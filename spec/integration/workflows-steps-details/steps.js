@@ -1,5 +1,5 @@
 import { Given, Then } from "cypress-cucumber-preprocessor/steps";
-import $ from "../elements";
+import $, { selector } from "../elements";
 import { click } from "../common";
 
 afterEach(() => {
@@ -20,9 +20,10 @@ Then("no step selected", () => {
 	});
 });
 
-Then("I should see the {string} badge in {string} with the title {string}", (badge, element, title) => {
-	$(element)
-		.children($(badge))
-		.invoke("attr", "title")
-		.should("contain", title);
+Then("{string} in {string} should have attribute {string} with value {string}",
+	(childElement, parentElement, attribute, value) => {
+	$(parentElement)
+		.find(selector(childElement))
+		.invoke("attr", attribute)
+		.should("contain", value);
 });
