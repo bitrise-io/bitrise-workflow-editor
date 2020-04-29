@@ -13,7 +13,7 @@ angular
 		"rStepItem",
 		register(StepItem, [
 			"step",
-			"title",
+			"displayName",
 			"version",
 			"strings",
 			"selected",

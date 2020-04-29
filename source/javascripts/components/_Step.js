@@ -36,8 +36,26 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 				return this.id;
 			}
 
-			return this.cvs;
+			return diplayNameFromCvs(this.displayCvs());
 		};
+
+		Step.prototype.displayCvs = function() {
+			return this.cvs.replace(/^(git|path)::/g, "");
+		}
+
+		Step.prototype.displayTooltip = function() {
+			return this.displayName() + "<br>" + this.displayCvs();
+		}
+
+		function diplayNameFromCvs(cvs) {
+			var lastDelimiter = cvs.lastIndexOf("/");
+
+			if (lastDelimiter != -1) {
+				cvs = cvs.substring(lastDelimiter + 1);
+			}
+
+			return cvs;
+		}
 
 		Step.prototype.title = function(newTitle) {
 			return parameterGetterSetter(this, "title", newTitle);

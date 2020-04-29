@@ -592,7 +592,7 @@ header.sticky section.manage-workflows {
 												@include ellipsis-oneliner;
 											}
 
-											.verified, .deprecated {
+											.verified, .community-created, .deprecated {
 												margin-left: 5px;
 												@include size(15px);
 
@@ -726,7 +726,7 @@ header.sticky section.manage-workflows {
 										border-color: $def-grey;
 									}
 
-									.verified, span.community-created, span.deprecated {
+									.verified, .community-created, .deprecated {
 										@include flex-shrink(0);
 										@include align-self(center);
 
@@ -1378,7 +1378,7 @@ header.sticky section.manage-workflows {
 										li.input.required-empty {
 
 											.input-info textarea {
-												border-color: $def-purple;
+												border-color: $def-danger;
 											}
 										}
 
