@@ -156,7 +156,7 @@ describe("Step", function() {
 			}
 			step.cvs = `path::${path}`;
 
-			expect(step.displayTooltip()).toBe(`${stepTitle}<br>${path}`);
+			expect(step.displayTooltip()).toBe(`${stepTitle}\n${path}`);
 		})
 	});
 
