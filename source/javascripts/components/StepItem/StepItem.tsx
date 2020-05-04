@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Base, Text, Badge, Icon, Flex } from "@bitrise/bitkit";
+import { Base, Text, Badge, Icon, Flex, Tooltip } from "@bitrise/bitkit";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Step } from "../../models";
 
@@ -55,43 +55,48 @@ const StepItem: FC<StepItemProps> = ({
 	stepIndex,
 	onSelected
 }: StepItemProps) => (
-	<button className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
-		<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
-		<span className="info">
-			<strong>
-				<Text className="title" ellipsis>
-					{displayName}
-				</Text>
-				{step.isVerified() && (
-					<Base title="Verified step" paddingHorizontal="x1" data-e2e-tag="verified-badge">
-						<Icon name="StepThirdParty" color="blue-3" />
-					</Base>
-				)}
-				{step.isOfficial() && (
-					<Base title="Bitrise step" paddingHorizontal="x1" data-e2e-tag="official-badge">
-						<Icon name="BitriseCertified" color="aqua-3" />
-					</Base>
-				)}
-				{step.isDeprecated() && (
-					<Flex
-						title="Deprecated step"
-						direction="horizontal"
-						alignChildrenVertical="middle"
-						data-e2e-tag="deprecated-badge"
-					>
-						<img className="deprecated" src={deprecatedIcon} />
-					</Flex>
-				)}
-			</strong>
-			<em className="version">
-				{version ? (
-					stepVersion(step, highlightVersionUpdate)
-				) : (
-					<Text>{strings.alwaysLatest + (version ? ` (${version})` : "")}</Text>
-				)}
-			</em>
-		</span>
-	</button>
+	<Tooltip title={step.displayTooltip()} timeout={0} style={{ whiteSpace: "pre-line" }}>
+		{({...rest}) => (
+			<button {...rest} 
+				className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
+				<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
+				<span className="info">
+					<strong>
+						<Text className="title" ellipsis>
+							{displayName}
+						</Text>
+						{step.isVerified() && (
+							<Base title="Verified step" paddingHorizontal="x1" data-e2e-tag="verified-badge">
+								<Icon name="StepThirdParty" color="blue-3" />
+							</Base>
+						)}
+						{step.isOfficial() && (
+							<Base title="Bitrise step" paddingHorizontal="x1" data-e2e-tag="official-badge">
+								<Icon name="BitriseCertified" color="aqua-3" />
+							</Base>
+						)}
+						{step.isDeprecated() && (
+							<Flex
+								title="Deprecated step"
+								direction="horizontal"
+								alignChildrenVertical="middle"
+								data-e2e-tag="deprecated-badge"
+							>
+								<img className="deprecated" src={deprecatedIcon} />
+							</Flex>
+						)}
+					</strong>
+					<em className="version">
+						{version ? (
+							stepVersion(step, highlightVersionUpdate)
+						) : (
+							<Text>{strings.alwaysLatest + (version ? ` (${version})` : "")}</Text>
+						)}
+					</em>
+				</span>
+			</button>
+		)}
+	</Tooltip>
 );
 
 export default StepItem;
