@@ -44,7 +44,7 @@ import { normalizeIconUrl } from "./StepItem/StepItem";
 		}
 
 		Step.prototype.displayTooltip = function() {
-			return this.displayName() + "<br>" + this.displayCvs();
+			return this.displayName() + "\n" + this.displayCvs();
 		}
 
 		function diplayNameFromCvs(cvs) {
