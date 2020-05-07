@@ -46,7 +46,7 @@ Feature: Workflow steps inputs
     When I click on "Second step"
     And I click on "Selected Step First Input"
     Then "Selected Step First Input Description" should "be visible"
-    And I click on "Selected Input Textarea"
+    When I click on "Selected Input Textarea"
     And I clear "Selected Input Textarea"
     And I type "whatever" in "Selected Input Textarea"
     Then "Selected Input Textarea" should "have value:whatever"
@@ -55,7 +55,7 @@ Feature: Workflow steps inputs
     When I click on "First step"
     Then I should see "GitHub auth token" in "Selected Step First Input Title"
     Then "Selected Step First Input Sensitive Badge" should "be visible"
-    And I click on "Selected Step First Input"
+    When I click on "Selected Step First Input"
     Then "Selected Input Clear Button" should "be visible"
 
   Scenario: Clearing the sensitive Input's value

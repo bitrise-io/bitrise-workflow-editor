@@ -36,8 +36,8 @@ Feature: Workflow steps details
     Then "Step Title Edit Box" should "have value: Install Swiftlint 0.35"
     When I clear "Step Title Edit Box"
       And I type "my custom name" in "Step Title Edit Box"
-      And I wait 300
-      And I click on "Step Rename Confirm Button"
+    Then I wait 300
+    When I click on "Step Rename Confirm Button"
     Then I should see "my custom name" in "Step Title"
 
   Scenario: Step details check (versioning etc...)
@@ -58,7 +58,7 @@ Feature: Workflow steps details
     When I click on "First step"
       And I select "1.0.x" from "Version selector"
       And I confirm on "Alert popup"
-      And "Step Version Danger Icon" should "be visible"
+      Then "Step Version Danger Icon" should "be visible"
       And "Save Button" should "not be disabled"
     Then "First step version indicator" should "be visible"
       And I should see "Version: 1.0.4" in "Step Versions"
@@ -94,8 +94,8 @@ Feature: Workflow steps details
       And "Step Always run indicator" should "be checked"
     When I click on "Step Description Toggle"
     Then I should see "This local step has its description overwritten" in "Step Description"
-    Then I click on "Fourth step"
-      And "Step Always run indicator" should "not be checked"
+    When I click on "Fourth step"
+      Then "Step Always run indicator" should "not be checked"
     When I check "Step Always run indicator"
     Then "Discard Button" should "be enabled"
     When I uncheck "Step Always run indicator"
@@ -103,8 +103,8 @@ Feature: Workflow steps details
 
   Scenario: Steps badges: official, community, verified, deprecation
     Given "wf5" workflow is selected
-      And I click away
-    When First step is selected
+      When I click away
+    Given First step is selected
     Then I should see "Script" in "First step"
       And "Official Maintianer Badge" in "First step" should have attribute "title" with value "Bitrise step"
     When I click on "Second step"
