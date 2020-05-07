@@ -1,8 +1,8 @@
 import { react2angular } from "react2angular";
 import ErrorNotification from "./components/ErrorNotification";
 import { StepItem, AddStepItem } from "./components/StepItem";
-import StepVersion from "./components/StepVersion";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
+import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetails";
 
 var register = react2angular;
 
@@ -22,8 +22,8 @@ angular
 		])
 	)
 	.component(
-		"rStepVersion",
-		register(StepVersion, [
+		"rStepVersionDetails",
+		register(StepVersionDetails, [
 			"step",
 			"isLatestVersion",
 			"onUpdateStep",
