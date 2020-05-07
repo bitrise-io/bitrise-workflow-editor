@@ -53,7 +53,7 @@
 							li[ng-repeat="step in workflow.steps" step-index-setter="{{ stepIndex = $index }}" ng-class="{'selected': step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex}" ng-mousedown="workflowsCtrl.stepOrderWorkflow = workflow"]
 								button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(stepIndex, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex" skip-drag-order]
 								.step-actions
-									r-step-item[step="step" display-name="step.displayName()" version="step.requestedVersion()" strings="{ alwaysLatest: '#{ data[:strings][:workflows][:steps][:always_latest] }' }" selected="step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex" step-index="workflowIndex" on-selected="workflowsCtrl.stepSelected" highlight-version-update="!step.isConfigured() || stepSourceService.isLatestStepVersion(step)"]
+									r-step-item[step="step" version="step.requestedVersion()" strings="{ alwaysLatest: '#{ data[:strings][:workflows][:steps][:always_latest] }' }" selected="step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex" step-index="workflowIndex" on-selected="workflowsCtrl.stepSelected" highlight-version-update="!step.isConfigured() || !stepSourceService.isLatestStepVersion(step)"]
 									button.update-step[ng-if="stepSourceService.isLatestStepVersion(step) === false" ng-click="workflowsCtrl.updateStep(step, workflowIndex)"]
 						li
 							button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
@@ -63,11 +63,7 @@
 							header.manage-step
 								.title[ng-if="!workflowsCtrl.renamedStep"]
 									button.rename[ng-bind="workflowsCtrl.selectedStep.displayName()" ng-click="workflowsCtrl.renamedStep = workflowsCtrl.selectedStep"]
-									span[title="Verified step" data-e2e-tag="verified-badge"]
-										r-icon[ng-if="workflowsCtrl.selectedStep.isVerified()" name="'StepThirdParty'" color="'blue-3'"]
-									span[title="Bitrise step" data-e2e-tag="official-badge"]
-										r-icon[ng-if="workflowsCtrl.selectedStep.isOfficial()" name="'BitriseCertified'" color="'aqua-3'"]
-									span.deprecated[ng-if="workflowsCtrl.selectedStep.isDeprecated()" trigger-popover="#{ data[:strings][:workflows][:steps][:deprecated] }"] == svg("step/badge-deprecated")
+									r-step-item-badge[step="workflowsCtrl.selectedStep"]
 								.rename-title[ng-if="workflowsCtrl.renamedStep"]
 									input[type="text" ng-model="workflowsCtrl.renamedStepTitle" ng-model-options="{ debounce: 250, getterSetter: true}" ng-blur="workflowsCtrl.renamedStep = null"]
 									button.ok.rebo.purple[ng-click="workflowsCtrl.renamedStep = null" ng-disabled="!Step.isValidTitle(workflowsCtrl.renamedStepTitle)"] == svg("check")

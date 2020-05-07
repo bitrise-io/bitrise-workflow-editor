@@ -67,7 +67,7 @@ export const elements = {
 	"Sixth step": stepSelector(6),
 	"Eighth step": stepSelector(8),
 	"Seventeenth step": stepSelector(17),
-	"First step name": `${stepSelector(1)} .info .title`,
+	"First step name": `${stepSelector(1)} [data-e2e-tag="step-item__title"]`,
 	"First StepItem Version": `${stepSelector(1)} [data-e2e-tag="step-item__version"]`,
 	"First StepItem Version Update Indicator": `${stepSelector(1)} [data-e2e-tag="step-item__update-indicator"]`,
 	"Second StepItem Version" : `${stepSelector(2)} [data-e2e-tag="step-item__version"]`,

@@ -1,8 +1,8 @@
 import { react2angular } from "react2angular";
-import { Icon } from "./components/Bitkit";
 import ErrorNotification from "./components/ErrorNotification";
 import { StepItem, AddStepItem } from "./components/StepItem";
 import StepVersion from "./components/StepVersion";
+import StepItemBadge from "./components/StepItem/StepItemBadge";
 
 var register = react2angular;
 
@@ -13,7 +13,6 @@ angular
 		"rStepItem",
 		register(StepItem, [
 			"step",
-			"displayName",
 			"version",
 			"strings",
 			"selected",
@@ -36,4 +35,4 @@ angular
 		])
 	)
 	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]))
-	.component("rIcon", register(Icon, ["name", "size", "color"]));
+	.component("rStepItemBadge", register(StepItemBadge, ["step"]));

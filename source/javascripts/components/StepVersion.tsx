@@ -4,7 +4,6 @@ import classNames from "classnames";
 import { Step } from "../models";
 import semverService from "../services/semver-service";
 
-import stepLatestIcon from "../../images/step/latest.svg";
 import stepOutDatedIcon from "../../images/step/upgrade.svg";
 
 type VersionSelectorProps = {

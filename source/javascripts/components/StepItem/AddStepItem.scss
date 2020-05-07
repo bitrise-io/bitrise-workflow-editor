@@ -49,21 +49,6 @@
 				height: $icon-size;
 				font-size: 13px;
 
-				h4 {
-					@include flex-shrink(0);
-					margin-top: 0;
-					margin-bottom: 2px;
-					font-weight: 900;
-
-					img.verified,
-					img.community-created {
-						display: inline-block;
-						vertical-align: sub;
-						@include size(14px);
-						margin-left: 5px;
-					}
-				}
-
 				.summary {
 					@include flex-shrink(0);
 					margin-bottom: auto;
