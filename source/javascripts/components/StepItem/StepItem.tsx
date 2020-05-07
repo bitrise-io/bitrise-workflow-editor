@@ -39,7 +39,7 @@ const stepVersion = (step: Step, highlightVersionUpdate: boolean): JSX.Element =
 	highlightVersionUpdate ? (
 		<Text>{step.version}</Text>
 	) : (
-		<Badge backgroundColor="red-3" color="white" data-e2e-tag="version-update">
+		<Badge backgroundColor="red-3" color="white" data-e2e-tag="step-item__update-indicator">
 			<Icon name="ArrowUp" />
 			{step.version}
 		</Badge>
@@ -58,6 +58,7 @@ const StepItem: FC<StepItemProps> = ({
 	<Tooltip title={step.displayTooltip()} timeout={0} style={{ whiteSpace: "pre-line" }}>
 		{({...rest}) => (
 			<button {...rest} 
+				data-e2e-tag="step-item"
 				className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
 				<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
 				<span className="info">
@@ -86,7 +87,7 @@ const StepItem: FC<StepItemProps> = ({
 							</Flex>
 						)}
 					</strong>
-					<em className="version">
+					<em className="version" data-e2e-tag="step-item__version">
 						{version ? (
 							stepVersion(step, highlightVersionUpdate)
 						) : (

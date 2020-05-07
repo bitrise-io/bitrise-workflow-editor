@@ -1,5 +1,5 @@
 import React, { FC } from "react";
-import { Text } from "@bitrise/bitkit";
+import { Text, Icon } from "@bitrise/bitkit";
 import classNames from "classnames";
 import { Step } from "../models";
 import semverService from "../services/semver-service";
@@ -54,6 +54,7 @@ const VersionSelector: FC<VersionSelectorProps> = ({
 			/>
 			<select
 				id="selected-step-version-select"
+				data-e2e-tag="step-version-details__version-selector"
 				value={selectedVersion}
 				onChange={({ target }) => {
 					onUpdateVersion(target.value);
@@ -89,23 +90,28 @@ const StepVersion: FC<StepVersionInfoProps> = ({
 	selectedVersion = selectedVersion || "";
 
 	return (
-		<section className="version">
+		<section className="version" data-e2e-tag="step-version-details">
 			<div className="version-info">
 				<div className="resolved-version">
 					{isLatestVersion ? (
-						<Text className={classNames("icon", "icon-ok")}>
-							<img src={stepLatestIcon} />
+						<Text 
+							data-e2e-tag="step-version-details__branch-icon"
+							className={classNames("icon", "icon-ok")}>
+							<Icon name="BranchBranch" />
 						</Text>
 					) : (
 						<button
+							data-e2e-tag="step-version-details__update-button"
 							className={classNames("icon", "icon-danger")}
 							onClick={() => onUpdateStep(step, workflowIndex)}
 						>
-							<img src={stepOutDatedIcon} />
+							<img data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
 						</button>
 					)}
 
-					<Text className={classNames("version__text", { error: !step.isConfigured() })}>
+					<Text 
+						data-e2e-tag="step-version-details__version-text"
+						className={classNames("version__text", { error: !step.isConfigured() })}>
 						{step.isConfigured() ? strings.versionText : strings.invalidVersionText}
 					</Text>
 				</div>
