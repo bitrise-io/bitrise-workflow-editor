@@ -1,4 +1,4 @@
-import React from "react";
+import React, { Fragment } from "react";
 import { Text, Base } from "@bitrise/bitkit";
 import { Step } from "../../models";
 
@@ -28,36 +28,37 @@ const StepVersionDetails = ({
 	onUpdateStep,
 	workflowIndex,
 	versions,
-	selectedVersion,
+	selectedVersion = "",
 	versionSelectorOpts,
 	strings
 }: StepVersionDetailsProps): JSX.Element => {
 	const isVersionDefined = step.version !== undefined;
-	selectedVersion = selectedVersion || "";
 
 	return (
-		<>
-		{isVersionDefined && <section className="version" data-e2e-tag="step-version-details">
-			<Base className="version-info">
-				<StepResolvedVersionInfo
-					step={step}
-					isLatestVersion={isLatestVersion}
-					onUpdateStep={onUpdateStep}
-					workflowIndex={workflowIndex}
-					strings={strings}
-				/>
-				{step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
-			</Base>
-			{step.isLibraryStep() && (
-				<StepVersionSelector
-					{...versionSelectorOpts}
-					step={step}
-					versions={versions}
-					selectedVersion={selectedVersion}
-				/>
+		<Fragment>
+			{isVersionDefined && (
+				<section className="version" data-e2e-tag="step-version-details">
+					<Base className="version-info">
+						<StepResolvedVersionInfo
+							step={step}
+							isLatestVersion={isLatestVersion}
+							onUpdateStep={onUpdateStep}
+							workflowIndex={workflowIndex}
+							strings={strings}
+						/>
+						{step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
+					</Base>
+					{step.isLibraryStep() && (
+						<StepVersionSelector
+							{...versionSelectorOpts}
+							step={step}
+							versions={versions}
+							selectedVersion={selectedVersion}
+						/>
+					)}
+				</section>
 			)}
-		</section>}
-		</>
+		</Fragment>
 	);
 };
 

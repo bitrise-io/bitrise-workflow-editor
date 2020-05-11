@@ -35,26 +35,26 @@ const StepItem: FC<StepItemProps> = ({
 	stepIndex,
 	onSelected
 }: StepItemProps) => (
-	<Tooltip title={step.displayTooltip()} timeout={0} style={{ whiteSpace: "pre-line" }}>
-		{({...rest}) => (
-			<button {...rest}
-				data-e2e-tag="step-item"
-				className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
-				<StepItemIcon step={step} />
-				<span className="info">
-					<strong>
-						<StepItemTitle step={step} />
-						<StepItemBadge step={step} />
-					</strong>
-					<StepItemVersion
-						step={step}
-						version={version}
-						highlightVersionUpdate={highlightVersionUpdate}
-						strings={strings} />
-				</span>
-			</button>
-		)}
-	</Tooltip>
-);
+		<Tooltip title={step.displayTooltip()} timeout={0} style={{ whiteSpace: "pre-line" }}>
+			{({ ...rest }) => (
+				<button {...rest}
+					data-e2e-tag="step-item"
+					className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
+					<StepItemIcon step={step} />
+					<span className="info">
+						<strong>
+							<StepItemTitle step={step} />
+							<StepItemBadge step={step} />
+						</strong>
+						<StepItemVersion
+							step={step}
+							version={version}
+							highlightVersionUpdate={highlightVersionUpdate}
+							strings={strings} />
+					</span>
+				</button>
+			)}
+		</Tooltip>
+	);
 
 export default StepItem;

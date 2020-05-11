@@ -24,32 +24,30 @@ const StepVersionSelector = ({
 	selectedVersion,
 	onUpdateVersion,
 	strings
-}: StepVersionSelectorProps): JSX.Element => {
-	return (
-		<Base className="version-selector">
-			<Text
-				className={classNames("remark", { error: !step.isConfigured() })}
-				dangerouslySetInnerHTML={html(strings.versionRemark)}
-			/>
-			<select
-				id="selected-step-version-select"
-				data-e2e-tag="step-version-details__version-selector"
-				value={selectedVersion}
-				onChange={({ target }) => {
-					onUpdateVersion(target.value);
-				}}
-			>
-				{versions.map(version => {
-					version = version || "";
-					return (
-						<option key={version} value={version} disabled={!semverService.checkVersionPartsLocked(version)}>
-							{version || strings.alwaysLatest}
-						</option>
-					);
-				})}
-			</select>
-		</Base>
-	);
-};
+}: StepVersionSelectorProps): JSX.Element => (
+	<Base className="version-selector">
+		<Text
+			className={classNames("remark", { error: !step.isConfigured() })}
+			dangerouslySetInnerHTML={html(strings.versionRemark)}
+		/>
+		<select
+			id="selected-step-version-select"
+			data-e2e-tag="step-version-details__version-selector"
+			value={selectedVersion}
+			onChange={({ target }) => {
+				onUpdateVersion(target.value);
+			}}
+		>
+			{versions.map(version => {
+				version = version || "";
+				return (
+					<option key={version} value={version} disabled={!semverService.checkVersionPartsLocked(version)}>
+						{version || strings.alwaysLatest}
+					</option>
+				);
+			})}
+		</select>
+	</Base>
+);
 
 export default StepVersionSelector;

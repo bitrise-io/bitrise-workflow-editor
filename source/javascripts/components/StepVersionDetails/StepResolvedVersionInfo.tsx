@@ -45,7 +45,8 @@ const StepResolvedVersionInfo = ({
 
 			<Text
 				data-e2e-tag="step-version-details__version-text"
-				className={classNames("version__text", { error: !step.isConfigured() })}>
+				className={classNames("version__text", { error: !step.isConfigured() })}
+			>
 				{step.isConfigured() ? strings.versionText : strings.invalidVersionText}
 			</Text>
 		</div>
