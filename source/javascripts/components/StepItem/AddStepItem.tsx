@@ -1,11 +1,11 @@
 import React, { FC } from "react";
-import { Base, Icon, Flex } from "@bitrise/bitkit";
-import { LazyLoadImage } from "react-lazy-load-image-component";
-
+import { Base, Flex, Icon } from "@bitrise/bitkit";
 import MarkdownText from "../MarkdownText";
-import { normalizeIconUrl } from "./StepItem";
-
 import { Step } from "../../models";
+
+import StepItemBadge from "./StepItemBadge";
+import StepItemIcon from "./StepItemIcon";
+import StepItemTitle from "./StepItemTitle";
 
 type AddStepItemProps = {
 	step: Step;
@@ -17,21 +17,10 @@ const AddStepItem: FC<AddStepItemProps> = ({ step, onSelected }: AddStepItemProp
 		<button className="select" onClick={() => onSelected(step)}>
 			<Icon name="PlusOpen" />
 			<Flex className="step-content" direction="horizontal" overflow="hidden" shrink="x1">
-				<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
+				<StepItemIcon step={step} />
 				<Flex grow="x1" shrink="x1" direction="vertical" className="details" overflow="hidden">
-					<h4>
-						<Base Component="span">{step.displayName()}</Base>
-					</h4>
-					{step.isVerified() && (
-						<Base title="Verified step">
-							<Icon name="StepThirdParty" color="blue-3" />
-						</Base>
-					)}
-					{step.isOfficial() && (
-						<Base title="Official step">
-							<Icon name="BitriseCertified" color="aqua-3" />
-						</Base>
-					)}
+					<StepItemTitle step={step} style={{ fontWeight: "900", flexShrink: 0 }} />
+					<StepItemBadge step={step} />
 					<MarkdownText className="summary" markdown={step.summary()} />
 				</Flex>
 			</Flex>

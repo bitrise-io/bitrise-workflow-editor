@@ -84,7 +84,7 @@ Feature: Workflows
 
   Scenario: User selects the delete button of an after run Workflow
     Given "wf3" workflow is selected
-      And I click away
+      When I click away
       And I scroll to the "top"
     When I click on "first wf5 Remove button"
     Then "Workflow Sections" should contain 4 "Workflow Section"
@@ -109,18 +109,18 @@ Feature: Workflows
       And Delete popup is open
     When I confirm on "Default popup"
     Then "Default popup" should "not be visible"
-      And I click on "Selected Workflow Name"
-      And Workflow selector options should not contain "wf6"
-      And I click on "wf3 workflow"
-      And I should see "wf5" in "Last After Workflow Name"
+    When I click on "Selected Workflow Name"
+      Then Workflow selector options should not contain "wf6"
+    When I click on "wf3 workflow"
+      Then I should see "wf5" in "Last After Workflow Name"
 
   Scenario: User cancels deleting a Workflow
     Given "wf6" workflow is selected
       And Delete popup is open
     When I cancel on "Default popup"
     Then "Default popup" should "not be visible"
-      And I click on "Selected Workflow Name"
-      And "wf6 workflow" should "be visible"
+    When I click on "Selected Workflow Name"
+    Then "wf6 workflow" should "be visible"
       And I should see "wf6" in "Last After Workflow Name"
 
   Scenario: User opens the Workflow dropdown
@@ -189,8 +189,8 @@ Feature: Workflows
 
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
-      And I scroll to the "top"
-    When I click on "Rearrange button"
+      When I scroll to the "top"
+      And I click on "Rearrange button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
       And "Workflow chain after workflows" should contain 3 "li"

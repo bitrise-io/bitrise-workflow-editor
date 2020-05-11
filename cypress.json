@@ -10,6 +10,7 @@
   "videoUploadOnPasses": false,
   "requestTimeout": 12000,
   "env": {
-    "PORT": 4000
+    "PORT": 4000,
+    "TAGS": "@run or not @skip"
   }
 }
