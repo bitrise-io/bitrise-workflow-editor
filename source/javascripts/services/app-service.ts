@@ -9,3 +9,11 @@ export const getAppSlug = (): string|null => {
 
   return null;
 };
+
+export const handleSecretAfterSave = (secret: any): void => {
+	secret.isKeyChangeable = false;
+	secret.shouldShowValue = false;
+	if (secret.isProtected()) {
+		secret.value(null);
+	}
+};
