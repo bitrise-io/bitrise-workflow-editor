@@ -62,6 +62,13 @@ npm start          # start both local plugin api and webpack dev server
 1. In your browser, you can reach the Workflow Editor on `localhost:4000/{version}`. Be aware that you usually have to wait a while until dev server starts up (then refresh)
 1. By default, the Workflow Editor will open the `test_bitrise.yml` from integration folder (used for integration testing). Please do not commit this file if you have any changes with it (e2e tests would fail).
 
+If you would like to run the Workflow Editor in `website` mode, you have to set the following two environment variables:
+
+```bash
+export PUBLIC_URL_ROOT=http://localhost:4000
+export MODE=WEBSITE
+```
+
 ### Run client tests
 
 ```bash

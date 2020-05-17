@@ -3,7 +3,7 @@ window.datadogApiKey = "<%= data[:constants][:datadog][:apiKey] %>";
 window.isAnalyticsOn = <%= analytics? %>;
 window.mode = "<%= mode %>";
 
-(function() {
+(function () {
 	"use strict";
 
 	var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
@@ -15,17 +15,17 @@ window.mode = "<%= mode %>";
 		"ng-showdown"
 	]);
 
-	BitriseWorkflowEditor.config(function($compileProvider, $qProvider) {
+	BitriseWorkflowEditor.config(function ($compileProvider, $qProvider) {
 		$compileProvider.debugInfoEnabled(false);
 		$qProvider.errorOnUnhandledRejections(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
 	});
 
-	BitriseWorkflowEditor.config(function($animateProvider) {
+	BitriseWorkflowEditor.config(function ($animateProvider) {
 		$animateProvider.classNameFilter(/angular-animated/);
 	});
 
-	BitriseWorkflowEditor.config(function($routeProvider) {
+	BitriseWorkflowEditor.config(function ($routeProvider) {
 		$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
 			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
 			reloadOnSearch: false
@@ -59,21 +59,28 @@ window.mode = "<%= mode %>";
 	});
 
 	BitriseWorkflowEditor
-		.constant('SERVICE_NAME', window.serviceName)
-		.constant('DATADOG_API_KEY', window.datadogApiKey)
-		.constant('IS_ANALYTICS', window.isAnalyticsOn);
+		.constant("SERVICE_NAME", window.serviceName)
+		.constant("DATADOG_API_KEY", window.datadogApiKey)
+		.constant("IS_ANALYTICS", window.isAnalyticsOn);
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
-		function($httpProvider) {
+		function ($httpProvider) {
 			$httpProvider.defaults.xsrfCookieName = "CSRF-TOKEN";
 			$httpProvider.defaults.xsrfHeaderName = "X-CSRF-TOKEN";
 		}
 	]);
 
-  BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
-		return function(error, cause) {
-			logger.error(error, { cause: cause });
+	<% if !prod? && mode == "website" %>
+	BitriseWorkflowEditor.config(function ($sceProvider) {
+		// Completely disable SCE, in case of running the WFE in website mode, locally (only for dev purposes!)
+		$sceProvider.enabled(false);
+	});
+	<% end %>
+
+	BitriseWorkflowEditor.factory("$exceptionHandler", function ($log, logger) {
+		return function (error, cause) {
+			logger.error(error, {cause: cause});
 			$log.error(error);
 		};
 	});
