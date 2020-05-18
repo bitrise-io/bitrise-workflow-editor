@@ -62,12 +62,13 @@ npm start          # start both local plugin api and webpack dev server
 1. In your browser, you can reach the Workflow Editor on `localhost:4000/{version}`. Be aware that you usually have to wait a while until dev server starts up (then refresh)
 1. By default, the Workflow Editor will open the `test_bitrise.yml` from integration folder (used for integration testing). Please do not commit this file if you have any changes with it (e2e tests would fail).
 
-If you would like to run the Workflow Editor in `website` mode, you have to set the following two environment variables:
+If you would like to run the Workflow Editor in `website` mode, you have to run the dedicated npm command:
 
 ```bash
-export PUBLIC_URL_ROOT=http://localhost:4000
-export MODE=WEBSITE
+npm run start:website   # starts WFE in website mode
 ```
+
+You also have to make sure that the Monolith is already running (and has been set up with the proper environment variables to use this instance of WFE) before you try to execute the command above, otherwise every request to `http://localhost:3000` will be handled by the WFE.
 
 ### Run client tests
 
