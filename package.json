@@ -14,6 +14,7 @@
 		"build:plugin": "MODE=CLI ANALYTICS=true npm run build && bitrise run create-binaries",
 		"start:dev": "webpack-dev-server",
 		"start": "concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 4000\"",
+		"start:website": "MODE=WEBSITE PUBLIC_URL_ROOT=http://localhost:4000 npm start",
 		"e2e:dev": "cypress open",
 		"e2e:run": "cypress run",
 		"e2e:api": "./_scripts/run_api.sh",

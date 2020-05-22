@@ -3,7 +3,17 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("appService", function($q, requestService, stringService, Trigger, Step, Variable, Stack, MachineType) {
+		.service("appService", function (
+			$q,
+			requestService,
+			stringService,
+			Trigger,
+			Step,
+			Variable,
+			Stack,
+			MachineType,
+			appServiceUtil
+		) {
 			var appService = {
 				appDetails: undefined,
 				appConfig: undefined,
@@ -330,10 +340,7 @@
 						return requestService.postSecrets(appService.secrets);
 					})
 					.then(function() {
-						_.each(appService.secrets, function(aSecret) {
-							aSecret.isKeyChangeable = false;
-							aSecret.shouldShowValue = false;
-						});
+						_.each(appService.secrets, appServiceUtil.handleSecretAfterSave);
 						appService.savedSecrets = angular.copy(appService.secrets);
 					});
 			};
