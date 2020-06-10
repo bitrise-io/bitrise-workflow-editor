@@ -71,11 +71,24 @@ window.mode = "<%= mode %>";
 		}
 	]);
 
-	<% if !prod? && mode == "website" %>
-	BitriseWorkflowEditor.config(function ($sceProvider) {
-		// Completely disable SCE, in case of running the WFE in website mode, locally (only for dev purposes!)
-		$sceProvider.enabled(false);
-	});
+	<% if mode == "website" %>
+		<% if prod? %>
+		BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
+			$sceDelegateProvider.resourceUrlWhitelist([
+				"self",
+				// Prevent CORS issues on staging, when WFE runs under a different host
+				"https://app.bitrise.io/**",
+			]);
+		});
+		<% else %>
+		BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
+			$sceDelegateProvider.resourceUrlWhitelist([
+				"self",
+				// Prevent CORS issues in local dev environment
+				"http://localhost:4000/**",
+			]);
+		});
+		<% end %>
 	<% end %>
 
 	BitriseWorkflowEditor.factory("$exceptionHandler", function ($log, logger) {
