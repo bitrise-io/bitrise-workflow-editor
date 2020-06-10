@@ -73,13 +73,13 @@ Feature: Workflow steps details
     When I change tab to "Trigger tab"
       And I change tab to "Workflows tab"
     Then "Eighth step" should be the selected step
- 
+
   Scenario: Version Downgrade
     When I click on "First step"
       Then "First StepItem Version Update Indicator" should "not be visible"
-      And I should see "2.2.2" in "First StepItem Version"
+      And I should see "2.3.1" in "First StepItem Version"
       And "Step Version Details" should "be visible"
-      And I should see "2.2.2" in "Step Version"
+      And I should see "2.3.1" in "Step Version"
       And "Step Version Branch Icon" should "be visible"
       And "Step Version Selector" should "be visible"
       And "Step Version Update Icon" should "not be visible"
@@ -92,7 +92,7 @@ Feature: Workflow steps details
       And "Step Version Update Icon" should "be visible"
       And I should see "Version: 1.0.4" in "Step Version"
       And I should see "1.0.x" in "First StepItem Version Update Indicator"
- 
+
   Scenario: Version Update
     When I click on "Second step"
     Then I should see "1.1.5" in "Second StepItem Version Update Indicator"
@@ -114,9 +114,9 @@ Feature: Workflow steps details
   Scenario: Latest Version Update
     When I click on "First step"
     Then "First StepItem Version Update Indicator" should "not be visible"
-      And I should see "2.2.2" in "First StepItem Version"
+      And I should see "2.3.1" in "First StepItem Version"
       And "Step Version Details" should "be visible"
-      And I should see "2.2.2" in "Step Version"
+      And I should see "2.3.1" in "Step Version"
       And "Step Version Branch Icon" should "be visible"
       And "Step Version Selector" should "be visible"
       And "Step Version Update Icon" should "not be visible"
@@ -128,7 +128,7 @@ Feature: Workflow steps details
       And "Step Latest Version Updater Button" should "be visible"
       And "Step Version Update Icon" should "be visible"
     When I click on "Step Latest Version Updater Button"
-    Then I should see "Version: 2.2.2" in "Step Version"
+    Then I should see "Version: 2.3.1" in "Step Version"
       And "Step Version Branch Icon" should "be visible"
       And I should see "2.x.x" in "First StepItem Version"
       And "First StepItem Version Update Indicator" should "not be visible"

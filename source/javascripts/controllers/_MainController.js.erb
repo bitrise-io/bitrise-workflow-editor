@@ -247,8 +247,9 @@
 				);
 			};
 
-			$scope.$on("$routeChangeError", function() {
+			$scope.$on("$routeChangeError", function(event, current, previous, rejection) {
 				viewModel.menuProgress.error(new Error("Failed to load menu."));
+				logger.error(rejection);
 			});
 
 			viewModel.isDiscardSaveAvailable = function() {
