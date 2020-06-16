@@ -1,3 +1,4 @@
+import { isEmpty } from "underscore";
 import { Step, SearchOptions } from "@bitrise/steplib-search";
 import { Logger } from "./logger";
 
@@ -58,7 +59,7 @@ angular.module("BitriseWorkflowEditor").service(
 
 				let filters;
 
-				if (options.stepIDs) {
+				if (!isEmpty(options.stepIDs)) {
 					filters = `(${options.stepIDs.map(id => `id:${id}`).join(" OR ")})`;
 				}
 
