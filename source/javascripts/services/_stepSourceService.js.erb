@@ -299,15 +299,23 @@
 				Object.keys(steps).forEach(function(stepId) {
 					var stepVersions = {};
 					var latestStepVersion;
-					Object.values(steps[stepId].versions).forEach(function(stepVersion) {
-						var step = new Step(stepVersion.cvs);
-						step.info = stepVersion.info;
-						latestStepVersion = stepVersion.latest_version_number;
-						step.libraryURL = stepSourceService.defaultLibraryURL;
-						step.id = stepVersion.id;
-						step.version = stepVersion.version;
-						step.defaultStepConfig = Object.assign({}, stepVersion, stepVersion.step);
-						stepVersions[stepVersion.version] = step;
+
+					Object
+						.values(steps[stepId].versions)
+						// We need to order versions, so the last step version processed
+						// will be the latest version
+						.sort(function(v1, v2) {
+							return semverService.sort(v1.version, v2.version);
+						})
+						.forEach(function(stepVersion) {
+							var step = new Step(stepVersion.cvs);
+							step.info = stepVersion.info;
+							latestStepVersion = stepVersion.latest_version_number;
+							step.libraryURL = stepSourceService.defaultLibraryURL;
+							step.id = stepVersion.id;
+							step.version = stepVersion.version;
+							step.defaultStepConfig = Object.assign({}, stepVersion, stepVersion.step);
+							stepVersions[stepVersion.version] = step;
 					});
 
 					var library;
