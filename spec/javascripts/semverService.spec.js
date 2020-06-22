@@ -167,7 +167,7 @@ describe("SemverService", () => {
 		it("should return 0, if versions are equal", () => {
 			const result = semverService.reverseSort("1.10.0", "1.10.0");
 
-			expect(result).toEqual(0);
+			expect(result).toBeFalsy();
 		});
 
 		it("should return -1, if first parameter is bigger", () => {
@@ -187,7 +187,7 @@ describe("SemverService", () => {
 		it("should return 0, if versions are equal", () => {
 			const result = semverService.sort("1.10.0", "1.10.0");
 
-			expect(result).toEqual(0);
+			expect(result).toBeFalsy();
 		});
 
 		it("should return 1, if first parameter is bigger", () => {

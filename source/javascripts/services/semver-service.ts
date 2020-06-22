@@ -51,7 +51,7 @@ class SemverService {
 
 		// comply with compare interface
 		const diff = Math.sign(parseInt(ver1[notEqInd]) - parseInt(ver2[notEqInd]));
-		return diff === 0 ? 0 : diff * -1;
+		return -diff;
 	};
 
 	sort = (verStr1: string, verStr2: string): number => {
