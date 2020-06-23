@@ -36,21 +36,26 @@ class SemverService {
 		});
 	};
 
-	private reverseSorter = (verStr1: string, verStr2: string): number => {
+	reverseSort = (verStr1: string, verStr2: string): number => {
 		const ver1 = (verStr1 || this.MAXSEMVER).split(".");
 		const ver2 = (verStr2 || this.MAXSEMVER).split(".");
 
 		let notEqInd = 0;
-		while (ver1[notEqInd] == ver2[notEqInd] && notEqInd < Math.max(ver1.length, ver2.length)) {
+		while (ver1[notEqInd] == ver2[notEqInd] && notEqInd < Math.max(ver1.length - 1, ver2.length - 1)) {
 			notEqInd++;
 		}
 
 		// make WILDCARD always the lowest priority than everything else
-		ver1[notEqInd] = ver1[notEqInd] === this.WILDCARD ? "-1" : ver1[notEqInd];
-		ver2[notEqInd] = ver2[notEqInd] === this.WILDCARD ? "-1" : ver2[notEqInd];
+		ver1[notEqInd] = ver1[notEqInd] === this.WILDCARD ? "-1" : ver1[notEqInd] || "0";
+		ver2[notEqInd] = ver2[notEqInd] === this.WILDCARD ? "-1" : ver2[notEqInd] || "0";
 
 		// comply with compare interface
-		return Math.sign(parseInt(ver1[notEqInd]) - parseInt(ver2[notEqInd])) * -1;
+		const diff = Math.sign(parseInt(ver1[notEqInd]) - parseInt(ver2[notEqInd]));
+		return -diff;
+	};
+
+	sort = (verStr1: string, verStr2: string): number => {
+		return this.reverseSort(verStr2, verStr1);
 	};
 
 	shortenWildcardVersion = (version: string | null): string | undefined => version?.replace(this.WILDCARD_REGEX, "");
@@ -89,7 +94,7 @@ class SemverService {
 			})
 			.uniq()
 			.value()
-			.sort(this.reverseSorter);
+			.sort(this.reverseSort);
 	};
 
 	resolveVersion = (version: string | null, stepId: string, stepCatalogue: StepCatalouge): string | undefined => {
@@ -104,7 +109,7 @@ class SemverService {
 			return undefined;
 		}
 
-		const stepVersions = Object.keys(step).sort(this.reverseSorter);
+		const stepVersions = Object.keys(step).sort(this.reverseSort);
 		return stepVersions.find(stepVersion => this.isVersionCompatible(version!, stepVersion));
 	};
 

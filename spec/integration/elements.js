@@ -67,6 +67,7 @@ export const elements = {
 	"Sixth step": stepSelector(6),
 	"Eighth step": stepSelector(8),
 	"Seventeenth step": stepSelector(17),
+	"Eighteenth step": stepSelector(18),
 	"First step name": `${stepSelector(1)} [data-e2e-tag="step-item__title"]`,
 	"First StepItem Version": `${stepSelector(1)} [data-e2e-tag="step-item__version"]`,
 	"First StepItem Version Update Indicator": `${stepSelector(1)} [data-e2e-tag="step-item__update-indicator"]`,
@@ -75,6 +76,9 @@ export const elements = {
 	"Third StepItem Version": `${stepSelector(3)} [data-e2e-tag="step-item__version"]`,
 	"Fourth StepItem Version": `${stepSelector(4)} [data-e2e-tag="step-item__version"]`,
 	"Fourth StepItem Version Update Indicator": `${stepSelector(4)} [data-e2e-tag="step-item__update-indicator"]`,
+	"Eighteenth step name": `${stepSelector(18)} [data-e2e-tag="step-item__title"]`,
+	"Eighteenth StepItem Version": `${stepSelector(18)} [data-e2e-tag="step-item__version"]`,
+	"Eighteenth StepItem Version Update Indicator": `${stepSelector(18)} [data-e2e-tag="step-item__update-indicator"]`,
 
 	"Add Before Workflow button": ".add-before-run-workflow",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
