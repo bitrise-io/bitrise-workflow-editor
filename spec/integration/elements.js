@@ -68,7 +68,7 @@ export const elements = {
 	"Eighth step": stepSelector(8),
 	"Seventeenth step": stepSelector(17),
 	"Eighteenth step": stepSelector(18),
-	"Script step referenced by git URL": `.workflow:nth-child(2) ul.steps ul li:first)`,
+	"Script step referenced by git URL": ".workflow:nth-child(2) ul.steps ul li:first)",
 	"First step name": `${stepSelector(1)} [data-e2e-tag="step-item__title"]`,
 	"First StepItem Version": `${stepSelector(1)} [data-e2e-tag="step-item__version"]`,
 	"First StepItem Version Update Indicator": `${stepSelector(1)} [data-e2e-tag="step-item__update-indicator"]`,
