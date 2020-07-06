@@ -1,6 +1,8 @@
 const workflowSelectElement = workflowName =>
 	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
 const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
+const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
+	`.workflow:nth-child(${workflowIndex}) .steps ul li:eq(${stepIndex - 1})`;
 const inputVariableSelector = name =>
 	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
 
@@ -68,7 +70,7 @@ export const elements = {
 	"Eighth step": stepSelector(8),
 	"Seventeenth step": stepSelector(17),
 	"Eighteenth step": stepSelector(18),
-	"Script step referenced by git URL": ".workflow:nth-child(2) ul.steps ul li:first)",
+	"First Workflow's second step": stepSelectorInWorkflowWithIndex(2, 1),
 	"First step name": `${stepSelector(1)} [data-e2e-tag="step-item__title"]`,
 	"First StepItem Version": `${stepSelector(1)} [data-e2e-tag="step-item__version"]`,
 	"First StepItem Version Update Indicator": `${stepSelector(1)} [data-e2e-tag="step-item__update-indicator"]`,
