@@ -640,35 +640,37 @@ import { safeDigest } from "../services/react-compat";
 					return;
 				}
 
-				if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
-					stepSourceService.loadStepVersions(step.id).then(function() {
+				$q(function(resolve) {
+					if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
+						stepSourceService.loadStepVersions(step.id).then(function() {
+							viewModel.selectedStep = step;
+							resolve();
+						});
+					} else {
 						viewModel.selectedStep = step;
-						safeDigest($scope);
-					});
-				} else {
-					viewModel.selectedStep = step;
+						resolve();
+					}
+				}).then(function() {
+					if (workflowIndex === undefined) {
+						workflowIndex = viewModel.editedWorkflowIndex;
+					}
+
+					if (shouldScrollToStep === undefined) {
+						shouldScrollToStep = viewModel.editedWorkflowIndex != workflowIndex;
+					}
+
+					if (viewModel.editedWorkflowIndex != workflowIndex) {
+						viewModel.editWorkflowAtIndex(workflowIndex);
+					}
+
+					if (shouldScrollToStep) {
+						setTimeout(function() {
+							scrollService.scrollToTarget();
+						}, 300);
+					}
+
 					safeDigest($scope);
-				}
-
-				if (workflowIndex === undefined) {
-					workflowIndex = viewModel.editedWorkflowIndex;
-				}
-
-				if (shouldScrollToStep === undefined) {
-					shouldScrollToStep = viewModel.editedWorkflowIndex != workflowIndex;
-				}
-
-				if (viewModel.editedWorkflowIndex != workflowIndex) {
-					viewModel.editWorkflowAtIndex(workflowIndex);
-				}
-
-				if (shouldScrollToStep) {
-					setTimeout(function() {
-						scrollService.scrollToTarget();
-					}, 300);
-				}
-
-				safeDigest($scope);
+				})
 			};
 
 			viewModel.changeSelectedStepVersion = function(version) {
