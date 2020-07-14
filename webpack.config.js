@@ -9,10 +9,11 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR } = process.env;
 const isProd = NODE_ENV === "prod";
 
 const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
+const isHotjarEnabled = HOTJAR === "true";
 const publicPath = `${urlPrefix}/${version}/`;
 
 const railsTransformer = mode => ({
@@ -46,6 +47,14 @@ const assetExporter = (regex, folder) => ({
 	]
 });
 
+let entry = {
+	vendor: "./javascripts/vendor.js",
+	main: "./javascripts/index.js"
+}
+if (isHotjarEnabled) {
+	entry.hotjar = "./javascripts/hotjar.js";
+}
+
 module.exports = {
 	context: CODEBASE,
 
@@ -64,10 +73,7 @@ module.exports = {
 
 	devtool: `${isProd ? "hidden-" : ""}source-map`,
 
-	entry: {
-		vendor: "./javascripts/vendor.js",
-		main: "./javascripts/index.js"
-	},
+	entry: entry,
 
 	optimization: {
 		minimize: isProd,
