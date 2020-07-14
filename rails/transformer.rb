@@ -67,6 +67,10 @@ def analytics?
     ENV['ANALYTICS'] == 'true'
 end
 
+def hotjar?
+    ENV['HOTJAR'] == 'true'
+end
+
 case command
 when "erb"
     puts ERB.new(input).result
