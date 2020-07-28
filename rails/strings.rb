@@ -765,6 +765,11 @@ def strings
                 error_prefix: "Error getting current user data: ",
                 not_website_mode_error: "Getting current user data is only available in website mode"
             },
+            get_current_user_beta_tags: {
+                default_error: "Error getting current user beta tags",
+                error_prefix: "Error getting current user beta tags: ",
+                not_website_mode_error: "Getting current user beta tags is only available in website mode"
+            },
             get_codesigndoc_bash_script: {
                 default_error: "Error getting codesigndoc bash command",
                 error_prefix: "Error getting codesigndoc bash command: ",
@@ -986,6 +991,7 @@ def strings
             app_config_get: "/api/app/<app_slug>/config.json",
             app_codesigndoc_script_get: "/api/app/<app_slug>/codesigndoc.json'",
             current_user_get: "/me/profile.json",
+            current_user_beta_tags_get: "/me/profile/beta_tags.json",
             yml_post: "/api/app/<app_slug>/config.json",
             yml_get: "/api/app/<app_slug>/config.yml",
             yml_download: "/api/app/<app_slug>/config.yml?is_download=1",
