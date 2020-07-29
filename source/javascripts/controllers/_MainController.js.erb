@@ -9,6 +9,7 @@
 			$q,
 			$location,
 			$timeout,
+			$cookies,
 			requestService,
 			appService,
 			stringService,
@@ -28,6 +29,7 @@
 			$scope.requestService = requestService;
 			$scope.osService = osService;
 
+			viewModel.shouldShowRepoYmlSplashModal = false;
 			viewModel.appDetails;
 			viewModel.menus;
 			viewModel.menuProgress = new Progress();
@@ -57,6 +59,21 @@
 				}
 
 				viewModel.menuSelected(initialMenu);
+			}
+
+			function checkRepoYmlSplashModalVisibility () {
+				$q.all([requestService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
+					.then(function(result) {
+						var betaTags = result[0];
+						
+						var featureAvailable = betaTags.indexOf('yml-from-repo') > -1;
+						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
+						viewModel.shouldShowRepoYmlSplashModal = featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.uses_repository_yml;
+						
+						if (viewModel.shouldShowRepoYmlSplashModal) {
+							$cookies.put("splash_modal_shown", true);
+						}
+					})
 			}
 
 			function load() {
@@ -569,6 +586,7 @@
 
 						viewModel.initAppProgress.success();
 						selectInitialMenu();
+						checkRepoYmlSplashModalVisibility();
 					},
 					function(error) {
 						viewModel.initAppProgress.error(error);

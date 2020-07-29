@@ -33,7 +33,8 @@
 				projectType: undefined,
 				availableProjectTypes: undefined,
 				validationWarnings: [],
-				accountData: undefined
+				accountData: undefined,
+				pipelineConfig: undefined
 			};
 
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {
@@ -282,6 +283,16 @@
 			appService.discardAppConfigChanges = function() {
 				appService.appConfig = angular.copy(appService.savedAppConfig);
 			};
+
+			appService.getPipelineConfig = function (shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.pipelineConfig) {
+					return $q.when();
+				}
+
+				return requestService.getPipelineConfig(requestConfig).then(function(pipelineConfig) {
+					appService.pipelineConfig = pipelineConfig;
+				});
+			}
 
 			appService.getSecrets = function(shouldForceReload, requestConfig) {
 				if (!shouldForceReload && appService.secrets) {
