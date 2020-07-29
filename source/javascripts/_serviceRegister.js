@@ -1,6 +1,7 @@
 import { cachedFn } from "./services/react-compat";
 import semverService from "./services/semver-service";
 import StringService from "./services/string-service";
+import RequestService from "./services/request-service";
 import loggerFactory from "./services/logger";
 import workflowSelectionserviceFactory from "./services/workflows-selection-service";
 import workflowSelectionStore from "./services/workflow-selection-store";
@@ -26,6 +27,9 @@ angular
 	})
 	.factory("StringService", function() {
 		return StringService;
+	})
+	.factory("RequestService", function() {
+		return RequestService;
 	})
 	.factory("appServiceUtil", function() {
 		return appService;

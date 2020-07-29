@@ -701,6 +701,12 @@ def strings
             load_error: "Error loading image: <image_url>."
         },
         request_service: {
+            response: {
+                parse_failed_json: "failed to parse response body to JSON.",
+                parse_failed_text: "failed to parse response body to text.",
+                aborted: "response aborted.",
+                default_error: "Error during request."
+            },
             step_config_fetch: {
                 default_error: "Error loading step.",
                 error_prefix: "Error loading step: ",

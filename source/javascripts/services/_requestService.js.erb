@@ -5,10 +5,10 @@ import jsyaml from "js-yaml";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("requestService", function($q, $injector, $http, stringService, dateService, logger) {
+		.service("requestService", function($q, $injector, $http, RequestService, stringService, dateService, logger) {
 			var requestService = {
-				mode: "<%= mode %>",
-				appSlug: undefined
+				mode: RequestService.mode,
+				appSlug: RequestService.appSlug,
 			};
 
 			function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
@@ -435,50 +435,8 @@ import jsyaml from "js-yaml";
 			};
 
 			requestService.getAppConfigYML = function(requestConfig) {
-				var requestURL;
-
-				switch (requestService.mode) {
-					case "website":
-						requestURL = stringService.stringReplacedWithParameters(
-							"<%= webserver_path(data[:routes][:website][:yml_get]) %>",
-							{
-								app_slug: requestService.appSlug
-							}
-						);
-
-						break;
-					case "cli":
-						requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_get]) %>";
-
-						break;
-				}
-
 				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve(response.data);
-						},
-						function(response) {
-							if (response.data.bitrise_yml) {
-								reject({
-									bitrise_yml: response.data.bitrise_yml,
-									error_message: errorFromResponse(
-										response,
-										"<%= data[:strings][:request_service][:load_app_config][:invalid_bitrise_yml_error] %>",
-										"<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"
-									)
-								});
-							} else {
-								reject(
-									errorFromResponse(
-										response,
-										"<%= data[:strings][:request_service][:load_app_config][:default_error] %>",
-										"<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"
-									)
-								);
-							}
-						}
-					);
+					RequestService.getAppConfigYML(requestConfig).then(resolve, reject);
 				});
 			};
 
