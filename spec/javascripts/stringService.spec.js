@@ -78,4 +78,17 @@ describe("stringService", function() {
 
 	});
 
+	describe("errorMessageFromErrors", function() {
+
+		it("should return a comma-separated, capitalized sentence", function() {
+			var errors = [
+				new Error("some error"),
+				new Error("another error"),
+				new Error("last error"),
+			];
+			expect(stringService.errorMessageFromErrors(errors)).toBe("Some error, another error, last error.")
+		});
+
+	})
+
 });
