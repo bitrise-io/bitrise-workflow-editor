@@ -1,5 +1,6 @@
 require "erb"
 require "slim"
+require "json"
 require "slim/include"
 require "./strings"
 
