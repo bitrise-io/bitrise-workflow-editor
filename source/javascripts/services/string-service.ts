@@ -1,13 +1,11 @@
-import _ from "underscore";
+import * as _ from "underscore";
 
 class StringService {
 	private templateRegexp: RegExp;
 
 	constructor() {
 		this.templateRegexp = /<([a-zA-Z0-9\-\_\.]+)>/g;
-		_.templateSettings = {
-			interpolate: this.templateRegexp
-		};
+		_.templateSettings.interpolate = this.templateRegexp;
 	}
 
 	private defaultTemplateDataFromString(string: string) {

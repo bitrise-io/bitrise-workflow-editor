@@ -1,4 +1,3 @@
-import _ from "underscore";
 import { getAppSlug } from "./app-service";
 import StringService from "./string-service";
 
