@@ -1,6 +1,6 @@
 header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
-	r-splash-modal[show="mainCtrl.shouldShowRepoYmlSplashModal"]
+	r-splash-modal[ng-if="mainCtrl.shouldShowRepoYmlSplashModal"]
 	header.menu[sticky sticking-index="1"]
 		.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]

@@ -567,7 +567,7 @@ import jsyaml from "js-yaml";
 				return $q(function(resolve, reject) {
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
-							resolve(response.data.envs);
+							resolve(response.data);
 						},
 						function(response) {
 							reject(

@@ -1002,7 +1002,7 @@ def strings
             yml_download: "/api/app/<app_slug>/config.yml?is_download=1",
             secrets_post: "/api/app/<app_slug>/secrets-without-values",
             secrets_get: "/api/app/<app_slug>/secrets-without-values",
-            pipeline_config_get: "/api/app/<app_slug>/pipeline_config",
+            pipeline_config_get: "/app/<app_slug>/pipeline_config",
             secret_value_get: "/api/app/<app_slug>/secrets/<secret_key>.json",
             bitrise_steplib_get: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json.gz",
             default_outputs_get: "/api/app/<app_slug>/default_step_outputs.json",

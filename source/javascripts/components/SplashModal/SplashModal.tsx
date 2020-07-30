@@ -2,12 +2,8 @@ import React, { FC, useState } from "react";
 import { Modal, ModalHeader, ModalBody, Flex, ModalTitle, Buttons, Button, Text } from "@bitrise/bitkit";
 import "./SplashModal.scss";
 
-type SplashModalProps = {
-	show: boolean;
-};
-
-const SplashModal: FC<SplashModalProps> = ({ show }: SplashModalProps) => {
-	const [visible, setVisible] = useState(show);
+const SplashModal: FC<void> = () => {
+	const [visible, setVisible] = useState(true);
 
 	const handleNavigation = (): void => {
 		const { origin, pathname } = window.location;
