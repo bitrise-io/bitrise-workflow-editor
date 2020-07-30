@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const TerserPLugin = require("terser-webpack-plugin");
@@ -22,7 +23,7 @@ const railsTransformer = mode => ({
 		script: `bundle exec ruby transformer.rb ${mode}`,
 		cwd: "./rails",
 		maxBuffer: Math.pow(1024, 3),
-		env: { ...process.env, "wfe_version": version }
+		env: { ...process.env, wfe_version: version }
 	}
 });
 
@@ -51,7 +52,7 @@ let entry = {
 	vendor: "./javascripts/vendor.js",
 	data: "./javascripts/data.js.erb",
 	main: "./javascripts/index.js"
-}
+};
 if (isHotjarEnabled) {
 	entry.hotjar = "./javascripts/hotjar.js";
 }
@@ -150,6 +151,9 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new webpack.DefinePlugin({
+			"process.env": JSON.stringify(process.env)
+		}),
 		new MiniCssExtractPlugin({
 			filename: "stylesheets/[name].css"
 		}),
