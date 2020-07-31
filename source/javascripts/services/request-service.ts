@@ -27,14 +27,6 @@ class RequestService {
 		return new Error(messagePrefix + message);
 	}
 
-	private responseJsonParseError(messagePrefix: string): Error {
-		return this.prefixedError(window["strings"].request_service.response.parse_failed_json, messagePrefix);
-	}
-
-	private responseTextParseError(messagePrefix: string): Error {
-		return this.prefixedError(window["strings"].request_service.response.parse_failed_text, messagePrefix);
-	}
-
 	private responseAbortedError(messagePrefix: string): Error {
 		return this.prefixedError(window["strings"].request_service.response.aborted, messagePrefix);
 	}
@@ -69,7 +61,7 @@ class RequestService {
 						response
 							.text()
 							.then(resolve, _reason =>
-								reject(this.responseTextParseError(window["strings"].request_service.load_app_config.error_prefix))
+								reject(new Error(window["strings"].request_service.load_app_config.default_error))
 							);
 					} else {
 						response.json().then(
@@ -90,11 +82,7 @@ class RequestService {
 									);
 								}
 							},
-							_reason => {
-								return reject(
-									this.responseJsonParseError(window["strings"].request_service.load_app_config.error_prefix)
-								);
-							}
+							_reason => reject(new Error(window["strings"].request_service.load_app_config.default_error))
 						);
 					}
 				},
