@@ -77,10 +77,9 @@ class RequestService {
 								if (responseBody.bitrise_yml) {
 									reject({
 										bitrise_yml: responseBody.bitrise_yml,
-										error_message: this.prefixedError(
-											window["strings"].request_service.load_app_config.invalid_bitrise_yml_error,
-											window["strings"].request_service.load_app_config.error_prefix
-										).message
+										error_message: new Error(
+											window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
+										)
 									});
 								} else {
 									reject(
