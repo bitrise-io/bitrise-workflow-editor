@@ -6,40 +6,26 @@ enum RequestServiceMode {
 	Cli = "cli"
 }
 
+interface RequestServiceConfigureOptions {
+	mode?: string;
+	appSlug?: string;
+}
+
 class RequestService {
-	public mode: string;
-	public appSlug: string;
+	public mode = "";
+	public appSlug = "";
 
 	constructor() {
-		this.mode = this.modeFromEnvVars() as string;
-		this.appSlug = getAppSlug() as string;
+		this.configure();
 	}
 
-	private modeFromEnvVars(): RequestServiceMode {
-		if (process.env["MODE"] == "WEBSITE") {
-			return RequestServiceMode.Website;
-		}
-
-		return RequestServiceMode.Cli;
+	public configure({ mode, appSlug }: RequestServiceConfigureOptions = {}) {
+		this.mode = mode || (this.modeFromEnvVars() as string);
+		this.appSlug = appSlug || (getAppSlug() as string);
 	}
 
-	private prefixedError(message: string, messagePrefix: string): Error {
-		return new Error(messagePrefix + message);
-	}
-
-	private responseAbortedError(messagePrefix: string): Error {
-		return this.prefixedError(window["strings"].request_service.response.aborted, messagePrefix);
-	}
-
-	private errorFromResponseBody(
-		responseBody: any,
-		defaultMessage: string = window["strings"].request_service.response.default_error
-	): Error {
-		return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
-	}
-
-	getAppConfigYML(_requestConfig: any): Promise<string | Error | { bitrise_yml: string; error: Error }> {
-		let requestURL: string;
+	public getAppConfigYML(_requestConfig: any): Promise<string | Error | { bitrise_yml: string; error: Error }> {
+		let requestURL = "";
 
 		switch (this.mode) {
 			case RequestServiceMode.Website:
@@ -86,9 +72,34 @@ class RequestService {
 						);
 					}
 				},
-				_reason => reject(this.responseAbortedError(window["strings"].request_service.load_app_config.error_prefix))
+				_reason => {
+					return reject(this.requestAbortedError(window["strings"].request_service.load_app_config.error_prefix));
+				}
 			);
 		});
+	}
+
+	private modeFromEnvVars(): RequestServiceMode {
+		if (process.env["MODE"] == "WEBSITE") {
+			return RequestServiceMode.Website;
+		}
+
+		return RequestServiceMode.Cli;
+	}
+
+	private prefixedError(message: string, messagePrefix: string): Error {
+		return new Error(messagePrefix + message);
+	}
+
+	private requestAbortedError(messagePrefix: string): Error {
+		return this.prefixedError(window["strings"].request_service.request.aborted, messagePrefix);
+	}
+
+	private errorFromResponseBody(
+		responseBody: any,
+		defaultMessage: string = window["strings"].request_service.response.default_error
+	): Error {
+		return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
 	}
 }
 

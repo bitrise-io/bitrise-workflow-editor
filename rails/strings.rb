@@ -701,8 +701,10 @@ def strings
             load_error: "Error loading image: <image_url>."
         },
         request_service: {
+            request: {
+                aborted: "request aborted.",
+            },
             response: {
-                aborted: "response aborted.",
                 default_error: "Error during request."
             },
             step_config_fetch: {

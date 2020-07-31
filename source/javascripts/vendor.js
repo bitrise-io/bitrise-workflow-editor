@@ -1,5 +1,6 @@
 import $ from "jquery";
 import _ from "underscore";
+import "whatwg-fetch";
 
 global.$ = $;
 global._ = _;
