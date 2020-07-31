@@ -1,5 +1,7 @@
+@import "../../../stylesheets/constants";
+
 .ModalHeader {
-	height: 200px;
+	height: $grid * 50;
 	background: url("https://www.warrenphotographic.co.uk/photography/rubs/03656.jpg");
 	background-position: center;
 	background-size: cover;
@@ -8,6 +10,6 @@
 	border-bottom-right-radius: 0;
 
 	a.Base--clickable.Link {
-		color: #fff;
+		color: var(--color-white);
 	}
 }
