@@ -702,8 +702,6 @@ def strings
         },
         request_service: {
             response: {
-                parse_failed_json: "failed to parse response body to JSON.",
-                parse_failed_text: "failed to parse response body to text.",
                 aborted: "response aborted.",
                 default_error: "Error during request."
             },

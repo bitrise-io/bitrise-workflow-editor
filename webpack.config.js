@@ -50,7 +50,8 @@ const assetExporter = (regex, folder) => ({
 
 let entry = {
 	vendor: "./javascripts/vendor.js",
-	data: "./javascripts/data.js.erb",
+	strings: "./javascripts/strings.js.erb",
+	routes: "./javascripts/routes.js.erb",
 	main: "./javascripts/index.js"
 };
 if (isHotjarEnabled) {
