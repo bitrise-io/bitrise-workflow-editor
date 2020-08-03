@@ -8,11 +8,36 @@ describe("RequestService", () => {
 		jasmine.Ajax.uninstall();
 	});
 
+	function itActsLikeAnAbortableRequest() {
+		describe("when request is aborted through request config", () => {
+			it("gets aborted", done => {
+				const aborter = new Promise(resolve => {
+					setTimeout(() => {
+						resolve();
+					}, 0);
+				});
+				jasmine.Ajax.stubRequest(/.*/).andCallFunction(() => {});
+
+				RequestService.getAppConfigYML(aborter)
+					.then(done.fail)
+					.catch(error => {
+						expect(error).toEqual(new Error("Error loading app config: request aborted."));
+						done();
+					});
+			});
+		});
+	}
+
 	describe("getAppConfigYML", () => {
 		describe("when in website mode", () => {
+			beforeEach(() => {
+				RequestService.configure({ mode: "website", appSlug: "my-app-slug" });
+			});
+
+			itActsLikeAnAbortableRequest();
+
 			describe("and response is successful", () => {
 				it("resolves with app config", done => {
-					RequestService.configure({ mode: "website", appSlug: "my-app-slug" });
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						responseText: "my-app-config"
 					});
@@ -28,7 +53,6 @@ describe("RequestService", () => {
 
 			describe("and response is not successful, but bitrise.yml is still returned", () => {
 				it("rejects with received error & with bitrise.yml", done => {
-					RequestService.configure({ mode: "website", appSlug: "my-app-slug" });
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 422,
 						responseJSON: {
@@ -68,6 +92,12 @@ describe("RequestService", () => {
 		});
 
 		describe("when in CLI mode", () => {
+			beforeEach(() => {
+				RequestService.configure({ mode: "cli" });
+			});
+
+			itActsLikeAnAbortableRequest();
+
 			describe("and response is successful", () => {
 				it("resolves with app config", done => {
 					RequestService.configure({ mode: "cli" });

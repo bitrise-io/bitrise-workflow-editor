@@ -25,8 +25,15 @@ class RequestService {
 	}
 
 	public async getAppConfigYML(
-		_requestConfig: any
+		abortedPromise: Promise<undefined>
 	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
+		const controller = new AbortController();
+		if (abortedPromise) {
+			abortedPromise.then(() => {
+				controller.abort();
+			});
+		}
+
 		let requestURL = "";
 
 		switch (this.mode) {
@@ -44,7 +51,9 @@ class RequestService {
 
 		let response: Response;
 		try {
-			response = await fetch(requestURL);
+			response = await fetch(requestURL, {
+				signal: controller.signal
+			});
 		} catch {
 			throw this.requestAbortedError(window["strings"].request_service.load_app_config.error_prefix);
 		}
