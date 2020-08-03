@@ -55,15 +55,19 @@ class RequestService {
 								if (responseBody.bitrise_yml) {
 									reject({
 										bitrise_yml: responseBody.bitrise_yml,
-										error_message: new Error(
-											window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
+										error_message: this.prefixedError(
+											this.errorFromResponseBody(
+												responseBody,
+												window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
+											).message,
+											window["strings"].request_service.load_app_config.error_prefix
 										)
 									});
 								} else {
 									reject(
 										this.errorFromResponseBody(
 											responseBody,
-											window["strings"].request_service.load_app_config.error_prefix
+											window["strings"].request_service.load_app_config.default_error
 										)
 									);
 								}
