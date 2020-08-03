@@ -1,3 +1,5 @@
+import _ from "underscore";
+
 (function() {
 	"use strict";
 
@@ -9,6 +11,7 @@
 			$q,
 			$location,
 			$timeout,
+			$cookies,
 			requestService,
 			appService,
 			stringService,
@@ -28,6 +31,7 @@
 			$scope.requestService = requestService;
 			$scope.osService = osService;
 
+			viewModel.shouldShowRepoYmlSplashModal = false;
 			viewModel.appDetails;
 			viewModel.menus;
 			viewModel.menuProgress = new Progress();
@@ -57,6 +61,21 @@
 				}
 
 				viewModel.menuSelected(initialMenu);
+			}
+
+			function showRepoYmlSplashModalIfNecessary () {
+				$q.all([requestService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
+					.then(function(result) {
+						var betaTags = result[0];
+						
+						var featureAvailable = _.contains(betaTags, 'yml-from-repo');
+						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
+						viewModel.shouldShowRepoYmlSplashModal = featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
+						
+						if (viewModel.shouldShowRepoYmlSplashModal) {
+							$cookies.put("splash_modal_shown", true);
+						}
+					})
 			}
 
 			function load() {
@@ -569,6 +588,7 @@
 
 						viewModel.initAppProgress.success();
 						selectInitialMenu();
+						showRepoYmlSplashModalIfNecessary();
 					},
 					function(error) {
 						viewModel.initAppProgress.error(error);
