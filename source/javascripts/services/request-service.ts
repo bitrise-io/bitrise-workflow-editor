@@ -24,7 +24,9 @@ class RequestService {
 		this.appSlug = appSlug || (getAppSlug() as string);
 	}
 
-	public getAppConfigYML(_requestConfig: any): Promise<string | Error | { bitrise_yml: string; error: Error }> {
+	public async getAppConfigYML(
+		_requestConfig: any
+	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
 		let requestURL = "";
 
 		switch (this.mode) {
@@ -40,51 +42,46 @@ class RequestService {
 				break;
 		}
 
-		return new Promise((resolve, reject) => {
-			fetch(requestURL).then(
-				response => {
-					if (response.ok) {
-						response
-							.text()
-							.then(resolve, _reason =>
-								reject(new Error(window["strings"].request_service.load_app_config.default_error))
-							);
-					} else {
-						response.json().then(
-							(responseBody: any) => {
-								if (responseBody.bitrise_yml) {
-									reject({
-										bitrise_yml: responseBody.bitrise_yml,
-										error_message: this.prefixedError(
-											this.errorFromResponseBody(
-												responseBody,
-												window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
-											).message,
-											window["strings"].request_service.load_app_config.error_prefix
-										)
-									});
-								} else {
-									reject(
-										this.errorFromResponseBody(
-											responseBody,
-											window["strings"].request_service.load_app_config.default_error
-										)
-									);
-								}
-							},
-							_reason => reject(new Error(window["strings"].request_service.load_app_config.default_error))
-						);
-					}
-				},
-				_reason => {
-					return reject(this.requestAbortedError(window["strings"].request_service.load_app_config.error_prefix));
-				}
-			);
-		});
+		let response: Response;
+		try {
+			response = await fetch(requestURL);
+		} catch {
+			throw this.requestAbortedError(window["strings"].request_service.load_app_config.error_prefix);
+		}
+
+		if (!response.ok) {
+			let responseBody: { bitrise_yml?: string; error: string };
+			try {
+				responseBody = await response.json();
+			} catch {
+				throw new Error(window["strings"].request_service.load_app_config.default_error);
+			}
+
+			if (responseBody.bitrise_yml) {
+				throw {
+					bitrise_yml: responseBody.bitrise_yml,
+					error_message: this.prefixedError(
+						this.errorFromResponseBody(
+							responseBody,
+							window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
+						).message,
+						window["strings"].request_service.load_app_config.error_prefix
+					)
+				};
+			}
+
+			throw this.errorFromResponseBody(responseBody, window["strings"].request_service.load_app_config.default_error);
+		}
+
+		try {
+			return await response.text();
+		} catch {
+			throw new Error(window["strings"].request_service.load_app_config.default_error);
+		}
 	}
 
 	private modeFromEnvVars(): RequestServiceMode {
-		if (process.env["MODE"] == "WEBSITE") {
+		if (process.env["MODE"] === "WEBSITE") {
 			return RequestServiceMode.Website;
 		}
 
@@ -100,7 +97,7 @@ class RequestService {
 	}
 
 	private errorFromResponseBody(
-		responseBody: any,
+		responseBody: { error?: string; error_msg?: string },
 		defaultMessage: string = window["strings"].request_service.response.default_error
 	): Error {
 		return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
