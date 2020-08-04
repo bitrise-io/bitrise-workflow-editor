@@ -11,6 +11,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 			viewModel.appSlug = appService.appDetails.slug;
 			viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+			viewModel.shouldShowYmlStorageSettings = requestService.mode == "website";
 
 			viewModel.downloadAppConfigYMLPath =
 				requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;

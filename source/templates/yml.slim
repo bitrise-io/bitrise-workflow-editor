@@ -5,7 +5,7 @@
 			.title == data[:strings][:yml][:warn][:title]
 			ul
 				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
-	section
+	section[ng-if="ymlCtrl.shouldShowYmlStorageSettings"]
 		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml"]
 	section.cardo
 		header
