@@ -8,6 +8,10 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 		.controller("YMLController", function($scope, $timeout, $rootScope, $q, appService, requestService, Progress) {
 			var viewModel = this;
 			var editor;
+
+			viewModel.appSlug = appService.appDetails.slug;
+			viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+
 			viewModel.downloadAppConfigYMLPath =
 				requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
 
