@@ -20,7 +20,8 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 	const {
 		getAppConfigFromRepoStatus,
 		getAppConfigFromRepoLoading,
-		getAppConfigFromRepo
+		getAppConfigFromRepo,
+		appConfigFromRepo
 	} = useGetAppConfigFromRepoCallback(appSlug);
 	const {
 		updatePipelineConfigStatus,
@@ -82,11 +83,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 								: `Before switching to bitrise.yml in the app repo, you need to add bitrise.yml
 								to the app repository with the current config.`}
 							<Text inline textColor="grape-3" paddingHorizontal="x1">
-								<Link
-									target="_blank"
-									textColor="grape-3"
-									href="https://bitkit.netlify.app/documentation/components/Link"
-								>
+								<Link target="_blank" href="https://bitkit.netlify.app/documentation/components/Link">
 									Read more
 								</Link>
 							</Text>
@@ -98,6 +95,23 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 					) : (
 						<Notification margin="x2" type="progress">
 							Loading current bitrise.yml...
+						</Notification>
+					)}
+
+					{appConfigFromRepo && getAppConfigFromRepoStatus !== 200 && (
+						<Notification margin="x2" type="alert">
+							{appConfigFromRepo ? (
+								"Couldn’t find the bitrise.yml. Add the file to the master branch and try again."
+							) : (
+								<Text>
+									Bitrise.yml seems invalid, review and fix it before proceeding.
+									<Text inline textColor="red-4" paddingHorizontal="x1">
+										<Link underline target="_blank" href="https://bitkit.netlify.app/documentation/components/Link">
+											Read more on syntax
+										</Link>
+									</Text>
+								</Text>
+							)}
 						</Notification>
 					)}
 
