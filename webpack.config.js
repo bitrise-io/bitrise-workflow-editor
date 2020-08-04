@@ -10,7 +10,7 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, DEV_SERVER_PORT } = process.env;
 const isProd = NODE_ENV === "prod";
 
 const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
@@ -48,7 +48,7 @@ const assetExporter = (regex, folder) => ({
 	]
 });
 
-let entry = {
+const entry = {
 	vendor: "./javascripts/vendor.js",
 	strings: "./javascripts/strings.js.erb",
 	routes: "./javascripts/routes.js.erb",
@@ -65,7 +65,7 @@ module.exports = {
 		contentBase: OUTPUT_FOLDER,
 		contentBasePublicPath: publicPath,
 		compress: true,
-		port: 4567,
+		port: DEV_SERVER_PORT || 4567,
 		stats: "errors-only",
 		headers: {
 			"Access-Control-Allow-Origin": "*",

@@ -1,6 +1,6 @@
 {
 	"name": "bitrise-workflow-editor",
-	"version": "1.3.22",
+	"version": "1.3.23",
 	"description": "Bitrise workflow editor",
 	"main": "index.js",
 	"scripts": {
@@ -36,7 +36,7 @@
 	},
 	"homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
 	"dependencies": {
-		"@bitrise/bitkit": "^4.12.1",
+		"@bitrise/bitkit": "^7.1.1",
 		"@bitrise/steplib-search": "^2.2.2",
 		"@datadog/browser-logs": "^1.7.0",
 		"abortcontroller-polyfill": "^1.5.0",

@@ -726,6 +726,11 @@ def strings
                 default_error: "Error loading default outputs.",
                 error_prefix: "Error loading default outputs: "
             },
+            get_pipeline_config: {
+                default_error: "Error loading pipeline config.",
+                error_prefix: "Error loading pipeline config: ",
+                not_website_mode_error: "Getting pipeline config is only available in website mode"
+            },
             load_secrets: {
                 default_error: "Error loading secrets.",
                 error_prefix: "Error loading secrets: "
@@ -1003,6 +1008,7 @@ def strings
             yml_download: "/api/app/<app_slug>/config.yml?is_download=1",
             secrets_post: "/api/app/<app_slug>/secrets-without-values",
             secrets_get: "/api/app/<app_slug>/secrets-without-values",
+            pipeline_config_get: "/app/<app_slug>/pipeline_config",
             secret_value_get: "/api/app/<app_slug>/secrets/<secret_key>.json",
             bitrise_steplib_get: "https://bitrise-steplib-collection.s3.amazonaws.com/spec.json.gz",
             default_outputs_get: "/api/app/<app_slug>/default_step_outputs.json",
