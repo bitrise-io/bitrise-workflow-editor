@@ -67,11 +67,11 @@ import _ from "underscore";
 				$q.all([requestService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
 					.then(function(result) {
 						var betaTags = result[0];
-						
+
 						var featureAvailable = _.contains(betaTags, 'yml-from-repo');
 						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
 						viewModel.shouldShowRepoYmlSplashModal = featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
-						
+
 						if (viewModel.shouldShowRepoYmlSplashModal) {
 							$cookies.put("splash_modal_shown", true);
 						}
@@ -137,8 +137,8 @@ import _ from "underscore";
 									resolve();
 								},
 								function(response) {
-									if (response.bitrise_yml) {
-										reject(response.error_message);
+									if (response.bitriseYml) {
+										reject(response.error);
 									} else {
 										reject(response);
 									}

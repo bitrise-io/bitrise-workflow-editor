@@ -4,13 +4,13 @@ class StringService {
 	private templateRegexp: RegExp;
 
 	constructor() {
-		this.templateRegexp = /<([a-zA-Z0-9\-\_\.]+)>/g;
+		this.templateRegexp = /<([a-zA-Z0-9\-_.]+)>/g;
 		_.templateSettings.interpolate = this.templateRegexp;
 	}
 
-	private defaultTemplateDataFromString(string: string) {
-		let match,
-			data = {};
+	private defaultTemplateDataFromString(string: string): any {
+		let match: RegExpExecArray | null;
+		const data = {};
 		while ((match = this.templateRegexp.exec(string))) {
 			data[match[1]] = match[0];
 		}

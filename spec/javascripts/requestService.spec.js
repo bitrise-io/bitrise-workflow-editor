@@ -24,6 +24,7 @@ describe("RequestService", () => {
 						resolve();
 					}, 0);
 				});
+				// eslint-disable-next-line @typescript-eslint/no-empty-function
 				jasmine.Ajax.stubRequest(/.*/).andCallFunction(() => {});
 
 				RequestService.getAppConfigYML(aborter)
@@ -64,16 +65,16 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 422,
 						responseJSON: {
-							bitrise_yml: "my-invalid-app-config",
-							error_msg: "Some error"
+							bitrise_yml: "my-invalid-app-config", // eslint-disable-line @typescript-eslint/camelcase
+							error_msg: "Some error" // eslint-disable-line @typescript-eslint/camelcase
 						}
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
 						.catch(responseData => {
-							expect(responseData.bitrise_yml).toBe("my-invalid-app-config");
-							expect(responseData.error_message).toEqual(new Error("Error loading app config: Some error"));
+							expect(responseData.bitriseYml).toBe("my-invalid-app-config");
+							expect(responseData.error).toEqual(new Error("Error loading app config: Some error"));
 							expect(logger.warn).toHaveBeenCalledWith("Error loading app config: Some error");
 							expect(logger.error).not.toHaveBeenCalled();
 							done();
@@ -86,7 +87,7 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 400,
 						responseJSON: {
-							error_msg: "Some error"
+							error_msg: "Some error" // eslint-disable-line @typescript-eslint/camelcase
 						}
 					});
 
@@ -106,7 +107,7 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 500,
 						responseJSON: {
-							error_msg: "Some error"
+							error_msg: "Some error" // eslint-disable-line @typescript-eslint/camelcase
 						}
 					});
 
@@ -147,7 +148,7 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
 						status: 422,
 						responseJSON: {
-							bitrise_yml: "my-invalid-app-config",
+							bitrise_yml: "my-invalid-app-config", // eslint-disable-line @typescript-eslint/camelcase
 							error: "Some error"
 						}
 					});
@@ -155,8 +156,8 @@ describe("RequestService", () => {
 					RequestService.getAppConfigYML()
 						.then(done.fail)
 						.catch(responseData => {
-							expect(responseData.bitrise_yml).toBe("my-invalid-app-config");
-							expect(responseData.error_message).toEqual(new Error("Error loading app config: Some error"));
+							expect(responseData.bitriseYml).toBe("my-invalid-app-config");
+							expect(responseData.error).toEqual(new Error("Error loading app config: Some error"));
 							expect(logger.warn).toHaveBeenCalledWith("Error loading app config: Some error");
 							expect(logger.error).not.toHaveBeenCalled();
 							done();

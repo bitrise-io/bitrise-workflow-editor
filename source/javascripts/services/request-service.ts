@@ -23,7 +23,7 @@ class RequestService {
 		this.configure({ logger });
 	}
 
-	public configure({ mode, appSlug, logger }: RequestServiceConfigureOptions = {}) {
+	public configure({ mode, appSlug, logger }: RequestServiceConfigureOptions = {}): void {
 		this.mode = mode || (this.modeFromEnvVars() as string);
 		this.appSlug = appSlug || (getAppSlug() as string);
 		this.logger = logger;
@@ -44,7 +44,7 @@ class RequestService {
 		switch (this.mode) {
 			case RequestServiceMode.Website:
 				requestURL = StringService.stringReplacedWithParameters(window["routes"].website.yml_get, {
-					app_slug: this.appSlug
+					app_slug: this.appSlug // eslint-disable-line @typescript-eslint/camelcase
 				});
 
 				break;
@@ -84,8 +84,8 @@ class RequestService {
 				this.logErrorWithLevel(error, StatusType.warn);
 
 				throw {
-					bitrise_yml: responseBody.bitrise_yml,
-					error_message: error
+					bitriseYml: responseBody.bitrise_yml,
+					error: error
 				};
 			}
 
@@ -128,7 +128,7 @@ class RequestService {
 		return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
 	}
 
-	private logErrorWithLevel(error: Error, level: StatusType) {
+	private logErrorWithLevel(error: Error, level: StatusType): void {
 		if (!this.logger) {
 			return;
 		}

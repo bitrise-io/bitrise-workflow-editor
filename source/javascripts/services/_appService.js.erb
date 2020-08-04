@@ -371,9 +371,9 @@
 						appService.savedAppConfigYML = appConfigYML;
 					},
 					function(response) {
-						if (response.bitrise_yml) {
-							appService.appConfigYML = response.bitrise_yml;
-							appService.savedAppConfigYML = response.bitrise_yml;
+						if (response.bitriseYml) {
+							appService.appConfigYML = response.bitriseYml;
+							appService.savedAppConfigYML = response.bitriseYml;
 						}
 
 						return $q.reject(response);
