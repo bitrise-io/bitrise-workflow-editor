@@ -14,7 +14,7 @@ type StepItemVersionProps = {
 const StepItemVersion = ({ version, step, highlightVersionUpdate, strings }: StepItemVersionProps): JSX.Element => (
 	<em className="version" data-e2e-tag="step-item__version">
 		{version && highlightVersionUpdate && (
-			<Badge backgroundColor="red-3" color="white" data-e2e-tag="step-item__update-indicator">
+			<Badge backgroundColor="red-3" textColor="white" data-e2e-tag="step-item__update-indicator">
 				<Icon name="ArrowUp" />
 				{step.version}
 			</Badge>

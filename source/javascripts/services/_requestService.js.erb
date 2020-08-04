@@ -543,6 +543,47 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			requestService.getPipelineConfig = function(requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters(
+							"<%= webserver_path(data[:routes][:website][:pipeline_config_get]) %>",
+							{
+								app_slug: requestService.appSlug
+							}
+						);
+
+						break;
+					case "cli":
+						return $q.reject(
+							new Error(
+								"<%= data[:strings][:request_service][:get_pipeline_config][:not_website_mode_error] %>"
+							)
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve({
+								usesRepositoryYml: response.data.uses_repository_yml
+							});
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:get_pipeline_config][:default_error] %>",
+									"<%= data[:strings][:request_service][:get_pipeline_config][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			}
+
 			requestService.getSecrets = function(requestConfig) {
 				var requestURL;
 

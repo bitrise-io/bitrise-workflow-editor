@@ -23,14 +23,17 @@ type AngularLocationService = {
 	search: () => { workflow_id: string };
 };
 
-const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper => ({
-	workflow: null,
-	isBeforeRunWorkflow: true,
-	isAfterRunWorkflow: false,
-	selectedWorkflowBeforeRunWorkflowIndex: -1,
-	selectedWorkflowAfterRunWorkflowIndex: -1,
-	...wrapper
-});
+const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper =>
+	Object.assign(
+		{
+			workflow: null,
+			isBeforeRunWorkflow: true,
+			isAfterRunWorkflow: false,
+			selectedWorkflowBeforeRunWorkflowIndex: -1,
+			selectedWorkflowAfterRunWorkflowIndex: -1
+		},
+		wrapper
+	);
 
 export class WorkflowsSelectionService {
 	private store: WorkflowSelectionStore;

@@ -12,12 +12,12 @@ const StepItemBadge = ({ step }: StepItemBadgeProps): JSX.Element => (
 	<Fragment>
 		{step.isOfficial() && (
 			<Base title="Bitrise step" paddingHorizontal="x1" data-e2e-tag="official-badge">
-				<Icon name="BitriseCertified" color="aqua-3" />
+				<Icon name="BitriseCertified" textColor="aqua-3" />
 			</Base>
 		)}
 		{step.isVerified() && (
 			<Base title="Verified step" paddingHorizontal="x1" data-e2e-tag="verified-badge">
-				<Icon name="StepThirdParty" color="blue-3" />
+				<Icon name="StepThirdParty" textColor="blue-3" />
 			</Base>
 		)}
 		{step.isDeprecated() && (
