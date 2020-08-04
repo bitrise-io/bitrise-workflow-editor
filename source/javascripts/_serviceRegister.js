@@ -28,8 +28,8 @@ angular
 	.factory("StringService", function() {
 		return StringService;
 	})
-	.factory("RequestService", function() {
-		return RequestService;
+	.factory("RequestService", function(logger) {
+		return new RequestService(logger);
 	})
 	.factory("appServiceUtil", function() {
 		return appService;

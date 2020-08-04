@@ -1,5 +1,7 @@
 import { getAppSlug } from "./app-service";
 import StringService from "./string-service";
+import { Logger } from "./logger";
+import { StatusType } from "@datadog/browser-logs";
 
 enum RequestServiceMode {
 	Website = "website",
@@ -9,19 +11,22 @@ enum RequestServiceMode {
 interface RequestServiceConfigureOptions {
 	mode?: string;
 	appSlug?: string;
+	logger?: Logger;
 }
 
 class RequestService {
 	public mode = "";
 	public appSlug = "";
+	private logger: Logger | undefined;
 
-	constructor() {
-		this.configure();
+	constructor(logger: Logger) {
+		this.configure({ logger });
 	}
 
-	public configure({ mode, appSlug }: RequestServiceConfigureOptions = {}) {
+	public configure({ mode, appSlug, logger }: RequestServiceConfigureOptions = {}) {
 		this.mode = mode || (this.modeFromEnvVars() as string);
 		this.appSlug = appSlug || (getAppSlug() as string);
+		this.logger = logger;
 	}
 
 	public async getAppConfigYML(
@@ -54,7 +59,8 @@ class RequestService {
 			response = await fetch(requestURL, {
 				signal: controller.signal
 			});
-		} catch {
+		} catch (error) {
+			this.logErrorWithLevel(error, StatusType.warn);
 			throw this.requestAbortedError(window["strings"].request_service.load_app_config.error_prefix);
 		}
 
@@ -62,29 +68,39 @@ class RequestService {
 			let responseBody: { bitrise_yml?: string; error: string };
 			try {
 				responseBody = await response.json();
-			} catch {
-				throw new Error(window["strings"].request_service.load_app_config.default_error);
+			} catch (error) {
+				this.logErrorWithLevel(error, StatusType.error);
+				throw Error(window["strings"].request_service.load_app_config.default_error);
 			}
 
 			if (responseBody.bitrise_yml) {
+				const error = this.prefixedError(
+					this.errorFromResponseBody(
+						responseBody,
+						window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
+					).message,
+					window["strings"].request_service.load_app_config.error_prefix
+				);
+				this.logErrorWithLevel(error, StatusType.warn);
+
 				throw {
 					bitrise_yml: responseBody.bitrise_yml,
-					error_message: this.prefixedError(
-						this.errorFromResponseBody(
-							responseBody,
-							window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
-						).message,
-						window["strings"].request_service.load_app_config.error_prefix
-					)
+					error_message: error
 				};
 			}
 
-			throw this.errorFromResponseBody(responseBody, window["strings"].request_service.load_app_config.default_error);
+			const error = this.errorFromResponseBody(
+				responseBody,
+				window["strings"].request_service.load_app_config.default_error
+			);
+			this.logErrorWithLevel(error, response.status < 500 ? StatusType.warn : StatusType.error);
+			throw error;
 		}
 
 		try {
 			return await response.text();
-		} catch {
+		} catch (error) {
+			this.logErrorWithLevel(error, StatusType.error);
 			throw new Error(window["strings"].request_service.load_app_config.default_error);
 		}
 	}
@@ -111,6 +127,32 @@ class RequestService {
 	): Error {
 		return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
 	}
+
+	private logErrorWithLevel(error: Error, level: StatusType) {
+		if (!this.logger) {
+			return;
+		}
+		const logger = (this.logger as unknown) as Logger;
+
+		switch (level) {
+			case StatusType.debug: {
+				logger.debug(error.message);
+				break;
+			}
+			case StatusType.info: {
+				logger.info(error.message);
+				break;
+			}
+			case StatusType.warn: {
+				logger.warn(error.message);
+				break;
+			}
+			case StatusType.error: {
+				logger.error(error);
+				break;
+			}
+		}
+	}
 }
 
-export default new RequestService();
+export default RequestService;

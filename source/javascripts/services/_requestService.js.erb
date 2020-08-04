@@ -436,7 +436,7 @@ import jsyaml from "js-yaml";
 
 			requestService.getAppConfigYML = function(requestConfig) {
 				return $q(function(resolve, reject) {
-					RequestService.getAppConfigYML(requestConfig.timeout).then(resolve, reject);
+					RequestService.getAppConfigYML(requestConfig && requestConfig.timeout).then(resolve, reject);
 				});
 			};
 
