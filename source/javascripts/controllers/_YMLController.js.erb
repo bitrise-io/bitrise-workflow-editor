@@ -10,8 +10,8 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 			var editor;
 
 			viewModel.appSlug = appService.appDetails.slug;
-			viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
-			viewModel.shouldShowYmlStorageSettings = requestService.mode == "website";
+			viewModel.shouldShowYmlStorageSettings = false;
+			viewModel.usesRepositoryYml = false;
 
 			viewModel.downloadAppConfigYMLPath =
 				requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
@@ -26,6 +26,16 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 					}
 				}
 			);
+
+			function init() {
+				$q.all([appService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
+					.then(function() {
+						viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+						viewModel.shouldShowYmlStorageSettings = requestService.mode === "website" && _.contains(appService.betaTags, 'yml-from-repo');
+					})
+			}
+
+			init();
 
 			function configureEditor() {
 				editor = monaco.editor.create(document.getElementById("code-container"), {

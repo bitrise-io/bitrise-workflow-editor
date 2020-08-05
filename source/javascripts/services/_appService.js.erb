@@ -35,15 +35,15 @@
 				validationWarnings: [],
 				accountData: undefined,
 				pipelineConfig: undefined,
-				betaTags: []
+				betaTags: undefined
 			};
 
 			appService.getCurrentUserBetaTags = function(shouldForceReload, requestConfig) {
-				if (!shouldForceReload && appService.appDetails) {
+				if (!shouldForceReload && appService.betaTags) {
 					return $q.when();
 				}
 
-				return requestService.getCurrentUserBetaTags(requestConfig).then(function(appDetails) {
+				return requestService.getCurrentUserBetaTags(requestConfig).then(function(betaTags) {
 					appService.betaTags = betaTags;
 				});
 			};
