@@ -38,14 +38,10 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 	}, [updatePipelineConfigStatus, updatePipelineConfigLoading, postAppConfigStatus]);
 
 	useEffect(() => {
-		if (appConfigFromRepo && getAppConfigFromRepoStatus !== 200) {
+		if (appConfigFromRepo && !appConfigFromRepo) {
 			setCopyRepositoryYmlToWebsite(false);
 		}
-	}, [getAppConfigFromRepoStatus]);
-
-	const handleSubmit = (): void => {
-		updatePipelineConfig();
-	};
+	}, [appConfigFromRepo, getAppConfigFromRepoStatus]);
 
 	useEffect(() => {
 		if (!updatePipelineConfigLoading && updatePipelineConfigStatus === 200 && copyRepositoryYmlToWebsite) {
@@ -55,7 +51,10 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 
 	const handleCopyToRepositorySelection = (): void => {
 		setCopyRepositoryYmlToWebsite(true);
-		getAppConfigFromRepo();
+
+		if (getAppConfigFromRepoStatus !== 200) {
+			getAppConfigFromRepo();
+		}
 	};
 
 	return (
@@ -111,7 +110,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 
 			{!getAppConfigFromRepoLoading && !updatePipelineConfigLoading && !isFinished && (
 				<Buttons>
-					<Button level="primary" onClick={handleSubmit}>
+					<Button level="primary" onClick={updatePipelineConfig}>
 						Update settings
 					</Button>
 					<Button level="secondary" onClick={onCancel}>

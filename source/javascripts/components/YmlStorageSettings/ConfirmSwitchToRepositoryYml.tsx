@@ -1,5 +1,6 @@
 import React from "react";
 import { Flex, Modal, ModalBody, Icon, ModalTitle, Buttons, Button, Text } from "@bitrise/bitkit";
+import "./ConfirmSwitchToRepositoryYml.scss";
 
 type Props = {
 	visible: boolean;

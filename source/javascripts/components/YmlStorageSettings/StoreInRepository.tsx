@@ -21,7 +21,8 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 		getAppConfigFromRepoStatus,
 		getAppConfigFromRepoFailed,
 		getAppConfigFromRepoLoading,
-		getAppConfigFromRepo
+		getAppConfigFromRepo,
+		appConfigFromRepo
 	} = useGetAppConfigFromRepoCallback(appSlug);
 	const {
 		updatePipelineConfigStatus,
@@ -41,7 +42,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 		if (!getAppConfigFromRepoLoading && getAppConfigFromRepoStatus && !initialCheckComplete) {
 			setInitialCheckComplete(true);
 		}
-		if (initialCheckComplete && !getAppConfigFromRepoLoading && getAppConfigFromRepoStatus === 200) {
+		if (initialCheckComplete && !getAppConfigFromRepoLoading && appConfigFromRepo) {
 			updatePipelineConfig();
 		}
 	}, [getAppConfigFromRepoLoading, getAppConfigFromRepoStatus]);
@@ -72,12 +73,10 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 				<Flex direction="vertical" gap="x8">
 					<Flex direction="vertical" gap="x4">
 						<Text config="5" textColor="gray-8">
-							{getAppConfigFromRepoStatus === 200
-								? "Update bitrise.yml in app repository"
-								: "Add bitrise.yml to the app repository"}
+							{appConfigFromRepo ? "Update bitrise.yml in app repository" : "Add bitrise.yml to the app repository"}
 						</Text>
 						<Text>
-							{getAppConfigFromRepoStatus === 200
+							{appConfigFromRepo
 								? `The repository already contains a bitrise.yml. Update the bitrise.yml
 								in the repository with the current one on bitrise.io.`
 								: `Before switching to bitrise.yml in the app repo, you need to add bitrise.yml
