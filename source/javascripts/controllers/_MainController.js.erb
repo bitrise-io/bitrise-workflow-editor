@@ -66,7 +66,7 @@ import _ from "underscore";
 			function showRepoYmlSplashModalIfNecessary () {
 				$q.all([appService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
 					.then(function() {
-						var featureAvailable = _.contains(appService.betaTags, 'yml-from-repo');
+						var featureAvailable = _.contains(appService.betaTags, 'repository-yml-usage');
 						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
 						viewModel.shouldShowRepoYmlSplashModal = requestService.mode === "website" && featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
 						
