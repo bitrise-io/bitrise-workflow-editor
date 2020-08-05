@@ -40,20 +40,12 @@ class RequestService {
 	public async getAppConfigYML(
 		abortedPromise: Promise<undefined>
 	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
-		let requestURL = "";
-
-		switch (this.mode) {
-			case RequestServiceMode.Website:
-				requestURL = StringService.stringReplacedWithParameters(window["routes"].website.yml_get, {
-					app_slug: this.appSlug // eslint-disable-line @typescript-eslint/camelcase
-				});
-
-				break;
-			case RequestServiceMode.Cli:
-				requestURL = window["routes"].local_server.yml_get;
-
-				break;
-		}
+		const requestURL =
+			this.mode == RequestServiceMode.Website
+				? StringService.stringReplacedWithParameters(window["routes"].website.yml_get, {
+						app_slug: this.appSlug // eslint-disable-line @typescript-eslint/camelcase
+				  })
+				: window["routes"].local_server.yml_get;
 
 		const response = await this.requestWithAbortedPromise({
 			method: HTTPMethod.GET,
