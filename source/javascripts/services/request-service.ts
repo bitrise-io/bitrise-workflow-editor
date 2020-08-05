@@ -2,6 +2,7 @@ import { getAppSlug } from "./app-service";
 import StringService from "./string-service";
 import { Logger } from "./logger";
 import { StatusType } from "@datadog/browser-logs";
+import { HTTPMethod } from "http-method-enum";
 
 enum RequestServiceMode {
 	Website = "website",
@@ -12,6 +13,13 @@ interface RequestServiceConfigureOptions {
 	mode?: string;
 	appSlug?: string;
 	logger?: Logger;
+}
+
+interface RequestParams {
+	method: HTTPMethod;
+	url: string;
+	body?: any;
+	abortedPromise?: Promise<undefined>;
 }
 
 class RequestService {
@@ -32,13 +40,6 @@ class RequestService {
 	public async getAppConfigYML(
 		abortedPromise: Promise<undefined>
 	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
-		const controller = new AbortController();
-		if (abortedPromise) {
-			abortedPromise.then(() => {
-				controller.abort();
-			});
-		}
-
 		let requestURL = "";
 
 		switch (this.mode) {
@@ -54,24 +55,17 @@ class RequestService {
 				break;
 		}
 
-		let response: Response;
-		try {
-			response = await fetch(requestURL, {
-				signal: controller.signal
-			});
-		} catch (error) {
-			this.logErrorWithLevel(error, StatusType.warn);
-			throw this.requestAbortedError(window["strings"].request_service.load_app_config.error_prefix);
-		}
+		const response = await this.requestWithAbortedPromise({
+			method: HTTPMethod.GET,
+			url: requestURL,
+			abortedPromise: abortedPromise
+		});
 
 		if (!response.ok) {
-			let responseBody: { bitrise_yml?: string; error: string };
-			try {
-				responseBody = await response.json();
-			} catch (error) {
-				this.logErrorWithLevel(error, StatusType.error);
-				throw Error(window["strings"].request_service.load_app_config.default_error);
-			}
+			const responseBody = await this.convertResponseToJson(
+				response,
+				window["strings"].request_service.load_app_config.default_error
+			);
 
 			if (responseBody.bitrise_yml) {
 				const error = this.prefixedError(
@@ -97,12 +91,7 @@ class RequestService {
 			throw error;
 		}
 
-		try {
-			return await response.text();
-		} catch (error) {
-			this.logErrorWithLevel(error, StatusType.error);
-			throw new Error(window["strings"].request_service.load_app_config.default_error);
-		}
+		return await this.convertResponseToText(response, window["strings"].request_service.load_app_config.default_error);
 	}
 
 	private modeFromEnvVars(): RequestServiceMode {
@@ -113,12 +102,46 @@ class RequestService {
 		return RequestServiceMode.Cli;
 	}
 
-	private prefixedError(message: string, messagePrefix: string): Error {
-		return new Error(messagePrefix + message);
+	private async requestWithAbortedPromise({ method, url, body, abortedPromise }: RequestParams): Promise<any> {
+		const controller = new AbortController();
+		if (abortedPromise) {
+			abortedPromise.then(() => {
+				controller.abort();
+			});
+		}
+
+		let response: Response;
+		try {
+			response = await fetch(url, {
+				method: method,
+				body: JSON.stringify(body),
+				signal: controller.signal
+			});
+		} catch (error) {
+			error = new Error(`${method} ${url} - ${error.message}`);
+			this.logErrorWithLevel(error, StatusType.warn);
+			throw error;
+		}
+
+		return response;
 	}
 
-	private requestAbortedError(messagePrefix: string): Error {
-		return this.prefixedError(window["strings"].request_service.request.aborted, messagePrefix);
+	private async convertResponseToJson(response: Response, defaultErrorMessage: string): Promise<any> {
+		return response.json().catch(error => {
+			this.logErrorWithLevel(error, StatusType.error);
+			throw new Error(defaultErrorMessage);
+		});
+	}
+
+	private async convertResponseToText(response: Response, defaultErrorMessage: string): Promise<string> {
+		return response.text().catch(error => {
+			this.logErrorWithLevel(error, StatusType.error);
+			throw new Error(defaultErrorMessage);
+		});
+	}
+
+	private prefixedError(message: string, messagePrefix: string): Error {
+		return new Error(messagePrefix + message);
 	}
 
 	private errorFromResponseBody(

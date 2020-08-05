@@ -30,7 +30,7 @@ describe("RequestService", () => {
 				RequestService.getAppConfigYML(aborter)
 					.then(done.fail)
 					.catch(error => {
-						expect(error).toEqual(new Error("Error loading app config: request aborted."));
+						expect(error.message).toMatch(/GET .+ - Aborted/);
 						done();
 					});
 			});
