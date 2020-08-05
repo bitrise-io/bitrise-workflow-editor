@@ -19,9 +19,9 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 }: StorageInRepositoryProps) => {
 	const {
 		getAppConfigFromRepoStatus,
+		getAppConfigFromRepoFailed,
 		getAppConfigFromRepoLoading,
-		getAppConfigFromRepo,
-		appConfigFromRepo
+		getAppConfigFromRepo
 	} = useGetAppConfigFromRepoCallback(appSlug);
 	const {
 		updatePipelineConfigStatus,
@@ -98,20 +98,16 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 						</Notification>
 					)}
 
-					{appConfigFromRepo && getAppConfigFromRepoStatus !== 200 && (
+					{!getAppConfigLoading && getAppConfigFromRepoFailed && (
 						<Notification margin="x2" type="alert">
-							{appConfigFromRepo ? (
-								"Couldn’t find the bitrise.yml. Add the file to the master branch and try again."
-							) : (
-								<Text>
-									Bitrise.yml seems invalid, review and fix it before proceeding.
-									<Text inline textColor="red-4" paddingHorizontal="x1">
-										<Link underline target="_blank" href="https://bitkit.netlify.app/documentation/components/Link">
-											Read more on syntax
-										</Link>
-									</Text>
+							<Text>
+								{getAppConfigFromRepoFailed.message}
+								<Text inline textColor="red-4" paddingHorizontal="x1">
+									<Link underline target="_blank" href="https://bitkit.netlify.app/documentation/components/Link">
+										Read more on syntax
+									</Link>
 								</Text>
-							)}
+							</Text>
 						</Notification>
 					)}
 

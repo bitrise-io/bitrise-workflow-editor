@@ -14,6 +14,7 @@ type StoreOnWebsiteProps = {
 const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps) => {
 	const {
 		getAppConfigFromRepoStatus,
+		getAppConfigFromRepoFailed,
 		getAppConfigFromRepoLoading,
 		getAppConfigFromRepo,
 		appConfigFromRepo
@@ -90,7 +91,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 				</Notification>
 			)}
 
-			{appConfigFromRepo && getAppConfigFromRepoStatus !== 200 && (
+			{appConfigFromRepo && getAppConfigFromRepoFailed && (
 				<Notification margin="x2" type="alert">
 					Couldn’t find the bitrise.yml. Add the file to the master branch and try again.
 				</Notification>
