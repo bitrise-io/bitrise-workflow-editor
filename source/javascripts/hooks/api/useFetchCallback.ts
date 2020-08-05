@@ -1,5 +1,5 @@
-import { useState, useCallback } from "react";
-import useAsyncError from "../utils/useAsyncError";
+import { useState, useCallback, useRef } from "react";
+import { useAsyncError } from "../utils/useAsyncError";
 
 export interface FetchResponse<T, E> {
 	result: T | undefined;
@@ -9,15 +9,21 @@ export interface FetchResponse<T, E> {
 	call: () => void;
 }
 
-function useFetchCallback<T, E>(url: string, init?: RequestInit): FetchResponse<T, E> {
+function useFetchCallback<T, E>(url: string, init?: RequestInit, parser = JSON.parse): FetchResponse<T, E> {
 	const [result, setResult] = useState<T>();
 	const [loading, setLoading] = useState(false);
 	const [failed, setFailed] = useState<E>();
 	const [statusCode, setStatusCode] = useState<number>();
+	const abortController = useRef<AbortController>();
 	const throwError = useAsyncError();
 
 	const call = useCallback(() => {
-		const abortController = new AbortController();
+		setStatusCode(undefined);
+		setFailed(undefined);
+
+		abortController.current?.abort();
+		abortController.current = new AbortController();
+
 		(async () => {
 			setLoading(true);
 			try {
@@ -27,7 +33,7 @@ function useFetchCallback<T, E>(url: string, init?: RequestInit): FetchResponse<
 				}
 
 				const result = await fetch(url, {
-					signal: abortController.signal,
+					signal: abortController.current?.signal,
 					...init,
 					headers: {
 						"Content-Type": "application/json",
@@ -44,7 +50,7 @@ function useFetchCallback<T, E>(url: string, init?: RequestInit): FetchResponse<
 				}
 				const body = await result.text();
 				if (body.length > 0) {
-					const resBody = JSON.parse(body);
+					const resBody = parser(body);
 
 					if (body.includes("error_msg")) {
 						setFailed(resBody as E);
@@ -59,12 +65,6 @@ function useFetchCallback<T, E>(url: string, init?: RequestInit): FetchResponse<
 				setLoading(false);
 			}
 		})();
-		return () => {
-			setStatusCode(undefined);
-			setFailed(undefined);
-
-			abortController.abort();
-		};
 	}, [url, init]);
 
 	return { result, statusCode, loading, failed, call };

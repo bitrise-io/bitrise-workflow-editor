@@ -68,7 +68,7 @@ import _ from "underscore";
 					.then(function() {
 						var featureAvailable = _.contains(appService.betaTags, 'yml-from-repo');
 						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
-						viewModel.shouldShowRepoYmlSplashModal = requestService.mode == "website" && featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
+						viewModel.shouldShowRepoYmlSplashModal = requestService.mode === "website" && featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
 						
 						if (viewModel.shouldShowRepoYmlSplashModal) {
 							$cookies.put("splash_modal_shown", true);
