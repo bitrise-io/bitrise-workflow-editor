@@ -34,7 +34,18 @@
 				availableProjectTypes: undefined,
 				validationWarnings: [],
 				accountData: undefined,
-				pipelineConfig: undefined
+				pipelineConfig: undefined,
+				betaTags: undefined
+			};
+
+			appService.getCurrentUserBetaTags = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.betaTags) {
+					return $q.when();
+				}
+
+				return requestService.getCurrentUserBetaTags(requestConfig).then(function(betaTags) {
+					appService.betaTags = betaTags;
+				});
 			};
 
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {

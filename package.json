@@ -1,6 +1,6 @@
 {
 	"name": "bitrise-workflow-editor",
-	"version": "1.3.24",
+	"version": "1.3.25",
 	"description": "Bitrise workflow editor",
 	"main": "index.js",
 	"scripts": {
@@ -51,10 +51,12 @@
 		"http-method-enum": "^1.0.0",
 		"jquery": "^3.4.1",
 		"js-yaml": "^3.13.1",
+		"json-to-pretty-yaml": "^1.2.2",
 		"monaco-editor": "^0.18.1",
 		"ng-showdown": "^1.1.0",
 		"prop-types": "^15.7.2",
 		"react": "^16.12.0",
+		"react-copy-to-clipboard": "^5.0.2",
 		"react-dom": "^16.12.0",
 		"react-lazy-load-image-component": "^1.4.3",
 		"react2angular": "^4.0.6",
@@ -65,6 +67,7 @@
 		"@types/classnames": "^2.2.9",
 		"@types/jasmine-ajax": "^3.3.1",
 		"@types/react": "^16.9.19",
+		"@types/react-copy-to-clipboard": "^4.3.0",
 		"@types/react-dom": "^16.9.5",
 		"@types/react-lazy-load-image-component": "^1.3.0",
 		"@types/showdown": "^1.9.3",
