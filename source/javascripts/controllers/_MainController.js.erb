@@ -64,13 +64,11 @@ import _ from "underscore";
 			}
 
 			function showRepoYmlSplashModalIfNecessary () {
-				$q.all([requestService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
-					.then(function(result) {
-						var betaTags = result[0];
-						
-						var featureAvailable = _.contains(betaTags, 'yml-from-repo');
+				$q.all([appService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
+					.then(function() {
+						var featureAvailable = _.contains(appService.betaTags, 'repository-yml-usage');
 						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
-						viewModel.shouldShowRepoYmlSplashModal = featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
+						viewModel.shouldShowRepoYmlSplashModal = requestService.mode === "website" && featureAvailable && splashModalCookieMissing && !appService.pipelineConfig.usesRepositoryYml;
 						
 						if (viewModel.shouldShowRepoYmlSplashModal) {
 							$cookies.put("splash_modal_shown", true);

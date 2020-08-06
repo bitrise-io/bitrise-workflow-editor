@@ -4,6 +4,7 @@ import { StepItem, AddStepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
 import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetails";
 import SplashModal from "./components/SplashModal/SplashModal";
+import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 
 var register = react2angular;
 
@@ -29,4 +30,5 @@ angular
 	)
 	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]))
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
-	.component("rSplashModal", register(SplashModal, ["show"]));
+	.component("rSplashModal", register(SplashModal))
+	.component("rYmlStorageSettings", register(YmlStorageSettings, ["appSlug", "usesRepositoryYml"]));
