@@ -106,9 +106,9 @@ import _ from "underscore";
 											])
 												.then(function() {
 													if (!appService.pipelineConfig.usesRepositoryYml) {
-														viewModel.save();	
+														return viewModel.save();	
 													} else {
-														deprecatedTriggerCheckResolve();
+														return $q.when();
 													}
 												})
 												.then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
@@ -349,31 +349,36 @@ import _ from "underscore";
 				}
 			};
 
-			viewModel.openUpdateYmlInRepositoryModal = function() {
-				var variables = appService.getCurrentVariables();
-				appService.validateVariables(variables)
-					.then(function() {
-							viewModel.showUpdateYmlInRepositoryModal = true;
-					})
-			}
-
 			viewModel.closeUpdateYmlInRepositoryModal = function() {
 				$timeout(function() {
-					viewModel.saveProgress.reset();
 					viewModel.showUpdateYmlInRepositoryModal = false;
-				}, 0)
+				}, 0);
+				
+				viewModel.deferredUserSavedYmlToRepository.reject();
 			}
 
 			viewModel.onSaveToRepoComplete = function() {
 				$timeout(function() {
 					viewModel.closeUpdateYmlInRepositoryModal();
-				}, 2000)
+				}, 1500);
 
-				$timeout(function() {
-					appService.afterAppConfigSaved();
-					viewModel.saveProgress.reset();
-					$rootScope.$emit("MainController::savedFinishedWithSuccess");
-				}, 0)
+				viewModel.deferredUserSavedYmlToRepository.resolve();
+			}
+
+			function reloadAppConfig() {
+				viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService.getAppConfig(true)
+					.then(function() {
+						viewModel.loadAppConfigProgress.reset();
+					});
+			}
+
+			function reloadAppConfigYML() {
+				viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService.getAppConfigYML(true)
+					.then(function() {
+						viewModel.loadAppConfigProgress.reset();
+					});
 			}
 
 			viewModel.save = function(shouldReturnPromise) {
@@ -384,10 +389,13 @@ import _ from "underscore";
 				viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
 				if (appService.pipelineConfig.usesRepositoryYml && _.contains(appService.betaTags, 'repository-yml-usage')) {
-					viewModel.openUpdateYmlInRepositoryModal();
-					return;
+					viewModel.deferredUserSavedYmlToRepository = $q.defer();
+					$timeout(function() {
+						viewModel.showUpdateYmlInRepositoryModal = true;
+					}, 0);
 				}
 
+				var deferredSavePromise = viewModel.deferredUserSavedYmlToRepository ? viewModel.deferredUserSavedYmlToRepository.promise : undefined;
 				var promise = $q
 					.all([
 						$q(function(resolve, reject) {	
@@ -395,21 +403,25 @@ import _ from "underscore";
 								case "workflows":
 								case "env-vars":
 								case "triggers":
-									appService.saveAppConfig().then(resolve, reject);
-
-									break;
+									return appService.saveAppConfig(deferredSavePromise)
+										.then(function() {
+											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
+										})
+										.then(resolve, reject)
 								case "secrets":
-									appService.saveSecrets().then(resolve, reject);
-
-									break;
+									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
-									$q.all([appService.saveAppConfig(), appService.saveStack()]).then(resolve, reject);
-
-									break;
+									return $q.all([appService.saveAppConfig(deferredSavePromise), appService.saveStack()])
+										.then(function() {
+											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
+										})
+										.then(resolve, reject);
 								case "yml":
-									appService.saveAppConfigYML().then(resolve, reject);
-
-									break;
+									return appService.saveAppConfigYML(deferredSavePromise)
+										.then(function() {
+											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfigYML() : $q.when();
+										})
+										.then(resolve, reject);
 							}
 						}),
 						$timeout(function() {}, dateService.defaultSaveDelayDurationInMilliseconds)

@@ -6,25 +6,24 @@ import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFrom
 
 type Props = {
 	appSlug: string;
-	isVisible: boolean;
 	onClose(): void;
-	onComplete(): void;
-	appConfig: AppConfig;
+	onComplete(appConfig: AppConfig): void;
+	dataToSave: AppConfig | string;
 };
 
-const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, appConfig, isVisible, onClose, onComplete }: Props) => {
+const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, dataToSave, onClose, onComplete }: Props) => {
 	const { getAppConfigFromRepoLoading, getAppConfigFromRepo, appConfigFromRepo } = useGetAppConfigFromRepoCallback(
 		appSlug
 	);
 
 	useEffect(() => {
 		if (appConfigFromRepo) {
-			onComplete();
+			onComplete(appConfigFromRepo);
 		}
 	}, [appConfigFromRepo]);
 
 	return (
-		<Modal backgroundColor="white" onClose={onClose} visible={isVisible} width="640px">
+		<Modal backgroundColor="white" onClose={onClose} visible={true} width="640px">
 			<ModalBody>
 				<Flex direction="vertical" gap="x4">
 					<ModalTitle>Update bitrise.yml in app repository</ModalTitle>
@@ -32,7 +31,7 @@ const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, appConfig, isVisible, 
 						In order to use the changes in the next build, you need to update the bitrise.yml on master branch in the
 						app repository manually.
 					</Text>
-					<RepoYmlStorageActions appConfig={appConfig} />
+					<RepoYmlStorageActions appConfig={dataToSave} />
 					<Text textColor="gray-8">
 						After you are done, Bitrise will fetch the updated bitrise.yml from the app repository and refresh the
 						editor. Unsaved changes will be lost.

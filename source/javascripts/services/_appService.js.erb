@@ -143,7 +143,7 @@
 				}
 			}
 
-			appService.validateVariables = function(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
+			function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
 				return $q(function(resolve, reject) {
 					var errors = [];
 
@@ -209,9 +209,8 @@
 				appService.appConfig.trigger_map = updatedTriggerMap;
 			};
 
-			appService.getCurrentVariables = function() {
+			appService.saveAppConfig = function(userSavedYmlToRepositoryPromise, requestConfig) {
 				var variables = [];
-				
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
 						_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
@@ -233,7 +232,6 @@
 						})
 					);
 				}
-				
 				if (appService.appConfig.workflows) {
 					_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
 						var variablesWithoutKeyAndValue = _.filter(
@@ -278,27 +276,19 @@
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
 
-				return variables;
-			}
-
-			appService.afterAppConfigSaved = function() {
-				appService.savedAppConfig = angular.copy(appService.appConfig);
-				appService.appConfigYML = undefined;
-				appService.savedAppConfigYML = undefined;
-
-				if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
-					appService.getDefaultMachineType();
-				}
-			}
-
-			appService.saveAppConfig = function(requestConfig) {
-				var variables = this.getCurrentVariables();
-
-				return appService.validateVariables(variables)
+				return validateVariables(variables)
 					.then(function() {
-						return requestService.postAppConfig(appService.appConfig, requestConfig);
+						return userSavedYmlToRepositoryPromise || requestService.postAppConfig(appService.appConfig, requestConfig);
 					})
-					.then(appService.afterAppConfigSaved);
+					.then(function() {
+						appService.savedAppConfig = angular.copy(appService.appConfig);
+						appService.appConfigYML = undefined;
+						appService.savedAppConfigYML = undefined;
+
+						if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
+							appService.getDefaultMachineType();
+						}
+					});
 			};
 
 			appService.discardAppConfigChanges = function() {
@@ -367,7 +357,7 @@
 					return !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value());
 				});
 
-				return appService.validateVariables(appService.secrets, true, true)
+				return validateVariables(appService.secrets, true, true)
 					.then(function() {
 						return requestService.postSecrets(appService.secrets);
 					})
@@ -406,8 +396,10 @@
 				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
 			};
 
-			appService.saveAppConfigYML = function() {
-				return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
+			appService.saveAppConfigYML = function(userSavedYmlToRepositoryPromise, requestConfig) {
+				var promise = userSavedYmlToRepositoryPromise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
+				
+				return promise.then(function(validationData) {
 					appService.appConfig = undefined;
 					appService.savedAppConfig = undefined;
 					appService.savedAppConfigYML = appService.appConfigYML;
