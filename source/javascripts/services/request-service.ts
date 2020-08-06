@@ -82,7 +82,7 @@ class RequestService {
 			throw error;
 		}
 
-		return await this.convertResponseToText(response, window["strings"].request_service.load_app_config.default_error);
+		return this.convertResponseToText(response, window["strings"].request_service.load_app_config.default_error);
 	}
 
 	private modeFromEnvVars(): RequestServiceMode {
@@ -117,14 +117,14 @@ class RequestService {
 		return response;
 	}
 
-	private async convertResponseToJson(response: Response, defaultErrorMessage: string): Promise<any> {
+	private convertResponseToJson(response: Response, defaultErrorMessage: string): Promise<any> {
 		return response.json().catch(error => {
 			this.logErrorWithLevel(error, StatusType.error);
 			throw new Error(defaultErrorMessage);
 		});
 	}
 
-	private async convertResponseToText(response: Response, defaultErrorMessage: string): Promise<string> {
+	private convertResponseToText(response: Response, defaultErrorMessage: string): Promise<string> {
 		return response.text().catch(error => {
 			this.logErrorWithLevel(error, StatusType.error);
 			throw new Error(defaultErrorMessage);
