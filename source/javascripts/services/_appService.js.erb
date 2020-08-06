@@ -143,7 +143,7 @@
 				}
 			}
 
-			function validateVariables(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
+			appService.validateVariables = function(variables, shouldKeysBeUnique, shouldValuesBeNotEmpty) {
 				return $q(function(resolve, reject) {
 					var errors = [];
 
@@ -209,8 +209,9 @@
 				appService.appConfig.trigger_map = updatedTriggerMap;
 			};
 
-			appService.saveAppConfig = function(requestConfig) {
+			appService.getCurrentVariables = function() {
 				var variables = [];
+				
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
 						_.map(appService.appConfig.app.envs, function(anEnvVarConfig) {
@@ -232,6 +233,7 @@
 						})
 					);
 				}
+				
 				if (appService.appConfig.workflows) {
 					_.each(appService.appConfig.workflows, function(aWorkflowConfig) {
 						var variablesWithoutKeyAndValue = _.filter(
@@ -276,19 +278,27 @@
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
 
-				return validateVariables(variables)
+				return variables;
+			}
+
+			appService.afterAppConfigSaved = function() {
+				appService.savedAppConfig = angular.copy(appService.appConfig);
+				appService.appConfigYML = undefined;
+				appService.savedAppConfigYML = undefined;
+
+				if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
+					appService.getDefaultMachineType();
+				}
+			}
+
+			appService.saveAppConfig = function(requestConfig) {
+				var variables = this.getCurrentVariables();
+
+				return appService.validateVariables(variables)
 					.then(function() {
 						return requestService.postAppConfig(appService.appConfig, requestConfig);
 					})
-					.then(function() {
-						appService.savedAppConfig = angular.copy(appService.appConfig);
-						appService.appConfigYML = undefined;
-						appService.savedAppConfigYML = undefined;
-
-						if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
-							appService.getDefaultMachineType();
-						}
-					});
+					.then(appService.afterAppConfigSaved);
 			};
 
 			appService.discardAppConfigChanges = function() {
@@ -357,7 +367,7 @@
 					return !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value());
 				});
 
-				return validateVariables(appService.secrets, true, true)
+				return appService.validateVariables(appService.secrets, true, true)
 					.then(function() {
 						return requestService.postSecrets(appService.secrets);
 					})

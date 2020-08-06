@@ -1,6 +1,7 @@
 header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	r-splash-modal[ng-if="mainCtrl.shouldShowRepoYmlSplashModal"]
+	r-update-yml-in-repository-modal[app-slug="appService.appDetails.slug" is-visible="mainCtrl.showUpdateYmlInRepositoryModal" on-close="mainCtrl.closeUpdateYmlInRepositoryModal" on-complete="mainCtrl.onSaveToRepoComplete" app-config="appService.appConfig"]
 	header.menu[sticky sticking-index="1"]
 		.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
