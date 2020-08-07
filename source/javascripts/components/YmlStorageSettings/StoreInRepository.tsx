@@ -1,10 +1,12 @@
 import React, { FC, useMemo, useEffect, useState } from "react";
-import { Flex, Text, Notification, Button, Buttons, Link } from "@bitrise/bitkit";
+import { Flex, Text, Notification, Button, Buttons } from "@bitrise/bitkit";
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import useGetAppConfigCallback from "../../hooks/api/useGetAppConfigCallback";
 import ConfirmSwitchToRepositoryYml from "./ConfirmSwitchToRepositoryYml";
 import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
+import StoreInRepositoryDescription from "./StoreInRepositoryDescription";
+import InlineLink from "../common/InlineLink";
 
 type StorageInRepositoryProps = {
 	appSlug: string;
@@ -29,7 +31,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 		updatePipelineConfigLoading,
 		updatePipelineConfig
 	} = useUpdatePipelineConfigCallback(appSlug, true);
-	const { appConfig, getAppConfig, getAppConfigLoading } = useGetAppConfigCallback(appSlug);
+	const { appConfig: currentWebsiteAppConfig, getAppConfig, getAppConfigLoading } = useGetAppConfigCallback(appSlug);
 	const [confirmModalVisible, setconfirmModalVisible] = useState(false);
 	const [initialCheckComplete, setInitialCheckComplete] = useState(false);
 
@@ -39,13 +41,13 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 	}, []);
 
 	useEffect(() => {
-		if (!getAppConfigFromRepoLoading && getAppConfigFromRepoStatus && !initialCheckComplete) {
+		if (!getAppConfigLoading && !getAppConfigFromRepoLoading && getAppConfigFromRepoStatus && !initialCheckComplete) {
 			setInitialCheckComplete(true);
 		}
 		if (initialCheckComplete && !getAppConfigFromRepoLoading && appConfigFromRepo) {
 			updatePipelineConfig();
 		}
-	}, [getAppConfigFromRepoLoading, getAppConfigFromRepoStatus]);
+	}, [getAppConfigLoading, getAppConfigFromRepoLoading, getAppConfigFromRepoStatus]);
 
 	const isFinished = useMemo(() => {
 		const isSuccessful = !updatePipelineConfigLoading && updatePipelineConfigStatus === 200;
@@ -61,84 +63,66 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 		getAppConfigFromRepo();
 	};
 
+	if (!initialCheckComplete) {
+		return <Notification type="progress">Looking for bitrise.yml in the app repository...</Notification>;
+	}
+
+	if (isFinished) {
+		return (
+			<Notification margin="x2" type="success">
+				Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file in the app's
+				repository.
+			</Notification>
+		);
+	}
+
 	return (
-		<Flex gap="x6" direction="vertical">
-			{!initialCheckComplete && (
-				<Notification margin="x2" type="progress">
-					Looking for bitrise.yml in the app repository...
-				</Notification>
-			)}
+		<>
+			<Flex direction="vertical" gap="x6">
+				<StoreInRepositoryDescription
+					title={
+						appConfigFromRepo
+							? "Update the bitrise.yml file in your app's repository"
+							: "Add bitrise.yml to the app repository"
+					}
+					description={
+						appConfigFromRepo
+							? "The repository already contains a bitrise.yml file. Update the file in the repository with the content of the current one on bitrise.io. "
+							: "You need to add your current bitrise.yml file to the app repository before proceeding. You can either copy the entire content of the file to the clipboard or download the file itself. "
+					}
+				/>
 
-			{!isFinished && initialCheckComplete && (
-				<Flex direction="vertical" gap="x8">
-					<Flex direction="vertical" gap="x4">
-						<Text config="5" textColor="gray-8">
-							{appConfigFromRepo ? "Update bitrise.yml in app repository" : "Add bitrise.yml to the app repository"}
-						</Text>
+				<RepoYmlStorageActions appConfig={currentWebsiteAppConfig!} />
+
+				{getAppConfigFromRepoFailed && (
+					<Notification type="alert">
 						<Text>
-							{appConfigFromRepo
-								? `The repository already contains a bitrise.yml. Update the bitrise.yml
-								in the repository with the current one on bitrise.io.`
-								: `Before switching to bitrise.yml in the app repo, you need to add bitrise.yml
-								to the app repository with the current config.`}
-							<Text inline textColor="grape-3" paddingHorizontal="x1">
-								<Link target="_blank" href="https://bitkit.netlify.app/documentation/components/Link">
-									Read more
-								</Link>
-							</Text>
+							{getAppConfigFromRepoFailed.message}
+							<InlineLink color="red-4" text="Read more on syntax" url="REPLACE URL" />
 						</Text>
-					</Flex>
+					</Notification>
+				)}
 
-					{!getAppConfigLoading && appConfig ? (
-						<RepoYmlStorageActions appConfig={appConfig} />
-					) : (
-						<Notification margin="x2" type="progress">
-							Loading current bitrise.yml...
-						</Notification>
-					)}
-
-					{!getAppConfigLoading && getAppConfigFromRepoFailed && (
-						<Notification margin="x2" type="alert">
-							<Text>
-								{getAppConfigFromRepoFailed.message}
-								<Text inline textColor="red-4" paddingHorizontal="x1">
-									<Link underline target="_blank" href="https://bitkit.netlify.app/documentation/components/Link">
-										Read more on syntax
-									</Link>
-								</Text>
-							</Text>
-						</Notification>
-					)}
-
-					{getAppConfigFromRepoLoading || updatePipelineConfigLoading ? (
-						<Notification margin="x2" type="progress">
-							Validating bitrise.yml in the app repository...
-						</Notification>
-					) : (
-						<Buttons>
-							<Button level="primary" onClick={() => setconfirmModalVisible(true)}>
-								Update settings
-							</Button>
-							<Button level="secondary" onClick={onCancel}>
-								Cancel
-							</Button>
-						</Buttons>
-					)}
-				</Flex>
-			)}
+				{getAppConfigFromRepoLoading || updatePipelineConfigLoading ? (
+					<Notification type="progress">Validating bitrise.yml in the app repository...</Notification>
+				) : (
+					<Buttons gap="x4">
+						<Button level="primary" onClick={() => setconfirmModalVisible(true)}>
+							Update settings
+						</Button>
+						<Button level="secondary" onClick={onCancel}>
+							Cancel
+						</Button>
+					</Buttons>
+				)}
+			</Flex>
 
 			<ConfirmSwitchToRepositoryYml
 				visible={confirmModalVisible}
 				onContinue={checkBitriseYmlInRepository}
 				onCancel={() => setconfirmModalVisible(false)}
 			/>
-
-			{isFinished && (
-				<Notification margin="x2" type="success">
-					Changed bitrise.yml setting. The next build will bitrise.io in the app repository.
-				</Notification>
-			)}
-		</Flex>
+		</>
 	);
 };
 

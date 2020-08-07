@@ -3,6 +3,7 @@ import { Base, Flex, Text } from "@bitrise/bitkit";
 import YmlStorageOption from "./YmlStorageOption";
 import StoreOnWebsite from "./StoreOnWebsite";
 import StoreInRepository from "./StoreInRepository";
+import InlineLink from "../common/InlineLink";
 
 type YmlStorageSettingsProps = {
 	appSlug: string;
@@ -26,28 +27,29 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 		<Base borderRadius="x2" borderColor="gray-4" overflow="hidden">
 			<Flex backgroundColor="gray-2" paddingHorizontal="x4" paddingVertical="x3" gap="x2" direction="vertical">
 				<Text weight="bold" config="7" textColor="grape-5">
-					bitrise.yml storage
+					Where do you want to store the bitrise.yml file?
 				</Text>
 				<Text config="8" textColor="gray-7">
-					Store and manage bitrise.yml on bitrise.io or in the app respository.
+					Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
+					out the <InlineLink text="documentation" url="REPLACE URL" /> for the details
 				</Text>
 			</Flex>
 			<Flex paddingHorizontal="x4" paddingVertical="x6">
 				<Flex width="665px" gap="x6" direction="vertical">
-					<Flex direction="horizontal" gap="x4">
+					<Flex direction="horizontal" gap="x6">
 						<YmlStorageOption
 							onClick={() => setUsesRepositoryYml(false)}
 							icon="Globe"
 							isActive={!usesRepositoryYml}
 							title="Store on bitrise.io"
-							description="Bitrise.yml is stored and managed on bitrise.io."
+							description="The bitrise.yml file is stored and managed on bitrise.io."
 						/>
 						<YmlStorageOption
 							onClick={() => setUsesRepositoryYml(true)}
 							icon="BranchBranch"
 							isActive={usesRepositoryYml}
 							title="Store in app repository"
-							description="Bitrise.yml is stored in the app repository and managed with Git."
+							description="The bitrise.yml file is stored in your app's repository and it's versioned and maintained using Git."
 						/>
 					</Flex>
 

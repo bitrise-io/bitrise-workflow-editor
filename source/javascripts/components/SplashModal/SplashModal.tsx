@@ -16,13 +16,17 @@ const SplashModal: FC<void> = () => {
 			<ModalHeader />
 			<ModalBody>
 				<Flex>
-					<ModalTitle>Store and manage bitrise.yml in app repository</ModalTitle>
-					<Flex direction="vertical" gap="x4">
+					<ModalTitle>Store and manage the bitrise.yml file in your app's repository!</ModalTitle>
+					<Flex direction="vertical" gap="x6">
 						<Text textColor="gray-8">
-							Some content about the feature and benefits. Eu egestas egestas nunc fermentum est, in eget non. Ornare
-							bibendum dignissim non nunc.
+							The bitrise.yml file is the heart of your Bitrise experience: it contains all your Workflows, and stores
+							your specific configuration for your app. And now you can manage it from your own repository: maintain it
+							and version it using Git, just like you're doing with the rest of your code!
 						</Text>
-						<Text textColor="gray-8">You can switch to repo yml later under the bitrise.yml tab.</Text>
+						<Text textColor="gray-8">
+							Try it out! Don't worry: you can always change it back to the original way where we handle the file for
+							you. To do so, you just need to go to the bitrise.yml tab in the Workflow Editor.
+						</Text>
 					</Flex>
 				</Flex>
 				<Buttons alignChildrenHorizontal="end" margin="x8" gap="x6">

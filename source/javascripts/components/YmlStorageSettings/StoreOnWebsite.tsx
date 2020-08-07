@@ -57,32 +57,39 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 		}
 	};
 
+	if (isFinished) {
+		return (
+			<Notification margin="x2" type="success">
+				Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file stored on
+				bitrise.io.
+			</Notification>
+		);
+	}
+
 	return (
 		<Flex gap="x6" direction="vertical">
-			{!isFinished && (
-				<Flex direction="vertical" gap="x3">
-					<Text config="5" textColor="gray-8">
-						Store bitrise.yml on bitrise.io
-					</Text>
-					<Text>Choose which yml should be copied to bitrise.io:</Text>
-					<RadioButton
-						disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
-						name="website-copy-option"
-						defaultChecked={copyRepositoryYmlToWebsite}
-						onClick={handleCopyToRepositorySelection}
-					>
-						Copy the content of the bitrise.yml from the app repository
-					</RadioButton>
-					<RadioButton
-						disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
-						name="website-copy-option"
-						defaultChecked={!copyRepositoryYmlToWebsite}
-						onClick={() => setCopyRepositoryYmlToWebsite(false)}
-					>
-						Copy the last version you used on web
-					</RadioButton>
-				</Flex>
-			)}
+			<Flex direction="vertical" gap="x3">
+				<Text config="5" textColor="gray-8">
+					Store bitrise.yml on bitrise.io
+				</Text>
+				<Text>Choose which bitrise.yml file should be used on bitrise.io from now:</Text>
+				<RadioButton
+					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
+					name="website-copy-option"
+					defaultChecked={copyRepositoryYmlToWebsite}
+					onClick={handleCopyToRepositorySelection}
+				>
+					Copy the content of the bitrise.yml file stored in the app's repository
+				</RadioButton>
+				<RadioButton
+					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
+					name="website-copy-option"
+					defaultChecked={!copyRepositoryYmlToWebsite}
+					onClick={() => setCopyRepositoryYmlToWebsite(false)}
+				>
+					Copy the last version you used on bitrise.io
+				</RadioButton>
+			</Flex>
 
 			{getAppConfigFromRepoLoading && (
 				<Notification margin="x2" type="progress">
@@ -90,7 +97,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 				</Notification>
 			)}
 
-			{appConfigFromRepo && getAppConfigFromRepoFailed && (
+			{getAppConfigFromRepoFailed && (
 				<Notification margin="x2" type="alert">
 					Couldn’t find the bitrise.yml. Add the file to the master branch and try again.
 				</Notification>
@@ -102,14 +109,8 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 				</Notification>
 			)}
 
-			{isFinished && (
-				<Notification margin="x2" type="success">
-					Changed bitrise.yml setting. The next build will bitrise.yml stored on bitrise.io.
-				</Notification>
-			)}
-
 			{!getAppConfigFromRepoLoading && !updatePipelineConfigLoading && !isFinished && (
-				<Buttons>
+				<Buttons gap="x4">
 					<Button level="primary" onClick={updatePipelineConfig}>
 						Update settings
 					</Button>

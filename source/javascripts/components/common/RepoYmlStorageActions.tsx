@@ -22,7 +22,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 				<CopyToClipboard text={data} onCopy={() => setActionSelected("clipboard")}>
 					<Flex clickable direction="horizontal" gap="x2">
 						<Icon textColor="grape-3" name="Chain" />
-						<Text textColor="grape-3">Copy content of bitrise.yml to clipboard</Text>
+						<Text textColor="grape-3">Copy the content of the current bitrise.yml file to the clipboard</Text>
 					</Flex>
 				</CopyToClipboard>
 
@@ -34,7 +34,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 				>
 					<Flex direction="horizontal" gap="x2">
 						<Icon textColor="grape-3" name="Download" />
-						<Text textColor="grape-3">Download bitrise.yml</Text>
+						<Text textColor="grape-3">Download the bitrise.yml file</Text>
 					</Flex>
 				</Link>
 			</Flex>
@@ -43,9 +43,9 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 				<Notification margin="x2" type="success">
 					<Text>
 						{actionSelected === "clipboard"
-							? "Copied content of bitrise.yml to clipboard. "
+							? "Copied the content of the current bitrise.yml file to the clipboard. "
 							: "Downloading bitrise.yml. "}
-						Commit your changes in the repository before updating the setting.
+						Commit the file to the app's repository before updating the setting. 
 					</Text>
 				</Notification>
 			)}
