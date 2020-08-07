@@ -1,113 +1,27 @@
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").service("stringService", function() {
+	angular.module("BitriseWorkflowEditor").service("stringService", function(StringService) {
 		var stringService = {};
 
-		var templateRegex = /<([a-zA-Z0-9\-\_\.]+)>/g;
-
-		var defaultTemplateDataFromString = function(string) {
-			var match, data = {};
-			while (match = templateRegex.exec(string)) {
-				data[match[1]] = match[0];
-			}
-			return data;
-		};
-
-		// underscore template settings
-		_.templateSettings = {
-			interpolate: templateRegex
-		};
-
 		stringService.stringReplacedWithParameters = function(string, parameters) {
-			var resStr = "";
-			var compiled = _.template(string);
-
-			try {
-				resStr = compiled(parameters);
-			} catch {
-				// if we did not specify every params
-				var defaultParams = defaultTemplateDataFromString(string);
-				resStr = compiled(_.defaults(parameters, defaultParams));
-			}
-
-			return resStr;
+			return StringService.stringReplacedWithParameters(string, parameters);
 		};
 
-		stringService.joinedString = function(
-			strings,
-			separator,
-			shouldLeaveSpaceAfterSeparator
-		) {
-			if (!strings) {
-				return strings;
-			}
-
-			var joinedString = "";
-
-			if (strings.length == 0) {
-				return joinedString;
-			}
-
-			if (separator === null || separator === undefined) {
-				separator = "";
-			}
-
-			if (shouldLeaveSpaceAfterSeparator === undefined) {
-				shouldLeaveSpaceAfterSeparator = _.contains([",", ";"], separator);
-			}
-
-			_.each(strings, function(aString, index) {
-				if (aString === null || aString === undefined) {
-					aString = "";
-				}
-
-				aString = aString.toString();
-
-				if (index > 0 && aString.length > 0) {
-					joinedString += separator;
-
-					if (shouldLeaveSpaceAfterSeparator) {
-						joinedString += " ";
-					}
-				}
-
-				joinedString += aString;
-			});
-
-			return joinedString;
+		stringService.joinedString = function(strings, separator, shouldLeaveSpaceAfterSeparator) {
+			return StringService.joinedString(strings, separator, shouldLeaveSpaceAfterSeparator);
 		};
 
 		stringService.capitalizedFirstLetter = function(string) {
-			if (!string) {
-				return string;
-			}
-
-			return string[0].toUpperCase() + string.slice(1);
+			return StringService.capitalizedFirstLetter(string);
 		};
 
 		stringService.isStringMatchingTerm = function(string, term) {
-			if (string === undefined || term === undefined) {
-				return undefined;
-			}
-
-			if (term.length == 0) {
-				return true;
-			}
-
-			return string.toLowerCase().indexOf(term.toLowerCase()) != -1;
+			return StringService.isStringMatchingTerm(string, term);
 		};
 
 		stringService.errorMessageFromErrors = function(errors) {
-			var errorMessages = _.map(errors, function(anError) {
-				return anError.message;
-			});
-
-			var errorMessage = stringService.joinedString(errorMessages, ",");
-			errorMessage = stringService.capitalizedFirstLetter(errorMessage);
-			errorMessage += ".";
-
-			return errorMessage;
+			return StringService.errorMessageFromErrors(errors);
 		};
 
 		stringService.errorMessageFromFormModel = function(
