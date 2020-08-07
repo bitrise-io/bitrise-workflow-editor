@@ -29,7 +29,8 @@ module.exports = {
 		"prefer-const": ["error", { destructuring: "all" }],
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
-		"@typescript-eslint/no-non-null-assertion": "off"
+		"@typescript-eslint/no-non-null-assertion": "off",
+		"react/no-unescaped-entities": ["error", { forbid: [">", '"', "}"] }]
 	},
 	overrides: [
 		{
@@ -37,7 +38,8 @@ module.exports = {
 			rules: {
 				"@typescript-eslint/explicit-function-return-type": "off"
 			}
-		}, {
+		},
+		{
 			files: ["*.config.js"],
 			rules: {
 				"@typescript-eslint/no-var-requires": "off"
