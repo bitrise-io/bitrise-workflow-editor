@@ -31,7 +31,7 @@ import _ from "underscore";
 			$scope.requestService = requestService;
 			$scope.osService = osService;
 
-			viewModel.showUpdateYmlInRepositoryModal = false;
+			viewModel.isUpdateYmlInRepositoryModalVisible = false;
 			viewModel.shouldShowRepoYmlSplashModal = false;
 			viewModel.appDetails;
 			viewModel.menus;
@@ -105,11 +105,7 @@ import _ from "underscore";
 												"<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
 											])
 												.then(function() {
-													if (!appService.pipelineConfig.usesRepositoryYml) {
-														return viewModel.save();	
-													} else {
-														return $q.when();
-													}
+													return appService.pipelineConfig.usesRepositoryYml ? $q.when() : viewModel.save();
 												})
 												.then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 										} else {
@@ -351,7 +347,7 @@ import _ from "underscore";
 
 			viewModel.closeUpdateYmlInRepositoryModal = function() {
 				$timeout(function() {
-					viewModel.showUpdateYmlInRepositoryModal = false;
+					viewModel.isUpdateYmlInRepositoryModalVisible = false;
 				}, 0);
 				
 				viewModel.deferredUserSavedYmlToRepository.reject();
@@ -391,7 +387,7 @@ import _ from "underscore";
 				if (appService.pipelineConfig.usesRepositoryYml && _.contains(appService.betaTags, 'repository-yml-usage')) {
 					viewModel.deferredUserSavedYmlToRepository = $q.defer();
 					$timeout(function() {
-						viewModel.showUpdateYmlInRepositoryModal = true;
+						viewModel.isUpdateYmlInRepositoryModalVisible = true;
 					}, 0);
 				}
 
