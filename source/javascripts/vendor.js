@@ -1,5 +1,7 @@
 import $ from "jquery";
 import _ from "underscore";
+import "whatwg-fetch";
+import "abortcontroller-polyfill/dist/abortcontroller-polyfill-only";
 
 global.$ = $;
 global._ = _;

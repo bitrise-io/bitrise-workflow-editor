@@ -1,4 +1,5 @@
 const path = require("path");
+const webpack = require("webpack");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const TerserPLugin = require("terser-webpack-plugin");
@@ -49,6 +50,8 @@ const assetExporter = (regex, folder) => ({
 
 const entry = {
 	vendor: "./javascripts/vendor.js",
+	strings: "./javascripts/strings.js.erb",
+	routes: "./javascripts/routes.js.erb",
 	main: "./javascripts/index.js"
 };
 if (isHotjarEnabled) {
@@ -149,6 +152,9 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new webpack.DefinePlugin({
+			"process.env": JSON.stringify(process.env)
+		}),
 		new MiniCssExtractPlugin({
 			filename: "stylesheets/[name].css"
 		}),

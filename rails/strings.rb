@@ -701,6 +701,9 @@ def strings
             load_error: "Error loading image: <image_url>."
         },
         request_service: {
+            response: {
+                default_error: "Error during request."
+            },
             step_config_fetch: {
                 default_error: "Error loading step.",
                 error_prefix: "Error loading step: ",

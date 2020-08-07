@@ -135,8 +135,8 @@ import _ from "underscore";
 									resolve();
 								},
 								function(response) {
-									if (response.bitrise_yml) {
-										reject(response.error_message);
+									if (response.bitriseYml) {
+										reject(response.error);
 									} else {
 										reject(response);
 									}

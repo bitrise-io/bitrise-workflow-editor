@@ -58,8 +58,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 		p == data[:strings][:main][:footer][:editor_open_source]
 		== svg("heart")
 		p == replaced_string(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
-		- if mode == "cli"
-			a.version[href="#{ replaced_string(data[:routes][:other][:bitrise_workflow_editor_current_release], [ENV['version']]) }" target="_blank" rel="noreferrer noopener"] v#{ ENV['version'] }
+		a.version[ng-if="requestService.mode == 'website'" href="#{ replaced_string(data[:routes][:other][:bitrise_workflow_editor_current_release], [ENV['version']]) }" target="_blank" rel="noreferrer noopener"] v#{ ENV['version'] }
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
