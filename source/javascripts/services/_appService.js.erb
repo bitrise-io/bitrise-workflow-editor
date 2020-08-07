@@ -209,7 +209,7 @@
 				appService.appConfig.trigger_map = updatedTriggerMap;
 			};
 
-			appService.saveAppConfig = function(requestConfig) {
+			appService.saveAppConfig = function(userSavedYmlToRepositoryPromise, requestConfig) {
 				var variables = [];
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
@@ -278,7 +278,7 @@
 
 				return validateVariables(variables)
 					.then(function() {
-						return requestService.postAppConfig(appService.appConfig, requestConfig);
+						return userSavedYmlToRepositoryPromise || requestService.postAppConfig(appService.appConfig, requestConfig);
 					})
 					.then(function() {
 						appService.savedAppConfig = angular.copy(appService.appConfig);
@@ -396,8 +396,10 @@
 				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
 			};
 
-			appService.saveAppConfigYML = function() {
-				return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
+			appService.saveAppConfigYML = function(userSavedYmlToRepositoryPromise, requestConfig) {
+				var promise = userSavedYmlToRepositoryPromise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
+				
+				return promise.then(function(validationData) {
 					appService.appConfig = undefined;
 					appService.savedAppConfig = undefined;
 					appService.savedAppConfigYML = appService.appConfigYML;

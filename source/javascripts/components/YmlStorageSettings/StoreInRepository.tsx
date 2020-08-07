@@ -3,8 +3,8 @@ import { Flex, Text, Notification, Button, Buttons, Link } from "@bitrise/bitkit
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import useGetAppConfigCallback from "../../hooks/api/useGetAppConfigCallback";
-import RepoYmlStorageActions from "./RepoYmlStorageActions";
 import ConfirmSwitchToRepositoryYml from "./ConfirmSwitchToRepositoryYml";
+import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
 
 type StorageInRepositoryProps = {
 	appSlug: string;
