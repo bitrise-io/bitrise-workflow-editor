@@ -4,6 +4,12 @@ import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineCo
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import usepostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
 import * as YAML from "json-to-pretty-yaml";
+import {
+	YmlNotFoundInRepositoryError,
+	GenericBackendError,
+	LookingForYmlInRepoProgress,
+	CreatingYmlOnWebsiteProgress
+} from "./YmlStorageSettingsNotifications";
 
 type StoreOnWebsiteProps = {
 	appSlug: string;
@@ -57,6 +63,15 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 		}
 	};
 
+	const renderError = (): React.ReactElement => {
+		switch (getAppConfigFromRepoStatus) {
+			case 404:
+				return <YmlNotFoundInRepositoryError />;
+			default:
+				return <GenericBackendError error_msg={getAppConfigFromRepoFailed!.error_msg} />;
+		}
+	};
+
 	if (isFinished) {
 		return (
 			<Notification margin="x2" type="success">
@@ -91,24 +106,10 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 				</RadioButton>
 			</Flex>
 
-			{getAppConfigFromRepoLoading && (
-				<Notification margin="x2" type="progress">
-					Looking for bitrise.yml in the app repository...
-				</Notification>
-			)}
+			{getAppConfigFromRepoLoading && <LookingForYmlInRepoProgress />}
+			{getAppConfigFromRepoFailed && renderError()}
 
-			{getAppConfigFromRepoFailed && (
-				<Notification margin="x2" type="alert">
-					Couldn’t find the bitrise.yml. Add the file to the master branch and try again.
-				</Notification>
-			)}
-
-			{updatePipelineConfigLoading && (
-				<Notification margin="x2" type="progress">
-					Creating bitrise.yml on bitrise.io...
-				</Notification>
-			)}
-
+			{updatePipelineConfigLoading && <CreatingYmlOnWebsiteProgress />}
 			{!getAppConfigFromRepoLoading && !updatePipelineConfigLoading && !isFinished && (
 				<Buttons gap="x4">
 					<Button level="primary" onClick={updatePipelineConfig}>

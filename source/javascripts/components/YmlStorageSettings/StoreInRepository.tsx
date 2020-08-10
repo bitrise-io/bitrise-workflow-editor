@@ -1,12 +1,18 @@
 import React, { FC, useMemo, useEffect, useState } from "react";
-import { Flex, Text, Notification, Button, Buttons } from "@bitrise/bitkit";
+import { Flex, Button, Buttons, Notification } from "@bitrise/bitkit";
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import useGetAppConfigCallback from "../../hooks/api/useGetAppConfigCallback";
 import ConfirmSwitchToRepositoryYml from "./ConfirmSwitchToRepositoryYml";
 import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
 import StoreInRepositoryDescription from "./StoreInRepositoryDescription";
-import InlineLink from "../common/InlineLink";
+import {
+	LookingForYmlInRepoProgress,
+	ValidatingYmlInRepoProgress,
+	YmlNotFoundInRepositoryError,
+	YmlInRepositoryInvalidError,
+	GenericBackendError
+} from "./YmlStorageSettingsNotifications";
 
 type StorageInRepositoryProps = {
 	appSlug: string;
@@ -34,6 +40,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 	const { appConfig: currentWebsiteAppConfig, getAppConfig, getAppConfigLoading } = useGetAppConfigCallback(appSlug);
 	const [confirmModalVisible, setconfirmModalVisible] = useState(false);
 	const [initialCheckComplete, setInitialCheckComplete] = useState(false);
+	const [ymlConfirmedByUser, setYmlConfirmedByUser] = useState(false);
 
 	useEffect(() => {
 		getAppConfigFromRepo();
@@ -59,12 +66,24 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 	}, [updatePipelineConfigStatus, updatePipelineConfigLoading]);
 
 	const checkBitriseYmlInRepository = (): void => {
-		setconfirmModalVisible(false);
 		getAppConfigFromRepo();
+		setconfirmModalVisible(false);
+		setYmlConfirmedByUser(true);
+	};
+
+	const renderError = (): React.ReactElement => {
+		switch (getAppConfigFromRepoStatus) {
+			case 404:
+				return <YmlNotFoundInRepositoryError />;
+			case 422:
+				return <YmlInRepositoryInvalidError />;
+			default:
+				return <GenericBackendError error_msg={getAppConfigFromRepoFailed!.error_msg} />;
+		}
 	};
 
 	if (!initialCheckComplete) {
-		return <Notification type="progress">Looking for bitrise.yml in the app repository...</Notification>;
+		return <LookingForYmlInRepoProgress />;
 	}
 
 	if (isFinished) {
@@ -81,30 +100,25 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 			<Flex direction="vertical" gap="x6">
 				<StoreInRepositoryDescription
 					title={
-						appConfigFromRepo
+						appConfigFromRepo || getAppConfigFromRepoStatus !== 404
 							? "Update the bitrise.yml file in your app's repository"
 							: "Add bitrise.yml to the app repository"
 					}
 					description={
-						appConfigFromRepo
+						/* eslint-disable max-len */
+						appConfigFromRepo || getAppConfigFromRepoStatus !== 404
 							? "The repository already contains a bitrise.yml file. Update the file in the repository with the content of the current one on bitrise.io. "
 							: "You need to add your current bitrise.yml file to the app repository before proceeding. You can either copy the entire content of the file to the clipboard or download the file itself. "
+						/* eslint-enable max-len */
 					}
 				/>
 
 				<RepoYmlStorageActions appConfig={currentWebsiteAppConfig!} />
 
-				{getAppConfigFromRepoFailed && (
-					<Notification type="alert">
-						<Text>
-							{getAppConfigFromRepoFailed.message}
-							<InlineLink color="red-4" text="Read more on syntax" url="REPLACE URL" />
-						</Text>
-					</Notification>
-				)}
+				{ymlConfirmedByUser && getAppConfigFromRepoFailed && renderError()}
 
 				{getAppConfigFromRepoLoading || updatePipelineConfigLoading ? (
-					<Notification type="progress">Validating bitrise.yml in the app repository...</Notification>
+					<ValidatingYmlInRepoProgress />
 				) : (
 					<Buttons gap="x4">
 						<Button level="primary" onClick={() => setconfirmModalVisible(true)}>

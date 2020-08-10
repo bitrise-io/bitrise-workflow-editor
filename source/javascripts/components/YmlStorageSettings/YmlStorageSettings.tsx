@@ -31,7 +31,8 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 				</Text>
 				<Text config="8" textColor="gray-7">
 					Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
-					out the <InlineLink text="documentation" url="REPLACE URL" /> for the details
+					out the <InlineLink text="documentation" url="https://devcenter.bitrise.io/builds/bitrise-yml-online/" /> for
+					the details
 				</Text>
 			</Flex>
 			<Flex paddingHorizontal="x4" paddingVertical="x6">
@@ -49,6 +50,7 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 							icon="BranchBranch"
 							isActive={usesRepositoryYml}
 							title="Store in app repository"
+							// eslint-disable-next-line max-len
 							description="The bitrise.yml file is stored in your app's repository and it's versioned and maintained using Git."
 						/>
 					</Flex>

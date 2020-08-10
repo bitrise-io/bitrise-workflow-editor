@@ -5,14 +5,15 @@ type InlineLinkProps = {
 	text: string;
 	url: string;
 	color?: TypeColors;
+	underline?: boolean;
 } & TextProps;
 
 const InlineLink: FC<InlineLinkProps> = (props: InlineLinkProps) => {
-	const { text, url, color = "grape-3", ...rest } = props;
+	const { text, url, color = "grape-3", underline, ...rest } = props;
 
 	return (
 		<Text {...rest} inline textColor={color}>
-			<Link target="_blank" href={url}>
+			<Link underline={underline} target="_blank" href={url}>
 				{text}
 			</Link>
 		</Text>

@@ -7,20 +7,19 @@ type Props = {
 	description: string;
 };
 
-const StoreInRepositoryDescription: FC<Props> = ({ title, description }: Props) => {
-	return (
-		<Flex direction="vertical" gap="x4">
-			<Text config="5" textColor="gray-8">
-				{title}
+const StoreInRepositoryDescription: FC<Props> = ({ title, description }: Props) => (
+	<Flex direction="vertical" gap="x4">
+		<Text config="5" textColor="gray-8">
+			{title}
+		</Text>
+		<Text textColor="gray-7" config="7">
+			<Text inline>{description}</Text>
+			<Text inline>
+				Read more in{" "}
+				<InlineLink text="our documentation" url="https://devcenter.bitrise.io/builds/bitrise-yml-online/" />
 			</Text>
-			<Text textColor="gray-7" config="7">
-				<Text inline>{description}</Text>
-				<Text inline>
-					Read more in <InlineLink text="our documentation" url="REPLACE URL" />
-				</Text>
-			</Text>
-		</Flex>
-	);
-};
+		</Text>
+	</Flex>
+);
 
 export default StoreInRepositoryDescription;
