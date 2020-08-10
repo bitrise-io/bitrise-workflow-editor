@@ -27,6 +27,15 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 				}
 			);
 
+			$scope.$watch(
+				function() {
+					return viewModel.usesRepositoryYml;
+				},
+				function(usesRepositoryYml) {
+					editor.updateOptions({ readOnly: !!usesRepositoryYml });
+				}
+			);
+
 			function init() {
 				$q.all([appService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
 					.then(function() {
