@@ -13,8 +13,9 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 			viewModel.shouldShowYmlStorageSettings = false;
 			viewModel.usesRepositoryYml = false;
 
-			viewModel.downloadAppConfigYMLPath =
-				requestService.mode == "website" ? requestService.appConfigYMLDownloadPath() : null;
+			viewModel.downloadAppConfigYMLPath = function() {
+				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
+			}
 
 			$scope.$watch(
 				function() {

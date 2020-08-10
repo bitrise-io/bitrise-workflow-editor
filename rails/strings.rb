@@ -685,8 +685,10 @@ def strings
             learn_more_about: "Learn more about Machine types »"
         },
         yml: {
-            title: "bitrise.yml editor",
+            title_editor: "bitrise.yml editor",
+            title: "bitrise.yml",
             info_1: "You can edit your current config in YAML format:",
+            info_1_repo_yml: "The content of the bitrise.yml file, fetched from the app's repository.",
             info_2: "You can download this YML and run it directly with <a href='<url>' target='_blank'>bitrise CLI</a> locally.",
             download: "Download currently saved config",
             load_progress: {

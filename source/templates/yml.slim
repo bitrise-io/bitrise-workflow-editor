@@ -10,9 +10,11 @@
 	section.cardo
 		header
 			div
-				h2 == data[:strings][:yml][:title]
-				p == data[:strings][:yml][:info_1]
-			a.rebo.purple.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
-		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
+				h2[ng-if="!ymlCtrl.usesRepositoryYml"] == data[:strings][:yml][:title_editor]
+				h2[ng-if="ymlCtrl.usesRepositoryYml"] == data[:strings][:yml][:title]
+				p[ng-if="!ymlCtrl.usesRepositoryYml"] == data[:strings][:yml][:info_1]
+				p[ng-if="ymlCtrl.usesRepositoryYml"] == data[:strings][:yml][:info_1_repo_yml]
+			a.rebo.purple.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath() }}" ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == data[:strings][:yml][:download]
+		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article
 			#code-container
