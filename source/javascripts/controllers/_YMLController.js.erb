@@ -67,6 +67,12 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 				}, 100);
 			}
 
+			viewModel.onUsesRepositoryYmlChanged = function(usesRepositoryYml) {
+				$timeout(function() {
+					viewModel.usesRepositoryYml = usesRepositoryYml;
+				}, 0);
+			};
+
 			configureEditor();
 
 			$scope.$on("$destroy", function() {

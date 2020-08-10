@@ -1,4 +1,4 @@
-import React, { FC, useState, useMemo } from "react";
+import React, { FC, useState, useMemo, useEffect } from "react";
 import { Base, Flex, Text } from "@bitrise/bitkit";
 import YmlStorageOption from "./YmlStorageOption";
 import StoreOnWebsite from "./StoreOnWebsite";
@@ -7,11 +7,13 @@ import StoreInRepository from "./StoreInRepository";
 type YmlStorageSettingsProps = {
 	appSlug: string;
 	usesRepositoryYml: boolean;
+	onUsesRepositoryYmlChanged: (usesRepositoryYml: boolean) => void;
 };
 
 const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 	appSlug,
-	usesRepositoryYml: _initialUsesRepositoryYml
+	usesRepositoryYml: _initialUsesRepositoryYml,
+	onUsesRepositoryYmlChanged
 }: YmlStorageSettingsProps) => {
 	const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
 	const [usesRepositoryYml, setUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
@@ -21,6 +23,10 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 	const resetStorageSettings = (): void => {
 		setUsesRepositoryYml(initialUsesRepositoryYml);
 	};
+
+	useEffect(() => {
+		onUsesRepositoryYmlChanged(usesRepositoryYml);
+	}, [usesRepositoryYml]);
 
 	return (
 		<Base borderRadius="x2" borderColor="gray-4" overflow="hidden">
