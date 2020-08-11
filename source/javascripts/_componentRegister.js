@@ -32,7 +32,7 @@ angular
 	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]))
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
 	.component("rSplashModal", register(SplashModal))
-	.component("rYmlStorageSettings", register(YmlStorageSettings, ["appSlug", "usesRepositoryYml", "onUsesRepositoryYmlChanged"]))
+	.component("rYmlStorageSettings", register(YmlStorageSettings, ["appSlug", "usesRepositoryYml", "onUsesRepositoryYmlChangeSaved"]))
 	.component(
 		"rUpdateYmlInRepositoryModal",
 		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "appConfig"])

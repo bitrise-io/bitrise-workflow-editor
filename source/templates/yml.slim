@@ -6,7 +6,7 @@
 			ul
 				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
 	section[ng-if="ymlCtrl.shouldShowYmlStorageSettings"]
-		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml" on-uses-repository-yml-changed="ymlCtrl.onUsesRepositoryYmlChanged"]
+		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml" on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved"]
 	section.cardo
 		header
 			div

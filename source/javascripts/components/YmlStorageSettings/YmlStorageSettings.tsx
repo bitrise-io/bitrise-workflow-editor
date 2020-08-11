@@ -7,13 +7,13 @@ import StoreInRepository from "./StoreInRepository";
 type YmlStorageSettingsProps = {
 	appSlug: string;
 	usesRepositoryYml: boolean;
-	onUsesRepositoryYmlChanged: (usesRepositoryYml: boolean) => void;
+	onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
 };
 
 const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 	appSlug,
 	usesRepositoryYml: _initialUsesRepositoryYml,
-	onUsesRepositoryYmlChanged
+	onUsesRepositoryYmlChangeSaved
 }: YmlStorageSettingsProps) => {
 	const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
 	const [usesRepositoryYml, setUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
@@ -25,8 +25,8 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 	};
 
 	useEffect(() => {
-		onUsesRepositoryYmlChanged(usesRepositoryYml);
-	}, [usesRepositoryYml]);
+		onUsesRepositoryYmlChangeSaved(initialUsesRepositoryYml);
+	}, [initialUsesRepositoryYml]);
 
 	return (
 		<Base borderRadius="x2" borderColor="gray-4" overflow="hidden">
