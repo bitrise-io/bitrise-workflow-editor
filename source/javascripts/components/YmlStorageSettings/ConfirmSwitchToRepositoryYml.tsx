@@ -9,15 +9,15 @@ type Props = {
 };
 
 const ConfirmSwitchToRepositoryYml: React.FC<Props> = ({ visible, onContinue, onCancel }: Props) => (
-	<Modal width="440px" visible={visible}>
+	<Modal width="640px" visible={visible}>
 		<ModalBody>
-			<Flex direction="vertical" gap="x6">
+			<Flex direction="vertical" gap="x8">
 				<Icon textColor="grape-4" name="Warning" size="40px" />
 				<Flex>
-					<ModalTitle>Check bitrise.yml</ModalTitle>
+					<ModalTitle>Make sure your bitrise.yml file is valid!</ModalTitle>
 					<Text textColor="gray-7" config="7">
-						Make sure that you added the valid bitrise.yml on the master branch to the app repository before proceeding.
-						Missing or invalid bitrise.yml may break your build pipeline.
+						You need a valid bitrise.yml file on the main branch - the one you set up when you added the app to Bitrise
+						- of your app before proceeding. A missing or invalid bitrise.yml file might break your build pipeline!
 					</Text>
 				</Flex>
 				<Buttons alignChildrenHorizontal="end" margin="x8" gap="x6">
