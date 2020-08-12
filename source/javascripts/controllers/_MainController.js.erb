@@ -377,6 +377,10 @@ import _ from "underscore";
 					});
 			}
 
+			viewModel.getDataToSave = function() {
+				return viewModel.dataToSave;
+			}
+
 			viewModel.save = function(shouldReturnPromise) {
 				if (shouldReturnPromise === undefined) {
 					shouldReturnPromise = false;
@@ -399,6 +403,7 @@ import _ from "underscore";
 								case "workflows":
 								case "env-vars":
 								case "triggers":
+									viewModel.dataToSave = appService.appConfig;
 									return appService.saveAppConfig(deferredSavePromise)
 										.then(function() {
 											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
@@ -407,12 +412,14 @@ import _ from "underscore";
 								case "secrets":
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
+									viewModel.dataToSave = appService.appConfig;
 									return $q.all([appService.saveAppConfig(deferredSavePromise), appService.saveStack()])
 										.then(function() {
 											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})
 										.then(resolve, reject);
 								case "yml":
+									viewModel.dataToSave = appService.appConfigYML;
 									return appService.saveAppConfigYML(deferredSavePromise)
 										.then(function() {
 											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfigYML() : $q.when();
