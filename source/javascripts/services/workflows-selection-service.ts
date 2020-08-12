@@ -78,7 +78,7 @@ export class WorkflowsSelectionService {
 	};
 
 	restoreSelection = (viewModel: WorkflowViewModel): void => {
-		this.rearrangeSelection(viewModel, this.findSelectedWorkflow(viewModel), this.store.lastEditedWorkflowID);
+		this.rearrangeSelection(viewModel, this.findSelectedWorkflow(viewModel), this.store.lastEditedWorkflowID || undefined);
 
 		if (
 			this.verifySelectedIndex(
