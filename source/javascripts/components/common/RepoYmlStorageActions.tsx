@@ -27,7 +27,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 				</CopyToClipboard>
 
 				<Link
-					href={`data:attachment/text,${encodeURI(data)}`}
+					href={`data:attachment/text,${encodeURIComponent(data)}`}
 					target="_blank"
 					download="bitrise.yml"
 					onClick={() => setActionSelected("download")}
@@ -45,7 +45,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 						{actionSelected === "clipboard"
 							? "Copied the content of the current bitrise.yml file to the clipboard. "
 							: "Downloading bitrise.yml. "}
-						Commit the file to the app's repository before updating the setting. 
+						Commit the file to the app's repository before updating the setting.
 					</Text>
 				</Notification>
 			)}
