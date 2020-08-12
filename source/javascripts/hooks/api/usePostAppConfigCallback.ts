@@ -1,10 +1,10 @@
-import useMonolithApiCallback from "./useMonolithApiCallback";
+import useMonolithApiCallback, { MonolithError } from "./useMonolithApiCallback";
 import { AppConfig } from "../../models/AppConfig";
 
 export interface FetchResponse {
 	postAppConfigStatus?: number;
 	postAppConfigLoading: boolean;
-	postAppConfigFailed: Error | undefined;
+	postAppConfigFailed: MonolithError | undefined;
 	postAppConfig: () => void;
 }
 
@@ -14,7 +14,7 @@ export default function usepostAppConfigCallback(appSlug: string, appConfig: str
 		loading: postAppConfigLoading,
 		failed: postAppConfigFailed,
 		call: postAppConfig
-	} = useMonolithApiCallback<AppConfig, Error>(`/api/app/${appSlug}/config`, {
+	} = useMonolithApiCallback<AppConfig>(`/api/app/${appSlug}/config`, {
 		method: "POST",
 		body: JSON.stringify({
 			// eslint-disable-next-line @typescript-eslint/camelcase

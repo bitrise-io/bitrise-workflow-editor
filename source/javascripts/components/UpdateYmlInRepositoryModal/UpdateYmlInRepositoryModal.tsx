@@ -7,7 +7,7 @@ import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFrom
 type Props = {
 	appSlug: string;
 	onClose(): void;
-	onComplete(appConfig: AppConfig): void;
+	onComplete(): void;
 	dataToSave: AppConfig | string;
 };
 
@@ -18,7 +18,7 @@ const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, dataToSave, onClose, o
 
 	useEffect(() => {
 		if (appConfigFromRepo) {
-			onComplete(appConfigFromRepo);
+			onComplete();
 		}
 	}, [appConfigFromRepo]);
 
@@ -26,15 +26,15 @@ const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, dataToSave, onClose, o
 		<Modal backgroundColor="white" onClose={onClose} visible={true} width="640px">
 			<ModalBody>
 				<Flex direction="vertical" gap="x4">
-					<ModalTitle>Update bitrise.yml in app repository</ModalTitle>
+					<ModalTitle>Update the bitrise.yml file in your app's repository</ModalTitle>
 					<Text textColor="gray-8">
-						In order to use the changes in the next build, you need to update the bitrise.yml on master branch in the
-						app repository manually.
+						In order to apply your changes to your next build, you need to update the bitrise.yml file on your
+						repository's main branch.
 					</Text>
 					<RepoYmlStorageActions appConfig={dataToSave} />
 					<Text textColor="gray-8">
-						After you are done, Bitrise will fetch the updated bitrise.yml from the app repository and refresh the
-						editor. Unsaved changes will be lost.
+						Once you are done, Bitrise will fetch the updated bitrise.yml file from your app's repository, and refresh
+						the Workflow Editor. Any unsaved changes will be lost!
 					</Text>
 
 					{getAppConfigFromRepoLoading && (
@@ -55,7 +55,7 @@ const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, dataToSave, onClose, o
 								Cancel
 							</Button>
 							<Button level="primary" onClick={getAppConfigFromRepo}>
-								I&apos;m done
+								I'm done
 							</Button>
 						</Buttons>
 					)}
