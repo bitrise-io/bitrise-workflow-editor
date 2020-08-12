@@ -6,7 +6,6 @@ import usepostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
 import * as YAML from "json-to-pretty-yaml";
 import {
 	YmlNotFoundInRepositoryError,
-	GenericBackendError,
 	LookingForYmlInRepoProgress,
 	CreatingYmlOnWebsiteProgress
 } from "./YmlStorageSettingsNotifications";
@@ -68,7 +67,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 			case 404:
 				return <YmlNotFoundInRepositoryError />;
 			default:
-				return <GenericBackendError error_msg={getAppConfigFromRepoFailed!.error_msg} />;
+				return <Notification type="alert">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
 		}
 	};
 

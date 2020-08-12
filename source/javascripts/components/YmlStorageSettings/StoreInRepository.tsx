@@ -10,8 +10,7 @@ import {
 	LookingForYmlInRepoProgress,
 	ValidatingYmlInRepoProgress,
 	YmlNotFoundInRepositoryError,
-	YmlInRepositoryInvalidError,
-	GenericBackendError
+	YmlInRepositoryInvalidError
 } from "./YmlStorageSettingsNotifications";
 
 type StorageInRepositoryProps = {
@@ -78,7 +77,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 			case 422:
 				return <YmlInRepositoryInvalidError />;
 			default:
-				return <GenericBackendError error_msg={getAppConfigFromRepoFailed!.error_msg} />;
+				return <Notification type="alert">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
 		}
 	};
 

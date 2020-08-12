@@ -1,7 +1,6 @@
 import React, { FC } from "react";
 import { Text, Notification } from "@bitrise/bitkit";
 import InlineLink from "../common/InlineLink";
-import { MonolithError } from "../../hooks/api/useMonolithApiCallback";
 
 export const CreatingYmlOnWebsiteProgress: FC = () => (
 	<Notification type="progress">Creating bitrise.yml on bitrise.io...</Notification>
@@ -34,8 +33,4 @@ export const YmlInRepositoryInvalidError: FC = () => (
 			/>
 		</Text>
 	</Notification>
-);
-
-export const GenericBackendError: FC<MonolithError> = ({ error_msg: errorMessage }: MonolithError) => (
-	<Notification type="alert">{errorMessage}</Notification>
 );
