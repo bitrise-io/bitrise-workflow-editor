@@ -74,7 +74,7 @@ import _ from "underscore";
 							&& featureAvailable
 							&& splashModalCookieMissing
 							&& !appService.pipelineConfig.usesRepositoryYml;
-						
+
 						if (viewModel.shouldShowRepoYmlSplashModal) {
 							$cookies.put("splash_modal_shown", true);
 						}
@@ -349,7 +349,7 @@ import _ from "underscore";
 				$timeout(function() {
 					viewModel.isUpdateYmlInRepositoryModalVisible = false;
 				}, 0);
-				
+
 				viewModel.deferredUserSavedYmlToRepository.reject();
 			}
 
@@ -377,11 +377,15 @@ import _ from "underscore";
 					});
 			}
 
+			viewModel.getDataToSave = function() {
+				return viewModel.dataToSave;
+			}
+
 			viewModel.save = function(shouldReturnPromise) {
 				if (shouldReturnPromise === undefined) {
 					shouldReturnPromise = false;
 				}
-				
+
 				viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
 				if (appService.pipelineConfig.usesRepositoryYml && _.contains(appService.betaTags, 'repository-yml-usage')) {
@@ -394,11 +398,12 @@ import _ from "underscore";
 				var deferredSavePromise = viewModel.deferredUserSavedYmlToRepository ? viewModel.deferredUserSavedYmlToRepository.promise : undefined;
 				var promise = $q
 					.all([
-						$q(function(resolve, reject) {	
+						$q(function(resolve, reject) {
 							switch (viewModel.currentMenu.id) {
 								case "workflows":
 								case "env-vars":
 								case "triggers":
+									viewModel.dataToSave = appService.appConfig;
 									return appService.saveAppConfig(deferredSavePromise)
 										.then(function() {
 											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
@@ -407,12 +412,14 @@ import _ from "underscore";
 								case "secrets":
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
+									viewModel.dataToSave = appService.appConfig;
 									return $q.all([appService.saveAppConfig(deferredSavePromise), appService.saveStack()])
 										.then(function() {
 											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})
 										.then(resolve, reject);
 								case "yml":
+									viewModel.dataToSave = appService.appConfigYML;
 									return appService.saveAppConfigYML(deferredSavePromise)
 										.then(function() {
 											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfigYML() : $q.when();
