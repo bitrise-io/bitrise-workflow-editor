@@ -8,13 +8,14 @@ type Props = {
 	appSlug: string;
 	onClose(): void;
 	onComplete(): void;
-	dataToSave: AppConfig | string;
+	getDataToSave: () => AppConfig | string;
 };
 
-const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, dataToSave, onClose, onComplete }: Props) => {
+const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, getDataToSave, onClose, onComplete }: Props) => {
 	const { getAppConfigFromRepoLoading, getAppConfigFromRepo, appConfigFromRepo } = useGetAppConfigFromRepoCallback(
 		appSlug
 	);
+	const dataToSave = getDataToSave();
 
 	useEffect(() => {
 		if (appConfigFromRepo) {

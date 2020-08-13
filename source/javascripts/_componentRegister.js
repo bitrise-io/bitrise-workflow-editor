@@ -35,5 +35,5 @@ angular
 	.component("rYmlStorageSettings", register(YmlStorageSettings, ["appSlug", "usesRepositoryYml", "onUsesRepositoryYmlChangeSaved"]))
 	.component(
 		"rUpdateYmlInRepositoryModal",
-		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "appConfig"])
+		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "getDataToSave"])
 	);
