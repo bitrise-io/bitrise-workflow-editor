@@ -71,6 +71,7 @@ export const elements = {
 	"Seventeenth step": stepSelector(17),
 	"Eighteenth step": stepSelector(18),
 	"First Workflow's second step": stepSelectorInWorkflowWithIndex(2, 1),
+	"Third Workflow's first step": stepSelectorInWorkflowWithIndex(1, 3),
 	"First step name": `${stepSelector(1)} [data-e2e-tag="step-item__title"]`,
 	"First StepItem Version": `${stepSelector(1)} [data-e2e-tag="step-item__version"]`,
 	"First StepItem Version Update Indicator": `${stepSelector(1)} [data-e2e-tag="step-item__update-indicator"]`,

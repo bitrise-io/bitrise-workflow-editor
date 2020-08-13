@@ -223,7 +223,7 @@ import { safeDigest } from "../services/react-compat";
 					}
 
 					var wf = workflowSelectionService.findSelectedWorkflow(viewModel);
-					workflowSelectionService.rearrangeSelection(viewModel, wf);
+					workflowSelectionService.rearrangeSelection(viewModel, wf, workflowSelectionStore.lastEditedWorkflowID);
 
 					appService.appConfig.workflows = {};
 					_.each(workflows, function(aWorkflow) {
