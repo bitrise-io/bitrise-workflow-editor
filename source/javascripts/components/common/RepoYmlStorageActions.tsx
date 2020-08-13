@@ -1,8 +1,8 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useMemo } from "react";
 import { Flex, Icon, Text, Notification, Link } from "@bitrise/bitkit";
 import CopyToClipboard from "react-copy-to-clipboard";
-import * as YAML from "json-to-pretty-yaml";
 import { AppConfig } from "../../models/AppConfig";
+import appConfigAsYml from "../../utils/appConfigAsYml";
 
 type RepoYmlStorageActionsProps = {
 	appConfig: AppConfig | string;
@@ -10,16 +10,13 @@ type RepoYmlStorageActionsProps = {
 
 const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig }: RepoYmlStorageActionsProps) => {
 	const [actionSelected, setActionSelected] = useState<string | null>(null);
-	const [data, setData] = useState<string>("");
 
-	useEffect(() => {
-		setData(typeof appConfig === "string" ? appConfig : YAML.stringify(appConfig));
-	}, []);
+	const yml = useMemo(() => appConfigAsYml(appConfig), [appConfig]);
 
 	return (
 		<Flex direction="vertical" gap="x4">
 			<Flex direction="vertical" gap="x6">
-				<CopyToClipboard text={data} onCopy={() => setActionSelected("clipboard")}>
+				<CopyToClipboard text={yml} onCopy={() => setActionSelected("clipboard")}>
 					<Flex clickable direction="horizontal" gap="x2">
 						<Icon textColor="grape-3" name="Chain" />
 						<Text textColor="grape-3">Copy the content of the current bitrise.yml file to the clipboard</Text>
@@ -27,7 +24,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 				</CopyToClipboard>
 
 				<Link
-					href={`data:attachment/text,${encodeURIComponent(data)}`}
+					href={`data:attachment/text,${encodeURIComponent(yml)}`}
 					target="_blank"
 					download="bitrise.yml"
 					onClick={() => setActionSelected("download")}
