@@ -69,6 +69,11 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 			}
 
 			viewModel.onUsesRepositoryYmlChangeSaved = function(usesRepositoryYml) {
+				appService.getAppConfigYML(true);
+				
+				appService.appConfig = undefined;
+				appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
+
 				$timeout(function() {
 					viewModel.usesRepositoryYml = usesRepositoryYml;
 				}, 0);
