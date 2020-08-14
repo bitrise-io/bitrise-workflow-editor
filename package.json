@@ -50,8 +50,7 @@
 		"esprima": "^3.1.3",
 		"http-method-enum": "^1.0.0",
 		"jquery": "^3.4.1",
-		"js-yaml": "^3.13.1",
-		"json-to-pretty-yaml": "^1.2.2",
+		"js-yaml": "^3.14.0",
 		"monaco-editor": "^0.18.1",
 		"ng-showdown": "^1.1.0",
 		"prop-types": "^15.7.2",
@@ -66,6 +65,7 @@
 	"devDependencies": {
 		"@types/classnames": "^2.2.9",
 		"@types/jasmine-ajax": "^3.3.1",
+		"@types/js-yaml": "^3.12.5",
 		"@types/react": "^16.9.19",
 		"@types/react-copy-to-clipboard": "^4.3.0",
 		"@types/react-dom": "^16.9.5",

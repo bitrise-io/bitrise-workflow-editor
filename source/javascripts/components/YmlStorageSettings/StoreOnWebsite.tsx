@@ -2,13 +2,13 @@ import React, { FC, useState, useMemo, useEffect } from "react";
 import { Flex, Text, Notification, Button, Buttons, RadioButton } from "@bitrise/bitkit";
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
-import usepostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
-import * as YAML from "json-to-pretty-yaml";
+import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
 import {
 	YmlNotFoundInRepositoryError,
 	LookingForYmlInRepoProgress,
 	CreatingYmlOnWebsiteProgress
 } from "./YmlStorageSettingsNotifications";
+import appConfigAsYml from "../../utils/appConfigAsYml";
 
 type StoreOnWebsiteProps = {
 	appSlug: string;
@@ -24,7 +24,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 		getAppConfigFromRepo,
 		appConfigFromRepo
 	} = useGetAppConfigFromRepoCallback(appSlug);
-	const { postAppConfig, postAppConfigStatus } = usepostAppConfigCallback(appSlug, YAML.stringify(appConfigFromRepo));
+	const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(appSlug, appConfigAsYml(appConfigFromRepo));
 	const {
 		updatePipelineConfigStatus,
 		updatePipelineConfigLoading,
