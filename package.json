@@ -49,7 +49,7 @@
 		"classnames": "^2.2.6",
 		"esprima": "^3.1.3",
 		"http-method-enum": "^1.0.0",
-		"jquery": "^3.4.1",
+		"jquery": "^3.5.0",
 		"js-yaml": "^3.14.0",
 		"monaco-editor": "^0.18.1",
 		"ng-showdown": "^1.1.0",
