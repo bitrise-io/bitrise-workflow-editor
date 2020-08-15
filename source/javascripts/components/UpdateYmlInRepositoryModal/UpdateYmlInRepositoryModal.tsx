@@ -3,6 +3,9 @@ import { Modal, ModalBody, Flex, ModalTitle, Buttons, Button, Text, Notification
 import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
 import { AppConfig } from "../../models/AppConfig";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
+import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
 
 type Props = {
 	appSlug: string;
@@ -12,9 +15,13 @@ type Props = {
 };
 
 const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, getDataToSave, onClose, onComplete }: Props) => {
-	const { getAppConfigFromRepoLoading, getAppConfigFromRepo, appConfigFromRepo } = useGetAppConfigFromRepoCallback(
-		appSlug
-	);
+	const {
+		getAppConfigFromRepoLoading,
+		getAppConfigFromRepo,
+		appConfigFromRepo,
+		getAppConfigFromRepoStatus,
+		getAppConfigFromRepoFailed
+	} = useGetAppConfigFromRepoCallback(appSlug);
 	const dataToSave = getDataToSave();
 
 	useEffect(() => {
@@ -22,6 +29,17 @@ const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, getDataToSave, onClose
 			onComplete();
 		}
 	}, [appConfigFromRepo]);
+
+	const renderError = (): React.ReactElement => {
+		switch (getAppConfigFromRepoStatus) {
+			case 404:
+				return <YmlNotFoundInRepositoryError />;
+			case 422:
+				return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed!.error_msg} />;
+			default:
+				return <Notification type="alert">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
+		}
+	};
 
 	return (
 		<Modal backgroundColor="white" onClose={onClose} visible={true} width="640px">
@@ -38,17 +56,15 @@ const UpdateYmlInRepositoryModal: FC<Props> = ({ appSlug, getDataToSave, onClose
 						the Workflow Editor. Any unsaved changes will be lost!
 					</Text>
 
-					{getAppConfigFromRepoLoading && (
-						<Notification margin="x2" type="progress">
-							Fetching bitrise.yml from the app repository...
-						</Notification>
-					)}
+					{getAppConfigFromRepoLoading && <LookingForYmlInRepoProgress />}
 
 					{appConfigFromRepo && (
 						<Notification margin="x2" type="success">
 							Fetched bitrise.yml from app repository
 						</Notification>
 					)}
+
+					{getAppConfigFromRepoFailed && renderError()}
 
 					{!getAppConfigFromRepoLoading && !appConfigFromRepo && (
 						<Buttons alignChildrenHorizontal="end" margin="x8" gap="x6">
