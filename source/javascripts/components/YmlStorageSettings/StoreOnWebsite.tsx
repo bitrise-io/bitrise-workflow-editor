@@ -3,12 +3,10 @@ import { Flex, Text, Notification, Button, Buttons, RadioButton } from "@bitrise
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
-import {
-	YmlNotFoundInRepositoryError,
-	LookingForYmlInRepoProgress,
-	CreatingYmlOnWebsiteProgress
-} from "./YmlStorageSettingsNotifications";
 import appConfigAsYml from "../../utils/appConfigAsYml";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
+import CreatingYmlOnWebsiteProgress from "../common/notifications/LookingForYmlInRepoProgress";
 
 type StoreOnWebsiteProps = {
 	appSlug: string;
