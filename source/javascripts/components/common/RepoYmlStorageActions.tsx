@@ -21,7 +21,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 			window.clearTimeout(clearActionTimeout);
 		}
 
-		setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 3000));
+		setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
 	};
 
 	return (
