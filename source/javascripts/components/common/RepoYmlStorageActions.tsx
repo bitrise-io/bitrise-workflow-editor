@@ -10,13 +10,24 @@ type RepoYmlStorageActionsProps = {
 
 const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig }: RepoYmlStorageActionsProps) => {
 	const [actionSelected, setActionSelected] = useState<string | null>(null);
+	const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
 	const yml = useMemo(() => appConfigAsYml(appConfig), [appConfig]);
+
+	const selectAction = (actionName: string): void => {
+		setActionSelected(actionName);
+
+		if (clearActionTimeout) {
+			window.clearTimeout(clearActionTimeout);
+		}
+
+		setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
+	};
 
 	return (
 		<Flex direction="vertical" gap="x4">
 			<Flex direction="vertical" gap="x6">
-				<CopyToClipboard text={yml} onCopy={() => setActionSelected("clipboard")}>
+				<CopyToClipboard text={yml} onCopy={() => selectAction("clipboard")}>
 					<Flex clickable direction="horizontal" gap="x2">
 						<Icon textColor="grape-3" name="Chain" />
 						<Text textColor="grape-3">Copy the content of the current bitrise.yml file to the clipboard</Text>
@@ -27,7 +38,7 @@ const RepoYmlStorageActions: React.FC<RepoYmlStorageActionsProps> = ({ appConfig
 					href={`data:attachment/text,${encodeURIComponent(yml)}`}
 					target="_blank"
 					download="bitrise.yml"
-					onClick={() => setActionSelected("download")}
+					onClick={() => selectAction("download")}
 				>
 					<Flex direction="horizontal" gap="x2">
 						<Icon textColor="grape-3" name="Download" />

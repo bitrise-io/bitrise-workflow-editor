@@ -3,12 +3,10 @@ import { Flex, Text, Notification, Button, Buttons, RadioButton } from "@bitrise
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
-import {
-	YmlNotFoundInRepositoryError,
-	LookingForYmlInRepoProgress,
-	CreatingYmlOnWebsiteProgress
-} from "./YmlStorageSettingsNotifications";
 import appConfigAsYml from "../../utils/appConfigAsYml";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
+import CreatingYmlOnWebsiteProgress from "../common/notifications/LookingForYmlInRepoProgress";
 
 type StoreOnWebsiteProps = {
 	appSlug: string;
@@ -30,7 +28,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 		updatePipelineConfigLoading,
 		updatePipelineConfig
 	} = useUpdatePipelineConfigCallback(appSlug, false);
-	const [copyRepositoryYmlToWebsite, setCopyRepositoryYmlToWebsite] = useState(false);
+	const [copyRepositoryYmlToWebsite, setCopyRepositoryYmlToWebsite] = useState(true);
 
 	const isFinished = useMemo(() => {
 		const isSuccessful = !updatePipelineConfigLoading && updatePipelineConfigStatus === 200;
@@ -54,13 +52,9 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 		}
 	}, [updatePipelineConfigLoading, updatePipelineConfigStatus, copyRepositoryYmlToWebsite]);
 
-	const handleCopyToRepositorySelection = (): void => {
-		setCopyRepositoryYmlToWebsite(true);
-
-		if (getAppConfigFromRepoStatus !== 200) {
-			getAppConfigFromRepo();
-		}
-	};
+	useEffect(() => {
+		getAppConfigFromRepo();
+	}, []);
 
 	const renderError = (): React.ReactElement => {
 		switch (getAppConfigFromRepoStatus) {
@@ -91,7 +85,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
 					name="website-copy-option"
 					defaultChecked={copyRepositoryYmlToWebsite}
-					onClick={handleCopyToRepositorySelection}
+					onClick={() => setCopyRepositoryYmlToWebsite(true)}
 				>
 					Copy the content of the bitrise.yml file stored in the app's repository
 				</RadioButton>

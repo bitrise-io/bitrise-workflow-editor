@@ -6,12 +6,10 @@ import useGetAppConfigCallback from "../../hooks/api/useGetAppConfigCallback";
 import ConfirmSwitchToRepositoryYml from "./ConfirmSwitchToRepositoryYml";
 import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
 import StoreInRepositoryDescription from "./StoreInRepositoryDescription";
-import {
-	LookingForYmlInRepoProgress,
-	ValidatingYmlInRepoProgress,
-	YmlNotFoundInRepositoryError,
-	YmlInRepositoryInvalidError
-} from "./YmlStorageSettingsNotifications";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
+import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
+import ValidatingYmlInRepoProgress from "../common/notifications/ValidatingYmlInRepoProgress";
 
 type StorageInRepositoryProps = {
 	appSlug: string;
@@ -75,7 +73,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 			case 404:
 				return <YmlNotFoundInRepositoryError />;
 			case 422:
-				return <YmlInRepositoryInvalidError />;
+				return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed!.error_msg} />;
 			default:
 				return <Notification type="alert">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
 		}
