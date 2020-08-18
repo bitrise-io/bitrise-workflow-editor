@@ -97,6 +97,7 @@ Feature: Workflows
       And I confirm on "Default popup"
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
       And I should see "wf1" in "Selected Workflow Name"
+      And "Save Button" should "not be disabled"
 
   Scenario: User opens the Delete Workflow
     Given "wf3" workflow is selected
@@ -109,6 +110,7 @@ Feature: Workflows
       And Delete popup is open
     When I confirm on "Default popup"
     Then "Default popup" should "not be visible"
+      And "Save Button" should "not be disabled"
     When I click on "Selected Workflow Name"
       Then Workflow selector options should not contain "wf6"
     When I click on "wf3 workflow"

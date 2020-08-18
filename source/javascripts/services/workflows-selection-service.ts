@@ -143,8 +143,8 @@ export class WorkflowsSelectionService {
 
 		// save it to the store
 		editedId = editedId || wf.id;
-		let editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === editedId);
 
+		let editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === editedId);
 		if (editedIndex === -1) {
 			editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === wf.id);
 		}
