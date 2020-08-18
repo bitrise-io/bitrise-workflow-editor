@@ -109,6 +109,7 @@ Feature: Workflows
       And Delete popup is open
     When I confirm on "Default popup"
     Then "Default popup" should "not be visible"
+      And "Save Button" should "not be disabled"
     When I click on "Selected Workflow Name"
       Then Workflow selector options should not contain "wf6"
     When I click on "wf3 workflow"
