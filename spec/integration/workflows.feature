@@ -97,7 +97,6 @@ Feature: Workflows
       And I confirm on "Default popup"
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
       And I should see "wf1" in "Selected Workflow Name"
-      And "Save Button" should "not be disabled"
 
   Scenario: User opens the Delete Workflow
     Given "wf3" workflow is selected
