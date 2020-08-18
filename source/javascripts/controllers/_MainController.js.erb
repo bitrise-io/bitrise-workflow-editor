@@ -565,6 +565,13 @@ import _ from "underscore";
 
 				logger.info("App start");
 
+				if (!!window.freshpaint) {
+					requestService.getCurrentUserData()
+						.then(function(user) {
+							window.freshpaint.identify(user.slug);
+						})
+				}
+
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
 						case "website":
