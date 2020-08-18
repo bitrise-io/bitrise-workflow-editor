@@ -10,11 +10,12 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, DEV_SERVER_PORT } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, FRESHPAINT, DEV_SERVER_PORT } = process.env;
 const isProd = NODE_ENV === "prod";
 
 const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
 const isHotjarEnabled = HOTJAR === "true";
+const isFreshpaintEnabled = FRESHPAINT === "true";
 const publicPath = `${urlPrefix}/${version}/`;
 
 const railsTransformer = mode => ({
@@ -56,6 +57,9 @@ const entry = {
 };
 if (isHotjarEnabled) {
 	entry.hotjar = "./javascripts/hotjar.js";
+}
+if (isFreshpaintEnabled) {
+	entry.freshpaint = "./javascripts/freshpaint.js"
 }
 
 module.exports = {
