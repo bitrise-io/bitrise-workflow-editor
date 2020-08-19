@@ -72,6 +72,10 @@ def hotjar?
     ENV['HOTJAR'] == 'true'
 end
 
+def freshpaint?
+    ENV['FRESHPAINT'] == 'true'
+end
+
 case command
 when "erb"
     puts ERB.new(input).result
