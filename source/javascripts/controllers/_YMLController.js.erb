@@ -38,10 +38,10 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 			);
 
 			function init() {
-				$q.all([appService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
+				appService.getPipelineConfig()
 					.then(function() {
 						viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
-						viewModel.shouldShowYmlStorageSettings = requestService.mode === "website" && _.contains(appService.betaTags, 'repository-yml-usage');
+						viewModel.shouldShowYmlStorageSettings = requestService.mode === "website";
 					})
 			}
 

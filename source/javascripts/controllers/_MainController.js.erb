@@ -65,13 +65,11 @@ import _ from "underscore";
 			}
 
 			function showRepoYmlSplashModalIfNecessary () {
-				$q.all([appService.getCurrentUserBetaTags(), appService.getPipelineConfig()])
+				appService.getPipelineConfig()
 					.then(function() {
-						var featureAvailable = _.contains(appService.betaTags, 'repository-yml-usage');
 						var splashModalCookieMissing = !$cookies.get("splash_modal_shown")
 						viewModel.shouldShowRepoYmlSplashModal =
 							requestService.mode === "website"
-							&& featureAvailable
 							&& splashModalCookieMissing
 							&& !appService.pipelineConfig.usesRepositoryYml;
 
@@ -388,7 +386,7 @@ import _ from "underscore";
 
 				viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-				if (appService.pipelineConfig.usesRepositoryYml && _.contains(appService.betaTags, 'repository-yml-usage')) {
+				if (appService.pipelineConfig.usesRepositoryYml) {
 					viewModel.deferredUserSavedYmlToRepository = $q.defer();
 					$timeout(function() {
 						viewModel.isUpdateYmlInRepositoryModalVisible = true;
