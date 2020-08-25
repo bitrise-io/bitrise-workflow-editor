@@ -91,6 +91,18 @@ window.mode = "<%= mode %>";
 		<% end %>
 	<% end %>
 
+	<% if mode == "website" %>
+	BitriseWorkflowEditor.run(function (requestService) {
+		if (!!window.freshpaint) {
+			window.freshpaint.page();
+			requestService.getCurrentUserData()
+				.then(function(user) {
+					window.freshpaint.identify(user.slug);
+				})
+		}
+	});
+	<% end %>
+
 	BitriseWorkflowEditor.factory("$exceptionHandler", function ($log, logger) {
 		return function (error, cause) {
 			logger.error(error, {cause: cause});

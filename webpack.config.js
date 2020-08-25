@@ -59,7 +59,7 @@ if (isHotjarEnabled) {
 	entry.hotjar = "./javascripts/hotjar.js";
 }
 if (isFreshpaintEnabled) {
-	entry.freshpaint = "./javascripts/freshpaint.js"
+	entry.freshpaint = "./javascripts/freshpaint.js.erb";
 }
 
 module.exports = {
