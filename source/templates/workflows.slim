@@ -135,11 +135,11 @@
 										.parameter.key
 											input[value="{{ output | prettifiedVariableKey }}" readonly]
 										.parameter.description
-											p[ng-if="!output.shortestDescription()"] == data[:strings][:workflows][:outputs][:no_description]
-											div[ng-if="output.shortestDescription()"]
+											p[ng-if="!output.title()"] == data[:strings][:workflows][:outputs][:no_description]
+											div[ng-if="output.title()"]
 												button[ng-click="workflowsCtrl.outputSelected(output)"]
 												.toggleabble-description
-													p[sanitized-markdown="output.shortestDescription()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
+													p[sanitized-markdown="output.title()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
 													== svg("arrow-down")
 						r-error-notification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
 						button.delete-step.rebo.big.hollow-danger[ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
