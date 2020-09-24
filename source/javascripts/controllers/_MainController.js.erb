@@ -74,6 +74,7 @@ import _ from "underscore";
 							var loadPromises = [appService.getAppConfig()];
 							if (requestService.mode == "website") {
 								loadPromises.push(Stack.getAll().then(appService.getStack));
+								loadPromises.push(appService.getPipelineConfig());
 							}
 
 							$q.all(loadPromises).then(
