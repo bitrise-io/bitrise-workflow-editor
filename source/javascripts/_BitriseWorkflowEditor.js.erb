@@ -97,7 +97,7 @@ window.mode = "<%= mode %>";
 			window.freshpaint.page();
 			requestService.getCurrentUserData()
 				.then(function(user) {
-					window.freshpaint.identify(user.slug);
+					window.freshpaint.identify(user.dataId);
 				})
 		}
 	});
