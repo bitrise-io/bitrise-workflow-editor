@@ -11,6 +11,10 @@ import jsyaml from "js-yaml";
 				appSlug: RequestService.appSlug,
 			};
 
+			requestService.isWebsiteMode = function() {
+				return RequestService.isWebsiteMode();
+			}
+
 			function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
 				var status = response && response.status;
 

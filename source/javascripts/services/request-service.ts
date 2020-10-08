@@ -37,6 +37,10 @@ class RequestService {
 		this.logger = logger;
 	}
 
+	public isWebsiteMode(): boolean {
+		return this.mode === "website";
+	}
+
 	public async getAppConfigYML(
 		abortedPromise: Promise<undefined>
 	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {

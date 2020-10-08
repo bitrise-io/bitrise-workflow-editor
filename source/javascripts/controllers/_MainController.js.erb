@@ -72,7 +72,7 @@ import _ from "underscore";
 						case "env-vars":
 						case "triggers":
 							var loadPromises = [appService.getAppConfig()];
-							if (requestService.mode == "website") {
+							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll().then(appService.getStack));
 								loadPromises.push(appService.getPipelineConfig());
 							}
@@ -88,7 +88,7 @@ import _ from "underscore";
 												"<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
 											])
 												.then(function() {
-													return appService.pipelineConfig.usesRepositoryYml ? $q.when() : viewModel.save();
+													return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? $q.when() : viewModel.save();
 												})
 												.then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 										} else {
@@ -371,7 +371,7 @@ import _ from "underscore";
 
 				viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-				if (appService.pipelineConfig.usesRepositoryYml) {
+				if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
 					viewModel.deferredUserSavedYmlToRepository = $q.defer();
 					$timeout(function() {
 						viewModel.isUpdateYmlInRepositoryModalVisible = true;
@@ -389,7 +389,7 @@ import _ from "underscore";
 									viewModel.dataToSave = appService.appConfig;
 									return appService.saveAppConfig(deferredSavePromise)
 										.then(function() {
-											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})
 										.then(resolve, reject)
 								case "secrets":
@@ -398,14 +398,14 @@ import _ from "underscore";
 									viewModel.dataToSave = appService.appConfig;
 									return $q.all([appService.saveAppConfig(deferredSavePromise), appService.saveStack()])
 										.then(function() {
-											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})
 										.then(resolve, reject);
 								case "yml":
 									viewModel.dataToSave = appService.appConfigYML;
 									return appService.saveAppConfigYML(deferredSavePromise)
 										.then(function() {
-											return appService.pipelineConfig.usesRepositoryYml ? reloadAppConfigYML() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfigYML() : $q.when();
 										})
 										.then(resolve, reject);
 							}
