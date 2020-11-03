@@ -17,7 +17,7 @@ Cypress.Commands.add("waitForSteps", () => {
 	cy.wait(3000);
 });
 
-Cypress.Commands.add("loadSteps", () => {
+Cypress.Commands.add("loadSteps", (cb) => {
 	cy.server();
 	cy.route("POST", "/1/indexes/steplib_inputs/**").as("steplib-inputs");
 
@@ -31,6 +31,7 @@ Cypress.Commands.add("loadSteps", () => {
 			})
 		).as("steplib-steps");
 
+		cb();
 		cy.waitForSteps();
 	});
 });
