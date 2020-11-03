@@ -1,9 +1,9 @@
 Feature: Workflows
 
-  Adding a Workflow is possible by providing a name for it, and either starting out with an empty one, or as a duplication of a selectable existing one.
+  Creating a Workflow is possible by providing a name for it, and either starting out with an empty one, or as a duplication of a selectable existing one.
 
   Background:
-    Given editor is open
+    Given workflows tab is open
 
   Scenario: Steps sidebar
     Then I should see "GitHub Status" in "First step"
@@ -84,7 +84,7 @@ Feature: Workflows
 
   Scenario: User selects the delete button of an after run Workflow
     Given "wf3" workflow is selected
-      When I click away
+    When I click away
       And I scroll to the "top"
     When I click on "first wf5 Remove button"
     Then "Workflow Sections" should contain 4 "Workflow Section"
@@ -111,9 +111,9 @@ Feature: Workflows
     Then "Default popup" should "not be visible"
       And "Save Button" should "not be disabled"
     When I click on "Selected Workflow Name"
-      Then Workflow selector options should not contain "wf6"
+    Then Workflow selector options should not contain "wf6"
     When I click on "wf3 workflow"
-      Then I should see "wf5" in "Last After Workflow Name"
+    Then I should see "wf5" in "Last After Workflow Name"
 
   Scenario: User cancels deleting a Workflow
     Given "wf6" workflow is selected
@@ -190,7 +190,7 @@ Feature: Workflows
 
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
-      When I scroll to the "top"
+    When I scroll to the "top"
       And I click on "Rearrange button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
