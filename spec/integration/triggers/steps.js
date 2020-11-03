@@ -5,6 +5,14 @@ import "../common";
 
 const PORT = Cypress.env("PORT");
 
+afterEach(() => {
+	$("Discard Button").then(btn => {
+		if (!btn.is(":disabled")) {
+			btn.click();
+		}
+	});
+});
+
 const assertTriggerCount = (count) => {
 	$("Triggers").should("have.length", count)
 }
