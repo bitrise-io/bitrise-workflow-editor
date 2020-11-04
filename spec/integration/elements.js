@@ -1,3 +1,5 @@
+import triggerElements from "./triggers/elements";
+
 const workflowSelectElement = workflowName =>
 	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
 const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
@@ -195,8 +197,9 @@ export const elements = {
 	"Insert variable element called GITHUB_TOKEN source": `${inputVariableSelector("GITHUB_TOKEN")} em`,
 	"Insert variable element called COMPANY_NAME": inputVariableSelector("COMPANY_NAME"),
 	"Insert variable element called COMPANY_NAME source": `${inputVariableSelector("COMPANY_NAME")} em`,
-	"Insert variable filter field": "#insert-variable-popup-body header input"
-};
+	"Insert variable filter field": "#insert-variable-popup-body header input",
+	...triggerElements
+}
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;
 

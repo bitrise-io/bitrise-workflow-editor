@@ -109,8 +109,8 @@ const scrollTo = position => {
 	cy.scrollTo(position);
 };
 
-Given("editor is open", () => {
-	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
+Given("workflows tab is open", () => {
+	cy.loadSteps(() => cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`));
 });
 
 Given("{string} workflow is selected", workflow => {
