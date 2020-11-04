@@ -707,17 +707,7 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.deleteStepSelected = function() {
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index, 1);
-
-				if (index === 0) {
-					var workflowIndex = _.findIndex(viewModel.selectedWorkflowChain, function(item) {
-						return item.workflow.id === viewModel.editedWorkflow.id;
-					});
-					
-					viewModel.stepSelected(null);
-					viewModel.editWorkflowAtIndex(workflowIndex);
-				} else {
-					viewModel.stepSelected(viewModel.editedWorkflow.steps[index - 1]);
-				}
+				viewModel.stepSelected(null);
 			};
 
 			viewModel.deleteStepButtonText = function() {
