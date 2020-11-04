@@ -637,6 +637,7 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (!step) {
+					viewModel.selectedStep = null
 					return;
 				}
 
@@ -707,7 +708,16 @@ import { safeDigest } from "../services/react-compat";
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index, 1);
 
-				viewModel.stepSelected(null);
+				if (index === 0) {
+					var workflowIndex = _.findIndex(viewModel.selectedWorkflowChain, function(item) {
+						return item.workflow.id === viewModel.editedWorkflow.id;
+					});
+					
+					viewModel.stepSelected(null);
+					viewModel.editWorkflowAtIndex(workflowIndex);
+				} else {
+					viewModel.stepSelected(viewModel.editedWorkflow.steps[index - 1]);
+				}
 			};
 
 			viewModel.deleteStepButtonText = function() {
