@@ -637,6 +637,7 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (!step) {
+					viewModel.selectedStep = null
 					return;
 				}
 
@@ -706,7 +707,6 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.deleteStepSelected = function() {
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index, 1);
-
 				viewModel.stepSelected(null);
 			};
 
