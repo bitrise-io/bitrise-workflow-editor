@@ -71,7 +71,7 @@ import _ from "underscore";
 						case "workflows":
 						case "env-vars":
 						case "triggers":
-							var loadPromises = [appService.getAppConfig()];
+							var loadPromises = [appService.getAppConfig(), appService.getCurrentUserBetaTags()];
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll().then(appService.getStack));
 								loadPromises.push(appService.getPipelineConfig());

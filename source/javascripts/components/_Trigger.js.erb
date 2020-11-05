@@ -45,13 +45,19 @@
 				return "tag";
 			}
 		};
+		
+		Trigger.prototype.setTarget = function(target) {
+			delete this.triggerConfig.workflow;
+			delete this.triggerConfig.pipeline;
+			this.triggerConfig[target.type] = target.value;
+		};
 
-		Trigger.prototype.workflowID = function(workflowID) {
-			if (workflowID !== undefined) {
-				this.triggerConfig.workflow = workflowID;
+		Trigger.prototype.getTarget = function(target) {
+			var type = this.triggerConfig.workflow ? "workflow" : "pipeline"
+			return {
+				type: type,
+				value: this.triggerConfig[type]
 			}
-
-			return this.triggerConfig.workflow;
 		};
 
 		Trigger.prototype.pushBranchPattern = function(pushBranchPattern) {

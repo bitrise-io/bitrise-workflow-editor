@@ -16,7 +16,7 @@
 
 			var addTriggerProgress = new Progress();
 
-			viewModel.workflows;
+			viewModel.targets;
 
 			$scope.triggerTypes = [
 				{
@@ -75,12 +75,17 @@
 			);
 
 			function configureWithAppConfig() {
-				viewModel.workflows = _.map(appService.appConfig.workflows, function(
-					aWorkflowConfig,
-					workflowID
-				) {
-					return new Workflow(workflowID, aWorkflowConfig);
-				});
+				viewModel.targets = Object.keys(appService.appConfig.workflows)
+					.map(function(workflowId) {
+						return { groupLabel: "Workflows", type: "workflow", value: workflowId, disabled: workflowId[0] === "_" };
+					});
+
+				if (appService.betaTags.indexOf("can-trigger-pipeline") > -1) {
+					var pipelines = Object.keys(appService.appConfig.pipelines).map(function(pipelineId) {
+						return { groupLabel: "Pipelines", type: "pipeline", value: pipelineId };
+					});
+					viewModel.targets = viewModel.targets.concat(pipelines);	
+				}
 
 				_.each($scope.triggerTypes, function(aTriggerType) {
 					aTriggerType.triggers = [];
@@ -132,6 +137,10 @@
 				viewModel.selectedTrigger = trigger;
 				viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
 
+				if (viewModel.editedTrigger) {
+					viewModel.editedTrigger.target = viewModel.editedTrigger.getTarget();
+				}
+				
 				viewModel.editedTriggerPushBranchPattern = viewModel.editedTrigger
 					? viewModel.editedTrigger.pushBranchPattern()
 					: undefined;
@@ -166,7 +175,10 @@
 			viewModel.addTriggerSelectedAtIndex = function(index) {
 				var newTrigger = new Trigger();
 				newTrigger.type(viewModel.selectedTriggerType.id);
-				newTrigger.workflowID(_.first(viewModel.workflows).id);
+				newTrigger.setTarget({
+					type: "workflow",
+					value: _.first(viewModel.workflowIds)
+				});
 				switch (newTrigger.type()) {
 					case "push":
 						newTrigger.pushBranchPattern("");
@@ -190,10 +202,6 @@
 			};
 
 			viewModel.triggerIsInvalid = function() {
-				if (viewModel.editedTrigger.workflowID()[0] == "_") {
-					return true;
-				}
-
 				return _.any(
 					_.without(
 						viewModel.selectedTriggerType.triggers,
@@ -225,9 +233,7 @@
 			};
 
 			viewModel.triggerEditFinished = function() {
-				viewModel.selectedTrigger.workflowID(
-					viewModel.editedTrigger.workflowID()
-				);
+				viewModel.selectedTrigger.setTarget(viewModel.editedTrigger.target);
 
 				switch (viewModel.selectedTrigger.type()) {
 					case "push":
