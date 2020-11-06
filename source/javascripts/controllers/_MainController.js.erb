@@ -71,10 +71,11 @@ import _ from "underscore";
 						case "workflows":
 						case "env-vars":
 						case "triggers":
-							var loadPromises = [appService.getAppConfig(), appService.getCurrentUserBetaTags()];
+							var loadPromises = [appService.getAppConfig()];
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll().then(appService.getStack));
 								loadPromises.push(appService.getPipelineConfig());
+								loadPromises.push(appService.getCurrentUserBetaTags());
 							}
 
 							$q.all(loadPromises).then(

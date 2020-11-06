@@ -80,7 +80,7 @@
 						return { groupLabel: "Workflows", type: "workflow", value: workflowId, disabled: workflowId[0] === "_" };
 					});
 
-				if (appService.betaTags.indexOf("can-trigger-pipeline") > -1) {
+				if (appService.betaTags && appService.betaTags.indexOf("can-trigger-pipeline") > -1) {
 					var pipelines = Object.keys(appService.appConfig.pipelines).map(function(pipelineId) {
 						return { groupLabel: "Pipelines", type: "pipeline", value: pipelineId };
 					});
