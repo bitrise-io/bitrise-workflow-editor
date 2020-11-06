@@ -175,10 +175,7 @@
 			viewModel.addTriggerSelectedAtIndex = function(index) {
 				var newTrigger = new Trigger();
 				newTrigger.type(viewModel.selectedTriggerType.id);
-				newTrigger.setTarget({
-					type: "workflow",
-					value: _.first(viewModel.workflowIds)
-				});
+				newTrigger.setTarget(_.first(viewModel.targets));
 				switch (newTrigger.type()) {
 					case "push":
 						newTrigger.pushBranchPattern("");
