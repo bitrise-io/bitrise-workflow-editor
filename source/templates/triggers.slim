@@ -46,6 +46,6 @@
 						== svg("arrow_tailed_slim-down")
 						span.trigger-info.workflow
 							span.label[ng-bind="trigger.targetType()"]
-							strong.value[ng-bind="trigger.targetValue()"]
+							strong.value[ng-bind="trigger.targetId()"]
 					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTrigger(trigger)"]  == svg("trash")
 				button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]

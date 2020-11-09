@@ -48,20 +48,20 @@
 
 		Trigger.prototype.target = function(target) {
 			if (!target) {
-				return this.targetType() + "#" + this.targetValue()
+				return this.targetType() + "#" + this.targetId()
 			}
 
 			var parts = target.split("#");
 			this.targetType(parts[0]);
-			this.targetValue(parts[1]);
+			this.targetId(parts[1]);
 		}
 		
-		Trigger.prototype.targetValue = function(targetValue) {
-			if (!targetValue) {
+		Trigger.prototype.targetId = function(targetId) {
+			if (!targetId) {
 				return this.triggerConfig[this.targetType()];
 			}
 
-			this.triggerConfig[this.targetType()] = targetValue;
+			this.triggerConfig[this.targetType()] = targetId;
 		};
 
 		Trigger.prototype.targetType = function(targetType) {
@@ -69,7 +69,7 @@
 				return this.triggerConfig.hasOwnProperty("workflow") ? "workflow" : "pipeline";
 			}
 
-			var target = this.targetValue();
+			var target = this.targetId();
 			delete this.triggerConfig[this.targetType()];
 			this.triggerConfig[targetType] = target;
 		};

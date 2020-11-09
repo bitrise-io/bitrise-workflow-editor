@@ -79,7 +79,7 @@
 					.map(function(workflowId) {
 						return { value: "workflow#"+ workflowId, groupLabel: "Workflows", label: workflowId, disabled: workflowId[0] === "_" };
 					})
-					.sort(function(a,b) {
+					.sort(function(a, b) {
 						return a.label.localeCompare(b.label);
 					})
 					.sort(function(a, b) {
@@ -91,7 +91,7 @@
 					.map(function(pipelineId) {
 						return { value: "pipeline#"+ pipelineId, groupLabel: "Pipelines", label: pipelineId };
 					})
-					.sort(function(a,b) {
+					.sort(function(a, b) {
 						return a.label.localeCompare(b.label);
 					});
 					viewModel.targets = viewModel.targets.concat(pipelines);	
@@ -206,6 +206,10 @@
 			};
 
 			viewModel.triggerIsInvalid = function() {
+				if (!viewModel.editedTrigger.targetId() || viewModel.editedTrigger.targetId()[0] === "_") {	
+					return true;	
+				}
+
 				return _.any(
 					_.without(
 						viewModel.selectedTriggerType.triggers,

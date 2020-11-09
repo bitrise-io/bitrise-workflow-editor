@@ -46,13 +46,13 @@ describe("Trigger", function() {
 
 	});
 
-	describe("targetValue", function() {
+	describe("targetId", function() {
 		it("should return target value if no arguments are passed", function() {
 			const trigger = new Trigger({
 				workflow: "red-workflow"
 			});
 
-			expect(trigger.targetValue()).toBe("red-workflow");
+			expect(trigger.targetId()).toBe("red-workflow");
 		});
 
 		it("should set target value if argument is passed without changing type", function() {
@@ -60,7 +60,7 @@ describe("Trigger", function() {
 				workflow: "red-workflow"
 			});
 
-			trigger.targetValue("blue-workflow");
+			trigger.targetId("blue-workflow");
 			expect(trigger.triggerConfig.workflow).toBe("blue-workflow");
 		});
 	});
