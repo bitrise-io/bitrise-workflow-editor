@@ -45,19 +45,33 @@
 				return "tag";
 			}
 		};
+
+		Trigger.prototype.target = function(target) {
+			if (!target) {
+				return this.targetType() + "#" + this.targetValue()
+			}
+
+			var parts = target.split("#");
+			this.targetType(parts[0]);
+			this.targetValue(parts[1]);
+		}
 		
-		Trigger.prototype.setTarget = function(target) {
-			delete this.triggerConfig.workflow;
-			delete this.triggerConfig.pipeline;
-			this.triggerConfig[target.type] = target.value;
+		Trigger.prototype.targetValue = function(targetValue) {
+			if (!targetValue) {
+				return this.triggerConfig[this.targetType()];
+			}
+
+			this.triggerConfig[this.targetType()] = targetValue;
 		};
 
-		Trigger.prototype.getTarget = function(target) {
-			var type = this.triggerConfig.workflow ? "workflow" : "pipeline"
-			return {
-				type: type,
-				value: this.triggerConfig[type]
+		Trigger.prototype.targetType = function(targetType) {
+			if (!targetType) {
+				return this.triggerConfig.hasOwnProperty("workflow") ? "workflow" : "pipeline";
 			}
+
+			var target = this.targetValue();
+			delete this.triggerConfig[this.targetType()];
+			this.triggerConfig[targetType] = target;
 		};
 
 		Trigger.prototype.pushBranchPattern = function(pushBranchPattern) {

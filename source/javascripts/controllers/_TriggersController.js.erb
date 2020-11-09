@@ -77,12 +77,22 @@
 			function configureWithAppConfig() {
 				viewModel.targets = Object.keys(appService.appConfig.workflows)
 					.map(function(workflowId) {
-						return { groupLabel: "Workflows", type: "workflow", value: workflowId, disabled: workflowId[0] === "_" };
+						return { value: "workflow#"+ workflowId, groupLabel: "Workflows", label: workflowId, disabled: workflowId[0] === "_" };
+					})
+					.sort(function(a,b) {
+						return a.label.localeCompare(b.label);
+					})
+					.sort(function(a, b) {
+						return b.disabled ? -1 : 0;
 					});
 
 				if (appService.betaTags && appService.betaTags.indexOf("can-trigger-pipeline") > -1) {
-					var pipelines = Object.keys(appService.appConfig.pipelines).map(function(pipelineId) {
-						return { groupLabel: "Pipelines", type: "pipeline", value: pipelineId };
+					var pipelines = Object.keys(appService.appConfig.pipelines)
+					.map(function(pipelineId) {
+						return { value: "pipeline#"+ pipelineId, groupLabel: "Pipelines", label: pipelineId };
+					})
+					.sort(function(a,b) {
+						return a.label.localeCompare(b.label);
 					});
 					viewModel.targets = viewModel.targets.concat(pipelines);	
 				}
@@ -136,10 +146,6 @@
 
 				viewModel.selectedTrigger = trigger;
 				viewModel.editedTrigger = angular.copy(viewModel.selectedTrigger);
-
-				if (viewModel.editedTrigger) {
-					viewModel.editedTrigger.target = viewModel.editedTrigger.getTarget();
-				}
 				
 				viewModel.editedTriggerPushBranchPattern = viewModel.editedTrigger
 					? viewModel.editedTrigger.pushBranchPattern()
@@ -175,7 +181,8 @@
 			viewModel.addTriggerSelectedAtIndex = function(index) {
 				var newTrigger = new Trigger();
 				newTrigger.type(viewModel.selectedTriggerType.id);
-				newTrigger.setTarget(_.first(viewModel.targets));
+				newTrigger.target(_.first(viewModel.targets).value);
+				
 				switch (newTrigger.type()) {
 					case "push":
 						newTrigger.pushBranchPattern("");
@@ -230,7 +237,7 @@
 			};
 
 			viewModel.triggerEditFinished = function() {
-				viewModel.selectedTrigger.setTarget(viewModel.editedTrigger.target);
+				viewModel.selectedTrigger.target(viewModel.editedTrigger.target());
 
 				switch (viewModel.selectedTrigger.type()) {
 					case "push":
