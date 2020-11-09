@@ -46,47 +46,62 @@ describe("Trigger", function() {
 
 	});
 
-	describe("setTarget", function() {
-		it("should set a workflow type target", function() {
-			const trigger = new Trigger();
-
-			trigger.setTarget({ type: "workflow", value: "red-workflow" });
-			
-			expect(trigger.triggerConfig.workflow).toBe("red-workflow");
-			expect(trigger.triggerConfig.pipeline).not.toBeDefined();
-		})
-
-		it("should set a pipeline type target", function() {
-			const trigger = new Trigger();
-
-			trigger.setTarget({ type: "pipeline", value: "blue-pipeline" });
-			
-			expect(trigger.triggerConfig.workflow).not.toBeDefined();
-			expect(trigger.triggerConfig.pipeline).toBe("blue-pipeline");
-		})
-	})
-
-	describe("getTarget", function() {
-		it("should return a workflow type target", function() {
+	describe("targetValue", function() {
+		it("should return target value if no arguments are passed", function() {
 			const trigger = new Trigger({
 				workflow: "red-workflow"
 			});
 
-			const target = trigger.getTarget();
-			expect(target.type).toBe("workflow");
-			expect(target.value).toBe("red-workflow");
-		})
+			expect(trigger.targetValue()).toBe("red-workflow");
+		});
 
-		it("should return a pipeline type target", function() {
+		it("should set target value if argument is passed without changing type", function() {
 			const trigger = new Trigger({
-				pipeline: "blue-pipeline"
+				workflow: "red-workflow"
 			});
 
-			const target = trigger.getTarget();
-			expect(target.type).toBe("pipeline");
-			expect(target.value).toBe("blue-pipeline");
-		})
-	})
+			trigger.targetValue("blue-workflow");
+			expect(trigger.triggerConfig.workflow).toBe("blue-workflow");
+		});
+	});
+
+	describe("targetType", function() {
+		it("should return target type if no arguments are passed", function() {
+			const trigger = new Trigger({
+				pipeline: "red-pipeline"
+			});
+			expect(trigger.targetType()).toBe("pipeline");
+		});
+
+		it("should get target type if no arguments are passed", function() {
+			const trigger = new Trigger({
+				pipeline: "red-workflow"
+			});
+
+			trigger.targetType("workflow");
+			expect(trigger.triggerConfig.workflow).toBe("red-workflow");
+			expect(trigger.triggerConfig.pipeline).toBeUndefined();
+		});
+	});
+
+	describe("target", function() {
+		it("should return target string if no arguments are passed", function() {
+			const trigger = new Trigger({
+				workflow: "red-workflow"
+			});
+			expect(trigger.target()).toBe("workflow#red-workflow");
+		});
+
+		it("should set target type and value from the argument passed", function() {
+			const trigger = new Trigger({
+				workflow: "red-workflow"
+			});
+
+			trigger.target("pipeline#blue-pipeline");
+			expect(trigger.triggerConfig.pipeline).toBe("blue-pipeline");
+			expect(trigger.triggerConfig.workflow).toBeUndefined();
+		});
+	});
 
 	describe("pushBranchPattern", function() {
 
