@@ -5,7 +5,7 @@
 			label[for="{{ id }}" ng-bind="triggerType.id | displayNameForTriggerType"]
 	ul
 		li
-			button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex(0)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]
+			button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex(0)" ng-disabled="triggersCtrl.selectedTrigger || !triggersCtrl.targets.length"] == data[:strings][:triggers][:add]
 		ul[order-by-drag models="triggersCtrl.selectedTriggerType.triggers" disable-order-on="triggersCtrl.selectedTrigger"]
 			li[ng-repeat="trigger in triggersCtrl.selectedTriggerType.triggers"]
 				.trigger
@@ -48,4 +48,4 @@
 							span.label[ng-bind="trigger.targetType()"]
 							strong.value[ng-bind="trigger.targetId()"]
 					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTrigger(trigger)"]  == svg("trash")
-				button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger"] == data[:strings][:triggers][:add]
+				button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger || !triggersCtrl.targets.length"] == data[:strings][:triggers][:add]
