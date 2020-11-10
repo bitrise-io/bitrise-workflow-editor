@@ -75,6 +75,7 @@ import _ from "underscore";
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll().then(appService.getStack));
 								loadPromises.push(appService.getPipelineConfig());
+								loadPromises.push(appService.getCurrentUserBetaTags());
 							}
 
 							$q.all(loadPromises).then(
