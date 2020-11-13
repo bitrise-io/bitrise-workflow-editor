@@ -27,7 +27,7 @@
 	.content {
 		text-align: center;
 		font-size: 13px;
-		opacity: 0.5;
+		opacity: 1;
 		color: $def-green;
 		@include transition(opacity, $def-transition_duration);
 
