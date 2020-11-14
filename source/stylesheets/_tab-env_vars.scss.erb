@@ -102,9 +102,7 @@
 
 								border: 1px solid $color;
 								color: $color;
-								background-image: background_image_from_svg_content_with_attributes('<%= svg("env_var_prefix") %>', (
-									fill: white
-								)), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
+								background-image: background_image_from_svg_content('<%= svg("env_var_prefix") %>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
 							}
 
 							@include order(1);

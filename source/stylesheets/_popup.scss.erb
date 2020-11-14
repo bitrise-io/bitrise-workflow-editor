@@ -187,9 +187,7 @@
 	.popup-body#default-alert-popup-body.success {
 
 		&:before {
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
-				fill: rgba(white, 0.99)
-			));
+			background-image: background_image_from_svg_content('<%= svg("check") %>');
 			background-size: auto 32px;
 			background-color: $def-green;
 		}
@@ -216,9 +214,7 @@
 	.popup-body#default-confirm-popup-body {
 
 		&:before {
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("exclamation-mark") %>', (
-				fill: rgba(white, 0.99)
-			));
+			background-image: background_image_from_svg_content('<%= svg("exclamation-mark") %>');
 			background-size: auto 54px;
 			background-color: $def-danger;
 		}
@@ -259,9 +255,7 @@
 	.popup-body#default-alert-popup-body.error {
 
 		&:before {
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("cross") %>', (
-				fill: rgba(white, 0.99)
-			));
+			background-image: background_image_from_svg_content('<%= svg("cross") %>');
 			background-size: auto 32px;
 			background-color: $def-danger;
 		}
@@ -288,9 +282,7 @@
 	.popup-body#default-alert-popup-body.notice {
 
 		&:before {
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("lightbulb") %>', (
-				fill: rgba(white, 0.99)
-			));
+			background-image: background_image_from_svg_content('<%= svg("lightbulb") %>');
 			background-size: auto 24px;
 			background-color: $def-blue;
 		}

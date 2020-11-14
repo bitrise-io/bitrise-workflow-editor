@@ -60,7 +60,7 @@
 	@include notification_styling($def-violet_blue, $def-light-grape, '<%= svg("spinner") %>', true);
 
 	&:before {
-		background-image: background_image_from_svg_content_with_styling('<%= svg("spinner") %>', "circle {stroke: #{rgba($def-violet_blue, 0.99)};}");
+		background-image: background_image_from_svg_content('<%= svg("spinner") %>');
 	}
 }
 

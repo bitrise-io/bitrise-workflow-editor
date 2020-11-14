@@ -196,9 +196,7 @@ section.manage-workflows {
 						border: none;
 						padding: 10px 7px;
 						background-color: $def-purple;
-						background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
-							fill: rgba(white, 0.99)
-						)), none;
+						background-image: background_image_from_svg_content('<%= svg("check") %>'), none;
 						background-size: 100% auto;
 						background-position: center;
 						background-origin: content-box;
@@ -1716,9 +1714,7 @@ header.sticky section.manage-workflows {
 						background-color: $arrow-color;
 						background-clip: border-box, content-box;
 
-						background-image: background_image_from_svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
-							fill: rgba($arrow-color, 0.99)
-						)), none;
+						background-image: background_image_from_svg_content('<%= svg("arrow_slim-down") %>'), none;
 						background-size: contain;
 						background-position: center bottom;
 						background-repeat: no-repeat;
@@ -1900,9 +1896,7 @@ header.sticky section.manage-workflows {
 			ul.workflow-subchain.before-run {
 
 				li {
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("workflow/icon-before_run") %>');
 					background-size: $icon-size auto;
 				}
 			}
@@ -1910,9 +1904,7 @@ header.sticky section.manage-workflows {
 			ul.workflow-subchain.after-run {
 
 				li {
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-after_run") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("workflow/icon-after_run") %>');
 					background-size: $icon-size auto;
 				}
 			}
@@ -1921,9 +1913,7 @@ header.sticky section.manage-workflows {
 				background-color: white;
 
 				li {
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-current") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("workflow/icon-current") %>');
 					background-size: $icon-size auto;
 				}
 			}
@@ -1943,9 +1933,7 @@ header.sticky section.manage-workflows {
 					content: "";
 					@include size($drag_handle-reservedspace, 100%);
 					background-position: center;
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("drag_handle") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("drag_handle") %>');
 					background-size: 4px auto;
 					background-repeat: no-repeat;
 				}
@@ -1975,20 +1963,12 @@ header.sticky section.manage-workflows {
 			}
 
 			select.run-workflow-selector.before-run {
-				background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-					fill: rgba($def-purple-light, 0.99)
-				)), background_image_from_svg_content_with_attributes('<%= svg("arrow-down") %>', (
-					fill: rgba(white, 0.99)
-				));
+				background-image: background_image_from_svg_content('<%= svg("workflow/icon-before_run_popup") %>'), background_image_from_svg_content('<%= svg("arrow-down") %>');
 				background-size: $icon-size auto, 8px auto;
 			}
 
 			select.run-workflow-selector.after-run {
-				background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-					fill: rgba($def-purple-light, 0.99)
-				)), background_image_from_svg_content_with_attributes('<%= svg("arrow-down") %>', (
-					fill: rgba(white, 0.99)
-				));
+				background-image: background_image_from_svg_content('<%= svg("workflow/icon-before_run_popup") %>'), background_image_from_svg_content('<%= svg("arrow-down") %>');
 				background-size: $icon-size auto, 8px auto;
 			}
 		}
@@ -2082,9 +2062,7 @@ header.sticky section.manage-workflows {
 			font-size: 16px;
 			font-weight: 300;
 			background-color: $def-verylightgrey;
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
-				fill: rgba($def-darkgrey, 0.99)
-			));
+			background-image: background_image_from_svg_content('<%= svg("search") %>');
 			background-size: $searchicon_width auto;
 			background-repeat: no-repeat;
 			background-position: left $padding center;
@@ -2124,9 +2102,7 @@ header.sticky section.manage-workflows {
 				font-size: 16px;
 				font-weight: 300;
 				background-color: $def-verylightgrey;
-				background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
-					fill: rgba($def-darkgrey, 0.99)
-				));
+				background-image: background_image_from_svg_content('<%= svg("search") %>');
 				background-size: $searchicon_width auto;
 				background-repeat: no-repeat;
 				background-position: left $padding center;
@@ -2221,9 +2197,7 @@ header.sticky section.manage-workflows {
 
 							border: 1px solid $color;
 							color: $color;
-							background-image: background_image_from_svg_content_with_attributes('<%= svg("env_var_prefix") %>', (
-								fill: white
-							)), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
+							background-image: background_image_from_svg_content('<%= svg("env_var_prefix") %>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
 						}
 
 						@include order(1);
