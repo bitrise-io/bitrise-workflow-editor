@@ -89,7 +89,7 @@
 							padding: 0px $input-horizontalpadding;
 							height: $input-height;
 							font-size: 14px;
-							font-weight: 200;
+							font-weight: 400;
 							@include SourceCodeProWithFallback;
 						}
 
@@ -121,7 +121,8 @@
 							}
 
 							&:disabled {
-								opacity: 0.5;
+								background-color: $def-verylightgrey;
+    						color: $def-darkgrey;
 							}
 						}
 
@@ -141,6 +142,12 @@
 								@include padding-y(8px);
 								display: block;
 								width: 100%;
+
+
+								&:disabled {
+									background-color: $def-verylightgrey;
+    							color: $def-darkgrey;
+								}
 							}
 
 							&.secret {
