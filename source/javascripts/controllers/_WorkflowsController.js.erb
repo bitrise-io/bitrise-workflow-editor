@@ -26,9 +26,27 @@ import { safeDigest } from "../services/react-compat";
 			Workflow,
 			Step,
 			Variable,
-			Stack
+			Stack,
+			$timeout
 		) {
 			var viewModel = this;
+
+			viewModel.workflowsHeight = 0;
+			viewModel.shouldShowWorkflowsContent = false;
+			viewModel.getWorkflowsHeight = function() {
+				var element = angular.element(document.querySelector('div.workflows')); 
+				viewModel.workflowsHeight = element[0].offsetHeight;
+
+				viewModel.shouldShowWorkflowsContent = true;
+			};
+			viewModel.getWorkflowStyles = function() {
+				return {
+					'display': 'flex',
+					'flex-direction': 'row',
+					'max-height': `${viewModel.workflowsHeight}px`,
+					'overflow': 'hidden'
+				};
+			};
 
 			viewModel.canceler = $q.defer();
 

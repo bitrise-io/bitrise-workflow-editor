@@ -331,9 +331,12 @@ header.sticky section.manage-workflows {
 
 			section.workflow {
 				@include flex-shrink(0);
-				border-top: 1px dashed $def-grey;
 				@include padding-x($main-horizontalpadding);
 				@include transition(background-color $def-transition_duration);
+
+				&:not(:first-child) {
+					border-top: 1px dashed $def-grey;
+				}
 
 				&:last-child {
 					@include flex-grow(1);
@@ -442,11 +445,10 @@ header.sticky section.manage-workflows {
 						.stack {
 							@include display-flex;
 							@include align-items(center);
-							margin-left: $spacing;
 
 							.icon {
 								@include flex-shrink(0);
-								@include margin-x(15px);
+								margin-right: 15px;
 
 								svg {
 									display: block;
@@ -1704,7 +1706,7 @@ header.sticky section.manage-workflows {
 
 				header.workflow-header {
 
-					&:before {
+					&.with-flow-decoration:before {
 						content: "";
 						@include flex-shrink(0);
 						@include box-sizing(border-box);
