@@ -44,6 +44,12 @@ import _ from "underscore";
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 
+			// Appcues integration
+			$rootScope.$on("$locationChangeSuccess", function(event, next, current) { 
+				window.Appcues.page();
+				window.Appcues.anonymous();
+			});
+
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
 					viewModel.changeMenuProgress.success();
