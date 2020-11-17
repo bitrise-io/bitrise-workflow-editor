@@ -1326,12 +1326,7 @@
 						@include padding-y(16px);
 						font-size: 13px;
 						font-weight: 500;
-
-						$svg_content_with_attributes: svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
-							fill: rgba($def-verydarkgrey, 0.99)
-						));
-
-						background-image: url('data:image/svg+xml;utf8, #{ $svg_content_with_attributes }');
+						background-image: background_image_from_svg_content('<%= svg("arrow_slim-down") %>'), none;
 						background-size: 14px auto;
 					}
 				}

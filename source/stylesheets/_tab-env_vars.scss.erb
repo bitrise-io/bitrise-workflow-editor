@@ -89,7 +89,7 @@
 							padding: 0px $input-horizontalpadding;
 							height: $input-height;
 							font-size: 14px;
-							font-weight: 200;
+							font-weight: 400;
 							@include SourceCodeProWithFallback;
 						}
 
@@ -102,9 +102,7 @@
 
 								border: 1px solid $color;
 								color: $color;
-								background-image: background_image_from_svg_content_with_attributes('<%= svg("env_var_prefix") %>', (
-									fill: white
-								)), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
+								background-image: background_image_from_svg_content('<%= svg("env_var_prefix") %>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
 							}
 
 							@include order(1);
@@ -123,7 +121,8 @@
 							}
 
 							&:disabled {
-								opacity: 0.5;
+								background-color: $def-verylightgrey;
+    						color: $def-darkgrey;
 							}
 						}
 
@@ -134,6 +133,7 @@
 							border: 1px solid $def-mediumlightgrey;
 							@include border-radius($def-radius);
 							position: relative;
+							overflow: hidden;
 
 							textarea.value {
 								@include align-self(stretch);
@@ -142,6 +142,12 @@
 								@include padding-y(8px);
 								display: block;
 								width: 100%;
+
+
+								&:disabled {
+									background-color: $def-verylightgrey;
+    							color: $def-darkgrey;
+								}
 							}
 
 							&.secret {

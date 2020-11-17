@@ -27,7 +27,7 @@
 	.content {
 		text-align: center;
 		font-size: 13px;
-		opacity: 0.5;
+		opacity: 1;
 		color: $def-green;
 		@include transition(opacity, $def-transition_duration);
 
@@ -50,7 +50,8 @@
 						stroke: $def-darkgrey;
 					}
 
-					polygon, rect {
+					polygon,
+					rect {
 						fill: $def-darkgrey;
 					}
 				}
@@ -69,10 +70,6 @@
 
 	input[type="file"]:disabled {
 		cursor: not-allowed;
-	}
-
-	input[type="file"]:not(:disabled):hover ~ .content, input[type="file"]:not(:disabled):focus ~ .content {
-		opacity: 1.0;
 	}
 
 	&.disabled {
