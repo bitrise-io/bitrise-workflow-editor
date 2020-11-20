@@ -315,18 +315,6 @@ import _ from "underscore";
 				}
 			};
 
-			window.onbeforeunload = function(event) {
-				cleanupMenu();
-
-				if (viewModel.hasUnsavedChanges()) {
-					return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
-				}
-
-				if (originalOnbeforeunloadHandler) {
-					originalOnbeforeunloadHandler(event);
-				}
-			};
-
 			window.onpopstate = function(event) {
 				if (event.state && event.state.eventID == "backButtonPressedOnInitialWorkflowEditorPage") {
 					window.location.replace();
@@ -372,6 +360,7 @@ import _ from "underscore";
 			}
 
 			viewModel.save = function(shouldReturnPromise) {
+				return ;
 				if (shouldReturnPromise === undefined) {
 					shouldReturnPromise = false;
 				}

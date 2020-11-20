@@ -15,6 +15,8 @@ import { safeDigest } from "../services/react-compat";
 				this.stepSelected = function(step) {
 					this.isVisible = false;
 
+					Appcues.show("0fb25d29-bf2a-494f-9922-dadf88861774");
+					
 					stepSourceService.loadStepVersions(step.id).then(function() {
 						var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
 						stepSelectedCallback(stepToAdd, insertIndex);
