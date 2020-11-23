@@ -35,7 +35,7 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.shouldShowWorkflowsContent = false;
 			viewModel.getWorkflowsHeight = function() {
 				var element = angular.element(document.querySelector('div.workflows')); 
-				viewModel.workflowsHeight = element[0].offsetHeight;
+				viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
 
 				viewModel.shouldShowWorkflowsContent = true;
 			};
@@ -653,6 +653,13 @@ import { safeDigest } from "../services/react-compat";
 				});
 			};
 
+			function resetEditContainerScrollPosition() {
+				var el = $(".step-edit-container");
+				if (el.length) {
+					el[0].scrollTop = 0;
+				}
+			}
+
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (!step) {
 					viewModel.selectedStep = null
@@ -688,6 +695,7 @@ import { safeDigest } from "../services/react-compat";
 						}, 300);
 					}
 
+					resetEditContainerScrollPosition();
 					safeDigest($scope);
 				})
 			};
