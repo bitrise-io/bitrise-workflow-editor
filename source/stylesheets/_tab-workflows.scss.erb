@@ -1,6 +1,10 @@
 @import "default";
 @import "constants";
 
+.tab-workflows .content {
+	overflow: hidden;
+}
+
 section.manage-workflows {
 	$button-spacing: 8px;
 	$button-wrapping-point: 580px;
@@ -292,10 +296,6 @@ section.manage-workflows {
 	}
 }
 
-header.sticky section.manage-workflows {
-	@include padding-y(10px);
-}
-
 .tab-workflows {
 	@include flex-grow(1);
 	@include flex-shrink(0);
@@ -322,12 +322,25 @@ header.sticky section.manage-workflows {
 			$icon-size_small: 36px;
 			$steptitle-width: 280px;
 			$steptitle-width_small: 220px;
+			border-top: 1px solid $def-lightgrey;
 
 			@include flex-grow(1);
 			@include flex-shrink(0);
 			@include display-flex;
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
+
+			.steps-container {
+				border-right: 1px solid $def-lightgrey;
+				overflow: scroll;
+				background: #ffffff;
+			}
+
+			.step-edit-container {
+				flex: 1;
+				overflow: scroll;
+				background: $def-ultralightgrey;
+			}
 
 			section.workflow {
 				@include flex-shrink(0);
