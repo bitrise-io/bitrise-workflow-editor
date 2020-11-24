@@ -68,12 +68,8 @@ Feature: Workflows
       And I should see "The wf3 test workflow" in "Selected Workflow description"
       And "wf3 steps container" should contain 4 "Add Step element"
       And "wf4 Remove button" should "be visible"
-      And "first wf5 Remove button" should "be visible"
-      And "wf6 Remove button" should "be visible"
     # And they don't have their stack displayed  - WEBSITE MODE ONLY
       And "wf4 steps add step icons" should "not be visible"
-      And "first wf5 steps add step icons" should "not be visible"
-      And "wf6 steps container" should contain 1 "Add Step element"
 
   Scenario: User selects a duplicate Workflow in the chain
     Given "wf3" workflow is selected

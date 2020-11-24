@@ -11,7 +11,7 @@ export const click = element => {
 };
 
 export const clickAway = () => {
-	click("main header:eq(0)");
+	click("main footer");
 };
 
 export const clear = element => {
@@ -109,6 +109,10 @@ const scrollTo = position => {
 	cy.scrollTo(position);
 };
 
+const scrollElementToPx = (element, position) => {
+	$(element).scrollTo(0, position)
+};
+
 Given("workflows tab is open", () => {
 	cy.loadSteps(() => cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`));
 });
@@ -130,6 +134,7 @@ When("I confirm on {string}", popupConfirm);
 When("I cancel on {string}", popupCancel);
 When("I change tab to {string}", changeTab);
 When("I scroll to the {string}", scrollTo);
+When("I scroll {string} to {int}px", scrollElementToPx);
 Then("I should see {string} in {string}", assertInputValueEQ);
 Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);

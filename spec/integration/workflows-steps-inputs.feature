@@ -40,6 +40,7 @@ Feature: Workflow steps inputs
 
   Scenario: Input in non-edit mode
     When I click on "First step"
+      And I scroll "Step edit container" to 100px
     Then "Selected Step First Input Change Button" should "be visible"
 
   Scenario: User changes Input text value
@@ -53,6 +54,7 @@ Feature: Workflow steps inputs
 
   Scenario: Sensitive Input
     When I click on "First step"
+      And I scroll "Step edit container" to 100px
     Then I should see "GitHub auth token" in "Selected Step First Input Title"
     Then "Selected Step First Input Sensitive Badge" should "be visible"
     When I click on "Selected Step First Input"
@@ -67,6 +69,7 @@ Feature: Workflow steps inputs
 
   Scenario: Required Input
     When I click on "First step"
+      And I scroll "Step edit container" to 100px
     Then I should see "GitHub auth token" in "Selected Step First Input Title"
       And "Selected Step First Input Required Badge" should "be visible"
     When I click on "Selected Step First Input"

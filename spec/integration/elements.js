@@ -198,6 +198,9 @@ export const elements = {
 	"Insert variable element called COMPANY_NAME": inputVariableSelector("COMPANY_NAME"),
 	"Insert variable element called COMPANY_NAME source": `${inputVariableSelector("COMPANY_NAME")} em`,
 	"Insert variable filter field": "#insert-variable-popup-body header input",
+
+	"Step edit container": ".step-edit-container",
+
 	...triggerElements
 }
 
