@@ -32,7 +32,7 @@
 				== svg("cross")
 				span == data[:strings][:workflows][:delete_workflow]
 		.workflows[ng-init="workflowsCtrl.getWorkflowsHeight()"]
-			div[ng-if="workflowsCtrl.shouldShowWorkflowsContent" ng-style="workflowsCtrl.getWorkflowStyles()"]
+			.workflows-container[ng-if="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px'}"]
 				.steps-container
 					section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30"]
 						header.workflow-header.with-flow-decoration

@@ -27,7 +27,7 @@ import { safeDigest } from "../services/react-compat";
 			Step,
 			Variable,
 			Stack,
-			$timeout
+			$window
 		) {
 			var viewModel = this;
 
@@ -39,14 +39,21 @@ import { safeDigest } from "../services/react-compat";
 
 				viewModel.shouldShowWorkflowsContent = true;
 			};
-			viewModel.getWorkflowStyles = function() {
-				return {
-					'display': 'flex',
-					'flex-direction': 'row',
-					'max-height': `${viewModel.workflowsHeight}px`,
-					'overflow': 'hidden'
-				};
-			};
+
+			var resizeTimeout;
+			angular.element($window).on('resize', function() {
+				if (resizeTimeout) {
+					clearTimeout(resizeTimeout)
+				}
+
+				resizeTimeout = setTimeout(function() {
+					$scope.$apply(function() {
+						viewModel.shouldShowWorkflowsContent = false;
+					});
+					
+					$scope.$apply(viewModel.getWorkflowsHeight);
+				}, 500);
+			});
 
 			viewModel.canceler = $q.defer();
 
