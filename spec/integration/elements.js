@@ -89,7 +89,7 @@ export const elements = {
 	"Add Before Workflow button": ".add-before-run-workflow",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
 	"Before Workflow Dropdown": ".run-workflow-selector.before-run",
-	"Workflow Sections": ".content .workflows",
+	"Workflow Sections": ".content .workflows .steps-container",
 	"Workflow Section": "section.workflow",
 	"Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 	"First Before Workflow Name": ".workflow .icons-and-name .workflow-name",

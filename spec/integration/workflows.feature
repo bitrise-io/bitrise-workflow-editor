@@ -67,7 +67,6 @@ Feature: Workflows
     # And it has its stack displayed - WEBSITE MODE ONLY
       And I should see "The wf3 test workflow" in "Selected Workflow description"
       And "wf3 steps container" should contain 4 "Add Step element"
-      And "Workflow Sections" should have "grey" "background-color" style
       And "wf4 Remove button" should "be visible"
       And "first wf5 Remove button" should "be visible"
       And "wf6 Remove button" should "be visible"
