@@ -15,6 +15,7 @@ Feature: Workflow steps inputs
 
   Scenario: Inputs without categories don't get wrapped into expandable container
     When I click on "First step"
+      And I scroll "Step edit container" to 100px
     Then "Step Inputs Without Category" should "be visible"
 
   Scenario: Inputs with categories get wrapped into expandable container
