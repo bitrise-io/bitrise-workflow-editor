@@ -1,6 +1,17 @@
 @import "default";
 @import "constants";
 
+.tab-workflows .content {
+	overflow: hidden;
+}
+
+.workflows-container {
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+	flex: 1;
+}
+
 section.manage-workflows {
 	$button-spacing: 8px;
 	$button-wrapping-point: 580px;
@@ -292,10 +303,6 @@ section.manage-workflows {
 	}
 }
 
-header.sticky section.manage-workflows {
-	@include padding-y(10px);
-}
-
 .tab-workflows {
 	@include flex-grow(1);
 	@include flex-shrink(0);
@@ -322,6 +329,7 @@ header.sticky section.manage-workflows {
 			$icon-size_small: 36px;
 			$steptitle-width: 280px;
 			$steptitle-width_small: 220px;
+			border-top: 1px solid $def-lightgrey;
 
 			@include flex-grow(1);
 			@include flex-shrink(0);
@@ -329,11 +337,26 @@ header.sticky section.manage-workflows {
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
 
+			.steps-container {
+				border-right: 1px solid $def-lightgrey;
+				overflow: scroll;
+				background: #ffffff;
+			}
+
+			.step-edit-container {
+				flex: 1;
+				overflow: scroll;
+				background: $def-ultralightgrey;
+			}
+
 			section.workflow {
 				@include flex-shrink(0);
-				border-top: 1px dashed $def-grey;
 				@include padding-x($main-horizontalpadding);
 				@include transition(background-color $def-transition_duration);
+
+				&:not(:first-child) {
+					border-top: 1px dashed $def-grey;
+				}
 
 				&:last-child {
 					@include flex-grow(1);
@@ -442,11 +465,10 @@ header.sticky section.manage-workflows {
 						.stack {
 							@include display-flex;
 							@include align-items(center);
-							margin-left: $spacing;
 
 							.icon {
 								@include flex-shrink(0);
-								@include margin-x(15px);
+								margin-right: 15px;
 
 								svg {
 									display: block;
@@ -1704,7 +1726,7 @@ header.sticky section.manage-workflows {
 
 				header.workflow-header {
 
-					&:before {
+					&.with-flow-decoration:before {
 						content: "";
 						@include flex-shrink(0);
 						@include box-sizing(border-box);

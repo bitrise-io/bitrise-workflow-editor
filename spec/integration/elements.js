@@ -89,7 +89,7 @@ export const elements = {
 	"Add Before Workflow button": ".add-before-run-workflow",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
 	"Before Workflow Dropdown": ".run-workflow-selector.before-run",
-	"Workflow Sections": ".content .workflows",
+	"Workflow Sections": ".content .workflows .steps-container",
 	"Workflow Section": "section.workflow",
 	"Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 	"First Before Workflow Name": ".workflow .icons-and-name .workflow-name",
@@ -198,6 +198,9 @@ export const elements = {
 	"Insert variable element called COMPANY_NAME": inputVariableSelector("COMPANY_NAME"),
 	"Insert variable element called COMPANY_NAME source": `${inputVariableSelector("COMPANY_NAME")} em`,
 	"Insert variable filter field": "#insert-variable-popup-body header input",
+
+	"Step edit container": ".step-edit-container",
+
 	...triggerElements
 }
 

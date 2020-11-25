@@ -26,9 +26,35 @@ import { safeDigest } from "../services/react-compat";
 			Workflow,
 			Step,
 			Variable,
-			Stack
+			Stack,
+			$window,
+			$timeout
 		) {
 			var viewModel = this;
+
+			viewModel.workflowsHeight = 0;
+			viewModel.shouldShowWorkflowsContent = false;
+			
+			viewModel.getAvailableHeightForWorkflows = function() {
+				viewModel.shouldShowWorkflowsContent = false;
+
+				$timeout(function() {
+					var element = angular.element(document.querySelector('div.workflows')); 
+					viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
+
+					viewModel.shouldShowWorkflowsContent = true;
+				}, 0);
+			};
+
+			var resizeTimeout;
+			var RESIZE_DELAY = 500;
+			angular.element($window).on('resize', function() {
+				if (resizeTimeout) {
+					$timeout.cancel(resizeTimeout)
+				}
+
+				resizeTimeout = $timeout(viewModel.getAvailableHeightForWorkflows, RESIZE_DELAY);
+			});
 
 			viewModel.canceler = $q.defer();
 
@@ -143,6 +169,10 @@ import { safeDigest } from "../services/react-compat";
 
 			$scope.$on("$destroy", function() {
 				viewModel.canceler.resolve();
+				
+				if (resizeTimeout) {
+					$timeout.cancel(resizeTimeout)
+				}
 			});
 
 			viewModel.init = function() {
@@ -635,6 +665,13 @@ import { safeDigest } from "../services/react-compat";
 				});
 			};
 
+			function resetEditContainerScrollPosition() {
+				var el = $(".step-edit-container");
+				if (el.length) {
+					el[0].scrollTop = 0;
+				}
+			}
+
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (!step) {
 					viewModel.selectedStep = null
@@ -670,6 +707,7 @@ import { safeDigest } from "../services/react-compat";
 						}, 300);
 					}
 
+					resetEditContainerScrollPosition();
 					safeDigest($scope);
 				})
 			};

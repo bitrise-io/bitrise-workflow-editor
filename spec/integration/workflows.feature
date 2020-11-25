@@ -67,14 +67,9 @@ Feature: Workflows
     # And it has its stack displayed - WEBSITE MODE ONLY
       And I should see "The wf3 test workflow" in "Selected Workflow description"
       And "wf3 steps container" should contain 4 "Add Step element"
-      And "Workflow Sections" should have "grey" "background-color" style
       And "wf4 Remove button" should "be visible"
-      And "first wf5 Remove button" should "be visible"
-      And "wf6 Remove button" should "be visible"
     # And they don't have their stack displayed  - WEBSITE MODE ONLY
       And "wf4 steps add step icons" should "not be visible"
-      And "first wf5 steps add step icons" should "not be visible"
-      And "wf6 steps container" should contain 1 "Add Step element"
 
   Scenario: User selects a duplicate Workflow in the chain
     Given "wf3" workflow is selected
@@ -85,7 +80,6 @@ Feature: Workflows
   Scenario: User selects the delete button of an after run Workflow
     Given "wf3" workflow is selected
     When I click away
-      And I scroll to the "top"
     When I click on "first wf5 Remove button"
     Then "Workflow Sections" should contain 4 "Workflow Section"
       And I should see "wf5" in "First After Workflow Name"
@@ -190,8 +184,7 @@ Feature: Workflows
 
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
-    When I scroll to the "top"
-      And I click on "Rearrange button"
+    When I click on "Rearrange button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
       And "Workflow chain after workflows" should contain 3 "li"

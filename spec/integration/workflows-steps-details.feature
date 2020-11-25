@@ -86,6 +86,7 @@ Feature: Workflow steps details
       And "Step Latest Version Updater Button" should "not be visible"
     When I select "1.0.x" from "Step Version Selector"
       And I confirm on "Alert popup"
+      And I scroll "Step edit container" to 100px
     Then "Save Button" should "not be disabled"
       And "Step Version Branch Icon" should "not be visible"
       And "Step Latest Version Updater Button" should "be visible"
@@ -123,6 +124,7 @@ Feature: Workflow steps details
       And "Step Latest Version Updater Button" should "not be visible"
     When I select "1.0.x" from "Step Version Selector"
       And I confirm on "Alert popup"
+      And I scroll "Step edit container" to 100px
     Then I should see "1.0.x" in "First StepItem Version Update Indicator"
       And I should see "Version: 1.0.4" in "Step Version"
       And "Step Latest Version Updater Button" should "be visible"
