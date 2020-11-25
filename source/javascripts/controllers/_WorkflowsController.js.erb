@@ -27,32 +27,33 @@ import { safeDigest } from "../services/react-compat";
 			Step,
 			Variable,
 			Stack,
-			$window
+			$window,
+			$timeout
 		) {
 			var viewModel = this;
 
 			viewModel.workflowsHeight = 0;
 			viewModel.shouldShowWorkflowsContent = false;
-			viewModel.getWorkflowsHeight = function() {
-				var element = angular.element(document.querySelector('div.workflows')); 
-				viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
+			
+			viewModel.getAvailableHeightForWorkflows = function() {
+				viewModel.shouldShowWorkflowsContent = false;
 
-				viewModel.shouldShowWorkflowsContent = true;
+				$timeout(function() {
+					var element = angular.element(document.querySelector('div.workflows')); 
+					viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
+
+					viewModel.shouldShowWorkflowsContent = true;
+				}, 0);
 			};
 
 			var resizeTimeout;
+			var RESIZE_DELAY = 500;
 			angular.element($window).on('resize', function() {
 				if (resizeTimeout) {
-					clearTimeout(resizeTimeout)
+					$timeout.cancel(resizeTimeout)
 				}
 
-				resizeTimeout = setTimeout(function() {
-					$scope.$apply(function() {
-						viewModel.shouldShowWorkflowsContent = false;
-					});
-					
-					$scope.$apply(viewModel.getWorkflowsHeight);
-				}, 500);
+				resizeTimeout = $timeout(viewModel.getAvailableHeightForWorkflows, RESIZE_DELAY);
 			});
 
 			viewModel.canceler = $q.defer();
@@ -168,6 +169,10 @@ import { safeDigest } from "../services/react-compat";
 
 			$scope.$on("$destroy", function() {
 				viewModel.canceler.resolve();
+				
+				if (resizeTimeout) {
+					$timeout.cancel(resizeTimeout)
+				}
 			});
 
 			viewModel.init = function() {
