@@ -68,6 +68,9 @@ section.manage-workflows {
 		}
 
 		ul {
+			max-height: 300px;
+    	overflow-y: scroll;
+			
 			$border: 1px solid $def-lightgrey;
 			$li_padding: 12px;
 			$li_fontsize: 16px;
@@ -83,7 +86,6 @@ section.manage-workflows {
 			border: $border;
 			@include border-radius($def-radius);
 			padding-left: 0;
-			overflow: hidden;
 			list-style: none;
 			@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
 
