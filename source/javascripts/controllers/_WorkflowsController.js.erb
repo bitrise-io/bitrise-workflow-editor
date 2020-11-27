@@ -324,7 +324,9 @@ import { safeDigest } from "../services/react-compat";
 					undefined,
 					undefined,
 					function() {
-						viewModel.workflows.splice(_.indexOf(viewModel.workflows, viewModel.selectedWorkflow), 1);
+						viewModel.workflows = viewModel.workflows.filter(function(workflow) {
+							return workflow.id !== viewModel.selectedWorkflow.id
+						});
 
 						_.each(viewModel.workflows, function(aWorkflow) {
 							if (aWorkflow.workflowConfig.before_run) {
