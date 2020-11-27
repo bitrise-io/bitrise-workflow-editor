@@ -5,6 +5,7 @@ import StepItemBadge from "./components/StepItem/StepItemBadge";
 import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetails";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
+import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 
 var register = react2angular;
 
@@ -37,4 +38,8 @@ angular
 	.component(
 		"rUpdateYmlInRepositoryModal",
 		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "getDataToSave"])
+	)
+	.component(
+		"rWorkflowSelector",
+		register(WorkflowSelector, ["selectedWorkflowId", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	);
