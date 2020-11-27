@@ -51,7 +51,7 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 
 	return (
 		<Flex
-			height="49px"
+			minHeight="49px"
 			className={`WorkflowSelectorItem ${isSelected ? "WorkflowSelectorItem_active" : ""} ${
 				isEditing ? "WorkflowSelectorItem_editing" : ""
 			}`}
@@ -60,6 +60,7 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 			padding={isEditing ? "x0" : "x3"}
 			clickable={!isSelected}
 			onClick={onClick}
+			data-e2e-tag={`workflow-selector-option-${workflow.id}`}
 		>
 			{isEditing ? (
 				<Flex direction="horizontal" alignChildrenVertical="middle" grow>
@@ -68,6 +69,7 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 							autoFocus
 							value={workflowId}
 							onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setWorkflowId(ev.target.value)}
+							data-e2e-tag="workflow-selector-item-name-input"
 						/>
 					</Flex>
 					<Flex
@@ -77,6 +79,7 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 						alignChildren="middle"
 						padding="x3"
 						onClick={onRenameConfirm}
+						data-e2e-tag="workflow-selector-item-name-edit-submit"
 					>
 						<Icon size="1.5rem" name="Tick" />
 					</Flex>
@@ -87,11 +90,18 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 						<Icon size={isSelected ? "1.25rem" : ".75rem"} name={isSelected ? "Tick" : "BuildstatusLoadingeeehh"} />
 					</Flex>
 					<Flex shrink grow direction="horizontal" alignChildrenHorizontal="between" alignChildrenVertical="middle">
-						<Text className="WorkflowSelectorItem--label" overflow="hidden">
+						<Text className="WorkflowSelectorItem--label" overflow="hidden" data-e2e-tag="workflow-selector-item-name">
 							{workflowId}
 						</Text>
 						{isSelected && (
-							<Text clickable className="WorkflowSelectorItem--rename" config="8" uppercase onClick={onRenameClick}>
+							<Text
+								clickable
+								className="WorkflowSelectorItem--rename"
+								config="8"
+								uppercase
+								onClick={onRenameClick}
+								data-e2e-tag="workflow-selector-item-name-edit-trigger"
+							>
 								Rename
 							</Text>
 						)}

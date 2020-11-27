@@ -128,7 +128,6 @@ Feature: Workflows
       And "wf5 workflow" should "be visible"
       And "wf6 workflow" should "be visible"
       And "wf3 workflow list element" should have "purple" "background-color" style
-      And "wf3 workflow list element" should contain 1 "svg"
       And "wf3 workflow rename button" should "be visible"
 
   Scenario: User selects a Workflow from the Workflow dropdown
@@ -141,9 +140,7 @@ Feature: Workflows
       And the Workflow dropdown is open
     When I click on "wf3 workflow rename button"
     Then "wf3 workflow rename field" should "be visible"
-      And "wf3 workflow rename field" should "be enabled"
       And "wf3 workflow rename submit" should "be visible"
-      And "wf3 workflow rename submit" should "be enabled"
 
   Scenario: User confirms renaming a Workflow in the Workflow dropdown
     Given "wf3" workflow is selected
@@ -192,4 +189,3 @@ Feature: Workflows
       And I should see "wf5" in "Workflow chain first after wf5 workflow"
       And I should see "wf5" in "Workflow chain second after wf5 workflow"
       And I should see "wf6" in "Workflow chain after wf6 workflow"
-

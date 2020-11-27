@@ -1,7 +1,6 @@
 import triggerElements from "./triggers/elements";
 
-const workflowSelectElement = workflowName =>
-	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
+const workflowSelectElement = workflowName => `[data-e2e-tag="workflow-selector-option-${workflowName}"]`;
 const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
 const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
 	`.workflow:nth-child(${workflowIndex}) .steps ul li:eq(${stepIndex - 1})`;
@@ -24,8 +23,8 @@ export const elements = {
 	"Discard Button": "button.discard",
 
 	"Delete Workflow Button": ".manage-button.delete-workflow",
-	"Selected Workflow Name": ".selected-workflow button.mak",
-	"Workflow selector": ".workflow-selector",
+	"Selected Workflow Name": '[data-e2e-tag="workflow-selector-selected-workflow-name"]',
+	"Workflow selector": '[data-e2e-tag="workflow-selector-dropdown"]',
 
 	"Step Title": ".selected-step .title .rename",
 	"Step Title Edit Box": ".selected-step .rename-title input",
@@ -36,12 +35,12 @@ export const elements = {
 	"Step Delete Icon": ".selected-step button.delete",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
 	"Step Inputs": ".selected-step .inputs",
-	"Step Version Details": "[data-e2e-tag=\"step-version-details\"]",
-	"Step Version": "[data-e2e-tag=\"step-version-details__version-text\"]",
-	"Step Version Selector": "[data-e2e-tag=\"step-version-details__version-selector\"]",
-	"Step Version Branch Icon": "[data-e2e-tag=\"step-version-details__branch-icon\"]",
-	"Step Version Update Icon": "[data-e2e-tag=\"step-version-details__update-icon\"]",
-	"Step Latest Version Updater Button": "[data-e2e-tag=\"step-version-details__update-button\"]",
+	"Step Version Details": '[data-e2e-tag="step-version-details"]',
+	"Step Version": '[data-e2e-tag="step-version-details__version-text"]',
+	"Step Version Selector": '[data-e2e-tag="step-version-details__version-selector"]',
+	"Step Version Branch Icon": '[data-e2e-tag="step-version-details__branch-icon"]',
+	"Step Version Update Icon": '[data-e2e-tag="step-version-details__update-icon"]',
+	"Step Latest Version Updater Button": '[data-e2e-tag="step-version-details__update-button"]',
 	"Selected Step First Input": ".selected-step .input:eq(0)",
 	"Selected Step First Input Title": ".selected-step .input .input-info .title span:eq(0)",
 	"Selected Step First Input Sensitive Badge": ".selected-step .input .input-info .sensitive:eq(0)",
@@ -101,9 +100,9 @@ export const elements = {
 	"Last After Workflow Name": ".workflow:last-child .icons-and-name .workflow-name",
 	"After Workflow Name": ".workflow:last-child .icons-and-name .workflow-name",
 
-	"Verified Maintianer Badge": "[data-e2e-tag=\"verified-badge\"]",
-	"Official Maintianer Badge": "[data-e2e-tag=\"official-badge\"]",
-	"Deprecated Maintianer Badge": "[data-e2e-tag=\"deprecated-badge\"]",
+	"Verified Maintianer Badge": '[data-e2e-tag="verified-badge"]',
+	"Official Maintianer Badge": '[data-e2e-tag="official-badge"]',
+	"Deprecated Maintianer Badge": '[data-e2e-tag="deprecated-badge"]',
 
 	"Selected Workflow": "section.workflow.selected",
 	"Selected Workflow description": ".workflow-description .description p",
@@ -113,18 +112,26 @@ export const elements = {
 	"Step element": "li",
 	"Add Step element": ".add-step",
 
-	"Workflow selector options": ".workflow-selector ul li .workflow .workflow-id",
-	"Workflow selector dropdown": ".workflow-selector ul",
+	"Workflow selector options": '[data-e2e-tag="workflow-selector-list"]',
+	"Workflow selector dropdown": '[data-e2e-tag="workflow-selector-list"]',
 
 	"wf1 workflow": workflowSelectElement("wf1"),
 	"wf2 workflow": workflowSelectElement("wf2"),
 	"wf3 workflow": workflowSelectElement("wf3"),
-	"wf3 workflow list element": `${workflowSelectElement("wf3")} .workflow`,
-	"wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
-	"wf3 workflow rename field": `${workflowSelectElement("wf3")} .workflow-rename .name`,
-	"wf3 workflow rename submit": `${workflowSelectElement("wf3")} .workflow-rename .ok`,
-	"my_new_wf_name workflow rename field": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .name`,
-	"my_new_wf_name workflow rename submit": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .ok`,
+	"wf3 workflow list element": workflowSelectElement("wf3"),
+	"wf3 workflow rename button": `${workflowSelectElement(
+		"wf3"
+	)} [data-e2e-tag="workflow-selector-item-name-edit-trigger"]`,
+	"wf3 workflow rename field": `${workflowSelectElement("wf3")} [data-e2e-tag="workflow-selector-item-name-input"]`,
+	"wf3 workflow rename submit": `${workflowSelectElement(
+		"wf3"
+	)} [data-e2e-tag="workflow-selector-item-name-edit-submit"]`,
+	"my_new_wf_name workflow rename field": `${workflowSelectElement(
+		"my_new_wf_name"
+	)} [data-e2e-tag="workflow-selector-item-name-input"]`,
+	"my_new_wf_name workflow rename submit": `${workflowSelectElement(
+		"my_new_wf_name"
+	)} [data-e2e-tag="workflow-selector-item-name-edit-submit"]`,
 	"wf3 steps": ".workflow:nth-child(2) ul.steps ul",
 	"wf3 steps container": ".workflow:nth-child(2) ul.steps",
 
@@ -202,7 +209,7 @@ export const elements = {
 	"Step edit container": ".step-edit-container",
 
 	...triggerElements
-}
+};
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;
 
