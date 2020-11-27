@@ -9,7 +9,7 @@ import {
 	InputContainer,
 	InputContent
 } from "@bitrise/bitkit";
-import React, { useState, useMemo } from "react";
+import React, { useState, useMemo, useEffect } from "react";
 import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
 import "./WorkflowSelector.scss";
@@ -35,6 +35,20 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 		setVisible(false);
 		setSearch("");
 	};
+
+	const onEscPress = ({ key }: KeyboardEvent): void => {
+		if (key === "Escape") {
+			setVisible(false);
+			setSearch("");
+		}
+	};
+
+	useEffect(() => {
+		document.addEventListener("keydown", onEscPress, false);
+		return () => {
+			document.removeEventListener("keydown", onEscPress, false);
+		};
+	}, []);
 
 	const filteredWorkflows = useMemo(() => {
 		let result = [...workflows];
@@ -70,6 +84,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 						innerRef={ref}
 						overflow="hidden"
 						direction="horizontal"
+						data-e2e-tag="workflow-selector"
 					>
 						<Flex
 							width="7rem"
@@ -91,8 +106,16 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							alignChildrenVertical="middle"
 							alignChildrenHorizontal="between"
 							onClick={() => setVisible(true)}
+							data-e2e-tag="workflow-selector-dropdown"
 						>
-							<Text grow textColor="gray-6" width="114px" overflow="hidden" ellipsis>
+							<Text
+								grow
+								textColor="gray-6"
+								width="114px"
+								overflow="hidden"
+								ellipsis
+								data-e2e-tag="workflow-selector-selected-workflow-name"
+							>
 								{selectedWorkflowId}
 							</Text>
 							<Icon size="1.25rem" textColor="gray-6" name="ChevronDown" />
@@ -123,7 +146,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							</InputContainer>
 						</Flex>
 						{filteredWorkflows.length ? (
-							<Flex maxHeight="300px" overflow="scroll">
+							<Flex maxHeight="300px" overflow="scroll" data-e2e-tag="workflow-selector-list">
 								{filteredWorkflows.map(workflow => (
 									<WorkflowSelectorItem
 										key={workflow.id}
@@ -132,6 +155,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 										selectedWorkflowId={selectedWorkflowId}
 										workflowIds={workflowIds}
 										renameWorkflowConfirmed={renameWorkflowConfirmed}
+										data-e2e-tag="workflow-selector-option"
 									/>
 								))}
 							</Flex>
