@@ -519,7 +519,7 @@ import { safeDigest } from "../services/react-compat";
 				);
 			};
 
-			viewModel.wrappedRenameWorkflowConfirmed = function(workflow, newWorkflowID) {
+			viewModel.confirmRenameWorkflowWithDigest = function(workflow, newWorkflowID) {
 				$timeout(function() {
 					viewModel.renameWorkflowConfirmed(workflow, newWorkflowID);
 				}, 0);
@@ -570,10 +570,16 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.editedWorkflow;
 			viewModel.editedWorkflowIndex;
 
-			viewModel.selectWorkflow = function(workflow) {
+
+
+			viewModel.selectWorkflowWithDigest = function(workflow) {
 				$timeout(function() {
-					workflowSelectionService.rearrangeSelection(viewModel, workflow);
+					viewModel.selectWorkflow(workflow);
 				}, 0);
+			};
+
+			viewModel.selectWorkflow = function(workflow) {
+				workflowSelectionService.rearrangeSelection(viewModel, workflow);
 			};
 
 			viewModel.editWorkflowAtIndex = function(workflowIndex) {

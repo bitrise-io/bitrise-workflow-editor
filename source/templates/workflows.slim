@@ -6,8 +6,8 @@
 				ng-if="workflowsCtrl.selectedWorkflow"
 				selected-workflow-id="workflowsCtrl.selectedWorkflow.id"
 				workflows="workflowsCtrl.workflows"
-				select-workflow="workflowsCtrl.selectWorkflow"
-				rename-workflow-confirmed="workflowsCtrl.wrappedRenameWorkflowConfirmed"
+				select-workflow="workflowsCtrl.selectWorkflowWithDigest"
+				rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
 			]
 			button.manage-button.add-workflow.rebo.light-purple[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
 				== svg("plus")
