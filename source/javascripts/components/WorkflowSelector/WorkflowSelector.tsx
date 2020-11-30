@@ -146,7 +146,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							</InputContainer>
 						</Flex>
 						{filteredWorkflows.length ? (
-							<Flex maxHeight="300px" overflow="scroll" data-e2e-tag="workflow-selector-list">
+							<Flex maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
 								{filteredWorkflows.map(workflow => (
 									<WorkflowSelectorItem
 										key={workflow.id}
