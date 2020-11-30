@@ -2,19 +2,13 @@
 	p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
 	.content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
 		section.manage-workflows
-			.workflow-selector[floating-menu toggle="workflowsCtrl.workflowSelectorIsVisible"]
-				.selected-workflow[ng-if="workflowsCtrl.selectedWorkflow"]
-					button.mak[ng-bind="workflowsCtrl.selectedWorkflow.id" ng-click="workflowsCtrl.workflowSelectorIsVisible = !workflowsCtrl.workflowSelectorIsVisible"]
-				ul.angular-animated[ng-show="workflowsCtrl.workflowSelectorIsVisible"]
-					li[ng-repeat="workflow in workflowsCtrl.workflows" ng-class="{'selected': workflow == workflowsCtrl.selectedWorkflow, 'rename-in-progress': workflow == workflowsCtrl.renamedWorkflow}"]
-						.workflow
-							== svg("check")
-							span.workflow-id[ng-bind="workflow.id"]
-							button.select-workflow[ng-click="workflowsCtrl.selectWorkflow(workflow)" ng-bind="workflow.id"]
-							button.rename-workflow[ng-click="workflowsCtrl.renamedWorkflow = workflow"]
-						form.workflow-rename[name="renameWorkflowForm" ng-submit="workflowsCtrl.renameWorkflowConfirmed()"]
-							input.name[type="text" name="name" ng-model="workflowsCtrl.renamedWorkflowID" custom-validators="{'id': workflowsCtrl.isRenamedWorkflowIDValid()}"]
-							input.ok[type="submit" ng-disabled="renameWorkflowForm.name.$invalid" value=""]
+			r-workflow-selector[
+				ng-if="workflowsCtrl.selectedWorkflow"
+				selected-workflow-id="workflowsCtrl.selectedWorkflow.id"
+				workflows="workflowsCtrl.workflows"
+				select-workflow="workflowsCtrl.selectWorkflowWithDigest"
+				rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
+			]
 			button.manage-button.add-workflow.rebo.light-purple[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
 				== svg("plus")
 				span == data[:strings][:workflows][:add_workflow][:action]

@@ -324,7 +324,9 @@ import { safeDigest } from "../services/react-compat";
 					undefined,
 					undefined,
 					function() {
-						viewModel.workflows.splice(_.indexOf(viewModel.workflows, viewModel.selectedWorkflow), 1);
+						viewModel.workflows = viewModel.workflows.filter(function(workflow) {
+							return workflow.id !== viewModel.selectedWorkflow.id
+						});
 
 						_.each(viewModel.workflows, function(aWorkflow) {
 							if (aWorkflow.workflowConfig.before_run) {
@@ -517,12 +519,17 @@ import { safeDigest } from "../services/react-compat";
 				);
 			};
 
-			viewModel.renameWorkflowConfirmed = function() {
-				var oldWorkflowID = viewModel.renamedWorkflow.id;
-				var newWorkflowID = viewModel.renamedWorkflowID;
+			viewModel.confirmRenameWorkflowWithDigest = function(workflow, newWorkflowID) {
+				$timeout(function() {
+					viewModel.renameWorkflowConfirmed(workflow, newWorkflowID);
+				}, 0);
+			}
+
+			viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID) {
+				var oldWorkflowID = workflow.id;
 
 				delete appService.appConfig.workflows[oldWorkflowID];
-				appService.appConfig.workflows[newWorkflowID] = viewModel.renamedWorkflow.workflowConfig;
+				appService.appConfig.workflows[newWorkflowID] = workflow.workflowConfig;
 
 				_.each(viewModel.workflows, function(aWorkflow) {
 					if (aWorkflow.workflowConfig.before_run) {
@@ -547,24 +554,29 @@ import { safeDigest } from "../services/react-compat";
 					}
 				});
 
-				viewModel.renamedWorkflow.id = newWorkflowID;
+				workflow.id = newWorkflowID;
+				viewModel.selectWorkflow(workflow);
 
-				if (viewModel.selectedWorkflow == viewModel.renamedWorkflow) {
-					workflowSelectionStore.applyState({
-						lastSelectedWorkflow: viewModel.selectedWorkflow,
-						lastEditedWorkflow: viewModel.editedWorkflow,
-						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
-						lastSelectedStep: viewModel.selectedStep
-					});
-				}
-
-				viewModel.renamedWorkflow = null;
+				workflowSelectionStore.applyState({
+					lastSelectedWorkflow: viewModel.selectedWorkflow,
+					lastEditedWorkflow: viewModel.editedWorkflow,
+					lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+					lastSelectedStep: viewModel.selectedStep
+				});
 			};
 
 			// Edited worklow
 
 			viewModel.editedWorkflow;
 			viewModel.editedWorkflowIndex;
+
+
+
+			viewModel.selectWorkflowWithDigest = function(workflow) {
+				$timeout(function() {
+					viewModel.selectWorkflow(workflow);
+				}, 0);
+			};
 
 			viewModel.selectWorkflow = function(workflow) {
 				workflowSelectionService.rearrangeSelection(viewModel, workflow);

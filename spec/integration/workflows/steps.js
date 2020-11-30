@@ -38,7 +38,7 @@ Given("Rearrange popup is open", () => {
 });
 
 Then("Workflow appeared with name {string}", name => {
-	$(".selected-workflow button.mak").contains(name);
+	$("[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]").contains(name);
 });
 
 Then("all the steps are loaded", () => {
