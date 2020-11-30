@@ -138,7 +138,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 										onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
 									/>
 									{search && (
-										<Text className="SearhField_reset" config="8" uppercase clickable onClick={onClearSearch}>
+										<Text className="SearchField_reset" config="8" uppercase clickable onClick={onClearSearch}>
 											Reset
 										</Text>
 									)}
