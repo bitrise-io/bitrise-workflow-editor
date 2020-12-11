@@ -303,7 +303,7 @@ import { safeDigest } from "../services/react-compat";
 					viewModel.addWorkflowSourceWorkflow ? angular.copy(viewModel.addWorkflowSourceWorkflow.workflowConfig) : {}
 				);
 
-				viewModel.workflows.push(workflow);
+				viewModel.workflows = [].concat(viewModel.workflows).concat([workflow]);
 
 				viewModel.addWorkflowPopup.isVisible = false;
 
