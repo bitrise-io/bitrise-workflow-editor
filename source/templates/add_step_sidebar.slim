@@ -4,7 +4,7 @@
 		header
 			.filters
 				button.category-mode[ng-click="addStepCtrl.isCategoryMode = true" ng-if="!addStepCtrl.isCategoryMode && !addStepCtrl.isWindowSizeForcingListMode"]  == svg("arrow-down")
-				input.step-filter[type="text" placeholder="#{ data[:strings][:workflows][:steps][:add][:search_placeholder] }" ng-model="addStepCtrl.stepFilter" ng-focus="addStepCtrl.isCategoryMode = false" ng-model-options='{ debounce: 500 }'  ng-change='addStepCtrl.search()']
+				input.step-filter#add-step-sidebar-step-filter-input[type="text" placeholder="#{ data[:strings][:workflows][:steps][:add][:search_placeholder] }" ng-model="addStepCtrl.stepFilter" ng-model-options='{ debounce: 500 }']
 				.project-type-filter[ng-if="appService.appDetails && appService.appDetails.projectTypeID"]
 					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.appDetails.projectTypeID | projectTypeCSSClass"]
 						span.platform-icon.apple  == svg("logo/apple")
