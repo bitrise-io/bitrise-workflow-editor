@@ -202,10 +202,11 @@ import { safeDigest } from "../services/react-compat";
 					return viewModel.isCategoryMode;
 				},
 				function(isCategoryMode) {
-					viewModel.stepFilter = "";
 					viewModel.selectedTypeFilter = null;
 
 					if (isCategoryMode) {
+						viewModel.stepFilter = "";
+
 						_.each(viewModel.categories, function(aCategory) {
 							aCategory.paginateStepsConfig.currentPageIndex = 0;
 							aCategory.paginateStepsConfig.currentOffsetInPage = 0;
@@ -215,6 +216,28 @@ import { safeDigest } from "../services/react-compat";
 					}
 				}
 			);
+
+			$scope.$watch(function() {
+				return viewModel.stepFilter;
+			}, function(newStepFilter, oldStepFilter) {
+				if (oldStepFilter === "" && newStepFilter !== "") {
+					viewModel.isCategoryMode = false;
+				}
+				if (newStepFilter) {
+					stepSourceService
+						.searchOfficialSteps(newStepFilter)
+						.then(function(stepIds) {
+							viewModel.filteredStepIds = stepIds;
+							safeDigest($scope);
+						})
+						.catch(function(error) {
+							logger.error(error);
+							viewModel.loadProgress.error(error);
+						});
+				} else {
+					viewModel.filteredStepIds = null;
+				}
+			});
 
 			$scope.$watch(
 				function() {
@@ -330,25 +353,8 @@ import { safeDigest } from "../services/react-compat";
 							category.paginateStepsConfig.currentOffsetInPage
 				);
 			};
-
-			viewModel.search = function() {
-				if (viewModel.stepFilter) {
-					stepSourceService
-						.searchOfficialSteps(viewModel.stepFilter)
-						.then(function(stepIds) {
-							viewModel.filteredStepIds = stepIds;
-							safeDigest($scope);
-						})
-						.catch(function(error) {
-							logger.error(error);
-							viewModel.loadProgress.error(error);
-						});
-				} else {
-					viewModel.filteredStepIds = null;
-				}
-			};
 		})
-		.directive("addStepSidebar", function($parse, $document, addStepService) {
+		.directive("addStepSidebar", function($parse, $document, $timeout, addStepService) {
 			return {
 				restrict: "E",
 				replace: true,
@@ -376,6 +382,10 @@ import { safeDigest } from "../services/react-compat";
 								angular.element($document).bind("keyup", keyupHandler);
 								windowSizeHandler();
 								$(window).bind("resize", windowSizeHandler);
+
+								$timeout(function() {
+									element.find("#add-step-sidebar-step-filter-input").focus();
+								}, 10);
 							} else {
 								angular.element($document).unbind("keyup", keyupHandler);
 								$(window).unbind("resize", windowSizeHandler);
