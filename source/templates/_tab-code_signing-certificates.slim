@@ -55,7 +55,7 @@
 									a>[href="javascript:void(0)" ng-click="certificateCtrl.getDetails(certificate)"] == data[:strings][:code_signing][:certificate][:get_details_progress][:try_again_postfix]
 						.column.right.password
 							.label.on-small == data[:strings][:code_signing][:certificate][:header][:password]
-							form[ng-submit="certificateCtrl.changePassword()" name="certificatePasswordForm"]
+							form[ng-submit="certificateCtrl.changePassword()" name="certificatePasswordForm" method="POST"]
 								.password-field-wrapper
 									input.password-field[ng-if="showPassword" type="text" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
 									input.password-field[ng-if="!showPassword" type="text" ng-model="certificateCtrl.placeholderForText(certificate.password)" ng-model-options="{getterSetter: true}" disabled]
