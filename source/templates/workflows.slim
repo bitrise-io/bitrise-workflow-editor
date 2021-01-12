@@ -145,7 +145,7 @@
 								r-error-notification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
 								button.delete-step.rebo.big.hollow-danger[ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
-		form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()"]
+		form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
 			header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
 			article
 				input[type="text" ng-model="workflowsCtrl.addWorkflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
@@ -203,7 +203,7 @@
 			article.vertical-scroll
 				.create-new-secret[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ng-controller="CreateAndInsertSecretVariableController as createAndInsertSecretVariableCtrl" ng-init="createAndInsertSecretVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
 					.title == data[:strings][:workflows][:inputs][:insert_secret][:create_new_secret_env_var_label]
-					form[name="newSecretEnvVarForm" ng-submit="createAndInsertSecretVariableCtrl.saveAndInsertSecretEnvVar()" ng-if="!createAndInsertSecretVariableCtrl.newSecretEnvVar.customProperties.progress.isInProgress" autocomplete="off" autocapitalize="none"]
+					form[name="newSecretEnvVarForm" ng-submit="createAndInsertSecretVariableCtrl.saveAndInsertSecretEnvVar()" ng-if="!createAndInsertSecretVariableCtrl.newSecretEnvVar.customProperties.progress.isInProgress" autocomplete="off" autocapitalize="none" method="POST"]
 						.key-value-delete
 							input.key[type="text" name="key" ng-model="createAndInsertSecretVariableCtrl.newSecretEnvVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!createAndInsertSecretVariableCtrl.newSecretEnvVar.isKeyChangeable" custom-validators="{'key': createAndInsertSecretVariableCtrl.isValidSecretEnvVarKey()}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" skip-drag-order]
 							.value-with-actions.secret
