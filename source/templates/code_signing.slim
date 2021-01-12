@@ -223,7 +223,7 @@
 										a.option.download[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
 										button.option.protect[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
 										button.option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
-					form.keystore-metadata[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed" name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()"]
+					form.keystore-metadata[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed" name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()" method="POST"]
 						section
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
