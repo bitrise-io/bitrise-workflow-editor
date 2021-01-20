@@ -8,7 +8,7 @@ Feature: triggers
 
   Scenario: Clicking through filters
     When I click on "Tag filter"
-    Then I should see 0 triggers
+    Then I should see 150 triggers
     When I click on "Pull Request filter"
     Then I should see a trigger
     When I click on "Push filter"
