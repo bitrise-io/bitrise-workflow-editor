@@ -99,6 +99,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							</Text>
 						</Flex>
 						<Flex
+							className="WorkflowSelectorDropdown"
 							padding="x3"
 							direction="horizontal"
 							grow
