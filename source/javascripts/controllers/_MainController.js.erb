@@ -21,7 +21,8 @@ import _ from "underscore";
 			Popup,
 			Stack,
 			appServiceUtil,
-			logger
+			logger,
+			MachineType
 		) {
 			var viewModel = this;
 
@@ -117,7 +118,13 @@ import _ from "underscore";
 
 							break;
 						case "stack":
-							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll().then(appService.getStack)]).then(resolve, reject);
+							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll().then(appService.getStack)])
+								.then(function() {
+									if (appService.appDetails.isMachineTypeSelectorAvailable) {
+										return MachineType.getAll().then(appService.getDefaultMachineType);
+									}
+								})
+								.then(resolve, reject);
 
 							break;
 						case "yml":

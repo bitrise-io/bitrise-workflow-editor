@@ -682,7 +682,8 @@ def strings
             workflow_specific_settings: {
                 header_title: "Available Machine Types for this Stack"
             },
-            learn_more_about: "Learn more about Machine types »"
+            learn_more_about: "Learn more about Machine types »",
+            invalid_set_in_bitrise_yml_meta: "Invalid machine type set in bitrise.yml meta"
         },
         yml: {
             title_editor: "bitrise.yml editor",
