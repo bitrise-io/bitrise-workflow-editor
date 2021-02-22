@@ -22,6 +22,18 @@
 				"linux-docker-android": "bitriseio/android-ndk:pinned"
 			};
 
+			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {
+				var stackMachineTypes = _.filter(MachineType.all, function(machineType) {
+					if (machineType.availableOnStacks) {
+						return machineType.availableOnStacks.indexOf(stack.id) > -1;
+					}
+					return machineType.stackType === stack.type;
+				});
+				result[stack.id] = _.groupBy(stackMachineTypes, 'tag');
+				
+				return result;
+			}, {});
+
 			viewModel.init = function() {
 				configure();
 			};
@@ -100,11 +112,6 @@
 
 					return stack;
 				};
-			};
-
-			viewModel.availableMachineTypes = function(workflow) {
-				var stack = workflow ? viewModel.stackGetterSetterForWorkflow(workflow, true)() : appService.stack;
-				return _.filter(MachineType.all, { stackType: stack.type });
 			};
 
 			viewModel.setDefaultMachineType = function(machineType) {

@@ -102,6 +102,7 @@
 					}
 				} else {
 					delete this.workflowConfig.meta[BITRISE_META_KEY].stack;
+					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
 				}
 
 				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {

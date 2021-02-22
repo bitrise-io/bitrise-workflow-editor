@@ -23,28 +23,31 @@
 						input.den-tags[type="text" ng-model="appService.denTags" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:stack][:den_tags_placeholder] }"]
 			section.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
 				h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
-				.machine-types
-					.machine-type-wrapper[ng-repeat="machineType in stackCtrl.availableMachineTypes() track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
-						.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
-						.machine-type-icon[ng-if="machineType.cssClass == 'elite'"]  == svg("elite-machine-type-icon")
-						.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
-						.machine-type-data
-							.top
-								span.icon-and-name-and-note
-									span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
-									span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
-									span.name[ng-bind="machineType.name"]
-									span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-								span.credit-per-min
-									span.value[ng-bind="machineType.creditPerMin"]
-									span.unit< credit/min
-							.separator
-							.bottom
-								span.cpu
-									span.count[ng-bind="machineType.cpuCount"]
-									span.at @
-									span.description[ng-bind="machineType.cpuDescription"]
-								span.ram[ng-bind="machineType.ram"]
+				div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[appService.stack.id]"]
+					.machite-type-tag[ng-bind="machineTypeTag" ng-if="!$first || !$last"]
+					.machine-types
+						.machine-type-wrapper[ng-repeat="machineType in machineTypes track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
+							.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
+							.machine-type-icon[ng-if="machineType.cssClass == 'elite'"]  == svg("elite-machine-type-icon")
+							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
+							.machine-type-data
+								.top
+									span.icon-and-name-and-note
+										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
+										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
+										span.name[ng-bind="machineType.name"]
+										span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
+										span.note[ng-if="machineType.note" ng-bind="machineType.note"]
+									span.credit-per-min
+										span.value[ng-bind="machineType.creditPerMin"]
+										span.unit< credit/min
+								.separator
+								.bottom
+									span.cpu
+										span.count[ng-bind="machineType.cpuCount"]
+										span.at @
+										span.description[ng-bind="machineType.cpuDescription"]
+									span.ram[ng-bind="machineType.ram"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
 	section.cardo.stack-settings.workflow-specific
 		header
@@ -66,28 +69,31 @@
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
-				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
+				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
 					h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
-					.machine-types
-						.machine-type-wrapper[ng-repeat="machineType in stackCtrl.availableMachineTypes(workflow)" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
-							.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
-							.machine-type-icon[ng-if="machineType.cssClass == 'elite'"]  == svg("elite-machine-type-icon")
-							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
-							.machine-type-data
-								.top
-									span.icon-and-name-and-note
-										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
-										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
-										span.name[ng-bind="machineType.name"]
-										span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-									span.credit-per-min
-										span.value[ng-bind="machineType.creditPerMin"]
-										span.unit< credit/min
-								.separator
-								.bottom
-									span.cpu
-										span.count[ng-bind="machineType.cpuCount"]
-										span.at @
-										span.description[ng-bind="machineType.cpuDescription"]
-									span.ram[ng-bind="machineType.ram"]
-						/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
+					div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id]"]
+						.machite-type-tag[ng-bind="machineTypeTag" ng-if="!$first || !$last"]
+						.machine-types
+							.machine-type-wrapper[ng-repeat="machineType in machineTypes track by machineType.id" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
+								.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
+								.machine-type-icon[ng-if="machineType.cssClass == 'elite'"]  == svg("elite-machine-type-icon")
+								.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
+								.machine-type-data
+									.top
+										span.icon-and-name-and-note
+											span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
+											span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
+											span.name[ng-bind="machineType.name"]
+											span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
+											span.note[ng-if="machineType.note" ng-bind="machineType.note"]
+										span.credit-per-min
+											span.value[ng-bind="machineType.creditPerMin"]
+											span.unit< credit/min
+									.separator
+									.bottom
+										span.cpu
+											span.count[ng-bind="machineType.cpuCount"]
+											span.at @
+											span.description[ng-bind="machineType.cpuDescription"]
+										span.ram[ng-bind="machineType.ram"]
+							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]

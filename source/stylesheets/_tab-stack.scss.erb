@@ -124,10 +124,19 @@
 				margin-bottom: 0;
 			}
 
+			.machite-type-tag {
+				text-transform: capitalize;
+				margin: 16px 0;
+				font-size: 16px;
+				font-weight: 700;
+				text-color: $def-darkgrey;
+			}
+
 			.machine-types {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
+				margin-top: 16px;
 
 				.machine-type-wrapper {
 					position: relative;
@@ -137,7 +146,6 @@
 					max-width: 380px;
 					min-width: 225px;
 					padding: 12px;
-					margin-top: 18px;
 					margin-right: 18px;
 					border-radius: 8px;
 					border: 1px solid $def-grey;
@@ -161,6 +169,7 @@
 								margin-right: 12px;
 
 								.stack-type-icon {
+									display: flex;
 									margin-right: 8px;
 
 									svg {
@@ -179,6 +188,22 @@
 									letter-spacing: 0.08px;
 									color: $def-darkgrey;
 									@include ellipsis-oneliner;
+									margin-right: 8px;
+								}
+
+								.tag {
+									border-radius: 4px;
+									background-color: $def-grey;
+									color: #ffffff;
+									text-transform: uppercase;
+									font-size: 10px;
+									letter-spacing: .8px;
+									font-weight: 500;
+									padding: 1px 6px;
+
+									&.gen2 {
+										background-color: $def-green-shade;
+									}
 								}
 
 								.note {

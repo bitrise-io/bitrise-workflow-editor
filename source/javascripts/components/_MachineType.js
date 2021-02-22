@@ -13,7 +13,10 @@
 				ram,
 				creditPerMin,
 				isAvailable,
-				note
+				note,
+				tag,
+				type,
+				availableOnStacks
 			) {
 				this.id = id;
 				this.name = name;
@@ -24,7 +27,9 @@
 				this.stackType = stackType;
 				this.isAvailable = isAvailable;
 				this.note = note;
-				this.cssClass = id;
+				this.tag = tag;
+				this.cssClass = type;
+				this.availableOnStacks = availableOnStacks;
 			};
 
 			MachineType.all;
@@ -50,7 +55,10 @@
 								aMachineTypeDetails.ram,
 								aMachineTypeDetails.credit_per_min,
 								aMachineTypeDetails.is_available,
-								aMachineTypeDetails.note
+								aMachineTypeDetails.note,
+								aMachineTypeDetails.tag,
+								aMachineTypeDetails.type,
+								aMachineTypeDetails.available_on_stacks,
 							)
 
 							if (aMachineTypeConfig.default_machine_type === aMachineTypeID) {
