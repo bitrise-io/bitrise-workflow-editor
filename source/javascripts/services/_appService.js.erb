@@ -256,7 +256,7 @@
 					});
 				}
 
-				if (appService.defaultMachineType) {
+				if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
 					if (!appService.appConfig.meta) {
 						appService.appConfig.meta = {};
 					}
@@ -264,14 +264,9 @@
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
-					if (
-						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id !=
-						appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "")
-					) {
-						appService.appConfig.meta[
-							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "");
-					}
+					appService.appConfig.meta[
+						"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
+					].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.type + "-", "");
 
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
@@ -284,10 +279,6 @@
 						appService.savedAppConfig = angular.copy(appService.appConfig);
 						appService.appConfigYML = undefined;
 						appService.savedAppConfigYML = undefined;
-
-						if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
-							appService.getDefaultMachineType();
-						}
 					});
 			};
 
@@ -423,68 +414,21 @@
 				appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 			};
 
-			appService.availableMachineTypes = function(workflow) {
-				if (
-					!appService.appDetails.isMachineTypeSelectorAvailable ||
-					MachineType.all === undefined ||
-					appService.savedStack === undefined
-				) {
-					return undefined;
-				}
-
-				var stack;
-				if (workflow) {
-					stack = workflow.stack(undefined, Stack.all);
-				}
-
-				if (!stack) {
-					stack = appService.stack ? appService.stack : appService.savedStack;
-				}
-
-				var stackType = stack.id.split("-")[0];
-				return _.filter(MachineType.all, function(MachineType) {
-					return MachineType.id.startsWith(stackType, 0);
-				});
-			};
-
 			appService.getDefaultMachineType = function() {
-				if (appService.defaultMachineType && appService.defaultMachineType == appService.savedDefaultMachineType) {
-					return $q.when();
+				var metaMachineTypeID = appService.appConfig
+					&& appService.appConfig.meta
+					&& appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
+					&& appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
+				
+				var defaultMachineTypeID = metaMachineTypeID || MachineType.defaults[appService.stack.type].id;
+				appService.defaultMachineType = _.find(MachineType.all, { id: defaultMachineTypeID, stackType: appService.stack.type });
+				if (!appService.defaultMachineType) {
+					return $q.reject(new Error("<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>"));
 				}
-
-				if (
-					appService.appConfig === undefined ||
-					MachineType.all === undefined ||
-					appService.savedStack === undefined
-				) {
-					return undefined;
-				}
-
-				var defaultMachineTypeID;
-				var stack = appService.stack ? appService.stack : appService.savedStack;
-				var stackType = stack.id.split("-")[0];
-				if (
-					!appService.appConfig.meta ||
-					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] ||
-					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
-				) {
-					defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
-				}
-
-				if (!defaultMachineTypeID) {
-					defaultMachineTypeID =
-						stackType +
-						"-" +
-						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
-				}
-
-				appService.defaultMachineType = _.find(MachineType.all, {
-					id: defaultMachineTypeID
-				});
 
 				appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 
-				return appService.defaultMachineType;
+				return $q.when();
 			};
 
 			appService.defaultMachineTypeHasUnsavedChanges = function() {
@@ -512,10 +456,6 @@
 					appService.savedStack = angular.copy(appService.stack);
 					appService.dockerImage = appService.savedDockerImage = data.dockerImage;
 					appService.denTags = appService.savedDenTags = data.denTags.join(", ");
-
-					if (appService.appDetails.isMachineTypeSelectorAvailable) {
-						MachineType.getAll().then(appService.getDefaultMachineType);
-					}
 				});
 			};
 

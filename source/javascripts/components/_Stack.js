@@ -13,6 +13,7 @@
 			) {
 				this.id = id;
 				this.name = name;
+				this.type = id.split("-")[0];
 				this.description = description;
 				this.descriptionURL = descriptionURL;
 				this.projectTypes = projectTypes;
