@@ -22,6 +22,11 @@
 				"linux-docker-android": "bitriseio/android-ndk:pinned"
 			};
 
+			viewModel.machineTypeTagNotes = {
+				"gen1": "The tried and tested machines that have been serving our customers for many years now",
+				"gen2": "These machines run on a new hardware generation, offering improved performance compared to Gen1 hardware"
+			};
+
 			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {
 				var stackMachineTypes = _.filter(MachineType.all, function(machineType) {
 					if (machineType.availableOnStacks) {
