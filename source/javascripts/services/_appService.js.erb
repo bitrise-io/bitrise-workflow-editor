@@ -256,7 +256,7 @@
 					});
 				}
 
-				if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
+				if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable && appService.defaultMachineType) {
 					if (!appService.appConfig.meta) {
 						appService.appConfig.meta = {};
 					}
@@ -266,7 +266,7 @@
 
 					appService.appConfig.meta[
 						"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-					].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.type + "-", "");
+					].machine_type_id = appService.defaultMachineType.id;
 
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
