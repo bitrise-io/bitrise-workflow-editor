@@ -22,7 +22,7 @@
 						label.den-tag-label == data[:strings][:stack][:den_tags_label]
 						input.den-tags[type="text" ng-model="appService.denTags" ng-model-options="{getterSetter: true}" placeholder="#{ data[:strings][:stack][:den_tags_placeholder] }"]
 			section.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
-				h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
+				h4.machine-type-header Machine type for the default stack
 				div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[appService.stack.id]"]
 					.machite-type-tag[ng-if="!$first || !$last"]
 						span.title[ng-bind="machineTypeTag"]
@@ -72,7 +72,7 @@
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-href="{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURL }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
-					h4.machine-type-header  == data[:strings][:machine_type][:workflow_specific_settings][:header_title]
+					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id]"]
 						.machite-type-tag[ng-bind="machineTypeTag" ng-if="!$first || !$last"]
 						.machine-types
