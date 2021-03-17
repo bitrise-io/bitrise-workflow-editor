@@ -1076,7 +1076,6 @@ def strings
         other: {
             bitrise_available_stacks: "http://devcenter.bitrise.io/infrastructure/available-stacks",
             bitrise_workflow_editor_source_code: "https://github.com/bitrise-io/bitrise-workflow-editor",
-            bitrise_workflow_editor_current_release: "https://github.com/bitrise-io/bitrise-workflow-editor/releases/tag/<version>",
             github_step_yml_path: "https://raw.githubusercontent.com/<step_path>/<step_version>/step.yml"
         }
     }
