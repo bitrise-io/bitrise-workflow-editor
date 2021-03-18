@@ -240,7 +240,7 @@
 						return false;
 					}
 
-					if (step.libraryURL !== undefined) {
+					if (step.libraryURL !== undefined && !isStepInLib(step)) {
 						if (step.libraryURL === defaultStepLibUrl) {
 							stepLibSearchCVSs.push(aCVS);
 						} else {
@@ -279,21 +279,40 @@
 					return $q.reject(error);
 				}
 
-				var stepLibSearchPromise = stepLibSearchService
-					.list({
-						stepIDs: stepLibSearchCVSs.map(function(cvs) {
-							return cvs.split("@").shift();
-						}),
-						includeInputs: true
-					})
-					.then(function(steps) {
-						addStepsToDefaultLibrary(steps);
-					});
+				if (libraryURLs.length) {
+					loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig));
+				}
 
-				loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig), stepLibSearchPromise);
+				if (stepLibSearchCVSs.length) {
+					var stepLibSearchPromise = stepLibSearchService
+						.list({
+							stepCVSs: stepLibSearchCVSs,
+							includeInputs: true
+						})
+						.then(function(steps) {
+							addStepsToDefaultLibrary(steps);
+						});
+
+					loadPromises.push(stepLibSearchPromise);
+				}
 
 				return $q.all(loadPromises);
 			};
+
+
+			function isStepInLib(step) {
+				var library = stepSourceService.libraries.find(function(lib) { return lib.url === step.libraryURL });
+				if (!library || !library.steps || !library.steps[step.id]) {
+					return false;
+				}
+
+				if (!step.version) {
+					var latestStepVersion = library.latestStepVersions[step.id]
+					return !!library.steps[step.id][latestStepVersion]
+				} else {
+					return !!semverService.resolveVersion(step.version, step.id, library);
+				}
+			}
 
 			function addStepsToDefaultLibrary(steps) {
 				Object.keys(steps).forEach(function(stepId) {
