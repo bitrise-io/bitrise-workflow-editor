@@ -308,7 +308,7 @@ import jsyaml from "js-yaml";
 
 			// App config
 
-			requestService.postAppConfig = function(appConfig, requestConfig) {
+			requestService.postAppConfig = function(appConfig, requestConfig, tabOpenDuringSave) {
 				var requestURL;
 				var requestData;
 
@@ -321,7 +321,8 @@ import jsyaml from "js-yaml";
 							}
 						);
 						requestData = {
-							app_config_datastore_yaml: appConfig
+							app_config_datastore_yaml: appConfig,
+							tab_open_during_save: tabOpenDuringSave
 						};
 
 						break;
@@ -400,7 +401,8 @@ import jsyaml from "js-yaml";
 						requestURL = stringService.stringReplacedWithParameters(
 							"<%= webserver_path(data[:routes][:website][:yml_post]) %>",
 							{
-								app_slug: requestService.appSlug
+								app_slug: requestService.appSlug,
+								tab_open_during_save: 'yml'
 							}
 						);
 						requestData = {
