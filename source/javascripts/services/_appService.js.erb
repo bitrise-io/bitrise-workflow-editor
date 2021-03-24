@@ -273,7 +273,7 @@
 
 				return validateVariables(variables)
 					.then(function() {
-						return userSavedYmlToRepositoryPromise || requestService.postAppConfig(appService.appConfig, requestConfig, tabOpenDuringSave);
+						return userSavedYmlToRepositoryPromise || requestService.postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig);
 					})
 					.then(function() {
 						appService.savedAppConfig = angular.copy(appService.appConfig);
