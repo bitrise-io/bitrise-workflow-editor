@@ -395,7 +395,7 @@ import _ from "underscore";
 								case "env-vars":
 								case "triggers":
 									viewModel.dataToSave = appService.appConfig;
-									return appService.saveAppConfig(deferredSavePromise, null, viewModel.currentMenu.id)
+									return appService.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
 											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})
@@ -404,7 +404,7 @@ import _ from "underscore";
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
 									viewModel.dataToSave = appService.appConfig;
-									return $q.all([appService.saveAppConfig(deferredSavePromise, null, viewModel.currentMenu.id), appService.saveStack()])
+									return $q.all([appService.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id), appService.saveStack()])
 										.then(function() {
 											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})

@@ -209,7 +209,7 @@
 				appService.appConfig.trigger_map = updatedTriggerMap;
 			};
 
-			appService.saveAppConfig = function(userSavedYmlToRepositoryPromise, requestConfig, tabOpenDuringSave) {
+			appService.saveAppConfig = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
 				var variables = [];
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
