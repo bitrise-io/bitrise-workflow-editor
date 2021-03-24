@@ -4,8 +4,8 @@
 
 > **Note: project is going through angularjs -> React transition. Please read more about this in the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).**
 
-
 ## Before you start
+
 Make sure to **clone this repository into your `GOPATH`**
 Location: `/User/your-name/go/src/github.com/bitrise-io/bitrise-workflow-editor`
 
@@ -15,7 +15,6 @@ Otherwise you will face a similar error:
 If you prefer you can create a smybolic link to your preferred workspace location.
 Format: `ln -s source destination`
 Example: `ln -s /User/your-name/go/src/github.com/bitrise-io/bitrise-workflow-editor /Users/your-name/repos/bitrise-workflow-editor`
-
 
 ## How to install & use the Workflow Editor on your Mac/Linux
 
@@ -32,8 +31,7 @@ To upgrade to the latest version of the Workflow Editor run:
 bitrise plugin update workflow-editor
 ```
 
-*Join the Workflow Editor's discussion at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39)*
-
+_Join the Workflow Editor's discussion at: [https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39](https://discuss.bitrise.io/t/workflow-editor-v2-offline-workflow-editor/39)_
 
 ## Install requirements
 
@@ -82,7 +80,7 @@ npm run e2e:run # run e2e tests itself (cypress)
 npm run e2e     # for self contained e2e tests (local binary api + testing logic) e2e:api + e2e:run
 ```
 
-*NOTE: for e2e testing you could start a service normally with `npm start` (to develop and run tests on it parallel) or have a binary ready by `bitrise run setup-plugin-api` if you only want to verify the correctness of an already built feature. And then run the test dashboard with `npm run e2e:dev`*
+_NOTE: for e2e testing you could start a service normally with `npm start` (to develop and run tests on it parallel) or have a binary ready by `bitrise run setup-plugin-api` if you only want to verify the correctness of an already built feature. And then run the test dashboard with `npm run e2e:dev`_
 
 Use `npm test` for a single test run.
 If you only iterate on tests, you can also use `npm run karma` as it skips transpilation and the transpilation and run the tests on an already transpiled JS. (faster)
@@ -116,7 +114,7 @@ If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` chang
 ## Testing if version release works, without actually releasing
 
 - In bitrise.yml, create a workflow e. g. `test-release`
-- From the `create-release` workflow, copy-paste the *GitHub release* and *Create Discuss topic* steps.
+- From the `create-release` workflow, copy-paste the _GitHub release_ and _Create Discuss topic_ steps.
 - In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
 - In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
 - After the test release process, don't forget to delete the draft release and the internal changelog topic.
