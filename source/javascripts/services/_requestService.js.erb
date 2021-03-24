@@ -402,11 +402,11 @@ import jsyaml from "js-yaml";
 							"<%= webserver_path(data[:routes][:website][:yml_post]) %>",
 							{
 								app_slug: requestService.appSlug,
-								tab_open_during_save: 'yml'
 							}
 						);
 						requestData = {
-							app_config_datastore_yaml: appConfigYML
+							app_config_datastore_yaml: appConfigYML,
+							tab_open_during_save: 'yml'
 						};
 
 						break;
