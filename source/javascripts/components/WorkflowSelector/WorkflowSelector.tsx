@@ -53,7 +53,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 	const filteredWorkflows = useMemo(() => {
 		let result = [...workflows];
 		if (search) {
-			const regExp = new RegExp(search);
+			const regExp = new RegExp(search, "i");
 			result = workflows.filter(workflow => regExp.test(workflow.id));
 		}
 
