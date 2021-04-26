@@ -516,19 +516,15 @@ main {
 	}
 
 	footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 		@include flex-shrink(0);
-		@include display-flex;
-		@include justify-content(center);
-		@include align-items(center);
 		padding: 10px $main-horizontalpadding;
 		font-size: 13px;
 		font-weight: 400;
 		color: $def-darkgrey;
 		background-color: $def-verylightgrey;
-
-		p {
-			@include margin-y(0);
-		}
 
 		svg {
 			@include size(13px, 12px);
@@ -536,46 +532,34 @@ main {
 			fill: $def-green;
 		}
 
-		a {
-			font-weight: 900;
-			color: inherit;
-			@include transition(color $def-transition_duration);
-
-			&:hover, &:focus {
-				color: black;
-			}
+		.content {
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
-
-		&:before {
-			content: "";
-			margin-right: auto;
-		}
-
-		.version {
-			margin-left: auto;
-			text-align: right;
-		}
-
-		&:before, .version {
+		
+		.placeholder, .version {
 			width: 40px;
 		}
 
 		@include media-below-mid {
-			@include flex-direction(column);
+			flex-direction: column-reverse;
+
+			.placeholder {
+				display: none;
+			}
+
+			.content {
+				flex-direction: column;
+			}
 
 			svg {
 				@include margin-x(0);
 				@include margin-y(12px);
 			}
 
-			&:before {
-				content: none;
-			}
-
 			.version {
 				margin-top: 6px;
-				margin-left: 0;
-				text-align: center;
 			}
 		}
 	}

@@ -55,10 +55,12 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 		p.progress-indicator[progress-model="mainCtrl.initAppProgress"]
 		.tab-content[ng-view ng-if="mainCtrl.currentMenu.id === 'yml' || (mainCtrl.initAppProgress.isIdle && !mainCtrl.menuProgress.isError && !mainCtrl.loadAppConfigProgress.isInProgress && !mainCtrl.loadAppConfigProgress.isError  && mainCtrl.changeMenuProgress.isIdle)"]
 	footer
-		p == data[:strings][:main][:footer][:editor_open_source]
-		== svg("heart")
-		p == replaced_string(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
-		p.version[ng-if="requestService.mode == 'website'"] v#{ ENV['wfe_version'] }
+		div.version[ng-if="requestService.mode == 'website'"] v#{ ENV['wfe_version'] }
+		div.content
+			p == data[:strings][:main][:footer][:editor_open_source]
+			== svg("heart")
+			p == replaced_string(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
+		div.placeholder
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
