@@ -7,6 +7,9 @@ import appConfigAsYml from "../../utils/appConfigAsYml";
 import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
 import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
 import CreatingYmlOnWebsiteProgress from "../common/notifications/LookingForYmlInRepoProgress";
+import { WFEWindow } from "../../typings/global";
+
+declare let window: WFEWindow;
 
 type StoreOnWebsiteProps = {
 	appSlug: string;
@@ -68,8 +71,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 	if (isFinished) {
 		return (
 			<Notification margin="x2" type="success">
-				Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file stored on
-				bitrise.io.
+				{window.strings["yml"]["store_on_website"]["success"]}
 			</Notification>
 		);
 	}

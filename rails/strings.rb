@@ -6,7 +6,7 @@ def strings
                 bitrise_io: "bitrise.io"
             },
             algolia: {
-                ppID: "HI1538U2K4",
+                appID: "HI1538U2K4",
                 apiKey: "708f890e859e7c44f309a1bbad3d2de8"
             },
             datadog: {
@@ -710,7 +710,18 @@ def strings
                 },
                 warn: {
                     title: "Uups, we found some warnings in your configuration, please considere to check them."
-                }
+                },
+                store_in_repository: {
+                    loading: "Looking for bitrise.yml in the app repository...",
+                    not_found: "Couldn't find a bitrise.yml file in the app's repository. Add the file to your main branch and try again.",
+                    validation_loading: "Validating bitrise.yml in the app repository...",
+                    validation_error: "The bitrise.yml file in the repository seems invalid. Please review and fix it before proceeding. Read more about the",
+                    success: "Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file in the app's repository."
+                },
+                store_on_website: {
+                    loading: "Creating bitrise.yml on bitrise.io...",
+                    success: "Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file stored on bitrise.io."
+                },
             },
             image_service: {
                 broken_image: "Broken image: <image_url>.",
