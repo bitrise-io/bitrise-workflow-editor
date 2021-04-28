@@ -29,7 +29,7 @@
 				});
 
 				if (!library) {
-					throw new Error("Library not found for step");
+					throw new Error("<%= data[:strings][:step_source_service][:get_library_for_step][:default_error] %>")
 				}
 
 				return library;
