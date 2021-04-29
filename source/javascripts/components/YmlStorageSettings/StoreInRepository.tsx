@@ -12,8 +12,6 @@ import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlIn
 import ValidatingYmlInRepoProgress from "../common/notifications/ValidatingYmlInRepoProgress";
 import { WFEWindow } from "../../typings/global";
 
-declare let window: WFEWindow;
-
 type StorageInRepositoryProps = {
 	appSlug: string;
 	onCancel(): void;
@@ -89,7 +87,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 	if (isFinished) {
 		return (
 			<Notification margin="x2" type="success">
-				{window.strings["yml"]["store_in_repository"]["success"]}
+				{(window as WFEWindow).strings["yml"]["store_in_repository"]["success"]}
 			</Notification>
 		);
 	}

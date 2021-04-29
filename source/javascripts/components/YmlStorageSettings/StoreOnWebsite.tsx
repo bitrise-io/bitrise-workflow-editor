@@ -9,8 +9,6 @@ import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlIn
 import CreatingYmlOnWebsiteProgress from "../common/notifications/LookingForYmlInRepoProgress";
 import { WFEWindow } from "../../typings/global";
 
-declare let window: WFEWindow;
-
 type StoreOnWebsiteProps = {
 	appSlug: string;
 	onCancel(): void;
@@ -71,7 +69,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 	if (isFinished) {
 		return (
 			<Notification margin="x2" type="success">
-				{window.strings["yml"]["store_on_website"]["success"]}
+				{(window as WFEWindow).strings["yml"]["store_on_website"]["success"]}
 			</Notification>
 		);
 	}

@@ -3,8 +3,6 @@ import { Text, Notification, Flex } from "@bitrise/bitkit";
 import InlineLink from "../InlineLink";
 import { WFEWindow } from "../../../typings/global";
 
-declare let window: WFEWindow;
-
 type Props = {
 	errorMessage: string;
 };
@@ -13,7 +11,7 @@ const YmlInRepositoryInvalidError: FC<Props> = ({ errorMessage }: Props) => (
 	<Notification type="alert" alignChildren="start">
 		<Flex direction="vertical" gap="x4">
 			<Text>
-				{window.strings["yml"]["store_in_repository"]["validation_error"]}{" "}
+				{(window as WFEWindow).strings["yml"]["store_in_repository"]["validation_error"]}{" "}
 				<InlineLink
 					underline
 					color="red-4"
