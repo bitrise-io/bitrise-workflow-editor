@@ -5,5 +5,5 @@ export type WFEWindow = Window &
 		isAnalyticsOn: boolean;
 		mode: string;
 		serviceName: string;
-		strings: { [s: string]: unknown };
+		strings: { [s: string]: any };
 	};
