@@ -263,7 +263,7 @@ import _ from "underscore";
 			};
 
 			$scope.$on("$routeChangeError", function(event, current, previous, rejection) {
-				viewModel.menuProgress.error(new Error("Failed to load menu."));
+				viewModel.menuProgress.error(new Error("<%= data[:strings][:main][:load_menu_progress][:load_error] %>"));
 				logger.error(rejection);
 			});
 

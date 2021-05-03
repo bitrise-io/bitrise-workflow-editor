@@ -1236,7 +1236,7 @@ import jsyaml from "js-yaml";
 												devicesData: aTeam.devices_data.error_type
 													? {
 															error: new Error(
-																"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
+																"<%= data[:strings][:request_service][:save_apple_developer_account_data_to_database_and_authenticate][:pla_error] %>"
 															)
 													  }
 													: {

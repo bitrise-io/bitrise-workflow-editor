@@ -1,10 +1,9 @@
 import React, { FC } from "react";
 import { Notification } from "@bitrise/bitkit";
+import { WFEWindow } from "../../../typings/global";
 
 const YmlNotFoundInRepositoryError: FC = () => (
-	<Notification type="alert">
-		Couldn't find a bitrise.yml file in the app's repository. Add the file to your main branch and try again.
-	</Notification>
+	<Notification type="alert">{(window as WFEWindow).strings["yml"]["store_in_repository"]["not_found"]}</Notification>
 );
 
 export default YmlNotFoundInRepositoryError;

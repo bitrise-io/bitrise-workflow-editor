@@ -21,10 +21,9 @@
 			viewModel.defaultDockerImagesByStackIDs = {
 				"linux-docker-android": "bitriseio/android-ndk:pinned"
 			};
-
 			viewModel.machineTypeTagNotes = {
-				"gen1": "The tried and tested machines that have been serving our customers for many years now",
-				"gen2": "These machines run on a new hardware generation, offering improved performance compared to Gen1 hardware"
+				"gen1": "<%= data[:strings][:stack][:machine_type_notes][:gen1] %>",
+				"gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
 			};
 
 			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {

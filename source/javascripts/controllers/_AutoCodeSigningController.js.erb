@@ -88,7 +88,7 @@
 
 			viewModel.loadCodesigndocScript = function() {
 				viewModel.loadCodesigndocScriptProgress.start(
-					"Loading codesigndoc script..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:codesigndoc_loading] %>"
 				);
 
 				requestService
@@ -157,7 +157,7 @@
 
 			viewModel.loadAppleDeveloperAccount = function() {
 				viewModel.loadAppleDeveloperAccountProgress.start(
-					"Loading Apple Developer Account..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:apple_dev_account_loading] %>"
 				);
 
 				requestService
@@ -184,7 +184,7 @@
 
 			viewModel.connectAppleDeveloperAccount = function() {
 				viewModel.connectAppleDeveloperAccountProgress.start(
-					"Connecting Apple Developer Account..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:connecting_apple_dev_account] %>"
 				);
 
 				requestService
@@ -222,7 +222,7 @@
 
 			viewModel.sendTwoStepAuthVerificationCode = function() {
 				viewModel.sendTwoStepAuthVerificationCodeProgress.start(
-					"Sending verification code..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:sending_two_step_auth_verification_code] %>"
 				);
 
 				var verificationCode = [
@@ -259,7 +259,7 @@
 
 			viewModel.sendTwoFactorAuthVerificationCode = function() {
 				viewModel.sendTwoFactorAuthVerificationCodeProgress.start(
-					"Sending verification code..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:sending_two_factor_auth_verification_code] %>"
 				);
 
 				var verificationCode = [
@@ -317,7 +317,7 @@
 
 			viewModel.changeAppleDeveloperAccount = function() {
 				viewModel.removeConnectedAppleDeveloperAccountProgress.start(
-					"Removing connected Apple Developer Account..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:removing_connected_apple_developer_account] %>"
 				);
 
 				requestService
@@ -360,7 +360,9 @@
 			};
 
 			viewModel.saveSelectedTeam = function() {
-				viewModel.saveSelectedTeamProgress.start("Saving selected team...");
+				viewModel.saveSelectedTeamProgress.start(
+					"<%= data[:strings][:code_signing][:auto_code_signing][:saving_team] %>"
+				);
 
 				requestService
 					.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams(
@@ -387,7 +389,7 @@
 
 			viewModel.saveAppleCredentialUser = function() {
 				viewModel.saveAppleCredentialUserProgress.start(
-					"Saving Apple Credential User..."
+					"<%= data[:strings][:code_signing][:auto_code_signing][:saving_apple_credential_user] %>"
 				);
 
 				$q(function(resolve, reject) {

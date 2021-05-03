@@ -10,6 +10,7 @@ import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInR
 import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
 import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
 import ValidatingYmlInRepoProgress from "../common/notifications/ValidatingYmlInRepoProgress";
+import { WFEWindow } from "../../typings/global";
 
 type StorageInRepositoryProps = {
 	appSlug: string;
@@ -86,8 +87,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 	if (isFinished) {
 		return (
 			<Notification margin="x2" type="success">
-				Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file in the app's
-				repository.
+				{(window as WFEWindow).strings["yml"]["store_in_repository"]["success"]}
 			</Notification>
 		);
 	}
