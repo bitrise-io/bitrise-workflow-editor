@@ -145,23 +145,23 @@ Feature: Workflow steps details
       And "Step Latest Version Updater Button" should "be visible"
     When I select "1.13.x" from "Step Version Selector"
     Then I should see "1.13.x" in "Eighteenth StepItem Version"
-      And I should see "1.13.1" in "Step Version"
+      And I should see "1.13.2" in "Step Version"
       And "Step Version Branch Icon" should "be visible"
       And "Step Version Update Icon" should "not be visible"
       And "Step Latest Version Updater Button" should "not be visible"
     When I select "1.x.x" from "Step Version Selector"
     Then I should see "1.x.x" in "Eighteenth StepItem Version"
-      And I should see "1.13.1" in "Step Version"
+      And I should see "1.13.2" in "Step Version"
       And "Step Version Branch Icon" should "be visible"
       And "Step Version Update Icon" should "not be visible"
       And "Step Latest Version Updater Button" should "not be visible"
 
   Scenario: Always latest vs latest major lock
     When I click on "Third step"
-    Then I should see "Version: 4.0.5" in "Step Version"
+    Then I should see "Version: 4.0.6" in "Step Version"
       And I should see "Always latest" in "Third StepItem Version"
     When I select "4.x.x" from "Step Version Selector"
-    Then I should see "Version: 4.0.5" in "Step Version"
+    Then I should see "Version: 4.0.6" in "Step Version"
       And I should see "4.x.x" in "Third StepItem Version"
 
   Scenario: Step with always run capabilities

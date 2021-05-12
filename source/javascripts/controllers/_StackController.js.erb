@@ -19,7 +19,8 @@
 			$scope.MachineType = MachineType;
 			$scope.appService = appService;
 			viewModel.defaultDockerImagesByStackIDs = {
-				"linux-docker-android": "bitriseio/android-ndk:pinned"
+				"linux-docker-android": "bitriseio/android-ndk:pinned",
+				"linux-docker-android-20.04": "bitriseio/android-ndk-20.04:pinned",
 			};
 			viewModel.machineTypeTagNotes = {
 				"gen1": "<%= data[:strings][:stack][:machine_type_notes][:gen1] %>",
