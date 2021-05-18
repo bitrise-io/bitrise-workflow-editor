@@ -16,12 +16,11 @@ function assetst_precompile {
 }
 
 function compile_bin {
-    export GOARCH=amd64
-
     # Create Darwin bin
+    export GOARCH=amd64
     export GOOS=darwin
 
-    echo "  Create final Darwin binary at: $BIN_PATH_DARWIN"
+    echo "  Create final Darwin-x86_64 binary at: $BIN_PATH_DARWIN"
 
     version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
 
@@ -30,10 +29,46 @@ function compile_bin {
         -o "$BIN_PATH_DARWIN"
 
     # cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
-    echo "  Copy final Darwin binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
+    echo "  Copy final Darwin-x86_64 binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH"
+
+
+    echo "  Create final Darwin-arm64 binary at: $BIN_PATH_DARWIN_ARM64"
+    export GOARCH=arm64
+
+    # Download 1.16.4 go and build arm64 with it
+    export ORIG_DIR=`pwd`
+    export GO_TMP=/tmp/go1.16.4 && mkdir -p $GO_TMP
+              
+    UNAME=$(uname)
+
+    if [ "$UNAME" == "Linux" ] ; then
+      export GO_DL_OS="linux"
+      export GO_DL_TAR_CMD="tar -xzf -"
+    elif [ "$UNAME" == "Darwin" ] ; then
+      export GO_DL_OS="darwin"
+      export GO_DL_TAR_CMD="tar -xjf -"
+    fi
+
+    cd $GO_TMP && curl -Ls https://golang.org/dl/go1.16.4.$GO_DL_OS-amd64.tar.gz | $GO_DL_TAR_CMD
+    cd $ORIG_DIR
+
+    version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
+
+    export ORIG_GO111MODULE=$GO111MODULE
+    export GO111MODULE=auto
+
+    $GO_TMP/go/bin/go build \
+        -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
+        -o "$BIN_PATH_DARWIN_ARM64"
+
+    export GO111MODULE=$ORIG_GO111MODULE
+
+    # cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+    echo "  Copy final Darwin-arm64 binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH_ARM64"
 
 
     # Create Linux binary
+    export GOARCH=amd64
     export GOOS=linux
 
     echo "  Create final Linux binary at: $BIN_PATH_LINUX"
