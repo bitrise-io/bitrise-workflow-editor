@@ -38,7 +38,7 @@ func ymlToJSONKeyTypeConversion(i interface{}) interface{} {
 
 // GetSecretsAsJSONHandler ...
 func GetSecretsAsJSONHandler(w http.ResponseWriter, r *http.Request) {
-	secretsYMLPth := config.SecretsYMLPath.Get()
+	secretsYMLPth := config.SecretsYMLPath
 	if isExist, err := pathutil.IsPathExists(secretsYMLPth); err != nil {
 		log.Errorf("Failed to check .bitrise.secrets.yml file, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to check .bitrise.secrets.yml file, error: %s", err)
@@ -135,7 +135,7 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := fileutil.WriteBytesToFile(config.SecretsYMLPath.Get(), contAsYAML); err != nil {
+	if err := fileutil.WriteBytesToFile(config.SecretsYMLPath, contAsYAML); err != nil {
 		log.Errorf("Failed to write content into file, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to write content into file, error: %s", err)
 		return
