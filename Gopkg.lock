@@ -70,7 +70,7 @@
 
 [[projects]]
   branch = "master"
-  digest = "1:400b8bf50e42f4524f84fb2b95b344df613f2188147358bfd7f338a1ff3ee8ef"
+  digest = "1:b7e6e731ee82e86683c3666628d3e66d4d3b3e3544aea7f7c1dc16f8c6117fbb"
   name = "github.com/bitrise-io/go-utils"
   packages = [
     "colorstring",
@@ -78,7 +78,6 @@
     "command/git",
     "errorutil",
     "fileutil",
-    "freezable",
     "log",
     "parseutil",
     "pathutil",
@@ -253,14 +252,12 @@
   analyzer-version = 1
   input-imports = [
     "github.com/GeertJohan/go.rice",
-    "github.com/GeertJohan/go.rice/embedded",
     "github.com/bitrise-io/bitrise/cli",
     "github.com/bitrise-io/bitrise/models",
     "github.com/bitrise-io/depman/pathutil",
     "github.com/bitrise-io/envman/models",
     "github.com/bitrise-io/go-utils/command",
     "github.com/bitrise-io/go-utils/fileutil",
-    "github.com/bitrise-io/go-utils/freezable",
     "github.com/bitrise-io/go-utils/log",
     "github.com/bitrise-io/go-utils/pathutil",
     "github.com/bitrise-io/stepman/models",

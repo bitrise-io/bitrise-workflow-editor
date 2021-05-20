@@ -25,7 +25,7 @@ func TestGetSecretsAsJSONHandler(t *testing.T) {
 	bitriseSecretsContent := `envs:
 - KEY: Value`
 	require.NoError(t, fileutil.WriteStringToFile(bitriseSecretsPth, bitriseSecretsContent))
-	require.NoError(t, config.SecretsYMLPath.Set(bitriseSecretsPth))
+	config.SecretsYMLPath = bitriseSecretsPth
 
 	req, err := http.NewRequest("GET", "/api/secrets", nil)
 	require.NoError(t, err)
@@ -50,7 +50,7 @@ func TestPostSecretsYMLFromJSONHandler(t *testing.T) {
 	bitriseConfigContent := `{
     "envs":[{"KEY":"Value","opts":{}}]
 }`
-	require.NoError(t, config.SecretsYMLPath.Set(bitriseSecretsPth))
+	config.SecretsYMLPath = bitriseSecretsPth
 
 	req, err := http.NewRequest("POST", "/api/secrets", bytes.NewBuffer([]byte(bitriseConfigContent)))
 	require.NoError(t, err)

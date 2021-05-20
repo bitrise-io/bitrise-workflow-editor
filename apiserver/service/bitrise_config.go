@@ -19,9 +19,9 @@ import (
 
 // GetBitriseYMLHandler ...
 func GetBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
-	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath.Get())
+	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
 	if err != nil {
-		log.Errorf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath.Get(), err)
+		log.Errorf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
 		return
 	}
@@ -70,7 +70,7 @@ func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := fileutil.WriteStringToFile(config.BitriseYMLPath.Get(), reqObj.BitriseYML); err != nil {
+	if err := fileutil.WriteStringToFile(config.BitriseYMLPath, reqObj.BitriseYML); err != nil {
 		log.Errorf("Failed to write content into file, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to write content into file, error: %s", err)
 		return
@@ -81,9 +81,9 @@ func PostBitriseYMLHandler(w http.ResponseWriter, r *http.Request) {
 
 // GetBitriseYMLAsJSONHandler ...
 func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
-	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath.Get())
+	contStr, err := fileutil.ReadStringFromFile(config.BitriseYMLPath)
 	if err != nil {
-		log.Errorf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath.Get(), err)
+		log.Errorf("Failed to read bitrise.yml (%s), error: %s", config.BitriseYMLPath, err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to read content of bitrise.yml file, error: %s", err)
 		return
 	}
@@ -156,7 +156,7 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	if err := fileutil.WriteBytesToFile(config.BitriseYMLPath.Get(), contAsYAML); err != nil {
+	if err := fileutil.WriteBytesToFile(config.BitriseYMLPath, contAsYAML); err != nil {
 		log.Errorf("Failed to write content into file, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to write content into file, error: %s", err)
 		return
