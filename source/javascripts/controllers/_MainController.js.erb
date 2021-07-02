@@ -1,4 +1,5 @@
 import _ from "underscore";
+import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 (function() {
 	"use strict";
@@ -98,6 +99,9 @@ import _ from "underscore";
 										}
 									}).then(
 										function() {
+											if (viewModel.currentMenu.id === "workflows") {
+												datadogRumCustomTiming('wfe', 'workflows');
+											}
 											resolve();
 										},
 										function(error) {
@@ -255,6 +259,8 @@ import _ from "underscore";
 						}
 
 						viewModel.menuProgress.success();
+
+						datadogRumCustomTiming('wfe', 'topNavigation');
 					},
 					function() {
 						viewModel.menuProgress.reset();
