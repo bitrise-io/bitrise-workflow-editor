@@ -99,9 +99,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 										}
 									}).then(
 										function() {
-											if (viewModel.currentMenu.id === "workflows") {
-												datadogRumCustomTiming('wfe', 'workflows');
-											}
 											resolve();
 										},
 										function(error) {
