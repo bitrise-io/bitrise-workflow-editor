@@ -214,7 +214,7 @@ import { safeDigest } from "../services/react-compat";
 							function() {
 								viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 									return new Workflow(aWorkflowID, aWorkflowConfig);
-								});
+								}).sort((a, b) => a.id.localeCompare(b.id));
 								resolve();
 							},
 							function(error) {
