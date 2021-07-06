@@ -463,10 +463,10 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/github-status/assets/icon.svg"
                 }
             },
-            "latest_version_number": "2.3.4",
-            "cvs": "github-status@2.3.4",
+            "latest_version_number": "2.4.0",
+            "cvs": "github-status@2.4.0",
             "id": "github-status",
-            "version": "2.3.4",
+            "version": "2.4.0",
             "is_latest": true,
             "is_deprecated": false,
             "step": {
