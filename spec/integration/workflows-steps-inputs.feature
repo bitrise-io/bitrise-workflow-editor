@@ -8,9 +8,8 @@ Feature: Workflow steps inputs
   Scenario: Step's selected
     When I click on "First step"
     Then I should see "GitHub Status" in "Step Title"
-    Then I should see "2.3.4" in "Step Version"
+    Then I should see "2.4.0" in "Step Version"
       And "Step Version Details" should "be visible"
-      And "Step Inputs" should "be visible"
       And "Save Button" should "be disabled"
 
   Scenario: Inputs without categories don't get wrapped into expandable container

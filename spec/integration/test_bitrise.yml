@@ -25,7 +25,7 @@ workflows:
       bitrise.io:
         stack: osx-xcode-11.3.x
     steps:
-      - github-status@2.3.4:
+      - github-status@2.4.0:
           inputs:
             - api_base_url: https://github.com
             - set_specific_status: pending

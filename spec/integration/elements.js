@@ -34,7 +34,6 @@ export const elements = {
 	"Step Delete Button": ".selected-step button.delete-step",
 	"Step Delete Icon": ".selected-step button.delete",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
-	"Step Inputs": ".selected-step .inputs",
 	"Step Version Details": "[data-e2e-tag=\"step-version-details\"]",
 	"Step Version": "[data-e2e-tag=\"step-version-details__version-text\"]",
 	"Step Version Selector": "[data-e2e-tag=\"step-version-details__version-selector\"]",
