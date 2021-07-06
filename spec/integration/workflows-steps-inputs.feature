@@ -10,7 +10,6 @@ Feature: Workflow steps inputs
     Then I should see "GitHub Status" in "Step Title"
     Then I should see "2.4.0" in "Step Version"
       And "Step Version Details" should "be visible"
-      And "Step Inputs" should "be visible"
       And "Save Button" should "be disabled"
 
   Scenario: Inputs without categories don't get wrapped into expandable container
