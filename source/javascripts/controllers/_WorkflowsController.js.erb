@@ -1,4 +1,5 @@
 import { safeDigest } from "../services/react-compat";
+import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 (function() {
 	"use strict";
@@ -212,6 +213,7 @@ import { safeDigest } from "../services/react-compat";
 						})
 						.then(
 							function() {
+								datadogRumCustomTiming('wfe', 'workflows');
 								viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 									return new Workflow(aWorkflowID, aWorkflowConfig);
 								}).sort((a, b) => a.id.localeCompare(b.id));
