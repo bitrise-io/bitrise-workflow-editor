@@ -93,8 +93,6 @@ module.exports = {
 				extractComments: true,
 				parallel: true,
 				terserOptions: {
-					mangle: false,
-					safari10: true,
 					output: {
 						comments: /@license/i
 					}
