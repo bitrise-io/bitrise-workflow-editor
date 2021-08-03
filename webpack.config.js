@@ -120,14 +120,9 @@ module.exports = {
 
 			{
 				test: /\.tsx?$/,
-				use: {
-					loader: "ts-loader",
-					options: {
-						compilerOptions: {
-							sourceMap: !isProd
-						}
-					}
-				},
+				use: [
+					{ loader: "babel-loader" },
+				],
 				exclude: /node_modules/
 			},
 
