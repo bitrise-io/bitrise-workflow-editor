@@ -373,12 +373,17 @@
 				viewModel.listOfIdentitiesPopup.isVisible = true;
 			};
 
-			viewModel.placeholderForText = function(text) {
-				if (text === undefined || text === null) {
-					return;
-				}
+			viewModel.placeholderForPasswordOfCertificate = function(certificate) {
+				return function(password) {
+					if (certificate.isProtected === undefined) {
+						return undefined;
+					}
+					if (certificate.isProtected) {
+						return "*";
+					}
 
-				return Array(text.length + 1).join("*");
+					return Array((certificate.password  || "").length + 1).join("*");
+				}
 			};
 
 			$scope.$on("$destroy", function() {

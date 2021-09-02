@@ -58,8 +58,8 @@
 							form[ng-submit="certificateCtrl.changePassword()" name="certificatePasswordForm" method="POST"]
 								.password-field-wrapper
 									input.password-field[ng-if="showPassword" type="text" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
-									input.password-field[ng-if="!showPassword" type="text" ng-model="certificateCtrl.placeholderForText(certificate.password)" ng-model-options="{getterSetter: true}" disabled]
-									eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
+									input.password-field[ng-if="!showPassword" type="text" ng-model="certificateCtrl.placeholderForPasswordOfCertificate(certificate)" ng-model-options="{getterSetter: true}" disabled]
+									eye-checkbox[ng-model="showPassword" ng-hide="certificate.isProtected" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 								.change-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
 									input.action.ok.rebo.small.purple.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
 									button.action.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
