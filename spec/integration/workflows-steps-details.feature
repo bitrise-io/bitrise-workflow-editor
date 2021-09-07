@@ -158,10 +158,10 @@ Feature: Workflow steps details
 
   Scenario: Always latest vs latest major lock
     When I click on "Third step"
-    Then I should see "Version: 4.0.6" in "Step Version"
+    Then I should see "Version: 4.1.0" in "Step Version"
       And I should see "Always latest" in "Third StepItem Version"
     When I select "4.x.x" from "Step Version Selector"
-    Then I should see "Version: 4.0.6" in "Step Version"
+    Then I should see "Version: 4.1.0" in "Step Version"
       And I should see "4.x.x" in "Third StepItem Version"
 
   Scenario: Step with always run capabilities
