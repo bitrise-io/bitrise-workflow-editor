@@ -90,6 +90,10 @@
 
 			viewModel.loadProgress = new Progress();
 
+			viewModel.isAppPublic = function() {
+				return appService.appDetails.isPublic
+			};
+
 			viewModel.load = function() {
 				viewModel.loadProgress.start("<%= data[:strings][:code_signing][:available_project_types_load] %>");
 

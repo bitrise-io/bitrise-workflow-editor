@@ -183,7 +183,7 @@
 		header
 			h2.label
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
-			h2.label.expose[ng-if="androidKeystoreCtrl.keystoreFile && !codeSigningCtrl.appService.appDetails.isPublic"]
+			h2.label.expose[ng-if="androidKeystoreCtrl.keystoreFile && !codeSigningCtrl.isAppPublic()"]
 				span.long-version == data[:strings][:code_signing][:android_keystore][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:android_keystore][:header][:expose_for_pr]
 		article
@@ -209,7 +209,7 @@
 												span Uploading file...
 									.detail.code.env-var-key[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
 								.expose-and-actions
-									.expose-with-popover[ng-if="!codeSigningCtrl.appService.appDetails.isPublic"]
+									.expose-with-popover[ng-if="!codeSigningCtrl.isAppPublic()"]
 										.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 											checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress || androidKeystoreCtrl.keystoreFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
 											label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
