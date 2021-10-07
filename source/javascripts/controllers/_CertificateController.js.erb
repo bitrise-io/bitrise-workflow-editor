@@ -11,6 +11,7 @@
 			stringService,
 			dateService,
 			certificateService,
+			appService,
 			Popup,
 			Progress,
 			Certificate
@@ -20,6 +21,9 @@
 
 			$scope.dateService = dateService;
 			$scope.certificateService = certificateService;
+
+			$scope.appService = appService;
+			$scope.isPublicApp = null;
 
 			var certificatesReloadIntervalInSeconds = 2;
 			var unresolvedCertificateReloadPromise = null;
@@ -44,6 +48,10 @@
 			};
 
 			viewModel.init = function() {
+				console.log("asdasdasd")
+				console.log( appService.appDetails.isPublic)
+
+				$scope.isPublicApp = appService.appDetails.isPublic
 				loadCertificates();
 			};
 
@@ -123,6 +131,10 @@
 
 					return certificate;
 				});
+			};
+
+			viewModel.isAppPublic = function() {
+				return appService.appDetails.isPublic
 			};
 
 			viewModel.uploadCertificates = function() {
