@@ -5,13 +5,13 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.controller("YMLController", function($scope, $timeout, $rootScope, $q, appService, requestService, Progress) {
+		.controller("YMLController", function($scope, $timeout, appService, requestService) {
 			var viewModel = this;
 			var editor;
 
-			viewModel.appSlug = appService.appDetails.slug;
 			viewModel.shouldShowYmlStorageSettings = false;
 			viewModel.usesRepositoryYml = false;
+			viewModel.appSlug = undefined;
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -43,6 +43,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 						.then(function() {
 							viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
 							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
+							viewModel.appSlug = appService.appDetails.slug;
 						})
 				}
 			}
@@ -72,7 +73,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 			viewModel.onUsesRepositoryYmlChangeSaved = function(usesRepositoryYml) {
 				appService.getAppConfigYML(true);
-				
+
 				appService.appConfig = undefined;
 				appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
 
