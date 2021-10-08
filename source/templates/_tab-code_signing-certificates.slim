@@ -5,7 +5,7 @@
 			span<[ng-if="certificateService.certificates.length > 0" ng-bind="'(' + certificateService.certificates.length + '/' + certificateCtrl.maximumCertificatesCount + ')'"]
 		h2.label.password[ng-if="certificateService.certificates.length > 0"]
 			span == data[:strings][:code_signing][:certificate][:header][:password]
-		h2.label.expose[ng-if="certificateService.certificates.length > 0 && !certificateCtrl.isAppPublic"]
+		h2.label.expose[ng-if="certificateService.certificates.length > 0 && !certificateCtrl.isAppPublic()"]
 			span.long-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pull_requests]
 			span.short-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pr]
 		.actions[ng-if="certificateService.certificates.length > 1" floating-menu toggle="certificateCtrl.isActionMenuForAllCertificatesVisible"]
@@ -67,7 +67,7 @@
 								span.icon  == svg("triangle")
 								span == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
 						.expose-and-actions
-							.expose-with-popover[ng-if="!certificateCtrl.isAppPublic"]
+							.expose-with-popover[ng-if="!certificateCtrl.isAppPublic()"]
 								.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 									checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress || certificate.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
 									label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]

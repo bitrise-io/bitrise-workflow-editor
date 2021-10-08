@@ -23,7 +23,6 @@
 			$scope.certificateService = certificateService;
 
 			$scope.appService = appService;
-			$scope.isPublicApp = null;
 
 			var certificatesReloadIntervalInSeconds = 2;
 			var unresolvedCertificateReloadPromise = null;
@@ -48,10 +47,6 @@
 			};
 
 			viewModel.init = function() {
-				console.log("asdasdasd")
-				console.log( appService.appDetails.isPublic)
-
-				$scope.isPublicApp = appService.appDetails.isPublic
 				loadCertificates();
 			};
 
