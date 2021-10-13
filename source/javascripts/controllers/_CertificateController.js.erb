@@ -11,6 +11,7 @@
 			stringService,
 			dateService,
 			certificateService,
+			appService,
 			Popup,
 			Progress,
 			Certificate
@@ -20,6 +21,8 @@
 
 			$scope.dateService = dateService;
 			$scope.certificateService = certificateService;
+
+			viewModel.appService = appService;
 
 			var certificatesReloadIntervalInSeconds = 2;
 			var unresolvedCertificateReloadPromise = null;
