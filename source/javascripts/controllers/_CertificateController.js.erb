@@ -24,6 +24,8 @@
 
 			$scope.appService = appService;
 
+			viewModel.appService = appService;
+
 			var certificatesReloadIntervalInSeconds = 2;
 			var unresolvedCertificateReloadPromise = null;
 			viewModel.maximumCertificatesCount = 30;
@@ -126,10 +128,6 @@
 
 					return certificate;
 				});
-			};
-
-			viewModel.isAppPublic = function() {
-				return appService.appDetails.isPublic
 			};
 
 			viewModel.uploadCertificates = function() {
