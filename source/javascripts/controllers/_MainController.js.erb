@@ -75,12 +75,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						case "triggers":
 							var loadPromises = [appService.getAppConfig()];
 							if (requestService.isWebsiteMode()) {
-								loadPromises.push(Stack.getAll().then(appService.getStack));
+								loadPromises.push(Stack.getAll());
 								loadPromises.push(appService.getPipelineConfig());
 								loadPromises.push(appService.getCurrentUserBetaTags());
 							}
+							loadPromise = $q.all(loadPromises);
+							if (requestService.isWebsiteMode()) {
+								loadPromise = loadPromise.then(appService.getStackAndDockerImage);
+							}
 
-							$q.all(loadPromises).then(
+							loadPromise.then(
 								function() {
 									$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
 										if (appService.appConfigHasDeprecatedTriggerMap()) {
@@ -119,7 +123,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 							break;
 						case "stack":
-							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll().then(appService.getStack)])
+							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll()])
+								.then(appService.getStackAndDockerImage)
 								.then(function() {
 									if (appService.appDetails.isMachineTypeSelectorAvailable) {
 										return MachineType.getAll().then(appService.getDefaultMachineType);

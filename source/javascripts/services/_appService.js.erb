@@ -437,12 +437,19 @@
 				appService.defaultMachineType = appService.savedDefaultMachineType;
 			};
 
-			appService.getStack = function(shouldForceReload, requestConfig) {
-				if (!shouldForceReload && appService.stack) {
+			appService.getStackAndDockerImage = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.stack && appService.dockerImage) {
 					return $q.when();
 				}
 
-				return requestService.getStack(requestConfig).then(function(data) {
+				var stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
+				var dockerImage = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+				var stackIDAndDockerImageFetchPromise = stackID && dockerImage ? $q.when({
+					stackID: stackID,
+					dockerImage: dockerImage
+				}) : requestService.getStackAndDockerImage(requestConfig);
+
+				stackIDAndDockerImageFetchPromise.then(function(data) {
 					appService.stack = _.find(Stack.all, {
 						id: data.stackID
 					});
