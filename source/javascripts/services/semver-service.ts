@@ -36,6 +36,12 @@ class SemverService {
 		});
 	};
 
+	isMajorVersionChange = (from: string, to: string): boolean => {
+		const fromMajor = from.split(".")[0]
+		const toMajor = to.split(".")[0]
+		return fromMajor != toMajor
+	};
+
 	reverseSort = (verStr1: string, verStr2: string): number => {
 		const ver1 = (verStr1 || this.MAXSEMVER).split(".");
 		const ver2 = (verStr2 || this.MAXSEMVER).split(".");

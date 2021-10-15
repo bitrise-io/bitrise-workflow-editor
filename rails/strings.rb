@@ -140,7 +140,9 @@ def strings
                     patch_update_remark: "You will get patch updates on this step",
                     minor_update_remark: "You will get minor and patch updates on this step",
                     is_always_run: "Run if previous Step failed",
-                    inputs_removed_popup_title: "The following inputs are not available in this version:",
+                    major_version_change_title: "Major version change",
+                    major_version_change_desc: "A new major version likely contains breaking changes in the step behavior. Please check out the <a href='<url>' target='_blank'>release notes</a>.",
+                    inputs_removed_desc: "<br><b>The following inputs are not available in the selected version anymore: <inputList></b>",
                     invalid_version: {
                         title: "Invalid version",
                         message: "This version does not exist. Please select a valid version."
