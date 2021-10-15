@@ -411,8 +411,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								case "secrets":
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
+									appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack = appService.stack.id;
+									if (appService.dockerImage) {
+										appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+									}
+									else {
+										delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+									}
+
 									viewModel.dataToSave = appService.appConfig;
-									return $q.all([appService.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id), appService.saveStack()])
+									return appService.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
 											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
 										})
