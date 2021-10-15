@@ -28,8 +28,6 @@
 				savedDefaultMachineType: undefined,
 				dockerImage: undefined,
 				savedDockerImage: undefined,
-				denTags: undefined,
-				savedDenTags: undefined,
 				projectType: undefined,
 				availableProjectTypes: undefined,
 				validationWarnings: [],
@@ -389,7 +387,7 @@
 
 			appService.saveAppConfigYML = function(userSavedYmlToRepositoryPromise, requestConfig) {
 				var promise = userSavedYmlToRepositoryPromise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
-				
+
 				return promise.then(function(validationData) {
 					appService.appConfig = undefined;
 					appService.savedAppConfig = undefined;
@@ -419,7 +417,7 @@
 					&& appService.appConfig.meta
 					&& appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
 					&& appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
-				
+
 				var defaultMachineTypeID = metaMachineTypeID || MachineType.defaults[appService.stack.type].id;
 				appService.defaultMachineType = _.find(MachineType.all, { id: defaultMachineTypeID, stackType: appService.stack.type });
 				if (!appService.defaultMachineType) {
@@ -455,7 +453,6 @@
 
 					appService.savedStack = angular.copy(appService.stack);
 					appService.dockerImage = appService.savedDockerImage = data.dockerImage;
-					appService.denTags = appService.savedDenTags = data.denTags.join(", ");
 				});
 			};
 
@@ -476,24 +473,16 @@
 			appService.stackHasUnsavedChanges = function() {
 				return (
 					!angular.equals(appService.stack, appService.savedStack) ||
-					appService.dockerImage !== appService.savedDockerImage ||
-					appService.denTags !== appService.savedDenTags
+					appService.dockerImage !== appService.savedDockerImage
 				);
 			};
 
 			appService.saveStack = function() {
-				var bitriseDENtagsArray = appService.denTags
-					? _.map(appService.denTags.split(","), function(string) {
-							return string.trim();
-					  })
-					: undefined;
-
 				return requestService
-					.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray)
+					.saveStack(appService.stack.id, appService.dockerImage)
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
-						appService.savedDenTags = appService.denTags;
 						appService.availableProjectTypes = undefined;
 					});
 			};
@@ -508,7 +497,6 @@
 				}
 
 				appService.dockerImage = appService.savedDockerImage;
-				appService.denTags = appService.savedDenTags;
 			};
 
 			appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {

@@ -926,8 +926,7 @@ import jsyaml from "js-yaml";
 						function(response) {
 							resolve({
 								stackID: response.data.stack_identifier,
-								dockerImage: response.data.docker_image_name,
-								denTags: response.data.den_tags
+								dockerImage: response.data.docker_image_name
 							});
 						},
 						function(response) {
@@ -1005,7 +1004,7 @@ import jsyaml from "js-yaml";
 				});
 			};
 
-			requestService.saveStack = function(stackID, dockerImage, denTags, requestConfig) {
+			requestService.saveStack = function(stackID, dockerImage, requestConfig) {
 				var requestURL;
 				var requestData;
 
@@ -1018,8 +1017,7 @@ import jsyaml from "js-yaml";
 							}
 						);
 						requestData = {
-							stack_identifier: stackID,
-							den_tags: denTags
+							stack_identifier: stackID
 						};
 						if (dockerImage !== null) {
 							requestData.docker_image_name = dockerImage;
