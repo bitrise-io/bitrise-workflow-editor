@@ -442,24 +442,32 @@
 					return $q.when();
 				}
 
-				var stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
-				var dockerImage = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
-				var stackIDAndDockerImageFetchPromise = stackID && dockerImage ? $q.when({
-					stackID: stackID,
-					dockerImage: dockerImage
-				}) : requestService.getStackAndDockerImage(requestConfig);
+				var stackID;
+				var dockerImage;
+				if (appService.appConfig.meta && appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
+					stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
+					dockerImage = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+				}
+				var stackIDAndDockerImageFetchPromise = stackID && dockerImage ? $q.when() : requestService.getStackAndDockerImage(requestConfig).then(function(data) {
+					if (!stackID) {
+						stackID = data.stackID;
+					}
+					if (!dockerImage) {
+						dockerImage = data.dockerImage;
+					}
+				});
 
-				stackIDAndDockerImageFetchPromise.then(function(data) {
+				return stackIDAndDockerImageFetchPromise.then(function() {
 					appService.stack = _.find(Stack.all, {
-						id: data.stackID
+						id: stackID
 					});
 
 					if (appService.stack === undefined) {
-						appService.stack = new Stack(data.stackID);
+						appService.stack = new Stack(stackID);
 					}
 
 					appService.savedStack = angular.copy(appService.stack);
-					appService.dockerImage = appService.savedDockerImage = data.dockerImage;
+					appService.dockerImage = appService.savedDockerImage = dockerImage;
 				});
 			};
 
@@ -484,9 +492,8 @@
 				);
 			};
 
-			appService.saveStack = function() {
-				return requestService
-					.saveStack(appService.stack.id, appService.dockerImage)
+			appService.saveStack = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
+				return appService.saveAppConfig(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig)
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
@@ -495,6 +502,8 @@
 			};
 
 			appService.discardStackChanges = function() {
+				appService.discardAppConfigChanges();
+
 				appService.stack = _.find(Stack.all, {
 					id: appService.savedStack.id
 				});

@@ -39,7 +39,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.menuProgress = new Progress();
 			viewModel.currentMenu;
 
-			viewModel.loadAppConfigProgress = new Progress();
+			viewModel.loadDataProgress = new Progress();
 			viewModel.saveProgress = new Progress();
 			viewModel.changeMenuProgress = new Progress();
 			viewModel.initAppProgress = new Progress();
@@ -66,7 +66,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			function load() {
-				viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
 				$q(function(resolve, reject) {
 					switch (viewModel.currentMenu.id) {
@@ -79,7 +79,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								loadPromises.push(appService.getPipelineConfig());
 								loadPromises.push(appService.getCurrentUserBetaTags());
 							}
-							loadPromise = $q.all(loadPromises);
+							var loadPromise = $q.all(loadPromises);
 							if (requestService.isWebsiteMode()) {
 								loadPromise = loadPromise.then(appService.getStackAndDockerImage);
 							}
@@ -151,10 +151,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 				}).then(
 					function() {
-						viewModel.loadAppConfigProgress.success();
+						viewModel.loadDataProgress.success();
 					},
 					function(error) {
-						viewModel.loadAppConfigProgress.error(error);
+						viewModel.loadDataProgress.error(error);
 
 						viewModel.shouldAllowYMLMenuWithoutDiscard = true;
 					}
@@ -361,18 +361,27 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			function reloadAppConfig() {
-				viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 				return appService.getAppConfig(true)
 					.then(function() {
-						viewModel.loadAppConfigProgress.reset();
+						viewModel.loadDataProgress.reset();
 					});
 			}
 
+			function reloadStack() {
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService.getAppConfig(true).then(function() {
+					appService.getStackAndDockerImage(true)
+				}).then(function() {
+					viewModel.loadDataProgress.reset();
+				});
+			}
+
 			function reloadAppConfigYML() {
-				viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 				return appService.getAppConfigYML(true)
 					.then(function() {
-						viewModel.loadAppConfigProgress.reset();
+						viewModel.loadDataProgress.reset();
 					});
 			}
 
@@ -411,18 +420,25 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								case "secrets":
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
-									appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack = appService.stack.id;
+									if (!appService.appConfig.meta) {
+										appService.appConfig.meta = {};
+									}
+									var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+									if (!appService.appConfig.meta[BITRISE_META_KEY]) {
+										appService.appConfig.meta[BITRISE_META_KEY] = {};
+									}
+									appService.appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
 									if (appService.dockerImage) {
-										appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+										appService.appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
 									}
 									else {
-										delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+										delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
 									}
 
 									viewModel.dataToSave = appService.appConfig;
-									return appService.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
+									return appService.saveStack(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
-											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
+											return appService.pipelineConfig.usesRepositoryYml ? reloadStack() : $q.when();
 										})
 										.then(resolve, reject);
 								case "yml":
@@ -462,7 +478,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return false;
 				}
 
-				if (viewModel.loadAppConfigProgress.isInProgress) {
+				if (viewModel.loadDataProgress.isInProgress) {
 					return false;
 				}
 
