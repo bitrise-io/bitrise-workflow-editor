@@ -21,6 +21,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			workflowSelectionStore,
 			workflowSelectionService,
 			addStepService,
+			semverService,
 			logger,
 			Progress,
 			Popup,
@@ -35,12 +36,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.workflowsHeight = 0;
 			viewModel.shouldShowWorkflowsContent = false;
-			
+
 			viewModel.getAvailableHeightForWorkflows = function() {
 				viewModel.shouldShowWorkflowsContent = false;
 
 				$timeout(function() {
-					var element = angular.element(document.querySelector('div.workflows')); 
+					var element = angular.element(document.querySelector('div.workflows'));
 					viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
 
 					viewModel.shouldShowWorkflowsContent = true;
@@ -170,7 +171,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			$scope.$on("$destroy", function() {
 				viewModel.canceler.resolve();
-				
+
 				if (resizeTimeout) {
 					$timeout.cancel(resizeTimeout)
 				}
@@ -834,30 +835,50 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return;
 				}
 
-				var removedInputs = [];
-				_.each(oldDefaultStepConfig.inputs, function(aDefaultInputConfigOfOldStep) {
-					var oldStepInput = new Variable(null, aDefaultInputConfigOfOldStep);
+				var isMajorVersionChange = semverService.isMajorVersionChange(oldDefaultStepConfig.version, step.version);
 
-					if (
-						!_.find(step.defaultStepConfig.inputs, function(aDefaultInputConfigOfNewStep) {
-							var newStepInput = new Variable(null, aDefaultInputConfigOfNewStep);
-
-							return oldStepInput.key() == newStepInput.key();
-						})
-					) {
-						removedInputs.push(oldStepInput);
+				if (isMajorVersionChange) {
+					var releaseUrl = step.defaultStepConfig.source_code_url;
+					if (releaseUrl.startsWith("https://github.com")) {
+						releaseUrl += "/releases";
 					}
-				});
 
-				if (removedInputs.length > 0) {
-					Popup.showNoticePopup(
-						"<%= data[:strings][:workflows][:steps][:inputs_removed_popup_title] %>",
-						stringService.joinedString(
+					var description = stringService.stringReplacedWithParameters(
+          	"<%= data[:strings][:workflows][:steps][:major_version_change_desc] %>",
+            { url: releaseUrl }
+          );
+
+          var removedInputs = [];
+					_.each(oldDefaultStepConfig.inputs, function(aDefaultInputConfigOfOldStep) {
+						var oldStepInput = new Variable(null, aDefaultInputConfigOfOldStep);
+
+						if (
+							!_.find(step.defaultStepConfig.inputs, function(aDefaultInputConfigOfNewStep) {
+								var newStepInput = new Variable(null, aDefaultInputConfigOfNewStep);
+
+								return oldStepInput.key() == newStepInput.key();
+							})
+						) {
+							removedInputs.push(oldStepInput);
+						}
+					});
+
+					if (removedInputs.length > 0) {
+						var removedInputList = stringService.joinedString(
 							_.map(removedInputs, function(aRemovedInput) {
 								return aRemovedInput.key();
 							}),
 							","
-						)
+						);
+						var removedInputsText = stringService.stringReplacedWithParameters(
+          		"<%= data[:strings][:workflows][:steps][:inputs_removed_desc] %>",
+          		{ inputList: removedInputList }
+          	);
+          	description += removedInputsText;
+          }
+					Popup.showNoticePopup(
+						"<%= data[:strings][:workflows][:steps][:major_version_change_title] %>",
+						description
 					);
 				}
 			}
