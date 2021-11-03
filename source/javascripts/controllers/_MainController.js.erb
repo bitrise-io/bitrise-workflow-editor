@@ -420,25 +420,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								case "secrets":
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
-									if (!appService.appConfig.meta) {
-										appService.appConfig.meta = {};
-									}
-									var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
-									if (!appService.appConfig.meta[BITRISE_META_KEY]) {
-										appService.appConfig.meta[BITRISE_META_KEY] = {};
-									}
-									appService.appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
-									if (appService.dockerImage) {
-										appService.appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
-									}
-									else {
-										delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
-									}
-
 									viewModel.dataToSave = appService.appConfig;
-									return appService.saveStack(deferredSavePromise, viewModel.currentMenu.id)
+									return appService.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
-											return appService.pipelineConfig.usesRepositoryYml ? reloadStack() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadStack() : $q.when();
 										})
 										.then(resolve, reject);
 								case "yml":
