@@ -557,6 +557,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 				});
 
+				_.each(appService.appConfig.stages, function(aStage) {
+					_.each( aStage.workflows, function(aWorkflow) {
+						if (aWorkflow[oldWorkflowID]) {
+							aWorkflow[newWorkflowID] = aWorkflow[oldWorkflowID]
+							delete aWorkflow[oldWorkflowID]
+						}
+					});
+				});
+
 				workflow.id = newWorkflowID;
 				viewModel.selectWorkflow(workflow);
 
