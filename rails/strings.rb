@@ -676,8 +676,6 @@ def strings
                 default: "default",
                 more_info_about: "More information about this Stack »",
                 docker_image_to_use: "Docker image to use",
-                den_tags_label: "Set app's tags for Bitrise DEN (comma separated): ",
-                den_tags_placeholder: "Bitrise DEN tags",
                 incompatible_stack: "Your current stack is not compatible with your current project type! Select a different stack from the list below.",
                 invalid_stack: "Your current stack is invalid! Choose another stack from the list below.",
                 default_stack_settings: {
