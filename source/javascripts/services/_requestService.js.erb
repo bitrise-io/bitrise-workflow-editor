@@ -1004,50 +1004,6 @@ import jsyaml from "js-yaml";
 				});
 			};
 
-			requestService.saveStackAndDockerImage = function(stackID, dockerImage, requestConfig) {
-				var requestURL;
-				var requestData;
-
-				switch (requestService.mode) {
-					case "website":
-						requestURL = stringService.stringReplacedWithParameters(
-							"<%= webserver_path(data[:routes][:website][:stack_save]) %>",
-							{
-								app_slug: requestService.appSlug
-							}
-						);
-						requestData = {
-							stack_identifier: stackID
-						};
-						if (dockerImage !== null) {
-							requestData.docker_image_name = dockerImage;
-						}
-
-						break;
-					case "cli":
-						return $q.reject(
-							new Error("<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>")
-						);
-				}
-
-				return $q(function(resolve, reject) {
-					$http.post(requestURL, requestData, requestConfig).then(
-						function() {
-							resolve();
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:save_stack][:default_error] %>",
-									"<%= data[:strings][:request_service][:save_stack][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			// Apple Developer Portal
 
 			requestService.getAppleDeveloperAccount = function(requestConfig) {

@@ -493,35 +493,22 @@
 			};
 
 			appService.saveStackAndDockerImage = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
-				var saveRequestPromises = [];
-
-				var isStackAndDockerImageStoredInAppConfig = appService.appConfig && appService.appConfig.meta && appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] && appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
-				if (isStackAndDockerImageStoredInAppConfig) {
-					if (!appService.appConfig.meta) {
-						appService.appConfig.meta = {};
-					}
-					var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
-					if (!appService.appConfig.meta[BITRISE_META_KEY]) {
-						appService.appConfig.meta[BITRISE_META_KEY] = {};
-					}
-					appService.appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
-					if (appService.dockerImage) {
-						appService.appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
-					}
-					else {
-						delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
-					}
+				if (!appService.appConfig.meta) {
+					appService.appConfig.meta = {};
+				}
+				var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+				if (!appService.appConfig.meta[BITRISE_META_KEY]) {
+					appService.appConfig.meta[BITRISE_META_KEY] = {};
+				}
+				appService.appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
+				if (appService.dockerImage) {
+					appService.appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
 				}
 				else {
-					saveRequestPromises.push(
-						requestService.saveStackAndDockerImage(appService.stack.id, appService.dockerImage, requestConfig)
-					);
+					delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
 				}
-				saveRequestPromises.push(
-					appService.saveAppConfig(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig)
-				);
 
-				return $q.all(saveRequestPromises).then(function() {
+				return appService.saveAppConfig(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig).then(function() {
 					appService.savedStack = angular.copy(appService.stack);
 					appService.savedDockerImage = appService.dockerImage;
 					appService.availableProjectTypes = undefined;

@@ -951,11 +951,6 @@ def strings
                     error_prefix: "Error loading stacks: ",
                     not_website_mode_error: "Stacks get is only available in website mode."
                 },
-                save_stack: {
-                    default_error: "Error saving stack.",
-                    error_prefix: "Error saving stack: ",
-                    not_website_mode_error: "Stack save is only available in website mode."
-                },
                 get_all_test_devices_of_repository: {
                     default_error: "Error getting test devices of specified repository.",
                     error_prefix: "Error getting test devices of specified repository: ",
@@ -1044,7 +1039,6 @@ def strings
                 stack_get: "/app/<app_slug>/stack",
                 stack_info_get: "/app/<app_slug>/stack_info.json",
                 stacks_get: "/app/<app_slug>/all_stack_info",
-                stack_save: "/app/<app_slug>/stack",
                 prov_profile_create: "/api/app/<app_slug>/prov_profile_document/create.json",
                 prov_profile_get_details: "/prov_profile_document/details/<prov_profile_id>.json",
                 prov_profiles_get: "/api/app/<app_slug>/prov_profile_document/show.json",
