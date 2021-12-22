@@ -39,5 +39,7 @@
 					== svg("workflow/icon-add_step-show_all")
 					span == data[:strings][:workflows][:steps][:add][:show_all_steps]
 			ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
+				div[ng-if="addStepCtrl.filteredSteps().length == 0"]
+					p We didn't find any results for your search in ReactNative steps, would you like to search all steps?
 				li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)" step-id="{{ step.id }}"]
 					r-add-step-item[step="step" on-selected="addStepCtrl.stepSelected"]
