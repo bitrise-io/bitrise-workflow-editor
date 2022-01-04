@@ -40,7 +40,7 @@
 					span == data[:strings][:workflows][:steps][:add][:show_all_steps]
 			ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
 				div[ng-if="addStepCtrl.shouldFilterByProjectType && addStepCtrl.filteredSteps(category.steps).length == 0"]
-					p We didn't find any results for your search in {{ appService.appDetails.projectTypeID }} steps category, would you like to search all steps?
+					p We didn't find any results for your search in {{ addStepCtrl.getStackNameByProjectType(appService.appDetails.projectTypeID) }} steps category, would you like to search all steps?
 					button.show-all-steps[ng-click="addStepCtrl.navigateToAllCategories()"] == data[:strings][:workflows][:steps][:add][:search_in_all_steps]
 				div.not-found-all[ng-if="!addStepCtrl.shouldFilterByProjectType && addStepCtrl.filteredSteps().length == 0"]
 					p We didn't find any results for your search in our step library.

@@ -328,6 +328,31 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.shouldFilterByProjectType = false;
 			};
 
+			viewModel.getStackNameByProjectType = function(projectType) {
+				switch (projectType) {
+        				case "ios":
+        					return "iOS";
+        				case "osx":
+        					return "OSX";
+        				case "macos":
+        					return "MacOS";
+        				case "android":
+        					return "Android";
+        				case "xamarin":
+        					return "Xamarin";
+        				case "cordova":
+        					return "Cordova";
+        				case "ionic":
+        					return "Ionic";
+        				case "react-native":
+        					return "React Native";
+        				case "flutter":
+        					return "Flutter";
+        				case "other":
+        					return "Other";
+        			}
+			};
+
 			viewModel.paginateSelected = function(category, direction) {
 				if (direction == "left") {
 					if (category.paginateStepsConfig.currentOffsetInPage > 0) {
