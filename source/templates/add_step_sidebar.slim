@@ -39,7 +39,11 @@
 					== svg("workflow/icon-add_step-show_all")
 					span == data[:strings][:workflows][:steps][:add][:show_all_steps]
 			ol.steps[ng-if="!addStepCtrl.isCategoryMode"]
-				div[ng-if="addStepCtrl.filteredSteps().length == 0"]
-					p We didn't find any results for your search in ReactNative steps, would you like to search all steps?
+				div[ng-if="addStepCtrl.shouldFilterByProjectType && addStepCtrl.filteredSteps(category.steps).length == 0"]
+					p We didn't find any results for your search in {{ appService.appDetails.projectTypeID }} steps category, would you like to search all steps?
+					button.show-all-steps[ng-click="addStepCtrl.navigateToAllCategories()"] == data[:strings][:workflows][:steps][:add][:search_in_all_steps]
+				div.not-found-all[ng-if="!addStepCtrl.shouldFilterByProjectType && addStepCtrl.filteredSteps().length == 0"]
+					p We didn't find any results for your search in our step library.
+					a.create-new-step[ng-href="https://devcenter.bitrise.io/en/steps-and-workflows/developing-your-own-bitrise-step/developing-a-new-step.html" target="_blank"] == data[:strings][:workflows][:steps][:add][:create_new_step]
 				li.add-step-sidebar-step[ng-repeat="step in addStepCtrl.filteredSteps()" step="step" select-callback="addStepCtrl.stepSelected(step)" step-id="{{ step.id }}"]
 					r-add-step-item[step="step" on-selected="addStepCtrl.stepSelected"]

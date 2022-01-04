@@ -175,7 +175,7 @@ import { safeDigest } from "../services/react-compat";
 
 							// NOTE: quick fix for step filtering - it seems there is an issue with the Algolia query or service filetring steps by project type (returns 0 steps)
 							// this was originally stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID) when filtering is enabled
-							loadPromises.push(stepSourceService.loadLatestOfficialSteps());							
+							loadPromises.push(stepSourceService.loadLatestOfficialSteps());
 						}
 
 						steps = [];
@@ -185,7 +185,7 @@ import { safeDigest } from "../services/react-compat";
 							logger.error(error);
 							viewModel.loadProgress.error(error);
 						}).then(function() {
-							viewModel.allStepsHaveBeenLoaded = true;							
+							viewModel.allStepsHaveBeenLoaded = true;
 						});
 					} else {
 						viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
@@ -322,6 +322,10 @@ import { safeDigest } from "../services/react-compat";
 				}
 
 				addStepService.stepSelected(step);
+			};
+
+			viewModel.navigateToAllCategories = function() {
+				viewModel.shouldFilterByProjectType = false;
 			};
 
 			viewModel.paginateSelected = function(category, direction) {
