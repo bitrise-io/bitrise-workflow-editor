@@ -116,6 +116,8 @@ def strings
                     add: {
                         search_placeholder: "Search steps",
                         all_project_types: "All",
+                        search_in_all_steps: "Search in All category",
+                        create_new_step: "Would you like to create a new step?",
                         show_all_steps: "Show all steps",
                         categories: {
                             new_releases: "New releases",
