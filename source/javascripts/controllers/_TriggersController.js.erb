@@ -90,11 +90,7 @@
 					viewModel.targets = viewModel.targets.concat(workflows);
 				}
 
-				if (
-					appService.betaTags &&
-					appService.betaTags.indexOf("can-trigger-pipeline") > -1 &&
-					appService.appConfig.pipelines
-				) {
+				if (appService.accountFeatures && appService.accountFeatures.enable_build_pipelines && appService.appConfig.pipelines) {
 					var pipelines = Object.keys(appService.appConfig.pipelines)
 						.map(function(pipelineId) {
 							return { value: "pipeline#" + pipelineId, groupLabel: "Pipelines", label: pipelineId };

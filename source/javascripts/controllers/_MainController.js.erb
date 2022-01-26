@@ -77,7 +77,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll());
 								loadPromises.push(appService.getPipelineConfig());
-								loadPromises.push(appService.getCurrentUserBetaTags());
+								loadPromises.push(appService.getAccountFeatures());
 							}
 							var loadPromise = $q.all(loadPromises);
 							if (requestService.isWebsiteMode()) {

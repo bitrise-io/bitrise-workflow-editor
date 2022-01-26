@@ -803,11 +803,6 @@ def strings
                     error_prefix: "Error getting current user data: ",
                     not_website_mode_error: "Getting current user data is only available in website mode"
                 },
-                get_current_user_beta_tags: {
-                    default_error: "Error getting current user beta tags",
-                    error_prefix: "Error getting current user beta tags: ",
-                    not_website_mode_error: "Getting current user beta tags is only available in website mode"
-                },
                 get_codesigndoc_bash_script: {
                     default_error: "Error getting codesigndoc bash command",
                     error_prefix: "Error getting codesigndoc bash command: ",
@@ -978,7 +973,11 @@ def strings
                     default_error: "Error saving selected development team for app",
                     error_prefix: "Error saving selected development team for app: ",
                     not_website_mode_error: "Saving selected development team for app is only available in website mode"
-                }
+                },
+                get_account_features: {
+                    default_error: "Error loading account features.",
+                    error_prefix: "Error loading account features: "
+                },
             },
             step_source_service: {
                 step_from_cvs: {
@@ -1076,7 +1075,8 @@ def strings
                 apple_developer_account_two_step_auth_select_device_post: "/me/profile/apple_developer_account/two_step_auth_select_device.json",
                 apple_developer_account_two_step_auth_verify_code_post: "/me/profile/apple_developer_account/two_step_auth_verify_code.json",
                 apple_developer_account_two_factor_auth_verify_code_post: "/me/profile/apple_developer_account/two_factor_auth_verify_code.json",
-                apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json"
+                apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json",
+                account_features: "/me/features"
             },
             local_server: {
                 cancel_api_connection_close: "/api/connection",
