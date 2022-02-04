@@ -6,7 +6,7 @@ type WorkflowRecipesLinkProps = {
 }
 
 const WorkflowRecipesLink = ({ id }: WorkflowRecipesLinkProps): JSX.Element => (
-	<Flex direction='horizontal' gap='x2' alignChildrenVertical='middle'>
+	<Flex direction='horizontal' gap='x2' alignChildrenVertical='middle' paddingVertical="x2">
 		<Link id={id} href='https://github.com/bitrise-io/workflow-recipes' target='_blank' color='grape-3'>
 			<Flex direction='horizontal' gap='x0'>
 				<Icon name='OpenInBrowser' size='20px' />
