@@ -8,7 +8,7 @@ type YmlEditorHeaderProps = {
 	url: string;
 	usesRepositoryYml?: boolean;
 }
-const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps) => {
+const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.Element => {
 	const match = useMediaQuery(["848px"]);
 	const isFullScreen = match("848px");
 
@@ -19,11 +19,17 @@ const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps) => {
 			paddingHorizontal='x4'
 			paddingVertical='x3'
 			alignChildrenHorizontal='between'
-            gap="x2"
+			gap="x2"
 		>
 			<Flex direction='vertical' gap="x2">
 				<Text weight='bold'>{usesRepositoryYml ? "bitrise.yml" : "bitrise.yml editor"}</Text>
-				<Text size='x2' textColor='gray-7'>{usesRepositoryYml ? "The content of the bitrise.yml file, fetched from the app's repository." : "You can edit your current config in YAML format:"}</Text>
+				<Text size='x2' textColor='gray-7'>
+					{
+						usesRepositoryYml ?
+						"The content of the bitrise.yml file, fetched from the app's repository." :
+						"You can edit your current config in YAML format:"
+					}
+				</Text>
 			</Flex>
 			<Flex direction={isFullScreen ? "horizontal" : "vertical"} reverse={!isFullScreen} gap='x2'>
 				<WorkflowRecipesLink id='workflow-recipes-yml-editor' />
