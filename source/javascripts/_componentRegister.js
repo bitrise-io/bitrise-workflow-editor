@@ -6,6 +6,7 @@ import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetai
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
+import WorkflowRecipeLink from "./components/workflow-recipes/WorkflowRecipeLink/WorkflowRecipeLink";
 
 var register = react2angular;
 
@@ -42,4 +43,8 @@ angular
 	.component(
 		"rWorkflowSelector",
 		register(WorkflowSelector, ["selectedWorkflowId", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
+	)
+	.component(
+		"rWorkflowRecipeLink",
+		register(WorkflowRecipeLink, ["id", "hideIcon"])
 	);
