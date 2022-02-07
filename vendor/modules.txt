@@ -1,7 +1,11 @@
+# github.com/GeertJohan/go.incremental v1.0.0
+## explicit; go 1.12
 # github.com/GeertJohan/go.rice v1.0.2
 ## explicit; go 1.12
 github.com/GeertJohan/go.rice
 github.com/GeertJohan/go.rice/embedded
+# github.com/akavel/rsrc v0.8.0
+## explicit; go 1.12
 # github.com/bitrise-io/bitrise v0.0.0-20220106114759-f7fc5b9c2388
 ## explicit; go 1.16
 github.com/bitrise-io/bitrise/bitrise
@@ -79,6 +83,10 @@ github.com/hashicorp/go-version
 # github.com/inconshreveable/mousetrap v1.0.0
 ## explicit
 github.com/inconshreveable/mousetrap
+# github.com/jessevdk/go-flags v1.4.0
+## explicit
+# github.com/nkovacs/streamquote v1.0.0
+## explicit; go 1.12
 # github.com/pmezard/go-difflib v1.0.0
 ## explicit
 github.com/pmezard/go-difflib/difflib
@@ -104,6 +112,10 @@ github.com/stretchr/testify/require
 # github.com/urfave/cli v1.22.5
 ## explicit; go 1.11
 github.com/urfave/cli
+# github.com/valyala/bytebufferpool v1.0.0
+## explicit
+# github.com/valyala/fasttemplate v1.0.1
+## explicit
 # golang.org/x/crypto v0.0.0-20211215153901-e495a2d5b3d3
 ## explicit; go 1.17
 golang.org/x/crypto/ssh/terminal
