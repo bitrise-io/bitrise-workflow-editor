@@ -12,6 +12,31 @@
 	flex: 1;
 }
 
+.Placement .Placement__content .Placement__area-content .DropdownMenu__content {
+	.DropdownMenu__item {
+		&:nth-child(2) {
+			svg.Base.Icon:last-child {
+				transform: scaleY(-1);
+			}
+		}
+
+		&:nth-child(3) {
+			svg.Base.Icon:last-child {
+				transform: rotate(90deg);
+			}
+		}
+
+		&:last-child {
+			color: var(--color-red--3);
+
+			&:hover {
+				color: var(--color-red--4);
+				background-color: var(--color-red--1);
+			}
+		}
+	}
+}
+
 section.manage-workflows {
 	$button-spacing: 8px;
 	$button-wrapping-point: 580px;
@@ -21,6 +46,20 @@ section.manage-workflows {
 	@include flex-wrap(wrap);
 	padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
 	background-color: white;
+
+	.react-toolbar {
+		flex-grow: 1;
+	}
+
+	[aria-label='Manage Workflows'] {
+		svg.Base.Icon {
+			margin: 0;
+
+			&:last-child {
+				display: none;
+			}
+		}
+	}
 
 	&:not(.ninja) > * {
 		margin: $button-spacing / 2;

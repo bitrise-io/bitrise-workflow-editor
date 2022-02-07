@@ -8,6 +8,7 @@ import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import WorkflowRecipesLink from "./components/workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 
 var register = react2angular;
 
@@ -43,7 +44,7 @@ angular
 	)
 	.component(
 		"rWorkflowSelector",
-		register(WorkflowSelector, ["selectedWorkflowId", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
+		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
 	.component(
 		"rWorkflowRecipesLink",
@@ -52,4 +53,7 @@ angular
 	.component(
 		"rYmlEditorHeader",
 		register(YmlEditorHeader, ["url", "usesRepositoryYml"])
+	).component(
+		'rWorkflowMainToolbar',
+		register(WorkflowMainToolbar, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed", "onAddNewWorkflow", "onInsertBeforeWorkflow", "onInsertAfterWorkflow", "onRearrangeWorkflow", "onDeleteSelectedWorkflow"])
 	);

@@ -14,15 +14,15 @@ import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
 import "./WorkflowSelector.scss";
 
-interface WorkflowSelectorProps {
-	selectedWorkflowId: string;
+export type WorkflowSelectorProps = {
+	selectedWorkflow: Workflow;
 	workflows: Workflow[];
 	selectWorkflow: (workflow: Workflow) => void;
 	renameWorkflowConfirmed: (workflow: Workflow, newWorkflowID: string) => void;
 }
 
 const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
-	selectedWorkflowId,
+	selectedWorkflow,
 	workflows,
 	selectWorkflow,
 	renameWorkflowConfirmed,
@@ -110,14 +110,13 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							data-e2e-tag="workflow-selector-dropdown"
 						>
 							<Text
-								grow
 								textColor="gray-6"
 								width="114px"
 								overflow="hidden"
 								ellipsis
 								data-e2e-tag="workflow-selector-selected-workflow-name"
 							>
-								{selectedWorkflowId}
+								{selectedWorkflow.id}
 							</Text>
 							<Icon size="1.25rem" textColor="gray-6" name="ChevronDown" />
 						</Flex>
@@ -153,7 +152,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 										key={workflow.id}
 										workflow={workflow}
 										selectWorkflow={onItemClick}
-										selectedWorkflowId={selectedWorkflowId}
+										selectedWorkflowId={selectedWorkflow.id}
 										workflowIds={workflowIds}
 										renameWorkflowConfirmed={renameWorkflowConfirmed}
 										data-e2e-tag="workflow-selector-option"

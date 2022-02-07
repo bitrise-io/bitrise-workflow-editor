@@ -23,7 +23,7 @@ const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.E
 		>
 			<Flex direction='vertical' gap="x2">
 				<Text weight='bold'>{usesRepositoryYml ? "bitrise.yml" : "bitrise.yml editor"}</Text>
-				<Text size='x2' textColor='gray-7'>
+				<Text size='2' textColor='gray-7'>
 					{
 						usesRepositoryYml ?
 						"The content of the bitrise.yml file, fetched from the app's repository." :
