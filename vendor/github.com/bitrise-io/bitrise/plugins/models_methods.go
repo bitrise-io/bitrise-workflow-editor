@@ -9,6 +9,7 @@ import (
 
 	"gopkg.in/yaml.v2"
 
+	"github.com/bitrise-io/bitrise/tools"
 	"github.com/bitrise-io/bitrise/version"
 	"github.com/bitrise-io/go-utils/colorstring"
 	"github.com/bitrise-io/go-utils/command"
@@ -105,7 +106,7 @@ func parsePluginFromBytes(bytes []byte) (plugin Plugin, err error) {
 	return plugin, nil
 }
 
-func validatePlugin(plugin Plugin, pluginDefinitionPth string) error {
+func validatePlugin(plugin Plugin, pluginDefinitionPth, binPath string) error {
 	// Validate plugin
 	if plugin.Name == "" {
 		return errors.New("missing name")
@@ -137,7 +138,7 @@ func validatePlugin(plugin Plugin, pluginDefinitionPth string) error {
 	// ---
 
 	// Ensure dependencies
-	currentVersionMap, err := version.ToolVersionMap()
+	currentVersionMap, err := version.ToolVersionMap(binPath)
 	if err != nil {
 		return fmt.Errorf("failed to get current version map, error: %s", err)
 	}
@@ -188,19 +189,30 @@ func systemOsName() (string, error) {
 
 // ExecutableURL ...
 func (plugin Plugin) ExecutableURL() string {
-	systemOS, err := systemOsName()
+	systemOS, err := tools.UnameGOOS()
 	if err != nil {
 		return ""
 	}
 
-	switch systemOS {
-	case "Darwin":
-		return plugin.Executable.OSX
-	case "Linux":
+	if systemOS == "Linux" {
 		return plugin.Executable.Linux
-	default:
-		return ""
 	}
+
+	if systemOS == "Darwin" {
+		systemArch, err := tools.UnameGOARCH()
+		if err != nil {
+			return ""
+		}
+
+		if systemArch == "x86_64" {
+			return plugin.Executable.OSX
+		}
+
+		if systemArch == "arm64" {
+			return plugin.Executable.OSXArm64
+		}
+	}
+	return ""
 }
 
 //=======================================
@@ -250,13 +262,14 @@ func (s *pluginSorter) Less(i, j int) bool {
 //=======================================
 
 // NewPluginRoute ...
-func NewPluginRoute(name, source, executable, version, triggerEvent string) (PluginRoute, error) {
+func NewPluginRoute(plugin Plugin, source, version string) (PluginRoute, error) {
 	route := PluginRoute{
-		Name:         name,
-		Source:       source,
-		Executable:   executable,
-		Version:      version,
-		TriggerEvent: triggerEvent,
+		Name:          plugin.Name,
+		Source:        source,
+		Executable:    plugin.ExecutableURL(),
+		Version:       version,
+		TriggerEvent:  plugin.TriggerEvent,
+		TriggerEvents: plugin.TriggerEvents,
 	}
 	if err := route.Validate(); err != nil {
 		return PluginRoute{}, err

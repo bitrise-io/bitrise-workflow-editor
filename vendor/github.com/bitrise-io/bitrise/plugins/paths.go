@@ -32,7 +32,7 @@ var (
 
 // CreateAndAddPluginRoute ...
 func CreateAndAddPluginRoute(plugin Plugin, source, version string) error {
-	newRoute, err := NewPluginRoute(plugin.Name, source, plugin.ExecutableURL(), version, plugin.TriggerEvent)
+	newRoute, err := NewPluginRoute(plugin, source, version)
 	if err != nil {
 		return err
 	}
@@ -183,4 +183,10 @@ func InitPaths() error {
 	pluginsRoutingPth = filepath.Join(pluginsDir, pluginSpecFileName)
 
 	return nil
+}
+
+// ForceInitPaths ...
+func ForceInitPaths(bitriseDir string) {
+	pluginsDir = filepath.Join(bitriseDir, pluginsDirName)
+	pluginsRoutingPth = filepath.Join(pluginsDir, pluginSpecFileName)
 }

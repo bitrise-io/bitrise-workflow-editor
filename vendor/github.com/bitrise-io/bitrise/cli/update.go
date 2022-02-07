@@ -100,7 +100,7 @@ func installedWithBrew() (bool, error) {
 		return false, nil
 	}
 
-	out, err := exec.Command("brew", "list").Output()
+	out, err := exec.Command("brew", "list", "--formula").Output()
 	if err != nil {
 		return false, err
 	}
@@ -227,7 +227,7 @@ func update(c *cli.Context) error {
 	}
 
 	if withBrew {
-		log.Infof("Bitrise CLI installer with homebrew")
+		log.Infof("Bitrise CLI installed with homebrew")
 
 		if versionFlag != "" {
 			return errors.New("it seems you installed Bitrise CLI with Homebrew. Version flag is only supported for GitHub release page installations")
@@ -256,7 +256,7 @@ func update(c *cli.Context) error {
 		return nil
 	}
 
-	log.Infof("Bitrise CLI installer from source")
+	log.Infof("Bitrise CLI installed from source")
 
 	if versionFlag == "" {
 		latest, err := latestTag()
