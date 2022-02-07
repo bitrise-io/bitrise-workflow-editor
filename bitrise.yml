@@ -126,25 +126,11 @@ workflows:
   test-api:
     steps:
     - script:
-        title: GOLIST_WITHOUT_VENDOR
-        inputs:
-        - content: |-
-            set -ex
-            no_vendor_paths="$(go list ./... | grep -v vendor)"
-            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
-          opts:
-            # opts, for bitrise.yml parsing test in the workflow editor
-            is_expand: true
-            title: The Script Content - test title
-            is_required: true
-            is_dont_change_value: false
-    - script:
         title: Go Test
         inputs:
         - content: |-
             #!/bin/bash
             set -ex
-            # go test $GOLIST_WITHOUT_VENDOR
             go test ./...
     - script:
         title: Go Vet
@@ -152,14 +138,14 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            go vet $GOLIST_WITHOUT_VENDOR
+            go vet
     - script:
         title: Err check
         inputs:
         - content: |-
             #!/bin/bash
             set -ex
-            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+            errcheck -asserts=true -blank=true 
     - script:
         title: Go Lint
         inputs:
@@ -167,9 +153,7 @@ workflows:
             #!/bin/bash
             set -ex
             # lint
-            while read -r line; do
-              golint -set_exit_status $line
-            done <<< "$GOLIST_WITHOUT_VENDOR"
+            golint ./...
 
   setup-plugin-api:
     title: Set up local plugin api
