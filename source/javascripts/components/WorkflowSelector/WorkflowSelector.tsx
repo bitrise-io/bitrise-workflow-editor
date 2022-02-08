@@ -78,23 +78,24 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 			<PlacementReference>
 				{({ ref }) => (
 					<Flex
-						height="43px"
+						height="47px"
 						borderRadius="x1"
-						borderColor="gray-6"
+						borderColor="gray-3"
 						innerRef={ref}
 						overflow="hidden"
 						direction="horizontal"
 						data-e2e-tag="workflow-selector"
+						shrink
 					>
 						<Flex
-							width="7rem"
 							backgroundColor="gray-6"
-							textColor="white"
+							textColor='white'
+							padding='x4'
 							direction="horizontal"
 							alignChildrenHorizontal="middle"
 							alignChildrenVertical="middle"
 						>
-							<Text config="8" uppercase>
+							<Text size='2' uppercase>
 								Workflow
 							</Text>
 						</Flex>
@@ -110,7 +111,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							data-e2e-tag="workflow-selector-dropdown"
 						>
 							<Text
-								textColor="gray-6"
+								textColor="grape-5"
 								width="114px"
 								overflow="hidden"
 								ellipsis
@@ -118,7 +119,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							>
 								{selectedWorkflow.id}
 							</Text>
-							<Icon size="1.25rem" textColor="gray-6" name="ChevronDown" />
+							<Icon size="24px" name="ChevronDown" />
 						</Flex>
 					</Flex>
 				)}

@@ -14,6 +14,10 @@
 
 .Placement .Placement__content .Placement__area-content .DropdownMenu__content {
 	.DropdownMenu__item {
+		.Visibility {
+			width: 12px;
+		}
+
 		&:nth-child(2) {
 			svg.Base.Icon:last-child {
 				transform: scaleY(-1);
@@ -51,7 +55,13 @@ section.manage-workflows {
 		flex-grow: 1;
 	}
 
+	[aria-label='Add new Workflow'] {
+		padding: 11px;
+	}
+
 	[aria-label='Manage Workflows'] {
+		padding: 11px;
+
 		svg.Base.Icon {
 			margin: 0;
 

@@ -43,7 +43,7 @@ const WorkflowMainToolbar = ({
 			<Tooltip title='Manage Workflows'>
 				{({ ref, ...rest }) => (
 					<Base innerRef={ref} {...rest}>
-						<ButtonWithDropdown buttonProps={{ "aria-label": "Manage Workflows" }}   dropdownWidth='300px' items={[{
+						<ButtonWithDropdown buttonProps={{ "aria-label": "Manage Workflows" }} dropdownWidth='280px' items={[{
 							text: "Insert Workflow before",
 							icon: "ArrowQuit",
 							className: "manage-button add-before-run-workflow",
