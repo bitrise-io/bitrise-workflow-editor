@@ -71,7 +71,7 @@ const WorkflowMainToolbar = ({
 			</Tooltip>
 		</Flex>
 		<Flex direction='horizontal' alignChildrenVertical='middle' paddingVertical='x2'>
-			<WorkflowRecipesLink id='workflow-editor-main-link' />
+			<WorkflowRecipesLink id='workflow-editor-main-workflow-recipe-link' />
 		</Flex>
 	</Flex>
 );
