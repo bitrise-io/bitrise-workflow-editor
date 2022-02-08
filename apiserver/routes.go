@@ -53,7 +53,7 @@ func SetupRoutes(isServeFilesThroughMiddlemanServer bool) (*mux.Router, error) {
 
 		assetServer = httputil.NewSingleHostReverseProxy(u)
 	} else {
-		box := rice.MustFindBox("www")
+		box := rice.MustFindBox("../build")
 		assetServer = http.StripPrefix("/"+version.VERSION+"/", http.FileServer(box.HTTPBox()))
 	}
 	//
