@@ -22,7 +22,7 @@ export const elements = {
 	"Save Button": "button.save",
 	"Discard Button": "button.discard",
 
-	"Workflow recipes link": "#workflow-editor-main-link",
+	"Workflow recipes link": "#workflow-editor-main-workflow-recipe-link",
 
 	"Delete Workflow Button": "div:contains('Delete selected Workflow'):last",
 	"Selected Workflow Name": "[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]",
@@ -41,7 +41,6 @@ export const elements = {
 	"Step Version Selector": "[data-e2e-tag=\"step-version-details__version-selector\"]",
 	"Step Version Branch Icon": "[data-e2e-tag=\"step-version-details__branch-icon\"]",
 	"Step Version Update Icon": "[data-e2e-tag=\"step-version-details__update-icon\"]",
-	"Step Latest Version Updater Button": "[data-e2e-tag=\"step-version-details__update-button\"]",
 	"Selected Step First Input": ".selected-step .input:eq(0)",
 	"Selected Step First Input Title": ".selected-step .input .input-info .title span:eq(0)",
 	"Selected Step First Input Sensitive Badge": ".selected-step .input .input-info .sensitive:eq(0)",
