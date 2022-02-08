@@ -8,7 +8,7 @@ const inputVariableSelector = name =>
 	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
 
 export const elements = {
-	"Add Workflow Button": ".add-workflow",
+	"Add Workflow Button": "[aria-label='Add new Workflow']",
 	"Base Workflow Dropdown": "#add-workflow-popup-based-on-select",
 	"Workflow Name": "#add-workflow-popup-body input[type=text]",
 	"Workflow Add Button": "input.rebo.big.purple[type=submit]",
@@ -22,7 +22,9 @@ export const elements = {
 	"Save Button": "button.save",
 	"Discard Button": "button.discard",
 
-	"Delete Workflow Button": ".manage-button.delete-workflow",
+	"Workflow recipes link": "#workflow-editor-main-link",
+
+	"Delete Workflow Button": "div:contains('Delete selected Workflow'):last",
 	"Selected Workflow Name": "[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]",
 	"Workflow selector": "[data-e2e-tag=\"workflow-selector-dropdown\"]",
 
@@ -84,7 +86,8 @@ export const elements = {
 	"Eighteenth StepItem Version": `${stepSelector(18)} [data-e2e-tag="step-item__version"]`,
 	"Eighteenth StepItem Version Update Indicator": `${stepSelector(18)} [data-e2e-tag="step-item__update-indicator"]`,
 
-	"Add Before Workflow button": ".add-before-run-workflow",
+	"Manage Workflows dropdown button": "[aria-label='Manage Workflows']",
+	"Add Before Workflow button": "div:contains('Insert Workflow before'):last",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
 	"Before Workflow Dropdown": ".run-workflow-selector.before-run",
 	"Workflow Sections": ".content .workflows .steps-container",
@@ -92,7 +95,7 @@ export const elements = {
 	"Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 	"First Before Workflow Name": ".workflow .icons-and-name .workflow-name",
 
-	"Add After Workflow button": ".add-after-run-workflow",
+	"Add After Workflow button": "div:contains('Insert Workflow after'):last",
 	"Add After Workflow popup": "#add-run-workflow-popup-body",
 	"After Workflow Dropdown": ".run-workflow-selector.after-run",
 	"First After Workflow Name": ".workflow:nth-last-child(2) .icons-and-name .workflow-name",
@@ -155,7 +158,7 @@ export const elements = {
 	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
 	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
-	"Rearrange button": ".manage-button.rearrange",
+	"Rearrange button": "div:contains('Rearrange Workflows'):last",
 	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
 	"Workflow chain": ".workflow-chain",
 	"Workflow chain selected workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .selected",
