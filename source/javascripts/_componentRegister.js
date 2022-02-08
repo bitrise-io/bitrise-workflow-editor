@@ -7,6 +7,7 @@ import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettin
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import WorkflowRecipesLink from "./components/workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
+import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 
 var register = react2angular;
 
@@ -47,4 +48,8 @@ angular
 	.component(
 		"rWorkflowRecipesLink",
 		register(WorkflowRecipesLink, ["id"])
+	)
+	.component(
+		"rYmlEditorHeader",
+		register(YmlEditorHeader, ["url", "usesRepositoryYml"])
 	);
