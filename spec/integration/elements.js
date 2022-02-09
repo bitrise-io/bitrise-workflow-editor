@@ -22,7 +22,7 @@ export const elements = {
 	"Save Button": "button.save",
 	"Discard Button": "button.discard",
 
-	"Workflow recipes link": "#workflow-editor-main-workflow-recipe-link",
+	"Workflow recipes link": "#workflow-editor-main-toolbar-workflow-recipes-link",
 
 	"Delete Workflow Button": "div:contains('Delete selected Workflow'):last",
 	"Selected Workflow Name": "[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]",

@@ -32,7 +32,7 @@ const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.E
 				</Text>
 			</Flex>
 			<Flex direction={isFullScreen ? "horizontal" : "vertical"} reverse={!isFullScreen} gap='x2'>
-				<WorkflowRecipesLink id='workflow-recipes-yml-editor' />
+				<WorkflowRecipesLink linkId='workflow-editor-yml-editor-workflow-recipes-link' />
 				{url && <Button level='primary' size='medium' Component='a' href={url} target='_blank'>
 					Download currently saved config
 				</Button>

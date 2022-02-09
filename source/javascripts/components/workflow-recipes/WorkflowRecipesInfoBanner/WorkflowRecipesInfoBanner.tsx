@@ -3,11 +3,7 @@ import { ColorButton, Flex, Icon, Link, Text } from "@bitrise/bitkit";
 
 const WorkflowRecipesInfoBannerClosedKey = "workflow-recipes-step-banner-closed";
 
-type WorkflowRecipesInfoBannerProps = {
-	id: string;
-}
-
-const WorkflowRecipesInfoBanner = ({ id }: WorkflowRecipesInfoBannerProps): JSX.Element => {
+const WorkflowRecipesInfoBanner = (): JSX.Element => {
 	const [isClosed, setClosed] = useState<boolean>(Boolean(localStorage.getItem(WorkflowRecipesInfoBannerClosedKey)));
 
 	const handleClose = (): void => {
@@ -41,7 +37,12 @@ const WorkflowRecipesInfoBanner = ({ id }: WorkflowRecipesInfoBannerProps): JSX.
 						Follow the step-by-step guide or simply copy and paste the YML into an existing Workflow.
 					</Text>
 					<Flex direction='vertical' alignSelf='start'>
-						<Link id={id} href='https://github.com/bitrise-io/workflow-recipes' target='_blank' color='grape-3'>
+						<Link
+							id='workflow-editor-step-sidebar-workflow-recipes-link'
+							href='https://github.com/bitrise-io/workflow-recipes'
+							target='_blank'
+							color='grape-3'
+						>
 							<ColorButton color='blue' size='small'>
 								<Text size='2'>Explore Recipes</Text>
 								<Icon name='OpenInBrowser' size='24px' />
