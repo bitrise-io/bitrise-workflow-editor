@@ -95,7 +95,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 												"<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
 											])
 												.then(function() {
-													return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? $q.when() : viewModel.save();
+													return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+														? $q.when()
+														: viewModel.save();
 												})
 												.then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 										} else {
@@ -262,7 +264,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 						viewModel.menuProgress.success();
 
-						datadogRumCustomTiming('wfe', 'topNavigation');
+						datadogRumCustomTiming("wfe", "topNavigation");
 					},
 					function() {
 						viewModel.menuProgress.reset();
@@ -350,7 +352,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				}, 0);
 
 				viewModel.deferredUserSavedYmlToRepository.reject();
-			}
+			};
 
 			viewModel.onSaveToRepoComplete = function() {
 				$timeout(function() {
@@ -358,36 +360,37 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				}, 1500);
 
 				viewModel.deferredUserSavedYmlToRepository.resolve();
-			}
+			};
 
 			function reloadAppConfig() {
 				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-				return appService.getAppConfig(true)
-					.then(function() {
-						viewModel.loadDataProgress.reset();
-					});
-			}
-
-			function reloadStack() {
-				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 				return appService.getAppConfig(true).then(function() {
-					appService.getStackAndDockerImage(true)
-				}).then(function() {
 					viewModel.loadDataProgress.reset();
 				});
 			}
 
-			function reloadAppConfigYML() {
+			function reloadStack() {
 				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-				return appService.getAppConfigYML(true)
+				return appService
+					.getAppConfig(true)
+					.then(function() {
+						appService.getStackAndDockerImage(true);
+					})
 					.then(function() {
 						viewModel.loadDataProgress.reset();
 					});
 			}
 
+			function reloadAppConfigYML() {
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService.getAppConfigYML(true).then(function() {
+					viewModel.loadDataProgress.reset();
+				});
+			}
+
 			viewModel.getDataToSave = function() {
 				return viewModel.dataToSave;
-			}
+			};
 
 			viewModel.save = function(shouldReturnPromise) {
 				if (shouldReturnPromise === undefined) {
@@ -403,7 +406,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}, 0);
 				}
 
-				var deferredSavePromise = viewModel.deferredUserSavedYmlToRepository ? viewModel.deferredUserSavedYmlToRepository.promise : undefined;
+				var deferredSavePromise = viewModel.deferredUserSavedYmlToRepository
+					? viewModel.deferredUserSavedYmlToRepository.promise
+					: undefined;
 				var promise = $q
 					.all([
 						$q(function(resolve, reject) {
@@ -412,25 +417,34 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								case "env-vars":
 								case "triggers":
 									viewModel.dataToSave = appService.appConfig;
-									return appService.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
+									return appService
+										.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
-											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfig() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+												? reloadAppConfig()
+												: $q.when();
 										})
-										.then(resolve, reject)
+										.then(resolve, reject);
 								case "secrets":
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
 									viewModel.dataToSave = appService.appConfig;
-									return appService.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
+									return appService
+										.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
-											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadStack() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+												? reloadStack()
+												: $q.when();
 										})
 										.then(resolve, reject);
 								case "yml":
 									viewModel.dataToSave = appService.appConfigYML;
-									return appService.saveAppConfigYML(deferredSavePromise)
+									return appService
+										.saveAppConfigYML(deferredSavePromise)
 										.then(function() {
-											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml ? reloadAppConfigYML() : $q.when();
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+												? reloadAppConfigYML()
+												: $q.when();
 										})
 										.then(resolve, reject);
 							}
