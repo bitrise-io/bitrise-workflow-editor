@@ -138,7 +138,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            go vet
+            go vet ./...
     - script:
         title: Err check
         inputs:
