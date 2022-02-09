@@ -12,6 +12,7 @@ const triggerElements = {
 	"Tag filter": filterSelector("tag"),
 	"Trigger cancel": ".trigger .cancel",
 	"Trigger done": ".trigger .done",
+	"Trigger warning notification": ".TriggersDescription .Notification"
 };
 
 export default triggerElements;
