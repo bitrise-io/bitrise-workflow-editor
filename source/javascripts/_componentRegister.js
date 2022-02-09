@@ -1,4 +1,6 @@
 import { react2angular } from "react2angular";
+import { Icon } from "@bitrise/bitkit";
+
 import ErrorNotification from "./components/ErrorNotification";
 import { StepItem, AddStepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
@@ -17,6 +19,7 @@ var register = react2angular;
 angular
 	.module("BitriseWorkflowEditor")
 	.component("rErrorNotification", register(ErrorNotification, ["message"]))
+	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
 		"rStepItem",
 		register(StepItem, ["step", "version", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"])

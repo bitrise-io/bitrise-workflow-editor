@@ -41,6 +41,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 					span.icon[ng-if="menu.cssClass == 'stack'"]  == svg("main/menuicon-stack")
 					span.icon[ng-if="menu.cssClass == 'yml'"]  == svg("main/menuicon-yml")
 					span.title[ng-bind="menu.title"]
+					r-icon[ng-if="menu.cssClass == 'triggers' && !appService.hasTriggers" name="'Warning'" size="'1rem'" text-color="'yellow-4'"]
 			aside.discard-save[ng-class="{'not-available': !mainCtrl.isDiscardSaveAvailable()}"]
 				button.discard.rebo.hollow-danger[ng-click="mainCtrl.discardChangesSelected()" ng-disabled="!mainCtrl.menuProgress.isIdle || mainCtrl.loadDataProgress.isInProgress || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"] == data[:strings][:main][:discard]
 				button.save.rebo.purple[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]

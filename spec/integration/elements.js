@@ -154,7 +154,7 @@ export const elements = {
 	"wf6 steps container": ".workflow:nth-child(5) ul.steps",
 	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
 
-	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
+	"Triggers tab": "button[data-e2e-tag='triggers-tab']",
 	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
 	"Rearrange button": "div:contains('Rearrange Workflows'):last",

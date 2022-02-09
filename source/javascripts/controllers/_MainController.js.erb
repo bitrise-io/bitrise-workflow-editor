@@ -587,6 +587,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				logger.info("App start");
 
+				appService.getAppConfig();
+
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
 						case "website":
