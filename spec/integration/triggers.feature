@@ -64,3 +64,10 @@ Feature: triggers
     When I click on "First trigger delete"
     Then I should see a trigger
       And "Save Button" should "not be disabled"
+
+  Scenario: Show no triggers added warning when all triggers are deleted
+    When I click on "First trigger delete"
+    And I click on "First trigger delete"
+    Then I click on "Pull Request filter"
+    And I click on "First trigger delete"
+    Then I should see the tigger warning notification

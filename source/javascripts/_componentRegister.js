@@ -8,6 +8,7 @@ import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import WorkflowRecipesLink from "./components/workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import TriggersDescription from "./components/triggers/Description";
 
 var register = react2angular;
 
@@ -45,11 +46,6 @@ angular
 		"rWorkflowSelector",
 		register(WorkflowSelector, ["selectedWorkflowId", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
-	.component(
-		"rWorkflowRecipesLink",
-		register(WorkflowRecipesLink, ["id"])
-	)
-	.component(
-		"rYmlEditorHeader",
-		register(YmlEditorHeader, ["url", "usesRepositoryYml"])
-	);
+	.component("rWorkflowRecipesLink", register(WorkflowRecipesLink, ["id"]))
+	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
+	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]));
