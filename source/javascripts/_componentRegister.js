@@ -9,6 +9,8 @@ import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import WorkflowRecipesLink from "./components/workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import TriggersDescription from "./components/triggers/Description";
+import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
+import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 
 var register = react2angular;
 
@@ -44,8 +46,23 @@ angular
 	)
 	.component(
 		"rWorkflowSelector",
-		register(WorkflowSelector, ["selectedWorkflowId", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
+		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
 	.component("rWorkflowRecipesLink", register(WorkflowRecipesLink, ["id"]))
 	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
-	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]));
+	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
+	.component(
+		"rWorkflowMainToolbar",
+		register(WorkflowMainToolbar, [
+			"selectedWorkflow",
+			"workflows",
+			"selectWorkflow",
+			"renameWorkflowConfirmed",
+			"onAddNewWorkflow",
+			"onInsertBeforeWorkflow",
+			"onInsertAfterWorkflow",
+			"onRearrangeWorkflow",
+			"onDeleteSelectedWorkflow"
+		])
+	)
+	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, ["id"]));

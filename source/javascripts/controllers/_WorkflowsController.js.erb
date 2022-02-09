@@ -295,6 +295,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.addWorkflowID;
 			viewModel.addWorkflowSourceWorkflow;
 
+			viewModel.openAddWorkflowPopup = function() {
+				viewModel.addWorkflowPopup.isVisible = true;
+			};
+
+			viewModel.openAddWorkflowPopupWithDigest = function() {
+				$timeout(function(){
+					viewModel.openAddWorkflowPopup();
+				}, 0);
+			}
+
 			viewModel.addWorkflowPopup.beforeAppearCallback = function() {
 				viewModel.addWorkflowID = "";
 				viewModel.addWorkflowSourceWorkflow = viewModel.selectedWorkflow;
@@ -366,6 +376,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				);
 			};
 
+			viewModel.deleteWorkflowSelectedWithDigest = function() {
+				$timeout(function() {
+					viewModel.deleteWorkflowSelected();
+				}, 0);
+			};
+
 			viewModel.addRunWorkflowPopup = new Popup();
 			viewModel.addRunWorkflowMode;
 			viewModel.addRunWorkflowChainHierarchy;
@@ -409,6 +425,18 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.addRunWorkflowPopup.isVisible = true;
 			};
 
+			viewModel.addRunWorkflowBeforeSelectedWithDigest = function() {
+				$timeout(function() {
+					viewModel.addRunWorkflowSelected('before');
+				}, 0);
+			}
+
+			viewModel.addRunWorkflowAfterSelectedWithDigest = function() {
+				$timeout(function() {
+					viewModel.addRunWorkflowSelected('after');
+				}, 0);
+			}
+
 			viewModel.availableRunWorkflowsToAdd = function() {
 				if (!viewModel.workflows || !viewModel.selectedWorkflow) {
 					return;
@@ -451,6 +479,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.rearrangeWorkflowsPopup = new Popup();
 			viewModel.rearrangeWorkflowsChainHierarchy;
+
+			viewModel.openRearrangeWorkflowsPopup = function() {
+				viewModel.rearrangeWorkflowsPopup.isVisible = true;
+			};
+
+			viewModel.openRearrangeWorkflowsPopupWithDigest = function() {
+				$timeout(function() {
+					viewModel.openRearrangeWorkflowsPopup();
+				}, 0);
+			}
 
 			viewModel.rearrangeWorkflowsPopup.beforeAppearCallback = function() {
 				viewModel.rearrangeWorkflowsChainHierarchy = workflowChainHierarchy(viewModel.selectedWorkflow);
