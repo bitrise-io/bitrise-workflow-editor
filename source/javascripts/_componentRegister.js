@@ -9,6 +9,8 @@ import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import WorkflowRecipesLink from "./components/workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
+import WorkflowRecipesInfoBanner
+	from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 
 var register = react2angular;
 
@@ -56,4 +58,8 @@ angular
 	).component(
 		'rWorkflowMainToolbar',
 		register(WorkflowMainToolbar, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed", "onAddNewWorkflow", "onInsertBeforeWorkflow", "onInsertAfterWorkflow", "onRearrangeWorkflow", "onDeleteSelectedWorkflow"])
+	)
+	.component(
+		"rWorkflowRecipesInfoBanner",
+		register(WorkflowRecipesInfoBanner, ["id"])
 	);
