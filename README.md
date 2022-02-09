@@ -36,7 +36,7 @@ bitrise run setup-client
 ### Build a stand-alone binary, with embedded resources
 
 ```
-bitrise run go-install
+go install
 ```
 
 ### Run in development mode
