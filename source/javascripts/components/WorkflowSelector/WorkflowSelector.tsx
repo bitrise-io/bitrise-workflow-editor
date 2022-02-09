@@ -14,15 +14,15 @@ import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
 import "./WorkflowSelector.scss";
 
-interface WorkflowSelectorProps {
-	selectedWorkflowId: string;
+export type WorkflowSelectorProps = {
+	selectedWorkflow: Workflow;
 	workflows: Workflow[];
 	selectWorkflow: (workflow: Workflow) => void;
 	renameWorkflowConfirmed: (workflow: Workflow, newWorkflowID: string) => void;
 }
 
 const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
-	selectedWorkflowId,
+	selectedWorkflow,
 	workflows,
 	selectWorkflow,
 	renameWorkflowConfirmed,
@@ -78,23 +78,24 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 			<PlacementReference>
 				{({ ref }) => (
 					<Flex
-						height="43px"
+						height="47px"
 						borderRadius="x1"
-						borderColor="gray-6"
+						borderColor="gray-3"
 						innerRef={ref}
 						overflow="hidden"
 						direction="horizontal"
 						data-e2e-tag="workflow-selector"
+						shrink
 					>
 						<Flex
-							width="7rem"
 							backgroundColor="gray-6"
-							textColor="white"
+							textColor='white'
+							padding='x4'
 							direction="horizontal"
 							alignChildrenHorizontal="middle"
 							alignChildrenVertical="middle"
 						>
-							<Text config="8" uppercase>
+							<Text size='2' uppercase>
 								Workflow
 							</Text>
 						</Flex>
@@ -110,16 +111,15 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							data-e2e-tag="workflow-selector-dropdown"
 						>
 							<Text
-								grow
-								textColor="gray-6"
+								textColor="grape-5"
 								width="114px"
 								overflow="hidden"
 								ellipsis
 								data-e2e-tag="workflow-selector-selected-workflow-name"
 							>
-								{selectedWorkflowId}
+								{selectedWorkflow.id}
 							</Text>
-							<Icon size="1.25rem" textColor="gray-6" name="ChevronDown" />
+							<Icon size="24px" name="ChevronDown" />
 						</Flex>
 					</Flex>
 				)}
@@ -153,7 +153,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 										key={workflow.id}
 										workflow={workflow}
 										selectWorkflow={onItemClick}
-										selectedWorkflowId={selectedWorkflowId}
+										selectedWorkflowId={selectedWorkflow.id}
 										workflowIds={workflowIds}
 										renameWorkflowConfirmed={renameWorkflowConfirmed}
 										data-e2e-tag="workflow-selector-option"

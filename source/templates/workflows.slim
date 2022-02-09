@@ -2,29 +2,17 @@
 	p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
 	.content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
 		section.manage-workflows
-			r-workflow-selector[
-				ng-if="workflowsCtrl.selectedWorkflow"
-				selected-workflow-id="workflowsCtrl.selectedWorkflow.id"
+			r-workflow-main-toolbar.react-toolbar[
+				selected-workflow="workflowsCtrl.selectedWorkflow"
 				workflows="workflowsCtrl.workflows"
 				select-workflow="workflowsCtrl.selectWorkflowWithDigest"
 				rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
+				on-add-new-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
+				on-insert-before-workflow="workflowsCtrl.addRunWorkflowBeforeSelectedWithDigest"
+				on-insert-after-workflow="workflowsCtrl.addRunWorkflowAfterSelectedWithDigest"
+				on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
+				on-delete-selected-workflow="workflowsCtrl.deleteWorkflowSelectedWithDigest"
 			]
-			button.manage-button.add-workflow.rebo.light-purple[ng-click="workflowsCtrl.addWorkflowPopup.isVisible = true"]
-				== svg("plus")
-				span == data[:strings][:workflows][:add_workflow][:action]
-			button.manage-button.add-before-run-workflow.rebo.light-grey[ng-click="workflowsCtrl.addRunWorkflowSelected('before')" ng-if="workflowsCtrl.selectedWorkflow"]
-				== svg("workflow/icon-before_run")
-				span == data[:strings][:workflows][:add_run_workflow][:before_run][:action]
-			button.manage-button.add-after-run-workflow.rebo.light-grey[ng-click="workflowsCtrl.addRunWorkflowSelected('after')" ng-if="workflowsCtrl.selectedWorkflow"]
-				== svg("workflow/icon-after_run")
-				span == data[:strings][:workflows][:add_run_workflow][:after_run][:action]
-			button.manage-button.rearrange.rebo.light-grey[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = true" ng-if="workflowsCtrl.selectedWorkflow"]
-				== svg("arrow_tailed-down")
-				== svg("arrow_tailed-down")
-				span == data[:strings][:workflows][:rearrange][:action]
-			button.manage-button.delete-workflow.rebo.light-danger[ng-click="workflowsCtrl.deleteWorkflowSelected()" ng-if="workflowsCtrl.selectedWorkflow" ng-disabled="workflowsCtrl.workflows.length == 1"]
-				== svg("cross")
-				span == data[:strings][:workflows][:delete_workflow]
 		.workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()"]
 			.workflows-container[ng-if="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px'}"]
 				.steps-container

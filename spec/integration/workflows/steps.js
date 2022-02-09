@@ -22,6 +22,7 @@ Given("add workflow popup is open", () => {
 });
 
 Given("Delete popup is open", () => {
+	click("Manage Workflows dropdown button");
 	click("Delete Workflow Button");
 });
 
@@ -34,6 +35,7 @@ Given("Workflow description is in edit mode", () => {
 });
 
 Given("Rearrange popup is open", () => {
+	click("Manage Workflows dropdown button");
 	click("Rearrange button");
 });
 

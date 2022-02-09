@@ -3,3 +3,9 @@
 		text-decoration: underline;
 	}
 }
+
+.WorkflowSelectorDropdown {
+	&:hover {
+		background-color: var(--color-gray--2);
+	}
+}
