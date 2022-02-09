@@ -145,7 +145,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            errcheck -asserts=true -blank=true 
+            errcheck -asserts=true -blank=true ./...
     - script:
         title: Go Lint
         inputs:
