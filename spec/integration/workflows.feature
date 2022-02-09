@@ -12,6 +12,10 @@ Feature: Workflows
     Then "First step" should be the selected step
       And all the steps are loaded
 
+  Scenario: Workflow recipe link
+    Then "Workflow recipes link" should have attribute "href" with value "https://github.com/bitrise-io/workflow-recipes"
+      And "Workflow recipes link" should have attribute "target" with value "_blank"
+
   Scenario: User creates a Workflow
     When I click on "Add Workflow Button"
       And I select "Empty workflow" from "Base Workflow Dropdown"
@@ -21,25 +25,29 @@ Feature: Workflows
       And Workflow appeared with name "Test"
 
   Scenario: User adds a before workflow
-    When I click on "Add Before Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
       And I confirm on "Add Before Workflow popup"
     Then I should see "wf4" in "Before Workflow Name"
 
   Scenario: User cancels adding a before workflow
-    When I click on "Add Before Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
       And I cancel on "Add Before Workflow popup"
     Then "Workflow Sections" should contain 1 "Workflow Section"
 
   Scenario: User adds a after workflow
-    When I click on "Add After Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add After Workflow button"
       And I select "wf4" from "After Workflow Dropdown"
       And I confirm on "Add After Workflow popup"
     Then I should see "wf4" in "After Workflow Name"
 
   Scenario: User cancels adding an after workflow
-    When I click on "Add After Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add After Workflow button"
       And I select "wf4" from "After Workflow Dropdown"
       And I cancel on "Add After Workflow popup"
     Then "Workflow Sections" should contain 1 "Workflow Section"
@@ -87,14 +95,16 @@ Feature: Workflows
 
   Scenario: Delete Workflow
     Given Workflow with name "ToBeDeleted"
-    When I click on "Delete Workflow Button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Delete Workflow Button"
       And I confirm on "Default popup"
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
       And I should see "wf1" in "Selected Workflow Name"
 
   Scenario: User opens the Delete Workflow
     Given "wf3" workflow is selected
-    When I click on "Delete Workflow Button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Delete Workflow Button"
     Then "Default popup" should "be visible"
       And I should see "Are you sure you want to delete the wf3 workflow?" in "Default popup message"
 
@@ -149,6 +159,7 @@ Feature: Workflows
       And I clear "wf3 workflow rename field"
       And I type "my_new_wf_name" in "wf3 workflow rename field"
       And I click on "wf3 workflow rename submit"
+      And I click away
     Then I should see "my_new_wf_name" in "Selected Workflow Name"
       And "my_new_wf_name workflow rename submit" should "not be visible"
       And "my_new_wf_name workflow rename submit" should "not be enabled"
@@ -181,7 +192,8 @@ Feature: Workflows
 
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
-    When I click on "Rearrange button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Rearrange button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
       And "Workflow chain after workflows" should contain 3 "li"
