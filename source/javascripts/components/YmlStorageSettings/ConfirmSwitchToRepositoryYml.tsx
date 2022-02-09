@@ -15,7 +15,7 @@ const ConfirmSwitchToRepositoryYml: React.FC<Props> = ({ visible, onContinue, on
 				<Icon textColor="grape-4" name="Warning" size="40px" />
 				<Flex>
 					<ModalTitle>Make sure your bitrise.yml file is valid!</ModalTitle>
-					<Text textColor="gray-7" config="7">
+					<Text textColor="gray-7" size="3">
 						You need a valid bitrise.yml file on the main branch - the one you set up when you added the app to Bitrise
 						- of your app before proceeding. A missing or invalid bitrise.yml file might break your build pipeline!
 					</Text>

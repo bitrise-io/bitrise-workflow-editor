@@ -32,10 +32,10 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 	return (
 		<Base borderRadius="x2" borderColor="gray-4" overflow="hidden">
 			<Flex backgroundColor="gray-2" paddingHorizontal="x4" paddingVertical="x3" gap="x2" direction="vertical">
-				<Text weight="bold" config="7" textColor="grape-5">
+				<Text weight="bold" size="3" textColor="grape-5">
 					Where do you want to store the bitrise.yml file?
 				</Text>
-				<Text config="8" textColor="gray-7">
+				<Text size="2" textColor="gray-7">
 					Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
 					out the <InlineLink text="documentation" url="https://devcenter.bitrise.io/builds/bitrise-yml-online/" /> for
 					the details
