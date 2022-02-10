@@ -30,7 +30,14 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 							<Icon name='Lightbulb' size='24px' />
 							<Text size='3' weight='bold' style={{ lineHeight: "16px" }}>Workflow Recipes</Text>
 						</Flex>
-						<Icon name='CloseSmall' size='24px' textColor='blue-4' style={{ cursor: "pointer" }} onClick={handleClose} />
+						<Icon
+							id='workflow-editor-step-sidebar-close-workflow-recipes-banner'
+							name='CloseSmall'
+							size='24px'
+							textColor='blue-4'
+							style={{ cursor: "pointer" }}
+							onClick={handleClose}
+						/>
 					</Flex>
 					<Text size='3' align='start'>
 						Workflow Recipes provide ready-made solutions for common Workflow tasks.{" "}
