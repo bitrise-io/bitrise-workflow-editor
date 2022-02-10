@@ -1,5 +1,5 @@
 .tab-triggers.menu-content-padding[ng-controller="TriggersController as triggersCtrl"]
-	r-triggers-description[has-triggers="triggersCtrl.hasTriggers"]
+	r-triggers-description[has-triggers="triggersCtrl.appService.hasTriggers"]
 
 	.type-filter
 		.type[ng-repeat="triggerType in triggerTypes" ng-init="id = 'trigger-type-filter-' + triggerType.id"]

@@ -7,7 +7,7 @@ import {
 	Flex,
 	Input,
 	InputContainer,
-	InputContent,
+	InputContent
 } from "@bitrise/bitkit";
 import React, { useState, useMemo, useEffect } from "react";
 import { Workflow } from "../../models";
@@ -19,13 +19,13 @@ export type WorkflowSelectorProps = {
 	workflows: Workflow[];
 	selectWorkflow: (workflow: Workflow) => void;
 	renameWorkflowConfirmed: (workflow: Workflow, newWorkflowID: string) => void;
-}
+};
 
 const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 	selectedWorkflow,
 	workflows,
 	selectWorkflow,
-	renameWorkflowConfirmed,
+	renameWorkflowConfirmed
 }: WorkflowSelectorProps) => {
 	const [visible, setVisible] = useState(false);
 	const [search, setSearch] = useState("");
@@ -54,14 +54,14 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 		let result = [...workflows];
 		if (search) {
 			const regExp = new RegExp(search, "i");
-			result = workflows.filter((workflow) => regExp.test(workflow.id));
+			result = workflows.filter(workflow => regExp.test(workflow.id));
 		}
 
 		return result;
 	}, [workflows, search]);
 
 	const workflowIds = useMemo(() => {
-		return workflows.map((workflow) => workflow.id);
+		return workflows.map(workflow => workflow.id);
 	}, [workflows]);
 
 	const onClearSearch = (): void => {
@@ -89,13 +89,13 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 					>
 						<Flex
 							backgroundColor="gray-6"
-							textColor='white'
-							padding='x4'
+							textColor="white"
+							padding="x4"
 							direction="horizontal"
 							alignChildrenHorizontal="middle"
 							alignChildrenVertical="middle"
 						>
-							<Text size='2' uppercase>
+							<Text size="2" uppercase>
 								Workflow
 							</Text>
 						</Flex>
@@ -139,7 +139,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 										onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
 									/>
 									{search && (
-										<Text className="SearchField_reset" config="8" uppercase clickable onClick={onClearSearch}>
+										<Text className="SearchField_reset" size="2" uppercase clickable onClick={onClearSearch}>
 											Reset
 										</Text>
 									)}
@@ -148,7 +148,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 						</Flex>
 						{filteredWorkflows.length ? (
 							<Flex maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
-								{filteredWorkflows.map((workflow) => (
+								{filteredWorkflows.map(workflow => (
 									<WorkflowSelectorItem
 										key={workflow.id}
 										workflow={workflow}

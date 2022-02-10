@@ -77,7 +77,7 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 	return (
 		<Flex gap="x6" direction="vertical">
 			<Flex direction="vertical" gap="x3">
-				<Text config="5" textColor="gray-8">
+				<Text size="5" weight="bold" textColor="gray-8">
 					Store bitrise.yml on bitrise.io
 				</Text>
 				<Text>Choose which bitrise.yml file should be used on bitrise.io from now:</Text>

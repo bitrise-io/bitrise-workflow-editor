@@ -22,7 +22,7 @@ export const elements = {
 	"Save Button": "button.save",
 	"Discard Button": "button.discard",
 
-	"Workflow recipes link": "#workflow-editor-main-workflow-recipe-link",
+	"Workflow recipes link": "#workflow-editor-main-toolbar-workflow-recipes-link",
 
 	"Delete Workflow Button": "div:contains('Delete selected Workflow'):last",
 	"Selected Workflow Name": "[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]",
@@ -154,7 +154,7 @@ export const elements = {
 	"wf6 steps container": ".workflow:nth-child(5) ul.steps",
 	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
 
-	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
+	"Triggers tab": "button[data-e2e-tag='triggers-tab']",
 	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
 	"Rearrange button": "div:contains('Rearrange Workflows'):last",

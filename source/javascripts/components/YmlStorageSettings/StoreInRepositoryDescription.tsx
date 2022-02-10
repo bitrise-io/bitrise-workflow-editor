@@ -9,10 +9,10 @@ type Props = {
 
 const StoreInRepositoryDescription: FC<Props> = ({ title, description }: Props) => (
 	<Flex direction="vertical" gap="x4">
-		<Text config="5" textColor="gray-8">
+		<Text size="5" weight="bold" textColor="gray-8">
 			{title}
 		</Text>
-		<Text textColor="gray-7" config="7">
+		<Text textColor="gray-7" size="3">
 			<Text inline>{description}</Text>
 			<Text inline>
 				Read more in{" "}

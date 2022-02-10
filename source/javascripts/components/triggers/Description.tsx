@@ -17,10 +17,10 @@ const Description = ({ hasTriggers }: DescriptionProps): JSX.Element => (
 	>
 		{!hasTriggers && <Notification type="warning">No triggers are currently set for this app</Notification>}
 		<Flex direction="vertical" gap="x2">
-			<Text config="4" weight="bold" textColor="grape-5">
+			<Text size="5" weight="bold" textColor="grape-5">
 				Triggers
 			</Text>
-			<Text config="7">
+			<Text size="3">
 				Triggers are required in order to run builds automatically. To set one up, you need to specify:{" "}
 			</Text>
 			<List>
@@ -31,7 +31,7 @@ const Description = ({ hasTriggers }: DescriptionProps): JSX.Element => (
 					the <strong>branch</strong> of your repository: for example, master or dev.
 				</ListItem>
 			</List>
-			<Text config="7">
+			<Text size="3">
 				Note: a webhook must be in place for a trigger to work.{" "}
 				<Link
 					underline

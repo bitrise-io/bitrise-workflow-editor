@@ -97,7 +97,7 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 							<Text
 								clickable
 								className="WorkflowSelectorItem--rename"
-								config="8"
+								size="2"
 								uppercase
 								onClick={onRenameClick}
 								data-e2e-tag="workflow-selector-item-name-edit-trigger"
