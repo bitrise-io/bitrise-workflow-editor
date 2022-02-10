@@ -36,7 +36,7 @@
 			viewModel.editedTriggerPullRequestTargetBranchPattern;
 			viewModel.editedTriggerTagPattern;
 			viewModel.newTriggerIndex;
-			viewModel.hasTriggers = appService.hasTriggers;
+			viewModel.appService = appService;
 
 			$scope.$on(
 				"$destroy",
@@ -44,10 +44,6 @@
 					configureWithAppConfig();
 				})
 			);
-
-			$rootScope.$on("MainController::savedFinishedWithSuccess", function() {
-				viewModel.hasTriggers = appService.hasTriggers;
-			});
 
 			$scope.$watch(
 				"triggerTypes",
