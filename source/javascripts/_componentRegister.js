@@ -51,7 +51,6 @@ angular
 		"rWorkflowSelector",
 		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
-	.component("rWorkflowRecipesLink", register(WorkflowRecipesLink, ["linkId"]))
 	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
 	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
 	.component(
