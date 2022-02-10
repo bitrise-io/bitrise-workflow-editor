@@ -2,12 +2,12 @@ import React from "react";
 import { Flex, Icon, Link, Text, Tooltip } from "@bitrise/bitkit";
 
 type WorkflowRecipesLinkProps = {
-	id: string;
+	linkId: string;
 }
 
-const WorkflowRecipesLink = ({ id }: WorkflowRecipesLinkProps): JSX.Element => (
+const WorkflowRecipesLink = ({ linkId }: WorkflowRecipesLinkProps): JSX.Element => (
 	<Flex direction='horizontal' gap='x2' alignChildrenVertical='middle' paddingVertical="x1">
-		<Link id={id} href='https://github.com/bitrise-io/workflow-recipes' target='_blank' color='grape-3'>
+		<Link id={linkId} href='https://github.com/bitrise-io/workflow-recipes' target='_blank' color='grape-3'>
 			<Flex direction='horizontal' gap='x1'>
 				<Icon name='OpenInBrowser' size='20px' />
 				<Text size='3'>Workflow Recipes</Text>
