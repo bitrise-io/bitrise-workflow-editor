@@ -36,7 +36,7 @@
 			viewModel.editedTriggerPullRequestTargetBranchPattern;
 			viewModel.editedTriggerTagPattern;
 			viewModel.newTriggerIndex;
-			viewModel.hasTriggers = false;
+			viewModel.hasTriggers = appService.hasTriggers;
 
 			$scope.$on(
 				"$destroy",
@@ -44,6 +44,10 @@
 					configureWithAppConfig();
 				})
 			);
+
+			$rootScope.$on("MainController::savedFinishedWithSuccess", function() {
+				viewModel.hasTriggers = appService.hasTriggers;
+			});
 
 			$scope.$watch(
 				"triggerTypes",
@@ -60,9 +64,7 @@
 						});
 					});
 
-					viewModel.hasTriggers = !_.isEmpty(appService.appConfig.trigger_map);
-
-					if (!viewModel.hasTriggers) {
+					if (_.isEmpty(appService.appConfig.trigger_map)) {
 						delete appService.appConfig["trigger_map"];
 					}
 				},

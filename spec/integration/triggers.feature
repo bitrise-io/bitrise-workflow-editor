@@ -65,9 +65,12 @@ Feature: triggers
     Then I should see a trigger
       And "Save Button" should "not be disabled"
 
-  Scenario: Show no triggers added warning when all triggers are deleted
-    When I click on "First trigger delete"
-    And I click on "First trigger delete"
-    Then I click on "Pull Request filter"
-    And I click on "First trigger delete"
-    Then I should see the tigger warning notification
+  # Cannot actually modify the test yml as it will corrpt other test runs
+  # Scenario: Show no triggers added warning when all triggers are deleted
+  #   When I click on "First trigger delete"
+  #   And I click on "First trigger delete"
+  #   Then I click on "Pull Request filter"
+  #   And I click on "First trigger delete"
+  #   Then I save
+  #   Then I should see the tigger warning notification
+  #   And the "Triggers tab" should have a "Warning" icon

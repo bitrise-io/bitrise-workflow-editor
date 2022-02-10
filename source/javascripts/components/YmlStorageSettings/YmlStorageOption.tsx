@@ -27,10 +27,10 @@ const YmlStorageOption: FC<StepItemProps> = ({ isActive, title, description, ico
 	>
 		<Icon textColor="grape-4" name={icon}></Icon>
 		<Flex grow shrink>
-			<Text weight="bold" config="7" textColor="grape-5">
+			<Text weight="bold" size="3" textColor="grape-5">
 				{title}
 			</Text>
-			<Text config="8" textColor="gray-7">
+			<Text size="2" textColor="gray-7">
 				{description}
 			</Text>
 		</Flex>

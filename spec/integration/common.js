@@ -110,7 +110,7 @@ const scrollTo = position => {
 };
 
 const scrollElementToPx = (element, position) => {
-	$(element).scrollTo(0, position)
+	$(element).scrollTo(0, position);
 };
 
 Given("workflows tab is open", () => {
@@ -157,3 +157,10 @@ Then("{string} should have attribute {string} with value {string}", (element, at
 });
 
 Then("I save", save);
+
+Then("the {string} should have a {string} icon", (element, iconName) => {
+	$(element)
+		.find(selector("r-icon"))
+		.should("be.visible")
+		.should("have.attr", "name", `'${iconName}'`);
+});

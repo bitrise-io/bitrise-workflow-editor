@@ -68,7 +68,7 @@ Feature: Workflow steps details
     When I click on "Eighth step"
     Then "Step Version Details" should "be visible"
       And "Step Version Selector" should "be visible"
-    When I change tab to "Trigger tab"
+    When I change tab to "Triggers tab"
       And I change tab to "Workflows tab"
     Then "Eighth step" should be the selected step
 

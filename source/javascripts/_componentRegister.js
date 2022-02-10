@@ -1,4 +1,6 @@
 import { react2angular } from "react2angular";
+import { Icon } from "@bitrise/bitkit";
+
 import ErrorNotification from "./components/ErrorNotification";
 import { StepItem, AddStepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
@@ -6,7 +8,6 @@ import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetai
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
-import WorkflowRecipesLink from "./components/workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
@@ -17,6 +18,7 @@ var register = react2angular;
 angular
 	.module("BitriseWorkflowEditor")
 	.component("rErrorNotification", register(ErrorNotification, ["message"]))
+	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
 		"rStepItem",
 		register(StepItem, ["step", "version", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"])
@@ -48,7 +50,6 @@ angular
 		"rWorkflowSelector",
 		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
-	.component("rWorkflowRecipesLink", register(WorkflowRecipesLink, ["linkId"]))
 	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
 	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
 	.component(
