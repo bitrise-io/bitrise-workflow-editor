@@ -4,18 +4,6 @@
 
 > **Note: project is going through angularjs -> React transition. Please read more about this in the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).**
 
-## Before you start
-
-Make sure to **clone this repository into your `GOPATH`**
-Location: `/User/your-name/go/src/github.com/bitrise-io/bitrise-workflow-editor`
-
-Otherwise you will face a similar error:
-`go install: no install location for directory /Users/your-name/repos/bitrise-workflow-editor outside GOPATH`
-
-If you prefer you can create a smybolic link to your preferred workspace location.
-Format: `ln -s source destination`
-Example: `ln -s /User/your-name/go/src/github.com/bitrise-io/bitrise-workflow-editor /Users/your-name/repos/bitrise-workflow-editor`
-
 ## How to install & use the Workflow Editor on your Mac/Linux
 
 1. Install [Go](https://golang.org) `brew install go`(on macOS)
@@ -48,7 +36,7 @@ bitrise run setup-client
 ### Build a stand-alone binary, with embedded resources
 
 ```
-bitrise run go-install
+go install
 ```
 
 ### Run in development mode

@@ -49,19 +49,13 @@ function compile_bin {
       export GO_DL_TAR_CMD="tar -xjf -"
     fi
 
-    cd $GO_TMP && curl -Ls https://golang.org/dl/go1.16.4.$GO_DL_OS-amd64.tar.gz | $GO_DL_TAR_CMD
-    cd $ORIG_DIR
 
     version_package="github.com/bitrise-io/bitrise-workflow-editor/version"
 
-    export ORIG_GO111MODULE=$GO111MODULE
-    export GO111MODULE=auto
-
-    $GO_TMP/go/bin/go build \
+    go build \
         -ldflags "-X $version_package.BuildNumber=$BITRISE_BUILD_NUMBER -X $version_package.Commit=$GIT_CLONE_COMMIT_HASH" \
         -o "$BIN_PATH_DARWIN_ARM64"
 
-    export GO111MODULE=$ORIG_GO111MODULE
 
     # cp $BIN_PATH_DARWIN $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
     echo "  Copy final Darwin-arm64 binary to: $BITRISE_DEPLOY_DIR/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH_ARM64"
