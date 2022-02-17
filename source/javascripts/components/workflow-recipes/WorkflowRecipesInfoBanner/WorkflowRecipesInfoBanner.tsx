@@ -1,12 +1,19 @@
 import React, { useState } from "react";
 import { ColorButton, Flex, Icon, Link, Text } from "@bitrise/bitkit";
 
+import Hotjar from "../../../utils/hotjar";
+
 const WorkflowRecipesInfoBannerClosedKey = "workflow-recipes-step-banner-closed";
 
 const WorkflowRecipesInfoBanner = (): JSX.Element => {
 	const [isClosed, setClosed] = useState<boolean>(Boolean(localStorage.getItem(WorkflowRecipesInfoBannerClosedKey)));
 
+	const trackAction = (): void => {
+		Hotjar.tagRecording("WFE Workflow Recipes Action (Step sidebar)");
+	}
+
 	const handleClose = (): void => {
+		trackAction();
 		localStorage.setItem(WorkflowRecipesInfoBannerClosedKey, "true")
 		setClosed(true);
 	}
@@ -49,6 +56,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 							href='https://github.com/bitrise-io/workflow-recipes'
 							target='_blank'
 							color='grape-3'
+							onClick={trackAction}
 						>
 							<ColorButton color='blue' size='small'>
 								<Text size='2'>Explore Recipes</Text>
