@@ -6,4 +6,5 @@ export type WFEWindow = Window &
 		mode: string;
 		serviceName: string;
 		strings: { [s: string]: any };
+		hj?: any;
 	};
