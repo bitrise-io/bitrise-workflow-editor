@@ -9,7 +9,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 	const [isClosed, setClosed] = useState<boolean>(Boolean(localStorage.getItem(WorkflowRecipesInfoBannerClosedKey)));
 
 	const trackAction = (): void => {
-		Hotjar.tagRecording("WFE Workflow Recipes Action (Step sidebar)");
+		Hotjar.event("wfe_workflow_recipes_action_step_sidebar");
 	}
 
 	const handleClose = (): void => {
