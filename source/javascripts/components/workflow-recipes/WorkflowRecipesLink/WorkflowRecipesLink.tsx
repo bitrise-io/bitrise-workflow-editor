@@ -10,9 +10,8 @@ type WorkflowRecipesLinkProps = {
 
 const WorkflowRecipesLink = ({ linkId, trackingName }: WorkflowRecipesLinkProps): JSX.Element => {
 	const trackAction = (): void => {
-			const baseEventName = "WFE Workflow Recipes Action";
-			const eventName = trackingName ? `${baseEventName} (${trackingName})` : `${baseEventName}`;
-			Hotjar.tagRecording(eventName);
+			const eventName = `wfe_workflow_recipes_action_${trackingName}`;
+			Hotjar.event(eventName);
 	}
 
 	return (

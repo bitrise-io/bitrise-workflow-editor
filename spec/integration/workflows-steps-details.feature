@@ -163,7 +163,7 @@ Feature: Workflow steps details
     When I select "2.x.x" from "Step Version Selector"
       And I confirm on "Alert popup"
     Then I should see "2.x.x" in "Eighteenth StepItem Version"
-      And I should see "2.0.3" in "Step Version"
+      And I should see "2.0.4" in "Step Version"
       And "Step Version Branch Icon" should "exist"
       And "Step Version Update Icon" should "not exist"
 
