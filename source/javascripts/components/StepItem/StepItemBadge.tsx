@@ -27,7 +27,12 @@ const StepItemBadge = ({ step }: StepItemBadgeProps): JSX.Element => (
 				alignChildrenVertical="middle"
 				data-e2e-tag="deprecated-badge"
 			>
-				<img className="deprecated" src={deprecatedIcon} />
+				<img
+					className="deprecated"
+					src={deprecatedIcon}
+					width="18"
+					height="18"
+					alt="Deprecated" />
 			</Flex>
 		)}
 	</Fragment>
