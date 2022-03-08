@@ -9,6 +9,7 @@
 				name,
 				description,
 				descriptionURL,
+				descriptionURLGen2,
 				projectTypes
 			) {
 				this.id = id;
@@ -16,6 +17,7 @@
 				this.type = id.split("-")[0];
 				this.description = description;
 				this.descriptionURL = descriptionURL;
+				this.descriptionURLGen2 = descriptionURLGen2;
 				this.projectTypes = projectTypes;
 			};
 
@@ -33,6 +35,7 @@
 							aStackData.name,
 							aStackData.description,
 							aStackData.descriptionURL,
+							aStackData.descriptionURLGen2,
 							aStackData.projectTypes
 						);
 					});
