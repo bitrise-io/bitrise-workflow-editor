@@ -158,5 +158,13 @@
 					machineTypes.some(machineType => machineType.id === previousMachineType.id && machineType.type === previousMachineType.type)
 				);
 			};
+			viewModel.descriptionURLForStackAndMachineType = function(stack, machineType) {
+				if (machineType.tag === "gen2") {
+          if (stack.descriptionURLGen2 !== undefined) {
+            return stack.descriptionURLGen2;
+					}
+				}
+				return stack.descriptionURL;
+			};
 		});
 })();
