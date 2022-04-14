@@ -77,10 +77,10 @@
 		"@typescript-eslint/parser": "^2.27.0",
 		"angular-mocks": "1.7.2",
 		"concurrently": "^5.1.0",
-		"copy-webpack-plugin": "^5.1.1",
+		"copy-webpack-plugin": "^6.0.0",
 		"css-loader": "^3.4.2",
 		"cypress": "^4.4.1",
-		"cypress-cucumber-preprocessor": "^2.0.1",
+		"cypress-cucumber-preprocessor": "^3.0.0",
 		"eslint": "^6.8.0",
 		"eslint-config-prettier": "^6.10.1",
 		"eslint-plugin-jasmine": "^4.1.1",
@@ -109,7 +109,7 @@
 		"typescript": "^3.7.5",
 		"webpack": "^4.41.5",
 		"webpack-cli": "^3.3.10",
-		"webpack-dev-server": "^3.10.2",
+		"webpack-dev-server": "^4.0.0",
 		"whatwg-fetch": "^3.2.0"
 	},
 	"prettier": {
