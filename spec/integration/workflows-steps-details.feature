@@ -107,7 +107,7 @@ Feature: Workflow steps details
       And "Step Version Branch Icon" should "not exist"
     When I select "1.x.x" from "Step Version Selector"
     Then "Save Button" should "not be disabled"
-      And I should see "Version: 1.1.6" in "Step Version"
+      And I should see "Version: 1.2.0" in "Step Version"
       And "Step Version Branch Icon" should "exist"
       And I should see "1.x.x" in "Second StepItem Version"
       And "Second StepItem Version Update Indicator" should "not be visible"
