@@ -14,7 +14,7 @@
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
 							.stack-description[sanitized-markdown="appService.stack.description"]
-							a.stack-info-link[ng-href="{{ stackCtrl.descriptionURLForStackAndMachineType(appService.stack, appService.defaultMachineType) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
+							a.stack-info-link[ng-href="{{ stackCtrl.descriptionURLForStack(appService.stack) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
@@ -67,7 +67,7 @@
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
-							a.stack-info-link[ng-href="{{ stackCtrl.descriptionURLForStackAndMachineType(stackCtrl.stackGetterSetterForWorkflow(workflow, true)(), stackCtrl.workflowMachineType(workflow)) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
+							a.stack-info-link[ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id]"]
