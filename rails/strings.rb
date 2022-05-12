@@ -677,6 +677,7 @@ def strings
                 default_stack: "Default (<stack_name>)",
                 default: "default",
                 more_info_about: "More information about this Stack »",
+                more_info_about_applesilicon: "More information about the <a href='<url>' target='_blank'>Intel Stack</a> and the <a href='<url>' target='_blank'>Apple Silicon Stack</a>",
                 docker_image_to_use: "Docker image to use",
                 incompatible_stack: "Your current stack is not compatible with your current project type! Select a different stack from the list below.",
                 invalid_stack: "Your current stack is invalid! Choose another stack from the list below.",

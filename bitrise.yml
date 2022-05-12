@@ -35,6 +35,9 @@ workflows:
 
   setup-client:
     steps:
+    - nvm@1:
+        inputs:
+        - node_version: 14.17.3
     - script:
         title: Install NPM and Bundler
         deps:
@@ -42,7 +45,6 @@ workflows:
           - name: ruby
           - name: ruby-dev
           - name: build-essential
-          - name: nodejs
           # for cypress
           - name: xvfb
           - name: libgtk2.0-0
