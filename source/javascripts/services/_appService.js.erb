@@ -552,16 +552,6 @@
 				});
 			};
 
-			appService.getAccountFeatures = function(shouldForceReload, requestConfig) {
-				if (!shouldForceReload && appService.accountFeatures) {
-					return $q.when();
-				}
-
-				return requestService.getAccountFeatures(requestConfig).then(function(accountFeatures) {
-					appService.accountFeatures = accountFeatures;
-				});
-			};
-
 			return appService;
 		});
 })();
