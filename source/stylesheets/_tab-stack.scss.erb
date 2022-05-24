@@ -167,6 +167,7 @@
 				flex-direction: row;
 				flex-wrap: wrap;
 				margin-top: 16px;
+				gap: 18px;
 
 				.machine-type-wrapper {
 					position: relative;
@@ -176,7 +177,6 @@
 					max-width: 380px;
 					min-width: 225px;
 					padding: 12px;
-					margin-right: 18px;
 					border-radius: 8px;
 					border: 1px solid $def-grey;
 
@@ -192,11 +192,15 @@
 							display: flex;
 							align-items: center;
 							width: 100%;
+							flex-wrap: wrap;
+							justify-content: space-between;
 
 							.icon-and-name-and-note {
 								display: flex;
 								align-items: center;
 								margin-right: 12px;
+								min-width: 0;
+								text-overflow: ellipsis;
 
 								.stack-type-icon {
 									display: flex;
@@ -255,8 +259,8 @@
 							}
 
 							.credit-per-min {
-								width: 100%;
 								text-align: right;
+								white-space: nowrap;
 
 								.value, .unit {
 									font-size: 16px;
