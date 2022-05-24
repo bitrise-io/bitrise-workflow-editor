@@ -23,7 +23,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			Stack,
 			appServiceUtil,
 			logger,
-			MachineType
+			MachineType,
+			launchDarklyService
 		) {
 			var viewModel = this;
 
@@ -77,7 +78,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll());
 								loadPromises.push(appService.getPipelineConfig());
-								loadPromises.push(appService.getCurrentUserBetaTags());
+								loadPromises.push(launchDarklyService.initialize());
 							}
 							var loadPromise = $q.all(loadPromises);
 							if (requestService.isWebsiteMode()) {

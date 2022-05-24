@@ -133,38 +133,6 @@ import jsyaml from "js-yaml";
 				});
 			};
 
-			requestService.getCurrentUserBetaTags = function(requestConfig) {
-				var requestURL;
-
-				switch (requestService.mode) {
-					case "website":
-						requestURL = "<%= webserver_path(data[:routes][:website][:current_user_beta_tags_get]) %>";
-
-						break;
-					case "cli":
-						return $q.reject(
-							new Error("<%= data[:strings][:request_service][:get_current_user_beta_tags][:not_website_mode_error] %>")
-						);
-				}
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve(response.data.beta_tags);
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:get_current_user_beta_tags][:default_error] %>",
-									"<%= data[:strings][:request_service][:get_current_user_beta_tags][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			// Codesigndoc Bash Command
 
 			requestService.getCodeSigningBashCommand = function(requestConfig) {

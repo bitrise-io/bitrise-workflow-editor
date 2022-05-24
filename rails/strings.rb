@@ -803,11 +803,6 @@ def strings
                     error_prefix: "Error getting current user data: ",
                     not_website_mode_error: "Getting current user data is only available in website mode"
                 },
-                get_current_user_beta_tags: {
-                    default_error: "Error getting current user beta tags",
-                    error_prefix: "Error getting current user beta tags: ",
-                    not_website_mode_error: "Getting current user beta tags is only available in website mode"
-                },
                 get_codesigndoc_bash_script: {
                     default_error: "Error getting codesigndoc bash command",
                     error_prefix: "Error getting codesigndoc bash command: ",
