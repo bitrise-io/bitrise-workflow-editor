@@ -68,12 +68,14 @@
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
-							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]							
+							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}", "{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}"])
 				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id]"]
-						.machite-type-tag[ng-bind="machineTypeTag" ng-if="!$first || !$last"]
+						.machite-type-tag[ng-if="!$first || !$last"]
+							span.title[ng-bind="machineTypeTag"]
+							span.subtitle[ng-bind="stackCtrl.machineTypeTagNotes[machineTypeTag]"]
 						.machine-types
 							.machine-type-wrapper[ng-repeat="machineType in machineTypes track by machineType.id" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 								.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
