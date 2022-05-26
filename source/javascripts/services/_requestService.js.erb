@@ -2571,6 +2571,23 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			requestService.getApp = function(appSlug, requestConfig) {
+				var requestURL = stringService.stringReplacedWithParameters(
+					"<%= webserver_path(data[:routes][:website][:app_path_get]) %>",
+					{
+						app_slug: appSlug
+					}
+				);
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, undefined, requestConfig).then(
+						function(response) {
+							resolve(response.data);
+						}
+					);
+				})
+			}
+
 			return requestService;
 		});
 })();
