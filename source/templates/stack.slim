@@ -32,22 +32,24 @@
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
 							.machine-type-data
 								.top
-									span.icon-and-name-and-note
+									.icon-and-name-and-note
 										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
 										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
 										span.name[ng-bind="machineType.name"]
 										span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
 										span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-									span.credit-per-min
-										span.value[ng-bind="machineType.creditPerMin"]
-										span.unit< credit/min
+									.credit-per-min
+										span[ng-bind="machineType.creditPerMin"]
+										span credit/min
 								.separator
 								.bottom
-									span.cpu
-										span.count[ng-bind="machineType.cpuCount"]
-										span.at @
-										span.description[ng-bind="machineType.cpuDescription"]
-									span.ram[ng-bind="machineType.ram"]
+									.specs
+										.cpu
+											span[ng-bind="machineType.cpuCount"]
+											span<> @
+											span[ng-bind="machineType.cpuDescription"]
+										.ram[ng-bind="machineType.ram"]
+									.os[ng-if="appService.stack.osForChip" ng-bind="stackCtrl.osForStackWithMachineType(appService.stack, machineType)"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
 	section.cardo.stack-settings.workflow-specific
 		header
@@ -83,20 +85,22 @@
 								.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
 								.machine-type-data
 									.top
-										span.icon-and-name-and-note
+										.icon-and-name-and-note
 											span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
 											span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
 											span.name[ng-bind="machineType.name"]
 											span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
 											span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-										span.credit-per-min
-											span.value[ng-bind="machineType.creditPerMin"]
-											span.unit< credit/min
+										.credit-per-min
+											span[ng-bind="machineType.creditPerMin"]
+											span credit/min
 									.separator
 									.bottom
-										span.cpu
-											span.count[ng-bind="machineType.cpuCount"]
-											span.at @
-											span.description[ng-bind="machineType.cpuDescription"]
-										span.ram[ng-bind="machineType.ram"]
+										.specs
+											.cpu
+												span[ng-bind="machineType.cpuCount"]
+												span<> @
+												span[ng-bind="machineType.cpuDescription"]
+											.ram[ng-bind="machineType.ram"]
+										.os[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().osForChip" ng-bind="stackCtrl.osForStackWithMachineType(stackCtrl.stackGetterSetterForWorkflow(workflow, true)(), machineType)"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]

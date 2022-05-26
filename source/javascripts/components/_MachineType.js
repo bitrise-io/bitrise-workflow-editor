@@ -16,6 +16,7 @@
 				note,
 				tag,
 				type,
+				chip,
 				availableOnStacks
 			) {
 				this.id = id;
@@ -28,6 +29,7 @@
 				this.isAvailable = isAvailable;
 				this.note = note;
 				this.tag = tag;
+				this.chip = chip;
 				this.cssClass = type;
 				this.availableOnStacks = availableOnStacks;
 			};
@@ -58,6 +60,7 @@
 								aMachineTypeDetails.note,
 								aMachineTypeDetails.tag,
 								aMachineTypeDetails.type,
+								aMachineTypeDetails.chip,
 								aMachineTypeDetails.available_on_stacks,
 							)
 
