@@ -1018,6 +1018,7 @@ def strings
             website: {
                 dashboard_path: "/dashboard",
                 app_path: "/app/<app_slug>",
+                app_path_get: "/app/<app_slug>.json",
                 app_data_get: "/api/app/<app_slug>.json",
                 app_update: "/api/app/<app_slug>.json",
                 app_config_post: "/api/app/<app_slug>/config.json",
