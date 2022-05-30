@@ -51,7 +51,8 @@
 										.ram[ng-bind="machineType.ram"]
 									.os[ng-if="appService.stack.osForChip" ng-bind="stackCtrl.osForStackWithMachineType(appService.stack, machineType)"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-				p.notification.warning.machine-type-warning[ng-if="appService.defaultMachineType.id === 'g2-m1.8core'"] == data[:strings][:stack][:m1_elite_xl_beta_warning]
+				.machine-type-warning-wrapper
+					p.notification.warning[ng-if="appService.defaultMachineType.id === 'g2-m1.8core'"] == data[:strings][:stack][:m1_elite_xl_beta_warning]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
@@ -105,4 +106,5 @@
 											.ram[ng-bind="machineType.ram"]
 										.os[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().osForChip" ng-bind="stackCtrl.osForStackWithMachineType(stackCtrl.stackGetterSetterForWorkflow(workflow, true)(), machineType)"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-					p.notification.warning.machine-type-warning[ng-if="stackCtrl.workflowMachineType(workflow).id === 'g2-m1.8core'"] == data[:strings][:stack][:m1_elite_xl_beta_warning]
+					.machine-type-warning-wrapper
+						p.notification.warning[ng-if="stackCtrl.workflowMachineType(workflow).id === 'g2-m1.8core'"] == data[:strings][:stack][:m1_elite_xl_beta_warning]
