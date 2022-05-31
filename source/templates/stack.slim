@@ -32,23 +32,27 @@
 							.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
 							.machine-type-data
 								.top
-									span.icon-and-name-and-note
+									.icon-and-name-and-note
 										span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
 										span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
 										span.name[ng-bind="machineType.name"]
 										span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
 										span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-									span.credit-per-min
-										span.value[ng-bind="machineType.creditPerMin"]
-										span.unit< credit/min
+									.credit-per-min
+										span[ng-bind="machineType.creditPerMin"]
+										span< credits/min
 								.separator
 								.bottom
-									span.cpu
-										span.count[ng-bind="machineType.cpuCount"]
-										span.at @
-										span.description[ng-bind="machineType.cpuDescription"]
-									span.ram[ng-bind="machineType.ram"]
+									.specs
+										.cpu
+											span[ng-bind="machineType.cpuCount"]
+											span<> @
+											span[ng-bind="machineType.cpuDescription"]
+										.ram[ng-bind="machineType.ram"]
+									.os[ng-if="appService.stack.osForChip" ng-bind="stackCtrl.osForStackWithMachineType(appService.stack, machineType)"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
+				.machine-type-warning-wrapper
+					p.notification.warning[ng-if="appService.defaultMachineType.id === 'g2-m1.8core'"] == data[:strings][:stack][:m1_elite_xl_beta_warning]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
@@ -68,12 +72,14 @@
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
-							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]							
+							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}", "{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}"])
 				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="(machineTypeTag, machineTypes) in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id]"]
-						.machite-type-tag[ng-bind="machineTypeTag" ng-if="!$first || !$last"]
+						.machite-type-tag[ng-if="!$first || !$last"]
+							span.title[ng-bind="machineTypeTag"]
+							span.subtitle[ng-bind="stackCtrl.machineTypeTagNotes[machineTypeTag]"]
 						.machine-types
 							.machine-type-wrapper[ng-repeat="machineType in machineTypes track by machineType.id" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 								.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
@@ -81,20 +87,24 @@
 								.machine-type-icon[ng-if="machineType.cssClass == 'standard'"]  == svg("standard-machine-type-icon")
 								.machine-type-data
 									.top
-										span.icon-and-name-and-note
+										.icon-and-name-and-note
 											span.stack-type-icon[ng-if="machineType.stackType == 'osx'"]  == svg("osx-stack-type-icon")
 											span.stack-type-icon[ng-if="machineType.stackType == 'linux'"]  == svg("ubuntu-stack-type-icon")
 											span.name[ng-bind="machineType.name"]
 											span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
 											span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-										span.credit-per-min
-											span.value[ng-bind="machineType.creditPerMin"]
-											span.unit< credit/min
+										.credit-per-min
+											span[ng-bind="machineType.creditPerMin"]
+											span< credits/min
 									.separator
 									.bottom
-										span.cpu
-											span.count[ng-bind="machineType.cpuCount"]
-											span.at @
-											span.description[ng-bind="machineType.cpuDescription"]
-										span.ram[ng-bind="machineType.ram"]
+										.specs
+											.cpu
+												span[ng-bind="machineType.cpuCount"]
+												span<> @
+												span[ng-bind="machineType.cpuDescription"]
+											.ram[ng-bind="machineType.ram"]
+										.os[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().osForChip" ng-bind="stackCtrl.osForStackWithMachineType(stackCtrl.stackGetterSetterForWorkflow(workflow, true)(), machineType)"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
+					.machine-type-warning-wrapper
+						p.notification.warning[ng-if="stackCtrl.workflowMachineType(workflow).id === 'g2-m1.8core'"] == data[:strings][:stack][:m1_elite_xl_beta_warning]

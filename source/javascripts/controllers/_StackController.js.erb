@@ -101,7 +101,7 @@
 					if (stack === null && shouldNormalize) {
 						stack = appService.stack;
 					}
-					
+
 					var stacks = [];
 					if (stack && !_.contains(Stack.all, stack)) {
 						stacks.push(stack);
@@ -164,5 +164,9 @@
 				}
 				return stack.descriptionURL;
 			};
+
+			viewModel.osForStackWithMachineType = function(stack, machineType) {
+				return stack.osForChip[machineType.chip];
+			}
 		});
 })();
