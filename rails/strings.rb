@@ -693,7 +693,7 @@ def strings
                     gen1: "The tried and tested machines that have been serving our customers for many years now",
                     gen2: "These machines run on a new hardware generation, offering improved performance compared to Gen1 hardware"
                 },
-                m1_elite_xl_beta_warning: "M1 Elite XL machines are in beta. Some features (e.g. the Android emulator) are not supported yet."
+                m1_elite_xl_beta_warning: "M1 Elite XL machines are in beta. Some features (e.g. the Android emulator) are not supported yet. <a href='<url>' target='_blank'>Learn more</a>"
             },
             machine_type: {
                 workflow_specific_settings: {
@@ -1091,6 +1091,7 @@ def strings
             devcenter: {
                 bitrise_cli: "http://devcenter.bitrise.io/bitrise-cli",
                 env_var_is_expand: "https://devcenter.bitrise.io/getting-started/getting-started-steps/#environment-variables-as-step-inputs"
+                m1_stacks: "https://devcenter.bitrise.io/en/infrastructure/build-stacks/apple-silicon-m1-stacks"
             },
             blog: {
                 new_triggers: "http://blog.bitrise.io/2016/09/23/do-more-with-triggers.html"
