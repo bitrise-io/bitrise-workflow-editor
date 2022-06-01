@@ -1090,7 +1090,7 @@ def strings
             },
             devcenter: {
                 bitrise_cli: "http://devcenter.bitrise.io/bitrise-cli",
-                env_var_is_expand: "https://devcenter.bitrise.io/getting-started/getting-started-steps/#environment-variables-as-step-inputs"
+                env_var_is_expand: "https://devcenter.bitrise.io/getting-started/getting-started-steps/#environment-variables-as-step-inputs",
                 m1_stacks: "https://devcenter.bitrise.io/en/infrastructure/build-stacks/apple-silicon-m1-stacks"
             },
             blog: {
