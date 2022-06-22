@@ -1183,11 +1183,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			viewModel.outputSelected = function(output) {
-				if (_.contains(viewModel.openedOutputs, output)) {
+				if (viewModel.isOutputOpened(output)) {
 					viewModel.openedOutputs = _.without(viewModel.openedOutputs, output);
 				} else {
 					viewModel.openedOutputs.push(output);
 				}
+			};
+
+			viewModel.isOutputOpened = function(output) {
+				return _.contains(viewModel.openedOutputs, output)
 			};
 		});
 })();
