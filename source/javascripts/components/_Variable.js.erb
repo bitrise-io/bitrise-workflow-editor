@@ -158,7 +158,7 @@
 		};
 
 		Variable.prototype.shortestDescription = function() {
-			return this.summary() ? this.summary() : this.description();
+			return this.description() ? this.description() : this.summary();
 		};
 
 		Variable.prototype.isExpand = function(newValue) {

@@ -1193,5 +1193,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.isOutputOpened = function(output) {
 				return _.contains(viewModel.openedOutputs, output)
 			};
+
+			viewModel.hasOutputDescriptionOrSummary = function(output) {
+				return output && (output.description().length > 0 || output.summary().length > 0);
+			};
 		});
 })();
