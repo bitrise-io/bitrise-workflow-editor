@@ -157,6 +157,10 @@
 			return optionGetterSetter(this, "description", newValue);
 		};
 
+		Variable.prototype.longestDescription = function() {
+			return this.description() ? this.description() : this.summary();
+		};
+
 		Variable.prototype.isExpand = function(newValue) {
 			return optionGetterSetter(this, "is_expand", newValue);
 		};

@@ -126,10 +126,11 @@
 												.parameter.description
 													p[ng-if="!output.title()"] == data[:strings][:workflows][:outputs][:no_description]
 													div[ng-if="output.title()"]
-														button[ng-click="workflowsCtrl.outputSelected(output)"]
+														button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)" ng-click="workflowsCtrl.outputSelected(output)"]
 														.toggleabble-description
-															p[sanitized-markdown="output.title()" ng-class="{'oneliner': workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
-															== svg("arrow-down")
+															p[sanitized-markdown="workflowsCtrl.isOutputOpened(output) ? output.longestDescription() : output.title() " ng-class="{'oneliner': !workflowsCtrl.isOutputOpened(output)}"]
+															.toggle-arrow-button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)"]
+                                                               == svg("arrow-down")
 								r-error-notification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
 								button.delete-step.rebo.big.hollow-danger[ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]

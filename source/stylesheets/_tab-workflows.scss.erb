@@ -1379,6 +1379,7 @@ section.manage-workflows {
 											.toggleabble-description {
 												@include display-flex;
 												@include align-items(center);
+												word-break: break-word;
 
 												p {
 													@include flex-grow(1);
@@ -1389,7 +1390,7 @@ section.manage-workflows {
 													}
 												}
 
-												svg {
+												.toggle-arrow-button svg {
 													@include flex-shrink(0);
 													@include size(10px, 7px);
 													margin-left: 10px;
@@ -1397,14 +1398,14 @@ section.manage-workflows {
 													@include transition(fill $def-transition_duration, transform $def-transition_duration);
 												}
 
-												p:not(.oneliner) + svg {
+												p:not(.oneliner) + .toggle-arrow-button svg {
 													@include transform(rotate(-180deg));
 												}
 											}
 
 											button:hover + .toggleabble-description, button:focus + .toggleabble-description {
 
-												svg {
+												.toggle-arrow-button svg {
 													fill: black;
 												}
 											}
