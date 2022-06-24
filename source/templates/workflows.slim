@@ -128,7 +128,7 @@
 													div[ng-if="output.title()"]
 														button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)" ng-click="workflowsCtrl.outputSelected(output)"]
 														.toggleabble-description
-															p[sanitized-markdown="workflowsCtrl.isOutputOpened(output) ? output.longestDescription() : output.title() " ng-class="{'oneliner': !workflowsCtrl.isOutputOpened(output) && workflowsCtrl.openedOutputs.indexOf(output) == -1}"]
+															p[sanitized-markdown="workflowsCtrl.isOutputOpened(output) ? output.longestDescription() : output.title() " ng-class="{'oneliner': !workflowsCtrl.isOutputOpened(output)}"]
 															.toggle-arrow-button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)"]
                                                                == svg("arrow-down")
 								r-error-notification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
