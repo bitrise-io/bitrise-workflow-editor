@@ -157,7 +157,7 @@
 			return optionGetterSetter(this, "description", newValue);
 		};
 
-		Variable.prototype.shortestDescription = function() {
+		Variable.prototype.longestDescription = function() {
 			return this.description() ? this.description() : this.summary();
 		};
 
