@@ -111,7 +111,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				var initialMenu = _.find(viewModel.menus, function(aMenu) {
 					return "/" + aMenu.path == $location.path();
 				});
-				if (!initialMenu) {
+				if (!initialMenu || !viewModel.isMenuEnabled(initialMenu)) {
 					initialMenu = _.find(viewModel.menus, function(menu) {
 						return viewModel.isMenuEnabled(menu);
 					});
