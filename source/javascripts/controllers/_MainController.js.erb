@@ -36,7 +36,61 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.isUpdateYmlInRepositoryModalVisible = false;
 			viewModel.appDetails;
-			viewModel.menus;
+			viewModel.menus = _.compact([
+				{
+					id: "workflows",
+					title: "<%= data[:strings][:main][:menus][:workflows] %>",
+					path: "<%= data[:routes][:endpoints][:workflows] %>",
+					possibleURLParameterKeys: ["workflow_id"],
+					cssClass: "workflows"
+				},
+				requestService.mode == "website"
+					? {
+							id: "code-signing",
+							title: "<%= data[:strings][:main][:menus][:code_signing] %>",
+							path: "<%= data[:routes][:endpoints][:code_signing] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "code-signing"
+					  }
+					: null,
+				{
+					id: "secrets",
+					title: "<%= data[:strings][:main][:menus][:secrets] %>",
+					path: "<%= data[:routes][:endpoints][:secrets] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "secrets"
+				},
+				{
+					id: "env-vars",
+					title: "<%= data[:strings][:main][:menus][:env_vars] %>",
+					path: "<%= data[:routes][:endpoints][:env_vars] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "env-vars"
+				},
+				{
+					id: "triggers",
+					title: "<%= data[:strings][:main][:menus][:triggers] %>",
+					path: "<%= data[:routes][:endpoints][:triggers] %>",
+					possibleURLParameterKeys: ["trigger_type"],
+					cssClass: "triggers"
+				},
+				requestService.mode == "website"
+					? {
+							id: "stack",
+							title: "<%= data[:strings][:main][:menus][:stack] %>",
+							path: "<%= data[:routes][:endpoints][:stack] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "stack"
+					  }
+					: null,
+				{
+					id: "yml",
+					title: "<%= data[:strings][:main][:menus][:yml] %>",
+					path: "<%= data[:routes][:endpoints][:yml] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "yml"
+				}
+			]);
 			viewModel.menuProgress = new Progress();
 			viewModel.currentMenu;
 
@@ -58,8 +112,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return "/" + aMenu.path == $location.path();
 				});
 				if (!initialMenu) {
-					initialMenu = _.find(viewModel.menus, {
-						id: "workflows"
+					initialMenu = _.find(viewModel.menus, function(menu) {
+						return viewModel.isMenuEnabled(menu);
 					});
 				}
 
@@ -255,7 +309,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							$location.path("/" + menu.path).replace();
 						}
 
-						if (!selectInitialMenu) {
+						if (!isInitialSelection) {
 							viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
 						}
 
@@ -609,71 +663,45 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 				}).then(
 					function() {
-						viewModel.menus = _.compact([
-							{
-								id: "workflows",
-								title: "<%= data[:strings][:main][:menus][:workflows] %>",
-								path: "<%= data[:routes][:endpoints][:workflows] %>",
-								possibleURLParameterKeys: ["workflow_id"],
-								cssClass: "workflows"
-							},
-							requestService.mode == "website"
-								? {
-										id: "code-signing",
-										title: "<%= data[:strings][:main][:menus][:code_signing] %>",
-										path: "<%= data[:routes][:endpoints][:code_signing] %>",
-										possibleURLParameterKeys: [],
-										cssClass: "code-signing"
-								  }
-								: null,
-							{
-								id: "secrets",
-								title: "<%= data[:strings][:main][:menus][:secrets] %>",
-								path: "<%= data[:routes][:endpoints][:secrets] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "secrets"
-							},
-							{
-								id: "env-vars",
-								title: "<%= data[:strings][:main][:menus][:env_vars] %>",
-								path: "<%= data[:routes][:endpoints][:env_vars] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "env-vars"
-							},
-							{
-								id: "triggers",
-								title: "<%= data[:strings][:main][:menus][:triggers] %>",
-								path: "<%= data[:routes][:endpoints][:triggers] %>",
-								possibleURLParameterKeys: ["trigger_type"],
-								cssClass: "triggers"
-							},
-							requestService.mode == "website"
-								? {
-										id: "stack",
-										title: appService.appDetails.isMachineTypeSelectorAvailable
-											? "<%= data[:strings][:main][:menus][:stacks_and_machines] %>"
-											: "<%= data[:strings][:main][:menus][:stack] %>",
-										path: "<%= data[:routes][:endpoints][:stack] %>",
-										possibleURLParameterKeys: [],
-										cssClass: "stack"
-								  }
-								: null,
-							{
-								id: "yml",
-								title: "<%= data[:strings][:main][:menus][:yml] %>",
-								path: "<%= data[:routes][:endpoints][:yml] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "yml"
-							}
-						]);
+						if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
+							var stackMenu = _.find(viewModel.menus, {
+								id: "stack"
+							});
+							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+						}
 
 						viewModel.initAppProgress.success();
-						selectInitialMenu();
 					},
 					function(error) {
 						viewModel.initAppProgress.error(error);
 					}
-				);
+				).then(function() {
+					selectInitialMenu();
+				});
 			};
+
+			viewModel.isTabEnabledForMenu = function(menu) {
+				if (menu && menu.id === 'yml') {
+					return true;
+				}
+
+				return viewModel.initAppProgress.isIdle && viewModel.loadDataProgress.isIdle;
+			}
+
+			viewModel.isMenuEnabled = function(menu) {
+				if (viewModel.menuProgress.isInProgress || viewModel.saveProgress.isInProgress) {
+					return false;
+				}
+
+				return viewModel.isTabEnabledForMenu(menu);
+			}
+
+			viewModel.appOwnerNameWithPlaceholder = function() {
+				return appService.appDetails.ownerData && appService.appDetails.ownerData.name || 'Unknown owner';
+			}
+
+			viewModel.appNameWithPlaceholder = function() {
+				return appService.appDetails.title || 'Unknown app';
+			}
 		});
 })();

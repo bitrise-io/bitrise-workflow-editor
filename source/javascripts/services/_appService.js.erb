@@ -42,8 +42,18 @@
 					return $q.when();
 				}
 
-				return requestService.getAppDetails(requestConfig).then(function(appDetails) {
-					appService.appDetails = appDetails;
+				return $q(function(resolve, reject) {
+					requestService.getAppDetails(requestConfig).then(function(appDetails) {
+						appService.appDetails = appDetails;
+
+						resolve();
+					}, function(error) {
+						appService.appDetails = {
+							slug: requestService.appSlug
+						};
+
+						reject(error);
+					});
 				});
 			};
 
