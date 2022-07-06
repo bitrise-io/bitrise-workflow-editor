@@ -1066,7 +1066,7 @@ def strings
                 generic_file_protect: "/project_file_storage_document/<generic_file_id>/protect.json",
                 generic_file_delete: "/api/app/<app_slug>/project_file_storage_document/<generic_file_id>/delete.json",
                 keystore_file_metadata_save: "/project_file_storage_document/<keystore_file_id>/exposed_meta.json",
-                team_test_devices: "/api/app/<app_slug>/team_test_devices.json",
+                team_test_devices: "/api/app/<app_slug>/team-test-devices.json",
                 apple_developer_account_get: "/me/profile/apple_developer_account.json",
                 apple_developer_account_connect: "/me/profile/apple_developer_account.json",
                 apple_developer_account_connection_delete: "/me/profile/apple_developer_account.json",
