@@ -17,7 +17,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 					span.platform-icon.flutter == svg("logo/flutter")
 					span.platform-icon.ionic == svg("logo/ionic")
 					span.platform-icon.other == svg("logo/other")
-				span.privacy-settings-icon[nf-if="appService.appDetails.isPublic !== undefined" ng-class="appService.appDetails.isPublic ? 'public' : 'private'"]
+				span.privacy-settings-icon[ng-if="appService.appDetails.isPublic !== undefined" ng-class="appService.appDetails.isPublic ? 'public' : 'private'"]
 					span.public == svg("public-repo-icon")
 					span.private == svg("private-repo-icon")
 				ol.breadcrumbs
