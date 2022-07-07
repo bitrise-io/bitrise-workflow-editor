@@ -30,7 +30,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="mainCtrl.appNameWithPlaceholder()" href="{{ mainCtrl.appPath() }}" title="{{ mainCtrl.appNameWithPlaceholder() }}" tabindex="-1"]
 					li.level.current
 						span Workflow Editor
-		.workflow-editor-menubar[ng-if="appService.appDetails"]
+		.workflow-editor-menubar[ng-if="mainCtrl.shouldShowMenuBar()"]
 			nav
 				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.isMenuEnabled(menu)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}" data-e2e-tag="{{ menu.cssClass }}-tab"]
 					span.icon[ng-if="menu.cssClass == 'workflows'"]  == svg("main/menuicon-workflows")

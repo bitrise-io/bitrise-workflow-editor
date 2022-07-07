@@ -680,6 +680,14 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				});
 			};
 
+			viewModel.shouldShowMenuBar = function() {
+				if (requestService.mode == 'cli') {
+					return true;
+				}
+
+				return appService.appDetails !== undefined;
+			}
+
 			viewModel.isTabEnabledForMenu = function(menu) {
 				if (menu && menu.id === 'yml') {
 					return true;
