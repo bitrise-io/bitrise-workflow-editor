@@ -4,10 +4,10 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	header.menu[sticky sticking-index="1"]
 		.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
-			.app-topbar[ng-if="mainCtrl.initAppProgress.isIdle"]
+			.app-topbar[ng-if="appService.appDetails"]
 				span.app-icon[ng-if="appService.appDetails.avatarURL" ng-style="{'background-image': (appService.appDetails.avatarURL | appAvatarURL) }"]
 				span.app-icon[ng-if="!appService.appDetails.avatarURL" ng-style="{'background-color': (appService.appDetails.title | colorFromString)}" ng-bind="appService.appDetails.title | shorthandFromString"]
-				span.project-type-icon[ng-class="appService.appDetails.projectTypeID | projectTypeCSSClass"]
+				span.project-type-icon[ng-class="(appService.appDetails.projectTypeID || 'other') | projectTypeCSSClass"]
 					span.platform-icon.apple == svg("logo/apple")
 					span.platform-icon.macos == svg("logo/macos")
 					span.platform-icon.android == svg("logo/android")
@@ -17,22 +17,22 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 					span.platform-icon.flutter == svg("logo/flutter")
 					span.platform-icon.ionic == svg("logo/ionic")
 					span.platform-icon.other == svg("logo/other")
-				span.privacy-settings-icon[ng-class="appService.appDetails.isPublic ? 'public' : 'private'"]
+				span.privacy-settings-icon[ng-if="appService.appDetails.isPublic !== undefined" ng-class="appService.appDetails.isPublic ? 'public' : 'private'"]
 					span.public == svg("public-repo-icon")
 					span.private == svg("private-repo-icon")
 				ol.breadcrumbs
 					li.level
 						a[href="{{ mainCtrl.dashboardPath() }}" title="Dashboard" tabindex="-1"] Dashboard
 					li.level
-						a[ng-if="mainCtrl.breadCrumbsAccountPath()" href="{{ mainCtrl.breadCrumbsAccountPath() }}" ng-bind="appService.appDetails.ownerData.name" title="{{ appService.appDetails.ownerData.name }}" tabindex="-1"]
-						span[ng-if="!mainCtrl.breadCrumbsAccountPath()" ng-bind="appService.appDetails.ownerData.name"]
+						a[ng-if="mainCtrl.breadCrumbsAccountPath()" href="{{ mainCtrl.breadCrumbsAccountPath() }}" ng-bind="mainCtrl.appOwnerNameWithPlaceholder()" title="{{ mainCtrl.appOwnerNameWithPlaceholder() }}" tabindex="-1"]
+						span[ng-if="!mainCtrl.breadCrumbsAccountPath()" ng-bind="mainCtrl.appOwnerNameWithPlaceholder()"]
 					li.level
-						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="appService.appDetails.title" href="{{ mainCtrl.appPath() }}" title="{{ appService.appDetails.title }}" tabindex="-1"]
+						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="mainCtrl.appNameWithPlaceholder()" href="{{ mainCtrl.appPath() }}" title="{{ mainCtrl.appNameWithPlaceholder() }}" tabindex="-1"]
 					li.level.current
 						span Workflow Editor
-		.workflow-editor-menubar[ng-if="mainCtrl.initAppProgress.isIdle"]
+		.workflow-editor-menubar[ng-if="mainCtrl.shouldShowMenuBar()"]
 			nav
-				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!(mainCtrl.shouldAllowYMLMenuWithoutDiscard && menu.id == 'yml') && (!mainCtrl.menuProgress.isIdle || !mainCtrl.loadDataProgress.isIdle || mainCtrl.saveProgress.isInProgress)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}" data-e2e-tag="{{ menu.cssClass }}-tab"]
+				button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.isMenuEnabled(menu)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}" data-e2e-tag="{{ menu.cssClass }}-tab"]
 					span.icon[ng-if="menu.cssClass == 'workflows'"]  == svg("main/menuicon-workflows")
 					span.icon[ng-if="menu.cssClass == 'code-signing'"]  == svg("main/menuicon-code_signing")
 					span.icon[ng-if="menu.cssClass == 'secrets'"]  == svg("main/menuicon-secrets")
@@ -53,8 +53,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]
 		p.progress-indicator[progress-model="mainCtrl.loadDataProgress"]
 		p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
-		p.progress-indicator[progress-model="mainCtrl.initAppProgress"]
-		.tab-content[ng-view ng-if="mainCtrl.currentMenu.id === 'yml' || (mainCtrl.initAppProgress.isIdle && !mainCtrl.menuProgress.isError && mainCtrl.loadDataProgress.isIdle  && mainCtrl.changeMenuProgress.isIdle)"]
+		.tab-content[ng-view ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"]
 	footer
 		div.version[ng-if="requestService.mode == 'website'"] v#{ ENV['wfe_version'] }
 		div.content
