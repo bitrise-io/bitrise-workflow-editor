@@ -57,6 +57,12 @@
 					font-weight: 400;
 					color: $def-mediumdarkgrey;
 
+					p {
+						overflow: hidden;
+						white-space: nowrap;
+						text-overflow: ellipsis;
+					}
+
 					a {
 						position: relative;
 						color: $def-green;
