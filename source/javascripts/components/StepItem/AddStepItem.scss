@@ -58,9 +58,7 @@
 					color: $def-mediumdarkgrey;
 
 					p {
-						overflow: hidden;
-						white-space: nowrap;
-						text-overflow: ellipsis;
+						@include ellipsis-oneliner;
 					}
 
 					a {
