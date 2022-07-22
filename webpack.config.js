@@ -153,8 +153,8 @@ module.exports = {
 			},
 
 			{
-				test: /\.scss(\.erb)?$/i,
-				use: [railsTransformer("erb"), MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
+				test: /\.s[ac]ss(\.erb)?$/i,
+				use: [MiniCssExtractPlugin.loader, "css-loader", railsTransformer("erb"), "sass-loader"]
 			},
 
 			{
