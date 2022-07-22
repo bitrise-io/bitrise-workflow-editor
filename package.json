@@ -36,7 +36,7 @@
 	},
 	"homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
 	"dependencies": {
-		"@bitrise/bitkit": "^9.0.0",
+		"@bitrise/bitkit": "9.0.0",
 		"@bitrise/steplib-search": "^2.3.0",
 		"@datadog/browser-logs": "^1.7.0",
 		"@datadog/browser-rum": "^2.6.1",
@@ -98,7 +98,7 @@
 		"karma-spec-reporter": "^0.0.32",
 		"mini-css-extract-plugin": "^2.0.0",
 		"monaco-editor-webpack-plugin": "^2.0.0",
-		"node-sass": "^7.0.0",
+		"node-sass": "^7.0.1",
 		"null-loader": "^4.0.0",
 		"onchange": "^6.1.0",
 		"postcss-loader": "^3.0.0",

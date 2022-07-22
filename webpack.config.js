@@ -26,7 +26,7 @@ const railsTransformer = mode => ({
 		cwd: "./rails",
 		maxBuffer: Math.pow(1024, 3),
 		env: { ...process.env, wfe_version: version }
-	}
+	},
 });
 
 const htmlExporter = {
@@ -120,7 +120,7 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.erb$/,
+				test: /\.erb$/i,
 				use: railsTransformer("erb")
 			},
 
@@ -153,8 +153,8 @@ module.exports = {
 			},
 
 			{
-				test: /\.scss(\.erb)?$/,
-				use: [MiniCssExtractPlugin.loader, "css-loader", railsTransformer("erb"), "sass-loader"]
+				test: /\.scss(\.erb)?$/i,
+				use: [railsTransformer("erb"), MiniCssExtractPlugin.loader, "css-loader", "sass-loader"]
 			},
 
 			{
