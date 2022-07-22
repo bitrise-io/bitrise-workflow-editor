@@ -120,21 +120,6 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /codicon\.ttf/,
-				use: [{
-					loader: "file-loader",
-					options: {
-						name: "[name].[ext]",
-						publicPath: "https://server.com/resources"
-					}
-				}]
-			},
-
-			assetExporter(/\.(png|jpe?g|gif|svg)$/i, "images"),
-
-			assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
-
-			{
 				test: /\.erb$/i,
 				use: railsTransformer("erb")
 			},
@@ -156,6 +141,10 @@ module.exports = {
 				test: /\.(slim)$/,
 				use: [htmlExporter, railsTransformer("slim")]
 			},
+
+			assetExporter(/\.(png|jpe?g|gif|svg)$/i, "images"),
+
+			assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
 
 			{
 				test: /\.css$/i,
