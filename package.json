@@ -40,7 +40,6 @@
 		"@bitrise/steplib-search": "^2.3.0",
 		"@datadog/browser-logs": "^1.7.0",
 		"@datadog/browser-rum": "^2.6.1",
-		"@vscode/codicons": "^0.0.31",
 		"abortcontroller-polyfill": "^1.5.0",
 		"angular": "^1.7.9",
 		"angular-animate": "1.7.9",
