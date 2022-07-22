@@ -107,6 +107,12 @@ module.exports = {
 		]
 	},
 
+	performance: {
+		hints: 'error',
+		maxAssetSize: 10000000,
+		maxEntrypointSize: 40000000,
+	},
+
 	output: {
 		filename: "javascripts/[name].js",
 		path: OUTPUT_FOLDER,
