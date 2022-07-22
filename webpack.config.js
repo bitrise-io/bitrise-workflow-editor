@@ -70,15 +70,19 @@ module.exports = {
 	context: CODEBASE,
 
 	devServer: {
-		contentBase: OUTPUT_FOLDER,
-		contentBasePublicPath: publicPath,
 		compress: true,
 		port: DEV_SERVER_PORT || 4567,
-		stats: "errors-only",
 		headers: {
 			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
 			"Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+		},
+		devMiddleware: {
+			stats: "errors-only",
+		},
+		static: {
+			directory: OUTPUT_FOLDER,
+			publicPath: publicPath,
 		}
 	},
 
@@ -213,6 +217,10 @@ module.exports = {
 			"window.jQuery": "jquery",
 			"window._": "underscore"
 		}),
-		new CopyPlugin([{ from: "images/favicons/*", to: OUTPUT_FOLDER }])
+		new CopyPlugin({
+			patterns: [
+				{ from: "images/favicons/*", to: OUTPUT_FOLDER }
+			]
+		})
 	]
 };
