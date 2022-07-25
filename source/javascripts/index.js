@@ -1,5 +1,5 @@
-import "./_BitriseWorkflowEditor";
-import "./_apihandler";
+import "./_BitriseWorkflowEditor.js.erb";
+import "./_apihandler.js.erb";
 import "./_componentRegister";
 import "./_serviceRegister";
 

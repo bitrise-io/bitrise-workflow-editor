@@ -3,32 +3,32 @@
 
 // Major layouts
 
-@import "_index";
-@import "_tab-workflows";
-@import "_tab-code_signing";
-@import "_tab-code_signing-certificates";
-@import "_auto_code_signing";
-@import "_tab-secrets";
-@import "_tab-env_vars";
-@import "_tab-triggers";
-@import "_tab-stack";
+@import "_index.scss.erb";
+@import "_tab-workflows.scss.erb";
+@import "_tab-code_signing.scss.erb";
+@import "_tab-code_signing-certificates.scss.erb";
+@import "_auto_code_signing.scss.erb";
+@import "_tab-secrets.scss.erb";
+@import "_tab-env_vars.scss.erb";
+@import "_tab-triggers.scss.erb";
+@import "_tab-stack.scss.erb";
 @import "_tab-yml";
-@import "_workflows-workflow_description";
-@import "_add_step_sidebar";
+@import "_workflows-workflow_description.scss.erb";
+@import "_add_step_sidebar.scss.erb";
 
 // Common elements
 
 @import "_rebo";
 @import "_cardo";
 @import "_furto";
-@import "_popup";
-@import "_popover";
-@import "_notification-progress-indicator";
+@import "_popup.scss.erb";
+@import "_popover.scss.erb";
+@import "_notification-progress-indicator.scss.erb";
 @import "_file_uploader";
 @import "_order-by-drag";
 @import "_clear-value";
 
-@import "~monaco-editor/min/vs/editor/editor.main";
+@import "~monaco-editor/min/vs/editor/editor.main.css";
 
 // Fonts
 
