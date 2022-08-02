@@ -178,16 +178,16 @@ module.exports = {
 		}),
 		new MonacoWebpackPlugin({
 			languages: ["yaml"],
-			customLanguages: [
-        {
-          label: "yaml",
-          entry: "monaco-yaml",
-          worker: {
-            id: "monaco-yaml/yamlWorker",
-            entry: "monaco-yaml/yaml.worker",
-          },
-        },
-      ],
+			// customLanguages: [
+      //   {
+      //     label: "yaml",
+      //     entry: "monaco-yaml",
+      //     worker: {
+      //       id: "monaco-yaml/yamlWorker",
+      //       entry: "monaco-yaml/yaml.worker",
+      //     },
+      //   },
+      // ],
 			features: [
 				"!accessibilityHelp",
 				"!bracketMatching",
