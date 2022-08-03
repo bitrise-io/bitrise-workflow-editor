@@ -1,4 +1,5 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
+import { setDiagnosticsOptions } from 'monaco-yaml';
 
 (function() {
 	"use strict";
@@ -8,6 +9,20 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 		.controller("YMLController", function($scope, $timeout, appService, requestService) {
 			var viewModel = this;
 			var editor;
+
+			const defaultSchema = {
+				uri: 'https://raw.githubusercontent.com/bitrise-io/bitrise-json-schemas/main/bitrise.schema.json',
+				fileMatch: ['monaco-yaml.yaml'],
+			};
+
+			setDiagnosticsOptions({
+				validate: true,
+				enableSchemaRequest: true,
+				format: true,
+				hover: true,
+				completion: true,
+				schemas: [defaultSchema],
+			});
 
 			viewModel.shouldShowYmlStorageSettings = false;
 			viewModel.usesRepositoryYml = false;
@@ -52,7 +67,7 @@ import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 
 			function configureEditor() {
 				editor = monaco.editor.create(document.getElementById("code-container"), {
-					value: appService.appConfigYML,
+					model: monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml')),
 					language: "yaml",
 					lineNumbers: "on",
 					roundedSelection: false,
