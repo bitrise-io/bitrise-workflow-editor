@@ -38,7 +38,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 					return appService.appConfigYML;
 				},
 				function() {
-					if (model) {
+					if (model && !model.isDisposed()) {
 						if (appService.appConfigYML !== model.getValue()) {
 							model.setValue(appService.appConfigYML || '')
 						}
@@ -87,7 +87,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 
 			function updateAppConfigYML() {
 				$timeout(function() {
-					if (model) {
+					if (model && !model.isDisposed()) {
 						appService.appConfigYML = model.getValue();
 					}
 				}, 100);
