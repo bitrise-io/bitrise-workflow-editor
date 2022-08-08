@@ -9,6 +9,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 		.controller("YMLController", function($scope, $timeout, appService, requestService) {
 			var viewModel = this;
 			var editor;
+			var model;
 
 			const defaultSchema = {
 				uri: 'https://raw.githubusercontent.com/bitrise-io/bitrise-json-schemas/main/bitrise.schema.json',
@@ -37,8 +38,10 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 					return appService.appConfigYML;
 				},
 				function() {
-					if (appService.appConfigYML !== editor.getValue()) {
-						editor.setValue(appService.appConfigYML);
+					if (model) {
+						if (appService.appConfigYML !== model.getValue()) {
+							model.setValue(appService.appConfigYML || '')
+						}
 					}
 				}
 			);
@@ -66,8 +69,10 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 			init();
 
 			function configureEditor() {
+				model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
+
 				editor = monaco.editor.create(document.getElementById("code-container"), {
-					model: monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml')),
+					model: model,
 					language: "yaml",
 					lineNumbers: "on",
 					roundedSelection: false,
@@ -82,7 +87,9 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 
 			function updateAppConfigYML() {
 				$timeout(function() {
-					appService.appConfigYML = editor.getValue();
+					if (model) {
+						appService.appConfigYML = model.getValue();
+					}
 				}, 100);
 			}
 
@@ -102,6 +109,9 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 			$scope.$on("$destroy", function() {
 				if (editor) {
 					editor.dispose();
+				}
+				if (model) {
+					model.dispose();
 				}
 			});
 		});
