@@ -219,6 +219,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			viewModel.menuSelected = function(menu) {
+				if (menu === viewModel.currentMenu) {
+					return;
+				}
+
 				viewModel.menuProgress.start("Loading, wait a sec...");
 
 				var shouldCallLoadAfterMenuChange = true;
