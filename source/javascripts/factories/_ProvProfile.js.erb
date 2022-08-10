@@ -6,43 +6,43 @@
 		.factory("ProvProfile", function($q, requestService) {
 			var capabilities = {
 				"com.apple.security.application-groups":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.security.application-groups'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.security.application-groups'],
 				"com.apple.developer.in-app-payments":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.in-app-payments'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.in-app-payments'],
 				"com.apple.developer.associated-domains":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.associated-domains'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.associated-domains'],
 				"com.apple.developer.healthkit":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.healthkit'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.healthkit'],
 				"com.apple.developer.homekit":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.homekit'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.homekit'],
 				"com.apple.developer.networking.HotspotConfiguration":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.HotspotConfiguration'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.HotspotConfiguration'],
 				"com.apple.InAppPurchase":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.InAppPurchase'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.InAppPurchase'],
 				"inter-app-audio":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['inter-app-audio'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['inter-app-audio'],
 				"com.apple.developer.networking.multipath":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.multipath'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.multipath'],
 				"com.apple.developer.networking.networkextension":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.networkextension'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.networkextension'],
 				"com.apple.developer.nfc.readersession.formats":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.nfc.readersession.formats'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.nfc.readersession.formats'],
 				"com.apple.developer.networking.vpn.api":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.networking.vpn.api'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.networking.vpn.api'],
 				"aps-environment":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['aps-environment'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['aps-environment'],
 				"com.apple.developer.siri":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.siri'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.siri'],
 				"com.apple.developer.pass-type-identifiers":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.pass-type-identifiers'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.pass-type-identifiers'],
 				"com.apple.external-accessory.wireless-configuration":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.external-accessory.wireless-configuration'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.external-accessory.wireless-configuration'],
 				"com.apple.developer.default-data-protection":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.default-data-protection'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.default-data-protection'],
 				"com.apple.developer.ubiquity-kvstore-identifier":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.ubiquity-kvstore-identifier'] %>",
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.ubiquity-kvstore-identifier'],
 				"com.apple.developer.icloud-services":
-					"<%= data[:strings][:code_signing][:prov_profile][:prov_profile_details_popup][:capabilities]['com.apple.developer.icloud-services'] %>"
+					strings.code_signing.prov_profile.prov_profile_details_popup.capabilities['com.apple.developer.icloud-services']
 			};
 
 			var ProvProfile = function() {
