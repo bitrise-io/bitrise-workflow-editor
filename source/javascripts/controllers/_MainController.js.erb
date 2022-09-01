@@ -100,6 +100,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.initAppProgress = new Progress();
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+			viewModel.currentUser;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -488,9 +489,21 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
 									viewModel.dataToSave = appService.appConfig;
+									var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
+
 									return appService
 										.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
+						
+											if (machineTypeUpdated) {
+												const event = 'Machine Type Changed - Stacks & Machines Tab';
+												window.analytics && window.analytics.track(event, {
+												  machine_type_id: viewModel.dataToSave.meta['bitrise.io'].machine_type_id,
+												  user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
+												  organization_slug: appService.appDetails.ownerData.type === 'Organization' ? appService.appDetails.ownerData.slug : undefined
+												});
+											}
+
 											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
 												? reloadStack()
 												: $q.when();
@@ -647,6 +660,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				logger.info("App start");
 
 				appService.getAppConfig();
+
+				requestService.getCurrentUserData().then(function(user) {
+					viewModel.currentUser = user;
+				});
 
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
