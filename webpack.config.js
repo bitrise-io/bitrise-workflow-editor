@@ -10,13 +10,13 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, FRESHPAINT, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, FRESHPAINT, SEGMENT, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === "prod";
-
 const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
 const isHotjarEnabled = HOTJAR === "true";
 const isFreshpaintEnabled = FRESHPAINT === "true";
 const isDataDogRumEnabled = DATADOG_RUM === "true";
+const isSegmentEnabled = SEGMENT === "true";
 const publicPath = `${urlPrefix}/${version}/`;
 
 const railsTransformer = mode => ({
@@ -64,6 +64,9 @@ if (isFreshpaintEnabled) {
 }
 if (isDataDogRumEnabled) {
 	entry.datadogrum = "./javascripts/datadog-rum.js.erb";
+}
+if (isSegmentEnabled) {
+	entry.segment = "./javascripts/segment.js.erb";
 }
 
 module.exports = {

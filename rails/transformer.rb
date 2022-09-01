@@ -76,6 +76,10 @@ def freshpaint?
     ENV['FRESHPAINT'] == 'true'
 end
 
+def segment?
+    ENV['SEGMENT'] == 'true'
+end
+
 def datadog_rum?
     ENV['DATADOG_RUM'] == 'true'
 end
