@@ -499,7 +499,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 												const event = 'Machine Type Changed - Stacks & Machines Tab';
 												window.analytics && window.analytics.track(event, {
 												  machine_type_id: viewModel.dataToSave.meta['bitrise.io'].machine_type_id,
-												  user_slug: viewModel.currentUser.slug ? viewModel.currentUser.slug : undefined,
+												  user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
 												  organization_slug: appService.appDetails.ownerData.type === 'Organization' ? appService.appDetails.ownerData.slug : undefined
 												});
 											}
