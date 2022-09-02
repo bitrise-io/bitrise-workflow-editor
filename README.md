@@ -54,7 +54,13 @@ If you would like to run the Workflow Editor in `website` mode, you have to run 
 npm run start:website   # starts WFE in website mode
 ```
 
-You also have to make sure that the Monolith is already running (and has been set up with the proper environment variables to use this instance of WFE) before you try to execute the command above, otherwise every request to `http://localhost:3000` will be handled by the WFE.
+You also have to make sure that the Monolith is already running before you try to execute the command above (otherwise every request to `http://localhost:3000` will be handled by the WFE).
+Also make sure that you change the path in the monolith to point to this version of the WFE (instead of the production version):
+  - in the monolith open `workflow_controller.rb`
+  - change `base_url` in method `get_workflow_editor_html_content` to the current version:
+    - if you run the monolith directly (using the umbrella repo) use `localhost:4000/{version}` (e.g `base_url = 'http://localhost:4000/1.3.135`)
+    - if you run the monolith in docker (e.g with the `web-dev-env` repo) use `host.docker.internal:4000/{version}` (e.g `base_url = 'http://host.docker.internal:4000/1.3.135`)
+
 
 ### Run client tests
 

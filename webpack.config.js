@@ -75,6 +75,10 @@ module.exports = {
 	devServer: {
 		compress: true,
 		port: DEV_SERVER_PORT || 4567,
+		allowedHosts: [
+			"host.docker.internal",
+			"localhost"
+		],
 		headers: {
 			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
