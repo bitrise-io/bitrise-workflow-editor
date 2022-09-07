@@ -114,24 +114,33 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 			}}
 			className="product-tooltip"
 		>
-			<Text size="4" weight="bold">
-				{tip.title}
-			</Text>
-			<Text style={{ flexGrow: 1 }}>
-				{tip.description}
-				{tip.link && (
-					<Link
-						color="grape-3"
-						underline
-						target="_blank"
-						rel="noreferrer"
-						href={tip.link}
-						style={{ display: "inline-block", marginLeft: "4px" }}
-					>
-						Learn more
-					</Link>
-				)}
-			</Text>
+			<Flex direction="horizontal" style={{ flexGrow: 1 }}>
+				<Flex direction="vertical" style={{ flex: "1 0 0", gap: "8px" }}>
+					<Text size="4" weight="bold">
+						{tip.title}
+					</Text>
+					<Text maxWidth="400px">
+						{tip.description}
+						{tip.link && (
+							<Link
+								color="grape-3"
+								underline
+								target="_blank"
+								rel="noreferrer"
+								href={tip.link}
+								style={{ display: "inline-block", marginLeft: "4px" }}
+							>
+								Learn more
+							</Link>
+						)}
+					</Text>
+				</Flex>
+				<Flex>
+					<Button level="tertiary" style={{ padding: "0" }}>
+						<Icon name="CloseSmall" textColor="grape-5" />
+					</Button>
+				</Flex>
+			</Flex>
 
 			<Flex direction="horizontal" className="product-tooltip__footer">
 				<Flex
