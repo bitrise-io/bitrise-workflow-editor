@@ -9,6 +9,7 @@ export interface Tips {
 	id: string;
 	title: string;
 	description: string;
+	link?: string;
 }
 
 export type PayloadAction<T extends string, P = undefined> = {

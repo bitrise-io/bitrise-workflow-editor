@@ -1,5 +1,8 @@
 import React from "react";
 import { useEffect, useReducer } from "react";
+
+import { Text, Button, Flex, Icon, Link } from "@bitrise/bitkit";
+
 import "./ProductTooltip.scss";
 
 import { State, Action, Tips } from "./types";
@@ -77,9 +80,9 @@ function reducer(state: State, { type, payload }: Action): State {
 }
 
 export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltipProps) => {
-	const tip = tips[0];
-
 	const [{ items, finished, selectedIndex, selectedId }, dispatch] = useReducer(reducer, initialState);
+
+	const tip = items[selectedIndex ?? 0];
 
 	useEffect(() => {
 		dispatch({ type: "init", payload: tips });
@@ -99,29 +102,63 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 		}
 	}, [selectedId, onChange]);
 
+	if (!tip) {
+		return null;
+	}
+
 	return (
-		<div
+		<Flex
 			style={{
 				left: rect?.x,
 				top: (rect?.y ?? 0) + (rect?.height ?? 0) + 10
 			}}
 			className="product-tooltip"
 		>
-			<p>{tip.title}</p>
-			<p>{tip.description}</p>
+			<Text size="4" weight="bold">
+				{tip.title}
+			</Text>
+			<Text style={{ flexGrow: 1 }}>
+				{tip.description}
+				{tip.link && (
+					<Link
+						color="grape-3"
+						underline
+						target="_blank"
+						rel="noreferrer"
+						href={tip.link}
+						style={{ display: "inline-block", marginLeft: "4px" }}
+					>
+						Learn more
+					</Link>
+				)}
+			</Text>
 
-			<div className="product-tooltip__footer">
-				{selectedIndex !== undefined && <p>{`${selectedIndex + 1}/${items.length}`}</p>}
+			<Flex direction="horizontal" className="product-tooltip__footer">
+				<Flex
+					borderRadius="x1"
+					direction="horizontal"
+					backgroundColor="gray-1"
+					paddingHorizontal="x3"
+					alignChildrenVertical="middle"
+				>
+					<Text size="2">{selectedIndex !== undefined && <p>{`${selectedIndex + 1}/${items.length}`}</p>}</Text>
+				</Flex>
 
 				{finished ? (
-					<button onClick={onClose}>got it</button>
+					<Button level="primary" size="small" onClick={onClose}>
+						Got it
+					</Button>
 				) : (
-					<div className="product-tooltip__navigation">
-						<button onClick={onPrev}>&lt;</button>
-						<button onClick={onNext}>&gt;</button>
-					</div>
+					<Flex className="product-tooltip__navigation">
+						<Button size="small" onClick={onPrev}>
+							<Icon name="ChevronLeft" />
+						</Button>
+						<Button size="small" onClick={onNext}>
+							<Icon name="ChevronRight" />
+						</Button>
+					</Flex>
 				)}
-			</div>
-		</div>
+			</Flex>
+		</Flex>
 	);
 };

@@ -16,19 +16,22 @@ const tips: Tips[] = [
 		title: "Code signing",
 		description:
 			"Here you can upload sensitive files to Bitrise to allow you to distribute your app." +
-			"Find out how to set up code signing for your project type."
+			"Find out how to set up code signing for your project type.",
+		link: "https://devcenter.bitrise.io/en/code-signing.html"
 	},
 	{
 		id: "secrets",
 		title: "Secrets",
-		description: "Find out how to set up secrets, how to edit them, expose them to pull requests and more. Learn more"
+		description: "Find out how to set up secrets, how to edit them, expose them to pull requests and more.",
+		link: "https://devcenter.bitrise.io/en/builds/secrets.html"
 	},
 	{
 		id: "env-vars",
 		title: "Env Vars",
 		description:
 			"Here you the define environment variables that the steps need to access in a build. " +
-			"This can play a crucial role in ensuring your builds are successful. Learn more"
+			"This can play a crucial role in ensuring your builds are successful.",
+		link: "https://devcenter.bitrise.io/en/builds/environment-variables.html"
 	},
 	{
 		id: "triggers",
@@ -44,10 +47,11 @@ const tips: Tips[] = [
 	},
 	{
 		id: "yml",
-		title: "yml.bitrise",
+		title: "bitris.yml",
 		description:
 			"There are two ways to build your workflows on Bitrise. " +
-			"You can use the workflow editor to configure steps or you can edit the yml file in the yml editor. Learn more"
+			"You can use the workflow editor to configure steps or you can edit the yml file in the yml editor.",
+		link: "https://devcenter.bitrise.io/en/builds/configuring-build-settings/managing-an-app-s-bitrise-yml-file.html"
 	}
 ];
 
