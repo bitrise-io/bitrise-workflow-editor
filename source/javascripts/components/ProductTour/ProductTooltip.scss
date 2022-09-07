@@ -1,0 +1,23 @@
+.product-tooltip {
+    background-color: white;
+    border: 1px solid rgba(239, 235, 239, 0.5);
+    box-shadow: 0px 2px 24px rgba(0, 0, 0, 0.08);
+    border-radius: 8px;
+    max-width: 420px;
+    min-height: 212px;
+    padding: 24px;
+    z-index: 300;
+    position: absolute;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .product-tooltip__footer {
+    display: flex;
+    justify-content: space-between;
+  }
+
+  .product-tooltip__navigation {
+    display: flex;
+    gap: 8px;
+  }

@@ -1,0 +1,32 @@
+.highlighter {
+    width: 100vw;
+    height: 100vh;
+    position: fixed;
+    top: 0;
+    left: 0;
+    z-index: 100;
+    pointer-events: none;
+
+    > * {
+      pointer-events: all;
+    }
+
+    .highlighter__backdrop-mask {
+      width: 100vw;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.2);
+      position: absolute;
+      top: 0;
+      left: 0;
+      pointer-events: none;
+    }
+
+    .highlighter__selection {
+      position: absolute;
+      background-color: transparent;
+      border-radius: 4px;
+      box-shadow: 0 0 0 3px rgba(0, 123, 255, 1);
+      z-index: 200;
+    }
+}
+

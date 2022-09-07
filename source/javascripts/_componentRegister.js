@@ -12,6 +12,7 @@ import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
+import { ProductTour } from "./components/ProductTour/ProductTour";
 
 var register = react2angular;
 
@@ -66,4 +67,5 @@ angular
 			"onDeleteSelectedWorkflow"
 		])
 	)
-	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []));
+	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
+	.component("rProductTour", register(ProductTour));
