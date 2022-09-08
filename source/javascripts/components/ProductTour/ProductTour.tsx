@@ -8,7 +8,7 @@ import { useTrackingFunction } from "./useTrackingFunction";
 import { tips } from "./tips";
 import { useWaitForElements } from "./useWaitForElement";
 
-export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps) => {
+export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 	const [selectedId, setSelectedId] = useState("");
@@ -45,7 +45,18 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps) =
 		}
 	}));
 
-	const onClose = () => {
+	const onButtonClick = useTrackingFunction((buttonName: string) => ({
+		event: "tooltip_clicked",
+		payload: {
+			user_slug: currentUser.slug,
+			user_id: currentUser.dataId,
+			location: "workflow_editor",
+			name: selectedId,
+			button: buttonName
+		}
+	}));
+
+	const onClose = (): void => {
 		setIsOpen(false);
 		onTrackClose();
 	};
@@ -66,12 +77,18 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps) =
 
 	return (
 		<Highlighter isOpen={isOpen} rect={rect!} clipPath={clipPath}>
-			<ProductTooltip onChange={onChange} onClose={onClose} rect={rect} tips={validTips} />
+			<ProductTooltip
+				onChange={onChange}
+				onClose={onClose}
+				rect={rect}
+				tips={validTips}
+				onButtonClick={onButtonClick}
+			/>
 		</Highlighter>
 	);
 };
 
-export const ProductTour = ({ menuIds, currentUser }: ProductTourProps) => {
+export const ProductTour = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
 	if (currentUser?.tourShown !== false) {
 		return null;
 	}

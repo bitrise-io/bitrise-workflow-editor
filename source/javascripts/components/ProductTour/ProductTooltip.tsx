@@ -12,6 +12,7 @@ interface ProductTooltipProps {
 	rect: DOMRect | null;
 	onClose: () => void;
 	onChange: (id: string) => void;
+	onButtonClick: (data?: string) => void;
 }
 
 const initialState: State = {
@@ -79,7 +80,7 @@ function reducer(state: State, { type, payload }: Action): State {
 	return state;
 }
 
-export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltipProps) => {
+export const ProductTooltip = ({ tips, rect, onClose, onChange, onButtonClick }: ProductTooltipProps) => {
 	const [{ items, finished, selectedIndex, selectedId }, dispatch] = useReducer(reducer, initialState);
 
 	const tip = items[selectedIndex ?? 0];
@@ -101,6 +102,11 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 			onChange(selectedId);
 		}
 	}, [selectedId, onChange]);
+
+	const onGotIt = () => {
+		onButtonClick("got it");
+		onClose();
+	};
 
 	if (!tip) {
 		return null;
@@ -124,6 +130,9 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 						{tip.description}
 						{tip.link && (
 							<Link
+								onClick={() => {
+									onButtonClick("learn more");
+								}}
 								color="grape-3"
 								underline
 								target="_blank"
@@ -157,7 +166,7 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 				</Flex>
 
 				{finished ? (
-					<Button level="primary" size="small" onClick={onClose}>
+					<Button level="primary" size="small" onClick={onGotIt}>
 						Got it
 					</Button>
 				) : (
