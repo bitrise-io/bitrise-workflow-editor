@@ -110,11 +110,12 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 		<Flex
 			style={{
 				left: rect?.x,
-				top: (rect?.y ?? 0) + (rect?.height ?? 0) + 10
+				top: (rect?.y ?? 0) + (rect?.height ?? 0) + 20
 			}}
 			className="product-tooltip"
 		>
 			<Flex direction="horizontal" style={{ flexGrow: 1 }}>
+				<div className="arrow-up" style={{ left: rect!.width / 2 - 5 }} />
 				<Flex direction="vertical" style={{ flex: "1 0 0", gap: "8px" }}>
 					<Text size="4" weight="bold">
 						{tip.title}
@@ -135,11 +136,13 @@ export const ProductTooltip = ({ tips, rect, onClose, onChange }: ProductTooltip
 						)}
 					</Text>
 				</Flex>
-				<Flex>
-					<Button level="tertiary" style={{ padding: "0" }}>
-						<Icon name="CloseSmall" textColor="grape-5" />
-					</Button>
-				</Flex>
+				{!finished && (
+					<Flex>
+						<Button onClick={onClose} level="tertiary" style={{ padding: "0" }}>
+							<Icon name="CloseSmall" textColor="grape-5" />
+						</Button>
+					</Flex>
+				)}
 			</Flex>
 
 			<Flex direction="horizontal" className="product-tooltip__footer">
