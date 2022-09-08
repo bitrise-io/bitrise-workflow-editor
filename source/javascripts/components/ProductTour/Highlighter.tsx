@@ -71,7 +71,8 @@ export const useHighlighter = (selectedId: string) => {
 
 	return {
 		clipPath,
-		rect: highlightedRect
+		rect: highlightedRect,
+		highlighted: !!clipPath
 	};
 };
 
