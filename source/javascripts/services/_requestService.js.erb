@@ -117,7 +117,8 @@ import jsyaml from "js-yaml";
 								unconfirmedEmail: response.data.unconfirmed_email,
 								avatarURL: response.data.avatar_url,
 								showNewCodeSigningWizard: response.data.show_new_code_signing_wizard,
-								dataId: response.data.data_id
+								dataId: response.data.data_id,
+								tourShown: response.data.tour_shown,
 							});
 						},
 						function(response) {

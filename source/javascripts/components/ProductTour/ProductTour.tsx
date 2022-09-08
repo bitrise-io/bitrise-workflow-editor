@@ -52,6 +52,7 @@ const tips: Tips[] = [
 
 interface ProductTourProps {
 	menuIds: string[];
+	currentUser: {tourShown: boolean};
 }
 
 // NOTE: Angular passes the menu items ids it will render,
@@ -78,14 +79,20 @@ const useWaitForElements = (ids: string[], onFound: (ids: HTMLElement[]) => void
 	}, [ids, onFound]);
 };
 
-export const ProductTour = ({ menuIds }: ProductTourProps) => {
-	const [isOpen, setIsOpen] = useState(true);
+export const ProductTour = ({ menuIds, currentUser }: ProductTourProps) => {
+	const [isOpen, setIsOpen] = useState(currentUser?.tourShown === false);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 	const [selectedId, setSelectedId] = useState("");
 
 	const onClose = () => {
 		setIsOpen(false);
 	};
+
+	useEffect(() => {
+		if(currentUser?.tourShown === false && !isOpen) {
+			setIsOpen(true);
+		}
+	},[currentUser?.tourShown])
 
 	const onFound = useCallback(() => {
 		const filtered = tips.filter(tip => menuIds.includes(tip.id));

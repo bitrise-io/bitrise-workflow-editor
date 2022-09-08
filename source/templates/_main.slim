@@ -61,7 +61,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 			== svg("heart")
 			p == replaced_string(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
 		div.placeholder
-	r-product-tour[menu-ids="mainCtrl.menuIds"]
+	r-product-tour[menu-ids="mainCtrl.menuIds" current-user="mainCtrl.currentUser"]
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
