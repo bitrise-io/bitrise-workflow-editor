@@ -34,11 +34,6 @@ const tips: Tips[] = [
 		link: "https://devcenter.bitrise.io/en/builds/environment-variables.html"
 	},
 	{
-		id: "triggers",
-		title: "Triggers",
-		description: "No tooltip is required here as the info is already on the page."
-	},
-	{
 		id: "stack",
 		title: "Stacks & machines",
 		description:
@@ -47,7 +42,7 @@ const tips: Tips[] = [
 	},
 	{
 		id: "yml",
-		title: "bitris.yml",
+		title: "bitrise.yml",
 		description:
 			"There are two ways to build your workflows on Bitrise. " +
 			"You can use the workflow editor to configure steps or you can edit the yml file in the yml editor.",
