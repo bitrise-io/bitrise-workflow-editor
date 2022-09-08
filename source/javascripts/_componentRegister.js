@@ -68,4 +68,4 @@ angular
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
-	.component("rProductTour", register(ProductTour));
+	.component("rProductTour", register(ProductTour, ["menuIds"]));

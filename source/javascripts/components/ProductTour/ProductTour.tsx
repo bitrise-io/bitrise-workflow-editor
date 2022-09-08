@@ -1,4 +1,4 @@
-import React, { useEffect } from "react";
+import React, { useEffect, useRef } from "react";
 import { useCallback, useState } from "react";
 import { Highlighter, useHighlighter } from "./Highlighter";
 import { ProductTooltip } from "./ProductTooltip";
@@ -50,27 +50,50 @@ const tips: Tips[] = [
 	}
 ];
 
-export const ProductTour = () => {
+interface ProductTourProps {
+	menuIds: string[];
+}
+
+// NOTE: Angular passes the menu items ids it will render,
+// but we stil need to wait for the templates to render them before we can move on.
+const useWaitForElements = (ids: string[], onFound: (ids: HTMLElement[]) => void) => {
+	const timeoutRef = useRef<NodeJS.Timeout>();
+	useEffect(() => {
+		const checkIfReady = () => {
+			const found = ids.map(id => document.getElementById(id)).filter(Boolean);
+			if (found.length === ids.length) {
+				onFound(found as HTMLElement[]);
+				return;
+			}
+			timeoutRef.current = setTimeout(checkIfReady, 250);
+		};
+
+		checkIfReady();
+
+		return () => {
+			if (timeoutRef.current) {
+				clearTimeout(timeoutRef.current);
+			}
+		};
+	}, [ids, onFound]);
+};
+
+export const ProductTour = ({ menuIds }: ProductTourProps) => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
+	const [selectedId, setSelectedId] = useState("");
 
 	const onClose = () => {
 		setIsOpen(false);
 	};
 
-	// NOTE: need to evaluate what menu items are present after mount
-	useEffect(() => {
-		// TODO: for some reason the template isn't ready at this point
-		// we probably need to observe the menu item chnges
-		setTimeout(() => {
-			const filtered = tips.filter(tip => !!document.getElementById(tip.id));
-			if (filtered.length > 0) {
-				setValidTips(filtered);
-			}
-		}, 1000);
+	const onFound = useCallback(() => {
+		const filtered = tips.filter(tip => menuIds.includes(tip.id));
+		setValidTips(filtered);
+		setSelectedId(filtered[0].id);
 	}, []);
 
-	const [selectedId, setSelectedId] = useState(tips?.[0]?.id);
+	useWaitForElements(menuIds, onFound);
 
 	const { rect, clipPath } = useHighlighter(selectedId);
 
