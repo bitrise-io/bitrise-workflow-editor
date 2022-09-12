@@ -105,6 +105,7 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
+            go install github.com/kisielk/errcheck@latest
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
             # Go lint
