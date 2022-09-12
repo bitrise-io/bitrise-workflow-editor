@@ -14,8 +14,9 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 
-	const onFound = () => {
-		const filtered = tips.filter(tip => menuIds.includes(tip.id));
+	const onFound = (elements: HTMLElement[]) => {
+		const foundIds = elements.map(element => element.id);
+		const filtered = tips.filter(tip => foundIds.includes(tip.id));
 		setValidTips(filtered);
 	};
 
