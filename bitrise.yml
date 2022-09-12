@@ -106,6 +106,7 @@ workflows:
             #!/bin/bash
             set -ex
             go install github.com/kisielk/errcheck@latest
+            go install golang.org/x/lint/golint@latest
             # Check for unhandled errors
             go get -u github.com/kisielk/errcheck
             # Go lint
