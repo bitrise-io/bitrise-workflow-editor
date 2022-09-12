@@ -1,13 +1,14 @@
 /* eslint-disable @typescript-eslint/camelcase */
 import React, { useEffect } from "react";
 import { useState } from "react";
-import { Highlighter, useHighlighter } from "./Highlighter";
+import { Highlighter } from "./Highlighter";
 import { ProductTooltip } from "./ProductTooltip";
 import { ProductTourProps, Tips } from "./types";
 import { useTrackingFunction } from "./useTrackingFunction";
 import { tips } from "./tips";
 import { useWaitForElements } from "./useWaitForElement";
 import { useProductTour } from "./useProductTour";
+import { useHighlightedArea, getClipPathFromRect } from "./useHighlightedArea";
 
 export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
@@ -24,7 +25,7 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 
 	const { tip, finished, onNext, onPrev, selectedId, selectedIndex, items } = useProductTour(validTips ?? []);
 
-	const { rect, clipPath, highlighted } = useHighlighter(selectedId);
+	const rect = useHighlightedArea(selectedId);
 
 	const onDisplayTooltip = useTrackingFunction(() => ({
 		event: "tooltip_displayed",
@@ -62,31 +63,32 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 		onTrackClose();
 	};
 
+	const clipPath = getClipPathFromRect(rect);
+	const highlighted = !!clipPath;
+
 	useEffect(() => {
 		if (isOpen && !!selectedId && highlighted) {
 			onDisplayTooltip();
 		}
-	}, [isOpen, highlighted, onDisplayTooltip, selectedId]);
+	}, [isOpen, onDisplayTooltip, selectedId, highlighted]);
 
-	if (!validTips) {
+	if (!tip || !rect) {
 		return null;
 	}
 
 	return (
-		<Highlighter isOpen={isOpen} rect={rect!} clipPath={clipPath}>
-			{tip && (
-				<ProductTooltip
-					onClose={onClose}
-					onButtonClick={onButtonClick}
-					finished={finished}
-					onNext={onNext}
-					onPrev={onPrev}
-					selectedIndex={selectedIndex!}
-					total={items.length}
-					rect={rect}
-					tip={tip}
-				/>
-			)}
+		<Highlighter isOpen={isOpen} rect={rect} clipPath={clipPath}>
+			<ProductTooltip
+				onClose={onClose}
+				onButtonClick={onButtonClick}
+				finished={finished}
+				onNext={onNext}
+				onPrev={onPrev}
+				selectedIndex={selectedIndex!}
+				total={items.length}
+				rect={rect}
+				tip={tip}
+			/>
 		</Highlighter>
 	);
 };
