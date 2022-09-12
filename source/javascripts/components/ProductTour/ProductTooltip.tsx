@@ -60,8 +60,8 @@ function reducer(state: State, { type, payload }: Action): State {
 		}
 		case "prev": {
 			const { selectedIndex, items } = state;
-			if (selectedIndex !== undefined) {
-				const prevIndex = Math.max(selectedIndex - 1, 0);
+			if (selectedIndex) {
+				const prevIndex = selectedIndex - 1;
 				const found = items[prevIndex];
 				if (found) {
 					const finished = prevIndex === items.length - 2;
