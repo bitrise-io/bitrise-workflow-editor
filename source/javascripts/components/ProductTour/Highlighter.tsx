@@ -14,7 +14,6 @@ interface HighlighterProps {
 
 export const useHighlighter = (selectedId: string) => {
 	const ref = useRef<HTMLElement | null>(null);
-	const animationFrameRef = useRef<number | undefined>();
 	const [highlightedRect, setHighlightedRect] = useState<DOMRect | null>(null);
 
 	const highlightElement = useCallback(id => {
@@ -35,15 +34,8 @@ export const useHighlighter = (selectedId: string) => {
 	useEffect(() => {
 		const onResize = () => {
 			if (ref.current) {
-				if (animationFrameRef.current) {
-					cancelAnimationFrame(animationFrameRef.current);
-				}
-
-				animationFrameRef.current = requestAnimationFrame(() => {
-					const rect = ref.current!.getBoundingClientRect();
-					setHighlightedRect(rect);
-					animationFrameRef.current = undefined;
-				});
+				const rect = ref.current!.getBoundingClientRect();
+				setHighlightedRect(rect);
 			}
 		};
 
