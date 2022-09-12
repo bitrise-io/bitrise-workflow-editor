@@ -12,7 +12,7 @@ interface HighlighterProps {
 	renderSelection?: () => JSX.Element;
 }
 
-export const useHighlighter = (selectedId: string) => {
+export const useHighlighter = (selectedId: string | undefined) => {
 	const ref = useRef<HTMLElement | null>(null);
 	const [highlightedRect, setHighlightedRect] = useState<DOMRect | null>(null);
 
