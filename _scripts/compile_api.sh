@@ -5,7 +5,6 @@ function assetst_precompile {
     echo "  Boxing assets..."
 
     go install github.com/GeertJohan/go.rice/rice@latest
-    go get github.com/GeertJohan/go.rice/rice
     DIST=./apiserver/www/
 
     mkdir -p $DIST
