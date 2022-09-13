@@ -4,7 +4,7 @@ set -ex
 function assetst_precompile {
     echo "  Boxing assets..."
 
-    go get github.com/GeertJohan/go.rice/rice
+    go install github.com/GeertJohan/go.rice/rice@latest
     DIST=./apiserver/www/
 
     mkdir -p $DIST
@@ -38,7 +38,7 @@ function compile_bin {
     # Download 1.16.4 go and build arm64 with it
     export ORIG_DIR=`pwd`
     export GO_TMP=/tmp/go1.16.4 && mkdir -p $GO_TMP
-              
+
     UNAME=$(uname)
 
     if [ "$UNAME" == "Linux" ] ; then

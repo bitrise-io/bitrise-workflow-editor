@@ -93,6 +93,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			]);
 			viewModel.menuProgress = new Progress();
 			viewModel.currentMenu;
+			viewModel.menuIds = viewModel.menus.map(function(menu) {
+				return menu.id;
+			});
 
 			viewModel.loadDataProgress = new Progress();
 			viewModel.saveProgress = new Progress();
@@ -494,7 +497,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 									return appService
 										.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
 										.then(function() {
-						
+
 											if (machineTypeUpdated) {
 												const event = 'Machine Type Changed - Stacks & Machines Tab';
 												window.analytics && window.analytics.track(event, {
