@@ -664,8 +664,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				appService.getAppConfig();
 
-				requestService.getCurrentUserData().then(function(user) {
-					viewModel.currentUser = user;
+				Promise.all([
+					requestService.getCurrentUserData(),
+					requestService.getProductTourShown(),
+				]).then(function(responses) {
+					viewModel.currentUser = Object.assign.apply(null, [{}].concat(responses));
 				});
 
 				$q(function(resolve, reject) {
