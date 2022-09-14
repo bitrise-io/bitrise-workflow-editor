@@ -104,6 +104,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
+			viewModel.productTourShown;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -664,12 +665,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				appService.getAppConfig();
 
-				Promise.all([
-					requestService.getCurrentUserData(),
-					requestService.getProductTourShown(),
-				]).then(function(responses) {
-					viewModel.currentUser = Object.assign.apply(null, [{}].concat(responses));
-				});
+				requestService.getCurrentUserData().then(function(response) {
+					viewModel.currentUser = response;
+				})
+
+				requestService.getProductTourShown().then(function(response) {
+					viewModel.productTourShown = response.tourShown;
+				})
 
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
