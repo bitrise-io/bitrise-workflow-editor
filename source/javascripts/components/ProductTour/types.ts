@@ -27,6 +27,7 @@ export type Action =
 export interface ProductTourProps {
 	menuIds: string[];
 	currentUser: CurrentUser;
+	productTourShown?: boolean;
 }
 
 export interface TrackingEventOptions {

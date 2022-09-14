@@ -807,6 +807,11 @@ def strings
                     error_prefix: "Error getting current user data: ",
                     not_website_mode_error: "Getting current user data is only available in website mode"
                 },
+                get_product_tour_data: {
+                  default_error: "Error getting current product tour data",
+                  error_prefix: "Error getting product tour data: ",
+                  not_website_mode_error: "Getting product tour data is only available in website mode"
+                },
                 get_codesigndoc_bash_script: {
                     default_error: "Error getting codesigndoc bash command",
                     error_prefix: "Error getting codesigndoc bash command: ",
@@ -1028,6 +1033,7 @@ def strings
                 app_config_get: "/api/app/<app_slug>/config.json",
                 app_codesigndoc_script_get: "/api/app/<app_slug>/codesigndoc.json'",
                 current_user_get: "/me/profile.json",
+                product_tour_shown_get: "/api/app/<app_slug>/product_tour_shown",
                 current_user_beta_tags_get: "/me/profile/beta_tags.json",
                 yml_post: "/api/app/<app_slug>/config.json",
                 yml_get: "/api/app/<app_slug>/config.yml",

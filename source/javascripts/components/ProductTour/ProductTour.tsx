@@ -94,10 +94,10 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 	);
 };
 
-export const ProductTour = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
-	if (currentUser?.tourShown !== false) {
-		return null;
+export const ProductTour = ({ menuIds, currentUser, productTourShown }: ProductTourProps): JSX.Element | null => {
+	if (currentUser && productTourShown === false) {
+		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} />;
 	}
 
-	return <ProductTourContent menuIds={menuIds} currentUser={currentUser} />;
+	return null;
 };
