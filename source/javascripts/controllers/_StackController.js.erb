@@ -26,6 +26,7 @@
 				"gen1": "<%= data[:strings][:stack][:machine_type_notes][:gen1] %>",
 				"gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
 			};
+			viewModel.betaMachineTypeIds = ['g2-m1.8core', 'g2-m1-max.5core'];
 
 			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {
 				var stackMachineTypes = _.filter(MachineType.all, function(machineType) {
@@ -167,6 +168,10 @@
 
 			viewModel.osForStackWithMachineType = function(stack, machineType) {
 				return stack.osForChip[machineType.chip];
+			}
+
+			viewModel.isBetaMachineType = function(machineTypeId) {
+				return viewModel.betaMachineTypeIds.includes(machineTypeId);
 			}
 		});
 })();
