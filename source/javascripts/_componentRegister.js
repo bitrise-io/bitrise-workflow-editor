@@ -13,6 +13,7 @@ import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { ProductTour } from "./components/ProductTour/ProductTour";
+import { GuidedOnboarding } from "./components/GuidedOnboarding/GuidedOnboarding";
 
 var register = react2angular;
 
@@ -68,4 +69,5 @@ angular
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
-	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]));
+	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
+	.component("rGuidedOnboarding", register(GuidedOnboarding, []));

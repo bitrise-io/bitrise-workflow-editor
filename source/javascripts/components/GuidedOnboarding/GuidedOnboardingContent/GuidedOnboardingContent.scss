@@ -1,0 +1,29 @@
+.guided-onboarding-step-row {
+  color: #421000; //orange10
+  border-bottom: 1px solid #FFD5A3; //orange90
+  padding: 24px 0;
+  a {
+    color: #9247C2;
+  }
+}
+
+.guided-onboarding-list-row {
+  li {
+    cursor: pointer;
+  }
+}
+
+.guided-onboarding-info-bubble {
+  padding: 18px 16px;
+  background-color: #FFE9CF; //orange93
+  max-width: 600px;
+  border-radius: 8px;
+
+  a {
+    color: #9247C2;
+  }
+}
+
+.guided-onbooarding-gap {
+  margin-top: 12px;
+}
