@@ -45,22 +45,23 @@ export const Content: React.FC = () => {
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
         </Text>
         <div className="guided-onbooarding-gap"></div>
-        <Flex className="guided-onboarding-list-row" direction="horizontal" gap="x6">
-        <div>
+        <Flex className="guided-onboarding-list-row" direction="horizontal">
             <ul>
                 {
                     workflowSteps.map(({title, id}) => (
                         <li key={title}
                             onClick={() => setActiveStep(id)}
                         >
-                            <Text size='3' weight={activeWorkflowStep === id ? "bold" : undefined}>
-                                {title}
-                            </Text>
+                            <Flex className="guided-onboarding-list-row" direction="horizontal" alignChildrenHorizontal="between">
+                                <Text size='3' weight={activeWorkflowStep === id ? "bold" : undefined}>
+                                    {title}
+                                </Text>
+                                {activeWorkflowStep === id ? <div className="arrow-left"></div> : null}
+                            </Flex>
                         </li>        
                     ))
                 }
             </ul>
-        </div>
             {
                 workflowSteps.map(({content, href, id}) => (
                     <>

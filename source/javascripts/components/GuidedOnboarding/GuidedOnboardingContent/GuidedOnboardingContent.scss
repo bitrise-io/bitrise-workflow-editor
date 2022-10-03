@@ -8,6 +8,9 @@
 }
 
 .guided-onboarding-list-row {
+  ul {
+    min-width: 255px;
+  }
   li {
     cursor: pointer;
   }
@@ -26,4 +29,13 @@
 
 .guided-onbooarding-gap {
   margin-top: 12px;
+}
+
+.arrow-left {
+  align-self: center;
+  width: 0; 
+  height: 0; 
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent; 
+  border-right:8px solid #FFE9CF; //orange93
 }
