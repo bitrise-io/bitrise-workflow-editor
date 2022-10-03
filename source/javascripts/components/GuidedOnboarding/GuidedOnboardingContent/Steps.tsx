@@ -37,6 +37,8 @@ export const Steps: React.FC = () => (
             ))
         }
         </Flex>
-        <Text size='2'>You can turn off the guide in <Link href="/me/profile#/edit_profile">Profile settings</Link>.</Text>
+        <Text size='2'>
+            You can turn off the guide in <Link href="/me/profile#/edit_profile">Profile settings</Link>.
+        </Text>
     </Flex>
 );

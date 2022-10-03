@@ -52,7 +52,11 @@ export const Content: React.FC = () => {
                         <li key={title}
                             onClick={() => setActiveStep(id)}
                         >
-                            <Flex className="guided-onboarding-list-row" direction="horizontal" alignChildrenHorizontal="between">
+                            <Flex
+                                className="guided-onboarding-list-row"
+                                direction="horizontal"
+                                alignChildrenHorizontal="between"
+                            >
                                 <Text size='3' weight={activeWorkflowStep === id ? "bold" : undefined}>
                                     {title}
                                 </Text>

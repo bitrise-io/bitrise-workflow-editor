@@ -2,12 +2,15 @@ import React from "react";
 import Collapsible from "./Collapsible/Collapsible";
 import { GuidedOnboardingContent } from "./GuidedOnboardingContent/GuidedOnboardingContent";
 
-export const GuidedOnboarding: React.FC = () => {
-  return (
-      <Collapsible
+interface GuidedOnboardingProps {
+    isEnabled?: boolean;
+}
+
+export const GuidedOnboarding: React.FC<GuidedOnboardingProps> = ({isEnabled = false}) => {
+  return isEnabled ?
+    (<Collapsible
         title="Onboarding guide"
       >
         <GuidedOnboardingContent />
-      </Collapsible>
-  );
+      </Collapsible>): null;
 };

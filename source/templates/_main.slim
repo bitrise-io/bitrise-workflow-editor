@@ -1,6 +1,7 @@
 header.sticky
 main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 	r-update-yml-in-repository-modal[ng-if="mainCtrl.isUpdateYmlInRepositoryModalVisible" app-slug="appService.appDetails.slug" on-close="mainCtrl.closeUpdateYmlInRepositoryModal" on-complete="mainCtrl.onSaveToRepoComplete" get-data-to-save="mainCtrl.getDataToSave"]
+	r-guided-onboarding[is-enabled="mainCtrl.isGuidedOnboardingEnabled"]
 	header.menu[sticky sticking-index="1"]
 		.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]

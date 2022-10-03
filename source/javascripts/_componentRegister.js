@@ -70,4 +70,4 @@ angular
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
-	.component("rGuidedOnboarding", register(GuidedOnboarding, []));
+	.component("rGuidedOnboarding", register(GuidedOnboarding, ["isEnabled"]));
