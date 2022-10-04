@@ -27,6 +27,7 @@ module.exports = {
 		quotes: [2, "double"],
 		"no-with": "off",
 		"prefer-const": ["error", { destructuring: "all" }],
+		"react/react-in-jsx-scope": "off",
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
 		"@typescript-eslint/no-non-null-assertion": "off",
