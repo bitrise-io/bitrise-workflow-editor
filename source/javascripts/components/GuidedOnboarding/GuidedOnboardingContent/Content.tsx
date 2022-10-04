@@ -8,7 +8,7 @@ const workflowSteps = [
       id: 1,
       title: "Common steps",
       content: <>
-          The following Steps may help with you initial Workflow setup:&nbsp;
+          The following Steps may help with your initial Workflow setup:&nbsp;
           <Text style={{display: "inline"}} size='2' weight="bold">
               Recreate user schemes, Brew install, File downloader.
           </Text>
@@ -34,7 +34,7 @@ const workflowSteps = [
   }
 ]
 
-export const Content: React.FC = () => {
+export const Content = (): JSX.Element => {
   const [activeWorkflowStep, setActiveStep] = useState(0);
     
   return (

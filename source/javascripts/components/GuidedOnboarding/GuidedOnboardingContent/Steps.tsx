@@ -21,18 +21,21 @@ const appSteps = [
     }
 ];
 
-export const Steps: React.FC = () => (
+export const Steps = (): JSX.Element => (
     <Flex
         className="guided-onboarding-step-row"
         direction="horizontal"
         alignChildrenVertical="middle"
-        alignChildrenHorizontal="between">
-        <Flex direction='horizontal' alignChildrenVertical='middle' gap='x4'>
+        alignChildrenHorizontal="between"
+        wrap
+        >
+        <Flex direction='horizontal' alignChildrenVertical='middle' gap='x4'
+        >
         {
             appSteps.map(({title, isSuccessful}) => (
                 <Flex key={title} direction='horizontal' gap='x2' alignChildrenVertical='middle'>
                     <img src={isSuccessful ? statusSuccessfulIcon : stepStatusNextIcon} />
-                    <Text size='2' uppercase={true} style={{ lineHeight: "16px" }}>{title}</Text>
+                    <Text size='2' uppercase style={{ lineHeight: "16px" }}>{title}</Text>
                 </Flex>
             ))
         }

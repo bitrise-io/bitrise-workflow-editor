@@ -164,7 +164,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 										} else {
 											deprecatedTriggerCheckResolve();
 										}
-										viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
+										//viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
+										viewModel.isGuidedOnboardingEnabled = true;
 									}).then(
 										function() {
 											resolve();

@@ -6,7 +6,7 @@ interface GuidedOnboardingProps {
     isEnabled?: boolean;
 }
 
-export const GuidedOnboarding: React.FC<GuidedOnboardingProps> = ({isEnabled = false}) => {
+export const GuidedOnboarding = ({isEnabled = false}: GuidedOnboardingProps): JSX.Element | null => {
   return isEnabled ?
     (<Collapsible
         title="Onboarding guide"

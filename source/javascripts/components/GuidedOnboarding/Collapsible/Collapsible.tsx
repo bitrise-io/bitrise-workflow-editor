@@ -1,12 +1,16 @@
-import React, { useState, useRef, useEffect } from "react";
+import React, { useState, useRef, useEffect, ReactNode } from "react";
 import { Icon, Text, Flex } from "@bitrise/bitkit";
 import "./Collapsible.scss";
 interface CollapsibleProps {
+  children: ReactNode;
   open?: boolean;
   title: string;
 }
 
-const Collapsible: React.FC<CollapsibleProps> = ({ open = false, children, title }) => {
+/**
+ * The usage of this component can be replaced with Accordion in latest Bitkit.
+ */
+const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(open);
   const [contentHeight, setContentHeight] = useState<number | undefined>(
     open ? undefined : 0
@@ -14,11 +18,23 @@ const Collapsible: React.FC<CollapsibleProps> = ({ open = false, children, title
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (!contentHeight || !isOpen || !ref.current) return undefined;
+    const resizeObserver = new ResizeObserver((el: ResizeObserverEntry[]) => {
+      setContentHeight(el[0].contentRect.height);
+    });
+    resizeObserver.observe(ref.current);
+    return () => {
+      resizeObserver.disconnect();
+    };
+  }, [contentHeight, isOpen]);
+
+  useEffect(() => {
     if (isOpen) setContentHeight(ref.current?.getBoundingClientRect().height);
     else setContentHeight(0);
   }, [isOpen]);
 
-  const toggleOpen = () => {
+
+  const toggleOpen = (): void => {
     setIsOpen((prev) => !prev);
   };
 

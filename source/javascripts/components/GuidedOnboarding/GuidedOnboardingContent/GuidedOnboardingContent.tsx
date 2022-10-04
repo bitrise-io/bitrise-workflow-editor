@@ -4,7 +4,7 @@ import { Steps } from "./Steps";
 import { Content } from "./Content";
 
 
-export const GuidedOnboardingContent: React.FC = () => (
+export const GuidedOnboardingContent = (): JSX.Element => (
     <Flex>
         <Steps />
         <Content />
