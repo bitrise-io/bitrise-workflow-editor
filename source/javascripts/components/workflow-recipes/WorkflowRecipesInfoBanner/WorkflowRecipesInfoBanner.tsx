@@ -34,8 +34,8 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 				>
 					<Flex direction='horizontal' alignChildrenVertical='middle' alignChildrenHorizontal='between'>
 						<Flex direction='horizontal' gap='x2' alignChildrenVertical='middle'>
-							<Icon name='Lightbulb' size='24px' />
-							<Text size='3' weight='bold' style={{ lineHeight: "16px" }}>Workflow Recipes</Text>
+							<Icon name='Lightbulb' size='24' />
+							<Text size='3' fontWeight='bold' style={{ lineHeight: "16px" }}>Workflow Recipes</Text>
 						</Flex>
 						<Icon
 							id='workflow-editor-step-sidebar-close-workflow-recipes-banner'
@@ -46,7 +46,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 							onClick={handleClose}
 						/>
 					</Flex>
-					<Text size='3' align='start'>
+					<Text size='3' align='left'>
 						Workflow Recipes provide ready-made solutions for common Workflow tasks.{" "}
 						Follow the step-by-step guide or simply copy and paste the YML into an existing Workflow.
 					</Text>
@@ -60,7 +60,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 						>
 							<ColorButton color='blue' size='small'>
 								<Text size='2'>Explore Recipes</Text>
-								<Icon name='OpenInBrowser' size='24px' />
+								<Icon name='OpenInBrowser' size='24' />
 							</ColorButton>
 						</Link>
 					</Flex>
