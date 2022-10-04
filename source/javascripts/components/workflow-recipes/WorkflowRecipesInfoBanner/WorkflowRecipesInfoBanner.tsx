@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ColorButton, Flex, Icon, Link, Text } from "@bitrise/bitkit";
+import { ColorButton, Box, Icon, Link, Text } from "@bitrise/bitkit";
 
 import Hotjar from "../../../utils/hotjar";
 
@@ -21,31 +21,31 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 	return (
 		<>
 			{!isClosed && (
-				<Flex
-					direction='vertical'
-					gap='x4'
-					textColor='blue-4'
+				<Box
+					flexDirection='column'
+					gap='16'
+					textColor='blue.40'
 					backgroundColor='blue-1'
-					borderColor='blue-2'
-					borderWidth='x1'
-					borderRadius='x1'
-					padding='x4'
-					style={{ marginBottom: "32px" }}
+					borderColor='blue.93'
+					borderWidth='4'
+					borderRadius='4'
+					padding='16'
+					marginBottom="32"
 				>
-					<Flex direction='horizontal' alignChildrenVertical='middle' alignChildrenHorizontal='between'>
-						<Flex direction='horizontal' gap='x2' alignChildrenVertical='middle'>
+					<Box flexDirection='row' alignItems='center' justifyContent='space-between'>
+							<Flex direction='horizontal' gap='x2' alignChildrenVertical='middle'>
 							<Icon name='Lightbulb' size='24' />
 							<Text size='3' fontWeight='bold' style={{ lineHeight: "16px" }}>Workflow Recipes</Text>
 						</Flex>
 						<Icon
 							id='workflow-editor-step-sidebar-close-workflow-recipes-banner'
 							name='CloseSmall'
-							size='24px'
-							textColor='blue-4'
-							style={{ cursor: "pointer" }}
+							size='24'
+							textColor='blue.40'
+							cursor="pointer"
 							onClick={handleClose}
 						/>
-					</Flex>
+					</Box>
 					<Text size='3' align='left'>
 						Workflow Recipes provide ready-made solutions for common Workflow tasks.{" "}
 						Follow the step-by-step guide or simply copy and paste the YML into an existing Workflow.
@@ -64,7 +64,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
 							</ColorButton>
 						</Link>
 					</Flex>
-				</Flex>
+				</Box>
 			)}
 		</>
 	);

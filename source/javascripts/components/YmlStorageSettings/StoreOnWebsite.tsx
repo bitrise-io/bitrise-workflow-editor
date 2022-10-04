@@ -1,5 +1,5 @@
-import React, { FC, useState, useMemo, useEffect } from "react";
-import { Flex, Text, Notification, Button, Buttons, RadioButton } from "@bitrise/bitkit";
+import { useState, useMemo, useEffect } from "react";
+import { Box, Text, Notification, Button, ButtonGroup, Radio } from "@bitrise/bitkit";
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
@@ -15,7 +15,7 @@ type StoreOnWebsiteProps = {
 	onSuccess(): void;
 };
 
-const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps) => {
+const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): JSX.Element => {
 	const {
 		getAppConfigFromRepoStatus,
 		getAppConfigFromRepoFailed,
@@ -62,58 +62,58 @@ const StoreOnWebsite: FC<StoreOnWebsiteProps> = ({ appSlug, onCancel, onSuccess 
 			case 404:
 				return <YmlNotFoundInRepositoryError />;
 			default:
-				return <Notification type="alert">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
+				return <Notification status="error">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
 		}
 	};
 
 	if (isFinished) {
 		return (
-			<Notification margin="x2" type="success">
+			<Notification margin="x2" status="success">
 				{(window as WFEWindow).strings["yml"]["store_on_website"]["success"]}
 			</Notification>
 		);
 	}
 
 	return (
-		<Flex gap="x6" direction="vertical">
-			<Flex direction="vertical" gap="x3">
-				<Text size="5" weight="bold" textColor="gray-8">
+		<Box gap="24" flexDirection="column">
+			<Box display="flex" flexDirection="column" gap="12">
+				<Text size="5" fontWeight="bold" textColor="neutral.30">
 					Store bitrise.yml on bitrise.io
 				</Text>
 				<Text>Choose which bitrise.yml file should be used on bitrise.io from now:</Text>
-				<RadioButton
+				<Radio
 					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
 					name="website-copy-option"
 					defaultChecked={copyRepositoryYmlToWebsite}
 					onClick={() => setCopyRepositoryYmlToWebsite(true)}
 				>
 					Copy the content of the bitrise.yml file stored in the app's repository
-				</RadioButton>
-				<RadioButton
+				</Radio>
+				<Radio
 					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
 					name="website-copy-option"
 					defaultChecked={!copyRepositoryYmlToWebsite}
 					onClick={() => setCopyRepositoryYmlToWebsite(false)}
 				>
 					Copy the last version you used on bitrise.io
-				</RadioButton>
-			</Flex>
+				</Radio>
+			</Box>
 
 			{getAppConfigFromRepoLoading && <LookingForYmlInRepoProgress />}
 			{getAppConfigFromRepoFailed && renderError()}
 
 			{updatePipelineConfigLoading && <CreatingYmlOnWebsiteProgress />}
 			{!getAppConfigFromRepoLoading && !updatePipelineConfigLoading && !isFinished && (
-				<Buttons gap="x4">
-					<Button level="primary" onClick={updatePipelineConfig}>
+				<ButtonGroup spacing="16">
+					<Button variant="primary" onClick={updatePipelineConfig}>
 						Update settings
 					</Button>
-					<Button level="secondary" onClick={onCancel}>
+					<Button variant="secondary" onClick={onCancel}>
 						Cancel
 					</Button>
-				</Buttons>
+				</ButtonGroup>
 			)}
-		</Flex>
+		</Box>
 	);
 };
 

@@ -1,4 +1,3 @@
-import React from "react";
 import { Text, Badge, Icon } from "@bitrise/bitkit";
 import { Step } from "../../models";
 

@@ -1,4 +1,3 @@
-import React, { FC } from "react";
 import { Tooltip } from "@bitrise/bitkit";
 import { Step } from "../../models";
 
@@ -26,7 +25,7 @@ type StepItemProps = {
 
 const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 
-const StepItem: FC<StepItemProps> = ({
+const StepItem = ({
 	step,
 	version,
 	strings,
@@ -34,27 +33,25 @@ const StepItem: FC<StepItemProps> = ({
 	highlightVersionUpdate,
 	stepIndex,
 	onSelected
-}: StepItemProps) => (
-		<Tooltip title={step.displayTooltip()} timeout={0} style={{ whiteSpace: "pre-line" }}>
-			{({ ...rest }) => (
-				<button {...rest}
-					data-e2e-tag="step-item"
-					className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
-					<StepItemIcon step={step} />
-					<span className="info">
-						<strong>
-							<StepItemTitle step={step} />
-							<StepItemBadge step={step} />
-						</strong>
-						<StepItemVersion
-							step={step}
-							version={version}
-							highlightVersionUpdate={highlightVersionUpdate}
-							strings={strings} />
-					</span>
-				</button>
-			)}
+}: StepItemProps): JSX.Element => (
+		<Tooltip title={step.displayTooltip()} style={{ whiteSpace: "pre-line" }}>
+			<button
+				data-e2e-tag="step-item"
+				className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
+				<StepItemIcon step={step} />
+				<span className="info">
+					<strong>
+						<StepItemTitle step={step} />
+						<StepItemBadge step={step} />
+					</strong>
+					<StepItemVersion
+						step={step}
+						version={version}
+						highlightVersionUpdate={highlightVersionUpdate}
+						strings={strings} />
+				</span>
+			</button>
 		</Tooltip>
-	);
+);
 
 export default StepItem;

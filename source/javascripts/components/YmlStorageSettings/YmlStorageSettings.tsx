@@ -1,9 +1,8 @@
-import React, { FC, useState, useMemo, useEffect } from "react";
-import { Base, Flex, Text } from "@bitrise/bitkit";
+import { useState, useMemo, useEffect } from "react";
+import { Box, Text, Link } from "@bitrise/bitkit";
 import YmlStorageOption from "./YmlStorageOption";
 import StoreOnWebsite from "./StoreOnWebsite";
 import StoreInRepository from "./StoreInRepository";
-import InlineLink from "../common/InlineLink";
 
 type YmlStorageSettingsProps = {
 	appSlug: string;
@@ -11,11 +10,11 @@ type YmlStorageSettingsProps = {
 	onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
 };
 
-const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
+const YmlStorageSettings = ({
 	appSlug,
 	usesRepositoryYml: _initialUsesRepositoryYml,
 	onUsesRepositoryYmlChangeSaved
-}: YmlStorageSettingsProps) => {
+}: YmlStorageSettingsProps): JSX.Element => {
 	const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
 	const [usesRepositoryYml, setUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
 
@@ -30,20 +29,20 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 	}, [initialUsesRepositoryYml]);
 
 	return (
-		<Base borderRadius="x2" borderColor="gray-4" overflow="hidden">
-			<Flex backgroundColor="gray-2" paddingHorizontal="x4" paddingVertical="x3" gap="x2" direction="vertical">
-				<Text weight="bold" size="3" textColor="grape-5">
+		<Box borderRadius="8" borderColor="neutral.80" overflow="hidden">
+			<Box backgroundColor="neutral.93" paddingX="16" paddingY="12" gap="8" display="flex" flexDirection="column">
+				<Text fontWeight="bold" size="3" textColor="purple.10">
 					Where do you want to store the bitrise.yml file?
 				</Text>
-				<Text size="2" textColor="gray-7">
+				<Text size="2" textColor="neutral.40">
 					Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
-					out the <InlineLink text="documentation" url="https://devcenter.bitrise.io/builds/bitrise-yml-online/" /> for
+					out the <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/">documentation</Link> for
 					the details
 				</Text>
-			</Flex>
-			<Flex paddingHorizontal="x4" paddingVertical="x6">
-				<Flex width="665px" gap="x6" direction="vertical">
-					<Flex direction="horizontal" gap="x6">
+			</Box>
+			<Box paddingX="16" paddingY="24">
+				<Box width="665px" gap="x6" display="flex" flexDirection="column">
+					<Box display="flex" flexDirection="row" gap="24">
 						<YmlStorageOption
 							onClick={() => setUsesRepositoryYml(false)}
 							icon="Globe"
@@ -53,13 +52,13 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 						/>
 						<YmlStorageOption
 							onClick={() => setUsesRepositoryYml(true)}
-							icon="BranchBranch"
+							icon="Branch"
 							isActive={usesRepositoryYml}
 							title="Store in app repository"
 							// eslint-disable-next-line max-len
 							description="The bitrise.yml file is stored in your app's repository and it's versioned and maintained using Git."
 						/>
-					</Flex>
+					</Box>
 
 					{selectionDiffers && !usesRepositoryYml && (
 						<StoreOnWebsite
@@ -76,9 +75,9 @@ const YmlStorageSettings: FC<YmlStorageSettingsProps> = ({
 							onSuccess={() => setInitialUsesRepositoryYml(true)}
 						/>
 					)}
-				</Flex>
-			</Flex>
-		</Base>
+				</Box>
+			</Box>
+		</Box>
 	);
 };
 

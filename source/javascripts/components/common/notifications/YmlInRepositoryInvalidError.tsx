@@ -1,26 +1,23 @@
-import React, { FC } from "react";
-import { Text, Notification, Flex } from "@bitrise/bitkit";
-import InlineLink from "../InlineLink";
+import { Text, Notification, Box, Link } from "@bitrise/bitkit";
 import { WFEWindow } from "../../../typings/global";
 
 type Props = {
 	errorMessage: string;
 };
 
-const YmlInRepositoryInvalidError: FC<Props> = ({ errorMessage }: Props) => (
-	<Notification type="alert" alignChildren="start">
-		<Flex direction="vertical" gap="x4">
+const YmlInRepositoryInvalidError= ({ errorMessage }: Props): JSX.Element => (
+	<Notification status="error" justifyContent="start">
+		<Box display="flex" flexDirection="column" gap="x4">
 			<Text>
 				{(window as WFEWindow).strings["yml"]["store_in_repository"]["validation_error"]}{" "}
-				<InlineLink
-					underline
-					color="red-4"
-					text="valid syntax of the bitrise.yml file."
-					url="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
-				/>
+				<Link
+					isUnderlined
+					color="red.40"
+					href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
+				>valid syntax of the bitrise.yml file.</Link>
 			</Text>
 			<Text>{errorMessage}</Text>
-		</Flex>
+		</Box>
 	</Notification>
 );
 

@@ -1,5 +1,5 @@
-import React, { Fragment } from "react";
-import { Base, Icon, Flex } from "@bitrise/bitkit";
+import { Fragment } from "react";
+import { Box, Icon } from "@bitrise/bitkit";
 import { Step } from "../../models";
 
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
@@ -11,20 +11,21 @@ type StepItemBadgeProps = {
 const StepItemBadge = ({ step }: StepItemBadgeProps): JSX.Element => (
 	<Fragment>
 		{step.isOfficial() && (
-			<Base title="Bitrise step" paddingHorizontal="x1" data-e2e-tag="official-badge">
-				<Icon name="BitriseCertified" textColor="aqua-3" />
-			</Base>
+			<Box title="Bitrise step" paddingX="4" data-e2e-tag="official-badge">
+				<Icon name="BadgeBitrise" />
+			</Box>
 		)}
 		{step.isVerified() && (
-			<Base title="Verified step" paddingHorizontal="x1" data-e2e-tag="verified-badge">
-				<Icon name="StepThirdParty" textColor="blue-3" />
-			</Base>
+			<Box title="Verified step" paddingX="4" data-e2e-tag="verified-badge">
+				<Icon name="Badge3rdParty" />
+			</Box>
 		)}
 		{step.isDeprecated() && (
-			<Flex
+			<Box
 				title="Deprecated step"
-				direction="horizontal"
-				alignChildrenVertical="middle"
+				display="flex"
+				flexDirection="row"
+				alignItems="center"
 				data-e2e-tag="deprecated-badge"
 			>
 				<img
@@ -33,7 +34,7 @@ const StepItemBadge = ({ step }: StepItemBadgeProps): JSX.Element => (
 					width="18"
 					height="18"
 					alt="Deprecated" />
-			</Flex>
+			</Box>
 		)}
 	</Fragment>
 );
