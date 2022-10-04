@@ -10,7 +10,7 @@ import { useWaitForElements } from "./useWaitForElement";
 import { useProductTour } from "./useProductTour";
 import { useHighlightedArea, getClipPathFromRect } from "./useHighlightedArea";
 
-export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
+export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 
@@ -62,6 +62,7 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 	const onClose = (): void => {
 		setIsOpen(false);
 		onTrackClose();
+		onDismiss();
 	};
 
 	const clipPath = getClipPathFromRect(rect);
@@ -94,9 +95,9 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 	);
 };
 
-export const ProductTour = ({ menuIds, currentUser, productTourShown }: ProductTourProps): JSX.Element | null => {
+export const ProductTour = ({ menuIds, currentUser, productTourShown, onDismiss }: ProductTourProps): JSX.Element | null => {
 	if (currentUser && productTourShown === false) {
-		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} />;
+		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} onDismiss={onDismiss} />;
 	}
 
 	return null;

@@ -41,7 +41,7 @@ export const Steps = (): JSX.Element => (
         }
         </Flex>
         <Text size='2'>
-            You can turn off the guide in <Link href="/me/profile#/edit_profile">Profile settings</Link>.
+            <Link href="/me/profile#/edit_profile">Turn off guide</Link>
         </Text>
     </Flex>
 );

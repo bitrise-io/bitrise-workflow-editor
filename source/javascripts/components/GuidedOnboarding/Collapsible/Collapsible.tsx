@@ -18,6 +18,12 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
+    if (open !== isOpen) {
+      setIsOpen(open);
+    }
+  }, [open]);
+
+  useEffect(() => {
     if (!contentHeight || !isOpen || !ref.current) return;
     const resizeObserver = new ResizeObserver((contentElement: ResizeObserverEntry[]) => {
       setContentHeight(contentElement[0].contentRect.height);
@@ -44,7 +50,6 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
         <Flex className="title" direction='horizontal' alignChildrenVertical='middle' alignChildrenHorizontal='between'
         >
             <Flex direction='horizontal' gap='x2' alignChildrenVertical='middle'>
-                <Icon name='Info' size='24px' />
                 <Text size='3' weight='bold' style={{ lineHeight: "16px" }}>{title}</Text>
             </Flex>
             <button type="button" onClick={toggleOpen}>
