@@ -3,8 +3,8 @@ import { Flex, Link, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 
-import stepStatusNextIcon from "../../../../images/step-status-next-icon.svg";
-import statusSuccessfulIcon from "../../../../images/status-successful-icon.svg";
+import stepStatusNextIcon from "../../../images/step-status-next-icon.svg";
+import statusSuccessfulIcon from "../../../images/status-successful-icon.svg";
 
 const appSteps = [
     {

@@ -1,6 +1,8 @@
+import { Flex } from "@bitrise/bitkit";
 import React from "react";
 import Collapsible from "./Collapsible/Collapsible";
-import { GuidedOnboardingContent } from "./GuidedOnboardingContent/GuidedOnboardingContent";
+import { Content } from "./Content";
+import { Steps } from "./Steps";
 
 interface GuidedOnboardingProps {
     isEnabled?: boolean;
@@ -11,6 +13,9 @@ export const GuidedOnboarding = ({isEnabled = false}: GuidedOnboardingProps): JS
     (<Collapsible
         title="Onboarding guide"
       >
-        <GuidedOnboardingContent />
+        <Flex>
+            <Steps />
+            <Content />
+        </Flex>
       </Collapsible>): null;
 };
