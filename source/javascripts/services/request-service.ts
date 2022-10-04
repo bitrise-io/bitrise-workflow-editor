@@ -113,7 +113,7 @@ class RequestService {
 				signal: controller.signal
 			});
 		} catch (error) {
-			const publicError = new Error(`${method} ${url} - ${error.message}`);
+			const publicError = new Error(`${method} ${url} - ${(error as any).message}`);
 			this.logErrorWithLevel(publicError, StatusType.warn);
 			throw publicError;
 		}
