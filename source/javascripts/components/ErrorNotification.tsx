@@ -1,4 +1,4 @@
-import React, { FunctionComponent } from "react";
+import { FunctionComponent } from "react";
 import { Notification } from "@bitrise/bitkit";
 
 type Props = {
@@ -6,7 +6,7 @@ type Props = {
 };
 
 const ErrorNotification: FunctionComponent<Props> = ({ message }: Props) => (
-	<Notification type="alert">{message}</Notification>
+	<Notification status="error">{message}</Notification>
 );
 
 export default ErrorNotification;

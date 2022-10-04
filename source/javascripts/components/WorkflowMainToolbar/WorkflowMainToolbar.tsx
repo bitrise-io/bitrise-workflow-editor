@@ -1,5 +1,4 @@
-import React from "react";
-import { Base, Button, ButtonWithDropdown, Flex, Icon, Tooltip } from "@bitrise/bitkit";
+import { Box, Icon, IconButton, Menu, MenuButton, MenuList, MenuItem, Tooltip } from "@bitrise/bitkit";
 
 import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
@@ -23,8 +22,8 @@ const WorkflowMainToolbar = ({
 	onRearrangeWorkflow,
 	onDeleteSelectedWorkflow
 }: WorkflowMainToolbarProps): JSX.Element => (
-	<Flex direction='horizontal' alignChildrenVertical='middle' alignChildrenHorizontal='between' wrap>
-		<Flex direction='horizontal' alignChildrenVertical='middle' gap='x2'>
+	<Box display='flex' alignItems="center" justifyContent="space-between">
+		<Box display='flex' alignItems='center' gap='8'>
 			{selectedWorkflow && (
 				<WorkflowSelector
 					selectedWorkflow={selectedWorkflow}
@@ -33,47 +32,19 @@ const WorkflowMainToolbar = ({
 					renameWorkflowConfirmed={renameWorkflowConfirmed}
 				/>
 			)}
-			<Tooltip title='Add new Workflow'>
-				{({ ref, ...rest }) => (
-					<Button innerRef={ref} level='secondary' onClick={onAddNewWorkflow} aria-label='Add new Workflow' {...rest}>
-						<Icon name='PlusOpen' size='24px' />
-					</Button>
-				)}
-			</Tooltip>
-			<Tooltip title='Manage Workflows'>
-				{({ ref, ...rest }) => (
-					<Base innerRef={ref} {...rest}>
-						<ButtonWithDropdown buttonProps={{ "aria-label": "Manage Workflows" }} dropdownWidth='280px' items={[{
-							text: "Insert Workflow before",
-							icon: "ArrowQuit",
-							className: "manage-button add-before-run-workflow",
-							onClick: onInsertBeforeWorkflow,
-						}, {
-							text: "Insert Workflow after",
-							icon: "ArrowQuit",
-							className: "manage-button add-after-run-workflow",
-							onClick: onInsertAfterWorkflow,
-						}, {
-							text: "Rearrange Workflows",
-							icon: "Request",
-							className: "manage-button rearrange",
-							onClick: onRearrangeWorkflow,
-						}, {
-							text: "Delete selected Workflow",
-							icon: "Trash",
-							className: "manage-button delete-workflow",
-							onClick: onDeleteSelectedWorkflow,
-						}]}>
-							<Icon name='More' size='24px' />
-						</ButtonWithDropdown>
-					</Base>
-				)}
-			</Tooltip>
-		</Flex>
-		<Flex direction='horizontal' alignChildrenVertical='middle' paddingVertical='x2'>
-			<WorkflowRecipesLink linkId='workflow-editor-main-toolbar-workflow-recipes-link' trackingName='main_toolbar' />
-		</Flex>
-	</Flex>
+			<IconButton iconName="PlusOpen" variant='secondary' onClick={onAddNewWorkflow} aria-label='Add new Workflow' />
+			<Menu>
+        <MenuButton as={IconButton} iconName="MoreHorizontal" aria-label="Manage Workflows" />
+				<MenuList>
+					<MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>Insert Workflow before</MenuItem>
+					<MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>Insert Workflow after</MenuItem>
+					<MenuItem iconName="Request" onClick={onRearrangeWorkflow}>Rearrange Workflows</MenuItem>
+					<MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>Delete selected Workflow</MenuItem>
+				</MenuList>
+			</Menu>
+		</Box>
+		<WorkflowRecipesLink linkId='workflow-editor-main-toolbar-workflow-recipes-link' trackingName='main_toolbar' />
+	</Box>
 );
 
 export default WorkflowMainToolbar;

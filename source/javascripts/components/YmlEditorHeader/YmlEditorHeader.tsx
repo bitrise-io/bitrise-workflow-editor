@@ -1,6 +1,4 @@
-import React  from "react";
-import { Button, Flex, Text } from "@bitrise/bitkit";
-import { useMediaQuery } from "@bitrise/bitkit/lib/esn/hooks";
+import { Box, Button, Text } from "@bitrise/bitkit";
 
 import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 
@@ -9,36 +7,34 @@ type YmlEditorHeaderProps = {
 	usesRepositoryYml?: boolean;
 }
 const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.Element => {
-	const match = useMediaQuery(["848px"]);
-	const isFullScreen = match("848px");
-
 	return (
-		<Flex
-			direction={isFullScreen ? "horizontal" : "vertical"}
+		<Box
+			display="flex"
+			flexDirection={["column", "row"]}
 			backgroundColor='gray-2'
-			paddingHorizontal='x4'
-			paddingVertical='x3'
-			alignChildrenHorizontal='between'
-			gap="x2"
+			paddingX="16"
+			paddingY="12"
+			justifyContent="space-between"
+			gap="8"
 		>
-			<Flex direction='vertical' gap="x2">
-				<Text weight='bold'>{usesRepositoryYml ? "bitrise.yml" : "bitrise.yml editor"}</Text>
-				<Text size='2' textColor='gray-7'>
+			<Box>
+				<Text fontWeight='bold' marginBottom="8">{usesRepositoryYml ? "bitrise.yml" : "bitrise.yml editor"}</Text>
+				<Text size='2' color="neutral.40">
 					{
 						usesRepositoryYml ?
 						"The content of the bitrise.yml file, fetched from the app's repository." :
 						"You can edit your current config in YAML format:"
 					}
 				</Text>
-			</Flex>
-			<Flex direction={isFullScreen ? "horizontal" : "vertical"} reverse={!isFullScreen} gap='x2'>
+			</Box>
+			<Box display="flex" flexDirection={["column-reverse", "row"]} gap='8'>
 				<WorkflowRecipesLink linkId='workflow-editor-yml-editor-workflow-recipes-link' trackingName='yml_editor' />
-				{url && <Button level='primary' size='medium' Component='a' href={url} target='_blank'>
+				{url && <Button as='a' href={url} target='_blank'>
 					Download currently saved config
 				</Button>
 				}
-			</Flex>
-		</Flex>
+			</Box>
+		</Box>
 	);
 };
 

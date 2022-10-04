@@ -22,6 +22,9 @@
 		"strict": true
 	},
 	"exclude": ["node_modules", "build", "scripts"],
+<<<<<<< Updated upstream
 	"include": ["source/javascripts/**/*.ts", "source/javascripts/**/*.tsx"],
+=======
+>>>>>>> Stashed changes
 	"lib": ["dom", "es2015", "es2019"]
 }

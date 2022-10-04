@@ -1,5 +1,4 @@
-import React from "react";
-import { Flex, Link, List, ListItem, Notification, Text, variables } from "@bitrise/bitkit";
+import { Box, Link, List, ListItem, Notification, Text } from "@bitrise/bitkit";
 
 import "./Description.scss";
 
@@ -8,19 +7,20 @@ type DescriptionProps = {
 };
 
 const Description = ({ hasTriggers }: DescriptionProps): JSX.Element => (
-	<Flex
-		direction="vertical"
-		gap="x6"
+	<Box
+		display="flex"
+		flexDirection="column"
+		gap="24"
 		className="TriggersDescription"
-		textColor="gray-8"
-		style={{ paddingBottom: variables.sizeX6 }}
+		color="neutral.30"
+		paddingBottom="24"
 	>
-		{!hasTriggers && <Notification type="warning">No triggers are currently set for this app</Notification>}
-		<Flex direction="vertical" gap="x2">
-			<Text size="5" weight="bold" textColor="grape-5">
+		{!hasTriggers && <Notification status="warning">No triggers are currently set for this app</Notification>}
+		<Box display="flex" flexDirection="column" gap="8">
+			<Text size="5" fontWeight="bold" textColor="purple.10">
 				Triggers
 			</Text>
-			<Text size="3">
+			<Text>
 				Triggers are required in order to run builds automatically. To set one up, you need to specify:{" "}
 			</Text>
 			<List>
@@ -31,19 +31,19 @@ const Description = ({ hasTriggers }: DescriptionProps): JSX.Element => (
 					the <strong>branch</strong> of your repository: for example, master or dev.
 				</ListItem>
 			</List>
-			<Text size="3">
+			<Text>
 				Note: a webhook must be in place for a trigger to work.{" "}
 				<Link
-					underline
-					color="grape-3"
+					isUnderlined
+					colorScheme="purple"
 					href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
 					target="_blank"
 				>
 					Learn more
 				</Link>
 			</Text>
-		</Flex>
-	</Flex>
+		</Box>
+	</Box>
 );
 
 export default Description;

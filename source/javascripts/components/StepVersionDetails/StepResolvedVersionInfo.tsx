@@ -1,4 +1,3 @@
-import React from "react";
 import { Text, Icon } from "@bitrise/bitkit";
 import classNames from "classnames";
 import { Step } from "../../models";
@@ -29,14 +28,14 @@ const StepResolvedVersionInfo = ({
 	return (
 		<div className="resolved-version">
 			{isLatestVersion && (
-				<Text data-e2e-tag="step-version-details__branch-icon" className={classNames("icon")}>
-					<Icon name="BranchBranch" />
+				<Text data-e2e-tag="step-version-details__branch-icon" className="icon">
+					<Icon name="Branch" />
 				</Text>
 			)}
 			{isUpdateAvailable && (
 				<button
 					data-e2e-tag="step-version-details__update-button"
-					className={classNames("icon", "icon-danger")}
+					className="icon ion-danger"
 					onClick={() => onUpdateStep(step, workflowIndex)}
 				>
 					<img data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
