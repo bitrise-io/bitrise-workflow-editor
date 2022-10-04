@@ -28,7 +28,7 @@ export const Steps = (): JSX.Element => (
         alignChildrenVertical="middle"
         alignChildrenHorizontal="between"
         wrap
-        >
+    >
         <Flex direction='horizontal' alignChildrenVertical='middle' gap='x4'
         >
         {
