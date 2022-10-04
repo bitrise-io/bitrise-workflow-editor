@@ -18,14 +18,12 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
   const ref = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (!contentHeight || !isOpen || !ref.current) return undefined;
-    const resizeObserver = new ResizeObserver((el: ResizeObserverEntry[]) => {
-      setContentHeight(el[0].contentRect.height);
+    if (!contentHeight || !isOpen || !ref.current) return;
+    const resizeObserver = new ResizeObserver((contentElement: ResizeObserverEntry[]) => {
+      setContentHeight(contentElement[0].contentRect.height);
     });
     resizeObserver.observe(ref.current);
-    return () => {
-      resizeObserver.disconnect();
-    };
+    return () => resizeObserver.disconnect();
   }, [contentHeight, isOpen]);
 
   useEffect(() => {
