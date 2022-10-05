@@ -4,6 +4,7 @@
   padding: 24px 0;
   a {
     color: #9247C2;
+    cursor: pointer;
   }
 }
 
@@ -38,4 +39,11 @@
   border-top: 8px solid transparent;
   border-bottom: 8px solid transparent; 
   border-right:8px solid #FFE9CF; //orange93
+}
+
+.guided-onboarding-turn-off-modal {
+  a {
+    color: #9247C2;
+    cursor: pointer;
+  }
 }

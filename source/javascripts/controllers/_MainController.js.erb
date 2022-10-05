@@ -673,10 +673,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				launchDarklyService.initialize().then(() => {
 					viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
-					viewModel.isGuidedOnboardingEnabled = true
 					requestService.getProductTourShown().then(function(response) {
 						viewModel.productTourShown = response.tourShown;
-						viewModel.productTourShown = false;
 					})
 				});
 

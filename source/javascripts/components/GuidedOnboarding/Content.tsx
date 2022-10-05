@@ -38,14 +38,13 @@ const workflowSteps = [
 export const Content = (): JSX.Element => {
   const [activeWorkflowStep, setActiveStep] = useState(0);
   const activeWorkflowStepData = workflowSteps.find(({id}) => id === activeWorkflowStep);
-
   const trackClick = useTrackingFunction((item: string) => ({
     event: "Guided Onboarding Clicked",
     payload: {
         step: "Configure your workflows",
         item
     }
-}));
+  }));
     
   return (
     <Flex className="guided-onboarding-content-row">
