@@ -168,7 +168,7 @@
 			};
 
 			viewModel.hasDescriptionURLForStack = function(stack) {
-				return !!(stack.descriptionURLGen2 || stack.descriptionURL);
+				return !!viewModel.descriptionURLForStack(stack);
 			}
 
 			viewModel.osForStackWithMachineType = function(stack, machineType) {
