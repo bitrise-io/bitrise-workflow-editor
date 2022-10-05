@@ -34,8 +34,7 @@
 				accountData: undefined,
 				pipelineConfig: undefined,
 				accountFeatures: undefined,
-				hasTriggers: undefined,
-				orgSlug: undefined
+				hasTriggers: undefined
 			};
 
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {
@@ -46,7 +45,7 @@
 				return $q(function(resolve, reject) {
 					requestService.getAppDetails(requestConfig).then(function(appDetails) {
 						appService.appDetails = appDetails;
-						appService.orgSlug = appDetails.ownerData.slug;
+
 						resolve();
 					}, function(error) {
 						appService.appDetails = {
