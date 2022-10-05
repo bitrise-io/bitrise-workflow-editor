@@ -1,5 +1,4 @@
-import React from "react";
-import { Flex, Link, Text } from "@bitrise/bitkit";
+import { Box, Link, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 
@@ -22,26 +21,26 @@ const appSteps = [
 ];
 
 export const Steps = (): JSX.Element => (
-    <Flex
+    <Box
         className="guided-onboarding-step-row"
-        direction="horizontal"
-        alignChildrenVertical="middle"
-        alignChildrenHorizontal="between"
-        wrap
+				display="flex"
+        flexDirection="row"
+        alignItems="center"
+        justifyContent="space-between"
+				flexWrap="wrap"
     >
-        <Flex direction='horizontal' alignChildrenVertical='middle' gap='x4'
-        >
+        <Box display="flex" flexDirection='row' alignItems='center' gap='16'>
         {
             appSteps.map(({title, isSuccessful}) => (
-                <Flex key={title} direction='horizontal' gap='x2' alignChildrenVertical='middle'>
+                <Box key={title} flexDirection='row' gap='8' alignItems='center'>
                     <img src={isSuccessful ? statusSuccessfulIcon : stepStatusNextIcon} />
-                    <Text size='2' uppercase style={{ lineHeight: "16px" }}>{title}</Text>
-                </Flex>
+                    <Text size='2' textTransform="uppercase" style={{ lineHeight: "16px" }}>{title}</Text>
+                </Box>
             ))
         }
-        </Flex>
+        </Box>
         <Text size='2'>
             You can turn off the guide in <Link href="/me/profile#/edit_profile">Profile settings</Link>.
         </Text>
-    </Flex>
+    </Box>
 );

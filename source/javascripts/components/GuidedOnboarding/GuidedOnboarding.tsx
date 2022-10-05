@@ -1,5 +1,4 @@
-import { Flex } from "@bitrise/bitkit";
-import React from "react";
+import { Box } from "@bitrise/bitkit";
 import Collapsible from "./Collapsible/Collapsible";
 import { Content } from "./Content";
 import { Steps } from "./Steps";
@@ -13,9 +12,9 @@ export const GuidedOnboarding = ({isEnabled = false}: GuidedOnboardingProps): JS
     (<Collapsible
         title="Onboarding guide"
       >
-        <Flex>
+        <Box>
             <Steps />
             <Content />
-        </Flex>
+        </Box>
       </Collapsible>): null;
 };

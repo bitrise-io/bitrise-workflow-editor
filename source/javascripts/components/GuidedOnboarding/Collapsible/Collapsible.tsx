@@ -1,5 +1,5 @@
-import React, { useState, useRef, useEffect, ReactNode } from "react";
-import { Icon, Text, Flex } from "@bitrise/bitkit";
+import { useState, useRef, useEffect, ReactNode } from "react";
+import { Icon, Text, Box } from "@bitrise/bitkit";
 import "./Collapsible.scss";
 interface CollapsibleProps {
   children: ReactNode;
@@ -37,23 +37,23 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
   };
 
   return (
-      <Flex
+      <Box
         className="guided-onboarding-collapsible"
-        direction='vertical'
+				display="flex"
+        flexDirection='column'
     >
-        <Flex className="title" direction='horizontal' alignChildrenVertical='middle' alignChildrenHorizontal='between'
-        >
-            <Flex direction='horizontal' gap='x2' alignChildrenVertical='middle'>
-                <Icon name='Info' size='24px' />
-                <Text size='3' weight='bold' style={{ lineHeight: "16px" }}>{title}</Text>
-            </Flex>
+        <Box className="title" display="flex" flexDirection='row' alignItems='center' justifyContent='space-between'>
+            <Box display="flex" flexDirection='row' gap='x2' alignItems='center'>
+                <Icon name='Info' size='24' />
+                <Text size='3' fontWeight='bold' style={{ lineHeight: "16px" }}>{title}</Text>
+            </Box>
             <button type="button" onClick={toggleOpen}>
                 <Icon
                     name={isOpen ? "ChevronUp" : "ChevronDown" }
-                    size='24px'
+                    size='24'
                 />
             </button>
-        </Flex>
+        </Box>
 
         <div
         className="content-wrapper"
@@ -62,7 +62,7 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
                 <div className="content">{children}</div>
             </div>
         </div>
-      </Flex>
+      </Box>
   );
 };
 
