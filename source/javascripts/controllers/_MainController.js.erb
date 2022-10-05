@@ -107,7 +107,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.productTourShown;
 			viewModel.isGuidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
-			viewModel.currentUserPlanName;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -166,8 +165,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 										} else {
 											deprecatedTriggerCheckResolve();
 										}
-										//viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
-										viewModel.isGuidedOnboardingEnabled = true
+										viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
 									}).then(
 										function() {
 											resolve();
@@ -688,14 +686,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								return reject("No app slug specified.");
 							}
 
-							appService.getAppDetails()
-							.then((resp) => {
-								requestService.getSubscriptionStatus(appService.orgSlug).then(function(response) {
-									viewModel.currentUserPlanName = response.currentPlan.name
-								});
-								return resp;
-							})
-							.then(resolve, reject);
+							appService.getAppDetails().then(resolve, reject);
 
 							break;
 						case "cli":

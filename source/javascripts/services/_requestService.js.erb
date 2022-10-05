@@ -168,45 +168,6 @@ import jsyaml from "js-yaml";
 				});
 			};
 
-			requestService.getSubscriptionStatus = function(accSlug, requestConfig) {
-				var requestURL;
-				switch (requestService.mode) {
-					case "website":
-						//requestURL = "<%= webserver_path(data[:routes][:website][:subscription_status_get]) %>";
-						requestURL = stringService.stringReplacedWithParameters(
-							"<%= webserver_path(data[:routes][:website][:subscription_status_get]) %>",
-							{
-								acc_slug: accSlug
-							}
-						);
-
-						break;
-					case "cli":
-						return $q.reject(
-							new Error("<%= data[:strings][:request_service][:get_product_tour_data][:not_website_mode_error] %>")
-						);
-				}
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve({
-								currentPlan: response.data.current_plan,
-							});
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:get_product_tour_data][:default_error] %>",
-									"<%= data[:strings][:request_service][:get_product_tour_data][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			// Codesigndoc Bash Command
 
 			requestService.getCodeSigningBashCommand = function(requestConfig) {
