@@ -36,6 +36,7 @@ const workflowSteps = [
 
 export const Content = (): JSX.Element => {
   const [activeWorkflowStep, setActiveStep] = useState(0);
+  const activeWorkflowStepData = workflowSteps.find(({id}) => id === activeWorkflowStep);
     
   return (
     <Flex className="guided-onboarding-content-row">
@@ -67,19 +68,13 @@ export const Content = (): JSX.Element => {
                 }
             </ul>
             {
-                workflowSteps.map(({content, href, id}) => (
-                    <>
-                    { activeWorkflowStep === id ?
-                        <div className="guided-onboarding-info-bubble">
-                        <Text size='2'>
-                        {content}
-                        </Text>
-                        {href && <Link href={href}>Learn More</Link>}
-                        </div>
-                        : null
-                    }
-                    </>
-                ))
+                activeWorkflowStepData &&
+                <div className="guided-onboarding-info-bubble">
+                    <Text size='2'>
+                        {activeWorkflowStepData.content}
+                    </Text>
+                    {activeWorkflowStepData.href && <Link href={activeWorkflowStepData.href}>Learn More</Link>}
+                </div>
             }
         </Flex>
     </Flex>
