@@ -163,8 +163,15 @@
 				if (stack.descriptionURLGen2 !== undefined) {
 					return stack.descriptionURLGen2;
 				}
-				return stack.descriptionURL;
+
+				if (stack.descriptionURL) {
+					return stack.descriptionURL;
+				}
 			};
+
+			viewModel.hasDescriptionURLForStack = function(stack) {
+				return stack.descriptionURLGen2 || stack.descriptionURL;
+			}
 
 			viewModel.osForStackWithMachineType = function(stack, machineType) {
 				return stack.osForChip[machineType.chip];
