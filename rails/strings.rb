@@ -1034,7 +1034,6 @@ def strings
                 app_codesigndoc_script_get: "/api/app/<app_slug>/codesigndoc.json'",
                 current_user_get: "/me/profile.json",
                 product_tour_shown_get: "/api/app/<app_slug>/product_tour_shown",
-                subscription_status_get: "/organization/<acc_slug>/payment_subscription_status",
                 current_user_beta_tags_get: "/me/profile/beta_tags.json",
                 yml_post: "/api/app/<app_slug>/config.json",
                 yml_get: "/api/app/<app_slug>/config.yml",
