@@ -40,11 +40,6 @@ export interface TrackingEventOptions {
 	button?: string;
 }
 
-export interface TrackingEvent {
-	event: "tooltip_displayed" | "tooltip_clicked" | "tooltip_closed";
-	payload: TrackingEventOptions;
-}
-
 export interface CurrentUser {
 	slug: string;
 	dataId: string;

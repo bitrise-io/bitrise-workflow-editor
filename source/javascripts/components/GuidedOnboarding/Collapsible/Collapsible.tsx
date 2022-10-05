@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect, ReactNode } from "react";
 import { Icon, Text, Flex } from "@bitrise/bitkit";
 import "./Collapsible.scss";
+import { useTrackingFunction } from "../../../hooks/utils/useTrackingFunction";
 interface CollapsibleProps {
   children: ReactNode;
   open?: boolean;
@@ -17,9 +18,17 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
   );
   const ref = useRef<HTMLDivElement>(null);
 
+  const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
+		event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
+		payload: {
+			step: "Configure your workflows"
+		}
+	}));
+
   useEffect(() => {
     if (open !== isOpen) {
       setIsOpen(open);
+      trackOpenClose(open)
     }
   }, [open]);
 
@@ -39,7 +48,11 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
 
 
   const toggleOpen = (): void => {
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      const newState = !prev;
+      trackOpenClose(newState);
+      return newState;
+    });
   };
 
   return (

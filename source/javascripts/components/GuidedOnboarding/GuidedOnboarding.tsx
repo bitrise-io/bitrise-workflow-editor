@@ -13,7 +13,11 @@ interface GuidedOnboardingProps {
 }
 
 
-export const GuidedOnboarding = ({isEnabled = false, defaultOpen = false, userPlanName}: GuidedOnboardingProps): JSX.Element | null => {
+export const GuidedOnboarding = ({
+    isEnabled = false,
+    defaultOpen = false,
+    userPlanName
+}: GuidedOnboardingProps): JSX.Element | null => {
   const isTrialUser = userPlanName === TEAMS_TRIAL;
 
   return isEnabled && isTrialUser ?

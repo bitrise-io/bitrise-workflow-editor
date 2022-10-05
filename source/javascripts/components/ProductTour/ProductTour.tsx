@@ -4,7 +4,7 @@ import { useState } from "react";
 import { Highlighter } from "./Highlighter";
 import { ProductTooltip } from "./ProductTooltip";
 import { ProductTourProps, Tips } from "./types";
-import { useTrackingFunction } from "./useTrackingFunction";
+import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { tips } from "./tips";
 import { useWaitForElements } from "./useWaitForElement";
 import { useProductTour } from "./useProductTour";
@@ -95,7 +95,12 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 	);
 };
 
-export const ProductTour = ({ menuIds, currentUser, productTourShown, onDismiss }: ProductTourProps): JSX.Element | null => {
+export const ProductTour = ({
+	menuIds,
+	currentUser,
+	productTourShown,
+	onDismiss
+}: ProductTourProps): JSX.Element | null => {
 	if (currentUser && productTourShown === false) {
 		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} onDismiss={onDismiss} />;
 	}

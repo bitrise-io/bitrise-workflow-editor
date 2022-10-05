@@ -1,7 +1,8 @@
 import React, { useState } from "react";
-import { Flex, Text, Link } from "@bitrise/bitkit";
+import { Flex, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
+import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
 const workflowSteps = [
     {
@@ -37,6 +38,14 @@ const workflowSteps = [
 export const Content = (): JSX.Element => {
   const [activeWorkflowStep, setActiveStep] = useState(0);
   const activeWorkflowStepData = workflowSteps.find(({id}) => id === activeWorkflowStep);
+
+  const trackClick = useTrackingFunction((item: string) => ({
+    event: "Guided Onboarding Clicked",
+    payload: {
+        step: "Configure your workflows",
+        item
+    }
+}));
     
   return (
     <Flex className="guided-onboarding-content-row">
@@ -51,7 +60,10 @@ export const Content = (): JSX.Element => {
                 {
                     workflowSteps.map(({title, id}) => (
                         <li key={title}
-                            onClick={() => setActiveStep(id)}
+                            onClick={() => {
+                                setActiveStep(id);
+                                trackClick(title);
+                            }}
                         >
                             <Flex
                                 className="guided-onboarding-list-row"
@@ -73,7 +85,17 @@ export const Content = (): JSX.Element => {
                     <Text size='2'>
                         {activeWorkflowStepData.content}
                     </Text>
-                    {activeWorkflowStepData.href && <Link href={activeWorkflowStepData.href}>Learn More</Link>}
+                    {
+                        activeWorkflowStepData.href &&
+                        <a
+                            href={activeWorkflowStepData.href}
+                            rel="noreferrer"
+                            target="_blank"
+                            onClick={() => trackClick(`${activeWorkflowStepData.title} - learn more`)}
+                        >
+                            Learn More
+                        </a>
+                    }
                 </div>
             }
         </Flex>
