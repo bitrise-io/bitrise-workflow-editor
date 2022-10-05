@@ -165,7 +165,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 										} else {
 											deprecatedTriggerCheckResolve();
 										}
-										viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
 									}).then(
 										function() {
 											resolve();
@@ -672,10 +671,14 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.currentUser = response;
 				})
 
-				requestService.getProductTourShown().then(function(response) {
-					//viewModel.productTourShown = response.tourShown;
-					viewModel.productTourShown = false;
-				})
+				launchDarklyService.initialize().then(() => {
+					viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
+					viewModel.isGuidedOnboardingEnabled = true
+					requestService.getProductTourShown().then(function(response) {
+						viewModel.productTourShown = response.tourShown;
+						viewModel.productTourShown = false;
+					})
+				});
 
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
@@ -746,7 +749,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			viewModel.onProductTourDismiss = function() {
-				setTimeout($scope.$apply(() => viewModel.productTourDismissed = true), 1000);
+				setTimeout(() => $scope.$apply(() => viewModel.productTourDismissed = true), 1000);
 			}
 		});
 })();
