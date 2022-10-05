@@ -41,6 +41,8 @@
 		"@bitrise/steplib-search": "^2.3.0",
 		"@datadog/browser-logs": "^1.7.0",
 		"@datadog/browser-rum": "^2.6.1",
+		"@emotion/cache": "^11.10.3",
+		"@emotion/react": "^11.10.4",
 		"@types/segment-analytics": "0.0.34",
 		"abortcontroller-polyfill": "^1.5.0",
 		"angular": "^1.7.9",
@@ -63,6 +65,7 @@
 		"react-copy-to-clipboard": "^5.0.2",
 		"react-dom": "^18.2.0",
 		"react-lazy-load-image-component": "^1.4.3",
+		"react2angular-shared-context": "^1.1.2",
 		"showdown": "^1.9.1",
 		"underscore": "^1.13.2"
 	},
@@ -113,6 +116,7 @@
 		"ts-loader": "^9.4.1",
 		"typescript": "^4.8.2",
 		"webpack": "^5.73.0",
+		"webpack-bundle-analyzer": "^4.6.1",
 		"webpack-cli": "^4.0.0",
 		"webpack-dev-server": "^4.0.0",
 		"whatwg-fetch": "^3.2.0"

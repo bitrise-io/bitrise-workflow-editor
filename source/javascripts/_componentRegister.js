@@ -1,4 +1,4 @@
-import { react2angular } from "react2angular";
+import { react2angular } from "@bitrise/react2angular";
 import { Icon } from "@bitrise/bitkit";
 
 import ErrorNotification from "./components/ErrorNotification";
@@ -13,12 +13,16 @@ import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { ProductTour } from "./components/ProductTour/ProductTour";
+import { withBitkitProvider, BitkitRoot } from "./utils/withBitkitProvider";
 
-var register = react2angular;
+function register(component, props, injects) {
+	return react2angular(withBitkitProvider(component), props, injects);
+}
 
 angular
 	.module("BitriseWorkflowEditor")
 	.component("rErrorNotification", register(ErrorNotification, ["message"]))
+	.component("rBitkitRoot", react2angular(BitkitRoot))
 	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
 		"rStepItem",

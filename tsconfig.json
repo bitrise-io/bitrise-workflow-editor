@@ -22,5 +22,6 @@
 		"strict": true
 	},
 	"exclude": ["node_modules", "build", "scripts"],
+	"include": ["source/**/*.ts", "source/**/*.tsx"],
 	"lib": ["dom", "es2015", "es2019"]
 }

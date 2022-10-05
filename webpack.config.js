@@ -99,6 +99,7 @@ module.exports = {
 
 	optimization: {
 		minimize: isProd,
+		runtimeChunk: 'single',
 		minimizer: [
 			new TerserPLugin({
 				extractComments: true,
@@ -155,6 +156,7 @@ module.exports = {
 				use: {
 					loader: "ts-loader",
 					options: {
+						allowTsInNodeModules:true,
 						compilerOptions: {
 							sourceMap: !isProd
 						}

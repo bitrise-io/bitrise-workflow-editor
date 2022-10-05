@@ -119,41 +119,40 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 			</PopoverTrigger>
 
 			<PopoverContent>
-				{() => (
-					<Box width="560px">
-						<Input
-							padding="12"
-							leftIconName="Magnifier"
-							autoFocus
-							placeholder="Search workflows..."
-							value={search}
-							onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
-							rightAddon={search ? (
-								<IconButton
-									aria-label="Reset"
-									iconName="CloseSmall"
-									onClick={onClearSearch}
-									variant="tertiary"
-									_active={{ background: "transparent" }}
-									_hover={{ background: "transparent" }}
+				<Box width="560px">
+					<Input
+						padding="12"
+						leftIconName="Magnifier"
+						autoFocus
+						placeholder="Search workflows..."
+						value={search}
+						onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
+						rightAddon={search ? (
+							<IconButton
+								aria-label="Reset"
+								iconName="CloseSmall"
+								onClick={onClearSearch}
+								variant="tertiary"
+								_active={{ background: "transparent" }}
+								_hover={{ background: "transparent" }}
+							/>
+					) : null}
+						rightAddonPlacement="inside"
+					/>
+					{filteredWorkflows.length ? (
+						<Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
+							{filteredWorkflows.map(workflow => (
+								<WorkflowSelectorItem
+									key={workflow.id}
+									workflow={workflow}
+									selectWorkflow={onItemClick}
+									selectedWorkflowId={selectedWorkflow.id}
+									workflowIds={workflowIds}
+									renameWorkflowConfirmed={renameWorkflowConfirmed}
+									data-e2e-tag="workflow-selector-option"
 								/>
-								) : null}
-							rightAddonPlacement="inside"
-						/>
-						{filteredWorkflows.length ? (
-							<Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
-								{filteredWorkflows.map(workflow => (
-									<WorkflowSelectorItem
-										key={workflow.id}
-										workflow={workflow}
-										selectWorkflow={onItemClick}
-										selectedWorkflowId={selectedWorkflow.id}
-										workflowIds={workflowIds}
-										renameWorkflowConfirmed={renameWorkflowConfirmed}
-										data-e2e-tag="workflow-selector-option"
-									/>
-								))}
-							</Box>
+							))}
+						</Box>
 						) : (
 							<Box
 								display="flex"
@@ -163,16 +162,15 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 								alignItems="center"
 								justifyContent="center"
 								padding="20"
-							>
+								>
 								<Icon name="BitbotError" width="40px" height="40px" />
 								<Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap="4">
 									<Text fontWeight="bold">No workflows found.</Text>
 									<Text>Modify or reset the search.</Text>
 								</Box>
 							</Box>
-						)}
-					</Box>
-				)}
+					)}
+				</Box>
 			</PopoverContent>
 		</Popover>
 	);
