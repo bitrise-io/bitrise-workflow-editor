@@ -1,7 +1,3 @@
-<<<<<<< Updated upstream
-=======
-import React, { FC } from "react";
->>>>>>> Stashed changes
 import { Box } from "@bitrise/bitkit";
 import { Converter } from "showdown";
 

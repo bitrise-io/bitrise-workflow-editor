@@ -35,7 +35,7 @@ const StepResolvedVersionInfo = ({
 			{isUpdateAvailable && (
 				<button
 					data-e2e-tag="step-version-details__update-button"
-					className="icon ion-danger"
+					className="icon icon-danger"
 					onClick={() => onUpdateStep(step, workflowIndex)}
 				>
 					<img data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
