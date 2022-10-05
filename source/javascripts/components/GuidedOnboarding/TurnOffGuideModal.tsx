@@ -61,7 +61,7 @@ export const TurnOffGuideModal = ({isOpen = false, onClose, onTurnOffGuide}: Tur
 					</Text>
 
 					<Text size='3'>
-					You can turn it on anytime in the <Link href="/me/profile#/edit_profile">Profile settings</Link>.
+					You can turn it on any time in <Link href="/me/profile#/edit_profile">Profile settings</Link>.
 					</Text>
 
 					<Buttons alignChildrenHorizontal="end" margin="x8" gap="x6">
