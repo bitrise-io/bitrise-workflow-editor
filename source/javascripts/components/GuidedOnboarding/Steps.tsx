@@ -7,29 +7,20 @@ import stepStatusNextIcon from "../../../images/step-status-next-icon.svg";
 import statusSuccessfulIcon from "../../../images/status-successful-icon.svg";
 import { TurnOffGuideModal } from "./TurnOffGuideModal";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
+import { AppStep } from "./types";
 
-const appSteps = [
-    {
-        title: "add new app",
-        isSuccessful: true
-    },
-    {
-        title: "run a build",
-        isSuccessful: true
-    },
-    {
-        title: "configure your workflows",
-        isSuccessful: false
-    }
-];
+interface StepsProps {
+    appSteps: AppStep[];
+    activeStepIndex: number;
+}
 
-export const Steps = (): JSX.Element => {
+export const Steps = ({appSteps, activeStepIndex}: StepsProps): JSX.Element => {
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
     const trackClick = useTrackingFunction(() => ({
         event: "Turn Off Guide Clicked",
         payload: {
-            step: "Configure your workflows",
+            step: appSteps[activeStepIndex].title,
         }
     }));
 

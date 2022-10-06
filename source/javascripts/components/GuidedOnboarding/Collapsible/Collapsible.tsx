@@ -1,34 +1,28 @@
 import React, { useState, useRef, useEffect, ReactNode } from "react";
 import { Icon, Text, Flex } from "@bitrise/bitkit";
 import "./Collapsible.scss";
-import { useTrackingFunction } from "../../../hooks/utils/useTrackingFunction";
+
 interface CollapsibleProps {
   children: ReactNode;
   open?: boolean;
   title: string;
+  onToggleOpen: (isOpen: boolean) => void;
 }
 
 /**
  * The usage of this component can be replaced with Accordion in latest Bitkit.
  */
-const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.Element => {
+const Collapsible = ({ open = false, children, title, onToggleOpen }: CollapsibleProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(open);
   const [contentHeight, setContentHeight] = useState<number | undefined>(
     open ? undefined : 0
   );
   const ref = useRef<HTMLDivElement>(null);
 
-  const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
-		event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
-		payload: {
-			step: "Configure your workflows"
-		}
-	}));
-
   useEffect(() => {
     if (open !== isOpen) {
       setIsOpen(open);
-      trackOpenClose(open)
+      onToggleOpen(open)
     }
   }, [open]);
 
@@ -50,7 +44,7 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
   const toggleOpen = (): void => {
     setIsOpen((prev) => {
       const newState = !prev;
-      trackOpenClose(newState);
+      onToggleOpen(newState);
       return newState;
     });
   };

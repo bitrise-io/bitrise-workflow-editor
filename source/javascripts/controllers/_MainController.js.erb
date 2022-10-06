@@ -105,7 +105,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
 			viewModel.productTourShown;
-			viewModel.isGuidedOnboardingEnabled = false;
+			viewModel.guidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
@@ -672,7 +672,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				})
 
 				launchDarklyService.initialize().then(() => {
-					viewModel.isGuidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
+					viewModel.guidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
 					requestService.getProductTourShown().then(function(response) {
 						viewModel.productTourShown = response.tourShown;
 					})
