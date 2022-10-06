@@ -8,21 +8,27 @@ interface TurnOffGuideModalProps {
 	isOpen?: boolean;
 	onClose: () => void;
 	onTurnOffGuide: () => void;
+	activeStepTitle: string;
 }
 
-export const TurnOffGuideModal = ({isOpen = false, onClose, onTurnOffGuide}: TurnOffGuideModalProps): JSX.Element => {
+export const TurnOffGuideModal = ({
+	isOpen = false,
+	onClose,
+	onTurnOffGuide,
+	activeStepTitle
+}: TurnOffGuideModalProps): JSX.Element => {
 	
 	const trackClose = useTrackingFunction(() => ({
 		event: "Close Turn Off Guide Modal",
 		payload: {
-			step: "Configure your workflows",
+			step: activeStepTitle,
 		}
 	}));
 
 	const trackTurnOff = useTrackingFunction(() => ({
 		event: "Turn Off Guide",
 		payload: {
-			step: "Configure your workflows",
+			step: activeStepTitle,
 		}
 	}));
 

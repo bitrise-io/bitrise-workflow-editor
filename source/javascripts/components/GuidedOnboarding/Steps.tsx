@@ -53,6 +53,7 @@ export const Steps = ({appSteps, activeStepIndex}: StepsProps): JSX.Element => {
                 isOpen={isCancelModalOpen}
                 onClose={() => setIsCancelModalOpen(false)}
                 onTurnOffGuide={() => setIsCancelModalOpen(false)}
+                activeStepTitle={appSteps[activeStepIndex].title}
             />
         </Flex>
     );
