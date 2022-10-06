@@ -1,12 +1,13 @@
-import { Provider } from "@bitrise/bitkit";
+import { theme } from "@bitrise/bitkit";
 import { ReactNode } from "react";
-import createCache from "@emotion/cache";
 import createSharedContext from "react2angular-shared-context"
-import { CacheProvider } from "@emotion/react";
+import { ChakraProvider, mergeThemeOverride } from "@chakra-ui/react";
 
-const cache = createCache({key: "wfe", prepend:true});
-const Root = ({children}: {children: ReactNode}) => {
-	return <CacheProvider value={cache}><Provider>{children}</Provider></CacheProvider>;
+
+const wfeTheme = mergeThemeOverride(theme, {styles: { global: {svg: {display: "inline"}}}});
+
+const Root = ({children}: {children: ReactNode}): JSX.Element => {
+	return <ChakraProvider theme={wfeTheme}>{children}</ChakraProvider>;
 };
 
 const { component: BitkitRoot, use: withBitkitProvider } = createSharedContext(Root);

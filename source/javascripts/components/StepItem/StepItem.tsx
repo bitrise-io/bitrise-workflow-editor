@@ -34,8 +34,9 @@ const StepItem = ({
 	stepIndex,
 	onSelected
 }: StepItemProps): JSX.Element => (
-		<Tooltip title={step.displayTooltip()} style={{ whiteSpace: "pre-line" }}>
+		<Tooltip label={step.displayTooltip()} style={{ whiteSpace: "pre-line" }}>
 			<button
+				type="button"
 				data-e2e-tag="step-item"
 				className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
 				<StepItemIcon step={step} />

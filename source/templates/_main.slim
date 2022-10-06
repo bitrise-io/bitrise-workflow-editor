@@ -49,7 +49,7 @@ header.sticky
 				button.save.rebo.purple[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]
 					span[ng-if="!mainCtrl.saveProgress.isInProgress"]
 						span.save[ng-if="mainCtrl.hasUnsavedChanges()" ng-class="osService.cssClass()"]
-						span.saved[ng-if="!mainCtrl.hasUnsavedChanges()"]  == svg("check")
+						span.saved[ng-if="!mainCtrl.hasUnsavedChanges()" style="display: flex"]  == svg("check")
 					span.in-progress[ng-if="mainCtrl.saveProgress.isInProgress"]  == svg("in_progress")
 	article.menu-content
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]

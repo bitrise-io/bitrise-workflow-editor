@@ -143,6 +143,7 @@ module.exports = {
 				use: {
 					loader: "ts-loader",
 					options: {
+						transpileOnly:true,
 						compilerOptions: {
 							sourceMap: !isProd
 						}
@@ -156,6 +157,7 @@ module.exports = {
 				use: {
 					loader: "ts-loader",
 					options: {
+						transpileOnly:true,
 						allowTsInNodeModules:true,
 						compilerOptions: {
 							sourceMap: !isProd

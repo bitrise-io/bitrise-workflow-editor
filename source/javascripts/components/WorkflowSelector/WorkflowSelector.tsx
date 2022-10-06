@@ -12,6 +12,8 @@ import { useState, useMemo, useEffect } from "react";
 import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
 
+const popoverOffset: [number,number] = [-8, 8];
+
 export type WorkflowSelectorProps = {
 	selectedWorkflow: Workflow;
 	workflows: Workflow[];
@@ -67,7 +69,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 	};
 
 	return (
-		<Popover isOpen={visible} onOpen={() => setVisible(true)} onClose={() => setVisible(false)}>
+		<Popover offset={popoverOffset} placement="bottom-start" isOpen={visible} onOpen={() => setVisible(true)} onClose={() => setVisible(false)}>
 			<PopoverTrigger>
 				<Box
 					display="flex"
@@ -109,6 +111,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 							textColor="purple.10"
 							width="114px"
 							hasEllipsis
+							textAlign="left"
 							data-e2e-tag="workflow-selector-selected-workflow-name"
 						>
 							{selectedWorkflow.id}
@@ -118,8 +121,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 				</Box>
 			</PopoverTrigger>
 
-			<PopoverContent>
-				<Box width="560px">
+			<PopoverContent width="560px">
 					<Input
 						padding="12"
 						leftIconName="Magnifier"
@@ -170,7 +172,6 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 								</Box>
 							</Box>
 					)}
-				</Box>
 			</PopoverContent>
 		</Popover>
 	);

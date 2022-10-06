@@ -354,6 +354,7 @@ header.menu {
 				}
 
 				span.saved {
+					display: flex;
 					&:after {
 						content: "<%= data[:strings][:main][:saved] %>";
 						margin-left: 6px;
@@ -361,8 +362,6 @@ header.menu {
 
 					svg {
 						@include size(24px);
-						margin-top: -4px;
-						margin-bottom: -7px;
 					}
 				}
 

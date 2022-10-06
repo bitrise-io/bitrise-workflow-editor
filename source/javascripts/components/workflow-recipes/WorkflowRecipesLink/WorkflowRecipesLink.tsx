@@ -22,6 +22,7 @@ const WorkflowRecipesLink = ({ linkId, trackingName }: WorkflowRecipesLinkProps)
 				colorScheme="purple"
 				onClick={trackAction}
 				display="flex"
+				alignItems="center"
 				gap="4"
 			>
 				<Icon name="OpenInBrowser" width="20px" height="20px" />
