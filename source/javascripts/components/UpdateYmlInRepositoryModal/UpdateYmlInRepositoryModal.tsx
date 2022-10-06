@@ -1,5 +1,5 @@
 import { ReactElement, useEffect } from "react";
-import { Button, Dialog, DialogBody, ButtonGroup, Box, Text, Notification } from "@bitrise/bitkit";
+import { Button, Dialog, DialogBody, DialogFooter, ButtonGroup, Box, Text, Notification } from "@bitrise/bitkit";
 import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
 import { AppConfig } from "../../models/AppConfig";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
@@ -65,18 +65,20 @@ const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplet
 
 					{getAppConfigFromRepoFailed && renderError()}
 
-					{!getAppConfigFromRepoLoading && !appConfigFromRepo && (
-						<ButtonGroup display="flex" justifyContent="end" marginTop="32" spacing="0" gap="32">
-							<Button variant="secondary" onClick={onClose}>
-								Cancel
-							</Button>
-							<Button variant="primary" onClick={getAppConfigFromRepo}>
-								I'm done
-							</Button>
-						</ButtonGroup>
-					)}
 				</Box>
 			</DialogBody>
+			<DialogFooter>
+				{!getAppConfigFromRepoLoading && !appConfigFromRepo && (
+					<ButtonGroup display="flex" justifyContent="end" spacing="0" gap="32">
+						<Button variant="secondary" onClick={onClose}>
+							Cancel
+						</Button>
+						<Button variant="primary" onClick={getAppConfigFromRepo}>
+							I'm done
+						</Button>
+					</ButtonGroup>
+				)}
+			</DialogFooter>
 		</Dialog>
 	);
 };
