@@ -24,7 +24,7 @@ export const elements = {
 
 	"Workflow recipes link": "#workflow-editor-main-toolbar-workflow-recipes-link",
 
-	"Delete Workflow Button": "div:contains('Delete selected Workflow'):last",
+	"Delete Workflow Button": "button:contains('Delete selected Workflow')",
 	"Selected Workflow Name": "[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]",
 	"Workflow selector": "[data-e2e-tag=\"workflow-selector-dropdown\"]",
 
@@ -158,7 +158,7 @@ export const elements = {
 	"Triggers tab": "button[data-e2e-tag='triggers-tab']",
 	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
-	"Rearrange button": "div:contains('Rearrange Workflows'):last",
+	"Rearrange button": "button:contains('Rearrange Workflows')",
 	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
 	"Workflow chain": ".workflow-chain",
 	"Workflow chain selected workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .selected",
