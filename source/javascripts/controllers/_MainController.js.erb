@@ -107,6 +107,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.productTourShown;
 			viewModel.guidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
+			viewModel.guidedOnboardingEnabledForUser = false;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -673,9 +674,19 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				launchDarklyService.initialize().then(() => {
 					viewModel.guidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
-					requestService.getProductTourShown().then(function(response) {
-						viewModel.productTourShown = response.tourShown;
-					})
+					if (viewModel.guidedOnboardingEnabled) {
+						const metadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+						const tourReq = requestService.getProductTourShown();
+
+						Promise.all([metadataReq, tourReq]).then(([metadataResp, tourResp]) => {
+							viewModel.guidedOnboardingEnabledForUser = metadataResp;
+							viewModel.productTourShown = tourResp;
+						});
+					} else {
+						requestService.getProductTourShown().then(function(response) {
+							viewModel.productTourShown = response.tourShown;
+						});
+					}
 				});
 
 				$q(function(resolve, reject) {
@@ -748,6 +759,17 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.onProductTourDismiss = function() {
 				setTimeout(() => $scope.$apply(() => viewModel.productTourDismissed = true), 1000);
+			}
+			
+			viewModel.showGuidedOnboarding = function() {
+				return viewModel.guidedOnboardingEnabled && viewModel.guidedOnboardingEnabledForUser;
+			}
+
+			viewModel.onTurnOffGuidedOnboarding = function() {
+				requestService.updateCurrentUserMetadata({'show_getting_started_guide': false})
+				.then(function() {
+					viewModel.guidedOnboardingEnabledForUser = false;
+				});
 			}
 		});
 })();

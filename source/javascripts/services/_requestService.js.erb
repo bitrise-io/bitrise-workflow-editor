@@ -168,6 +168,79 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			requestService.getCurrentUserMetadata = function(metadataKey, requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters(
+							"<%= webserver_path(data[:routes][:website][:current_user_metadata_get]) %>",
+							{
+								metadata_key: metadataKey
+							}
+						);
+						break;
+					case "cli":
+						return $q.reject(
+							new Error("<%= data[:strings][:request_service][:get_current_user_metadata][:not_website_mode_error] %>")
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve(response.data.value);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:get_current_user_metadata][:default_error] %>",
+									"<%= data[:strings][:request_service][:get_current_user_metadata][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			requestService.updateCurrentUserMetadata = function(metadataKeyValue, requestConfig) {
+				var requestURL;
+				var requestData;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = "<%= webserver_path(data[:routes][:website][:current_user_metadata_put]) %>";
+
+						requestData = {...metadataKeyValue};
+
+						break;
+					case "cli":
+						return $q.reject(
+							new Error(
+								"<%= data[:strings][:request_service][:put_current_user_metadata][:not_website_mode_error] %>"
+							)
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.put(requestURL, requestData, requestConfig).then(
+						function(response) {
+							resolve(response);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:put_current_user_metadata][:default_error] %>",
+									"<%= data[:strings][:request_service][:put_current_user_metadata][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			};
+
 			// Codesigndoc Bash Command
 
 			requestService.getCodeSigningBashCommand = function(requestConfig) {

@@ -9,6 +9,7 @@ import { AppStep } from "./types";
 interface GuidedOnboardingProps {
     isEnabled?: boolean;
     isOpen?: boolean;
+    onTurnOff: () => void;
 }
 
 const appSteps: AppStep[] = [
@@ -65,7 +66,8 @@ const ACTIVE_APP_STEP_INDEX = 2;
 
 export const GuidedOnboarding = ({
     isEnabled = false,
-    isOpen = false
+    isOpen = false,
+    onTurnOff
 }: GuidedOnboardingProps): JSX.Element | null => {
     const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
 		event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
@@ -81,7 +83,7 @@ export const GuidedOnboarding = ({
         onToggleOpen={trackOpenClose}
       >
         <Flex>
-            <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} />
+            <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} onTurnOff={onTurnOff} />
             <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} defaultSubstep={1} />
         </Flex>
       </Collapsible>): null;

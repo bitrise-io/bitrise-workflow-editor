@@ -12,9 +12,10 @@ import { AppStep } from "./types";
 interface StepsProps {
     appSteps: AppStep[];
     activeStepIndex: number;
+    onTurnOff: () => void;
 }
 
-export const Steps = ({appSteps, activeStepIndex}: StepsProps): JSX.Element => {
+export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.Element => {
     const [isCancelModalOpen, setIsCancelModalOpen] = useState(false);
 
     const trackClick = useTrackingFunction(() => ({
@@ -23,6 +24,11 @@ export const Steps = ({appSteps, activeStepIndex}: StepsProps): JSX.Element => {
             step: appSteps[activeStepIndex].title,
         }
     }));
+
+    const handleTurnOffGuide = (): void => {
+        onTurnOff();
+        setIsCancelModalOpen(false)
+    }
 
     return (
         <Flex
@@ -52,7 +58,7 @@ export const Steps = ({appSteps, activeStepIndex}: StepsProps): JSX.Element => {
             <TurnOffGuideModal
                 isOpen={isCancelModalOpen}
                 onClose={() => setIsCancelModalOpen(false)}
-                onTurnOffGuide={() => setIsCancelModalOpen(false)}
+                onTurnOffGuide={handleTurnOffGuide}
                 activeStepTitle={appSteps[activeStepIndex].title}
             />
         </Flex>
