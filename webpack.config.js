@@ -99,7 +99,7 @@ module.exports = {
 
 	optimization: {
 		minimize: isProd,
-		runtimeChunk: 'single',
+		runtimeChunk: "single",
 		minimizer: [
 			new TerserPLugin({
 				extractComments: true,
@@ -116,7 +116,7 @@ module.exports = {
 	},
 
 	performance: {
-		hints: 'error',
+		hints: "error",
 		maxAssetSize: 15000000,
 		maxEntrypointSize: 40000000,
 	},
@@ -143,7 +143,6 @@ module.exports = {
 				use: {
 					loader: "ts-loader",
 					options: {
-						transpileOnly:true,
 						compilerOptions: {
 							sourceMap: !isProd
 						}
@@ -157,7 +156,6 @@ module.exports = {
 				use: {
 					loader: "ts-loader",
 					options: {
-						transpileOnly:true,
 						allowTsInNodeModules:true,
 						compilerOptions: {
 							sourceMap: !isProd
