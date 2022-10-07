@@ -17,7 +17,7 @@ type StepItemIconProps = {
 };
 
 const StepItemIcon = ({ step }: StepItemIconProps): JSX.Element => (
-	<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
+	<LazyLoadImage wrapperProps={{style:{flexShrink:0}}} effect="blur" src={normalizeIconUrl(step)} />
 );
 
 export default StepItemIcon;

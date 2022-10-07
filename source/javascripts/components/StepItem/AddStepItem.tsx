@@ -14,7 +14,7 @@ type AddStepItemProps = {
 const AddStepItem = ({ step, onSelected }: AddStepItemProps): JSX.Element => (
 	<Box cursor="pointer" className="step">
 		<button className="select" onClick={() => onSelected(step)}>
-			<Icon name="PlusOpen" />
+			<Icon className="icon" name="PlusOpen" />
 			<Box className="step-content" display="flex" flexDirection="row" overflow="hidden" flexShrink="1" minWidth="0">
 				<StepItemIcon step={step} />
 				<Box
@@ -22,7 +22,7 @@ const AddStepItem = ({ step, onSelected }: AddStepItemProps): JSX.Element => (
 					flexGrow="1"
 					flexShrink="1"
 					minWidth="0"
-					flexDirection="row"
+					flexDirection="column"
 					className="details"
 					overflow="hidden"
 				>
