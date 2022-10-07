@@ -99,7 +99,6 @@ module.exports = {
 
 	optimization: {
 		minimize: isProd,
-		runtimeChunk: "single",
 		minimizer: [
 			new TerserPLugin({
 				extractComments: true,
