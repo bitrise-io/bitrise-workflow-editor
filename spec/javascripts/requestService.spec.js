@@ -65,8 +65,8 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 422,
 						responseJSON: {
-							bitrise_yml: "my-invalid-app-config", // eslint-disable-line @typescript-eslint/camelcase
-							error_msg: "Some error" // eslint-disable-line @typescript-eslint/camelcase
+							bitrise_yml: "my-invalid-app-config",
+							error_msg: "Some error"
 						}
 					});
 
@@ -87,7 +87,7 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 400,
 						responseJSON: {
-							error_msg: "Some error" // eslint-disable-line @typescript-eslint/camelcase
+							error_msg: "Some error"
 						}
 					});
 
@@ -107,7 +107,7 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 500,
 						responseJSON: {
-							error_msg: "Some error" // eslint-disable-line @typescript-eslint/camelcase
+							error_msg: "Some error"
 						}
 					});
 
@@ -148,7 +148,7 @@ describe("RequestService", () => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
 						status: 422,
 						responseJSON: {
-							bitrise_yml: "my-invalid-app-config", // eslint-disable-line @typescript-eslint/camelcase
+							bitrise_yml: "my-invalid-app-config",
 							error: "Some error"
 						}
 					});

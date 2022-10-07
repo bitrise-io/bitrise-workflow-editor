@@ -17,7 +17,6 @@ export default function usepostAppConfigCallback(appSlug: string, appConfig: str
 	} = useMonolithApiCallback<AppConfig>(`/api/app/${appSlug}/config`, {
 		method: "POST",
 		body: JSON.stringify({
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			app_config_datastore_yaml: appConfig
 		})
 	});

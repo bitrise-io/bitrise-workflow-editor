@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/camelcase */
 import { useEffect } from "react";
 import { useState } from "react";
 import { Highlighter } from "./Highlighter";

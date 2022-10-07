@@ -2,7 +2,6 @@ describe("stepSourceService", function() {
 	let stepSourceService;
 	const TEST_STEP_ID = "mockStep";
 	const TEST_LIB_URL = "http://tempuri.org";
-	// eslint-disable-next-line @typescript-eslint/camelcase
 	const TEST_STEP_LATEST_CONFIG = { asset_urls: "test_urls", name: "2.2.1 config" };
 	let mockSemverService, mockLogger, q, appService, stepLibSearchService;
 
@@ -26,7 +25,6 @@ describe("stepSourceService", function() {
 
 		appService = {
 			appConfig: {
-				// eslint-disable-next-line @typescript-eslint/camelcase
 				default_step_lib_source: TEST_LIB_URL
 			}
 		};

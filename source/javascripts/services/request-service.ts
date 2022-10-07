@@ -45,7 +45,7 @@ class RequestService {
 		abortedPromise: Promise<undefined>
 	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
 		const websiteRequestURL = StringService.stringReplacedWithParameters(window["routes"].website.yml_get, {
-			app_slug: this.appSlug // eslint-disable-line @typescript-eslint/camelcase
+			app_slug: this.appSlug
 		});
 		const cliRequestURL = window["routes"].local_server.yml_get;
 		const requestURL = this.mode == RequestServiceMode.Website ? websiteRequestURL : cliRequestURL;

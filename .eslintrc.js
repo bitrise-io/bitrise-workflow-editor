@@ -16,18 +16,23 @@ module.exports = {
 		inject: false,
 		Promise: false
 	},
+  settings: {
+    react: {
+			version: "detect"
+		}
+	},
 	extends: [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
-		"plugin:react/recommended"
+		"plugin:react/recommended",
+		"plugin:react/jsx-runtime"
 	],
 	rules: {
 		"max-len": ["error", { code: 120, tabWidth: 1 }],
 		quotes: [2, "double"],
 		"no-with": "off",
 		"prefer-const": ["error", { destructuring: "all" }],
-		"react/react-in-jsx-scope": "off",
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
 		"@typescript-eslint/no-non-null-assertion": "off",
@@ -37,14 +42,9 @@ module.exports = {
 		{
 			files: ["*.js"],
 			rules: {
+				"@typescript-eslint/no-var-requires": "off",
 				"@typescript-eslint/explicit-function-return-type": "off"
 			}
 		},
-		{
-			files: ["*.config.js"],
-			rules: {
-				"@typescript-eslint/no-var-requires": "off"
-			}
-		}
 	]
 };

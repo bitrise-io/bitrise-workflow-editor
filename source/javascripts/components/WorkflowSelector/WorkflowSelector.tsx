@@ -1,18 +1,9 @@
-import {
-	Box,
-	Text,
-	Icon,
-	Input,
-	Popover,
-	PopoverContent,
-	PopoverTrigger,
-	IconButton,
-} from "@bitrise/bitkit";
+import { Box, Text, Icon, Input, Popover, PopoverContent, PopoverTrigger, IconButton } from "@bitrise/bitkit";
 import { useState, useMemo, useEffect } from "react";
 import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
 
-const popoverOffset: [number,number] = [-8, 8];
+const popoverOffset: [number, number] = [-8, 8];
 
 export type WorkflowSelectorProps = {
 	selectedWorkflow: Workflow;
@@ -69,7 +60,13 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 	};
 
 	return (
-		<Popover offset={popoverOffset} placement="bottom-start" isOpen={visible} onOpen={() => setVisible(true)} onClose={() => setVisible(false)}>
+		<Popover
+			offset={popoverOffset}
+			placement="bottom-start"
+			isOpen={visible}
+			onOpen={() => setVisible(true)}
+			onClose={() => setVisible(false)}
+		>
 			<PopoverTrigger>
 				<Box
 					display="flex"
@@ -104,7 +101,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 						onClick={() => setVisible(true)}
 						data-e2e-tag="workflow-selector-dropdown"
 						_hover={{
-							background: "neutral.93",
+							background: "neutral.93"
 						}}
 					>
 						<Text
@@ -122,14 +119,15 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 			</PopoverTrigger>
 
 			<PopoverContent width="560px">
-					<Input
-						padding="12"
-						leftIconName="Magnifier"
-						autoFocus
-						placeholder="Search workflows..."
-						value={search}
-						onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
-						rightAddon={search ? (
+				<Input
+					padding="12"
+					leftIconName="Magnifier"
+					autoFocus
+					placeholder="Search workflows..."
+					value={search}
+					onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
+					rightAddon={
+						search ? (
 							<IconButton
 								aria-label="Reset"
 								iconName="CloseSmall"
@@ -138,40 +136,41 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 								_active={{ background: "transparent" }}
 								_hover={{ background: "transparent" }}
 							/>
-					) : null}
-						rightAddonPlacement="inside"
-					/>
-					{filteredWorkflows.length ? (
-						<Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
-							{filteredWorkflows.map(workflow => (
-								<WorkflowSelectorItem
-									key={workflow.id}
-									workflow={workflow}
-									selectWorkflow={onItemClick}
-									selectedWorkflowId={selectedWorkflow.id}
-									workflowIds={workflowIds}
-									renameWorkflowConfirmed={renameWorkflowConfirmed}
-									data-e2e-tag="workflow-selector-option"
-								/>
-							))}
+						) : null
+					}
+					rightAddonPlacement="inside"
+				/>
+				{filteredWorkflows.length ? (
+					<Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
+						{filteredWorkflows.map(workflow => (
+							<WorkflowSelectorItem
+								key={workflow.id}
+								workflow={workflow}
+								selectWorkflow={onItemClick}
+								selectedWorkflowId={selectedWorkflow.id}
+								workflowIds={workflowIds}
+								renameWorkflowConfirmed={renameWorkflowConfirmed}
+								data-e2e-tag="workflow-selector-option"
+							/>
+						))}
+					</Box>
+				) : (
+					<Box
+						display="flex"
+						textColor="neutral.50"
+						gap="12"
+						flexDirection="column"
+						alignItems="center"
+						justifyContent="center"
+						padding="20"
+					>
+						<Icon name="BitbotError" width="40px" height="40px" />
+						<Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap="4">
+							<Text fontWeight="bold">No workflows found.</Text>
+							<Text>Modify or reset the search.</Text>
 						</Box>
-						) : (
-							<Box
-								display="flex"
-								textColor="neutral.50"
-								gap="12"
-								flexDirection="column"
-								alignItems="center"
-								justifyContent="center"
-								padding="20"
-								>
-								<Icon name="BitbotError" width="40px" height="40px" />
-								<Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap="4">
-									<Text fontWeight="bold">No workflows found.</Text>
-									<Text>Modify or reset the search.</Text>
-								</Box>
-							</Box>
-					)}
+					</Box>
+				)}
 			</PopoverContent>
 		</Popover>
 	);

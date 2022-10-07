@@ -42,7 +42,13 @@ const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplet
 	};
 
 	return (
-		<Dialog backgroundColor="white" onClose={onClose} isOpen={true} width="640px" title="Update the bitrise.yml file in your app's repository">
+		<Dialog
+			backgroundColor="white"
+			onClose={onClose}
+			isOpen={true}
+			width="640px"
+			title="Update the bitrise.yml file in your app's repository"
+		>
 			<DialogBody>
 				<Box display="flex" flexDirection="column" gap="16">
 					<Text textColor="neutral.30">
@@ -64,7 +70,6 @@ const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplet
 					)}
 
 					{getAppConfigFromRepoFailed && renderError()}
-
 				</Box>
 			</DialogBody>
 			<DialogFooter>

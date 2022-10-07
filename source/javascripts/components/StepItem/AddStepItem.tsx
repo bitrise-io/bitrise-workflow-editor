@@ -17,7 +17,15 @@ const AddStepItem = ({ step, onSelected }: AddStepItemProps): JSX.Element => (
 			<Icon name="PlusOpen" />
 			<Box className="step-content" display="flex" flexDirection="row" overflow="hidden" flexShrink="1" minWidth="0">
 				<StepItemIcon step={step} />
-				<Box display="flex" flexGrow="1" flexShrink="1" minWidth="0" flexDirection="row" className="details" overflow="hidden">
+				<Box
+					display="flex"
+					flexGrow="1"
+					flexShrink="1"
+					minWidth="0"
+					flexDirection="row"
+					className="details"
+					overflow="hidden"
+				>
 					<StepItemTitle step={step} style={{ fontWeight: "900", flexShrink: 0 }} />
 					<StepItemBadge step={step} />
 					<MarkdownText className="summary" markdown={step.summary()} />
