@@ -64,7 +64,6 @@
 		"react-copy-to-clipboard": "^5.0.2",
 		"react-dom": "^18.2.0",
 		"react-lazy-load-image-component": "^1.4.3",
-		"react2angular-shared-context": "^1.1.2",
 		"showdown": "^1.9.1",
 		"underscore": "^1.13.2"
 	},

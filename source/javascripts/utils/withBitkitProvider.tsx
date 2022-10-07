@@ -1,7 +1,7 @@
 import { theme } from "@bitrise/bitkit";
 import { ReactNode } from "react";
-import createSharedContext from "react2angular-shared-context"
 import { ChakraProvider, mergeThemeOverride } from "@chakra-ui/react";
+import createSharedContext from "./createSharedContext";
 
 
 const wfeTheme = mergeThemeOverride(theme, {styles: { global: {svg: {display: "inline"}}}});
