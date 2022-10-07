@@ -3,17 +3,22 @@
   border-bottom: 1px solid #FFD5A3; //orange90
   padding: 24px 0;
   a {
-    color: #9247C2;
     cursor: pointer;
   }
 }
 
 .guided-onboarding-list-row {
   ul {
-    min-width: 255px;
+    min-width: 300px;
+    list-style: none;
   }
   li {
+    padding-bottom: 8px;
     cursor: pointer;
+  }
+  .onboarding-list-item-icon {
+    height: 24px;
+    width: 24px;
   }
 }
 

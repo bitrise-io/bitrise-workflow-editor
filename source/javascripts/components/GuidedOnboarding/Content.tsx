@@ -1,17 +1,19 @@
 import React, { useState } from "react";
-import { Flex, Text } from "@bitrise/bitkit";
+import { Flex, Icon, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
+import dotIcon from "../../../images/dot.svg";
 import { AppStep } from "./types";
 
 interface ContentProps {
     activeStep: AppStep;
+    defaultSubstep?: number;
 }
 
-export const Content = ({activeStep}: ContentProps): JSX.Element => {
+export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.Element => {
   const {subSteps} = activeStep;
-  const [activeSubstep, setActiveSubstep] = useState(0);
+  const [activeSubstep, setActiveSubstep] = useState(defaultSubstep);
   const activeSubstepData = subSteps.find(({id}) => id === activeSubstep);
   const trackClick = useTrackingFunction((item: string) => ({
     event: "Guided Onboarding Clicked",
@@ -40,13 +42,30 @@ export const Content = ({activeStep}: ContentProps): JSX.Element => {
                             }}
                         >
                             <Flex
-                                className="guided-onboarding-list-row"
                                 direction="horizontal"
                                 alignChildrenHorizontal="between"
                             >
-                                <Text size='3' weight={activeSubstep === id ? "bold" : undefined}>
-                                    {title}
-                                </Text>
+                                <Flex
+                                    direction="horizontal"
+                                    gap="x2"
+                                    alignChildrenVertical="middle"
+                                >
+                                        <Flex 
+                                            className="onboarding-list-item-icon"
+                                            direction="horizontal"
+                                            alignChildrenHorizontal="middle"
+                                            alignChildrenVertical="middle"
+                                        >
+                                            {
+                                                activeSubstep === id ?
+                                                <Icon name="ChevronRight"/> :
+                                                <img height={4} width={4} src={dotIcon}/>
+                                            }
+                                        </Flex>
+                                    <Text size='3' weight={activeSubstep === id ? "bold" : undefined}>
+                                        {title}
+                                    </Text>
+                                </Flex>
                                 {activeSubstep === id ? <div className="arrow-left"></div> : null}
                             </Flex>
                         </li>        

@@ -54,7 +54,7 @@ export const TurnOffGuideModal = ({
 				<Flex direction="vertical" gap="x6">
 					<ModalTitle>
 						<Flex direction="horizontal" alignChildrenHorizontal="between">
-							<Text size="5">Turn off onboarding guide?</Text>
+							<Text size="5">Turn off Getting Started Guide?</Text>
 							<Button onClick={handleClose} level="tertiary" style={{ padding: "0" }}>
 								<Icon name="CloseSmall" textColor="grape-5" />
 							</Button>
@@ -62,7 +62,7 @@ export const TurnOffGuideModal = ({
 					</ModalTitle>
 
 					<Text size='3'>
-						If you turn off the onboarding guide, you will not get suggestions{" "}
+						If you turn off the Getting Started Guide, you will not get suggestions{" "}
 						on how to get started with the key features of Bitrise.
 					</Text>
 

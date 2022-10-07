@@ -38,13 +38,13 @@ export const Steps = ({appSteps, activeStepIndex}: StepsProps): JSX.Element => {
                 appSteps.map(({title, isSuccessful}) => (
                     <Flex key={title} direction='horizontal' gap='x2' alignChildrenVertical='middle'>
                         <img src={isSuccessful ? statusSuccessfulIcon : stepStatusNextIcon} />
-                        <Text size='2' uppercase style={{ lineHeight: "16px" }}>{title}</Text>
+                        <Text size='1' weight="bold" uppercase style={{ lineHeight: "16px" }}>{title}</Text>
                     </Flex>
                 ))
             }
             </Flex>
-            <Text size='2'>
-                <Link onClick={() => {
+            <Text size='3'>
+                <Link className="guided-onboarding-turn-off-link" onClick={() => {
                     setIsCancelModalOpen(true);
                     trackClick();
                 }}>Turn off guide</Link>

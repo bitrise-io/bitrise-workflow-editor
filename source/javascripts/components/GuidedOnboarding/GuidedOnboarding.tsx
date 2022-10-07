@@ -76,13 +76,13 @@ export const GuidedOnboarding = ({
 
   return isEnabled ?
     (<Collapsible
-        title="Getting started guide"
+        title="Getting Started Guide"
         open={isOpen}
         onToggleOpen={trackOpenClose}
       >
         <Flex>
             <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} />
-            <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} />
+            <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} defaultSubstep={1} />
         </Flex>
       </Collapsible>): null;
 };
