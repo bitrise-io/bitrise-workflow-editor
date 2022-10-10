@@ -32,7 +32,6 @@ export const Highlighter = ({
 				zIndex="100"
 				sx={{"& > *": {pointerEvents: "all"}}}>
 				<Box
-					className="highlighter__backdrop-mask"
 					width="100vw"
 					height="100vh"
 					backgroundColor="rgba(0,0,0,0.2)"
