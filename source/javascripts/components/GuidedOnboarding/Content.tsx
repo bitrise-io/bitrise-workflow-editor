@@ -1,5 +1,5 @@
-import React, { useState } from "react";
-import { Flex, Text, Link } from "@bitrise/bitkit";
+import { useState } from "react";
+import { Box, Text, Link } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 
@@ -9,7 +9,7 @@ const workflowSteps = [
       title: "Common steps",
       content: <>
           The following Steps may help with your initial Workflow setup:&nbsp;
-          <Text style={{display: "inline"}} size='2' weight="bold">
+          <Text style={{display: "inline"}} size='2' fontWeight="bold">
               Recreate user schemes, Brew install, File downloader.
           </Text>
       </>
@@ -37,33 +37,33 @@ const workflowSteps = [
 export const Content = (): JSX.Element => {
   const [activeWorkflowStep, setActiveStep] = useState(0);
   const activeWorkflowStepData = workflowSteps.find(({id}) => id === activeWorkflowStep);
-    
+
   return (
-    <Flex className="guided-onboarding-content-row">
+    <Box className="guided-onboarding-content-row">
         <div className="guided-onbooarding-gap"></div>
-        <Text size='4' weight="bold">Set up the basics</Text>
+        <Text size='4' fontWeight="bold">Set up the basics</Text>
         <Text size='3'>
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
         </Text>
         <div className="guided-onbooarding-gap"></div>
-        <Flex className="guided-onboarding-list-row" direction="horizontal">
+        <Box className="guided-onboarding-list-row" display="flex" flexDirection="row">
             <ul>
                 {
                     workflowSteps.map(({title, id}) => (
                         <li key={title}
                             onClick={() => setActiveStep(id)}
                         >
-                            <Flex
+                            <Box
                                 className="guided-onboarding-list-row"
-                                direction="horizontal"
-                                alignChildrenHorizontal="between"
+                                flexDirection="row"
+                                justifyContent="space-between"
                             >
-                                <Text size='3' weight={activeWorkflowStep === id ? "bold" : undefined}>
+                                <Text size='3' fontWeight={activeWorkflowStep === id ? "bold" : undefined}>
                                     {title}
                                 </Text>
                                 {activeWorkflowStep === id ? <div className="arrow-left"></div> : null}
-                            </Flex>
-                        </li>        
+                            </Box>
+                        </li>
                     ))
                 }
             </ul>
@@ -76,7 +76,7 @@ export const Content = (): JSX.Element => {
                     {activeWorkflowStepData.href && <Link href={activeWorkflowStepData.href}>Learn More</Link>}
                 </div>
             }
-        </Flex>
-    </Flex>
+        </Box>
+    </Box>
   );
 };

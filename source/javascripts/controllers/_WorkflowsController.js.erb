@@ -45,7 +45,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
 
 					viewModel.shouldShowWorkflowsContent = true;
-				}, 0);
+				}, 100);
 			};
 
 			var resizeTimeout;

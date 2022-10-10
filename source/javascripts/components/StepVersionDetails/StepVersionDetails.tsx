@@ -1,5 +1,5 @@
-import React, { Fragment } from "react";
-import { Text, Base } from "@bitrise/bitkit";
+import { Fragment } from "react";
+import { Box, Text } from "@bitrise/bitkit";
 import { Step } from "../../models";
 
 import StepResolvedVersionInfo from "./StepResolvedVersionInfo";
@@ -38,7 +38,7 @@ const StepVersionDetails = ({
 		<Fragment>
 			{isVersionDefined && (
 				<section className="version" data-e2e-tag="step-version-details">
-					<Base className="version-info">
+					<Box className="version-info">
 						<StepResolvedVersionInfo
 							step={step}
 							isLatestVersion={isLatestVersion}
@@ -47,7 +47,7 @@ const StepVersionDetails = ({
 							strings={strings}
 						/>
 						{step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
-					</Base>
+					</Box>
 					{step.isLibraryStep() && (
 						<StepVersionSelector
 							{...versionSelectorOpts}

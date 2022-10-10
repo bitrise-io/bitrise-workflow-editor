@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 
-export const getClipPathFromRect = (highlightedRect: DOMRect | null) => {
+export const getClipPathFromRect = (highlightedRect: DOMRect | null): string => {
 	let clipPath = "";
 	if (highlightedRect) {
 		const { x, y, width, height } = highlightedRect;
@@ -19,11 +19,11 @@ export const getClipPathFromRect = (highlightedRect: DOMRect | null) => {
 	return clipPath;
 };
 
-export const useHighlightedArea = (selectedId: string | undefined) => {
+export const useHighlightedArea = (selectedId: string | undefined): DOMRect | null  => {
 	const ref = useRef<HTMLElement | null>(null);
 	const [highlightedRect, setHighlightedRect] = useState<DOMRect | null>(null);
 
-	const highlightElement = useCallback(id => {
+	const highlightElement = useCallback((id: string) => {
 		const element = document.getElementById(id);
 		if (element) {
 			ref.current = element;
@@ -39,7 +39,7 @@ export const useHighlightedArea = (selectedId: string | undefined) => {
 	}, [selectedId, highlightElement]);
 
 	useEffect(() => {
-		const onResize = () => {
+		const onResize = (): void => {
 			if (ref.current) {
 				const rect = ref.current!.getBoundingClientRect();
 				setHighlightedRect(rect);

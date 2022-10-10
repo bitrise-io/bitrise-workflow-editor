@@ -1,6 +1,4 @@
-import React from "react";
-
-import { Text, Button, Flex, Icon, Link } from "@bitrise/bitkit";
+import { Text, Button, Box, Icon, Link } from "@bitrise/bitkit";
 
 import "./ProductTooltip.scss";
 
@@ -28,28 +26,26 @@ export const ProductTooltip = ({
 	rect,
 	onClose,
 	onButtonClick
-}: ProductTooltipProps) => {
+}: ProductTooltipProps): JSX.Element | null => {
 	if (!tip) {
 		return null;
 	}
 
-	const onGotIt = () => {
+	const onGotIt = (): void => {
 		onButtonClick("got it");
 		onClose();
 	};
 
 	return (
-		<Flex
-			style={{
-				left: rect?.x,
-				top: (rect?.y ?? 0) + (rect?.height ?? 0) + 20
-			}}
+		<Box
+			left={rect?.x}
+			top={(rect?.y ?? 0) + (rect?.height ?? 0) + 20}
 			className="product-tooltip"
 		>
-			<Flex direction="horizontal" style={{ flexGrow: 1 }}>
+			<Box display="flex" flexGrow="1">
 				<div className="arrow-up" style={{ left: rect!.width / 2 - 5 }} />
-				<Flex direction="vertical" style={{ flex: "1 0 0", gap: "8px" }}>
-					<Text size="4" weight="bold">
+				<Box display="flex" flexDirection="column" flex="1 0 0" gap="8px">
+					<Text size="4" fontWeight="bold">
 						{tip.title}
 					</Text>
 					<Text maxWidth="400px">
@@ -60,7 +56,7 @@ export const ProductTooltip = ({
 									onButtonClick("learn more");
 								}}
 								color="grape-3"
-								underline
+								isUnderlined
 								target="_blank"
 								rel="noreferrer"
 								href={tip.link}
@@ -70,42 +66,43 @@ export const ProductTooltip = ({
 							</Link>
 						)}
 					</Text>
-				</Flex>
+				</Box>
 				{!finished && (
-					<Flex>
-						<Button onClick={onClose} level="tertiary" style={{ padding: "0" }}>
+					<Box>
+						<Button onClick={onClose} variant="tertiary" style={{ padding: "0" }}>
 							<Icon name="CloseSmall" textColor="grape-5" />
 						</Button>
-					</Flex>
+					</Box>
 				)}
-			</Flex>
+			</Box>
 
-			<Flex direction="horizontal" className="product-tooltip__footer">
-				<Flex
-					borderRadius="x1"
-					direction="horizontal"
-					backgroundColor="gray-1"
-					paddingHorizontal="x3"
-					alignChildrenVertical="middle"
+			<Box display="flex" flexDirection="row" className="product-tooltip__footer">
+				<Box
+					display="flex"
+					borderRadius="4"
+					flexDirection="row"
+					backgroundColor="neutral.95"
+					paddingX="12"
+					justifyContent="center"
 				>
-					<Text size="2">{selectedIndex !== undefined && <p>{`${selectedIndex + 1}/${total}`}</p>}</Text>
-				</Flex>
+					<Text size="2">{selectedIndex !== undefined && `${selectedIndex + 1}/${total}`}</Text>
+				</Box>
 
 				{finished ? (
-					<Button level="primary" size="small" onClick={onGotIt}>
+					<Button variant="primary" size="small" onClick={onGotIt}>
 						Got it
 					</Button>
 				) : (
-					<Flex className="product-tooltip__navigation">
+					<Box className="product-tooltip__navigation">
 						<Button size="small" onClick={onPrev}>
 							<Icon name="ChevronLeft" />
 						</Button>
 						<Button size="small" onClick={onNext}>
 							<Icon name="ChevronRight" />
 						</Button>
-					</Flex>
+					</Box>
 				)}
-			</Flex>
-		</Flex>
+			</Box>
+		</Box>
 	);
 };

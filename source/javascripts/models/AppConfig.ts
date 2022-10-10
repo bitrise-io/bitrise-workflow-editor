@@ -1,1 +1,1 @@
-export type AppConfig = {};
+export type AppConfig = Record<string, unknown> | string;

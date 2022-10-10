@@ -1,4 +1,4 @@
-import React, { FC } from "react";
+import { FC } from "react";
 import { Link, Text, TypeColors, TextProps } from "@bitrise/bitkit";
 
 type InlineLinkProps = {
@@ -12,8 +12,8 @@ const InlineLink: FC<InlineLinkProps> = (props: InlineLinkProps) => {
 	const { text, url, color = "grape-3", underline, ...rest } = props;
 
 	return (
-		<Text {...rest} inline textColor={color}>
-			<Link underline={underline} target="_blank" href={url}>
+		<Text {...rest} as="span" textColor={color}>
+			<Link isUnderlined={underline} target="_blank" href={url}>
 				{text}
 			</Link>
 		</Text>

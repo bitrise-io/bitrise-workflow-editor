@@ -35,9 +35,17 @@ workflows:
 
   setup-client:
     steps:
-    - nvm@1:
+    - script@1.1.5:
+        title: install nodejs with asdf
         inputs:
-        - node_version: 14.17.3
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.2
+            source ~/.asdf/asdf.sh
+            asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+            asdf install nodejs
+            envman add --key PATH --value $PATH
     - script:
         title: Install NPM and Bundler
         deps:

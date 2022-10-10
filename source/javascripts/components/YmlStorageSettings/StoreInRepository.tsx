@@ -1,5 +1,5 @@
-import React, { FC, useMemo, useEffect, useState } from "react";
-import { Flex, Button, Buttons, Notification } from "@bitrise/bitkit";
+import { useMemo, useEffect, useState } from "react";
+import { Box, Button, ButtonGroup, Notification } from "@bitrise/bitkit";
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import useGetAppConfigCallback from "../../hooks/api/useGetAppConfigCallback";
@@ -18,11 +18,11 @@ type StorageInRepositoryProps = {
 	onSuccess(): void;
 };
 
-const StorageInRepository: FC<StorageInRepositoryProps> = ({
+const StorageInRepository = ({
 	appSlug,
 	onCancel,
 	onSuccess
-}: StorageInRepositoryProps) => {
+}: StorageInRepositoryProps): JSX.Element => {
 	const {
 		getAppConfigFromRepoStatus,
 		getAppConfigFromRepoFailed,
@@ -76,7 +76,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 			case 422:
 				return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed!.error_msg} />;
 			default:
-				return <Notification type="alert">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
+				return <Notification status="error">{getAppConfigFromRepoFailed!.error_msg}</Notification>;
 		}
 	};
 
@@ -86,7 +86,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 
 	if (isFinished) {
 		return (
-			<Notification margin="x2" type="success">
+			<Notification margin="x2" status="success">
 				{(window as WFEWindow).strings["yml"]["store_in_repository"]["success"]}
 			</Notification>
 		);
@@ -94,7 +94,7 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 
 	return (
 		<>
-			<Flex direction="vertical" gap="x6">
+			<Box display="flex" flexDirection="column" gap="24">
 				<StoreInRepositoryDescription
 					title={
 						appConfigFromRepo || getAppConfigFromRepoStatus !== 404
@@ -117,16 +117,16 @@ const StorageInRepository: FC<StorageInRepositoryProps> = ({
 				{getAppConfigFromRepoLoading || updatePipelineConfigLoading ? (
 					<ValidatingYmlInRepoProgress />
 				) : (
-					<Buttons gap="x4">
-						<Button level="primary" onClick={() => setconfirmModalVisible(true)}>
+					<ButtonGroup spacing="16">
+						<Button variant="primary" onClick={() => setconfirmModalVisible(true)}>
 							Update settings
 						</Button>
-						<Button level="secondary" onClick={onCancel}>
+						<Button variant="secondary" onClick={onCancel}>
 							Cancel
 						</Button>
-					</Buttons>
+					</ButtonGroup>
 				)}
-			</Flex>
+			</Box>
 
 			<ConfirmSwitchToRepositoryYml
 				visible={confirmModalVisible}

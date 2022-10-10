@@ -60,7 +60,7 @@ function useFetchCallback<T, E>(url: string, init?: RequestInit, parser = JSON.p
 				}
 			} catch (e) {
 				console.error(e);
-				setFailed(e);
+				setFailed(e as E);
 			} finally {
 				setLoading(false);
 			}

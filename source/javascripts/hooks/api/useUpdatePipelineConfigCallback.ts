@@ -17,7 +17,6 @@ export default function useUpdatePipelineConfigCallback(appSlug: string, usesRep
 	} = useMonolithApiCallback<PipelineConfig>(`/app/${appSlug}/pipeline_config`, {
 		method: "PUT",
 		body: JSON.stringify({
-			// eslint-disable-next-line @typescript-eslint/camelcase
 			uses_repository_yml: usesRepositoryYml
 		})
 	});
