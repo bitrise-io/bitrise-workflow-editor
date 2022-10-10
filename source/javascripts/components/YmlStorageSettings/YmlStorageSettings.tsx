@@ -29,7 +29,7 @@ const YmlStorageSettings = ({
 	}, [initialUsesRepositoryYml]);
 
 	return (
-		<Box borderRadius="8" borderColor="neutral.80" overflow="hidden">
+		<Box borderRadius="8" borderStyle="solid" borderWidth="1px" borderColor="neutral.80" overflow="hidden">
 			<Box backgroundColor="neutral.93" paddingX="16" paddingY="12" gap="8" display="flex" flexDirection="column">
 				<Text fontWeight="bold" size="3" textColor="purple.10">
 					Where do you want to store the bitrise.yml file?
@@ -41,7 +41,7 @@ const YmlStorageSettings = ({
 				</Text>
 			</Box>
 			<Box paddingX="16" paddingY="24">
-				<Box width="665px" gap="x6" display="flex" flexDirection="column">
+				<Box width="665px" gap="24" display="flex" flexDirection="column">
 					<Box display="flex" flexDirection="row" gap="24">
 						<YmlStorageOption
 							onClick={() => setUsesRepositoryYml(false)}

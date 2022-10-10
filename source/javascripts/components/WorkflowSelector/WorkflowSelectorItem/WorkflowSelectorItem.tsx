@@ -75,8 +75,8 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 					/>
 					<Box
 						color="neutral.100"
-						background={isWorkflowIdValid ? "red.50" : "purple.40"}
-						cursor={isWorkflowIdValid ? "not-allowed" : "pointer"}
+						background={!isWorkflowIdValid ? "red.50" : "purple.40"}
+						cursor={!isWorkflowIdValid ? "not-allowed" : "pointer"}
 						padding="12"
 						onClick={onRenameConfirm}
 						data-e2e-tag="workflow-selector-item-name-edit-submit"
