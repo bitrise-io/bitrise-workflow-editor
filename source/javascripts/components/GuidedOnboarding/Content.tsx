@@ -58,11 +58,7 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                                             justifyContent="center"
                                             alignItems="center"
                                         >
-                                            {
-                                                activeSubstep === id ?
-                                                <Icon name="ChevronRight"/> :
-                                                <Icon name="Bulletpoint"/>
-                                            }
+                                            <Icon name={activeSubstep === id ? "ChevronRight" : "Bulletpoint"}/>
                                         </Box>
                                     <Text size='3' fontWeight={activeSubstep === id ? "bold" : undefined}>
                                         {title}

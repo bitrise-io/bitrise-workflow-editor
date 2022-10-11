@@ -17,37 +17,21 @@ export const TurnOffGuideModal = ({
 	activeStepTitle
 }: TurnOffGuideModalProps): JSX.Element => {
 	
-	const trackClose = useTrackingFunction(() => ({
+	const track = useTrackingFunction((item: string) => ({
 		event: "Guided Onboarding Clicked",
 		payload: {
 			step: activeStepTitle,
-			item: "Close turn off guide modal"
-		}
-	}));
-
-	const trackTurnOff = useTrackingFunction(() => ({
-		event: "Guided Onboarding Clicked",
-		payload: {
-			step: activeStepTitle,
-			item: "Turn off guide"
-		}
-	}));
-
-	const trackProfileLink = useTrackingFunction(() => ({
-		event: "Guided Onboarding Clicked",
-		payload: {
-			step: activeStepTitle,
-			item: "Profile Settings - Link"
+			item
 		}
 	}));
 
 	const handleClose = (): void => {
-		trackClose();
+		track("Turn Off Guide Modal - close");
 		onClose();
 	}
 
 	const handleTurnOffGuide = (): void => {
-		trackTurnOff();
+		track("Turn Off Guide Modal - turn off");
 		onTurnOffGuide();
 	}
   return (
@@ -70,7 +54,7 @@ export const TurnOffGuideModal = ({
 				<Link
 					color="purple.50"
 					href="/me/profile#/edit_profile"
-					onClick={trackProfileLink}
+					onClick={() => track("Profile Settings - Link")}
 				>
 					Profile Settings
 				</Link>.
