@@ -1,4 +1,4 @@
-import { Given, When } from "cypress-cucumber-preprocessor/steps";
+import { Given, When } from "@badeball/cypress-cucumber-preprocessor";
 import $ from "../elements";
 import { click } from "../common";
 
