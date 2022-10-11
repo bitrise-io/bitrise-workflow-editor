@@ -7,8 +7,7 @@ Feature: Workflow steps details
     Given workflows tab is open
 
   Scenario: Step title scenarios
-    When I wait 300
-      And I click on "Sixth step"
+    When I click on "Sixth step"
     Then I should see "Install Swiftlint 0.35" in "Step Title"
     When I click on "Seventeenth step"
     Then I should see "[BETA] iOS Device Testing" in "Step Title"
@@ -32,8 +31,7 @@ Feature: Workflow steps details
     Then "Step Title Edit Box" should "be empty"
 
   Scenario: Step rename
-    When I wait 300
-      And I click on "Sixth step"
+    When I click on "Sixth step"
       And I click on "Step Title"
     Then "Step Title Edit Box" should "have value: Install Swiftlint 0.35"
     When I clear "Step Title Edit Box"
@@ -53,7 +51,6 @@ Feature: Workflow steps details
       And I should see "Version: 1.1.5" in "Step Version"
       And I should see "1.1.5" in "Second StepItem Version Update Indicator"
     When I select "wf2 workflow" from "Workflow selector"
-      And I wait 300
       And I click on "Second step"
     # GitHub step
     Then "Second StepItem Version Update Indicator" should "not be visible"

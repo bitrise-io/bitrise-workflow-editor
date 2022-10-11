@@ -1,9 +1,9 @@
 import triggerElements from "./triggers/elements";
 
 const workflowSelectElement = workflowName => `[data-e2e-tag="workflow-selector-option-${workflowName}"]`;
-const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
+const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1}) button.step`;
 const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
-	`.workflow:nth-child(${workflowIndex}) .steps ul li:eq(${stepIndex - 1})`;
+	`.workflow:nth-child(${workflowIndex}) .steps ul li:eq(${stepIndex - 1}) button.step`;
 const inputVariableSelector = name =>
 	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
 
