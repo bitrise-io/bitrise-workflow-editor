@@ -63,6 +63,8 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 		<Popover
 			offset={popoverOffset}
 			placement="bottom-start"
+			lazyBehavior="unmount"
+			isLazy
 			isOpen={visible}
 			onOpen={() => setVisible(true)}
 			onClose={() => setVisible(false)}

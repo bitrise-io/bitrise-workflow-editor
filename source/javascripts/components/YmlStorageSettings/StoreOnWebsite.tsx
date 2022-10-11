@@ -75,7 +75,7 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
 	}
 
 	return (
-		<Box gap="24" flexDirection="column">
+		<Box gap="24" display="flex" flexDirection="column">
 			<Box display="flex" flexDirection="column" gap="12">
 				<Text size="5" fontWeight="bold" textColor="neutral.30">
 					Store bitrise.yml on bitrise.io

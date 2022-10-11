@@ -12,8 +12,9 @@ const YmlStorageOption = ({ isActive, title, description, icon, onClick }: StepI
 	<Box
 		boxShadow="medium"
 		backgroundColor={isActive ? "purple.95" : "white"}
+		borderStyle="solid"
 		borderColor={isActive ? "purple.50" : "neutral.93"}
-		borderWidth={isActive ? "8" : "4"}
+		borderWidth={isActive ? "0.125rem" : "0.0625rem"}
 		borderRadius="8"
 		display="flex"
 		flexDirection="row"

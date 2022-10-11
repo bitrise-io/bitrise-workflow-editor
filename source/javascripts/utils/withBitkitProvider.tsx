@@ -4,7 +4,9 @@ import { ChakraProvider, mergeThemeOverride } from "@chakra-ui/react";
 import createSharedContext from "./createSharedContext";
 
 
-const wfeTheme = mergeThemeOverride(theme, {styles: { global: {svg: {display: "inline"}}}});
+const wfeTheme = mergeThemeOverride(theme, {
+	styles: { global: {svg: {display: "inline"}, select: {padding: "7px 32px 7px 12px"}}}
+});
 
 const Root = ({children}: {children: ReactNode}): JSX.Element => {
 	return <ChakraProvider theme={wfeTheme}>{children}</ChakraProvider>;
