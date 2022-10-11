@@ -140,7 +140,7 @@ Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);
 Then("{string} should {string}", should);
 Then("{string} should be the selected step", element => {
-	$(element).closest("li").should("have class: selected");
+	$(element).closest("li").should("have.class", "selected");
 });
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
 	$(element)
