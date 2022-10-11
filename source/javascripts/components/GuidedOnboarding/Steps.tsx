@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, Link, Text } from "@bitrise/bitkit";
+import { Box, Link, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 
@@ -31,24 +31,24 @@ export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.E
     }
 
     return (
-        <Flex
+        <Box
             className="guided-onboarding-step-row"
-            direction="horizontal"
-            alignChildrenVertical="middle"
-            alignChildrenHorizontal="between"
-            wrap
+            display="flex"
+            flexDirection="row"
+            alignItems="center"
+            justifyContent="space-between"
+            flexWrap="wrap"
         >
-            <Flex direction='horizontal' alignChildrenVertical='middle' gap='x4'
-            >
+            <Box display="flex" flexDirection='row' alignItems='center' gap='16'>
             {
                 appSteps.map(({title, isSuccessful}) => (
-                    <Flex key={title} direction='horizontal' gap='x2' alignChildrenVertical='middle'>
+                    <Box key={title} flexDirection='row' gap='8' alignItems='center'>
                         <img src={isSuccessful ? statusSuccessfulIcon : stepStatusNextIcon} />
                         <Text size='1' weight="bold" uppercase style={{ lineHeight: "16px" }}>{title}</Text>
-                    </Flex>
+                    </Box>
                 ))
             }
-            </Flex>
+            </Box>
             <Text size='3'>
                 <Link className="guided-onboarding-turn-off-link" onClick={() => {
                     setIsCancelModalOpen(true);
@@ -61,6 +61,6 @@ export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.E
                 onTurnOffGuide={handleTurnOffGuide}
                 activeStepTitle={appSteps[activeStepIndex].title}
             />
-        </Flex>
+        </Box>
     );
 };

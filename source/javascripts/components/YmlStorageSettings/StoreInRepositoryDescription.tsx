@@ -1,25 +1,23 @@
-import React, { FC } from "react";
-import { Flex, Text } from "@bitrise/bitkit";
-import InlineLink from "../common/InlineLink";
+import { Box, Link, Text } from "@bitrise/bitkit";
 
 type Props = {
 	title: string;
 	description: string;
 };
 
-const StoreInRepositoryDescription: FC<Props> = ({ title, description }: Props) => (
-	<Flex direction="vertical" gap="x4">
-		<Text size="5" weight="bold" textColor="gray-8">
+const StoreInRepositoryDescription = ({ title, description }: Props): JSX.Element => (
+	<Box display="flex" flexDirection="column" gap="16">
+		<Text size="5" fontWeight="bold" textColor="neutral.30">
 			{title}
 		</Text>
-		<Text textColor="gray-7" size="3">
-			<Text inline>{description}</Text>
-			<Text inline>
+		<Text textColor="neutral.40" size="3">
+			<Text as="span">{description}</Text>
+			<Text as="span">
 				Read more in{" "}
-				<InlineLink text="our documentation" url="https://devcenter.bitrise.io/builds/bitrise-yml-online/" />
+				<Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/">our documentation</Link>
 			</Text>
 		</Text>
-	</Flex>
+	</Box>
 );
 
 export default StoreInRepositoryDescription;

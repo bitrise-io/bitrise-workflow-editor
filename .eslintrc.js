@@ -16,11 +16,17 @@ module.exports = {
 		inject: false,
 		Promise: false
 	},
+  settings: {
+    react: {
+			version: "detect"
+		}
+	},
 	extends: [
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
-		"plugin:react/recommended"
+		"plugin:react/recommended",
+		"plugin:react/jsx-runtime"
 	],
 	rules: {
 		"max-len": ["error", { code: 120, tabWidth: 1 }],
@@ -36,14 +42,9 @@ module.exports = {
 		{
 			files: ["*.js"],
 			rules: {
+				"@typescript-eslint/no-var-requires": "off",
 				"@typescript-eslint/explicit-function-return-type": "off"
 			}
 		},
-		{
-			files: ["*.config.js"],
-			rules: {
-				"@typescript-eslint/no-var-requires": "off"
-			}
-		}
 	]
 };

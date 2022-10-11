@@ -1,18 +1,9 @@
-import {
-	PlacementManager,
-	PlacementReference,
-	Text,
-	Icon,
-	Placement,
-	Flex,
-	Input,
-	InputContainer,
-	InputContent
-} from "@bitrise/bitkit";
-import React, { useState, useMemo, useEffect } from "react";
+import { Box, Text, Icon, Input, Popover, PopoverContent, PopoverTrigger, IconButton } from "@bitrise/bitkit";
+import { useState, useMemo, useEffect } from "react";
 import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
-import "./WorkflowSelector.scss";
+
+const popoverOffset: [number, number] = [-8, 8];
 
 export type WorkflowSelectorProps = {
 	selectedWorkflow: Workflow;
@@ -68,111 +59,122 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 		setTimeout(() => setSearch(""), 0);
 	};
 
-	const onClose = (): void => {
-		setVisible(false);
-		setSearch("");
-	};
-
 	return (
-		<PlacementManager>
-			<PlacementReference>
-				{({ ref }) => (
-					<Flex
-						height="47px"
-						borderRadius="x1"
-						borderColor="gray-3"
-						innerRef={ref}
-						overflow="hidden"
-						direction="horizontal"
-						data-e2e-tag="workflow-selector"
-						shrink
+		<Popover
+			offset={popoverOffset}
+			placement="bottom-start"
+			lazyBehavior="unmount"
+			isLazy
+			isOpen={visible}
+			onOpen={() => setVisible(true)}
+			onClose={() => setVisible(false)}
+		>
+			<PopoverTrigger>
+				<Box
+					display="flex"
+					height="47px"
+					borderRadius="4"
+					border="1px solid"
+					borderColor="neutral.90"
+					overflow="hidden"
+					data-e2e-tag="workflow-selector"
+					flexShrink={1}
+				>
+					<Box
+						display="flex"
+						backgroundColor="neutral.50"
+						color="neutral.100"
+						padding="16"
+						alignItems="center"
+						justifyContent="center"
 					>
-						<Flex
-							backgroundColor="gray-6"
-							textColor="white"
-							padding="x4"
-							direction="horizontal"
-							alignChildrenHorizontal="middle"
-							alignChildrenVertical="middle"
+						<Text size="2" textTransform="uppercase">
+							Workflow
+						</Text>
+					</Box>
+					<Box
+						as="button"
+						display="flex"
+						padding="12"
+						flexGrow={1}
+						cursor="pointer"
+						alignItems="center"
+						justifyContent="center"
+						onClick={() => setVisible(true)}
+						data-e2e-tag="workflow-selector-dropdown"
+						_hover={{
+							background: "neutral.93"
+						}}
+					>
+						<Text
+							textColor="purple.10"
+							width="114px"
+							hasEllipsis
+							textAlign="left"
+							data-e2e-tag="workflow-selector-selected-workflow-name"
 						>
-							<Text size="2" uppercase>
-								Workflow
-							</Text>
-						</Flex>
-						<Flex
-							className="WorkflowSelectorDropdown"
-							padding="x3"
-							direction="horizontal"
-							grow
-							clickable
-							alignChildrenVertical="middle"
-							alignChildrenHorizontal="between"
-							onClick={() => setVisible(true)}
-							data-e2e-tag="workflow-selector-dropdown"
-						>
-							<Text
-								textColor="grape-5"
-								width="114px"
-								overflow="hidden"
-								ellipsis
-								data-e2e-tag="workflow-selector-selected-workflow-name"
-							>
-								{selectedWorkflow.id}
-							</Text>
-							<Icon size="24px" name="ChevronDown" />
-						</Flex>
-					</Flex>
-				)}
-			</PlacementReference>
+							{selectedWorkflow.id}
+						</Text>
+						<Icon size="24" name="ChevronDown" />
+					</Box>
+				</Box>
+			</PopoverTrigger>
 
-			<Placement onClose={onClose} visible={visible}>
-				{() => (
-					<Flex width="560px">
-						<Flex padding="x3">
-							<InputContainer>
-								<InputContent>
-									<Icon name="Magnifier" />
-									<Input
-										autoFocus
-										placeholder="Search workflows..."
-										value={search}
-										onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
-									/>
-									{search && (
-										<Text className="SearchField_reset" size="2" uppercase clickable onClick={onClearSearch}>
-											Reset
-										</Text>
-									)}
-								</InputContent>
-							</InputContainer>
-						</Flex>
-						{filteredWorkflows.length ? (
-							<Flex maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
-								{filteredWorkflows.map(workflow => (
-									<WorkflowSelectorItem
-										key={workflow.id}
-										workflow={workflow}
-										selectWorkflow={onItemClick}
-										selectedWorkflowId={selectedWorkflow.id}
-										workflowIds={workflowIds}
-										renameWorkflowConfirmed={renameWorkflowConfirmed}
-										data-e2e-tag="workflow-selector-option"
-									/>
-								))}
-							</Flex>
-						) : (
-							<Flex textColor="gray-6" gap="x3" direction="vertical" alignChildren="middle" padding="x5">
-								<Icon name="BitbotFailed" size="2.5rem" />
-								<Flex direction="vertical" alignChildren="middle" gap="x1">
-									<Text weight="bold">No workflows found.</Text>
-									<Text>Modify or reset the search.</Text>
-								</Flex>
-							</Flex>
-						)}
-					</Flex>
+			<PopoverContent width="560px">
+				<Input
+					padding="12"
+					leftIconName="Magnifier"
+					autoFocus
+					placeholder="Search workflows..."
+					value={search}
+					onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
+					rightAddon={
+						search ? (
+							<IconButton
+								aria-label="Reset"
+								iconName="CloseSmall"
+								onClick={onClearSearch}
+								variant="tertiary"
+								_active={{ background: "transparent" }}
+								_hover={{ background: "transparent" }}
+							/>
+						) : null
+					}
+					rightAddonPlacement="inside"
+				/>
+				{filteredWorkflows.length ? (
+					<Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
+						{filteredWorkflows.map(workflow => (
+							<WorkflowSelectorItem
+								key={workflow.id}
+								workflow={workflow}
+								selectWorkflow={onItemClick}
+								selectedWorkflowId={selectedWorkflow.id}
+								workflowIds={workflowIds}
+								renameWorkflowConfirmed={renameWorkflowConfirmed}
+								data-e2e-tag="workflow-selector-option"
+							/>
+						))}
+					</Box>
+				) : (
+					<Box
+						display="flex"
+						textColor="neutral.50"
+						gap="12"
+						flexDirection="column"
+						alignItems="center"
+						justifyContent="center"
+						padding="20"
+					>
+						<Icon name="BitbotError" width="40px" height="40px" />
+						<Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap="4">
+							<Text fontWeight="bold">No workflows found.</Text>
+							<Text>Modify or reset the search.</Text>
+						</Box>
+					</Box>
 				)}
-			</Placement>
-		</PlacementManager>
+			</PopoverContent>
+		</Popover>
 	);
 };
 

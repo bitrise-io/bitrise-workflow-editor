@@ -1,4 +1,4 @@
-import { Flex, Text } from "@bitrise/bitkit";
+import { Box, Text } from "@bitrise/bitkit";
 import React from "react";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import Collapsible from "./Collapsible/Collapsible";
@@ -82,9 +82,9 @@ export const GuidedOnboarding = ({
         open={isOpen}
         onToggleOpen={trackOpenClose}
       >
-        <Flex>
+        <Box>
             <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} onTurnOff={onTurnOff} />
             <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} defaultSubstep={1} />
-        </Flex>
+        </Box>
       </Collapsible>): null;
 };

@@ -18,7 +18,7 @@ describe("stringService", function() {
 		it("should skip not found keys", function() {
 			expect(
 				stringService.stringReplacedWithParameters("red, <color>, blue", {
-					other_color: "green" // eslint-disable-line @typescript-eslint/camelcase
+					other_color: "green"
 				})
 			).toBe("red, <color>, blue");
 		});

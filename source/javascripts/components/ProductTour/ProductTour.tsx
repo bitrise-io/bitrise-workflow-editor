@@ -1,5 +1,4 @@
-/* eslint-disable @typescript-eslint/camelcase */
-import React, { useEffect } from "react";
+import { useEffect } from "react";
 import { useState } from "react";
 import { Highlighter } from "./Highlighter";
 import { ProductTooltip } from "./ProductTooltip";
@@ -14,7 +13,7 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 
-	const onFound = (elements: HTMLElement[]) => {
+	const onFound = (elements: HTMLElement[]): void => {
 		const foundIds = elements.map(element => element.id);
 		const filtered = tips.filter(tip => foundIds.includes(tip.id));
 		setValidTips(filtered);

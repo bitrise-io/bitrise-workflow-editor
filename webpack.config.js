@@ -115,7 +115,7 @@ module.exports = {
 	},
 
 	performance: {
-		hints: 'error',
+		hints: "error",
 		maxAssetSize: 15000000,
 		maxEntrypointSize: 40000000,
 	},
@@ -148,6 +148,20 @@ module.exports = {
 					}
 				},
 				exclude: /node_modules/
+			},
+
+			{
+				test: /\.tsx?$/,
+				use: {
+					loader: "ts-loader",
+					options: {
+						allowTsInNodeModules:true,
+						compilerOptions: {
+							sourceMap: !isProd
+						}
+					}
+				},
+				include: /node_modules\/@bitrise\/bitkit/
 			},
 
 			{

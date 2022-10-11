@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Flex, Icon, Text } from "@bitrise/bitkit";
+import { Box, Icon, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
@@ -12,26 +12,26 @@ interface ContentProps {
 }
 
 export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.Element => {
-  const {subSteps} = activeStep;
-  const [activeSubstep, setActiveSubstep] = useState(defaultSubstep);
-  const activeSubstepData = subSteps.find(({id}) => id === activeSubstep);
-  const trackClick = useTrackingFunction((item: string) => ({
-    event: "Guided Onboarding Clicked",
-    payload: {
-        step: activeStep.title,
-        item
-    }
-  }));
-    
+    const {subSteps} = activeStep;
+    const [activeSubstep, setActiveSubstep] = useState(defaultSubstep);
+    const activeSubstepData = subSteps.find(({id}) => id === activeSubstep);
+    const trackClick = useTrackingFunction((item: string) => ({
+      event: "Guided Onboarding Clicked",
+      payload: {
+          step: activeStep.title,
+          item
+      }
+    }));
+
   return (
-    <Flex className="guided-onboarding-content-row">
+    <Box className="guided-onboarding-content-row">
         <div className="guided-onbooarding-gap"></div>
-        <Text size='4' weight="bold">Set up the basics</Text>
+        <Text size='4' fontWeight="bold">Set up the basics</Text>
         <Text size='3'>
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
         </Text>
         <div className="guided-onbooarding-gap"></div>
-        <Flex className="guided-onboarding-list-row" direction="horizontal">
+        <Box className="guided-onboarding-list-row" display="flex" flexDirection="row">
             <ul>
                 {
                     subSteps.map(({title, id}) => (
@@ -41,16 +41,16 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                                 trackClick(title);
                             }}
                         >
-                            <Flex
+                            <Box
                                 direction="horizontal"
                                 alignChildrenHorizontal="between"
                             >
-                                <Flex
+                                <Box
                                     direction="horizontal"
                                     gap="x2"
                                     alignChildrenVertical="middle"
                                 >
-                                        <Flex 
+                                        <Box 
                                             className="onboarding-list-item-icon"
                                             direction="horizontal"
                                             alignChildrenHorizontal="middle"
@@ -61,13 +61,13 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                                                 <Icon name="ChevronRight"/> :
                                                 <img height={4} width={4} src={dotIcon}/>
                                             }
-                                        </Flex>
+                                        </Box>
                                     <Text size='3' weight={activeSubstep === id ? "bold" : undefined}>
                                         {title}
                                     </Text>
-                                </Flex>
+                                </Box>
                                 {activeSubstep === id ? <div className="arrow-left"></div> : null}
-                            </Flex>
+                            </Box>
                         </li>        
                     ))
                 }
@@ -91,7 +91,7 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                     }
                 </div>
             }
-        </Flex>
-    </Flex>
+        </Box>
+    </Box>
   );
 };

@@ -1,5 +1,6 @@
+r-bitkit-root
 header.sticky
-main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
+.main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()" style="display: flex"]
 	r-update-yml-in-repository-modal[ng-if="mainCtrl.isUpdateYmlInRepositoryModalVisible" app-slug="appService.appDetails.slug" on-close="mainCtrl.closeUpdateYmlInRepositoryModal" on-complete="mainCtrl.onSaveToRepoComplete" get-data-to-save="mainCtrl.getDataToSave"]
 	div[sticky sticking-index="1"]
 		r-guided-onboarding[is-enabled="mainCtrl.showGuidedOnboarding()" is-open="mainCtrl.productTourDismissed" on-turn-off="mainCtrl.onTurnOffGuidedOnboarding"]
@@ -49,7 +50,7 @@ main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()"]
 					button.save.rebo.purple[ng-click="mainCtrl.save()" ng-disabled="!mainCtrl.isSaveEnabled()"]
 						span[ng-if="!mainCtrl.saveProgress.isInProgress"]
 							span.save[ng-if="mainCtrl.hasUnsavedChanges()" ng-class="osService.cssClass()"]
-							span.saved[ng-if="!mainCtrl.hasUnsavedChanges()"]  == svg("check")
+							span.saved[ng-if="!mainCtrl.hasUnsavedChanges()" style="display: flex"]  == svg("check")
 						span.in-progress[ng-if="mainCtrl.saveProgress.isInProgress"]  == svg("in_progress")
 	article.menu-content
 		p.progress-indicator[progress-model="mainCtrl.menuProgress"]

@@ -1,9 +1,8 @@
-import { Text, Icon, Flex, Input } from "@bitrise/bitkit";
+import { Box, Text, Icon, Link, Input } from "@bitrise/bitkit";
 import React, { useMemo } from "react";
 import { useState } from "react";
 import { useCallback } from "react";
 import { Workflow } from "../../../models";
-import "./WorkflowSelectorItem.scss";
 
 interface WorkflowSelectorItemProps {
 	selectedWorkflowId: string;
@@ -50,65 +49,77 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 	}, [workflow, workflowId]);
 
 	return (
-		<Flex
+		<Box
+			display="flex"
 			minHeight="49px"
-			className={`WorkflowSelectorItem ${isSelected ? "WorkflowSelectorItem_active" : ""} ${
-				isEditing ? "WorkflowSelectorItem_editing" : ""
-			}`}
-			alignChildrenVertical="middle"
-			direction="horizontal"
-			padding={isEditing ? "x0" : "x3"}
-			clickable={!isSelected}
+			borderTop="1px solid"
+			borderTopColor="separator.primary"
+			bg={isSelected && !isEditing ? "purple.40" : undefined}
+			color={isSelected && !isEditing ? "neutral.100" : undefined}
+			_hover={{ background: !isEditing ? "purple.40" : undefined, color: !isEditing ? "neutral.100" : undefined }}
+			alignItems="center"
+			padding={isEditing ? "0" : "12"}
+			cursor={isSelected ? "default" : "pointer"}
 			onClick={onClick}
 			data-e2e-tag={`workflow-selector-option-${workflow.id}`}
 		>
 			{isEditing ? (
-				<Flex direction="horizontal" alignChildrenVertical="middle" grow>
-					<Flex paddingHorizontal="x4" direction="horizontal" alignChildrenVertical="middle" grow>
-						<Input
-							autoFocus
-							value={workflowId}
-							onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setWorkflowId(ev.target.value)}
-							data-e2e-tag="workflow-selector-item-name-input"
-						/>
-					</Flex>
-					<Flex
-						className={`WorkflowEditSubmit ${isWorkflowIdValid ? "" : "WorkflowEditSubmit_invalid"}`}
-						clickable={isWorkflowIdValid}
-						direction="horizontal"
-						alignChildren="middle"
-						padding="x3"
+				<Box display="flex" alignItems="center" flexGrow={1}>
+					<Input
+						autoFocus
+						value={workflowId}
+						onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setWorkflowId(ev.target.value)}
+						data-e2e-tag="workflow-selector-item-name-input"
+						flexGrow={1}
+						marginX="16"
+					/>
+					<Box
+						color="neutral.100"
+						background={!isWorkflowIdValid ? "red.50" : "purple.40"}
+						cursor={!isWorkflowIdValid ? "not-allowed" : "pointer"}
+						padding="12"
 						onClick={onRenameConfirm}
 						data-e2e-tag="workflow-selector-item-name-edit-submit"
 					>
-						<Icon size="1.5rem" name="Tick" />
-					</Flex>
-				</Flex>
+						<Icon width="20px" height="20px" name="Tick" />
+					</Box>
+				</Box>
 			) : (
 				<>
-					<Flex width="36px" direction="horizontal" alignChildren="middle">
-						<Icon size={isSelected ? "1.25rem" : ".75rem"} name={isSelected ? "Tick" : "BuildstatusLoadingeeehh"} />
-					</Flex>
-					<Flex shrink grow direction="horizontal" alignChildrenHorizontal="between" alignChildrenVertical="middle">
-						<Text className="WorkflowSelectorItem--label" overflow="hidden" data-e2e-tag="workflow-selector-item-name">
+					<Box display="flex" width="36px" justifyContent="center" alignItems="center">
+						<Icon
+							width={isSelected ? "1.25rem" : ".75rem"}
+							height={isSelected ? "1.25rem" : ".75rem"}
+							name={isSelected ? "Tick" : "BuildstatusNeverbuilt"}
+						/>
+					</Box>
+					<Box display="flex" flexShrink={1} flexGrow={1} alignItems="center" justifyContent="space-between">
+						<Text
+							whiteSpace="normal"
+							wordBreak="break-word"
+							paddingRight="12"
+							overflow="hidden"
+							data-e2e-tag="workflow-selector-item-name"
+						>
 							{workflowId}
 						</Text>
 						{isSelected && (
-							<Text
-								clickable
+							<Link
+								as="button"
 								className="WorkflowSelectorItem--rename"
 								size="2"
-								uppercase
+								textTransform="uppercase"
+								_hover={{ textDecoration: "underline" }}
 								onClick={onRenameClick}
 								data-e2e-tag="workflow-selector-item-name-edit-trigger"
 							>
 								Rename
-							</Text>
+							</Link>
 						)}
-					</Flex>
+					</Box>
 				</>
 			)}
-		</Flex>
+		</Box>
 	);
 };
 

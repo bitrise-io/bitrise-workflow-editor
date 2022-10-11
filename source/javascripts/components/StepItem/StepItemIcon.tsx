@@ -1,4 +1,3 @@
-import React from "react";
 import { LazyLoadImage } from "react-lazy-load-image-component";
 import { Step } from "../../models";
 
@@ -18,7 +17,7 @@ type StepItemIconProps = {
 };
 
 const StepItemIcon = ({ step }: StepItemIconProps): JSX.Element => (
-	<LazyLoadImage className="icon" effect="blur" src={normalizeIconUrl(step)} />
+	<LazyLoadImage wrapperProps={{style:{flexShrink:0}}} effect="blur" src={normalizeIconUrl(step)} />
 );
 
 export default StepItemIcon;

@@ -1,5 +1,4 @@
-import React, { FC } from "react";
-import { Flex, Text, Icon, TypeIconName } from "@bitrise/bitkit";
+import { Box, Text, Icon, TypeIconName } from "@bitrise/bitkit";
 
 type StepItemProps = {
 	icon: TypeIconName;
@@ -9,32 +8,35 @@ type StepItemProps = {
 	onClick(): void;
 };
 
-const YmlStorageOption: FC<StepItemProps> = ({ isActive, title, description, icon, onClick }: StepItemProps) => (
-	<Flex
-		elevation="x2"
-		backgroundColor={isActive ? "grape-1" : "white"}
-		borderColor={isActive ? "grape-3" : "gray-2"}
-		borderWidth={isActive ? "x2" : "x1"}
-		borderRadius="x2"
-		direction="horizontal"
-		padding="x4"
-		gap="x3"
-		initial="container"
-		grow
-		shrink
+const YmlStorageOption = ({ isActive, title, description, icon, onClick }: StepItemProps): JSX.Element => (
+	<Box
+		boxShadow="medium"
+		backgroundColor={isActive ? "purple.95" : "white"}
+		borderStyle="solid"
+		borderColor={isActive ? "purple.50" : "neutral.93"}
+		borderWidth={isActive ? "0.125rem" : "0.0625rem"}
+		borderRadius="8"
+		display="flex"
+		flexDirection="row"
+		padding="16"
+		gap="12"
+		flexBasis="100%"
+		flexGrow="1"
+		flexShrink="1"
+		minWidth="0"
 		onClick={onClick}
-		clickable
+		cursor="pointer"
 	>
-		<Icon textColor="grape-4" name={icon}></Icon>
-		<Flex grow shrink>
-			<Text weight="bold" size="3" textColor="grape-5">
+		<Icon textColor="purple.30" name={icon}></Icon>
+		<Box flexGrow="1" flexShrink="1" minWidth="0">
+			<Text fontWeight="bold" size="3" textColor="purple.10">
 				{title}
 			</Text>
-			<Text size="2" textColor="gray-7">
+			<Text size="2" textColor="neutral.40">
 				{description}
 			</Text>
-		</Flex>
-	</Flex>
+		</Box>
+	</Box>
 );
 
 export default YmlStorageOption;
