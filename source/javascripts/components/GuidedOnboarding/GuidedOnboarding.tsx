@@ -1,5 +1,4 @@
 import { Box, Text } from "@bitrise/bitkit";
-import React from "react";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import Collapsible from "./Collapsible/Collapsible";
 import { Content } from "./Content";
@@ -32,7 +31,7 @@ const appSteps: AppStep[] = [
         title: "Common steps",
         content: <>
           The following Steps may help with your initial Workflow setup:&nbsp;
-          <Text style={{display: "inline"}} size='2' weight="bold">
+          <Text style={{display: "inline"}} size='2' fontWeight="bold">
             Recreate user schemes, Brew install, File downloader.
           </Text>
         </>

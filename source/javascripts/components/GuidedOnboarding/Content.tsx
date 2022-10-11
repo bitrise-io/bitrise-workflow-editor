@@ -1,9 +1,8 @@
-import React, { useState } from "react";
+import { useState } from "react";
 import { Box, Icon, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
-import dotIcon from "../../../images/dot.svg";
 import { AppStep } from "./types";
 
 interface ContentProps {
@@ -25,12 +24,12 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
 
   return (
     <Box className="guided-onboarding-content-row">
-        <div className="guided-onbooarding-gap"></div>
+        <Box className="guided-onbooarding-gap"/>
         <Text size='4' fontWeight="bold">Set up the basics</Text>
         <Text size='3'>
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
         </Text>
-        <div className="guided-onbooarding-gap"></div>
+        <Box className="guided-onbooarding-gap"/>
         <Box className="guided-onboarding-list-row" display="flex" flexDirection="row">
             <ul>
                 {
@@ -42,27 +41,30 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                             }}
                         >
                             <Box
-                                direction="horizontal"
-                                alignChildrenHorizontal="between"
+                                display="flex"
+                                flexDirection="row"
+                                justifyContent="space-between"
                             >
                                 <Box
-                                    direction="horizontal"
+                                    display="flex"
+                                    flexDirection="row"
                                     gap="x2"
-                                    alignChildrenVertical="middle"
+                                    alignItems="center"
                                 >
                                         <Box 
+                                            display="flex"
                                             className="onboarding-list-item-icon"
-                                            direction="horizontal"
-                                            alignChildrenHorizontal="middle"
-                                            alignChildrenVertical="middle"
+                                            flexDirection="row"
+                                            justifyContent="center"
+                                            alignItems="center"
                                         >
                                             {
                                                 activeSubstep === id ?
                                                 <Icon name="ChevronRight"/> :
-                                                <img height={4} width={4} src={dotIcon}/>
+                                                <Icon name="Bulletpoint"/>
                                             }
                                         </Box>
-                                    <Text size='3' weight={activeSubstep === id ? "bold" : undefined}>
+                                    <Text size='3' fontWeight={activeSubstep === id ? "bold" : undefined}>
                                         {title}
                                     </Text>
                                 </Box>

@@ -1,10 +1,7 @@
-import React, { useState } from "react";
-import { Box, Link, Text } from "@bitrise/bitkit";
+import { useState } from "react";
+import { Box, Icon, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
-
-import stepStatusNextIcon from "../../../images/step-status-next-icon.svg";
-import statusSuccessfulIcon from "../../../images/status-successful-icon.svg";
 import { TurnOffGuideModal } from "./TurnOffGuideModal";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { AppStep } from "./types";
@@ -42,19 +39,21 @@ export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.E
             <Box display="flex" flexDirection='row' alignItems='center' gap='16'>
             {
                 appSteps.map(({title, isSuccessful}) => (
-                    <Box key={title} flexDirection='row' gap='8' alignItems='center'>
-                        <img src={isSuccessful ? statusSuccessfulIcon : stepStatusNextIcon} />
-                        <Text size='1' weight="bold" uppercase style={{ lineHeight: "16px" }}>{title}</Text>
+                    <Box key={title} display="flex" flexDirection='row' gap='8' alignItems='center'>
+                        <Icon size="16" name={isSuccessful ? "BuildstatusSuccessful" : "StepstatusNext"}/>
+                        <Text size='1' fontWeight="bold" textTransform="uppercase" style={{ lineHeight: "16px" }}>
+                            {title}
+                        </Text>
                     </Box>
                 ))
             }
             </Box>
-            <Text size='3'>
-                <Link className="guided-onboarding-turn-off-link" onClick={() => {
+            <Box as="button" color="orange.10" onClick={() => {
                     setIsCancelModalOpen(true);
                     trackClick();
-                }}>Turn off guide</Link>
-            </Text>
+                }}>
+              Turn off guide
+            </Box>
             <TurnOffGuideModal
                 isOpen={isCancelModalOpen}
                 onClose={() => setIsCancelModalOpen(false)}

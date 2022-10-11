@@ -1,5 +1,4 @@
-import React from "react";
-import { Modal, ModalBody, Flex, ModalTitle, Buttons, Button, Text, Link, Icon } from "@bitrise/bitkit";
+import { Dialog, Button, Text, Link, DialogFooter, DialogBody } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
@@ -19,16 +18,26 @@ export const TurnOffGuideModal = ({
 }: TurnOffGuideModalProps): JSX.Element => {
 	
 	const trackClose = useTrackingFunction(() => ({
-		event: "Close Turn Off Guide Modal",
+		event: "Guided Onboarding Clicked",
 		payload: {
 			step: activeStepTitle,
+			item: "Close turn off guide modal"
 		}
 	}));
 
 	const trackTurnOff = useTrackingFunction(() => ({
-		event: "Turn Off Guide",
+		event: "Guided Onboarding Clicked",
 		payload: {
 			step: activeStepTitle,
+			item: "Turn off guide"
+		}
+	}));
+
+	const trackProfileLink = useTrackingFunction(() => ({
+		event: "Guided Onboarding Clicked",
+		payload: {
+			step: activeStepTitle,
+			item: "Profile Settings - Link"
 		}
 	}));
 
@@ -41,45 +50,40 @@ export const TurnOffGuideModal = ({
 		trackTurnOff();
 		onTurnOffGuide();
 	}
-
   return (
-    <Modal
+    <Dialog
 		className="guided-onboarding-turn-off-modal"
 		backgroundColor="white"
 		onClose={handleClose}
-		visible={isOpen}
-		width="640px"
+		isOpen={isOpen}
+		color="purple.10"
+		title="Turn off Getting Started Guide?"
 	>
-			<ModalBody>
-				<Flex direction="vertical" gap="x6">
-					<ModalTitle>
-						<Flex direction="horizontal" alignChildrenHorizontal="between">
-							<Text size="5">Turn off Getting Started Guide?</Text>
-							<Button onClick={handleClose} level="tertiary" style={{ padding: "0" }}>
-								<Icon name="CloseSmall" textColor="grape-5" />
-							</Button>
-						</Flex>
-					</ModalTitle>
+		<DialogBody>
+			<Text paddingTop="10">
+				If you turn off the Getting Started Guide, you will not get suggestions{" "}
+				on how to get started with the key features of Bitrise.
+			</Text>
 
-					<Text size='3'>
-						If you turn off the Getting Started Guide, you will not get suggestions{" "}
-						on how to get started with the key features of Bitrise.
-					</Text>
-
-					<Text size='3'>
-					You can turn it on any time in <Link href="/me/profile#/edit_profile">Profile settings</Link>.
-					</Text>
-
-					<Buttons alignChildrenHorizontal="end" margin="x8" gap="x6">
-						<Button level="secondary" onClick={handleClose}>
-							Cancel
-						</Button>
-						<Button level="primary" onClick={handleTurnOffGuide}>
-							Turn off
-						</Button>
-					</Buttons>
-				</Flex>
-			</ModalBody>
-		</Modal>
+			<Text paddingTop="20">
+				You can turn it on any time in the{" "}
+				<Link
+					color="purple.50"
+					href="/me/profile#/edit_profile"
+					onClick={trackProfileLink}
+				>
+					Profile Settings
+				</Link>.
+			</Text>
+		</DialogBody>
+		<DialogFooter>
+			<Button variant="secondary" onClick={handleClose}>
+				Cancel
+			</Button>
+			<Button variant="primary" onClick={handleTurnOffGuide}>
+				Turn off
+			</Button>
+		</DialogFooter>
+		</Dialog>
   );
 };
