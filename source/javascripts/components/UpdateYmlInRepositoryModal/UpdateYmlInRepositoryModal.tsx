@@ -72,8 +72,8 @@ const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplet
 					{getAppConfigFromRepoFailed && renderError()}
 				</Box>
 			</DialogBody>
-			<DialogFooter>
-				{!getAppConfigFromRepoLoading && !appConfigFromRepo && (
+			{!getAppConfigFromRepoLoading && !appConfigFromRepo && (
+				<DialogFooter>
 					<ButtonGroup display="flex" justifyContent="end" spacing="0" gap="32">
 						<Button variant="secondary" onClick={onClose}>
 							Cancel
@@ -82,8 +82,8 @@ const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplet
 							I'm done
 						</Button>
 					</ButtonGroup>
-				)}
-			</DialogFooter>
+				</DialogFooter>
+			)}
 		</Dialog>
 	);
 };
