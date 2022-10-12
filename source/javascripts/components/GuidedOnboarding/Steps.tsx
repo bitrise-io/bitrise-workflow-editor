@@ -1,7 +1,5 @@
 import { useState } from "react";
 import { Box, Icon, Text } from "@bitrise/bitkit";
-
-import "./GuidedOnboardingContent.scss";
 import { TurnOffGuideModal } from "./TurnOffGuideModal";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { AppStep } from "./types";
@@ -29,12 +27,16 @@ export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.E
 
     return (
         <Box
-            className="guided-onboarding-step-row"
             display="flex"
             flexDirection="row"
             alignItems="center"
             justifyContent="space-between"
             flexWrap="wrap"
+            color="orange.10"
+            borderBottom="1px solid"
+            borderBottomColor="orange.90"
+            py="24"
+            px="0"
         >
             <Box display="flex" flexDirection='row' alignItems='center' gap='16'>
             {

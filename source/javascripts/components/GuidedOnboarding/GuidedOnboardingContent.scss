@@ -1,12 +1,3 @@
-.guided-onboarding-step-row {
-  color: #421000; //orange10
-  border-bottom: 1px solid #FFD5A3; //orange90
-  padding: 24px 0;
-  a {
-    cursor: pointer;
-  }
-}
-
 .guided-onboarding-list-row {
   ul {
     min-width: 300px;
@@ -14,41 +5,6 @@
   }
   li {
     padding-bottom: 8px;
-    cursor: pointer;
-  }
-  .onboarding-list-item-icon {
-    height: 24px;
-    width: 24px;
-  }
-}
-
-.guided-onboarding-info-bubble {
-  padding: 18px 16px;
-  background-color: #FFE9CF; //orange93
-  max-width: 600px;
-  border-radius: 8px;
-
-  a {
-    color: #9247C2;
-  }
-}
-
-.guided-onbooarding-gap {
-  margin-top: 12px;
-}
-
-.arrow-left {
-  align-self: center;
-  width: 0; 
-  height: 0; 
-  border-top: 8px solid transparent;
-  border-bottom: 8px solid transparent; 
-  border-right:8px solid #FFE9CF; //orange93
-}
-
-.guided-onboarding-turn-off-modal {
-  a {
-    color: #9247C2;
     cursor: pointer;
   }
 }

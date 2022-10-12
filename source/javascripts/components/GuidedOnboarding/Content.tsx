@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Box, Icon, Text } from "@bitrise/bitkit";
+import { Box, Icon, Link, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
@@ -23,13 +23,13 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
     }));
 
   return (
-    <Box className="guided-onboarding-content-row">
-        <Box className="guided-onbooarding-gap"/>
+    <Box>
+        <Box marginTop="12px" marginBottom="12px">
         <Text size='4' fontWeight="bold">Set up the basics</Text>
         <Text size='3'>
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
         </Text>
-        <Box className="guided-onbooarding-gap"/>
+        </Box>
         <Box className="guided-onboarding-list-row" display="flex" flexDirection="row">
             <ul>
                 {
@@ -53,7 +53,6 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                                 >
                                         <Box 
                                             display="flex"
-                                            className="onboarding-list-item-icon"
                                             flexDirection="row"
                                             justifyContent="center"
                                             alignItems="center"
@@ -64,7 +63,15 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                                         {title}
                                     </Text>
                                 </Box>
-                                {activeSubstep === id ? <div className="arrow-left"></div> : null}
+                                {activeSubstep === id ? <Box
+                                    alignSelf="center"
+                                    width="0"
+                                    height="0"
+                                    borderTop="8px solid transparent"
+                                    borderBottom= "8px solid transparent" 
+                                    borderRight="8px solid #FFE9CF"
+                                    borderRightColor="orange.93"
+                                /> : null}
                             </Box>
                         </li>        
                     ))
@@ -72,22 +79,29 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
             </ul>
             {
                 activeSubstepData &&
-                <div className="guided-onboarding-info-bubble">
+                <Box
+                    py="18"
+                    px="16"
+                    background="orange.93"
+                    maxWidth="600px"
+                    borderRadius="8"
+                >
                     <Text size='2'>
                         {activeSubstepData.content}
                     </Text>
                     {
                         activeSubstepData.href &&
-                        <a
+                        <Link
                             href={activeSubstepData.href}
                             rel="noreferrer"
                             target="_blank"
+                            color="purple.50"
                             onClick={() => trackClick(`${activeSubstepData.title} - learn more`)}
                         >
                             Learn More
-                        </a>
+                        </Link>
                     }
-                </div>
+                </Box>
             }
         </Box>
     </Box>

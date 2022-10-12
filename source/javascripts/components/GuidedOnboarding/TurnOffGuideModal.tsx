@@ -1,6 +1,4 @@
 import { Dialog, Button, Text, Link, DialogFooter, DialogBody } from "@bitrise/bitkit";
-
-import "./GuidedOnboardingContent.scss";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
 interface TurnOffGuideModalProps {
@@ -36,7 +34,6 @@ export const TurnOffGuideModal = ({
 	}
   return (
     <Dialog
-		className="guided-onboarding-turn-off-modal"
 		backgroundColor="white"
 		onClose={handleClose}
 		isOpen={isOpen}
