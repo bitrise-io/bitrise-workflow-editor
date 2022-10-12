@@ -4,17 +4,18 @@ import { addCucumberPreprocessorPlugin } from "@badeball/cypress-cucumber-prepro
 import createEsbuildPlugin from "@badeball/cypress-cucumber-preprocessor/esbuild";
 
 export default defineConfig({
+	projectId: "rnnyfb",
 	videoUploadOnPasses: false,
 	requestTimeout: 12000,
-	videosFolder: './spec/integration/cypress/videos',
-	screenshotsFolder: './spec/integration/cypress/screenshots',
+	videosFolder: "./spec/integration/cypress/videos",
+	screenshotsFolder: "./spec/integration/cypress/screenshots",
 	env: {
 		PORT: 4000,
 		TAGS: "@run or not @skip"
 	},
   e2e: {
-		fixturesFolder: './spec/integration/fixture',
-		supportFile: './spec/integration/cypress/index.js',
+		fixturesFolder: "./spec/integration/fixture",
+		supportFile: "./spec/integration/cypress/index.js",
     specPattern: "./spec/integration/**/*.feature",
     async setupNodeEvents(
       on: Cypress.PluginEvents,
@@ -25,7 +26,7 @@ export default defineConfig({
       on(
         "file:preprocessor",
         createBundler({
-					target: 'es6',
+					target: "es6",
           plugins: [createEsbuildPlugin(config)],
         })
       );
