@@ -807,6 +807,16 @@ def strings
                     error_prefix: "Error getting current user data: ",
                     not_website_mode_error: "Getting current user data is only available in website mode"
                 },
+                get_current_user_metadata: {
+                    default_error: "Error getting current user metadata",
+                    error_prefix: "Error getting current user metadata: ",
+                    not_website_mode_error: "Getting current user metadata is only available in website mode"
+                },
+                put_current_user_metadata: {
+                    default_error: "Error updating current user metadata",
+                    error_prefix: "Error updating current user metadata: ",
+                    not_website_mode_error: "Updating current user metadata is only available in website mode"
+                },
                 get_product_tour_data: {
                   default_error: "Error getting current product tour data",
                   error_prefix: "Error getting product tour data: ",
@@ -1035,6 +1045,8 @@ def strings
                 current_user_get: "/me/profile.json",
                 product_tour_shown_get: "/api/app/<app_slug>/product_tour_shown",
                 current_user_beta_tags_get: "/me/profile/beta_tags.json",
+                current_user_metadata_get: "/me/profile/metadata.json?key=<metadata_key>",
+                current_user_metadata_put: "/me/profile/metadata.json",
                 yml_post: "/api/app/<app_slug>/config.json",
                 yml_get: "/api/app/<app_slug>/config.yml",
                 yml_download: "/api/app/<app_slug>/config.yml?is_download=1",

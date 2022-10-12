@@ -1,5 +1,9 @@
 import { useCallback, useRef } from "react";
-import { TrackingEvent } from "./types";
+
+export interface TrackingEvent {
+	event: string;
+	payload: Record<string, string | number | null | undefined>;
+}
 
 type TrackingFunction<T = undefined> = (data: T) => TrackingEvent;
 

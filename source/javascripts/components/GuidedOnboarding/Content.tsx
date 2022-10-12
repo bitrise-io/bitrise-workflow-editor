@@ -1,80 +1,107 @@
 import { useState } from "react";
-import { Box, Text, Link } from "@bitrise/bitkit";
+import { Box, Icon, Link, Text } from "@bitrise/bitkit";
 
 import "./GuidedOnboardingContent.scss";
+import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
+import { AppStep } from "./types";
 
-const workflowSteps = [
-    {
-      id: 1,
-      title: "Common steps",
-      content: <>
-          The following Steps may help with your initial Workflow setup:&nbsp;
-          <Text style={{display: "inline"}} size='2' fontWeight="bold">
-              Recreate user schemes, Brew install, File downloader.
-          </Text>
-      </>
-  },
-  {
-      id: 2,
-      title: "Webhooks and Triggers",
-      content: <>
-          You will need to set up a trigger in order for a webhook to work,&nbsp;
-          e.g. if you want to trigger a build automaticaly with a new PR.
-      </>,
-      href: "https://devcenter.bitrise.io/en/apps/webhooks.html"
-  },
-  {
-    id: 3,
-      title: "Editing the bitrise.yml file",
-      content: <>
-          Whenever you modify a Workflow in the Workflow Editor, you're indirectly&nbsp;
-          editing the app's bitrise.yml file. If you prefer, you can edit the file directly, in YAML.
-      </>,
-    href: "https://devcenter.bitrise.io/en/builds/configuring-build-settings/editing-an-app-s-bitrise-yml-file.html"
-  }
-]
+interface ContentProps {
+    activeStep: AppStep;
+    defaultSubstep?: number;
+}
 
-export const Content = (): JSX.Element => {
-  const [activeWorkflowStep, setActiveStep] = useState(0);
-  const activeWorkflowStepData = workflowSteps.find(({id}) => id === activeWorkflowStep);
+export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.Element => {
+    const {subSteps} = activeStep;
+    const [activeSubstep, setActiveSubstep] = useState(defaultSubstep);
+    const activeSubstepData = subSteps.find(({id}) => id === activeSubstep);
+    const trackClick = useTrackingFunction((item: string) => ({
+      event: "Guided Onboarding Clicked",
+      payload: {
+          step: activeStep.title,
+          item
+      }
+    }));
 
   return (
-    <Box className="guided-onboarding-content-row">
-        <div className="guided-onbooarding-gap"></div>
+    <Box>
+        <Box marginTop="12px" marginBottom="12px">
         <Text size='4' fontWeight="bold">Set up the basics</Text>
         <Text size='3'>
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
         </Text>
-        <div className="guided-onbooarding-gap"></div>
+        </Box>
         <Box className="guided-onboarding-list-row" display="flex" flexDirection="row">
             <ul>
                 {
-                    workflowSteps.map(({title, id}) => (
+                    subSteps.map(({title, id}) => (
                         <li key={title}
-                            onClick={() => setActiveStep(id)}
+                            onClick={() => {
+                                setActiveSubstep(id);
+                                trackClick(title);
+                            }}
                         >
                             <Box
-                                className="guided-onboarding-list-row"
+                                display="flex"
                                 flexDirection="row"
                                 justifyContent="space-between"
                             >
-                                <Text size='3' fontWeight={activeWorkflowStep === id ? "bold" : undefined}>
-                                    {title}
-                                </Text>
-                                {activeWorkflowStep === id ? <div className="arrow-left"></div> : null}
+                                <Box
+                                    display="flex"
+                                    flexDirection="row"
+                                    gap="x2"
+                                    alignItems="center"
+                                >
+                                        <Box 
+                                            display="flex"
+                                            flexDirection="row"
+                                            justifyContent="center"
+                                            alignItems="center"
+                                        >
+                                            <Icon name={activeSubstep === id ? "ChevronRight" : "Bulletpoint"}/>
+                                        </Box>
+                                    <Text size='3' fontWeight={activeSubstep === id ? "bold" : undefined}>
+                                        {title}
+                                    </Text>
+                                </Box>
+                                {activeSubstep === id ? <Box
+                                    alignSelf="center"
+                                    width="0"
+                                    height="0"
+                                    borderTop="8px solid transparent"
+                                    borderBottom= "8px solid transparent" 
+                                    borderRight="8px solid #FFE9CF"
+                                    borderRightColor="orange.93"
+                                /> : null}
                             </Box>
-                        </li>
+                        </li>        
                     ))
                 }
             </ul>
             {
-                activeWorkflowStepData &&
-                <div className="guided-onboarding-info-bubble">
+                activeSubstepData &&
+                <Box
+                    py="18"
+                    px="16"
+                    background="orange.93"
+                    maxWidth="600px"
+                    borderRadius="8"
+                >
                     <Text size='2'>
-                        {activeWorkflowStepData.content}
+                        {activeSubstepData.content}
                     </Text>
-                    {activeWorkflowStepData.href && <Link href={activeWorkflowStepData.href}>Learn More</Link>}
-                </div>
+                    {
+                        activeSubstepData.href &&
+                        <Link
+                            href={activeSubstepData.href}
+                            rel="noreferrer"
+                            target="_blank"
+                            color="purple.50"
+                            onClick={() => trackClick(`${activeSubstepData.title} - learn more`)}
+                        >
+                            Learn More
+                        </Link>
+                    }
+                </Box>
             }
         </Box>
     </Box>
