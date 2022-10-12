@@ -1,21 +1,30 @@
 import { useState, useRef, useEffect, ReactNode } from "react";
 import { Icon, Text, Box } from "@bitrise/bitkit";
 import "./Collapsible.scss";
+
 interface CollapsibleProps {
   children: ReactNode;
   open?: boolean;
   title: string;
+  onToggleOpen: (isOpen: boolean) => void;
 }
 
 /**
  * The usage of this component can be replaced with Accordion in latest Bitkit.
  */
-const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.Element => {
+const Collapsible = ({ open = false, children, title, onToggleOpen }: CollapsibleProps): JSX.Element => {
   const [isOpen, setIsOpen] = useState(open);
   const [contentHeight, setContentHeight] = useState<number | undefined>(
     open ? undefined : 0
   );
   const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (open !== isOpen) {
+      setIsOpen(open);
+      onToggleOpen(open)
+    }
+  }, [open]);
 
   useEffect(() => {
     if (!contentHeight || !isOpen || !ref.current) return;
@@ -33,7 +42,11 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
 
 
   const toggleOpen = (): void => {
-    setIsOpen((prev) => !prev);
+    setIsOpen((prev) => {
+      const newState = !prev;
+      onToggleOpen(newState);
+      return newState;
+    });
   };
 
   return (
@@ -44,7 +57,6 @@ const Collapsible = ({ open = false, children, title }: CollapsibleProps): JSX.E
     >
         <Box className="title" display="flex" flexDirection='row' alignItems='center' justifyContent='space-between'>
             <Box display="flex" flexDirection='row' gap='x2' alignItems='center'>
-                <Icon name='Info' size='24' />
                 <Text size='3' fontWeight='bold' style={{ lineHeight: "16px" }}>{title}</Text>
             </Box>
             <button type="button" onClick={toggleOpen}>

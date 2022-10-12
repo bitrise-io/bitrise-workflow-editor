@@ -28,6 +28,7 @@ export interface ProductTourProps {
 	menuIds: string[];
 	currentUser: CurrentUser;
 	productTourShown?: boolean;
+	onDismiss: () => void;
 }
 
 export interface TrackingEventOptions {
@@ -37,11 +38,6 @@ export interface TrackingEventOptions {
 	name?: string;
 	step?: string;
 	button?: string;
-}
-
-export interface TrackingEvent {
-	event: "tooltip_displayed" | "tooltip_clicked" | "tooltip_closed";
-	payload: TrackingEventOptions;
 }
 
 export interface CurrentUser {
