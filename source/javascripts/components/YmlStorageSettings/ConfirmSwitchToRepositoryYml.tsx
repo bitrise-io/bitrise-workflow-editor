@@ -1,5 +1,5 @@
 import React from "react";
-import { Box, Dialog, DialogBody, Icon, ButtonGroup, Button, Text } from "@bitrise/bitkit";
+import { Box, Dialog, DialogBody, Icon, ButtonGroup, Button, Text, DialogFooter } from "@bitrise/bitkit";
 
 type Props = {
 	visible: boolean;
@@ -8,7 +8,7 @@ type Props = {
 };
 
 const ConfirmSwitchToRepositoryYml: React.FC<Props> = ({ visible, onContinue, onCancel }: Props) => (
-	<Dialog width="640px" isOpen={visible} title="Make sure your bitrise.yml file is valid!">
+	<Dialog width="640px" isOpen={visible} title="Make sure your bitrise.yml file is valid!" onClose={onCancel}>
 		<DialogBody>
 			<Box display="flex" flexDirection="column" gap="32">
 				<Icon textColor="purple.30" name="Warning" size="32" width="40" height="40" />
@@ -18,16 +18,18 @@ const ConfirmSwitchToRepositoryYml: React.FC<Props> = ({ visible, onContinue, on
 						- of your app before proceeding. A missing or invalid bitrise.yml file might break your build pipeline!
 					</Text>
 				</Box>
-				<ButtonGroup display="flex" spacing="0" justifyContent="end" marginTop="32" gap="24">
-					<Button variant="secondary" onClick={onCancel}>
-						Cancel
-					</Button>
-					<Button variant="primary" onClick={onContinue}>
-						Continue
-					</Button>
-				</ButtonGroup>
 			</Box>
 		</DialogBody>
+		<DialogFooter>
+			<ButtonGroup display="flex" spacing="0" justifyContent="end" gap="24">
+				<Button variant="secondary" onClick={onCancel}>
+					Cancel
+				</Button>
+				<Button variant="primary" onClick={onContinue}>
+					Continue
+				</Button>
+			</ButtonGroup>
+		</DialogFooter>
 	</Dialog>
 );
 
