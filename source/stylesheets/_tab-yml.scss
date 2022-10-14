@@ -6,6 +6,10 @@
 	#code-container {
 		height: 100%;
 		min-height: 640px;
+
+		.monaco-editor textarea:focus {
+			box-shadow: none;
+		}
 	}
 
 	section {
