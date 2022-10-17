@@ -1,4 +1,4 @@
-import { Box, Divider, Text } from "@bitrise/bitkit";
+import { Box, Divider, Text, useResponsive } from "@bitrise/bitkit";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { Content } from "./Content";
 import { OnboardingAccordion } from "./GuidedOnboardingAccordion";
@@ -69,6 +69,8 @@ export const GuidedOnboarding = ({
     isOpen = false,
     onTurnOff
 }: GuidedOnboardingProps): JSX.Element | null => {
+  const { isMobile } = useResponsive();
+
   const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
       event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
       payload: {
@@ -77,7 +79,7 @@ export const GuidedOnboarding = ({
     })
 	);
 
-  return isEnabled ?
+  return isEnabled && !isMobile ?
     (<OnboardingAccordion
         title={<GuidedOnboardingHeader />}
         open={isOpen}
