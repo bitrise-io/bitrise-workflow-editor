@@ -1,7 +1,8 @@
-import { Box, Text } from "@bitrise/bitkit";
+import { Box, Divider, Text } from "@bitrise/bitkit";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
-import Collapsible from "./Collapsible/Collapsible";
 import { Content } from "./Content";
+import { OnboardingAccordion } from "./GuidedOnboardingAccordion";
+import { GuidedOnboardingHeader } from "./GuidedOnboardingHeader";
 import { Steps } from "./Steps";
 import { AppStep } from "./types";
 
@@ -68,22 +69,25 @@ export const GuidedOnboarding = ({
     isOpen = false,
     onTurnOff
 }: GuidedOnboardingProps): JSX.Element | null => {
-    const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
-		event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
-		payload: {
-			step: appSteps[ACTIVE_APP_STEP_INDEX].title
-		}
-	}));
+  const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
+      event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
+      payload: {
+        step: appSteps[ACTIVE_APP_STEP_INDEX].title
+      }
+    })
+	);
 
   return isEnabled ?
-    (<Collapsible
-        title="Getting Started Guide"
+    (<OnboardingAccordion
+        title={<GuidedOnboardingHeader />}
         open={isOpen}
         onToggleOpen={trackOpenClose}
       >
-        <Box>
-            <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} onTurnOff={onTurnOff} />
-            <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} defaultSubstep={1} />
+        <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} onTurnOff={onTurnOff} />
+        <Divider color="orange.90" />
+        <Box padding="24px 0 8px">
+          <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} defaultSubstep={1} />
         </Box>
-      </Collapsible>): null;
+      </OnboardingAccordion>): null;
+
 };
