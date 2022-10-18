@@ -24,7 +24,7 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
 
   return (
     <Box>
-        <Box marginTop="12px" marginBottom="12px">
+        <Box marginBottom="24px">
         <Text size='4' fontWeight="bold">Set up the basics</Text>
         <Text size='3'>
             Our default Workflows are a great way to get started. You can edit them or create entirely new Workflows.
@@ -59,7 +59,11 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                                         >
                                             <Icon name={activeSubstep === id ? "ChevronRight" : "Bulletpoint"}/>
                                         </Box>
-                                    <Text size='3' fontWeight={activeSubstep === id ? "bold" : undefined}>
+                                    <Text
+                                        size='3'
+                                        paddingLeft="8px"
+                                        fontWeight={activeSubstep === id ? "bold" : undefined}
+                                    >
                                         {title}
                                     </Text>
                                 </Box>
@@ -86,19 +90,20 @@ export const Content = ({activeStep, defaultSubstep = -1}: ContentProps): JSX.El
                     maxWidth="600px"
                     borderRadius="8"
                 >
-                    <Text size='2'>
+                    <Text size='2' paddingBottom="8px">
                         {activeSubstepData.content}
                     </Text>
                     {
                         activeSubstepData.href &&
                         <Link
+                            size='2'
                             href={activeSubstepData.href}
                             rel="noreferrer"
                             target="_blank"
                             color="purple.50"
                             onClick={() => trackClick(`${activeSubstepData.title} - learn more`)}
                         >
-                            Learn More
+                            Learn more
                         </Link>
                     }
                 </Box>

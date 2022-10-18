@@ -24,44 +24,33 @@ export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.E
         onTurnOff();
         setIsCancelModalOpen(false)
     }
-
     return (
-        <Box
-            display="flex"
-            flexDirection="row"
-            alignItems="center"
-            justifyContent="space-between"
-            flexWrap="wrap"
-            color="orange.10"
-            borderBottom="1px solid"
-            borderBottomColor="orange.90"
-            py="24"
-            px="0"
-        >
-            <Box display="flex" flexDirection='row' alignItems='center' gap='16'>
-            {
-                appSteps.map(({title, isSuccessful}) => (
-                    <Box key={title} display="flex" flexDirection='row' gap='8' alignItems='center'>
-                        <Icon size="16" name={isSuccessful ? "BuildstatusSuccessful" : "StepstatusNext"}/>
-                        <Text size='1' fontWeight="bold" textTransform="uppercase" style={{ lineHeight: "16px" }}>
-                            {title}
-                        </Text>
-                    </Box>
-                ))
-            }
-            </Box>
-            <Box as="button" color="orange.10" onClick={() => {
-                    setIsCancelModalOpen(true);
-                    trackClick();
-                }}>
-              Turn off guide
-            </Box>
-            <TurnOffGuideModal
-                isOpen={isCancelModalOpen}
-                onClose={() => setIsCancelModalOpen(false)}
-                onTurnOffGuide={handleTurnOffGuide}
-                activeStepTitle={appSteps[activeStepIndex].title}
-            />
+        <Box display="flex" justifyContent="space-between" alignItems="center" padding="20px 0 36px">
+             <Box display="flex">
+             {
+                 appSteps.map(({title, isSuccessful}) => (
+                    <Box key={title} display="flex" paddingRight="24px">
+                         <Icon size="16" name={isSuccessful ? "BuildstatusSuccessful" : "StepstatusNext"}/>
+                         <Text size='1' fontWeight="bold" textTransform="uppercase" paddingLeft="8px">
+                             {title}
+                         </Text>
+                     </Box>
+                 ))
+             }
+             </Box>
+
+             <Box as="button" color="orange.10" onClick={() => {
+                     setIsCancelModalOpen(true);
+                     trackClick();
+                 }}>
+               Turn off guide
+             </Box>
+             <TurnOffGuideModal
+                 isOpen={isCancelModalOpen}
+                 onClose={() => setIsCancelModalOpen(false)}
+                 onTurnOffGuide={handleTurnOffGuide}
+                 activeStepTitle={appSteps[activeStepIndex].title}
+             />
         </Box>
     );
 };
