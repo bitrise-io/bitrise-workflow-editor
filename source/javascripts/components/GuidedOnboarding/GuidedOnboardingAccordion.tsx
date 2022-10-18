@@ -36,6 +36,9 @@ export const OnboardingAccordion = ({
         color="orange.10"
         index={expandedAccordionIndexArray}
         onChange={onAccordionChange}
+        // Negative margin below because AccordionItem does not
+        // respect marginBottom={0} prop. Will raise with bitkit team.
+        marginBottom={-16}
       >
         <AccordionItem
           id="item-details"
