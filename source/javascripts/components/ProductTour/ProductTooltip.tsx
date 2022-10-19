@@ -38,6 +38,11 @@ export const ProductTooltip = ({
 		onClose();
 	};
 
+	const onStartAgain = (): void => {
+		onButtonClick("start again");
+		onRestart();
+	};
+
 	return (
 		<Box
 			left={tip.position === "right" ? rect!.x + rect!.width + 37: rect!.width/2 - 210}
@@ -96,7 +101,7 @@ export const ProductTooltip = ({
 
 				{finished ? (
 					<Box>
-						<Button variant="tertiary" size="small" color="purple.50" onClick={onRestart}>
+						<Button variant="tertiary" size="small" color="purple.50" onClick={onStartAgain}>
 						Start again
 						</Button>
 						<Button variant="primary" size="small" onClick={onGotIt}>
