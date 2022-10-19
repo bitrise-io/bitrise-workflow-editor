@@ -214,22 +214,6 @@ def strings
             code_signing: {
                 available_project_types_load: "Loading, wait a sec...",
                 expose_for_pr_popover_content: "You can decide which files should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.",
-                certificate_help: {
-                    title: "How to setup Code Signing",
-                    codesigndoc: {
-                        title: "Export your code signing files with Codesigndoc",
-                        details: "Paste this script into your terminal and follow the instructions",
-                        code: "bash -l -c \"$(curl -sfL https://raw.githubusercontent.com/bitrise-tools/codesigndoc/master/_scripts/install_wrap.sh)\""
-                    },
-                    upload: {
-                        title: "Upload all exported files below",
-                        details: "You'll have the .p12 Identity file including the Certificate and Private Key, and the required Provisioning Profiles ready for upload. More info"
-                    },
-                    add_step: {
-                        title: "Don't forget to add the Certificate and Provisioning Profile Installer step",
-                        details: "You’ll need this step in your workflow to make code signing work for your project"
-                    }
-                },
                 auto_code_signing: {
                     header: {
                         title: "Manage your code signing files automatically!",
