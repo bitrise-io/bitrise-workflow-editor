@@ -23,7 +23,7 @@ const WorkflowMainToolbar = ({
 	onDeleteSelectedWorkflow
 }: WorkflowMainToolbarProps): JSX.Element => (
 	<Box display='flex' alignItems="center" justifyContent="space-between">
-		<Box display='flex' alignItems='center' gap='8'>
+		<Box display='flex' alignItems='center' gap='8' id="workflow-main-toolbar">
 			{selectedWorkflow && (
 				<WorkflowSelector
 					selectedWorkflow={selectedWorkflow}

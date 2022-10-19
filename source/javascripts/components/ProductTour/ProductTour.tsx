@@ -23,8 +23,7 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 	// but we stil need to wait for the templates to render them before we can move on.
 	useWaitForElements(menuIds, onFound);
 
-	const { tip, finished, onNext, onPrev, selectedId, selectedIndex, items } = useProductTour(validTips ?? []);
-
+	const { tip, finished, onNext, onPrev, onRestart, selectedId, selectedIndex, items } = useProductTour(validTips ?? []);
 	const rect = useHighlightedArea(selectedId);
 
 	const onDisplayTooltip = useTrackingFunction(() => ({
@@ -85,6 +84,7 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 				finished={finished}
 				onNext={onNext}
 				onPrev={onPrev}
+				onRestart={onRestart}
 				selectedIndex={selectedIndex!}
 				total={items.length}
 				rect={rect}
@@ -100,9 +100,9 @@ export const ProductTour = ({
 	productTourShown,
 	onDismiss
 }: ProductTourProps): JSX.Element | null => {
-	if (currentUser && productTourShown === false) {
+	//if (currentUser && productTourShown === false) {
 		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} onDismiss={onDismiss} />;
-	}
+	//}
 
 	return null;
 };

@@ -48,15 +48,17 @@ export const Highlighter = ({
 						<Box
 							position="absolute"
 							backgroundColor= "transparent"
-							borderRadius="1"
+							borderRadius="8"
+							border="10px solid white"
 							boxShadow="0 0 0 3px rgba(151, 71, 255, 1)"
 							zIndex="200"
 							style={{
-								left: `${rect?.x}px`,
-								top: `${rect?.y}px`,
-								width: `${rect?.width}px`,
-								height: `${rect?.height}px`
+								left: `${rect?.x - 10}px`,
+								top: `${rect?.y - 10}px`,
+								width: `${rect?.width + 20}px`,
+								height: `${rect?.height + 20}px`
 							}}
+				
 						/>
 				)}
 				{children}

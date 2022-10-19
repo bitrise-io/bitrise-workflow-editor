@@ -96,6 +96,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.menuIds = viewModel.menus.map(function(menu) {
 				return menu.id;
 			});
+			viewModel.tourIds = ['menu-nav', 'workflow-main-toolbar', 'steps-container'];
+
 
 			viewModel.loadDataProgress = new Progress();
 			viewModel.saveProgress = new Progress();

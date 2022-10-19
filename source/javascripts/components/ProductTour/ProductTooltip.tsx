@@ -1,4 +1,4 @@
-import { Text, Button, Box, Icon, Link } from "@bitrise/bitkit";
+import { Text, Button, IconButton, Box, Icon, Link } from "@bitrise/bitkit";
 
 import "./ProductTooltip.scss";
 
@@ -11,6 +11,7 @@ interface ProductTooltipProps {
 	onButtonClick: (data?: string) => void;
 	onNext: () => void;
 	onPrev: () => void;
+	onRestart: () => void;
 	finished: boolean;
 	selectedIndex: number;
 	total: number;
@@ -23,6 +24,7 @@ export const ProductTooltip = ({
 	total,
 	onNext,
 	onPrev,
+	onRestart,
 	rect,
 	onClose,
 	onButtonClick
@@ -38,17 +40,20 @@ export const ProductTooltip = ({
 
 	return (
 		<Box
-			left={rect?.x}
-			top={(rect?.y ?? 0) + (rect?.height ?? 0) + 20}
+			left={tip.position === "right" ? rect!.x + rect!.width + 37: rect!.width/2 - 210}
+			top={tip.position === "right" ? rect!.bottom/2  - 22: (rect?.y ?? 0) + (rect?.height ?? 0) + 40}
 			className="product-tooltip"
+			position="relative"
 		>
 			<Box display="flex" flexGrow="1">
-				<div className="arrow-up" style={{ left: rect!.width / 2 - 5 }} />
+				{ tip.position === "right" ? 
+					<div className="arrow-left" /> : 
+					<div className="arrow-up" /> }
 				<Box display="flex" flexDirection="column" flex="1 0 0" gap="8px">
 					<Text size="4" fontWeight="bold">
 						{tip.title}
 					</Text>
-					<Text maxWidth="400px">
+					<Text maxWidth="400px" paddingBottom="20">
 						{tip.description}
 						{tip.link && (
 							<Link
@@ -69,7 +74,7 @@ export const ProductTooltip = ({
 				</Box>
 				{!finished && (
 					<Box>
-						<Button onClick={onClose} variant="tertiary" style={{ padding: "0" }}>
+						<Button onClick={onClose} size="small" variant="tertiary" padding="0">
 							<Icon name="CloseSmall" textColor="grape-5" />
 						</Button>
 					</Box>
@@ -81,25 +86,27 @@ export const ProductTooltip = ({
 					display="flex"
 					borderRadius="4"
 					flexDirection="row"
+					alignItems="center"
 					backgroundColor="neutral.95"
 					paddingX="12"
 					justifyContent="center"
 				>
-					<Text size="2">{selectedIndex !== undefined && `${selectedIndex + 1}/${total}`}</Text>
+					<Text size="2">{selectedIndex !== undefined && `${selectedIndex + 1} / ${total}`}</Text>
 				</Box>
 
 				{finished ? (
-					<Button variant="primary" size="small" onClick={onGotIt}>
-						Got it
-					</Button>
+					<Box>
+						<Button variant="tertiary" size="small" color="purple.50" onClick={onRestart}>
+						Start again
+						</Button>
+						<Button variant="primary" size="small" onClick={onGotIt}>
+							Got it
+						</Button>
+					</Box>
 				) : (
 					<Box className="product-tooltip__navigation">
-						<Button size="small" onClick={onPrev}>
-							<Icon name="ChevronLeft" />
-						</Button>
-						<Button size="small" onClick={onNext}>
-							<Icon name="ChevronRight" />
-						</Button>
+						<IconButton iconName="ChevronLeft" aria-label="Previous" size="small" variant="secondary" onClick={onPrev}/>
+						<IconButton iconName="ChevronRight" aria-label="Next" size="small" variant="secondary" onClick={onNext}/>
 					</Box>
 				)}
 			</Box>

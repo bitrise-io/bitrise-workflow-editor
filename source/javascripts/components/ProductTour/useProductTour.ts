@@ -78,6 +78,10 @@ export const useProductTour = (tips: Tips[]) => {
 		dispatch({ type: "init", payload: tips });
 	}, [tips]);
 
+	const onRestart = useCallback(() => {
+		dispatch({ type: "select", payload: tips[0].id});
+	}, [dispatch, tips]); 
+
 	const onNext = useCallback(() => {
 		dispatch({ type: "next", payload: undefined });
 	}, [dispatch]);
@@ -93,6 +97,7 @@ export const useProductTour = (tips: Tips[]) => {
 		selectedIndex,
 		tip,
 		onPrev,
-		onNext
+		onNext,
+		onRestart
 	};
 };

@@ -9,6 +9,7 @@ export interface Tips {
 	id: string;
 	title: string;
 	description: string;
+	position: "bottom" | "right";
 	link?: string;
 }
 

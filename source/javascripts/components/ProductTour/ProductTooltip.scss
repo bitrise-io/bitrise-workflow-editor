@@ -20,6 +20,18 @@
       border-bottom: 10px solid white;
       position: absolute;
       top: -10px;
+      left: 50%;
+    }
+
+    .arrow-left {
+      width: 0;
+      height: 0;
+      border-right: 10px solid white;
+      border-bottom: 10px solid transparent;
+      border-top: 10px solid transparent;
+      position: absolute;
+      left: -10px;
+      top: 50%;
     }
   }
 
