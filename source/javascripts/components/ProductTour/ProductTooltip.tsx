@@ -51,9 +51,7 @@ export const ProductTooltip = ({
 			position="relative"
 		>
 			<Box display="flex" flexGrow="1">
-				{ tip.position === "right" ? 
-					<div className="arrow-left" /> : 
-					<div className="arrow-up" /> }
+				<div className={`arrow-${tip.position === "right" ? "left" : "up" }`} />
 				<Box display="flex" flexDirection="column" flex="1 0 0" gap="8px">
 					<Text size="4" fontWeight="bold">
 						{tip.title}
