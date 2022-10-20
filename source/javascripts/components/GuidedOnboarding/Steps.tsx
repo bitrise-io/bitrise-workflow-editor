@@ -30,7 +30,7 @@ export const Steps = ({appSteps, activeStepIndex, onTurnOff}: StepsProps): JSX.E
              {
                  appSteps.map(({title, isSuccessful}) => (
                     <Box key={title} display="flex" paddingRight="24px">
-                         <Icon size="16" name={isSuccessful ? "BuildstatusSuccessful" : "StepstatusNext"}/>
+                         <Icon size="16" name={isSuccessful ? "BuildstatusSuccessful" : "StageCurrent"}/>
                          <Text size='1' fontWeight="bold" textTransform="uppercase" paddingLeft="8px">
                              {title}
                          </Text>
