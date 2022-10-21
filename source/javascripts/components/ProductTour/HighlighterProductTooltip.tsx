@@ -10,7 +10,6 @@ import { Text,
     useResponsive } from "@bitrise/bitkit";
 import { Tips } from "./types";
 
-
 interface HighlighterProductTooltipProps {
 	tip: Tips;
 	rect: DOMRect | null;
@@ -51,7 +50,6 @@ export const HighlighterProductTooltip = ({
 		onButtonClick("start again");
 		onRestart();
 	}; 
-
 
     return (
         <Popover 
