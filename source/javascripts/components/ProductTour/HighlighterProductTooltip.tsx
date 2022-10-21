@@ -56,7 +56,9 @@ export const HighlighterProductTooltip = ({
     return (
         <Popover 
             placement={(tip.position === "bottom" || isMobile) ? "bottom" : "right"}
-            isOpen={true}>
+            isOpen={true}
+            gutter={25}
+            arrowSize={15}>
             <PopoverTrigger>
                 <Box
                     position="absolute"
@@ -73,7 +75,7 @@ export const HighlighterProductTooltip = ({
                 />
             </PopoverTrigger>
             <PopoverContent maxWidth="420" minHeight="212" padding="24" zIndex="300" gap="8">
-                <PopoverArrow/>
+                <PopoverArrow bg="white"/>
                 <Box display="flex" flexGrow="1" >
                     <Box display="flex" flexDirection="column" flex="1 0 0" gap="8px">
                         <Text size="4" fontWeight="bold">
@@ -128,6 +130,7 @@ export const HighlighterProductTooltip = ({
                     </Box>
                 )}
                 </Box>
+               
             </PopoverContent>
         </Popover>
     );
