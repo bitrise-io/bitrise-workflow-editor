@@ -10,7 +10,6 @@ export interface Tips {
 	title: string;
 	description: string;
 	position: "bottom" | "right";
-	link?: string;
 }
 
 export type PayloadAction<T extends string, P = undefined> = {

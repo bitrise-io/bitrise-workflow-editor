@@ -1,14 +1,14 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { Highlighter } from "./Highlighter";
-import { ProductTooltip } from "./ProductTooltip";
+import { HighlighterOverlay } from "./HighlighterOverlay";
+import { HighlighterProductTooltip } from "./HighlighterProductTooltip";
 import { ProductTourProps, Tips } from "./types";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { tips } from "./tips";
 import { useWaitForElements } from "./useWaitForElement";
 import { useProductTour } from "./useProductTour";
 import { useHighlightedArea, getClipPathFromRect } from "./useHighlightedArea";
-
+ 
 export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
@@ -77,8 +77,8 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 	}
 
 	return (
-		<Highlighter isOpen={isOpen} rect={rect} clipPath={clipPath}>
-			<ProductTooltip
+		<HighlighterOverlay isOpen={isOpen} rect={rect} clipPath={clipPath}>
+			<HighlighterProductTooltip
 				onClose={onClose}
 				onButtonClick={onButtonClick}
 				finished={finished}
@@ -89,8 +89,8 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 				total={items.length}
 				rect={rect}
 				tip={tip}
-			/>
-		</Highlighter>
+			/>   
+		</HighlighterOverlay> 
 	);
 };
 
@@ -100,9 +100,9 @@ export const ProductTour = ({
 	productTourShown,
 	onDismiss
 }: ProductTourProps): JSX.Element | null => {
-	if (currentUser && productTourShown === false) {
+	//if (currentUser && productTourShown === false) {
 		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} onDismiss={onDismiss} />;
-	}
+	//}
 
 	return null;
 };
