@@ -4,26 +4,30 @@ import { Content } from "./Content";
 import { OnboardingAccordion } from "./GuidedOnboardingAccordion";
 import { GuidedOnboardingHeader } from "./GuidedOnboardingHeader";
 import { Steps } from "./Steps";
-import { AppStep } from "./types";
+import { AppStep, BuildStatus } from "./types";
 
 interface GuidedOnboardingProps {
     isEnabled?: boolean;
     isOpen?: boolean;
     onTurnOff: () => void;
+    buildStatus?: BuildStatus;
 }
 
 const appSteps: AppStep[] = [
   {
+    id: "add_new_app",
     title: "Add new app",
     isSuccessful: true,
     subSteps: []
   },
   {
+    id: "run_a_build",
     title: "Run a build",
     isSuccessful: true,
     subSteps: []
   },
   {
+    id: "config_workflows",
     title: "Configure your workflows",
     isSuccessful: false,
     subSteps: [
@@ -59,6 +63,19 @@ const appSteps: AppStep[] = [
   }
 ];
 
+const getStepsWithUpdatedStatus = (statusById: Record<string, boolean>, appSteps: AppStep[]) => {
+  return appSteps.map((item) => {
+    const currentId = item.id;
+    if (currentId in statusById) {
+      return {
+        ...item,
+        isSuccessful: statusById[currentId]
+      }
+    }
+    return item;
+  });
+}
+
 /**
  * At this time the WFE only supports a single step.
  */
@@ -67,9 +84,15 @@ const ACTIVE_APP_STEP_INDEX = 2;
 export const GuidedOnboarding = ({
     isEnabled = false,
     isOpen = false,
-    onTurnOff
+    onTurnOff,
+    buildStatus
 }: GuidedOnboardingProps): JSX.Element | null => {
   const { isMobile } = useResponsive();
+
+  const stepSuccessful = {
+    run_a_build: buildStatus !== BuildStatus.Running
+  }
+  const updatedAppSteps = getStepsWithUpdatedStatus(stepSuccessful, appSteps);
 
   const trackOpenClose = useTrackingFunction((isOpen: boolean) => ({
       event: isOpen ? "Guided Onboarding Displayed" : "Guided Onboarding Closed",
@@ -85,7 +108,7 @@ export const GuidedOnboarding = ({
         open={isOpen}
         onToggleOpen={trackOpenClose}
       >
-        <Steps appSteps={appSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} onTurnOff={onTurnOff} />
+        <Steps appSteps={updatedAppSteps} activeStepIndex={ACTIVE_APP_STEP_INDEX} onTurnOff={onTurnOff} />
         <Divider color="orange.90" />
         <Box padding="24px 0 8px">
           <Content activeStep={appSteps[ACTIVE_APP_STEP_INDEX]} defaultSubstep={1} />

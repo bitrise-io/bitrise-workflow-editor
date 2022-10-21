@@ -1,6 +1,7 @@
 import { ReactNode } from "react";
 
 export interface AppStep {
+    id: string;
     title: string;
     isSuccessful: boolean;
     subSteps: SubStep[];
@@ -11,4 +12,12 @@ export interface SubStep {
     title: string;
     content: ReactNode;
     href?: string;
+}
+
+export enum BuildStatus {
+    Running = 0,
+    Success = 1,
+    Error = 2,
+    Aborted = 3,
+    AbortedWithSuccess = 4,
 }
