@@ -41,7 +41,7 @@ export const useHighlightedArea = (selectedId: string | undefined): DOMRect | nu
 	useEffect(() => {
 		const onResize = (): void => {
 			if (ref.current) {
-				const rect = ref.current.getBoundingClientRect();
+				const rect = ref.current!.getBoundingClientRect();
 				setHighlightedRect(rect);
 			}
 		};
