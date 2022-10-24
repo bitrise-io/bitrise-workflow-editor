@@ -314,6 +314,9 @@ import jsyaml from "js-yaml";
 											slug: response.data.owner_slug,
 											type: response.data.owner_type,
 											name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name
+										},
+										buildData: {
+											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status
 										}
 									});
 								},
