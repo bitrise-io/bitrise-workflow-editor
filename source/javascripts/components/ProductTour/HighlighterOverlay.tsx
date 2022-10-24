@@ -28,20 +28,20 @@ export const HighlighterOverlay = ({
 				left="0"
 				zIndex="100"
 				sx={{"& > *": {pointerEvents: "all"}}}>
-                <>
-				<Box
-					width="100vw"
-					height="100vh"
-					backgroundColor="rgba(0,0,0,0.2)"
-					position="absolute"
-					left="0"
-					top="0"
-					style={{
-						clipPath
-					}}
-				/>
-                {children}
-                </>
+				<>
+					<Box
+						width="100vw"
+						height="100vh"
+						backgroundColor="rgba(0,0,0,0.2)"
+						position="absolute"
+						left="0"
+						top="0"
+						style={{
+							clipPath
+						}}
+					/>
+					{children}
+				</>
 			</Box>
         
 		</Portal>
