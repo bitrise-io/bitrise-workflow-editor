@@ -100,9 +100,9 @@ export const ProductTour = ({
 	productTourShown,
 	onDismiss
 }: ProductTourProps): JSX.Element | null => {
-	//if (currentUser && productTourShown === false) {
+	if (currentUser && productTourShown === false) {
 		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} onDismiss={onDismiss} />;
-	//}
+	}
 
 	return null;
 };
