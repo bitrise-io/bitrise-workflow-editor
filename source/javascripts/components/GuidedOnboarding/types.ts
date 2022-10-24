@@ -14,10 +14,10 @@ export interface SubStep {
     href?: string;
 }
 
-export enum BuildStatus {
-    Running = 0,
-    Success = 1,
-    Error = 2,
-    Aborted = 3,
-    AbortedWithSuccess = 4,
-}
+export const BuildStatus = {
+    Running: 0,
+    Success: 1,
+    Error: 2,
+    Aborted: 3,
+    AbortedWithSuccess: 4,
+} as const;

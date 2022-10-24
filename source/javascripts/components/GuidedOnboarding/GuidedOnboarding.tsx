@@ -10,7 +10,7 @@ interface GuidedOnboardingProps {
     isEnabled?: boolean;
     isOpen?: boolean;
     onTurnOff: () => void;
-    buildStatus?: BuildStatus;
+    buildStatus?: number;
 }
 
 const appSteps: AppStep[] = [
