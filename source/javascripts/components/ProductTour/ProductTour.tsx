@@ -8,7 +8,7 @@ import { tips } from "./tips";
 import { useWaitForElements } from "./useWaitForElement";
 import { useProductTour } from "./useProductTour";
 import { useHighlightedArea, getClipPathFromRect } from "./useHighlightedArea";
- 
+
 export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
@@ -89,7 +89,7 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 				total={items.length}
 				rect={rect}
 				tip={tip}
-			/>   
+			/>
 		</HighlighterOverlay> 
 	);
 };

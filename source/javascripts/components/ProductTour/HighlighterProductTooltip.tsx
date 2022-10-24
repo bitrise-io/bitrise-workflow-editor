@@ -38,7 +38,7 @@ export const HighlighterProductTooltip = ({
     if (!tip) {
 		return null;
 	}
-
+    
 	const { isMobile } = useResponsive();
 
 	const onGotIt = (): void => {

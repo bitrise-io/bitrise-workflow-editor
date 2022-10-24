@@ -27,7 +27,7 @@ export const useHighlightedArea = (selectedId: string | undefined): DOMRect | nu
 		const element = document.getElementById(id);
 		if (element) {
 			ref.current = element;
-			const rect = element.getBoundingClientRect();			
+			const rect = element.getBoundingClientRect();
 			setHighlightedRect(rect);
 		}
 	}, []);
