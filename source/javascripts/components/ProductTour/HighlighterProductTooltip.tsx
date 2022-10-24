@@ -35,10 +35,6 @@ export const HighlighterProductTooltip = ({
 	onClose,
 	onButtonClick,
 }:HighlighterProductTooltipProps):(JSX.Element|null) => {
-    if (!tip) {
-		return null;
-	}
-    
 	const { isMobile } = useResponsive();
 
 	const onGotIt = (): void => {
@@ -50,6 +46,10 @@ export const HighlighterProductTooltip = ({
 		onButtonClick("start again");
 		onRestart();
 	}; 
+
+    if (!tip) {
+		return null;
+	}
 
     return (
         <Popover 
