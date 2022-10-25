@@ -2,46 +2,27 @@ import { Tips } from "./types";
 
 export const tips: Tips[] = [
 	{
-		id: "workflows",
-		title: "Welcome to the workflow editor",
-		description:
-			"Here you can build workflows using our library of steps and automate tasks to replace repetitive, manual processes."
+		id: "menu-nav",
+		title: "Welcome to the Workflow Editor",
+		description: 
+			"Here you can build Workflows and set up everything your app needs for testing and deployment. " 
+			+ "You can also change the machine type for your builds.",
+		position: "bottom",
 	},
 	{
-		id: "code-signing",
-		title: "Code signing",
+		id: "workflow-main-toolbar",
+		title: "Default Workflows",
 		description:
-			"Here you can upload sensitive files to Bitrise to allow you to distribute your app." +
-			"Find out how to set up code signing for your project type.",
-		link: "https://devcenter.bitrise.io/en/code-signing.html"
+			"A Bitrise Workflow is a collection of Steps. Each new app comes with a Primary and Deploy Workflow. "
+			+ "You can edit these or start new Workflows from scratch.",
+		position: "right",
 	},
 	{
-		id: "secrets",
-		title: "Secrets",
-		description: "Find out how to set up secrets, how to edit them, expose them to pull requests and more.",
-		link: "https://devcenter.bitrise.io/en/builds/secrets.html"
+		id: "steps-container",
+		title: "Steps",
+		description: 
+			"Click on the + symbol at the point you want to add a Step and then select the desired Step from our library. "
+			+ "You can also drag and drop the Steps in a Workflow.",
+		position: "right",
 	},
-	{
-		id: "env-vars",
-		title: "Env Vars",
-		description:
-			"Here you the define environment variables that the steps need to access in a build. " +
-			"This can play a crucial role in ensuring your builds are successful.",
-		link: "https://devcenter.bitrise.io/en/builds/environment-variables.html"
-	},
-	{
-		id: "stack",
-		title: "Stacks & machines",
-		description:
-			"On this tab, you can update the stack version (make sure it matches that of your project). " +
-			"You can also set the machine type to change the speed/cost of your builds."
-	},
-	{
-		id: "yml",
-		title: "bitrise.yml",
-		description:
-			"There are two ways to build your workflows on Bitrise. " +
-			"You can use the workflow editor to configure steps or you can edit the yml file in the yml editor.",
-		link: "https://devcenter.bitrise.io/en/builds/configuring-build-settings/managing-an-app-s-bitrise-yml-file.html"
-	}
 ];

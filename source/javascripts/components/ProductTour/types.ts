@@ -9,7 +9,7 @@ export interface Tips {
 	id: string;
 	title: string;
 	description: string;
-	link?: string;
+	position: "bottom" | "right";
 }
 
 export type PayloadAction<T extends string, P = undefined> = {

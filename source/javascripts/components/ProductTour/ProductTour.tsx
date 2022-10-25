@@ -1,7 +1,7 @@
 import { useEffect } from "react";
 import { useState } from "react";
-import { Highlighter } from "./Highlighter";
-import { ProductTooltip } from "./ProductTooltip";
+import { HighlighterOverlay } from "./HighlighterOverlay";
+import { HighlighterProductTooltip } from "./HighlighterProductTooltip";
 import { ProductTourProps, Tips } from "./types";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { tips } from "./tips";
@@ -23,8 +23,7 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 	// but we stil need to wait for the templates to render them before we can move on.
 	useWaitForElements(menuIds, onFound);
 
-	const { tip, finished, onNext, onPrev, selectedId, selectedIndex, items } = useProductTour(validTips ?? []);
-
+	const { tip, finished, onNext, onPrev, onRestart, selectedId, selectedIndex, items } = useProductTour(validTips ?? []);
 	const rect = useHighlightedArea(selectedId);
 
 	const onDisplayTooltip = useTrackingFunction(() => ({
@@ -78,19 +77,20 @@ export const ProductTourContent = ({ menuIds, currentUser, onDismiss }: ProductT
 	}
 
 	return (
-		<Highlighter isOpen={isOpen} rect={rect} clipPath={clipPath}>
-			<ProductTooltip
+		<HighlighterOverlay isOpen={isOpen} rect={rect} clipPath={clipPath}>
+			<HighlighterProductTooltip
 				onClose={onClose}
 				onButtonClick={onButtonClick}
 				finished={finished}
 				onNext={onNext}
 				onPrev={onPrev}
+				onRestart={onRestart}
 				selectedIndex={selectedIndex!}
 				total={items.length}
 				rect={rect}
 				tip={tip}
 			/>
-		</Highlighter>
+		</HighlighterOverlay> 
 	);
 };
 
