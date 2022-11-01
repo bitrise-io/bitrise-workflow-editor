@@ -105,7 +105,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.currentUser;
 			viewModel.productTourShown;
 			viewModel.lastWorkflowEditedDate;
-			viewModel.lastBuildDate;
 			viewModel.guidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
 			viewModel.guidedOnboardingEnabledForUser = false;
@@ -218,6 +217,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				}).then(
 					function() {
 						viewModel.loadDataProgress.success();
+						//test 
 					},
 					function(error) {
 						viewModel.loadDataProgress.error(error);
@@ -465,7 +465,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				})
 				.then(function() {
 					viewModel.lastWorkflowEditedDate = dateToday;
-					viewModel.lastBuildDate = appService.appDetails.buildData.lastRunningBuildFinishDate;
 				});
 			}
 
