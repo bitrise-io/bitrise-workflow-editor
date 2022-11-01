@@ -3,7 +3,7 @@ header.sticky
 .main[ng-controller="MainController as mainCtrl" ng-init="mainCtrl.init()" style="display: flex"]
 	r-update-yml-in-repository-modal[ng-if="mainCtrl.isUpdateYmlInRepositoryModalVisible" app-slug="appService.appDetails.slug" on-close="mainCtrl.closeUpdateYmlInRepositoryModal" on-complete="mainCtrl.onSaveToRepoComplete" get-data-to-save="mainCtrl.getDataToSave"]
 	div[sticky sticking-index="1"]
-		r-guided-onboarding[is-enabled="mainCtrl.showGuidedOnboarding()" is-open="mainCtrl.productTourDismissed" on-turn-off="mainCtrl.onTurnOffGuidedOnboarding" build-status="appService.appDetails && appService.appDetails.buildData.lastRunningBuildOrLastBuildStatus"]
+		r-guided-onboarding[is-enabled="mainCtrl.showGuidedOnboarding()" is-open="mainCtrl.productTourDismissed" on-turn-off="mainCtrl.onTurnOffGuidedOnboarding" build-status="appService.appDetails && appService.appDetails.buildData.lastRunningBuildOrLastBuildStatus" last-workflow-edited-app="mainCtrl.lastWorkflowEditedApp" last-workflow-edited-date="mainCtrl.lastWorkflowEditedDate" last-running-build-finish-date="appService.appDetails.buildData.lastRunningBuildFinishDate"]
 		header.menu
 			.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
