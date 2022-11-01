@@ -110,7 +110,7 @@ export const GuidedOnboarding = ({
     })
 	);
 
-  return /*isEnabled && !isMobile*/true ?
+  return isEnabled && !isMobile ?
     (<OnboardingAccordion
         title={<GuidedOnboardingHeader />}
         open={isOpen}
