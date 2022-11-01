@@ -105,10 +105,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.currentUser;
 			viewModel.productTourShown;
 			viewModel.lastWorkflowEditedDate;
+			viewModel.lastBuildDate;
 			viewModel.guidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
 			viewModel.guidedOnboardingEnabledForUser = false;
-			viewModel.lastBuildDate = appService.appDetails.buildData.lastRunningBuildFinishDate;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
