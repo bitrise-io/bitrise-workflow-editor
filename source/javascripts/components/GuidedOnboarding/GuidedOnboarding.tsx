@@ -94,7 +94,7 @@ export const GuidedOnboarding = ({
     lastRunningBuildFinishDate,
 }: GuidedOnboardingProps): JSX.Element | null => {
   const { isMobile } = useResponsive();
-
+  console.log(lastWorkflowEditedApp)
   const stepSuccessful = {
     run_a_build: buildStatus !== BuildStatus.Running,
     config_workflows: (lastRunningBuildFinishDate && lastWorkflowEditedDate) 
