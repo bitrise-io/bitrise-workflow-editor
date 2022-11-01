@@ -74,4 +74,4 @@ angular
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown", "onDismiss"]))
-	.component("rGuidedOnboarding", register(GuidedOnboarding, ["isEnabled", "isOpen", "onTurnOff", "buildStatus", "lastWorkflowEditedApp", "lastWorkflowEditedDate", "lastRunningBuildFinishDate"]));
+	.component("rGuidedOnboarding", register(GuidedOnboarding, ["isEnabled", "isOpen", "onTurnOff", "buildStatus", "lastWorkflowEditedDate", "lastRunningBuildFinishDate"]));
