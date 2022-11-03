@@ -11,8 +11,8 @@ interface GuidedOnboardingProps {
     isOpen?: boolean;
     onTurnOff: () => void;
     buildStatus?: number;
-    lastWorkflowEditedDate?: Date;
-    lastRunningBuildFinishDate?: Date;
+    lastWorkflowEditedDate?: string;
+    lastRunningBuildFinishDate?: string;
 }
 
 const appSteps: AppStep[] = [
@@ -95,8 +95,8 @@ export const GuidedOnboarding = ({
 
   const stepSuccessful = {
     run_a_build: buildStatus !== BuildStatus.Running,
-    config_workflows: (lastRunningBuildFinishDate && lastWorkflowEditedDate) 
-                        && (lastRunningBuildFinishDate > lastWorkflowEditedDate) || false,
+    config_workflows: (!!lastRunningBuildFinishDate && !!lastWorkflowEditedDate) 
+                        && (new Date(lastRunningBuildFinishDate) > new Date(lastWorkflowEditedDate)),
   }
   const updatedAppSteps = getStepsWithUpdatedStatus(stepSuccessful, appSteps);
 

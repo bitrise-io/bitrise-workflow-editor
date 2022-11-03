@@ -458,10 +458,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			function updateLastWorkflowMetadata(){
 				const appSlug = appService.appDetails.slug;
-				const dateToday = new Date();
+				const dateToday = new Date().toString();
 			
 				requestService.updateCurrentUserMetadata({
 					'last_workflow_edited_date': dateToday,
+					'last_workflow_edited_app': appSlug
 				})
 				.then(function() {
 					viewModel.lastWorkflowEditedDate = dateToday;
