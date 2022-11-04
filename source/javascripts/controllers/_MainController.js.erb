@@ -696,7 +696,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						const tourReq = requestService.getProductTourShown();
 						Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
 							viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
-							viewModel.lastWorkflowEditedDate = lastWFEADateMetadataResp;
+							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
 							viewModel.productTourShown = tourResp;
 						});
 					} else {
