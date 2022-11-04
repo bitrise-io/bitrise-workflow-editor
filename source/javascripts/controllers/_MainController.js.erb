@@ -104,6 +104,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
 			viewModel.productTourShown;
+			viewModel.lastWorkflowEditedDate;
 			viewModel.guidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
 			viewModel.guidedOnboardingEnabledForUser = false;
@@ -454,6 +455,19 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				});
 			}
 
+			function updateLastWorkflowMetadata(){
+				const appSlug = appService.appDetails.slug;
+				const dateToday = new Date().toString();
+			
+				requestService.updateCurrentUserMetadata({
+					'last_workflow_edited_date': dateToday,
+					'last_workflow_edited_app': appSlug
+				})
+				.then(function() {
+					viewModel.lastWorkflowEditedDate = dateToday;
+				});
+			}
+
 			viewModel.getDataToSave = function() {
 				return viewModel.dataToSave;
 			};
@@ -533,6 +547,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						function() {
 							viewModel.saveProgress.reset();
 							$rootScope.$emit("MainController::savedFinishedWithSuccess");
+							if (viewModel.guidedOnboardingEnabled) {
+								updateLastWorkflowMetadata();
+							}
 						},
 						function(error) {
 							viewModel.saveProgress.reset();
@@ -674,11 +691,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				launchDarklyService.initialize().then(() => {
 					viewModel.guidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
 					if (viewModel.guidedOnboardingEnabled) {
-						const metadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+						const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
 						const tourReq = requestService.getProductTourShown();
-
-						Promise.all([metadataReq, tourReq]).then(([metadataResp, tourResp]) => {
-							viewModel.guidedOnboardingEnabledForUser = metadataResp;
+						Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
+							viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
+							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
 							viewModel.productTourShown = tourResp;
 						});
 					} else {

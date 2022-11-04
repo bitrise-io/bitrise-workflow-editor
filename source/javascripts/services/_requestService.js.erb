@@ -316,7 +316,8 @@ import jsyaml from "js-yaml";
 											name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name
 										},
 										buildData: {
-											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status
+											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
+											lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at
 										}
 									});
 								},
