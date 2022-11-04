@@ -92,11 +92,15 @@ export const GuidedOnboarding = ({
     lastRunningBuildFinishDate,
 }: GuidedOnboardingProps): JSX.Element | null => {
   const { isMobile } = useResponsive();
+  const buildSuccessful = buildStatus === BuildStatus.Success;
+  const buildCompletedAfterWorkflowEdit = (!!lastRunningBuildFinishDate && !!lastWorkflowEditedDate) 
+                                          && (new Date(lastRunningBuildFinishDate) > new Date(lastWorkflowEditedDate));
+
+  const configWorkflowSuccessful = buildSuccessful && buildCompletedAfterWorkflowEdit;
 
   const stepSuccessful = {
     run_a_build: buildStatus !== BuildStatus.Running,
-    config_workflows: (!!lastRunningBuildFinishDate && !!lastWorkflowEditedDate) 
-                        && (new Date(lastRunningBuildFinishDate) > new Date(lastWorkflowEditedDate)),
+    config_workflows: configWorkflowSuccessful,
   }
   const updatedAppSteps = getStepsWithUpdatedStatus(stepSuccessful, appSteps);
 
