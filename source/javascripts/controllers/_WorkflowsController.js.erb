@@ -66,7 +66,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				workflows: undefined,
 				selectedWorkflow: undefined,
 				selectedStep: undefined,
-				targetInput: null,
 				variableSelected: undefined,
 				inputWithSelectedInsertRange: null,
 				insertStartPosition: undefined,
@@ -84,7 +83,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.insertVariableToStepInputConfig.workflows = workflows;
 				viewModel.insertVariableToStepInputConfig.selectedWorkflow = selectedWorkflow;
 				viewModel.insertVariableToStepInputConfig.selectedStep = selectedStep;
-				viewModel.insertVariableToStepInputConfig.targetInput = targetInput;
 				if (viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange != targetInput) {
 					viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange = targetInput;
 					viewModel.insertVariableToStepInputConfig.insertStartPosition = 0;
