@@ -13,7 +13,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			$filter,
 			$location,
 			stringService,
-			imageService,
 			requestService,
 			scrollService,
 			appService,
@@ -67,8 +66,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				workflows: undefined,
 				selectedWorkflow: undefined,
 				selectedStep: undefined,
-				targetVariable: undefined,
 				variableSelected: undefined,
+				inputWithSelectedInsertRange: null,
 				insertStartPosition: undefined,
 				insertEndPosition: undefined,
 				availableVariableGroupIDs: undefined,
@@ -79,33 +78,32 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				workflows,
 				selectedWorkflow,
 				selectedStep,
-				targetVariable
+				targetInput
 			) {
 				viewModel.insertVariableToStepInputConfig.workflows = workflows;
 				viewModel.insertVariableToStepInputConfig.selectedWorkflow = selectedWorkflow;
 				viewModel.insertVariableToStepInputConfig.selectedStep = selectedStep;
-				viewModel.insertVariableToStepInputConfig.targetVariable = targetVariable;
-
-				if (viewModel.insertVariableToStepInputConfig.insertStartPosition === undefined) {
+				if (viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange != targetInput) {
+					viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange = targetInput;
 					viewModel.insertVariableToStepInputConfig.insertStartPosition = 0;
-				}
-				if (viewModel.insertVariableToStepInputConfig.insertEndPosition === undefined) {
-					viewModel.insertVariableToStepInputConfig.insertEndPosition = targetVariable.value().length;
+					viewModel.insertVariableToStepInputConfig.insertEndPosition = targetInput.value().length;
 				}
 
 				viewModel.insertVariableToStepInputConfig.variableSelected = function(variable) {
 					viewModel.insertVariableToStepInputConfig.popup.isVisible = false;
 
-					var oldValue = targetVariable.value();
+					var oldValue = targetInput.value();
 					if (oldValue === null) {
 						oldValue = "";
 					}
 
-					targetVariable.value(
+					var insertedValue = $filter("prettifiedVariableKey")(variable);
+					targetInput.value(
 						oldValue.slice(0, viewModel.insertVariableToStepInputConfig.insertStartPosition) +
-							$filter("prettifiedVariableKey")(variable) +
+							insertedValue +
 							oldValue.slice(viewModel.insertVariableToStepInputConfig.insertEndPosition)
 					);
+					viewModel.insertVariableToStepInputConfig.insertEndPosition = viewModel.insertVariableToStepInputConfig.insertStartPosition + insertedValue.length;
 				};
 
 				viewModel.insertVariableToStepInputConfig.popup.isVisible = true;
@@ -125,7 +123,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				workflows,
 				selectedWorkflow,
 				selectedStep,
-				targetVariable
+				targetInput
 			) {
 				viewModel.insertSecretToStepInputConfig.workflows = workflows;
 				viewModel.insertSecretToStepInputConfig.selectedWorkflow = selectedWorkflow;
@@ -134,7 +132,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.insertSecretToStepInputConfig.secretSelected = function(variable) {
 					viewModel.insertSecretToStepInputConfig.popup.isVisible = false;
 
-					targetVariable.value($filter("prettifiedVariableKey")(variable));
+					targetInput.value($filter("prettifiedVariableKey")(variable));
 				};
 
 				viewModel.insertSecretToStepInputConfig.popup.isVisible = true;
@@ -1113,7 +1111,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				);
 			};
 
-			viewModel.inputValueBlurred = function(event) {
+			viewModel.inputValueBlurred = function(event, input) {
+				viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange = input;
 				viewModel.insertVariableToStepInputConfig.insertStartPosition = event.target.selectionStart;
 				viewModel.insertVariableToStepInputConfig.insertEndPosition = event.target.selectionEnd;
 			};
