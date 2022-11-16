@@ -13,7 +13,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			$filter,
 			$location,
 			stringService,
-			imageService,
 			requestService,
 			scrollService,
 			appService,
@@ -67,12 +66,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				workflows: undefined,
 				selectedWorkflow: undefined,
 				selectedStep: undefined,
-				targetVariable: undefined,
+				targetVariable: null,
 				variableSelected: undefined,
 				insertStartPosition: undefined,
 				insertEndPosition: undefined,
 				availableVariableGroupIDs: undefined,
 				show: undefined
+			};
+			viewModel.insertVariableToStepInputConfig.popup.afterDismissCallback = function() {
+				viewModel.insertVariableToStepInputConfig.targetVariable = null;
 			};
 
 			viewModel.insertVariableToStepInputConfig.show = function(
@@ -84,12 +86,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.insertVariableToStepInputConfig.workflows = workflows;
 				viewModel.insertVariableToStepInputConfig.selectedWorkflow = selectedWorkflow;
 				viewModel.insertVariableToStepInputConfig.selectedStep = selectedStep;
-				viewModel.insertVariableToStepInputConfig.targetVariable = targetVariable;
-
-				if (viewModel.insertVariableToStepInputConfig.insertStartPosition === undefined) {
+				if (viewModel.insertVariableToStepInputConfig.targetVariable != targetVariable) {
+					viewModel.insertVariableToStepInputConfig.targetVariable = targetVariable;
 					viewModel.insertVariableToStepInputConfig.insertStartPosition = 0;
-				}
-				if (viewModel.insertVariableToStepInputConfig.insertEndPosition === undefined) {
 					viewModel.insertVariableToStepInputConfig.insertEndPosition = targetVariable.value().length;
 				}
 
@@ -1113,7 +1112,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				);
 			};
 
-			viewModel.inputValueBlurred = function(event) {
+			viewModel.inputValueBlurred = function(event, input) {
+				viewModel.insertVariableToStepInputConfig.targetVariable = input;
+
 				viewModel.insertVariableToStepInputConfig.insertStartPosition = event.target.selectionStart;
 				viewModel.insertVariableToStepInputConfig.insertEndPosition = event.target.selectionEnd;
 			};
