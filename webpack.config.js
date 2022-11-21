@@ -1,5 +1,6 @@
 const path = require("path");
 const webpack = require("webpack");
+const CompressionPlugin = require("compression-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const TerserPLugin = require("terser-webpack-plugin");
@@ -192,6 +193,10 @@ module.exports = {
 	},
 	plugins: [
 		new webpack.EnvironmentPlugin(["MODE"]),
+		new CompressionPlugin({
+			algorithm: "gzip",
+			test: /.js$|.css$/,
+		}),
 		new MiniCssExtractPlugin({
 			filename: "stylesheets/[name].css"
 		}),
