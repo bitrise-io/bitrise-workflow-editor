@@ -23,14 +23,17 @@ type AngularLocationService = {
 	search: () => { workflow_id: string };
 };
 
-const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper => ({
-	workflow: null,
-	isBeforeRunWorkflow: true,
-	isAfterRunWorkflow: false,
-	selectedWorkflowBeforeRunWorkflowIndex: -1,
-	selectedWorkflowAfterRunWorkflowIndex: -1,
-	...wrapper
-});
+const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper =>
+	Object.assign(
+		{
+			workflow: null,
+			isBeforeRunWorkflow: true,
+			isAfterRunWorkflow: false,
+			selectedWorkflowBeforeRunWorkflowIndex: -1,
+			selectedWorkflowAfterRunWorkflowIndex: -1
+		},
+		wrapper
+	);
 
 export class WorkflowsSelectionService {
 	private store: WorkflowSelectionStore;
@@ -75,7 +78,11 @@ export class WorkflowsSelectionService {
 	};
 
 	restoreSelection = (viewModel: WorkflowViewModel): void => {
-		this.rearrangeSelection(viewModel, this.findSelectedWorkflow(viewModel));
+		this.rearrangeSelection(
+			viewModel,
+			this.findSelectedWorkflow(viewModel),
+			this.store.lastEditedWorkflowID || undefined
+		);
 
 		if (
 			this.verifySelectedIndex(
@@ -136,7 +143,12 @@ export class WorkflowsSelectionService {
 
 		// save it to the store
 		editedId = editedId || wf.id;
-		const editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === editedId);
+
+		let editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === editedId);
+		if (editedIndex === -1) {
+			editedIndex = viewModel.selectedWorkflowChain.findIndex(({ workflow }) => workflow.id === wf.id);
+		}
+
 		viewModel.editWorkflowAtIndex(editedIndex);
 	};
 }

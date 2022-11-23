@@ -9,13 +9,20 @@
 				name,
 				description,
 				descriptionURL,
-				projectTypes
+				descriptionURLGen2,
+				descriptionURLGen2AppleSilicon,
+				projectTypes,
+				osForChip
 			) {
 				this.id = id;
 				this.name = name;
+				this.type = id.split("-")[0];
 				this.description = description;
 				this.descriptionURL = descriptionURL;
+				this.descriptionURLGen2 = descriptionURLGen2;
+				this.descriptionURLGen2AppleSilicon = descriptionURLGen2AppleSilicon;
 				this.projectTypes = projectTypes;
+				this.osForChip = osForChip;
 			};
 
 			Stack.all;
@@ -32,7 +39,10 @@
 							aStackData.name,
 							aStackData.description,
 							aStackData.descriptionURL,
-							aStackData.projectTypes
+							aStackData.descriptionURLGen2,
+							aStackData.descriptionURLGen2AppleSilicon,
+							aStackData.projectTypes,
+							aStackData.osForChip
 						);
 					});
 				});

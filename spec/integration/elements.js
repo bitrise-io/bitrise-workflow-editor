@@ -1,11 +1,14 @@
-const workflowSelectElement = workflowName =>
-	`.workflow-selector ul li:has(.workflow .workflow-id:contains("${workflowName}"))`;
-const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1})`;
+import triggerElements from "./triggers/elements";
+
+const workflowSelectElement = workflowName => `[data-e2e-tag="workflow-selector-option-${workflowName}"]`;
+const stepSelector = index => `.workflow.edited .steps ul li:eq(${index - 1}) button.step`;
+const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
+	`.workflow:nth-child(${workflowIndex}) .steps ul li:eq(${stepIndex - 1}) button.step`;
 const inputVariableSelector = name =>
 	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
 
 export const elements = {
-	"Add Workflow Button": ".add-workflow",
+	"Add Workflow Button": "[aria-label='Add new Workflow']",
 	"Base Workflow Dropdown": "#add-workflow-popup-based-on-select",
 	"Workflow Name": "#add-workflow-popup-body input[type=text]",
 	"Workflow Add Button": "input.rebo.big.purple[type=submit]",
@@ -19,9 +22,11 @@ export const elements = {
 	"Save Button": "button.save",
 	"Discard Button": "button.discard",
 
-	"Delete Workflow Button": ".manage-button.delete-workflow",
-	"Selected Workflow Name": ".selected-workflow button.mak",
-	"Workflow selector": ".workflow-selector",
+	"Workflow recipes link": "#workflow-editor-main-toolbar-workflow-recipes-link",
+
+	"Delete Workflow Button": "button:contains('Delete selected Workflow')",
+	"Selected Workflow Name": "[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]",
+	"Workflow selector": "[data-e2e-tag=\"workflow-selector-dropdown\"]",
 
 	"Step Title": ".selected-step .title .rename",
 	"Step Title Edit Box": ".selected-step .rename-title input",
@@ -31,13 +36,11 @@ export const elements = {
 	"Step Delete Button": ".selected-step button.delete-step",
 	"Step Delete Icon": ".selected-step button.delete",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
-	"Step Inputs": ".selected-step .inputs",
 	"Step Version Details": "[data-e2e-tag=\"step-version-details\"]",
 	"Step Version": "[data-e2e-tag=\"step-version-details__version-text\"]",
 	"Step Version Selector": "[data-e2e-tag=\"step-version-details__version-selector\"]",
 	"Step Version Branch Icon": "[data-e2e-tag=\"step-version-details__branch-icon\"]",
 	"Step Version Update Icon": "[data-e2e-tag=\"step-version-details__update-icon\"]",
-	"Step Latest Version Updater Button": "[data-e2e-tag=\"step-version-details__update-button\"]",
 	"Selected Step First Input": ".selected-step .input:eq(0)",
 	"Selected Step First Input Title": ".selected-step .input .input-info .title span:eq(0)",
 	"Selected Step First Input Sensitive Badge": ".selected-step .input .input-info .sensitive:eq(0)",
@@ -67,6 +70,9 @@ export const elements = {
 	"Sixth step": stepSelector(6),
 	"Eighth step": stepSelector(8),
 	"Seventeenth step": stepSelector(17),
+	"Eighteenth step": stepSelector(18),
+	"First Workflow's second step": stepSelectorInWorkflowWithIndex(2, 1),
+	"Third Workflow's first step": stepSelectorInWorkflowWithIndex(1, 3),
 	"First step name": `${stepSelector(1)} [data-e2e-tag="step-item__title"]`,
 	"First StepItem Version": `${stepSelector(1)} [data-e2e-tag="step-item__version"]`,
 	"First StepItem Version Update Indicator": `${stepSelector(1)} [data-e2e-tag="step-item__update-indicator"]`,
@@ -75,16 +81,20 @@ export const elements = {
 	"Third StepItem Version": `${stepSelector(3)} [data-e2e-tag="step-item__version"]`,
 	"Fourth StepItem Version": `${stepSelector(4)} [data-e2e-tag="step-item__version"]`,
 	"Fourth StepItem Version Update Indicator": `${stepSelector(4)} [data-e2e-tag="step-item__update-indicator"]`,
+	"Eighteenth step name": `${stepSelector(18)} [data-e2e-tag="step-item__title"]`,
+	"Eighteenth StepItem Version": `${stepSelector(18)} [data-e2e-tag="step-item__version"]`,
+	"Eighteenth StepItem Version Update Indicator": `${stepSelector(18)} [data-e2e-tag="step-item__update-indicator"]`,
 
-	"Add Before Workflow button": ".add-before-run-workflow",
+	"Manage Workflows dropdown button": "[aria-label='Manage Workflows']",
+	"Add Before Workflow button": "button:contains('Insert Workflow before')",
 	"Add Before Workflow popup": "#add-run-workflow-popup-body",
 	"Before Workflow Dropdown": ".run-workflow-selector.before-run",
-	"Workflow Sections": ".content .workflows",
+	"Workflow Sections": ".content .workflows .steps-container",
 	"Workflow Section": "section.workflow",
 	"Before Workflow Name": ".workflow.edited .icons-and-name .workflow-name",
 	"First Before Workflow Name": ".workflow .icons-and-name .workflow-name",
 
-	"Add After Workflow button": ".add-after-run-workflow",
+	"Add After Workflow button": "button:contains('Insert Workflow after')",
 	"Add After Workflow popup": "#add-run-workflow-popup-body",
 	"After Workflow Dropdown": ".run-workflow-selector.after-run",
 	"First After Workflow Name": ".workflow:nth-last-child(2) .icons-and-name .workflow-name",
@@ -103,18 +113,27 @@ export const elements = {
 	"Step element": "li",
 	"Add Step element": ".add-step",
 
-	"Workflow selector options": ".workflow-selector ul li .workflow .workflow-id",
-	"Workflow selector dropdown": ".workflow-selector ul",
+	"Workflow selector options": "[data-e2e-tag=\"workflow-selector-list\"]",
+	"Workflow selector dropdown": "[data-e2e-tag=\"workflow-selector-list\"]",
 
 	"wf1 workflow": workflowSelectElement("wf1"),
 	"wf2 workflow": workflowSelectElement("wf2"),
 	"wf3 workflow": workflowSelectElement("wf3"),
-	"wf3 workflow list element": `${workflowSelectElement("wf3")} .workflow`,
-	"wf3 workflow rename button": `${workflowSelectElement("wf3")} .workflow .rename-workflow`,
-	"wf3 workflow rename field": `${workflowSelectElement("wf3")} .workflow-rename .name`,
-	"wf3 workflow rename submit": `${workflowSelectElement("wf3")} .workflow-rename .ok`,
-	"my_new_wf_name workflow rename field": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .name`,
-	"my_new_wf_name workflow rename submit": `${workflowSelectElement("my_new_wf_name")} .workflow-rename .ok`,
+	"wf3 workflow list element": workflowSelectElement("wf3"),
+	"wf3 workflow rename button": `${workflowSelectElement(
+		"wf3"
+	)} [data-e2e-tag="workflow-selector-item-name-edit-trigger"]`,
+	"wf3 workflow rename field":
+	`${workflowSelectElement("wf3")} [data-e2e-tag="workflow-selector-item-name-input"] input`,
+	"wf3 workflow rename submit": `${workflowSelectElement(
+		"wf3"
+	)} [data-e2e-tag="workflow-selector-item-name-edit-submit"]`,
+	"my_new_wf_name workflow rename field": `${workflowSelectElement(
+		"my_new_wf_name"
+	)} [data-e2e-tag="workflow-selector-item-name-input"]`,
+	"my_new_wf_name workflow rename submit": `${workflowSelectElement(
+		"my_new_wf_name"
+	)} [data-e2e-tag="workflow-selector-item-name-edit-submit"]`,
 	"wf3 steps": ".workflow:nth-child(2) ul.steps ul",
 	"wf3 steps container": ".workflow:nth-child(2) ul.steps",
 
@@ -136,10 +155,10 @@ export const elements = {
 	"wf6 steps container": ".workflow:nth-child(5) ul.steps",
 	"wf6 Remove button": ".workflow:nth-child(5) .header-info .remove",
 
-	"Trigger tab": "button[data-e2e-tag='triggers-tab']",
+	"Triggers tab": "button[data-e2e-tag='triggers-tab']",
 	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
-	"Rearrange button": ".manage-button.rearrange",
+	"Rearrange button": "button:contains('Rearrange Workflows')",
 	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
 	"Workflow chain": ".workflow-chain",
 	"Workflow chain selected workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .selected",
@@ -187,7 +206,11 @@ export const elements = {
 	"Insert variable element called GITHUB_TOKEN source": `${inputVariableSelector("GITHUB_TOKEN")} em`,
 	"Insert variable element called COMPANY_NAME": inputVariableSelector("COMPANY_NAME"),
 	"Insert variable element called COMPANY_NAME source": `${inputVariableSelector("COMPANY_NAME")} em`,
-	"Insert variable filter field": "#insert-variable-popup-body header input"
+	"Insert variable filter field": "#insert-variable-popup-body header input",
+
+	"Step edit container": ".step-edit-container",
+
+	...triggerElements
 };
 
 export const selector = elementSelector => elements[elementSelector] || elementSelector;

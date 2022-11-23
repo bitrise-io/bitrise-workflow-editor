@@ -5,12 +5,10 @@
 			.title == data[:strings][:yml][:warn][:title]
 			ul
 				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
+	section[ng-if="ymlCtrl.shouldShowYmlStorageSettings"]
+		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml" on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved"]
 	section.cardo
-		header
-			div
-				h2 == data[:strings][:yml][:title]
-				p == data[:strings][:yml][:info_1]
-			a.rebo.purple.download-app-config[href="{{ ymlCtrl.downloadAppConfigYMLPath }}" ng-if="ymlCtrl.downloadAppConfigYMLPath"] == data[:strings][:yml][:download]
-		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
+		r-yml-editor-header[url="ymlCtrl.downloadAppConfigYMLPath()" uses-repository-yml='ymlCtrl.usesRepositoryYml']
+		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article
 			#code-container

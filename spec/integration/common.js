@@ -11,7 +11,7 @@ export const click = element => {
 };
 
 export const clickAway = () => {
-	click("main header:eq(0)");
+	click("div.main-content footer svg");
 };
 
 export const clear = element => {
@@ -109,8 +109,12 @@ const scrollTo = position => {
 	cy.scrollTo(position);
 };
 
-Given("editor is open", () => {
-	cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`);
+const scrollElementToPx = (element, position) => {
+	$(element).scrollTo(0, position);
+};
+
+Given("workflows tab is open", () => {
+	cy.loadSteps(() => cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`));
 });
 
 Given("{string} workflow is selected", workflow => {
@@ -130,12 +134,13 @@ When("I confirm on {string}", popupConfirm);
 When("I cancel on {string}", popupCancel);
 When("I change tab to {string}", changeTab);
 When("I scroll to the {string}", scrollTo);
+When("I scroll {string} to {int}px", scrollElementToPx);
 Then("I should see {string} in {string}", assertInputValueEQ);
 Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);
 Then("{string} should {string}", should);
 Then("{string} should be the selected step", element => {
-	should(element, "have class: selected");
+	$(element).closest("li").should("have.class", "selected");
 });
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
 	$(element)
@@ -152,3 +157,10 @@ Then("{string} should have attribute {string} with value {string}", (element, at
 });
 
 Then("I save", save);
+
+Then("the {string} should have a {string} icon", (element, iconName) => {
+	$(element)
+		.find(selector("r-icon"))
+		.should("be.visible")
+		.should("have.attr", "name", `'${iconName}'`);
+});

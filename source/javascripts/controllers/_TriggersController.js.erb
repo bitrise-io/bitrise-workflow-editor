@@ -3,20 +3,12 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.controller("TriggersController", function(
-			$scope,
-			$rootScope,
-			$location,
-			appService,
-			Progress,
-			Trigger,
-			Workflow
-		) {
+		.controller("TriggersController", function($scope, $rootScope, $location, appService, Progress, Trigger, launchDarklyService) {
 			var viewModel = this;
 
 			var addTriggerProgress = new Progress();
 
-			viewModel.workflows;
+			viewModel.targets;
 
 			$scope.triggerTypes = [
 				{
@@ -44,6 +36,7 @@
 			viewModel.editedTriggerPullRequestTargetBranchPattern;
 			viewModel.editedTriggerTagPattern;
 			viewModel.newTriggerIndex;
+			viewModel.appService = appService;
 
 			$scope.$on(
 				"$destroy",
@@ -75,12 +68,38 @@
 			);
 
 			function configureWithAppConfig() {
-				viewModel.workflows = _.map(appService.appConfig.workflows, function(
-					aWorkflowConfig,
-					workflowID
-				) {
-					return new Workflow(workflowID, aWorkflowConfig);
-				});
+				viewModel.targets = [];
+
+				if (appService.appConfig.workflows) {
+					var workflows = Object.keys(appService.appConfig.workflows)
+						.map(function(workflowId) {
+							return {
+								value: "workflow#" + workflowId,
+								groupLabel: "Workflows",
+								label: workflowId,
+								disabled: workflowId[0] === "_"
+							};
+						})
+						.sort(function(a, b) {
+							return a.label.localeCompare(b.label);
+						})
+						.sort(function(a, b) {
+							return b.disabled ? -1 : 0;
+						});
+
+					viewModel.targets = viewModel.targets.concat(workflows);
+				}
+
+				if (launchDarklyService.variation('enable-build-pipelines') && appService.appConfig.pipelines) {
+					var pipelines = Object.keys(appService.appConfig.pipelines)
+						.map(function(pipelineId) {
+							return { value: "pipeline#" + pipelineId, groupLabel: "Pipelines", label: pipelineId };
+						})
+						.sort(function(a, b) {
+							return a.label.localeCompare(b.label);
+						});
+					viewModel.targets = viewModel.targets.concat(pipelines);
+				}
 
 				_.each($scope.triggerTypes, function(aTriggerType) {
 					aTriggerType.triggers = [];
@@ -115,9 +134,7 @@
 					}
 
 					viewModel.selectedTriggerType = triggerType;
-					$location
-						.search("trigger_type", triggerType.urlParameterValue)
-						.replace();
+					$location.search("trigger_type", triggerType.urlParameterValue).replace();
 					viewModel.triggerSelected(null);
 				}
 
@@ -150,9 +167,7 @@
 				if (viewModel.editedTriggerPullRequestTargetBranchPattern == "*") {
 					viewModel.editedTriggerPullRequestTargetBranchPattern = "";
 				}
-				viewModel.editedTriggerTagPattern = viewModel.editedTrigger
-					? viewModel.editedTrigger.tagPattern()
-					: undefined;
+				viewModel.editedTriggerTagPattern = viewModel.editedTrigger ? viewModel.editedTrigger.tagPattern() : undefined;
 				if (viewModel.editedTriggerTagPattern == "*") {
 					viewModel.editedTriggerTagPattern = "";
 				}
@@ -166,7 +181,8 @@
 			viewModel.addTriggerSelectedAtIndex = function(index) {
 				var newTrigger = new Trigger();
 				newTrigger.type(viewModel.selectedTriggerType.id);
-				newTrigger.workflowID(_.first(viewModel.workflows).id);
+				newTrigger.target(_.first(viewModel.targets).value);
+
 				switch (newTrigger.type()) {
 					case "push":
 						newTrigger.pushBranchPattern("");
@@ -190,50 +206,33 @@
 			};
 
 			viewModel.triggerIsInvalid = function() {
-				if (viewModel.editedTrigger.workflowID()[0] == "_") {
+				if (!viewModel.editedTrigger.targetId() || viewModel.editedTrigger.targetId()[0] === "_") {
 					return true;
 				}
 
-				return _.any(
-					_.without(
-						viewModel.selectedTriggerType.triggers,
-						viewModel.selectedTrigger
-					),
-					function(aTrigger) {
-						switch (viewModel.editedTrigger.type()) {
-							case "push":
-								return (
-									aTrigger.pushBranchPattern() ==
-									viewModel.editedTrigger.pushBranchPattern()
-								);
-							case "pull-request":
-								return (
-									aTrigger.pullRequestSourceBranchPattern() ==
-										viewModel.editedTrigger.pullRequestSourceBranchPattern() &&
-									aTrigger.pullRequestTargetBranchPattern() ==
-										viewModel.editedTrigger.pullRequestTargetBranchPattern()
-								);
+				return _.any(_.without(viewModel.selectedTriggerType.triggers, viewModel.selectedTrigger), function(aTrigger) {
+					switch (viewModel.editedTrigger.type()) {
+						case "push":
+							return aTrigger.pushBranchPattern() == viewModel.editedTrigger.pushBranchPattern();
+						case "pull-request":
+							return (
+								aTrigger.pullRequestSourceBranchPattern() == viewModel.editedTrigger.pullRequestSourceBranchPattern() &&
+								aTrigger.pullRequestTargetBranchPattern() == viewModel.editedTrigger.pullRequestTargetBranchPattern()
+							);
 
-								break;
-							case "tag":
-								return (
-									aTrigger.tagPattern() == viewModel.editedTrigger.tagPattern()
-								);
-						}
+							break;
+						case "tag":
+							return aTrigger.tagPattern() == viewModel.editedTrigger.tagPattern();
 					}
-				);
+				});
 			};
 
 			viewModel.triggerEditFinished = function() {
-				viewModel.selectedTrigger.workflowID(
-					viewModel.editedTrigger.workflowID()
-				);
+				viewModel.selectedTrigger.target(viewModel.editedTrigger.target());
 
 				switch (viewModel.selectedTrigger.type()) {
 					case "push":
-						viewModel.selectedTrigger.pushBranchPattern(
-							viewModel.editedTrigger.pushBranchPattern()
-						);
+						viewModel.selectedTrigger.pushBranchPattern(viewModel.editedTrigger.pushBranchPattern());
 
 						break;
 					case "pull-request":
@@ -246,9 +245,7 @@
 
 						break;
 					case "tag":
-						viewModel.selectedTrigger.tagPattern(
-							viewModel.editedTrigger.tagPattern()
-						);
+						viewModel.selectedTrigger.tagPattern(viewModel.editedTrigger.tagPattern());
 
 						break;
 				}

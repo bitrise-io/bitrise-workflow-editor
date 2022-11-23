@@ -56,12 +56,6 @@ angular.module("BitriseWorkflowEditor").service(
 			list(options) {
 				const attributesToRetrieve = options.attributesToRetrieve || ["*"];
 
-				let filters;
-
-				if (options.stepIDs) {
-					filters = `(${options.stepIDs.map(id => `id:${id}`).join(" OR ")})`;
-				}
-
 				return stepLibSearchInstance
 					.list({
 						stepIds: options.stepCVSs,
@@ -70,8 +64,7 @@ angular.module("BitriseWorkflowEditor").service(
 						includeDeprecated: options.includeDeprecated,
 						projectTypes: options.projectTypes,
 						algoliaOptions: {
-							attributesToRetrieve,
-							filters
+							attributesToRetrieve
 						}
 					})
 					.then(convertSteps)

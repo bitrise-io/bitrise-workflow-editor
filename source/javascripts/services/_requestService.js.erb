@@ -5,11 +5,15 @@ import jsyaml from "js-yaml";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("requestService", function($q, $injector, $http, stringService, dateService, logger) {
+		.service("requestService", function($q, $injector, $http, RequestService, stringService, dateService, logger) {
 			var requestService = {
-				mode: "<%= mode %>",
-				appSlug: undefined
+				mode: RequestService.mode,
+				appSlug: RequestService.appSlug,
 			};
+
+			requestService.isWebsiteMode = function() {
+				return RequestService.isWebsiteMode();
+			}
 
 			function errorFromResponse(response, defaultErrorMessage, errorMessagePrefix) {
 				var status = response && response.status;
@@ -112,7 +116,9 @@ import jsyaml from "js-yaml";
 								email: response.data.email,
 								unconfirmedEmail: response.data.unconfirmed_email,
 								avatarURL: response.data.avatar_url,
-								showNewCodeSigningWizard: response.data.show_new_code_signing_wizard
+								showNewCodeSigningWizard: response.data.show_new_code_signing_wizard,
+								dataId: response.data.data_id,
+								tourShown: response.data.tour_shown,
 							});
 						},
 						function(response) {
@@ -121,6 +127,113 @@ import jsyaml from "js-yaml";
 									response,
 									"<%= data[:strings][:request_service][:get_current_user_data][:default_error] %>",
 									"<%= data[:strings][:request_service][:get_current_user_data][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			requestService.getProductTourShown = function(requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = "<%= webserver_path(data[:routes][:website][:product_tour_shown_get]) %>";
+
+						break;
+					case "cli":
+						return $q.reject(
+							new Error("<%= data[:strings][:request_service][:get_product_tour_data][:not_website_mode_error] %>")
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve({
+								tourShown: response.data.tour_shown,
+							});
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:get_product_tour_data][:default_error] %>",
+									"<%= data[:strings][:request_service][:get_product_tour_data][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			requestService.getCurrentUserMetadata = function(metadataKey, requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters(
+							"<%= webserver_path(data[:routes][:website][:current_user_metadata_get]) %>",
+							{
+								metadata_key: metadataKey
+							}
+						);
+						break;
+					case "cli":
+						return $q.reject(
+							new Error("<%= data[:strings][:request_service][:get_current_user_metadata][:not_website_mode_error] %>")
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve(response.data.value);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:get_current_user_metadata][:default_error] %>",
+									"<%= data[:strings][:request_service][:get_current_user_metadata][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			requestService.updateCurrentUserMetadata = function(metadataKeyValue, requestConfig) {
+				var requestURL;
+				var requestData;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = "<%= webserver_path(data[:routes][:website][:current_user_metadata_put]) %>";
+
+						requestData = {...metadataKeyValue};
+
+						break;
+					case "cli":
+						return $q.reject(
+							new Error(
+								"<%= data[:strings][:request_service][:put_current_user_metadata][:not_website_mode_error] %>"
+							)
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.put(requestURL, requestData, requestConfig).then(
+						function(response) {
+							resolve(response);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:put_current_user_metadata][:default_error] %>",
+									"<%= data[:strings][:request_service][:put_current_user_metadata][:error_prefix] %>"
 								)
 							);
 						}
@@ -201,6 +314,10 @@ import jsyaml from "js-yaml";
 											slug: response.data.owner_slug,
 											type: response.data.owner_type,
 											name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name
+										},
+										buildData: {
+											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
+											lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at
 										}
 									});
 								},
@@ -271,7 +388,7 @@ import jsyaml from "js-yaml";
 
 			// App config
 
-			requestService.postAppConfig = function(appConfig, requestConfig) {
+			requestService.postAppConfig = function(appConfig, tabOpenDuringSave, requestConfig) {
 				var requestURL;
 				var requestData;
 
@@ -284,7 +401,8 @@ import jsyaml from "js-yaml";
 							}
 						);
 						requestData = {
-							app_config_datastore_yaml: appConfig
+							app_config_datastore_yaml: appConfig,
+							tab_open_during_save: tabOpenDuringSave
 						};
 
 						break;
@@ -363,11 +481,12 @@ import jsyaml from "js-yaml";
 						requestURL = stringService.stringReplacedWithParameters(
 							"<%= webserver_path(data[:routes][:website][:yml_post]) %>",
 							{
-								app_slug: requestService.appSlug
+								app_slug: requestService.appSlug,
 							}
 						);
 						requestData = {
-							app_config_datastore_yaml: appConfigYML
+							app_config_datastore_yaml: appConfigYML,
+							tab_open_during_save: 'yml'
 						};
 
 						break;
@@ -403,50 +522,8 @@ import jsyaml from "js-yaml";
 			};
 
 			requestService.getAppConfigYML = function(requestConfig) {
-				var requestURL;
-
-				switch (requestService.mode) {
-					case "website":
-						requestURL = stringService.stringReplacedWithParameters(
-							"<%= webserver_path(data[:routes][:website][:yml_get]) %>",
-							{
-								app_slug: requestService.appSlug
-							}
-						);
-
-						break;
-					case "cli":
-						requestURL = "<%= local_server_path(data[:routes][:local_server][:yml_get]) %>";
-
-						break;
-				}
-
 				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve(response.data);
-						},
-						function(response) {
-							if (response.data.bitrise_yml) {
-								reject({
-									bitrise_yml: response.data.bitrise_yml,
-									error_message: errorFromResponse(
-										response,
-										"<%= data[:strings][:request_service][:load_app_config][:invalid_bitrise_yml_error] %>",
-										"<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"
-									)
-								});
-							} else {
-								reject(
-									errorFromResponse(
-										response,
-										"<%= data[:strings][:request_service][:load_app_config][:default_error] %>",
-										"<%= data[:strings][:request_service][:load_app_config][:error_prefix] %>"
-									)
-								);
-							}
-						}
-					);
+					RequestService.getAppConfigYML(requestConfig && requestConfig.timeout).then(resolve, reject);
 				});
 			};
 
@@ -510,6 +587,47 @@ import jsyaml from "js-yaml";
 					);
 				});
 			};
+
+			requestService.getPipelineConfig = function(requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters(
+							"<%= webserver_path(data[:routes][:website][:pipeline_config_get]) %>",
+							{
+								app_slug: requestService.appSlug
+							}
+						);
+
+						break;
+					case "cli":
+						return $q.reject(
+							new Error(
+								"<%= data[:strings][:request_service][:get_pipeline_config][:not_website_mode_error] %>"
+							)
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve({
+								usesRepositoryYml: response.data.uses_repository_yml
+							});
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:get_pipeline_config][:default_error] %>",
+									"<%= data[:strings][:request_service][:get_pipeline_config][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			}
 
 			requestService.getSecrets = function(requestConfig) {
 				var requestURL;
@@ -866,7 +984,7 @@ import jsyaml from "js-yaml";
 
 			// Stacks
 
-			requestService.getStack = function(requestConfig) {
+			requestService.getStackAndDockerImage = function(requestConfig) {
 				var requestURL;
 
 				switch (requestService.mode) {
@@ -888,8 +1006,7 @@ import jsyaml from "js-yaml";
 						function(response) {
 							resolve({
 								stackID: response.data.stack_identifier,
-								dockerImage: response.data.docker_image_name,
-								denTags: response.data.den_tags
+								dockerImage: response.data.docker_image_name
 							});
 						},
 						function(response) {
@@ -933,9 +1050,12 @@ import jsyaml from "js-yaml";
 									name: aStackData.title,
 									description: aStackData.description,
 									descriptionURL: aStackData["description-link"],
+									descriptionURLGen2: aStackData["description-link-gen2"],
+									descriptionURLGen2AppleSilicon: aStackData["description-link-gen2-applesilicon"],
 									preInstalledToolsLink: aStackData["pre-installed-tools-link"],
 									projectTypes: aStackData["project-types"],
-									queueInfo: aStackData["queueInfo"]
+									queueInfo: aStackData["queueInfo"],
+									osForChip: aStackData["os-for-chip"],
 								};
 							});
 
@@ -960,51 +1080,6 @@ import jsyaml from "js-yaml";
 									response,
 									"<%= data[:strings][:request_service][:get_stacks][:default_error] %>",
 									"<%= data[:strings][:request_service][:get_stacks][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
-			requestService.saveStack = function(stackID, dockerImage, denTags, requestConfig) {
-				var requestURL;
-				var requestData;
-
-				switch (requestService.mode) {
-					case "website":
-						requestURL = stringService.stringReplacedWithParameters(
-							"<%= webserver_path(data[:routes][:website][:stack_save]) %>",
-							{
-								app_slug: requestService.appSlug
-							}
-						);
-						requestData = {
-							stack_identifier: stackID,
-							den_tags: denTags
-						};
-						if (dockerImage !== null) {
-							requestData.docker_image_name = dockerImage;
-						}
-
-						break;
-					case "cli":
-						return $q.reject(
-							new Error("<%= data[:strings][:request_service][:save_stack][:not_website_mode_error] %>")
-						);
-				}
-
-				return $q(function(resolve, reject) {
-					$http.post(requestURL, requestData, requestConfig).then(
-						function() {
-							resolve();
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:save_stack][:default_error] %>",
-									"<%= data[:strings][:request_service][:save_stack][:error_prefix] %>"
 								)
 							);
 						}
@@ -1198,7 +1273,7 @@ import jsyaml from "js-yaml";
 												devicesData: aTeam.devices_data.error_type
 													? {
 															error: new Error(
-																"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
+																"<%= data[:strings][:request_service][:save_apple_developer_account_data_to_database_and_authenticate][:pla_error] %>"
 															)
 													  }
 													: {
@@ -1440,7 +1515,7 @@ import jsyaml from "js-yaml";
 											devicesData: aTeam.devices_data.error_type
 												? {
 														error:
-															"The team’s Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
+															"The team's Admin needs to accept the latest Program License Agreement rider, which can be reviewed in their developer account."
 												  }
 												: {
 														pageNumber: aTeam.devices_data.page_number,
@@ -2608,6 +2683,23 @@ import jsyaml from "js-yaml";
 					);
 				});
 			};
+
+			requestService.getApp = function(appSlug, requestConfig) {
+				var requestURL = stringService.stringReplacedWithParameters(
+					"<%= webserver_path(data[:routes][:website][:app_path_get]) %>",
+					{
+						app_slug: appSlug
+					}
+				);
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, undefined, requestConfig).then(
+						function(response) {
+							resolve(response.data);
+						}
+					);
+				})
+			}
 
 			return requestService;
 		});

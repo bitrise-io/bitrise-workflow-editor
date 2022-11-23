@@ -2,6 +2,8 @@
 	"use strict";
 
 	angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, stepSourceService, Step) {
+		var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+
 		var Workflow = function(id, workflowConfig) {
 			this.id = id;
 			this.workflowConfig = workflowConfig;
@@ -84,23 +86,27 @@
 			return this.workflowConfig.description;
 		};
 
-		Workflow.prototype.stack = function(stack, stacks) {
+		Workflow.prototype.stack = function(stack, stacks, defaultMachineTypeForStack) {
 			if (stack !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
 				}
-				if (!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
-					this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+				if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
+					this.workflowConfig.meta[BITRISE_META_KEY] = {};
 				}
 
 				if (stack !== null) {
-					this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack = stack.id;
+					this.workflowConfig.meta[BITRISE_META_KEY].stack = stack.id;
+					if (defaultMachineTypeForStack) {
+						this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id = defaultMachineTypeForStack.id
+					}
 				} else {
-					delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
+					delete this.workflowConfig.meta[BITRISE_META_KEY].stack;
+					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
 				}
 
-				if (_.isEmpty(this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"])) {
-					delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"];
+				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {
+					delete this.workflowConfig.meta[BITRISE_META_KEY];
 				}
 				if (_.isEmpty(this.workflowConfig.meta)) {
 					delete this.workflowConfig.meta;
@@ -109,36 +115,34 @@
 
 			if (
 				!this.workflowConfig.meta ||
-				!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] ||
-				!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack
+				!this.workflowConfig.meta[BITRISE_META_KEY] ||
+				!this.workflowConfig.meta[BITRISE_META_KEY].stack
 			) {
 				return null;
 			}
 
 			return _.find(stacks, {
-				id: this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack
+				id: this.workflowConfig.meta[BITRISE_META_KEY].stack
 			});
 		};
 
-		Workflow.prototype.machineType = function(stackID, machineType, machineTypes) {
+		Workflow.prototype.machineType = function(stackType, machineType, machineTypes) {
 			if (machineType !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
 				}
-				if (!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
-					this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
+				if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
+					this.workflowConfig.meta[BITRISE_META_KEY] = {};
 				}
 
 				if (machineType !== null) {
-					this.workflowConfig.meta[
-						"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-					].machine_type_id = machineType.id.replace(stackID + "-", "");
+					this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id = machineType.id;
 				} else {
-					delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
+					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
 				}
 
-				if (_.isEmpty(this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"])) {
-					delete this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"];
+				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {
+					delete this.workflowConfig.meta[BITRISE_META_KEY];
 				}
 				if (_.isEmpty(this.workflowConfig.meta)) {
 					delete this.workflowConfig.meta;
@@ -147,17 +151,15 @@
 
 			if (
 				!this.workflowConfig.meta ||
-				!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] ||
-				!this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+				!this.workflowConfig.meta[BITRISE_META_KEY] ||
+				!this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id
 			) {
 				return null;
 			}
 
 			return _.find(machineTypes, {
-				id:
-					stackID +
-					"-" +
-					this.workflowConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+				id: this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id,
+				stackType: stackType
 			});
 		};
 

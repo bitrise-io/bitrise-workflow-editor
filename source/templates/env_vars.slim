@@ -19,7 +19,7 @@
 			ul.env-vars[order-by-drag models="envVarsOfSource.envVars"]
 				li[ng-repeat="envVar in envVarsOfSource.envVars"]
 					p.progress-indicator[progress-model="envVar.customProperties.progress"]
-					form[name="envVarForm" ng-if="!envVar.customProperties.progress.isInProgress"]
+					form[name="envVarForm" ng-if="!envVar.customProperties.progress.isInProgress" method="POST"]
 						.key-value-delete
 							input.key[type="text" name="key" autocomplete="off" ng-model="envVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!envVar.isKeyChangeable" custom-validators="{'key': Variable.isValidKey(envVar.key())}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" skip-drag-order]
 							.value-with-actions

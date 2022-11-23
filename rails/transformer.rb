@@ -1,5 +1,6 @@
 require "erb"
 require "slim"
+require "json"
 require "slim/include"
 require "./strings"
 
@@ -65,6 +66,22 @@ end
 
 def analytics?
     ENV['ANALYTICS'] == 'true'
+end
+
+def hotjar?
+    ENV['HOTJAR'] == 'true'
+end
+
+def freshpaint?
+    ENV['FRESHPAINT'] == 'true'
+end
+
+def segment?
+    ENV['SEGMENT'] == 'true'
+end
+
+def datadog_rum?
+    ENV['DATADOG_RUM'] == 'true'
 end
 
 case command

@@ -3,7 +3,7 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.controller("CodeSigningController", function($q, $cookies, $scope, requestService, appService, Progress) {
+		.controller("CodeSigningController", function($q, $scope, requestService, appService, Progress) {
 			var canceler = $q.defer();
 			$scope.$on("$destroy", function() {
 				canceler.resolve();
@@ -13,11 +13,10 @@
 
 			var viewModel = this;
 
+			viewModel.appService = appService;
+
 			viewModel.showNewCodeSigningWizard;
 			viewModel.isAutoCodeSigningModeOn;
-			viewModel.shouldShowCodeSigningHints;
-			viewModel.isCodeSigningHintsOpen;
-			var irrelevantProjectTypesForCodeSigningHints = ["android"];
 
 			viewModel.sectionConfigurations = {
 				provProfile: {
@@ -98,12 +97,6 @@
 						timeout: canceler.promise
 					}).then(function(responseData) {
 						viewModel.showNewCodeSigningWizard = responseData.showNewCodeSigningWizard;
-						viewModel.shouldShowCodeSigningHints = !_.contains(
-							irrelevantProjectTypesForCodeSigningHints,
-							appService.appDetails.projectTypeID
-						);
-
-						viewModel.isCodeSigningHintsOpen = $cookies.get("code_signing_hints_hidden") == "true";
 
 						$q.all(
 							_.map(viewModel.sectionConfigurations, function(aSectionConfiguration) {
@@ -167,14 +160,6 @@
 				}
 
 				return !_.contains(viewModel.activeFileTypeMenu.availableSections, sectionConfiguration);
-			};
-
-			viewModel.toggleCodeSigningHints = function() {
-				viewModel.isCodeSigningHintsOpen = !viewModel.isCodeSigningHintsOpen;
-
-				$cookies.put("code_signing_hints_hidden", viewModel.isCodeSigningHintsOpen, {
-					expires: new Date(new Date().setFullYear(new Date().getFullYear() + 1))
-				});
 			};
 
 			viewModel.placeholderForText = function(text) {

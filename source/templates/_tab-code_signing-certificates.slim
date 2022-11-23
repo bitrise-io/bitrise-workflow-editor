@@ -5,7 +5,7 @@
 			span<[ng-if="certificateService.certificates.length > 0" ng-bind="'(' + certificateService.certificates.length + '/' + certificateCtrl.maximumCertificatesCount + ')'"]
 		h2.label.password[ng-if="certificateService.certificates.length > 0"]
 			span == data[:strings][:code_signing][:certificate][:header][:password]
-		h2.label.expose[ng-if="certificateService.certificates.length > 0"]
+		h2.label.expose[ng-if="certificateService.certificates.length > 0 && !certificateCtrl.appService.appDetails.isPublic"]
 			span.long-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pull_requests]
 			span.short-version == data[:strings][:code_signing][:certificate][:header][:expose_for_pr]
 		.actions[ng-if="certificateService.certificates.length > 1" floating-menu toggle="certificateCtrl.isActionMenuForAllCertificatesVisible"]
@@ -55,11 +55,11 @@
 									a>[href="javascript:void(0)" ng-click="certificateCtrl.getDetails(certificate)"] == data[:strings][:code_signing][:certificate][:get_details_progress][:try_again_postfix]
 						.column.right.password
 							.label.on-small == data[:strings][:code_signing][:certificate][:header][:password]
-							form[ng-submit="certificateCtrl.changePassword()" name="certificatePasswordForm"]
+							form[ng-submit="certificateCtrl.changePassword()" name="certificatePasswordForm" method="POST"]
 								.password-field-wrapper
 									input.password-field[ng-if="showPassword" type="text" ng-model="certificate.password" ng-class="{'invalid' : certificateCtrl.certificateSettings[certificate.databaseID].isInvalidPassword}" name="password" ng-focus="certificateCtrl.changePasswordSelected(certificate)"]
-									input.password-field[ng-if="!showPassword" type="text" ng-model="certificateCtrl.placeholderForText(certificate.password)" ng-model-options="{getterSetter: true}" disabled]
-									eye-checkbox[ng-model="showPassword" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
+									input.password-field[ng-if="!showPassword" type="text" ng-model="certificateCtrl.placeholderForPasswordOfCertificate(certificate)" ng-model-options="{getterSetter: true}" disabled]
+									eye-checkbox[ng-model="showPassword" ng-hide="certificate.isProtected" checkbox-id-expression="'code-signin-certificate-show-password-checkbox-' + $index"]
 								.change-actions[ng-if="certificate == certificateCtrl.passwordEditedCertificate"]
 									input.action.ok.rebo.small.purple.submit[type="submit" value="#{ data[:strings][:code_signing][:certificate][:change_password_save] }"]
 									button.action.cancel.rebo.small.danger[type="button" ng-click="certificateCtrl.cancelPasswordChange()"] == data[:strings][:code_signing][:certificate][:change_password_cancel]
@@ -67,7 +67,7 @@
 								span.icon  == svg("triangle")
 								span == data[:strings][:code_signing][:certificate][:article][:password_edit][:incorrect_password_notice]
 						.expose-and-actions
-							.expose-with-popover
+							.expose-with-popover[ng-if="!certificateCtrl.appService.appDetails.isPublic"]
 								.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 									checkbox[ng-model="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetter" ng-disabled="certificateCtrl.certificateSettings[certificate.databaseID].isExposeGetterSetterProgress.isInProgress || certificate.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-certificate-is-expose-checkbox-' + $index"]
 									label.on-small[for="'code-signin-certificate-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:certificate][:article][:expose][:is_expose]

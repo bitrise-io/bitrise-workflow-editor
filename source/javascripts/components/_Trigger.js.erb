@@ -46,12 +46,32 @@
 			}
 		};
 
-		Trigger.prototype.workflowID = function(workflowID) {
-			if (workflowID !== undefined) {
-				this.triggerConfig.workflow = workflowID;
+		Trigger.prototype.target = function(target) {
+			if (!target) {
+				return this.targetType() + "#" + this.targetId()
 			}
 
-			return this.triggerConfig.workflow;
+			var parts = target.split("#");
+			this.targetType(parts[0]);
+			this.targetId(parts[1]);
+		}
+
+		Trigger.prototype.targetId = function(targetId) {
+			if (!targetId) {
+				return this.triggerConfig[this.targetType()];
+			}
+
+			this.triggerConfig[this.targetType()] = targetId;
+		};
+
+		Trigger.prototype.targetType = function(targetType) {
+			if (!targetType) {
+				return this.triggerConfig.hasOwnProperty("workflow") ? "workflow" : "pipeline";
+			}
+
+			var target = this.targetId();
+			delete this.triggerConfig[this.targetType()];
+			this.triggerConfig[targetType] = target;
 		};
 
 		Trigger.prototype.pushBranchPattern = function(pushBranchPattern) {
@@ -80,13 +100,14 @@
 					this.type("pull-request");
 				}
 
-				this.triggerConfig.pull_request_source_branch =
-					pullRequestSourceBranchPattern &&
-					pullRequestSourceBranchPattern != "*"
-						? pullRequestSourceBranchPattern
-						: this.triggerConfig.pull_request_target_branch
-						? undefined
-						: "*";
+				if (
+					(!pullRequestSourceBranchPattern || pullRequestSourceBranchPattern === "*") &&
+					this.triggerConfig.pull_request_target_branch
+				) {
+					delete this.triggerConfig.pull_request_source_branch;
+				} else {
+					this.triggerConfig.pull_request_source_branch = pullRequestSourceBranchPattern || "*";
+				}
 			}
 
 			if (this.type() != "pull-request") {
@@ -106,13 +127,14 @@
 					this.type("pull-request");
 				}
 
-				this.triggerConfig.pull_request_target_branch =
-					pullRequestTargetBranchPattern &&
-					pullRequestTargetBranchPattern != "*"
-						? pullRequestTargetBranchPattern
-						: this.triggerConfig.pull_request_source_branch
-						? undefined
-						: "*";
+				if (
+					(!pullRequestTargetBranchPattern || pullRequestTargetBranchPattern === "*") &&
+					this.triggerConfig.pull_request_source_branch
+				) {
+					delete this.triggerConfig.pull_request_target_branch;
+				} else {
+					this.triggerConfig.pull_request_target_branch = pullRequestTargetBranchPattern || "*";
+				}
 			}
 
 			if (this.type() != "pull-request") {

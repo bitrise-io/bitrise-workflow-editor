@@ -1,5 +1,4 @@
-import React, { FC } from "react";
-import { Base, Flex, Icon } from "@bitrise/bitkit";
+import { Box, Icon } from "@bitrise/bitkit";
 import MarkdownText from "../MarkdownText";
 import { Step } from "../../models";
 
@@ -12,20 +11,28 @@ type AddStepItemProps = {
 	onSelected: (step: Step) => void;
 };
 
-const AddStepItem: FC<AddStepItemProps> = ({ step, onSelected }: AddStepItemProps) => (
-	<Base clickable={true} className="step">
+const AddStepItem = ({ step, onSelected }: AddStepItemProps): JSX.Element => (
+	<Box cursor="pointer" className="step">
 		<button className="select" onClick={() => onSelected(step)}>
-			<Icon name="PlusOpen" />
-			<Flex className="step-content" direction="horizontal" overflow="hidden" shrink="x1">
+			<Icon className="icon" name="PlusOpen" />
+			<Box className="step-content" display="flex" flexDirection="row" overflow="hidden" flexShrink="1" minWidth="0">
 				<StepItemIcon step={step} />
-				<Flex grow="x1" shrink="x1" direction="vertical" className="details" overflow="hidden">
+				<Box
+					display="flex"
+					flexGrow="1"
+					flexShrink="1"
+					minWidth="0"
+					flexDirection="column"
+					className="details"
+					overflow="hidden"
+				>
 					<StepItemTitle step={step} style={{ fontWeight: "900", flexShrink: 0 }} />
 					<StepItemBadge step={step} />
 					<MarkdownText className="summary" markdown={step.summary()} />
-				</Flex>
-			</Flex>
+				</Box>
+			</Box>
 		</button>
-	</Base>
+	</Box>
 );
 
 export default AddStepItem;

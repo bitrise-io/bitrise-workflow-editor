@@ -5,26 +5,6 @@
 		.file-type-dropdown-wrapper
 			select.file-type-dropdown[ng-model="codeSigningCtrl.activeFileTypeMenu" ng-model-options="{getterSetter: true}" ng-options="fileTypeMenu.name for fileTypeMenu in codeSigningCtrl.availableFileTypeMenus()" ng-class="{ 'active' : fileTypeMenu == codeSigningCtrl.activeFileTypeMenu }"]
 	section.progress-indicator[progress-model="codeSigningCtrl.loadProgress"]
-	section.certificate-help.toggleable-info[ng-if="codeSigningCtrl.shouldShowCodeSigningHints && !codeSigningCtrl.showNewCodeSigningWizard"]
-		h2.info-heading
-			.content
-				span.icon  == svg("support")
-				span == data[:strings][:code_signing][:certificate_help][:title]
-			button.toggle[ng-click="codeSigningCtrl.toggleCodeSigningHints()" ng-class="{'open': codeSigningCtrl.isCodeSigningHintsOpen}"]  == svg("arrow-down")
-		ul[ng-if="codeSigningCtrl.isCodeSigningHintsOpen"]
-			li.codesigndoc
-				div
-					h2 == data[:strings][:code_signing][:certificate_help][:codesigndoc][:title]
-					p == data[:strings][:code_signing][:certificate_help][:codesigndoc][:details]
-					code == data[:strings][:code_signing][:certificate_help][:codesigndoc][:code]
-			li.upload
-				div
-					h2 == data[:strings][:code_signing][:certificate_help][:upload][:title]
-					p == data[:strings][:code_signing][:certificate_help][:upload][:details]
-			li.add-step
-				div
-					h2 == data[:strings][:code_signing][:certificate_help][:add_step][:title]
-					p == data[:strings][:code_signing][:certificate_help][:add_step][:details]
 	div[ng-if="!codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.provProfile) && !codeSigningCtrl.isSectionFilteredByFileTypeMenu(codeSigningCtrl.sectionConfigurations.certificate)"]
 		.auto-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === true"]
 			header
@@ -51,7 +31,7 @@
 							h2.label
 								span == data[:strings][:code_signing][:prov_profile][:header][:card_title]
 								span<[ng-if="provProfileCtrl.provProfiles.length > 0" ng-bind="'(' + provProfileCtrl.provProfiles.length + '/' + provProfileCtrl.maximumProvProfilesCount + ')'"]
-							h2.label.expose[ng-if="provProfileCtrl.provProfiles.length > 0"]
+							h2.label.expose[ng-if="provProfileCtrl.provProfiles.length > 0 && !codeSigningCtrl.appService.appDetails.isPublic"]
 								span.long-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pull_requests]
 								span.short-version == data[:strings][:code_signing][:prov_profile][:header][:expose_for_pr]
 							.actions[ng-if="provProfileCtrl.provProfiles.length > 1" floating-menu toggle="provProfileCtrl.isActionMenuForAllProvisioningProfilesVisible"]
@@ -100,7 +80,7 @@
 													strong.label> == data[:strings][:code_signing][:prov_profile][:article][:details][:bundle_id_label] + ":"
 													span[ng-bind="provProfile.bundleID"]
 											.expose-and-actions
-												.expose-with-popover
+												.expose-with-popover[ng-if="!codeSigningCtrl.appService.appDetails.isPublic"]
 													.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 														checkbox[ng-model="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetter" ng-disabled="provProfileCtrl.provProfileSettings[provProfile.databaseID].isExposeGetterSetterProgress.isInProgress || provProfile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'prov-profile-is-expose-checkbox-' + $index"]
 														label.on-small[for="'prov-profile-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:prov_profile][:article][:expose][:is_expose]
@@ -183,7 +163,7 @@
 		header
 			h2.label
 				span == data[:strings][:code_signing][:android_keystore][:header][:card_title]
-			h2.label.expose[ng-if="androidKeystoreCtrl.keystoreFile"]
+			h2.label.expose[ng-if="androidKeystoreCtrl.keystoreFile && !codeSigningCtrl.appService.appDetails.isPublic"]
 				span.long-version == data[:strings][:code_signing][:android_keystore][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:android_keystore][:header][:expose_for_pr]
 		article
@@ -209,7 +189,7 @@
 												span Uploading file...
 									.detail.code.env-var-key[ng-bind="KeystoreFile.downloadURLEnvVarKey() | prettifiedKey"]
 								.expose-and-actions
-									.expose-with-popover
+									.expose-with-popover[ng-if="!codeSigningCtrl.appService.appDetails.isPublic"]
 										.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 											checkbox[ng-model="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.getterSetter" ng-disabled="androidKeystoreCtrl.keystoreFileIsExposeGetterSetterConfig.progress.isInProgress || androidKeystoreCtrl.keystoreFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'code-signin-android-keystore-is-expose-checkbox-' + $index"]
 											label.on-small[for="'code-signin-android-keystore-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:android_keystore][:expose][:is_expose]
@@ -223,7 +203,7 @@
 										a.option.download[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" href="{{ androidKeystoreCtrl.keystoreFile.download() }}"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:download]
 										button.option.protect[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed && !androidKeystoreCtrl.keystoreFile.isProtected" ng-click="androidKeystoreCtrl.makeKeystorefileProtected(androidKeystoreCtrl.keystoreFile)"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:protect]
 										button.option.delete[ng-click="androidKeystoreCtrl.deleteKeystoreFile()"] == data[:strings][:code_signing][:android_keystore][:article][:actions][:delete]
-					form.keystore-metadata[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed" name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()"]
+					form.keystore-metadata[ng-if="androidKeystoreCtrl.keystoreFile.isProcessed" name="androidKeystoreCtrl.keystoreMetadataForm" ng-submit="androidKeystoreCtrl.saveMetadata()" method="POST"]
 						section
 							p
 								span> == data[:strings][:code_signing][:android_keystore][:keystore_password_as]
@@ -262,7 +242,7 @@
 			h2.label
 				span == data[:strings][:code_signing][:generic_file][:header][:card_title]
 				span<[ng-if="genericFileCtrl.genericFiles.length > 0" ng-bind="'(' + genericFileCtrl.genericFiles.length + '/' + genericFileCtrl.maximumGenericFilesCount + ')'"]
-			h2.label.expose[ng-if="genericFileCtrl.genericFiles.length > 0"]
+			h2.label.expose[ng-if="genericFileCtrl.genericFiles.length > 0 && !codeSigningCtrl.appService.appDetails.isPublic"]
 				span.long-version == data[:strings][:code_signing][:generic_file][:header][:expose_for_pull_requests]
 				span.short-version == data[:strings][:code_signing][:generic_file][:header][:expose_for_pr]
 		article
@@ -286,7 +266,7 @@
 											span Uploading file...
 								.detail.code.env-var-key[ng-bind="genericFile.downloadURLEnvVarKey() | prettifiedKey"]
 							.expose-and-actions
-								.expose-with-popover
+								.expose-with-popover[ng-if="!codeSigningCtrl.appService.appDetails.isPublic"]
 									.expose[ng-attr-trigger-popover="#{ data[:strings][:code_signing][:expose_for_pr_popover_content] }"]
 										checkbox[ng-model="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].getterSetter" ng-disabled="genericFileCtrl.genericFileIsExposeGetterSetterConfigs[$index].progress.isInProgress || genericFile.isProtected" ng-model-options="{getterSetter: true}" checkbox-id-expression="'generic-file-is-expose-checkbox-' + $index"]
 										label.on-small[for="'generic-file-is-expose-checkbox-' + $index"] == data[:strings][:code_signing][:generic_file][:expose][:is_expose]

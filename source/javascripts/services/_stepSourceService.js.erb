@@ -29,7 +29,7 @@
 				});
 
 				if (!library) {
-					throw new Error("Library not found for step");
+					throw new Error("<%= data[:strings][:step_source_service][:get_library_for_step][:default_error] %>")
 				}
 
 				return library;
@@ -240,7 +240,7 @@
 						return false;
 					}
 
-					if (step.libraryURL !== undefined) {
+					if (step.libraryURL !== undefined && !isStepInLib(step)) {
 						if (step.libraryURL === defaultStepLibUrl) {
 							stepLibSearchCVSs.push(aCVS);
 						} else {
@@ -279,35 +279,62 @@
 					return $q.reject(error);
 				}
 
-				var stepLibSearchPromise = stepLibSearchService
-					.list({
-						stepIDs: stepLibSearchCVSs.map(function(cvs) {
-							return cvs.split("@").shift();
-						}),
-						includeInputs: true
-					})
-					.then(function(steps) {
-						addStepsToDefaultLibrary(steps);
-					});
+				if (libraryURLs.length) {
+					loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig));
+				}
 
-				loadPromises.push(stepSourceService.loadLibrariesWithURLs(libraryURLs, requestConfig), stepLibSearchPromise);
+				if (stepLibSearchCVSs.length) {
+					var stepLibSearchPromise = stepLibSearchService
+						.list({
+							stepCVSs: stepLibSearchCVSs,
+							includeInputs: true
+						})
+						.then(function(steps) {
+							addStepsToDefaultLibrary(steps);
+						});
+
+					loadPromises.push(stepLibSearchPromise);
+				}
 
 				return $q.all(loadPromises);
 			};
+
+
+			function isStepInLib(step) {
+				var library = stepSourceService.libraries.find(function(lib) { return lib.url === step.libraryURL });
+				if (!library || !library.steps || !library.steps[step.id]) {
+					return false;
+				}
+
+				if (!step.version) {
+					var latestStepVersion = library.latestStepVersions[step.id]
+					return !!library.steps[step.id][latestStepVersion]
+				} else {
+					return !!semverService.resolveVersion(step.version, step.id, library);
+				}
+			}
 
 			function addStepsToDefaultLibrary(steps) {
 				Object.keys(steps).forEach(function(stepId) {
 					var stepVersions = {};
 					var latestStepVersion;
-					Object.values(steps[stepId].versions).forEach(function(stepVersion) {
-						var step = new Step(stepVersion.cvs);
-						step.info = stepVersion.info;
-						latestStepVersion = stepVersion.latest_version_number;
-						step.libraryURL = stepSourceService.defaultLibraryURL;
-						step.id = stepVersion.id;
-						step.version = stepVersion.version;
-						step.defaultStepConfig = Object.assign({}, stepVersion, stepVersion.step);
-						stepVersions[stepVersion.version] = step;
+
+					Object
+						.values(steps[stepId].versions)
+						// We need to order versions, so the last step version processed
+						// will be the latest version
+						.sort(function(v1, v2) {
+							return semverService.sort(v1.version, v2.version);
+						})
+						.forEach(function(stepVersion) {
+							var step = new Step(stepVersion.cvs);
+							step.info = stepVersion.info;
+							latestStepVersion = stepVersion.latest_version_number;
+							step.libraryURL = stepSourceService.defaultLibraryURL;
+							step.id = stepVersion.id;
+							step.version = stepVersion.version;
+							step.defaultStepConfig = Object.assign({}, stepVersion, stepVersion.step);
+							stepVersions[stepVersion.version] = step;
 					});
 
 					var library;

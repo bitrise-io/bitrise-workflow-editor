@@ -1,5 +1,4 @@
-import React from "react";
-import { Text, Base } from "@bitrise/bitkit";
+import { Box, Text } from "@bitrise/bitkit";
 import classNames from "classnames";
 import { Step } from "../../models";
 import semverService from "../../services/semver-service";
@@ -25,7 +24,7 @@ const StepVersionSelector = ({
 	onUpdateVersion,
 	strings
 }: StepVersionSelectorProps): JSX.Element => (
-	<Base className="version-selector">
+	<Box className="version-selector">
 		<Text
 			className={classNames("remark", { error: !step.isConfigured() })}
 			dangerouslySetInnerHTML={html(strings.versionRemark)}
@@ -47,7 +46,7 @@ const StepVersionSelector = ({
 				);
 			})}
 		</select>
-	</Base>
+	</Box>
 );
 
 export default StepVersionSelector;

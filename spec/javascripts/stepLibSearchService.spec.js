@@ -22,8 +22,7 @@ describe("stepLibSearchService", function() {
 					stepIds: ["a-step-cvs@1.0.0"],
 					includeInputs: true,
 					algoliaOptions: {
-						attributesToRetrieve: ["*"],
-						filters: undefined
+						attributesToRetrieve: ["*"]
 					}
 				})
 			);
@@ -41,8 +40,7 @@ describe("stepLibSearchService", function() {
 					stepIds: ["a-step-cvs@1.0.0"],
 					includeInputs: false,
 					algoliaOptions: {
-						attributesToRetrieve: ["abc", "def"],
-						filters: undefined
+						attributesToRetrieve: ["abc", "def"]
 					}
 				})
 			);

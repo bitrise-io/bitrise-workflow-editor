@@ -5,9 +5,11 @@ app:
   envs:
   - BIN_NAME: workflow-editor
   - BIN_ARCH: x86_64
+  - BIN_ARCH_ARM64: arm64
   - BIN_OS_DARWIN: Darwin
   - BIN_OS_LINUX: Linux
   - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+  - BIN_PATH_DARWIN_ARM64: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH_ARM64
   - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
 
   - PORT: "1234"
@@ -33,6 +35,17 @@ workflows:
 
   setup-client:
     steps:
+    - script@1.1.5:
+        title: install nodejs with asdf
+        inputs:
+        - content: |-
+            #!/usr/bin/env bash
+            set -ex
+            git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.2
+            source ~/.asdf/asdf.sh
+            asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+            asdf install nodejs
+            envman add --key PATH --value $PATH
     - script:
         title: Install NPM and Bundler
         deps:
@@ -40,7 +53,6 @@ workflows:
           - name: ruby
           - name: ruby-dev
           - name: build-essential
-          - name: nodejs
           # for cypress
           - name: xvfb
           - name: libgtk2.0-0
@@ -93,53 +105,6 @@ workflows:
     - test-api
     - test-client
 
-  go-install:
-    steps:
-    - script:
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            go get -u -v github.com/golang/dep/cmd/dep
-            dep ensure -v
-            go install
-
-  dep-update:
-    title: Dep update
-    description: |
-      Used for updating bitrise dependencies with dep
-    steps:
-    - script:
-        title: Dependency update
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            go get -u -v github.com/golang/dep/cmd/dep
-            dep ensure -v
-            dep ensure -v -update
-
-  deps-update:
-    steps:
-    - script:
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            rm -rf ./vendor
-            rm -rf ./Godeps
-            go get -u github.com/tools/godep
-            godep version
-            go get -t -d ./...
-            go get golang.org/x/sys/unix
-            go get github.com/bitrise-io/envman/models
-            go get github.com/bitrise-io/stepman/models
-            go get github.com/ryanuber/go-glob
-            go get github.com/davecgh/go-spew/spew
-            go get github.com/pmezard/go-difflib/difflib
-            go get github.com/inconshreveable/mousetrap
-            godep save ./...
-
   _install_test_tools:
     steps:
     - script:
@@ -149,10 +114,9 @@ workflows:
             #!/bin/bash
             set -ex
             # Check for unhandled errors
-            go get -u github.com/kisielk/errcheck
+            go install github.com/kisielk/errcheck@latest
             # Go lint
-            go get -u golang.org/x/lint/golint
-
+            go install golang.org/x/lint/golint@latest
   test-client:
     envs:
       - NODE_ENV: "prod"
@@ -171,25 +135,11 @@ workflows:
   test-api:
     steps:
     - script:
-        title: GOLIST_WITHOUT_VENDOR
-        inputs:
-        - content: |-
-            set -ex
-            no_vendor_paths="$(go list ./... | grep -v vendor)"
-            envman add --key GOLIST_WITHOUT_VENDOR --value "$no_vendor_paths"
-          opts:
-            # opts, for bitrise.yml parsing test in the workflow editor
-            is_expand: true
-            title: The Script Content - test title
-            is_required: true
-            is_dont_change_value: false
-    - script:
         title: Go Test
         inputs:
         - content: |-
             #!/bin/bash
             set -ex
-            # go test $GOLIST_WITHOUT_VENDOR
             go test ./...
     - script:
         title: Go Vet
@@ -197,14 +147,14 @@ workflows:
         - content: |-
             #!/bin/bash
             set -ex
-            go vet $GOLIST_WITHOUT_VENDOR
+            go vet ./...
     - script:
         title: Err check
         inputs:
         - content: |-
             #!/bin/bash
             set -ex
-            errcheck -asserts=true -blank=true $GOLIST_WITHOUT_VENDOR
+            errcheck -asserts=true -blank=true ./...
     - script:
         title: Go Lint
         inputs:
@@ -212,9 +162,7 @@ workflows:
             #!/bin/bash
             set -ex
             # lint
-            while read -r line; do
-              golint -set_exit_status $line
-            done <<< "$GOLIST_WITHOUT_VENDOR"
+            golint ./...
 
   setup-plugin-api:
     title: Set up local plugin api

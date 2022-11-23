@@ -46,23 +46,61 @@ describe("Trigger", function() {
 
 	});
 
-	describe("workflowID", function() {
-
-		it("should return workflow ID set to trigger", function() {
+	describe("targetId", function() {
+		it("should return target value if no arguments are passed", function() {
 			const trigger = new Trigger({
 				workflow: "red-workflow"
 			});
 
-			expect(trigger.workflowID()).toBe("red-workflow");
+			expect(trigger.targetId()).toBe("red-workflow");
 		});
 
-		it("should set workflow ID to trigger", function() {
-			const trigger = new Trigger();
+		it("should set target value if argument is passed without changing type", function() {
+			const trigger = new Trigger({
+				workflow: "red-workflow"
+			});
 
-			expect(trigger.workflowID("red-workflow")).toBe("red-workflow");
+			trigger.targetId("blue-workflow");
+			expect(trigger.triggerConfig.workflow).toBe("blue-workflow");
+		});
+	});
+
+	describe("targetType", function() {
+		it("should return target type if no arguments are passed", function() {
+			const trigger = new Trigger({
+				pipeline: "red-pipeline"
+			});
+			expect(trigger.targetType()).toBe("pipeline");
+		});
+
+		it("should get target type if no arguments are passed", function() {
+			const trigger = new Trigger({
+				pipeline: "red-workflow"
+			});
+
+			trigger.targetType("workflow");
 			expect(trigger.triggerConfig.workflow).toBe("red-workflow");
+			expect(trigger.triggerConfig.pipeline).toBeUndefined();
+		});
+	});
+
+	describe("target", function() {
+		it("should return target string if no arguments are passed", function() {
+			const trigger = new Trigger({
+				workflow: "red-workflow"
+			});
+			expect(trigger.target()).toBe("workflow#red-workflow");
 		});
 
+		it("should set target type and value from the argument passed", function() {
+			const trigger = new Trigger({
+				workflow: "red-workflow"
+			});
+
+			trigger.target("pipeline#blue-pipeline");
+			expect(trigger.triggerConfig.pipeline).toBe("blue-pipeline");
+			expect(trigger.triggerConfig.workflow).toBeUndefined();
+		});
 	});
 
 	describe("pushBranchPattern", function() {

@@ -1,0 +1,43 @@
+(function() {
+    "use strict";
+
+    const CLIENT_SIDE_ID = '5e70774c8a726707851d2fff';
+
+    angular
+        .module("BitriseWorkflowEditor")
+        .service('launchDarklyService', function(requestService, appServiceUtil) {
+            const launchDarklyService = {};
+            let client
+
+            launchDarklyService.initialize = async () => {
+                if (!requestService.isWebsiteMode()) {
+                    return;
+                }
+
+                if (!client) {
+                    const [LDClient, app] = await Promise.all([
+                        import('launchdarkly-js-client-sdk'),
+                        requestService.getApp(appServiceUtil.getAppSlug())
+                    ]);
+
+                    const key = app.owner_type === 'Organization' ? `org-${app.owner_slug}` : app.owner_slug;
+
+                    client = LDClient.initialize(CLIENT_SIDE_ID, {
+                        key,
+                    });
+                }
+
+                await client.waitUntilReady();
+            };
+
+            launchDarklyService.variation = (featureFlagKey, defaultValue = false) => {         
+                if (!requestService.isWebsiteMode()) {
+                    return defaultValue;
+                }
+
+                return client.variation(featureFlagKey, defaultValue);
+            };
+
+            return launchDarklyService;
+        });
+})();

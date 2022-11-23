@@ -63,20 +63,20 @@ header.menu {
 			}
 
 			@mixin icon_styling($icon_class) {
-
 				&:before {
 					content: none;
 				}
 
 				span.platform-icon.#{$icon_class} {
-					display: flex;;
+					display: flex;
 				}
 			}
 
 			&.ios {
 				@include icon_styling("apple");
 			}
-			&.osx, &.macos {
+			&.osx,
+			&.macos {
 				@include icon_styling("macos");
 			}
 			&.android {
@@ -136,7 +136,8 @@ header.menu {
 					text-decoration: none;
 					color: inherit;
 
-					&:hover, &:focus {
+					&:hover,
+					&:focus {
 						text-decoration: underline;
 					}
 				}
@@ -155,11 +156,12 @@ header.menu {
 			@include margin-y(8px);
 			margin-right: $spacing;
 
-			.public, .private {
-				display: none
+			.public,
+			.private {
+				display: none;
 			}
 
-			&.private  .private{
+			&.private .private {
 				@include display-flex;
 
 				svg {
@@ -190,7 +192,6 @@ header.menu {
 			margin-right: auto;
 
 			button.tab {
-
 				&:before {
 					$border_width: 4px;
 
@@ -227,12 +228,18 @@ header.menu {
 					}
 				}
 
+				r-icon {
+					position: relative;
+					margin-left: 8px;
+				}
+
 				span.title {
 					position: relative;
 				}
 			}
 
-			button.tab:hover:not(.current), button.tab:focus:not(.current) {
+			button.tab:hover:not(.current),
+			button.tab:focus:not(.current) {
 				$color: $def-violet_blue;
 
 				color: $color;
@@ -299,7 +306,6 @@ header.menu {
 				top: 0px;
 				@include size(15px, 9px);
 			}
-
 		}
 
 		aside.discard-save {
@@ -326,13 +332,14 @@ header.menu {
 				@include padding-x(25px);
 				font-size: 15px;
 
-				span.save, span.saved, span.in-progress {
+				span.save,
+				span.saved,
+				span.in-progress {
 					display: inline-block;
 					width: 75px;
 				}
 
 				span.save {
-
 					&.windows:before {
 						content: "Ctrl + S";
 					}
@@ -347,7 +354,7 @@ header.menu {
 				}
 
 				span.saved {
-
+					display: flex;
 					&:after {
 						content: "<%= data[:strings][:main][:saved] %>";
 						margin-left: 6px;
@@ -355,8 +362,6 @@ header.menu {
 
 					svg {
 						@include size(24px);
-						margin-top: -4px;
-						margin-bottom: -7px;
 					}
 				}
 
@@ -371,7 +376,7 @@ header.menu {
 						to {
 							@include transform(rotate(360deg));
 						}
-					};
+					}
 
 					@include animation(rotate 1s linear infinite);
 				}
@@ -406,8 +411,9 @@ header.menu {
 		padding-top: 10px;
 
 		.app-topbar {
-
-			.app-icon, .project-type-icon, .privacy-settings-icon {
+			.app-icon,
+			.project-type-icon,
+			.privacy-settings-icon {
 				display: none;
 			}
 
@@ -420,7 +426,6 @@ header.menu {
 			padding-top: 5px;
 
 			nav {
-
 				button.tab {
 					@include flex-direction(column);
 					@include justify-content(flex-start);
@@ -441,12 +446,11 @@ header.menu {
 	}
 
 	@include media-below(520px) {
-
 		.workflow-editor-menubar {
 			nav {
-
 				button.tab {
 					@include justify-content(center);
+					@include flex-direction(row);
 
 					span.icon {
 						margin-bottom: 0;
@@ -478,7 +482,7 @@ header.sticky header.menu {
 	background-color: $def-ultralightgrey;
 }
 
-main {
+.main-content {
 	@include flex-grow(1);
 	@include display-flex;
 	@include flex-direction(column);
@@ -491,7 +495,8 @@ main {
 		@include flex-direction(column);
 		background-color: white;
 
-		&:not(.ninja) > p.progress-indicator, .tab-content > p.progress-indicator {
+		&:not(.ninja) > p.progress-indicator,
+		.tab-content > p.progress-indicator {
 			margin: $main-verticalpadding $main-horizontalpadding;
 
 			@include media-below-mid {
@@ -516,19 +521,15 @@ main {
 	}
 
 	footer {
+		display: flex;
+		justify-content: space-between;
+		align-items: center;
 		@include flex-shrink(0);
-		@include display-flex;
-		@include justify-content(center);
-		@include align-items(center);
 		padding: 10px $main-horizontalpadding;
 		font-size: 13px;
 		font-weight: 400;
 		color: $def-darkgrey;
 		background-color: $def-verylightgrey;
-
-		p {
-			@include margin-y(0);
-		}
 
 		svg {
 			@include size(13px, 12px);
@@ -536,51 +537,35 @@ main {
 			fill: $def-green;
 		}
 
-		a {
-			font-weight: 900;
-			color: inherit;
-			@include transition(color $def-transition_duration);
-
-			&:hover, &:focus {
-				color: black;
-			}
+		.content {
+			display: flex;
+			justify-content: center;
+			align-items: center;
 		}
 
-		&:before {
-			content: "";
-			margin-right: auto;
-		}
-
-		a.version {
-			margin-left: auto;
-			text-align: right;
-			font-weight: 300;
-
-			&:not(:hover):not(:focus) {
-				text-decoration: none;
-			}
-		}
-
-		&:before, a.version {
+		.placeholder,
+		.version {
 			width: 40px;
 		}
 
 		@include media-below-mid {
-			@include flex-direction(column);
+			flex-direction: column-reverse;
+
+			.placeholder {
+				display: none;
+			}
+
+			.content {
+				flex-direction: column;
+			}
 
 			svg {
 				@include margin-x(0);
 				@include margin-y(12px);
 			}
 
-			&:before {
-				content: none;
-			}
-
-			a.version {
+			.version {
 				margin-top: 6px;
-				margin-left: 0;
-				text-align: center;
 			}
 		}
 	}

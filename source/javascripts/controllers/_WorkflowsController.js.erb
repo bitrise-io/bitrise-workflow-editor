@@ -1,4 +1,5 @@
 import { safeDigest } from "../services/react-compat";
+import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 (function() {
 	"use strict";
@@ -12,7 +13,6 @@ import { safeDigest } from "../services/react-compat";
 			$filter,
 			$location,
 			stringService,
-			imageService,
 			requestService,
 			scrollService,
 			appService,
@@ -20,15 +20,42 @@ import { safeDigest } from "../services/react-compat";
 			workflowSelectionStore,
 			workflowSelectionService,
 			addStepService,
+			semverService,
 			logger,
 			Progress,
 			Popup,
 			Workflow,
 			Step,
 			Variable,
-			Stack
+			Stack,
+			$window,
+			$timeout
 		) {
 			var viewModel = this;
+
+			viewModel.workflowsHeight = 0;
+			viewModel.shouldShowWorkflowsContent = false;
+
+			viewModel.getAvailableHeightForWorkflows = function() {
+				viewModel.shouldShowWorkflowsContent = false;
+
+				$timeout(function() {
+					var element = angular.element(document.querySelector('div.workflows'));
+					viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
+
+					viewModel.shouldShowWorkflowsContent = true;
+				}, 100);
+			};
+
+			var resizeTimeout;
+			var RESIZE_DELAY = 500;
+			angular.element($window).on('resize', function() {
+				if (resizeTimeout) {
+					$timeout.cancel(resizeTimeout)
+				}
+
+				resizeTimeout = $timeout(viewModel.getAvailableHeightForWorkflows, RESIZE_DELAY);
+			});
 
 			viewModel.canceler = $q.defer();
 
@@ -39,8 +66,8 @@ import { safeDigest } from "../services/react-compat";
 				workflows: undefined,
 				selectedWorkflow: undefined,
 				selectedStep: undefined,
-				targetVariable: undefined,
 				variableSelected: undefined,
+				inputWithSelectedInsertRange: null,
 				insertStartPosition: undefined,
 				insertEndPosition: undefined,
 				availableVariableGroupIDs: undefined,
@@ -51,33 +78,32 @@ import { safeDigest } from "../services/react-compat";
 				workflows,
 				selectedWorkflow,
 				selectedStep,
-				targetVariable
+				targetInput
 			) {
 				viewModel.insertVariableToStepInputConfig.workflows = workflows;
 				viewModel.insertVariableToStepInputConfig.selectedWorkflow = selectedWorkflow;
 				viewModel.insertVariableToStepInputConfig.selectedStep = selectedStep;
-				viewModel.insertVariableToStepInputConfig.targetVariable = targetVariable;
-
-				if (viewModel.insertVariableToStepInputConfig.insertStartPosition === undefined) {
+				if (viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange != targetInput) {
+					viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange = targetInput;
 					viewModel.insertVariableToStepInputConfig.insertStartPosition = 0;
-				}
-				if (viewModel.insertVariableToStepInputConfig.insertEndPosition === undefined) {
-					viewModel.insertVariableToStepInputConfig.insertEndPosition = targetVariable.value().length;
+					viewModel.insertVariableToStepInputConfig.insertEndPosition = targetInput.value().length;
 				}
 
 				viewModel.insertVariableToStepInputConfig.variableSelected = function(variable) {
 					viewModel.insertVariableToStepInputConfig.popup.isVisible = false;
 
-					var oldValue = targetVariable.value();
+					var oldValue = targetInput.value();
 					if (oldValue === null) {
 						oldValue = "";
 					}
 
-					targetVariable.value(
+					var insertedValue = $filter("prettifiedVariableKey")(variable);
+					targetInput.value(
 						oldValue.slice(0, viewModel.insertVariableToStepInputConfig.insertStartPosition) +
-							$filter("prettifiedVariableKey")(variable) +
+							insertedValue +
 							oldValue.slice(viewModel.insertVariableToStepInputConfig.insertEndPosition)
 					);
+					viewModel.insertVariableToStepInputConfig.insertEndPosition = viewModel.insertVariableToStepInputConfig.insertStartPosition + insertedValue.length;
 				};
 
 				viewModel.insertVariableToStepInputConfig.popup.isVisible = true;
@@ -97,7 +123,7 @@ import { safeDigest } from "../services/react-compat";
 				workflows,
 				selectedWorkflow,
 				selectedStep,
-				targetVariable
+				targetInput
 			) {
 				viewModel.insertSecretToStepInputConfig.workflows = workflows;
 				viewModel.insertSecretToStepInputConfig.selectedWorkflow = selectedWorkflow;
@@ -106,7 +132,7 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.insertSecretToStepInputConfig.secretSelected = function(variable) {
 					viewModel.insertSecretToStepInputConfig.popup.isVisible = false;
 
-					targetVariable.value($filter("prettifiedVariableKey")(variable));
+					targetInput.value($filter("prettifiedVariableKey")(variable));
 				};
 
 				viewModel.insertSecretToStepInputConfig.popup.isVisible = true;
@@ -143,6 +169,10 @@ import { safeDigest } from "../services/react-compat";
 
 			$scope.$on("$destroy", function() {
 				viewModel.canceler.resolve();
+
+				if (resizeTimeout) {
+					$timeout.cancel(resizeTimeout)
+				}
 			});
 
 			viewModel.init = function() {
@@ -182,9 +212,10 @@ import { safeDigest } from "../services/react-compat";
 						})
 						.then(
 							function() {
+								datadogRumCustomTiming('wfe', 'workflows');
 								viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 									return new Workflow(aWorkflowID, aWorkflowConfig);
-								});
+								}).sort((a, b) => a.id.localeCompare(b.id));
 								resolve();
 							},
 							function(error) {
@@ -223,7 +254,7 @@ import { safeDigest } from "../services/react-compat";
 					}
 
 					var wf = workflowSelectionService.findSelectedWorkflow(viewModel);
-					workflowSelectionService.rearrangeSelection(viewModel, wf);
+					workflowSelectionService.rearrangeSelection(viewModel, wf, workflowSelectionStore.lastEditedWorkflowID);
 
 					appService.appConfig.workflows = {};
 					_.each(workflows, function(aWorkflow) {
@@ -262,6 +293,16 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.addWorkflowID;
 			viewModel.addWorkflowSourceWorkflow;
 
+			viewModel.openAddWorkflowPopup = function() {
+				viewModel.addWorkflowPopup.isVisible = true;
+			};
+
+			viewModel.openAddWorkflowPopupWithDigest = function() {
+				$timeout(function(){
+					viewModel.openAddWorkflowPopup();
+				}, 0);
+			}
+
 			viewModel.addWorkflowPopup.beforeAppearCallback = function() {
 				viewModel.addWorkflowID = "";
 				viewModel.addWorkflowSourceWorkflow = viewModel.selectedWorkflow;
@@ -273,7 +314,7 @@ import { safeDigest } from "../services/react-compat";
 					viewModel.addWorkflowSourceWorkflow ? angular.copy(viewModel.addWorkflowSourceWorkflow.workflowConfig) : {}
 				);
 
-				viewModel.workflows.push(workflow);
+				viewModel.workflows = [].concat(viewModel.workflows).concat([workflow]);
 
 				viewModel.addWorkflowPopup.isVisible = false;
 
@@ -294,7 +335,9 @@ import { safeDigest } from "../services/react-compat";
 					undefined,
 					undefined,
 					function() {
-						viewModel.workflows.splice(_.indexOf(viewModel.workflows, viewModel.selectedWorkflow), 1);
+						viewModel.workflows = viewModel.workflows.filter(function(workflow) {
+							return workflow.id !== viewModel.selectedWorkflow.id
+						});
 
 						_.each(viewModel.workflows, function(aWorkflow) {
 							if (aWorkflow.workflowConfig.before_run) {
@@ -329,6 +372,12 @@ import { safeDigest } from "../services/react-compat";
 						}
 					}
 				);
+			};
+
+			viewModel.deleteWorkflowSelectedWithDigest = function() {
+				$timeout(function() {
+					viewModel.deleteWorkflowSelected();
+				}, 0);
 			};
 
 			viewModel.addRunWorkflowPopup = new Popup();
@@ -374,6 +423,18 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.addRunWorkflowPopup.isVisible = true;
 			};
 
+			viewModel.addRunWorkflowBeforeSelectedWithDigest = function() {
+				$timeout(function() {
+					viewModel.addRunWorkflowSelected('before');
+				}, 0);
+			}
+
+			viewModel.addRunWorkflowAfterSelectedWithDigest = function() {
+				$timeout(function() {
+					viewModel.addRunWorkflowSelected('after');
+				}, 0);
+			}
+
 			viewModel.availableRunWorkflowsToAdd = function() {
 				if (!viewModel.workflows || !viewModel.selectedWorkflow) {
 					return;
@@ -416,6 +477,16 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.rearrangeWorkflowsPopup = new Popup();
 			viewModel.rearrangeWorkflowsChainHierarchy;
+
+			viewModel.openRearrangeWorkflowsPopup = function() {
+				viewModel.rearrangeWorkflowsPopup.isVisible = true;
+			};
+
+			viewModel.openRearrangeWorkflowsPopupWithDigest = function() {
+				$timeout(function() {
+					viewModel.openRearrangeWorkflowsPopup();
+				}, 0);
+			}
 
 			viewModel.rearrangeWorkflowsPopup.beforeAppearCallback = function() {
 				viewModel.rearrangeWorkflowsChainHierarchy = workflowChainHierarchy(viewModel.selectedWorkflow);
@@ -487,12 +558,17 @@ import { safeDigest } from "../services/react-compat";
 				);
 			};
 
-			viewModel.renameWorkflowConfirmed = function() {
-				var oldWorkflowID = viewModel.renamedWorkflow.id;
-				var newWorkflowID = viewModel.renamedWorkflowID;
+			viewModel.confirmRenameWorkflowWithDigest = function(workflow, newWorkflowID) {
+				$timeout(function() {
+					viewModel.renameWorkflowConfirmed(workflow, newWorkflowID);
+				}, 0);
+			}
+
+			viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID) {
+				var oldWorkflowID = workflow.id;
 
 				delete appService.appConfig.workflows[oldWorkflowID];
-				appService.appConfig.workflows[newWorkflowID] = viewModel.renamedWorkflow.workflowConfig;
+				appService.appConfig.workflows[newWorkflowID] = workflow.workflowConfig;
 
 				_.each(viewModel.workflows, function(aWorkflow) {
 					if (aWorkflow.workflowConfig.before_run) {
@@ -517,24 +593,38 @@ import { safeDigest } from "../services/react-compat";
 					}
 				});
 
-				viewModel.renamedWorkflow.id = newWorkflowID;
-
-				if (viewModel.selectedWorkflow == viewModel.renamedWorkflow) {
-					workflowSelectionStore.applyState({
-						lastSelectedWorkflow: viewModel.selectedWorkflow,
-						lastEditedWorkflow: viewModel.editedWorkflow,
-						lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
-						lastSelectedStep: viewModel.selectedStep
+				_.each(appService.appConfig.stages, function(aStage) {
+					_.each( aStage.workflows, function(aWorkflow) {
+						if (aWorkflow[oldWorkflowID]) {
+							aWorkflow[newWorkflowID] = aWorkflow[oldWorkflowID]
+							delete aWorkflow[oldWorkflowID]
+						}
 					});
-				}
+				});
 
-				viewModel.renamedWorkflow = null;
+				workflow.id = newWorkflowID;
+				viewModel.selectWorkflow(workflow);
+
+				workflowSelectionStore.applyState({
+					lastSelectedWorkflow: viewModel.selectedWorkflow,
+					lastEditedWorkflow: viewModel.editedWorkflow,
+					lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
+					lastSelectedStep: viewModel.selectedStep
+				});
 			};
 
 			// Edited worklow
 
 			viewModel.editedWorkflow;
 			viewModel.editedWorkflowIndex;
+
+
+
+			viewModel.selectWorkflowWithDigest = function(workflow) {
+				$timeout(function() {
+					viewModel.selectWorkflow(workflow);
+				}, 0);
+			};
 
 			viewModel.selectWorkflow = function(workflow) {
 				workflowSelectionService.rearrangeSelection(viewModel, workflow);
@@ -635,40 +725,51 @@ import { safeDigest } from "../services/react-compat";
 				});
 			};
 
+			function resetEditContainerScrollPosition() {
+				var el = $(".step-edit-container");
+				if (el.length) {
+					el[0].scrollTop = 0;
+				}
+			}
+
 			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
 				if (!step) {
+					viewModel.selectedStep = null
 					return;
 				}
 
-				if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
-					stepSourceService.loadStepVersions(step.id).then(function() {
+				$q(function(resolve) {
+					if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
+						stepSourceService.loadStepVersions(step.id).then(function() {
+							viewModel.selectedStep = step;
+							resolve();
+						});
+					} else {
 						viewModel.selectedStep = step;
-						safeDigest($scope);
-					});
-				} else {
-					viewModel.selectedStep = step;
+						resolve();
+					}
+				}).then(function() {
+					if (workflowIndex === undefined) {
+						workflowIndex = viewModel.editedWorkflowIndex;
+					}
+
+					if (shouldScrollToStep === undefined) {
+						shouldScrollToStep = viewModel.editedWorkflowIndex != workflowIndex;
+					}
+
+					if (viewModel.editedWorkflowIndex != workflowIndex) {
+						viewModel.editWorkflowAtIndex(workflowIndex);
+					}
+
+					if (shouldScrollToStep) {
+						setTimeout(function() {
+							scrollService.scrollToTarget();
+						}, 300);
+					}
+
+					resetEditContainerScrollPosition();
 					safeDigest($scope);
-				}
-
-				if (workflowIndex === undefined) {
-					workflowIndex = viewModel.editedWorkflowIndex;
-				}
-
-				if (shouldScrollToStep === undefined) {
-					shouldScrollToStep = viewModel.editedWorkflowIndex != workflowIndex;
-				}
-
-				if (viewModel.editedWorkflowIndex != workflowIndex) {
-					viewModel.editWorkflowAtIndex(workflowIndex);
-				}
-
-				if (shouldScrollToStep) {
-					setTimeout(function() {
-						scrollService.scrollToTarget();
-					}, 300);
-				}
-
-				safeDigest($scope);
+				})
 			};
 
 			viewModel.changeSelectedStepVersion = function(version) {
@@ -704,7 +805,6 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.deleteStepSelected = function() {
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index, 1);
-
 				viewModel.stepSelected(null);
 			};
 
@@ -780,30 +880,50 @@ import { safeDigest } from "../services/react-compat";
 					return;
 				}
 
-				var removedInputs = [];
-				_.each(oldDefaultStepConfig.inputs, function(aDefaultInputConfigOfOldStep) {
-					var oldStepInput = new Variable(null, aDefaultInputConfigOfOldStep);
+				var isMajorVersionChange = semverService.isMajorVersionChange(oldDefaultStepConfig.version, step.version);
 
-					if (
-						!_.find(step.defaultStepConfig.inputs, function(aDefaultInputConfigOfNewStep) {
-							var newStepInput = new Variable(null, aDefaultInputConfigOfNewStep);
-
-							return oldStepInput.key() == newStepInput.key();
-						})
-					) {
-						removedInputs.push(oldStepInput);
+				if (isMajorVersionChange) {
+					var releaseUrl = step.defaultStepConfig.source_code_url;
+					if (releaseUrl.startsWith("https://github.com")) {
+						releaseUrl += "/releases";
 					}
-				});
 
-				if (removedInputs.length > 0) {
-					Popup.showNoticePopup(
-						"<%= data[:strings][:workflows][:steps][:inputs_removed_popup_title] %>",
-						stringService.joinedString(
+					var description = stringService.stringReplacedWithParameters(
+          	"<%= data[:strings][:workflows][:steps][:major_version_change_desc] %>",
+            { url: releaseUrl }
+          );
+
+          var removedInputs = [];
+					_.each(oldDefaultStepConfig.inputs, function(aDefaultInputConfigOfOldStep) {
+						var oldStepInput = new Variable(null, aDefaultInputConfigOfOldStep);
+
+						if (
+							!_.find(step.defaultStepConfig.inputs, function(aDefaultInputConfigOfNewStep) {
+								var newStepInput = new Variable(null, aDefaultInputConfigOfNewStep);
+
+								return oldStepInput.key() == newStepInput.key();
+							})
+						) {
+							removedInputs.push(oldStepInput);
+						}
+					});
+
+					if (removedInputs.length > 0) {
+						var removedInputList = stringService.joinedString(
 							_.map(removedInputs, function(aRemovedInput) {
 								return aRemovedInput.key();
 							}),
 							","
-						)
+						);
+						var removedInputsText = stringService.stringReplacedWithParameters(
+          		"<%= data[:strings][:workflows][:steps][:inputs_removed_desc] %>",
+          		{ inputList: removedInputList }
+          	);
+          	description += removedInputsText;
+          }
+					Popup.showNoticePopup(
+						"<%= data[:strings][:workflows][:steps][:major_version_change_title] %>",
+						description
 					);
 				}
 			}
@@ -991,7 +1111,8 @@ import { safeDigest } from "../services/react-compat";
 				);
 			};
 
-			viewModel.inputValueBlurred = function(event) {
+			viewModel.inputValueBlurred = function(event, input) {
+				viewModel.insertVariableToStepInputConfig.inputWithSelectedInsertRange = input;
 				viewModel.insertVariableToStepInputConfig.insertStartPosition = event.target.selectionStart;
 				viewModel.insertVariableToStepInputConfig.insertEndPosition = event.target.selectionEnd;
 			};
@@ -1061,11 +1182,19 @@ import { safeDigest } from "../services/react-compat";
 			}
 
 			viewModel.outputSelected = function(output) {
-				if (_.contains(viewModel.openedOutputs, output)) {
+				if (viewModel.isOutputOpened(output)) {
 					viewModel.openedOutputs = _.without(viewModel.openedOutputs, output);
 				} else {
 					viewModel.openedOutputs.push(output);
 				}
+			};
+
+			viewModel.isOutputOpened = function(output) {
+				return _.contains(viewModel.openedOutputs, output)
+			};
+
+			viewModel.hasOutputDescriptionOrSummary = function(output) {
+				return output && (output.description().length > 0 || output.summary().length > 0);
 			};
 		});
 })();

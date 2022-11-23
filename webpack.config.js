@@ -1,4 +1,6 @@
 const path = require("path");
+const webpack = require("webpack");
+const CompressionPlugin = require("compression-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const MonacoWebpackPlugin = require("monaco-editor-webpack-plugin");
 const TerserPLugin = require("terser-webpack-plugin");
@@ -9,10 +11,13 @@ const { version } = require("./package.json");
 const OUTPUT_FOLDER = path.join(__dirname, "build");
 const CODEBASE = path.join(__dirname, "source");
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, FRESHPAINT, SEGMENT, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === "prod";
-
 const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
+const isHotjarEnabled = HOTJAR === "true";
+const isFreshpaintEnabled = FRESHPAINT === "true";
+const isDataDogRumEnabled = DATADOG_RUM === "true";
+const isSegmentEnabled = SEGMENT === "true";
 const publicPath = `${urlPrefix}/${version}/`;
 
 const railsTransformer = mode => ({
@@ -21,8 +26,8 @@ const railsTransformer = mode => ({
 		script: `bundle exec ruby transformer.rb ${mode}`,
 		cwd: "./rails",
 		maxBuffer: Math.pow(1024, 3),
-		env: { ...process.env, "wfe_version": version }
-	}
+		env: { ...process.env, wfe_version: version }
+	},
 });
 
 const htmlExporter = {
@@ -46,28 +51,52 @@ const assetExporter = (regex, folder) => ({
 	]
 });
 
+const entry = {
+	vendor: "./javascripts/vendor.js",
+	strings: "./javascripts/strings.js.erb",
+	routes: "./javascripts/routes.js.erb",
+	main: "./javascripts/index.js"
+};
+if (isHotjarEnabled) {
+	entry.hotjar = "./javascripts/hotjar.js";
+}
+if (isFreshpaintEnabled) {
+	entry.freshpaint = "./javascripts/freshpaint.js.erb";
+}
+if (isDataDogRumEnabled) {
+	entry.datadogrum = "./javascripts/datadog-rum.js.erb";
+}
+if (isSegmentEnabled) {
+	entry.segment = "./javascripts/segment.js.erb";
+}
+
 module.exports = {
 	context: CODEBASE,
 
 	devServer: {
-		contentBase: OUTPUT_FOLDER,
-		contentBasePublicPath: publicPath,
 		compress: true,
-		port: 4567,
-		stats: "errors-only",
+		port: DEV_SERVER_PORT || 4567,
+		allowedHosts: [
+			"host.docker.internal",
+			"localhost"
+		],
 		headers: {
 			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
 			"Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+		},
+		devMiddleware: {
+			stats: "errors-only",
+		},
+		static: {
+			directory: OUTPUT_FOLDER,
+			publicPath: publicPath,
 		}
 	},
 
 	devtool: `${isProd ? "hidden-" : ""}source-map`,
 
-	entry: {
-		vendor: "./javascripts/vendor.js",
-		main: "./javascripts/index.js"
-	},
+	entry: entry,
 
 	optimization: {
 		minimize: isProd,
@@ -86,6 +115,12 @@ module.exports = {
 		]
 	},
 
+	performance: {
+		hints: "error",
+		maxAssetSize: 15000000,
+		maxEntrypointSize: 40000000,
+	},
+
 	output: {
 		filename: "javascripts/[name].js",
 		path: OUTPUT_FOLDER,
@@ -99,7 +134,7 @@ module.exports = {
 	module: {
 		rules: [
 			{
-				test: /\.erb$/,
+				test: /\.erb$/i,
 				use: railsTransformer("erb")
 			},
 
@@ -114,6 +149,20 @@ module.exports = {
 					}
 				},
 				exclude: /node_modules/
+			},
+
+			{
+				test: /\.tsx?$/,
+				use: {
+					loader: "ts-loader",
+					options: {
+						allowTsInNodeModules:true,
+						compilerOptions: {
+							sourceMap: !isProd
+						}
+					}
+				},
+				include: /node_modules\/@bitrise\/bitkit/
 			},
 
 			{
@@ -132,7 +181,7 @@ module.exports = {
 			},
 
 			{
-				test: /\.scss(\.erb)?$/,
+				test: /\.s[ac]ss(\.erb)?$/i,
 				use: [MiniCssExtractPlugin.loader, "css-loader", railsTransformer("erb"), "sass-loader"]
 			},
 
@@ -143,11 +192,26 @@ module.exports = {
 		]
 	},
 	plugins: [
+		new webpack.EnvironmentPlugin(["MODE"]),
+		new CompressionPlugin({
+			algorithm: "gzip",
+			test: /.js$|.css$/,
+		}),
 		new MiniCssExtractPlugin({
 			filename: "stylesheets/[name].css"
 		}),
 		new MonacoWebpackPlugin({
 			languages: ["yaml"],
+			customLanguages: [
+				{
+					label: "yaml",
+					entry: "monaco-yaml",
+					worker: {
+						id: "monaco-yaml/yamlWorker",
+						entry: "monaco-yaml/yaml.worker",
+					},
+				},
+			],
 			features: [
 				"!accessibilityHelp",
 				"!bracketMatching",
@@ -193,6 +257,10 @@ module.exports = {
 			"window.jQuery": "jquery",
 			"window._": "underscore"
 		}),
-		new CopyPlugin([{ from: "images/favicons/*", to: OUTPUT_FOLDER }])
+		new CopyPlugin({
+			patterns: [
+				{ from: "images/favicons/*", to: OUTPUT_FOLDER }
+			]
+		})
 	]
 };

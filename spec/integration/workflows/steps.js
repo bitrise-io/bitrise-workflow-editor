@@ -22,6 +22,7 @@ Given("add workflow popup is open", () => {
 });
 
 Given("Delete popup is open", () => {
+	click("Manage Workflows dropdown button");
 	click("Delete Workflow Button");
 });
 
@@ -34,11 +35,12 @@ Given("Workflow description is in edit mode", () => {
 });
 
 Given("Rearrange popup is open", () => {
+	click("Manage Workflows dropdown button");
 	click("Rearrange button");
 });
 
 Then("Workflow appeared with name {string}", name => {
-	$(".selected-workflow button.mak").contains(name);
+	$("[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]").contains(name);
 });
 
 Then("all the steps are loaded", () => {

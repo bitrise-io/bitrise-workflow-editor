@@ -19,8 +19,26 @@
 			$scope.MachineType = MachineType;
 			$scope.appService = appService;
 			viewModel.defaultDockerImagesByStackIDs = {
-				"linux-docker-android": "bitriseio/android-ndk:pinned"
+				"linux-docker-android": "bitriseio/android-ndk:pinned",
+				"linux-docker-android-20.04": "bitriseio/android-ndk-20.04:pinned",
 			};
+			viewModel.machineTypeTagNotes = {
+				"gen1": "<%= data[:strings][:stack][:machine_type_notes][:gen1] %>",
+				"gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
+			};
+			viewModel.appleSiliconMachineTypeIds = ['g2-m1.8core', 'g2-m1-max.5core'];
+
+			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {
+				var stackMachineTypes = _.filter(MachineType.all, function(machineType) {
+					if (machineType.availableOnStacks) {
+						return machineType.availableOnStacks.indexOf(stack.id) > -1;
+					}
+					return machineType.stackType === stack.type;
+				});
+				result[stack.id] = _.groupBy(stackMachineTypes, 'tag');
+
+				return result;
+			}, {});
 
 			viewModel.init = function() {
 				configure();
@@ -41,17 +59,6 @@
 					return new Workflow(workflowID, aWorkflowConfig);
 				});
 			}
-
-			$scope.$watch(
-				function() {
-					return appService.stack;
-				},
-				function(newValue) {
-					if (newValue) {
-						viewModel.defaultMachineTypeOptions();
-					}
-				}
-			);
 
 			viewModel.stackOptionTitle = function(stack) {
 				return stack
@@ -76,10 +83,17 @@
 				return stacks;
 			};
 
-			viewModel.stackGetterSetterForWorkflow = function(
-				workflow,
-				shouldNormalize
-			) {
+			viewModel.onDefaultStackChange = function() {
+				appService.dockerImage = viewModel.defaultDockerImagesByStackIDs[appService.stack.id] ? '' : null;
+
+				var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
+
+				if (!isPreviousMachineTypeAvailable && MachineType.defaults) {
+					viewModel.setDefaultMachineType(MachineType.defaults[appService.stack.type]);
+				}
+			}
+
+			viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
 				if (shouldNormalize === undefined) {
 					shouldNormalize = false;
 				}
@@ -95,7 +109,18 @@
 					}
 					stacks = stacks.concat(Stack.all);
 
-					stack = workflow.stack(stack, stacks);
+					var defaultMachineTypeForStack;
+					if (stack) {
+						var previousMachineType = viewModel.workflowMachineType(workflow);
+						var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(previousMachineType, stack);
+
+						if (isPreviousMachineTypeAvailable) {
+							defaultMachineTypeForStack = previousMachineType;
+						} else if (MachineType.defaults) {
+							defaultMachineTypeForStack = MachineType.defaults[stack.type];
+						}
+					}
+					stack = workflow.stack(stack, stacks, defaultMachineTypeForStack);
 
 					if (stack === null && shouldNormalize) {
 						return appService.stack;
@@ -105,70 +130,53 @@
 				};
 			};
 
-			viewModel.defaultMachineTypeOptions = function() {
-				var machineTypes = appService.availableMachineTypes();
-
-				if (
-					appService.defaultMachineType &&
-					appService.defaultMachineType.stackType !==
-						appService.stack.id.split("-")[0]
-				) {
-					appService.getDefaultMachineType();
-					return machineTypes;
-				}
-
-				if (
-					appService.defaultMachineType &&
-					_.find(machineTypes, function(machineType) {
-						return machineType.id === appService.defaultMachineType.id;
-					}) === undefined
-				) {
-					machineTypes.push(appService.defaultMachineType);
-				}
-
-				return machineTypes;
-			};
-
-			viewModel.setNewDefaultMachineType = function(newMachineType, workflow) {
-				if (
-					!newMachineType ||
-					(!workflow && appService.defaultMachineType == newMachineType)
-				) {
+			viewModel.setDefaultMachineType = function(machineType) {
+				if (!machineType.isAvailable) {
 					return;
 				}
 
-				if (workflow) {
-					var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
-					if (stack === null) {
-						stack = appService.stack;
-					}
+				appService.defaultMachineType = machineType;
+			}
 
-					var stackID = stack.id.split("-")[0];
-					var machineTypes = MachineType.all;
-					workflow.machineType(stackID, newMachineType, machineTypes);
-				} else {
-					appService.defaultMachineType = newMachineType;
+			viewModel.setWorkflowMachineType = function(machineType, workflow) {
+				if (!machineType.isAvailable) {
+					return;
 				}
+
+				var stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
+				workflow.machineType(stack.type, machineType, MachineType.all);
 			};
 
-			viewModel.selectedWorkflowSpecificMachineType = function(workflow) {
-				var stack = viewModel.stackGetterSetterForWorkflow(workflow)();
-				if (stack === null) {
-					stack = appService.stack;
-				}
+			viewModel.workflowMachineType = function(workflow) {
+				var stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
+				var workflowMachineType = workflow.machineType(stack.type, undefined, MachineType.all);
 
-				var stackID = stack.id.split("-")[0];
-				var machineTypes = MachineType.all;
-				var machineType = workflow.machineType(
-					stackID,
-					undefined,
-					machineTypes
+				return workflowMachineType || appService.defaultMachineType;
+			};
+
+			viewModel.isMachineTypeAvailableForStack = function(previousMachineType, stack) {
+				return Object.values(viewModel.stackMachineMap[stack.id]).some(machineTypes =>
+					machineTypes.some(machineType => machineType.id === previousMachineType.id && machineType.type === previousMachineType.type)
 				);
-				if (machineType === null) {
-					return appService.defaultMachineType;
+			};
+			viewModel.descriptionURLForStack = function(stack) {
+				if (stack.descriptionURLGen2 !== undefined) {
+					return stack.descriptionURLGen2;
 				}
 
-				return machineType;
+				return stack.descriptionURL;
 			};
+
+			viewModel.hasDescriptionURLForStack = function(stack) {
+				return !!viewModel.descriptionURLForStack(stack);
+			}
+
+			viewModel.osForStackWithMachineType = function(stack, machineType) {
+				return stack.osForChip[machineType.chip];
+			}
+
+			viewModel.isAppleSiliconMachineType = function(machineTypeId) {
+				return viewModel.appleSiliconMachineTypeIds.includes(machineTypeId);
+			}
 		});
 })();

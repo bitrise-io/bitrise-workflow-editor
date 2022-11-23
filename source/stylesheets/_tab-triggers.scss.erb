@@ -3,6 +3,9 @@
 
 .tab-triggers {
 
+	ul.triggers {
+		margin-top: 1em;
+	}
 	.type-filter {
 		$border: 1px solid $def-purple;
 
@@ -154,6 +157,8 @@
 							@include flex-direction(column);
 							@include padding-x(0);
 
+							line-height: 1.5;
+
 							.source, .target {
 								@include flex-grow(1);
 								@include display-flex;
@@ -161,7 +166,7 @@
 								@include padding-x(20px);
 
 								label {
-									width: 130px;
+									width: 8.5rem;
 								}
 							}
 
@@ -237,23 +242,17 @@
 						}
 
 						&.push:before {
-							background-image: background_image_from_svg_content_with_attributes('<%= svg("trigger/icon-push") %>', (
-								fill: rgba($def-darkgrey, 0.99)
-							));
+							background-image: background_image_from_svg_content('<%= svg("trigger/icon-push") %>');
 							background-size: auto 24px;
 						}
 
 						&.pull-request:before {
-							background-image: background_image_from_svg_content_with_attributes('<%= svg("trigger/icon-pull_request") %>', (
-								fill: rgba($def-darkgrey, 0.99)
-							));
+							background-image: background_image_from_svg_content('<%= svg("trigger/icon-pull_request") %>');
 							background-size: auto 22px;
 						}
 
 						&.tag:before {
-							background-image: background_image_from_svg_content_with_attributes('<%= svg("trigger/icon-tag") %>', (
-								fill: rgba($def-darkgrey, 0.99)
-							));
+							background-image: background_image_from_svg_content('<%= svg("trigger/icon-tag") %>');
 							background-size: auto 20px;
 						}
 

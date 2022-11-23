@@ -13,9 +13,13 @@
 				ram,
 				creditPerMin,
 				isAvailable,
-				note
+				note,
+				tag,
+				type,
+				chip,
+				availableOnStacks
 			) {
-				this.id = stackType + "-" + id;
+				this.id = id;
 				this.name = name;
 				this.cpuCount = cpuCount;
 				this.cpuDescription = cpuDescription;
@@ -24,56 +28,51 @@
 				this.stackType = stackType;
 				this.isAvailable = isAvailable;
 				this.note = note;
-				this.cssClass = id;
+				this.tag = tag;
+				this.chip = chip;
+				this.cssClass = type;
+				this.availableOnStacks = availableOnStacks;
 			};
 
 			MachineType.all;
-
-			MachineType.allConfig;
+			MachineType.defaults;
 
 			MachineType.getAll = function() {
-				if (MachineType.all && MachineType.all.length > 0) {
-					return $q.when();
-				}
-
-				return getMachineTypeConfigs().then(function(data) {
-					MachineType.all = [];
-
-					MachineType.all = _.flatten(
-						_.map(MachineType.allConfig, function(
-							aMachineTypeConfig,
-							aStackType
-						) {
-							return _.map(aMachineTypeConfig.machine_types, function(
-								aMachineTypeDetails,
-								aMachineTypeID
-							) {
-								return new MachineType(
-									aStackType,
-									aMachineTypeID,
-									aMachineTypeDetails.name,
-									aMachineTypeDetails.cpu_count,
-									aMachineTypeDetails.cpu_description,
-									aMachineTypeDetails.ram,
-									aMachineTypeDetails.credit_per_min,
-									aMachineTypeDetails.is_available,
-									aMachineTypeDetails.note
-								);
-							});
-						})
-					);
-				});
-			};
-
-			function getMachineTypeConfigs() {
-				if (MachineType.allConfig) {
+				if (MachineType.all) {
 					return $q.when();
 				}
 
 				return requestService.getMachineTypeConfigs().then(function(data) {
-					MachineType.allConfig = data.machineTypeConfigs;
+					MachineType.all = [];
+					MachineType.defaults = {};
+
+					_.each(data.machineTypeConfigs, function(aMachineTypeConfig, aStackType) {
+						_.each(aMachineTypeConfig.machine_types, function(aMachineTypeDetails, aMachineTypeID) {
+							var machineType = new MachineType(
+								aStackType,
+								aMachineTypeID,
+								aMachineTypeDetails.name,
+								aMachineTypeDetails.cpu_count,
+								aMachineTypeDetails.cpu_description,
+								aMachineTypeDetails.ram,
+								aMachineTypeDetails.credit_per_min,
+								aMachineTypeDetails.is_available,
+								aMachineTypeDetails.note,
+								aMachineTypeDetails.tag,
+								aMachineTypeDetails.type,
+								aMachineTypeDetails.chip,
+								aMachineTypeDetails.available_on_stacks,
+							)
+
+							if (aMachineTypeConfig.default_machine_type === aMachineTypeID) {
+								MachineType.defaults[aStackType] = machineType;
+							}
+
+							MachineType.all.push(machineType);
+						});
+					});
 				});
-			}
+			};
 
 			return MachineType;
 		});

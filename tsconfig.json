@@ -6,7 +6,7 @@
 		"lib": ["dom", "es2015", "es2019"],
 		"sourceMap": true,
 		"allowJs": true,
-		"jsx": "react",
+		"jsx": "react-jsx",
 		"moduleResolution": "node",
 		"experimentalDecorators": true,
 		"noImplicitReturns": true,
@@ -22,7 +22,6 @@
 		"strict": true
 	},
 	"exclude": ["node_modules", "build", "scripts"],
-	"include": ["source/javascripts/typings/declarations.d.ts"],
-	"lib": ["dom", "es2015", "es2019"],
-	"types": ["typePatches"]
+	"include": ["source/**/*.ts", "source/**/*.tsx"],
+	"lib": ["dom", "es2015", "es2019"]
 }

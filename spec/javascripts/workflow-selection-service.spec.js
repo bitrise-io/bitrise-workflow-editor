@@ -16,7 +16,6 @@ describe("WorkflowsSelectionService", () => {
 			search: _.identity
 		};
 
-		// eslint-disable-next-line @typescript-eslint/camelcase
 		spyOn(mockLocationService, "search").and.returnValue({ workflow_id: "test-location" });
 
 		module($provide => {

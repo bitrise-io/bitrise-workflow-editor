@@ -27,7 +27,7 @@ func TestGetBitriseYMLHandler(t *testing.T) {
 	bitriseConfigContent := `format_version: 1.3.1
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git`
 	require.NoError(t, fileutil.WriteStringToFile(bitriseConfigPth, bitriseConfigContent))
-	require.NoError(t, config.BitriseYMLPath.Set(bitriseConfigPth))
+	config.BitriseYMLPath = bitriseConfigPth
 
 	req, err := http.NewRequest("GET", "/api/bitrise-yml", nil)
 	require.NoError(t, err)
@@ -60,7 +60,7 @@ default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"`
 	bodyBytes, err := json.Marshal(body)
 	require.NoError(t, err)
 
-	require.NoError(t, config.BitriseYMLPath.Set(bitriseConfigPth))
+	config.BitriseYMLPath = bitriseConfigPth
 
 	req, err := http.NewRequest("POST", "/api/bitrise-yml", bytes.NewBuffer([]byte(bodyBytes)))
 	require.NoError(t, err)
@@ -85,7 +85,7 @@ func TestGetBitriseYMLAsJSONHandler(t *testing.T) {
 	bitriseConfigContent := `format_version: 1.3.1
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git`
 	require.NoError(t, fileutil.WriteStringToFile(bitriseConfigPth, bitriseConfigContent))
-	require.NoError(t, config.BitriseYMLPath.Set(bitriseConfigPth))
+	config.BitriseYMLPath = bitriseConfigPth
 
 	req, err := http.NewRequest("GET", "/api/bitrise-yml.json", nil)
 	require.NoError(t, err)
@@ -119,7 +119,7 @@ func TestPostBitriseYMLFromJSONHandler(t *testing.T) {
 	bodyBytes, err := json.Marshal(body)
 	require.NoError(t, err)
 
-	require.NoError(t, config.BitriseYMLPath.Set(bitriseConfigPth))
+	config.BitriseYMLPath = bitriseConfigPth
 
 	req, err := http.NewRequest("POST", "/api/bitrise-yml.json", bytes.NewBuffer(bodyBytes))
 	require.NoError(t, err)

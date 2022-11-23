@@ -50,15 +50,8 @@ func LaunchServer() error {
 		log.Printf(" (!) Serving non api resources through middleman server!")
 	}
 
-	if err := config.BitriseYMLPath.Set(utility.EnvString("BITRISE_CONFIG", "bitrise.yml")); err != nil {
-		return fmt.Errorf("Failed to set bitriseYMLPath, error: %s", err)
-	}
-	config.BitriseYMLPath.Freeze()
-
-	if err := config.SecretsYMLPath.Set(utility.EnvString("BITRISE_SECRETS", ".bitrise.secrets.yml")); err != nil {
-		return fmt.Errorf("Failed to set secretsYMLPath, error: %s", err)
-	}
-	config.SecretsYMLPath.Freeze()
+	config.BitriseYMLPath = utility.EnvString("BITRISE_CONFIG", "bitrise.yml")
+	config.SecretsYMLPath = utility.EnvString("BITRISE_SECRETS", ".bitrise.secrets.yml")
 
 	if _, err := SetupRoutes(isServeFilesThroughMiddlemanServer); err != nil {
 		return fmt.Errorf("Failed to setup routes, error: %s", err)

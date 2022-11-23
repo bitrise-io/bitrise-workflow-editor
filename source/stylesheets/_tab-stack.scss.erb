@@ -64,6 +64,26 @@
 					}
 				}
 
+				.stack-info-multistack {
+					font-size: 15px;
+					font-weight: 400;
+					color: $def-darkgrey;
+
+					&:not(:last-child) {
+						margin-bottom: 6px;
+					}
+
+					a {
+						color: $def-green;
+						font-weight: 500;
+						text-decoration: none;
+
+						&:hover, &:focus {
+							text-decoration: underline;
+						}
+					}
+				}
+
 				.stack-info-link {
 					font-size: 15px;
 					font-weight: 500;
@@ -84,7 +104,7 @@
 			}
 		}
 
-		.docker-image-settings, .den-tag-settings {
+		.docker-image-settings {
 			margin-top: 18px;
 
 			.docker-image-label, .den-tag-label {
@@ -124,49 +144,69 @@
 				margin-bottom: 0;
 			}
 
+			.machite-type-tag {
+				margin: 16px 0;
+
+				.title {
+					text-transform: capitalize;
+					font-size: 16px;
+					font-weight: 700;
+					color: $def-darkgrey;
+					margin-right: 16px;
+				}
+
+				.subtitle {
+					font-size: 13px;
+					font-weight: 500;
+					color: $def-mediumdarkgrey;
+				}
+			}
+
 			.machine-types {
 				display: flex;
 				flex-direction: row;
 				flex-wrap: wrap;
+				margin-top: 16px;
+				gap: 18px;
 
 				.machine-type-wrapper {
 					position: relative;
 					display: flex;
 					flex-direction: row;
-					width: 100%;
-					max-width: 380px;
-					min-width: 225px;
+					width: 425px;
+					max-width: 100%;
 					padding: 12px;
-					margin-top: 18px;
-					margin-right: 18px;
 					border-radius: 8px;
 					border: 1px solid $def-grey;
 
 					.machine-type-data {
 						display: flex;
 						flex-direction: column;
-						justify-content: space-around;
 						margin-left: 16px;
 						width: 100%;
-						overflow: hidden;
 
 						.top {
 							display: flex;
 							align-items: center;
 							width: 100%;
+							flex-wrap: wrap;
+							justify-content: space-between;
 
 							.icon-and-name-and-note {
 								display: flex;
 								align-items: center;
 								margin-right: 12px;
+								min-width: 0;
+								text-overflow: ellipsis;
 
 								.stack-type-icon {
+									display: flex;
 									margin-right: 8px;
 
 									svg {
 										width: 16px;
 										height: 18px;
-										fill: $def-darkgrey;
+										fill: var(--color-black);
 									}
 								}
 
@@ -177,8 +217,24 @@
 									font-stretch: normal;
 									line-height: 1;
 									letter-spacing: 0.08px;
-									color: $def-darkgrey;
+									color: var(--color-black);
 									@include ellipsis-oneliner;
+									margin-right: 8px;
+								}
+
+								.tag {
+									border-radius: 4px;
+									background-color: $def-grey;
+									color: #ffffff;
+									text-transform: uppercase;
+									font-size: 10px;
+									letter-spacing: .8px;
+									font-weight: 500;
+									padding: 1px 6px;
+
+									&.gen2 {
+										background-color: $def-green-shade;
+									}
 								}
 
 								.note {
@@ -200,66 +256,29 @@
 							}
 
 							.credit-per-min {
-								width: 100%;
-								text-align: right;
-
-								.value, .unit {
-									font-size: 16px;
-									font-weight: bold;
-									font-style: normal;
-									font-stretch: normal;
-									line-height: initial;
-									letter-spacing: 0.07px;
-									color: $def-darkgrey;
-									@include ellipsis-oneliner;
-								}
+								font-size: 16px;
+								font-weight: bold;
+								color: var(--color-black);
 							}
 						}
 
 						.separator {
 							height: 1px;
-							margin-bottom: 3px;
+							@include margin-y(8px);
 							background-color: $def-verylightgrey;
 						}
 
 						.bottom {
 							display: flex;
-							align-items: center;
-							width: 100%;
+							justify-content: space-between;
+							font-size: 14px;
+							font-weight: 400;
+							color: $def-darkgrey;
 
-							.cpu {
-								display: flex;
-								align-items: center;
-								margin-right: 12px;
-
-								.count, .at, .description {
-									font-size: 16px;
-									font-weight: 500;
-									font-style: normal;
-									font-stretch: normal;
-									line-height: 1.19;
-									letter-spacing: 0.07px;
-									color: $def-darkgrey;
-									@include ellipsis-oneliner;
-								}
-
-								.at {
-									margin-left: 2px;
-									margin-right: 2px;
-								}
-							}
-
-							.ram {
-								width: 100%;
-								font-size: 16px;
-								font-weight: 500;
-								font-style: normal;
-								font-stretch: normal;
-								line-height: 1.19;
-								letter-spacing: 0.07px;
+							.os {
+								max-width: 90px;
+								margin-left: 8px;
 								text-align: right;
-								color: $def-darkgrey;
-								@include ellipsis-oneliner;
 							}
 						}
 					}
@@ -270,7 +289,7 @@
 
 						svg {
 							top: 0px;
-							@include size(70px, 70px);
+							@include size(88px, 88px);
 							fill: $def-darkgrey;
 						}
 					}
@@ -282,28 +301,6 @@
 					&.selected:not(.not-available) {
 						border: 1px solid $def-violet_blue;
 						background-color: $def-light-grape;
-
-						.machine-type-data {
-
-							.top, .bottom {
-
-								.name, .count, .at, .description, .ram, .value, .unit {
-									color: $rebo-purple-gradient-hover-bottom;
-								}
-
-								.stack-type-icon svg {
-									fill: $rebo-purple-gradient-hover-bottom;
-								}
-							}
-
-							.separator {
-								background-color: $def-violet_blue;
-							}
-						}
-
-						.machine-type-icon svg {
-							fill: $rebo-purple-gradient-hover-bottom;
-						}
 					}
 
 					&:not(.selected):not(.not-available):hover {
@@ -314,10 +311,11 @@
 						.machine-type-data {
 
 							.top, .bottom {
+								color: $def-violet_blue;
 
-								.name, .count, .at, .description, .ram, .value, .unit {
-									cursor: pointer;
+								.name, .credit-per-min {
 									color: $def-violet_blue;
+
 								}
 
 								.stack-type-icon svg {
@@ -351,22 +349,11 @@
 									margin-right: 0;
 								}
 
-								.credit-per-min, .ram {
+								.os {
+									max-width: none;
 									text-align: left;
-								}
-
-								.cpu {
-									flex-direction: column;
-									align-items: flex-start;
-									margin-right: 0;
-								}
-
-								.at {
-									display: none;
-								}
-
-								.name, .note, .credit-per-min .cpu {
-									margin-bottom: 6px;
+									margin-top: 4px;
+									margin-left: 0;
 								}
 							}
 						}
@@ -380,6 +367,11 @@
 						}
 					}
 				}
+			}
+
+			.machine-type-warning-wrapper .notification {
+				display: inline-block;
+				margin-top: $content-spacing;
 			}
 		}
 	}

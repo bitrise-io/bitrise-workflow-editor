@@ -74,13 +74,12 @@ angular.module("BitriseWorkflowEditor").filter("appAvatarURL", function() {
 
 angular.module("BitriseWorkflowEditor").filter("colorFromString", function() {
 	return function(string) {
-		if (!string || typeof string != "string" || string.length == 0) {
-			return null;
-		}
-
 		var pseudoRandom = 0;
-		for (var i = 0; i < string.length; i++) {
-			pseudoRandom += string.charCodeAt(i);
+
+		if (typeof string === 'string' && string.length > 0) {
+			for (var i = 0; i < string.length; i++) {
+				pseudoRandom += string.charCodeAt(i);
+			}
 		}
 
 		return colors[pseudoRandom % colors.length];
@@ -92,13 +91,13 @@ angular
 	.filter("shorthandFromString", function() {
 		return function(string) {
 			if (string === null || string === undefined) {
-				return "";
+				return "??";
 			}
 
 			string = string.toString();
 
 			if (string.length == 0) {
-				return "";
+				return "??";
 			}
 
 			string = string.toUpperCase();

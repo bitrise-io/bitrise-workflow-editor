@@ -3,7 +3,7 @@
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.service("appService", function (
+		.service("appService", function(
 			$q,
 			requestService,
 			stringService,
@@ -28,12 +28,13 @@
 				savedDefaultMachineType: undefined,
 				dockerImage: undefined,
 				savedDockerImage: undefined,
-				denTags: undefined,
-				savedDenTags: undefined,
 				projectType: undefined,
 				availableProjectTypes: undefined,
 				validationWarnings: [],
-				accountData: undefined
+				accountData: undefined,
+				pipelineConfig: undefined,
+				accountFeatures: undefined,
+				hasTriggers: undefined
 			};
 
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {
@@ -41,8 +42,18 @@
 					return $q.when();
 				}
 
-				return requestService.getAppDetails(requestConfig).then(function(appDetails) {
-					appService.appDetails = appDetails;
+				return $q(function(resolve, reject) {
+					requestService.getAppDetails(requestConfig).then(function(appDetails) {
+						appService.appDetails = appDetails;
+
+						resolve();
+					}, function(error) {
+						appService.appDetails = {
+							slug: requestService.appSlug
+						};
+
+						reject(error);
+					});
 				});
 			};
 
@@ -115,14 +126,15 @@
 				}
 
 				if (appService.appConfig.trigger_map) {
-					if (appService.appConfig.trigger_map.length == 0) {
-						delete appService.appConfig["trigger_map"];
-					} else {
+					appService.hasTriggers = appService.appConfig.trigger_map.length > 0;
+					if (appService.hasTriggers) {
 						appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function(aTriggerConfig) {
 							var trigger = new Trigger(aTriggerConfig);
 
 							return _.indexOf(["push", "pull-request", "tag"], trigger.type());
 						});
+					} else {
+						delete appService.appConfig["trigger_map"];
 					}
 				}
 
@@ -197,7 +209,7 @@
 				appService.appConfig.trigger_map = updatedTriggerMap;
 			};
 
-			appService.saveAppConfig = function(requestConfig) {
+			appService.saveAppConfig = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
 				var variables = [];
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
@@ -244,7 +256,11 @@
 					});
 				}
 
-				if (appService.defaultMachineType) {
+				if (
+					requestService.mode === "website" &&
+					appService.appDetails.isMachineTypeSelectorAvailable &&
+					appService.defaultMachineType
+				) {
 					if (!appService.appConfig.meta) {
 						appService.appConfig.meta = {};
 					}
@@ -252,35 +268,40 @@
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
-					if (
-						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id !=
-						appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "")
-					) {
-						appService.appConfig.meta[
-							"<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"
-						].machine_type_id = appService.defaultMachineType.id.replace(appService.stack.id.split("-")[0] + "-", "");
-					}
+					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
+						appService.defaultMachineType.id;
 
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
 
 				return validateVariables(variables)
 					.then(function() {
-						return requestService.postAppConfig(appService.appConfig, requestConfig);
+						return (
+							userSavedYmlToRepositoryPromise ||
+							requestService.postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
+						);
 					})
 					.then(function() {
 						appService.savedAppConfig = angular.copy(appService.appConfig);
+						appService.hasTriggers =
+							appService.savedAppConfig.trigger_map && appService.savedAppConfig.trigger_map.length > 0;
 						appService.appConfigYML = undefined;
 						appService.savedAppConfigYML = undefined;
-
-						if (requestService.mode === 'website' && appService.appDetails.isMachineTypeSelectorAvailable) {
-							appService.getDefaultMachineType();
-						}
 					});
 			};
 
 			appService.discardAppConfigChanges = function() {
 				appService.appConfig = angular.copy(appService.savedAppConfig);
+			};
+
+			appService.getPipelineConfig = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.pipelineConfig) {
+					return $q.when();
+				}
+
+				return requestService.getPipelineConfig(requestConfig).then(function(pipelineConfig) {
+					appService.pipelineConfig = pipelineConfig;
+				});
 			};
 
 			appService.getSecrets = function(shouldForceReload, requestConfig) {
@@ -360,9 +381,9 @@
 						appService.savedAppConfigYML = appConfigYML;
 					},
 					function(response) {
-						if (response.bitrise_yml) {
-							appService.appConfigYML = response.bitrise_yml;
-							appService.savedAppConfigYML = response.bitrise_yml;
+						if (response.bitriseYml) {
+							appService.appConfigYML = response.bitriseYml;
+							appService.savedAppConfigYML = response.bitriseYml;
 						}
 
 						return $q.reject(response);
@@ -374,8 +395,11 @@
 				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
 			};
 
-			appService.saveAppConfigYML = function() {
-				return requestService.postAppConfigYML(appService.appConfigYML).then(function(validationData) {
+			appService.saveAppConfigYML = function(userSavedYmlToRepositoryPromise, requestConfig) {
+				var promise =
+					userSavedYmlToRepositoryPromise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
+
+				return promise.then(function(validationData) {
 					appService.appConfig = undefined;
 					appService.savedAppConfig = undefined;
 					appService.savedAppConfigYML = appService.appConfigYML;
@@ -399,68 +423,25 @@
 				appService.appConfigYML = angular.copy(appService.savedAppConfigYML);
 			};
 
-			appService.availableMachineTypes = function(workflow) {
-				if (
-					!appService.appDetails.isMachineTypeSelectorAvailable ||
-					MachineType.all === undefined ||
-					appService.savedStack === undefined
-				) {
-					return undefined;
-				}
-
-				var stack;
-				if (workflow) {
-					stack = workflow.stack(undefined, Stack.all);
-				}
-
-				if (!stack) {
-					stack = appService.stack ? appService.stack : appService.savedStack;
-				}
-
-				var stackType = stack.id.split("-")[0];
-				return _.filter(MachineType.all, function(MachineType) {
-					return MachineType.id.startsWith(stackType, 0);
-				});
-			};
-
 			appService.getDefaultMachineType = function() {
-				if (appService.defaultMachineType && appService.defaultMachineType == appService.savedDefaultMachineType) {
-					return $q.when();
-				}
+				var metaMachineTypeID =
+					appService.appConfig &&
+					appService.appConfig.meta &&
+					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
+					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 
-				if (
-					appService.appConfig === undefined ||
-					MachineType.all === undefined ||
-					appService.savedStack === undefined
-				) {
-					return undefined;
-				}
-
-				var defaultMachineTypeID;
-				var stack = appService.stack ? appService.stack : appService.savedStack;
-				var stackType = stack.id.split("-")[0];
-				if (
-					!appService.appConfig.meta ||
-					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] ||
-					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
-				) {
-					defaultMachineTypeID = stackType + "-" + MachineType.allConfig[stackType].default_machine_type;
-				}
-
-				if (!defaultMachineTypeID) {
-					defaultMachineTypeID =
-						stackType +
-						"-" +
-						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
-				}
-
+				var defaultMachineTypeID = metaMachineTypeID || MachineType.defaults[appService.stack.type].id;
 				appService.defaultMachineType = _.find(MachineType.all, {
-					id: defaultMachineTypeID
+					id: defaultMachineTypeID,
+					stackType: appService.stack.type
 				});
+				if (!appService.defaultMachineType) {
+					return $q.reject(new Error("<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>"));
+				}
 
 				appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 
-				return appService.defaultMachineType;
+				return $q.when();
 			};
 
 			appService.defaultMachineTypeHasUnsavedChanges = function() {
@@ -471,27 +452,44 @@
 				appService.defaultMachineType = appService.savedDefaultMachineType;
 			};
 
-			appService.getStack = function(shouldForceReload, requestConfig) {
-				if (!shouldForceReload && appService.stack) {
+			appService.getStackAndDockerImage = function(shouldForceReload, requestConfig) {
+				if (!shouldForceReload && appService.stack && appService.dockerImage) {
 					return $q.when();
 				}
 
-				return requestService.getStack(requestConfig).then(function(data) {
+				var stackID;
+				var dockerImage;
+				if (
+					appService.appConfig.meta &&
+					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
+				) {
+					stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
+					dockerImage =
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+				}
+				var stackIDAndDockerImageFetchPromise =
+					stackID && dockerImage
+						? $q.when()
+						: requestService.getStackAndDockerImage(requestConfig).then(function(data) {
+								if (!stackID) {
+									stackID = data.stackID;
+								}
+								if (!dockerImage) {
+									dockerImage = data.dockerImage;
+								}
+						  });
+
+				return stackIDAndDockerImageFetchPromise.then(function() {
 					appService.stack = _.find(Stack.all, {
-						id: data.stackID
+						id: stackID
 					});
 
 					if (appService.stack === undefined) {
-						appService.stack = new Stack(data.stackID);
+						appService.stack = new Stack(stackID);
 					}
 
 					appService.savedStack = angular.copy(appService.stack);
-					appService.dockerImage = appService.savedDockerImage = data.dockerImage;
-					appService.denTags = appService.savedDenTags = data.denTags.join(", ");
-
-					if (appService.appDetails.isMachineTypeSelectorAvailable) {
-						MachineType.getAll().then(appService.getDefaultMachineType);
-					}
+					appService.dockerImage = appService.savedDockerImage = dockerImage;
 				});
 			};
 
@@ -512,29 +510,37 @@
 			appService.stackHasUnsavedChanges = function() {
 				return (
 					!angular.equals(appService.stack, appService.savedStack) ||
-					appService.dockerImage !== appService.savedDockerImage ||
-					appService.denTags !== appService.savedDenTags
+					appService.dockerImage !== appService.savedDockerImage
 				);
 			};
 
-			appService.saveStack = function() {
-				var bitriseDENtagsArray = appService.denTags
-					? _.map(appService.denTags.split(","), function(string) {
-							return string.trim();
-					  })
-					: undefined;
+			appService.saveStackAndDockerImage = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
+				if (!appService.appConfig.meta) {
+					appService.appConfig.meta = {};
+				}
+				var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
+				if (!appService.appConfig.meta[BITRISE_META_KEY]) {
+					appService.appConfig.meta[BITRISE_META_KEY] = {};
+				}
+				appService.appConfig.meta[BITRISE_META_KEY].stack = appService.stack.id;
+				if (appService.dockerImage) {
+					appService.appConfig.meta[BITRISE_META_KEY].docker_image = appService.dockerImage;
+				} else {
+					delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
+				}
 
-				return requestService
-					.saveStack(appService.stack.id, appService.dockerImage, bitriseDENtagsArray)
+				return appService
+					.saveAppConfig(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig)
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
-						appService.savedDenTags = appService.denTags;
 						appService.availableProjectTypes = undefined;
 					});
 			};
 
 			appService.discardStackChanges = function() {
+				appService.discardAppConfigChanges();
+
 				appService.stack = _.find(Stack.all, {
 					id: appService.savedStack.id
 				});
@@ -544,7 +550,6 @@
 				}
 
 				appService.dockerImage = appService.savedDockerImage;
-				appService.denTags = appService.savedDenTags;
 			};
 
 			appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {

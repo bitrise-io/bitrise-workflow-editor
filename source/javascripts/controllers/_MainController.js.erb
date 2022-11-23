@@ -1,3 +1,6 @@
+import _ from "underscore";
+import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
+
 (function() {
 	"use strict";
 
@@ -9,6 +12,7 @@
 			$q,
 			$location,
 			$timeout,
+			$cookies,
 			requestService,
 			appService,
 			stringService,
@@ -18,7 +22,9 @@
 			Popup,
 			Stack,
 			appServiceUtil,
-			logger
+			logger,
+			MachineType,
+			launchDarklyService
 		) {
 			var viewModel = this;
 
@@ -28,17 +34,80 @@
 			$scope.requestService = requestService;
 			$scope.osService = osService;
 
+			viewModel.isUpdateYmlInRepositoryModalVisible = false;
 			viewModel.appDetails;
-			viewModel.menus;
+			viewModel.menus = _.compact([
+				{
+					id: "workflows",
+					title: "<%= data[:strings][:main][:menus][:workflows] %>",
+					path: "<%= data[:routes][:endpoints][:workflows] %>",
+					possibleURLParameterKeys: ["workflow_id"],
+					cssClass: "workflows"
+				},
+				requestService.mode == "website"
+					? {
+							id: "code-signing",
+							title: "<%= data[:strings][:main][:menus][:code_signing] %>",
+							path: "<%= data[:routes][:endpoints][:code_signing] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "code-signing"
+					  }
+					: null,
+				{
+					id: "secrets",
+					title: "<%= data[:strings][:main][:menus][:secrets] %>",
+					path: "<%= data[:routes][:endpoints][:secrets] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "secrets"
+				},
+				{
+					id: "env-vars",
+					title: "<%= data[:strings][:main][:menus][:env_vars] %>",
+					path: "<%= data[:routes][:endpoints][:env_vars] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "env-vars"
+				},
+				{
+					id: "triggers",
+					title: "<%= data[:strings][:main][:menus][:triggers] %>",
+					path: "<%= data[:routes][:endpoints][:triggers] %>",
+					possibleURLParameterKeys: ["trigger_type"],
+					cssClass: "triggers"
+				},
+				requestService.mode == "website"
+					? {
+							id: "stack",
+							title: "<%= data[:strings][:main][:menus][:stack] %>",
+							path: "<%= data[:routes][:endpoints][:stack] %>",
+							possibleURLParameterKeys: [],
+							cssClass: "stack"
+					  }
+					: null,
+				{
+					id: "yml",
+					title: "<%= data[:strings][:main][:menus][:yml] %>",
+					path: "<%= data[:routes][:endpoints][:yml] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "yml"
+				}
+			]);
 			viewModel.menuProgress = new Progress();
 			viewModel.currentMenu;
+			viewModel.tourIds = ['menu-nav', 'workflow-main-toolbar', 'steps-container'];
 
-			viewModel.loadAppConfigProgress = new Progress();
+
+			viewModel.loadDataProgress = new Progress();
 			viewModel.saveProgress = new Progress();
 			viewModel.changeMenuProgress = new Progress();
 			viewModel.initAppProgress = new Progress();
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+			viewModel.currentUser;
+			viewModel.productTourShown;
+			viewModel.lastWorkflowEditedDate;
+			viewModel.guidedOnboardingEnabled = false;
+			viewModel.productTourDismissed = false;
+			viewModel.guidedOnboardingEnabledForUser = false;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -50,9 +119,9 @@
 				var initialMenu = _.find(viewModel.menus, function(aMenu) {
 					return "/" + aMenu.path == $location.path();
 				});
-				if (!initialMenu) {
-					initialMenu = _.find(viewModel.menus, {
-						id: "workflows"
+				if (!initialMenu || !viewModel.isMenuEnabled(initialMenu)) {
+					initialMenu = _.find(viewModel.menus, function(menu) {
+						return viewModel.isMenuEnabled(menu);
 					});
 				}
 
@@ -60,7 +129,7 @@
 			}
 
 			function load() {
-				viewModel.loadAppConfigProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
 				$q(function(resolve, reject) {
 					switch (viewModel.currentMenu.id) {
@@ -68,11 +137,17 @@
 						case "env-vars":
 						case "triggers":
 							var loadPromises = [appService.getAppConfig()];
-							if (requestService.mode == "website") {
-								loadPromises.push(Stack.getAll().then(appService.getStack));
+							if (requestService.isWebsiteMode()) {
+								loadPromises.push(Stack.getAll());
+								loadPromises.push(appService.getPipelineConfig());
+								loadPromises.push(launchDarklyService.initialize());
+							}
+							var loadPromise = $q.all(loadPromises);
+							if (requestService.isWebsiteMode()) {
+								loadPromise = loadPromise.then(appService.getStackAndDockerImage);
 							}
 
-							$q.all(loadPromises).then(
+							loadPromise.then(
 								function() {
 									$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
 										if (appService.appConfigHasDeprecatedTriggerMap()) {
@@ -82,7 +157,11 @@
 												"<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>",
 												"<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
 											])
-												.then(viewModel.save)
+												.then(function() {
+													return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+														? $q.when()
+														: viewModel.save();
+												})
 												.then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
 										} else {
 											deprecatedTriggerCheckResolve();
@@ -109,7 +188,14 @@
 
 							break;
 						case "stack":
-							$q.all([appService.getAppConfig(), Stack.getAll().then(appService.getStack)]).then(resolve, reject);
+							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll()])
+								.then(appService.getStackAndDockerImage)
+								.then(function() {
+									if (appService.appDetails.isMachineTypeSelectorAvailable) {
+										return MachineType.getAll().then(appService.getDefaultMachineType);
+									}
+								})
+								.then(resolve, reject);
 
 							break;
 						case "yml":
@@ -118,8 +204,8 @@
 									resolve();
 								},
 								function(response) {
-									if (response.bitrise_yml) {
-										reject(response.error_message);
+									if (response.bitriseYml) {
+										reject(response.error);
 									} else {
 										reject(response);
 									}
@@ -130,10 +216,10 @@
 					}
 				}).then(
 					function() {
-						viewModel.loadAppConfigProgress.success();
+						viewModel.loadDataProgress.success();
 					},
 					function(error) {
-						viewModel.loadAppConfigProgress.error(error);
+						viewModel.loadDataProgress.error(error);
 
 						viewModel.shouldAllowYMLMenuWithoutDiscard = true;
 					}
@@ -141,6 +227,10 @@
 			}
 
 			viewModel.menuSelected = function(menu) {
+				if (menu === viewModel.currentMenu) {
+					return;
+				}
+
 				viewModel.menuProgress.start("Loading, wait a sec...");
 
 				var shouldCallLoadAfterMenuChange = true;
@@ -231,7 +321,7 @@
 							$location.path("/" + menu.path).replace();
 						}
 
-						if (!selectInitialMenu) {
+						if (!isInitialSelection) {
 							viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
 						}
 
@@ -240,6 +330,8 @@
 						}
 
 						viewModel.menuProgress.success();
+
+						datadogRumCustomTiming("wfe", "topNavigation");
 					},
 					function() {
 						viewModel.menuProgress.reset();
@@ -247,8 +339,9 @@
 				);
 			};
 
-			$scope.$on("$routeChangeError", function() {
-				viewModel.menuProgress.error(new Error("Failed to load menu."));
+			$scope.$on("$routeChangeError", function(event, current, previous, rejection) {
+				viewModel.menuProgress.error(new Error("<%= data[:strings][:main][:load_menu_progress][:load_error] %>"));
+				logger.error(rejection);
 			});
 
 			viewModel.isDiscardSaveAvailable = function() {
@@ -320,6 +413,65 @@
 				}
 			};
 
+			viewModel.closeUpdateYmlInRepositoryModal = function() {
+				$timeout(function() {
+					viewModel.isUpdateYmlInRepositoryModalVisible = false;
+				}, 0);
+
+				viewModel.deferredUserSavedYmlToRepository.reject();
+			};
+
+			viewModel.onSaveToRepoComplete = function() {
+				$timeout(function() {
+					viewModel.closeUpdateYmlInRepositoryModal();
+				}, 1500);
+
+				viewModel.deferredUserSavedYmlToRepository.resolve();
+			};
+
+			function reloadAppConfig() {
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService.getAppConfig(true).then(function() {
+					viewModel.loadDataProgress.reset();
+				});
+			}
+
+			function reloadStack() {
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService
+					.getAppConfig(true)
+					.then(function() {
+						appService.getStackAndDockerImage(true);
+					})
+					.then(function() {
+						viewModel.loadDataProgress.reset();
+					});
+			}
+
+			function reloadAppConfigYML() {
+				viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+				return appService.getAppConfigYML(true).then(function() {
+					viewModel.loadDataProgress.reset();
+				});
+			}
+
+			function updateLastWorkflowMetadata(){
+				const appSlug = appService.appDetails.slug;
+				const dateToday = new Date().toString();
+			
+				requestService.updateCurrentUserMetadata({
+					'last_workflow_edited_date': dateToday,
+					'last_workflow_edited_app': appSlug
+				})
+				.then(function() {
+					viewModel.lastWorkflowEditedDate = dateToday;
+				});
+			}
+
+			viewModel.getDataToSave = function() {
+				return viewModel.dataToSave;
+			};
+
 			viewModel.save = function(shouldReturnPromise) {
 				if (shouldReturnPromise === undefined) {
 					shouldReturnPromise = false;
@@ -327,6 +479,16 @@
 
 				viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
+				if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
+					viewModel.deferredUserSavedYmlToRepository = $q.defer();
+					$timeout(function() {
+						viewModel.isUpdateYmlInRepositoryModalVisible = true;
+					}, 0);
+				}
+
+				var deferredSavePromise = viewModel.deferredUserSavedYmlToRepository
+					? viewModel.deferredUserSavedYmlToRepository.promise
+					: undefined;
 				var promise = $q
 					.all([
 						$q(function(resolve, reject) {
@@ -334,21 +496,49 @@
 								case "workflows":
 								case "env-vars":
 								case "triggers":
-									appService.saveAppConfig().then(resolve, reject);
-
-									break;
+									viewModel.dataToSave = appService.appConfig;
+									return appService
+										.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
+										.then(function() {
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+												? reloadAppConfig()
+												: $q.when();
+										})
+										.then(resolve, reject);
 								case "secrets":
-									appService.saveSecrets().then(resolve, reject);
-
-									break;
+									return appService.saveSecrets().then(resolve, reject);
 								case "stack":
-									$q.all([appService.saveAppConfig(), appService.saveStack()]).then(resolve, reject);
+									viewModel.dataToSave = appService.appConfig;
+									var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
 
-									break;
+									return appService
+										.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
+										.then(function() {
+
+											if (machineTypeUpdated) {
+												const event = 'Machine Type Changed - Stacks & Machines Tab';
+												window.analytics && window.analytics.track(event, {
+												  machine_type_id: viewModel.dataToSave.meta['bitrise.io'].machine_type_id,
+												  user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
+												  organization_slug: appService.appDetails.ownerData.type === 'Organization' ? appService.appDetails.ownerData.slug : undefined
+												});
+											}
+
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+												? reloadStack()
+												: $q.when();
+										})
+										.then(resolve, reject);
 								case "yml":
-									appService.saveAppConfigYML().then(resolve, reject);
-
-									break;
+									viewModel.dataToSave = appService.appConfigYML;
+									return appService
+										.saveAppConfigYML(deferredSavePromise)
+										.then(function() {
+											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+												? reloadAppConfigYML()
+												: $q.when();
+										})
+										.then(resolve, reject);
 							}
 						}),
 						$timeout(function() {}, dateService.defaultSaveDelayDurationInMilliseconds)
@@ -357,6 +547,9 @@
 						function() {
 							viewModel.saveProgress.reset();
 							$rootScope.$emit("MainController::savedFinishedWithSuccess");
+							if (viewModel.guidedOnboardingEnabled) {
+								updateLastWorkflowMetadata();
+							}
 						},
 						function(error) {
 							viewModel.saveProgress.reset();
@@ -379,7 +572,7 @@
 					return false;
 				}
 
-				if (viewModel.loadAppConfigProgress.isInProgress) {
+				if (viewModel.loadDataProgress.isInProgress) {
 					return false;
 				}
 
@@ -489,6 +682,30 @@
 
 				logger.info("App start");
 
+				appService.getAppConfig();
+
+				requestService.getCurrentUserData().then(function(response) {
+					viewModel.currentUser = response;
+				})
+
+				launchDarklyService.initialize().then(() => {
+					viewModel.guidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
+					if (viewModel.guidedOnboardingEnabled) {
+						const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
+						const tourReq = requestService.getProductTourShown();
+						Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
+							viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
+							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+							viewModel.productTourShown = tourResp;
+						});
+					} else {
+						requestService.getProductTourShown().then(function(response) {
+							viewModel.productTourShown = response.tourShown;
+						});
+					}
+				});
+
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
 						case "website":
@@ -508,71 +725,68 @@
 					}
 				}).then(
 					function() {
-						viewModel.menus = _.compact([
-							{
-								id: "workflows",
-								title: "<%= data[:strings][:main][:menus][:workflows] %>",
-								path: "<%= data[:routes][:endpoints][:workflows] %>",
-								possibleURLParameterKeys: ["workflow_id"],
-								cssClass: "workflows"
-							},
-							requestService.mode == "website"
-								? {
-										id: "code-signing",
-										title: "<%= data[:strings][:main][:menus][:code_signing] %>",
-										path: "<%= data[:routes][:endpoints][:code_signing] %>",
-										possibleURLParameterKeys: [],
-										cssClass: "code-signing"
-								  }
-								: null,
-							{
-								id: "secrets",
-								title: "<%= data[:strings][:main][:menus][:secrets] %>",
-								path: "<%= data[:routes][:endpoints][:secrets] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "secrets"
-							},
-							{
-								id: "env-vars",
-								title: "<%= data[:strings][:main][:menus][:env_vars] %>",
-								path: "<%= data[:routes][:endpoints][:env_vars] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "env-vars"
-							},
-							{
-								id: "triggers",
-								title: "<%= data[:strings][:main][:menus][:triggers] %>",
-								path: "<%= data[:routes][:endpoints][:triggers] %>",
-								possibleURLParameterKeys: ["trigger_type"],
-								cssClass: "triggers"
-							},
-							requestService.mode == "website"
-								? {
-										id: "stack",
-										title: appService.appDetails.isMachineTypeSelectorAvailable
-											? "<%= data[:strings][:main][:menus][:stacks_and_machines] %>"
-											: "<%= data[:strings][:main][:menus][:stack] %>",
-										path: "<%= data[:routes][:endpoints][:stack] %>",
-										possibleURLParameterKeys: [],
-										cssClass: "stack"
-								  }
-								: null,
-							{
-								id: "yml",
-								title: "<%= data[:strings][:main][:menus][:yml] %>",
-								path: "<%= data[:routes][:endpoints][:yml] %>",
-								possibleURLParameterKeys: [],
-								cssClass: "yml"
-							}
-						]);
+						if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
+							var stackMenu = _.find(viewModel.menus, {
+								id: "stack"
+							});
+							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+						}
 
 						viewModel.initAppProgress.success();
-						selectInitialMenu();
 					},
 					function(error) {
 						viewModel.initAppProgress.error(error);
 					}
-				);
+				).then(function() {
+					selectInitialMenu();
+				});
 			};
+
+			viewModel.shouldShowMenuBar = function() {
+				if (requestService.mode == 'cli') {
+					return true;
+				}
+
+				return appService.appDetails !== undefined;
+			}
+
+			viewModel.isTabEnabledForMenu = function(menu) {
+				if (menu && menu.id === 'yml') {
+					return true;
+				}
+
+				return viewModel.initAppProgress.isIdle && viewModel.loadDataProgress.isIdle;
+			}
+
+			viewModel.isMenuEnabled = function(menu) {
+				if (viewModel.menuProgress.isInProgress || viewModel.saveProgress.isInProgress) {
+					return false;
+				}
+
+				return viewModel.isTabEnabledForMenu(menu);
+			}
+
+			viewModel.appOwnerNameWithPlaceholder = function() {
+				return appService.appDetails.ownerData && appService.appDetails.ownerData.name || 'Unknown owner';
+			}
+
+			viewModel.appNameWithPlaceholder = function() {
+				return appService.appDetails.title || 'Unknown app';
+			}
+
+			viewModel.onProductTourDismiss = function() {
+				setTimeout(() => $scope.$apply(() => viewModel.productTourDismissed = true), 1000);
+			}
+			
+			viewModel.showGuidedOnboarding = function() {
+				return viewModel.guidedOnboardingEnabled && viewModel.guidedOnboardingEnabledForUser;
+			}
+
+			viewModel.onTurnOffGuidedOnboarding = function() {
+				requestService.updateCurrentUserMetadata({'show_getting_started_guide': false})
+				.then(function() {
+					viewModel.guidedOnboardingEnabledForUser = false;
+				});
+			}
 		});
 })();

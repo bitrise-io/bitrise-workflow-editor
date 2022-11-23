@@ -1,9 +1,9 @@
 Feature: Workflows
 
-  Adding a Workflow is possible by providing a name for it, and either starting out with an empty one, or as a duplication of a selectable existing one.
+  Creating a Workflow is possible by providing a name for it, and either starting out with an empty one, or as a duplication of a selectable existing one.
 
   Background:
-    Given editor is open
+    Given workflows tab is open
 
   Scenario: Steps sidebar
     Then I should see "GitHub Status" in "First step"
@@ -11,6 +11,10 @@ Feature: Workflows
     When I click on "First step"
     Then "First step" should be the selected step
       And all the steps are loaded
+
+  Scenario: Workflow recipe link
+    Then "Workflow recipes link" should have attribute "href" with value "https://github.com/bitrise-io/workflow-recipes"
+      And "Workflow recipes link" should have attribute "target" with value "_blank"
 
   Scenario: User creates a Workflow
     When I click on "Add Workflow Button"
@@ -21,25 +25,29 @@ Feature: Workflows
       And Workflow appeared with name "Test"
 
   Scenario: User adds a before workflow
-    When I click on "Add Before Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
       And I confirm on "Add Before Workflow popup"
     Then I should see "wf4" in "Before Workflow Name"
 
   Scenario: User cancels adding a before workflow
-    When I click on "Add Before Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add Before Workflow button"
       And I select "wf4" from "Before Workflow Dropdown"
       And I cancel on "Add Before Workflow popup"
     Then "Workflow Sections" should contain 1 "Workflow Section"
 
   Scenario: User adds a after workflow
-    When I click on "Add After Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add After Workflow button"
       And I select "wf4" from "After Workflow Dropdown"
       And I confirm on "Add After Workflow popup"
     Then I should see "wf4" in "After Workflow Name"
 
   Scenario: User cancels adding an after workflow
-    When I click on "Add After Workflow button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Add After Workflow button"
       And I select "wf4" from "After Workflow Dropdown"
       And I cancel on "Add After Workflow popup"
     Then "Workflow Sections" should contain 1 "Workflow Section"
@@ -67,14 +75,9 @@ Feature: Workflows
     # And it has its stack displayed - WEBSITE MODE ONLY
       And I should see "The wf3 test workflow" in "Selected Workflow description"
       And "wf3 steps container" should contain 4 "Add Step element"
-      And "Workflow Sections" should have "grey" "background-color" style
       And "wf4 Remove button" should "be visible"
-      And "first wf5 Remove button" should "be visible"
-      And "wf6 Remove button" should "be visible"
     # And they don't have their stack displayed  - WEBSITE MODE ONLY
       And "wf4 steps add step icons" should "not be visible"
-      And "first wf5 steps add step icons" should "not be visible"
-      And "wf6 steps container" should contain 1 "Add Step element"
 
   Scenario: User selects a duplicate Workflow in the chain
     Given "wf3" workflow is selected
@@ -84,8 +87,7 @@ Feature: Workflows
 
   Scenario: User selects the delete button of an after run Workflow
     Given "wf3" workflow is selected
-      When I click away
-      And I scroll to the "top"
+    When I click away
     When I click on "first wf5 Remove button"
     Then "Workflow Sections" should contain 4 "Workflow Section"
       And I should see "wf5" in "First After Workflow Name"
@@ -93,14 +95,16 @@ Feature: Workflows
 
   Scenario: Delete Workflow
     Given Workflow with name "ToBeDeleted"
-    When I click on "Delete Workflow Button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Delete Workflow Button"
       And I confirm on "Default popup"
     Then I should not see "ToBeDeleted" in "Selected Workflow Name"
       And I should see "wf1" in "Selected Workflow Name"
 
   Scenario: User opens the Delete Workflow
     Given "wf3" workflow is selected
-    When I click on "Delete Workflow Button"
+    When I click on "Manage Workflows dropdown button"
+      And I click on "Delete Workflow Button"
     Then "Default popup" should "be visible"
       And I should see "Are you sure you want to delete the wf3 workflow?" in "Default popup message"
 
@@ -109,10 +113,11 @@ Feature: Workflows
       And Delete popup is open
     When I confirm on "Default popup"
     Then "Default popup" should "not be visible"
+      And "Save Button" should "not be disabled"
     When I click on "Selected Workflow Name"
-      Then Workflow selector options should not contain "wf6"
+    Then Workflow selector options should not contain "wf6"
     When I click on "wf3 workflow"
-      Then I should see "wf5" in "Last After Workflow Name"
+    Then I should see "wf5" in "Last After Workflow Name"
 
   Scenario: User cancels deleting a Workflow
     Given "wf6" workflow is selected
@@ -133,7 +138,6 @@ Feature: Workflows
       And "wf5 workflow" should "be visible"
       And "wf6 workflow" should "be visible"
       And "wf3 workflow list element" should have "purple" "background-color" style
-      And "wf3 workflow list element" should contain 1 "svg"
       And "wf3 workflow rename button" should "be visible"
 
   Scenario: User selects a Workflow from the Workflow dropdown
@@ -146,9 +150,7 @@ Feature: Workflows
       And the Workflow dropdown is open
     When I click on "wf3 workflow rename button"
     Then "wf3 workflow rename field" should "be visible"
-      And "wf3 workflow rename field" should "be enabled"
       And "wf3 workflow rename submit" should "be visible"
-      And "wf3 workflow rename submit" should "be enabled"
 
   Scenario: User confirms renaming a Workflow in the Workflow dropdown
     Given "wf3" workflow is selected
@@ -157,6 +159,7 @@ Feature: Workflows
       And I clear "wf3 workflow rename field"
       And I type "my_new_wf_name" in "wf3 workflow rename field"
       And I click on "wf3 workflow rename submit"
+      And I click away
     Then I should see "my_new_wf_name" in "Selected Workflow Name"
       And "my_new_wf_name workflow rename submit" should "not be visible"
       And "my_new_wf_name workflow rename submit" should "not be enabled"
@@ -189,7 +192,7 @@ Feature: Workflows
 
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
-      When I scroll to the "top"
+    When I click on "Manage Workflows dropdown button"
       And I click on "Rearrange button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
@@ -198,4 +201,3 @@ Feature: Workflows
       And I should see "wf5" in "Workflow chain first after wf5 workflow"
       And I should see "wf5" in "Workflow chain second after wf5 workflow"
       And I should see "wf6" in "Workflow chain after wf6 workflow"
-

@@ -1,6 +1,46 @@
 @import "default";
 @import "constants";
 
+.tab-workflows .content {
+	overflow: hidden;
+}
+
+.workflows-container {
+	display: flex;
+	flex-direction: row;
+	overflow: hidden;
+	flex: 1;
+}
+
+.Placement .Placement__content .Placement__area-content .DropdownMenu__content {
+	.DropdownMenu__item {
+		.Visibility {
+			width: 12px;
+		}
+
+		&:nth-child(2) {
+			svg.Base.Icon:last-child {
+				transform: scaleY(-1);
+			}
+		}
+
+		&:nth-child(3) {
+			svg.Base.Icon:last-child {
+				transform: rotate(90deg);
+			}
+		}
+
+		&:last-child {
+			color: var(--color-red--3);
+
+			&:hover {
+				color: var(--color-red--4);
+				background-color: var(--color-red--1);
+			}
+		}
+	}
+}
+
 section.manage-workflows {
 	$button-spacing: 8px;
 	$button-wrapping-point: 580px;
@@ -11,214 +51,28 @@ section.manage-workflows {
 	padding: #{$main-verticalpadding - ($button-spacing / 2)} #{$main-horizontalpadding - ($button-spacing / 2)};
 	background-color: white;
 
-	&:not(.ninja) > * {
-		margin: $button-spacing / 2;
+	.react-toolbar {
+		flex-grow: 1;
 	}
 
-	.workflow-selector {
-		@include display-flex;
-		position: relative;
+	[aria-label='Add new Workflow'] {
+		padding: 11px;
+	}
 
-		.selected-workflow {
-			$color: $def-mediumdarkgrey;
+	[aria-label='Manage Workflows'] {
+		padding: 11px;
 
-			@include display-flex;
-			@include box-sizing(border-box);
-			width: 100%;
-			border: 1px solid $color;
-			@include border-radius($def-radius);
-			overflow: hidden;
-			font-size: 13px;
-			background-color: $color;
+		svg.Base.Icon {
+			margin: 0;
 
-			&:before {
-				content: "<%= data[:strings][:workflows][:select_workflow_placeholder] %>";
-				@include flex-shrink(0);
-				@include align-self(center);
-				@include padding-x(15px);
-				text-align: center;
-				font-weight: 300;
-				text-transform: uppercase;
-				color: white;
-			}
-
-			button {
-				@include flex-grow(1);
-				width: 160px;
-				@include border-left-radius(0);
-				border: none;
-				@include ellipsis-oneliner;
-				color: $color;
-
-				@include media-below-big {
-					width: 180px;
-				}
+			&:last-child {
+				display: none;
 			}
 		}
+	}
 
-		ul {
-			$border: 1px solid $def-lightgrey;
-			$li_padding: 12px;
-			$li_fontsize: 16px;
-
-			@include position(absolute, 100%, null, null, 0);
-			z-index: $zindex-workflow_selector;
-			margin-top: 10px;
-			margin-bottom: 0;
-			width: $button-wrapping-point - (2 * $main-horizontalpadding_small);
-			@include media-below($button-wrapping-point) {
-				width: 100%;
-			}
-			border: $border;
-			@include border-radius($def-radius);
-			padding-left: 0;
-			overflow: hidden;
-			list-style: none;
-			@include box-shadow(0px 0px 10px 0px rgba(0, 0, 0, 0.2));
-
-			li {
-				font-size: $li_fontsize;
-				font-weight: 400;
-
-				&.selected .workflow svg, &:not(.selected) .workflow button.select-workflow:before {
-					@include flex-shrink(0);
-					@include size(24px);
-					margin-right: 10px;
-				}
-
-				&.selected .workflow {
-					@include display-flex;
-					@include align-items(center);
-					padding: $li_padding;
-					background-color: $def-purple;
-					color: white;
-
-					svg {
-						fill: white;
-					}
-
-					span.workflow-id {
-						@include flex-grow(1);
-						@include wordbreak-oneliner;
-					}
-
-					button.select-workflow {
-						display: none;
-					}
-
-					button.rename-workflow {
-						margin-left: 6px;
-						text-align: left;
-						font-size: 13px;
-						text-transform: uppercase;
-
-						&:before {
-							content: "Rename";
-						}
-					}
-
-					button.rename-workflow:hover, button.rename-workflow:focus {
-						text-decoration: underline;
-					}
-				}
-
-				&:not(.selected) .workflow {
-					@include display-flex;
-
-					svg {
-						display: none;
-					}
-
-					span.workflow-id {
-						display: none;
-					}
-
-					button.select-workflow {
-						display: inline-flex;
-						align-items: center;
-						width: 100%;
-						padding: $li_padding;
-						text-align: left;
-						@include wordbreak-oneliner;
-						background-color: white;
-						@include transition(color $def-transition_duration, background-color $def-transition_duration);
-
-						&:before {
-							content: "○";
-							display: inline-block;
-							text-align: center;
-						}
-					}
-
-					button.select-workflow:hover, button.select-workflow:focus {
-						background-color: $def-purple;
-						color: white;
-					}
-
-					button.rename-workflow {
-						display: none;
-					}
-				}
-			}
-
-			li:not(:last-child) {
-				border-bottom: $border;
-			}
-
-			li:not(.rename-in-progress) {
-
-				form.workflow-rename {
-					display: none;
-				}
-			}
-
-			li.rename-in-progress {
-
-				.workflow {
-					display: none;
-				}
-
-				form.workflow-rename {
-					@include display-flex;
-
-					input.name {
-						@include flex-grow(1);
-						margin: 0;
-						border: none;
-						padding: $li_padding;
-						font-size: $li_fontsize;
-						color: $def-mediumdarkgrey;
-					}
-
-					input.ok {
-						width: 24px;
-						@include box-sizing(content-box);
-						border: none;
-						padding: 10px 7px;
-						background-color: $def-purple;
-						background-image: background_image_from_svg_content_with_attributes('<%= svg("check") %>', (
-							fill: rgba(white, 0.99)
-						)), none;
-						background-size: 100% auto;
-						background-position: center;
-						background-origin: content-box;
-						background-repeat: no-repeat;
-					}
-				}
-			}
-		}
-
-		ul.ng-animate {
-			@include transition(opacity $def-transition_duration);
-		}
-
-		ul.ng-hide {
-			opacity: 0;
-		}
-
-		@include media-below($button-wrapping-point) {
-			width: 100%;
-		}
+	&:not(.ninja) > * {
+		margin: $button-spacing / 2;
 	}
 
 	button.manage-button {
@@ -294,10 +148,6 @@ section.manage-workflows {
 	}
 }
 
-header.sticky section.manage-workflows {
-	@include padding-y(10px);
-}
-
 .tab-workflows {
 	@include flex-grow(1);
 	@include flex-shrink(0);
@@ -324,6 +174,7 @@ header.sticky section.manage-workflows {
 			$icon-size_small: 36px;
 			$steptitle-width: 280px;
 			$steptitle-width_small: 220px;
+			border-top: 1px solid $def-lightgrey;
 
 			@include flex-grow(1);
 			@include flex-shrink(0);
@@ -331,11 +182,26 @@ header.sticky section.manage-workflows {
 			@include flex-direction(column);
 			background-color: $def-ultralightgrey;
 
+			.steps-container {
+				border-right: 1px solid $def-lightgrey;
+				overflow: scroll;
+				background: #ffffff;
+			}
+
+			.step-edit-container {
+				flex: 1;
+				overflow: scroll;
+				background: $def-ultralightgrey;
+			}
+
 			section.workflow {
 				@include flex-shrink(0);
-				border-top: 1px dashed $def-grey;
 				@include padding-x($main-horizontalpadding);
 				@include transition(background-color $def-transition_duration);
+
+				&:not(:first-child) {
+					border-top: 1px dashed $def-grey;
+				}
 
 				&:last-child {
 					@include flex-grow(1);
@@ -444,11 +310,10 @@ header.sticky section.manage-workflows {
 						.stack {
 							@include display-flex;
 							@include align-items(center);
-							margin-left: $spacing;
 
 							.icon {
 								@include flex-shrink(0);
-								@include margin-x(15px);
+								margin-right: 15px;
 
 								svg {
 									display: block;
@@ -473,7 +338,7 @@ header.sticky section.manage-workflows {
 								@include padding-x(5px);
 								font-size: 10px;
 								letter-spacing: 0.5px;
-								font-weight: 300;
+								font-weight: 500;
 								text-transform: uppercase;
 								color: white;
 								background-color: $def-blue;
@@ -619,6 +484,7 @@ header.sticky section.manage-workflows {
 
 								button.update-step {
 									$size: 14px;
+									border: 1px solid var(--color-white);
 
 									@include position(absolute, 0, null, null, 52px);
 									@include size($size);
@@ -1175,7 +1041,7 @@ header.sticky section.manage-workflows {
 															display: inline-block;
 															padding: .25em 1em;
 															font-size: 75%;
-															font-weight: 300;
+															font-weight: 500;
 															letter-spacing: 0.1em;
 															text-transform: uppercase;
 
@@ -1221,6 +1087,7 @@ header.sticky section.manage-workflows {
 													border: $border;
 													@include border-radius($def-radius);
 													padding: 8px;
+													line-height: normal;
 													font-size: 12px;
 													font-weight: 500;
 													color: $def-darkgrey;
@@ -1491,7 +1358,7 @@ header.sticky section.manage-workflows {
 												border: none;
 												padding: 0;
 												font-size: 13px;
-												font-weight: 300;
+												font-weight: 400;
 												color: $def-purple;
 											}
 										}
@@ -1513,6 +1380,7 @@ header.sticky section.manage-workflows {
 											.toggleabble-description {
 												@include display-flex;
 												@include align-items(center);
+												word-break: break-word;
 
 												p {
 													@include flex-grow(1);
@@ -1523,7 +1391,7 @@ header.sticky section.manage-workflows {
 													}
 												}
 
-												svg {
+												.toggle-arrow-button svg {
 													@include flex-shrink(0);
 													@include size(10px, 7px);
 													margin-left: 10px;
@@ -1531,14 +1399,14 @@ header.sticky section.manage-workflows {
 													@include transition(fill $def-transition_duration, transform $def-transition_duration);
 												}
 
-												p:not(.oneliner) + svg {
+												p:not(.oneliner) + .toggle-arrow-button svg {
 													@include transform(rotate(-180deg));
 												}
 											}
 
 											button:hover + .toggleabble-description, button:focus + .toggleabble-description {
 
-												svg {
+												.toggle-arrow-button svg {
 													fill: black;
 												}
 											}
@@ -1705,7 +1573,7 @@ header.sticky section.manage-workflows {
 
 				header.workflow-header {
 
-					&:before {
+					&.with-flow-decoration:before {
 						content: "";
 						@include flex-shrink(0);
 						@include box-sizing(border-box);
@@ -1715,9 +1583,7 @@ header.sticky section.manage-workflows {
 						background-color: $arrow-color;
 						background-clip: border-box, content-box;
 
-						background-image: background_image_from_svg_content_with_attributes('<%= svg("arrow_slim-down") %>', (
-							fill: rgba($arrow-color, 0.99)
-						)), none;
+						background-image: background_image_from_svg_content('<%= svg("arrow_slim-down") %>'), none;
 						background-size: contain;
 						background-position: center bottom;
 						background-repeat: no-repeat;
@@ -1899,9 +1765,7 @@ header.sticky section.manage-workflows {
 			ul.workflow-subchain.before-run {
 
 				li {
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("workflow/icon-before_run") %>');
 					background-size: $icon-size auto;
 				}
 			}
@@ -1909,9 +1773,7 @@ header.sticky section.manage-workflows {
 			ul.workflow-subchain.after-run {
 
 				li {
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-after_run") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("workflow/icon-after_run") %>');
 					background-size: $icon-size auto;
 				}
 			}
@@ -1920,9 +1782,7 @@ header.sticky section.manage-workflows {
 				background-color: white;
 
 				li {
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-current") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("workflow/icon-current") %>');
 					background-size: $icon-size auto;
 				}
 			}
@@ -1942,9 +1802,7 @@ header.sticky section.manage-workflows {
 					content: "";
 					@include size($drag_handle-reservedspace, 100%);
 					background-position: center;
-					background-image: background_image_from_svg_content_with_attributes('<%= svg("drag_handle") %>', (
-						fill: rgba($color, 0.99)
-					));
+					background-image: background_image_from_svg_content('<%= svg("drag_handle") %>');
 					background-size: 4px auto;
 					background-repeat: no-repeat;
 				}
@@ -1974,20 +1832,12 @@ header.sticky section.manage-workflows {
 			}
 
 			select.run-workflow-selector.before-run {
-				background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-					fill: rgba($def-purple-light, 0.99)
-				)), background_image_from_svg_content_with_attributes('<%= svg("arrow-down") %>', (
-					fill: rgba(white, 0.99)
-				));
+				background-image: background_image_from_svg_content('<%= svg("workflow/icon-before_run_popup") %>'), background_image_from_svg_content('<%= svg("arrow-down") %>');
 				background-size: $icon-size auto, 8px auto;
 			}
 
 			select.run-workflow-selector.after-run {
-				background-image: background_image_from_svg_content_with_attributes('<%= svg("workflow/icon-before_run") %>', (
-					fill: rgba($def-purple-light, 0.99)
-				)), background_image_from_svg_content_with_attributes('<%= svg("arrow-down") %>', (
-					fill: rgba(white, 0.99)
-				));
+				background-image: background_image_from_svg_content('<%= svg("workflow/icon-before_run_popup") %>'), background_image_from_svg_content('<%= svg("arrow-down") %>');
 				background-size: $icon-size auto, 8px auto;
 			}
 		}
@@ -2081,9 +1931,7 @@ header.sticky section.manage-workflows {
 			font-size: 16px;
 			font-weight: 300;
 			background-color: $def-verylightgrey;
-			background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
-				fill: rgba($def-darkgrey, 0.99)
-			));
+			background-image: background_image_from_svg_content('<%= svg("search") %>');
 			background-size: $searchicon_width auto;
 			background-repeat: no-repeat;
 			background-position: left $padding center;
@@ -2123,9 +1971,7 @@ header.sticky section.manage-workflows {
 				font-size: 16px;
 				font-weight: 300;
 				background-color: $def-verylightgrey;
-				background-image: background_image_from_svg_content_with_attributes('<%= svg("search") %>', (
-					fill: rgba($def-darkgrey, 0.99)
-				));
+				background-image: background_image_from_svg_content('<%= svg("search") %>');
 				background-size: $searchicon_width auto;
 				background-repeat: no-repeat;
 				background-position: left $padding center;
@@ -2220,9 +2066,7 @@ header.sticky section.manage-workflows {
 
 							border: 1px solid $color;
 							color: $color;
-							background-image: background_image_from_svg_content_with_attributes('<%= svg("env_var_prefix") %>', (
-								fill: white
-							)), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
+							background-image: background_image_from_svg_content('<%= svg("env_var_prefix") %>'), background_image_from_svg_content('<svg xmlns="http://www.w3.org/2000/svg"><rect width="#{ $background_reservedwidth }" height="#{ $input-height }" fill="#{ rgba($color, 0.99) }"></rect></svg>');
 						}
 
 						@include order(1);

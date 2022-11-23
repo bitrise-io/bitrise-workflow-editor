@@ -1,7 +1,5 @@
 package config
 
-import "github.com/bitrise-io/go-utils/freezable"
-
 const (
 	// DefaultPort ...
 	DefaultPort = "3645"
@@ -18,7 +16,7 @@ const (
 
 var (
 	// BitriseYMLPath ...
-	BitriseYMLPath freezable.String
+	BitriseYMLPath string
 	// SecretsYMLPath ...
-	SecretsYMLPath freezable.String
+	SecretsYMLPath string
 )

@@ -20,7 +20,6 @@
 
 			svg {
 				@include position(absolute, 8px, 8px);
-				@include size(10px);
 				vertical-align: top;
 				@include transition(fill $def-transition_duration);
 
@@ -54,8 +53,12 @@
 					margin-bottom: auto;
 					line-height: 18px;
 					overflow: hidden;
-					font-weight: 200;
-					color: $def-grey;
+					font-weight: 400;
+					color: $def-mediumdarkgrey;
+
+					p {
+						@include ellipsis-oneliner;
+					}
 
 					a {
 						position: relative;

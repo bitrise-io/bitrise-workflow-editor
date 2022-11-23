@@ -67,7 +67,7 @@ $cardo-verticalpadding: 12px;
 $cardo-borderradius: 6px;
 
 @mixin TTNormsWithFallback {
-	font-family: "TTNorms", sans-serif;
+	font-family: "TT Norms Pro", "TTNorms", sans-serif;
 }
 
 @mixin SourceCodeProWithFallback {

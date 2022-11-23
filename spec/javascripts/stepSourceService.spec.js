@@ -2,8 +2,8 @@ describe("stepSourceService", function() {
 	let stepSourceService;
 	const TEST_STEP_ID = "mockStep";
 	const TEST_LIB_URL = "http://tempuri.org";
-	const TEST_STEP_LATEST_CONFIG = { "asset_urls": "test_urls", name: "2.2.1 config" };
-	let mockSemverService, mockLogger;
+	const TEST_STEP_LATEST_CONFIG = { asset_urls: "test_urls", name: "2.2.1 config" };
+	let mockSemverService, mockLogger, q, appService, stepLibSearchService;
 
 	beforeEach(() => {
 		mockSemverService = {
@@ -19,10 +19,27 @@ describe("stepSourceService", function() {
 			error: jasmine.createSpy("error")
 		};
 
+		q = {
+			all: jasmine.createSpy("qAll")
+		};
+
+		appService = {
+			appConfig: {
+				default_step_lib_source: TEST_LIB_URL
+			}
+		};
+
+		stepLibSearchService = {
+			list: jasmine.createSpy("list").and.resolveTo({})
+		};
+
 		module("BitriseWorkflowEditor");
 		module($provide => {
 			$provide.value("semverService", mockSemverService);
 			$provide.value("logger", mockLogger);
+			$provide.value("$q", q);
+			$provide.value("appService", appService);
+			$provide.value("stepLibSearchService", stepLibSearchService);
 		});
 	});
 
@@ -359,6 +376,28 @@ describe("stepSourceService", function() {
 			);
 
 			expect(actual).toBeUndefined();
+		});
+	});
+
+	describe("loadStepsWithCVSs", () => {
+		it("does not create any requests if all steps are already in the lib", () => {
+			mockSemverService.resolveVersion.and.returnValue("2.2.1");
+
+			stepSourceService.loadStepsWithCVSs([`${TEST_STEP_ID}@2.2.1`]);
+
+			expect(q.all).toHaveBeenCalledWith([]);
+		});
+
+		it("calls stepLibSearchService if step is not found locally", () => {
+			mockSemverService.resolveVersion.and.returnValue(false);
+
+			stepSourceService.loadStepsWithCVSs([`${TEST_STEP_ID}@2.2.1`]);
+
+			expect(q.all).toHaveBeenCalledWith([jasmine.any(Promise)]);
+			expect(stepLibSearchService.list).toHaveBeenCalledWith({
+				stepCVSs: [`${TEST_STEP_ID}@2.2.1`],
+				includeInputs: true
+			});
 		});
 	});
 });

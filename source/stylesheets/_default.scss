@@ -53,10 +53,6 @@
 	@return background_image_from_svg_content(svg_content_with_attributes($svg_content, $attributes));
 }
 
-@function background_image_from_svg_content_with_styling($svg_content, $styling) {
-	@return background_image_from_svg_content(svg_content_with_styling($svg_content, $styling));
-}
-
 /* Screen sizes */
 
 $screen-huge: 1280px;

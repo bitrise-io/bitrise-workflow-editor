@@ -3,86 +3,116 @@
 
 // Major layouts
 
-@import "_index";
-@import "_tab-workflows";
-@import "_tab-code_signing";
-@import "_tab-code_signing-certificates";
-@import "_auto_code_signing";
-@import "_tab-secrets";
-@import "_tab-env_vars";
-@import "_tab-triggers";
-@import "_tab-stack";
+@import "_index.scss.erb";
+@import "_tab-workflows.scss.erb";
+@import "_tab-code_signing.scss.erb";
+@import "_tab-code_signing-certificates.scss.erb";
+@import "_auto_code_signing.scss.erb";
+@import "_tab-secrets.scss.erb";
+@import "_tab-env_vars.scss.erb";
+@import "_tab-triggers.scss.erb";
+@import "_tab-stack.scss.erb";
 @import "_tab-yml";
-@import "_workflows-workflow_description";
-@import "_add_step_sidebar";
+@import "_workflows-workflow_description.scss.erb";
+@import "_add_step_sidebar.scss.erb";
 
 // Common elements
 
 @import "_rebo";
 @import "_cardo";
 @import "_furto";
-@import "_popup";
-@import "_popover";
-@import "_notification-progress-indicator";
+@import "_popup.scss.erb";
+@import "_popover.scss.erb";
+@import "_notification-progress-indicator.scss.erb";
 @import "_file_uploader";
 @import "_order-by-drag";
 @import "_clear-value";
 
-@import "~monaco-editor/min/vs/editor/editor.main";
+@import "~monaco-editor/min/vs/editor/editor.main.css";
 
 // Fonts
 
 @font-face {
 	font-family: "TTNorms";
-	src: url("../fonts/35C30F_7_0.eot");
-	src: url("../fonts/35C30F_7_0.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/35C30F_7_0.woff2") format("woff2"), url("../fonts/35C30F_7_0.woff") format("woff"),
-		url("../fonts/35C30F_7_0.ttf") format("truetype"), url("../fonts/35C30F_7_0.svg#wf") format("svg");
+	src: url("../fonts/TT_Norms_Pro_Light.woff") format("woff");
 	font-weight: 100;
 }
 
 @font-face {
 	font-family: "TTNorms";
-	src: url("../fonts/35C30F_C_0.eot");
-	src: url("../fonts/35C30F_C_0.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/35C30F_C_0.woff2") format("woff2"), url("../fonts/35C30F_C_0.woff") format("woff"),
-		url("../fonts/35C30F_C_0.ttf") format("truetype"), url("../fonts/35C30F_C_0.svg#wf") format("svg");
+	src: url("../fonts/TT_Norms_Pro_Light.woff") format("woff");
 	font-weight: 200;
 }
 
 @font-face {
 	font-family: "TTNorms";
-	src: url("../fonts/35C30F_F_0.eot");
-	src: url("../fonts/35C30F_F_0.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/35C30F_F_0.woff2") format("woff2"), url("../fonts/35C30F_F_0.woff") format("woff"),
-		url("../fonts/35C30F_F_0.ttf") format("truetype"), url("../fonts/35C30F_F_0.svg#wf") format("svg");
+	src: url("../fonts/TT_Norms_Pro_Light.woff") format("woff");
+	font-weight: 300;
+}
+
+@font-face {
+	font-family: "TTNorms";
+	src: url("../fonts/TT_Norms_Pro_Normal.woff") format("woff");
 	font-weight: 400;
 }
 
 @font-face {
 	font-family: "TTNorms";
-	src: url("../fonts/35C30F_D_0.eot");
-	src: url("../fonts/35C30F_D_0.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/35C30F_D_0.woff2") format("woff2"), url("../fonts/35C30F_D_0.woff") format("woff"),
-		url("../fonts/35C30F_D_0.ttf") format("truetype"), url("../fonts/35C30F_D_0.svg#wf") format("svg");
+	src: url("../fonts/TT_Norms_Pro_Medium.woff") format("woff");
 	font-weight: 500;
 }
 
 @font-face {
 	font-family: "TTNorms";
-	src: url("../fonts/35C30F_1_0.eot");
-	src: url("../fonts/35C30F_1_0.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/35C30F_1_0.woff2") format("woff2"), url("../fonts/35C30F_1_0.woff") format("woff"),
-		url("../fonts/35C30F_1_0.ttf") format("truetype"), url("../fonts/35C30F_1_0.svg#wf") format("svg");
+	src: url("../fonts/TT_Norms_Pro_Bold.woff") format("woff");
 	font-weight: 700;
 }
 
 @font-face {
 	font-family: "TTNorms";
-	src: url("../fonts/35C30F_3_0.eot");
-	src: url("../fonts/35C30F_3_0.eot?#iefix") format("embedded-opentype"),
-		url("../fonts/35C30F_3_0.woff2") format("woff2"), url("../fonts/35C30F_3_0.woff") format("woff"),
-		url("../fonts/35C30F_3_0.ttf") format("truetype"), url("../fonts/35C30F_3_0.svg#wf") format("svg");
+	src: url("../fonts/TT_Norms_Pro_Bold.woff") format("woff");
+	font-weight: 900;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Light.woff") format("woff");
+	font-weight: 100;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Light.woff") format("woff");
+	font-weight: 200;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Light.woff") format("woff");
+	font-weight: 300;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Normal.woff") format("woff");
+	font-weight: 400;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Medium.woff") format("woff");
+	font-weight: 500;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Bold.woff") format("woff");
+	font-weight: 700;
+}
+
+@font-face {
+	font-family: "TT Norms Pro";
+	src: url("../fonts/TT_Norms_Pro_Bold.woff") format("woff");
 	font-weight: 900;
 }
 
@@ -210,7 +240,7 @@ select,
 	font-size: 16px;
 	@include transition(background-color $def-transition_duration);
 	background-color: white;
-	background-image: url("../images/arrow-down.svg");
+	background-image: url("../images/arrow-down-dark.svg");
 	background-size: $arrow_width auto;
 	background-position: right $select-horizontalpadding center;
 	background-repeat: no-repeat;
@@ -376,70 +406,6 @@ select:focus,
 	input[type="checkbox"]:hover + .checkbox-svg-wrapper,
 	input[type="checkbox"]:focus + .checkbox-svg-wrapper {
 		opacity: 1;
-	}
-}
-
-.toggleable-info {
-	$horizontalpadding-basic: $cardo-horizontalpadding;
-	$horizontalpadding-additional: 30px;
-	$verticalpadding: $cardo-verticalpadding;
-	$arrow-width: 16px;
-
-	border: 1px solid $def-green;
-	@include border-radius($cardo-borderradius);
-	font-size: 16px;
-	font-weight: 400;
-	color: $def-green;
-	background-color: $def-green-ultralight;
-
-	h2.info-heading {
-		position: relative;
-		@include margin-y(0);
-		padding: $verticalpadding $horizontalpadding-basic;
-		font-size: inherit;
-		font-weight: inherit;
-
-		.content {
-			@include display-flex;
-			margin-right: $horizontalpadding-basic + $arrow-width;
-
-			.icon {
-				$icon-width: 20px;
-				margin-right: $horizontalpadding-additional - $icon-width;
-
-				svg {
-					display: block;
-					width: $icon-width;
-					height: 20px;
-					fill: $def-green;
-				}
-			}
-		}
-
-		.toggle {
-			@include position(absolute, 0, 0);
-			@include size(100%);
-			padding: $verticalpadding $horizontalpadding-basic;
-
-			svg {
-				display: block;
-				width: $arrow-width;
-				height: 8px;
-				margin-left: auto;
-				fill: $def-green;
-				@include transition(transform $def-transition_duration);
-			}
-
-			&.open svg {
-				@include transform(rotate(180deg));
-			}
-		}
-	}
-
-	ul {
-		@include margin-y(0);
-		border-top: 1px solid $def-green;
-		padding: $verticalpadding $horizontalpadding-basic;
 	}
 }
 
