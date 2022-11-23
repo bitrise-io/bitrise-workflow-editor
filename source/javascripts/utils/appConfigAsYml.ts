@@ -1,4 +1,4 @@
-import { safeDump } from "js-yaml";
+import { dump, JSON_SCHEMA } from "js-yaml";
 import { AppConfig } from "../models/AppConfig";
 
 export default function appConfigAsYml(appConfig: AppConfig | undefined): string {
@@ -10,5 +10,5 @@ export default function appConfigAsYml(appConfig: AppConfig | undefined): string
 		return appConfig;
 	}
 
-	return `---\n${safeDump(appConfig, { noArrayIndent: true })}`;
+	return dump(appConfig, { noArrayIndent: true, schema: JSON_SCHEMA , sortKeys: true });
 }
