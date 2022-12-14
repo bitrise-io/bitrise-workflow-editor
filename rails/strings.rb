@@ -23,7 +23,7 @@ def strings
             main: {
                 menus: {
                     workflows: "Workflows",
-                    code_signing: "Code Signing",
+                    code_signing: "Code Signing & Files",
                     secrets: "Secrets",
                     env_vars: "Env Vars",
                     triggers: "Triggers",
