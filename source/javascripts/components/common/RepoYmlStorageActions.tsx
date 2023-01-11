@@ -1,18 +1,61 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, Icon, Text, Notification, Link } from "@bitrise/bitkit";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { AppConfig } from "../../models/AppConfig";
 import appConfigAsYml from "../../utils/appConfigAsYml";
+import useMonolithApiCallback from "../../hooks/api/useMonolithApiCallback";
 
 type RepoYmlStorageActionsProps = {
 	appConfig: AppConfig | string;
+};
+
+const useFormattedYml = (appConfig: AppConfig): { yml: string; failed: boolean; loading: boolean } => {
+	const [yml, setYml] = useState(typeof appConfig === "string" ? appConfig : "");
+	const formatAppConfigRef = useRef<() => void>();
+	const { loading, failed, result, call } = useMonolithApiCallback<string>(
+		"/api/cli/format",
+		{
+			method: "POST",
+			body: JSON.stringify(appConfig)
+		},
+		(value: string) => value
+	);
+
+	// NOTE: call function isn't referentially stable
+	useEffect(() => {
+		formatAppConfigRef.current = call;
+	});
+
+	useEffect(() => {
+		// NOTE: If we get a string we don't need to check with the format service
+		if (typeof appConfig === "object") {
+			formatAppConfigRef.current?.();
+		}
+	}, [appConfig]);
+
+	useEffect(() => {
+		if (failed && appConfig) {
+			setYml(appConfigAsYml(appConfig));
+			return;
+		}
+
+		if (result && !failed) {
+			setYml(result);
+		}
+	}, [result, failed, appConfig]);
+
+	return {
+		yml,
+		failed: !!failed,
+		loading
+	};
 };
 
 const RepoYmlStorageActions = ({ appConfig }: RepoYmlStorageActionsProps): JSX.Element => {
 	const [actionSelected, setActionSelected] = useState<string | null>(null);
 	const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
-	const yml = useMemo(() => appConfigAsYml(appConfig), [appConfig]);
+	const { yml } = useFormattedYml(appConfig);
 
 	const selectAction = (actionName: string): void => {
 		setActionSelected(actionName);
