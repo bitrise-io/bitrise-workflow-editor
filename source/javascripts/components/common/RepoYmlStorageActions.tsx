@@ -9,16 +9,18 @@ type RepoYmlStorageActionsProps = {
 	appConfig: AppConfig | string;
 };
 
-const useFormattedYml = (appConfig: AppConfig): { yml: string; failed: boolean; loading: boolean } => {
+const identity = (result: string): any => result;
+
+const useFormattedYml = (appConfig: AppConfig): string => {
 	const [yml, setYml] = useState(typeof appConfig === "string" ? appConfig : "");
 	const formatAppConfigRef = useRef<() => void>();
-	const { loading, failed, result, call } = useMonolithApiCallback<string>(
+	const { failed, result, call } = useMonolithApiCallback<string>(
 		"/api/cli/format",
 		{
 			method: "POST",
 			body: JSON.stringify(appConfig)
 		},
-		(value: string) => value
+		identity
 	);
 
 	// NOTE: call function isn't referentially stable
@@ -42,18 +44,14 @@ const useFormattedYml = (appConfig: AppConfig): { yml: string; failed: boolean; 
 		}
 	}, [result, failed, appConfig]);
 
-	return {
-		yml,
-		failed: !!failed,
-		loading
-	};
+	return yml;
 };
 
 const RepoYmlStorageActions = ({ appConfig }: RepoYmlStorageActionsProps): JSX.Element => {
 	const [actionSelected, setActionSelected] = useState<string | null>(null);
 	const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
-	const { yml } = useFormattedYml(appConfig);
+	const yml = useFormattedYml(appConfig);
 
 	const selectAction = (actionName: string): void => {
 		setActionSelected(actionName);

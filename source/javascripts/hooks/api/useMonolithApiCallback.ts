@@ -8,7 +8,7 @@ export interface MonolithError {
 export default function useMonolithApiCallback<T>(
 	url: string,
 	init?: RequestInit,
-	parser?: any
+	parser?: (data: string) => unknown
 ): FetchResponse<T, MonolithError> {
 	return useFetchCallback<T, MonolithError>(
 		url,
@@ -19,6 +19,6 @@ export default function useMonolithApiCallback<T>(
 				...init?.headers
 			}
 		},
-		parser as any
+		parser
 	);
 }

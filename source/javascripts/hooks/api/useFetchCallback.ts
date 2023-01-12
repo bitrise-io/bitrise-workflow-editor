@@ -9,7 +9,15 @@ export interface FetchResponse<T, E> {
 	call: () => void;
 }
 
-function useFetchCallback<T, E>(url: string, init?: RequestInit, parser = JSON.parse): FetchResponse<T, E> {
+type ResponseParser = (data: string) => any;
+
+const defaultParser: ResponseParser = (data: string) => JSON.parse(data);
+
+function useFetchCallback<T, E>(
+	url: string,
+	init?: RequestInit,
+	parser: ResponseParser = defaultParser
+): FetchResponse<T, E> {
 	const [result, setResult] = useState<T>();
 	const [loading, setLoading] = useState(false);
 	const [failed, setFailed] = useState<E>();
