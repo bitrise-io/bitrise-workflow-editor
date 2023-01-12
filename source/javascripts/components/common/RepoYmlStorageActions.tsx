@@ -35,7 +35,6 @@ const useFormattedYml = (appConfig: AppConfig): { yml: string; failed: boolean; 
 	useEffect(() => {
 		if (failed && appConfig) {
 			setYml(appConfigAsYml(appConfig));
-			return;
 		}
 
 		if (result && !failed) {
