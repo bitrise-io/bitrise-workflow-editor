@@ -1,18 +1,57 @@
-import { useState, useMemo } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Box, Icon, Text, Notification, Link } from "@bitrise/bitkit";
 import CopyToClipboard from "react-copy-to-clipboard";
 import { AppConfig } from "../../models/AppConfig";
 import appConfigAsYml from "../../utils/appConfigAsYml";
+import useMonolithApiCallback from "../../hooks/api/useMonolithApiCallback";
 
 type RepoYmlStorageActionsProps = {
 	appConfig: AppConfig | string;
+};
+
+const identity = (result: string): any => result;
+
+const useFormattedYml = (appConfig: AppConfig): string => {
+	const [yml, setYml] = useState(typeof appConfig === "string" ? appConfig : "");
+	const formatAppConfigRef = useRef<() => void>();
+	const { failed, result, call } = useMonolithApiCallback<string>(
+		"/api/cli/format",
+		{
+			method: "POST",
+			body: JSON.stringify(appConfig)
+		},
+		identity
+	);
+
+	// NOTE: call function isn't referentially stable
+	useEffect(() => {
+		formatAppConfigRef.current = call;
+	});
+
+	useEffect(() => {
+		if (typeof appConfig === "object") {
+			formatAppConfigRef.current?.();
+		}
+	}, [appConfig]);
+
+	useEffect(() => {
+		if (failed && appConfig) {
+			setYml(appConfigAsYml(appConfig));
+		}
+
+		if (result && !failed) {
+			setYml(result);
+		}
+	}, [result, failed, appConfig]);
+
+	return yml;
 };
 
 const RepoYmlStorageActions = ({ appConfig }: RepoYmlStorageActionsProps): JSX.Element => {
 	const [actionSelected, setActionSelected] = useState<string | null>(null);
 	const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
-	const yml = useMemo(() => appConfigAsYml(appConfig), [appConfig]);
+	const yml = useFormattedYml(appConfig);
 
 	const selectAction = (actionName: string): void => {
 		setActionSelected(actionName);
