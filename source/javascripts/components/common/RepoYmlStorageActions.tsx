@@ -27,7 +27,6 @@ const useFormattedYml = (appConfig: AppConfig): { yml: string; failed: boolean; 
 	});
 
 	useEffect(() => {
-		// NOTE: If we get a string we don't need to check with the format service
 		if (typeof appConfig === "object") {
 			formatAppConfigRef.current?.();
 		}
