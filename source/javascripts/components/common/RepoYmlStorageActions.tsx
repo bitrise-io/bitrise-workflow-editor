@@ -9,40 +9,43 @@ type RepoYmlStorageActionsProps = {
 	appConfig: AppConfig | string;
 };
 
-const identity = (result: string): any => result;
+const identityParser = (result: string): any => result;
+
+const fetchOptions = {
+	method: "POST",
+	headers: {
+		"Content-Type": "application/yaml"
+	}
+};
 
 const useFormattedYml = (appConfig: AppConfig): string => {
 	const [yml, setYml] = useState(typeof appConfig === "string" ? appConfig : "");
-	const formatAppConfigRef = useRef<() => void>();
-	const { failed, result, call } = useMonolithApiCallback<string>(
-		"/api/cli/format",
-		{
-			method: "POST",
-			body: JSON.stringify(appConfig)
-		},
-		identity
-	);
+	const formatAppConfigRef = useRef<(options?: RequestInit) => void>();
+	const { failed, result, call } = useMonolithApiCallback<string>("/api/cli/format", fetchOptions, identityParser);
 
 	// NOTE: call function isn't referentially stable
 	useEffect(() => {
 		formatAppConfigRef.current = call;
 	});
 
+	// Set the js-yaml value as fallback, kick off format endpoint
 	useEffect(() => {
+		const yaml = appConfigAsYml(appConfig);
+		setYml(yaml);
+
 		if (typeof appConfig === "object") {
-			formatAppConfigRef.current?.();
+			formatAppConfigRef.current?.({
+				body: yaml
+			});
 		}
 	}, [appConfig]);
 
+	// When result finally comes in override the fallback value
 	useEffect(() => {
-		if (failed && appConfig) {
-			setYml(appConfigAsYml(appConfig));
-		}
-
 		if (result && !failed) {
 			setYml(result);
 		}
-	}, [result, failed, appConfig]);
+	}, [result, failed]);
 
 	return yml;
 };

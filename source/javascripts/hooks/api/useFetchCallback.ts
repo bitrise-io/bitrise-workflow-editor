@@ -6,7 +6,7 @@ export interface FetchResponse<T, E> {
 	statusCode?: number;
 	loading: boolean;
 	failed: E | undefined;
-	call: () => void;
+	call: (options?: RequestInit) => void;
 }
 
 type ResponseParser = (data: string) => any;
@@ -25,55 +25,59 @@ function useFetchCallback<T, E>(
 	const abortController = useRef<AbortController>();
 	const throwError = useAsyncError();
 
-	const call = useCallback(() => {
-		setStatusCode(undefined);
-		setFailed(undefined);
+	const call = useCallback(
+		(options?: RequestInit) => {
+			setStatusCode(undefined);
+			setFailed(undefined);
 
-		abortController.current?.abort();
-		abortController.current = new AbortController();
+			abortController.current?.abort();
+			abortController.current = new AbortController();
 
-		(async () => {
-			setLoading(true);
-			try {
-				if (url === "") {
-					throwError(new Error("Url is required"));
-					return;
-				}
-
-				const result = await fetch(url, {
-					signal: abortController.current?.signal,
-					...init,
-					headers: {
-						"Content-Type": "application/json",
-						Accept: "application/json",
-						...init?.headers
+			(async () => {
+				setLoading(true);
+				try {
+					if (url === "") {
+						throwError(new Error("Url is required"));
+						return;
 					}
-				});
 
-				setStatusCode(result.status);
+					const result = await fetch(url, {
+						signal: abortController.current?.signal,
+						...init,
+						...options,
+						headers: {
+							"Content-Type": "application/json",
+							Accept: "application/json",
+							...init?.headers
+						}
+					});
 
-				if (result.status >= 500) {
-					throwError(new Error(`Failed to fetch, ${result.statusText} ${url}`));
-					return;
-				}
-				const body = await result.text();
-				if (body.length > 0) {
-					const resBody = parser(body);
+					setStatusCode(result.status);
 
-					if (body.includes("error_msg")) {
-						setFailed(resBody as E);
-					} else {
-						setResult(resBody as T);
+					if (result.status >= 500) {
+						throwError(new Error(`Failed to fetch, ${result.statusText} ${url}`));
+						return;
 					}
+					const body = await result.text();
+					if (body.length > 0) {
+						const resBody = parser(body);
+
+						if (body.includes("error_msg")) {
+							setFailed(resBody as E);
+						} else {
+							setResult(resBody as T);
+						}
+					}
+				} catch (e) {
+					console.error(e);
+					setFailed(e as E);
+				} finally {
+					setLoading(false);
 				}
-			} catch (e) {
-				console.error(e);
-				setFailed(e as E);
-			} finally {
-				setLoading(false);
-			}
-		})();
-	}, [url, init]);
+			})();
+		},
+		[url, init]
+	);
 
 	return { result, statusCode, loading, failed, call };
 }
