@@ -11,17 +11,16 @@ type RepoYmlStorageActionsProps = {
 
 const identityParser = (result: string): any => result;
 
-const fetchOptions = {
-	method: "POST",
-	headers: {
-		"Content-Type": "application/yaml"
-	}
-};
-
 const useFormattedYml = (appConfig: AppConfig): string => {
 	const [yml, setYml] = useState(typeof appConfig === "string" ? appConfig : "");
 	const formatAppConfigRef = useRef<(options?: RequestInit) => void>();
-	const { failed, result, call } = useMonolithApiCallback<string>("/api/cli/format", fetchOptions, identityParser);
+	const { failed, result, call } = useMonolithApiCallback<string>(
+		"/api/cli/format",
+		{
+			method: "POST"
+		},
+		identityParser
+	);
 
 	// NOTE: call function isn't referentially stable
 	useEffect(() => {
