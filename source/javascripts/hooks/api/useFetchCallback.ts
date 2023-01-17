@@ -48,7 +48,8 @@ function useFetchCallback<T, E>(
 						headers: {
 							"Content-Type": "application/json",
 							Accept: "application/json",
-							...init?.headers
+							...init?.headers,
+							...options?.headers
 						}
 					});
 
