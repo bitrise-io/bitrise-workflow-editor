@@ -17,7 +17,11 @@ const useFormattedYml = (appConfig: AppConfig): string => {
 	const { failed, result, call } = useMonolithApiCallback<string>(
 		"/api/cli/format",
 		{
-			method: "POST"
+			method: "POST",
+			headers: {
+				Accept: "application/x-yaml, application/json",
+				"Content-Type": "application/x-yaml"
+			}
 		},
 		identityParser
 	);
