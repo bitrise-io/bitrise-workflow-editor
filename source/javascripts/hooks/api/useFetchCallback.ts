@@ -63,7 +63,7 @@ function useFetchCallback<T, E>(
 					if (body.length > 0) {
 						const resBody = parser(body);
 
-						if (body.includes("error_msg")) {
+						if (body.includes("error_msg") || !result.ok) {
 							setFailed(resBody as E);
 						} else {
 							setResult(resBody as T);
