@@ -10,7 +10,8 @@
 			appService,
 			Workflow,
 			Stack,
-			MachineType
+			MachineType,
+			planServiceUtil
 		) {
 			var viewModel = this;
 
@@ -18,6 +19,7 @@
 			$scope.Stack = Stack;
 			$scope.MachineType = MachineType;
 			$scope.appService = appService;
+			$scope.showMachineCreditCost = false;
 			viewModel.defaultDockerImagesByStackIDs = {
 				"linux-docker-android": "bitriseio/android-ndk:pinned",
 				"linux-docker-android-20.04": "bitriseio/android-ndk-20.04:pinned",
@@ -41,7 +43,10 @@
 			}, {});
 
 			viewModel.init = function() {
-				configure();
+				appService.getOwnerPlanData().then(() => {
+					$scope.showMachineCreditCost = getShowMachineCreditCost();
+					configure();
+				})
 			};
 
 			$scope.$on(
@@ -177,6 +182,13 @@
 
 			viewModel.isAppleSiliconMachineType = function(machineTypeId) {
 				return viewModel.appleSiliconMachineTypeIds.includes(machineTypeId);
+			}
+
+			function getShowMachineCreditCost() {
+				if (appService.ownerPlanData) {
+					return !planServiceUtil.isModernConcurrencyPlan(appService.ownerPlanData.name);
+				}
+				return true;
 			}
 		});
 })();

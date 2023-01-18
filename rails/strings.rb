@@ -976,7 +976,12 @@ def strings
                     default_error: "Error saving selected development team for app",
                     error_prefix: "Error saving selected development team for app: ",
                     not_website_mode_error: "Saving selected development team for app is only available in website mode"
-                }
+                },
+                get_org_plan_data: {
+                    default_error: "Error getting organization subscription status",
+                    error_prefix: "Error getting organization subscription status: ",
+                    not_website_mode_error: "Getting organization subscription status is only available in website mode"
+                },
             },
             step_source_service: {
                 step_from_cvs: {
@@ -1031,6 +1036,7 @@ def strings
                 current_user_beta_tags_get: "/me/profile/beta_tags.json",
                 current_user_metadata_get: "/me/profile/metadata.json?key=<metadata_key>",
                 current_user_metadata_put: "/me/profile/metadata.json",
+                get_org_plan_data: "/organization/<org_slug>/payment_subscription_status",
                 yml_post: "/api/app/<app_slug>/config.json",
                 yml_get: "/api/app/<app_slug>/config.yml",
                 yml_download: "/api/app/<app_slug>/config.yml?is_download=1",

@@ -34,7 +34,8 @@
 				accountData: undefined,
 				pipelineConfig: undefined,
 				accountFeatures: undefined,
-				hasTriggers: undefined
+				hasTriggers: undefined,
+				ownerPlanData: undefined
 			};
 
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {
@@ -561,6 +562,24 @@
 					appService.availableProjectTypes = availableProjectTypes;
 				});
 			};
+
+			appService.getOwnerPlanData = function() {
+				if (appService.ownerPlanData) {
+					return $q.when();
+				}
+
+				if (
+					requestService.mode === "website" &&
+					appService.appDetails.ownerData &&
+					appService.appDetails.ownerData.slug
+				) {
+					return requestService.getOrgPlanData(appService.appDetails.ownerData.slug).then(function(ownerPlanData) {
+						appService.ownerPlanData = ownerPlanData;
+					});
+				}
+				appService.ownerPlanData = null;
+				return $q.when();
+			}
 
 			return appService;
 		});

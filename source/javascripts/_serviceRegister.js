@@ -6,6 +6,7 @@ import loggerFactory from "./services/logger";
 import workflowSelectionserviceFactory from "./services/workflows-selection-service";
 import workflowSelectionStore from "./services/workflow-selection-store";
 import * as appService from "./services/app-service";
+import * as planService from "./services/plan-service";
 
 angular
 	.module("BitriseWorkflowEditor")
@@ -46,4 +47,7 @@ angular
 	])
 	.factory("reactCompatService", function() {
 		return { cachedFn: cachedFn };
+	})
+	.factory("planServiceUtil", function() {
+		return planService;
 	});

@@ -241,6 +241,40 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			requestService.getOrgPlanData = function(orgSlug, requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters(
+							"<%= webserver_path(data[:routes][:website][:get_org_plan_data]) %>",
+							{
+								org_slug: orgSlug
+							}
+						);
+						break;
+					case "cli":
+						return $q.reject(
+							new Error("<%= data[:strings][:request_service][:get_org_plan_data][:not_website_mode_error] %>")
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve({
+								id: response.data.current_plan.id,
+								name: response.data.current_plan.name,
+								tier: response.data.current_plan.tier,
+							});
+						},
+						function(response) {
+							resolve(null);
+						}
+					);
+				});
+			};
+
 			// Codesigndoc Bash Command
 
 			requestService.getCodeSigningBashCommand = function(requestConfig) {
