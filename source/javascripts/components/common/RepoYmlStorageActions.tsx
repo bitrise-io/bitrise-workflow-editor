@@ -19,8 +19,7 @@ const useFormattedYml = (appConfig: AppConfig): string => {
 		{
 			method: "POST",
 			headers: {
-				Accept: "application/x-yaml, application/json",
-				"Content-Type": "application/x-yaml"
+				Accept: "application/x-yaml, application/json"
 			}
 		},
 		identityParser
@@ -38,7 +37,9 @@ const useFormattedYml = (appConfig: AppConfig): string => {
 
 		if (typeof appConfig === "object") {
 			formatAppConfigRef.current?.({
-				body: yaml
+				body: JSON.stringify({
+					app_config_datastore_yaml: yaml
+				})
 			});
 		}
 	}, [appConfig]);
