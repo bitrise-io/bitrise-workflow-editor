@@ -269,7 +269,13 @@ import jsyaml from "js-yaml";
 							});
 						},
 						function(response) {
-							resolve(null);
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:get_org_plan_data][:default_error] %>",
+									"<%= data[:strings][:request_service][:get_org_plan_data][:error_prefix] %>"
+								)
+							);
 						}
 					);
 				});

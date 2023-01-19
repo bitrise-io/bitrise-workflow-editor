@@ -573,8 +573,11 @@
 					appService.appDetails.ownerData &&
 					appService.appDetails.ownerData.slug
 				) {
-					return requestService.getOrgPlanData(appService.appDetails.ownerData.slug).then(function(ownerPlanData) {
+					return requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+					.then(function(ownerPlanData) {
 						appService.ownerPlanData = ownerPlanData;
+					}).catch(() => {
+						appService.ownerPlanData = null;
 					});
 				}
 				appService.ownerPlanData = null;
