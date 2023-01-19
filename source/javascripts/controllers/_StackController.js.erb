@@ -46,7 +46,10 @@
 				appService.getOwnerPlanData().then(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
-				})
+				}).catch(() => {
+					$scope.showMachineCreditCost = getShowMachineCreditCost();
+					configure();
+				});
 			};
 
 			$scope.$on(
