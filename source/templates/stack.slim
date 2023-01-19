@@ -38,7 +38,7 @@
 										span.name[ng-bind="machineType.name"]
 										span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
 										span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-									.credit-per-min
+									.credit-per-min[ng-show="showMachineCreditCost"]
 										span[ng-bind="machineType.creditPerMin"]
 										span< credits/min
 								.separator
@@ -93,7 +93,7 @@
 											span.name[ng-bind="machineType.name"]
 											span.tag[ng-class="machineType.tag" ng-bind="machineType.tag" ng-if="!$parent.$first || !$parent.$last"]
 											span.note[ng-if="machineType.note" ng-bind="machineType.note"]
-										.credit-per-min
+										.credit-per-min[ng-show="showMachineCreditCost"]
 											span[ng-bind="machineType.creditPerMin"]
 											span< credits/min
 									.separator
