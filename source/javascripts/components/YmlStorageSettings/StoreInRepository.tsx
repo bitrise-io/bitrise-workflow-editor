@@ -97,13 +97,13 @@ const StorageInRepository = ({
 			<Box display="flex" flexDirection="column" gap="24">
 				<StoreInRepositoryDescription
 					title={
-						appConfigFromRepo || getAppConfigFromRepoStatus !== 404
+						appConfigFromRepo || getAppConfigFromRepoStatus === 422
 							? "Update the bitrise.yml file in your app's repository"
 							: "Add bitrise.yml to the app repository"
 					}
 					description={
 						/* eslint-disable max-len */
-						appConfigFromRepo || getAppConfigFromRepoStatus !== 404
+						appConfigFromRepo || getAppConfigFromRepoStatus === 422
 							? "The repository already contains a bitrise.yml file. Update the file in the repository with the content of the current one on bitrise.io. "
 							: "You need to add your current bitrise.yml file to the app repository before proceeding. You can either copy the entire content of the file to the clipboard or download the file itself. "
 						/* eslint-enable max-len */
