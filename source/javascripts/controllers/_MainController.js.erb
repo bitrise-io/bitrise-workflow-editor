@@ -105,7 +105,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.currentUser;
 			viewModel.productTourShown;
 			viewModel.lastWorkflowEditedDate;
-			viewModel.guidedOnboardingEnabled = false;
 			viewModel.productTourDismissed = false;
 			viewModel.guidedOnboardingEnabledForUser = false;
 
@@ -547,9 +546,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						function() {
 							viewModel.saveProgress.reset();
 							$rootScope.$emit("MainController::savedFinishedWithSuccess");
-							if (viewModel.guidedOnboardingEnabled) {
-								updateLastWorkflowMetadata();
-							}
+							updateLastWorkflowMetadata();
 						},
 						function(error) {
 							viewModel.saveProgress.reset();
@@ -688,22 +685,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.currentUser = response;
 				})
 
-				launchDarklyService.initialize().then(() => {
-					viewModel.guidedOnboardingEnabled = launchDarklyService.variation('enable-guided-onboarding');
-					if (viewModel.guidedOnboardingEnabled) {
-						const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
-						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
-						const tourReq = requestService.getProductTourShown();
-						Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
-							viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
-							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-							viewModel.productTourShown = tourResp;
-						});
-					} else {
-						requestService.getProductTourShown().then(function(response) {
-							viewModel.productTourShown = response.tourShown;
-						});
-					}
+				const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+				const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
+				const tourReq = requestService.getProductTourShown();
+				Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
+					viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
+					viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+					viewModel.productTourShown = tourResp;
 				});
 
 				$q(function(resolve, reject) {
@@ -779,7 +767,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 			
 			viewModel.showGuidedOnboarding = function() {
-				return viewModel.guidedOnboardingEnabled && viewModel.guidedOnboardingEnabledForUser;
+				return viewModel.guidedOnboardingEnabledForUser;
 			}
 
 			viewModel.onTurnOffGuidedOnboarding = function() {
