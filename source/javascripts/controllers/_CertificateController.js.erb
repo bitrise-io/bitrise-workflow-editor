@@ -376,19 +376,6 @@
 				viewModel.listOfIdentitiesPopup.isVisible = true;
 			};
 
-			viewModel.placeholderForPasswordOfCertificate = function(certificate) {
-				return function(password) {
-					if (certificate.isProtected === undefined) {
-						return undefined;
-					}
-					if (certificate.isProtected) {
-						return "*";
-					}
-
-					return Array((certificate.password  || "").length + 1).join("*");
-				}
-			};
-
 			$scope.$on("$destroy", function() {
 				canceler.resolve();
 				if (unresolvedCertificateReloadPromise) {
