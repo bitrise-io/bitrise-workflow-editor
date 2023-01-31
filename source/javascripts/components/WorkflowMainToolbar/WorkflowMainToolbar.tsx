@@ -34,11 +34,16 @@ const WorkflowMainToolbar = ({
 			)}
 			<IconButton iconName="PlusOpen" variant='secondary' onClick={onAddNewWorkflow} aria-label='Add new Workflow' />
 			<Menu placement="bottom-end">
-        <MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
+				<MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
 				<MenuList>
 					<MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>Insert Workflow before</MenuItem>
 					<MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>Insert Workflow after</MenuItem>
-					<MenuItem iconName="Request" onClick={onRearrangeWorkflow}>Rearrange Workflows</MenuItem>
+					<MenuItem
+						iconName="Request"
+						onClick={onRearrangeWorkflow}
+					>
+						Change Workflow execution order
+					</MenuItem>
 					<MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>Delete selected Workflow</MenuItem>
 				</MenuList>
 			</Menu>
