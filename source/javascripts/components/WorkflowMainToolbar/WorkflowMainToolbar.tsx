@@ -40,6 +40,7 @@ const WorkflowMainToolbar = ({
 					<MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>Insert Workflow after</MenuItem>
 					<MenuItem
 						iconName="Request"
+						isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
 						onClick={onRearrangeWorkflow}
 					>
 						Change Workflow execution order
