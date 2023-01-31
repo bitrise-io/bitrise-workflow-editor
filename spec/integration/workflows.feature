@@ -193,7 +193,7 @@ Feature: Workflows
   Scenario: User opens the Rearrange
     Given "wf3" workflow is selected
     When I click on "Manage Workflows dropdown button"
-      And I click on "Rearrange button"
+      And I click on "Change Workflow execution order button"
     Then "Rearrange popup" should "be visible"
       And "Workflow chain before workflows" should contain 1 "li"
       And "Workflow chain after workflows" should contain 3 "li"

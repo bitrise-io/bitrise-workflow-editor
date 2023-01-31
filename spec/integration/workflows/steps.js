@@ -36,7 +36,7 @@ Given("Workflow description is in edit mode", () => {
 
 Given("Rearrange popup is open", () => {
 	click("Manage Workflows dropdown button");
-	click("Rearrange button");
+	click("Change Workflow execution order button");
 });
 
 Then("Workflow appeared with name {string}", name => {
