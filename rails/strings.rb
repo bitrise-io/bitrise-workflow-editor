@@ -100,7 +100,7 @@ def strings
                 },
                 rearrange: {
                     action: "Rearrange",
-                    drag_n_drop: "Drag & drop to rearrange Workflows",
+                    drag_n_drop: "Drag & drop to change Workflow execution order",
                     done: "Done",
                     cancel: "Cancel"
                 },

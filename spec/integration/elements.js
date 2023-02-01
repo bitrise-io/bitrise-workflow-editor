@@ -158,7 +158,7 @@ export const elements = {
 	"Triggers tab": "button[data-e2e-tag='triggers-tab']",
 	"Workflows tab": "button[data-e2e-tag='workflows-tab']",
 
-	"Rearrange button": "button:contains('Rearrange Workflows')",
+	"Change Workflow execution order button": "button:contains('Change Workflow execution order')",
 	"Rearrange popup": "#rearrange-workflow-chain-popup-body",
 	"Workflow chain": ".workflow-chain",
 	"Workflow chain selected workflow": "#rearrange-workflow-chain-popup-body .workflow-chain .selected",
