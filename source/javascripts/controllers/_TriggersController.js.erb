@@ -90,7 +90,7 @@
 					viewModel.targets = viewModel.targets.concat(workflows);
 				}
 
-				if (launchDarklyService.variation('enable-build-pipelines') && appService.appConfig.pipelines) {
+				if (appService.appConfig.pipelines) {
 					var pipelines = Object.keys(appService.appConfig.pipelines)
 						.map(function(pipelineId) {
 							return { value: "pipeline#" + pipelineId, groupLabel: "Pipelines", label: pipelineId };
