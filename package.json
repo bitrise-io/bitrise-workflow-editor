@@ -20,7 +20,7 @@
 		"e2e:api": "./_scripts/run_api.sh",
 		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY\"",
 		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\"",
-		"ci-with-test-report": "MODE=CLI cypress run --reporter junit --reporter-options \"mochaFile=spec/integration/cypress/results/test-report.xml,toConsole=true\""
+		"ci-with-test-report": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --reporter junit --reporter-options \"mochaFile=spec/integration/cypress/results/test-report.xml,toConsole=true\"\"",
 	},
 	"repository": {
 		"type": "git",
