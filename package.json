@@ -13,13 +13,14 @@
 		"build:website": "MODE=WEBSITE ANALYTICS=true HOTJAR=true FRESHPAINT=true SEGMENT=true DATADOG_RUM=true npm run build",
 		"build:plugin": "MODE=CLI ANALYTICS=true FRESHPAINT=true npm run build && bitrise run create-binaries",
 		"start:dev": "webpack-dev-server",
-		"start": "NODE_ENV=development concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 4000\"",
+		"start": "NODE_ENV=development MODE=CLI concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 4000\"",
 		"start:website": "NODE_ENV=development MODE=WEBSITE PUBLIC_URL_ROOT=http://localhost:4000 npm start",
 		"e2e:dev": "cypress open",
 		"e2e:run": "cypress run",
 		"e2e:api": "./_scripts/run_api.sh",
 		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY\"",
-		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\""
+		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\"",
+		"ci-with-test-report": "MODE=CLI cypress run --reporter junit --reporter-options \"mochaFile=spec/integration/cypress/results/test-report.xml,toConsole=true\""
 	},
 	"repository": {
 		"type": "git",
