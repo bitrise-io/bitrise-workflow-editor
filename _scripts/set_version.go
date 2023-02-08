@@ -113,8 +113,9 @@ func bumpPluginVersion(version string, pluginDefinitionPath string) {
 	updatedLines := []string{}
 	for scanner.Scan() {
 		line := scanner.Text()
-		if strings.HasPrefix(line, "  osx: ") || strings.HasPrefix(line, "  linux: ") {
+		if strings.HasPrefix(line, "  osx: ") || strings.HasPrefix(line, "  osx-arm64: ") || strings.HasPrefix(line, "  linux: ") {
 			// osx: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/0.9.2/workflow-editor-Darwin-x86_64
+			// osx-arm64: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/0.9.2/workflow-editor-Darwin-arm64
 			// linux: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/0.9.2/workflow-editor-Linux-x86_64
 
 			pattern := `.+/(?P<version>[0-9]+.[0-9]+.[0-9]+)/.+`
