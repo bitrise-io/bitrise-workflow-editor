@@ -108,7 +108,6 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 					>
 						<Text
 							textColor="purple.10"
-							width="114px"
 							hasEllipsis
 							textAlign="left"
 							data-e2e-tag="workflow-selector-selected-workflow-name"
