@@ -52,14 +52,14 @@ Feature: triggers
       And I should see "wf5" in "First trigger workflow"
 
   Scenario: Reordering triggers by dragging
-    When I click on "Pull filter"
+    When I click on "Push filter"
     Then I should see "wf1" in "First trigger workflow"
     When I drag "First trigger" down
     Then I should see "wf2" in "First trigger workflow"
 
   Scenario: Trigger should be removed on clicking Delete
     When I click on "Push filter"
-    Then I should see 3 triggers
+    Then I should see 2 triggers
       And "Save Button" should "be disabled"
     When I click on "First trigger delete"
     Then I should see a trigger

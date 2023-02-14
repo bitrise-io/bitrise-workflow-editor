@@ -102,7 +102,7 @@ workflows:
       - NODE_ENV: "prod"
     before_run:
     - _install_test_tools
-    # - test-api
+    - test-api
     - test-client
 
   _install_test_tools:
@@ -123,10 +123,10 @@ workflows:
     before_run:
       - setup-plugin-api
     steps:
-    # - script:
-    #     title: Unit tests & linting
-    #     inputs:
-    #     - content: npm run test-ci
+    - script:
+        title: Unit tests & linting
+        inputs:
+        - content: npm run test-ci
     - script:
         title: E2E tests
         inputs:
