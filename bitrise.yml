@@ -130,7 +130,7 @@ workflows:
     - script:
         title: E2E tests
         inputs:
-        - content: npm run ci-with-test-report
+        - content: npm run e2e-ci
 
   test-api:
     steps:
