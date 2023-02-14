@@ -18,7 +18,7 @@
 		"e2e:dev": "cypress open",
 		"e2e:run": "cypress run",
 		"e2e:api": "./_scripts/run_api.sh",
-		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --reporter junit --record --reporter-options mochaFile=spec/integration/cypress/results/test-report.xml,toConsole=true\"",
+		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --reporter junit --reporter-options mochaFile=spec/integration/cypress/results/test-report.xml,toConsole=true\"",
 		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\""
 	},
 	"repository": {
