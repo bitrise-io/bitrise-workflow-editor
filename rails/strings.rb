@@ -680,7 +680,6 @@ def strings
                     gen1: "The tried and tested machines that have been serving our customers for many years now",
                     gen2: "These machines run on a new hardware generation, offering improved performance compared to Gen1 hardware"
                 },
-                apple_silicon_beta_warning: "<machineName> machines are in beta. Some features (e.g. the Android emulator) are not supported yet. <a href='<url>' target='_blank'>Learn more</a>"
             },
             machine_type: {
                 workflow_specific_settings: {
