@@ -18,8 +18,8 @@
 		"e2e:dev": "cypress open",
 		"e2e:run": "cypress run",
 		"e2e:api": "./_scripts/run_api.sh",
-		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY --reporter junit --reporter-options mochaFile=spec/integration/cypress/results/test-report.xml,toConsole=true\"",
-		"e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\""
+		"e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY --reporter cypress-multi-reporters --reporter-options configFile=reporter-config.js\"",
+		"e2e": "cypress run --reporter cypress-multi-reporters --reporter-options configFile=reporter-config.js"
 	},
 	"repository": {
 		"type": "git",
@@ -87,8 +87,9 @@
 		"concurrently": "^5.1.0",
 		"copy-webpack-plugin": "^6.0.0",
 		"css-loader": "^3.4.2",
-		"cypress": "^4.4.1",
+		"cypress": "^11.2.0",
 		"cypress-cucumber-preprocessor": "^3.0.0",
+		"cypress-multi-reporters": "^1.6.2",
 		"eslint": "^8.24.0",
 		"eslint-config-prettier": "^6.10.1",
 		"eslint-plugin-jasmine": "^4.1.1",
@@ -103,6 +104,7 @@
 		"karma-jsdom-launcher": "^9.0.0",
 		"karma-spec-reporter": "^0.0.32",
 		"mini-css-extract-plugin": "^2.0.0",
+		"mocha-junit-reporter": "^2.2.0",
 		"monaco-editor-webpack-plugin": "^7.0.1",
 		"node-sass": "^7.0.1",
 		"null-loader": "^4.0.0",
