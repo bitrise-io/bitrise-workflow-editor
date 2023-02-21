@@ -87,7 +87,7 @@
 		"concurrently": "^5.1.0",
 		"copy-webpack-plugin": "^6.0.0",
 		"css-loader": "^3.4.2",
-		"cypress": "^11.2.0",
+		"cypress": "^12.6.0",
 		"cypress-cucumber-preprocessor": "^3.0.0",
 		"cypress-multi-reporters": "^1.6.2",
 		"eslint": "^8.24.0",
