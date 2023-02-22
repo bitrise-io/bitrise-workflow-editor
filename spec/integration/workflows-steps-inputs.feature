@@ -29,7 +29,7 @@ Feature: Workflow steps inputs
     When I click on "Selected Step Second Input Category"
     Then "Selected Step Second Input Category Inputs" should "be visible"
     When I click on "Selected Step Second Input Category Toggle Button"
-    Then "Selected Step Second Input Category Inputs" should "not be visible"
+    Then "Selected Step Second Input Category Inputs" should "not exist"
 
   Scenario: A changeable Input
     When I click on "First step"

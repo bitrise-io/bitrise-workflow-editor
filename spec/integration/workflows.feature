@@ -161,20 +161,19 @@ Feature: Workflows
       And I click on "wf3 workflow rename submit"
       And I click away
     Then I should see "my_new_wf_name" in "Selected Workflow Name"
-      And "my_new_wf_name workflow rename submit" should "not be visible"
-      And "my_new_wf_name workflow rename submit" should "not be enabled"
+      And "my_new_wf_name workflow rename submit" should "not exist"
 
   Scenario: User leaves the Workflow dropdown by clicking outside of it
     Given the Workflow dropdown is open
     When I click on "Selected Workflow Name"
       And I click away
-    Then "Workflow selector dropdown" should "not be visible"
+    Then "Workflow selector dropdown" should "not exist"
     When I click on "Selected Workflow Name"
       And I press "ESC"
-    Then "Workflow selector dropdown" should "not be visible"
+    Then "Workflow selector dropdown" should "not exist"
     When I click on "Selected Workflow Name"
       And I click on "Selected Workflow Name"
-    Then "Workflow selector dropdown" should "not be visible"
+    Then "Workflow selector dropdown" should "not exist"
 
   Scenario: User focuses to a Workflow's description box
     Given "wf3" workflow is selected
