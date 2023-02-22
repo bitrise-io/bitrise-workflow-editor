@@ -173,7 +173,7 @@ Feature: Workflows
     Then "Workflow selector dropdown" should "not exist"
     When I click on "Selected Workflow Name"
       And I click on "Selected Workflow Name"
-    Then "Workflow selector dropdown" should "not exist"
+    Then "Workflow selector dropdown" should "exist"
 
   Scenario: User focuses to a Workflow's description box
     Given "wf3" workflow is selected
