@@ -685,14 +685,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.currentUser = response;
 				})
 
-				const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
-				const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
-				const tourReq = requestService.getProductTourShown();
-				Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
-					viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
-					viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-					viewModel.productTourShown = tourResp;
-				});
+				if (requestService.mode === 'website') {
+					const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+					const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
+					const tourReq = requestService.getProductTourShown();
+					Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
+						viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
+						viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+						viewModel.productTourShown = tourResp;
+					});
+				}
 
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
