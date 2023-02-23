@@ -42,7 +42,7 @@ Feature: Workflow steps details
 
   Scenario: Step details check (versioning etc...)
     # Up-to-date library step
-    Then "First StepItem Version Update Indicator" should "not be visible"
+    Then "First StepItem Version Update Indicator" should "not exist"
     # Non up-to-date library step
     When I click on "Second step"
     Then "Step Version Details" should "be visible"
@@ -53,18 +53,18 @@ Feature: Workflow steps details
     When I select "wf2 workflow" from "Workflow selector"
       And I click on "Second step"
     # GitHub step
-    Then "Second StepItem Version Update Indicator" should "not be visible"
+    Then "Second StepItem Version Update Indicator" should "not exist"
       And I should see "master" in "Second StepItem Version"
       And "Step Version Details" should "be visible"
-      And "Step Version Update Icon" should "not be visible"
-      And "Step Version Selector" should "not be visible"
+      And "Step Version Update Icon" should "not exist"
+      And "Step Version Selector" should "not exist"
       And "Step Version Branch Icon" should "be visible"
       And I should see "Branch: master" in "Step Version"
     # Local step
     When I click on "Fourth step"
-    Then "Forth StepItem Version Update Indicator" should "not be visible"
+    Then "Forth StepItem Version Update Indicator" should "not exist"
       And I should see "Always latest" in "Fourth StepItem Version"
-      And "Step Version Details" should "not be visible"
+      And "Step Version Details" should "not exist"
     When I click on "Eighth step"
     Then "Step Version Details" should "be visible"
       And "Step Version Selector" should "be visible"
@@ -74,7 +74,7 @@ Feature: Workflow steps details
 
   Scenario: Version Downgrade
     When I click on "First step"
-    Then "First StepItem Version Update Indicator" should "not be visible"
+    Then "First StepItem Version Update Indicator" should "not exist"
       And I should see "2.4.0" in "First StepItem Version"
       And "Step Version Details" should "be visible"
       And I should see "2.4.0" in "Step Version"
@@ -110,7 +110,7 @@ Feature: Workflow steps details
       And I should see "Version: 1.2.0" in "Step Version"
       And "Step Version Branch Icon" should "exist"
       And I should see "1.x.x" in "Second StepItem Version"
-      And "Second StepItem Version Update Indicator" should "not be visible"
+      And "Second StepItem Version Update Indicator" should "not exist"
       And "Step Version Update Icon" should "not exist"
 
   # For some reason this scenario started to fail at some point,
@@ -122,7 +122,7 @@ Feature: Workflow steps details
   # "exist" instead of "be visible" and "not exist" instead of "not be visible".
   Scenario: Latest Version Update
     When I click on "First step"
-    Then "First StepItem Version Update Indicator" should "not be visible"
+    Then "First StepItem Version Update Indicator" should "not exist"
       And I should see "2.4.0" in "First StepItem Version"
       And "Step Version Details" should "be visible"
       And I should see "2.4.0" in "Step Version"
@@ -141,7 +141,7 @@ Feature: Workflow steps details
       And "Step Version Branch Icon" should "exist"
       And "Step Version Update Icon" should "not exist"
       And I should see "2.x.x" in "First StepItem Version"
-      And "First StepItem Version Update Indicator" should "not be visible"
+      And "First StepItem Version Update Indicator" should "not exist"
     When I click on "Eighteenth step"
     Then I should see "1.7.1" in "Eighteenth StepItem Version"
       And I scroll "Step edit container" to 100px
@@ -163,16 +163,16 @@ Feature: Workflow steps details
     When I select "2.x.x" from "Step Version Selector"
       And I confirm on "Alert popup"
     Then I should see "2.x.x" in "Eighteenth StepItem Version"
-      And I should see "2.1.6" in "Step Version"
+      And I should see "2.1.7" in "Step Version"
       And "Step Version Branch Icon" should "exist"
       And "Step Version Update Icon" should "not exist"
 
   Scenario: Always latest vs latest major lock
     When I click on "Third step"
-    Then I should see "Version: 4.1.0" in "Step Version"
+    Then I should see "Version: 4.0.5" in "Step Version"
       And I should see "Always latest" in "Third StepItem Version"
     When I select "4.x.x" from "Step Version Selector"
-    Then I should see "Version: 4.1.0" in "Step Version"
+    Then I should see "Version: 4.0.5" in "Step Version"
       And I should see "4.x.x" in "Third StepItem Version"
 
   Scenario: Step with always run capabilities
