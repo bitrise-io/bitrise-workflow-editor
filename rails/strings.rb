@@ -1099,7 +1099,7 @@ def strings
                 default_outputs_get: "/api/default-outputs"
             },
             devcenter: {
-                bitrise_cli: "http://devcenter.bitrise.io/bitrise-cli",
+                bitrise_cli: "https://devcenter.bitrise.io/en/bitrise-cli.html",
                 env_var_is_expand: "https://devcenter.bitrise.io/getting-started/getting-started-steps/#environment-variables-as-step-inputs",
                 m1_stacks: "https://devcenter.bitrise.io/en/infrastructure/build-stacks/apple-silicon-m1-stacks"
             },
