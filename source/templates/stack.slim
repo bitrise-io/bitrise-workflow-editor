@@ -51,8 +51,6 @@
 										.ram[ng-bind="machineType.ram"]
 									.os[ng-if="appService.stack.osForChip" ng-bind="stackCtrl.osForStackWithMachineType(appService.stack, machineType)"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-				.machine-type-warning-wrapper
-					p.notification.warning[ng-if="stackCtrl.isAppleSiliconMachineType(appService.defaultMachineType.id)"] == replaced_string(data[:strings][:stack][:apple_silicon_beta_warning], ["{{appService.defaultMachineType.name}}", data[:routes][:devcenter][:m1_stacks]])
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
@@ -106,5 +104,3 @@
 											.ram[ng-bind="machineType.ram"]
 										.os[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().osForChip" ng-bind="stackCtrl.osForStackWithMachineType(stackCtrl.stackGetterSetterForWorkflow(workflow, true)(), machineType)"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-					.machine-type-warning-wrapper
-						p.notification.warning[ng-if="stackCtrl.isAppleSiliconMachineType(stackCtrl.workflowMachineType(workflow).id)"] == replaced_string(data[:strings][:stack][:apple_silicon_beta_warning], ["{{stackCtrl.workflowMachineType(workflow).name}}", data[:routes][:devcenter][:m1_stacks]])

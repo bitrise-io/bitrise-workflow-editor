@@ -18,18 +18,13 @@ Cypress.Commands.add("waitForSteps", () => {
 });
 
 Cypress.Commands.add("loadSteps", (cb) => {
-	cy.server();
-	cy.route("POST", "/1/indexes/steplib_inputs/**").as("steplib-inputs");
-
+	cy.intercept("POST", "/1/indexes/steplib_inputs/**").as("steplib-inputs");
 	cy.fixture("steps.json").then(steps => {
-		cy.route(
-			mockRequest("POST", "/1/indexes/steplib_steps/**", xhr => {
-				const { body } = xhr.request;
-				if (body.query === "") {
-					return steps;
-				}
+		cy.intercept("POST", "/1/indexes/steplib_steps/**", (req) => {
+			req.reply({
+				body: steps
 			})
-		).as("steplib-steps");
+		}).as("steplib-steps")
 
 		cb();
 		cy.waitForSteps();

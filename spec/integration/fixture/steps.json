@@ -555,7 +555,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.7",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.7",
@@ -701,7 +701,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.1.6",
@@ -13837,7 +13838,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.6",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.6",
@@ -13917,7 +13918,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.5",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.5",
@@ -13997,7 +13998,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.4",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.4",
@@ -14077,7 +14078,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.3",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.3",
@@ -14224,7 +14225,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.2",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.2",
@@ -14371,7 +14372,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.1",
@@ -14518,7 +14519,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.0",
@@ -15184,7 +15185,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.8.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.8.0",
@@ -15326,7 +15327,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.7.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.7.1",
@@ -15406,7 +15407,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.7.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.7.0",
@@ -15548,7 +15549,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.6.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.6.1",
@@ -15628,7 +15629,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.6.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.6.0",
@@ -15846,7 +15847,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.5.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.5.0",
@@ -15970,7 +15971,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.4.2",
             "id": "deploy-to-bitrise-io",
             "version": "1.4.2",
@@ -16144,7 +16145,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.4.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.4.1",
@@ -16302,7 +16303,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.4.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.4.0",
@@ -16460,7 +16461,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.9",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.9",
@@ -16524,7 +16525,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.8",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.8",
@@ -16588,7 +16589,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.7",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.7",
@@ -16652,7 +16653,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.6",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.6",
@@ -16716,7 +16717,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.5",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.5",
@@ -16780,7 +16781,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.4",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.4",
@@ -16844,7 +16845,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.3",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.3",
@@ -16909,7 +16910,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.2",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.2",
@@ -16974,7 +16975,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.19",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.19",
@@ -17054,7 +17055,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.18",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.18",
@@ -17134,7 +17135,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.17",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.17",
@@ -17214,7 +17215,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.16",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.16",
@@ -17294,7 +17295,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.15",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.15",
@@ -17374,7 +17375,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.14",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.14",
@@ -17454,7 +17455,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.12",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.12",
@@ -17534,7 +17535,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.11",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.11",
@@ -17614,7 +17615,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.10",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.10",
@@ -17694,7 +17695,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.1",
@@ -17759,7 +17760,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.3.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.3.0",
@@ -17902,7 +17903,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.9",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.9",
@@ -17961,7 +17962,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.8",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.8",
@@ -18021,7 +18022,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.7",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.7",
@@ -18081,7 +18082,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.6",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.6",
@@ -18141,7 +18142,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.5",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.5",
@@ -18201,7 +18202,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.4",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.4",
@@ -18261,7 +18262,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.3",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.3",
@@ -18321,7 +18322,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.2",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.2",
@@ -18459,7 +18460,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.1",
@@ -18597,7 +18598,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.2.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.2.0",
@@ -18935,10 +18936,11 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
-            "latest_version_number": "1.1.6",
-            "cvs": "script@1.1.5",
+            "latest_version_number": "1.2.0",
+            "cvs": "script@1.2.0",
             "id": "script",
             "version": "1.1.5",
             "is_latest": false,
@@ -18977,12 +18979,13 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
-            "latest_version_number": "1.1.6",
-            "cvs": "script@1.1.4",
+            "latest_version_number": "1.2.0",
+            "cvs": "script@1.2.0",
             "id": "script",
-            "version": "1.1.4",
+            "version": "1.2.0",
             "is_latest": false,
             "is_deprecated": false,
             "step": {
@@ -19076,7 +19079,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.1.3",
@@ -19175,7 +19179,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.1.2",
@@ -19218,7 +19223,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.1.1",
@@ -19395,7 +19401,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.1.0",
@@ -19476,7 +19483,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.1.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.1.0",
@@ -20201,7 +20208,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.0.1",
             "id": "deploy-to-bitrise-io",
             "version": "1.0.1",
@@ -20347,7 +20354,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.0.0",
@@ -20390,7 +20398,67 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
+            "cvs": "deploy-to-bitrise-io@1.13.2",
+            "id": "deploy-to-bitrise-io",
+            "version": "1.13.2",
+            "is_latest": false,
+            "is_deprecated": false,
+            "step": {
+                "title": "Deploy to bitrise.io",
+                "summary": "Generic artifacts deployer, attaches the artifacts to bitrise.io builds.",
+                "description": "Generic artifacts deployer, attaches the artifacts to bitrise.io builds.",
+                "website": "https://github.com/bitrise-io/steps-deploy-to-bitrise-io",
+                "source_code_url": "https://github.com/bitrise-io/steps-deploy-to-bitrise-io",
+                "support_url": "https://github.com/bitrise-io/steps-deploy-to-bitrise-io/issues",
+                "published_at": "2015-11-13T19:57:27.432038166+01:00",
+                "source": {
+                    "git": "https://github.com/bitrise-io/steps-deploy-to-bitrise-io.git",
+                    "commit": "397466bd1321f019f4584238ea35317d2be2805a"
+                },
+                "asset_urls": {
+                    "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
+                },
+                "host_os_tags": [
+                    "osx-10.10"
+                ],
+                "type_tags": [
+                    "deploy",
+                    "artifact"
+                ],
+                "is_requires_admin_user": false,
+                "is_always_run": false,
+                "is_skippable": false,
+                "run_if": ".IsCI",
+                "timeout": 0,
+                "outputs": [
+                    {
+                        "BITRISE_PUBLIC_INSTALL_PAGE_URL": null,
+                        "opts": {
+                            "category": "",
+                            "description": "Public Install Page's URL, if the\n*Enable public page for the App?* option was *enabled*.",
+                            "is_dont_change_value": false,
+                            "is_expand": true,
+                            "is_required": false,
+                            "is_sensitive": false,
+                            "is_template": false,
+                            "skip_if_empty": false,
+                            "summary": "",
+                            "title": "Public Install Page URL",
+                            "unset": false
+                        }
+                    }
+                ]
+            },
+            "objectID": "12066966002"
+        },
+        {
+            "info": {
+                "asset_urls": {
+                    "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
+                }
+            },
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.0.0",
             "id": "deploy-to-bitrise-io",
             "version": "1.0.0",
@@ -22034,7 +22102,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@0.9.1",
@@ -22167,7 +22236,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@0.9.1",
             "id": "deploy-to-bitrise-io",
             "version": "0.9.1",
@@ -22525,7 +22594,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@0.9.0",
@@ -22607,7 +22677,7 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@0.9.0",
             "id": "deploy-to-bitrise-io",
             "version": "0.9.0",
@@ -26715,7 +26785,87 @@
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
                 }
             },
-            "latest_version_number": "1.9.7",
+            "latest_version_number": "2.1.7",
+            "cvs": "deploy-to-bitrise-io@2.1.7",
+            "id": "deploy-to-bitrise-io",
+            "version": "2.1.7",
+            "is_latest": true,
+            "is_deprecated": false,
+            "step": {
+                "title": "Deploy to Bitrise.io - Apps, Logs, Artifacts",
+                "summary": "Deploys build artifacts to make them available for the user on the build's **APPS & ARTIFACTS** tab. Sends test results to the Test Reports add-on.",
+                "description": "The Step collects artifacts from previous Steps in the Workflow and places them in a specified deploy directory or compresses them into a single .zip file in the deploy directory. These artifacts are then available on the **APPS & ARTIFACTS** tab of any given build. For installable artifacts, such as IPAs or APKs, the Step can create a public install page that allows testers to install the app on their devices. You can also use the Step to notify users about the build.\n\nThis Step is required in order to use the Test Reports add-on. It converts the test results to the right format and sends them to the add-on.\n\n### Configuring the Step\n\n1. Set the value for the Deploy directory of file path. The default is the $BITRISE_DEPLOY_DIR environment variable which is exposed by the Bitrise CLI.\n2. Set the **Notify: User Roles** and the **Notify: Emails** inputs to configure notifications for the users. Note that the **Notify: Emails** input is only used if a public install page is created and you must use a Secret to set it.\n3. Optionally, you can create a zip file for all your build artifacts by setting the **Compress the artifacts into one file?** input to `true`. \n\nGet a public install page that allows testers to install the app on their devices:\n\n1. Set the **Enable public page for the App?** input to `true`.\n2. Set the **Compress the artifacts into one file?** input to `false`. If all the contents of the deploy directory are compressed into a single zip file, there won't be a public install page.\n\n### Troubleshooting\n\nIf your users did not get notified via email, check the **Enable public page for the App?** input. If it is set to `false`, no email notifications will be sent.\n\nIf you can't find the artifacts on the **APPS & ARTIFACTS** tab, check the **Deploy directory or file path** input. You can use [remote access](https://devcenter.bitrise.io/builds/remote-access/) to check if your artifacts are available at the specified location.\n\n### Useful links\n- [Deployment on Bitrise](https://devcenter.bitrise.io/deploy/deployment-index/)\n\n### Related Steps\n- [Deploy to Google Play](https://www.bitrise.io/integrations/steps/google-play-deploy)\n- [Deploy to iTunesConnect](https://www.bitrise.io/integrations/steps/deploy-to-itunesconnect-deliver)",
+                "website": "https://github.com/bitrise-steplib/steps-deploy-to-bitrise-io",
+                "source_code_url": "https://github.com/bitrise-steplib/steps-deploy-to-bitrise-io",
+                "support_url": "https://github.com/bitrise-steplib/steps-deploy-to-bitrise-io/issues",
+                "published_at": "2020-03-24T16:11:16.106099106Z",
+                "source": {
+                    "git": "https://github.com/bitrise-steplib/steps-deploy-to-bitrise-io.git",
+                    "commit": "867b718bc0b516d07098e91df18201bbaef020c0"
+                },
+                "asset_urls": {
+                    "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
+                },
+                "host_os_tags": [
+                    "osx-10.10"
+                ],
+                "type_tags": [
+                    "deploy"
+                ],
+                "toolkit": {
+                    "go": {
+                        "package_name": "github.com/bitrise-steplib/steps-deploy-to-bitrise-io"
+                    }
+                },
+                "is_requires_admin_user": false,
+                "is_always_run": true,
+                "is_skippable": false,
+                "run_if": ".IsCI",
+                "timeout": 0,
+                "outputs": [
+                    {
+                        "BITRISE_PUBLIC_INSTALL_PAGE_URL": null,
+                        "opts": {
+                            "category": "",
+                            "description": "Public Install Page's URL, if the\n*Enable public page for the App?* option was *enabled*.",
+                            "is_dont_change_value": false,
+                            "is_expand": true,
+                            "is_required": false,
+                            "is_sensitive": false,
+                            "is_template": false,
+                            "skip_if_empty": false,
+                            "summary": "",
+                            "title": "Public Install Page URL",
+                            "unset": false
+                        }
+                    },
+                    {
+                        "BITRISE_PUBLIC_INSTALL_PAGE_URL_MAP": null,
+                        "opts": {
+                            "category": "",
+                            "description": "Public Install Page URLs by the artifact's file path.\nOnly set it if the *Enable public page for the App?* option was *enabled*.\n\nThe format is `KEY1=>VALUE|KEY2=>VALUE`\n\nExamples:\n\n- $BITRISE_DEPLOY_DIR/ios_app.ipa=>https://ios_app/public/install/page\n- $BITRISE_DEPLOY_DIR/android_app.apk=>https://android_app/public/install/page|$BITRISE_DEPLOY_DIR/ios_app.ipa=>https://ios_app/public/install/page",
+                            "is_dont_change_value": false,
+                            "is_expand": true,
+                            "is_required": false,
+                            "is_sensitive": false,
+                            "is_template": false,
+                            "skip_if_empty": false,
+                            "summary": "",
+                            "title": "Map of filenames and Public Install Page URLs",
+                            "unset": false
+                        }
+                    }
+                ]
+            },
+            "objectID": "12067014002"
+        },
+        {
+            "info": {
+                "asset_urls": {
+                    "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg"
+                }
+            },
+            "latest_version_number": "2.1.7",
             "cvs": "deploy-to-bitrise-io@1.9.7",
             "id": "deploy-to-bitrise-io",
             "version": "1.9.7",
@@ -28911,7 +29061,8 @@
             "info": {
                 "asset_urls": {
                     "icon.svg": "https://bitrise-steplib-collection.s3.amazonaws.com/steps/script/assets/icon.svg"
-                }
+                },
+                "maintainer": "bitrise"
             },
             "latest_version_number": "1.1.6",
             "cvs": "script@1.1.6",
