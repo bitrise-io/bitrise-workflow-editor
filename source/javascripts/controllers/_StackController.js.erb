@@ -36,10 +36,17 @@
 					}
 					return machineType.stackType === stack.type;
 				});
-				result[stack.id] = _.groupBy(stackMachineTypes, 'tag');
+				result[stack.id] = _.groupBy(stackMachineTypes, 'chip');
 
 				return result;
 			}, {});
+
+			viewModel.getStackMachineTypeChipOrder = function (stackId) {
+				if (viewModel.stackMachineMap) {
+					return Object.keys(viewModel.stackMachineMap[stackId] || {}).sort()
+				}
+				return [];
+      		}
 
 			viewModel.init = function() {
 				appService.getOwnerPlanData().then(() => {
