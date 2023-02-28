@@ -41,9 +41,9 @@
 				return result;
 			}, {});
 
-			viewModel.getStackMachineTypeChipOrder = function (stackId) {
+			viewModel.getStackMachineTypeChipOrder = function(stackId) {
 				if (viewModel.stackMachineMap) {
-					return Object.keys(viewModel.stackMachineMap[stackId] || {}).sort()
+					return Object.keys(viewModel.stackMachineMap[stackId] || {}).sort();
 				}
 				return [];
       		}
