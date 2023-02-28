@@ -1,5 +1,5 @@
 import { useState, useMemo, useEffect } from "react";
-import { Box, Text, Notification, Button, ButtonGroup, Radio, RadioGroup } from "@bitrise/bitkit";
+import { Box, Text, Notification, Button, ButtonGroup, Radio } from "@bitrise/bitkit";
 import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
@@ -57,12 +57,6 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
 		getAppConfigFromRepo();
 	}, []);
 
-	const [copyFromValue, setCopyFromValue] = useState<"repository" | "lastSiteVersion">("repository");
-
-	useEffect(() => {
-		setCopyFromValue(copyRepositoryYmlToWebsite ? "repository" : "lastSiteVersion");
-	}, [copyRepositoryYmlToWebsite]);
-
 	const renderError = (): React.ReactElement => {
 		switch (getAppConfigFromRepoStatus) {
 			case 404:
@@ -87,28 +81,22 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
 					Store bitrise.yml on bitrise.io
 				</Text>
 				<Text>Choose which bitrise.yml file should be used on bitrise.io from now:</Text>
-
-				<RadioGroup
-					value={copyFromValue}
-					onChange={value => {
-						setCopyRepositoryYmlToWebsite(value === "repository");
-					}}
+				<Radio
+					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
+					name="website-copy-option"
+					isChecked={copyRepositoryYmlToWebsite}
+					onChange={() => setCopyRepositoryYmlToWebsite(true)}
 				>
-					<Radio
-						disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
-						name="website-copy-option"
-						value="repository"
-					>
-						Copy the content of the bitrise.yml file stored in the app's repository
-					</Radio>
-					<Radio
-						disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
-						name="website-copy-option"
-						value="lastSiteVersion"
-					>
-						Copy the last version you used on bitrise.io
-					</Radio>
-				</RadioGroup>
+					Copy the content of the bitrise.yml file stored in the app's repository
+				</Radio>
+				<Radio
+					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
+					name="website-copy-option"
+					isChecked={!copyRepositoryYmlToWebsite}
+					onChange={() => setCopyRepositoryYmlToWebsite(false)}
+				>
+					Copy the last version you used on bitrise.io
+				</Radio>
 			</Box>
 
 			{getAppConfigFromRepoLoading && <LookingForYmlInRepoProgress />}
