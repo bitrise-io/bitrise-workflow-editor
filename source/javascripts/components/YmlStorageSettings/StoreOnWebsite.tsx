@@ -84,16 +84,16 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
 				<Radio
 					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
 					name="website-copy-option"
-					defaultChecked={copyRepositoryYmlToWebsite}
-					onClick={() => setCopyRepositoryYmlToWebsite(true)}
+					isChecked={copyRepositoryYmlToWebsite}
+					onChange={() => setCopyRepositoryYmlToWebsite(true)}
 				>
 					Copy the content of the bitrise.yml file stored in the app's repository
 				</Radio>
 				<Radio
 					disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
 					name="website-copy-option"
-					defaultChecked={!copyRepositoryYmlToWebsite}
-					onClick={() => setCopyRepositoryYmlToWebsite(false)}
+					isChecked={!copyRepositoryYmlToWebsite}
+					onChange={() => setCopyRepositoryYmlToWebsite(false)}
 				>
 					Copy the last version you used on bitrise.io
 				</Radio>
