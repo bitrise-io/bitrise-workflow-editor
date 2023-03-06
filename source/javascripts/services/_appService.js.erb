@@ -500,7 +500,7 @@
 				}
 
 				if (appService.appDetails.projectTypeID == "other") {
-					return Stack.all;
+					return [...Stack.all];
 				} else {
 					return _.filter(Stack.all, function(aStack) {
 						return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
