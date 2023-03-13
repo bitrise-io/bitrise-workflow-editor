@@ -2,6 +2,8 @@ import { Box, IconButton, Menu, MenuButton, MenuList, MenuItem } from "@bitrise/
 
 import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
+import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
+import { useDisclosure } from "@chakra-ui/react";
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	onAddNewWorkflow: () => void;
@@ -21,7 +23,10 @@ const WorkflowMainToolbar = ({
 	onInsertAfterWorkflow,
 	onRearrangeWorkflow,
 	onDeleteSelectedWorkflow
-}: WorkflowMainToolbarProps): JSX.Element => (
+}: WorkflowMainToolbarProps): JSX.Element => {
+	const {isOpen, onOpen, onClose} = useDisclosure();
+
+	return (
 	<Box display='flex' alignItems="center" justifyContent="space-between">
 		<Box display='flex' alignItems='center' gap='8' id="workflow-main-toolbar">
 			{selectedWorkflow && (
@@ -48,9 +53,12 @@ const WorkflowMainToolbar = ({
 					<MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>Delete selected Workflow</MenuItem>
 				</MenuList>
 			</Menu>
+			<IconButton iconName="Play" aria-label='Start Worklfow' onClick={onOpen}>Run workflow</IconButton>
 		</Box>
 		<WorkflowRecipesLink linkId='workflow-editor-main-toolbar-workflow-recipes-link' trackingName='main_toolbar' />
+		<RunWorkflowDialog isOpen={isOpen} onClose={onClose} />
 	</Box>
-);
+	);
+};
 
 export default WorkflowMainToolbar;
