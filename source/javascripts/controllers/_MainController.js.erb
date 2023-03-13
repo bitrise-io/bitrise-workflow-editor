@@ -745,6 +745,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return true;
 				}
 
+				if (menu && menu.id === 'stack') {
+					if (viewModel.loadDataProgress.statusMessage == "<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>") {
+						return true;
+					}
+				}
+
 				return viewModel.initAppProgress.isIdle && viewModel.loadDataProgress.isIdle;
 			}
 
