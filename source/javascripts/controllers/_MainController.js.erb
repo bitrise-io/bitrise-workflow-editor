@@ -103,7 +103,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
-			viewModel.productTourShown;
+			viewModel.productTourShown = true;
 			viewModel.lastWorkflowEditedDate;
 			viewModel.productTourDismissed = false;
 			viewModel.guidedOnboardingEnabledForUser = false;
@@ -686,13 +686,20 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				})
 
 				if (requestService.mode === 'website') {
-					const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
-					const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
-					const tourReq = requestService.getProductTourShown();
-					Promise.all([guideMetadataReq, lastWFEDateMetadataReq, tourReq]).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
-						viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
-						viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-						viewModel.productTourShown = tourResp;
+					
+					launchDarklyService.initialize().then(() => {
+						const isProductTourEnabled = launchDarklyService.variation('enable-product-tours');
+						const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
+						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
+						const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
+						
+						const requests = _.compact([guideMetadataReq, lastWFEDateMetadataReq, tourReq]);
+
+						Promise.all(requests).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
+							viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
+							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+							viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
+						});
 					});
 				}
 
