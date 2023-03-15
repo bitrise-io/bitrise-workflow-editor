@@ -22,6 +22,10 @@
 			section.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
 				h4.machine-type-header Machine type for the default stack
 				div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(appService.stack.id)"]
+					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'apple'"]
+						| macOS virtual machines (Apple Silicon)
+					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'intel'"]
+						| macOS virtual machines (Intel)
 					.machine-types
 						.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[appService.stack.id][machineChip] track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 							.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
@@ -71,6 +75,10 @@
 				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
+						h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'apple'"]
+							| macOS virtual machines (Apple Silicon)
+						h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'intel'"]
+							| macOS virtual machines (Intel)
 						.machine-types 
 							.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id][machineChip]" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 								.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
