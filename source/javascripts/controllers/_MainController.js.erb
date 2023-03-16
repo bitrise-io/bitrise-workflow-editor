@@ -105,7 +105,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.currentUser;
 			viewModel.productTourShown = true;
 			viewModel.lastWorkflowEditedDate;
-			viewModel.productTourDismissed = false;
 			viewModel.guidedOnboardingEnabledForUser = false;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
@@ -775,10 +774,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.appNameWithPlaceholder = function() {
 				return appService.appDetails.title || 'Unknown app';
-			}
-
-			viewModel.onProductTourDismiss = function() {
-				setTimeout(() => $scope.$apply(() => viewModel.productTourDismissed = true), 1000);
 			}
 			
 			viewModel.showGuidedOnboarding = function() {

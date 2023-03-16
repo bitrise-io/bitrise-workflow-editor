@@ -28,7 +28,6 @@ export interface ProductTourProps {
 	menuIds: string[];
 	currentUser: CurrentUser;
 	productTourShown?: boolean;
-	onDismiss: () => void;
 }
 
 export interface TrackingEventOptions {
