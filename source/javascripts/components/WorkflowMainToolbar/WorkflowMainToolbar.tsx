@@ -4,6 +4,7 @@ import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/Workflo
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
 import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
 import { useDisclosure } from "@chakra-ui/react";
+import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	defaultBranch: string;
@@ -33,6 +34,16 @@ const WorkflowMainToolbar = ({
 	onRunWorkflow
 }: WorkflowMainToolbarProps): JSX.Element => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const trackDialogOpen = useTrackingFunction(() => ({
+		event: "WFE - Run Workflow Dialog Opened",
+		payload: {}
+	}));
+
+	const handleOpenRunWorkflowDialog = () => {
+		trackDialogOpen();
+		onOpen();
+	};
 
 	return (
 		<Box display="flex" alignItems="center" justifyContent="space-between">

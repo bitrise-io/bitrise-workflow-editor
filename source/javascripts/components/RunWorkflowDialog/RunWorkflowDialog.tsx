@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { Button, Dialog, DialogBody, DialogFooter, Input } from "@bitrise/bitkit";
 import { DialogProps } from "@bitrise/bitkit/src/Components/Dialog/Dialog";
+import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
 type RunWorkflowDialogProps = Pick<DialogProps, "isOpen" | "onClose"> & {
 	defaultBranch: string;
@@ -10,11 +11,17 @@ type RunWorkflowDialogProps = Pick<DialogProps, "isOpen" | "onClose"> & {
 const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, onAction }: RunWorkflowDialogProps) => {
 	const [branch, setBranch] = useState(defaultBranch);
 
+	const trackRunWorkflow = useTrackingFunction(() => ({
+		event: "WFE - Run Workflow Clicked",
+		payload: {}
+	}));
+
 	const handleAction = () => {
 		if (!branch) {
 			return;
 		}
 
+		trackRunWorkflow();
 		onAction(branch);
 		onClose();
 	};
