@@ -5,10 +5,11 @@ import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
 type RunWorkflowDialogProps = Pick<DialogProps, "isOpen" | "onClose"> & {
 	defaultBranch: string;
+	workflow: string;
 	onAction: (branch: string) => void;
 };
 
-const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, onAction }: RunWorkflowDialogProps) => {
+const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflow, onAction }: RunWorkflowDialogProps) => {
 	const [branch, setBranch] = useState(defaultBranch);
 
 	const trackRunWorkflow = useTrackingFunction(() => ({
@@ -27,7 +28,7 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, onAction }: RunWork
 	};
 
 	return (
-		<Dialog title="Run your Workflow" isOpen={isOpen} onClose={onClose}>
+		<Dialog title={`Run "${workflow}"`} isOpen={isOpen} onClose={onClose}>
 			<DialogBody>
 				<Input
 					label="Branch"
@@ -39,7 +40,7 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, onAction }: RunWork
 				/>
 			</DialogBody>
 			<DialogFooter>
-				<Button disabled={!branch} onClick={handleAction}>
+				<Button aria-label="Run Workflow" rightIconName="OpenInBrowser" disabled={!branch} onClick={handleAction}>
 					Run Workflow
 				</Button>
 			</DialogFooter>
