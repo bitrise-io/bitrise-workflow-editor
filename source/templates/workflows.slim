@@ -5,6 +5,7 @@
 			r-workflow-main-toolbar.react-toolbar[
 				default-branch="workflowsCtrl.defaultBranch"
 				can-run-workflow="workflowsCtrl.canRunWorkflow"
+				is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
 				selected-workflow="workflowsCtrl.selectedWorkflow"
 				workflows="workflowsCtrl.workflows"
 				select-workflow="workflowsCtrl.selectWorkflowWithDigest"

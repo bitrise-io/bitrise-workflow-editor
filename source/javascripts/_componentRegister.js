@@ -63,6 +63,7 @@ angular
 		register(WorkflowMainToolbar, [
 			"defaultBranch",
 			"canRunWorkflow",
+			"isRunWorkflowDisabled",
 			"selectedWorkflow",
 			"workflows",
 			"selectWorkflow",

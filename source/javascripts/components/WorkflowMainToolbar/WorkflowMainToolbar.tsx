@@ -8,6 +8,7 @@ import { useDisclosure } from "@chakra-ui/react";
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	defaultBranch: string;
 	canRunWorkflow: boolean;
+	isRunWorkflowDisabled: boolean;
 	onAddNewWorkflow: () => void;
 	onInsertBeforeWorkflow: () => void;
 	onInsertAfterWorkflow: () => void;
@@ -19,6 +20,7 @@ type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 const WorkflowMainToolbar = ({
 	defaultBranch,
 	canRunWorkflow,
+	isRunWorkflowDisabled,
 	selectedWorkflow,
 	workflows,
 	selectWorkflow,
@@ -66,7 +68,7 @@ const WorkflowMainToolbar = ({
 					</MenuList>
 				</Menu>
 				{canRunWorkflow && (
-					<IconButton iconName="Play" aria-label="Start Workflow" onClick={onOpen}>
+					<IconButton iconName="Play" aria-label="Start Workflow" isDisabled={isRunWorkflowDisabled} onClick={onOpen}>
 						Run workflow
 					</IconButton>
 				)}
