@@ -2738,8 +2738,53 @@ import jsyaml from "js-yaml";
 							resolve(response.data);
 						}
 					);
-				})
-			}
+				});
+			};
+
+			requestService.startBuild = function({ branch, workflow, triggerToken, triggeredBy }, requestConfig) {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters(
+							"<%= webserver_path(data[:routes][:website][:app_start_build_path]) %>",
+							{
+								app_slug: requestService.appSlug
+							}
+						);
+
+						break;
+					case "cli":
+						return $q.reject(
+							new Error(
+								"<%= data[:strings][:request_service][:post_start_build][:not_website_mode_error] %>"
+							)
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.post(requestURL, {
+						payload: {
+							hook_info: { type: "bitrise", build_trigger_token: triggerToken },
+							build_params: { branch: branch, workflow_id: workflow },
+							triggered_by: `WFE - @${triggeredBy || "user"}`
+						}
+					}, requestConfig).then(
+						function(response) {
+							resolve(response.data);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"<%= data[:strings][:request_service][:post_start_build][:default_error] %>",
+									"<%= data[:strings][:request_service][:post_start_build][:error_prefix] %>"
+								)
+							);
+						}
+					);
+				});
+			};
 
 			return requestService;
 		});

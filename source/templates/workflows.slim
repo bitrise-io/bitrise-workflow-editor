@@ -3,6 +3,9 @@
 	.content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
 		section.manage-workflows
 			r-workflow-main-toolbar.react-toolbar[
+				default-branch="workflowsCtrl.defaultBranch"
+				can-run-workflow="workflowsCtrl.canRunWorkflow"
+				is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
 				selected-workflow="workflowsCtrl.selectedWorkflow"
 				workflows="workflowsCtrl.workflows"
 				select-workflow="workflowsCtrl.selectWorkflowWithDigest"
@@ -12,6 +15,7 @@
 				on-insert-after-workflow="workflowsCtrl.addRunWorkflowAfterSelectedWithDigest"
 				on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
 				on-delete-selected-workflow="workflowsCtrl.deleteWorkflowSelectedWithDigest"
+				on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
 			]
 		.workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()"]
 			.workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px'}"]
@@ -130,7 +134,7 @@
 														.toggleabble-description
 															p[sanitized-markdown="workflowsCtrl.isOutputOpened(output) ? output.longestDescription() : output.title() " ng-class="{'oneliner': !workflowsCtrl.isOutputOpened(output)}"]
 															.toggle-arrow-button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)"]
-                                                               == svg("arrow-down")
+																== svg("arrow-down")
 								r-error-notification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
 								button.delete-step.rebo.big.hollow-danger[ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]

@@ -801,9 +801,9 @@ def strings
                     not_website_mode_error: "Updating current user metadata is only available in website mode"
                 },
                 get_product_tour_data: {
-                  default_error: "Error getting current product tour data",
-                  error_prefix: "Error getting product tour data: ",
-                  not_website_mode_error: "Getting product tour data is only available in website mode"
+                    default_error: "Error getting current product tour data",
+                    error_prefix: "Error getting product tour data: ",
+                    not_website_mode_error: "Getting product tour data is only available in website mode"
                 },
                 get_codesigndoc_bash_script: {
                     default_error: "Error getting codesigndoc bash command",
@@ -981,6 +981,11 @@ def strings
                     error_prefix: "Error getting organization subscription status: ",
                     not_website_mode_error: "Getting organization subscription status is only available in website mode"
                 },
+                post_start_build: {
+                    default_error: "Error starting a build",
+                    error_prefix: "Error starting a build: ",
+                    not_website_mode_error: "Starting a build is only available in website mode"
+                }
             },
             step_source_service: {
                 step_from_cvs: {
@@ -1025,6 +1030,7 @@ def strings
                 dashboard_path: "/dashboard",
                 app_path: "/app/<app_slug>",
                 app_path_get: "/app/<app_slug>.json",
+                app_start_build_path: "/app/<app_slug>/build/start.json",
                 app_data_get: "/api/app/<app_slug>.json",
                 app_update: "/api/app/<app_slug>.json",
                 app_config_post: "/api/app/<app_slug>/config.json",
@@ -1112,5 +1118,5 @@ def strings
                 github_step_yml_path: "https://raw.githubusercontent.com/<step_path>/<step_version>/step.yml"
             }
         }
-}
+    }
 end

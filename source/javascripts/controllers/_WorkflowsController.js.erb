@@ -12,6 +12,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			$q,
 			$filter,
 			$location,
+			appServiceUtil,
 			stringService,
 			requestService,
 			scrollService,
@@ -21,6 +22,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			workflowSelectionService,
 			addStepService,
 			semverService,
+			launchDarklyService,
 			logger,
 			Progress,
 			Popup,
@@ -171,9 +173,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.canceler.resolve();
 
 				if (resizeTimeout) {
-					$timeout.cancel(resizeTimeout)
+					$timeout.cancel(resizeTimeout);
 				}
 			});
+
+			viewModel.username = undefined;
+			viewModel.buildTriggerToken = undefined;
+			viewModel.defaultBranch = undefined;
+			viewModel.canRunWorkflow = false;
+			viewModel.canRunWorkflowFeatureFlag = false;
 
 			viewModel.init = function() {
 				logger.info("Loading workflows");
@@ -184,7 +192,33 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					workflowSelectionService.restoreSelection(viewModel);
 					workflowSelectionStore.enable();
 				});
+
+				if (requestService.isWebsiteMode()) {
+					loadAppAndUser();
+				}
 			};
+
+			function loadAppAndUser() {
+				$q.all([
+					launchDarklyService.initialize().then(() => launchDarklyService.variation("run-workflow-from-wfe", false)),
+					requestService.getCurrentUserData(),
+					requestService.getApp(appServiceUtil.getAppSlug())
+				]).then(function([featureFlag, user, app]) {
+					viewModel.canRunWorkflowFeatureFlag = featureFlag;
+					viewModel.username = user?.username;
+					viewModel.defaultBranch = app?.default_branch;
+					viewModel.buildTriggerToken = app?.build_trigger_token;
+				});
+			}
+
+			$scope.$watch(
+				function() {
+					return viewModel.buildTriggerToken;
+				},
+				function(buildTriggerToken) {
+					viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && Boolean(viewModel.canRunWorkflowFeatureFlag);
+				}
+			);
 
 			function loadWorkflows() {
 				viewModel.loadWorkflowsProgress.start(
@@ -377,6 +411,27 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.deleteWorkflowSelectedWithDigest = function() {
 				$timeout(function() {
 					viewModel.deleteWorkflowSelected();
+				}, 0);
+			};
+
+			viewModel.runWorkflow = function(branch) {
+				requestService.startBuild({
+					branch: branch,
+					workflow: viewModel.selectedWorkflow.id,
+					triggerToken: viewModel.buildTriggerToken,
+					triggeredBy: viewModel.username
+				}).then(function(data) {
+					if (data.status === "ok" && data.build_url) {
+						window.open(data.build_url, "_blank");
+					}
+				}, function(error) {
+					console.log(error);
+				});
+			};
+
+			viewModel.runWorkflowWithDigest = function(branch) {
+				$timeout(function() {
+					viewModel.runWorkflow(branch);
 				}, 0);
 			};
 
