@@ -22,6 +22,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			workflowSelectionService,
 			addStepService,
 			semverService,
+			launchDarklyService,
 			logger,
 			Progress,
 			Popup,
@@ -180,6 +181,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.buildTriggerToken = undefined;
 			viewModel.defaultBranch = undefined;
 			viewModel.canRunWorkflow = false;
+			viewModel.canRunWorkflowFeatureFlag = false;
 
 			viewModel.init = function() {
 				logger.info("Loading workflows");
@@ -198,9 +200,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			function loadAppAndUser() {
 				$q.all([
+					launchDarklyService.initialize().then(() => launchDarklyService.variation("run-workflow-from-wfe", false)),
 					requestService.getCurrentUserData(),
 					requestService.getApp(appServiceUtil.getAppSlug())
-				]).then(function([user, app]) {
+				]).then(function([featureFlag, user, app]) {
+					viewModel.canRunWorkflowFeatureFlag = featureFlag;
 					viewModel.username = user?.username;
 					viewModel.defaultBranch = app?.default_branch;
 					viewModel.buildTriggerToken = app?.build_trigger_token;
@@ -212,7 +216,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return viewModel.buildTriggerToken;
 				},
 				function(buildTriggerToken) {
-					viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken);
+					viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && Boolean(viewModel.canRunWorkflowFeatureFlag);
 				}
 			);
 
