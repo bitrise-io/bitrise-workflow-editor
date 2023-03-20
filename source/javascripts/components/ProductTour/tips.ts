@@ -15,7 +15,7 @@ export const tips: Tips[] = [
 		description:
 			"A Bitrise Workflow is a collection of Steps. Each new app comes with a Primary and Deploy Workflow. "
 			+ "You can edit these or start new Workflows from scratch.",
-		position: "right",
+		position: "bottom",
 	},
 	{
 		id: "steps-container",
