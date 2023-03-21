@@ -204,9 +204,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					requestService.getCurrentUserData(),
 					requestService.getApp(appServiceUtil.getAppSlug())
 				]).then(function([featureFlag, user, app]) {
-					viewModel.canRunWorkflowFeatureFlag = featureFlag;
 					viewModel.username = user?.username;
 					viewModel.defaultBranch = app?.default_branch;
+					viewModel.canRunWorkflowFeatureFlag = featureFlag;
 					viewModel.buildTriggerToken = app?.build_trigger_token;
 				});
 			}
@@ -216,9 +216,26 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return viewModel.buildTriggerToken;
 				},
 				function(buildTriggerToken) {
-					viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && Boolean(viewModel.canRunWorkflowFeatureFlag);
+					updateCanRunWorkflow(buildTriggerToken, viewModel.canRunWorkflowFeatureFlag, viewModel.selectedWorkflow);
 				}
 			);
+
+			$scope.$watch(
+				function() {
+					return viewModel.canRunWorkflowFeatureFlag;
+				},
+				function(featureFlag) {
+					updateCanRunWorkflow(viewModel.buildTriggerToken, featureFlag, viewModel.selectedWorkflow);
+				}
+			);
+
+			function updateCanRunWorkflow(buildTriggerToken, featureFlag, workflow) {
+				viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && Boolean(featureFlag) && isUtilityWorkflow(workflow);
+			}
+
+			function isUtilityWorkflow(workflow) {
+				return workflow && workflow.id && !workflow.id.startsWith("_");
+			}
 
 			function loadWorkflows() {
 				viewModel.loadWorkflowsProgress.start(
@@ -309,6 +326,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					if (viewModel.workflowSelectorIsVisible) {
 						viewModel.workflowSelectorIsVisible = false;
 					}
+
+					updateCanRunWorkflow(viewModel.buildTriggerToken, viewModel.canRunWorkflowFeatureFlag, selectedWorkflow);
 
 					if (!selectedWorkflow) {
 						return;
