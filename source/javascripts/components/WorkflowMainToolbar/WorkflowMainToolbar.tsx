@@ -46,37 +46,39 @@ const WorkflowMainToolbar = ({
 	};
 
 	return (
-		<Box display="flex" alignItems="center" gap="8" id="workflow-main-toolbar">
-			{selectedWorkflow && (
-				<WorkflowSelector
-					selectedWorkflow={selectedWorkflow}
-					workflows={workflows}
-					selectWorkflow={selectWorkflow}
-					renameWorkflowConfirmed={renameWorkflowConfirmed}
-				/>
-			)}
-			<IconButton iconName="PlusOpen" variant="secondary" onClick={onAddNewWorkflow} aria-label="Add new Workflow" />
-			<Menu placement="bottom-end">
-				<MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
-				<MenuList>
-					<MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
-						Insert Workflow before
-					</MenuItem>
-					<MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>
-						Insert Workflow after
-					</MenuItem>
-					<MenuItem
-						iconName="Request"
-						isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
-						onClick={onRearrangeWorkflow}
-					>
-						Change Workflow execution order
-					</MenuItem>
-					<MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
-						Delete selected Workflow
-					</MenuItem>
-				</MenuList>
-			</Menu>
+		<Box display='flex' alignItems="center" justifyContent="space-between">
+			<Box display="flex" alignItems="center" gap="8" id='workflow-main-toolbar'>
+				{selectedWorkflow && (
+					<WorkflowSelector
+						selectedWorkflow={selectedWorkflow}
+						workflows={workflows}
+						selectWorkflow={selectWorkflow}
+						renameWorkflowConfirmed={renameWorkflowConfirmed}
+					/>
+				)}
+				<IconButton iconName="PlusOpen" variant="secondary" onClick={onAddNewWorkflow} aria-label="Add new Workflow" />
+				<Menu placement="bottom-end">
+					<MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
+					<MenuList>
+						<MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
+							Insert Workflow before
+						</MenuItem>
+						<MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>
+							Insert Workflow after
+						</MenuItem>
+						<MenuItem
+							iconName="Request"
+							isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
+							onClick={onRearrangeWorkflow}
+						>
+							Change Workflow execution order
+						</MenuItem>
+						<MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
+							Delete selected Workflow
+						</MenuItem>
+					</MenuList>
+				</Menu>
+			</Box>
 			<WorkflowRecipesLink
 				marginInlineStart="auto"
 				linkId="workflow-editor-main-toolbar-workflow-recipes-link"
