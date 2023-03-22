@@ -687,7 +687,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				if (requestService.mode === 'website') {
 					
 					launchDarklyService.initialize().then(() => {
-						const isProductTourEnabled = launchDarklyService.variation('enable-product-tours');
+						const isProductTourEnabled = launchDarklyService.variation('enable-wfe-product-tour');
 						const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
 						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
 						const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
