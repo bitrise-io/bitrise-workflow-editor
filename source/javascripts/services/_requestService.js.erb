@@ -928,34 +928,6 @@ import jsyaml from "js-yaml";
 				});
 			};
 
-			// Project types
-
-			requestService.getAppAvailableProjectTypes = function(requestConfig) {
-				var requestURL = stringService.stringReplacedWithParameters(
-					"<%= webserver_path(data[:routes][:website][:stack_info_get]) %>",
-					{
-						app_slug: requestService.appSlug
-					}
-				);
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve(response.data ? response.data.project_types : []);
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:get_app_available_project_types][:default_error] %>",
-									"<%= data[:strings][:request_service][:get_app_available_project_types][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			// Machine Type
 
 			requestService.getMachineTypeConfigs = function(requestConfig) {
