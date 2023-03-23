@@ -29,7 +29,6 @@
 				dockerImage: undefined,
 				savedDockerImage: undefined,
 				projectType: undefined,
-				availableProjectTypes: undefined,
 				validationWarnings: [],
 				accountData: undefined,
 				pipelineConfig: undefined,
@@ -535,7 +534,6 @@
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
-						appService.availableProjectTypes = undefined;
 					});
 			};
 
@@ -551,16 +549,6 @@
 				}
 
 				appService.dockerImage = appService.savedDockerImage;
-			};
-
-			appService.getAvailableProjectTypes = function(shouldForceReload, requestConfig) {
-				if (!shouldForceReload && appService.availableProjectTypes) {
-					return $q.when();
-				}
-
-				return requestService.getAppAvailableProjectTypes(requestConfig).then(function(availableProjectTypes) {
-					appService.availableProjectTypes = availableProjectTypes;
-				});
 			};
 
 			appService.getOwnerPlanData = function() {

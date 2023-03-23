@@ -932,10 +932,6 @@ def strings
                     default_error: "Error loading app data.",
                     error_prefix: "Error loading app data: "
                 },
-                get_app_available_project_types: {
-                    default_error: "Error loading app available project types.",
-                    error_prefix: "Error loading app available project types: "
-                },
                 get_machine_types: {
                     default_error: "Error loading machine types.",
                     error_prefix: "Error loading machine types: ",
@@ -1053,7 +1049,6 @@ def strings
                 default_outputs_get: "/api/app/<app_slug>/default_step_outputs.json",
                 machine_type_configs_get: "/app/<app_slug>/machine_type_configs",
                 stack_get: "/app/<app_slug>/stack",
-                stack_info_get: "/app/<app_slug>/stack_info.json",
                 stacks_get: "/app/<app_slug>/all_stack_info",
                 prov_profile_create: "/api/app/<app_slug>/prov_profile_document/create.json",
                 prov_profile_get_details: "/prov_profile_document/details/<prov_profile_id>.json",
