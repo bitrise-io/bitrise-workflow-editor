@@ -4,7 +4,7 @@
 .clear-value {
     @include box-sizing(border-box);
     cursor: pointer !important;
-    padding: 8px 12px;
+    padding: 3.5px 12px;
     border: 1px solid;
     @include border-radius(0px $def-radius $def-radius 0px);
     border-color: $def-mediumlightgrey;
