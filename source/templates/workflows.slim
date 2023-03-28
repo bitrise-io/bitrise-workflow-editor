@@ -80,7 +80,8 @@
 										.run-if-details
 											h5
 												span.title == data[:strings][:workflows][:steps][:run_if_title]
-											textarea[msd-elastic rows="1" ng-model="workflowsCtrl.selectedStep.runIf" ng-model-options="{getterSetter: true}" ng-trim="false"]
+												button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(workflowsCtrl.runIfAsInput)"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+											textarea[msd-elastic rows="1" ng-model="workflowsCtrl.selectedStep.runIf" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowsCtrl.inputValueBlurred($event, workflowsCtrl.runIfAsInput)"]
 											.run-if-description[ng-bind-html="workflowsCtrl.runIfDescription"]
 										.run-if-details[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
 											h5
