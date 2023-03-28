@@ -77,7 +77,7 @@
 
 									section.run-if
 										h3 == data[:strings][:workflows][:steps][:run_if_section_title]
-										.run-if-details
+										.run-if-details[ng-if="workflowsCtrl.runIfFeatureFlag"]
 											h5
 												span.title == data[:strings][:workflows][:steps][:run_if_title]
 												button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(workflowsCtrl.runIfAsInput)"] == data[:strings][:workflows][:inputs][:insert_variable][:action]

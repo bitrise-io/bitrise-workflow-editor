@@ -182,6 +182,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.defaultBranch = undefined;
 			viewModel.canRunWorkflow = false;
 			viewModel.canRunWorkflowFeatureFlag = false;
+			viewModel.runIfFeatureFlag = false;
 			viewModel.runIfDescription = stringService.stringReplacedWithParameters(
 				"<%= data[:strings][:workflows][:steps][:run_if_description] %>",
 				{ url: "https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html" }
@@ -219,13 +220,20 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			function loadAppAndUser() {
 				$q.all([
+					launchDarklyService.initialize().then(() => {
+						var runWorkflow = launchDarklyService.variation("run-workflow-from-wfe", false);
+						var runIf = launchDarklyService.variation("enable-run-if-visual-editor", false);
+
+						return [runWorkflow, runIf];
+					}),
 					launchDarklyService.initialize().then(() => launchDarklyService.variation("run-workflow-from-wfe", false)),
 					requestService.getCurrentUserData(),
 					requestService.getApp(appServiceUtil.getAppSlug())
-				]).then(function([featureFlag, user, app]) {
+				]).then(function([featureFlags, user, app]) {
 					viewModel.username = user?.username;
 					viewModel.defaultBranch = app?.default_branch;
-					viewModel.canRunWorkflowFeatureFlag = featureFlag;
+					viewModel.canRunWorkflowFeatureFlag = featureFlags[0];
+					viewModel.runIfFeatureFlag = featureFlags[1];
 					viewModel.buildTriggerToken = app?.build_trigger_token;
 				});
 			}
