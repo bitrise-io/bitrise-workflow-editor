@@ -224,16 +224,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						var runWorkflow = launchDarklyService.variation("run-workflow-from-wfe", false);
 						var runIf = launchDarklyService.variation("enable-run-if-visual-editor", false);
 
-						return [runWorkflow, runIf];
+						return { runWorkflow, runIf };
 					}),
-					launchDarklyService.initialize().then(() => launchDarklyService.variation("run-workflow-from-wfe", false)),
 					requestService.getCurrentUserData(),
 					requestService.getApp(appServiceUtil.getAppSlug())
 				]).then(function([featureFlags, user, app]) {
 					viewModel.username = user?.username;
 					viewModel.defaultBranch = app?.default_branch;
-					viewModel.canRunWorkflowFeatureFlag = featureFlags[0];
-					viewModel.runIfFeatureFlag = featureFlags[1];
+					viewModel.canRunWorkflowFeatureFlag = featureFlags.runWorkflow;
+					viewModel.runIfFeatureFlag = featureFlags.runIf;
 					viewModel.buildTriggerToken = app?.build_trigger_token;
 				});
 			}

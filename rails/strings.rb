@@ -147,7 +147,7 @@ def strings
                     run_if_section_title: "When to run",
                     run_if_title: "Run conditions",
                     run_if_description: "Enter any valid Go template - the step will only run if it evaluates to “true”. You can refer to Env Vars and more, see <a href='<url>' target='_blank'>the docs for details.</a>",
-                    is_always_run_title: 'On failure',
+                    is_always_run_title: "On failure",
                     is_always_run: "Run this step even if previous step(s) failed",
                     major_version_change_title: "Major version change",
                     major_version_change_desc: "A new major version likely contains breaking changes in the step behavior. Please check the <a href='<url>' target='_blank'>release notes</a>.",
