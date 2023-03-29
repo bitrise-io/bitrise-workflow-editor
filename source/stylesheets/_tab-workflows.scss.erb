@@ -758,7 +758,7 @@ section.manage-workflows {
 								}
 							}
 
-							section.description, section.version, section.always-run {
+							section.description, section.version {
 								@include display-flex;
 								@include align-items(center);
 								@include justify-content(space-between);
@@ -909,15 +909,96 @@ section.manage-workflows {
 								}
 							}
 
-							section.always-run {
+							section.run-if {
+								font-size: 13px;
+								font-weight: 400;
+								color: $def-mediumdarkgrey;
 
-								span.icon svg {
-									@include size(9px, 17px);
-									fill: $def-grey;
+								&:not(:first-of-type) {
+									border-top: $border;
 								}
 
-								.checkbox {
-									margin-left: auto;
+								h3 {
+									@include margin-y(0);
+									border-top: 3px solid $def-lightgrey;
+									@include padding-y(10px);
+									padding-left: $leftpadding;
+									padding-right: $rightpadding;
+									font-size: 20px;
+									font-weight: 700;
+									color: $def-mediumdarkgrey;
+								}
+
+								h5 {
+									@include display-flex();
+									align-items: center;
+									margin-bottom: 8px;
+								}
+
+								.run-if-details {
+									border-top: 1px solid $def-lightgrey;
+									@include padding-y(18px);
+									padding-left: $leftpadding;
+									padding-right: $rightpadding;
+
+									.title {
+										display: block;
+										max-width: 100%;
+										margin-right: auto;
+										@include ellipsis-oneliner;
+										font-size: 13px;
+										font-weight: 700;
+										color: $def-darkgrey;
+										@include transition(color $def-transition_duration);
+									}
+
+									textarea {
+										@include SourceCodeProWithFallback;
+										display: block;
+										width: 100%;
+										@include box-sizing(border-box);
+										border: $border;
+										@include border-radius($def-radius);
+										padding: 8px;
+										line-height: normal;
+										font-size: 12px;
+										font-weight: 500;
+										color: $def-darkgrey;
+										background-color: $def-ultralightgrey;
+
+										&:disabled {
+											color: inherit;
+										}
+									}
+
+									a {
+										color: #8151a8;
+										text-decoration: underline;
+									}
+
+									.always-run {
+										@include display-flex;
+
+										.icon {
+											width: 20px;
+											align-self: center;
+											line-height: 1;
+										}
+
+										span.icon svg {
+											@include size(9px, 16px);
+											fill: $def-grey;
+										}
+
+										label {
+											flex-grow: 1;
+											cursor: pointer;
+										}
+
+										.checkbox {
+											align-self: end;
+										}
+									}
 								}
 							}
 

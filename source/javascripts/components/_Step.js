@@ -41,11 +41,11 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 
 		Step.prototype.displayCvs = function() {
 			return this.cvs.replace(/^(git|path)::/g, "");
-		}
+		};
 
 		Step.prototype.displayTooltip = function() {
 			return this.displayName() + "\n" + this.displayCvs();
-		}
+		};
 
 		function diplayNameFromCvs(cvs) {
 			var lastDelimiter = cvs.lastIndexOf("/");
@@ -150,6 +150,10 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 
 		Step.prototype.projectTypeTags = function(newProjectTypeTags) {
 			return parameterGetterSetter(this, "project_type_tags", newProjectTypeTags);
+		};
+
+		Step.prototype.runIf = function(newRunIf) {
+			return parameterGetterSetter(this, "run_if", newRunIf);
 		};
 
 		Step.prototype.isAlwaysRun = function(newIsAlwaysRun) {
