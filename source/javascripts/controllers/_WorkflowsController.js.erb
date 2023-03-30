@@ -188,6 +188,22 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				{ url: "https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html" }
 			);
 
+			viewModel.runIfHelpText = function() {
+				if (viewModel.selectedStep.isAlwaysRun()) {
+					if (!viewModel.selectedStep.runIf()) {
+						return "<%= data[:strings][:workflows][:steps][:run_if_unconditional] %>";
+					} else {
+						return "<%= data[:strings][:workflows][:steps][:run_if_expression_true] %>";
+					}
+				} else {
+					if (!viewModel.selectedStep.runIf()) {
+						return "<%= data[:strings][:workflows][:steps][:run_if_previous_steps_succeeded] %>";
+					} else {
+						return "<%= data[:strings][:workflows][:steps][:run_if_previous_steps_succeeded_and_expression_true] %>";
+					}
+				}
+			};
+
 			viewModel.runIfAsInput = {
 				value: function(newValue) {
 					if (!viewModel.selectedStep) {
