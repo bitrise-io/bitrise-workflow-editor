@@ -77,12 +77,6 @@
 
 									section.run-if
 										h3 == data[:strings][:workflows][:steps][:run_if_section_title]
-										.run-if-details[ng-if="workflowsCtrl.runIfFeatureFlag"]
-											h5
-												span.title == data[:strings][:workflows][:steps][:run_if_title]
-												button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(workflowsCtrl.runIfAsInput)"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-											textarea[msd-elastic rows="1" ng-model="workflowsCtrl.selectedStep.runIf" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowsCtrl.inputValueBlurred($event, workflowsCtrl.runIfAsInput)"]
-											.run-if-description[ng-bind-html="workflowsCtrl.runIfDescription"]
 										.run-if-details[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
 											h5
 												span.title == data[:strings][:workflows][:steps][:is_always_run_title]
@@ -91,6 +85,13 @@
 													== svg("step/is_always_run")
 												label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
 												checkbox[ng-model="workflowsCtrl.selectedStep.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
+										.run-if-details[ng-if="workflowsCtrl.runIfFeatureFlag"]
+											h5
+												span.title == data[:strings][:workflows][:steps][:run_if_title]
+												button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(workflowsCtrl.runIfAsInput)"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
+											.run-if-description[ng-bind-html="workflowsCtrl.runIfDescription"]
+											textarea[msd-elastic rows="1" ng-model="workflowsCtrl.selectedStep.runIf" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowsCtrl.inputValueBlurred($event, workflowsCtrl.runIfAsInput)"]
+											span[ng-bind="workflowsCtrl.runIfHelpText()"]
 									section.inputs[ng-if="workflowsCtrl.inputCategoriesOfSelectedStep[0] && workflowsCtrl.inputCategoriesOfSelectedStep[0].inputs.length > 0"]
 										h3 == data[:strings][:workflows][:inputs][:header]
 										ol.input-category[ng-repeat="inputCategory in workflowsCtrl.inputCategoriesOfSelectedStep" ng-class="{'open': workflowsCtrl.openedInputCategories.indexOf(inputCategory) != -1, 'main': inputCategory == workflowsCtrl.mainInputCategory}"]
