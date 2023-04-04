@@ -41,11 +41,13 @@ workflows:
         - content: |-
             #!/usr/bin/env bash
             set -ex
-            git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.10.2
+            if ! [ -d ~/.asdf ]; then
+              git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3
+            fi
+            envman add --key PATH --value $PATH
             source ~/.asdf/asdf.sh
             asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
             asdf install nodejs
-            envman add --key PATH --value $PATH
     - script:
         title: Install NPM and Bundler
         deps:
