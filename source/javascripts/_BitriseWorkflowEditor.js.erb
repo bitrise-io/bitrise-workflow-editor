@@ -4,7 +4,7 @@ window.segmentWriteKey = "<%= data[:constants][:segment][:writeKey] %>";
 window.isAnalyticsOn = <%= analytics? %>;
 window.mode = "<%= mode %>";
 
-(function () {
+(function() {
 	"use strict";
 
 	var BitriseWorkflowEditor = angular.module("BitriseWorkflowEditor", [
@@ -16,17 +16,17 @@ window.mode = "<%= mode %>";
 		"ng-showdown"
 	]);
 
-	BitriseWorkflowEditor.config(function ($compileProvider, $qProvider) {
+	BitriseWorkflowEditor.config(function($compileProvider, $qProvider) {
 		$compileProvider.debugInfoEnabled(false);
 		$qProvider.errorOnUnhandledRejections(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
 	});
 
-	BitriseWorkflowEditor.config(function ($animateProvider) {
+	BitriseWorkflowEditor.config(function($animateProvider) {
 		$animateProvider.classNameFilter(/angular-animated/);
 	});
 
-	BitriseWorkflowEditor.config(function ($routeProvider) {
+	BitriseWorkflowEditor.config(function($routeProvider) {
 		$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
 			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
 			reloadOnSearch: false
@@ -67,49 +67,46 @@ window.mode = "<%= mode %>";
 
 	BitriseWorkflowEditor.config([
 		"$httpProvider",
-		function ($httpProvider) {
+		function($httpProvider) {
 			$httpProvider.defaults.xsrfCookieName = "CSRF-TOKEN";
 			$httpProvider.defaults.xsrfHeaderName = "X-CSRF-TOKEN";
 		}
 	]);
 
 	<% if mode == "website" %>
-		<% if prod? %>
-		BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
-			$sceDelegateProvider.resourceUrlWhitelist([
-				"self",
-				// Prevent CORS issues on staging, when WFE runs under a different host
-				"https://app.bitrise.io/**",
-			]);
-		});
-		<% else %>
-		BitriseWorkflowEditor.config(function ($sceDelegateProvider) {
-			$sceDelegateProvider.resourceUrlWhitelist([
-				"self",
-				// Prevent CORS issues in local dev environment
-				"http://localhost:4000/**",
-			]);
-		});
-		<% end %>
+	<% if prod? %>
+	BitriseWorkflowEditor.config(function($sceDelegateProvider) {
+		$sceDelegateProvider.resourceUrlWhitelist([
+			"self",
+			// Prevent CORS issues on staging, when WFE runs under a different host
+			"https://app.bitrise.io/**"
+		]);
+	});
+	<% else %>
+	BitriseWorkflowEditor.config(function($sceDelegateProvider) {
+		$sceDelegateProvider.resourceUrlWhitelist([
+			"self",
+			// Prevent CORS issues in local dev environment
+			"http://localhost:4000/**"
+		]);
+	});
+	<% end %>
 	<% end %>
 
 	<% if mode == "website" %>
-	BitriseWorkflowEditor.run(function (requestService) {
-		if (!!window.freshpaint || !!window.analytics) {
-			window.freshpaint && window.freshpaint.page();
-			
+	BitriseWorkflowEditor.run(function(requestService) {
+		if (!!window.analytics) {
 			requestService.getCurrentUserData()
 				.then(function(user) {
-					window.freshpaint && window.freshpaint.identify(user.dataId);
 					window.analytics && window.analytics.identity(user.dataId);
-				})
+				});
 		}
 	});
 	<% end %>
 
-	BitriseWorkflowEditor.factory("$exceptionHandler", function ($log, logger) {
-		return function (error, cause) {
-			logger.error(error, {cause: cause});
+	BitriseWorkflowEditor.factory("$exceptionHandler", function($log, logger) {
+		return function(error, cause) {
+			logger.error(error, { cause: cause });
 			$log.error(error);
 		};
 	});

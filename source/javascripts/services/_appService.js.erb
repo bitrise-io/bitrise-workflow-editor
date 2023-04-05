@@ -282,6 +282,7 @@
 						);
 					})
 					.then(function() {
+						trackSavedYMLChanges();
 						appService.savedAppConfig = angular.copy(appService.appConfig);
 						appService.hasTriggers =
 							appService.savedAppConfig.trigger_map && appService.savedAppConfig.trigger_map.length > 0;
@@ -289,6 +290,10 @@
 						appService.savedAppConfigYML = undefined;
 					});
 			};
+
+			function trackSavedYMLChanges() {
+				window.analytics && window.analytics.track("WFE - YML changes saved");
+			}
 
 			appService.discardAppConfigChanges = function() {
 				appService.appConfig = angular.copy(appService.savedAppConfig);
@@ -400,6 +405,7 @@
 					userSavedYmlToRepositoryPromise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
 
 				return promise.then(function(validationData) {
+					trackSavedYMLChanges();
 					appService.appConfig = undefined;
 					appService.savedAppConfig = undefined;
 					appService.savedAppConfigYML = appService.appConfigYML;
@@ -471,13 +477,13 @@
 					stackID && dockerImage
 						? $q.when()
 						: requestService.getStackAndDockerImage(requestConfig).then(function(data) {
-								if (!stackID) {
-									stackID = data.stackID;
-								}
-								if (!dockerImage) {
-									dockerImage = data.dockerImage;
-								}
-						  });
+							if (!stackID) {
+								stackID = data.stackID;
+							}
+							if (!dockerImage) {
+								dockerImage = data.dockerImage;
+							}
+						});
 
 				return stackIDAndDockerImageFetchPromise.then(function() {
 					appService.stack = _.find(Stack.all, {
@@ -562,15 +568,15 @@
 					appService.appDetails.ownerData.slug
 				) {
 					return requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
-					.then(function(ownerPlanData) {
-						appService.ownerPlanData = ownerPlanData;
-					}).catch(() => {
-						appService.ownerPlanData = null;
-					});
+						.then(function(ownerPlanData) {
+							appService.ownerPlanData = ownerPlanData;
+						}).catch(() => {
+							appService.ownerPlanData = null;
+						});
 				}
 				appService.ownerPlanData = null;
 				return $q.when();
-			}
+			};
 
 			return appService;
 		});
