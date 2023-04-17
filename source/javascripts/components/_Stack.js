@@ -26,6 +26,7 @@
 			};
 
 			Stack.all;
+			Stack.invalidStacks = [];
 
 			Stack.getAll = function() {
 				if (Stack.all) {
@@ -47,6 +48,25 @@
 					});
 				});
 			};
+
+			Stack.getPotentiallyInvalidStack = function(stackId) {
+				var stack = _.find(Stack.all, {
+					id: stackId
+				});
+				if (stack) {
+					return stack;
+				}
+
+				stack = _.find(Stack.invalidStacks, {
+					id: stackId
+				});
+				if (!stack) {
+					stack = new Stack(stackId, stackId);
+					Stack.invalidStacks.push(stack);
+				}
+
+				return stack;
+			}
 
 			return Stack;
 		});

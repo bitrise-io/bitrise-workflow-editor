@@ -486,14 +486,7 @@
 						});
 
 				return stackIDAndDockerImageFetchPromise.then(function() {
-					appService.stack = _.find(Stack.all, {
-						id: stackID
-					});
-
-					if (appService.stack === undefined) {
-						appService.stack = new Stack(stackID);
-					}
-
+					appService.stack = Stack.getPotentiallyInvalidStack(stackID);
 					appService.savedStack = angular.copy(appService.stack);
 					appService.dockerImage = appService.savedDockerImage = dockerImage;
 				});
@@ -546,14 +539,7 @@
 			appService.discardStackChanges = function() {
 				appService.discardAppConfigChanges();
 
-				appService.stack = _.find(Stack.all, {
-					id: appService.savedStack.id
-				});
-
-				if (appService.stack === undefined) {
-					appService.stack = new Stack(appService.savedStack.id);
-				}
-
+				appService.stack = Stack.getPotentiallyInvalidStack(appService.savedStack.id);
 				appService.dockerImage = appService.savedDockerImage;
 			};
 

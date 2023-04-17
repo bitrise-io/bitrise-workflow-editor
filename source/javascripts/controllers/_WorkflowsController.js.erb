@@ -748,7 +748,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					shouldNormalize = false;
 				}
 
-				var stack = workflow.stack(stack, Stack.all);
+				var stack = workflow.stack(stack);
 				if (stack === null && shouldNormalize) {
 					stack = appService.stack;
 				}
