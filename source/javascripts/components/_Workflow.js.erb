@@ -1,7 +1,7 @@
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").factory("Workflow", function($rootScope, stepSourceService, Step) {
+	angular.module("BitriseWorkflowEditor").factory("Workflow", function(stepSourceService, Step, Stack) {
 		var BITRISE_META_KEY = "<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>";
 
 		var Workflow = function(id, workflowConfig) {
@@ -86,7 +86,7 @@
 			return this.workflowConfig.description;
 		};
 
-		Workflow.prototype.stack = function(stack, stacks, defaultMachineTypeForStack) {
+		Workflow.prototype.stack = function(stack, defaultMachineTypeForStack) {
 			if (stack !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
@@ -121,9 +121,7 @@
 				return null;
 			}
 
-			return _.find(stacks, {
-				id: this.workflowConfig.meta[BITRISE_META_KEY].stack
-			});
+			return Stack.getPotentiallyInvalidStack(this.workflowConfig.meta[BITRISE_META_KEY].stack);
 		};
 
 		Workflow.prototype.machineType = function(stackType, machineType, machineTypes) {

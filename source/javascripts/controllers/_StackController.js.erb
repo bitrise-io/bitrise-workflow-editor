@@ -75,24 +75,20 @@
 			}
 
 			viewModel.stackOptionTitle = function(stack) {
-				return stack
-					? stack.name
-						? stack.name
-						: stack.id
-					: stringService.stringReplacedWithParameters(
-							"<%= data[:strings][:stack][:default_stack] %>",
-							{
-								stack_name: viewModel.stackOptionTitle(appService.stack)
-							}
-					  );
+				if (stack === null) {
+					return stringService.stringReplacedWithParameters(
+						"<%= data[:strings][:stack][:default_stack] %>",
+						{
+							stack_name: viewModel.stackOptionTitle(appService.stack)
+						}
+					);
+				}
+
+				return stack.name || stack.id;
 			};
 
-			viewModel.defaultStackOptions = function() {
-				var stacks = appService.availableStacks();
-
-				if (!_.contains(stacks, appService.stack)) {
-					stacks.push(appService.stack);
-				}
+			viewModel.stackOptions = function() {
+				var stacks = appService.availableStacks().concat(Stack.invalidStacks);
 
 				return stacks;
 			};
@@ -117,12 +113,6 @@
 						stack = appService.stack;
 					}
 
-					var stacks = [];
-					if (stack && !_.contains(Stack.all, stack)) {
-						stacks.push(stack);
-					}
-					stacks = stacks.concat(Stack.all);
-
 					var defaultMachineTypeForStack;
 					if (stack) {
 						var previousMachineType = viewModel.workflowMachineType(workflow);
@@ -134,7 +124,7 @@
 							defaultMachineTypeForStack = MachineType.defaults[stack.type];
 						}
 					}
-					stack = workflow.stack(stack, stacks, defaultMachineTypeForStack);
+					stack = workflow.stack(stack, defaultMachineTypeForStack);
 
 					if (stack === null && shouldNormalize) {
 						return appService.stack;
@@ -169,7 +159,7 @@
 			};
 
 			viewModel.isMachineTypeAvailableForStack = function(previousMachineType, stack) {
-				return Object.values(viewModel.stackMachineMap[stack.id]).some(machineTypes =>
+				return Object.values(viewModel.stackMachineMap[stack.id] || {}).some(machineTypes =>
 					machineTypes.some(machineType => machineType.id === previousMachineType.id && machineType.type === previousMachineType.type)
 				);
 			};
