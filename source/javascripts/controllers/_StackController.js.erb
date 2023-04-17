@@ -75,16 +75,16 @@
 			}
 
 			viewModel.stackOptionTitle = function(stack) {
-				return stack
-					? stack.name
-						? stack.name
-						: stack.id
-					: stringService.stringReplacedWithParameters(
-							"<%= data[:strings][:stack][:default_stack] %>",
-							{
-								stack_name: viewModel.stackOptionTitle(appService.stack)
-							}
-					  );
+				if (stack === null) {
+					return stringService.stringReplacedWithParameters(
+						"<%= data[:strings][:stack][:default_stack] %>",
+						{
+							stack_name: viewModel.stackOptionTitle(appService.stack)
+						}
+					);
+				}
+
+				return stack.name || stack.id;
 			};
 
 			viewModel.defaultStackOptions = function() {
