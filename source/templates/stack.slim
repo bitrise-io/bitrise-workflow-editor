@@ -75,9 +75,9 @@
 				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
-						h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'apple'"]
+						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && machineChip === 'apple'"]
 							| macOS virtual machines (Apple Silicon)
-						h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'intel'"]
+						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && machineChip === 'intel'"]
 							| macOS virtual machines (Intel)
 						.machine-types
 							.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id][machineChip]" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
