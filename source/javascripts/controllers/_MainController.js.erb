@@ -105,7 +105,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.currentUser;
 			viewModel.productTourShown = true;
 			viewModel.lastWorkflowEditedDate;
-			viewModel.guidedOnboardingEnabledForUser = false;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -456,7 +455,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			function updateLastWorkflowMetadata(){
 				const appSlug = appService.appDetails.slug;
 				const dateToday = new Date().toString();
-			
+
 				requestService.updateCurrentUserMetadata({
 					'last_workflow_edited_date': dateToday,
 					'last_workflow_edited_app': appSlug
@@ -685,17 +684,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				})
 
 				if (requestService.mode === 'website') {
-					
+
 					launchDarklyService.initialize().then(() => {
 						const isProductTourEnabled = launchDarklyService.variation('enable-wfe-product-tour');
-						const guideMetadataReq = requestService.getCurrentUserMetadata('show_getting_started_guide');
 						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
 						const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
-						
-						const requests = _.compact([guideMetadataReq, lastWFEDateMetadataReq, tourReq]);
 
-						Promise.all(requests).then(([guideMetadataResp,lastWFEDateMetadataResp, tourResp]) => {
-							viewModel.guidedOnboardingEnabledForUser = guideMetadataResp;
+						const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
+
+						Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
 							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
 							viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
 						});
@@ -774,17 +771,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.appNameWithPlaceholder = function() {
 				return appService.appDetails.title || 'Unknown app';
-			}
-			
-			viewModel.showGuidedOnboarding = function() {
-				return viewModel.guidedOnboardingEnabledForUser;
-			}
-
-			viewModel.onTurnOffGuidedOnboarding = function() {
-				requestService.updateCurrentUserMetadata({'show_getting_started_guide': false})
-				.then(function() {
-					viewModel.guidedOnboardingEnabledForUser = false;
-				});
 			}
 		});
 })();
