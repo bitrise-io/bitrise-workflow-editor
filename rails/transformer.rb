@@ -52,7 +52,7 @@ end
 def svg(filename)
     file_path = "../source/images/#{filename}.svg"
 
-    return "(svg not found)" unless File.exists?(file_path)
+    return "(svg not found)" unless File.exist?(file_path)
     return File.read(file_path).gsub("\n", "").gsub("\r", "").gsub("\t", "")
 end
 
