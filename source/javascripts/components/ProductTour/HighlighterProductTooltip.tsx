@@ -75,7 +75,7 @@ export const HighlighterProductTooltip = ({
             <PopoverContent maxWidth="420" minHeight="212" padding="24" zIndex="300" gap="8">
                 <PopoverArrow bg="white"/>
                 <Box display="flex" flexGrow="1" >
-                    <Box display="flex" flexDirection="column" flex="1 0 0" gap="8px">
+                    <Box display="flex" flexDirection="column" flex="1 0 0" gap="8px" color="neutral.10">
                         <Text size="4" fontWeight="bold">
                             {tip.title}
                         </Text>
@@ -105,7 +105,7 @@ export const HighlighterProductTooltip = ({
                     </Box>
 
                 {finished ? (
-                    <Box>
+                    <Box display="flex" flexDirection="column" gap="8">
                         <Button variant="tertiary" size="small" color="purple.50" onClick={onStartAgain}>
                         Start again
                         </Button>
