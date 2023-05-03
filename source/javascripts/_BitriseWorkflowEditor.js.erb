@@ -79,7 +79,8 @@ window.mode = "<%= mode %>";
 		$sceDelegateProvider.resourceUrlWhitelist([
 			"self",
 			// Prevent CORS issues on staging, when WFE runs under a different host
-			"https://app.bitrise.io/**"
+			"https://app.bitrise.io/**",
+			"https://workflow-editor-cdn.bitrise.io/**"
 		]);
 	});
 	<% else %>
@@ -87,7 +88,8 @@ window.mode = "<%= mode %>";
 		$sceDelegateProvider.resourceUrlWhitelist([
 			"self",
 			// Prevent CORS issues in local dev environment
-			"http://localhost:4000/**"
+			"http://localhost:4000/**",
+			"https://workflow-editor-cdn.bitrise.io/**"
 		]);
 	});
 	<% end %>
