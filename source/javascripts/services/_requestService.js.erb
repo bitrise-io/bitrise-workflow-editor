@@ -2758,6 +2758,90 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			// Beta tags
+
+			requestService.getBetaTags = function() {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:current_user_beta_tags_get]) %>");
+						break;
+					case "cli":
+						return $q.reject(
+							// TODO: add error message in strings.rb
+							new Error("Error loading beta tags..")
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL).then(
+						function(response) {
+							// TODO: remove temporary beta tag solution
+							const betaTags = (response.data.beta_tags || []).concat(["platform_admin"])
+							resolve(betaTags);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									// TODO: error message
+									"todo error",
+									"todo error"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			// Agent pool
+
+			requestService.getAgentPool = function() {
+				var requestURL;
+
+				switch (requestService.mode) {
+					case "website":
+						requestURL = "some request url here"
+						break;
+					case "cli":
+						return $q.reject(
+							// TODO: add error message in strings.rb
+							new Error("Error loading beta tags..")
+						);
+				}
+
+				return $q(function(resolve, reject) {
+					resolve({
+						"pools": [
+							{
+								"id": "osx-id-of-stack",
+								"name": "POC STACK NAME",
+								"token": "TOKEN-OF-STACK",
+								"createdAt": "2023-05-04T16:03:24.864Z",
+								"updatedAt": "2023-05-04T16:03:24.864Z"
+							}
+						]
+					});
+
+					// TODO: switch to the actual call
+					/* $http.get(requestURL).then(
+						function(response) {
+							resolve(response);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"todo error",
+									"todo error"
+								)
+							);
+						}
+					); */
+				});
+			};
+
 			return requestService;
 		});
 })();

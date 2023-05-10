@@ -49,6 +49,39 @@
 			}
 
 			viewModel.init = function() {
+
+				viewModel.isPlatformAdmin = appService.appDetails.isCurrentUserOwner
+					&& appService.betaTags.includes('platform_admin');
+
+				if(viewModel.isPlatformAdmin) {
+					appService.getAgentPool().then((agentPool) => {
+						viewModel.agentPoolStacks = _.map(agentPool.pools, function(item) {
+							return new Stack(
+								item.id,
+								item.name,
+								"Custom stack stuff", // TODO: add a description? what to do with other fields
+								"DO WE HAVE A DESCRIPTION URL?",
+								undefined,
+								undefined,
+								[ // TODO: what is needed here?
+									"ios",
+									"osx",
+									"macos",
+									"android",
+									"cordova",
+									"ionic",
+									"react-native",
+									"flutter"
+								],
+								undefined
+							);
+						});
+
+						// TODO: Figure out if mutation here is ok?
+						Stack.invalidStacks = Stack.invalidStacks.concat(viewModel.agentPoolStacks)
+					})
+				}
+
 				appService.getOwnerPlanData().then(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
@@ -86,6 +119,31 @@
 
 				return stack.name || stack.id;
 			};
+
+			// NOTE: Conditionally show the selector if the user is the owner and has platform admin beta tag and the the pool is loaded
+			viewModel.canShowStackSelector = function() {
+				if(viewModel.isPlatformAdmin && !appService.agentPool) {
+						return false;
+				}
+				return true;
+			}
+
+			viewModel.canShowDefaultInvalidSelectorError = function() {
+				var stacks = Stack.all;
+				if(viewModel.isPlatformAdmin && appService.agentPool) {
+					stacks = stacks.concat(viewModel.agentPoolStacks);
+				}
+				return stacks.indexOf(appService.stack) == -1
+			}
+
+			viewModel.canShowInvalidStackError = function(workflow) {
+				var stacks = Stack.all;
+				if(viewModel.isPlatformAdmin && appService.agentPool) {
+					stacks = stacks.concat(viewModel.agentPoolStacks);
+				}
+				var stack = viewModel.stackGetterSetterForWorkflow(workflow, true)()
+				return stacks.indexOf(stack) == -1
+			}
 
 			viewModel.stackOptions = function() {
 				var stacks = appService.availableStacks().concat(Stack.invalidStacks);
