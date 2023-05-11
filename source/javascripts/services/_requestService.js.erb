@@ -2769,8 +2769,7 @@ import jsyaml from "js-yaml";
 						break;
 					case "cli":
 						return $q.reject(
-							// TODO: add error message in strings.rb
-							new Error("Error loading beta tags..")
+							new Error("<%= data[:strings][:request_service][:get_beta_tags][:not_website_mode_error] %>")
 						);
 				}
 
@@ -2783,12 +2782,7 @@ import jsyaml from "js-yaml";
 						},
 						function(response) {
 							reject(
-								errorFromResponse(
-									response,
-									// TODO: error message
-									"todo error",
-									"todo error"
-								)
+								new Error("<%= data[:strings][:request_service][:get_beta_tags][:default_error] %>")
 							);
 						}
 					);
@@ -2802,12 +2796,11 @@ import jsyaml from "js-yaml";
 
 				switch (requestService.mode) {
 					case "website":
-						requestURL = "some request url here"
+						requestURL = stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:agent_pool_get]) %>");
 						break;
 					case "cli":
 						return $q.reject(
-							// TODO: add error message in strings.rb
-							new Error("Error loading beta tags..")
+							new Error("<%= data[:strings][:request_service][:agent_pool][:not_website_mode_error] %>")
 						);
 				}
 
@@ -2831,11 +2824,7 @@ import jsyaml from "js-yaml";
 						},
 						function(response) {
 							reject(
-								errorFromResponse(
-									response,
-									"todo error",
-									"todo error"
-								)
+								new Error("<%= data[:strings][:request_service][:agent_pool][:default_error] %>")
 							);
 						}
 					); */

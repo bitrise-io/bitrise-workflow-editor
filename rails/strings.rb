@@ -984,6 +984,14 @@ def strings
                     default_error: "Error starting a build",
                     error_prefix: "Error starting a build: ",
                     not_website_mode_error: "Starting a build is only available in website mode"
+                },
+                get_beta_tags: {
+                    default_error: "Error while fetching beta tags",
+                    not_website_mode_error: "Fetching beta tags is only available in website mode"
+                },
+                agent_pool: {
+                    default_error: "Error while loading agent pool",
+                    not_website_mode_error: "Fetching agent pool is only available in website mode"
                 }
             },
             step_source_service: {
@@ -1087,7 +1095,8 @@ def strings
                 apple_developer_account_two_step_auth_select_device_post: "/me/profile/apple_developer_account/two_step_auth_select_device.json",
                 apple_developer_account_two_step_auth_verify_code_post: "/me/profile/apple_developer_account/two_step_auth_verify_code.json",
                 apple_developer_account_two_factor_auth_verify_code_post: "/me/profile/apple_developer_account/two_factor_auth_verify_code.json",
-                apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json"
+                apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json",
+                agent_pool_get: "TODO-INSERT-WEBSITE-PATH-HERE",
             },
             local_server: {
                 cancel_api_connection_close: "/api/connection",
