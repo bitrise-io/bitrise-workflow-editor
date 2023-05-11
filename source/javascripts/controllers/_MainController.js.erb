@@ -185,7 +185,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 							break;
 						case "stack":
-							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll(), appService.getBetaTags()])
+							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll(appService.appDetails.isCurrentUserOwner)])
 								.then(appService.getStackAndDockerImage)
 								.then(function() {
 									if (appService.appDetails.isMachineTypeSelectorAvailable) {

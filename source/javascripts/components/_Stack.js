@@ -28,13 +28,13 @@
 			Stack.all;
 			Stack.invalidStacks = [];
 
-			Stack.getAll = function() {
+			Stack.getAll = function(isCurrentUserOwner) {
 				if (Stack.all) {
 					return $q.when();
 				}
 
-				return requestService.getStacks().then(function(data) {
-					Stack.all = _.map(data.stackDatas, function(aStackData) {
+				var stacksPromise = requestService.getStacks().then(function(data) {
+					var stacks = _.map(data.stackDatas, function(aStackData) {
 						return new Stack(
 							aStackData.id,
 							aStackData.name,
@@ -46,7 +46,51 @@
 							aStackData.osForChip
 						);
 					});
+					return stacks;
 				});
+
+				var promises = [stacksPromise];
+
+				if(isCurrentUserOwner) {
+					var agentPoolPromise = requestService
+						.getBetaTags()
+						.then((betaTags) => {
+							if(betaTags.includes('platform_admin')) {
+								return requestService.getAgentPool().then((agentPool) => {
+									return _.map(agentPool.pools, function(item) {
+										return new Stack(
+											item.id,
+											item.name,
+											"",
+											"",
+											undefined,
+											undefined,
+											[
+												"ios",
+												"osx",
+												"macos",
+												"android",
+												"cordova",
+												"ionic",
+												"react-native",
+												"flutter"
+										],
+											undefined
+										);
+									});
+								})
+							}
+						})
+						.catch(() => {
+							return [];
+						})
+						promises.push(agentPoolPromise);
+				}
+
+				return $q.all(promises).then(([stacks, agentPool]) => {
+					Stack.all = stacks.concat(agentPool);
+					return Stack.all;
+				})
 			};
 
 			Stack.getPotentiallyInvalidStack = function(stackId) {
