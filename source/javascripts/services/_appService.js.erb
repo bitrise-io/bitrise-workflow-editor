@@ -566,40 +566,6 @@
 				return $q.when();
 			};
 
-			appService.getBetaTags = function() {
-				if (appService.betaTags) {
-					return $q.when();
-				}
-
-				if (requestService.mode === "website") {
-					return requestService.getBetaTags()
-						.then(function(betaTags) {
-							appService.betaTags = betaTags;
-						}).catch(() => {
-							appService.betaTags = null;
-						});
-				}
-				appService.betaTags = null;
-				return $q.when();
-			};
-
-			appService.getAgentPool = function() {
-				if (appService.agentPool) {
-					return $q.when();
-				}
-
-				if (requestService.mode === "website") {
-					return requestService.getAgentPool()
-						.then(function(agentPool) {
-							return appService.agentPool = agentPool;
-						}).catch(() => {
-							appService.agentPool = null;
-						});
-				}
-				appService.agentPool = null;
-				return $q.when();
-			};
-
 			return appService;
 		});
 })();
