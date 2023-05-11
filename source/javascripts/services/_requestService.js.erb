@@ -2776,9 +2776,7 @@ import jsyaml from "js-yaml";
 				return $q(function(resolve, reject) {
 					$http.get(requestURL).then(
 						function(response) {
-							// TODO: remove temporary beta tag solution
-							const betaTags = (response.data.beta_tags || []).concat(["platform_admin"])
-							resolve(betaTags);
+							resolve(response.data.beta_tagsbetaTags);
 						},
 						function(response) {
 							reject(
