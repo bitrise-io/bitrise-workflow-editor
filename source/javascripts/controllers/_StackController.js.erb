@@ -99,7 +99,7 @@
 				var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
 
 				if (!isPreviousMachineTypeAvailable && MachineType.defaults) {
-					viewModel.setDefaultMachineType(MachineType.defaults[appService.stack.type]);
+					viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
 				}
 			}
 
@@ -163,6 +163,13 @@
 					machineTypes.some(machineType => machineType.id === previousMachineType.id && machineType.type === previousMachineType.type)
 				);
 			};
+
+			viewModel.firstAvailableMachineTypeForStack = function(selectedStackId) {
+				return _.find(MachineType.all, function(aMachineType) {
+					return _.contains(aMachineType.availableOnStacks, selectedStackId);
+				});
+			};
+
 			viewModel.descriptionURLForStack = function(stack) {
 				if (stack.descriptionURLGen2 !== undefined) {
 					return stack.descriptionURLGen2;
