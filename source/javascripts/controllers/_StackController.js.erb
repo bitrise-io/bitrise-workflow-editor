@@ -98,7 +98,7 @@
 
 				var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
 
-				if (!isPreviousMachineTypeAvailable && MachineType.defaults) {
+				if (!isPreviousMachineTypeAvailable) {
 					viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
 				}
 			}
