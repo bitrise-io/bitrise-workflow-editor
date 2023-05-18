@@ -1,7 +1,8 @@
 import { react2angular } from "@bitrise/react2angular";
-import { Icon } from "@bitrise/bitkit";
+import { Icon, Checkbox } from "@bitrise/bitkit";
 
 import ErrorNotification from "./components/ErrorNotification";
+import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
 import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetails";
@@ -22,6 +23,8 @@ function register(component, props, injects) {
 angular
 	.module("BitriseWorkflowEditor")
 	.component("rErrorNotification", register(ErrorNotification, ["message"]))
+	.component("rNotificationMessageWithLink", register(NotificationMessageWithLink, ["message", "type", "linkUrl", "linkText"]))
+	.component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
 	.component("rBitkitRoot", react2angular(BitkitRoot))
 	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
