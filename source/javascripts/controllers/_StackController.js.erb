@@ -48,6 +48,16 @@
 				return [];
 			}
 
+			viewModel.canShowDefaulStackMachines = function() {
+				var stackId = appService.stack.id || '';
+
+				if(stackId.startsWith('agent-pool')) {
+					return false;
+				}
+
+				return appService.appDetails.isMachineTypeSelectorAvailable
+			}
+
 			viewModel.init = function() {
 				appService.getOwnerPlanData().then(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
@@ -96,10 +106,12 @@
 			viewModel.onDefaultStackChange = function() {
 				appService.dockerImage = viewModel.defaultDockerImagesByStackIDs[appService.stack.id] ? '' : null;
 
-				var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
+				if(!appService.stack.id.startsWith('agent-pool')) {
+					var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
 
-				if (!isPreviousMachineTypeAvailable) {
-					viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
+					if (!isPreviousMachineTypeAvailable) {
+						viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
+					}
 				}
 			}
 
@@ -160,7 +172,7 @@
 
 			viewModel.isMachineTypeAvailableForStack = function(previousMachineType, stack) {
 				return Object.values(viewModel.stackMachineMap[stack.id] || {}).some(machineTypes =>
-					machineTypes.some(machineType => machineType.id === previousMachineType.id && machineType.type === previousMachineType.type)
+					machineTypes.some(machineType => machineType.id === (previousMachineType || {}).id && machineType.type === previousMachineType.type)
 				);
 			};
 

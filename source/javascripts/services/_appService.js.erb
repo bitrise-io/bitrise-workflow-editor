@@ -268,8 +268,13 @@
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
-					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
+					var stackId = appService.stack.id || '';
+					if(!stackId.startsWith('agent-pool')) {
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
 						appService.defaultMachineType.id;
+					} else {
+						delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+					}
 
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
@@ -435,6 +440,12 @@
 					appService.appConfig.meta &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
+
+				console.log({metaMachineTypeID, type: appService.stack.type, defaults: MachineType.defaults})
+
+				if(appService.stack.id.startsWith('agent-pool')) {
+					return $q.when();
+				}
 
 				var defaultMachineTypeID = metaMachineTypeID || MachineType.defaults[appService.stack.type].id;
 				appService.defaultMachineType = _.find(MachineType.all, {

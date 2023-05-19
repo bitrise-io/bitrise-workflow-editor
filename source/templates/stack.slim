@@ -19,7 +19,7 @@
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
-			section.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
+			section.machine-type-settings[ng-if="stackCtrl.canShowDefaulStackMachines()"]
 				h4.machine-type-header Machine type for the default stack
 				div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(appService.stack.id)"]
 					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'apple'"]
