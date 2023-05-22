@@ -155,7 +155,7 @@
 			};
 
 			viewModel.setDefaultMachineType = function(machineType) {
-				if (!machineType.isAvailable) {
+				if (machineType && !machineType.isAvailable) {
 					return;
 				}
 
