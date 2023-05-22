@@ -57,6 +57,12 @@
 				return date < now;
 			};
 
+			dateService.toLocaleMonthDayDateString = function(string) {
+				var date = new Date(string);
+
+				return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+			};
+
 			dateService.defaultSaveDelayDurationInMilliseconds;
 
 			return dateService;
