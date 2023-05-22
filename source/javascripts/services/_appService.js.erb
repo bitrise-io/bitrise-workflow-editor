@@ -440,8 +440,6 @@
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 
-				console.log({metaMachineTypeID, type: appService.stack.type, defaults: MachineType.defaults})
-
 				if(appService.isAgentPoolStack(appService.stack)) {
 					return $q.when();
 				}
