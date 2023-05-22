@@ -97,6 +97,11 @@
 
 				if (stack !== null) {
 					this.workflowConfig.meta[BITRISE_META_KEY].stack = stack.id;
+
+					if(stack.id.startsWith('agent-pool')) {
+						delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
+					}
+
 					if (defaultMachineTypeForStack) {
 						this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id = defaultMachineTypeForStack.id
 					}
