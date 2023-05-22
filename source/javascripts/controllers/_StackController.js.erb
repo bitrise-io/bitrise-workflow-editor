@@ -65,7 +65,6 @@
 				loadLaunchDarklyFeatureFlags().then((response) => {
 					viewModel.buildMachineDeprecationData = {
 						message: buildMachineDeprecationMessageBasedOnGracePeriodDates(response.gracePeriodStartDate, response.gracePeriodEndDate),
-						extendGracePeriodButtonLabel: "Extend using Intel machines until " + dateService.toLocaleMonthDayDateString(response.gracePeriodEndDate) + ".",
 						announcementUrl: 'https://www.bitrise.io',
 						announcementUrlLabel: 'Read announcement'
 					};

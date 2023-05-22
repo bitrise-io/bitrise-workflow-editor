@@ -28,8 +28,6 @@
 						| macOS virtual machines (Intel)
 						.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData"]
 							r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'warning'" link-url="stackCtrl.buildMachineDeprecationData.announcementUrl" link-text="stackCtrl.buildMachineDeprecationData.announcementUrlLabel"]
-						.is-extend-grace-period[ng-if="stackCtrl.buildMachineDeprecationData"]
-							r-checkbox[children="stackCtrl.buildMachineDeprecationData.extendGracePeriodButtonLabel" is-disabled="'true'"]
 					.machine-types
 						.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[appService.stack.id][machineChip] track by machineType.id" ng-click="stackCtrl.setDefaultMachineType(machineType)" ng-class="{'selected': machineType.id == appService.defaultMachineType.id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 							.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
@@ -85,8 +83,6 @@
 							| macOS virtual machines (Intel)
 							.machine-type-warning[ng-if="stackCtrl.buildMachineDeprecationData"]
 								r-notification-message-with-link[message="stackCtrl.buildMachineDeprecationData.message" type="'warning'" link-url="stackCtrl.buildMachineDeprecationData.announcementUrl" link-text="stackCtrl.buildMachineDeprecationData.announcementUrlLabel"]
-							.is-extend-grace-period[ng-if="stackCtrl.buildMachineDeprecationData"]
-								r-checkbox[children="stackCtrl.buildMachineDeprecationData.extendGracePeriodButtonLabel" is-disabled="'true'"]
 						.machine-types
 							.machine-type-wrapper[ng-repeat="machineType in stackCtrl.stackMachineMap[stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id][machineChip]" ng-click="stackCtrl.setWorkflowMachineType(machineType, workflow)" ng-class="{'selected': machineType.id == stackCtrl.workflowMachineType(workflow).id, 'not-available': !machineType.isAvailable}" class="{{ machineType.stackType }}"]
 								.machine-type-icon[ng-if="machineType.cssClass == 'elite-xl'"]  == svg("elite_xl-machine-type-icon")
