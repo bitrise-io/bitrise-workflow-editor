@@ -58,9 +58,11 @@
 			};
 
 			dateService.toLocaleMonthDayDateString = function(string) {
-				var date = new Date(string);
+				const date = new Date(string);
+				const month = date.toLocaleDateString('en-US', { month: 'short' });
+				const day = date.toLocaleDateString('en-US', { day: '2-digit' });
 
-				return date.toLocaleDateString('en-US', { month: 'short', day: '2-digit' });
+				return day + 'th of ' + month;
 			};
 
 			dateService.defaultSaveDelayDurationInMilliseconds;
