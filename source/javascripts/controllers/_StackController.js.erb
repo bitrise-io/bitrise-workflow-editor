@@ -4,6 +4,7 @@
 	angular
 		.module("BitriseWorkflowEditor")
 		.controller("StackController", function(
+			$q,
 			$scope,
 			$rootScope,
 			stringService,
@@ -11,7 +12,9 @@
 			Workflow,
 			Stack,
 			MachineType,
-			planServiceUtil
+			planServiceUtil,
+			dateService,
+			launchDarklyService
 		) {
 			var viewModel = this;
 
@@ -20,6 +23,8 @@
 			$scope.MachineType = MachineType;
 			$scope.appService = appService;
 			$scope.showMachineCreditCost = false;
+			$scope.dateService = dateService;
+			viewModel.buildMachineDeprecationData;
 			viewModel.defaultDockerImagesByStackIDs = {
 				"linux-docker-android": "bitriseio/android-ndk:pinned",
 				"linux-docker-android-20.04": "bitriseio/android-ndk-20.04:pinned",
@@ -74,6 +79,15 @@
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
 				});
+
+				loadLaunchDarklyFeatureFlags().then((response) => {
+					viewModel.buildMachineDeprecationData = {
+						message: buildMachineDeprecationMessageBasedOnGracePeriodDates(response.gracePeriodStartDate, response.gracePeriodEndDate),
+						extendGracePeriodButtonLabel: "Extend using Intel machines until " + dateService.toLocaleMonthDayDateString(response.gracePeriodEndDate) + ".",
+						announcementUrl: 'https://www.bitrise.io',
+						announcementUrlLabel: 'Read announcement'
+					};
+				});
 			};
 
 			$scope.$on(
@@ -90,6 +104,38 @@
 				) {
 					return new Workflow(workflowID, aWorkflowConfig);
 				});
+			}
+
+			function loadLaunchDarklyFeatureFlags() {
+				return $q(function (resolve, reject) {
+					launchDarklyService.initialize().then(() => {
+						const ldFlagValue = launchDarklyService.variation("migrate-from-intel-machines-to-apple-silicon", {});
+
+						if (_.size(ldFlagValue) > 0 && ldFlagValue.grace_period_started && ldFlagValue.grace_period_ended) {
+							const gracePeriodStartDate = new Date(ldFlagValue.grace_period_started);
+							const gracePeriodEndDate = new Date(ldFlagValue.grace_period_ended);
+
+							resolve({gracePeriodStartDate, gracePeriodEndDate});
+						}
+
+						reject();
+					});
+				});
+			}
+
+			function buildMachineDeprecationMessageBasedOnGracePeriodDates(startDate, endDate) {
+				if (!startDate || !endDate) {
+					return;
+				}
+
+				const currentDate = new Date();
+				if (currentDate < startDate) {
+					return "Intel machines will be deprecated. Your builds will be switched over to an Apple Silicon machine on " + dateService.toLocaleMonthDayDateString(startDate) + "."
+				} else if (currentDate >= startDate && currentDate <= endDate) {
+					return "Deprecated machine type. Your builds now are running on Apple Silicon. You can extend using Intel machines until " + dateService.toLocaleMonthDayDateString(endDate) + "."
+				} else if (currentDate > endDate) {
+					return "Deprecated machine type. Your builds now are running on Apple Silicon. If you’d like to keep using Intel machines, reach out to support."
+				}
 			}
 
 			viewModel.stackOptionTitle = function(stack) {
