@@ -268,8 +268,7 @@
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
-					var stackId = appService.stack.id || '';
-					if(!stackId.startsWith('agent-pool')) {
+					if(!appService.isAgentPoolStack(appService.stack)) {
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
 						appService.defaultMachineType.id;
 					} else {
@@ -443,7 +442,7 @@
 
 				console.log({metaMachineTypeID, type: appService.stack.type, defaults: MachineType.defaults})
 
-				if(appService.stack.id.startsWith('agent-pool')) {
+				if(appService.isAgentPoolStack(appService.stack)) {
 					return $q.when();
 				}
 
@@ -574,6 +573,10 @@
 				appService.ownerPlanData = null;
 				return $q.when();
 			};
+
+			appService.isAgentPoolStack = function(stack) {
+				return Boolean(stack && stack.id && stack.id.startsWith('agent-pool'))
+			}
 
 			return appService;
 		});

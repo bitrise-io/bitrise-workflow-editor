@@ -49,13 +49,21 @@
 			}
 
 			viewModel.canShowDefaulStackMachines = function() {
-				var stackId = appService.stack.id || '';
-
-				if(stackId.startsWith('agent-pool')) {
+				if(appService.isAgentPoolStack(appService.stack)) {
 					return false;
 				}
 
 				return appService.appDetails.isMachineTypeSelectorAvailable
+			}
+
+			viewModel.canShowWorkflowStackMachines = function(workflow) {
+				var stack = viewModel.stackGetterSetterForWorkflow(workflow, false)();
+
+				if(appService.isAgentPoolStack(stack)) {
+					return false;
+				}
+
+				return appService.appDetails.isMachineTypeSelectorAvailable && !!stack;
 			}
 
 			viewModel.init = function() {
