@@ -159,12 +159,14 @@
 			viewModel.onDefaultStackChange = function() {
 				appService.dockerImage = viewModel.defaultDockerImagesByStackIDs[appService.stack.id] ? '' : null;
 
-				if(!appService.stack.isAgentPoolStack()) {
-					var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
+				if(appService.stack.isAgentPoolStack()) {
+					return;
+				}
 
-					if (!isPreviousMachineTypeAvailable) {
-						viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
-					}
+				var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
+
+				if (!isPreviousMachineTypeAvailable) {
+					viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
 				}
 			}
 
