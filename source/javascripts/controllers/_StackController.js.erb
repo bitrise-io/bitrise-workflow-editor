@@ -54,7 +54,7 @@
 			}
 
 			viewModel.canShowDefaulStackMachines = function() {
-				if(appService.isAgentPoolStack(appService.stack)) {
+				if(appService.stack && appService.stack.isAgentPoolStack()) {
 					return false;
 				}
 
@@ -64,7 +64,7 @@
 			viewModel.canShowWorkflowStackMachines = function(workflow) {
 				var stack = viewModel.stackGetterSetterForWorkflow(workflow, false)();
 
-				if(appService.isAgentPoolStack(stack)) {
+				if(stack && stack.isAgentPoolStack()) {
 					return false;
 				}
 
@@ -159,7 +159,7 @@
 			viewModel.onDefaultStackChange = function() {
 				appService.dockerImage = viewModel.defaultDockerImagesByStackIDs[appService.stack.id] ? '' : null;
 
-				if(!appService.stack.id.startsWith('agent-pool')) {
+				if(!appService.stack.isAgentPoolStack()) {
 					var isPreviousMachineTypeAvailable = viewModel.isMachineTypeAvailableForStack(appService.defaultMachineType, appService.stack);
 
 					if (!isPreviousMachineTypeAvailable) {

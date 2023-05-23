@@ -68,6 +68,10 @@
 				return stack;
 			}
 
+			Stack.prototype.isAgentPoolStack = function() {
+				return this.id.startsWith('agent-pool')
+			}
+
 			return Stack;
 		});
 })();

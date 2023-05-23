@@ -268,7 +268,7 @@
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
-					if(!appService.isAgentPoolStack(appService.stack)) {
+					if(!(appService.stack && appService.stack.isAgentPoolStack())) {
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
 						appService.defaultMachineType.id;
 					} else {
@@ -434,15 +434,15 @@
 			};
 
 			appService.getDefaultMachineType = function() {
+				if(appService.stack.isAgentPoolStack()) {
+					return $q.when();
+				}
+
 				var metaMachineTypeID =
 					appService.appConfig &&
 					appService.appConfig.meta &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
-
-				if(appService.isAgentPoolStack(appService.stack)) {
-					return $q.when();
-				}
 
 				var defaultMachineTypeID = metaMachineTypeID || MachineType.defaults[appService.stack.type].id;
 				appService.defaultMachineType = _.find(MachineType.all, {
@@ -571,10 +571,6 @@
 				appService.ownerPlanData = null;
 				return $q.when();
 			};
-
-			appService.isAgentPoolStack = function(stack) {
-				return Boolean(stack && stack.id && stack.id.startsWith('agent-pool'))
-			}
 
 			return appService;
 		});
