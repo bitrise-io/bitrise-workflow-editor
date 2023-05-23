@@ -60,9 +60,23 @@
 			dateService.toLocaleMonthDayDateString = function(string) {
 				const date = new Date(string);
 				const month = date.toLocaleDateString('en-US', { month: 'short' });
-				const day = date.toLocaleDateString('en-US', { day: '2-digit' });
+				const day = date.getDate();
 
-				return day + 'th of ' + month;
+				const nthNumber = (day) => {
+					if (day > 3 && day < 21) return "th";
+					switch (day % 10) {
+						case 1:
+							return "st";
+						case 2:
+							return "nd";
+						case 3:
+							return "rd";
+						default:
+							return "th";
+					}
+				};
+				
+				return `${day}${nthNumber(day)} of ${month}`;
 			};
 
 			dateService.defaultSaveDelayDurationInMilliseconds;
