@@ -268,8 +268,12 @@
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
 					}
 
-					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
+					if(!(appService.stack && appService.stack.isAgentPoolStack())) {
+						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id =
 						appService.defaultMachineType.id;
+					} else {
+						delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id
+					}
 
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
@@ -430,6 +434,10 @@
 			};
 
 			appService.getDefaultMachineType = function() {
+				if(appService.stack.isAgentPoolStack()) {
+					return $q.when();
+				}
+
 				var metaMachineTypeID =
 					appService.appConfig &&
 					appService.appConfig.meta &&

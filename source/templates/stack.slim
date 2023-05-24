@@ -19,7 +19,7 @@
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
-			section.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable"]
+			section.machine-type-settings[ng-if="stackCtrl.canShowDefaulStackMachines()"]
 				h4.machine-type-header Machine type for the default stack
 				div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(appService.stack.id)"]
 					h5.machine-type-subheader[ng-if="appService.stack.type === 'osx' && machineChip === 'apple'"]
@@ -74,7 +74,7 @@
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}", "{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}"])
-				.machine-type-settings[ng-if="appService.appDetails.isMachineTypeSelectorAvailable && !!stackCtrl.stackGetterSetterForWorkflow(workflow, false)()"]
+				.machine-type-settings[ng-if="stackCtrl.canShowWorkflowStackMachines(workflow)"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
 						h5.machine-type-subheader[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().type === 'osx' && machineChip === 'apple'"]
