@@ -108,7 +108,7 @@
 			function loadLaunchDarklyFeatureFlags() {
 				return $q(function (resolve, reject) {
 					launchDarklyService.initialize().then(() => {
-						const ldFlagValue = launchDarklyService.variation("migrate-from-intel-machines-to-apple-silicon", {});
+						const ldFlagValue = launchDarklyService.variation("use-replacement-for-deprecated-machines", {});
 
 						if (_.size(ldFlagValue) > 0 && ldFlagValue.grace_period_started && ldFlagValue.grace_period_ended) {
 							const gracePeriodStartDate = new Date(ldFlagValue.grace_period_started);
