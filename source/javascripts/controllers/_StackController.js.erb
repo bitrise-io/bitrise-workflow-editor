@@ -81,11 +81,7 @@
 				});
 
 				loadLaunchDarklyFeatureFlags().then((response) => {
-					viewModel.buildMachineDeprecationData = {
-						message: buildMachineDeprecationMessageBasedOnGracePeriodDates(response.gracePeriodStartDate, response.gracePeriodEndDate),
-						announcementUrl: 'https://discuss.bitrise.io/t/transitioning-from-apple-intel-to-apple-silicon-helpful-links/22615',
-						announcementUrlLabel: 'Read announcement'
-					};
+					viewModel.buildMachineDeprecationData = buildMachineDeprecationDataBasedOnGracePeriodDates(response.gracePeriodStartDate, response.gracePeriodEndDate);
 				});
 			};
 
@@ -122,18 +118,30 @@
 				});
 			}
 
-			function buildMachineDeprecationMessageBasedOnGracePeriodDates(startDate, endDate) {
+			function buildMachineDeprecationDataBasedOnGracePeriodDates(startDate, endDate) {
 				if (!startDate || !endDate) {
 					return;
 				}
 
 				const currentDate = new Date();
 				if (currentDate < startDate) {
-					return "We will deprecate our Intel machines. Your builds will automatically be switched to an Apple Silicon machine on " + dateService.toLocaleMonthDayDateString(startDate) + "."
+					return {
+						message: "Intel machines will be deprecated. Your Workflows will automatically run on Apple Silicon machines on the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
+						linkUrl: 'https://discuss.bitrise.io/t/transitioning-from-apple-intel-to-apple-silicon-helpful-links/22615',
+						linkLabel: 'Read announcement.',
+					}
 				} else if (currentDate >= startDate && currentDate <= endDate) {
-					return "Deprecated machine type. Your Intel machines were automatically switched to an Apple Silicon machine. You can opt to extend the transition period and continue using Intel machines until the " + dateService.toLocaleMonthDayDateString(endDate) + "."
+					return {
+						message: "Deprecated machine type. Workflows running on Intel machines were automatically switched to Apple Silicon machines. To continue using Intel machines until the " + dateService.toLocaleMonthDayDateString(endDate) + ", opt to extend the transition period in the",
+						linkUrl: '/workspaces/' + appService.appDetails.ownerData.slug + '/settings/apps',
+						linkLabel: 'Workspace settings.',
+					}
 				} else if (currentDate > endDate) {
-					return "Deprecated machine type. Your builds are now running on Apple Silicon. If you’d like to keep using Intel machines, reach out to support."
+					return {
+						message: "Deprecated machine type. Your Workflows are now running on Apple Silicon. If you’d like to keep using Intel machines, reach out to support.",
+						linkUrl: 'https://discuss.bitrise.io/t/transitioning-from-apple-intel-to-apple-silicon-helpful-links/22615',
+						linkLabel: 'Read announcement.',
+					}
 				}
 			}
 
