@@ -14,7 +14,8 @@
 			MachineType,
 			planServiceUtil,
 			dateService,
-			requestService
+			requestService,
+			appServiceUtil
 		) {
 			var viewModel = this;
 
@@ -80,7 +81,7 @@
 					configure();
 				});
 
-				requestService.getApp(appService.slug).then((response) => {
+				requestService.getApp(appServiceUtil.getAppSlug()).then((response) => {
 					var gracePeriodDates = {};
 					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started) {
 						gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started);
