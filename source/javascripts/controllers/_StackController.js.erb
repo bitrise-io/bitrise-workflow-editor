@@ -14,7 +14,8 @@
 			MachineType,
 			planServiceUtil,
 			dateService,
-			launchDarklyService
+			requestService,
+			appServiceUtil
 		) {
 			var viewModel = this;
 
@@ -80,8 +81,15 @@
 					configure();
 				});
 
-				loadLaunchDarklyFeatureFlags().then((response) => {
-					viewModel.buildMachineDeprecationData = buildMachineDeprecationDataBasedOnGracePeriodDates(response.gracePeriodStartDate, response.gracePeriodEndDate);
+				requestService.getApp(appServiceUtil.getAppSlug()).then((response) => {
+					var gracePeriodDates = {};
+					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started) {
+						gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started);
+					}
+					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_ended) {
+						gracePeriodDates.endsAt = new Date(response.deprecated_machines_replacement_config.grace_period_ended);
+					}
+					viewModel.buildMachineDeprecationData = buildMachineDeprecationDataBasedOnGracePeriodDates(gracePeriodDates.startsAt, gracePeriodDates.endsAt);
 				});
 			};
 
@@ -98,23 +106,6 @@
 					workflowID
 				) {
 					return new Workflow(workflowID, aWorkflowConfig);
-				});
-			}
-
-			function loadLaunchDarklyFeatureFlags() {
-				return $q(function (resolve, reject) {
-					launchDarklyService.initialize().then(() => {
-						const ldFlagValue = launchDarklyService.variation("use-replacement-for-deprecated-machines", {});
-
-						if (_.size(ldFlagValue) > 0 && ldFlagValue.grace_period_started && ldFlagValue.grace_period_ended) {
-							const gracePeriodStartDate = new Date(ldFlagValue.grace_period_started);
-							const gracePeriodEndDate = new Date(ldFlagValue.grace_period_ended);
-
-							resolve({gracePeriodStartDate, gracePeriodEndDate});
-						}
-
-						reject();
-					});
 				});
 			}
 
