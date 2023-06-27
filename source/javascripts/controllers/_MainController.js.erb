@@ -93,8 +93,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			]);
 			viewModel.menuProgress = new Progress();
 			viewModel.currentMenu;
-			viewModel.tourIds = ['menu-nav', 'workflow-main-toolbar', 'steps-container'];
-
 
 			viewModel.loadDataProgress = new Progress();
 			viewModel.saveProgress = new Progress();
@@ -103,7 +101,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
-			viewModel.productTourShown = true;
 			viewModel.lastWorkflowEditedDate;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
@@ -686,15 +683,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				if (requestService.mode === 'website') {
 
 					launchDarklyService.initialize().then(() => {
-						const isProductTourEnabled = launchDarklyService.variation('enable-wfe-product-tour');
-						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
-						const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
-
-						const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
-
-						Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
+						requestService.getCurrentUserMetadata('last_workflow_edited_date').then((lastWFEDateMetadataResp) => {
 							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-							viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
 						});
 					});
 				}

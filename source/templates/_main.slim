@@ -33,7 +33,7 @@ header.sticky
 					li.level.current
 						span Workflow Editor
 			.workflow-editor-menubar[ng-if="mainCtrl.shouldShowMenuBar()"]
-				nav[id="menu-nav"]
+				nav[id="menu-nav" data-intercom-target="Menu nav"]
 					button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.isMenuEnabled(menu)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}" data-e2e-tag="{{ menu.cssClass }}-tab" id="{{ menu.id }}"]
 						span.icon[ng-if="menu.cssClass == 'workflows'"]  == svg("main/menuicon-workflows")
 						span.icon[ng-if="menu.cssClass == 'code-signing'"]  == svg("main/menuicon-code_signing")
@@ -63,7 +63,6 @@ header.sticky
 			== svg("heart")
 			p == replaced_string(data[:strings][:main][:footer][:check_out_source_code], [data[:routes][:other][:bitrise_workflow_editor_source_code]])
 		div.placeholder
-	r-product-tour[menu-ids="mainCtrl.tourIds" current-user="mainCtrl.currentUser" product-tour-shown="mainCtrl.productTourShown"]
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 	popup[model="defaultPopupCtrl.alertPopup"]
 		.popup-body#default-alert-popup-body[ng-class="defaultPopupCtrl.alertPopup.parameters.type.cssClass"]
@@ -81,4 +80,3 @@ aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
 				button.yes[ng-click="defaultPopupCtrl.confirmPopup.parameters.yesSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.yesTitle" data-e2e-tag="confirm-button"]
 				button.no[ng-click="defaultPopupCtrl.confirmPopup.parameters.noSelected()" ng-bind="defaultPopupCtrl.confirmPopup.parameters.noTitle" data-e2e-tag="cancel-button"]
 
-div.product-tour-portal

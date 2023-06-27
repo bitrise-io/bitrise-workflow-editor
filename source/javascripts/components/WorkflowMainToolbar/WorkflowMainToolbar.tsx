@@ -47,7 +47,12 @@ const WorkflowMainToolbar = ({
 
 	return (
 		<Box display='flex' alignItems="center" justifyContent="space-between">
-			<Box display="flex" alignItems="center" gap="8" id='workflow-main-toolbar'>
+			<Box
+				display="flex"
+				alignItems="center"
+				gap="8"
+				id='workflow-main-toolbar'
+				data-intercom-target="Workflow main toolbar">
 				{selectedWorkflow && (
 					<WorkflowSelector
 						selectedWorkflow={selectedWorkflow}
