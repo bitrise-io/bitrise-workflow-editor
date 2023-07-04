@@ -131,5 +131,96 @@ func TestPostBitriseYMLFromJSONHandler(t *testing.T) {
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
 	require.Equal(t, "{\"warnings\":null}\n", rr.Body.String())
+}
 
+func TestPostBitriseYMLFromJSONHandler_PipelineFields(t *testing.T) {
+	tmpDir, err := pathutil.NormalizedOSTempDirPath("_PostBitriseYMLFromJSONHandler_")
+	require.NoError(t, err)
+	defer func() {
+		require.NoError(t, os.RemoveAll(tmpDir))
+	}()
+
+	bitriseConfigPth := filepath.Join(tmpDir, "bitrise.yml")
+
+	config.BitriseYMLPath = bitriseConfigPth
+
+	req, err := http.NewRequest("POST", "/api/bitrise-yml.json", bytes.NewBuffer([]byte(`{
+	"bitrise_yml": {
+		"format_version": "11",
+		"default_step_lib_source": "https://github.com/bitrise-io/bitrise-steplib.git",
+		"pipelines": {
+			"pipeline_1": {
+				"title": "Pipeline 1",
+				"summary": "First pipeline",
+				"description": "This is the first pipeline",
+				"stages": [
+					{
+						"stage_1": {
+
+						}
+					}
+				]
+			}
+		},
+		"stages": {
+			"stage_1": {
+				"title": "Stage 1",
+				"summary": "First stage",
+				"description": "This is the first stage",
+				"workflows": [
+					{
+						"workflow_1": {
+
+						}
+					}
+				]
+			}
+		},
+		"workflows": {
+			"workflow_1": {
+				"steps": [
+					{
+						"script": {
+
+						}
+					}
+				]
+			}
+		}
+	}
+}
+`)))
+	require.NoError(t, err)
+
+	rr := httptest.NewRecorder()
+	handler := http.HandlerFunc(PostBitriseYMLFromJSONHandler)
+
+	handler.ServeHTTP(rr, req)
+
+	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
+	require.Equal(t, "{\"warnings\":null}\n", rr.Body.String())
+
+	content, err := os.ReadFile(config.BitriseYMLPath)
+	require.Equal(t, `format_version: "11"
+default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
+project_type: ""
+pipelines:
+  pipeline_1:
+    title: Pipeline 1
+    summary: First pipeline
+    description: This is the first pipeline
+    stages:
+    - stage_1: {}
+stages:
+  stage_1:
+    title: Stage 1
+    summary: First stage
+    description: This is the first stage
+    workflows:
+    - workflow_1: {}
+workflows:
+  workflow_1:
+    steps:
+    - script: {}
+`, string(content))
 }
