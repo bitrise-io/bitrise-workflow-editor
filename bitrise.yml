@@ -47,6 +47,7 @@ workflows:
             envman add --key PATH --value $PATH
             source ~/.asdf/asdf.sh
             asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git
+            asdf reshim nodejs
             asdf install nodejs
     - script:
         title: Install NPM and Bundler
