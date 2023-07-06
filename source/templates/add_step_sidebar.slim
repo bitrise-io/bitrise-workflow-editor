@@ -4,7 +4,7 @@
 		header
 			r-workflow-recipes-info-banner
 			.filters
-				button.category-mode[ng-click="addStepCtrl.isCategoryMode = true" ng-if="!addStepCtrl.isCategoryMode && !addStepCtrl.isWindowSizeForcingListMode && !appService.allowedStepMap"]  == svg("arrow-down")
+				button.category-mode[ng-click="addStepCtrl.isCategoryMode = true" ng-if="!addStepCtrl.isCategoryMode && addStepCtrl.isCategoryModeAllowed()"]  == svg("arrow-down")
 				input.step-filter#add-step-sidebar-step-filter-input[type="text" placeholder="#{ data[:strings][:workflows][:steps][:add][:search_placeholder] }" ng-model="addStepCtrl.stepFilter" ng-model-options='{ debounce: 500 }']
 				.project-type-filter[ng-if="appService.appDetails && appService.appDetails.projectTypeID"]
 					button.current[ng-click="addStepCtrl.shouldFilterByProjectType = true" ng-disabled="addStepCtrl.shouldFilterByProjectType" ng-class="appService.appDetails.projectTypeID | projectTypeCSSClass"]

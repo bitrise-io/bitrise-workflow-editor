@@ -236,7 +236,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.canRunWorkflowFeatureFlag = featureFlags.runWorkflow;
 					viewModel.runIfFeatureFlag = featureFlags.runIf;
 					viewModel.buildTriggerToken = app?.build_trigger_token;
-					viewModel.uniqueStepLimit = appService.ownerPlanData?.limits?.uniqueStepLimit;
+					viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
 				});
 			}
 
@@ -817,7 +817,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			function updateUniqueCount() {
-				if(requestService.isWebsiteMode() && typeof(appService?.ownerPlanData?.limits.uniqueStepLimit) !== 'number') {
+				if(!requestService.isWebsiteMode() || typeof(appService?.ownerPlanData?.uniqueStepLimit) !== 'number') {
 					return;
 				}
 				var steps = {};
@@ -923,6 +923,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index + 1, 0, clonedStep);
+				updateUniqueCount();
 
 				viewModel.stepSelected(clonedStep);
 			};
@@ -930,6 +931,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.deleteStepSelected = function() {
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index, 1);
+				updateUniqueCount();
 				viewModel.stepSelected(null);
 			};
 

@@ -38,6 +38,10 @@
 				allowedStepMap: undefined,
 			};
 
+			appService.reachedStepLimit = function() {
+				return Boolean(appService.allowedStepMap);
+			};
+
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {
 				if (!shouldForceReload && appService.appDetails) {
 					return $q.when();

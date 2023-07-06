@@ -91,7 +91,7 @@ import { safeDigest } from "../services/react-compat";
 			viewModel.loadProgress = new Progress();
 
 			viewModel.isStepAllowed = function(id) {
-				if(!appService.allowedStepMap) {
+				if(!appService.reachedStepLimit()) {
 					return true;
 				}
 				return Boolean(appService.allowedStepMap[id]);
@@ -152,6 +152,10 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.loadProgress.success();
 			}
 
+			viewModel.isCategoryModeAllowed = function() {
+				return !viewModel.isWindowSizeForcingListMode && !appService.reachedStepLimit();
+			}
+
 			$scope.$watch(
 				function() {
 					return addStepService.isVisible;
@@ -196,7 +200,7 @@ import { safeDigest } from "../services/react-compat";
 						});
 
 						viewModel.isCategoryMode = false;
-						if (!viewModel.isWindowSizeForcingListMode && !appService.allowedStepMap) {
+						if (viewModel.isCategoryModeAllowed()) {
 							viewModel.isCategoryMode = true;
 						}
 					} else {
@@ -313,7 +317,7 @@ import { safeDigest } from "../services/react-compat";
 					}
 				}
 
-				if(appService.allowedStepMap) {
+				if(appService.reachedStepLimit()) {
 					return _.sortBy(filteredSteps, function(item) {
 						if(appService.allowedStepMap[item.id]) {
 							return 0;

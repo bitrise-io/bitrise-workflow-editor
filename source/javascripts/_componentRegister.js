@@ -77,7 +77,8 @@ angular
 			"onDeleteSelectedWorkflow",
 			"onRunWorkflow",
 			"uniqueStepCount",
-			"uniqueStepLimit"
+			"uniqueStepLimit",
+			"organizationSlug"
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
