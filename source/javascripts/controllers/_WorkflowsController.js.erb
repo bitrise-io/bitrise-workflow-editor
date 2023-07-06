@@ -216,6 +216,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				if (requestService.isWebsiteMode()) {
 					loadAppAndUser();
 				}
+
+				var queryParams = new URLSearchParams(window.location.hash.replace('#!/workflows?', ''))
+				if(queryParams.has('add-workflow')) {
+					viewModel.openAddWorkflowPopup();
+				}
 			};
 
 			function loadAppAndUser() {
