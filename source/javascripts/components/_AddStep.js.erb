@@ -276,7 +276,7 @@ import { safeDigest } from "../services/react-compat";
 					aCategory.paginateStepsConfig.pageCount = aCategory.steps
 						? Math.ceil(
 								viewModel.filteredSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage
-						  )
+							)
 						: undefined;
 					aCategory.paginateStepsConfig.currentPageIndex = 0;
 					aCategory.paginateStepsConfig.currentOffsetInPage = 0;
@@ -313,6 +313,16 @@ import { safeDigest } from "../services/react-compat";
 					}
 				}
 
+				if(appService.allowedStepMap) {
+					return _.sortBy(filteredSteps, function(item) {
+						if(appService.allowedStepMap[item.id]) {
+							return 0;
+						} else {
+							return 1;
+						}
+					})
+				}
+
 				return filteredSteps;
 			};
 
@@ -338,29 +348,29 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.getStackNameByProjectType = function(projectType) {
 				switch (projectType) {
-        				case "ios":
-        					return "iOS";
-        				case "osx":
-        					return "OSX";
-        				case "macos":
-        					return "MacOS";
-        				case "android":
-        					return "Android";
-        				case "xamarin":
-        					return "Xamarin";
-        				case "cordova":
-        					return "Cordova";
-        				case "ionic":
-        					return "Ionic";
-        				case "react-native":
-        					return "React Native";
-        				case "flutter":
-        					return "Flutter";
-        				case "other":
-        					return "Other";
-                default:
-                  return projectType;
-        			}
+								case "ios":
+									return "iOS";
+								case "osx":
+									return "OSX";
+								case "macos":
+									return "MacOS";
+								case "android":
+									return "Android";
+								case "xamarin":
+									return "Xamarin";
+								case "cordova":
+									return "Cordova";
+								case "ionic":
+									return "Ionic";
+								case "react-native":
+									return "React Native";
+								case "flutter":
+									return "Flutter";
+								case "other":
+									return "Other";
+								default:
+									return projectType;
+							}
 			};
 
 			viewModel.paginateSelected = function(category, direction) {
