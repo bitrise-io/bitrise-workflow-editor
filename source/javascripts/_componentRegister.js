@@ -44,7 +44,7 @@ angular
 			"strings"
 		])
 	)
-	.component("rAddStepItem", register(AddStepItem, ["step", "onSelected"]))
+	.component("rAddStepItem", register(AddStepItem, ["step", "disabled", "onSelected"]))
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
 	.component(
 		"rYmlStorageSettings",
@@ -75,9 +75,10 @@ angular
 			"onInsertAfterWorkflow",
 			"onRearrangeWorkflow",
 			"onDeleteSelectedWorkflow",
-			"onRunWorkflow"
+			"onRunWorkflow",
+			"uniqueStepCount",
+			"uniqueStepLimit"
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]));
-

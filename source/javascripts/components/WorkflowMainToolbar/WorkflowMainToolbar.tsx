@@ -1,4 +1,4 @@
-import { Box, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Tooltip } from "@bitrise/bitkit";
+import { Box, Button, IconButton, Menu, MenuButton, MenuItem, MenuList, Text, Tooltip } from "@bitrise/bitkit";
 
 import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
@@ -8,6 +8,8 @@ import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	defaultBranch: string;
+	uniqueStepCount: number;
+	uniqueStepLimit?: number;
 	canRunWorkflow: boolean;
 	isRunWorkflowDisabled: boolean;
 	onAddNewWorkflow: () => void;
@@ -31,9 +33,12 @@ const WorkflowMainToolbar = ({
 	onInsertAfterWorkflow,
 	onRearrangeWorkflow,
 	onDeleteSelectedWorkflow,
-	onRunWorkflow
+	onRunWorkflow,
+	uniqueStepCount,
+	uniqueStepLimit
 }: WorkflowMainToolbarProps): JSX.Element => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
+	const showStepLimit = typeof uniqueStepLimit === "number";
 
 	const trackDialogOpen = useTrackingFunction(() => ({
 		event: "WFE - Run Workflow Dialog Opened",
@@ -79,8 +84,9 @@ const WorkflowMainToolbar = ({
 					</MenuList>
 				</Menu>
 			</Box>
+			{showStepLimit && <Text marginInlineStart="auto">{uniqueStepCount}/{uniqueStepLimit} steps</Text>}
 			<WorkflowRecipesLink
-				marginInlineStart="auto"
+				marginInlineStart={showStepLimit ? undefined: "auto"}
 				linkId="workflow-editor-main-toolbar-workflow-recipes-link"
 				trackingName="main_toolbar"
 			/>

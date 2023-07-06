@@ -16,6 +16,8 @@
 				on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
 				on-delete-selected-workflow="workflowsCtrl.deleteWorkflowSelectedWithDigest"
 				on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
+				unique-step-count="workflowsCtrl.uniqueStepCount"
+				unique-step-limit="workflowsCtrl.uniqueStepLimit"
 			]
 		.workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()"]
 			.workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px'}"]
