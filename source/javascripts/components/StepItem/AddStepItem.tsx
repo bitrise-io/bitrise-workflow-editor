@@ -13,7 +13,7 @@ type AddStepItemProps = {
 };
 
 const AddStepItem = ({ step, disabled = false, onSelected }: AddStepItemProps): JSX.Element => (
-	<Box cursor="pointer" className="step" filter={disabled ? "saturate(0)" : undefined}>
+	<Box cursor="pointer" className="step" filter={disabled ? "saturate(0) opacity(0.5)" : undefined}>
 		<button className="select" disabled={disabled} onClick={() => onSelected(step)}>
 			<Icon className="icon" name="PlusOpen" />
 			<Box className="step-content" display="flex" flexDirection="row" overflow="hidden" flexShrink="1" minWidth="0">

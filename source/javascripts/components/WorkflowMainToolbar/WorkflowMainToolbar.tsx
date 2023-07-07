@@ -123,8 +123,8 @@ const WorkflowMainToolbar = ({
 			</Box>
 			{stepLimitReached && <Notification status="warning">
 				<Text size="3" fontWeight="bold">You cannot add a new Step now.</Text>
-				Your team has already reached the limit for this app (15 unique Steps per app) included in your current plan.{" "}
-				To add more Steps, <Link isUnderlined href={upgradeLink}>upgrade your plan first</Link>.
+				Your team has already reached the limit for this app ({uniqueStepLimit} unique Steps per app) included{" "}
+				in your current plan. To add more Steps, <Link isUnderlined href={upgradeLink}>upgrade your plan first</Link>.
 			</Notification>}
 		</Box>
 		);
