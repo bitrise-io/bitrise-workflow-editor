@@ -1,4 +1,16 @@
-import { Box, Button, IconButton, Link, Menu, MenuButton, MenuItem, MenuList, Notification, Text, Tooltip } from "@bitrise/bitkit";
+import {
+	Box,
+	Button,
+	IconButton,
+	Link,
+	Menu,
+	MenuButton,
+	MenuItem,
+	MenuList,
+	Notification,
+	Text,
+	Tooltip
+} from "@bitrise/bitkit";
 
 import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
