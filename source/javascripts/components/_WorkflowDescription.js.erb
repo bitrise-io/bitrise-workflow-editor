@@ -31,6 +31,23 @@
 							}
 						}
 					);
+
+					scope.$watch(
+						function() {
+							return scope.workflowDescriptionCtrl.isSummaryEditMode;
+						},
+						function(isEditMode) {
+							if (isEditMode) {
+								$timeout(function() {
+									var descriptionEditorElement = element.find(
+										"[summary-editor]"
+									);
+
+									descriptionEditorElement.focus();
+								}, 0);
+							}
+						}
+					);
 				}
 			};
 		})
@@ -41,6 +58,7 @@
 			var viewModel = this;
 
 			viewModel.isEditMode = false;
+			viewModel.isSummaryEditMode = false;
 
 			$scope.descriptionHeader = function() {
 				if (!$scope.workflow) {
@@ -55,12 +73,26 @@
 				);
 			};
 
+			$scope.summaryHeader = function() {
+				if (!$scope.workflow) {
+					return;
+				}
+
+				return stringService.stringReplacedWithParameters(
+					"<%= data[:strings][:workflows][:summary][:header] %>",
+					{
+						workflow_id: $scope.workflow.id
+					}
+				);
+			};
+
 			$scope.$watch(
 				function() {
 					return $scope.workflow;
 				},
 				function(workflow) {
 					viewModel.isEditMode = false;
+					viewModel.isSummaryEditMode = false;
 				}
 			);
 		});

@@ -1,7 +1,7 @@
 @import "default";
 @import "constants";
 
-.workflow-description {
+.workflow-description, .workflow-summary {
 	$padding: 15px 25px;
 
 	position: relative;
@@ -71,7 +71,7 @@
 		background-color: $def-verylightgrey;
 		@include transition(background-color $def-transition_duration);
 
-		div.description, textarea.description {
+		div.description, textarea.description, input.description {
 			padding: $padding;
 		}
 
@@ -88,11 +88,15 @@
 			}
 		}
 
-		textarea.description {
+		textarea.description, input.description {
 			width: 100%;
 			@include SourceCodeProWithFallback;
 			font-size: 12px;
 			border: none;
 		}
 	}
+}
+
+.workflow-summary {
+	margin-top: 24px;
 }

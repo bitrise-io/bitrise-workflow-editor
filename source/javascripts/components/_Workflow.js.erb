@@ -86,6 +86,14 @@
 			return this.workflowConfig.description;
 		};
 
+		Workflow.prototype.summary = function(summary) {
+			if (summary !== undefined) {
+				this.workflowConfig.summary = summary;
+			}
+
+			return this.workflowConfig.summary;
+		};
+
 		Workflow.prototype.stack = function(stack, defaultMachineTypeForStack) {
 			if (stack !== undefined) {
 				if (!this.workflowConfig.meta) {

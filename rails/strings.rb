@@ -113,6 +113,10 @@ def strings
                     header: "<workflow_id> workflow's description",
                     no_description: "Click here to add a description..."
                 },
+                summary: {
+                    header: "<workflow_id> workflow's summary",
+                    no_summary: "Click here to add a summary..."
+                },
                 steps: {
                     start: "Start",
                     end: "End",
