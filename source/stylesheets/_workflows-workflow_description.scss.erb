@@ -37,7 +37,7 @@
 		color: $def-mediumdarkgrey;
 		background-color: $def-verylightgrey;
 
-		span.description-icon {
+		span.description-icon, span.summary-icon {
 
 			svg {
 				@include size(13px, 11px);
@@ -71,11 +71,11 @@
 		background-color: $def-verylightgrey;
 		@include transition(background-color $def-transition_duration);
 
-		div.description, textarea.description, input.description {
+		div.description, div.summary, textarea.description, input.summary {
 			padding: $padding;
 		}
 
-		div.description {
+		div.description, div.summary {
 			font-size: 13px;
 			color: $def-darkgrey;
 
@@ -83,12 +83,12 @@
 				position: relative;
 			}
 
-			em.no-description {
+			em.no-description, em.no-summary {
 				color: $def-grey;
 			}
 		}
 
-		textarea.description, input.description {
+		textarea.description, input.summary {
 			width: 100%;
 			@include SourceCodeProWithFallback;
 			font-size: 12px;

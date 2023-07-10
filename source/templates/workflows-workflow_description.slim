@@ -13,11 +13,11 @@
 .workflow-summary[ng-class="{'edit-mode': workflowDescriptionCtrl.isSummaryEditMode}"]
 	button.edit[ng-if="!workflowDescriptionCtrl.isSummaryEditMode" ng-click="workflowDescriptionCtrl.isSummaryEditMode = !workflowDescriptionCtrl.isSummaryEditMode"]
 	h3
-		span.description-icon  == svg("code")
+		span.summary-icon  == svg("code")
 		strong[ng-bind="summaryHeader()"]
 		span.edit-icon[ng-if="!workflowDescriptionCtrl.isSummaryEditMode"]  == svg("pencil")
 	article
-		.description[ng-if="!workflowDescriptionCtrl.isSummaryEditMode"]
+		.summary[ng-if="!workflowDescriptionCtrl.isSummaryEditMode"]
 			span[ng-if="workflow.summary()" sanitized-markdown="workflow.summary()"]
-			em.no-description[ng-if="!workflow.summary()"] == data[:strings][:workflows][:summary][:no_summary]
-		input.description[msd-elastic summary-editor ng-if="workflowDescriptionCtrl.isSummaryEditMode" ng-model="workflow.summary" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowDescriptionCtrl.isSummaryEditMode = false"]
+			em.no-summary[ng-if="!workflow.summary()"] == data[:strings][:workflows][:summary][:no_summary]
+		input.summary[msd-elastic summary-editor ng-if="workflowDescriptionCtrl.isSummaryEditMode" ng-model="workflow.summary" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowDescriptionCtrl.isSummaryEditMode = false"]
