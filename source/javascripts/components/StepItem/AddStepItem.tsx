@@ -9,11 +9,12 @@ import StepItemTitle from "./StepItemTitle";
 type AddStepItemProps = {
 	step: Step;
 	onSelected: (step: Step) => void;
+	disabled: boolean;
 };
 
-const AddStepItem = ({ step, onSelected }: AddStepItemProps): JSX.Element => (
-	<Box cursor="pointer" className="step">
-		<button className="select" onClick={() => onSelected(step)}>
+const AddStepItem = ({ step, disabled = false, onSelected }: AddStepItemProps): JSX.Element => (
+	<Box cursor="pointer" className="step" filter={disabled ? "saturate(0) opacity(0.5)" : undefined}>
+		<button className="select" disabled={disabled} onClick={() => onSelected(step)}>
 			<Icon className="icon" name="PlusOpen" />
 			<Box className="step-content" display="flex" flexDirection="row" overflow="hidden" flexShrink="1" minWidth="0">
 				<StepItemIcon step={step} />

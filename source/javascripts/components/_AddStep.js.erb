@@ -90,6 +90,13 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.loadProgress = new Progress();
 
+			viewModel.isStepAllowed = function(id) {
+				if(!appService.reachedStepLimit()) {
+					return true;
+				}
+				return Boolean(appService.allowedStepMap[id]);
+			};
+
 			function parseStepsInfo() {
 				_.each(stepSourceService.libraries, function(aLibrary) {
 					steps = steps.concat(
@@ -145,6 +152,10 @@ import { safeDigest } from "../services/react-compat";
 				viewModel.loadProgress.success();
 			}
 
+			viewModel.isCategoryModeAllowed = function() {
+				return !viewModel.isWindowSizeForcingListMode && !appService.reachedStepLimit();
+			}
+
 			$scope.$watch(
 				function() {
 					return addStepService.isVisible;
@@ -187,14 +198,15 @@ import { safeDigest } from "../services/react-compat";
 						}).then(function() {
 							viewModel.allStepsHaveBeenLoaded = true;
 						});
+
+						viewModel.isCategoryMode = false;
+						if (viewModel.isCategoryModeAllowed()) {
+							viewModel.isCategoryMode = true;
+						}
 					} else {
 						viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
 						viewModel.stepFilter = "";
 						viewModel.selectedTypeFilter = null;
-
-						if (!viewModel.isWindowSizeForcingListMode) {
-							viewModel.isCategoryMode = true;
-						}
 					}
 				}
 			);
@@ -268,7 +280,7 @@ import { safeDigest } from "../services/react-compat";
 					aCategory.paginateStepsConfig.pageCount = aCategory.steps
 						? Math.ceil(
 								viewModel.filteredSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage
-						  )
+							)
 						: undefined;
 					aCategory.paginateStepsConfig.currentPageIndex = 0;
 					aCategory.paginateStepsConfig.currentOffsetInPage = 0;
@@ -305,6 +317,16 @@ import { safeDigest } from "../services/react-compat";
 					}
 				}
 
+				if(appService.reachedStepLimit()) {
+					return _.sortBy(filteredSteps, function(item) {
+						if(appService.allowedStepMap[item.id]) {
+							return 0;
+						} else {
+							return 1;
+						}
+					})
+				}
+
 				return filteredSteps;
 			};
 
@@ -330,29 +352,29 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.getStackNameByProjectType = function(projectType) {
 				switch (projectType) {
-        				case "ios":
-        					return "iOS";
-        				case "osx":
-        					return "OSX";
-        				case "macos":
-        					return "MacOS";
-        				case "android":
-        					return "Android";
-        				case "xamarin":
-        					return "Xamarin";
-        				case "cordova":
-        					return "Cordova";
-        				case "ionic":
-        					return "Ionic";
-        				case "react-native":
-        					return "React Native";
-        				case "flutter":
-        					return "Flutter";
-        				case "other":
-        					return "Other";
-                default:
-                  return projectType;
-        			}
+								case "ios":
+									return "iOS";
+								case "osx":
+									return "OSX";
+								case "macos":
+									return "MacOS";
+								case "android":
+									return "Android";
+								case "xamarin":
+									return "Xamarin";
+								case "cordova":
+									return "Cordova";
+								case "ionic":
+									return "Ionic";
+								case "react-native":
+									return "React Native";
+								case "flutter":
+									return "Flutter";
+								case "other":
+									return "Other";
+								default:
+									return projectType;
+							}
 			};
 
 			viewModel.paginateSelected = function(category, direction) {
