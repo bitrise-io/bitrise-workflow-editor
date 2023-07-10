@@ -34,7 +34,12 @@
 				pipelineConfig: undefined,
 				accountFeatures: undefined,
 				hasTriggers: undefined,
-				ownerPlanData: undefined
+				ownerPlanData: undefined,
+				allowedStepMap: undefined,
+			};
+
+			appService.reachedStepLimit = function() {
+				return Boolean(appService.allowedStepMap);
 			};
 
 			appService.getAppDetails = function(shouldForceReload, requestConfig) {

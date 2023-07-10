@@ -147,6 +147,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			$scope.$on(
 				"$destroy",
 				$rootScope.$on("MainController::changesDiscarded", function() {
+					updateUniqueCount();
 					workflowSelectionStore.disable();
 					var lastSelectedWorkflowNotFound = !_.find(viewModel.workflows, {
 						id: workflowSelectionStore.lastSelectedWorkflowID
@@ -232,13 +233,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						return { runWorkflow, runIf };
 					}),
 					requestService.getCurrentUserData(),
-					requestService.getApp(appServiceUtil.getAppSlug())
+					requestService.getApp(appServiceUtil.getAppSlug()),
+					appService.getOwnerPlanData(),
 				]).then(function([featureFlags, user, app]) {
 					viewModel.username = user?.username;
 					viewModel.defaultBranch = app?.default_branch;
 					viewModel.canRunWorkflowFeatureFlag = featureFlags.runWorkflow;
 					viewModel.runIfFeatureFlag = featureFlags.runIf;
 					viewModel.buildTriggerToken = app?.build_trigger_token;
+					viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
 				});
 			}
 
@@ -298,6 +301,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
 									return new Workflow(aWorkflowID, aWorkflowConfig);
 								}).sort((a, b) => a.id.localeCompare(b.id));
+								updateUniqueCount();
 								resolve();
 							},
 							function(error) {
@@ -606,9 +610,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					selectedWorkflowSubchainIndex > 0
 						? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(0, selectedWorkflowSubchainIndex), function(
 								aWorkflowSubchain
-						  ) {
+							) {
 								return aWorkflowSubchain.workflow.id;
-						  })
+							})
 						: [];
 				if (viewModel.selectedWorkflow.workflowConfig.before_run.length == 0) {
 					delete viewModel.selectedWorkflow.workflowConfig["before_run"];
@@ -618,9 +622,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					selectedWorkflowSubchainIndex < viewModel.rearrangeWorkflowsChainHierarchy.length - 1
 						? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(selectedWorkflowSubchainIndex + 1), function(
 								aWorkflowSubchain
-						  ) {
+							) {
 								return aWorkflowSubchain.workflow.id;
-						  })
+							})
 						: [];
 				if (viewModel.selectedWorkflow.workflowConfig.after_run.length == 0) {
 					delete viewModel.selectedWorkflow.workflowConfig["after_run"];
@@ -817,11 +821,32 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				}
 			}
 
+			function updateUniqueCount() {
+				if(!requestService.isWebsiteMode() || typeof(appService?.ownerPlanData?.uniqueStepLimit) !== 'number') {
+					return;
+				}
+				var steps = {};
+
+				viewModel.workflows.forEach(function(wf) {
+					wf.steps.forEach(function(step) {
+						steps[step.id] = true;
+					});
+				});
+
+				viewModel.uniqueStepCount = Object.keys(steps).length;
+				if(appService.ownerPlanData.uniqueStepLimit <= viewModel.uniqueStepCount) {
+					appService.allowedStepMap = steps;
+				} else {
+					appService.allowedStepMap = undefined;
+				}
+			}
+
 			viewModel.addStepSelectedAtIndex = function(index, workflowIndex) {
 				viewModel.editWorkflowAtIndex(workflowIndex);
 
 				addStepService.showWithInsertIndex(index, function(step, insertIndex) {
 					viewModel.editedWorkflow.steps.splice(insertIndex, 0, step);
+					updateUniqueCount();
 
 					// force to set latest version for step being added
 					changeStepToVersion(step, null);
@@ -903,6 +928,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index + 1, 0, clonedStep);
+				updateUniqueCount();
 
 				viewModel.stepSelected(clonedStep);
 			};
@@ -910,6 +936,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.deleteStepSelected = function() {
 				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 				viewModel.editedWorkflow.steps.splice(index, 1);
+				updateUniqueCount();
 				viewModel.stepSelected(null);
 			};
 
@@ -994,11 +1021,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 
 					var description = stringService.stringReplacedWithParameters(
-          	"<%= data[:strings][:workflows][:steps][:major_version_change_desc] %>",
-            { url: releaseUrl }
-          );
+						"<%= data[:strings][:workflows][:steps][:major_version_change_desc] %>",
+						{ url: releaseUrl }
+					);
 
-          var removedInputs = [];
+					var removedInputs = [];
 					_.each(oldDefaultStepConfig.inputs, function(aDefaultInputConfigOfOldStep) {
 						var oldStepInput = new Variable(null, aDefaultInputConfigOfOldStep);
 
@@ -1021,11 +1048,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							","
 						);
 						var removedInputsText = stringService.stringReplacedWithParameters(
-          		"<%= data[:strings][:workflows][:steps][:inputs_removed_desc] %>",
-          		{ inputList: removedInputList }
-          	);
-          	description += removedInputsText;
-          }
+							"<%= data[:strings][:workflows][:steps][:inputs_removed_desc] %>",
+							{ inputList: removedInputList }
+						);
+						description += removedInputsText;
+					}
 					Popup.showNoticePopup(
 						"<%= data[:strings][:workflows][:steps][:major_version_change_title] %>",
 						description
@@ -1281,7 +1308,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					step && step.defaultStepConfig
 						? _.map(step.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
 								return new Variable(undefined, anDefaultOutputConfig);
-						  })
+							})
 						: undefined;
 				viewModel.openedOutputs = [];
 			}
