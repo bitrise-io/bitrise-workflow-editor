@@ -1,15 +1,3 @@
-.workflow-description[ng-class="{'edit-mode': workflowDescriptionCtrl.isEditMode}"]
-	button.edit[ng-if="!workflowDescriptionCtrl.isEditMode" ng-click="workflowDescriptionCtrl.isEditMode = !workflowDescriptionCtrl.isEditMode"]
-	h3
-		span.description-icon  == svg("code")
-		strong[ng-bind="descriptionHeader()"]
-		span.edit-icon[ng-if="!workflowDescriptionCtrl.isEditMode"]  == svg("pencil")
-	article
-		.description[ng-if="!workflowDescriptionCtrl.isEditMode"]
-			span[ng-if="workflow.description()" sanitized-markdown="workflow.description()"]
-			em.no-description[ng-if="!workflow.description()"] == data[:strings][:workflows][:description][:no_description]
-		textarea.description[msd-elastic description-editor ng-if="workflowDescriptionCtrl.isEditMode" ng-model="workflow.description" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowDescriptionCtrl.isEditMode = false"]
-
 .workflow-summary[ng-class="{'edit-mode': workflowDescriptionCtrl.isSummaryEditMode}"]
 	button.edit[ng-if="!workflowDescriptionCtrl.isSummaryEditMode" ng-click="workflowDescriptionCtrl.isSummaryEditMode = !workflowDescriptionCtrl.isSummaryEditMode"]
 	h3
@@ -21,3 +9,16 @@
 			span[ng-if="workflow.summary()" sanitized-markdown="workflow.summary()"]
 			em.no-summary[ng-if="!workflow.summary()"] == data[:strings][:workflows][:summary][:no_summary]
 		input.summary[msd-elastic summary-editor ng-if="workflowDescriptionCtrl.isSummaryEditMode" ng-model="workflow.summary" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowDescriptionCtrl.isSummaryEditMode = false"]
+
+
+.workflow-description[ng-class="{'edit-mode': workflowDescriptionCtrl.isEditMode}"]
+	button.edit[ng-if="!workflowDescriptionCtrl.isEditMode" ng-click="workflowDescriptionCtrl.isEditMode = !workflowDescriptionCtrl.isEditMode"]
+	h3
+		span.description-icon  == svg("code")
+		strong[ng-bind="descriptionHeader()"]
+		span.edit-icon[ng-if="!workflowDescriptionCtrl.isEditMode"]  == svg("pencil")
+	article
+		.description[ng-if="!workflowDescriptionCtrl.isEditMode"]
+			span[ng-if="workflow.description()" sanitized-markdown="workflow.description()"]
+			em.no-description[ng-if="!workflow.description()"] == data[:strings][:workflows][:description][:no_description]
+		textarea.description[msd-elastic description-editor ng-if="workflowDescriptionCtrl.isEditMode" ng-model="workflow.description" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowDescriptionCtrl.isEditMode = false"]
