@@ -30,6 +30,8 @@ header.sticky
 						span[ng-if="!mainCtrl.breadCrumbsAccountPath()" ng-bind="mainCtrl.appOwnerNameWithPlaceholder()"]
 					li.level
 						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="mainCtrl.appNameWithPlaceholder()" href="{{ mainCtrl.appPath() }}" title="{{ mainCtrl.appNameWithPlaceholder() }}" tabindex="-1"]
+					li.level[ng-if="mainCtrl.isFirstBuildExperienceEnabled"]
+						a[href="{{ mainCtrl.workflowsAndPipelinesPath() }}" title="Workflows & Pipelines" tabindex="-1"] Workflows & Pipelines
 					li.level.current
 						span Workflow Editor
 			.workflow-editor-menubar[ng-if="mainCtrl.shouldShowMenuBar()"]

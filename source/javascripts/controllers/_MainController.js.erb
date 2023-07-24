@@ -106,6 +106,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.productTourShown = true;
 			viewModel.lastWorkflowEditedDate;
 
+			viewModel.isFirstBuildExperienceEnabled = false;
+
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
 					viewModel.changeMenuProgress.success();
@@ -690,6 +692,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
 						const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
 
+						viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation('enable-first-build-experience');
+
 						const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
 
 						Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
@@ -772,5 +776,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.appNameWithPlaceholder = function() {
 				return appService.appDetails.title || 'Unknown app';
 			}
+
+			viewModel.workflowsAndPipelinesPath = function() {
+				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workflows_and_pipelines]) %>", {
+					app_slug: appService.appDetails.slug
+				});
+			};
 		});
 })();
