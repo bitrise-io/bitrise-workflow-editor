@@ -379,7 +379,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						return (
 							appService.appConfigHasUnsavedChanges() ||
 							appService.stackHasUnsavedChanges() ||
-							appService.defaultMachineTypeHasUnsavedChanges()
+							appService.defaultMachineTypeHasUnsavedChanges() ||
+							appService.defaultLicensePoolIdHasUnsavedChanges()
 						);
 					case "yml":
 						return appService.appConfigYMLHasUnsavedChanges();
