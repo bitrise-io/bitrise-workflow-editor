@@ -252,6 +252,26 @@
 				return stack.osForChip[machineType.chip];
 			}
 
+			viewModel.setDefaultLicensePoolId = function(licensePoolId) {
+				if (!licensePoolId) {
+					return;
+				}
+
+				appService.defaultLicensePoolId = licensePoolId;
+			}
+
+			viewModel.setWorkflowLicensePoolId = function(licensePoolId, workflow) {
+				if (!licensePoolId) {
+					return;
+				}
+
+				workflow.licensePoolId(licensePoolId);
+			};
+
+			viewModel.workflowLicensePoolId = function(workflow) {
+				return workflow.licensePoolId(undefined) || appService.defaultLicensePoolId;
+			};
+
 			function getShowMachineCreditCost() {
 				if (appService.ownerPlanData) {
 					return !planServiceUtil.isModernConcurrencyPlan(appService.ownerPlanData.name);
