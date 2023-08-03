@@ -706,7 +706,7 @@ def strings
                     loading: "Loading, wait a sec..."
                 },
                 warn: {
-                    title: "Uups, we found some warnings in your configuration, please consider to check them."
+                    title: "Uups, we found some warnings in your configuration, please considere to check them."
                 },
                 store_in_repository: {
                     loading: "Looking for bitrise.yml in the app repository...",
