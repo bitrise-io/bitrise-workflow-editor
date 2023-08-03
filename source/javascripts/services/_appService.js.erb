@@ -514,6 +514,9 @@
 					return [...Stack.all];
 				} else {
 					return _.filter(Stack.all, function(aStack) {
+						if (aStack.id.startsWith('agent-pool-')) {
+							return true;
+						}
 						return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
 					});
 				}
