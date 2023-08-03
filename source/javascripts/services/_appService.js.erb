@@ -424,11 +424,11 @@
 					}
 
 					appService.validationWarnings = [];
-					if (validationData.warnings.config.length > 0) {
+					if (validationData.warnings.config.length != null) {
 						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
 					}
 
-					if (validationData.warnings.secrets.length > 0) {
+					if (validationData.warnings.secrets.length != null) {
 						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
 					}
 				});
