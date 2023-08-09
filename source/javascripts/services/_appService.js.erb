@@ -501,7 +501,7 @@
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].license_pool_id;
 				if (!appService.defaultLicensePoolId) {
-					return $q.reject(new Error("<%= data[:strings][:license_pool_id][:invalid_set_in_bitrise_yml_meta] %>"));
+					return $q.reject(new Error("<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>"));
 				}
 
 				appService.savedDefaultLicensePoolId = angular.copy(appService.defaultLicensePoolId);
@@ -552,6 +552,7 @@
 			};
 
 			appService.availableStacks = function() {
+				console.log(Stack.all);
 				if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
 					return undefined;
 				}
@@ -563,6 +564,7 @@
 						return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
 					});
 				}
+
 			};
 
 			appService.stackHasUnsavedChanges = function() {

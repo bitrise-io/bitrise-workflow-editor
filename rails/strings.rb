@@ -29,6 +29,7 @@ def strings
                     triggers: "Triggers",
                     stack: "Stack",
                     stacks_and_machines: "Stacks & Machines",
+                    licenses: "Licenses",
                     yml: "bitrise.yml"
                 },
                 discard: "Discard",
@@ -695,6 +696,13 @@ def strings
                 learn_more_about: "Learn more about Machine types »",
                 invalid_set_in_bitrise_yml_meta: "Invalid machine type set in bitrise.yml meta"
             },
+            licenses: {
+                lead: 'You can run your builds on Bitrise machines relying on license pools. For more info, visit the DevCenter.',
+                card: {
+                    header_title: 'Workflow-specific license pools',
+                    header_description: 'Your workflow-specific builds will run utilizing the selected pool.'
+                }
+            },
             yml: {
                 title_editor: "bitrise.yml editor",
                 title: "bitrise.yml",
@@ -1015,6 +1023,7 @@ def strings
                 env_vars: "env_vars",
                 triggers: "triggers",
                 stack: "stack",
+                licenses: "licenses",
                 yml: "yml"
             },
             templates: {
@@ -1024,6 +1033,7 @@ def strings
                 env_vars: "templates/env_vars.html",
                 triggers: "templates/triggers.html",
                 stack: "templates/stack.html",
+                licenses: "templates/licenses.html",
                 yml: "templates/yml.html",
                 workflows_workflow_description: "templates/workflows-workflow_description.html",
                 add_step_sidebar: "templates/add_step_sidebar.html",

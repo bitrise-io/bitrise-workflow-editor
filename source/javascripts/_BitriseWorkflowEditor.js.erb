@@ -54,6 +54,11 @@ window.mode = "<%= mode %>";
 			reloadOnSearch: false
 		});
 
+		$routeProvider.when("/<%= data[:routes][:endpoints][:licenses] %>", {
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:licenses]) %>",
+			reloadOnSearch: false
+		});
+
 		$routeProvider.when("/<%= data[:routes][:endpoints][:yml] %>", {
 			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:yml]) %>"
 		});

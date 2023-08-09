@@ -1,0 +1,33 @@
+(function() {
+	"use strict";
+
+	angular
+		.module("BitriseWorkflowEditor")
+		.controller("LicensesController", function(
+			$q,
+			$scope,
+			$rootScope,
+			stringService,
+			appService,
+			Workflow,
+			planServiceUtil,
+			dateService,
+			requestService,
+			appServiceUtil
+		) {
+			var viewModel = this;
+
+			viewModel.licenses = ['1 foo', '2 bar', '3 baz'];
+			viewModel.selectedLicense;
+
+			appService.availableStacks();
+
+			viewModel.workflows = _.map(appService.appConfig.workflows, function(
+				aWorkflowConfig,
+				workflowID
+			) {
+				return new Workflow(workflowID, aWorkflowConfig);
+			});
+    })
+
+})();

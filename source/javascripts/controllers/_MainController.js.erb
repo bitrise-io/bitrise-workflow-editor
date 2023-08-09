@@ -84,6 +84,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					  }
 					: null,
 				{
+					id: "licenses",
+					title: "<%= data[:strings][:main][:menus][:licenses] %>",
+					path: "<%= data[:routes][:endpoints][:licenses] %>",
+					possibleURLParameterKeys: [],
+					cssClass: "licenses"
+				},
+				{
 					id: "yml",
 					title: "<%= data[:strings][:main][:menus][:yml] %>",
 					path: "<%= data[:routes][:endpoints][:yml] %>",
@@ -135,7 +142,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						case "workflows":
 						case "env-vars":
 						case "triggers":
-							var loadPromises = [appService.getAppConfig()];
+						case "licenses":
+								var loadPromises = [appService.getAppConfig()];
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll());
 								loadPromises.push(appService.getPipelineConfig());
@@ -145,6 +153,46 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							if (requestService.isWebsiteMode()) {
 								loadPromise = loadPromise.then(appService.getStackAndDockerImage);
 							}
+
+							loadPromise.then(
+								function() {
+									$q(function(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
+										if (appService.appConfigHasDeprecatedTriggerMap()) {
+											appService.updateDeprecatedTriggerMap();
+
+											Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", [
+												"<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>",
+												"<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
+											])
+												.then(function() {
+													return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+														? $q.when()
+														: viewModel.save();
+												})
+												.then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
+										} else {
+											deprecatedTriggerCheckResolve();
+										}
+									}).then(
+										function() {
+											resolve();
+										},
+										function(error) {
+											reject(error);
+										}
+									);
+								},
+								function(error) {
+									reject(error);
+								}
+							);
+
+							break;
+						case "licenses":
+								var loadPromises = [appService.getAppConfig()];
+								loadPromises.push(appService.getPipelineConfig());
+								loadPromises.push(launchDarklyService.initialize());
+							var loadPromise = $q.all(loadPromises);
 
 							loadPromise.then(
 								function() {
@@ -241,7 +289,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						return;
 					}
 
-					var menuIDsByHandledSource = [["workflows", "env-vars", "triggers"], ["secrets"], ["stack"], ["yml"]];
+					var menuIDsByHandledSource = [["workflows", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
 
 					if (
 						_.find(menuIDsByHandledSource, function(menuIDsOfSource) {
@@ -379,7 +427,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						return (
 							appService.appConfigHasUnsavedChanges() ||
 							appService.stackHasUnsavedChanges() ||
-							appService.defaultMachineTypeHasUnsavedChanges() ||
+							appService.defaultMachineTypeHasUnsavedChanges()
+						);
+					case "licenses":
+						return (
+							appService.appConfigHasUnsavedChanges() ||
 							appService.defaultLicensePoolIdHasUnsavedChanges()
 						);
 					case "yml":

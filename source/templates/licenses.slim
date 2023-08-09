@@ -1,0 +1,13 @@
+.tab-licenses.menu-content-padding[ng-controller="LicensesController as licenseCtrl" ng-init="licenseCtrl.init()"]
+	p == data[:strings][:licenses][:lead]
+	section.cardo.license-settings.default
+		header
+        	h2 == data[:strings][:licenses][:card][:header_title]
+			p.header-description == data[:strings][:licenses][:card][:header_description]
+        article
+            section[ng-repeat="workflow in licenseCtrl.workflows"]
+                h4.workflow-header
+                    strong.workflow-id[ng-bind="workflow.id"]
+                    span == data[:strings][:stack][:workflow_id_postfix]
+
+
