@@ -10,7 +10,12 @@
 		) {
 			var viewModel = this;
 
-			$scope.licences = [{
+			$scope.licences = [
+				{
+					id: null,
+					name: 'No license selected',
+				},
+				{
 				id: 1,
 				name: 'aLabel',
 			}, {
@@ -37,7 +42,7 @@
 						return licenseOption;
 					}
 
-					return id;
+					return $scope.licences[0];
 				}
 			}
 

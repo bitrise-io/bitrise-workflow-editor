@@ -10,6 +10,6 @@
                     strong.workflow-id[ng-bind="workflow.id"]
                     span == data[:strings][:stack][:workflow_id_postfix]
 
-				select[ng-model-options="{getterSetter: true, updateOn: 'change'}" ng-options="item as item.name for item in licences track by item.id" ng-model="licenseCtrl.workflowLicenseFactory(workflow)" ]
+				select[no-placeholder="" ng-model-options="{getterSetter: true, updateOn: 'change'}" ng-options="item as item.name for item in licences track by item.id" ng-model="licenseCtrl.workflowLicenseFactory(workflow)" ]
 
 

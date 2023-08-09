@@ -522,6 +522,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								case "workflows":
 								case "env-vars":
 								case "triggers":
+								case "licenses":
 									viewModel.dataToSave = appService.appConfig;
 									return appService
 										.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
