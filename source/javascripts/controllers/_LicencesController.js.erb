@@ -4,23 +4,42 @@
 	angular
 		.module("BitriseWorkflowEditor")
 		.controller("LicensesController", function(
-			$q,
-			$scope,
-			$rootScope,
-			stringService,
 			appService,
 			Workflow,
-			planServiceUtil,
-			dateService,
-			requestService,
-			appServiceUtil
+			$scope,
 		) {
 			var viewModel = this;
 
-			viewModel.licenses = ['1 foo', '2 bar', '3 baz'];
-			viewModel.selectedLicense;
+			$scope.licences = [{
+				id: 1,
+				name: 'aLabel',
+			}, {
+				id: 2,
+				name: 'bLabel',
+			}];
 
-			appService.availableStacks();
+			viewModel.workflowLicenseFactory = function(workflow) {
+
+				return function(licensePoolOption) {
+					if(licensePoolOption !== undefined) {
+						workflow.licensePoolId(licensePoolOption.id)
+					}
+
+					var id = workflow.licensePoolId();
+
+					if(id) {
+						var licenseOption = $scope.licences.find((item) => {
+							if(item.id === id) {
+								return true
+							}
+						})
+
+						return licenseOption;
+					}
+
+					return id;
+				}
+			}
 
 			viewModel.workflows = _.map(appService.appConfig.workflows, function(
 				aWorkflowConfig,
