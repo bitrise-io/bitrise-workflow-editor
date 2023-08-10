@@ -38,6 +38,7 @@
 				hasTriggers: undefined,
 				ownerPlanData: undefined,
 				allowedStepMap: undefined,
+				orgBetaTags: undefined,
 			};
 
 			appService.reachedStepLimit = function() {
@@ -70,10 +71,10 @@
 				}
 
 				return requestService.getAppConfig(requestConfig).then(function(appConfig) {
-					appService.appConfig = appConfig;
-					normalizeAppConfig();
+						appService.appConfig = appConfig;
+						normalizeAppConfig();
 
-					appService.savedAppConfig = angular.copy(appService.appConfig);
+						appService.savedAppConfig = angular.copy(appService.appConfig);
 				});
 			};
 
@@ -552,7 +553,6 @@
 			};
 
 			appService.availableStacks = function() {
-				console.log(Stack.all);
 				if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
 					return undefined;
 				}
@@ -622,6 +622,25 @@
 						});
 				}
 				appService.ownerPlanData = null;
+				return $q.when();
+			};
+
+			appService.getOrgBetaTags = function() {
+				if (appService.orgBetaTags) {
+					return $q.when();
+				}
+
+				if (
+					requestService.mode === "website"
+				) {
+					return requestService.getOrgBetaTags(appService.appDetails.ownerData.slug)
+						.then(function(data) {
+							appService.orgBetaTags = data.beta_tags;
+						}).catch(() => {
+							appService.orgBetaTags = null;
+						});
+				}
+				appService.orgBetaTags = null;
 				return $q.when();
 			};
 

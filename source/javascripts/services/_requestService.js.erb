@@ -282,6 +282,34 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			requestService.getOrgBetaTags = function(orgSlug, requestConfig) {
+				var requestURL = stringService.stringReplacedWithParameters(
+					"<%= webserver_path(data[:routes][:website][:get_org_beta_tags]) %>",
+					{
+						org_slug: orgSlug
+					}
+				);
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve({
+								beta_tags: response.data.beta_tags,
+							});
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"default_error",
+									"error_prefix"
+								)
+							);
+						}
+					);
+				});
+			};
+
 			// Codesigndoc Bash Command
 
 			requestService.getCodeSigningBashCommand = function(requestConfig) {

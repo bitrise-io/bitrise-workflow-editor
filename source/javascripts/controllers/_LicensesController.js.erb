@@ -11,10 +11,10 @@
 		) {
 			var viewModel = this;
 
-			$scope.licences = [
+			$scope.licenses = [
 				{
 					id: null,
-					name: 'No license selected',
+					name: '(No license pool selected)',
 				},
 				{
 				id: 1,
@@ -34,7 +34,7 @@
 					var id = workflow.licensePoolId();
 
 					if(id) {
-						var licenseOption = $scope.licences.find((item) => {
+						var licenseOption = $scope.licenses.find((item) => {
 							if(item.id === id) {
 								return true
 							}
@@ -43,7 +43,7 @@
 						return licenseOption;
 					}
 
-					return $scope.licences[0];
+					return $scope.licenses[0];
 				}
 			}
 

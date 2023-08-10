@@ -83,13 +83,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							cssClass: "stack"
 					  }
 					: null,
-				{
-					id: "licenses",
-					title: "<%= data[:strings][:main][:menus][:licenses] %>",
-					path: "<%= data[:routes][:endpoints][:licenses] %>",
-					possibleURLParameterKeys: [],
-					cssClass: "licenses"
-				},
+				requestService.mode == "website"
+					? {
+						id: "licenses",
+						title: "<%= data[:strings][:main][:menus][:licenses] %>",
+						path: "<%= data[:routes][:endpoints][:licenses] %>",
+						possibleURLParameterKeys: [],
+						cssClass: "licenses"
+					  }
+					: null,
 				{
 					id: "yml",
 					title: "<%= data[:strings][:main][:menus][:yml] %>",
@@ -142,7 +144,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						case "workflows":
 						case "env-vars":
 						case "triggers":
-								var loadPromises = [appService.getAppConfig()];
+							var loadPromises = [appService.getAppConfig()];
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll());
 								loadPromises.push(appService.getPipelineConfig());
@@ -188,7 +190,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 							break;
 						case "licenses":
-								var loadPromises = [appService.getAppConfig()];
+							var loadPromises = [appService.getAppConfig()];
 
 							var loadPromise = $q.all(loadPromises);
 
@@ -745,7 +747,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								return reject("No app slug specified.");
 							}
 
-							appService.getAppDetails().then(resolve, reject);
+							appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
 
 							break;
 						case "cli":
@@ -760,6 +762,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								id: "stack"
 							});
 							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+						}
+
+						if (!_.contains(appService.orgBetaTags, 'license_pool')) {
+							var licensesMenu = _.find(viewModel.menus, {
+								id: "licenses"
+							});
+							licensesMenu.cssClass = "hidden";
 						}
 
 						viewModel.initAppProgress.success();

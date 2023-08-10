@@ -1102,7 +1102,8 @@ def strings
                 apple_developer_account_two_step_auth_verify_code_post: "/me/profile/apple_developer_account/two_step_auth_verify_code.json",
                 apple_developer_account_two_factor_auth_verify_code_post: "/me/profile/apple_developer_account/two_factor_auth_verify_code.json",
                 apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json",
-                workflows_and_pipelines: "/app/<app_slug>/workflows-and-pipelines"
+                workflows_and_pipelines: "/app/<app_slug>/workflows-and-pipelines",
+                get_org_beta_tags: "/organization/<org_slug>/beta_tags"
             },
             local_server: {
                 cancel_api_connection_close: "/api/connection",
