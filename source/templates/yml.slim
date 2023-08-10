@@ -6,7 +6,7 @@
 			ul
 				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
 	section[ng-if="ymlCtrl.shouldShowYmlStorageSettings"]
-		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml" on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved"]
+		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml" on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved" repository-yml-available="ymlCtrl.repositoryYmlAvailable"]
 	section.cardo
 		r-yml-editor-header[url="ymlCtrl.downloadAppConfigYMLPath()" uses-repository-yml='ymlCtrl.usesRepositoryYml']
 		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])

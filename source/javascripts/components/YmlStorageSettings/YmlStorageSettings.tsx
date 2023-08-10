@@ -7,12 +7,14 @@ import StoreInRepository from "./StoreInRepository";
 type YmlStorageSettingsProps = {
 	appSlug: string;
 	usesRepositoryYml: boolean;
+	repositoryYmlAvailable: boolean;
 	onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
 };
 
 const YmlStorageSettings = ({
 	appSlug,
 	usesRepositoryYml: _initialUsesRepositoryYml,
+	repositoryYmlAvailable,
 	onUsesRepositoryYmlChangeSaved
 }: YmlStorageSettingsProps): JSX.Element => {
 	const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
@@ -54,7 +56,7 @@ const YmlStorageSettings = ({
 							onClick={() => setUsesRepositoryYml(true)}
 							icon="Branch"
 							isActive={usesRepositoryYml}
-							title="Store in app repository"
+							title={repositoryYmlAvailable ? "Store in app repository" : "NOT AVAILABLE"}
 							// eslint-disable-next-line max-len
 							description="The bitrise.yml file is stored in your app's repository and it's versioned and maintained using Git."
 						/>

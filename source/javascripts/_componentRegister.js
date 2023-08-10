@@ -48,7 +48,7 @@ angular
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
 	.component(
 		"rYmlStorageSettings",
-		register(YmlStorageSettings, ["appSlug", "usesRepositoryYml", "onUsesRepositoryYmlChangeSaved"])
+		register(YmlStorageSettings, ["appSlug", "usesRepositoryYml", "onUsesRepositoryYmlChangeSaved", "repositoryYmlAvailable"])
 	)
 	.component(
 		"rUpdateYmlInRepositoryModal",
