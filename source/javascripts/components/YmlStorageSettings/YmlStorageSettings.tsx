@@ -43,7 +43,7 @@ const YmlStorageSettings = ({
 				</Text>
 			</Box>
 			<Box paddingX="16" paddingY="24">
-				<Box width="665px" gap="24" display="flex" flexDirection="column">
+				<Box width="750px" gap="24" display="flex" flexDirection="column">
 					<Box display="flex" flexDirection="row" gap="24">
 						<YmlStorageOption
 							onClick={() => setUsesRepositoryYml(false)}
@@ -56,7 +56,8 @@ const YmlStorageSettings = ({
 							onClick={() => setUsesRepositoryYml(true)}
 							icon="Branch"
 							isActive={usesRepositoryYml}
-							title={repositoryYmlAvailable ? "Store in app repository" : "NOT AVAILABLE"}
+							title="Store in app repository"
+							available={repositoryYmlAvailable}
 							// eslint-disable-next-line max-len
 							description="The bitrise.yml file is stored in your app's repository and it's versioned and maintained using Git."
 						/>
