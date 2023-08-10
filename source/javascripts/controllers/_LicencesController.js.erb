@@ -7,6 +7,7 @@
 			appService,
 			Workflow,
 			$scope,
+			$rootScope,
 		) {
 			var viewModel = this;
 
@@ -46,12 +47,21 @@
 				}
 			}
 
-			viewModel.workflows = _.map(appService.appConfig.workflows, function(
-				aWorkflowConfig,
-				workflowID
-			) {
-				return new Workflow(workflowID, aWorkflowConfig);
-			});
+			$rootScope.$on('MainController::changesDiscarded', function() {
+				viewModel.workflows = mapWorkflows();
+			})
+
+			function mapWorkflows() {
+				return _.map(appService.appConfig.workflows, function(
+					aWorkflowConfig,
+					workflowID
+				) {
+					return new Workflow(workflowID, aWorkflowConfig);
+				});
+			}
+
+			// Setup workflows
+			viewModel.workflows = mapWorkflows();
     })
 
 })();
