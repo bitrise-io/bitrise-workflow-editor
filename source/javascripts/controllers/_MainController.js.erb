@@ -636,6 +636,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						appService.discardSecretsChanges();
 
 						break;
+					case "licenses":
+						appService.discardAppConfigChanges();
+						appService.discardDefaultLicensePoolIdChanges();
+
+						break;
 					case "stack":
 						appService.discardAppConfigChanges();
 						appService.discardStackChanges();
