@@ -28,6 +28,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 			viewModel.shouldShowYmlStorageSettings = false;
 			viewModel.usesRepositoryYml = false;
 			viewModel.appSlug = undefined;
+			viewModel.repositoryYmlAvailable = false;
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -63,6 +64,10 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
 							viewModel.appSlug = appService.appDetails.slug;
 						})
+					requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+					.then(function(ownerPlanData) {
+						viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
+					})
 				}
 			}
 
