@@ -448,11 +448,11 @@
 					}
 
 					appService.validationWarnings = [];
-					if (validationData.warnings.config !== null) {
+					if (validationData.warnings.config != null) {
 						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.config);
 					}
 
-					if (validationData.warnings.secrets !== null) {
+					if (validationData.warnings.secrets != null) {
 						appService.validationWarnings = appService.validationWarnings.concat(validationData.warnings.secrets);
 					}
 				});
@@ -561,6 +561,9 @@
 					return [...Stack.all];
 				} else {
 					return _.filter(Stack.all, function(aStack) {
+						if (aStack.id.startsWith('agent-pool-')) {
+							return true;
+						}
 						return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
 					});
 				}
