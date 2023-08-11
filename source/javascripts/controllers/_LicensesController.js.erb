@@ -5,24 +5,39 @@
 		.module("BitriseWorkflowEditor")
 		.controller("LicensesController", function(
 			appService,
+			requestService,
 			Workflow,
 			$scope,
 			$rootScope,
 		) {
 			var viewModel = this;
 
+			$scope.licensePoolsUrl = "/workspaces/" + appService.appDetails.ownerData.slug + "/settings/integrations?tab=license-pools";
+
 			$scope.licenses = [
 				{
 					id: null,
 					name: '(No license pool selected)',
+				}
+			];
+
+			requestService.getLicensePools(appService.publicApi, appService.appDetails.ownerData.slug).then(
+				function (response) {
+					var pools = response.licensePools;
+					if (pools.length > 0) {
+						_.each(pools, function(pool) {
+							$scope.licenses.push(pool);
+						});	
+					}
+					else {
+						$scope.licenses = [];
+					}
 				},
-				{
-				id: 1,
-				name: 'aLabel',
-			}, {
-				id: 2,
-				name: 'bLabel',
-			}];
+				function(error) {
+					$scope.licenses = [];
+					console.log(error);
+				}
+			);
 
 			viewModel.workflowLicenseFactory = function(workflow) {
 

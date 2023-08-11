@@ -89,7 +89,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						title: "<%= data[:strings][:main][:menus][:licenses] %>",
 						path: "<%= data[:routes][:endpoints][:licenses] %>",
 						possibleURLParameterKeys: [],
-						cssClass: "licenses"
+						cssClass: "hidden"
 					  }
 					: null,
 				{
@@ -190,7 +190,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 							break;
 						case "licenses":
-							var loadPromises = [appService.getAppConfig()];
+							var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
 
 							var loadPromise = $q.all(loadPromises);
 
@@ -764,11 +764,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
 						}
 
-						if (!_.contains(appService.orgBetaTags, 'license_pool')) {
+						if (_.contains(appService.orgBetaTags, 'license_pool')) {
 							var licensesMenu = _.find(viewModel.menus, {
 								id: "licenses"
 							});
-							licensesMenu.cssClass = "hidden";
+							licensesMenu.cssClass = "licenses";
 						}
 
 						viewModel.initAppProgress.success();
