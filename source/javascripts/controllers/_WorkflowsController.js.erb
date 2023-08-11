@@ -833,8 +833,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					});
 				});
 
-				viewModel.uniqueStepCount = Object.keys(steps).length;
-				if(appService.ownerPlanData.uniqueStepLimit <= viewModel.uniqueStepCount) {
+				appService.uniqueStepCount = Object.keys(steps).length;
+				if(appService.ownerPlanData.uniqueStepLimit <= appService.uniqueStepCount) {
 					appService.allowedStepMap = steps;
 				} else {
 					appService.allowedStepMap = undefined;
