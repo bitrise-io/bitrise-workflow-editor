@@ -283,6 +283,84 @@ import jsyaml from "js-yaml";
 				});
 			};
 
+			requestService.getOrgBetaTags = function(orgSlug, requestConfig) {
+				var requestURL = stringService.stringReplacedWithParameters(
+					"<%= webserver_path(data[:routes][:website][:get_org_beta_tags]) %>",
+					{
+						org_slug: orgSlug
+					}
+				);
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, requestConfig).then(
+						function(response) {
+							resolve({
+								beta_tags: response.data.beta_tags,
+							});
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"default_error",
+									"error_prefix"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			requestService.getPublicApiToken = function() {
+				var requestURL = "<%= webserver_path(data[:routes][:website][:user_auth_tokens]) %>";
+
+				return $q(function(resolve, reject) {
+					$http.post(requestURL, {
+						description: navigator.userAgent + " - generated at " + Date.now(),
+						expire_in_seconds: 7200,
+						registration_type: 'login'
+					}).then(
+						function(response) {
+							resolve(response.data);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"default_error",
+									"error_prefix"
+								)
+							);
+						}
+					);
+				});
+			};
+
+			requestService.getLicensePools = function(publicApi, orgSlug) {
+				var requestURL = publicApi.api_url + "/v0.1/platform/organization/" + orgSlug + "/license_pools";
+
+				return $q(function(resolve, reject) {
+					$http.get(requestURL, {
+						headers: {
+							Authorization: 'token ' + publicApi.token,
+						}
+					}).then(
+						function(response) {
+							resolve(response.data);
+						},
+						function(response) {
+							reject(
+								errorFromResponse(
+									response,
+									"default_error",
+									"error_prefix"
+								)
+							);
+						}
+					);
+				});
+			};
+
 			// Codesigndoc Bash Command
 
 			requestService.getCodeSigningBashCommand = function(requestConfig) {

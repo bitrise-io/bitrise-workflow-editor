@@ -83,6 +83,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							cssClass: "stack"
 					  }
 					: null,
+				requestService.mode == "website"
+					? {
+						id: "licenses",
+						title: "<%= data[:strings][:main][:menus][:licenses] %>",
+						path: "<%= data[:routes][:endpoints][:licenses] %>",
+						possibleURLParameterKeys: [],
+						cssClass: "hidden"
+					  }
+					: null,
 				{
 					id: "yml",
 					title: "<%= data[:strings][:main][:menus][:yml] %>",
@@ -180,6 +189,21 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							);
 
 							break;
+						case "licenses":
+							var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
+
+							var loadPromise = $q.all(loadPromises);
+
+							loadPromise.then(
+								function() {
+									resolve();
+								},
+								function(error) {
+									reject(error);
+								}
+							);
+
+							break;
 						case "code-signing":
 							resolve();
 						case "secrets":
@@ -241,7 +265,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						return;
 					}
 
-					var menuIDsByHandledSource = [["workflows", "env-vars", "triggers"], ["secrets"], ["stack"], ["yml"]];
+					var menuIDsByHandledSource = [["workflows", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
 
 					if (
 						_.find(menuIDsByHandledSource, function(menuIDsOfSource) {
@@ -381,6 +405,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							appService.stackHasUnsavedChanges() ||
 							appService.defaultMachineTypeHasUnsavedChanges()
 						);
+					case "licenses":
+						return appService.appConfigHasUnsavedChanges();
 					case "yml":
 						return appService.appConfigYMLHasUnsavedChanges();
 				}
@@ -495,6 +521,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								case "workflows":
 								case "env-vars":
 								case "triggers":
+								case "licenses":
 									viewModel.dataToSave = appService.appConfig;
 									return appService
 										.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
@@ -608,6 +635,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						appService.discardSecretsChanges();
 
 						break;
+					case "licenses":
+						appService.discardAppConfigChanges();
+
+						break;
 					case "stack":
 						appService.discardAppConfigChanges();
 						appService.discardStackChanges();
@@ -712,7 +743,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								return reject("No app slug specified.");
 							}
 
-							appService.getAppDetails().then(resolve, reject);
+							appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
 
 							break;
 						case "cli":
@@ -727,6 +758,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								id: "stack"
 							});
 							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+						}
+
+						if (_.contains(appService.orgBetaTags, 'license_pool')) {
+							var licensesMenu = _.find(viewModel.menus, {
+								id: "licenses"
+							});
+							licensesMenu.cssClass = "licenses";
 						}
 
 						viewModel.initAppProgress.success();

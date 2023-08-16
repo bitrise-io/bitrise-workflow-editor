@@ -36,6 +36,8 @@
 				hasTriggers: undefined,
 				ownerPlanData: undefined,
 				allowedStepMap: undefined,
+				orgBetaTags: undefined,
+				publicApi: undefined
 			};
 
 			appService.reachedStepLimit = function() {
@@ -68,10 +70,10 @@
 				}
 
 				return requestService.getAppConfig(requestConfig).then(function(appConfig) {
-					appService.appConfig = appConfig;
-					normalizeAppConfig();
+						appService.appConfig = appConfig;
+						normalizeAppConfig();
 
-					appService.savedAppConfig = angular.copy(appService.appConfig);
+						appService.savedAppConfig = angular.copy(appService.appConfig);
 				});
 			};
 
@@ -282,6 +284,7 @@
 
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
+
 
 				return validateVariables(variables)
 					.then(function() {
@@ -520,6 +523,7 @@
 						return _.contains(aStack.projectTypes, appService.appDetails.projectTypeID);
 					});
 				}
+
 			};
 
 			appService.stackHasUnsavedChanges = function() {
@@ -577,6 +581,44 @@
 						});
 				}
 				appService.ownerPlanData = null;
+				return $q.when();
+			};
+
+			appService.getOrgBetaTags = function() {
+				if (appService.orgBetaTags) {
+					return $q.when();
+				}
+
+				if (
+					requestService.mode === "website"
+				) {
+					return requestService.getOrgBetaTags(appService.appDetails.ownerData.slug)
+						.then(function(data) {
+							appService.orgBetaTags = data.beta_tags;
+						}).catch(() => {
+							appService.orgBetaTags = null;
+						});
+				}
+				appService.orgBetaTags = null;
+				return $q.when();
+			};
+
+			appService.getPublicApiToken = function() {
+				if (appService.publicApi) {
+					return $q.when();
+				}
+
+				if (
+					requestService.mode === "website"
+				) {
+					return requestService.getPublicApiToken()
+						.then(function(data) {
+							appService.publicApi = data;
+						}).catch(() => {
+							appService.publicApi = null;
+						});
+				}
+				appService.publicApi = null;
 				return $q.when();
 			};
 
