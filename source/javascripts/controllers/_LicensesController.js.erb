@@ -27,11 +27,12 @@
 					if (pools.length > 0) {
 						_.each(pools, function(pool) {
 							$scope.licenses.push(pool);
-						});	
+						});
 					}
 					else {
 						$scope.licenses = [];
 					}
+					$scope.$apply()
 				},
 				function(error) {
 					$scope.licenses = [];
