@@ -26,8 +26,6 @@
 				savedStack: undefined,
 				defaultMachineType: undefined,
 				savedDefaultMachineType: undefined,
-				defaultLicensePoolId: undefined,
-				savedDefaultLicensePoolId: undefined,
 				dockerImage: undefined,
 				savedDockerImage: undefined,
 				projectType: undefined,
@@ -287,26 +285,6 @@
 					appService.savedDefaultMachineType = angular.copy(appService.defaultMachineType);
 				}
 
-				if (
-					requestService.mode === "website" &&
-					appService.defaultLicensePoolId
-				) {
-					if (!appService.appConfig.meta) {
-						appService.appConfig.meta = {};
-					}
-					if (!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]) {
-						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] = {};
-					}
-
-					if(appService.defaultLicensePoolId) {
-						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].license_pool_id =
-							appService.defaultLicensePoolId;
-					} else {
-						delete appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].license_pool_id
-					}
-
-					appService.savedDefaultLicensePoolId = angular.copy(appService.defaultLicensePoolId);
-				}
 
 				return validateVariables(variables)
 					.then(function() {
@@ -494,29 +472,6 @@
 
 			appService.discardDefaultMachineTypeChanges = function() {
 				appService.defaultMachineType = appService.savedDefaultMachineType;
-			};
-
-			appService.getDefaultLicensePoolId = function() {
-				appService.defaultLicensePoolId =
-					appService.appConfig &&
-					appService.appConfig.meta &&
-					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
-					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].license_pool_id;
-				if (!appService.defaultLicensePoolId) {
-					return $q.reject(new Error("<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>"));
-				}
-
-				appService.savedDefaultLicensePoolId = angular.copy(appService.defaultLicensePoolId);
-
-				return $q.when();
-			};
-
-			appService.defaultLicensePoolIdHasUnsavedChanges = function() {
-				return !angular.equals(appService.defaultLicensePoolId, appService.savedDefaultLicensePoolId);
-			};
-
-			appService.discardDefaultLicensePoolIdChanges = function() {
-				appService.defaultLicensePoolId = appService.savedDefaultLicensePoolId;
 			};
 
 			appService.getStackAndDockerImage = function(shouldForceReload, requestConfig) {

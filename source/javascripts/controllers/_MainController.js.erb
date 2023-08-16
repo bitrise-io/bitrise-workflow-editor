@@ -406,10 +406,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							appService.defaultMachineTypeHasUnsavedChanges()
 						);
 					case "licenses":
-						return (
-							appService.appConfigHasUnsavedChanges() ||
-							appService.defaultLicensePoolIdHasUnsavedChanges()
-						);
+						return appService.appConfigHasUnsavedChanges();
 					case "yml":
 						return appService.appConfigYMLHasUnsavedChanges();
 				}
@@ -640,7 +637,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						break;
 					case "licenses":
 						appService.discardAppConfigChanges();
-						appService.discardDefaultLicensePoolIdChanges();
 
 						break;
 					case "stack":
