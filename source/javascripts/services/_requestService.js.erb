@@ -267,6 +267,7 @@ import jsyaml from "js-yaml";
 								name: response.data.current_plan.name,
 								tier: response.data.current_plan.tier,
 								uniqueStepLimit: response.data.unique_step_limit,
+								repositoryYmlAvailable: response.data.repository_yml_available
 							});
 						},
 						function(response) {
