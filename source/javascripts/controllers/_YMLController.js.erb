@@ -28,7 +28,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 			viewModel.shouldShowYmlStorageSettings = false;
 			viewModel.usesRepositoryYml = false;
 			viewModel.appSlug = undefined;
-			viewModel.repositoryYmlAvailable = false;
+			viewModel.repositoryYmlAvailable = true;
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
