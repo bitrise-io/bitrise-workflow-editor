@@ -25,6 +25,7 @@
 				stack: undefined,
 				savedStack: undefined,
 				defaultMachineType: undefined,
+				appMachineTypeIdWithoutDeprecatedMachineReplacement: undefined,
 				savedDefaultMachineType: undefined,
 				dockerImage: undefined,
 				savedDockerImage: undefined,
@@ -452,7 +453,7 @@
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"] &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].machine_type_id;
 
-				var defaultMachineTypeID = metaMachineTypeID || MachineType.defaults[appService.stack.type].id;
+				var defaultMachineTypeID = metaMachineTypeID || appMachineTypeIdWithoutDeprecatedMachineReplacement;
 				appService.defaultMachineType = _.find(MachineType.all, {
 					id: defaultMachineTypeID,
 					stackType: appService.stack.type
