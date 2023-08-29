@@ -1,6 +1,6 @@
 {
 	"name": "bitrise-workflow-editor",
-	"version": "1.3.245",
+	"version": "1.3.246",
 	"description": "Bitrise workflow editor",
 	"main": "index.js",
 	"scripts": {
