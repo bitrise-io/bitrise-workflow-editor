@@ -429,8 +429,6 @@ import jsyaml from "js-yaml";
 										stack: response.data.stack_identifier,
 										isPublic: response.data.is_public,
 										isCurrentUserOwner: response.data.owner_is_current_user,
-										// If the current user can delete app, that means this user is owner of the app - and this is only possible now if the user is owner of the organization
-										// TODO: figure out a better solution to check if the user is the owner of the apps organization
 										isCurrentUserIsOrgOwner: response.data.is_current_user_can_destroy,
 										isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
 										appMachineTypeIdWithoutDeprecatedMachineReplacement: response.data.app_machine_type_id_without_deprecated_machine_replacement,
