@@ -429,6 +429,7 @@ import jsyaml from "js-yaml";
 										stack: response.data.stack_identifier,
 										isPublic: response.data.is_public,
 										isCurrentUserOwner: response.data.owner_is_current_user,
+										isCurrentUserIsOrgOwner: response.data.is_current_user_can_destroy,
 										isMachineTypeSelectorAvailable: response.data.is_machine_type_selector_available,
 										appMachineTypeIdWithoutDeprecatedMachineReplacement: response.data.app_machine_type_id_without_deprecated_machine_replacement,
 										ownerData: {

@@ -760,7 +760,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
 						}
 
-						if (_.contains(appService.orgBetaTags, 'license_pool')) {
+						if (requestService.mode == "website" && appService.appDetails.isCurrentUserIsOrgOwner) {
 							var licensesMenu = _.find(viewModel.menus, {
 								id: "licenses"
 							});
