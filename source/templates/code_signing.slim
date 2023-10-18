@@ -15,6 +15,11 @@
 				button.manual-code-signing[ng-click="codeSigningCtrl.isAutoCodeSigningModeOn = false"] == data[:strings][:code_signing][:auto_code_signing][:header][:action]
 			== include_slim "_auto_code_signing"
 		.manual-code-signing[ng-if="codeSigningCtrl.isAutoCodeSigningModeOn === false"]
+			div.notification.no-icon.app-settings-notification
+				div
+					h2  == data[:strings][:code_signing][:notification][:title]
+					p == data[:strings][:code_signing][:notification][:description]
+				a[href="{{ mainCtrl.appCodeSigningPath() }}" target='_blank'] == data[:strings][:code_signing][:notification][:link]
 			section.cardo.slim[ng-if="codeSigningCtrl.showNewCodeSigningWizard"]
 				header
 					h2 == data[:strings][:code_signing][:manual_code_signing][:auto_code_signing][:header][:title]

@@ -252,6 +252,11 @@ def strings
                         description: "If you prefer the hard way"
                     }
                 },
+                notification: {
+                    title: "New way of code signing",
+                    description: 'Manage your code signing and files in the App settings.',
+                    link: 'Go to App settings'
+                },
                 prov_profile: {
                     header: {
                         card_title: "Provisioning profile",
@@ -1104,7 +1109,8 @@ def strings
                 apple_developer_account_default_team_post: "/me/profile/apple_developer_account/default_team.json",
                 workflows_and_pipelines: "/app/<app_slug>/workflows-and-pipelines",
                 get_org_beta_tags: "/organization/<org_slug>/beta_tags",
-                user_auth_tokens: "/me/profile/security/user_auth_tokens"
+                user_auth_tokens: "/me/profile/security/user_auth_tokens",
+                app_setting_code_signing: "/app/<app_slug>/settings/code-signing"
 
             },
             local_server: {
