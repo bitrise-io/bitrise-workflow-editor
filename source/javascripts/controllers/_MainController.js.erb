@@ -705,6 +705,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				});
 			};
 
+			viewModel.appCodeSigningPath = function() {
+				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_setting_code_signing]) %>", {
+					app_slug: appService.appDetails.slug
+				});
+			};
+
 			viewModel.init = function() {
 				viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
