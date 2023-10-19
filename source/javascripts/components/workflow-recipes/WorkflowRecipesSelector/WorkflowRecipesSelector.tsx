@@ -1,7 +1,7 @@
 import { Box, List } from "@bitrise/bitkit";
 
 
-const WorkflowRecipesButton = ({ }): JSX.Element => {
+const WorkflowRecipesSelector = ({ }): JSX.Element => {
 	return (
 		<Box display="flex" alignItems="center" gap="8" paddingY="4">
             <List>
@@ -12,4 +12,4 @@ const WorkflowRecipesButton = ({ }): JSX.Element => {
 	);
 };
 
-export default WorkflowRecipesButton;
+export default WorkflowRecipesSelector;
