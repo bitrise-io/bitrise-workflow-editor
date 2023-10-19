@@ -1,6 +1,6 @@
 import { Box, Button, Text } from "@bitrise/bitkit";
 
-import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
+import WorkflowRecipesButton from "../workflow-recipes/WorkflowRecipesButton/WorkflowRecipesButton";
 
 type YmlEditorHeaderProps = {
 	url: string;
@@ -28,7 +28,7 @@ const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.E
 				</Text>
 			</Box>
 			<Box display="flex" flexDirection={["column-reverse", "row"]} gap='8'>
-				<WorkflowRecipesLink linkId='workflow-editor-yml-editor-workflow-recipes-link' trackingName='yml_editor' />
+				<WorkflowRecipesButton linkId='workflow-editor-yml-editor-workflow-recipes-link' trackingName='yml_ai_editor'/>
 				{url && <Button as='a' href={url} target='_blank'>
 					Download currently saved config
 				</Button>
