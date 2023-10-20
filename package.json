@@ -37,10 +37,10 @@
 	},
 	"homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
 	"dependencies": {
-		"@bitrise/bitkit": "v11.2.3",
+		"@bitrise/bitkit": "12.52.5",
 		"@bitrise/react2angular": "^5.0.0",
 		"@bitrise/steplib-search": "^2.3.0",
-		"@chakra-ui/react": "^2.3.5",
+		"@chakra-ui/react": "^2.8.1",
 		"@datadog/browser-logs": "^1.7.0",
 		"@datadog/browser-rum": "^2.6.1",
 		"@types/segment-analytics": "0.0.34",

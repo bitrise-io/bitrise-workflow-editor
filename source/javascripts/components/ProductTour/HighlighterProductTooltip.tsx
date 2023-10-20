@@ -1,11 +1,10 @@
-import { Text, 
-    Button, 
-    IconButton, 
-    Box, 
+import { Text,
+    Button,
+    IconButton,
+    Box,
     Icon,
-    Popover, 
-    PopoverContent, 
-    PopoverArrow, 
+    Popover,
+    PopoverContent,
     PopoverTrigger,
     useResponsive } from "@bitrise/bitkit";
 import { Tips } from "./types";
@@ -45,15 +44,16 @@ export const HighlighterProductTooltip = ({
 	const onStartAgain = (): void => {
 		onButtonClick("start again");
 		onRestart();
-	}; 
+	};
 
     if (!tip) {
 		return null;
 	}
 
     return (
-        <Popover 
+        <Popover
             placement={(tip.position === "bottom" || isMobile) ? "bottom" : "right"}
+						withArrow
             isOpen={true}
             gutter={25}
             arrowSize={15}>
@@ -69,11 +69,10 @@ export const HighlighterProductTooltip = ({
                             top: `${rect!.y - 10}px`,
                             width: `${rect!.width + 20}px`,
                             height: `${rect!.height + 20}px`
-                    }}            
+                    }}
                 />
             </PopoverTrigger>
             <PopoverContent maxWidth="420" minHeight="212" padding="24" zIndex="300" gap="8">
-                <PopoverArrow bg="white"/>
                 <Box display="flex" flexGrow="1" >
                     <Box display="flex" flexDirection="column" flex="1 0 0" gap="8px" color="neutral.10">
                         <Text size="4" fontWeight="bold">
@@ -115,20 +114,20 @@ export const HighlighterProductTooltip = ({
                     </Box>
                 ) : (
                     <Box display="flex" gap="8">
-                        <IconButton iconName="ChevronLeft" 
-                                    aria-label="Previous" 
-                                    size="small" 
-                                    variant="secondary" 
+                        <IconButton iconName="ChevronLeft"
+                                    aria-label="Previous"
+                                    size="small"
+                                    variant="secondary"
                                     onClick={onPrev}/>
-                        <IconButton iconName="ChevronRight" 
-                                    aria-label="Next" 
-                                    size="small" 
-                                    variant="secondary" 
+                        <IconButton iconName="ChevronRight"
+                                    aria-label="Next"
+                                    size="small"
+                                    variant="secondary"
                                     onClick={onNext}/>
                     </Box>
                 )}
                 </Box>
-               
+
             </PopoverContent>
         </Popover>
     );

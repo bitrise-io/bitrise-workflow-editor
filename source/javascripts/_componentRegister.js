@@ -12,6 +12,7 @@ import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
+import RecipeDialog from "./components/RecipeDialog";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { ProductTour } from "./components/ProductTour/ProductTour";
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
@@ -58,7 +59,7 @@ angular
 		"rWorkflowSelector",
 		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
-	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
+	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml", "appSlug", "onYmlChange", "appConfigYml"]))
 	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
 	.component(
 		"rWorkflowMainToolbar",

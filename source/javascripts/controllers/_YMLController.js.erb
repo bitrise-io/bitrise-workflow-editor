@@ -1,5 +1,6 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
 import { setDiagnosticsOptions } from 'monaco-yaml';
+import jsyaml from "js-yaml";
 
 (function() {
 	"use strict";
@@ -29,6 +30,10 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 			viewModel.usesRepositoryYml = false;
 			viewModel.appSlug = undefined;
 			viewModel.repositoryYmlAvailable = true;
+			viewModel.onYmlChange = function(newContent) {
+				appService.appConfigYML = newContent;
+				$scope.$apply();
+			};
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -39,6 +44,7 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 					return appService.appConfigYML;
 				},
 				function() {
+					viewModel.appConfigYML = appService.appConfigYML;
 					if (model && !model.isDisposed()) {
 						if (appService.appConfigYML !== model.getValue()) {
 							model.setValue(appService.appConfigYML || '')

@@ -16,11 +16,11 @@ const WorkflowRecipesButton = ({ linkId, trackingName, ...boxProps }: WorkflowRe
 
 	return (
 		<Box display="flex" alignItems="center" gap="8" paddingY="4" {...boxProps}>
-            <Button id={linkId} as='a' target='_blank' onClick={trackAction}>
+			<Button id={linkId} as='a' target='_blank' onClick={trackAction}>
 				Workflow Recipies with AI
 			</Button>
 		</Box>
-	);
+		);
 };
 
 export default WorkflowRecipesButton;

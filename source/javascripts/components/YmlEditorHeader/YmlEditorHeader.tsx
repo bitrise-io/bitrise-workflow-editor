@@ -1,12 +1,22 @@
-import { Box, Button, Text } from "@bitrise/bitkit";
+import { Box, Button, Link, Text, useDisclosure } from "@bitrise/bitkit";
+import RecipeDialog from "../RecipeDialog";
 
-import WorkflowRecipesButton from "../workflow-recipes/WorkflowRecipesButton/WorkflowRecipesButton";
 
 type YmlEditorHeaderProps = {
 	url: string;
 	usesRepositoryYml?: boolean;
+	appSlug: string;
+	onYmlChange: (yml: string) => void;
+	appConfigYml: string;
 }
-const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.Element => {
+const YmlEditorHeader = ({ url, usesRepositoryYml, appSlug, onYmlChange, appConfigYml }: YmlEditorHeaderProps): JSX.Element => {
+	const {isOpen, onOpen, onClose} = useDisclosure({defaultIsOpen:true});
+	const onCloseDialog = (result?: string): void => {
+		onClose();
+		if(result) {
+			onYmlChange(result);
+		}
+	};
 	return (
 		<Box
 			display="flex"
@@ -28,12 +38,13 @@ const YmlEditorHeader = ({ url, usesRepositoryYml}: YmlEditorHeaderProps): JSX.E
 				</Text>
 			</Box>
 			<Box display="flex" flexDirection={["column-reverse", "row"]} gap='8'>
-				<WorkflowRecipesButton linkId='workflow-editor-yml-editor-workflow-recipes-link' trackingName='yml_ai_editor'/>
+				<Link as="button" onClick={onOpen}>Config generator</Link>
 				{url && <Button as='a' href={url} target='_blank'>
 					Download currently saved config
 				</Button>
 				}
 			</Box>
+			<RecipeDialog appConfigYml={appConfigYml} slug={appSlug} isOpen={isOpen} onClose={onCloseDialog} />
 		</Box>
 	);
 };
