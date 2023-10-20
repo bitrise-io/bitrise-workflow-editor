@@ -723,7 +723,7 @@ def strings
                 },
                 store_in_repository: {
                     loading: "Looking for bitrise.yml in the app repository...",
-                    not_found: "Couldn't find a bitrise.yml file in the app's repository. Add the file to your main branch and try again.",
+                    not_found: "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.",
                     validation_loading: "Validating bitrise.yml in the app repository...",
                     validation_error: "The bitrise.yml file in the repository seems invalid. Please review and fix it before proceeding. Read more about the",
                     success: "Successfully changed the bitrise.yml storage setting! The next build will use the bitrise.yml file in the app's repository."
