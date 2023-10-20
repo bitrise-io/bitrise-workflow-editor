@@ -5,13 +5,11 @@ import useMonolithApiCallback from "../hooks/api/useMonolithApiCallback";
 import RecipeChooser from "./RecipeChooser";
 import WorkflowChooser from "./WorkflowChooser";
 
-type RecipeJson = { markdown: string, tags: string[] };
+type RecipeJson = { markdown: string; tags: string[] };
 
-const Poller = ({ onDone, id, slug }: { onDone: (result: string) => void, id: string, slug: string }): JSX.Element => {
-	const result = useMonolithApiCallback<string>(
+const Poller = ({ onDone, id, slug }: { onDone: (result: string) => void; id: string; slug: string }): JSX.Element => {
+	const result = useMonolithApiCallback<{yaml:string}>(
 		`/api/apps/${slug}/bitrise_ai_configs/${id}`,
-		{ headers: { Accept: "application/x-yaml" } },
-		data => data
 	);
 
 	useEffect(() => {
@@ -21,7 +19,7 @@ const Poller = ({ onDone, id, slug }: { onDone: (result: string) => void, id: st
 
 	useEffect(() => {
 		if (!result.failed && !result.loading && result.result) {
-			onDone(result.result);
+			onDone(result.result.yaml);
 		}
 	}, [result.result, result.loading, result.failed]);
 	return <ProgressBitbot />;
@@ -32,10 +30,10 @@ const RecipeDialog = ({
 	slug,
 	appConfigYml
 }: {
-	isOpen: boolean,
-	appConfigYml?: string,
-	onClose: (yml?: string) => void,
-	slug: string
+	isOpen: boolean;
+	appConfigYml?: string;
+	onClose: (yml?: string) => void;
+	slug: string;
 }): JSX.Element => {
 	const [state, setState] = useState<"recipe" | "workflow" | "waiting">("recipe");
 	const [selectedRecipe, setSelectedRecipe] = useState<RecipeJson>();
@@ -44,7 +42,9 @@ const RecipeDialog = ({
 		setSelectedRecipe(r);
 		setState("workflow");
 	};
-	const update = useMonolithApiCallback<{ id: string }>(`/api/apps/${slug}/bitrise_ai_configs`, { method: "POST" });
+	const update = useMonolithApiCallback<{ prompt_id: string }>(`/api/apps/${slug}/bitrise_ai_configs`, {
+		method: "POST"
+	});
 	const onWorkflowSelected = (w: string[] | null): void => {
 		update.call({
 			body: JSON.stringify({ workflows: w, yaml: appConfigYml, recipe_content: selectedRecipe?.markdown })
@@ -62,7 +62,9 @@ const RecipeDialog = ({
 						setSelectedWorkflow={onWorkflowSelected}
 					/>
 				)}
-				{state === "waiting" && update.result?.id && <Poller onDone={onClose} id={update.result.id} slug={slug} />}
+				{state === "waiting" && update.result?.prompt_id && (
+						<Poller onDone={onClose} id={update.result.prompt_id} slug={slug} />
+				)}
 			</DialogBody>
 			<DialogFooter>
 				<Box display="flex" flexDirection="row" justifyContent="space-between">
