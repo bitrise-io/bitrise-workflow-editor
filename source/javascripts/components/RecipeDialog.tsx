@@ -37,7 +37,11 @@ const RecipeDialog = ({
 }): JSX.Element => {
 	const [state, setState] = useState<"recipe" | "workflow" | "waiting">("recipe");
 	const [selectedRecipe, setSelectedRecipe] = useState<RecipeJson>();
-	const workflows = useMemo(() => (appConfigYml ? Object.keys(load(appConfigYml).workflows) : []), [appConfigYml]);
+	const workflows = useMemo(() => {
+		try {
+	return Object.keys(load(appConfigYml!).workflows);
+		} catch { return [] }
+		}, [appConfigYml]);
 	const onSelected = (r: RecipeJson): void => {
 		setSelectedRecipe(r);
 		setState("workflow");
