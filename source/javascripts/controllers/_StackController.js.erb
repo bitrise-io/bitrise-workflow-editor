@@ -248,10 +248,6 @@
 				return !!viewModel.descriptionURLForStack(stack);
 			}
 
-			viewModel.osForStackWithMachineType = function(stack, machineType) {
-				return stack.osForChip[machineType.chip];
-			}
-
 			function getShowMachineCreditCost() {
 				if (appService.ownerPlanData) {
 					return !planServiceUtil.isModernConcurrencyPlan(appService.ownerPlanData.name);
