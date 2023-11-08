@@ -11,8 +11,7 @@
 				descriptionURL,
 				descriptionURLGen2,
 				descriptionURLGen2AppleSilicon,
-				projectTypes,
-				osForChip
+				projectTypes
 			) {
 				this.id = id;
 				this.name = name;
@@ -22,7 +21,6 @@
 				this.descriptionURLGen2 = descriptionURLGen2;
 				this.descriptionURLGen2AppleSilicon = descriptionURLGen2AppleSilicon;
 				this.projectTypes = projectTypes;
-				this.osForChip = osForChip;
 			};
 
 			Stack.all;
@@ -42,8 +40,7 @@
 							aStackData.descriptionURL,
 							aStackData.descriptionURLGen2,
 							aStackData.descriptionURLGen2AppleSilicon,
-							aStackData.projectTypes,
-							aStackData.osForChip
+							aStackData.projectTypes
 						);
 					});
 				});
