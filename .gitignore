@@ -16,3 +16,4 @@ spec/integration/cypress/screenshots
 spec/integration/cypress/results
 .docker-sync
 .env
+.vendor
