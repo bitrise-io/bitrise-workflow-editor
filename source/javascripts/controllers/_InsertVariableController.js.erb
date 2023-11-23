@@ -165,14 +165,18 @@
 					requestService
 						.getKeystoreFile(requestConfig)
 						.then(function(keystoreFileData) {
-							return keystoreFileData
-								? [
-										KeystoreFile.androidKeystorePasswordEnvVarKey,
-										KeystoreFile.androidKeystoreAliasEnvVarKey,
-										KeystoreFile.androidKeystorePrivateKeyPasswordEnvVarKey,
-										KeystoreFile.downloadURLEnvVarKey()
-								  ]
-								: [];
+							if(!keystoreFileData) return [];
+
+							return _.flatten(keystoreFileData.map(function(item) {
+								if(!item.envVarPartialID) return null;
+
+								return [
+									'BITRISEIO_' + item.envVarPartialID + '_URL',
+									'BITRISEIO_' + item.envVarPartialID + '_ALIAS',
+									'BITRISEIO_' + item.envVarPartialID + '_PASSWORD',
+									'BITRISEIO_' + item.envVarPartialID + '_PRIVATE_KEY_PASSWORD',
+								];
+							}));
 						})
 				]).then(function(availableKeyArrays) {
 					viewModel.variablesOfSourceFromCodeSigningFiles().variables = _.map(
