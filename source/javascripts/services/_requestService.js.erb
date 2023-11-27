@@ -2586,29 +2586,32 @@ import jsyaml from "js-yaml";
 				return $q(function(resolve, reject) {
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
+
 							var KeystoreFile = $injector.get("KeystoreFile");
-							var keystoreFileData = _.find(response.data.project_file_storage_documents, {
-								user_env_key: KeystoreFile.downloadURLEnvVarPartialID
+
+							var keystoreFileData = _.filter(response.data.project_file_storage_documents, function(item) {
+							  return item.user_env_key.startsWith(KeystoreFile.downloadURLEnvVarPartialID);
 							});
 
-							var responseData = null;
-
-							if (keystoreFileData) {
-								responseData = {
-									databaseID: keystoreFileData.id,
-									isProcessed: keystoreFileData.processed,
-									envVarPartialID: keystoreFileData.user_env_key,
-									uploadFileName: keystoreFileData.upload_file_name,
-									isExpose: keystoreFileData.is_expose,
-									isProtected: keystoreFileData.is_protected
+							var responseData = keystoreFileData.map(function(item) {
+								var itemData = null;
+								itemData = {
+									databaseID: item.id,
+									isProcessed: item.processed,
+									envVarPartialID: item.user_env_key,
+									uploadFileName: item.upload_file_name,
+									isExpose: item.is_expose,
+									isProtected: item.is_protected
 								};
 
-								if (keystoreFileData.exposed_meta_datastore) {
-									responseData.password = keystoreFileData.exposed_meta_datastore.PASSWORD;
-									responseData.alias = keystoreFileData.exposed_meta_datastore.ALIAS;
-									responseData.privateKeyPassword = keystoreFileData.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
+								if (item.exposed_meta_datastore) {
+									itemData.password = item.exposed_meta_datastore.PASSWORD;
+									itemData.alias = item.exposed_meta_datastore.ALIAS;
+									itemData.privateKeyPassword = item.exposed_meta_datastore.PRIVATE_KEY_PASSWORD;
 								}
-							}
+
+								return itemData;
+							});
 
 							resolve(responseData);
 						},
