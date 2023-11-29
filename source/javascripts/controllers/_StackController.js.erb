@@ -72,6 +72,29 @@
 				return appService.appDetails.isMachineTypeSelectorAvailable && !!stack;
 			}
 
+			viewModel.hasRollbackVersion = function() {
+					return !!appService.getStackRollbackVersion()
+			}
+
+			viewModel.setUseRollbackVersion = function(usePreviousVersion) {
+				if (usePreviousVersion) {
+					appService.rollbackVersion = appService.getStackRollbackVersion();
+				} else {
+					appService.rollbackVersion = undefined
+				}
+			}
+
+			viewModel.isRollbackVersion = function(newIsRollbackVersion) {
+
+				if (newIsRollbackVersion === true) {
+					appService.rollbackVersion = appService.getStackRollbackVersion();
+				} else if (newIsRollbackVersion === false) {
+					appService.rollbackVersion = undefined
+				}
+
+				return !!appService.rollbackVersion;
+			}
+
 			viewModel.init = function() {
 				appService.getOwnerPlanData().then(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();

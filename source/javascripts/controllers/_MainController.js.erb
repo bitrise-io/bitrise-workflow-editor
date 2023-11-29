@@ -211,6 +211,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 							break;
 						case "stack":
+							appService.getAppConfigYML();
 							$q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll()])
 								.then(appService.getStackAndDockerImage)
 								.then(function() {
@@ -403,7 +404,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						return (
 							appService.appConfigHasUnsavedChanges() ||
 							appService.stackHasUnsavedChanges() ||
-							appService.defaultMachineTypeHasUnsavedChanges()
+							appService.defaultMachineTypeHasUnsavedChanges() ||
+							appService.rollbackVersionHasUnsavedChanges()
 						);
 					case "licenses":
 						return appService.appConfigHasUnsavedChanges();

@@ -52,6 +52,10 @@
 											span[ng-bind="machineType.cpuDescription"]
 										.ram[ng-bind="machineType.ram"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
+			section.previous-version-settings[ng-if="stackCtrl.hasRollbackVersion()"]
+				div.input-and-label
+					checkbox[name="isExpand" ng-model="stackCtrl.isRollbackVersion" ng-model-options="{getterSetter: true}" checkbox-id-expression="'use-previous-version-checkbox'"]
+					label[for="use-previous-version-checkbox"] == "Use previous version"
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]

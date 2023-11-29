@@ -26,6 +26,9 @@
 				savedStack: undefined,
 				defaultMachineType: undefined,
 				savedDefaultMachineType: undefined,
+				initialRollbackVersion: undefined,
+				rollbackVersion: undefined,
+				savedRollbackVersion: undefined,
 				dockerImage: undefined,
 				savedDockerImage: undefined,
 				projectType: undefined,
@@ -470,6 +473,11 @@
 				return !angular.equals(appService.defaultMachineType, appService.savedDefaultMachineType);
 			};
 
+
+			appService.rollbackVersionHasUnsavedChanges = function() {
+				return !angular.equals(appService.rollbackVersion, appService.savedRollbackVersion);
+			};
+
 			appService.discardDefaultMachineTypeChanges = function() {
 				appService.defaultMachineType = appService.savedDefaultMachineType;
 			};
@@ -481,6 +489,7 @@
 
 				var stackID;
 				var dockerImage;
+				var rollbackVersion;
 				if (
 					appService.appConfig.meta &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
@@ -488,6 +497,7 @@
 					stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
 					dockerImage =
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
+					rollbackVersion = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
 				}
 				var stackIDAndDockerImageFetchPromise =
 					stackID && dockerImage
@@ -505,6 +515,8 @@
 					appService.stack = Stack.getPotentiallyInvalidStack(stackID);
 					appService.savedStack = angular.copy(appService.stack);
 					appService.dockerImage = appService.savedDockerImage = dockerImage;
+					appService.rollbackVersion = rollbackVersion;
+					appService.savedRollbackVersion = rollbackVersion;
 				});
 			};
 
@@ -548,13 +560,31 @@
 					delete appService.appConfig.meta[BITRISE_META_KEY].docker_image;
 				}
 
+				if (appService.rollbackVersion) {
+					appService.appConfig.meta[BITRISE_META_KEY].stack_rollback_version = appService.rollbackVersion;
+				} else {
+					delete appService.appConfig.meta[BITRISE_META_KEY].stack_rollback_version;
+				}
+
 				return appService
 					.saveAppConfig(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig)
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
+						appService.savedRollbackVersion = appService.rollbackVersion;
 					});
 			};
+
+			appService.getStackRollbackVersion = function() {
+				if (appService.ownerPlanData) {
+					var isPaying = appService.ownerPlanData.paying;
+					var machineTypeId = appService.defaultMachineType.id;
+
+					return appService.stack.getRollbackVersion(machineTypeId, isPaying)
+				}
+
+				return undefined;
+			}
 
 			appService.discardStackChanges = function() {
 				appService.discardAppConfigChanges();
