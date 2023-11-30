@@ -5,9 +5,11 @@
 			p.header-description == replaced_string(data[:strings][:stack][:default_stack_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
 		article
 			section
+				r-notification.invalid-rollback-version[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
 				.max-width-wrapper
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == data[:strings][:stack][:invalid_stack]
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:incompatible_stack]
+					
 					.stack-selector-wrapper
 						select.stack-selector[ng-model="appService.stack" ng-options="stackCtrl.stackOptionTitle(stack) for stack in stackCtrl.stackOptions()" ng-change="stackCtrl.onDefaultStackChange()"]
 					.stack-info[ng-if="appService.stack.description"]
@@ -52,10 +54,12 @@
 											span[ng-bind="machineType.cpuDescription"]
 										.ram[ng-bind="machineType.ram"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-			section.previous-version-settings[ng-if="stackCtrl.hasRollbackVersion()"]
+			section.previous-version-settings
 				div.input-and-label
-					checkbox[name="isExpand" ng-model="stackCtrl.isRollbackVersion" ng-model-options="{getterSetter: true}" checkbox-id-expression="'use-previous-version-checkbox'"]
+					checkbox[name="isExpand" ng-model="stackCtrl.isRollbackVersionEnabled" ng-model-options="{getterSetter: true}" checkbox-id-expression="'use-previous-version-checkbox'" ng-disabled="stackCtrl.isRollbackCheckboxDisabled()"]
 					label[for="use-previous-version-checkbox"] == "Use previous version"
+					r-info-tooltip[label="'Enable this option if your build is failing after a Bitrise Stack Update.'"]
+				r-notification.[status="'warning'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]

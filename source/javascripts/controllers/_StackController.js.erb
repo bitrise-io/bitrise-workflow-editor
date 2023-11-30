@@ -76,6 +76,10 @@
 					return !!appService.getStackRollbackVersion()
 			}
 
+			viewModel.isRollbackCheckboxDisabled = function() {
+				return !appService.getStackRollbackVersion()
+			}
+
 			viewModel.setUseRollbackVersion = function(usePreviousVersion) {
 				if (usePreviousVersion) {
 					appService.rollbackVersion = appService.getStackRollbackVersion();
@@ -84,7 +88,7 @@
 				}
 			}
 
-			viewModel.isRollbackVersion = function(newIsRollbackVersion) {
+			viewModel.isRollbackVersionEnabled = function(newIsRollbackVersion) {
 
 				if (newIsRollbackVersion === true) {
 					appService.rollbackVersion = appService.getStackRollbackVersion();
@@ -95,10 +99,25 @@
 				return !!appService.rollbackVersion;
 			}
 
+			viewModel.isRollbackVersionInBitriseYmlNoLongerAvailable = function() {
+				if (!appService.ownerPlanData) {
+					return false;
+				}
+
+				var isPaying = appService.ownerPlanData.paying;
+				var machineTypeId = appService.defaultMachineType.id;
+
+				var rollbackVersion = appService.savedStack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying)
+
+				return !angular.equals(rollbackVersion, appService.getRollbackVersionFromBitriseYml());
+			}
+
 			viewModel.init = function() {
 				appService.getOwnerPlanData().then(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
+
+					appService.setRollbackVersionFromBitriseYml();
 				}).catch(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
@@ -190,6 +209,9 @@
 				if (!isPreviousMachineTypeAvailable) {
 					viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
 				}
+
+				appService.rollbackVersion = undefined;
+				appService.setRollbackVersionFromBitriseYml();
 			}
 
 			viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {

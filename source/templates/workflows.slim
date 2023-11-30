@@ -145,7 +145,7 @@
 															p[sanitized-markdown="workflowsCtrl.isOutputOpened(output) ? output.longestDescription() : output.title() " ng-class="{'oneliner': !workflowsCtrl.isOutputOpened(output)}"]
 															.toggle-arrow-button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)"]
 																== svg("arrow-down")
-								r-error-notification[message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
+								r-notification[status="'error'" message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
 								button.delete-step.rebo.big.hollow-danger[ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-click="workflowsCtrl.deleteStepSelected()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
 	popup[model="workflowsCtrl.addWorkflowPopup"]
 		form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]

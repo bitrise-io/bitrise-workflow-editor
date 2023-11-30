@@ -480,6 +480,7 @@
 
 			appService.discardDefaultMachineTypeChanges = function() {
 				appService.defaultMachineType = appService.savedDefaultMachineType;
+				appService.rollbackVersion = appService.savedRollbackVersion;
 			};
 
 			appService.getStackAndDockerImage = function(shouldForceReload, requestConfig) {
@@ -489,7 +490,6 @@
 
 				var stackID;
 				var dockerImage;
-				var rollbackVersion;
 				if (
 					appService.appConfig.meta &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
@@ -497,7 +497,6 @@
 					stackID = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack;
 					dockerImage =
 						appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].docker_image;
-					rollbackVersion = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
 				}
 				var stackIDAndDockerImageFetchPromise =
 					stackID && dockerImage
@@ -515,10 +514,33 @@
 					appService.stack = Stack.getPotentiallyInvalidStack(stackID);
 					appService.savedStack = angular.copy(appService.stack);
 					appService.dockerImage = appService.savedDockerImage = dockerImage;
-					appService.rollbackVersion = rollbackVersion;
-					appService.savedRollbackVersion = rollbackVersion;
+					appService.setRollbackVersionFromBitriseYml();
 				});
 			};
+
+			appService.setRollbackVersionFromBitriseYml = function() {
+					if (
+					appService.appConfig.meta &&
+					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
+				) {
+					var rollbackVersion = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
+					if (appService.getStackRollbackVersion() === rollbackVersion) {
+						appService.rollbackVersion = rollbackVersion;
+						appService.savedRollbackVersion = rollbackVersion;
+					}
+				}
+			}
+
+			appService.getRollbackVersionFromBitriseYml = function() {
+					if (
+					!appService.appConfig.meta ||
+					!appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
+				) {
+					return undefined;
+				}
+				
+				return appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
+			}
 
 			appService.availableStacks = function() {
 				if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
