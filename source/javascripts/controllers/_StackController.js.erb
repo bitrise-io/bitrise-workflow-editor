@@ -72,26 +72,14 @@
 				return appService.appDetails.isMachineTypeSelectorAvailable && !!stack;
 			}
 
-			viewModel.hasRollbackVersion = function() {
-					return !!appService.getStackRollbackVersion()
-			}
-
-			viewModel.isRollbackCheckboxDisabled = function() {
-				return !appService.getStackRollbackVersion()
-			}
-
-			viewModel.setUseRollbackVersion = function(usePreviousVersion) {
-				if (usePreviousVersion) {
-					appService.rollbackVersion = appService.getStackRollbackVersion();
-				} else {
-					appService.rollbackVersion = undefined
-				}
+			viewModel.isRollbackCheckboxDisabled = function(stack) {
+				return !appService.getStackRollbackVersion(stack);
 			}
 
 			viewModel.isRollbackVersionEnabled = function(newIsRollbackVersion) {
 
 				if (newIsRollbackVersion === true) {
-					appService.rollbackVersion = appService.getStackRollbackVersion();
+					appService.rollbackVersion = appService.getStackRollbackVersion(appService.stack);
 				} else if (newIsRollbackVersion === false) {
 					appService.rollbackVersion = undefined
 				}
@@ -107,9 +95,10 @@
 				var isPaying = appService.ownerPlanData.paying;
 				var machineTypeId = appService.defaultMachineType.id;
 
-				var rollbackVersion = appService.savedStack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying)
+				var rollbackVersion = appService.savedStack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying);
+				var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
 
-				return !angular.equals(rollbackVersion, appService.getRollbackVersionFromBitriseYml());
+				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
 			}
 
 			viewModel.init = function() {
@@ -244,6 +233,22 @@
 					return stack;
 				};
 			};
+
+			viewModel.rollbackVersionGetterSetterForWorkflow = function(workflow) {
+
+				return function(isChecked) {
+
+					if (isChecked === true) {
+						var isPaying = appService.ownerPlanData.paying;
+
+						workflow.setRollbackVersion(isPaying, MachineType.all);
+					} else if (isChecked === false) {
+						workflow.removeRollbackVersion();
+					}
+
+					return !!workflow.getRollbackVersion();
+				}
+			}
 
 			viewModel.setDefaultMachineType = function(machineType) {
 				if (machineType && !machineType.isAvailable) {

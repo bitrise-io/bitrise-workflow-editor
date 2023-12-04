@@ -542,6 +542,17 @@
 				return appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
 			}
 
+			appService.getStackRollbackVersion = function(stack) {
+				if (appService.ownerPlanData && appService.defaultMachineType) {
+					var isPaying = appService.ownerPlanData.paying;
+					var machineTypeId = appService.defaultMachineType.id;
+
+					return stack.getRollbackVersion(machineTypeId, isPaying);
+				}
+
+				return undefined;
+			}
+
 			appService.availableStacks = function() {
 				if (Stack.all === undefined || appService.appDetails.projectTypeID === undefined) {
 					return undefined;
@@ -596,17 +607,6 @@
 						appService.savedRollbackVersion = appService.rollbackVersion;
 					});
 			};
-
-			appService.getStackRollbackVersion = function() {
-				if (appService.ownerPlanData) {
-					var isPaying = appService.ownerPlanData.paying;
-					var machineTypeId = appService.defaultMachineType.id;
-
-					return appService.stack.getRollbackVersion(machineTypeId, isPaying)
-				}
-
-				return undefined;
-			}
 
 			appService.discardStackChanges = function() {
 				appService.discardAppConfigChanges();
