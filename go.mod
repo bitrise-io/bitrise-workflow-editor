@@ -4,15 +4,16 @@ go 1.17
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20231121141524-0f812042b6e9
+	github.com/bitrise-io/bitrise v0.0.0-20231201125551-92d4629867c3
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20230802102824-1300c57d49c4
-	github.com/bitrise-io/go-utils v1.0.9
+	github.com/bitrise-io/go-utils v1.0.10
 	github.com/bitrise-io/stepman v0.0.0-20230728094915-939f0fe5c19a
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
 	gopkg.in/yaml.v2 v2.4.0
+	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -42,5 +43,4 @@ require (
 	golang.org/x/crypto v0.11.0 // indirect; indirect // indirect
 	golang.org/x/sys v0.10.0 // indirect
 	golang.org/x/term v0.10.0 // indirect
-	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
