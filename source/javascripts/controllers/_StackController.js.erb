@@ -76,7 +76,7 @@
 				return !appService.getStackRollbackVersion(stack);
 			}
 
-			viewModel.isRollbackVersionEnabled = function(newIsRollbackVersion) {
+			viewModel.isRollbackVersionEnabledGetterSetter = function(newIsRollbackVersion) {
 
 				if (newIsRollbackVersion === true) {
 					appService.rollbackVersion = appService.getStackRollbackVersion(appService.stack);
@@ -87,13 +87,21 @@
 				return !!appService.rollbackVersion;
 			}
 
-			viewModel.isRollbackVersionInBitriseYmlNoLongerAvailable = function() {
+			viewModel.isRollbackVersionEnabled = function(workflow) {
+				return !!workflow.getRollbackVersion();
+			}
+
+			viewModel.isRollbackVersionInBitriseYmlNoLongerAvailable = function(workflow) {
 				if (!appService.ownerPlanData) {
 					return false;
 				}
 
 				var isPaying = appService.ownerPlanData.paying;
 				var machineTypeId = appService.defaultMachineType.id;
+
+				if (workflow) {
+					return workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, isPaying);
+				}
 
 				var rollbackVersion = appService.savedStack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying);
 				var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();

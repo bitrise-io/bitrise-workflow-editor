@@ -7,6 +7,19 @@
 	.stack-settings {
 		margin-bottom: 30px;
 
+		.notification-block {
+			display: block;
+			max-width: 78rem;
+
+			&.rollback-warning {
+				margin-top: 16px;
+			}
+
+			&.invalid-version {
+				margin-bottom: 16px;
+			}
+		}
+
 		article {
 			@include padding-y(0);
 
@@ -400,14 +413,6 @@
 	}
 
 	.stack-settings.default {
-
-		.notification-block {
-			margin-bottom: 16px;
-			margin-top: 16px;
-			display: block;
-			max-width: 78rem;
-		}
-
 		header {
 
 			.header-description {

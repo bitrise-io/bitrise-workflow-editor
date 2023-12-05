@@ -207,6 +207,16 @@
 			);
 		}
 
+		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function(machineTypes, isPaying) {
+				var stack = this.stack();
+				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+
+				var rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying);
+				var rollbackVersionInYml = this.getRollbackVersion();
+
+				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+		}
+
 		Workflow.prototype.licensePoolId = function(licensePoolId) {
 			if (licensePoolId !== undefined) {
 				if (!this.workflowConfig.meta) {
