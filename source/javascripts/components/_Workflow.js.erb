@@ -137,7 +137,7 @@
 			return Stack.getPotentiallyInvalidStack(this.workflowConfig.meta[BITRISE_META_KEY].stack);
 		};
 
-		Workflow.prototype.machineType = function(stackType, machineType, machineTypes) {
+		Workflow.prototype.machineType = function(stackType, machineType, machineTypes, isPaying) {
 			if (machineType !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};
@@ -150,6 +150,12 @@
 					this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id = machineType.id;
 				} else {
 					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
+				}
+
+				if (this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id) {
+					this.setRollbackVersion(isPaying, machineTypes)
+				} else {
+					this.removeRollbackVersion();
 				}
 
 				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {

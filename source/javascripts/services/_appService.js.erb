@@ -519,12 +519,12 @@
 			};
 
 			appService.setRollbackVersionFromBitriseYml = function() {
-					if (
+				if (
 					appService.appConfig.meta &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
 				) {
 					var rollbackVersion = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
-					if (appService.getStackRollbackVersion() === rollbackVersion) {
+					if (appService.getStackRollbackVersion(appService.stack) === rollbackVersion) {
 						appService.rollbackVersion = rollbackVersion;
 						appService.savedRollbackVersion = rollbackVersion;
 					}
@@ -543,14 +543,22 @@
 			}
 
 			appService.getStackRollbackVersion = function(stack) {
-				if (appService.ownerPlanData && appService.defaultMachineType) {
-					var isPaying = appService.ownerPlanData.paying;
+				if (appService.defaultMachineType) {
+					var isPaying = appService.isOwnerPaying();
 					var machineTypeId = appService.defaultMachineType.id;
 
 					return stack.getRollbackVersion(machineTypeId, isPaying);
 				}
 
 				return undefined;
+			}
+
+			appService.isOwnerPaying = function() {
+				if (!appService.appDetails || !appService.appDetails.ownerData) {
+					return false;
+				}
+
+				return appService.appDetails.ownerData.isPaying;
 			}
 
 			appService.availableStacks = function() {

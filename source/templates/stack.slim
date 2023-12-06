@@ -5,7 +5,7 @@
 			p.header-description == replaced_string(data[:strings][:stack][:default_stack_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
 		article
 			section
-				r-notification.notification-block[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
+				r-notification.notification-block.invalid-version[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
 				.max-width-wrapper
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == data[:strings][:stack][:invalid_stack]
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:incompatible_stack]
@@ -120,5 +120,5 @@
 							checkbox[name="isExpand" ng-model="stackCtrl.rollbackVersionGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" checkbox-id-expression="'use-previous-version-checkbox'" ng-disabled="stackCtrl.isRollbackCheckboxDisabled(workflow.stack())"]
 							label[for="use-previous-version-checkbox"] == "Use previous version"
 							r-info-tooltip[label="'Enable this option if your build is failing after a Bitrise Stack Update.'"]
-						r-notification.notification-block.rollback-warning[status="'warning'" message="'Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.'" ng-if="stackCtrl.isRollbackVersionEnabled(workflow)"]
+						r-notification.notification-block.rollback-warning[status="'warning'" message="'Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.'" ng-if="stackCtrl.rollbackVersionGetterSetterForWorkflow(workflow)()"]
 

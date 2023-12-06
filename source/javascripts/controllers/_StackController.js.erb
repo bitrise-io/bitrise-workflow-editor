@@ -92,11 +92,7 @@
 			}
 
 			viewModel.isRollbackVersionInBitriseYmlNoLongerAvailable = function(workflow) {
-				if (!appService.ownerPlanData) {
-					return false;
-				}
-
-				var isPaying = appService.ownerPlanData.paying;
+				var isPaying = appService.isOwnerPaying();
 				var machineTypeId = appService.defaultMachineType.id;
 
 				if (workflow) {
@@ -107,6 +103,22 @@
 				var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
 
 				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+			}
+
+			viewModel.rollbackVersionGetterSetterForWorkflow = function(workflow) {
+				return function(isChecked) {
+
+					if (isChecked === true) {
+						var isPaying = appService.isOwnerPaying();
+
+						workflow.setRollbackVersion(isPaying, MachineType.all);
+					} else if (isChecked === false) {
+						workflow.removeRollbackVersion();
+					}
+
+					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying());
+					return !!workflow.getRollbackVersion() && !isRollbackVersionInYmlNotAvailable;
+				}
 			}
 
 			viewModel.init = function() {
@@ -242,28 +254,14 @@
 				};
 			};
 
-			viewModel.rollbackVersionGetterSetterForWorkflow = function(workflow) {
-
-				return function(isChecked) {
-
-					if (isChecked === true) {
-						var isPaying = appService.ownerPlanData.paying;
-
-						workflow.setRollbackVersion(isPaying, MachineType.all);
-					} else if (isChecked === false) {
-						workflow.removeRollbackVersion();
-					}
-
-					return !!workflow.getRollbackVersion();
-				}
-			}
-
 			viewModel.setDefaultMachineType = function(machineType) {
 				if (machineType && !machineType.isAvailable) {
 					return;
 				}
 
 				appService.defaultMachineType = machineType;
+
+				viewModel.isRollbackVersionEnabledGetterSetter(!!appService.rollbackVersion);
 			}
 
 			viewModel.setWorkflowMachineType = function(machineType, workflow) {
@@ -272,7 +270,7 @@
 				}
 
 				var stack = viewModel.stackGetterSetterForWorkflow(workflow, true)();
-				workflow.machineType(stack.type, machineType, MachineType.all);
+				workflow.machineType(stack.type, machineType, MachineType.all, appService.isOwnerPaying());
 			};
 
 			viewModel.workflowMachineType = function(workflow) {
