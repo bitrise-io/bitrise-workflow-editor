@@ -72,14 +72,25 @@
 				return appService.appDetails.isMachineTypeSelectorAvailable && !!stack;
 			}
 
-			viewModel.isRollbackCheckboxDisabled = function(stack) {
-				return !appService.getStackRollbackVersion(stack);
+			// TODO: remove this when rollback feature is released 
+			viewModel.showRollbackOption = function() {
+				var hasAnyStackRollbackVersion = false;
+				_.forEach(appService.availableStacks(), function(stack) {
+					if (stack.rollbackVersions) {
+						hasAnyStackRollbackVersion = true;
+					}
+				});
+				return hasAnyStackRollbackVersion;
+			}
+
+			viewModel.isRollbackCheckboxDisabled = function(workflow) {
+				return !appService.getStackRollbackVersion(workflow);
 			}
 
 			viewModel.isRollbackVersionEnabledGetterSetter = function(newIsRollbackVersion) {
 
 				if (newIsRollbackVersion === true) {
-					appService.rollbackVersion = appService.getStackRollbackVersion(appService.stack);
+					appService.rollbackVersion = appService.getStackRollbackVersion();
 				} else if (newIsRollbackVersion === false) {
 					appService.rollbackVersion = undefined
 				}
@@ -255,13 +266,18 @@
 			};
 
 			viewModel.setDefaultMachineType = function(machineType) {
+				if (machineType === appService.defaultMachineType) {
+					return;
+				}
+
 				if (machineType && !machineType.isAvailable) {
 					return;
 				}
 
 				appService.defaultMachineType = machineType;
 
-				viewModel.isRollbackVersionEnabledGetterSetter(!!appService.rollbackVersion);
+
+				viewModel.isRollbackVersionEnabledGetterSetter(false);
 			}
 
 			viewModel.setWorkflowMachineType = function(machineType, workflow) {
