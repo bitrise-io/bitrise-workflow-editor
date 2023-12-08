@@ -3,6 +3,7 @@ import { Icon, Checkbox } from "@bitrise/bitkit";
 
 import Notification from "./components/Notification";
 import InfoTooltip from "./components/InfoTooltip";
+import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
@@ -84,4 +85,5 @@ angular
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
-	.component("rInfoTooltip", register(InfoTooltip, ["label"]));
+	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
+	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "wrappedIsChecked", "onChange", "isWorking"]));

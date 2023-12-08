@@ -115,7 +115,7 @@
 												span[ng-bind="machineType.cpuDescription"]
 											.ram[ng-bind="machineType.ram"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-					section.previous-version-settings
+					section.previous-version-settings.workflow-specific
 						div.input-and-label
 							checkbox[name="isExpand" ng-model="stackCtrl.rollbackVersionGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" checkbox-id-expression="'use-previous-version-checkbox'" ng-disabled="stackCtrl.isRollbackCheckboxDisabled(workflow.stack())"]
 							label[for="use-previous-version-checkbox"] == "Use previous version"

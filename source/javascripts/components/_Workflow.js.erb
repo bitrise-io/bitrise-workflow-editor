@@ -152,11 +152,7 @@
 					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
 				}
 
-				if (this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id) {
-					this.setRollbackVersion(isPaying, machineTypes)
-				} else {
-					this.removeRollbackVersion();
-				}
+				this.syncRollbackVersion(isPaying, machineTypes);
 
 				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {
 					delete this.workflowConfig.meta[BITRISE_META_KEY];
@@ -215,12 +211,29 @@
 
 		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function(machineTypes, isPaying) {
 				var stack = this.stack();
+
+				if (!stack) {
+					return false;
+				}
+
 				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
 
 				var rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying);
 				var rollbackVersionInYml = this.getRollbackVersion();
 
 				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+		}
+
+		Workflow.prototype.syncRollbackVersion = function(isPaying, machineTypes) {
+			if (!this.getRollbackVersion()) {
+				return;
+			}
+
+			if (this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id) {
+				this.setRollbackVersion(isPaying, machineTypes)
+			} else {
+				this.removeRollbackVersion();
+			}
 		}
 
 		Workflow.prototype.licensePoolId = function(licensePoolId) {
