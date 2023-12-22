@@ -1,3 +1,5 @@
+import { safeDigest } from "../services/react-compat";
+
 (function() {
 	"use strict";
 
@@ -91,8 +93,10 @@
 
 				if (newIsRollbackVersion === true) {
 					appService.rollbackVersion = appService.getStackRollbackVersion();
+					safeDigest($scope);
 				} else if (newIsRollbackVersion === false) {
 					appService.rollbackVersion = undefined
+					safeDigest($scope);
 				}
 
 				return !!appService.rollbackVersion;
@@ -123,8 +127,10 @@
 						var isPaying = appService.isOwnerPaying();
 
 						workflow.setRollbackVersion(isPaying, MachineType.all);
+						safeDigest($scope);
 					} else if (isChecked === false) {
 						workflow.removeRollbackVersion();
+						safeDigest($scope);
 					}
 
 					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying());
