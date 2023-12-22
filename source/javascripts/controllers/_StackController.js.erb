@@ -93,10 +93,8 @@ import { safeDigest } from "../services/react-compat";
 
 				if (newIsRollbackVersion === true) {
 					appService.rollbackVersion = appService.getStackRollbackVersion();
-					safeDigest($scope);
 				} else if (newIsRollbackVersion === false) {
 					appService.rollbackVersion = undefined
-					safeDigest($scope);
 				}
 
 				return !!appService.rollbackVersion;
@@ -127,15 +125,32 @@ import { safeDigest } from "../services/react-compat";
 						var isPaying = appService.isOwnerPaying();
 
 						workflow.setRollbackVersion(isPaying, MachineType.all);
-						safeDigest($scope);
 					} else if (isChecked === false) {
 						workflow.removeRollbackVersion();
-						safeDigest($scope);
 					}
 
 					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying());
 					return !!workflow.getRollbackVersion() && !isRollbackVersionInYmlNotAvailable;
 				}
+			}
+
+			viewModel.rollbackVersionGetterSetterForWorkflow2 = function(id, isChecked) {
+					var workflow = _.find(viewModel.workflows, {
+						id: id
+					});
+
+					if (isChecked === true) {
+						var isPaying = appService.isOwnerPaying();
+
+						workflow.setRollbackVersion(isPaying, MachineType.all);
+						$scope.$apply();
+					} else if (isChecked === false) {
+						workflow.removeRollbackVersion();
+						$scope.$apply();
+					}
+
+					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying());
+					return !!workflow.getRollbackVersion() && !isRollbackVersionInYmlNotAvailable;
 			}
 
 			viewModel.init = function() {
@@ -272,18 +287,16 @@ import { safeDigest } from "../services/react-compat";
 			};
 
 			viewModel.setDefaultMachineType = function(machineType) {
-				if (machineType === appService.defaultMachineType) {
-					return;
-				}
-
 				if (machineType && !machineType.isAvailable) {
 					return;
 				}
 
 				appService.defaultMachineType = machineType;
-
-
-				viewModel.isRollbackVersionEnabledGetterSetter(false);
+				if (machineType.id === appService.savedDefaultMachineType.id) {
+					appService.setRollbackVersionFromBitriseYml();
+				} else {
+					viewModel.isRollbackVersionEnabledGetterSetter(false);
+				}
 			}
 
 			viewModel.setWorkflowMachineType = function(machineType, workflow) {

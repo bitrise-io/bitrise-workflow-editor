@@ -2,27 +2,29 @@ import { Toggle as BitkitToggle, ToggleProps as BitkitToggleProps, Box, Tooltip 
 
 type ToggleProps = {
 	tooltipLabel?: string;
-	isCheckedGetterSetter(isChecked?: boolean): boolean;
+	isCheckedGetterSetter(itemId?: any, isChecked?: boolean): boolean;
+	// if toggle is used in a loop this can be used the identify what data is connected to this toggle
+	listItemId: string;
 } & Pick<BitkitToggleProps, "isDisabled">;
 
 const Toggle = (props: ToggleProps) => {
-	const { tooltipLabel, isCheckedGetterSetter, ...rest } = props;
+	const { tooltipLabel, isCheckedGetterSetter, listItemId, ...rest } = props;
 
 	const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		isCheckedGetterSetter(event.target.checked);
+		isCheckedGetterSetter(listItemId, event.target.checked);
 	};
+
+	const toggle = <BitkitToggle {...rest} isChecked={isCheckedGetterSetter(listItemId)} onChange={handleChange} />;
 
 	if (tooltipLabel) {
 		return (
 			<Tooltip label={tooltipLabel}>
-				<Box>
-					<BitkitToggle {...rest} isChecked={isCheckedGetterSetter()} onChange={handleChange} />
-				</Box>
+				<Box>{toggle}</Box>
 			</Tooltip>
 		);
 	}
 
-	return <BitkitToggle {...rest} onChange={handleChange} />;
+	return toggle;
 };
 
 export default Toggle;
