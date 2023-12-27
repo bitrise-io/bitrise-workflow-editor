@@ -112,7 +112,9 @@ import { safeDigest } from "../services/react-compat";
 				var rollbackVersion = appService.stack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying);
 				var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
 
-				return !appService.rollbackVersionHasUnsavedChanges() && !isStackChanged && rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+				var hasUnsavedChanges = appService.rollbackVersionHasUnsavedChanges() || appService.stackHasUnsavedChanges() || appService.defaultMachineTypeHasUnsavedChanges();
+
+				return !hasUnsavedChanges && rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
 			}
 
 			viewModel.isDisabledRollbackVersionForWorkflow = function(workflow) {

@@ -523,10 +523,13 @@
 					appService.appConfig.meta &&
 					appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"]
 				) {
-					var rollbackVersion = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
-					if (appService.getStackRollbackVersion() === rollbackVersion) {
-						appService.rollbackVersion = rollbackVersion;
-						appService.savedRollbackVersion = rollbackVersion;
+					var rollbackVersionFromBitriseYml = appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
+					if (appService.getStackRollbackVersion() === rollbackVersionFromBitriseYml) {
+						appService.rollbackVersion = rollbackVersionFromBitriseYml;
+						appService.savedRollbackVersion = rollbackVersionFromBitriseYml;
+					} else {
+						appService.rollbackVersion = undefined;
+						appService.savedRollbackVersion = undefined;
 					}
 				}
 			}
