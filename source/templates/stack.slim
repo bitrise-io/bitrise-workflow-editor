@@ -5,7 +5,7 @@
 			p.header-description == replaced_string(data[:strings][:stack][:default_stack_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
 		article
 			section
-				r-notification.notification-block.invalid-version[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
+				r-notification.notification-block.invalid-version[status="'error'" title="'#{ data[:strings][:stack][:rollback_version][:invalid_version_title] }'" message="'#{ data[:strings][:stack][:rollback_version][:invalid_version_message] }'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable()"]
 				.max-width-wrapper
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == data[:strings][:stack][:invalid_stack]
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:incompatible_stack]
@@ -55,17 +55,17 @@
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
 			section.previous-version-settings[ng-if="stackCtrl.showRollbackOption()"]
 				div.input-and-label
-					r-toggle[tooltip-label="stackCtrl.isRollbackCheckboxDisabled() ? 'Previous version is not available' : undefined" is-checked-getter-setter="stackCtrl.isRollbackVersionEnabledGetterSetter" is-disabled="stackCtrl.isRollbackCheckboxDisabled()"]
-					label[for="use-previous-version-checkbox"] == "Use previous version"
-					r-info-tooltip[label="'Enable this option if your build is failing after a Bitrise Stack Update.'"]
-				r-notification.notification-block.rollback-warning[status="'warning'" message="'Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.'" ng-if="stackCtrl.isRollbackVersionEnabledGetterSetter()"]
+					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
+					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use_rollback_version]	
+					r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
+				r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
 			p == replaced_string(data[:strings][:stack][:workflow_specific_settings][:header_description], [data[:routes][:other][:bitrise_available_stacks]])
 		article
 			section.workflow[ng-repeat="workflow in stackCtrl.workflows"]
-				r-notification.notification-block.invalid-version[status="'error'" title="'Invalid rollback version'" message="'The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly.'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailable(workflow)"]
+				r-notification.notification-block.invalid-version[status="'error'" title="'#{ data[:strings][:stack][:rollback_version][:invalid_version_title] }'" message="'#{ data[:strings][:stack][:rollback_version][:invalid_version_message] }'" ng-if="stackCtrl.isRollbackVersionInBitriseYmlNoLongerAvailableForWorkflow(workflow)"]
 				.max-width-wrapper
 					h4.workflow-header
 						strong.workflow-id[ng-bind="workflow.id"]
@@ -114,10 +114,10 @@
 												span[ng-bind="machineType.cpuDescription"]
 											.ram[ng-bind="machineType.ram"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-					section.previous-version-settings.workflow-specific[ng-if="stackCtrl.showRollbackOption()"]
+					.previous-version-settings.workflow-specific[ng-if="stackCtrl.showRollbackOption()"]
 						div.input-and-label
-							r-toggle[tooltip-label="'Rollback version'" is-checked-getter-setter="stackCtrl.rollbackVersionGetterSetterForWorkflow2" list-item-id="workflow.id" is-disabled="stackCtrl.isRollbackCheckboxDisabled(workflow)"]
-							label[for="use-previous-version-checkbox"] == "Use previous version"
-							r-info-tooltip[label="'Enable this option if your build is failing after a Bitrise Stack Update.'"]
-						r-notification.notification-block.rollback-warning[status="'warning'" message="'Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.'" ng-if="stackCtrl.rollbackVersionGetterSetterForWorkflow(workflow)()"]
+							r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow) ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)" on-change="stackCtrl.onChangeRollbackVersionForWorkflow" list-item-id="workflow.id" is-disabled="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow)"]
+							label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use_rollback_version]
+							r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
+						r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)"]
 

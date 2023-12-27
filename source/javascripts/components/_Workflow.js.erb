@@ -138,7 +138,7 @@
 			return Stack.getPotentiallyInvalidStack(this.workflowConfig.meta[BITRISE_META_KEY].stack);
 		};
 
-		Workflow.prototype.machineType = function(stackType, machineType, machineTypes, isPaying) {
+		Workflow.prototype.machineType = function(stackType, machineType, machineTypes) {
 			if (machineType !== undefined) {
 				if (!this.workflowConfig.meta) {
 					this.workflowConfig.meta = {};

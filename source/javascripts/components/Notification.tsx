@@ -12,7 +12,7 @@ const Notification: FunctionComponent<Props> = ({ message, status, title }: Prop
 	if (title) {
 		return (
 			<BitkitNotification status={status}>
-				<Text fontWeight="bold">{title}</Text>
+				{title && <Text fontWeight="bold">{title}</Text>}
 				<Text>{message}</Text>
 			</BitkitNotification>
 		);

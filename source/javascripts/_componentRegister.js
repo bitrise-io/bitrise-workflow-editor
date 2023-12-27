@@ -86,4 +86,4 @@ angular
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
 	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
-	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isCheckedGetterSetter", "listItemId"]));
+	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]));
