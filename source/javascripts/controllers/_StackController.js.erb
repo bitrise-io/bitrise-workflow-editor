@@ -1,3 +1,5 @@
+import { safeDigest } from "../services/react-compat";
+
 (function() {
 	"use strict";
 
@@ -72,10 +74,91 @@
 				return appService.appDetails.isMachineTypeSelectorAvailable && !!stack;
 			}
 
+			// TODO: remove this when rollback feature is released 
+			viewModel.showRollbackOption = function() {
+				var hasAnyStackRollbackVersion = false;
+				_.forEach(appService.availableStacks(), function(stack) {
+					if (stack.rollbackVersions) {
+						hasAnyStackRollbackVersion = true;
+					}
+				});
+				return hasAnyStackRollbackVersion;
+			}
+
+			viewModel.isDisabledRollbackVersion = function() {
+				return !appService.getStackRollbackVersion();
+			}
+
+			viewModel.isCheckedRollbackVersion = function() {
+				return !!appService.rollbackVersion;
+			}
+
+			viewModel.onChangeRollbackVersion = function(isChecked) {
+				if (isChecked === true) {
+					appService.rollbackVersion = appService.getStackRollbackVersion();
+					$scope.$apply();
+				} else if (isChecked === false) {
+					appService.rollbackVersion = undefined;
+					$scope.$apply();
+				}
+			}
+
+			viewModel.isRollbackVersionInBitriseYmlNoLongerAvailable = function() {
+				var isPaying = appService.isOwnerPaying();
+				var machineTypeId = appService.defaultMachineType.id;
+
+				var isStackChanged = appService.savedStack.id !== appService.stack.id;
+
+				var rollbackVersion = appService.stack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying);
+				var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
+
+				var hasUnsavedChanges = appService.rollbackVersionHasUnsavedChanges() || appService.stackHasUnsavedChanges() || appService.defaultMachineTypeHasUnsavedChanges();
+
+				return !hasUnsavedChanges && rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+			}
+
+			viewModel.isDisabledRollbackVersionForWorkflow = function(workflow) {
+				return !appService.getStackRollbackVersion(workflow);
+			}
+
+			viewModel.isCheckedRollbackVersionForWorkflow = function(listItemId) {
+					var workflow = _.find(viewModel.workflows, {
+						id: listItemId
+					});
+
+					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying());
+					return !!workflow.getRollbackVersion() && !isRollbackVersionInYmlNotAvailable;
+			}
+
+			viewModel.onChangeRollbackVersionForWorkflow = function(isChecked, listItemId) {
+					var workflow = _.find(viewModel.workflows, {
+						id: listItemId
+					});
+
+					if (isChecked === true) {
+						var isPaying = appService.isOwnerPaying();
+
+						workflow.setRollbackVersion(isPaying, MachineType.all);
+						$scope.$apply();
+					} else if (isChecked === false) {
+						workflow.removeRollbackVersion();
+						$scope.$apply();
+					}
+			}
+
+			viewModel.isRollbackVersionInBitriseYmlNoLongerAvailableForWorkflow = function(workflow) {
+				var isPaying = appService.isOwnerPaying();
+				var machineTypeId = appService.defaultMachineType.id;
+
+				return workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, isPaying);
+			}
+
 			viewModel.init = function() {
 				appService.getOwnerPlanData().then(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
+
+					appService.setRollbackVersionFromBitriseYml();
 				}).catch(() => {
 					$scope.showMachineCreditCost = getShowMachineCreditCost();
 					configure();
@@ -167,6 +250,9 @@
 				if (!isPreviousMachineTypeAvailable) {
 					viewModel.setDefaultMachineType(viewModel.firstAvailableMachineTypeForStack(appService.stack.id));
 				}
+
+				appService.rollbackVersion = undefined;
+				appService.setRollbackVersionFromBitriseYml();
 			}
 
 			viewModel.stackGetterSetterForWorkflow = function(workflow, shouldNormalize) {
@@ -206,6 +292,11 @@
 				}
 
 				appService.defaultMachineType = machineType;
+				if (machineType.id === appService.savedDefaultMachineType.id) {
+					appService.setRollbackVersionFromBitriseYml();
+				} else {
+					viewModel.onChangeRollbackVersion(false);
+				}
 			}
 
 			viewModel.setWorkflowMachineType = function(machineType, workflow) {

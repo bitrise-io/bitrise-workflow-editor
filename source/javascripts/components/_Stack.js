@@ -11,7 +11,8 @@
 				descriptionURL,
 				descriptionURLGen2,
 				descriptionURLGen2AppleSilicon,
-				projectTypes
+				projectTypes,
+				rollbackVersions
 			) {
 				this.id = id;
 				this.name = name;
@@ -21,6 +22,7 @@
 				this.descriptionURLGen2 = descriptionURLGen2;
 				this.descriptionURLGen2AppleSilicon = descriptionURLGen2AppleSilicon;
 				this.projectTypes = projectTypes;
+				this.rollbackVersions = rollbackVersions
 			};
 
 			Stack.all;
@@ -40,7 +42,8 @@
 							aStackData.descriptionURL,
 							aStackData.descriptionURLGen2,
 							aStackData.descriptionURLGen2AppleSilicon,
-							aStackData.projectTypes
+							aStackData.projectTypes,
+							aStackData.rollbackVersions
 						);
 					});
 				});
@@ -67,6 +70,10 @@
 
 			Stack.prototype.isAgentPoolStack = function() {
 				return this.id.startsWith('agent-pool-')
+			}
+
+			Stack.prototype.getRollbackVersion = function(machineType, isPaying) {
+				return this.rollbackVersions && this.rollbackVersions[machineType] && this.rollbackVersions[machineType][isPaying ? 'paying' : 'free'];
 			}
 
 			return Stack;

@@ -435,7 +435,8 @@ import jsyaml from "js-yaml";
 										ownerData: {
 											slug: response.data.owner_slug,
 											type: response.data.owner_type,
-											name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name
+											name: response.data.owner_type == "User" ? response.data.owner_username : response.data.owner_name,
+											isPaying: response.data.owner_is_paying
 										},
 										buildData: {
 											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
@@ -1149,6 +1150,7 @@ import jsyaml from "js-yaml";
 									preInstalledToolsLink: aStackData["pre-installed-tools-link"],
 									projectTypes: aStackData["project-types"],
 									queueInfo: aStackData["queueInfo"],
+									rollbackVersions: aStackData["rollback_version"],
 								};
 							});
 

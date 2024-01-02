@@ -1,7 +1,9 @@
 import { react2angular } from "@bitrise/react2angular";
 import { Icon, Checkbox } from "@bitrise/bitkit";
 
-import ErrorNotification from "./components/ErrorNotification";
+import Notification from "./components/Notification";
+import InfoTooltip from "./components/InfoTooltip";
+import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
@@ -22,7 +24,7 @@ function register(component, props, injects) {
 
 angular
 	.module("BitriseWorkflowEditor")
-	.component("rErrorNotification", register(ErrorNotification, ["message"]))
+	.component("rNotification", register(Notification, ["message", "title", "status"]))
 	.component("rNotificationMessageWithLink", register(NotificationMessageWithLink, ["message", "type", "linkUrl", "linkText"]))
 	.component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
 	.component("rBitkitRoot", react2angular(BitkitRoot))
@@ -82,4 +84,6 @@ angular
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
-	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]));
+	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
+	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
+	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]));

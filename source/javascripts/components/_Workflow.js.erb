@@ -116,6 +116,7 @@
 				} else {
 					delete this.workflowConfig.meta[BITRISE_META_KEY].stack;
 					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
+					delete this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version;
 				}
 
 				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {
@@ -152,6 +153,8 @@
 					delete this.workflowConfig.meta[BITRISE_META_KEY].machine_type_id;
 				}
 
+				this.removeRollbackVersion();
+
 				if (_.isEmpty(this.workflowConfig.meta[BITRISE_META_KEY])) {
 					delete this.workflowConfig.meta[BITRISE_META_KEY];
 				}
@@ -173,6 +176,54 @@
 				stackType: stackType
 			});
 		};
+
+		Workflow.prototype.setRollbackVersion = function(isPaying, machineTypes) {
+				var stack = this.stack();
+				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+
+				if (!this.workflowConfig.meta) {
+					this.workflowConfig.meta = {};
+				}
+				if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
+					this.workflowConfig.meta[BITRISE_META_KEY] = {};
+				}
+
+				this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version = stack.getRollbackVersion(machineTypeId, isPaying);
+		}
+
+		Workflow.prototype.removeRollbackVersion = function() {
+				if (!this.workflowConfig.meta) {
+					this.workflowConfig.meta = {};
+				}
+				if (!this.workflowConfig.meta[BITRISE_META_KEY]) {
+					this.workflowConfig.meta[BITRISE_META_KEY] = {};
+				}
+
+				delete this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version;
+		}
+
+		Workflow.prototype.getRollbackVersion = function() {
+			return (
+				this.workflowConfig.meta &&
+				this.workflowConfig.meta[BITRISE_META_KEY] &&
+				this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version || null
+			);
+		}
+
+		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function(machineTypes, isPaying) {
+				var stack = this.stack();
+
+				if (!stack) {
+					return false;
+				}
+
+				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
+
+				var rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying);
+				var rollbackVersionInYml = this.getRollbackVersion();
+
+				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);
+		}
 
 		Workflow.prototype.licensePoolId = function(licensePoolId) {
 			if (licensePoolId !== undefined) {

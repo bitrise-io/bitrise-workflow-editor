@@ -693,6 +693,14 @@ def strings
                     gen1: "The tried and tested machines that have been serving our customers for many years now",
                     gen2: "These machines run on a new hardware generation, offering improved performance compared to Gen1 hardware"
                 },
+                rollback_version: {
+                    not_available: "Previous version is not available",
+                    use: "Use previous version",
+                    enable_if: "Enable this option if your build is failing after a Bitrise Stack Update.",
+                    usage_warning: "Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.",
+                    invalid_version_title: "Invalid rollback version",
+                    invalid_version_message: "The rollback version specified in your bitrise.yml is no longer available. New builds will use the current stack version. You should update your bitrise.yml accordingly."
+                }
             },
             machine_type: {
                 workflow_specific_settings: {
