@@ -14,7 +14,7 @@ import {
 
 import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
-import { useDisclosure } from "@chakra-ui/react";
+import { useDisclosure } from "@bitrise/bitkit";
 import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
