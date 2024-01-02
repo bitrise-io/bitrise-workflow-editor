@@ -695,7 +695,7 @@ def strings
                 },
                 rollback_version: {
                     not_available: "Previous version is not available",
-                    use_rollback_version: "Use previous version",
+                    use: "Use previous version",
                     enable_if: "Enable this option if your build is failing after a Bitrise Stack Update.",
                     usage_warning: "Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.",
                     invalid_version_title: "Invalid rollback version",

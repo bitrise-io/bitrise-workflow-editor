@@ -56,7 +56,7 @@
 			section.previous-version-settings[ng-if="stackCtrl.showRollbackOption()"]
 				div.input-and-label
 					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
-					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use_rollback_version]	
+					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]	
 					r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
 				r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
 	section.cardo.stack-settings.workflow-specific
@@ -117,7 +117,7 @@
 					.previous-version-settings.workflow-specific[ng-if="stackCtrl.showRollbackOption()"]
 						div.input-and-label
 							r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow) ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)" on-change="stackCtrl.onChangeRollbackVersionForWorkflow" list-item-id="workflow.id" is-disabled="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow)"]
-							label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use_rollback_version]
+							label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
 							r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
 						r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)"]
 
