@@ -5,7 +5,6 @@ import { Text,
     Icon,
     Popover, 
     PopoverContent, 
-    PopoverArrow, 
     PopoverTrigger,
     useResponsive } from "@bitrise/bitkit";
 import { Tips } from "./types";
@@ -73,7 +72,6 @@ export const HighlighterProductTooltip = ({
                 />
             </PopoverTrigger>
             <PopoverContent maxWidth="420" minHeight="212" padding="24" zIndex="300" gap="8">
-                <PopoverArrow bg="white"/>
                 <Box display="flex" flexGrow="1" >
                     <Box display="flex" flexDirection="column" flex="1 0 0" gap="8px" color="neutral.10">
                         <Text size="4" fontWeight="bold">

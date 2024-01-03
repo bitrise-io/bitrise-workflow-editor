@@ -20,6 +20,7 @@
 		"strictNullChecks": true,
 		"strict": true,
 		"typeRoots": ["source/javascripts/typings"],
+		"types": ["node"]
 	},
 	"exclude": ["node_modules", "build", "scripts"],
 	"include": ["source/**/*.ts", "source/**/*.tsx"],

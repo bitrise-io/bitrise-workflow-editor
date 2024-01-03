@@ -112,7 +112,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
-			viewModel.productTourShown = true;
+			viewModel.productTourShown = false;
 			viewModel.lastWorkflowEditedDate;
 
 			viewModel.isFirstBuildExperienceEnabled = false;
@@ -737,7 +737,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 						Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
 							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-							viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
+							viewModel.productTourShown = false;
 						});
 					});
 				}
