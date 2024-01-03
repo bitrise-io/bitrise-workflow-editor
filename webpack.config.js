@@ -37,20 +37,6 @@ const htmlExporter = {
 	}
 };
 
-const assetExporter = (regex, folder) => ({
-	test: regex,
-	use: [
-		{
-			loader: "file-loader",
-			options: {
-				outputPath: folder,
-				name: "[name].[ext]",
-				publicPath: `${publicPath}${folder}`
-			}
-		}
-	]
-});
-
 const entry = {
 	vendor: "./javascripts/vendor.js",
 	strings: "./javascripts/strings.js.erb",
@@ -169,11 +155,24 @@ module.exports = {
 				test: /\.(slim)$/,
 				use: [htmlExporter, railsTransformer("slim")]
 			},
-
-			assetExporter(/\.(png|jpe?g|gif|svg)$/i, "images"),
-
-			assetExporter(/\.(eot|woff2?|ttf)$/i, "fonts"),
-
+			{
+				test: /\.(png|jpe?g|gif|svg)$/i,
+				type: 'asset/resource',
+				generator: {
+					outputPath: "images",
+					filename: '[name]-[hash][ext][query]',
+					publicPath: `${publicPath}images/`,
+				}
+			},
+			{
+				test: /\.(eot|woff2?|ttf)$/i,
+				type: 'asset/resource',
+				generator: {
+					outputPath: "fonts",
+					filename: '[name]-[hash][ext][query]',
+					publicPath: `${publicPath}fonts/`,
+				}
+			},
 			{
 				test: /\.css$/i,
 				include: path.join(__dirname, "node_modules"),
