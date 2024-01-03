@@ -24,7 +24,7 @@ type StepVersion = Step & {
 type StepWithVersions = {
 	id: string;
 	versions: Record<string, any>;
-	info: any;
+	info: unknown;
 }
 
 type StepLibSearchInstance = {
