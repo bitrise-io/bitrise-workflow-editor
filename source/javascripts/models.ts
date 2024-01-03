@@ -1,6 +1,6 @@
 export interface StepCatalouge {
-	steps: Array<Map<string, Record<string, any>>>;
-	latestStepVersions: Map<string, Record<string, any>>;
+	steps: Record<string, Map<string, Record<string, any>>>;
+	latestStepVersions: Record<string, string>;
 }
 export interface Workflow {
 	id: string;

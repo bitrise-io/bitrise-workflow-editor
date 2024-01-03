@@ -40,7 +40,7 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflow, onAction 
 				/>
 			</DialogBody>
 			<DialogFooter>
-				<Button aria-label="Run Workflow" rightIconName="OpenInBrowser" disabled={!branch} onClick={handleAction}>
+				<Button aria-label="Run Workflow" rightIconName="OpenInBrowser" isDisabled={!branch} onClick={handleAction}>
 					Run Workflow
 				</Button>
 			</DialogFooter>

@@ -10,7 +10,7 @@ class StringService {
 
 	private defaultTemplateDataFromString(string: string): any {
 		let match: RegExpExecArray | null;
-		const data = {};
+		const data: Record<string, string> = {};
 		while ((match = this.templateRegexp.exec(string))) {
 			data[match[1]] = match[0];
 		}

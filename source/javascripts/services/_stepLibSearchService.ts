@@ -21,6 +21,12 @@ type StepVersion = Step & {
 	info: object;
 };
 
+type StepWithVersions = {
+	id: string;
+	versions: Record<string, any>;
+	info: any;
+}
+
 type StepLibSearchInstance = {
 	list: (options: SearchOptions) => Promise<StepVersion[]>;
 };
@@ -37,7 +43,7 @@ angular.module("BitriseWorkflowEditor").service(
 	"stepLibSearchService",
 	($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
 		const convertSteps = (steps: StepVersion[]) =>
-			steps.reduce((stepObj: object, stepVersion: StepVersion) => {
+			steps.reduce((stepObj: Record<string, StepWithVersions>, stepVersion: StepVersion) => {
 				const step = stepObj[stepVersion.id] || {};
 				const versions = step.versions || {};
 				versions[stepVersion.version] = Object.assign({}, stepVersion, stepVersion.info);
@@ -85,7 +91,7 @@ angular.module("BitriseWorkflowEditor").service(
 						}
 					})
 					.then(convertSteps)
-					.then((stepObj: { [stepId: string]: StepVersion }) => stepObj[stepId])
+					.then((stepObj: { [stepId: string]: StepWithVersions }) => stepObj[stepId])
 					.catch((err: Error) => {
 						logger.error(err);
 						return $q.reject(err);
