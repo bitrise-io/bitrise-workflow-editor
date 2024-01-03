@@ -51,8 +51,8 @@ describe("DataDogLoggerService", () => {
 	it("setTags", () => {
 		logger.setTags(mockContext);
 
-		expect(mockInnerLogger.addContext).toHaveBeenCalledWith("test", "test-val");
-		expect(mockInnerLogger.addContext).toHaveBeenCalledWith("test2", "test2-val");
+		expect(mockInnerLogger.setContext).toHaveBeenCalledWith("test", "test-val");
+		expect(mockInnerLogger.setContext).toHaveBeenCalledWith("test2", "test2-val");
 	});
 
 	it("should use datadog debug logging", () => {
