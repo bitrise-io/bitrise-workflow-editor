@@ -64,16 +64,26 @@
 			.stack-info-text {
 				@include flex-grow(1);
 
-				.stack-description {
+				.stack-description, .stack-update-policy {
 					line-height: 1.5;
 					margin-top: 0;
 					margin-bottom: $spacing;
-					font-size: 13px;
+					font-size: 15px;
 					font-weight: 400;
 					color: $def-darkgrey;
 
 					&:not(.ninja) > p:first-child {
 						margin-top: 0;
+					}
+				}
+
+				a {
+					color: $def-green;
+					font-weight: 500;
+					text-decoration: none;
+
+					&:hover, &:focus {
+						text-decoration: underline;
 					}
 				}
 
@@ -84,16 +94,6 @@
 
 					&:not(:last-child) {
 						margin-bottom: 6px;
-					}
-
-					a {
-						color: $def-green;
-						font-weight: 500;
-						text-decoration: none;
-
-						&:hover, &:focus {
-							text-decoration: underline;
-						}
 					}
 				}
 

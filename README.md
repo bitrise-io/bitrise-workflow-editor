@@ -59,7 +59,7 @@ Also make sure that you change the path in the monolith to point to this version
   - in the monolith open `workflow_controller.rb`
   - change `base_url` in method `get_workflow_editor_html_content` to the current version:
     - if you run the monolith directly (using the umbrella repo) use `localhost:4000/{version}` (e.g `base_url = 'http://localhost:4000/1.3.135`)
-    - if you run the monolith in docker (e.g with the `web-dev-env` repo) use `host.docker.internal:4000/{version}` (e.g `base_url = 'http://host.docker.internal:4000/1.3.135`)
+    - if you run the monolith in docker (e.g with the `web-dev-env` repo) use `host.docker.internal:4000/{version}` (e.g `base_url = 'http://host.docker.internal:4000/1.3.135'`)
 
 
 ### Run client tests

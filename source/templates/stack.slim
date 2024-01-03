@@ -17,6 +17,7 @@
 							.stack-description[sanitized-markdown="appService.stack.description"]
 							a.stack-info-link[ng-if="appService.stack.descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(appService.stack)" ng-href="{{ stackCtrl.descriptionURLForStack(appService.stack) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 							p.stack-info-multistack[ng-if="appService.stack.descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(appService.stack)"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(appService.stack) }}", "{{ appService.stack.descriptionURLGen2AppleSilicon }}"])
+							p.stack-update-policy == data[:strings][:stack][:stack_update_policy]
 					.docker-image-settings[ng-if="stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] !== undefined"]
 						label.docker-image-label == data[:strings][:stack][:docker_image_to_use]
 						input.docker-image[type="text" ng-model="appService.dockerImage" ng-model-options="{getterSetter: true}" placeholder="{{ stackCtrl.defaultDockerImagesByStackIDs[appService.stack.id] }}"]
@@ -56,7 +57,7 @@
 			section.previous-version-settings[ng-if="stackCtrl.showRollbackOption()"]
 				div.input-and-label
 					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
-					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]	
+					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
 					r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
 				r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
 	section.cardo.stack-settings.workflow-specific
@@ -81,6 +82,7 @@
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}", "{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}"])
+							p.stack-update-policy == data[:strings][:stack][:stack_update_policy]
 				.machine-type-settings[ng-if="stackCtrl.canShowWorkflowStackMachines(workflow)"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
