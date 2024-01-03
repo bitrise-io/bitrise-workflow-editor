@@ -41,7 +41,7 @@
 		"@bitrise/react2angular": "^5.0.0",
 		"@bitrise/steplib-search": "^2.3.0",
 		"@chakra-ui/react": "^2.3.5",
-		"@datadog/browser-logs": "^1.7.0",
+		"@datadog/browser-logs": "^5.0.0",
 		"@datadog/browser-rum": "^2.6.1",
 		"@types/segment-analytics": "0.0.34",
 		"abortcontroller-polyfill": "^1.5.0",
