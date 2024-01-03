@@ -80,7 +80,7 @@
 		"@types/resize-observer-browser": "^0.1.7",
 		"@types/showdown": "^1.9.3",
 		"@types/underscore": "^1.9.4",
-		"@typescript-eslint/eslint-plugin": "^5.39.0",
+		"@typescript-eslint/eslint-plugin": "^6.0.0",
 		"@typescript-eslint/parser": "^5.39.0",
 		"@webpack-cli/serve": "^1.7.0",
 		"angular-mocks": "1.7.2",
