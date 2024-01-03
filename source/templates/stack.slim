@@ -82,6 +82,7 @@
 							.stack-description[sanitized-markdown="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 							a.stack-info-link[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon == undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())" ng-href="{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}" target="_blank"] == data[:strings][:stack][:more_info_about]
 							p.stack-info-multistack[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon != undefined && stackCtrl.hasDescriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)())"] == replaced_string(data[:strings][:stack][:more_info_about_applesilicon], ["{{ stackCtrl.descriptionURLForStack(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) }}", "{{ stackCtrl.stackGetterSetterForWorkflow(workflow, true)().descriptionURLGen2AppleSilicon }}"])
+							p.stack-update-policy == data[:strings][:stack][:stack_update_policy]
 				.machine-type-settings[ng-if="stackCtrl.canShowWorkflowStackMachines(workflow)"]
 					h4.machine-type-header Machine type for the {{workflow.id}} workflow
 					div[ng-repeat="machineChip in stackCtrl.getStackMachineTypeChipOrder(stackCtrl.stackGetterSetterForWorkflow(workflow, true)().id)"]
