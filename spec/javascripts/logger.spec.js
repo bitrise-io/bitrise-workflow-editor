@@ -26,7 +26,7 @@ describe("DataDogLoggerService", () => {
 			debug: jasmine.createSpy("debug"),
 			error: jasmine.createSpy("error"),
 			warn: jasmine.createSpy("warn"),
-			addContext: jasmine.createSpy("contextSetter")
+			setContext: jasmine.createSpy("contextSetter")
 		};
 
 		spyOn(mockDatadogLogs, "init");
