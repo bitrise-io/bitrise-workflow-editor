@@ -82,7 +82,7 @@
 		"@types/underscore": "^1.9.4",
 		"@typescript-eslint/eslint-plugin": "^5.39.0",
 		"@typescript-eslint/parser": "^5.39.0",
-		"@webpack-cli/serve": "^1.7.0",
+		"@webpack-cli/serve": "^2.0.0",
 		"angular-mocks": "1.7.2",
 		"compression-webpack-plugin": "^10.0.0",
 		"concurrently": "^5.1.0",
