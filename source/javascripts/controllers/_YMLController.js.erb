@@ -1,5 +1,5 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import { setDiagnosticsOptions } from 'monaco-yaml';
+import { configureMonacoYaml } from 'monaco-yaml';
 
 (function() {
 	"use strict";
@@ -16,8 +16,8 @@ import { setDiagnosticsOptions } from 'monaco-yaml';
 				fileMatch: ['monaco-yaml.yaml'],
 			};
 
-			setDiagnosticsOptions({
-				validate: true,
+			configureMonacoYaml(monaco, {
+  			validate: true,
 				enableSchemaRequest: true,
 				format: true,
 				hover: true,

@@ -18,8 +18,8 @@
 		"allowSyntheticDefaultImports": true,
 		"esModuleInterop": true,
 		"strictNullChecks": true,
-		"suppressImplicitAnyIndexErrors": true,
-		"strict": true
+		"strict": true,
+		"typeRoots": ["./node_modules/@types", "source/javascripts/typings"]
 	},
 	"exclude": ["node_modules", "build", "scripts"],
 	"include": ["source/**/*.ts", "source/**/*.tsx"],

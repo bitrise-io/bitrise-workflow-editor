@@ -26,7 +26,7 @@ describe("DataDogLoggerService", () => {
 			debug: jasmine.createSpy("debug"),
 			error: jasmine.createSpy("error"),
 			warn: jasmine.createSpy("warn"),
-			addContext: jasmine.createSpy("contextSetter")
+			setContext: jasmine.createSpy("contextSetter")
 		};
 
 		spyOn(mockDatadogLogs, "init");
@@ -51,8 +51,7 @@ describe("DataDogLoggerService", () => {
 	it("setTags", () => {
 		logger.setTags(mockContext);
 
-		expect(mockInnerLogger.addContext).toHaveBeenCalledWith("test", "test-val");
-		expect(mockInnerLogger.addContext).toHaveBeenCalledWith("test2", "test2-val");
+		expect(mockInnerLogger.setContext).toHaveBeenCalledWith(mockContext);
 	});
 
 	it("should use datadog debug logging", () => {

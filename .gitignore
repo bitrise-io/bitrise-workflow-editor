@@ -17,3 +17,6 @@ spec/integration/cypress/results
 .docker-sync
 .env
 .vendor
+
+# OS X
+.DS_Store

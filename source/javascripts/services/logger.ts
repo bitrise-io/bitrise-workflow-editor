@@ -43,9 +43,7 @@ class DataDogLoggerService implements Logger {
 	}
 
 	setTags = (ctx: Context): void => {
-		Object.keys(ctx).forEach(key => {
-			this.logger.addContext(key, ctx[key]);
-		});
+		this.logger.setContext(ctx);
 	};
 
 	debug = (message: string, ctx?: Context): void => {
