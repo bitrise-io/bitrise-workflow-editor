@@ -213,7 +213,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					workflowSelectionService.restoreSelection(viewModel);
 					workflowSelectionStore.enable();
 				}).then(() => {
-					var queryParams = new URLSearchParams(window.location.hash.replace('#!/workflows?', ''))
+					var queryParams = new URLSearchParams(window.location.search);
 					if(queryParams.has('add-workflow')) {
 						viewModel.openAddWorkflowPopup();
 					}
