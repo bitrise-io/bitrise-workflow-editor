@@ -162,6 +162,18 @@
 			return this.triggerConfig.tag;
 		};
 
+		Trigger.prototype.toggleDraftPrDisabled = function() {
+			let enabled = this.triggerConfig.draft_pr == undefined || this.triggerConfig.draft_pr == true;
+
+			if(enabled) {
+				this.triggerConfig.draft_pr = false;
+			}else{
+				this.triggerConfig.draft_pr = undefined;
+			}
+
+			return !enabled;
+		};
+
 		return Trigger;
 	});
 
