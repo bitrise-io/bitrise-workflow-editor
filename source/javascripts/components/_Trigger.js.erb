@@ -163,12 +163,12 @@
 		};
 
 		Trigger.prototype.toggleDraftPrDisabled = function() {
-			let enabled = this.triggerConfig.draft_pr == undefined || this.triggerConfig.draft_pr == true;
+			let enabled = this.triggerConfig.draft_pull_request_enabled == undefined || this.triggerConfig.draft_pull_request_enabled == true;
 
 			if(enabled) {
-				this.triggerConfig.draft_pr = false;
+				this.triggerConfig.draft_pull_request_enabled = false;
 			}else{
-				this.triggerConfig.draft_pr = undefined;
+				this.triggerConfig.draft_pull_request_enabled = undefined;
 			}
 
 			return !enabled;
