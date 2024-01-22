@@ -105,6 +105,8 @@
 				}
 
 				.manage-trigger {
+					display: flex;
+					flex-wrap: wrap;
 					width: 100%;
 
 					.trigger-infos {
@@ -112,6 +114,7 @@
 						@include align-items(center);
 						@include border-radius($manage_trigger-border_radius);
 						overflow: hidden;
+						flex: 1;
 
 						.pattern {
 							@include flex-shrink(0);
@@ -156,7 +159,7 @@
 							@include display-inline-flex;
 							@include flex-direction(column);
 							@include padding-x(0);
-
+							width: calc(50% + 144px);
 							line-height: 1.5;
 
 							.source, .target {
@@ -184,13 +187,32 @@
 							border-left: none;
 							@include border-left-radius(0);
 							@include border-right-radius($manage_trigger-border_radius);
+							width: calc(50% - 144px);
 						}
+
+						&.stacked {
+							border-top-right-radius: 0;
+							border-bottom-right-radius: 0;
+
+							select {
+								border-top-right-radius: 0;
+								border-bottom-right-radius: 0;
+							}
+						}
+					}
+
+					.draft-pr {
+						flex: 0;
+						border: $manage_trigger-border;
+						border-left: 0;
 					}
 
 					.actions {
 						@include display-flex;
 						width: 50%;
 						margin-top: $spacing;
+						flex-basis: 100%;
+						margin-right: 50%;
 
 						button {
 							@include flex-grow(1);
@@ -209,6 +231,19 @@
 					overflow: hidden;
 					@include border-radius($def-radius);
 					@include transition(background-color $transition_duration);
+
+					&.stacked {
+						border-top-right-radius: 0;
+						border-bottom-right-radius: 0;
+
+						span.pull-request {
+							width: calc(50% + 144px);
+						}
+
+						span.workflow {
+							width: calc(50% - 144px);
+						}
+					}
 
 					span.trigger-info {
 						@include display-inline-flex;
@@ -333,6 +368,20 @@
 						fill: $def-danger;
 					}
 				}
+
+				.draft-pr {
+					display: flex;
+					align-items: center;
+					gap: 8px;
+					justify-content: center;
+					text-wrap: nowrap;
+					padding: 16px;
+					border: 1px solid $def-green-verylight;
+					border-left: none;
+					@include border-left-radius(0);
+					@include border-right-radius($manage_trigger-border_radius);
+					height: 60px;
+				}
 			}
 
 			@include media-below-mid {
@@ -342,6 +391,7 @@
 				}
 
 				.trigger {
+					flex-wrap: wrap;
 
 					.manage-trigger .trigger-infos, button.select-trigger {
 
@@ -357,10 +407,13 @@
 					}
 
 					.manage-trigger {
+						flex-direction: column;
 
 						.trigger-infos {
 							@include flex-direction(column);
 							@include align-items(stretch);
+							flex-grow: 1;
+							order: 1;
 
 							.pattern {
 								border: $manage_trigger-border;
@@ -374,15 +427,42 @@
 								border-top: none;
 								@include border-top-radius(0);
 								@include border-bottom-radius($manage_trigger-border_radius);
+								width: 100%;
+							}
+
+							&.stacked {
+								@include border-radius($def-radius);
+								border-bottom-left-radius: 0;
+								border-bottom-right-radius: 0;
+
+								select {
+									border-bottom-left-radius: 0;
+									border-bottom-right-radius: 0;
+								}
 							}
 						}
 
+						.trigger-info.pattern.pull-request {
+							width: 100%;
+						}
+
+						.draft-pr {
+							order: 2;
+							border: $manage_trigger-border;
+							border-top: 0;
+						}
+
 						.actions {
+							flex-basis: content;
+							margin: 0;
+							margin-top: 10px;
+							order: 3;
 							width: auto;
 						}
 					}
 
 					button.select-trigger {
+						flex-grow: 1;
 
 						span.trigger-info {
 							@include display-flex;
@@ -392,6 +472,30 @@
 							margin-left: 0;
 							border-left: none;
 						}
+
+						&.stacked {
+							@include border-radius($def-radius);
+							border-bottom-left-radius: 0;
+							border-bottom-right-radius: 0;
+							
+							span.trigger-info {
+								width: 100%;
+							}
+						}
+					}
+
+					.draft-pr {
+						border: 1px solid $def-green-verylight;
+						@include border-radius($manage_trigger-border_radius);
+						border-top-left-radius: 0px;
+						border-top-right-radius: 0px;
+						order: 3;
+						flex-basis: "100%";
+						flex-grow: 1;
+					}
+
+					button.delete {
+						order: 2;
 					}
 				}
 			}
