@@ -59,7 +59,7 @@
 					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
 					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
 					r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
-				r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
+				r-notification-message-with-link.notification-block.rollback-warning[type="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" link-url="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_href] }'" link-text="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_text] }'" ng-if="stackCtrl.isCheckedRollbackVersion()"]
 	section.cardo.stack-settings.workflow-specific
 		header
 			h2 == data[:strings][:stack][:workflow_specific_settings][:header_title]
@@ -121,5 +121,5 @@
 							r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow) ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)" on-change="stackCtrl.onChangeRollbackVersionForWorkflow" list-item-id="workflow.id" is-disabled="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow)"]
 							label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
 							r-info-tooltip[label="'#{ data[:strings][:stack][:rollback_version][:enable_if] }'"]
-						r-notification.notification-block.rollback-warning[status="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" ng-if="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)"]
+						r-notification-message-with-link.notification-block.rollback-warning[type="'warning'" message="'#{ data[:strings][:stack][:rollback_version][:usage_warning] }'" link-url="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_href] }'" link-text="'#{ data[:strings][:stack][:rollback_version][:usage_warning_link_text] }'" ng-if="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)"]
 
