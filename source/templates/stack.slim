@@ -54,7 +54,7 @@
 											span[ng-bind="machineType.cpuDescription"]
 										.ram[ng-bind="machineType.ram"]
 					/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-			section.previous-version-settings[ng-if="stackCtrl.showRollbackOption()"]
+			section.previous-version-settings
 				div.input-and-label
 					r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersion() ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersion()" on-change="stackCtrl.onChangeRollbackVersion" is-disabled="stackCtrl.isDisabledRollbackVersion()"]
 					label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
@@ -116,7 +116,7 @@
 												span[ng-bind="machineType.cpuDescription"]
 											.ram[ng-bind="machineType.ram"]
 							/ a.machine-type-info-link[ng-href="{{ cpuDescriptionURL }}" target="_blank"] == data[:strings][:machine_type][:learn_more_about]
-					.previous-version-settings.workflow-specific[ng-if="stackCtrl.showRollbackOption()"]
+					.previous-version-settings.workflow-specific
 						div.input-and-label
 							r-toggle[tooltip-label="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow) ? '#{ data[:strings][:stack][:rollback_version][:not_available] }' : undefined" is-checked="stackCtrl.isCheckedRollbackVersionForWorkflow(workflow.id)" on-change="stackCtrl.onChangeRollbackVersionForWorkflow" list-item-id="workflow.id" is-disabled="stackCtrl.isDisabledRollbackVersionForWorkflow(workflow)"]
 							label[for="use-previous-version-checkbox"] == data[:strings][:stack][:rollback_version][:use]
