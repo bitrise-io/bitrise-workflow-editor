@@ -4,36 +4,17 @@ header.sticky
 	r-update-yml-in-repository-modal[ng-if="mainCtrl.isUpdateYmlInRepositoryModalVisible" app-slug="appService.appDetails.slug" on-close="mainCtrl.closeUpdateYmlInRepositoryModal" on-complete="mainCtrl.onSaveToRepoComplete" get-data-to-save="mainCtrl.getDataToSave"]
 	div[sticky sticking-index="1"]
 		header.menu
-			.breadcrumb[ng-if="requestService.mode == 'website'"]
 			.progress-indicator[progress-model="mainCtrl.initAppProgress"]
-			.app-topbar[ng-if="appService.appDetails"]
-				span.app-icon[ng-if="appService.appDetails.avatarURL" ng-style="{'background-image': (appService.appDetails.avatarURL | appAvatarURL) }"]
-				span.app-icon[ng-if="!appService.appDetails.avatarURL" ng-style="{'background-color': (appService.appDetails.title | colorFromString)}" ng-bind="appService.appDetails.title | shorthandFromString"]
-				span.project-type-icon[ng-class="(appService.appDetails.projectTypeID || 'other') | projectTypeCSSClass"]
-					span.platform-icon.apple == svg("logo/apple")
-					span.platform-icon.macos == svg("logo/macos")
-					span.platform-icon.android == svg("logo/android")
-					span.platform-icon.xamarin == svg("logo/xamarin")
-					span.platform-icon.cordova == svg("logo/cordova")
-					span.platform-icon.react-native == svg("logo/react")
-					span.platform-icon.flutter == svg("logo/flutter")
-					span.platform-icon.ionic == svg("logo/ionic")
-					span.platform-icon.other == svg("logo/other")
-				span.privacy-settings-icon[ng-if="appService.appDetails.isPublic !== undefined" ng-class="appService.appDetails.isPublic ? 'public' : 'private'"]
-					span.public == svg("public-repo-icon")
-					span.private == svg("private-repo-icon")
-				ol.breadcrumbs
-					li.level
-						a[href="{{ mainCtrl.dashboardPath() }}" title="Dashboard" tabindex="-1"] Dashboard
-					li.level
-						a[ng-if="mainCtrl.breadCrumbsAccountPath()" href="{{ mainCtrl.breadCrumbsAccountPath() }}" ng-bind="mainCtrl.appOwnerNameWithPlaceholder()" title="{{ mainCtrl.appOwnerNameWithPlaceholder() }}" tabindex="-1"]
-						span[ng-if="!mainCtrl.breadCrumbsAccountPath()" ng-bind="mainCtrl.appOwnerNameWithPlaceholder()"]
-					li.level
-						a[ng-if="appService.appDetails && appService.appDetails.slug" ng-bind="mainCtrl.appNameWithPlaceholder()" href="{{ mainCtrl.appPath() }}" title="{{ mainCtrl.appNameWithPlaceholder() }}" tabindex="-1"]
-					li.level[ng-if="mainCtrl.isFirstBuildExperienceEnabled"]
-						a[href="{{ mainCtrl.workflowsAndPipelinesPath() }}" title="Workflows & Pipelines" tabindex="-1"] Workflows & Pipelines
-					li.level.current
-						span Workflow Editor
+			
+			r-breadcrumb[
+				ng-if="appService.appDetails"
+				app-path="mainCtrl.appPath()"
+				app-name="mainCtrl.appNameWithPlaceholder()"
+				workspace-path="mainCtrl.breadCrumbsAccountPath()"
+				workspace-name="mainCtrl.appOwnerNameWithPlaceholder()"
+				workflows-and-pipelines-path="mainCtrl.workflowsAndPipelinesPath()"
+			]
+
 			.workflow-editor-menubar[ng-if="mainCtrl.shouldShowMenuBar()"]
 				nav[id="menu-nav"]
 					button.tab[ng-repeat="menu in mainCtrl.menus" ng-click="mainCtrl.menuSelected(menu)" class="{{ menu.cssClass }}" ng-class="{'current': menu == mainCtrl.currentMenu}" ng-disabled="!mainCtrl.isMenuEnabled(menu)" tabindex="{{ menu == mainCtrl.currentMenu ? '-1' : '0' }}" data-e2e-tag="{{ menu.cssClass }}-tab" id="{{ menu.id }}"]
