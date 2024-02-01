@@ -30,7 +30,7 @@
 							select.trigger-info.workflow[ng-model="triggersCtrl.editedTrigger.target" ng-model-options="{getterSetter: true}" ng-options="target.value as target.label group by target.groupLabel disable when target.disabled for target in triggersCtrl.targets" ng-class="{'stacked': trigger.type() == 'pull-request'}"]
 						.draft-pr[ng-if="trigger.type() == 'pull-request' && trigger == triggersCtrl.selectedTrigger"]
 							checkbox[ng-model="trigger.toggleDraftPrDisabled" ng-model-options="{getterSetter: true}" checkbox-id-expression="'pr-event-draft-pr-toggle-' + $index"]
-							label[for="'pr-event-draft-pr-toggle-' + $index"] Draft Pull Requests enabled
+							label[for="'pr-event-draft-pr-toggle-' + $index"] Trigger builds for draft pull requests
 						.actions
 							button.done.rebo.purple[ng-click="triggersCtrl.triggerEditFinished()" ng-disabled="triggersCtrl.triggerIsInvalid()"] == data[:strings][:triggers][:done]
 							button.cancel.rebo.grey[ng-click="triggersCtrl.triggerEditCancelled()"] == data[:strings][:triggers][:cancel]
@@ -54,6 +54,6 @@
 							strong.value[ng-bind="trigger.targetId()"]
 					.draft-pr[ng-if="trigger.type() == 'pull-request' && trigger != triggersCtrl.selectedTrigger"]
 						checkbox[ng-model="trigger.toggleDraftPrDisabled" ng-model-options="{getterSetter: true}" checkbox-id-expression="'pr-event-draft-pr-toggle-' + $index"]
-						label[for="'pr-event-draft-pr-toggle-' + $index"] Draft Pull Requests enabled
+						label[for="'pr-event-draft-pr-toggle-' + $index"] Trigger builds for draft pull requests
 					button.delete[ng-if="trigger != triggersCtrl.selectedTrigger" ng-click="triggersCtrl.deleteTrigger(trigger)"]  == svg("trash")
 				button.add-trigger.rebo.small.light-purple[ng-click="triggersCtrl.addTriggerSelectedAtIndex($index + 1)" ng-disabled="triggersCtrl.selectedTrigger || !triggersCtrl.targets.length"] == data[:strings][:triggers][:add]
