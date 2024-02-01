@@ -61,6 +61,7 @@ module.exports = {
 
 	devServer: {
 		compress: true,
+		watchFiles: "./source/**/*",
 		port: DEV_SERVER_PORT || 4567,
 		allowedHosts: [
 			"host.docker.internal",
@@ -157,19 +158,19 @@ module.exports = {
 			},
 			{
 				test: /\.(png|jpe?g|gif|svg)$/i,
-				type: 'asset/resource',
+				type: "asset/resource",
 				generator: {
 					outputPath: "images",
-					filename: '[name]-[hash][ext][query]',
+					filename: "[name]-[hash][ext][query]",
 					publicPath: `${publicPath}images/`,
 				}
 			},
 			{
 				test: /\.(eot|woff2?|ttf)$/i,
-				type: 'asset/resource',
+				type: "asset/resource",
 				generator: {
 					outputPath: "fonts",
-					filename: '[name]-[hash][ext][query]',
+					filename: "[name]-[hash][ext][query]",
 					publicPath: `${publicPath}fonts/`,
 				}
 			},
