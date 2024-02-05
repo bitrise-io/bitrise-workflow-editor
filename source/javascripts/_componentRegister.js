@@ -97,6 +97,7 @@ angular
 		"workflowsAndPipelinesPath",
 		"onSaveClick",
 		"isSaveDisabled",
+		"isSaveInProgress",
 		"onDiscardClick",
 		"isDiscardDisabled",
 	]))

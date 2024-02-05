@@ -8,6 +8,7 @@ type Props = {
   workflowsAndPipelinesPath: string;
   onSaveClick: () => void;
   isSaveDisabled: boolean;
+  isSaveInProgress: boolean;
   onDiscardClick: () => void;
   isDiscardDisabled: boolean;
 }
@@ -19,6 +20,7 @@ const Header = ({
   workflowsAndPipelinesPath, 
   onSaveClick, 
   isSaveDisabled,
+  isSaveInProgress,
   onDiscardClick,
   isDiscardDisabled,
 }: Props) => {
@@ -51,6 +53,7 @@ const Header = ({
             variant="primary"
             onClick={onSaveClick}
             isDisabled={isSaveDisabled}
+            isLoading={isSaveInProgress}
           >
             Save changes
           </Button>

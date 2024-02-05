@@ -15,6 +15,7 @@ r-update-yml-in-repository-modal[
         workflows-and-pipelines-path="mainCtrl.workflowsAndPipelinesPath()"
         on-save-click="mainCtrl.save"
         is-save-disabled="!mainCtrl.isSaveEnabled()"
+        is-save-in-progress="mainCtrl.saveProgress.isInProgress"
         on-discard-click="mainCtrl.discardChangesSelected"
         is-discard-disabled="!mainCtrl.menuProgress.isIdle || mainCtrl.loadDataProgress.isInProgress || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"
     ]

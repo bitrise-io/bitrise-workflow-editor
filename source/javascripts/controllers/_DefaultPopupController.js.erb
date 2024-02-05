@@ -1,3 +1,5 @@
+import { safeDigest } from "../services/react-compat";
+
 (function() {
 	"use strict";
 
@@ -121,6 +123,8 @@
 				};
 
 				viewModel.confirmPopup.isVisible = true;
+
+				safeDigest($scope);
 			});
 		});
 })();
