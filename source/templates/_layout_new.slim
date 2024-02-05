@@ -1,0 +1,35 @@
+r-update-yml-in-repository-modal[
+    ng-if="mainCtrl.isUpdateYmlInRepositoryModalVisible"
+    app-slug="appService.appDetails.slug" 
+    on-close="mainCtrl.closeUpdateYmlInRepositoryModal"
+    on-complete="mainCtrl.onSaveToRepoComplete"
+    get-data-to-save="mainCtrl.getDataToSave"
+]
+
+.new-layout
+    r-header.header[
+        ng-if="appService.appDetails"
+        app-path="mainCtrl.appPath()"
+        app-name="mainCtrl.appNameWithPlaceholder()"
+        workspace-path="mainCtrl.breadCrumbsAccountPath()"
+        workflows-and-pipelines-path="mainCtrl.workflowsAndPipelinesPath()"
+        on-save-click="mainCtrl.save"
+        is-save-disabled="!mainCtrl.isSaveEnabled()"
+        on-discard-click="mainCtrl.discardChangesSelected"
+        is-discard-disabled="!mainCtrl.menuProgress.isIdle || mainCtrl.loadDataProgress.isInProgress || mainCtrl.saveProgress.isInProgress || !mainCtrl.hasUnsavedChanges()"
+    ]
+
+    r-navigation.navigation[
+        ng-if="mainCtrl.shouldShowMenuBar() && mainCtrl.isNewLayoutEnabled"
+        items="mainCtrl.menus"
+        active-item="mainCtrl.currentMenu"
+        on-item-selected="mainCtrl.menuSelected"
+    ]
+
+    main.main
+        p.progress-indicator[progress-model="mainCtrl.menuProgress"]
+        p.progress-indicator[progress-model="mainCtrl.loadDataProgress"]
+        p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
+        .tab-content[ng-view ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"]
+
+    r-footer.footer[version="requestService.mode == 'website' ? 'v#{ ENV['wfe_version'] }' : undefined"]
