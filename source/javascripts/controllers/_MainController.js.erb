@@ -741,7 +741,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
 
 								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation('enable-first-build-experience');
-								viewModel.isNewLayoutEnabled = launchDarklyService.variation('enable-wfe-new-layout', true);
+								viewModel.isNewLayoutEnabled = launchDarklyService.variation('enable-wfe-new-layout', true); // TODO: Remove default value before merge!!!
 
 								const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
 

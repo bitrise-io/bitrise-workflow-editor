@@ -26,6 +26,7 @@ export type Action =
 
 export interface ProductTourProps {
 	menuIds: string[];
+	newLayout?: boolean;
 	currentUser: CurrentUser;
 	productTourShown?: boolean;
 }

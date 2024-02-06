@@ -49,7 +49,7 @@ const findItemIcon = (item: Item): TypeIconName | undefined => {
 
 const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
   return (
-    <Sidebar width={256} height="100%" borderRight="1px solid" borderColor="separator.primary">
+    <Sidebar width={256} height="100%" borderRight="1px solid" borderColor="separator.primary" id="menu-nav">
       <SidebarContainer>
         {items.map((item) => {
           const icon = findItemIcon(item)

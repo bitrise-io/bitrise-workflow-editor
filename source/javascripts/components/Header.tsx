@@ -1,5 +1,4 @@
-import { Box, Breadcrumb, BreadcrumbLink, Button, Text } from "@bitrise/bitkit";
-import { ButtonGroup } from "@chakra-ui/react";
+import { Box, Breadcrumb, BreadcrumbLink, Button, ButtonGroup, Text } from "@bitrise/bitkit";
 
 type Props = {
   appName: string;

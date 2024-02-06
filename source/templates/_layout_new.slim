@@ -34,3 +34,5 @@ r-update-yml-in-repository-modal[
         .tab-content[ng-view ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"]
 
     r-footer.footer[version="requestService.mode == 'website' ? 'v#{ ENV['wfe_version'] }' : undefined"]
+
+r-product-tour[menu-ids="mainCtrl.tourIds" current-user="mainCtrl.currentUser" product-tour-shown="mainCtrl.productTourShown" new-layout="true"]

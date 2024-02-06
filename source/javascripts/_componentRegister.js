@@ -87,7 +87,7 @@ angular
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
-	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
+	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "newLayout", "productTourShown"]))
 	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
 	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]))
 	.component("rHeader", register(Header, [
