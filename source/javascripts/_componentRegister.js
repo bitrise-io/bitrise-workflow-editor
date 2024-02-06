@@ -83,7 +83,8 @@ angular
 			"onRunWorkflow",
 			"uniqueStepCount",
 			"uniqueStepLimit",
-			"organizationSlug"
+			"organizationSlug",
+			"hideWorkflowRecepiesLink",
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
@@ -101,5 +102,5 @@ angular
 		"onDiscardClick",
 		"isDiscardDisabled",
 	]))
-	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
+	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected", "isItemEnabled"]))
 	.component("rFooter", register(Footer, ["version"]));

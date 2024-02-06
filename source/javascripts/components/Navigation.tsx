@@ -1,4 +1,4 @@
-import { Fragment } from "react";
+import { ComponentPropsWithoutRef, Fragment, useEffect, useRef } from "react";
 
 import { 
   Sidebar,
@@ -16,12 +16,14 @@ type Item = {
   path: string;
   title: string;
   divided?: true;
+  cssClass: string;
 }
 
 type Props = {
   items: Item[];
   activeItem?: Item;
-  onItemSelected: (item: Item) => void
+  onItemSelected: (item: Item) => void;
+  isItemEnabled: (item: Item) => boolean;
 }
 
 const findItemIcon = (item: Item): TypeIconName | undefined => {
@@ -47,33 +49,66 @@ const findItemIcon = (item: Item): TypeIconName | undefined => {
   }
 }
 
-const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
+// NOTE: This is necessary because we can't set the data-e2e-tag prop of the SidebarItem.
+const NavigationItem = ({ e2e, ...props }: ComponentPropsWithoutRef<typeof SidebarItem> & { e2e: string }) => {
+  const ref = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
+  
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.setAttribute("data-e2e-tag", `${e2e}-tab`);
+    }
+  }, []);
+
+  return <SidebarItem {...props} ref={ref} />
+}
+
+// NOTE: This is necessary because we can't set the id and target props of the SidebarItem.
+const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem>) => {
+  const ref = useRef<HTMLButtonElement & HTMLAnchorElement>(null);
+  
+  useEffect(() => {
+    if (ref.current) {
+      ref.current.setAttribute("id", "workflow-editor-main-toolbar-workflow-recipes-link");
+      ref.current.setAttribute("target", "_blank");
+    }
+  }, []);
+
+  return <SidebarItem {...props} ref={ref} />
+}
+
+const Navigation = ({ items, activeItem, onItemSelected, isItemEnabled }: Props) => {
   return (
     <Sidebar width={256} height="100%" borderRight="1px solid" borderColor="separator.primary" id="menu-nav">
       <SidebarContainer>
         {items.map((item) => {
           const icon = findItemIcon(item)
+          const isDisabled = !isItemEnabled(item);
           const isSelected = activeItem?.id === item.id;
 
           return (
             <Fragment key={item.id}>
               {item.divided && <SidebarDivider />}
-              <SidebarItem selected={isSelected} onClick={() => onItemSelected(item)}>
+              <NavigationItem 
+                e2e={item.cssClass}
+                selected={isSelected}
+                disabled={isDisabled} 
+                onClick={() => onItemSelected(item)}
+              >
                 {icon && <SidebarItemIcon name={icon} />}
                 <SidebarItemLabel>
                   {item.title}
                 </SidebarItemLabel>
-              </SidebarItem>
+              </NavigationItem>
             </Fragment>
           )
         })}
       </SidebarContainer>
       <SidebarFooter>
         <SidebarDivider />
-        <SidebarItem href="https://github.com/bitrise-io/workflow-recipes">
+        <WorkflowRecepiesItem href="https://github.com/bitrise-io/workflow-recipes">
           <SidebarItemIcon name="Doc" />
           <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>
-        </SidebarItem>
+        </WorkflowRecepiesItem>
       </SidebarFooter>
     </Sidebar>
   );

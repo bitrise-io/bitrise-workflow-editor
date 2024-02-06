@@ -12,6 +12,7 @@ import {
 	Tooltip
 } from "@bitrise/bitkit";
 
+import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
 import { useDisclosure } from "@bitrise/bitkit";
 import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
@@ -30,6 +31,7 @@ type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	onDeleteSelectedWorkflow: () => void;
 	onRunWorkflow: (branch: string) => void;
 	organizationSlug?: string;
+	hideWorkflowRecepiesLink?: boolean;
 };
 
 const WorkflowMainToolbar = ({
@@ -49,6 +51,7 @@ const WorkflowMainToolbar = ({
 	uniqueStepCount,
 	uniqueStepLimit,
 	organizationSlug,
+	hideWorkflowRecepiesLink,
 }: WorkflowMainToolbarProps): JSX.Element => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const showStepLimit = typeof uniqueStepLimit === "number";
@@ -106,6 +109,13 @@ const WorkflowMainToolbar = ({
 						{uniqueStepCount}/{uniqueStepLimit} steps used
 					</Text>
 				}
+				{!hideWorkflowRecepiesLink && (
+					<WorkflowRecipesLink
+						marginInlineStart={showStepLimit ? undefined : "auto"}
+						linkId="workflow-editor-main-toolbar-workflow-recipes-link"
+						trackingName="main_toolbar"
+					/>
+				)}
 				{canRunWorkflow && (
 					<Tooltip label={isRunWorkflowDisabled ? "Save this Workflow first" : undefined}>
 						<Button

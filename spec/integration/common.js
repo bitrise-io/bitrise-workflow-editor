@@ -11,7 +11,7 @@ export const click = element => {
 };
 
 export const clickAway = () => {
-	click("div.main-content footer svg");
+	click("div.layout footer svg");
 };
 
 export const clear = element => {

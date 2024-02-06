@@ -23,25 +23,30 @@ const Header = ({
   onDiscardClick,
   isDiscardDisabled,
 }: Props) => {
+  const isBreadcrumbVisible = appName && appPath && workspacePath && workflowsAndPipelinesPath
+
   return (
     <Box as="header" borderBottom="1px solid" borderColor="separator.primary" p={32} pt={24}>
-      <Breadcrumb hasSeparatorAfterLast>
-        <BreadcrumbLink href={workspacePath}>
-          Bitrise CI
-        </BreadcrumbLink>
-        <BreadcrumbLink href={appPath}>
-          {appName}
-        </BreadcrumbLink>
-        <BreadcrumbLink href={workflowsAndPipelinesPath}>
-          Workflows & Pipelines
-        </BreadcrumbLink>
-      </Breadcrumb>
+      {isBreadcrumbVisible && (
+        <Breadcrumb hasSeparatorAfterLast>
+          <BreadcrumbLink href={workspacePath}>
+            Bitrise CI
+          </BreadcrumbLink>
+          <BreadcrumbLink href={appPath}>
+            {appName}
+          </BreadcrumbLink>
+          <BreadcrumbLink href={workflowsAndPipelinesPath}>
+            Workflows & Pipelines
+          </BreadcrumbLink>
+        </Breadcrumb>
+      )}
 
-      <Box display="flex" alignItems="center" justifyContent="space-between" gap={32} mt={24}>
+      <Box display="flex" alignItems="center" justifyContent="space-between" gap={32} mt={isBreadcrumbVisible ? 24 : 0}>
         <Text as="h1" size="6">Workflow Editor</Text>
         <ButtonGroup>
           <Button 
             isDanger
+            className="discard"
             variant="secondary"
             onClick={onDiscardClick}
             isDisabled={isDiscardDisabled}
@@ -49,6 +54,7 @@ const Header = ({
             Discard
           </Button>
           <Button
+            className="save"
             variant="primary"
             onClick={onSaveClick}
             isDisabled={isSaveDisabled}

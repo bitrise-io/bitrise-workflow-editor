@@ -705,13 +705,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.appPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_path]) %>", {
-					app_slug: appService.appDetails.slug
+					app_slug: appService.appDetails?.slug
 				});
 			};
 
 			viewModel.appCodeSigningPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_setting_code_signing]) %>", {
-					app_slug: appService.appDetails.slug
+					app_slug: appService.appDetails?.slug
 				});
 			};
 
@@ -816,16 +816,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			viewModel.appOwnerNameWithPlaceholder = function() {
-				return appService.appDetails.ownerData && appService.appDetails.ownerData.name || 'Unknown owner';
+				return appService.appDetails?.ownerData?.name || 'Unknown owner';
 			}
 
 			viewModel.appNameWithPlaceholder = function() {
-				return appService.appDetails.title || 'Unknown app';
+				return appService.appDetails?.title || 'Unknown app';
 			}
 
 			viewModel.workflowsAndPipelinesPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workflows_and_pipelines]) %>", {
-					app_slug: appService.appDetails.slug
+					app_slug: appService.appDetails?.slug || ''
 				});
 			};
 		});

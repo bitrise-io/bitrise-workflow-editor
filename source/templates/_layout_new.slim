@@ -8,7 +8,6 @@ r-update-yml-in-repository-modal[
 
 .new-layout
     r-header.header[
-        ng-if="appService.appDetails"
         app-path="mainCtrl.appPath()"
         app-name="mainCtrl.appNameWithPlaceholder()"
         workspace-path="mainCtrl.breadCrumbsAccountPath()"
@@ -25,6 +24,7 @@ r-update-yml-in-repository-modal[
         items="mainCtrl.menus"
         active-item="mainCtrl.currentMenu"
         on-item-selected="mainCtrl.menuSelected"
+        is-item-enabled="mainCtrl.isMenuEnabled"
     ]
 
     main.main
