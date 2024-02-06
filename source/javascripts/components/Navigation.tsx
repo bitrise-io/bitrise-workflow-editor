@@ -23,7 +23,6 @@ type Props = {
   items: Item[];
   activeItem?: Item;
   onItemSelected: (item: Item) => void;
-  isItemEnabled: (item: Item) => boolean;
 }
 
 const findItemIcon = (item: Item): TypeIconName | undefined => {
@@ -76,13 +75,12 @@ const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem
   return <SidebarItem {...props} ref={ref} />
 }
 
-const Navigation = ({ items, activeItem, onItemSelected, isItemEnabled }: Props) => {
+const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
   return (
     <Sidebar width={256} height="100%" borderRight="1px solid" borderColor="separator.primary" id="menu-nav">
       <SidebarContainer>
         {items.map((item) => {
           const icon = findItemIcon(item)
-          const isDisabled = !isItemEnabled(item);
           const isSelected = activeItem?.id === item.id;
 
           return (
@@ -91,7 +89,6 @@ const Navigation = ({ items, activeItem, onItemSelected, isItemEnabled }: Props)
               <NavigationItem 
                 e2e={item.cssClass}
                 selected={isSelected}
-                disabled={isDisabled} 
                 onClick={() => onItemSelected(item)}
               >
                 {icon && <SidebarItemIcon name={icon} />}

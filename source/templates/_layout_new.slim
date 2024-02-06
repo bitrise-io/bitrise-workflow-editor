@@ -24,7 +24,6 @@ r-update-yml-in-repository-modal[
         items="mainCtrl.menus"
         active-item="mainCtrl.currentMenu"
         on-item-selected="mainCtrl.menuSelected"
-        is-item-enabled="mainCtrl.isMenuEnabled"
     ]
 
     main.main
@@ -32,7 +31,3 @@ r-update-yml-in-repository-modal[
         p.progress-indicator[progress-model="mainCtrl.loadDataProgress"]
         p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
         .tab-content[ng-view ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"]
-
-    r-footer.footer[version="requestService.mode == 'website' ? 'v#{ ENV['wfe_version'] }' : undefined"]
-
-r-product-tour[menu-ids="mainCtrl.tourIds" current-user="mainCtrl.currentUser" product-tour-shown="mainCtrl.productTourShown" new-layout="true"]

@@ -42,7 +42,7 @@ const Header = ({
       )}
 
       <Box display="flex" alignItems="center" justifyContent="space-between" gap={32} mt={isBreadcrumbVisible ? 24 : 0}>
-        <Text as="h1" size="6">Workflow Editor</Text>
+        <Text id="away" as="h1" size="6">Workflow Editor</Text>
         <ButtonGroup>
           <Button 
             isDanger

@@ -102,5 +102,5 @@ angular
 		"onDiscardClick",
 		"isDiscardDisabled",
 	]))
-	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected", "isItemEnabled"]))
+	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
 	.component("rFooter", register(Footer, ["version"]));

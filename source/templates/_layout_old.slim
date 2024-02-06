@@ -57,7 +57,7 @@ header.sticky
 		p.progress-indicator[progress-model="mainCtrl.loadDataProgress"]
 		p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
 		.tab-content[ng-view ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"]
-	footer
+	footer[id="away"]
 		div.version[ng-if="requestService.mode == 'website'"] v#{ ENV['wfe_version'] }
 		div.content
 			p == data[:strings][:main][:footer][:editor_open_source]
