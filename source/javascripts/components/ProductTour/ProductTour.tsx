@@ -4,18 +4,18 @@ import { HighlighterOverlay } from "./HighlighterOverlay";
 import { HighlighterProductTooltip } from "./HighlighterProductTooltip";
 import { ProductTourProps, Tips } from "./types";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
-import { tips, tipsForNewLayout } from "./tips";
+import { tips } from "./tips";
 import { useWaitForElements } from "./useWaitForElement";
 import { useProductTour } from "./useProductTour";
 import { useHighlightedArea, getClipPathFromRect } from "./useHighlightedArea";
 
-export const ProductTourContent = ({ menuIds, currentUser, newLayout }: ProductTourProps): JSX.Element | null => {
+export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 
 	const onFound = (elements: HTMLElement[]): void => {
 		const foundIds = elements.map(element => element.id);
-		const filtered = (newLayout ? tipsForNewLayout : tips).filter(tip => foundIds.includes(tip.id));
+		const filtered = tips.filter(tip => foundIds.includes(tip.id));
 		setValidTips(filtered);
 	};
 
@@ -95,12 +95,11 @@ export const ProductTourContent = ({ menuIds, currentUser, newLayout }: ProductT
 
 export const ProductTour = ({
 	menuIds,
-	newLayout,
 	currentUser,
 	productTourShown
 }: ProductTourProps): JSX.Element | null => {
 	if (currentUser && productTourShown === false) {
-		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} newLayout={newLayout} />;
+		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} />;
 	}
 
 	return null;
