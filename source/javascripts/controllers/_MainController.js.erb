@@ -1,6 +1,8 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
+const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
+
 (function() {
 	"use strict";
 
@@ -117,7 +119,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.lastWorkflowEditedDate;
 
 			viewModel.isFirstBuildExperienceEnabled = false;
-			viewModel.isNewLayoutEnabled = false;
+			viewModel.isNewLayoutEnabled = isNewLayoutEnabledByEnv;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -741,7 +743,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
 
 								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation('enable-first-build-experience');
-								viewModel.isNewLayoutEnabled = launchDarklyService.variation('enable-wfe-new-layout');
+								viewModel.isNewLayoutEnabled = isNewLayoutEnabledByEnv || launchDarklyService.variation('enable-wfe-new-layout');
 
 								const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
 
