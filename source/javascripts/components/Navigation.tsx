@@ -56,7 +56,7 @@ const NavigationItem = ({ e2e, ...props }: ComponentPropsWithoutRef<typeof Sideb
     if (ref.current) {
       ref.current.setAttribute("data-e2e-tag", `${e2e}-tab`);
     }
-  }, []);
+  }, [ref.current]);
 
   return <SidebarItem {...props} ref={ref} />
 }
@@ -70,7 +70,7 @@ const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem
       ref.current.setAttribute("id", "workflow-editor-main-toolbar-workflow-recipes-link");
       ref.current.setAttribute("target", "_blank");
     }
-  }, []);
+  }, [ref.current]);
 
   return <SidebarItem {...props} ref={ref} />
 }
