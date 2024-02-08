@@ -17,6 +17,8 @@ import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainTo
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { ProductTour } from "./components/ProductTour/ProductTour";
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
+import Header from "./components/Header";
+import Navigation from "./components/Navigation";
 
 function register(component, props, injects) {
 	return react2angular(withBitkitProvider(component), props, injects);
@@ -80,10 +82,23 @@ angular
 			"onRunWorkflow",
 			"uniqueStepCount",
 			"uniqueStepLimit",
-			"organizationSlug"
+			"organizationSlug",
+			"hideWorkflowRecepiesLink",
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
 	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
-	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]));
+	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]))
+	.component("rHeader", register(Header, [
+		"appName",
+		"appPath",
+		"workspacePath",
+		"workflowsAndPipelinesPath",
+		"onSaveClick",
+		"isSaveDisabled",
+		"isSaveInProgress",
+		"onDiscardClick",
+		"isDiscardDisabled",
+	]))
+	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]));

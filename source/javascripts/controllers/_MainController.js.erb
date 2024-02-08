@@ -1,6 +1,8 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
+const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
+
 (function() {
 	"use strict";
 
@@ -97,7 +99,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					title: "<%= data[:strings][:main][:menus][:yml] %>",
 					path: "<%= data[:routes][:endpoints][:yml] %>",
 					possibleURLParameterKeys: [],
-					cssClass: "yml"
+					cssClass: "yml",
+					divided: true,
 				}
 			]);
 			viewModel.menuProgress = new Progress();
@@ -116,6 +119,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.lastWorkflowEditedDate;
 
 			viewModel.isFirstBuildExperienceEnabled = false;
+			viewModel.isNewLayoutEnabled = isNewLayoutEnabledByEnv;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -703,13 +707,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 			viewModel.appPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_path]) %>", {
-					app_slug: appService.appDetails.slug
+					app_slug: appService.appDetails?.slug
 				});
 			};
 
 			viewModel.appCodeSigningPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_setting_code_signing]) %>", {
-					app_slug: appService.appDetails.slug
+					app_slug: appService.appDetails?.slug
 				});
 			};
 
@@ -724,24 +728,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.currentUser = response;
 				})
 
-				if (requestService.mode === 'website') {
-
-					launchDarklyService.initialize().then(() => {
-						const isProductTourEnabled = launchDarklyService.variation('enable-wfe-product-tour');
-						const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
-						const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
-
-						viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation('enable-first-build-experience');
-
-						const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
-
-						Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
-							viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-							viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
-						});
-					});
-				}
-
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
 						case "website":
@@ -751,7 +737,23 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								return reject("No app slug specified.");
 							}
 
-							appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
+							launchDarklyService.initialize().then(() => {
+								const isProductTourEnabled = launchDarklyService.variation('enable-wfe-product-tour');
+								const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
+								const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
+
+								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation('enable-first-build-experience');
+								viewModel.isNewLayoutEnabled = isNewLayoutEnabledByEnv || launchDarklyService.variation('enable-wfe-new-layout');
+
+								const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
+
+								return Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
+									viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+									viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
+								});
+							}).finally(() => {
+								appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
+							})
 
 							break;
 						case "cli":
@@ -816,16 +818,16 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			}
 
 			viewModel.appOwnerNameWithPlaceholder = function() {
-				return appService.appDetails.ownerData && appService.appDetails.ownerData.name || 'Unknown owner';
+				return appService.appDetails?.ownerData?.name || 'Unknown owner';
 			}
 
 			viewModel.appNameWithPlaceholder = function() {
-				return appService.appDetails.title || 'Unknown app';
+				return appService.appDetails?.title || 'Unknown app';
 			}
 
 			viewModel.workflowsAndPipelinesPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workflows_and_pipelines]) %>", {
-					app_slug: appService.appDetails.slug
+					app_slug: appService.appDetails?.slug || ''
 				});
 			};
 		});

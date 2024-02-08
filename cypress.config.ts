@@ -8,6 +8,8 @@ export default defineConfig({
 	video: true,
   videosFolder: "spec/integration/cypress/videos",
   requestTimeout: 12000,
+  viewportWidth: 1440,
+  viewportHeight: 900,
   env: {
     PORT: 4000,
     TAGS: "@run or not @skip",

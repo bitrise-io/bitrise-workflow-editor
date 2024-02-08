@@ -577,3 +577,55 @@ header.sticky header.menu {
 		}
 	}
 }
+
+.new-layout {
+	width: 100vw;
+	height: 100vh;
+	display: grid;
+	overflow: hidden;
+	grid-template-columns: max-content 1fr;
+	grid-template-rows: max-content auto max-content;
+	grid-template-areas:
+		'header header'
+		'sidebar content'
+		'footer footer'
+	;
+
+	.header {
+		grid-area: header;
+	}
+
+	.navigation {
+		grid-area: sidebar;
+	}
+
+	.main {
+		grid-area: content;
+		
+		padding: 32px;
+		overflow-y: auto;
+		overflow-x: hidden;
+		
+		&:has(.tab-workflows) {
+			padding: 0;
+
+			.tab-content,
+			.tab-content > .tab-workflows,
+			.tab-content > .tab-workflows > .content {
+				height: 100%;
+			}
+
+			.tab-content > .tab-workflows > .content > .workflows > .workflows-container {
+				flex: none;
+			}
+		}
+
+		&:has(.tab-code-signing) {
+			padding: 20px 0;
+		}
+	}
+
+	.footer {
+		grid-area: footer;
+	}
+}
