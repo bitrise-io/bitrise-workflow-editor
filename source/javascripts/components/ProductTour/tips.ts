@@ -26,5 +26,3 @@ export const tips: Tips[] = [
 		position: "right",
 	},
 ];
-
-export const tipsForNewLayout: Tips[] = tips.map((tip) => ({ ...tip, position: "right" }))
