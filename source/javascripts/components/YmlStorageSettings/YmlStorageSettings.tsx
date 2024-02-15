@@ -38,8 +38,11 @@ const YmlStorageSettings = ({
 				</Text>
 				<Text size="2" textColor="neutral.40">
 					Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
-					out the <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/">documentation</Link> for
-					the details
+					out the{" "}
+					<Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isUnderlined isExternal>
+						documentation
+					</Link>{" "}
+					for the details.
 				</Text>
 			</Box>
 			<Box paddingX="16" paddingY="24">
