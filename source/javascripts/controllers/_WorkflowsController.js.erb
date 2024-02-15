@@ -931,6 +931,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				updateUniqueCount();
 
 				viewModel.stepSelected(clonedStep);
+
+				safeDigest($scope);
 			};
 
 			viewModel.deleteStepSelected = function() {
@@ -938,6 +940,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.editedWorkflow.steps.splice(index, 1);
 				updateUniqueCount();
 				viewModel.stepSelected(null);
+				safeDigest($scope);
 			};
 
 			viewModel.deleteStepButtonText = function() {
