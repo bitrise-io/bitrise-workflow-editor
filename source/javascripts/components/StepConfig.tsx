@@ -57,7 +57,6 @@ const StepConfig = ({
           </Box>
         </Box>
 
-        {/* TODO: Implement ControlButton in Bitkit */}
         <ButtonGroup>
           <IconButton
             onClick={onClone}
