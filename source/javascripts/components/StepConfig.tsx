@@ -62,18 +62,17 @@ const StepConfig = ({
           <IconButton
             onClick={onClone}
             size="small"
-            color="gray"
-            variant="tertiary"
+            variant="secondary"
             iconName="Duplicate"
             aria-label="Clone this step"
           />
           <IconButton
             onClick={onRemove}
             size="small"
-            color="red"
-            variant="tertiary"
+            variant="secondary"
             iconName="MinusRemove"
             aria-label="Remove this step"
+            isDanger
           />
         </ButtonGroup>
       </Box>
