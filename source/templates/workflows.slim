@@ -51,6 +51,8 @@
 						step="workflowsCtrl.selectedStep"
 						on-clone="workflowsCtrl.cloneStepSelected"
 						on-remove="workflowsCtrl.deleteStepSelected"
+						input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
+						on-click-insert-variable="workflowsCtrl.insertVariableSelected"
 						highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
 					]
 					/ section.workflow

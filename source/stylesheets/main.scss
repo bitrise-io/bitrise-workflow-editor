@@ -226,7 +226,6 @@ input[type="submit"] {
 	@include appearance(none);
 }
 
-select,
 .mak {
 	$select-horizontalpadding: 12px;
 	$arrow_width: 8px;
@@ -248,8 +247,6 @@ select,
 	cursor: pointer;
 }
 
-select:hover,
-select:focus,
 .mak:hover,
 .mak:focus {
 	background-color: $def-verylightgrey;

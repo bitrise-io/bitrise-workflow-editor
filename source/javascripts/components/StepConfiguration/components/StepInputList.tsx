@@ -1,31 +1,22 @@
 import { Divider } from "@bitrise/bitkit";
 import { Fragment } from "react";
 
-import { StepInput } from "../../../models";
-import { createKey, extractInputNameAndDefaultValue } from "../utils";
+import { Variable } from "../../../models";
 import StepInputComponent from "./StepInput";
 
 type Props = {
-	inputs: StepInput[];
+	inputs: Variable[];
+	onClickInsertVariable: (input: Variable) => void;
 };
 
-const StepInputList = ({ inputs }: Props) => {
+const StepInputList = ({ inputs, onClickInsertVariable }: Props) => {
 	return (
 		<>
-			{inputs.map(({ opts, ...rest }, index) => {
-				const { name, defaultValue } = extractInputNameAndDefaultValue(rest);
-
+			{inputs.map((input, index) => {
 				return (
-					<Fragment key={createKey(opts.title)}>
+					<Fragment key={input.title()}>
 						{index > 0 && <Divider my={24} />}
-						<StepInputComponent
-							name={name}
-							label={opts.title}
-							defaultValue={defaultValue}
-							isRequired={opts.is_required}
-							isSensitive={opts.is_sensitive}
-							isReadOnly={opts.is_dont_change_value}
-						/>
+						<StepInputComponent input={input} onClickInsertVariable={onClickInsertVariable} />
 					</Fragment>
 				);
 			})}

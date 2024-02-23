@@ -1,3 +1,4 @@
+export type GetterSetter<T> = (value?: T) => T;
 export interface StepCatalouge {
 	steps: Record<string, Map<string, Record<string, any>>>;
 	latestStepVersions: Record<string, string>;
@@ -24,6 +25,7 @@ export interface StepInput {
 		summary: string;
 		title: string;
 		unset: boolean;
+		value_options?: string[];
 	};
 }
 
@@ -31,6 +33,8 @@ export interface Step {
 	id: string;
 	cvs: string;
 	version: string;
+	runIf: GetterSetter<string>;
+	isAlwaysRun: GetterSetter<boolean>;
 	requestedVersion(): string;
 	displayName(): string;
 	displayTooltip(): string;
@@ -42,17 +46,31 @@ export interface Step {
 	iconURL(): string;
 	summary(): string;
 	defaultStepConfig: {
-		title: string;
-		run_if: string;
-		version: string;
 		inputs: StepInput[];
 		is_always_run: boolean;
+		run_if: string;
+		title: string;
+		version: string;
 	};
 	userStepConfig: {
-		title?: string;
-		run_if?: string;
-		version?: string;
 		inputs?: StepInput[];
 		is_always_run?: boolean;
+		run_if?: string;
+		title?: string;
+		version?: string;
 	};
+}
+
+export interface Variable {
+	title: GetterSetter<string>;
+	value: GetterSetter<string>;
+	isRequired: GetterSetter<boolean>;
+	isSensitive: GetterSetter<boolean>;
+	isDontChangeValue: GetterSetter<boolean>;
+	valueOptions: GetterSetter<string[] | undefined>;
+}
+
+export interface InputCategory {
+	name: string;
+	inputs: Variable[];
 }

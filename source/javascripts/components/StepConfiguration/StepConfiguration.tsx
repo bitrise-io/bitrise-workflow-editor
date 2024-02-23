@@ -1,43 +1,55 @@
 import { Box, Card, Divider, ExpandableCard, Text, Toggle } from "@bitrise/bitkit";
+import { ChangeEventHandler } from "react";
 
-import { Step } from "../../models";
+import { InputCategory, Step, Variable } from "../../models";
 import StepInput from "./components/StepInput";
 import StepInputList from "./components/StepInputList";
-import { createKey, groupInputsIntoCategories, mergeDefaultAndUserStepConfig } from "./utils";
 
 type StepConfigurationProps = {
 	step: Step;
+	inputCategories: InputCategory[];
+	onClickInsertVariable: (input: Variable) => void;
 };
 
-const StepConfiguration = ({ step }: StepConfigurationProps) => {
-	const config = mergeDefaultAndUserStepConfig(step);
-	const groups = Array.from(groupInputsIntoCategories(config.inputs));
+const StepConfiguration = ({ step, inputCategories, onClickInsertVariable }: StepConfigurationProps) => {
+	const onChangeAlwaysRun: ChangeEventHandler<HTMLInputElement> = (e) => {
+		step.isAlwaysRun(e.target.checked);
+	};
+
+	const runIfInput: Variable = {
+		value: (newValue?: string) => (newValue ? step.runIf(newValue) : step.runIf()),
+		title: () => "Additional run conditions",
+		isRequired: () => false,
+		isSensitive: () => false,
+		valueOptions: () => undefined,
+		isDontChangeValue: () => false,
+	};
 
 	return (
 		<Box display="flex" flexDir="column" p="12" gap="12">
 			<ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>} isExpanded>
 				<Box display="flex">
 					<Text flex="1">Run if previous Step(s) failed</Text>
-					<Toggle defaultChecked={config.is_always_run} />
+					<Toggle defaultChecked={step.isAlwaysRun()} onChange={onChangeAlwaysRun} />
 				</Box>
 				<Divider my="24" />
-				<StepInput label="Additional run conditions" name="run_if" defaultValue={config.run_if} />
+				<StepInput input={runIfInput} onClickInsertVariable={onClickInsertVariable} />
 			</ExpandableCard>
 
-			{groups.map(([groupName, inputs], index) => {
-				const key = createKey(config.title, config.version, groupName || "group", index);
+			{inputCategories.map((category, index) => {
+				const key = [step.displayName(), category.name || "group", index].join("");
 
-				if (!groupName) {
+				if (!category.name) {
 					return (
 						<Card key={key} variant="outline" p="16">
-							<StepInputList inputs={inputs} />
+							<StepInputList inputs={category.inputs} onClickInsertVariable={onClickInsertVariable} />
 						</Card>
 					);
 				}
 
 				return (
-					<ExpandableCard key={key} buttonContent={<Text fontWeight="demiBold">{groupName}</Text>}>
-						<StepInputList inputs={inputs} />
+					<ExpandableCard key={key} buttonContent={<Text fontWeight="demiBold">{category.name}</Text>}>
+						<StepInputList inputs={category.inputs} onClickInsertVariable={onClickInsertVariable} />
 					</ExpandableCard>
 				);
 			})}

@@ -1244,6 +1244,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.selectedStep,
 					targetInput
 				);
+
+				safeDigest($scope);
 			};
 
 			viewModel.inputValueBlurred = function(event, input) {

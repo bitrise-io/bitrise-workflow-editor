@@ -1,47 +1,84 @@
 import { Box, ButtonGroup, IconButton, Provider } from "@bitrise/bitkit";
-import { FormControl, Textarea } from "@chakra-ui/react";
-import { ReactNode } from "react";
+import { FormControl, FormHelperText, Select, Textarea } from "@chakra-ui/react";
+import { ChangeEventHandler } from "react";
 
 import useAutosize from "../../../../hooks/utils/useAutosize";
+import { Variable } from "../../../../models";
 import StepInputLabel from "./StepInputLabel";
 
 type Props = {
-	name?: string;
-	label?: ReactNode;
-	isRequired?: boolean;
-	isReadOnly?: boolean;
-	isSensitive?: boolean;
-	defaultValue?: string;
+	input: Variable;
+	onClickInsertVariable: (input: Variable) => void;
 };
 
-const StepInput = ({ name, label, isRequired, isReadOnly, isSensitive, defaultValue }: Props) => {
+const StepInput = ({ input, onClickInsertVariable }: Props) => {
 	const ref = useAutosize<HTMLTextAreaElement>();
 
-	// TODO: display summary if provided, but display the first paragraph of description (markdown)
+	const onChange: ChangeEventHandler<HTMLTextAreaElement | HTMLSelectElement> = (e) => {
+		input.value(e.target.value);
+	};
+
+	const inputProps = {
+		onChange,
+		isReadOnly: input.isSensitive(),
+		isDisabled: input.isDontChangeValue(),
+		defaultValue: input.value() || input.valueOptions()?.[0] || "",
+	};
+
+	const isSelectInput = !!input.valueOptions();
+	const isButtonsVisible = !input.isDontChangeValue();
+	const isClearableInput = input.isSensitive() && !!input.value();
+
 	return (
-		<FormControl isRequired={isRequired} isReadOnly={isReadOnly || isSensitive}>
-			<StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>
+		<FormControl isRequired={input.isRequired()}>
+			<StepInputLabel isSensitive={input.isSensitive()}>{input.title()}</StepInputLabel>
+
 			<Box pos="relative">
 				<Provider>
-					<Textarea
-						ref={ref}
-						rows={1}
-						name={name}
-						resize="none"
-						transition="height none"
-						placeholder="Enter value"
-						defaultValue={defaultValue}
-					/>
+					{isSelectInput && (
+						<Select size="medium" backgroundSize="unset" {...inputProps}>
+							{input.valueOptions()?.map((value) => (
+								<option key={value} value={value}>
+									{value}
+								</option>
+							))}
+						</Select>
+					)}
+
+					{!isSelectInput && (
+						<Textarea
+							ref={ref}
+							rows={1}
+							resize="none"
+							transition="height none"
+							placeholder={input.isSensitive() ? "Add secret" : "Enter value"}
+							{...inputProps}
+						/>
+					)}
 				</Provider>
-				<ButtonGroup position="absolute" top="8" right="8">
-					{isSensitive && defaultValue && (
-						<IconButton aria-label="Clear" iconName="CloseSmall" size="small" variant="tertiary" />
-					)}
-					{!isReadOnly && (
-						<IconButton aria-label="Insert variable" iconName="Dollars" size="small" variant="secondary" />
-					)}
-				</ButtonGroup>
+
+				{isButtonsVisible && (
+					<ButtonGroup position="absolute" top="8" right="8">
+						{isClearableInput && (
+							<IconButton aria-label="Clear" iconName="CloseSmall" size="small" variant="tertiary" />
+						)}
+						<IconButton
+							size="small"
+							iconName="Dollars"
+							variant="secondary"
+							onClick={() => onClickInsertVariable(input)}
+							aria-label={input.isSensitive() ? "Insert secret" : "Insert variable"}
+						/>
+					</ButtonGroup>
+				)}
 			</Box>
+			<FormHelperText as="p">
+				{JSON.stringify({
+					isRequired: input.isRequired(),
+					isSensitive: input.isSensitive(),
+					isDontChangeValue: input.isDontChangeValue(),
+				})}
+			</FormHelperText>
 		</FormControl>
 	);
 };
