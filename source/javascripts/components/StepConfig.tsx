@@ -1,5 +1,6 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text } from "@bitrise/bitkit";
 import { TabPanel, TabPanels } from "@chakra-ui/react";
+import { FocusEvent } from "react";
 
 import { InputCategory, Step, Variable } from "../models";
 import StepConfiguration from "./StepConfiguration";
@@ -9,10 +10,13 @@ import StepProperties from "./StepProperties";
 
 type Props = {
 	step: Step;
+	changes: number;
 	inputCategories: InputCategory[];
 	highlightVersionUpdate?: boolean;
+	onBlur: (e: FocusEvent, input: Variable) => void;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
+	onClickInsertSecret: (input: Variable) => void;
 	onClickInsertVariable: (input: Variable) => void;
 };
 
@@ -20,8 +24,10 @@ const StepConfig = ({
 	step,
 	inputCategories,
 	highlightVersionUpdate,
+	onBlur,
 	onClone,
 	onRemove,
+	onClickInsertSecret,
 	onClickInsertVariable,
 }: Props): JSX.Element => {
 	return (
@@ -74,7 +80,9 @@ const StepConfig = ({
 					<TabPanel id="configuration">
 						<StepConfiguration
 							step={step}
+							onBlur={onBlur}
 							inputCategories={inputCategories}
+							onClickInsertSecret={onClickInsertSecret}
 							onClickInsertVariable={onClickInsertVariable}
 						/>
 					</TabPanel>

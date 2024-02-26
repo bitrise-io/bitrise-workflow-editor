@@ -1,6 +1,6 @@
 import { Box, ButtonGroup, IconButton, Provider } from "@bitrise/bitkit";
 import { FormControl, FormHelperText, Select, Textarea } from "@chakra-ui/react";
-import { ChangeEventHandler } from "react";
+import { ChangeEventHandler, FocusEvent } from "react";
 
 import useAutosize from "../../../../hooks/utils/useAutosize";
 import { Variable } from "../../../../models";
@@ -8,21 +8,16 @@ import StepInputLabel from "./StepInputLabel";
 
 type Props = {
 	input: Variable;
+	onBlur: (e: FocusEvent, input: Variable) => void;
+	onClickInsertSecret: (input: Variable) => void;
 	onClickInsertVariable: (input: Variable) => void;
 };
 
-const StepInput = ({ input, onClickInsertVariable }: Props) => {
+const StepInput = ({ input, onBlur, onClickInsertSecret, onClickInsertVariable }: Props) => {
 	const ref = useAutosize<HTMLTextAreaElement>();
 
 	const onChange: ChangeEventHandler<HTMLTextAreaElement | HTMLSelectElement> = (e) => {
 		input.value(e.target.value);
-	};
-
-	const inputProps = {
-		onChange,
-		isReadOnly: input.isSensitive(),
-		isDisabled: input.isDontChangeValue(),
-		defaultValue: input.value() || input.valueOptions()?.[0] || "",
 	};
 
 	const isSelectInput = !!input.valueOptions();
@@ -36,7 +31,13 @@ const StepInput = ({ input, onClickInsertVariable }: Props) => {
 			<Box pos="relative">
 				<Provider>
 					{isSelectInput && (
-						<Select size="medium" backgroundSize="unset" {...inputProps}>
+						<Select
+							size="medium"
+							onChange={onChange}
+							backgroundSize="unset"
+							isReadOnly={input.isSensitive()}
+							isDisabled={input.isDontChangeValue()}
+						>
 							{input.valueOptions()?.map((value) => (
 								<option key={value} value={value}>
 									{value}
@@ -50,9 +51,13 @@ const StepInput = ({ input, onClickInsertVariable }: Props) => {
 							ref={ref}
 							rows={1}
 							resize="none"
+							onChange={onChange}
 							transition="height none"
+							value={input.value() || ""}
+							onBlur={(e) => onBlur(e, input)}
+							isReadOnly={input.isSensitive()}
+							isDisabled={input.isDontChangeValue()}
 							placeholder={input.isSensitive() ? "Add secret" : "Enter value"}
-							{...inputProps}
 						/>
 					)}
 				</Provider>
@@ -60,15 +65,34 @@ const StepInput = ({ input, onClickInsertVariable }: Props) => {
 				{isButtonsVisible && (
 					<ButtonGroup position="absolute" top="8" right="8">
 						{isClearableInput && (
-							<IconButton aria-label="Clear" iconName="CloseSmall" size="small" variant="tertiary" />
+							<IconButton
+								size="small"
+								variant="tertiary"
+								aria-label="Clear"
+								iconName="CloseSmall"
+								onClick={() => input.value("")}
+							/>
 						)}
-						<IconButton
-							size="small"
-							iconName="Dollars"
-							variant="secondary"
-							onClick={() => onClickInsertVariable(input)}
-							aria-label={input.isSensitive() ? "Insert secret" : "Insert variable"}
-						/>
+
+						{input.isSensitive() && (
+							<IconButton
+								size="small"
+								iconName="Dollars"
+								variant="secondary"
+								aria-label="Insert secret"
+								onClick={() => onClickInsertSecret(input)}
+							/>
+						)}
+
+						{!input.isSensitive() && (
+							<IconButton
+								size="small"
+								iconName="Dollars"
+								variant="secondary"
+								aria-label="Insert variable"
+								onClick={() => onClickInsertVariable(input)}
+							/>
+						)}
 					</ButtonGroup>
 				)}
 			</Box>
@@ -84,3 +108,6 @@ const StepInput = ({ input, onClickInsertVariable }: Props) => {
 };
 
 export default StepInput;
+// export default memo(StepInput, (prevProps, nextProps) => {
+// 	return prevProps.input.value() === nextProps.input.value();
+// });

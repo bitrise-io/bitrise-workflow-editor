@@ -35,6 +35,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 		) {
 			var viewModel = this;
 
+			viewModel.changes = 0;
 			viewModel.workflowsHeight = 0;
 			viewModel.shouldShowWorkflowsContent = false;
 
@@ -106,6 +107,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							oldValue.slice(viewModel.insertVariableToStepInputConfig.insertEndPosition)
 					);
 					viewModel.insertVariableToStepInputConfig.insertEndPosition = viewModel.insertVariableToStepInputConfig.insertStartPosition + insertedValue.length;
+
+					safeDigest($scope);
 				};
 
 				viewModel.insertVariableToStepInputConfig.popup.isVisible = true;
@@ -262,6 +265,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					updateCanRunWorkflow(viewModel.buildTriggerToken, featureFlag, viewModel.selectedWorkflow);
 				}
 			);
+
+			$scope.$watch(() => {
+				return viewModel.selectedStep;
+			}, () => {
+				viewModel.changes++;
+			}, true);
 
 			function updateCanRunWorkflow(buildTriggerToken, featureFlag, workflow) {
 				viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && Boolean(featureFlag) && isUtilityWorkflow(workflow);
@@ -1261,6 +1270,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.selectedStep,
 					targetInput
 				);
+
+				safeDigest($scope);
 			};
 
 			viewModel.clearSensitiveInputValue = function(targetInput) {

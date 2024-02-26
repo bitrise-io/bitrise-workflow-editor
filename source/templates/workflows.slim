@@ -48,12 +48,15 @@
 				.step-edit-container
 					r-step-config[
 						ng-if="workflowsCtrl.selectedStep"
+						changes="workflowsCtrl.changes"
 						step="workflowsCtrl.selectedStep"
+						input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
+						highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
+						on-blur="workflowsCtrl.inputValueBlurred"
 						on-clone="workflowsCtrl.cloneStepSelected"
 						on-remove="workflowsCtrl.deleteStepSelected"
-						input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
+						on-click-insert-secret="workflowsCtrl.insertSecretSelected"
 						on-click-insert-variable="workflowsCtrl.insertVariableSelected"
-						highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
 					]
 					/ section.workflow
 					/ 	header.workflow-header

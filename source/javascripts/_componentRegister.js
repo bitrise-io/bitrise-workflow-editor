@@ -103,4 +103,14 @@ angular
 		"isDiscardDisabled",
 	]))
 	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
-	.component("rStepConfig", register(StepConfig, ["step", "highlightVersionUpdate", "inputCategories", "onClone", "onRemove", "onClickInsertVariable"]));
+	.component("rStepConfig", register(StepConfig, [
+		"step",
+		"changes",
+		"inputCategories",
+		"highlightVersionUpdate",
+		"onBlur",
+		"onClone",
+		"onRemove",
+		"onClickInsertSecret",
+		"onClickInsertVariable",
+	]));
