@@ -35,7 +35,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 		) {
 			var viewModel = this;
 
-			viewModel.changes = 0;
 			viewModel.workflowsHeight = 0;
 			viewModel.shouldShowWorkflowsContent = false;
 
@@ -265,12 +264,6 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					updateCanRunWorkflow(viewModel.buildTriggerToken, featureFlag, viewModel.selectedWorkflow);
 				}
 			);
-
-			$scope.$watch(() => {
-				return viewModel.selectedStep;
-			}, () => {
-				viewModel.changes++;
-			}, true);
 
 			function updateCanRunWorkflow(buildTriggerToken, featureFlag, workflow) {
 				viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && Boolean(featureFlag) && isUtilityWorkflow(workflow);
@@ -1344,5 +1337,33 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 			viewModel.hasOutputDescriptionOrSummary = function(output) {
 				return output && (output.description().length > 0 || output.summary().length > 0);
 			};
+
+			viewModel.handleSelectedStepChanges = function(data) {
+				if (!viewModel.selectedStep) {
+					return;
+				}
+
+				Object.entries(data).forEach(([key, value]) => {
+					if (key === "run_if") {
+						viewModel.selectedStep.runIf(String(value));
+						return;
+					}
+		
+					if (key === "is_always_run") {
+						viewModel.selectedStep.isAlwaysRun(Boolean(value));
+						return;
+					}
+					
+					viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
+						category.inputs.forEach((variable) => {
+							if (variable.key() === key) {
+								variable.value(String(value));
+							}
+						});
+					});
+				});
+
+				safeDigest($scope);
+			}
 		});
 })();

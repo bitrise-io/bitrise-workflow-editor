@@ -1,10 +1,9 @@
-import { safeDigest } from "../services/react-compat";
 import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").factory("Step", function($rootScope, $injector, Variable) {
+	angular.module("BitriseWorkflowEditor").factory("Step", function( $injector, Variable) {
 		var MAINTAINER = {
 			VERIFIED: "verified",
 			OFFICIAL: "bitrise",
@@ -230,8 +229,6 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			} else if (step.userStepConfig[parameterKey] !== undefined) {
 				delete step.userStepConfig[parameterKey];
 			}
-
-			safeDigest($rootScope);
 
 			return parameterValue;
 		}

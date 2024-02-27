@@ -1,9 +1,7 @@
-import { safeDigest } from "../services/react-compat";
-
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").factory("Variable", function($rootScope, Meta) {
+	angular.module("BitriseWorkflowEditor").factory("Variable", function(Meta) {
 		var Variable = function(
 			userVariableConfig,
 			defaultVariableConfig,
@@ -138,9 +136,13 @@ import { safeDigest } from "../services/react-compat";
 					: this.defaultVariableConfig[key];
 			}
 
-			this.userVariableConfig[key] = newValue;
-			
-			safeDigest($rootScope);
+			if (newValue) {
+				this.userVariableConfig[key] = newValue;
+			} else if (this.defaultVariableConfig[key]) {
+				this.userVariableConfig[key] = '';
+			} else {
+				this.userVariableConfig[key] = undefined;
+			}
 
 			return newValue;
 		};

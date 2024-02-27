@@ -62,6 +62,7 @@ export interface Step {
 }
 
 export interface Variable {
+	key: GetterSetter<string>;
 	title: GetterSetter<string>;
 	value: GetterSetter<string>;
 	isRequired: GetterSetter<boolean>;

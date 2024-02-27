@@ -1,8 +1,7 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text } from "@bitrise/bitkit";
 import { TabPanel, TabPanels } from "@chakra-ui/react";
-import { FocusEvent } from "react";
 
-import { InputCategory, Step, Variable } from "../models";
+import { InputCategory, Step } from "../models";
 import StepConfiguration from "./StepConfiguration";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepOutputVariables from "./StepOutputVariables";
@@ -13,22 +12,18 @@ type Props = {
 	changes: number;
 	inputCategories: InputCategory[];
 	highlightVersionUpdate?: boolean;
-	onBlur: (e: FocusEvent, input: Variable) => void;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
-	onClickInsertSecret: (input: Variable) => void;
-	onClickInsertVariable: (input: Variable) => void;
+	onChange: (data: Record<string, unknown>) => void;
 };
 
 const StepConfig = ({
 	step,
 	inputCategories,
 	highlightVersionUpdate,
-	onBlur,
 	onClone,
 	onRemove,
-	onClickInsertSecret,
-	onClickInsertVariable,
+	onChange,
 }: Props): JSX.Element => {
 	return (
 		<Box display="flex" flexDirection="column" gap="8">
@@ -78,13 +73,7 @@ const StepConfig = ({
 				</TabList>
 				<TabPanels>
 					<TabPanel id="configuration">
-						<StepConfiguration
-							step={step}
-							onBlur={onBlur}
-							inputCategories={inputCategories}
-							onClickInsertSecret={onClickInsertSecret}
-							onClickInsertVariable={onClickInsertVariable}
-						/>
+						<StepConfiguration step={step} inputCategories={inputCategories} onChange={onChange} />
 					</TabPanel>
 					<TabPanel id="properties">
 						<StepProperties step={step} />

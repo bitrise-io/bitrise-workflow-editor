@@ -1,113 +1,94 @@
-import { Box, ButtonGroup, IconButton, Provider } from "@bitrise/bitkit";
-import { FormControl, FormHelperText, Select, Textarea } from "@chakra-ui/react";
-import { ChangeEventHandler, FocusEvent } from "react";
+import { Box, ButtonGroup, IconButton } from "@bitrise/bitkit";
+import { FormControl, FormHelperText, forwardRef, Select, Textarea, useMergeRefs } from "@chakra-ui/react";
+import omit from "lodash/omit";
+import { ComponentProps, ReactNode } from "react";
+import { useFormContext } from "react-hook-form";
 
 import useAutosize from "../../../../hooks/utils/useAutosize";
-import { Variable } from "../../../../models";
 import StepInputLabel from "./StepInputLabel";
 
-type Props = {
-	input: Variable;
-	onBlur: (e: FocusEvent, input: Variable) => void;
-	onClickInsertSecret: (input: Variable) => void;
-	onClickInsertVariable: (input: Variable) => void;
+type CommonProps = {
+	label?: ReactNode;
+	isSensitive?: boolean;
 };
 
-const StepInput = ({ input, onBlur, onClickInsertSecret, onClickInsertVariable }: Props) => {
-	const ref = useAutosize<HTMLTextAreaElement>();
-
-	const onChange: ChangeEventHandler<HTMLTextAreaElement | HTMLSelectElement> = (e) => {
-		input.value(e.target.value);
+type SelectProps = ComponentProps<typeof Select> &
+	CommonProps & {
+		options: string[];
 	};
 
-	const isSelectInput = !!input.valueOptions();
-	const isButtonsVisible = !input.isDontChangeValue();
-	const isClearableInput = input.isSensitive() && !!input.value();
+type TextareaProps = ComponentProps<typeof Textarea> & CommonProps;
+
+type Props = SelectProps | TextareaProps;
+
+function isSelectInput(props: Props): props is SelectProps {
+	return !!(props as unknown as SelectProps).options;
+}
+
+function isTextareaInput(props: Props): props is TextareaProps {
+	return !(props as unknown as SelectProps).options;
+}
+
+const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) => {
+	const { label, isRequired, isSensitive, ...rest } = props;
+
+	const { watch } = useFormContext();
+	const textareaRef = useMergeRefs(useAutosize<HTMLTextAreaElement>(), ref);
+
+	const isClearableInput = isSensitive && !!watch(rest.name || "");
 
 	return (
-		<FormControl isRequired={input.isRequired()}>
-			<StepInputLabel isSensitive={input.isSensitive()}>{input.title()}</StepInputLabel>
+		<FormControl isRequired={isRequired}>
+			<StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>
 
 			<Box pos="relative">
-				<Provider>
-					{isSelectInput && (
-						<Select
-							size="medium"
-							onChange={onChange}
-							backgroundSize="unset"
-							isReadOnly={input.isSensitive()}
-							isDisabled={input.isDontChangeValue()}
-						>
-							{input.valueOptions()?.map((value) => (
-								<option key={value} value={value}>
-									{value}
-								</option>
-							))}
-						</Select>
-					)}
+				{isSelectInput(rest) && (
+					<Select ref={ref} {...omit(rest, "options")} size="medium" backgroundSize="unset">
+						{rest.options.map((value) => (
+							<option key={value} value={value}>
+								{value}
+							</option>
+						))}
+					</Select>
+				)}
 
-					{!isSelectInput && (
-						<Textarea
-							ref={ref}
-							rows={1}
-							resize="none"
-							onChange={onChange}
-							transition="height none"
-							value={input.value() || ""}
-							onBlur={(e) => onBlur(e, input)}
-							isReadOnly={input.isSensitive()}
-							isDisabled={input.isDontChangeValue()}
-							placeholder={input.isSensitive() ? "Add secret" : "Enter value"}
-						/>
-					)}
-				</Provider>
+				{isTextareaInput(rest) && (
+					<Textarea
+						ref={textareaRef}
+						{...rest}
+						rows={1}
+						resize="none"
+						transition="height none"
+						isReadOnly={isSensitive}
+						placeholder={isSensitive ? "Add secret" : "Enter value"}
+					/>
+				)}
 
-				{isButtonsVisible && (
+				{!rest.isReadOnly && (
 					<ButtonGroup position="absolute" top="8" right="8">
 						{isClearableInput && (
-							<IconButton
-								size="small"
-								variant="tertiary"
-								aria-label="Clear"
-								iconName="CloseSmall"
-								onClick={() => input.value("")}
-							/>
+							<IconButton size="small" variant="tertiary" aria-label="Clear" iconName="CloseSmall" />
 						)}
 
-						{input.isSensitive() && (
-							<IconButton
-								size="small"
-								iconName="Dollars"
-								variant="secondary"
-								aria-label="Insert secret"
-								onClick={() => onClickInsertSecret(input)}
-							/>
+						{isSensitive && (
+							<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert secret" />
 						)}
 
-						{!input.isSensitive() && (
-							<IconButton
-								size="small"
-								iconName="Dollars"
-								variant="secondary"
-								aria-label="Insert variable"
-								onClick={() => onClickInsertVariable(input)}
-							/>
+						{!isSensitive && (
+							<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert variable" />
 						)}
 					</ButtonGroup>
 				)}
 			</Box>
 			<FormHelperText as="p">
 				{JSON.stringify({
-					isRequired: input.isRequired(),
-					isSensitive: input.isSensitive(),
-					isDontChangeValue: input.isDontChangeValue(),
+					isRequired,
+					isSensitive,
+					isReadOnly: rest.isReadOnly,
 				})}
 			</FormHelperText>
 		</FormControl>
 	);
-};
+});
 
 export default StepInput;
-// export default memo(StepInput, (prevProps, nextProps) => {
-// 	return prevProps.input.value() === nextProps.input.value();
-// });

@@ -1,28 +1,31 @@
 import { Divider } from "@bitrise/bitkit";
-import { FocusEvent, Fragment } from "react";
+import { Fragment } from "react";
+import { useFormContext } from "react-hook-form";
 
 import { Variable } from "../../../models";
 import StepInputComponent from "./StepInput";
 
 type Props = {
 	inputs: Variable[];
-	onBlur: (e: FocusEvent, input: Variable) => void;
-	onClickInsertSecret: (input: Variable) => void;
-	onClickInsertVariable: (input: Variable) => void;
 };
 
-const StepInputList = ({ inputs, onBlur, onClickInsertSecret, onClickInsertVariable }: Props) => {
+const StepInputList = ({ inputs }: Props) => {
+	const { register } = useFormContext();
+
 	return (
 		<>
 			{inputs.map((input, index) => {
 				return (
-					<Fragment key={input.title()}>
+					<Fragment key={input.key()}>
 						{index > 0 && <Divider my={24} />}
 						<StepInputComponent
-							input={input}
-							onBlur={onBlur}
-							onClickInsertSecret={onClickInsertSecret}
-							onClickInsertVariable={onClickInsertVariable}
+							{...register(input.key())}
+							label={input.title()}
+							defaultValue={input.value()}
+							options={input.valueOptions()}
+							isRequired={input.isRequired()}
+							isSensitive={input.isSensitive()}
+							isReadOnly={input.isDontChangeValue()}
 						/>
 					</Fragment>
 				);

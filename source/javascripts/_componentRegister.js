@@ -105,12 +105,9 @@ angular
 	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
 	.component("rStepConfig", register(StepConfig, [
 		"step",
-		"changes",
 		"inputCategories",
 		"highlightVersionUpdate",
-		"onBlur",
 		"onClone",
 		"onRemove",
-		"onClickInsertSecret",
-		"onClickInsertVariable",
+		"onChange",
 	]));
