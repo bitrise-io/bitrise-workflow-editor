@@ -9,12 +9,10 @@ import {
 	MenuList,
 	Notification,
 	Text,
-	Tooltip
+	Tooltip,
+	useDisclosure,
 } from "@bitrise/bitkit";
-
-import WorkflowRecipesLink from "../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink";
 import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
-import { useDisclosure } from "@bitrise/bitkit";
 import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 
@@ -31,7 +29,6 @@ type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	onDeleteSelectedWorkflow: () => void;
 	onRunWorkflow: (branch: string) => void;
 	organizationSlug?: string;
-	hideWorkflowRecepiesLink?: boolean;
 };
 
 const WorkflowMainToolbar = ({
@@ -51,17 +48,17 @@ const WorkflowMainToolbar = ({
 	uniqueStepCount,
 	uniqueStepLimit,
 	organizationSlug,
-	hideWorkflowRecepiesLink,
 }: WorkflowMainToolbarProps): JSX.Element => {
 	const { isOpen, onOpen, onClose } = useDisclosure();
 	const showStepLimit = typeof uniqueStepLimit === "number";
 	const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
-	const upgradeLink = organizationSlug ?
-		`/organization/${organizationSlug}/credit_subscription/plan_selector_page` : undefined;
+	const upgradeLink = organizationSlug
+		? `/organization/${organizationSlug}/credit_subscription/plan_selector_page`
+		: undefined;
 
 	const trackDialogOpen = useTrackingFunction(() => ({
 		event: "WFE - Run Workflow Dialog Opened",
-		payload: {}
+		payload: {},
 	}));
 
 	const handleOpenRunWorkflowDialog = () => {
@@ -70,9 +67,9 @@ const WorkflowMainToolbar = ({
 	};
 
 	return (
-		<Box display='flex' flexDirection="column" gap="20">
-			<Box display='flex' alignItems="center" justifyContent="space-between">
-				<Box display="flex" alignItems="center" gap="8" id='workflow-main-toolbar'>
+		<Box display="flex" flexDirection="column" gap="20">
+			<Box display="flex" alignItems="center" justifyContent="space-between">
+				<Box display="flex" alignItems="center" gap="8" id="workflow-main-toolbar">
 					{selectedWorkflow && (
 						<WorkflowSelector
 							selectedWorkflow={selectedWorkflow}
@@ -81,7 +78,12 @@ const WorkflowMainToolbar = ({
 							renameWorkflowConfirmed={renameWorkflowConfirmed}
 						/>
 					)}
-					<IconButton iconName="PlusOpen" variant="secondary" onClick={onAddNewWorkflow} aria-label="Add new Workflow" />
+					<IconButton
+						iconName="PlusOpen"
+						variant="secondary"
+						onClick={onAddNewWorkflow}
+						aria-label="Add new Workflow"
+					/>
 					<Menu placement="bottom-end">
 						<MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
 						<MenuList>
@@ -95,7 +97,7 @@ const WorkflowMainToolbar = ({
 								iconName="Request"
 								isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
 								onClick={onRearrangeWorkflow}
-								>
+							>
 								Change Workflow execution order
 							</MenuItem>
 							<MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
@@ -104,17 +106,10 @@ const WorkflowMainToolbar = ({
 						</MenuList>
 					</Menu>
 				</Box>
-				{showStepLimit &&
+				{showStepLimit && (
 					<Text color="neutral.40" marginInlineStart="auto" marginInlineEnd="8">
 						{uniqueStepCount}/{uniqueStepLimit} steps used
 					</Text>
-				}
-				{!hideWorkflowRecepiesLink && (
-					<WorkflowRecipesLink
-						marginInlineStart={showStepLimit ? undefined : "auto"}
-						linkId="workflow-editor-main-toolbar-workflow-recipes-link"
-						trackingName="main_toolbar"
-					/>
 				)}
 				{canRunWorkflow && (
 					<Tooltip label={isRunWorkflowDisabled ? "Save this Workflow first" : undefined}>
@@ -124,7 +119,7 @@ const WorkflowMainToolbar = ({
 							rightIconName="OpenInBrowser"
 							isDisabled={isRunWorkflowDisabled}
 							onClick={handleOpenRunWorkflowDialog}
-							>
+						>
 							Run Workflow
 						</Button>
 					</Tooltip>
@@ -134,16 +129,24 @@ const WorkflowMainToolbar = ({
 					isOpen={isOpen}
 					onClose={onClose}
 					defaultBranch={defaultBranch}
-					onAction={branch => onRunWorkflow(branch)}
+					onAction={(branch) => onRunWorkflow(branch)}
 				/>
 			</Box>
-			{stepLimitReached && <Notification status="warning">
-				<Text size="3" fontWeight="bold">You cannot add a new Step now.</Text>
-				Your team has already reached the limit for this app ({uniqueStepLimit} unique Steps per app) included{" "}
-				in your current plan. To add more Steps, <Link isUnderlined href={upgradeLink}>upgrade your plan first</Link>.
-			</Notification>}
+			{stepLimitReached && (
+				<Notification status="warning">
+					<Text size="3" fontWeight="bold">
+						You cannot add a new Step now.
+					</Text>
+					Your team has already reached the limit for this app ({uniqueStepLimit} unique Steps per app) included in your
+					current plan. To add more Steps,{" "}
+					<Link isUnderlined href={upgradeLink}>
+						upgrade your plan first
+					</Link>
+					.
+				</Notification>
+			)}
 		</Box>
-		);
+	);
 };
 
 export default WorkflowMainToolbar;
