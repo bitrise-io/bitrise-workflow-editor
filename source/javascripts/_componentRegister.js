@@ -19,6 +19,7 @@ import { ProductTour } from "./components/ProductTour/ProductTour";
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
+import StepConfig from "./components/StepConfig";
 
 function register(component, props, injects) {
 	return react2angular(withBitkitProvider(component), props, injects);
@@ -101,4 +102,5 @@ angular
 		"onDiscardClick",
 		"isDiscardDisabled",
 	]))
-	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]));
+	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
+	.component("rStepConfig", register(StepConfig, ["step", "highlightVersionUpdate", "onClone", "onRemove"]));

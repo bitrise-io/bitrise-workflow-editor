@@ -24,4 +24,7 @@ export interface Step {
 	isLibraryStep(): boolean;
 	iconURL(): string;
 	summary(): string;
+	defaultStepConfig: {
+		version: string;
+	}
 }
