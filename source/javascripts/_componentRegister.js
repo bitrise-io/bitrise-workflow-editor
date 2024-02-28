@@ -1,5 +1,5 @@
 import { react2angular } from "@bitrise/react2angular";
-import { Icon, Checkbox } from "@bitrise/bitkit";
+import { Checkbox, Icon } from "@bitrise/bitkit";
 
 import Notification from "./components/Notification";
 import InfoTooltip from "./components/InfoTooltip";
@@ -28,13 +28,16 @@ function register(component, props, injects) {
 angular
 	.module("BitriseWorkflowEditor")
 	.component("rNotification", register(Notification, ["message", "title", "status"]))
-	.component("rNotificationMessageWithLink", register(NotificationMessageWithLink, ["message", "type", "linkUrl", "linkText"]))
+	.component(
+		"rNotificationMessageWithLink",
+		register(NotificationMessageWithLink, ["message", "type", "linkUrl", "linkText"]),
+	)
 	.component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
 	.component("rBitkitRoot", react2angular(BitkitRoot))
 	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
 		"rStepItem",
-		register(StepItem, ["step", "version", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"])
+		register(StepItem, ["step", "version", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"]),
 	)
 	.component(
 		"rStepVersionDetails",
@@ -46,22 +49,27 @@ angular
 			"versions",
 			"selectedVersion",
 			"versionSelectorOpts",
-			"strings"
-		])
+			"strings",
+		]),
 	)
 	.component("rAddStepItem", register(AddStepItem, ["step", "disabled", "onSelected"]))
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
 	.component(
 		"rYmlStorageSettings",
-		register(YmlStorageSettings, ["appSlug", "usesRepositoryYml", "onUsesRepositoryYmlChangeSaved", "repositoryYmlAvailable"])
+		register(YmlStorageSettings, [
+			"appSlug",
+			"usesRepositoryYml",
+			"onUsesRepositoryYmlChangeSaved",
+			"repositoryYmlAvailable",
+		]),
 	)
 	.component(
 		"rUpdateYmlInRepositoryModal",
-		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "getDataToSave"])
+		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "getDataToSave"]),
 	)
 	.component(
 		"rWorkflowSelector",
-		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
+		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"]),
 	)
 	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
 	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
@@ -85,22 +93,28 @@ angular
 			"uniqueStepLimit",
 			"organizationSlug",
 			"hideWorkflowRecepiesLink",
-		])
+		]),
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
 	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
 	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]))
-	.component("rHeader", register(Header, [
-		"appName",
-		"appPath",
-		"workspacePath",
-		"workflowsAndPipelinesPath",
-		"onSaveClick",
-		"isSaveDisabled",
-		"isSaveInProgress",
-		"onDiscardClick",
-		"isDiscardDisabled",
-	]))
+	.component(
+		"rHeader",
+		register(Header, [
+			"appName",
+			"appPath",
+			"workspacePath",
+			"workflowsAndPipelinesPath",
+			"onSaveClick",
+			"isSaveDisabled",
+			"isSaveInProgress",
+			"onDiscardClick",
+			"isDiscardDisabled",
+		]),
+	)
 	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
-	.component("rStepConfig", register(StepConfig, ["step", "highlightVersionUpdate", "onClone", "onRemove"]));
+	.component(
+		"rStepConfig",
+		register(StepConfig, ["step", "highlightVersionUpdate", "outputVariables", "onClone", "onRemove"]),
+	);

@@ -59,9 +59,10 @@
 								/ 	step="workflowsCtrl.selectedStep"
 								/ 	on-clone="workflowsCtrl.cloneStepSelected"
 								/ 	on-remove="workflowsCtrl.deleteStepSelected"
+								/ 	output-variables='workflowsCtrl.outputVariables'
 								/ 	highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
 								/ ]
-								
+
 								.step-details
 									header.manage-step
 										.title[ng-if="!workflowsCtrl.renamedStep"]
