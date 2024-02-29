@@ -12,7 +12,7 @@ const StepOutputVariableItem = ({ item }: StepOutputVariableItemProps) => {
 
 	return (
 		<Box display="flex" flexDirection="column" gap="8">
-			<Input type="text" label={title} value={key} helperText={summary} isReadOnly />
+			<Input type="text" label={title} value={key} helperText={summary} isReadOnly isRequired />
 			{description && (
 				<>
 					<Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>

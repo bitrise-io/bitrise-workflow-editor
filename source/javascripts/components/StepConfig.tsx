@@ -59,7 +59,7 @@ const StepConfig = ({ step, highlightVersionUpdate, outputVariables, onClone, on
 			</Box>
 
 			<Tabs>
-				<TabList>
+				<TabList paddingX="8">
 					<Tab id="configuration">Configuration</Tab>
 					<Tab id="properties">Properties</Tab>
 					{showOutputVariables && <Tab id="output-variables">Output variables</Tab>}
