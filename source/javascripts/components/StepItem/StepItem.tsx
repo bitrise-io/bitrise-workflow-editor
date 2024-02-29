@@ -5,54 +5,59 @@ import "./StepItem.scss";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
 import StepItemIcon from "./StepItemIcon";
+import StepItemVersion from "./StepItemVersion";
 import StepItemBadge from "./StepItemBadge";
 import StepItemTitle from "./StepItemTitle";
-import StepItemVersion from "./StepItemVersion";
-
-type StringProps = {
-	alwaysLatest: string;
-};
 
 type StepItemProps = {
+	workflowIndex: number;
 	step: Step;
-	version: string;
-	strings: StringProps;
-	selected: boolean;
-	highlightVersionUpdate: boolean;
-	stepIndex: number;
+	title: string;
+	version?: string;
+	isSelected: boolean;
+	hasVersionUpdate: boolean;
 	onSelected: (step: Step, index: number) => void;
 };
 
 const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 
 const StepItem = ({
+	workflowIndex,
 	step,
+	title,
 	version,
-	strings,
-	selected,
-	highlightVersionUpdate,
-	stepIndex,
-	onSelected
-}: StepItemProps): JSX.Element => (
+	hasVersionUpdate,
+	isSelected,
+	onSelected,
+}: StepItemProps): JSX.Element => {
+	return (
 		<Tooltip label={step.displayTooltip()} style={{ whiteSpace: "pre-line" }}>
 			<button
 				type="button"
 				data-e2e-tag="step-item"
-				className="step" tabIndex={tabIndex(selected)} onClick={() => onSelected(step, stepIndex)}>
-				<StepItemIcon step={step} />
+				className="step"
+				tabIndex={tabIndex(isSelected)}
+				onClick={() => onSelected(step, workflowIndex)}
+			>
+				<StepItemIcon iconUrl={step.iconURL()} />
 				<span className="info">
 					<strong>
-						<StepItemTitle step={step} />
-						<StepItemBadge step={step} />
+						<StepItemTitle displayName={title} />
+						<StepItemBadge
+							isOfficial={step.isOfficial()}
+							isVerified={step.isVerified()}
+							isDeprecated={step.isDeprecated()}
+						/>
 					</strong>
 					<StepItemVersion
-						step={step}
-						version={version}
-						highlightVersionUpdate={highlightVersionUpdate}
-						strings={strings} />
+						actualVersion={step.version}
+						requestedVersion={version || ""}
+						hasVersionUpdate={hasVersionUpdate}
+					/>
 				</span>
 			</button>
 		</Tooltip>
-);
+	);
+};
 
 export default StepItem;

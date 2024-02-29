@@ -1,64 +1,85 @@
-import { Fragment } from "react";
-import { Box, Text } from "@bitrise/bitkit";
-import { Step } from "../../models";
-
-import StepResolvedVersionInfo from "./StepResolvedVersionInfo";
-import StepVersionSelector, { StepVersionSelectorProps } from "./StepVersionSelector";
-
-type StringProps = {
-	versionText: string;
-	latestVersionText: string;
-	invalidVersionText: string;
-};
+import { Box, Icon, Text } from "@bitrise/bitkit";
+import classNames from "classnames";
+import { OnStepVersionChange, OnStepVersionUpgrade, Step, StepVersionWithRemark } from "../../models";
+import { getVersionRemark } from "../../utils/stepVersionUtil";
+import stepOutDatedIcon from "../../../images/step/upgrade.svg";
 
 type StepVersionDetailsProps = {
-	step: Step;
-	isLatestVersion: boolean;
 	workflowIndex: number;
-	onUpdateStep: (step: Step, index: number) => void;
-	versionSelectorOpts: StepVersionSelectorProps;
+	step: Step;
 	selectedVersion: string;
-	versions: Array<string | null>;
-	strings: StringProps;
+	latestVersion: string;
+	isLatestVersion: boolean;
+	versionsWithRemarks: Array<StepVersionWithRemark>;
+	onVersionChange: OnStepVersionChange;
+	onVersionUpgrade: OnStepVersionUpgrade;
 };
 
+type DangerouslySetInnerHTMLProps = { __html: string };
+const html = (text: string): DangerouslySetInnerHTMLProps => ({ __html: text });
+
 const StepVersionDetails = ({
-	step,
-	isLatestVersion,
-	onUpdateStep,
 	workflowIndex,
-	versions,
-	selectedVersion = "",
-	versionSelectorOpts,
-	strings
-}: StepVersionDetailsProps): JSX.Element => {
-	const isVersionDefined = step.version !== undefined;
+	step,
+	selectedVersion,
+	latestVersion,
+	isLatestVersion,
+	versionsWithRemarks = [],
+	onVersionChange,
+	onVersionUpgrade,
+}: StepVersionDetailsProps) => {
+	if (step.version === undefined) {
+		return null;
+	}
 
 	return (
-		<Fragment>
-			{isVersionDefined && (
-				<section className="version" data-e2e-tag="step-version-details">
-					<Box className="version-info">
-						<StepResolvedVersionInfo
-							step={step}
-							isLatestVersion={isLatestVersion}
-							onUpdateStep={onUpdateStep}
-							workflowIndex={workflowIndex}
-							strings={strings}
-						/>
-						{step.isLibraryStep() && <Text className="latest-version">{strings.latestVersionText}</Text>}
-					</Box>
-					{step.isLibraryStep() && (
-						<StepVersionSelector
-							{...versionSelectorOpts}
-							step={step}
-							versions={versions}
-							selectedVersion={selectedVersion}
-						/>
+		<section className="version" data-e2e-tag="step-version-details">
+			<Box className="version-info">
+				<div className="resolved-version">
+					{isLatestVersion ? (
+						<Text data-e2e-tag="step-version-details__branch-icon" className="icon">
+							<Icon name="Branch" />
+						</Text>
+					) : (
+						<button
+							data-e2e-tag="step-version-details__update-button"
+							className="icon icon-danger"
+							onClick={() => onVersionUpgrade(step, workflowIndex)}
+						>
+							<img data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
+						</button>
 					)}
-				</section>
+
+					<Text
+						data-e2e-tag="step-version-details__version-text"
+						className={classNames("version__text", { error: !step.isConfigured() })}
+					>
+						{step.isConfigured() ? `Version: ${step.requestedVersion() || latestVersion}` : "Invalid version"}
+					</Text>
+				</div>
+				{step.isLibraryStep() && <Text className="latest-version">Step's latest version is: {latestVersion}</Text>}
+			</Box>
+			{step.isLibraryStep() && (
+				<Box className="version-selector">
+					<Text
+						className={classNames("remark", { error: !step.isConfigured() })}
+						dangerouslySetInnerHTML={html(getVersionRemark(selectedVersion))}
+					/>
+					<select
+						id="selected-step-version-select"
+						data-e2e-tag="step-version-details__version-selector"
+						value={selectedVersion}
+						onChange={(event) => onVersionChange(event.target.value)}
+					>
+						{versionsWithRemarks.map(({ version }) => (
+							<option key={version} value={version}>
+								{version || "Always latest"}
+							</option>
+						))}
+					</select>
+				</Box>
 			)}
-		</Fragment>
+		</section>
 	);
 };
 

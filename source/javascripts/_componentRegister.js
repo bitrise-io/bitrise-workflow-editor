@@ -37,19 +37,19 @@ angular
 	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
 		"rStepItem",
-		register(StepItem, ["step", "version", "strings", "selected", "stepIndex", "highlightVersionUpdate", "onSelected"]),
+		register(StepItem, ["workflowIndex", "step", "title", "version", "hasVersionUpdate", "isSelected", "onSelected"]),
 	)
 	.component(
 		"rStepVersionDetails",
 		register(StepVersionDetails, [
-			"step",
-			"isLatestVersion",
-			"onUpdateStep",
 			"workflowIndex",
-			"versions",
+			"step",
 			"selectedVersion",
-			"versionSelectorOpts",
-			"strings",
+			"latestVersion",
+			"isLatestVersion",
+			"versionsWithRemarks",
+			"onVersionChange",
+			"onVersionUpgrade",
 		]),
 	)
 	.component("rAddStepItem", register(AddStepItem, ["step", "disabled", "onSelected"]))
@@ -116,5 +116,14 @@ angular
 	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
 	.component(
 		"rStepConfig",
-		register(StepConfig, ["step", "highlightVersionUpdate", "outputVariables", "onClone", "onRemove"]),
+		register(StepConfig, [
+			"workflowIndex",
+			"step",
+			"onClone",
+			"onRemove",
+			"versionsWithRemarks",
+			"hasVersionUpdate",
+			"onVersionUpgrade",
+			"onPropertyChange",
+		]),
 	);

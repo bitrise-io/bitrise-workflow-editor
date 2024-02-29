@@ -1,5 +1,6 @@
 import { safeDigest } from "../services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
+import { getVersionRemark } from "../utils/stepVersionUtil";
 
 (function() {
 	"use strict";
@@ -41,20 +42,20 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.getAvailableHeightForWorkflows = function() {
 					viewModel.shouldShowWorkflowsContent = false;
 
-					$timeout(function() {
-						var element = angular.element(document.querySelector("div.workflows"));
-						viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
+				$timeout(function() {
+					var element = angular.element(document.querySelector("div.workflows"));
+					viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
 
 						viewModel.shouldShowWorkflowsContent = true;
 					}, 100);
 				};
 
-				var resizeTimeout;
-				var RESIZE_DELAY = 500;
-				angular.element($window).on("resize", function() {
-					if (resizeTimeout) {
-						$timeout.cancel(resizeTimeout);
-					}
+			var resizeTimeout;
+			var RESIZE_DELAY = 500;
+			angular.element($window).on("resize", function() {
+				if (resizeTimeout) {
+					$timeout.cancel(resizeTimeout);
+				}
 
 					resizeTimeout = $timeout(viewModel.getAvailableHeightForWorkflows, RESIZE_DELAY);
 				});
@@ -209,15 +210,15 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 					workflowSelectionStore.disable();
 
-					loadWorkflows().then(function() {
-						workflowSelectionService.restoreSelection(viewModel);
-						workflowSelectionStore.enable();
-					}).then(() => {
-						var queryParams = new URLSearchParams(window.location.search);
-						if (queryParams.has("add-workflow")) {
-							viewModel.openAddWorkflowPopup();
-						}
-					});
+				loadWorkflows().then(function() {
+					workflowSelectionService.restoreSelection(viewModel);
+					workflowSelectionStore.enable();
+				}).then(() => {
+					var queryParams = new URLSearchParams(window.location.search);
+					if (queryParams.has("add-workflow")) {
+						viewModel.openAddWorkflowPopup();
+					}
+				});
 
 					if (requestService.isWebsiteMode()) {
 						loadAppAndUser();
@@ -230,20 +231,20 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 							var runWorkflow = launchDarklyService.variation("run-workflow-from-wfe", false);
 							var runIf = launchDarklyService.variation("enable-run-if-visual-editor", false);
 
-							return { runWorkflow, runIf };
-						}),
-						requestService.getCurrentUserData(),
-						requestService.getApp(appServiceUtil.getAppSlug()),
-						appService.getOwnerPlanData()
-					]).then(function([featureFlags, user, app]) {
-						viewModel.username = user?.username;
-						viewModel.defaultBranch = app?.default_branch;
-						viewModel.canRunWorkflowFeatureFlag = featureFlags.runWorkflow;
-						viewModel.runIfFeatureFlag = featureFlags.runIf;
-						viewModel.buildTriggerToken = app?.build_trigger_token;
-						viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
-					});
-				}
+						return { runWorkflow, runIf };
+					}),
+					requestService.getCurrentUserData(),
+					requestService.getApp(appServiceUtil.getAppSlug()),
+					appService.getOwnerPlanData(),
+				]).then(function([featureFlags, user, app]) {
+					viewModel.username = user?.username;
+					viewModel.defaultBranch = app?.default_branch;
+					viewModel.canRunWorkflowFeatureFlag = featureFlags.runWorkflow;
+					viewModel.runIfFeatureFlag = featureFlags.runIf;
+					viewModel.buildTriggerToken = app?.build_trigger_token;
+					viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
+				});
+			}
 
 				$scope.$watch(
 					function() {
@@ -446,21 +447,21 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								}
 							});
 
-							while (
-								_.find(appService.appConfig.trigger_map, {
+						while (
+							_.find(appService.appConfig.trigger_map, {
+								workflow: viewModel.selectedWorkflow.id
+							})
+							) {
+							appService.appConfig.trigger_map.splice(
+								_.findIndex(appService.appConfig.trigger_map, {
 									workflow: viewModel.selectedWorkflow.id
-								})
-								) {
-								appService.appConfig.trigger_map.splice(
-									_.findIndex(appService.appConfig.trigger_map, {
-										workflow: viewModel.selectedWorkflow.id
-									}),
-									1
-								);
-							}
+								}),
+								1
+							);
 						}
-					);
-				};
+					}
+				);
+			};
 
 				viewModel.deleteWorkflowSelectedWithDigest = function() {
 					$timeout(function() {
@@ -609,10 +610,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.selectedWorkflow.workflowConfig.before_run =
 						selectedWorkflowSubchainIndex > 0
 							? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(0, selectedWorkflowSubchainIndex), function(
-								aWorkflowSubchain
-							) {
-								return aWorkflowSubchain.workflow.id;
-							})
+							aWorkflowSubchain
+						) {
+							return aWorkflowSubchain.workflow.id;
+						})
 							: [];
 					if (viewModel.selectedWorkflow.workflowConfig.before_run.length == 0) {
 						delete viewModel.selectedWorkflow.workflowConfig["before_run"];
@@ -621,10 +622,10 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.selectedWorkflow.workflowConfig.after_run =
 						selectedWorkflowSubchainIndex < viewModel.rearrangeWorkflowsChainHierarchy.length - 1
 							? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(selectedWorkflowSubchainIndex + 1), function(
-								aWorkflowSubchain
-							) {
-								return aWorkflowSubchain.workflow.id;
-							})
+							aWorkflowSubchain
+						) {
+							return aWorkflowSubchain.workflow.id;
+						})
 							: [];
 					if (viewModel.selectedWorkflow.workflowConfig.after_run.length == 0) {
 						delete viewModel.selectedWorkflow.workflowConfig["after_run"];
@@ -728,11 +729,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				viewModel.editedWorkflowIndex;
 
 
-				viewModel.selectWorkflowWithDigest = function(workflow) {
-					$timeout(function() {
-						viewModel.selectWorkflow(workflow);
-					}, 0);
-				};
+			viewModel.selectWorkflowWithDigest = function(workflow) {
+				$timeout(function() {
+					viewModel.selectWorkflow(workflow);
+				}, 0);
+			};
 
 				viewModel.selectWorkflow = function(workflow) {
 					workflowSelectionService.rearrangeSelection(viewModel, workflow);
@@ -769,8 +770,12 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				$scope.stepSourceService = stepSourceService;
 
 				viewModel.selectedStep;
-				viewModel.shouldShowDescription;
-				viewModel.stepOrderWorkflow;
+				viewModel.selectedStepVersion;
+			viewModel.selectedStepLatestVersion;
+			viewModel.isSelectedStepLatestVersion;
+			viewModel.selectedStepVersionsWithRemarks;
+			viewModel.shouldShowDescription;
+			viewModel.stepOrderWorkflow;
 
 				$scope.$watch(
 					function() {
@@ -861,30 +866,45 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 				}
 
-				viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
-					if (!step) {
-						viewModel.selectedStep = null;
-						return;
-					}
+			function resolveStepVersion(step) {
+				return stepSourceService.resolveRequestedStepVersion(step.requestedVersion(), step) || "Always latest";
+			}
 
-					$q(function(resolve) {
-						if (step && step.libraryURL === appService.appConfig.default_step_lib_source) {
-							stepSourceService.loadStepVersions(step.id).then(function() {
-								viewModel.selectedStep = step;
+			function setSelectedStepDependentData(step) {
+				if (!step) {
+					viewModel.selectedStep = null;
+					viewModel.selectedStepVersion = null;
+					viewModel.selectedStepLatestVersion = null;
+					viewModel.isSelectedStepLatestVersion = false;
+					viewModel.selectedStepVersionsWithRemarks = [];
+					return;
+				}
+
+					viewModel.selectedStepVersion = resolveStepVersion(step);
+				viewModel.selectedStep = step;
+				viewModel.selectedStepLatestVersion = stepSourceService.latestVersion(step);
+				viewModel.isSelectedStepLatestVersion = stepSourceService.isLatestStepVersion(step);
+				viewModel.selectedStepVersionsWithRemarks = stepSourceService.versionsOfStep(step).map((version) => ({
+					version,
+					remark: getVersionRemark(version)
+				})) || [];
+			}
+
+
+			viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
+				$q(function(resolve) {
+					if (step.libraryURL === appService.appConfig.default_step_lib_source) {
+						stepSourceService.loadStepVersions(step.id).then(function() {
+							setSelectedStepDependentData(step);
 								resolve();
 							});
 						} else {
-							viewModel.selectedStep = step;
-							resolve();
-						}
-					}).then(function() {
-						if (workflowIndex === undefined) {
-							workflowIndex = viewModel.editedWorkflowIndex;
-						}
-
-						if (shouldScrollToStep === undefined) {
-							shouldScrollToStep = viewModel.editedWorkflowIndex != workflowIndex;
-						}
+							setSelectedStepDependentData(step);
+						resolve();
+					}
+				}).then(function() {
+					workflowIndex ||= viewModel.editedWorkflowIndex;
+						shouldScrollToStep ||= viewModel.editedWorkflowIndex != workflowIndex;
 
 						if (viewModel.editedWorkflowIndex != workflowIndex) {
 							viewModel.editWorkflowAtIndex(workflowIndex);
@@ -901,8 +921,8 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					});
 				};
 
-				viewModel.changeSelectedStepVersion = function(version) {
-					viewModel.requestedStepVersion = version;
+				viewModel.deselectStep = function() {
+					setSelectedStepDependentData(null);
 					safeDigest($scope);
 				};
 
@@ -910,18 +930,21 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					function() {
 						return viewModel.selectedStep;
 					},
-					function(selectedStep) {
+					function(step) {
 						viewModel.shouldShowDescription = false;
 						workflowSelectionStore.applyState({
 							lastSelectedWorkflow: viewModel.selectedWorkflow,
 							lastEditedWorkflow: viewModel.editedWorkflow,
 							lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
-							lastSelectedStep: selectedStep
-						});
+							lastSelectedStep: step
+					});
+					configureInputsForStep(step);
+					configureOutputsForStep(step);
+						safeDigest($scope);
 					}
-				);
+			);
 
-				viewModel.cloneStepSelected = function() {
+				viewModel.cloneSelectedStep = function() {
 					var clonedStep = stepSourceService.stepFromCVS(viewModel.selectedStep.cvs);
 					clonedStep.userStepConfig = angular.copy(viewModel.selectedStep.userStepConfig);
 
@@ -934,11 +957,11 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					safeDigest($scope);
 				};
 
-				viewModel.deleteStepSelected = function() {
+				viewModel.deleteSelectedStep = function() {
 					var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
 					viewModel.editedWorkflow.steps.splice(index, 1);
 					updateUniqueCount();
-					viewModel.stepSelected(null);
+					viewModel.deselectStep();
 					safeDigest($scope);
 				};
 
@@ -982,13 +1005,28 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 				);
 
-				viewModel.updateStep = function(step, workflowIndex) {
+				viewModel.changeSelectedStepVersion = function(version) {
+				changeStepToVersion(viewModel.selectedStep, version);
+			};
+
+			viewModel.upgradeStepToLatestVersion = function(step, workflowIndex) {
+				if (!step) {
+					return;
+				}
+
 					if (step != viewModel.selectedStep) {
 						viewModel.stepSelected(step, workflowIndex);
 					}
 
-					changeStepToVersion(step, null);
-					safeDigest($scope);
+				changeStepToVersion(step, null);
+			};
+
+			viewModel.changeSelectedStepVersion = function(version) {
+				if (!viewModel.selectedStep) {
+					return;
+				}
+
+				changeStepToVersion(viewModel.selectedStep, version);
 				};
 
 				$scope.$watch(
@@ -1007,8 +1045,13 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				);
 
 				function changeStepToVersion(step, version) {
-					var oldDefaultStepConfig = step.defaultStepConfig;
-					stepSourceService.changeStepToVersion(step, version);
+					if (!step || version === step.requestedVersion()) {
+					return;
+				}
+
+				var oldDefaultStepConfig = step.defaultStepConfig;
+				stepSourceService.changeStepToVersion(step, version);
+				safeDigest($scope);
 
 					if (!oldDefaultStepConfig) {
 						return;
@@ -1064,9 +1107,21 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
 				// Step rename
 
-				$scope.Step = Step;
-				viewModel.renamedStep;
-				viewModel.renamedStepTitle;
+				viewModel.renameSelectedStep = function(newTitle) {
+				if (!viewModel.selectedStep) {
+					return;
+				}
+
+				if (Step.isValidTitle(newTitle)) {
+					viewModel.renamedStepTitle = newTitle;
+					viewModel.selectedStep.title(newTitle);
+					safeDigest($scope);
+				}
+			};
+
+			$scope.Step = Step;
+			viewModel.renamedStep;
+			viewModel.renamedStepTitle;
 
 				$scope.$watch(
 					function() {
@@ -1207,18 +1262,20 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 						viewModel.openedInputCategories.push(viewModel.mainInputCategory);
 					}
 
-					viewModel.openedInputs = [];
-					_.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
-						_.each(
-							_.filter(anInputCategory.inputs, function(anInput) {
-								return anInput.isRequired() && (!anInput.value() || anInput.value().length == 0);
-							}),
-							function(anInput) {
-								viewModel.openedInputs.push(anInput);
-							}
-						);
-					});
-				}
+				viewModel.openedInputs = [];
+				_.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+					_.each(
+						_.filter(anInputCategory.inputs, function(anInput) {
+							return anInput.isRequired() && (!anInput.value() || anInput.value().length == 0);
+						}),
+						function(anInput) {
+							viewModel.openedInputs.push(anInput);
+						}
+					);
+				});
+
+				safeDigest($scope);
+			}
 
 				viewModel.inputCategoryToggled = function(inputCategory) {
 					if (_.contains(viewModel.openedInputCategories, inputCategory)) {
@@ -1305,16 +1362,14 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					}
 				);
 
-				viewModel.outputVariables;
-
-				function configureOutputsForStep(step) {
-					viewModel.outputsOfSelectedStep =
-						step && step.defaultStepConfig
-							? _.map(step.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
-								return new Variable(undefined, anDefaultOutputConfig);
-							})
-							: undefined;
-					viewModel.outputVariables = viewModel.outputsOfSelectedStep ?
+				viewModel.outputVariables;function configureOutputsForStep(step) {
+				viewModel.outputsOfSelectedStep =
+					step && step.defaultStepConfig
+						? _.map(step.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
+							return new Variable(undefined, anDefaultOutputConfig);
+						})
+						: undefined;
+				viewModel.outputVariables = viewModel.outputsOfSelectedStep ?
 						viewModel.outputsOfSelectedStep.map(function(variable) {
 							const varKey = variable.key();
 							const key = varKey ? `$${varKey}` : undefined;
@@ -1324,10 +1379,9 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 								summary: variable.summary(),
 								description: variable.description()
 							});
-						}) : [];
-					viewModel.openedOutputs = [];
-					safeDigest($scope);
-				}
+						}) : [];viewModel.openedOutputs = [];
+				safeDigest($scope);
+			}
 
 				viewModel.outputSelected = function(output) {
 					if (viewModel.isOutputOpened(output)) {
@@ -1341,10 +1395,41 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return _.contains(viewModel.openedOutputs, output);
 				};
 
-				viewModel.hasOutputDescriptionOrSummary = function(output) {
-					return output && (output.description().length > 0 || output.summary().length > 0);
-				};
-			}
-		)
-	;
+			viewModel.hasOutputDescriptionOrSummary = function(output) {
+				return output && (output.description().length > 0 || output.summary().length > 0);
+			};
+
+			viewModel.checkStepVersionUpdate = function(step) {
+				if (!step) {
+					return false;
+				}
+
+				const isStepConfigured = step.isConfigured();
+				const isLatestStepVersion = stepSourceService.isLatestStepVersion(step);
+
+				return !isStepConfigured || !isLatestStepVersion;
+			};
+
+			viewModel.handleStepPropertyChanged = function(values) {
+				console.log("handleStepPropertyChanged", values);
+
+				if (!viewModel.selectedStep || !values) {
+					return;
+				}
+
+				Object.entries(values).forEach(([key, value]) => {
+					if (key === "name") {
+						viewModel.selectedStep.title(String(value));
+						return;
+					}
+
+					if (key === "version") {
+						changeStepToVersion(viewModel.selectedStep, String(value));
+						return;
+					}
+				});
+
+				safeDigest($scope);
+			};
+		});
 })();

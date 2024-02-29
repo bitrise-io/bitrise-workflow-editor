@@ -655,6 +655,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				}
 
 				$rootScope.$emit("MainController::changesDiscarded");
+				$scope.$digest();
 			};
 
 			viewModel.selectMenuByID = function(menuID) {

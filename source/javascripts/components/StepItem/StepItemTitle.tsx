@@ -1,13 +1,12 @@
 import { Text, TextProps } from "@bitrise/bitkit";
-import { Step } from "../../models";
 
 type StepItemTitleProps = {
-	step: Step;
+	displayName: string;
 } & TextProps;
 
-const StepItemTitle = ({ step, ...rest }: StepItemTitleProps): JSX.Element => (
+const StepItemTitle = ({ displayName, ...rest }: StepItemTitleProps): JSX.Element => (
 	<Text data-e2e-tag="step-item__title" className="title" hasEllipsis {...rest}>
-		{step.displayName()}
+		{displayName}
 	</Text>
 );
 

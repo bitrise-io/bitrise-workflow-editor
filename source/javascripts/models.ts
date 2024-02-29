@@ -11,11 +11,18 @@ export interface Workflow {
 	workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
+export type OnStepPropertyChange = (values: Record<"name" | "version", string>) => void;
+export type OnStepVersionUpgrade = (step: Step, index: number) => void;
+export type OnStepVersionChange = (selectedVersion: string) => void;
+export type StepVersionWithRemark = { version: string; remark: string };
+
 export interface Step {
 	id: string;
 	cvs: string;
 	version: string;
-	defaultStepConfig: { version: string };
+	defaultStepConfig: {
+		version: string;
+	};
 
 	requestedVersion(): string;
 
@@ -36,6 +43,10 @@ export interface Step {
 	iconURL(): string;
 
 	summary(): string;
+
+	description(): string;
+
+	sourceURL(): string;
 }
 
 export interface StepOutputVariable {

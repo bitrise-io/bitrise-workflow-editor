@@ -1,16 +1,14 @@
-import { normalizeIconUrl } from "./StepItem/StepItemIcon";
-
-(function() {
+(function () {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Variable) {
+	angular.module("BitriseWorkflowEditor").factory("Step", function ($injector, Variable) {
 		var MAINTAINER = {
 			VERIFIED: "verified",
 			OFFICIAL: "bitrise",
-			COMMUNITY: "community"
+			COMMUNITY: "community",
 		};
 
-		var Step = function(cvs, userStepConfig, defaultStepConfig) {
+		var Step = function (cvs, userStepConfig, defaultStepConfig) {
 			this.cvs = cvs;
 			this.localPath;
 			this.gitURL;
@@ -27,7 +25,7 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			this.defaultStepConfig = defaultStepConfig;
 		};
 
-		Step.prototype.displayName = function() {
+		Step.prototype.displayName = function () {
 			if (this.title()) {
 				return this.title();
 			}
@@ -39,11 +37,11 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			return diplayNameFromCvs(this.displayCvs());
 		};
 
-		Step.prototype.displayCvs = function() {
+		Step.prototype.displayCvs = function () {
 			return this.cvs.replace(/^(git|path)::/g, "");
 		};
 
-		Step.prototype.displayTooltip = function() {
+		Step.prototype.displayTooltip = function () {
 			return this.displayName() + "\n" + this.displayCvs();
 		};
 
@@ -57,11 +55,11 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			return cvs;
 		}
 
-		Step.prototype.title = function(newTitle) {
+		Step.prototype.title = function (newTitle) {
 			return parameterGetterSetter(this, "title", newTitle);
 		};
 
-		Step.isValidTitle = function(title) {
+		Step.isValidTitle = function (title) {
 			if (title === undefined) {
 				return undefined;
 			}
@@ -69,15 +67,15 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			return title && title.length > 0;
 		};
 
-		Step.prototype.summary = function(newSummary) {
+		Step.prototype.summary = function (newSummary) {
 			return parameterGetterSetter(this, "summary", newSummary);
 		};
 
-		Step.prototype.description = function(newDescription) {
+		Step.prototype.description = function (newDescription) {
 			return parameterGetterSetter(this, "description", newDescription);
 		};
 
-		Step.prototype.sourceURL = function(newSourceURL) {
+		Step.prototype.sourceURL = function (newSourceURL) {
 			if (this.gitURL !== undefined) {
 				if (newSourceURL) {
 					this.gitURL = newSourceURL;
@@ -89,7 +87,7 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			return parameterGetterSetter(this, "source_code_url", newSourceURL);
 		};
 
-		Step.prototype.iconURL = function(newIconURL) {
+		Step.prototype.iconURL = function (newIconURL) {
 			if (newIconURL !== undefined) {
 				var regexpForIconType = new RegExp("^.*.(svg|png)");
 				var iconType;
@@ -144,59 +142,59 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			return undefined;
 		};
 
-		Step.prototype.typeTags = function(newTypeTags) {
+		Step.prototype.typeTags = function (newTypeTags) {
 			return parameterGetterSetter(this, "type_tags", newTypeTags);
 		};
 
-		Step.prototype.projectTypeTags = function(newProjectTypeTags) {
+		Step.prototype.projectTypeTags = function (newProjectTypeTags) {
 			return parameterGetterSetter(this, "project_type_tags", newProjectTypeTags);
 		};
 
-		Step.prototype.runIf = function(newRunIf) {
+		Step.prototype.runIf = function (newRunIf) {
 			return parameterGetterSetter(this, "run_if", newRunIf);
 		};
 
-		Step.prototype.isAlwaysRun = function(newIsAlwaysRun) {
+		Step.prototype.isAlwaysRun = function (newIsAlwaysRun) {
 			return parameterGetterSetter(this, "is_always_run", newIsAlwaysRun);
 		};
 
-		Step.prototype.assetUrls = function(newAssetUrls) {
+		Step.prototype.assetUrls = function (newAssetUrls) {
 			return parameterGetterSetter(this, "asset_urls", newAssetUrls);
 		};
 
-		Step.prototype.isConfigured = function() {
+		Step.prototype.isConfigured = function () {
 			return !!this.defaultStepConfig;
 		};
 
-		Step.prototype.typeTags = function(newTypeTags) {
+		Step.prototype.typeTags = function (newTypeTags) {
 			return parameterGetterSetter(this, "type_tags", newTypeTags);
 		};
 
-		Step.prototype.isVerified = function() {
+		Step.prototype.isVerified = function () {
 			return this.info.maintainer === MAINTAINER.VERIFIED && !this.isDeprecated();
 		};
 
-		Step.prototype.isOfficial = function() {
+		Step.prototype.isOfficial = function () {
 			return this.info.maintainer === MAINTAINER.OFFICIAL && !this.isDeprecated();
 		};
 
-		Step.prototype.isDeprecated = function() {
+		Step.prototype.isDeprecated = function () {
 			return parameterGetterSetter(this, "is_deprecated");
 		};
 
-		Step.prototype.isLocal = function() {
+		Step.prototype.isLocal = function () {
 			return !!this.localPath;
 		};
 
-		Step.prototype.isLibraryStep = function() {
+		Step.prototype.isLibraryStep = function () {
 			return !!this.libraryURL;
 		};
 
-		Step.prototype.isVCSStep = function() {
+		Step.prototype.isVCSStep = function () {
 			return !this.isLocal() && !this.isLibraryStep();
 		};
 
-		Step.prototype.requestedVersion = function() {
+		Step.prototype.requestedVersion = function () {
 			if (this.cvs.indexOf("@") == -1) {
 				return null;
 			}
@@ -204,11 +202,11 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 			return this.version;
 		};
 
-		Step.cvsFromWrappedStepConfig = function(wrappedStepConfig) {
+		Step.cvsFromWrappedStepConfig = function (wrappedStepConfig) {
 			return _.first(_.keys(angular.fromJson(angular.toJson(wrappedStepConfig))));
 		};
 
-		Step.prototype.wrappedUserStepConfig = function() {
+		Step.prototype.wrappedUserStepConfig = function () {
 			var wrappedUserStepConfig = {};
 			wrappedUserStepConfig[this.cvs] = this.userStepConfig;
 
@@ -236,12 +234,8 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 		return Step;
 	});
 
-	angular.module("BitriseWorkflowEditor").filter("normalizedStepIconURL", function() {
-		return normalizeIconUrl;
-	});
-
-	angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function() {
-		return function(step) {
+	angular.module("BitriseWorkflowEditor").filter("stepSourceCSSClass", function () {
+		return function (step) {
 			if (!step) {
 				return undefined;
 			}
