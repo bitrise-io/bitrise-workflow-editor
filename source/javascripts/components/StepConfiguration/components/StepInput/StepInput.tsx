@@ -59,12 +59,12 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 						rows={1}
 						resize="none"
 						transition="height none"
-						isReadOnly={isSensitive}
+						isReadOnly={isSensitive || rest.isReadOnly}
 						placeholder={isSensitive ? "Add secret" : "Enter value"}
 					/>
 				)}
 
-				{!rest.isReadOnly && (
+				{!rest.isReadOnly && !isSelectInput(rest) && (
 					<ButtonGroup position="absolute" top="8" right="8">
 						{isClearableInput && (
 							<IconButton size="small" variant="tertiary" aria-label="Clear" iconName="CloseSmall" />
