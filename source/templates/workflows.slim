@@ -45,6 +45,14 @@
 								li
 									button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 				.step-edit-container
+					/ div[ng-if="workflowsCtrl.selectedStep" style="background: white"]
+					/ 	r-step-config[
+					/ 		step="workflowsCtrl.selectedStep"
+					/ 		on-clone="workflowsCtrl.cloneStepSelected"
+					/ 		on-remove="workflowsCtrl.deleteStepSelected"
+					/ 		output-variables='workflowsCtrl.outputVariables'
+					/ 		highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
+					/ 	]
 					section.workflow
 						header.workflow-header
 							.header-info
@@ -55,13 +63,6 @@
 						article
 							aside[workflow-description="workflowsCtrl.editedWorkflow" ng-if="!workflowsCtrl.selectedStep"]
 							aside.selected-step[ng-if="workflowsCtrl.selectedStep" callback-on-mousedown-elsewhere="workflowsCtrl.stepSelected(null)" callback-on-mousedown-elsewhere-target-filter-selector="'.tab-workflows section.workflow, .tab-workflows header.workflow-header, .tab-workflows article, .tab-workflows ul.steps'"]
-								/ r-step-config[
-								/ 	step="workflowsCtrl.selectedStep"
-								/ 	on-clone="workflowsCtrl.cloneStepSelected"
-								/ 	on-remove="workflowsCtrl.deleteStepSelected"
-								/ 	highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
-								/ ]
-								
 								.step-details
 									header.manage-step
 										.title[ng-if="!workflowsCtrl.renamedStep"]

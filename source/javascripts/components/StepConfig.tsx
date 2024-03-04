@@ -1,7 +1,7 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text } from "@bitrise/bitkit";
 
 import { TabPanel, TabPanels } from "@chakra-ui/react";
-import { Step } from "../models";
+import { Step, StepOutputVariable } from "../models";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepConfiguration from "./StepConfiguration";
 import StepProperties from "./StepProperties";
@@ -10,11 +10,14 @@ import StepOutputVariables from "./StepOutputVariables";
 type Props = {
 	step: Step;
 	highlightVersionUpdate?: boolean;
+	outputVariables: Array<StepOutputVariable>;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
 };
 
-const StepConfig = ({ step, highlightVersionUpdate, onClone, onRemove }: Props): JSX.Element => {
+const StepConfig = ({ step, highlightVersionUpdate, outputVariables, onClone, onRemove }: Props): JSX.Element => {
+	const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
+
 	return (
 		<Box display="flex" flexDirection="column" gap="8">
 			<Box as="header" display="flex" px="24" pt="24" gap="16">
@@ -56,10 +59,10 @@ const StepConfig = ({ step, highlightVersionUpdate, onClone, onRemove }: Props):
 			</Box>
 
 			<Tabs>
-				<TabList>
+				<TabList paddingX="8">
 					<Tab id="configuration">Configuration</Tab>
 					<Tab id="properties">Properties</Tab>
-					<Tab id="output-variables">Output variables</Tab>
+					{showOutputVariables && <Tab id="output-variables">Output variables</Tab>}
 				</TabList>
 				<TabPanels>
 					<TabPanel id="configuration">
@@ -68,9 +71,11 @@ const StepConfig = ({ step, highlightVersionUpdate, onClone, onRemove }: Props):
 					<TabPanel id="properties">
 						<StepProperties step={step} />
 					</TabPanel>
-					<TabPanel id="output-variables">
-						<StepOutputVariables step={step} />
-					</TabPanel>
+					{showOutputVariables && (
+						<TabPanel id="output-variables">
+							<StepOutputVariables outputVariables={outputVariables} />
+						</TabPanel>
+					)}
 				</TabPanels>
 			</Tabs>
 		</Box>
