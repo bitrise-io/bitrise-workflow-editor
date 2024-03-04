@@ -1,4 +1,5 @@
 import { Box, Card, Divider, ExpandableCard, Text, Toggle } from "@bitrise/bitkit";
+import { useEffect } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { InputCategory, Step } from "../../models";
@@ -14,9 +15,14 @@ type StepConfigurationProps = {
 const StepConfiguration = ({ step, inputCategories, onChange }: StepConfigurationProps) => {
 	const form = useForm<Record<string, unknown>>();
 
+	useEffect(() => {
+		const { unsubscribe } = form.watch(onChange);
+		return () => unsubscribe();
+	}, [onChange]);
+
 	return (
 		<FormProvider {...form}>
-			<Box as="form" display="flex" flexDir="column" p="12" gap="12" onChange={form.handleSubmit(onChange)}>
+			<Box as="form" display="flex" flexDir="column" p="12" gap="12">
 				<ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>} isExpanded>
 					<Box display="flex">
 						<Text flex="1">Run if previous Step(s) failed</Text>

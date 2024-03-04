@@ -1,5 +1,5 @@
 import { Box, ButtonGroup, IconButton } from "@bitrise/bitkit";
-import { FormControl, FormHelperText, forwardRef, Select, Textarea, useMergeRefs } from "@chakra-ui/react";
+import { FormControl, FormHelperText, forwardRef, Select, Textarea } from "@chakra-ui/react";
 import omit from "lodash/omit";
 import { ComponentProps, ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
@@ -32,10 +32,11 @@ function isTextareaInput(props: Props): props is TextareaProps {
 const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) => {
 	const { label, isRequired, isSensitive, ...rest } = props;
 
-	const { watch } = useFormContext();
-	const textareaRef = useMergeRefs(useAutosize<HTMLTextAreaElement>(), ref);
+	const { watch, setValue } = useFormContext();
+	const textareaRef = useAutosize<HTMLTextAreaElement>(ref);
 
-	const isClearableInput = isSensitive && !!watch(rest.name || "");
+	const onClear = () => setValue(rest.name!, "");
+	const isClearableInput = isSensitive && !!watch(rest.name || "", props.defaultValue);
 
 	return (
 		<FormControl isRequired={isRequired}>
@@ -53,31 +54,40 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 				)}
 
 				{isTextareaInput(rest) && (
-					<Textarea
-						ref={textareaRef}
-						{...rest}
-						rows={1}
-						resize="none"
-						transition="height none"
-						isReadOnly={isSensitive || rest.isReadOnly}
-						placeholder={isSensitive ? "Add secret" : "Enter value"}
-					/>
-				)}
+					<>
+						<Textarea
+							ref={textareaRef}
+							{...rest}
+							rows={1}
+							resize="none"
+							transition="height none"
+							isReadOnly={isSensitive || rest.isReadOnly}
+							placeholder={isSensitive ? "Add secret" : "Enter value"}
+						/>
 
-				{!rest.isReadOnly && !isSelectInput(rest) && (
-					<ButtonGroup position="absolute" top="8" right="8">
-						{isClearableInput && (
-							<IconButton size="small" variant="tertiary" aria-label="Clear" iconName="CloseSmall" />
-						)}
+						{!rest.isReadOnly && (
+							<ButtonGroup position="absolute" top="8" right="8">
+								{isClearableInput && (
+									<IconButton
+										size="small"
+										type="submit"
+										onClick={onClear}
+										variant="tertiary"
+										aria-label="Clear"
+										iconName="CloseSmall"
+									/>
+								)}
 
-						{isSensitive && (
-							<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert secret" />
-						)}
+								{isSensitive && (
+									<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert secret" />
+								)}
 
-						{!isSensitive && (
-							<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert variable" />
+								{!isSensitive && (
+									<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert variable" />
+								)}
+							</ButtonGroup>
 						)}
-					</ButtonGroup>
+					</>
 				)}
 			</Box>
 			<FormHelperText as="p">
