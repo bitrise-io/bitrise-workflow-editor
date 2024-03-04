@@ -1,5 +1,5 @@
 import autosize from "autosize";
-import { RefObject, useEffect, useRef } from "react";
+import { ForwardedRef, useEffect, useRef } from "react";
 
 const intersectionObserver = new IntersectionObserver((entries) => {
 	for (const entry of entries) {
@@ -9,24 +9,36 @@ const intersectionObserver = new IntersectionObserver((entries) => {
 	}
 });
 
-const useAutosize = <T extends Element>(): RefObject<T> => {
-	const ref = useRef<T>(null);
+const useAutosize = <T extends Element>(ref: ForwardedRef<T>) => {
+	const innerRef = useRef<T>(null);
 
 	useEffect(() => {
-		if (ref.current) {
-			autosize(ref.current);
-			intersectionObserver.observe(ref.current);
+		if (!ref) {
+			return;
+		}
+
+		if (typeof ref === "function") {
+			ref(innerRef.current);
+		} else {
+			ref.current = innerRef.current;
+		}
+	});
+
+	useEffect(() => {
+		if (innerRef.current) {
+			autosize(innerRef.current);
+			intersectionObserver.observe(innerRef.current);
 		}
 
 		return () => {
-			if (ref.current) {
-				autosize.destroy(ref.current);
-				intersectionObserver.unobserve(ref.current);
+			if (innerRef.current) {
+				autosize.destroy(innerRef.current);
+				intersectionObserver.unobserve(innerRef.current);
 			}
 		};
-	}, [ref.current]);
+	}, [innerRef.current]);
 
-	return ref;
+	return innerRef;
 };
 
 export default useAutosize;
