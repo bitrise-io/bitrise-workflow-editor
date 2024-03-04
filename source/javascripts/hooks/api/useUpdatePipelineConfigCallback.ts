@@ -1,5 +1,5 @@
-import useMonolithApiCallback, { MonolithError } from "./useMonolithApiCallback";
 import { PipelineConfig } from "../../models/PipelineConfig";
+import useMonolithApiCallback, { MonolithError } from "./useMonolithApiCallback";
 
 export interface FetchResponse {
 	updatePipelineConfigStatus?: number;
@@ -13,18 +13,18 @@ export default function useUpdatePipelineConfigCallback(appSlug: string, usesRep
 		statusCode: updatePipelineConfigStatus,
 		loading: updatePipelineConfigLoading,
 		failed: updatePipelineConfigFailed,
-		call: updatePipelineConfig
+		call: updatePipelineConfig,
 	} = useMonolithApiCallback<PipelineConfig>(`/app/${appSlug}/pipeline_config`, {
 		method: "PUT",
 		body: JSON.stringify({
-			uses_repository_yml: usesRepositoryYml
-		})
+			uses_repository_yml: usesRepositoryYml,
+		}),
 	});
 
 	return {
 		updatePipelineConfigStatus,
 		updatePipelineConfigLoading,
 		updatePipelineConfigFailed,
-		updatePipelineConfig
+		updatePipelineConfig,
 	};
 }

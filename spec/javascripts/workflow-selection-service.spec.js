@@ -9,28 +9,28 @@ describe("WorkflowsSelectionService", () => {
 		mockStore = {
 			applyState: jasmine.createSpy("applyState"),
 			checkLastSelectedWorkflow: jasmine.createSpy("checkLastSelectedWorkflow"),
-			checkLastSelectedstep: jasmine.createSpy("checkLastSelectedstep")
+			checkLastSelectedstep: jasmine.createSpy("checkLastSelectedstep"),
 		};
 
 		mockLocationService = {
-			search: _.identity
+			search: _.identity,
 		};
 
 		spyOn(mockLocationService, "search").and.returnValue({ workflow_id: "test-location" });
 
-		module($provide => {
+		module(($provide) => {
 			$provide.value("workflowSelectionStore", mockStore);
 			$provide.value("$location", mockLocationService);
 		});
 	});
 
-	beforeEach(inject(_workflowSelectionService_ => {
+	beforeEach(inject((_workflowSelectionService_) => {
 		selectionService = _workflowSelectionService_;
 	}));
 
 	describe("findSelectedWorkflow", () => {
 		let mockVm = {
-			workflows: [{ id: "test-1" }, { id: "test-2" }, { id: "test-location" }, { id: "primary" }]
+			workflows: [{ id: "test-1" }, { id: "test-2" }, { id: "test-location" }, { id: "primary" }],
 		};
 
 		beforeEach(() => {
@@ -51,7 +51,7 @@ describe("WorkflowsSelectionService", () => {
 
 		it("should check primary name to find workflow", () => {
 			mockVm = {
-				workflows: [{ id: "test-1" }, { id: "test-2" }, { id: "primary" }]
+				workflows: [{ id: "test-1" }, { id: "test-2" }, { id: "primary" }],
 			};
 
 			const result = selectionService.findSelectedWorkflow(mockVm);
@@ -60,7 +60,7 @@ describe("WorkflowsSelectionService", () => {
 
 		it("should fall back to first if nothing found", () => {
 			mockVm = {
-				workflows: [{ id: "test-1" }, { id: "test-2" }]
+				workflows: [{ id: "test-1" }, { id: "test-2" }],
 			};
 
 			const result = selectionService.findSelectedWorkflow(mockVm);
@@ -76,14 +76,14 @@ describe("WorkflowsSelectionService", () => {
 				{
 					id: "primary",
 					beforeRunWorkflows: jasmine.createSpy("beforeRunWorkflows").and.returnValue([]),
-					afterRunWorkflows: jasmine.createSpy("afterRunWorkflows").and.returnValue([])
-				}
+					afterRunWorkflows: jasmine.createSpy("afterRunWorkflows").and.returnValue([]),
+				},
 			];
 
 			mockVm = {
 				editWorkflowAtIndex: jasmine.createSpy("editWorkflowAtIndex"),
 				stepSelected: jasmine.createSpy("stepSelected"),
-				workflows: workflows
+				workflows: workflows,
 			};
 
 			mockStore.lastEditedWorkflowIndex = null;
@@ -131,13 +131,13 @@ describe("WorkflowsSelectionService", () => {
 		beforeEach(() => {
 			mockVm = {
 				workflows: [],
-				editWorkflowAtIndex: jasmine.createSpy("editWorkflowAtIndex")
+				editWorkflowAtIndex: jasmine.createSpy("editWorkflowAtIndex"),
 			};
 
 			mockWf = {
 				id: "mock-wf",
 				beforeRunWorkflows: jasmine.createSpy("beforeRunWorkflows"),
-				afterRunWorkflows: jasmine.createSpy("afterRunWorkflows")
+				afterRunWorkflows: jasmine.createSpy("afterRunWorkflows"),
 			};
 		});
 
@@ -156,8 +156,8 @@ describe("WorkflowsSelectionService", () => {
 
 			mockWf.beforeRunWorkflows.and.returnValue([
 				{
-					workflowChain: () => [mockedCopyWf]
-				}
+					workflowChain: () => [mockedCopyWf],
+				},
 			]);
 
 			mockWf.afterRunWorkflows.and.returnValue([]);
@@ -172,23 +172,23 @@ describe("WorkflowsSelectionService", () => {
 			mockWf.beforeRunWorkflows.and.returnValue([
 				{
 					id: "before-1",
-					workflowChain: () => [{ id: "before-before-1" }, { id: "before-1" }, { id: "after-before-1" }]
+					workflowChain: () => [{ id: "before-before-1" }, { id: "before-1" }, { id: "after-before-1" }],
 				},
 				{
 					id: "before-2",
-					workflowChain: () => [{ id: "before-before-2" }, { id: "before-2" }, { id: "after-before-2" }]
-				}
+					workflowChain: () => [{ id: "before-before-2" }, { id: "before-2" }, { id: "after-before-2" }],
+				},
 			]);
 
 			mockWf.afterRunWorkflows.and.returnValue([
 				{
 					id: "after-1",
-					workflowChain: () => [{ id: "before-after-1" }, { id: "after-1" }, { id: "after-after-1" }]
+					workflowChain: () => [{ id: "before-after-1" }, { id: "after-1" }, { id: "after-after-1" }],
 				},
 				{
 					id: "after-2",
-					workflowChain: () => [{ id: "before-after-2" }, { id: "after-2" }, { id: "after-after-2" }]
-				}
+					workflowChain: () => [{ id: "before-after-2" }, { id: "after-2" }, { id: "after-after-2" }],
+				},
 			]);
 
 			selectionService.rearrangeSelection(mockVm, mockWf);
@@ -198,7 +198,7 @@ describe("WorkflowsSelectionService", () => {
 			expect(mockVm.selectedWorkflowChain[0].isAfterRunWorkflow).toBeFalse();
 			expect(mockVm.selectedWorkflowChain[7].isAfterRunWorkflow).toBeTrue();
 
-			const wfIds = mockVm.selectedWorkflowChain.map(wf => wf.workflow.id);
+			const wfIds = mockVm.selectedWorkflowChain.map((wf) => wf.workflow.id);
 			expect(wfIds).toEqual([
 				"before-before-1",
 				"before-1",
@@ -212,7 +212,7 @@ describe("WorkflowsSelectionService", () => {
 				"after-after-1",
 				"before-after-2",
 				"after-2",
-				"after-after-2"
+				"after-after-2",
 			]);
 		});
 	});

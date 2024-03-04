@@ -1,4 +1,5 @@
-import { Text, Badge, Icon } from "@bitrise/bitkit";
+import { Badge, Icon, Text } from "@bitrise/bitkit";
+
 import { Step } from "../../models";
 
 type StepItemVersionProps = {

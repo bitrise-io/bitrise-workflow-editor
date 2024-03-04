@@ -1,8 +1,8 @@
-import { Fragment } from "react";
 import { Box, Icon } from "@bitrise/bitkit";
-import { Step } from "../../models";
+import { Fragment } from "react";
 
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
+import { Step } from "../../models";
 
 type StepItemBadgeProps = {
 	step: Step;
@@ -28,12 +28,7 @@ const StepItemBadge = ({ step }: StepItemBadgeProps): JSX.Element => (
 				alignItems="center"
 				data-e2e-tag="deprecated-badge"
 			>
-				<img
-					className="deprecated"
-					src={deprecatedIcon}
-					width="18"
-					height="18"
-					alt="Deprecated" />
+				<img className="deprecated" src={deprecatedIcon} width="18" height="18" alt="Deprecated" />
 			</Box>
 		)}
 	</Fragment>

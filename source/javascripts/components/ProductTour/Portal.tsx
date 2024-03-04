@@ -1,7 +1,7 @@
+import "./Portal.scss";
+
 import { ReactNode, useRef } from "react";
 import ReactDOM from "react-dom";
-
-import "./Portal.scss";
 
 export const Portal = ({ children }: { children: ReactNode }): JSX.Element | null => {
 	const ref = useRef<HTMLDivElement | null>(null);

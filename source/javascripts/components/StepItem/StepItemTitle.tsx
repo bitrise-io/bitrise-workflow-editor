@@ -1,4 +1,5 @@
 import { Text, TextProps } from "@bitrise/bitkit";
+
 import { Step } from "../../models";
 
 type StepItemTitleProps = {

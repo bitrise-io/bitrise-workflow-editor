@@ -1,7 +1,7 @@
-import { Fragment } from "react";
 import { Box, Text } from "@bitrise/bitkit";
-import { Step } from "../../models";
+import { Fragment } from "react";
 
+import { Step } from "../../models";
 import StepResolvedVersionInfo from "./StepResolvedVersionInfo";
 import StepVersionSelector, { StepVersionSelectorProps } from "./StepVersionSelector";
 
@@ -30,7 +30,7 @@ const StepVersionDetails = ({
 	versions,
 	selectedVersion = "",
 	versionSelectorOpts,
-	strings
+	strings,
 }: StepVersionDetailsProps): JSX.Element => {
 	const isVersionDefined = step.version !== undefined;
 

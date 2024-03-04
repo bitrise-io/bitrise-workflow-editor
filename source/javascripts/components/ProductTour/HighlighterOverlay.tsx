@@ -1,6 +1,6 @@
-import { Portal } from "./Portal";
-
 import { Box } from "@bitrise/bitkit";
+
+import { Portal } from "./Portal";
 
 interface HighlighterOverlayProps {
 	clipPath: string;
@@ -9,11 +9,7 @@ interface HighlighterOverlayProps {
 	isOpen: boolean;
 }
 
-export const HighlighterOverlay = ({
-	clipPath,
-	children,
-	isOpen,
-	}: HighlighterOverlayProps): JSX.Element | null => {
+export const HighlighterOverlay = ({ clipPath, children, isOpen }: HighlighterOverlayProps): JSX.Element | null => {
 	if (!isOpen || !clipPath) {
 		return null;
 	}
@@ -27,7 +23,8 @@ export const HighlighterOverlay = ({
 				top="0"
 				left="0"
 				zIndex="100"
-				sx={{"& > *": {pointerEvents: "all"}}}>
+				sx={{ "& > *": { pointerEvents: "all" } }}
+			>
 				<>
 					<Box
 						width="100vw"
@@ -37,13 +34,12 @@ export const HighlighterOverlay = ({
 						left="0"
 						top="0"
 						style={{
-							clipPath
+							clipPath,
 						}}
 					/>
 					{children}
 				</>
 			</Box>
-        
 		</Portal>
 	);
 };

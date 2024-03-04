@@ -1,5 +1,5 @@
-import useFetchCallback, { FetchResponse } from "./useFetchCallback";
 import getCookie from "../utils/cookies";
+import useFetchCallback, { FetchResponse } from "./useFetchCallback";
 
 export interface MonolithError {
 	error_msg: string;
@@ -8,7 +8,7 @@ export interface MonolithError {
 export default function useMonolithApiCallback<T>(
 	url: string,
 	init?: RequestInit,
-	parser?: (data: string) => unknown
+	parser?: (data: string) => unknown,
 ): FetchResponse<T, MonolithError> {
 	return useFetchCallback<T, MonolithError>(
 		url,
@@ -16,9 +16,9 @@ export default function useMonolithApiCallback<T>(
 			...init,
 			headers: {
 				"X-CSRF-TOKEN": getCookie("CSRF-TOKEN"),
-				...init?.headers
-			}
+				...init?.headers,
+			},
 		},
-		parser
+		parser,
 	);
 }

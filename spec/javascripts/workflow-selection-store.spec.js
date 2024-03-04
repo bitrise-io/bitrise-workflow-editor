@@ -2,7 +2,7 @@ describe("Workflow selection store", () => {
 	let selectionStore;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(_workflowSelectionStore_ => {
+	beforeEach(inject((_workflowSelectionStore_) => {
 		selectionStore = _workflowSelectionStore_;
 
 		// selection store is singleton
@@ -16,8 +16,8 @@ describe("Workflow selection store", () => {
 				lastEditedWorkflowID: null,
 				lastEditedWorkflowIndex: null,
 				lastSelectedStepCVS: null,
-				lastSelectedStepIndex: null
-			})
+				lastSelectedStepIndex: null,
+			}),
 		);
 	});
 
@@ -34,12 +34,12 @@ describe("Workflow selection store", () => {
 	describe("applyState", () => {
 		const mockStep = {
 			id: "mockStep",
-			cvs: "mockStep@1.1"
+			cvs: "mockStep@1.1",
 		};
 
 		const mockWorkflow = {
 			id: "wf1",
-			steps: [mockStep]
+			steps: [mockStep],
 		};
 
 		beforeEach(() => {
@@ -51,7 +51,7 @@ describe("Workflow selection store", () => {
 				lastSelectedWorkflow: mockWorkflow,
 				lastEditedWorkflow: mockWorkflow,
 				lastEditedWorkflowIndex: 10,
-				lastSelectedStep: mockStep
+				lastSelectedStep: mockStep,
 			});
 
 			expect(selectionStore).toEqual(
@@ -60,8 +60,8 @@ describe("Workflow selection store", () => {
 					lastEditedWorkflowID: "wf1",
 					lastEditedWorkflowIndex: 10,
 					lastSelectedStepCVS: "mockStep@1.1",
-					lastSelectedStepIndex: 0
-				})
+					lastSelectedStepIndex: 0,
+				}),
 			);
 		});
 
@@ -74,8 +74,8 @@ describe("Workflow selection store", () => {
 					lastEditedWorkflowID: mockWorkflow.id,
 					lastEditedWorkflowIndex: 0,
 					lastSelectedStepCVS: null,
-					lastSelectedStepIndex: null
-				})
+					lastSelectedStepIndex: null,
+				}),
 			);
 		});
 

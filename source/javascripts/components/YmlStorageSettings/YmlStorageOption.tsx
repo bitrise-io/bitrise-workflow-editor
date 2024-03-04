@@ -1,4 +1,4 @@
-import { Box, Text, Icon, TypeIconName, Badge, Tooltip } from "@bitrise/bitkit";
+import { Badge, Box, Icon, Text, Tooltip, TypeIconName } from "@bitrise/bitkit";
 
 type StepItemProps = {
 	icon: TypeIconName;
@@ -10,8 +10,13 @@ type StepItemProps = {
 };
 
 const YmlStorageOption = ({
-	isActive, title, description, icon, onClick, available = true
-	}: StepItemProps): JSX.Element => (
+	isActive,
+	title,
+	description,
+	icon,
+	onClick,
+	available = true,
+}: StepItemProps): JSX.Element => (
 	<Box
 		boxShadow="medium"
 		backgroundColor={isActive ? "purple.95" : "white"}
@@ -38,10 +43,15 @@ const YmlStorageOption = ({
 					{title}
 				</Text>
 				{!available && (
-					<Tooltip label="Storing YAML in your app's repository is not available in your current plan." shouldWrapChildren>
-					<Badge filter="none" color="neutral.40" backgroundColor="neutral.90">Not available</Badge>
-					</Tooltip>)
-				}
+					<Tooltip
+						label="Storing YAML in your app's repository is not available in your current plan."
+						shouldWrapChildren
+					>
+						<Badge filter="none" color="neutral.40" backgroundColor="neutral.90">
+							Not available
+						</Badge>
+					</Tooltip>
+				)}
 			</Box>
 			<Text size="2" textColor="neutral.40">
 				{description}

@@ -1,5 +1,5 @@
+import { Box, Button, ButtonGroup, Dialog, DialogBody, DialogFooter, Icon, Text } from "@bitrise/bitkit";
 import React from "react";
-import { Box, Dialog, DialogBody, Icon, ButtonGroup, Button, Text, DialogFooter } from "@bitrise/bitkit";
 
 type Props = {
 	visible: boolean;

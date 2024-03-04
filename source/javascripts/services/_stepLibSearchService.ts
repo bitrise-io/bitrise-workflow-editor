@@ -1,4 +1,5 @@
-import { Step, SearchOptions } from "@bitrise/steplib-search";
+import { SearchOptions, Step } from "@bitrise/steplib-search";
+
 import { Logger } from "./logger";
 
 type ListOptions = {
@@ -25,7 +26,7 @@ type StepWithVersions = {
 	id: string;
 	versions: Record<string, any>;
 	info: unknown;
-}
+};
 
 type StepLibSearchInstance = {
 	list: (options: SearchOptions) => Promise<StepVersion[]>;
@@ -39,89 +40,91 @@ type StepLibSearchService = {
 
 // eslint-disable-next-line
 // @ts-ignore
-angular.module("BitriseWorkflowEditor").service(
-	"stepLibSearchService",
-	($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
-		const convertSteps = (steps: StepVersion[]) =>
-			steps.reduce((stepObj: Record<string, StepWithVersions>, stepVersion: StepVersion) => {
-				const step = stepObj[stepVersion.id] || {};
-				const versions = step.versions || {};
-				versions[stepVersion.version] = Object.assign({}, stepVersion, stepVersion.info);
+angular
+	.module("BitriseWorkflowEditor")
+	.service(
+		"stepLibSearchService",
+		($q: any, stepLibSearchInstance: StepLibSearchInstance, logger: Logger): StepLibSearchService => {
+			const convertSteps = (steps: StepVersion[]) =>
+				steps.reduce((stepObj: Record<string, StepWithVersions>, stepVersion: StepVersion) => {
+					const step = stepObj[stepVersion.id] || {};
+					const versions = step.versions || {};
+					versions[stepVersion.version] = Object.assign({}, stepVersion, stepVersion.info);
 
-				const info = Object.assign({}, step.info, stepVersion.info);
+					const info = Object.assign({}, step.info, stepVersion.info);
 
-				return Object.assign({}, stepObj, {
-					[stepVersion.id]: {
-						info: info,
-						versions: versions
-					}
-				});
-			}, {});
-
-		return {
-			list(options) {
-				const attributesToRetrieve = options.attributesToRetrieve || ["*"];
-
-				return stepLibSearchInstance
-					.list({
-						stepIds: options.stepCVSs,
-						includeInputs: !!options.includeInputs,
-						latestOnly: !!options.latestOnly,
-						includeDeprecated: options.includeDeprecated,
-						projectTypes: options.projectTypes,
-						algoliaOptions: {
-							attributesToRetrieve
-						}
-					})
-					.then(convertSteps)
-					.catch(function(err: Error) {
-						logger.error(err);
-						return $q.reject(err);
+					return Object.assign({}, stepObj, {
+						[stepVersion.id]: {
+							info: info,
+							versions: versions,
+						},
 					});
-			},
-			getStepVersions(stepId: string, attributesToRetrieve: string[]) {
-				attributesToRetrieve = attributesToRetrieve || ["*"];
+				}, {});
 
-				return stepLibSearchInstance
-					.list({
-						query: stepId,
-						includeInputs: true,
-						algoliaOptions: {
-							attributesToRetrieve: attributesToRetrieve
-						}
-					})
-					.then(convertSteps)
-					.then((stepObj: { [stepId: string]: StepWithVersions }) => stepObj[stepId])
-					.catch((err: Error) => {
-						logger.error(err);
-						return $q.reject(err);
-					});
-			},
-			fuzzySearch({
-				attributesToRetrieve = ["*"],
-				query,
-				latestOnly,
-				includeInputs,
-				includeDeprecated
-			}: FuzzySearchOptions) {
-				return stepLibSearchInstance
-					.list({
-						query,
-						latestOnly: !!latestOnly,
-						includeInputs: !!includeInputs,
-						includeDeprecated,
-						algoliaOptions: {
-							attributesToRetrieve,
-							restrictSearchableAttributes: ["step.title"],
-							typoTolerance: true
-						}
-					})
-					.then(convertSteps)
-					.catch(function(err: Error) {
-						logger.error(err);
-						return $q.reject(err);
-					});
-			}
-		};
-	}
-);
+			return {
+				list(options) {
+					const attributesToRetrieve = options.attributesToRetrieve || ["*"];
+
+					return stepLibSearchInstance
+						.list({
+							stepIds: options.stepCVSs,
+							includeInputs: !!options.includeInputs,
+							latestOnly: !!options.latestOnly,
+							includeDeprecated: options.includeDeprecated,
+							projectTypes: options.projectTypes,
+							algoliaOptions: {
+								attributesToRetrieve,
+							},
+						})
+						.then(convertSteps)
+						.catch(function (err: Error) {
+							logger.error(err);
+							return $q.reject(err);
+						});
+				},
+				getStepVersions(stepId: string, attributesToRetrieve: string[]) {
+					attributesToRetrieve = attributesToRetrieve || ["*"];
+
+					return stepLibSearchInstance
+						.list({
+							query: stepId,
+							includeInputs: true,
+							algoliaOptions: {
+								attributesToRetrieve: attributesToRetrieve,
+							},
+						})
+						.then(convertSteps)
+						.then((stepObj: { [stepId: string]: StepWithVersions }) => stepObj[stepId])
+						.catch((err: Error) => {
+							logger.error(err);
+							return $q.reject(err);
+						});
+				},
+				fuzzySearch({
+					attributesToRetrieve = ["*"],
+					query,
+					latestOnly,
+					includeInputs,
+					includeDeprecated,
+				}: FuzzySearchOptions) {
+					return stepLibSearchInstance
+						.list({
+							query,
+							latestOnly: !!latestOnly,
+							includeInputs: !!includeInputs,
+							includeDeprecated,
+							algoliaOptions: {
+								attributesToRetrieve,
+								restrictSearchableAttributes: ["step.title"],
+								typoTolerance: true,
+							},
+						})
+						.then(convertSteps)
+						.catch(function (err: Error) {
+							logger.error(err);
+							return $q.reject(err);
+						});
+				},
+			};
+		},
+	);

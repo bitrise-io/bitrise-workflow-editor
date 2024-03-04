@@ -1,8 +1,8 @@
-import { Text, Icon } from "@bitrise/bitkit";
+import { Icon, Text } from "@bitrise/bitkit";
 import classNames from "classnames";
-import { Step } from "../../models";
 
 import stepOutDatedIcon from "../../../images/step/upgrade.svg";
+import { Step } from "../../models";
 
 type StepResolvedVersionInfoProps = {
 	step: Step;
@@ -21,7 +21,7 @@ const StepResolvedVersionInfo = ({
 	isLatestVersion,
 	workflowIndex,
 	onUpdateStep,
-	strings
+	strings,
 }: StepResolvedVersionInfoProps): JSX.Element => {
 	const isUpdateAvailable = !isLatestVersion;
 

@@ -12,9 +12,10 @@ import {
 	Tooltip,
 	useDisclosure,
 } from "@bitrise/bitkit";
-import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
-import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
+
 import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
+import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
+import WorkflowSelector, { WorkflowSelectorProps } from "../WorkflowSelector/WorkflowSelector";
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
 	defaultBranch: string;

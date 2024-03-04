@@ -1,21 +1,22 @@
 import { useEffect } from "react";
 import { useState } from "react";
+
+import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { HighlighterOverlay } from "./HighlighterOverlay";
 import { HighlighterProductTooltip } from "./HighlighterProductTooltip";
-import { ProductTourProps, Tips } from "./types";
-import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
 import { tips } from "./tips";
-import { useWaitForElements } from "./useWaitForElement";
+import { ProductTourProps, Tips } from "./types";
+import { getClipPathFromRect, useHighlightedArea } from "./useHighlightedArea";
 import { useProductTour } from "./useProductTour";
-import { useHighlightedArea, getClipPathFromRect } from "./useHighlightedArea";
+import { useWaitForElements } from "./useWaitForElement";
 
 export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): JSX.Element | null => {
 	const [isOpen, setIsOpen] = useState(true);
 	const [validTips, setValidTips] = useState<Tips[] | null>(null);
 
 	const onFound = (elements: HTMLElement[]): void => {
-		const foundIds = elements.map(element => element.id);
-		const filtered = tips.filter(tip => foundIds.includes(tip.id));
+		const foundIds = elements.map((element) => element.id);
+		const filtered = tips.filter((tip) => foundIds.includes(tip.id));
 		setValidTips(filtered);
 	};
 
@@ -23,7 +24,9 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 	// but we stil need to wait for the templates to render them before we can move on.
 	useWaitForElements(menuIds, onFound);
 
-	const { tip, finished, onNext, onPrev, onRestart, selectedId, selectedIndex, items } = useProductTour(validTips ?? []);
+	const { tip, finished, onNext, onPrev, onRestart, selectedId, selectedIndex, items } = useProductTour(
+		validTips ?? [],
+	);
 	const rect = useHighlightedArea(selectedId);
 
 	const onDisplayTooltip = useTrackingFunction(() => ({
@@ -32,8 +35,8 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 			user_slug: currentUser.slug,
 			user_id: currentUser.dataId,
 			location: "workflow_editor",
-			name: selectedId
-		}
+			name: selectedId,
+		},
 	}));
 
 	const onTrackClose = useTrackingFunction(() => ({
@@ -42,8 +45,8 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 			user_slug: currentUser.slug,
 			user_id: currentUser.dataId,
 			location: "workflow_editor",
-			name: selectedId
-		}
+			name: selectedId,
+		},
 	}));
 
 	const onButtonClick = useTrackingFunction((buttonName: string) => ({
@@ -53,8 +56,8 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 			user_id: currentUser.dataId,
 			location: "workflow_editor",
 			name: selectedId,
-			button: buttonName
-		}
+			button: buttonName,
+		},
 	}));
 
 	const onClose = (): void => {
@@ -89,15 +92,11 @@ export const ProductTourContent = ({ menuIds, currentUser }: ProductTourProps): 
 				rect={rect}
 				tip={tip}
 			/>
-		</HighlighterOverlay> 
+		</HighlighterOverlay>
 	);
 };
 
-export const ProductTour = ({
-	menuIds,
-	currentUser,
-	productTourShown
-}: ProductTourProps): JSX.Element | null => {
+export const ProductTour = ({ menuIds, currentUser, productTourShown }: ProductTourProps): JSX.Element | null => {
 	if (currentUser && productTourShown === false) {
 		return <ProductTourContent menuIds={menuIds} currentUser={currentUser} />;
 	}

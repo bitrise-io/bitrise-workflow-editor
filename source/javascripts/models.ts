@@ -26,5 +26,5 @@ export interface Step {
 	summary(): string;
 	defaultStepConfig: {
 		version: string;
-	}
+	};
 }

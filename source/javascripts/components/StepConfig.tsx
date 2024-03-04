@@ -1,11 +1,11 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text } from "@bitrise/bitkit";
-
 import { TabPanel, TabPanels } from "@chakra-ui/react";
+
 import { Step } from "../models";
-import StepItemBadge from "./StepItem/StepItemBadge";
 import StepConfiguration from "./StepConfiguration";
-import StepProperties from "./StepProperties";
+import StepItemBadge from "./StepItem/StepItemBadge";
 import StepOutputVariables from "./StepOutputVariables";
+import StepProperties from "./StepProperties";
 
 type Props = {
 	step: Step;

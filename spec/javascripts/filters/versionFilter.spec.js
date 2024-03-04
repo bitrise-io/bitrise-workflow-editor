@@ -10,15 +10,15 @@ describe("VersionFilters", () => {
 	beforeEach(() => {
 		mockStepSourceService = {
 			versionsOfStep: jasmine.createSpy("extractWildcardVersions"),
-			latestVersion: jasmine.createSpy("latestVersion")
+			latestVersion: jasmine.createSpy("latestVersion"),
 		};
 
 		mockSemverService = {
-			checkVersionPartsLocked: jasmine.createSpy("checkVersionPartsLocked")
+			checkVersionPartsLocked: jasmine.createSpy("checkVersionPartsLocked"),
 		};
 
 		module("BitriseWorkflowEditor");
-		module($provide => {
+		module(($provide) => {
 			$provide.value("stepSourceService", mockStepSourceService);
 			$provide.value("semverService", mockSemverService);
 			$provide.value("resolveVersionFilter", _.identity);
@@ -28,7 +28,7 @@ describe("VersionFilters", () => {
 				latestVersionText: "latest_version <latest_version>",
 				exactVersionRemark: "exact_version <version>",
 				patchUpdatesRemark: "patch_update",
-				minorUpdateRemarks: "minor_update"
+				minorUpdateRemarks: "minor_update",
 			});
 		});
 
@@ -39,7 +39,7 @@ describe("VersionFilters", () => {
 		_stepVersionsFilter_,
 		_versionLabelFilter_,
 		_versionInfoStringsFilter_,
-		_versionSelectorOptionsFilter_
+		_versionSelectorOptionsFilter_,
 	) => {
 		stepVersionsFilter = _stepVersionsFilter_;
 		versionLabelFilter = _versionLabelFilter_;
@@ -107,7 +107,7 @@ describe("VersionFilters", () => {
 				.and.returnValue(true);
 
 			const {
-				strings: { versionRemark }
+				strings: { versionRemark },
 			} = verOptsfilter({ version: "1.2.x" });
 			expect(versionRemark).toEqual("patch_update");
 		});
@@ -120,14 +120,14 @@ describe("VersionFilters", () => {
 				.and.returnValue(false);
 
 			const {
-				strings: { versionRemark }
+				strings: { versionRemark },
 			} = verOptsfilter({ version: "1.x" });
 			expect(versionRemark).toEqual("minor_update");
 		});
 
 		it("should support exact versions", () => {
 			const {
-				strings: { versionRemark }
+				strings: { versionRemark },
 			} = verOptsfilter({ version: "1.2.3" });
 			expect(versionRemark).toEqual("exact_version 1.2.3");
 		});

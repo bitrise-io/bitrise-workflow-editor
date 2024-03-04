@@ -1,8 +1,9 @@
-import { useState, useMemo, useEffect } from "react";
-import { Box, Text, Link } from "@bitrise/bitkit";
-import YmlStorageOption from "./YmlStorageOption";
-import StoreOnWebsite from "./StoreOnWebsite";
+import { Box, Link, Text } from "@bitrise/bitkit";
+import { useEffect, useMemo, useState } from "react";
+
 import StoreInRepository from "./StoreInRepository";
+import StoreOnWebsite from "./StoreOnWebsite";
+import YmlStorageOption from "./YmlStorageOption";
 
 type YmlStorageSettingsProps = {
 	appSlug: string;
@@ -15,7 +16,7 @@ const YmlStorageSettings = ({
 	appSlug,
 	usesRepositoryYml: _initialUsesRepositoryYml,
 	repositoryYmlAvailable,
-	onUsesRepositoryYmlChangeSaved
+	onUsesRepositoryYmlChangeSaved,
 }: YmlStorageSettingsProps): JSX.Element => {
 	const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
 	const [usesRepositoryYml, setUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
@@ -39,7 +40,12 @@ const YmlStorageSettings = ({
 				<Text size="2" textColor="neutral.40">
 					Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
 					out the{" "}
-					<Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isUnderlined isExternal>
+					<Link
+						href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
+						colorScheme="purple"
+						isUnderlined
+						isExternal
+					>
 						documentation
 					</Link>{" "}
 					for the details.

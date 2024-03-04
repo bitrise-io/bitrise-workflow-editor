@@ -1,8 +1,9 @@
-import { pick } from "underscore";
-import { datadogLogs, StatusType, HandlerType, Logger as DLogger } from "@datadog/browser-logs";
 import { Context } from "@datadog/browser-core";
-import { getAppSlug } from "./app-service";
+import { datadogLogs, HandlerType, Logger as DLogger, StatusType } from "@datadog/browser-logs";
+import { pick } from "underscore";
+
 import { WFEWindow } from "../typings/global";
+import { getAppSlug } from "./app-service";
 
 declare let window: WFEWindow;
 
@@ -29,16 +30,16 @@ class DataDogLoggerService implements Logger {
 			name,
 			clientToken = window.DATADOG_API_KEY,
 			isAnalyticsOn = window.isAnalyticsOn,
-			level = StatusType.warn
+			level = StatusType.warn,
 		}: LoggerOptions,
 		context: Context,
-		dLogger: typeof datadogLogs
+		dLogger: typeof datadogLogs,
 	) {
 		dLogger.init({ clientToken, forwardErrorsToLogs: false });
 		this.logger = dLogger.createLogger(name, {
 			level,
 			context,
-			handler: isAnalyticsOn ? HandlerType.http : HandlerType.console
+			handler: isAnalyticsOn ? HandlerType.http : HandlerType.console,
 		});
 	}
 
@@ -75,7 +76,7 @@ const getDefaultTags = (): Context => {
 	const defaultTags = {
 		service: window.serviceName,
 		mode: window.mode,
-		appSlug: getAppSlug()
+		appSlug: getAppSlug(),
 	};
 
 	const nullCheck = (val: string | null): boolean => !!val;

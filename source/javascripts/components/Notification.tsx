@@ -1,6 +1,6 @@
-import { FunctionComponent } from "react";
 import { Notification as BitkitNotification, NotificationProps } from "@bitrise/bitkit";
 import { Text } from "@bitrise/bitkit";
+import { FunctionComponent } from "react";
 
 type Props = {
 	message: string;

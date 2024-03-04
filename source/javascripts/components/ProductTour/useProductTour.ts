@@ -1,9 +1,10 @@
 import { useCallback, useEffect, useReducer } from "react";
-import { Tips, State, Action } from "./types";
+
+import { Action, State, Tips } from "./types";
 
 const initialState: State = {
 	items: [],
-	finished: false
+	finished: false,
 };
 
 function reducer(state: State, { type, payload }: Action): State {
@@ -22,7 +23,7 @@ function reducer(state: State, { type, payload }: Action): State {
 		}
 
 		case "select": {
-			const found = state.items?.find(item => item.id === payload);
+			const found = state.items?.find((item) => item.id === payload);
 			if (found) {
 				const selectedIndex = state.items.indexOf(found);
 				const finished = selectedIndex === state.items.length - 1;
@@ -41,7 +42,7 @@ function reducer(state: State, { type, payload }: Action): State {
 						...state,
 						selectedId: found.id,
 						selectedIndex: nextIndex,
-						finished
+						finished,
 					};
 				}
 			}
@@ -58,7 +59,7 @@ function reducer(state: State, { type, payload }: Action): State {
 						...state,
 						selectedId: found.id,
 						selectedIndex: prevIndex,
-						finished
+						finished,
 					};
 				}
 			}
@@ -79,8 +80,8 @@ export const useProductTour = (tips: Tips[]) => {
 	}, [tips]);
 
 	const onRestart = useCallback(() => {
-		dispatch({ type: "select", payload: tips[0].id});
-	}, [dispatch, tips]); 
+		dispatch({ type: "select", payload: tips[0].id });
+	}, [dispatch, tips]);
 
 	const onNext = useCallback(() => {
 		dispatch({ type: "next", payload: undefined });
@@ -98,6 +99,6 @@ export const useProductTour = (tips: Tips[]) => {
 		tip,
 		onPrev,
 		onNext,
-		onRestart
+		onRestart,
 	};
 };

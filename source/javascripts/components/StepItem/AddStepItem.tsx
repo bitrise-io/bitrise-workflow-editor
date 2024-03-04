@@ -1,7 +1,7 @@
 import { Box, Icon } from "@bitrise/bitkit";
-import MarkdownText from "../MarkdownText";
-import { Step } from "../../models";
 
+import { Step } from "../../models";
+import MarkdownText from "../MarkdownText";
 import StepItemBadge from "./StepItemBadge";
 import StepItemIcon from "./StepItemIcon";
 import StepItemTitle from "./StepItemTitle";

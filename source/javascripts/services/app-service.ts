@@ -10,7 +10,7 @@ type Variable = {
 export const getAppSlug = (): string | null => {
 	const matches = new RegExp(
 		// eslint-disable-next-line max-len
-		".*/app/((?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})|(?:[a-zA-Z0-9]{16}))(?:[/?#].*)?"
+		".*/app/((?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})|(?:[a-zA-Z0-9]{16}))(?:[/?#].*)?",
 	).exec(document.location.href);
 
 	if (matches) {

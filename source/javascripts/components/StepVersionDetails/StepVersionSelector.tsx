@@ -1,5 +1,6 @@
 import { Box, Text } from "@bitrise/bitkit";
 import classNames from "classnames";
+
 import { Step } from "../../models";
 import semverService from "../../services/semver-service";
 
@@ -22,7 +23,7 @@ const StepVersionSelector = ({
 	versions,
 	selectedVersion,
 	onUpdateVersion,
-	strings
+	strings,
 }: StepVersionSelectorProps): JSX.Element => (
 	<Box className="version-selector">
 		<Text
@@ -37,7 +38,7 @@ const StepVersionSelector = ({
 				onUpdateVersion(target.value);
 			}}
 		>
-			{versions.map(version => {
+			{versions.map((version) => {
 				version = version || "";
 				return (
 					<option key={version} value={version} disabled={!semverService.checkVersionPartsLocked(version)}>

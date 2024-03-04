@@ -31,10 +31,10 @@ class StringService {
 		return resultString;
 	}
 
-	joinedString = function(
+	joinedString = function (
 		strings: string[] | null | undefined,
 		separator: string,
-		shouldLeaveSpaceAfterSeparator?: boolean
+		shouldLeaveSpaceAfterSeparator?: boolean,
 	): string {
 		if (!strings) {
 			return "";
@@ -54,7 +54,7 @@ class StringService {
 			shouldLeaveSpaceAfterSeparator = _.contains([",", ";"], separator);
 		}
 
-		_.each(strings, function(aString, index) {
+		_.each(strings, function (aString, index) {
 			if (aString === null || aString === undefined) {
 				aString = "";
 			}
@@ -96,7 +96,7 @@ class StringService {
 	}
 
 	errorMessageFromErrors(errors: Error[]): string {
-		const errorMessages = _.map(errors, function(anError) {
+		const errorMessages = _.map(errors, function (anError) {
 			return anError.message;
 		});
 
