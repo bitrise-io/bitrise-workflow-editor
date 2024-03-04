@@ -1,46 +1,131 @@
-import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from "@bitrise/bitkit";
-import { useEffect, useMemo, useState } from "react";
+import {
+	Box,
+	Collapse,
+	Divider,
+	Icon,
+	Input,
+	Link,
+	MarkdownContent,
+	Select,
+	Text,
+	useDisclosure,
+} from "@bitrise/bitkit";
+import { useEffect, useReducer, useState } from "react";
 import { useForm } from "react-hook-form";
 import { OnStepPropertyChange, Step, StepVersionWithRemark } from "../models";
+import MajorVersionChangeDialog from "./MajorVersionChangeDialog";
+import semverService from "../services/semver-service";
+
+const extractStepFields = (step: Step) => {
+	return {
+		name: step.displayName(),
+		version: step.requestedVersion() || "",
+		sourceURL: step.sourceURL(),
+		summary: step.summary(),
+		description: step.description(),
+		isLibraryStep: step.isLibraryStep(),
+	};
+};
+
+const extractReleaseNotesUrl = (step: Step) => {
+	let releaseUrl = step.defaultStepConfig["source_code_url"] || "";
+	if (releaseUrl.startsWith("https://github.com")) {
+		releaseUrl += "/releases";
+	}
+	return releaseUrl;
+};
+
+const extractInputNames = (step: Step) =>
+	step.defaultStepConfig.inputs
+		.map((inputObj) => Object.keys(inputObj).find((k) => k !== "opts") || "")
+		.filter((i) => !!i);
+
+type ReducerState = { oldHashKey: string; oldVersion: string; oldInputNames: Array<string> };
+const DefaultState: ReducerState = { oldHashKey: "", oldVersion: "", oldInputNames: [] };
+
+const useVersionChange = (step: Step) => {
+	const { isOpen, onOpen, onClose } = useDisclosure();
+
+	const [{ oldHashKey, oldVersion, oldInputNames }, dispatch] = useReducer(
+		(state: ReducerState, partialState: Partial<ReducerState>) => ({ ...state, ...partialState }),
+		DefaultState,
+	);
+
+	const isSameStep = oldHashKey === step.$$hashKey;
+
+	// Calculate input changes between different step versions
+	const newInputNames = extractInputNames(step);
+	const removedInputs = oldInputNames.filter((name) => !newInputNames.includes(name));
+	const newInputs = newInputNames.filter((name) => !oldInputNames.includes(name));
+	const hasInputChanged = removedInputs.length > 0 || newInputs.length > 0;
+
+	// Calculate version changes
+	const newVersion = step.version;
+	const isVersionChanged = Boolean(oldVersion && newVersion && oldVersion !== newVersion);
+	const isMajorChange = Boolean(oldVersion && newVersion && semverService.isMajorVersionChange(oldVersion, newVersion));
+	const shouldOpenChangeDialog = isSameStep && (isMajorChange || (isVersionChanged && hasInputChanged));
+
+	useEffect(() => {
+		if (shouldOpenChangeDialog) {
+			onOpen();
+		}
+	}, [shouldOpenChangeDialog, onOpen, newVersion]);
+
+	useEffect(() => {
+		if (step.$$hashKey !== oldHashKey) {
+			dispatch(DefaultState);
+		}
+	}, [oldHashKey, step.$$hashKey]);
+
+	const result = {
+		isOpen,
+		close: onClose,
+		isMajorChange,
+		releaseNotesUrl: extractReleaseNotesUrl(step),
+		removedInputs,
+		newInputs,
+		createSnapshot: ({ oldHashKey, oldVersion, oldInputNames }: ReducerState) =>
+			dispatch({
+				oldHashKey,
+				oldVersion,
+				oldInputNames,
+			}),
+	};
+
+	return result;
+};
 
 type StepPropertiesProps = {
-	workflowIndex: number;
 	step: Step;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
 	onChange: OnStepPropertyChange;
 };
 
 const StepProperties = ({ step, versionsWithRemarks, onChange }: StepPropertiesProps) => {
-	const { name, version, sourceURL, isLibraryStep, summary, description } = useMemo(() => {
-		return {
-			name: step.displayName(),
-			version: step.requestedVersion() || "",
-			sourceURL: step.sourceURL(),
-			summary: step.summary(),
-			description: step.description(),
-			isLibraryStep: step.isLibraryStep(),
-		};
-	}, [step.displayName(), step.requestedVersion()]);
+	const { name, version, sourceURL, summary, description, isLibraryStep } = extractStepFields(step);
 	const [showMore, setShowMore] = useState(false);
-	const { register, setValue, handleSubmit } = useForm<Record<"name" | "version", string>>();
+
+	const { register, setValue, handleSubmit } = useForm<Record<"name" | "version", string>>({
+		defaultValues: { name, version },
+	});
+	const { isOpen, close, createSnapshot, releaseNotesUrl, isMajorChange, removedInputs, newInputs } =
+		useVersionChange(step);
+	const handleChange = handleSubmit((values) => {
+		createSnapshot({
+			oldHashKey: step.$$hashKey,
+			oldVersion: step.defaultStepConfig.version,
+			oldInputNames: extractInputNames(step),
+		});
+		onChange(values);
+	});
 
 	useEffect(() => {
 		setValue("name", name);
 		setValue("version", version);
-	}, [step]);
+	}, [name, version, setValue]);
 
 	return (
-		<Box
-			as="form"
-			display="flex"
-			flexDirection="column"
-			p="24"
-			gap="24"
-			onChange={handleSubmit((values) => {
-				console.log("handleSubmit", values);
-				onChange(values);
-			})}
-		>
+		<Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
 			{sourceURL && (
 				<Link
 					display="flex"
@@ -105,6 +190,14 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: StepPropertiesP
 					</>
 				)}
 			</Box>
+			<MajorVersionChangeDialog
+				isOpen={isOpen}
+				isMajorChange={isMajorChange}
+				onClose={close}
+				releaseNotesUrl={releaseNotesUrl}
+				removedInputs={removedInputs}
+				newInputs={newInputs}
+			/>
 		</Box>
 	);
 };

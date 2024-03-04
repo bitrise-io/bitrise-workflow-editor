@@ -11,20 +11,21 @@ export interface Workflow {
 	workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
-export type OnStepPropertyChange = (values: Record<"name" | "version", string>) => void;
-export type OnStepVersionUpgrade = (step: Step, index: number) => void;
-export type OnStepVersionChange = (selectedVersion: string) => void;
+export type OnStepPropertyChange = (values: Partial<Record<"name" | "version", string | null>>) => void;
 export type StepVersionWithRemark = { version: string; remark: string };
 
 export interface Step {
+	$$hashKey: string;
 	id: string;
 	cvs: string;
 	version: string;
 	defaultStepConfig: {
 		version: string;
+		source_code_url: string;
+		inputs: Array<object>;
 	};
 
-	requestedVersion(): string;
+	requestedVersion(): string | null;
 
 	displayName(): string;
 

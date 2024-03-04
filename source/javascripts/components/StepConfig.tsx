@@ -1,36 +1,31 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from "@bitrise/bitkit";
 
 import { TabPanel, TabPanels } from "@chakra-ui/react";
-import { OnStepPropertyChange, OnStepVersionUpgrade, Step, StepVersionWithRemark } from "../models";
-import { Step, StepOutputVariable } from "../models";
+import { OnStepPropertyChange, Step, StepOutputVariable, StepVersionWithRemark } from "../models";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepConfiguration from "./StepConfiguration";
 import StepProperties from "./StepProperties";
 import StepOutputVariables from "./StepOutputVariables";
 
 type Props = {
-	workflowIndex: number;
 	step: Step;
-	outputVariables: Array<StepOutputVariable>;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
 	hasVersionUpdate?: boolean;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
-	onVersionUpgrade: OnStepVersionUpgrade;
+	outputVariables: Array<StepOutputVariable>;
 	onPropertyChange: OnStepPropertyChange;
 };
 
 const StepConfig = ({
-	workflowIndex,
 	step,
 	onClone,
 	onRemove,
-	versionsWithRemarks,
 	hasVersionUpdate,
+	versionsWithRemarks,
+	outputVariables,
 	onPropertyChange,
-	onVersionUpgrade,
 }: Props): JSX.Element => {
-const StepConfig = ({ step, outputVariables, onClone, onRemove }: Props): JSX.Element => {
 	const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
 	return (
@@ -64,10 +59,7 @@ const StepConfig = ({ step, outputVariables, onClone, onRemove }: Props): JSX.El
 									name="WarningColored"
 									aria-label="New version available"
 									cursor="pointer"
-									onClick={(e) => {
-										e.stopPropagation();
-										onVersionUpgrade(step, workflowIndex);
-									}}
+									onClick={() => onPropertyChange({ version: "" })}
 								/>
 							</Tooltip>
 						)}
@@ -104,12 +96,7 @@ const StepConfig = ({ step, outputVariables, onClone, onRemove }: Props): JSX.El
 						<StepConfiguration step={step} />
 					</TabPanel>
 					<TabPanel id="properties">
-						<StepProperties
-							workflowIndex={workflowIndex}
-							step={step}
-							versionsWithRemarks={versionsWithRemarks}
-							onChange={onPropertyChange}
-						/>
+						<StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onPropertyChange} />
 					</TabPanel>
 					{showOutputVariables && (
 						<TabPanel id="output-variables">

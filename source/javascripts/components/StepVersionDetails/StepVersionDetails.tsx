@@ -1,33 +1,38 @@
 import { Box, Icon, Text } from "@bitrise/bitkit";
 import classNames from "classnames";
-import { OnStepVersionChange, OnStepVersionUpgrade, Step, StepVersionWithRemark } from "../../models";
+import { OnStepPropertyChange, Step, StepVersionWithRemark } from "../../models";
 import { getVersionRemark } from "../../utils/stepVersionUtil";
 import stepOutDatedIcon from "../../../images/step/upgrade.svg";
 
 type StepVersionDetailsProps = {
 	workflowIndex: number;
 	step: Step;
-	selectedVersion: string;
 	latestVersion: string;
-	isLatestVersion: boolean;
+	hasVersionUpdate: boolean;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
-	onVersionChange: OnStepVersionChange;
-	onVersionUpgrade: OnStepVersionUpgrade;
+	onPropertyChange: OnStepPropertyChange;
 };
 
 type DangerouslySetInnerHTMLProps = { __html: string };
 const html = (text: string): DangerouslySetInnerHTMLProps => ({ __html: text });
 
 const StepVersionDetails = ({
-	workflowIndex,
 	step,
-	selectedVersion,
 	latestVersion,
-	isLatestVersion,
+	hasVersionUpdate,
 	versionsWithRemarks = [],
-	onVersionChange,
-	onVersionUpgrade,
+	onPropertyChange,
 }: StepVersionDetailsProps) => {
+	console.log(
+		"StepVersionDetailsProps",
+		step,
+		"latest?",
+		hasVersionUpdate,
+		"latest version",
+		latestVersion,
+		"selected version",
+		step.requestedVersion() || "latest",
+	);
 	if (step.version === undefined) {
 		return null;
 	}
@@ -36,18 +41,18 @@ const StepVersionDetails = ({
 		<section className="version" data-e2e-tag="step-version-details">
 			<Box className="version-info">
 				<div className="resolved-version">
-					{isLatestVersion ? (
-						<Text data-e2e-tag="step-version-details__branch-icon" className="icon">
-							<Icon name="Branch" />
-						</Text>
-					) : (
+					{hasVersionUpdate ? (
 						<button
 							data-e2e-tag="step-version-details__update-button"
 							className="icon icon-danger"
-							onClick={() => onVersionUpgrade(step, workflowIndex)}
+							onClick={() => onPropertyChange({ version: "" })}
 						>
 							<img data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
 						</button>
+					) : (
+						<Text data-e2e-tag="step-version-details__branch-icon" className="icon">
+							<Icon name="Branch" />
+						</Text>
 					)}
 
 					<Text
@@ -63,13 +68,13 @@ const StepVersionDetails = ({
 				<Box className="version-selector">
 					<Text
 						className={classNames("remark", { error: !step.isConfigured() })}
-						dangerouslySetInnerHTML={html(getVersionRemark(selectedVersion))}
+						dangerouslySetInnerHTML={html(getVersionRemark(step.requestedVersion() || ""))}
 					/>
 					<select
 						id="selected-step-version-select"
 						data-e2e-tag="step-version-details__version-selector"
-						value={selectedVersion}
-						onChange={(event) => onVersionChange(event.target.value)}
+						value={step.requestedVersion() || ""}
+						onChange={(event) => onPropertyChange({ version: event.target.value })}
 					>
 						{versionsWithRemarks.map(({ version }) => (
 							<option key={version} value={version}>

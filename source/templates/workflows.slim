@@ -58,9 +58,9 @@
 					/ 		step="workflowsCtrl.selectedStep"
 					/ 		on-clone="workflowsCtrl.cloneSelectedStep"
 					/ 		on-remove="workflowsCtrl.deleteSelectedStep"
-					/ 		versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
 					/ 		has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
-					/ 		on-version-upgrade="workflowsCtrl.upgradeStepToLatestVersion"
+					/ 		versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
+					/ 		output-variables="workflowsCtrl.outputVariables"
 					/ 		on-property-change="workflowsCtrl.handleStepPropertyChanged"
 					/ 	]
 					section.workflow
@@ -95,14 +95,12 @@
 											== svg("arrow-down")
 
 									r-step-version-details[
-										workflow-index="workflowIndex"
+										key="workflowsCtrl.selectedStep.$$hashKey"
 										step="workflowsCtrl.selectedStep"
-										selected-version="workflowsCtrl.selectedStepVersion"
 										latest-version="workflowsCtrl.selectedStepLatestVersion"
-										is-latest-version="workflowsCtrl.isSelectedStepLatestVersion"
+										has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
 										versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
-										on-version-change="workflowsCtrl.changeSelectedStepVersion"
-										on-version-upgrade="workflowsCtrl.upgradeStepToLatestVersion"
+										on-property-change="workflowsCtrl.handleStepPropertyChanged"
 									]
 
 									section.run-if
