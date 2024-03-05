@@ -2,10 +2,7 @@ import _ from "underscore";
 
 type AngularScope = {
 	$$phase: boolean;
-	$digest: VoidFunction;
-	$suspend: VoidFunction;
-	$evalAsync: (fn: ($scope: AngularScope) => void) => void;
-	$applyAsync: (fn: ($scope: AngularScope) => void) => void;
+	$digest: () => void;
 };
 
 type GenFn<T> = (...args: any) => T;

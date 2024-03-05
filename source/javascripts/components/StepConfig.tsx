@@ -9,7 +9,6 @@ import StepProperties from "./StepProperties";
 
 type Props = {
 	step: Step;
-	changes: number;
 	inputCategories: InputCategory[];
 	highlightVersionUpdate?: boolean;
 	outputVariables: Array<StepOutputVariable>;
@@ -70,7 +69,7 @@ const StepConfig = ({
 			</Box>
 
 			<Tabs>
-				<TabList>
+				<TabList paddingX="8">
 					<Tab id="configuration">Configuration</Tab>
 					<Tab id="properties">Properties</Tab>
 					{showOutputVariables && <Tab id="output-variables">Output variables</Tab>}

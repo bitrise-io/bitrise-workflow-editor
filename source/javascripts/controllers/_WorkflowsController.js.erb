@@ -929,18 +929,18 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					viewModel.editedWorkflow.steps.splice(index + 1, 0, clonedStep);
 					updateUniqueCount();
 
-				viewModel.stepSelected(clonedStep);
+					viewModel.stepSelected(clonedStep);
 
-				safeDigest($scope);
-			};
+					safeDigest($scope);
+				};
 
-			viewModel.deleteStepSelected = function() {
-				var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
-				viewModel.editedWorkflow.steps.splice(index, 1);
-				updateUniqueCount();
-				viewModel.stepSelected(null);
-				safeDigest($scope);
-			};
+				viewModel.deleteStepSelected = function() {
+					var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
+					viewModel.editedWorkflow.steps.splice(index, 1);
+					updateUniqueCount();
+					viewModel.stepSelected(null);
+					safeDigest($scope);
+				};
 
 				viewModel.deleteStepButtonText = function() {
 					return stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:steps][:delete] %>", {
@@ -1345,34 +1345,33 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 					return output && (output.description().length > 0 || output.summary().length > 0);
 				};
 	
-			viewModel.handleSelectedStepChanges = function(data) {
-				if (!viewModel.selectedStep) {
-					return;
-				}
+				viewModel.handleSelectedStepChanges = function(data) {
+					if (!viewModel.selectedStep) {
+						return;
+					}
 
-				Object.entries(data).forEach(([key, value]) => {
-					if (key === "run_if") {
-						viewModel.selectedStep.runIf(String(value));
-						return;
-					}
-		
-					if (key === "is_always_run") {
-						viewModel.selectedStep.isAlwaysRun(Boolean(value));
-						return;
-					}
-					
-					viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
-						category.inputs.forEach((variable) => {
-							if (variable.key() === key) {
-								variable.value(String(value));
-							}
+					Object.entries(data).forEach(([key, value]) => {
+						if (key === "run_if") {
+							viewModel.selectedStep.runIf(String(value));
+							return;
+						}
+			
+						if (key === "is_always_run") {
+							viewModel.selectedStep.isAlwaysRun(Boolean(value));
+							return;
+						}
+						
+						viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
+							category.inputs.forEach((variable) => {
+								if (variable.key() === key) {
+									variable.value(String(value));
+								}
+							});
 						});
 					});
-				});
 
-				safeDigest($scope);
+					safeDigest($scope);
+				};
 			}
-		}
-		)
-	;
+		);
 })();

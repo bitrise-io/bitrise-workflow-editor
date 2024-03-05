@@ -12,24 +12,6 @@ export interface Workflow {
 	workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
-export interface StepInput {
-	[key: string]: string | StepInput["opts"];
-	opts: {
-		category?: string;
-		description: string;
-		is_dont_change_value: boolean;
-		is_expand: boolean;
-		is_required: boolean;
-		is_sensitive: boolean;
-		is_template: boolean;
-		skip_if_empty: boolean;
-		summary: string;
-		title: string;
-		unset: boolean;
-		value_options?: string[];
-	};
-}
-
 export interface Step {
 	$$hashKey: string;
 	id: string;

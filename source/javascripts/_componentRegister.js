@@ -99,24 +99,22 @@ angular
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
 	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
 	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]))
-	.component("rHeader", register(Header, [
-		"appName",
-		"appPath",
-		"workspacePath",
-		"workflowsAndPipelinesPath",
-		"onSaveClick",
-		"isSaveDisabled",
-		"isSaveInProgress",
-		"onDiscardClick",
-		"isDiscardDisabled",
-	]))
+	.component(
+		"rHeader",
+		register(Header, [
+			"appName",
+			"appPath",
+			"workspacePath",
+			"workflowsAndPipelinesPath",
+			"onSaveClick",
+			"isSaveDisabled",
+			"isSaveInProgress",
+			"onDiscardClick",
+			"isDiscardDisabled",
+		]),
+	)
 	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
-	.component("rStepConfig", register(StepConfig, [
-		"step",
-		"inputCategories",
-		"outputVariables",
-		"highlightVersionUpdate",
-		"onClone",
-		"onRemove",
-		"onChange",
-	]));
+	.component(
+		"rStepConfig",
+		register(StepConfig, ["step", "highlightVersionUpdate", "outputVariables", "inputCategories", "onClone", "onRemove", "onChange"]),
+	);

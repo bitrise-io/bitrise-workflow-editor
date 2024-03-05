@@ -3,7 +3,7 @@ import { normalizeIconUrl } from "./StepItem/StepItemIcon";
 (function() {
 	"use strict";
 
-	angular.module("BitriseWorkflowEditor").factory("Step", function( $injector, Variable) {
+	angular.module("BitriseWorkflowEditor").factory("Step", function($injector, Variable) {
 		var MAINTAINER = {
 			VERIFIED: "verified",
 			OFFICIAL: "bitrise",
