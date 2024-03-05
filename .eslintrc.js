@@ -1,5 +1,4 @@
 module.exports = {
-	extends: ["prettier"],
 	parser: "@typescript-eslint/parser",
 	root: true,
 	env: {
@@ -22,11 +21,13 @@ module.exports = {
 		}
 	},
 	extends: [
+		"prettier",
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
 		"plugin:react/recommended",
-		"plugin:react/jsx-runtime"
+		"plugin:react/jsx-runtime",
+		"plugin:storybook/recommended"
 	],
 	rules: {
 		"max-len": ["error", { code: 120, tabWidth: 1 }],
@@ -36,7 +37,7 @@ module.exports = {
 		"@typescript-eslint/explicit-function-return-type": ["warn", { allowExpressions: true }],
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
 		"@typescript-eslint/no-non-null-assertion": "off",
-		"react/no-unescaped-entities": ["error", { forbid: [">", '"', "}"] }]
+		"react/no-unescaped-entities": ["error", { forbid: [">", "\"", "}"] }]
 	},
 	overrides: [
 		{
