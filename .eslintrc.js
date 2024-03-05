@@ -21,11 +21,13 @@ module.exports = {
 		},
 	},
 	extends: [
+		"prettier",
 		"eslint:recommended",
 		"plugin:@typescript-eslint/eslint-recommended",
 		"plugin:@typescript-eslint/recommended",
 		"plugin:react/recommended",
 		"plugin:react/jsx-runtime",
+		"plugin:storybook/recommended"
 	],
 	rules: {
 		"no-with": "off",
@@ -38,6 +40,7 @@ module.exports = {
 		"@typescript-eslint/no-unused-vars": "off",
 		"@typescript-eslint/no-non-null-assertion": "off",
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
+		"@typescript-eslint/no-non-null-assertion": "off",
 		"react/no-unescaped-entities": ["error", { forbid: [">", "\"", "}"] }],
 		"@typescript-eslint/ban-types": [
 			"warn",
@@ -54,7 +57,7 @@ module.exports = {
 				varsIgnorePattern: "^_",
 				argsIgnorePattern: "^_",
 			},
-		],
+		]
 	},
 	overrides: [
 		{
