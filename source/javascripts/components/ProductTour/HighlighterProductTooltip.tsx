@@ -83,7 +83,7 @@ export const HighlighterProductTooltip = ({
                     </Box>
                     {!finished && (
                         <Box>
-                            <Button onClick={onClose} size="small" variant="tertiary" padding="0">
+                            <Button onClick={onClose} size="sm" variant="tertiary" padding="0">
                                 <Icon name="CloseSmall" textColor="grape-5" />
                             </Button>
                         </Box>
@@ -104,10 +104,10 @@ export const HighlighterProductTooltip = ({
 
                 {finished ? (
                     <Box display="flex" gap="8">
-                        <Button variant="tertiary" size="small" color="purple.50" onClick={onStartAgain}>
+                        <Button variant="tertiary" size="sm" color="purple.50" onClick={onStartAgain}>
                         Start again
                         </Button>
-                        <Button variant="primary" size="small" onClick={onGotIt}>
+                        <Button variant="primary" size="sm" onClick={onGotIt}>
                             Got it
                         </Button>
                     </Box>
@@ -115,12 +115,12 @@ export const HighlighterProductTooltip = ({
                     <Box display="flex" gap="8">
                         <IconButton iconName="ChevronLeft" 
                                     aria-label="Previous" 
-                                    size="small" 
+                                    size="sm" 
                                     variant="secondary" 
                                     onClick={onPrev}/>
                         <IconButton iconName="ChevronRight" 
                                     aria-label="Next" 
-                                    size="small" 
+                                    size="sm" 
                                     variant="secondary" 
                                     onClick={onNext}/>
                     </Box>

@@ -69,7 +69,7 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 							<ButtonGroup position="absolute" top="8" right="8">
 								{isClearableInput && (
 									<IconButton
-										size="small"
+										size="sm"
 										type="submit"
 										onClick={onClear}
 										variant="tertiary"
@@ -79,11 +79,11 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 								)}
 
 								{isSensitive && (
-									<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert secret" />
+									<IconButton size="sm" iconName="Dollars" variant="secondary" aria-label="Insert secret" />
 								)}
 
 								{!isSensitive && (
-									<IconButton size="small" iconName="Dollars" variant="secondary" aria-label="Insert variable" />
+									<IconButton size="sm" iconName="Dollars" variant="secondary" aria-label="Insert variable" />
 								)}
 							</ButtonGroup>
 						)}

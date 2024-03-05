@@ -3,6 +3,7 @@ export interface StepCatalouge {
 	steps: Record<string, Map<string, Record<string, any>>>;
 	latestStepVersions: Record<string, string>;
 }
+
 export interface Workflow {
 	id: string;
 	steps: Array<Step>;
@@ -34,32 +35,36 @@ export interface Step {
 	id: string;
 	cvs: string;
 	version: string;
+	defaultStepConfig: { version: string };
+
 	runIf: GetterSetter<string>;
 	isAlwaysRun: GetterSetter<boolean>;
 	requestedVersion(): string;
+
 	displayName(): string;
+
 	displayTooltip(): string;
+
 	isVerified(): boolean;
+
 	isOfficial(): boolean;
+
 	isConfigured(): boolean;
+
 	isDeprecated(): boolean;
+
 	isLibraryStep(): boolean;
+
 	iconURL(): string;
+
 	summary(): string;
-	defaultStepConfig: {
-		inputs: StepInput[];
-		is_always_run: boolean;
-		run_if: string;
-		title: string;
-		version: string;
-	};
-	userStepConfig: {
-		inputs?: StepInput[];
-		is_always_run?: boolean;
-		run_if?: string;
-		title?: string;
-		version?: string;
-	};
+}
+
+export interface StepOutputVariable {
+	key: string;
+	title?: string;
+	summary?: string;
+	description?: string;
 }
 
 export interface Variable {

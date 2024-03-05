@@ -1,8 +1,6 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 
-const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
-
 (function() {
 	"use strict";
 
@@ -48,12 +46,12 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 				},
 				requestService.mode == "website"
 					? {
-							id: "code-signing",
-							title: "<%= data[:strings][:main][:menus][:code_signing] %>",
-							path: "<%= data[:routes][:endpoints][:code_signing] %>",
-							possibleURLParameterKeys: [],
-							cssClass: "code-signing"
-					  }
+						id: "code-signing",
+						title: "<%= data[:strings][:main][:menus][:code_signing] %>",
+						path: "<%= data[:routes][:endpoints][:code_signing] %>",
+						possibleURLParameterKeys: [],
+						cssClass: "code-signing"
+					}
 					: null,
 				{
 					id: "secrets",
@@ -78,12 +76,12 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 				},
 				requestService.mode == "website"
 					? {
-							id: "stack",
-							title: "<%= data[:strings][:main][:menus][:stack] %>",
-							path: "<%= data[:routes][:endpoints][:stack] %>",
-							possibleURLParameterKeys: [],
-							cssClass: "stack"
-					  }
+						id: "stack",
+						title: "<%= data[:strings][:main][:menus][:stack] %>",
+						path: "<%= data[:routes][:endpoints][:stack] %>",
+						possibleURLParameterKeys: [],
+						cssClass: "stack"
+					}
 					: null,
 				requestService.mode == "website"
 					? {
@@ -92,7 +90,7 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 						path: "<%= data[:routes][:endpoints][:licenses] %>",
 						possibleURLParameterKeys: [],
 						cssClass: "hidden"
-					  }
+					}
 					: null,
 				{
 					id: "yml",
@@ -100,12 +98,12 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 					path: "<%= data[:routes][:endpoints][:yml] %>",
 					possibleURLParameterKeys: [],
 					cssClass: "yml",
-					divided: true,
+					divided: true
 				}
 			]);
 			viewModel.menuProgress = new Progress();
 			viewModel.currentMenu;
-			viewModel.tourIds = ['menu-nav', 'workflow-main-toolbar', 'steps-container'];
+			viewModel.tourIds = ["menu-nav", "workflow-main-toolbar", "steps-container"];
 
 
 			viewModel.loadDataProgress = new Progress();
@@ -119,7 +117,6 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 			viewModel.lastWorkflowEditedDate;
 
 			viewModel.isFirstBuildExperienceEnabled = false;
-			viewModel.isNewLayoutEnabled = isNewLayoutEnabledByEnv;
 
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
@@ -486,17 +483,17 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 				});
 			}
 
-			function updateLastWorkflowMetadata(){
+			function updateLastWorkflowMetadata() {
 				const appSlug = appService.appDetails.slug;
 				const dateToday = new Date().toString();
 
 				requestService.updateCurrentUserMetadata({
-					'last_workflow_edited_date': dateToday,
-					'last_workflow_edited_app': appSlug
+					"last_workflow_edited_date": dateToday,
+					"last_workflow_edited_app": appSlug
 				})
-				.then(function() {
-					viewModel.lastWorkflowEditedDate = dateToday;
-				});
+					.then(function() {
+						viewModel.lastWorkflowEditedDate = dateToday;
+					});
 			}
 
 			viewModel.getDataToSave = function() {
@@ -548,11 +545,11 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 										.then(function() {
 
 											if (machineTypeUpdated) {
-												const event = 'Machine Type Changed - Stacks & Machines Tab';
+												const event = "Machine Type Changed - Stacks & Machines Tab";
 												window.analytics && window.analytics.track(event, {
-												  machine_type_id: viewModel.dataToSave.meta['bitrise.io'].machine_type_id,
-												  user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
-												  organization_slug: appService.appDetails.ownerData.type === 'Organization' ? appService.appDetails.ownerData.slug : undefined
+													machine_type_id: viewModel.dataToSave.meta["bitrise.io"].machine_type_id,
+													user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
+													organization_slug: appService.appDetails.ownerData.type === "Organization" ? appService.appDetails.ownerData.slug : undefined
 												});
 											}
 
@@ -573,7 +570,8 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 										.then(resolve, reject);
 							}
 						}),
-						$timeout(function() {}, dateService.defaultSaveDelayDurationInMilliseconds)
+						$timeout(function() {
+						}, dateService.defaultSaveDelayDurationInMilliseconds)
 					])
 					.then(
 						function() {
@@ -726,7 +724,7 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 
 				requestService.getCurrentUserData().then(function(response) {
 					viewModel.currentUser = response;
-				})
+				});
 
 				$q(function(resolve, reject) {
 					switch (requestService.mode) {
@@ -738,12 +736,11 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 							}
 
 							launchDarklyService.initialize().then(() => {
-								const isProductTourEnabled = launchDarklyService.variation('enable-wfe-product-tour');
-								const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata('last_workflow_edited_date');
+								const isProductTourEnabled = launchDarklyService.variation("enable-wfe-product-tour");
+								const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata("last_workflow_edited_date");
 								const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
 
-								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation('enable-first-build-experience');
-								viewModel.isNewLayoutEnabled = isNewLayoutEnabledByEnv || launchDarklyService.variation('enable-wfe-new-layout');
+								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
 
 								const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
 
@@ -753,7 +750,7 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 								});
 							}).finally(() => {
 								appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
-							})
+							});
 
 							break;
 						case "cli":
@@ -788,26 +785,26 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 			};
 
 			viewModel.shouldShowMenuBar = function() {
-				if (requestService.mode == 'cli') {
+				if (requestService.mode == "cli") {
 					return true;
 				}
 
 				return appService.appDetails !== undefined;
-			}
+			};
 
 			viewModel.isTabEnabledForMenu = function(menu) {
-				if (menu && menu.id === 'yml') {
+				if (menu && menu.id === "yml") {
 					return true;
 				}
 
-				if (menu && menu.id === 'stack') {
+				if (menu && menu.id === "stack") {
 					if (viewModel.loadDataProgress.statusMessage == "<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>") {
 						return true;
 					}
 				}
 
 				return viewModel.initAppProgress.isIdle && viewModel.loadDataProgress.isIdle;
-			}
+			};
 
 			viewModel.isMenuEnabled = function(menu) {
 				if (viewModel.menuProgress.isInProgress || viewModel.saveProgress.isInProgress) {
@@ -815,19 +812,19 @@ const isNewLayoutEnabledByEnv = "<%= ENV['ENABLE_NEW_LAYOUT'] %>" === "true";
 				}
 
 				return viewModel.isTabEnabledForMenu(menu);
-			}
+			};
 
 			viewModel.appOwnerNameWithPlaceholder = function() {
-				return appService.appDetails?.ownerData?.name || 'Unknown owner';
-			}
+				return appService.appDetails?.ownerData?.name || "Unknown owner";
+			};
 
 			viewModel.appNameWithPlaceholder = function() {
-				return appService.appDetails?.title || 'Unknown app';
-			}
+				return appService.appDetails?.title || "Unknown app";
+			};
 
 			viewModel.workflowsAndPipelinesPath = function() {
 				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workflows_and_pipelines]) %>", {
-					app_slug: appService.appDetails?.slug || ''
+					app_slug: appService.appDetails?.slug || ""
 				});
 			};
 		});

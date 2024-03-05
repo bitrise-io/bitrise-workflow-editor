@@ -19,7 +19,6 @@
 				unique-step-count="workflowsCtrl.uniqueStepCount"
 				unique-step-limit="workflowsCtrl.uniqueStepLimit"
 				organization-slug="appService.appDetails.ownerData.slug"
-				hide-workflow-recepies-link="mainCtrl.isNewLayoutEnabled"
 			]
 		.workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()"]
 			.workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
@@ -49,6 +48,7 @@
 					r-step-config[
 						ng-if="workflowsCtrl.selectedStep"
 						step="workflowsCtrl.selectedStep"
+						output-variables="workflowsCtrl.outputVariables"
 						input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
 						highlight-version-update="!workflowsCtrl.selectedStep.isConfigured() || !stepSourceService.isLatestStepVersion(workflowsCtrl.selectedStep)"
 						on-clone="workflowsCtrl.cloneStepSelected"

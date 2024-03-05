@@ -1,7 +1,7 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text } from "@bitrise/bitkit";
 import { TabPanel, TabPanels } from "@chakra-ui/react";
 
-import { InputCategory, Step } from "../models";
+import { InputCategory, Step, StepOutputVariable } from "../models";
 import StepConfiguration from "./StepConfiguration";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepOutputVariables from "./StepOutputVariables";
@@ -12,6 +12,7 @@ type Props = {
 	changes: number;
 	inputCategories: InputCategory[];
 	highlightVersionUpdate?: boolean;
+	outputVariables: Array<StepOutputVariable>;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
 	onChange: (data: Record<string, unknown>) => void;
@@ -20,11 +21,14 @@ type Props = {
 const StepConfig = ({
 	step,
 	inputCategories,
+	outputVariables,
 	highlightVersionUpdate,
 	onClone,
 	onRemove,
 	onChange,
 }: Props): JSX.Element => {
+	const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
+
 	return (
 		<Box display="flex" flexDirection="column" gap="8">
 			<Box as="header" display="flex" px="24" pt="24" gap="16">
@@ -49,14 +53,14 @@ const StepConfig = ({
 				<ButtonGroup>
 					<IconButton
 						onClick={onClone}
-						size="small"
+						size="sm"
 						variant="secondary"
 						iconName="Duplicate"
 						aria-label="Clone this step"
 					/>
 					<IconButton
 						onClick={onRemove}
-						size="small"
+						size="sm"
 						variant="secondary"
 						iconName="MinusRemove"
 						aria-label="Remove this step"
@@ -69,7 +73,7 @@ const StepConfig = ({
 				<TabList>
 					<Tab id="configuration">Configuration</Tab>
 					<Tab id="properties">Properties</Tab>
-					<Tab id="output-variables">Output variables</Tab>
+					{showOutputVariables && <Tab id="output-variables">Output variables</Tab>}
 				</TabList>
 				<TabPanels>
 					<TabPanel id="configuration">
@@ -78,9 +82,11 @@ const StepConfig = ({
 					<TabPanel id="properties">
 						<StepProperties step={step} />
 					</TabPanel>
-					<TabPanel id="output-variables">
-						<StepOutputVariables step={step} />
-					</TabPanel>
+					{showOutputVariables && (
+						<TabPanel id="output-variables">
+							<StepOutputVariables outputVariables={outputVariables} />
+						</TabPanel>
+					)}
 				</TabPanels>
 			</Tabs>
 		</Box>
