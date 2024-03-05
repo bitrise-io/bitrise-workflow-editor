@@ -4,27 +4,27 @@ import { TabPanel, TabPanels } from "@chakra-ui/react";
 import { OnStepPropertyChange, Step, StepOutputVariable, StepVersionWithRemark } from "../models";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepConfiguration from "./StepConfiguration";
-import StepProperties from "./StepProperties";
+import StepProperties from "./StepProperties/StepProperties";
 import StepOutputVariables from "./StepOutputVariables";
 
 type Props = {
 	step: Step;
-	onClone: VoidFunction;
-	onRemove: VoidFunction;
 	hasVersionUpdate?: boolean;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
 	outputVariables: Array<StepOutputVariable>;
-	onPropertyChange: OnStepPropertyChange;
+	onChange: OnStepPropertyChange;
+	onClone: VoidFunction;
+	onRemove: VoidFunction;
 };
 
 const StepConfig = ({
 	step,
-	onClone,
-	onRemove,
 	hasVersionUpdate,
 	versionsWithRemarks,
 	outputVariables,
-	onPropertyChange,
+	onChange,
+	onClone,
+	onRemove,
 }: Props): JSX.Element => {
 	const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
@@ -59,7 +59,7 @@ const StepConfig = ({
 									name="WarningColored"
 									aria-label="New version available"
 									cursor="pointer"
-									onClick={() => onPropertyChange({ version: "" })}
+									onClick={() => onChange({ version: "" })}
 								/>
 							</Tooltip>
 						)}
@@ -96,7 +96,7 @@ const StepConfig = ({
 						<StepConfiguration step={step} />
 					</TabPanel>
 					<TabPanel id="properties">
-						<StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onPropertyChange} />
+						<StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onChange} />
 					</TabPanel>
 					{showOutputVariables && (
 						<TabPanel id="output-variables">

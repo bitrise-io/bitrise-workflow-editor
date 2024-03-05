@@ -4,35 +4,18 @@ import { OnStepPropertyChange, Step, StepVersionWithRemark } from "../../models"
 import { getVersionRemark } from "../../utils/stepVersionUtil";
 import stepOutDatedIcon from "../../../images/step/upgrade.svg";
 
-type StepVersionDetailsProps = {
-	workflowIndex: number;
+type Props = {
 	step: Step;
 	latestVersion: string;
 	hasVersionUpdate: boolean;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
-	onPropertyChange: OnStepPropertyChange;
+	onChange: OnStepPropertyChange;
 };
 
 type DangerouslySetInnerHTMLProps = { __html: string };
 const html = (text: string): DangerouslySetInnerHTMLProps => ({ __html: text });
 
-const StepVersionDetails = ({
-	step,
-	latestVersion,
-	hasVersionUpdate,
-	versionsWithRemarks = [],
-	onPropertyChange,
-}: StepVersionDetailsProps) => {
-	console.log(
-		"StepVersionDetailsProps",
-		step,
-		"latest?",
-		hasVersionUpdate,
-		"latest version",
-		latestVersion,
-		"selected version",
-		step.requestedVersion() || "latest",
-	);
+const StepVersionDetails = ({ step, latestVersion, hasVersionUpdate, versionsWithRemarks = [], onChange }: Props) => {
 	if (step.version === undefined) {
 		return null;
 	}
@@ -45,7 +28,7 @@ const StepVersionDetails = ({
 						<button
 							data-e2e-tag="step-version-details__update-button"
 							className="icon icon-danger"
-							onClick={() => onPropertyChange({ version: "" })}
+							onClick={() => onChange({ version: "" })}
 						>
 							<img data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
 						</button>
@@ -74,7 +57,7 @@ const StepVersionDetails = ({
 						id="selected-step-version-select"
 						data-e2e-tag="step-version-details__version-selector"
 						value={step.requestedVersion() || ""}
-						onChange={(event) => onPropertyChange({ version: event.target.value })}
+						onChange={(event) => onChange({ version: event.target.value })}
 					>
 						{versionsWithRemarks.map(({ version }) => (
 							<option key={version} value={version}>

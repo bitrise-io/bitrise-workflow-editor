@@ -41,13 +41,7 @@ angular
 	)
 	.component(
 		"rStepVersionDetails",
-		register(StepVersionDetails, [
-			"step",
-			"latestVersion",
-			"hasVersionUpdate",
-			"versionsWithRemarks",
-			"onPropertyChange",
-		]),
+		register(StepVersionDetails, ["step", "latestVersion", "hasVersionUpdate", "versionsWithRemarks", "onChange"]),
 	)
 	.component("rAddStepItem", register(AddStepItem, ["step", "disabled", "onSelected"]))
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
@@ -114,13 +108,12 @@ angular
 	.component(
 		"rStepConfig",
 		register(StepConfig, [
-			"workflowIndex",
 			"step",
-			"onClone",
-			"onRemove",
 			"hasVersionUpdate",
 			"versionsWithRemarks",
 			"outputVariables",
-			"onPropertyChange",
+			"onChange",
+			"onClone",
+			"onRemove",
 		]),
 	);

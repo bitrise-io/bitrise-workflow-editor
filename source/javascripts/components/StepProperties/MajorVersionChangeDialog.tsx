@@ -1,6 +1,6 @@
 import { Box, Button, CodeSnippet, Dialog, DialogBody, DialogFooter, Link, Text } from "@bitrise/bitkit";
 
-type MainVersionChangeDialogProps = {
+type Props = {
 	isOpen: boolean;
 	isMajorChange: boolean;
 	releaseNotesUrl?: string;
@@ -16,7 +16,7 @@ const MajorVersionChangeDialog = ({
 	removedInputs,
 	newInputs,
 	onClose,
-}: MainVersionChangeDialogProps) => {
+}: Props) => {
 	const [title, context] = isMajorChange
 		? ["Major version change", "The new major version likely contains breaking changes in the step behavior."]
 		: ["Version change", "The new version contains some input changes."];
@@ -25,15 +25,14 @@ const MajorVersionChangeDialog = ({
 		<Dialog title={title} isOpen={isOpen} onClose={onClose}>
 			<DialogBody display="flex" flexDir="column" gap="16">
 				<Text>
-					{context}{" "}
+					{context}
 					{releaseNotesUrl && (
 						<>
-							{" "}
-							Please check the{" "}
+							{" Please check the "}
 							<Link href={releaseNotesUrl} isExternal colorScheme="purple">
 								release notes
 							</Link>
-							.
+							{"."}
 						</>
 					)}
 				</Text>
