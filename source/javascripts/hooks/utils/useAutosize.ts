@@ -22,7 +22,7 @@ const useAutosize = <T extends Element>(ref: ForwardedRef<T>) => {
 		} else {
 			ref.current = innerRef.current;
 		}
-	});
+	}, [innerRef.current, ref]);
 
 	useEffect(() => {
 		if (innerRef.current) {

@@ -73,7 +73,7 @@ const StepConfig = ({
 				</TabList>
 				<TabPanels>
 					<TabPanel id="configuration">
-						<StepConfiguration step={step} inputCategories={inputCategories} onChange={onChange} />
+						<StepConfiguration key={step.$$hashKey} step={step} inputCategories={inputCategories} onChange={onChange} />
 					</TabPanel>
 					<TabPanel id="properties">
 						<StepProperties step={step} />

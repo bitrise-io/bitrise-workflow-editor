@@ -30,6 +30,7 @@ export interface StepInput {
 }
 
 export interface Step {
+	$$hashKey: string;
 	id: string;
 	cvs: string;
 	version: string;
