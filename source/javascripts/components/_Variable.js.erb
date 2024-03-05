@@ -138,10 +138,10 @@
 
 			if (newValue) {
 				this.userVariableConfig[key] = newValue;
-			} else if (this.defaultVariableConfig[key]) {
+			} else if (this.defaultVariableConfig && this.defaultVariableConfig[key]) {
 				this.userVariableConfig[key] = '';
 			} else {
-				this.userVariableConfig[key] = undefined;
+				this.userVariableConfig[key] = null;
 			}
 
 			return newValue;

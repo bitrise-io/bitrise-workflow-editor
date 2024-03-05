@@ -22,6 +22,7 @@ module.exports = config => {
 			"javascripts/routes.js",
 			"../node_modules/jasmine-ajax/lib/mock-ajax.js",
 			"../node_modules/angular-mocks/angular-mocks.js",
+			"../spec/mocks.js",
 			"javascripts/main.js",
 			"../spec/javascripts/**/*.spec.js"
 		],
