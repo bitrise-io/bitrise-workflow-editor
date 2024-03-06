@@ -3,11 +3,11 @@ import { Fragment, useState } from "react";
 
 import { StepOutputVariable } from "../models";
 
-type StepOutputVariableItemProps = {
+type ItemProps = {
 	item: StepOutputVariable;
 };
 
-const StepOutputVariableItem = ({ item }: StepOutputVariableItemProps) => {
+const StepOutputVariableItem = ({ item }: ItemProps) => {
 	const { key, title, description, summary } = item;
 	const [showMore, setShowMore] = useState(false);
 
@@ -28,11 +28,11 @@ const StepOutputVariableItem = ({ item }: StepOutputVariableItemProps) => {
 	);
 };
 
-type StepOutputVariablesProps = {
+type Props = {
 	outputVariables: Array<StepOutputVariable>;
 };
 
-const StepOutputVariables = ({ outputVariables }: StepOutputVariablesProps) => {
+const StepOutputVariables = ({ outputVariables }: Props) => {
 	return (
 		<Box display="flex" flexDirection="column" p="24" gap="24">
 			<Text>This step will generate these output variables:</Text>

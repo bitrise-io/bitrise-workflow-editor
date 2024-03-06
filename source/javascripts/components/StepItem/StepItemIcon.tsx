@@ -1,23 +1,12 @@
 import { LazyLoadImage } from "react-lazy-load-image-component";
-import { Step } from "../../models";
-
 import defaultStepIcon from "../../../images/step/icon-default.svg";
 
-export const normalizeIconUrl = (step?: Step): string | undefined => {
-	if (!step) {
-		return;
-	}
-
-	const stepIconURL = step.iconURL();
-	return stepIconURL || defaultStepIcon;
-};
-
 type StepItemIconProps = {
-	step: Step;
+	iconUrl?: string;
 };
 
-const StepItemIcon = ({ step }: StepItemIconProps): JSX.Element => (
-	<LazyLoadImage wrapperProps={{style:{flexShrink:0}}} effect="blur" src={normalizeIconUrl(step)} />
+const StepItemIcon = ({ iconUrl }: StepItemIconProps): JSX.Element => (
+	<LazyLoadImage wrapperProps={{ style: { flexShrink: 0 } }} effect="blur" src={iconUrl || defaultStepIcon} />
 );
 
 export default StepItemIcon;

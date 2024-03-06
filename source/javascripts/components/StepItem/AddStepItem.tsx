@@ -17,7 +17,7 @@ const AddStepItem = ({ step, disabled = false, onSelected }: AddStepItemProps): 
 		<button className="select" disabled={disabled} onClick={() => onSelected(step)}>
 			<Icon className="icon" name="PlusOpen" />
 			<Box className="step-content" display="flex" flexDirection="row" overflow="hidden" flexShrink="1" minWidth="0">
-				<StepItemIcon step={step} />
+				<StepItemIcon iconUrl={step.iconURL()} />
 				<Box
 					display="flex"
 					flexGrow="1"
@@ -27,8 +27,12 @@ const AddStepItem = ({ step, disabled = false, onSelected }: AddStepItemProps): 
 					className="details"
 					overflow="hidden"
 				>
-					<StepItemTitle step={step} style={{ fontWeight: "900", flexShrink: 0 }} />
-					<StepItemBadge step={step} />
+					<StepItemTitle displayName={step.displayName()} style={{ fontWeight: "900", flexShrink: 0 }} />
+					<StepItemBadge
+						isOfficial={step.isOfficial()}
+						isVerified={step.isVerified()}
+						isDeprecated={step.isDeprecated()}
+					/>
 					<MarkdownText className="summary" markdown={step.summary()} />
 				</Box>
 			</Box>

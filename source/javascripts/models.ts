@@ -12,16 +12,23 @@ export interface Workflow {
 	workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
+export type OnStepPropertyChange = (values: Partial<Record<"name" | "version", string | null>>) => void;
+export type StepVersionWithRemark = { version: string; remark: string };
+
 export interface Step {
 	$$hashKey: string;
 	id: string;
 	cvs: string;
 	version: string;
-	defaultStepConfig: { version: string };
+	defaultStepConfig: {
+		version: string;
+		source_code_url: string;
+		inputs: Array<object>;
+	};
 
 	runIf: GetterSetter<string>;
 	isAlwaysRun: GetterSetter<boolean>;
-	requestedVersion(): string;
+	requestedVersion(): string | null;
 
 	displayName(): string;
 
@@ -40,6 +47,10 @@ export interface Step {
 	iconURL(): string;
 
 	summary(): string;
+
+	description(): string;
+
+	sourceURL(): string;
 }
 
 export interface StepOutputVariable {
