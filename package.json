@@ -130,7 +130,7 @@
 		"onchange": "^7.1.0",
 		"postcss-loader": "^7.3.4",
 		"prettier": "3.2.5",
-		"sass-loader": "^13.3.3",
+		"sass-loader": "^14.0.0",
 		"shell-loader": "^1.2.1",
 		"storybook": "^7.6.17",
 		"style-loader": "^3.3.3",
