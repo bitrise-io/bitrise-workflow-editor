@@ -7,7 +7,7 @@ export const useWaitForElements = (ids: string[], onFound: (ids: HTMLElement[]) 
 
 	useEffect(() => {
 		const checkIfReady = () => {
-			const found = ids.map(id => document.getElementById(id)).filter(Boolean);
+			const found = ids.map((id) => document.getElementById(id)).filter(Boolean);
 			if (found.length === ids.length) {
 				clearTimeout(timeoutRef.current);
 				if (onFoundRef.current) {

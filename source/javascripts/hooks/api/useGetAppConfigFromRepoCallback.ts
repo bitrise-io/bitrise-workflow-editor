@@ -1,5 +1,5 @@
-import useMonolithApiCallback, { MonolithError } from "./useMonolithApiCallback";
 import { AppConfig } from "../../models/AppConfig";
+import useMonolithApiCallback, { MonolithError } from "./useMonolithApiCallback";
 
 export interface FetchResponse {
 	appConfigFromRepo: AppConfig | undefined;
@@ -15,7 +15,7 @@ export default function useGetAppConfigFromRepoCallback(appSlug: string): FetchR
 		loading: getAppConfigFromRepoLoading,
 		failed: getAppConfigFromRepoFailed,
 		call: getAppConfigFromRepo,
-		result: appConfigFromRepo
+		result: appConfigFromRepo,
 	} = useMonolithApiCallback<AppConfig>(`/api/app/${appSlug}/config?is_force_from_repo=1`);
 
 	return {
@@ -23,6 +23,6 @@ export default function useGetAppConfigFromRepoCallback(appSlug: string): FetchR
 		getAppConfigFromRepoLoading,
 		getAppConfigFromRepoFailed,
 		getAppConfigFromRepo,
-		appConfigFromRepo
+		appConfigFromRepo,
 	};
 }

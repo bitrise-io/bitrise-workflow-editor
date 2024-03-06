@@ -1,13 +1,14 @@
-import { useState, useMemo, useEffect } from "react";
-import { Box, Text, Notification, Button, ButtonGroup, Radio } from "@bitrise/bitkit";
-import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
+import { Box, Button, ButtonGroup, Notification, Radio, Text } from "@bitrise/bitkit";
+import { useEffect, useMemo, useState } from "react";
+
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
 import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
+import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
+import { WFEWindow } from "../../typings/global";
 import appConfigAsYml from "../../utils/appConfigAsYml";
-import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
 import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
 import CreatingYmlOnWebsiteProgress from "../common/notifications/LookingForYmlInRepoProgress";
-import { WFEWindow } from "../../typings/global";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
 
 type StoreOnWebsiteProps = {
 	appSlug: string;
@@ -21,14 +22,11 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
 		getAppConfigFromRepoFailed,
 		getAppConfigFromRepoLoading,
 		getAppConfigFromRepo,
-		appConfigFromRepo
+		appConfigFromRepo,
 	} = useGetAppConfigFromRepoCallback(appSlug);
 	const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(appSlug, appConfigAsYml(appConfigFromRepo));
-	const {
-		updatePipelineConfigStatus,
-		updatePipelineConfigLoading,
-		updatePipelineConfig
-	} = useUpdatePipelineConfigCallback(appSlug, false);
+	const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig } =
+		useUpdatePipelineConfigCallback(appSlug, false);
 	const [copyRepositoryYmlToWebsite, setCopyRepositoryYmlToWebsite] = useState(true);
 
 	const isFinished = useMemo(() => {

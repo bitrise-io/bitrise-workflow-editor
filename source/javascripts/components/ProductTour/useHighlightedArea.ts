@@ -19,7 +19,7 @@ export const getClipPathFromRect = (highlightedRect: DOMRect | null): string => 
 	return clipPath;
 };
 
-export const useHighlightedArea = (selectedId: string | undefined): DOMRect | null  => {
+export const useHighlightedArea = (selectedId: string | undefined): DOMRect | null => {
 	const ref = useRef<HTMLElement | null>(null);
 	const [highlightedRect, setHighlightedRect] = useState<DOMRect | null>(null);
 

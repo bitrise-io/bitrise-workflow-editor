@@ -2,7 +2,7 @@ describe("Meta", () => {
 	let Meta;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function(_Meta_) {
+	beforeEach(inject(function (_Meta_) {
 		Meta = _Meta_;
 	}));
 
@@ -13,9 +13,9 @@ describe("Meta", () => {
 					{},
 					{
 						bundle: {
-							key: "value"
-						}
-					}
+							key: "value",
+						},
+					},
 				);
 				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value");
 			});
@@ -24,31 +24,30 @@ describe("Meta", () => {
 				const meta = new Meta(
 					{
 						bundle1: {
-							key: "value1"
-						}
+							key: "value1",
+						},
 					},
 					{
 						bundle2: {
-							key: "value2"
-						}
-					}
+							key: "value2",
+						},
+					},
 				);
 				expect(meta.valueGetterSetter("bundle2", "key", undefined)).toBe("value2");
 			});
 
-			it("should return value for key in bundle from default config if user defined config has no such key in bundle",
-			() => {
+			it("should return value for key from default config if user defined config has no such key in bundle", () => {
 				const meta = new Meta(
 					{
 						bundle: {
-							key1: "value1"
-						}
+							key1: "value1",
+						},
 					},
 					{
 						bundle: {
-							key2: "value2"
-						}
-					}
+							key2: "value2",
+						},
+					},
 				);
 				expect(meta.valueGetterSetter("bundle", "key2", undefined)).toBe("value2");
 			});
@@ -56,30 +55,31 @@ describe("Meta", () => {
 			it("should return value for key in bundle from user defined config if it is defined there", () => {
 				const meta = new Meta({
 					bundle: {
-						key: "value"
-					}
+						key: "value",
+					},
 				});
 				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value");
 			});
 
 			it(
 				"should return value for key in bundle from user defined configthere," +
-				"even if it is also defined in the default config",
-			() => {
-				const meta = new Meta(
-					{
-						bundle: {
-							key: "value1"
-						}
-					},
-					{
-						bundle: {
-							key: "value2"
-						}
-					}
-				);
-				expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value1");
-			});
+					"even if it is also defined in the default config",
+				() => {
+					const meta = new Meta(
+						{
+							bundle: {
+								key: "value1",
+							},
+						},
+						{
+							bundle: {
+								key: "value2",
+							},
+						},
+					);
+					expect(meta.valueGetterSetter("bundle", "key", undefined)).toBe("value1");
+				},
+			);
 
 			it("should return null for key in bundle if no configs", () => {
 				const meta = new Meta({}, {});
@@ -90,14 +90,14 @@ describe("Meta", () => {
 				const meta = new Meta(
 					{
 						bundle1: {
-							key: "value"
-						}
+							key: "value",
+						},
 					},
 					{
 						bundle2: {
-							key: "value"
-						}
-					}
+							key: "value",
+						},
+					},
 				);
 				expect(meta.valueGetterSetter("bundle3", "key", undefined)).toBeNull();
 			});
@@ -106,14 +106,14 @@ describe("Meta", () => {
 				const meta = new Meta(
 					{
 						bundle: {
-							key1: "value"
-						}
+							key1: "value",
+						},
 					},
 					{
 						bundle: {
-							key2: "value"
-						}
-					}
+							key2: "value",
+						},
+					},
 				);
 				expect(meta.valueGetterSetter("bundle", "key3", undefined)).toBeNull();
 			});
@@ -122,14 +122,14 @@ describe("Meta", () => {
 				const meta = new Meta(
 					{
 						bundle1: {
-							key1: "value1"
-						}
+							key1: "value1",
+						},
 					},
 					{
 						bundle2: {
-							key2: "value2"
-						}
-					}
+							key2: "value2",
+						},
+					},
 				);
 				expect(meta.valueGetterSetter("bundle2", "key1", undefined)).toBeNull();
 			});
@@ -141,8 +141,8 @@ describe("Meta", () => {
 				meta.valueGetterSetter("bundle", "key", "value");
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
-						key: "value"
-					}
+						key: "value",
+					},
 				});
 				expect(meta.defaultMetaConfig).toBeUndefined();
 			});
@@ -150,17 +150,17 @@ describe("Meta", () => {
 			it("should set value for key in bundle in the user defined config, leave other bundles untouched", () => {
 				const meta = new Meta({
 					bundle1: {
-						key1: "value1"
-					}
+						key1: "value1",
+					},
 				});
 				meta.valueGetterSetter("bundle2", "key2", "value2");
 				expect(meta.userMetaConfig).toEqual({
 					bundle1: {
-						key1: "value1"
+						key1: "value1",
 					},
 					bundle2: {
-						key2: "value2"
-					}
+						key2: "value2",
+					},
 				});
 				expect(meta.defaultMetaConfig).toBeUndefined();
 			});
@@ -169,25 +169,25 @@ describe("Meta", () => {
 				const meta = new Meta(
 					{
 						bundle: {
-							key: "value1"
-						}
+							key: "value1",
+						},
 					},
 					{
 						bundle: {
-							key: "value2"
-						}
-					}
+							key: "value2",
+						},
+					},
 				);
 				meta.valueGetterSetter("bundle", "key", "value3");
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
-						key: "value3"
-					}
+						key: "value3",
+					},
 				});
 				expect(meta.defaultMetaConfig).toEqual({
 					bundle: {
-						key: "value2"
-					}
+						key: "value2",
+					},
 				});
 			});
 
@@ -195,14 +195,14 @@ describe("Meta", () => {
 				const meta = new Meta({
 					bundle: {
 						key1: "value1",
-						key2: "value2"
-					}
+						key2: "value2",
+					},
 				});
 				meta.valueGetterSetter("bundle", "key1", null);
 				expect(meta.userMetaConfig).toEqual({
 					bundle: {
-						key2: "value2"
-					}
+						key2: "value2",
+					},
 				});
 				expect(meta.defaultMetaConfig).toBeUndefined();
 			});
@@ -211,8 +211,8 @@ describe("Meta", () => {
 			if it becomes empty by setting its only key's value to null`, () => {
 				const meta = new Meta({
 					bundle: {
-						key: "value"
-					}
+						key: "value",
+					},
 				});
 				meta.valueGetterSetter("bundle", "key", null);
 				expect(meta.userMetaConfig).toEqual({});
@@ -225,69 +225,68 @@ describe("Meta", () => {
 					{
 						bundle: {
 							key1: "value1",
-							key2: "value2"
-						}
+							key2: "value2",
+						},
 					},
 					{
 						bundle: {
-							key1: "value3"
-						}
-					}
+							key1: "value3",
+						},
+					},
 				);
 				meta.valueGetterSetter("bundle", "key1", "value3");
 				expect(meta.userMetaConfig).toEqual(
 					{
 						bundle: {
-							key2: "value2"
-						}
+							key2: "value2",
+						},
 					},
 					{
 						bundle: {
-							key1: "value3"
-						}
-					}
+							key1: "value3",
+						},
+					},
 				);
 				expect(meta.defaultMetaConfig).toEqual({
 					bundle: {
-						key1: "value3"
-					}
+						key1: "value3",
+					},
 				});
 			});
 
 			it(`should clear bundle in the user defined config,
-					if it becomes the same (all keys) as in the default config`,
-			() => {
+					if it becomes the same (all keys) as in the default config`, () => {
 				const meta = new Meta(
 					{
 						bundle1: {
-							key1: "value1"
+							key1: "value1",
 						},
 						bundle2: {
-							key2: "value2"
-						}
+							key2: "value2",
+						},
 					},
 					{
 						bundle1: {
-							key1: "value3"
+							key1: "value3",
 						},
 						bundle2: {
-							key2: "value4"
-						}
-					}
+							key2: "value4",
+						},
+					},
 				);
 				meta.valueGetterSetter("bundle1", "key1", "value3");
 				expect(meta.userMetaConfig).toEqual({
 					bundle2: {
-						key2: "value2"
-					}
+						key2: "value2",
+					},
 				});
 				expect(meta.defaultMetaConfig).toEqual({
 					bundle1: {
-						key1: "value3"
+						key1: "value3",
 					},
 					bundle2: {
-						key2: "value4"
-					}
+						key2: "value4",
+					},
 				});
 			});
 		});

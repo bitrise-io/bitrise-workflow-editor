@@ -1,12 +1,15 @@
-import { Text, 
-    Button, 
-    IconButton, 
-    Box, 
-    Icon,
-    Popover, 
-    PopoverContent, 
-    PopoverTrigger,
-    useResponsive } from "@bitrise/bitkit";
+import {
+	Box,
+	Button,
+	Icon,
+	IconButton,
+	Popover,
+	PopoverContent,
+	PopoverTrigger,
+	Text,
+	useResponsive,
+} from "@bitrise/bitkit";
+
 import { Tips } from "./types";
 
 interface HighlighterProductTooltipProps {
@@ -33,7 +36,7 @@ export const HighlighterProductTooltip = ({
 	rect,
 	onClose,
 	onButtonClick,
-}:HighlighterProductTooltipProps):(JSX.Element|null) => {
+}: HighlighterProductTooltipProps): JSX.Element | null => {
 	const { isMobile } = useResponsive();
 
 	const onGotIt = (): void => {
@@ -44,90 +47,83 @@ export const HighlighterProductTooltip = ({
 	const onStartAgain = (): void => {
 		onButtonClick("start again");
 		onRestart();
-	}; 
+	};
 
-    if (!tip) {
+	if (!tip) {
 		return null;
 	}
 
-    return (
-        <Popover 
-            placement={(tip.position === "bottom" || isMobile) ? "bottom" : "right"}
-            isOpen={true}
-            gutter={25}
-            arrowSize={15}>
-            <PopoverTrigger>
-                <Box
-                    position="absolute"
-                    backgroundColor= "transparent"
-                    borderRadius="8"
-                    border="10px solid white"
-                    boxShadow="0 0 0 3px rgba(151, 71, 255, 1)"
-                    zIndex="200"
-                    style={{left: `${rect!.x - 10}px`,
-                            top: `${rect!.y - 10}px`,
-                            width: `${rect!.width + 20}px`,
-                            height: `${rect!.height + 20}px`
-                    }}            
-                />
-            </PopoverTrigger>
-            <PopoverContent maxWidth="420" minHeight="212" padding="24" zIndex="300" gap="8">
-                <Box display="flex" flexGrow="1" >
-                    <Box display="flex" flexDirection="column" flex="1 0 0" gap="8px" color="neutral.10">
-                        <Text size="4" fontWeight="bold">
-                            {tip.title}
-                        </Text>
-                        <Text maxWidth="400px" paddingBottom="20">
-                            {tip.description}
-                        </Text>
-                    </Box>
-                    {!finished && (
-                        <Box>
-                            <Button onClick={onClose} size="sm" variant="tertiary" padding="0">
-                                <Icon name="CloseSmall" textColor="grape-5" />
-                            </Button>
-                        </Box>
-                    )}
-                </Box>
-                <Box display="flex" justifyContent="space-between">
-                    <Box
-                        display="flex"
-                        borderRadius="4"
-                        flexDirection="row"
-                        alignItems="center"
-                        backgroundColor="neutral.95"
-                        paddingX="12"
-                        justifyContent="center"
-                    >
-                        <Text size="2">{selectedIndex !== undefined && `${selectedIndex + 1} / ${total}`}</Text>
-                    </Box>
+	return (
+		<Popover
+			placement={tip.position === "bottom" || isMobile ? "bottom" : "right"}
+			isOpen={true}
+			gutter={25}
+			arrowSize={15}
+		>
+			<PopoverTrigger>
+				<Box
+					position="absolute"
+					backgroundColor="transparent"
+					borderRadius="8"
+					border="10px solid white"
+					boxShadow="0 0 0 3px rgba(151, 71, 255, 1)"
+					zIndex="200"
+					style={{
+						left: `${rect!.x - 10}px`,
+						top: `${rect!.y - 10}px`,
+						width: `${rect!.width + 20}px`,
+						height: `${rect!.height + 20}px`,
+					}}
+				/>
+			</PopoverTrigger>
+			<PopoverContent maxWidth="420" minHeight="212" padding="24" zIndex="300" gap="8">
+				<Box display="flex" flexGrow="1">
+					<Box display="flex" flexDirection="column" flex="1 0 0" gap="8px" color="neutral.10">
+						<Text size="4" fontWeight="bold">
+							{tip.title}
+						</Text>
+						<Text maxWidth="400px" paddingBottom="20">
+							{tip.description}
+						</Text>
+					</Box>
+					{!finished && (
+						<Box>
+							<Button onClick={onClose} size="sm" variant="tertiary" padding="0">
+								<Icon name="CloseSmall" textColor="grape-5" />
+							</Button>
+						</Box>
+					)}
+				</Box>
+				<Box display="flex" justifyContent="space-between">
+					<Box
+						display="flex"
+						borderRadius="4"
+						flexDirection="row"
+						alignItems="center"
+						backgroundColor="neutral.95"
+						paddingX="12"
+						justifyContent="center"
+					>
+						<Text size="2">{selectedIndex !== undefined && `${selectedIndex + 1} / ${total}`}</Text>
+					</Box>
 
-                {finished ? (
-                    <Box display="flex" gap="8">
-                        <Button variant="tertiary" size="sm" color="purple.50" onClick={onStartAgain}>
-                        Start again
-                        </Button>
-                        <Button variant="primary" size="sm" onClick={onGotIt}>
-                            Got it
-                        </Button>
-                    </Box>
-                ) : (
-                    <Box display="flex" gap="8">
-                        <IconButton iconName="ChevronLeft" 
-                                    aria-label="Previous" 
-                                    size="sm" 
-                                    variant="secondary" 
-                                    onClick={onPrev}/>
-                        <IconButton iconName="ChevronRight" 
-                                    aria-label="Next" 
-                                    size="sm" 
-                                    variant="secondary" 
-                                    onClick={onNext}/>
-                    </Box>
-                )}
-                </Box>
-               
-            </PopoverContent>
-        </Popover>
-    );
+					{finished ? (
+						<Box display="flex" gap="8">
+							<Button variant="tertiary" size="sm" color="purple.50" onClick={onStartAgain}>
+								Start again
+							</Button>
+							<Button variant="primary" size="sm" onClick={onGotIt}>
+								Got it
+							</Button>
+						</Box>
+					) : (
+						<Box display="flex" gap="8">
+							<IconButton iconName="ChevronLeft" aria-label="Previous" size="sm" variant="secondary" onClick={onPrev} />
+							<IconButton iconName="ChevronRight" aria-label="Next" size="sm" variant="secondary" onClick={onNext} />
+						</Box>
+					)}
+				</Box>
+			</PopoverContent>
+		</Popover>
+	);
 };

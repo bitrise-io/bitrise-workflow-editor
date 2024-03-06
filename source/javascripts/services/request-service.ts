@@ -1,12 +1,13 @@
-import { getAppSlug } from "./app-service";
-import StringService from "./string-service";
-import { Logger } from "./logger";
 import { StatusType } from "@datadog/browser-logs";
 import { HTTPMethod } from "http-method-enum";
 
+import { getAppSlug } from "./app-service";
+import { Logger } from "./logger";
+import StringService from "./string-service";
+
 enum RequestServiceMode {
 	Website = "website",
-	Cli = "cli"
+	Cli = "cli",
 }
 
 interface RequestServiceConfigureOptions {
@@ -42,10 +43,10 @@ class RequestService {
 	}
 
 	public async getAppConfigYML(
-		abortedPromise: Promise<undefined>
+		abortedPromise: Promise<undefined>,
 	): Promise<string | Error | { bitrise_yml: string; error_message: Error }> {
 		const websiteRequestURL = StringService.stringReplacedWithParameters(window["routes"].website.yml_get, {
-			app_slug: this.appSlug
+			app_slug: this.appSlug,
 		});
 		const cliRequestURL = window["routes"].local_server.yml_get;
 		const requestURL = this.mode == RequestServiceMode.Website ? websiteRequestURL : cliRequestURL;
@@ -53,34 +54,34 @@ class RequestService {
 		const response = await this.requestWithAbortedPromise({
 			method: HTTPMethod.GET,
 			url: requestURL,
-			abortedPromise: abortedPromise
+			abortedPromise: abortedPromise,
 		});
 
 		if (!response.ok) {
 			const responseBody = await this.convertResponseToJson(
 				response,
-				window["strings"].request_service.load_app_config.default_error
+				window["strings"].request_service.load_app_config.default_error,
 			);
 
 			if (responseBody.bitrise_yml) {
 				const error = this.prefixedError(
 					this.errorFromResponseBody(
 						responseBody,
-						window["strings"].request_service.load_app_config.invalid_bitrise_yml_error
+						window["strings"].request_service.load_app_config.invalid_bitrise_yml_error,
 					).message,
-					window["strings"].request_service.load_app_config.error_prefix
+					window["strings"].request_service.load_app_config.error_prefix,
 				);
 				this.logErrorWithLevel(error, StatusType.warn);
 
 				throw {
 					bitriseYml: responseBody.bitrise_yml,
-					error: error
+					error: error,
 				};
 			}
 
 			const error = this.errorFromResponseBody(
 				responseBody,
-				window["strings"].request_service.load_app_config.default_error
+				window["strings"].request_service.load_app_config.default_error,
 			);
 			this.logErrorWithLevel(error, response.status < 500 ? StatusType.warn : StatusType.error);
 			throw error;
@@ -110,7 +111,7 @@ class RequestService {
 			response = await fetch(url, {
 				method: method,
 				body: JSON.stringify(body),
-				signal: controller.signal
+				signal: controller.signal,
 			});
 		} catch (error) {
 			const publicError = new Error(`${method} ${url} - ${(error as any).message}`);
@@ -122,14 +123,14 @@ class RequestService {
 	}
 
 	private convertResponseToJson(response: Response, defaultErrorMessage: string): Promise<any> {
-		return response.json().catch(error => {
+		return response.json().catch((error) => {
 			this.logErrorWithLevel(error, StatusType.error);
 			throw new Error(defaultErrorMessage);
 		});
 	}
 
 	private convertResponseToText(response: Response, defaultErrorMessage: string): Promise<string> {
-		return response.text().catch(error => {
+		return response.text().catch((error) => {
 			this.logErrorWithLevel(error, StatusType.error);
 			throw new Error(defaultErrorMessage);
 		});
@@ -141,7 +142,7 @@ class RequestService {
 
 	private errorFromResponseBody(
 		responseBody: { error?: string; error_msg?: string },
-		defaultMessage: string = window["strings"].request_service.response.default_error
+		defaultMessage: string = window["strings"].request_service.response.default_error,
 	): Error {
 		return new Error(responseBody.error || responseBody.error_msg || defaultMessage);
 	}
@@ -150,7 +151,7 @@ class RequestService {
 		if (!this.logger) {
 			return;
 		}
-		const logger = (this.logger as unknown) as Logger;
+		const logger = this.logger as unknown as Logger;
 
 		switch (level) {
 			case StatusType.debug: {

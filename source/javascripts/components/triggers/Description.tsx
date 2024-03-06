@@ -1,6 +1,6 @@
-import { Box, Link, List, ListItem, Notification, Text } from "@bitrise/bitkit";
-
 import "./Description.scss";
+
+import { Box, Link, List, ListItem, Notification, Text } from "@bitrise/bitkit";
 
 type DescriptionProps = {
 	hasTriggers: boolean;
@@ -20,9 +20,7 @@ const Description = ({ hasTriggers }: DescriptionProps): JSX.Element => (
 			<Text size="5" fontWeight="bold" textColor="purple.10">
 				Triggers
 			</Text>
-			<Text>
-				Triggers are required in order to run builds automatically. To set one up, you need to specify:{" "}
-			</Text>
+			<Text>Triggers are required in order to run builds automatically. To set one up, you need to specify: </Text>
 			<List>
 				<ListItem>
 					the <strong>event</strong>: for example, code push or pull request.

@@ -1,11 +1,11 @@
-describe("stepLibSearchService", function() {
+describe("stepLibSearchService", function () {
 	let stepLibSearchService, mockStepLibSearchInstance;
 
 	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject(function(_stepLibSearchService_) {
+	beforeEach(inject(function (_stepLibSearchService_) {
 		stepLibSearchService = _stepLibSearchService_;
 	}));
-	beforeEach(inject(function(_stepLibSearchInstance_) {
+	beforeEach(inject(function (_stepLibSearchInstance_) {
 		mockStepLibSearchInstance = _stepLibSearchInstance_;
 	}));
 
@@ -22,9 +22,9 @@ describe("stepLibSearchService", function() {
 					stepIds: ["a-step-cvs@1.0.0"],
 					includeInputs: true,
 					algoliaOptions: {
-						attributesToRetrieve: ["*"]
-					}
-				})
+						attributesToRetrieve: ["*"],
+					},
+				}),
 			);
 		});
 
@@ -32,7 +32,7 @@ describe("stepLibSearchService", function() {
 			stepLibSearchService.list({
 				stepCVSs: ["a-step-cvs@1.0.0"],
 				includeInputs: false,
-				attributesToRetrieve: ["abc", "def"]
+				attributesToRetrieve: ["abc", "def"],
 			});
 
 			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
@@ -40,31 +40,31 @@ describe("stepLibSearchService", function() {
 					stepIds: ["a-step-cvs@1.0.0"],
 					includeInputs: false,
 					algoliaOptions: {
-						attributesToRetrieve: ["abc", "def"]
-					}
-				})
+						attributesToRetrieve: ["abc", "def"],
+					},
+				}),
 			);
 		});
 
 		it("loads latest steps only", () => {
 			stepLibSearchService.list({
-				latestOnly: true
+				latestOnly: true,
 			});
 
 			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
 				jasmine.objectContaining({
-					latestOnly: true
-				})
+					latestOnly: true,
+				}),
 			);
 		});
 
 		it("fetches selected project types", () => {
 			stepLibSearchService.list({
-				projectTypes: ["symbian", "bada", "blackberry"]
+				projectTypes: ["symbian", "bada", "blackberry"],
 			});
 
 			expect(mockStepLibSearchInstance.list).toHaveBeenCalledWith(
-				jasmine.objectContaining({ projectTypes: ["symbian", "bada", "blackberry"] })
+				jasmine.objectContaining({ projectTypes: ["symbian", "bada", "blackberry"] }),
 			);
 		});
 	});
@@ -81,8 +81,8 @@ describe("stepLibSearchService", function() {
 				query: "some-step",
 				includeInputs: true,
 				algoliaOptions: {
-					attributesToRetrieve: ["*"]
-				}
+					attributesToRetrieve: ["*"],
+				},
 			});
 		});
 
@@ -93,8 +93,8 @@ describe("stepLibSearchService", function() {
 				query: "some-step",
 				includeInputs: true,
 				algoliaOptions: {
-					attributesToRetrieve: ["aaa", "bbb"]
-				}
+					attributesToRetrieve: ["aaa", "bbb"],
+				},
 			});
 		});
 	});
@@ -114,9 +114,9 @@ describe("stepLibSearchService", function() {
 					algoliaOptions: {
 						attributesToRetrieve: ["*"],
 						restrictSearchableAttributes: ["step.title"],
-						typoTolerance: true
-					}
-				})
+						typoTolerance: true,
+					},
+				}),
 			);
 		});
 	});
@@ -128,67 +128,67 @@ describe("stepLibSearchService", function() {
 					{
 						id: "some-step",
 						version: "1.0.0",
-						info: { a: "b" }
+						info: { a: "b" },
 					},
 					{
 						id: "some-step",
 						version: "1.1.0",
-						info: { c: "d" }
+						info: { c: "d" },
 					},
 					{
 						id: "some-other-step",
 						version: "2.1.0",
-						info: { e: "f" }
-					}
-				])
+						info: { e: "f" },
+					},
+				]),
 			);
 
 			const converted = await stepLibSearchService.list({
 				stepCVSs: ["does"],
 				includeInputs: false,
-				attributesToRetrieve: ["matter"]
+				attributesToRetrieve: ["matter"],
 			});
 
 			expect(converted).toEqual({
 				"some-step": {
 					info: {
 						a: "b",
-						c: "d"
+						c: "d",
 					},
 					versions: {
 						"1.0.0": {
 							id: "some-step",
 							version: "1.0.0",
 							info: {
-								a: "b"
+								a: "b",
 							},
-							a: "b"
+							a: "b",
 						},
 						"1.1.0": {
 							id: "some-step",
 							version: "1.1.0",
 							info: {
-								c: "d"
+								c: "d",
 							},
-							c: "d"
-						}
-					}
+							c: "d",
+						},
+					},
 				},
 				"some-other-step": {
 					info: {
-						e: "f"
+						e: "f",
 					},
 					versions: {
 						"2.1.0": {
 							id: "some-other-step",
 							version: "2.1.0",
 							info: {
-								e: "f"
+								e: "f",
 							},
-							e: "f"
-						}
-					}
-				}
+							e: "f",
+						},
+					},
+				},
 			});
 		});
 	});

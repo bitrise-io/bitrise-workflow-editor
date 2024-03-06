@@ -27,21 +27,18 @@ module.exports = {
 		"plugin:@typescript-eslint/recommended",
 		"plugin:react/recommended",
 		"plugin:react/jsx-runtime",
-		"plugin:storybook/recommended"
+		"plugin:storybook/recommended",
 	],
 	rules: {
 		"no-with": "off",
-		quotes: [2, "double"],
 		"prettier/prettier": "warn",
 		"simple-import-sort/imports": "warn",
 		"unused-imports/no-unused-imports": "warn",
-		"max-len": ["error", { code: 120, tabWidth: 1 }],
 		"prefer-const": ["error", { destructuring: "all" }],
 		"@typescript-eslint/no-unused-vars": "off",
-		"@typescript-eslint/no-non-null-assertion": "off",
 		"@typescript-eslint/no-explicit-any": ["warn", { ignoreRestArgs: true }],
 		"@typescript-eslint/no-non-null-assertion": "off",
-		"react/no-unescaped-entities": ["error", { forbid: [">", "\"", "}"] }],
+		"react/no-unescaped-entities": ["error", { forbid: [">", '"', "}"] }],
 		"@typescript-eslint/ban-types": [
 			"warn",
 			{
@@ -57,7 +54,7 @@ module.exports = {
 				varsIgnorePattern: "^_",
 				argsIgnorePattern: "^_",
 			},
-		]
+		],
 	},
 	overrides: [
 		{

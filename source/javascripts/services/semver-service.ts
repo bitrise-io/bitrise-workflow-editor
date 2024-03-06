@@ -1,4 +1,5 @@
 import _ from "underscore";
+
 import { Step, StepCatalouge } from "../models";
 
 type Version = {
@@ -37,9 +38,9 @@ class SemverService {
 	};
 
 	isMajorVersionChange = (from: string, to: string): boolean => {
-		const fromMajor = from.split(".")[0]
-		const toMajor = to.split(".")[0]
-		return fromMajor != toMajor
+		const fromMajor = from.split(".")[0];
+		const toMajor = to.split(".")[0];
+		return fromMajor != toMajor;
 	};
 
 	reverseSort = (verStr1: string, verStr2: string): number => {
@@ -76,7 +77,7 @@ class SemverService {
 		return this.semver({
 			major: semverParts[0] || this.WILDCARD,
 			minor: semverParts[1] || this.WILDCARD,
-			patch: semverParts[2] || this.WILDCARD
+			patch: semverParts[2] || this.WILDCARD,
 		});
 	};
 
@@ -88,7 +89,7 @@ class SemverService {
 
 			return [
 				this.semver({ major: major, minor: minor, patch: this.WILDCARD }),
-				this.semver({ major: major, minor: this.WILDCARD, patch: this.WILDCARD })
+				this.semver({ major: major, minor: this.WILDCARD, patch: this.WILDCARD }),
 			];
 		});
 
@@ -116,7 +117,7 @@ class SemverService {
 		}
 
 		const stepVersions = Object.keys(step).sort(this.reverseSort);
-		return stepVersions.find(stepVersion => this.isVersionCompatible(version!, stepVersion));
+		return stepVersions.find((stepVersion) => this.isVersionCompatible(version!, stepVersion));
 	};
 
 	findLatestMajorVersion = (step: Step, stepCatalogue: StepCatalouge): string => {

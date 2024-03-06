@@ -1,5 +1,6 @@
-import { Fragment } from "react";
 import { Box, Icon } from "@bitrise/bitkit";
+import { Fragment } from "react";
+
 import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
 
 type StepItemBadgeProps = {

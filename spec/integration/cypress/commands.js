@@ -7,12 +7,12 @@ Cypress.Commands.add("waitForSteps", () => {
 
 Cypress.Commands.add("loadSteps", (cb) => {
 	cy.intercept("POST", "/1/indexes/steplib_inputs/**").as("steplib-inputs");
-	cy.fixture("steps.json").then(steps => {
+	cy.fixture("steps.json").then((steps) => {
 		cy.intercept("POST", "/1/indexes/steplib_steps/**", (req) => {
 			req.reply({
-				body: steps
-			})
-		}).as("steplib-steps")
+				body: steps,
+			});
+		}).as("steplib-steps");
 
 		cb();
 		cy.waitForSteps();

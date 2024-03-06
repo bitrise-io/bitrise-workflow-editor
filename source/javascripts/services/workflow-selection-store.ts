@@ -21,7 +21,7 @@ export class WorkflowSelectionStore {
 		lastEditedWorkflow,
 		lastSelectedStep,
 		lastSelectedWorkflow,
-		lastEditedWorkflowIndex
+		lastEditedWorkflowIndex,
 	}: WorkflowSelectionState): void => {
 		if (!this.shouldStoreChanges) {
 			return;

@@ -1,8 +1,9 @@
 import { Box, Icon, Text } from "@bitrise/bitkit";
 import classNames from "classnames";
+
+import stepOutDatedIcon from "../../../images/step/upgrade.svg";
 import { OnStepChange, Step, StepVersionWithRemark } from "../../models";
 import { getVersionRemark } from "../../utils/stepVersionUtil";
-import stepOutDatedIcon from "../../../images/step/upgrade.svg";
 
 type Props = {
 	step: Step;

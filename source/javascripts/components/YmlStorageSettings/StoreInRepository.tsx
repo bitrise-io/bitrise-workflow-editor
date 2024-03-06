@@ -1,16 +1,17 @@
-import { useMemo, useEffect, useState } from "react";
 import { Box, Button, ButtonGroup, Notification } from "@bitrise/bitkit";
-import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
-import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
+import { useEffect, useMemo, useState } from "react";
+
 import useGetAppConfigCallback from "../../hooks/api/useGetAppConfigCallback";
-import ConfirmSwitchToRepositoryYml from "./ConfirmSwitchToRepositoryYml";
-import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
-import StoreInRepositoryDescription from "./StoreInRepositoryDescription";
-import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
-import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
+import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
+import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
+import { WFEWindow } from "../../typings/global";
 import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
 import ValidatingYmlInRepoProgress from "../common/notifications/ValidatingYmlInRepoProgress";
-import { WFEWindow } from "../../typings/global";
+import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
+import ConfirmSwitchToRepositoryYml from "./ConfirmSwitchToRepositoryYml";
+import StoreInRepositoryDescription from "./StoreInRepositoryDescription";
 
 type StorageInRepositoryProps = {
 	appSlug: string;
@@ -18,23 +19,16 @@ type StorageInRepositoryProps = {
 	onSuccess(): void;
 };
 
-const StorageInRepository = ({
-	appSlug,
-	onCancel,
-	onSuccess
-}: StorageInRepositoryProps): JSX.Element => {
+const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInRepositoryProps): JSX.Element => {
 	const {
 		getAppConfigFromRepoStatus,
 		getAppConfigFromRepoFailed,
 		getAppConfigFromRepoLoading,
 		getAppConfigFromRepo,
-		appConfigFromRepo
+		appConfigFromRepo,
 	} = useGetAppConfigFromRepoCallback(appSlug);
-	const {
-		updatePipelineConfigStatus,
-		updatePipelineConfigLoading,
-		updatePipelineConfig
-	} = useUpdatePipelineConfigCallback(appSlug, true);
+	const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig } =
+		useUpdatePipelineConfigCallback(appSlug, true);
 	const { appConfig: currentWebsiteAppConfig, getAppConfig, getAppConfigLoading } = useGetAppConfigCallback(appSlug);
 	const [confirmModalVisible, setconfirmModalVisible] = useState(false);
 	const [initialCheckComplete, setInitialCheckComplete] = useState(false);

@@ -8,14 +8,14 @@ describe("DataDogLoggerService", () => {
 	const mockDatadogLogs = {
 		// TODO: leave it here because we are using Ddog singleton logger -> removal results in test failure
 		init: _.identity,
-		createLogger: _.identity
+		createLogger: _.identity,
 	};
 
 	window.datadogLogs = mockDatadogLogs;
 
 	beforeEach(() => {
 		module("BitriseWorkflowEditor");
-		module($provide => {
+		module(($provide) => {
 			$provide.constant("DATADOG_API_KEY", testApiKey);
 			$provide.constant("IS_ANALYTICS", true);
 			$provide.constant("SERVICE_NAME", testServiceName);
@@ -26,14 +26,14 @@ describe("DataDogLoggerService", () => {
 			debug: jasmine.createSpy("debug"),
 			error: jasmine.createSpy("error"),
 			warn: jasmine.createSpy("warn"),
-			setContext: jasmine.createSpy("contextSetter")
+			setContext: jasmine.createSpy("contextSetter"),
 		};
 
 		spyOn(mockDatadogLogs, "init");
 		spyOn(mockDatadogLogs, "createLogger").and.callFake(() => mockInnerLogger);
 	});
 
-	beforeEach(inject(_logger_ => {
+	beforeEach(inject((_logger_) => {
 		logger = _logger_;
 	}));
 
@@ -43,8 +43,8 @@ describe("DataDogLoggerService", () => {
 			testServiceName,
 			jasmine.objectContaining({
 				handler: "http",
-				level: "info"
-			})
+				level: "info",
+			}),
 		);
 	});
 

@@ -1,8 +1,9 @@
-import { Step } from "../../models";
-import { extractInputNames, extractReleaseNotesUrl } from "./utils";
-import semverService from "../../services/semver-service";
 import { useDisclosure } from "@bitrise/bitkit";
 import { useEffect, useReducer } from "react";
+
+import { Step } from "../../models";
+import semverService from "../../services/semver-service";
+import { extractInputNames, extractReleaseNotesUrl } from "./utils";
 
 type ReducerState = { oldHashKey: string; oldVersion: string; oldInputNames: Array<string> };
 const DefaultState: ReducerState = { oldHashKey: "", oldVersion: "", oldInputNames: [] };

@@ -1,4 +1,5 @@
-import { useState, useCallback, useRef } from "react";
+import { useCallback, useRef, useState } from "react";
+
 import { useAsyncError } from "../utils/useAsyncError";
 
 export interface FetchResponse<T, E> {
@@ -16,7 +17,7 @@ const defaultParser: ResponseParser = (data: string) => JSON.parse(data);
 function useFetchCallback<T, E>(
 	url: string,
 	init?: RequestInit,
-	parser: ResponseParser = defaultParser
+	parser: ResponseParser = defaultParser,
 ): FetchResponse<T, E> {
 	const [result, setResult] = useState<T>();
 	const [loading, setLoading] = useState(false);
@@ -49,8 +50,8 @@ function useFetchCallback<T, E>(
 							"Content-Type": "application/json",
 							Accept: "application/json",
 							...init?.headers,
-							...options?.headers
-						}
+							...options?.headers,
+						},
 					});
 
 					setStatusCode(result.status);
@@ -77,7 +78,7 @@ function useFetchCallback<T, E>(
 				}
 			})();
 		},
-		[url, init]
+		[url, init],
 	);
 
 	return { result, statusCode, loading, failed, call };

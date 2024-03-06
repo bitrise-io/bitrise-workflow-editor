@@ -4,8 +4,8 @@ import { useForm } from "react-hook-form";
 
 import { OnStepChange, Step, StepVersionWithRemark } from "../../models";
 import MajorVersionChangeDialog from "./MajorVersionChangeDialog";
-import { extractInputNames, extractStepFields } from "./utils";
 import useVersionChange from "./useVersionChange";
+import { extractInputNames, extractStepFields } from "./utils";
 
 type Props = {
 	step: Step;
