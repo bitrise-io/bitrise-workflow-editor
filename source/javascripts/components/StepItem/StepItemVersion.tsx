@@ -1,18 +1,14 @@
-import { Text, Badge, Icon } from "@bitrise/bitkit";
-import { Step } from "../../models";
+import { Badge, Icon, Text } from "@bitrise/bitkit";
 
 type StepItemVersionProps = {
-	version: string;
-	step: Step;
-	highlightVersionUpdate: boolean;
-	strings: {
-		alwaysLatest: string;
-	};
+	requestedVersion: string;
+	actualVersion: string;
+	hasVersionUpdate: boolean;
 };
 
-const StepItemVersion = ({ version, step, highlightVersionUpdate, strings }: StepItemVersionProps): JSX.Element => (
+const StepItemVersion = ({ actualVersion, requestedVersion, hasVersionUpdate }: StepItemVersionProps): JSX.Element => (
 	<em className="version" data-e2e-tag="step-item__version">
-		{version && highlightVersionUpdate && (
+		{requestedVersion && hasVersionUpdate && (
 			<Badge
 				className="Badge"
 				padding="0 0.18rem"
@@ -22,11 +18,11 @@ const StepItemVersion = ({ version, step, highlightVersionUpdate, strings }: Ste
 				data-e2e-tag="step-item__update-indicator"
 			>
 				<Icon className="Icon" name="ArrowUp" />
-				{step.version}
+				{actualVersion}
 			</Badge>
 		)}
-		{version && !highlightVersionUpdate && <Text>{step.version}</Text>}
-		{!version && <Text>{strings.alwaysLatest}</Text>}
+		{requestedVersion && !hasVersionUpdate && <Text>{actualVersion}</Text>}
+		{!requestedVersion && <Text>Always latest</Text>}
 	</em>
 );
 

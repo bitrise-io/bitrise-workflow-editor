@@ -1,5 +1,6 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
+import { safeDigest } from "../services/react-compat";
 
 (function() {
 	"use strict";
@@ -655,6 +656,7 @@ import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 				}
 
 				$rootScope.$emit("MainController::changesDiscarded");
+				safeDigest($scope);
 			};
 
 			viewModel.selectMenuByID = function(menuID) {

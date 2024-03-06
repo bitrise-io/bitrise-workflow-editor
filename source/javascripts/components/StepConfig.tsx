@@ -1,21 +1,31 @@
-import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text } from "@bitrise/bitkit";
+import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from "@bitrise/bitkit";
 
 import { TabPanel, TabPanels } from "@chakra-ui/react";
-import { Step, StepOutputVariable } from "../models";
+import { OnStepPropertyChange, Step, StepOutputVariable, StepVersionWithRemark } from "../models";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepConfiguration from "./StepConfiguration";
-import StepProperties from "./StepProperties";
+import StepProperties from "./StepProperties/StepProperties";
 import StepOutputVariables from "./StepOutputVariables";
 
 type Props = {
 	step: Step;
-	highlightVersionUpdate?: boolean;
+	hasVersionUpdate?: boolean;
+	versionsWithRemarks: Array<StepVersionWithRemark>;
 	outputVariables: Array<StepOutputVariable>;
+	onChange: OnStepPropertyChange;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
 };
 
-const StepConfig = ({ step, highlightVersionUpdate, outputVariables, onClone, onRemove }: Props): JSX.Element => {
+const StepConfig = ({
+	step,
+	hasVersionUpdate,
+	versionsWithRemarks,
+	outputVariables,
+	onChange,
+	onClone,
+	onRemove,
+}: Props): JSX.Element => {
 	const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
 	return (
@@ -28,14 +38,31 @@ const StepConfig = ({ step, highlightVersionUpdate, outputVariables, onClone, on
 						<Text size="4" fontWeight="bold" hasEllipsis>
 							{step.displayName()}
 						</Text>
-						<StepItemBadge step={step} />
+						<StepItemBadge
+							isOfficial={step.isOfficial()}
+							isVerified={step.isVerified()}
+							isDeprecated={step.isDeprecated()}
+						/>
 					</Box>
 
 					<Box display="flex" gap="4" alignItems="center">
 						<Text size="2" color="text.secondary">
 							{step.version || step.defaultStepConfig.version}
 						</Text>
-						{highlightVersionUpdate && <Icon size="16" name="WarningColored" aria-label="New version available" />}
+						{hasVersionUpdate && (
+							<Tooltip
+								isDisabled={!hasVersionUpdate}
+								label="Major version change. Click to update to the latest version."
+							>
+								<Icon
+									size="16"
+									name="WarningColored"
+									aria-label="New version available"
+									cursor="pointer"
+									onClick={() => onChange({ version: "" })}
+								/>
+							</Tooltip>
+						)}
 					</Box>
 				</Box>
 
@@ -69,7 +96,7 @@ const StepConfig = ({ step, highlightVersionUpdate, outputVariables, onClone, on
 						<StepConfiguration step={step} />
 					</TabPanel>
 					<TabPanel id="properties">
-						<StepProperties step={step} />
+						<StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onChange} />
 					</TabPanel>
 					{showOutputVariables && (
 						<TabPanel id="output-variables">
