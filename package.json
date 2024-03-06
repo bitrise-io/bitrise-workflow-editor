@@ -115,7 +115,7 @@
 		"eslint-plugin-unused-imports": "^3.1.0",
 		"file-loader": "^6.2.0",
 		"jasmine-ajax": "^4.0.0",
-		"jsdom": "^23.0.1",
+		"jsdom": "^24.0.0",
 		"karma": "^6.4.2",
 		"karma-cli": "^2.0.0",
 		"karma-coverage": "^2.2.1",
