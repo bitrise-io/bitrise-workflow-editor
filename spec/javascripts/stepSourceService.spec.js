@@ -1,4 +1,4 @@
-describe("stepSourceService", function() {
+describe("stepSourceService", function () {
 	let stepSourceService;
 	const TEST_STEP_ID = "mockStep";
 	const TEST_LIB_URL = "http://tempuri.org";
@@ -11,30 +11,30 @@ describe("stepSourceService", function() {
 			resolveVersion: jasmine.createSpy("resolveVersion"),
 			shortenWildcardVersion: jasmine.createSpy("shortenWildcardVersion"),
 			normalizeVersion: jasmine.createSpy("normalizeVersion"),
-			findLatestMajorVersion: jasmine.createSpy("findLatestMajorVersion")
+			findLatestMajorVersion: jasmine.createSpy("findLatestMajorVersion"),
 		};
 
 		mockLogger = {
 			warn: jasmine.createSpy("warn"),
-			error: jasmine.createSpy("error")
+			error: jasmine.createSpy("error"),
 		};
 
 		q = {
-			all: jasmine.createSpy("qAll")
+			all: jasmine.createSpy("qAll"),
 		};
 
 		appService = {
 			appConfig: {
-				default_step_lib_source: TEST_LIB_URL
-			}
+				default_step_lib_source: TEST_LIB_URL,
+			},
 		};
 
 		stepLibSearchService = {
-			list: jasmine.createSpy("list").and.resolveTo({})
+			list: jasmine.createSpy("list").and.resolveTo({}),
 		};
 
 		module("BitriseWorkflowEditor");
-		module($provide => {
+		module(($provide) => {
 			$provide.value("semverService", mockSemverService);
 			$provide.value("logger", mockLogger);
 			$provide.value("$q", q);
@@ -43,7 +43,7 @@ describe("stepSourceService", function() {
 		});
 	});
 
-	beforeEach(inject(_stepSourceService_ => {
+	beforeEach(inject((_stepSourceService_) => {
 		stepSourceService = _stepSourceService_;
 		stepSourceService.defaultLibraryURL = TEST_LIB_URL;
 
@@ -55,40 +55,40 @@ describe("stepSourceService", function() {
 						"2.2.1": { defaultStepConfig: TEST_STEP_LATEST_CONFIG },
 						"1.2.1": { defaultStepConfig: "1.2.1 config" },
 						"1.1.1": { defaultStepConfig: "1.1.1 config" },
-						"1.0.0": { defaultStepConfig: "1.0.0 config" }
-					}
+						"1.0.0": { defaultStepConfig: "1.0.0 config" },
+					},
 				},
 				latestStepVersions: {
-					[TEST_STEP_ID]: "2.2.1"
-				}
-			}
+					[TEST_STEP_ID]: "2.2.1",
+				},
+			},
 		];
 	}));
 
-	describe("stepFromCVS", function() {
-		it("should return local step", function() {
+	describe("stepFromCVS", function () {
+		it("should return local step", function () {
 			expect(stepSourceService.stepFromCVS("path::path/to/step").localPath).not.toBeUndefined();
 			expect(stepSourceService.stepFromCVS("path::path/to/step").localPath).toBe("path/to/step");
 			expect(stepSourceService.stepFromCVS("path::path/to/step::another/path/to/step@1.0@2.0").localPath).toBe(
-				"path/to/step::another/path/to/step@1.0"
+				"path/to/step::another/path/to/step@1.0",
 			);
 			expect(stepSourceService.stepFromCVS("path::::").localPath).toBe("::");
 			expect(stepSourceService.stepFromCVS("path::::@1.0").localPath).toBe("::");
 		});
 
-		it("should raise error on invalid local step CVS", function() {
-			expect(function() {
+		it("should raise error on invalid local step CVS", function () {
+			expect(function () {
 				stepSourceService.stepFromCVS("path::");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("path::@");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("path::@1.0");
 			}).toThrow();
 		});
 
-		it("should return git step", function() {
+		it("should return git step", function () {
 			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").gitURL).not.toBeUndefined();
 			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").gitURL).toBe("git-url.git");
 			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0").version).toBe("1.0");
@@ -99,23 +99,23 @@ describe("stepSourceService", function() {
 			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@2.0").gitURL).toBe("git-url.git@1.0");
 			expect(stepSourceService.stepFromCVS("git::git-url.git@1.0@2.0").version).toBe("2.0");
 			expect(stepSourceService.stepFromCVS("git::git-url.git::another-git-url.git@1.0@2.0").gitURL).toBe(
-				"git-url.git::another-git-url.git@1.0"
+				"git-url.git::another-git-url.git@1.0",
 			);
 		});
 
-		it("should raise error on invalid git step CVS", function() {
-			expect(function() {
+		it("should raise error on invalid git step CVS", function () {
+			expect(function () {
 				stepSourceService.stepFromCVS("git::");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("git::@");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("git::@1.0");
 			}).toThrow();
 		});
 
-		it("should return library step", function() {
+		it("should return library step", function () {
 			mockSemverService.resolveVersion.and.returnValue("1.0.0");
 
 			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).not.toBeUndefined();
@@ -123,7 +123,7 @@ describe("stepSourceService", function() {
 			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).id).toBe(TEST_STEP_ID);
 			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@1.0`).version).toBe("1.0");
 			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).libraryURL).toBe(
-				"git@library-url.git"
+				"git@library-url.git",
 			);
 			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).id).toBe(TEST_STEP_ID);
 			expect(stepSourceService.stepFromCVS(`git@library-url.git::${TEST_STEP_ID}@1.0`).version).toBe("1.0");
@@ -133,46 +133,46 @@ describe("stepSourceService", function() {
 			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}`).version).toBeNull();
 			expect(stepSourceService.stepFromCVS(`library-url.git::${TEST_STEP_ID}@`).version).toBeNull();
 			expect(
-				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).libraryURL
+				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).libraryURL,
 			).toBe("library-url.git");
 			expect(
-				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).id
+				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).id,
 			).toBe(`another-library-url.git::${TEST_STEP_ID}@1.0`);
 			expect(
-				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).version
+				stepSourceService.stepFromCVS(`library-url.git::another-library-url.git::${TEST_STEP_ID}@1.0@2.0`).version,
 			).toBe("2.0");
 			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").id).toBe("@1.0");
 			expect(stepSourceService.stepFromCVS("library-url.git::@1.0@2.0").version).toBe("2.0");
 		});
 
-		it("should raise error on invalid library step CVS", function() {
-			expect(function() {
+		it("should raise error on invalid library step CVS", function () {
+			expect(function () {
 				stepSourceService.stepFromCVS("::");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("::@");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("::@1.0");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("library-url::");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("library-url::@");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("library-url::@1.0");
 			}).toThrow();
 		});
 
-		it("should raise error if library step has no library specified nor is default library specified", function() {
+		it("should raise error if library step has no library specified nor is default library specified", function () {
 			stepSourceService.defaultLibraryURL = null;
 
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("${TEST_STEP_ID}@1.0");
 			}).toThrow();
-			expect(function() {
+			expect(function () {
 				stepSourceService.stepFromCVS("::${TEST_STEP_ID}@1.0");
 			}).toThrow();
 		});
@@ -192,7 +192,7 @@ describe("stepSourceService", function() {
 
 			expect(mockLogger.warn).toHaveBeenCalledWith(
 				"Step is not configured",
-				jasmine.objectContaining({ stepCVS: `${TEST_STEP_ID}@invalid`, library: "http://tempuri.org" })
+				jasmine.objectContaining({ stepCVS: `${TEST_STEP_ID}@invalid`, library: "http://tempuri.org" }),
 			);
 		});
 	});
@@ -208,7 +208,7 @@ describe("stepSourceService", function() {
 				defaultStepConfig: "1.1.1 config",
 				libraryURL: "http://tempuri.org",
 				isLibraryStep: () => true,
-				isConfigured: () => true
+				isConfigured: () => true,
 			};
 		});
 
@@ -267,7 +267,7 @@ describe("stepSourceService", function() {
 				version: "1.1.1",
 				defaultStepConfig: "1.1.1 config",
 				libraryURL: TEST_LIB_URL,
-				isLibraryStep: () => true
+				isLibraryStep: () => true,
 			};
 		});
 
@@ -314,7 +314,7 @@ describe("stepSourceService", function() {
 		it("should return false for local step", () => {
 			const isLatest = stepSourceService.isLatestStepVersion({
 				isLibraryStep: () => false,
-				isLocal: () => true
+				isLocal: () => true,
 			});
 
 			expect(isLatest).toBeFalsy();
@@ -323,7 +323,7 @@ describe("stepSourceService", function() {
 		it("should return true for github step", () => {
 			const isLatest = stepSourceService.isLatestStepVersion({
 				isLibraryStep: () => false,
-				isLocal: () => false
+				isLocal: () => false,
 			});
 
 			expect(isLatest).toBeTruthy();
@@ -333,7 +333,7 @@ describe("stepSourceService", function() {
 			const mockStep = {
 				id: TEST_STEP_ID,
 				isLibraryStep: () => true,
-				libraryURL: TEST_LIB_URL
+				libraryURL: TEST_LIB_URL,
 			};
 
 			mockSemverService.resolveVersion.and.returnValue("1.3.4");
@@ -352,7 +352,7 @@ describe("stepSourceService", function() {
 				id: TEST_STEP_ID,
 				version: "1.2.3",
 				libraryURL: TEST_LIB_URL,
-				isLibraryStep: () => true
+				isLibraryStep: () => true,
 			};
 		});
 
@@ -371,8 +371,8 @@ describe("stepSourceService", function() {
 				jasmine.objectContaining({
 					id: TEST_STEP_ID,
 					version: "1.2.3",
-					requestedVersion: "1.2.x"
-				})
+					requestedVersion: "1.2.x",
+				}),
 			);
 
 			expect(actual).toBeUndefined();
@@ -396,7 +396,7 @@ describe("stepSourceService", function() {
 			expect(q.all).toHaveBeenCalledWith([jasmine.any(Promise)]);
 			expect(stepLibSearchService.list).toHaveBeenCalledWith({
 				stepCVSs: [`${TEST_STEP_ID}@2.2.1`],
-				includeInputs: true
+				includeInputs: true,
 			});
 		});
 	});

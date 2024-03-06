@@ -1,4 +1,5 @@
 import { Notification } from "@bitrise/bitkit";
+
 import { WFEWindow } from "../../../typings/global";
 
 const ValidatingYmlInRepoProgress = (): JSX.Element => (

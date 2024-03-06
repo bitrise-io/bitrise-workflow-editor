@@ -4,8 +4,8 @@ describe("SemverService", () => {
 	const TEST_STEP_ID = "mock_step";
 	const mockCatalogue = {
 		latestStepVersions: {
-			"mock_step_2": "4.5.6",
-			[TEST_STEP_ID]: "12.3.4"
+			mock_step_2: "4.5.6",
+			[TEST_STEP_ID]: "12.3.4",
 		},
 		steps: {
 			[TEST_STEP_ID]: {
@@ -17,13 +17,13 @@ describe("SemverService", () => {
 				"0.2.1": "...",
 				"0.1.1": "...",
 			},
-			"mock_step_2": {
+			mock_step_2: {
 				"4.5.6": "...",
 				"2.3.4": "...",
 				"2.3.1": "...",
 				"1.3.1": "...",
-			}
-		}
+			},
+		},
 	};
 
 	beforeEach(module("BitriseWorkflowEditor"));
@@ -87,7 +87,17 @@ describe("SemverService", () => {
 			const wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
 
 			expect(wVersions).toEqual([
-				"12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.1", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
+				"12.3.x",
+				"12.x.x",
+				"2.3.x",
+				"2.x.x",
+				"1.3.x",
+				"1.2.1",
+				"1.2.x",
+				"1.x.x",
+				"0.2.x",
+				"0.1.x",
+				"0.x.x",
 			]);
 		});
 
@@ -100,7 +110,16 @@ describe("SemverService", () => {
 			const wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
 
 			expect(wVersions).toEqual([
-				"12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
+				"12.3.x",
+				"12.x.x",
+				"2.3.x",
+				"2.x.x",
+				"1.3.x",
+				"1.2.x",
+				"1.x.x",
+				"0.2.x",
+				"0.1.x",
+				"0.x.x",
 			]);
 		});
 
@@ -113,7 +132,17 @@ describe("SemverService", () => {
 			const wVersions = semverService.extractWildcardVersions(mockStep, mockCatalogue);
 
 			expect(wVersions).toEqual([
-				null, "12.3.x", "12.x.x", "2.3.x", "2.x.x", "1.3.x", "1.2.x", "1.x.x", "0.2.x", "0.1.x", "0.x.x"
+				null,
+				"12.3.x",
+				"12.x.x",
+				"2.3.x",
+				"2.x.x",
+				"1.3.x",
+				"1.2.x",
+				"1.x.x",
+				"0.2.x",
+				"0.1.x",
+				"0.x.x",
 			]);
 		});
 	});
@@ -125,7 +154,7 @@ describe("SemverService", () => {
 			["1.x.x", "1.3.1"],
 			["x.x.x", "12.3.4"],
 			["12.x.x", "12.3.4"],
-			["1", "1.3.1"],         // partials should be interpreted as wildcards
+			["1", "1.3.1"], // partials should be interpreted as wildcards
 			["0", "0.2.3"],
 			["1.3", "1.3.1"],
 			[null, "12.3.4"],
@@ -133,8 +162,7 @@ describe("SemverService", () => {
 
 		_.forEach(testCases, (test) => {
 			it(`should resolve ${test[0]} to ${test[1]} against the library`, () => {
-				expect(semverService.resolveVersion(test[0], TEST_STEP_ID, mockCatalogue))
-					.toEqual(test[1]);
+				expect(semverService.resolveVersion(test[0], TEST_STEP_ID, mockCatalogue)).toEqual(test[1]);
 			});
 		});
 

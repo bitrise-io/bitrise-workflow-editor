@@ -1,7 +1,7 @@
 import { Box, Icon, Link, Text, Tooltip } from "@bitrise/bitkit";
+import { BoxProps } from "@bitrise/bitkit";
 
 import Hotjar from "../../../utils/hotjar";
-import { BoxProps } from "@bitrise/bitkit";
 
 type WorkflowRecipesLinkProps = {
 	linkId: string;

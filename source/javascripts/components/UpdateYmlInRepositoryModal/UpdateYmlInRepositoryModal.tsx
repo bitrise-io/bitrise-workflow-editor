@@ -1,11 +1,12 @@
+import { Box, Button, ButtonGroup, Dialog, DialogBody, DialogFooter, Notification, Text } from "@bitrise/bitkit";
 import { ReactElement, useEffect } from "react";
-import { Button, Dialog, DialogBody, DialogFooter, ButtonGroup, Box, Text, Notification } from "@bitrise/bitkit";
-import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
-import { AppConfig } from "../../models/AppConfig";
+
 import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
-import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
-import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
+import { AppConfig } from "../../models/AppConfig";
 import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
+import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
+import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
 
 type Props = {
 	appSlug: string;
@@ -20,7 +21,7 @@ const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplet
 		getAppConfigFromRepo,
 		appConfigFromRepo,
 		getAppConfigFromRepoStatus,
-		getAppConfigFromRepoFailed
+		getAppConfigFromRepoFailed,
 	} = useGetAppConfigFromRepoCallback(appSlug);
 	const dataToSave = getDataToSave();
 

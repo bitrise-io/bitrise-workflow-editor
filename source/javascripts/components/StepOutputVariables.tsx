@@ -1,5 +1,6 @@
 import { Box, Collapse, Divider, Input, Link, MarkdownContent, Text } from "@bitrise/bitkit";
 import { Fragment, useState } from "react";
+
 import { StepOutputVariable } from "../models";
 
 type ItemProps = {

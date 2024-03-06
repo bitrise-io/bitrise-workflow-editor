@@ -7,11 +7,10 @@ type Variable = {
 	value: <T>(value?: T) => T;
 };
 
-export const getAppSlug = (): string | null => {
+export const getAppSlug = (href = document.location.href): string | null => {
 	const matches = new RegExp(
-		// eslint-disable-next-line max-len
-		".*/app/((?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})|(?:[a-zA-Z0-9]{16}))(?:[/?#].*)?"
-	).exec(document.location.href);
+		".*/app/((?:[a-fA-F0-9]{8}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{4}-[a-fA-F0-9]{12})|(?:[a-zA-Z0-9]{16}))(?:[/?#].*)?",
+	).exec(href);
 
 	if (matches) {
 		return matches[1];

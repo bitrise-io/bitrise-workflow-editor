@@ -1,5 +1,5 @@
+import { Link, Text, TextProps, TypeColors } from "@bitrise/bitkit";
 import { FC } from "react";
-import { Link, Text, TypeColors, TextProps } from "@bitrise/bitkit";
 
 type InlineLinkProps = {
 	text: string;

@@ -1376,7 +1376,7 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 				return !isLatestStepVersion || !isStepConfigured;
 			};
 
-			viewModel.handleStepPropertyChanged = function(values) {
+			viewModel.handleSelectedStepChanges = function(values) {
 				if (!viewModel.selectedStep || !values) {
 					return;
 				}
@@ -1384,15 +1384,34 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 				Object.entries(values).forEach(([key, value]) => {
 					if (key === "name") {
 						renameStep(viewModel.selectedStep, String(value));
-						safeDigest($scope);
 						return;
 					}
 
 					if (key === "version") {
 						changeStepToVersion(viewModel.selectedStep, String(value));
-						safeDigest($scope);
+						return;
 					}
+
+					if (key === "run_if") {
+						viewModel.selectedStep.runIf(String(value));
+						return;
+					}
+
+					if (key === "is_always_run") {
+						viewModel.selectedStep.isAlwaysRun(Boolean(value));
+						return;
+					}
+
+					viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
+						category.inputs.forEach((variable) => {
+							if (variable.key() === key) {
+								variable.value(String(value));
+							}
+						});
+					});
 				});
+
+				safeDigest($scope);
 			};
 		});
 })();

@@ -14,7 +14,9 @@ const StoreInRepositoryDescription = ({ title, description }: Props): JSX.Elemen
 			<Text as="span">{description}</Text>
 			<Text as="span">
 				Read more in{" "}
-				<Link isUnderlined href="https://devcenter.bitrise.io/builds/bitrise-yml-online/">our documentation</Link>
+				<Link isUnderlined href="https://devcenter.bitrise.io/builds/bitrise-yml-online/">
+					our documentation
+				</Link>
 			</Text>
 		</Text>
 	</Box>

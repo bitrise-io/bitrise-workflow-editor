@@ -18,8 +18,8 @@ describe("RequestService", () => {
 
 	function itActsLikeAnAbortableRequest() {
 		describe("when request is aborted through request config", () => {
-			it("gets aborted", done => {
-				const aborter = new Promise(resolve => {
+			it("gets aborted", (done) => {
+				const aborter = new Promise((resolve) => {
 					setTimeout(() => {
 						resolve();
 					}, 0);
@@ -29,7 +29,7 @@ describe("RequestService", () => {
 
 				RequestService.getAppConfigYML(aborter)
 					.then(done.fail)
-					.catch(error => {
+					.catch((error) => {
 						expect(error.message).toMatch(/GET .+ - Aborted/);
 						done();
 					});
@@ -46,13 +46,13 @@ describe("RequestService", () => {
 			itActsLikeAnAbortableRequest();
 
 			describe("and response is successful", () => {
-				it("resolves with app config", done => {
+				it("resolves with app config", (done) => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
-						responseText: "my-app-config"
+						responseText: "my-app-config",
 					});
 
 					RequestService.getAppConfigYML()
-						.then(appConfig => {
+						.then((appConfig) => {
 							expect(appConfig).toBe("my-app-config");
 							done();
 						})
@@ -61,18 +61,18 @@ describe("RequestService", () => {
 			});
 
 			describe("and response is not successful, but bitrise.yml is still returned", () => {
-				it("rejects with received error & with bitrise.yml, logs warning", done => {
+				it("rejects with received error & with bitrise.yml, logs warning", (done) => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 422,
 						responseJSON: {
 							bitrise_yml: "my-invalid-app-config",
-							error_msg: "Some error"
-						}
+							error_msg: "Some error",
+						},
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
-						.catch(responseData => {
+						.catch((responseData) => {
 							expect(responseData.bitriseYml).toBe("my-invalid-app-config");
 							expect(responseData.error).toEqual(new Error("Error loading app config: Some error"));
 							expect(logger.warn).toHaveBeenCalledWith("Error loading app config: Some error");
@@ -83,17 +83,17 @@ describe("RequestService", () => {
 			});
 
 			describe("and response is not successful, and bitrise.yml is not returned", () => {
-				it("rejects with received error only, logs warning", done => {
+				it("rejects with received error only, logs warning", (done) => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 400,
 						responseJSON: {
-							error_msg: "Some error"
-						}
+							error_msg: "Some error",
+						},
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
-						.catch(error => {
+						.catch((error) => {
 							expect(error).toEqual(new Error("Some error"));
 							expect(logger.warn).toHaveBeenCalledWith("Some error");
 							expect(logger.error).not.toHaveBeenCalled();
@@ -103,17 +103,17 @@ describe("RequestService", () => {
 			});
 
 			describe("and response is internal server error", () => {
-				it("rejects with received error only, logs error", done => {
+				it("rejects with received error only, logs error", (done) => {
 					jasmine.Ajax.stubRequest("/api/app/my-app-slug/config.yml").andReturn({
 						status: 500,
 						responseJSON: {
-							error_msg: "Some error"
-						}
+							error_msg: "Some error",
+						},
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
-						.catch(error => {
+						.catch((error) => {
 							expect(error).toEqual(new Error("Some error"));
 							expect(logger.warn).not.toHaveBeenCalled();
 							expect(logger.error).toHaveBeenCalledWith(new Error("Some error"));
@@ -131,11 +131,11 @@ describe("RequestService", () => {
 			itActsLikeAnAbortableRequest();
 
 			describe("and response is successful", () => {
-				it("resolves with app config", done => {
+				it("resolves with app config", (done) => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({ responseText: "my-app-config" });
 
 					RequestService.getAppConfigYML()
-						.then(appConfig => {
+						.then((appConfig) => {
 							expect(appConfig).toBe("my-app-config");
 							done();
 						})
@@ -144,18 +144,18 @@ describe("RequestService", () => {
 			});
 
 			describe("and response is not successful, but bitrise.yml is still returned", () => {
-				it("rejects with received error & with bitrise.yml, logs warning", done => {
+				it("rejects with received error & with bitrise.yml, logs warning", (done) => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
 						status: 422,
 						responseJSON: {
 							bitrise_yml: "my-invalid-app-config",
-							error: "Some error"
-						}
+							error: "Some error",
+						},
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
-						.catch(responseData => {
+						.catch((responseData) => {
 							expect(responseData.bitriseYml).toBe("my-invalid-app-config");
 							expect(responseData.error).toEqual(new Error("Error loading app config: Some error"));
 							expect(logger.warn).toHaveBeenCalledWith("Error loading app config: Some error");
@@ -166,17 +166,17 @@ describe("RequestService", () => {
 			});
 
 			describe("and response is not successful, and bitrise.yml is not returned", () => {
-				it("rejects with received error only, logs warning", done => {
+				it("rejects with received error only, logs warning", (done) => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
 						status: 400,
 						responseJSON: {
-							error: "Some error"
-						}
+							error: "Some error",
+						},
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
-						.catch(error => {
+						.catch((error) => {
 							expect(error).toEqual(new Error("Some error"));
 							expect(logger.warn).toHaveBeenCalledWith("Some error");
 							expect(logger.error).not.toHaveBeenCalled();
@@ -186,17 +186,17 @@ describe("RequestService", () => {
 			});
 
 			describe("and response is internal server error", () => {
-				it("rejects with received error only, logs error", done => {
+				it("rejects with received error only, logs error", (done) => {
 					jasmine.Ajax.stubRequest("/api/bitrise-yml").andReturn({
 						status: 500,
 						responseJSON: {
-							error: "Some error"
-						}
+							error: "Some error",
+						},
 					});
 
 					RequestService.getAppConfigYML()
 						.then(done.fail)
-						.catch(error => {
+						.catch((error) => {
 							expect(error).toEqual(new Error("Some error"));
 							expect(logger.warn).not.toHaveBeenCalled();
 							expect(logger.error).toHaveBeenCalledWith(new Error("Some error"));

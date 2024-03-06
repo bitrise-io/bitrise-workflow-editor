@@ -1,5 +1,6 @@
-import { Box, Text, Icon, Input, Popover, PopoverContent, PopoverTrigger, IconButton } from "@bitrise/bitkit";
-import { useState, useMemo, useEffect } from "react";
+import { Box, Icon, IconButton, Input, Popover, PopoverContent, PopoverTrigger, Text } from "@bitrise/bitkit";
+import { useEffect, useMemo, useState } from "react";
+
 import { Workflow } from "../../models";
 import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
 
@@ -16,7 +17,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 	selectedWorkflow,
 	workflows,
 	selectWorkflow,
-	renameWorkflowConfirmed
+	renameWorkflowConfirmed,
 }: WorkflowSelectorProps) => {
 	const [visible, setVisible] = useState(false);
 	const [search, setSearch] = useState("");
@@ -45,14 +46,14 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 		let result = [...workflows];
 		if (search) {
 			const regExp = new RegExp(search, "i");
-			result = workflows.filter(workflow => regExp.test(workflow.id));
+			result = workflows.filter((workflow) => regExp.test(workflow.id));
 		}
 
 		return result;
 	}, [workflows, search]);
 
 	const workflowIds = useMemo(() => {
-		return workflows.map(workflow => workflow.id);
+		return workflows.map((workflow) => workflow.id);
 	}, [workflows]);
 
 	const onClearSearch = (): void => {
@@ -103,7 +104,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 						onClick={() => setVisible(true)}
 						data-e2e-tag="workflow-selector-dropdown"
 						_hover={{
-							background: "neutral.93"
+							background: "neutral.93",
 						}}
 					>
 						<Text
@@ -143,7 +144,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
 				/>
 				{filteredWorkflows.length ? (
 					<Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
-						{filteredWorkflows.map(workflow => (
+						{filteredWorkflows.map((workflow) => (
 							<WorkflowSelectorItem
 								key={workflow.id}
 								workflow={workflow}

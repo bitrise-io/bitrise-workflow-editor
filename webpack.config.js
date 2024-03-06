@@ -20,28 +20,28 @@ const isDataDogRumEnabled = DATADOG_RUM === "true";
 const isSegmentEnabled = SEGMENT === "true";
 const publicPath = `${urlPrefix}/${version}/`;
 
-const railsTransformer = mode => ({
+const railsTransformer = (mode) => ({
 	loader: "shell-loader",
 	options: {
 		script: `bundle exec ruby transformer.rb ${mode}`,
 		cwd: "./rails",
 		maxBuffer: Math.pow(1024, 3),
-		env: { ...process.env, wfe_version: version }
+		env: { ...process.env, wfe_version: version },
 	},
 });
 
 const htmlExporter = {
 	loader: "file-loader",
 	options: {
-		name: "[path][name].html"
-	}
+		name: "[path][name].html",
+	},
 };
 
 const entry = {
 	vendor: "./javascripts/vendor.js",
 	strings: "./javascripts/strings.js.erb",
 	routes: "./javascripts/routes.js.erb",
-	main: "./javascripts/index.js"
+	main: "./javascripts/index.js",
 };
 if (isHotjarEnabled) {
 	entry.hotjar = "./javascripts/hotjar.js";
@@ -63,14 +63,11 @@ module.exports = {
 		compress: true,
 		watchFiles: "./source/**/*",
 		port: DEV_SERVER_PORT || 4567,
-		allowedHosts: [
-			"host.docker.internal",
-			"localhost"
-		],
+		allowedHosts: ["host.docker.internal", "localhost"],
 		headers: {
 			"Access-Control-Allow-Origin": "*",
 			"Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, PATCH, OPTIONS",
-			"Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization"
+			"Access-Control-Allow-Headers": "X-Requested-With, content-type, Authorization",
 		},
 		devMiddleware: {
 			stats: "errors-only",
@@ -78,7 +75,7 @@ module.exports = {
 		static: {
 			directory: OUTPUT_FOLDER,
 			publicPath: publicPath,
-		}
+		},
 	},
 
 	devtool: `${isProd ? "hidden-" : ""}source-map`,
@@ -95,11 +92,11 @@ module.exports = {
 					mangle: false,
 					safari10: true,
 					output: {
-						comments: /@license/i
-					}
-				}
-			})
-		]
+						comments: /@license/i,
+					},
+				},
+			}),
+		],
 	},
 
 	performance: {
@@ -111,18 +108,30 @@ module.exports = {
 	output: {
 		filename: "javascripts/[name].js",
 		path: OUTPUT_FOLDER,
-		publicPath
+		publicPath,
 	},
 
 	resolve: {
-		extensions: [".js", ".js.erb", ".ts", ".tsx", ".css", ".scss", ".scss.erb"]
+		extensions: [".js", ".js.erb", ".ts", ".tsx", ".css", ".scss", ".scss.erb"],
 	},
 
 	module: {
 		rules: [
 			{
 				test: /\.erb$/i,
-				use: railsTransformer("erb")
+				use: railsTransformer("erb"),
+			},
+			{
+				test: /\.tsx?$/,
+				use: {
+					loader: "ts-loader",
+					options: {
+						compilerOptions: {
+							sourceMap: !isProd,
+						},
+					},
+				},
+				exclude: /node_modules/,
 			},
 
 			{
@@ -130,31 +139,18 @@ module.exports = {
 				use: {
 					loader: "ts-loader",
 					options: {
+						allowTsInNodeModules: true,
 						compilerOptions: {
-							sourceMap: !isProd
-						}
-					}
+							sourceMap: !isProd,
+						},
+					},
 				},
-				exclude: /node_modules/
-			},
-
-			{
-				test: /\.tsx?$/,
-				use: {
-					loader: "ts-loader",
-					options: {
-						allowTsInNodeModules:true,
-						compilerOptions: {
-							sourceMap: !isProd
-						}
-					}
-				},
-				include: /node_modules\/@bitrise\/bitkit/
+				include: /node_modules\/@bitrise\/bitkit/,
 			},
 
 			{
 				test: /\.(slim)$/,
-				use: [htmlExporter, railsTransformer("slim")]
+				use: [htmlExporter, railsTransformer("slim")],
 			},
 			{
 				test: /\.(png|jpe?g|gif|svg)$/i,
@@ -163,7 +159,7 @@ module.exports = {
 					outputPath: "images",
 					filename: "[name]-[hash][ext][query]",
 					publicPath: `${publicPath}images/`,
-				}
+				},
 			},
 			{
 				test: /\.(eot|woff2?|ttf)$/i,
@@ -172,24 +168,24 @@ module.exports = {
 					outputPath: "fonts",
 					filename: "[name]-[hash][ext][query]",
 					publicPath: `${publicPath}fonts/`,
-				}
+				},
 			},
 			{
 				test: /\.css$/i,
 				include: path.join(__dirname, "node_modules"),
-				use: ["style-loader", "css-loader"]
+				use: ["style-loader", "css-loader"],
 			},
 
 			{
 				test: /\.s[ac]ss(\.erb)?$/i,
-				use: [MiniCssExtractPlugin.loader, "css-loader", railsTransformer("erb"), "sass-loader"]
+				use: [MiniCssExtractPlugin.loader, "css-loader", railsTransformer("erb"), "sass-loader"],
 			},
 
 			{
 				test: path.resolve(__dirname, "node_modules/normalize.css"),
-				use: "null-loader"
-			}
-		]
+				use: "null-loader",
+			},
+		],
 	},
 	plugins: [
 		new webpack.EnvironmentPlugin(["MODE"]),
@@ -198,7 +194,7 @@ module.exports = {
 			test: /.js$|.css$/,
 		}),
 		new MiniCssExtractPlugin({
-			filename: "stylesheets/[name].css"
+			filename: "stylesheets/[name].css",
 		}),
 		new MonacoWebpackPlugin({
 			languages: ["yaml"],
@@ -246,17 +242,15 @@ module.exports = {
 				"!transpose",
 				"!wordHighlighter",
 				"!wordOperations",
-				"!wordPartOperations"
-			]
+				"!wordPartOperations",
+			],
 		}),
 		new ProvidePlugin({
 			"window.jQuery": "jquery",
-			"window._": "underscore"
+			"window._": "underscore",
 		}),
 		new CopyPlugin({
-			patterns: [
-				{ from: "images/favicons/*", to: OUTPUT_FOLDER }
-			]
-		})
-	]
+			patterns: [{ from: "images/favicons/*", to: OUTPUT_FOLDER }],
+		}),
+	],
 };

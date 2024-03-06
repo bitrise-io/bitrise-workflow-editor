@@ -2,11 +2,11 @@
 // Generated on Wed Jan 15 2020 13:26:53 GMT+0100 (Central European Standard Time)
 
 // verbose logging
-process.on("infrastructure_error", error => {
+process.on("infrastructure_error", (error) => {
 	console.error("infrastructure_error", error);
 });
 
-module.exports = config => {
+module.exports = (config) => {
 	config.set({
 		// base path that will be used to resolve all patterns (eg. files, exclude)
 		basePath: "../build",
@@ -22,8 +22,9 @@ module.exports = config => {
 			"javascripts/routes.js",
 			"../node_modules/jasmine-ajax/lib/mock-ajax.js",
 			"../node_modules/angular-mocks/angular-mocks.js",
+			"../spec/mocks.js",
 			"javascripts/main.js",
-			"../spec/javascripts/**/*.spec.js"
+			"../spec/javascripts/**/*.spec.js",
 		],
 
 		// list of files / patterns to exclude
@@ -60,11 +61,11 @@ module.exports = config => {
 		concurrency: 4,
 
 		coverageReporter: {
-			type: "text-summary"
+			type: "text-summary",
 		},
 		specReporter: {
 			// do not print information about skipped tests
-			suppressSkipped: true
-		}
+			suppressSkipped: true,
+		},
 	});
 };

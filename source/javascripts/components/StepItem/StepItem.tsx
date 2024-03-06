@@ -1,13 +1,13 @@
-import { Tooltip } from "@bitrise/bitkit";
-import { Step } from "../../models";
-
 import "./StepItem.scss";
 import "react-lazy-load-image-component/src/effects/blur.css";
 
-import StepItemIcon from "./StepItemIcon";
-import StepItemVersion from "./StepItemVersion";
+import { Tooltip } from "@bitrise/bitkit";
+
+import { Step } from "../../models";
 import StepItemBadge from "./StepItemBadge";
+import StepItemIcon from "./StepItemIcon";
 import StepItemTitle from "./StepItemTitle";
+import StepItemVersion from "./StepItemVersion";
 
 type StepItemProps = {
 	workflowIndex: number;

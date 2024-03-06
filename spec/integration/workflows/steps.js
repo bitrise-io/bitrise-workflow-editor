@@ -1,16 +1,17 @@
 import { Given, Then } from "cypress-cucumber-preprocessor/steps";
-import $ from "../elements";
+
 import { click, select, type } from "../common";
+import $ from "../elements";
 
 afterEach(() => {
-	$("Discard Button").then(btn => {
+	$("Discard Button").then((btn) => {
 		if (!btn.is(":disabled")) {
 			btn.click();
 		}
 	});
 });
 
-Given("Workflow with name {string}", name => {
+Given("Workflow with name {string}", (name) => {
 	click("Add Workflow Button");
 	select("Empty workflow", "Base Workflow Dropdown");
 	type(name, "Workflow Name");
@@ -39,20 +40,18 @@ Given("Rearrange popup is open", () => {
 	click("Change Workflow execution order button");
 });
 
-Then("Workflow appeared with name {string}", name => {
-	$("[data-e2e-tag=\"workflow-selector-selected-workflow-name\"]").contains(name);
+Then("Workflow appeared with name {string}", (name) => {
+	$('[data-e2e-tag="workflow-selector-selected-workflow-name"]').contains(name);
 });
 
 Then("all the steps are loaded", () => {
-	$("Step Icons").each($el => {
-		cy.wrap($el)
-			.invoke("attr", "src")
-			.should("not.contain", "images/icon-default.svg");
+	$("Step Icons").each(($el) => {
+		cy.wrap($el).invoke("attr", "src").should("not.contain", "images/icon-default.svg");
 	});
 });
 
-Then("Workflow selector options should not contain {string}", workflow => {
-	$("Workflow selector options").then(el => {
+Then("Workflow selector options should not contain {string}", (workflow) => {
+	$("Workflow selector options").then((el) => {
 		const exists = el
 			.contents()
 			.map((_, wf) => wf.data)

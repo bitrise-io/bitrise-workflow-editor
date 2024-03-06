@@ -111,6 +111,7 @@ angular
 			"step",
 			"hasVersionUpdate",
 			"versionsWithRemarks",
+			"inputCategories",
 			"outputVariables",
 			"onChange",
 			"onClone",

@@ -1,4 +1,5 @@
 import { flatten, isNull } from "underscore";
+
 import { Step, Workflow } from "../models";
 import { WorkflowSelectionStore } from "./workflow-selection-store";
 
@@ -30,9 +31,9 @@ const wfChainWrapper = (wrapper: WfChainWrapper): WfChainWrapper =>
 			isBeforeRunWorkflow: true,
 			isAfterRunWorkflow: false,
 			selectedWorkflowBeforeRunWorkflowIndex: -1,
-			selectedWorkflowAfterRunWorkflowIndex: -1
+			selectedWorkflowAfterRunWorkflowIndex: -1,
 		},
-		wrapper
+		wrapper,
 	);
 
 export class WorkflowsSelectionService {
@@ -48,7 +49,7 @@ export class WorkflowsSelectionService {
 	private verifySelectedIndex = <T>(
 		potentialIndex: number | null,
 		list: Array<T> | null,
-		checker: (arg0: T) => boolean
+		checker: (arg0: T) => boolean,
 	): boolean => {
 		if (isNull(potentialIndex)) {
 			return false;
@@ -63,14 +64,14 @@ export class WorkflowsSelectionService {
 			viewModel.selectedWorkflow?.id,
 			this.store.lastSelectedWorkflowID,
 			this.location.search().workflow_id,
-			WorkflowsSelectionService.primaryWorkflowName
+			WorkflowsSelectionService.primaryWorkflowName,
 		];
 
 		let selectedWf = null;
 		let idIndex = 0;
 
 		while (!selectedWf && idIndex < idsTotry.length) {
-			selectedWf = viewModel.workflows.find(item => item.id === idsTotry[idIndex]);
+			selectedWf = viewModel.workflows.find((item) => item.id === idsTotry[idIndex]);
 			idIndex++;
 		}
 
@@ -81,14 +82,14 @@ export class WorkflowsSelectionService {
 		this.rearrangeSelection(
 			viewModel,
 			this.findSelectedWorkflow(viewModel),
-			this.store.lastEditedWorkflowID || undefined
+			this.store.lastEditedWorkflowID || undefined,
 		);
 
 		if (
 			this.verifySelectedIndex(
 				this.store.lastEditedWorkflowIndex,
 				viewModel.selectedWorkflowChain,
-				this.store.checkLastSelectedWorkflow
+				this.store.checkLastSelectedWorkflow,
 			)
 		) {
 			viewModel.editWorkflowAtIndex(this.store.lastEditedWorkflowIndex);
@@ -101,7 +102,7 @@ export class WorkflowsSelectionService {
 			this.verifySelectedIndex(
 				this.store.lastSelectedStepIndex,
 				editedWorkflow?.steps,
-				this.store.checkLastSelectedstep
+				this.store.checkLastSelectedstep,
 			)
 		) {
 			const step = editedWorkflow?.steps[this.store.lastSelectedStepIndex];
@@ -126,10 +127,10 @@ export class WorkflowsSelectionService {
 							isBeforeRunWorkflow: before,
 							isAfterRunWorkflow: !before,
 							selectedWorkflowBeforeRunWorkflowIndex: before && aWorkflow == innerWf ? index : -1,
-							selectedWorkflowAfterRunWorkflowIndex: !before && aWorkflow == innerWf ? index : -1
-						})
-					)
-				)
+							selectedWorkflowAfterRunWorkflowIndex: !before && aWorkflow == innerWf ? index : -1,
+						}),
+					),
+				),
 			);
 
 		const beforeWfs = constructWorkflowChain(wf.beforeRunWorkflows(viewModel.workflows), true);
@@ -138,7 +139,7 @@ export class WorkflowsSelectionService {
 		viewModel.selectedWorkflowChain.push(
 			...beforeWfs,
 			wfChainWrapper({ workflow: viewModel.selectedWorkflow }),
-			...afterWfs
+			...afterWfs,
 		);
 
 		// save it to the store

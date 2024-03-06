@@ -1,4 +1,4 @@
-import { Toggle as BitkitToggle, ToggleProps as BitkitToggleProps, Box, Tooltip } from "@bitrise/bitkit";
+import { Box, Toggle as BitkitToggle, ToggleProps as BitkitToggleProps, Tooltip } from "@bitrise/bitkit";
 
 type ToggleProps = {
 	tooltipLabel?: string;

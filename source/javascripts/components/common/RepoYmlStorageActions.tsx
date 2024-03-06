@@ -1,9 +1,10 @@
-import { useState, useEffect, useRef } from "react";
-import { Box, Icon, Text, Notification, Link } from "@bitrise/bitkit";
+import { Box, Icon, Link, Notification, Text } from "@bitrise/bitkit";
+import { useEffect, useRef, useState } from "react";
 import CopyToClipboard from "react-copy-to-clipboard";
+
+import useMonolithApiCallback from "../../hooks/api/useMonolithApiCallback";
 import { AppConfig } from "../../models/AppConfig";
 import appConfigAsYml from "../../utils/appConfigAsYml";
-import useMonolithApiCallback from "../../hooks/api/useMonolithApiCallback";
 
 type RepoYmlStorageActionsProps = {
 	appConfig: AppConfig | string;
@@ -19,10 +20,10 @@ const useFormattedYml = (appConfig: AppConfig): string => {
 		{
 			method: "POST",
 			headers: {
-				Accept: "application/x-yaml, application/json"
-			}
+				Accept: "application/x-yaml, application/json",
+			},
 		},
-		identityParser
+		identityParser,
 	);
 
 	// NOTE: call function isn't referentially stable
@@ -38,8 +39,8 @@ const useFormattedYml = (appConfig: AppConfig): string => {
 		if (typeof appConfig === "object") {
 			formatAppConfigRef.current?.({
 				body: JSON.stringify({
-					app_config_datastore_yaml: yaml
-				})
+					app_config_datastore_yaml: yaml,
+				}),
 			});
 		}
 	}, [appConfig]);

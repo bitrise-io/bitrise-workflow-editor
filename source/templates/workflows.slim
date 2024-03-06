@@ -57,10 +57,11 @@
 					/ 	step="workflowsCtrl.selectedStep"
 					/ 	has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
 					/ 	versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
+					/ 	input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
 					/ 	output-variables="workflowsCtrl.outputVariables"
-					/ 	on-change="workflowsCtrl.handleStepPropertyChanged"
 					/ 	on-clone="workflowsCtrl.cloneSelectedStep"
 					/ 	on-remove="workflowsCtrl.deleteSelectedStep"
+					/ 	on-change="workflowsCtrl.handleSelectedStepChanges"
 					/ ]
 					section.workflow
 						header.workflow-header

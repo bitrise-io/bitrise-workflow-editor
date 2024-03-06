@@ -2,15 +2,15 @@ import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Tex
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-import { OnStepPropertyChange, Step, StepVersionWithRemark } from "../../models";
+import { OnStepChange, Step, StepVersionWithRemark } from "../../models";
 import MajorVersionChangeDialog from "./MajorVersionChangeDialog";
-import { extractInputNames, extractStepFields } from "./utils";
 import useVersionChange from "./useVersionChange";
+import { extractInputNames, extractStepFields } from "./utils";
 
 type Props = {
 	step: Step;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
-	onChange: OnStepPropertyChange;
+	onChange: OnStepChange;
 };
 
 const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
@@ -55,7 +55,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
 			<Input {...register("name")} type="text" label="Name" placeholder="Step name" isRequired />
 			<Divider />
 			{isLibraryStep && (
-				<Select {...register("version")} label="Version updates" isRequired>
+				<Select {...register("version")} label="Version updates" isRequired backgroundSize="none">
 					{versionsWithRemarks.map(({ version: value, remark }) => {
 						return (
 							<option key={value} value={value || ""}>

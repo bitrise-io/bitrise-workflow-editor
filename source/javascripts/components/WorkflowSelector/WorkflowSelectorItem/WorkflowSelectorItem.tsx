@@ -1,7 +1,8 @@
-import { Box, Text, Icon, Link, Input } from "@bitrise/bitkit";
+import { Box, Icon, Input, Link, Text } from "@bitrise/bitkit";
 import React, { useMemo } from "react";
 import { useState } from "react";
 import { useCallback } from "react";
+
 import { Workflow } from "../../../models";
 
 interface WorkflowSelectorItemProps {
@@ -19,7 +20,7 @@ const WorkflowSelectorItem: React.FC<WorkflowSelectorItemProps> = ({
 	workflow,
 	selectWorkflow,
 	workflowIds,
-	renameWorkflowConfirmed
+	renameWorkflowConfirmed,
 }: WorkflowSelectorItemProps) => {
 	const [workflowId, setWorkflowId] = useState(workflow.id);
 	const [isEditing, setIsEditing] = useState(false);
