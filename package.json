@@ -128,7 +128,7 @@
 		"node-sass": "^9.0.0",
 		"null-loader": "^4.0.1",
 		"onchange": "^7.1.0",
-		"postcss-loader": "^7.3.4",
+		"postcss-loader": "^8.0.0",
 		"prettier": "3.2.5",
 		"sass-loader": "^13.3.3",
 		"shell-loader": "^1.2.1",
