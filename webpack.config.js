@@ -166,7 +166,7 @@ module.exports = {
 				},
 			},
 			{
-				test: /\.(woff2?)$/i,
+				test: /\.(eot|woff2?|ttf)$/i,
 				type: "asset/resource",
 				generator: {
 					outputPath: "fonts",
