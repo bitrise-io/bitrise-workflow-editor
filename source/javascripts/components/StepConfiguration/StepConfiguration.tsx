@@ -28,7 +28,7 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
 
 	return (
 		<FormProvider {...form}>
-			<Box as="form" display="flex" flexDir="column" p="12" gap="12" onChange={console.log}>
+			<Box as="form" display="flex" flexDir="column" p="12" gap="12">
 				<ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>} isExpanded>
 					<Box display="flex">
 						<Text flex="1">Run if previous Step(s) failed</Text>
