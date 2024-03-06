@@ -8,42 +8,33 @@ describe("AppService", () => {
 		});
 	});
 
-	const runWithUrl = (url, fn) => {
-		// eslint-disable-next-line no-with
-		with ({ document: { location: { href: url } } }) fn;
-	};
-
 	describe("getAppSlug", () => {
 		it("should return app slug from the path if it is in hex format", () => {
-			runWithUrl("https://app.bitrise.io/app/abcdefgh12345678/workflow_editor#!/workflows?workflow_id=primary", () => {
-				expect(appService.getAppSlug()).toEqual("abcdefgh12345678");
-			});
+			expect(
+				appService.getAppSlug(
+					"https://app.bitrise.io/app/abcdefgh12345678/workflow_editor#!/workflows?workflow_id=primary",
+				),
+			).toEqual("abcdefgh12345678");
 		});
 
 		it("should return app slug from the path if it is in UUID format", () => {
-			runWithUrl(
-				"https://app.bitrise.io/app/abcd1234-ef56-7890-ab12-cd34567890ab/workflow_editor#!/workflows?workflow_id=primary",
-				() => {
-					expect(appService.getAppSlug()).toEqual("abcd1234-ef56-7890-ab12-cd34567890ab");
-				},
-			);
+			expect(
+				appService.getAppSlug(
+					"https://app.bitrise.io/app/abcd1234-ef56-7890-ab12-cd34567890ab/workflow_editor#!/workflows?workflow_id=primary",
+				),
+			).toEqual("abcd1234-ef56-7890-ab12-cd34567890ab");
 		});
 
 		it("should return null if url not in expected format", () => {
-			runWithUrl("https://app.bitrise.io/zzzzzzzz12345678/something", () => {
-				expect(appService.getAppSlug()).toBeNull();
-			});
+			expect(appService.getAppSlug("https://app.bitrise.io/zzzzzzzz12345678/something")).toBeNull();
 
-			runWithUrl(
-				"https://app.bitrise.io/app/zzzzzzzz-ef56-7890-ab12-cd34567890ab/workflow_editor#!/workflows?workflow_id=primary",
-				() => {
-					expect(appService.getAppSlug()).toBeNull();
-				},
-			);
+			expect(
+				appService.getAppSlug(
+					"https://app.bitrise.io/app/zzzzzzzz-ef56-7890-ab12-cd34567890ab/workflow_editor#!/workflows?workflow_id=primary",
+				),
+			).toBeNull();
 
-			runWithUrl("https://app.bitrise.io/testabcdefgh12345678/something", () => {
-				expect(appService.getAppSlug()).toBeNull();
-			});
+			expect(appService.getAppSlug("https://app.bitrise.io/testabcdefgh12345678/something")).toBeNull();
 		});
 	});
 
