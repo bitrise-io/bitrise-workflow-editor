@@ -1,9 +1,8 @@
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from "@bitrise/bitkit";
 import { TabPanel, TabPanels } from "@chakra-ui/react";
-import { OnStepPropertyChange, Step, InputCategory, StepOutputVariable, StepVersionWithRemark } from "../models";
+import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from "../models";
 import StepItemBadge from "./StepItem/StepItemBadge";
 import StepConfiguration from "./StepConfiguration";
-import StepItemBadge from "./StepItem/StepItemBadge";
 import StepProperties from "./StepProperties/StepProperties";
 import StepOutputVariables from "./StepOutputVariables";
 
@@ -13,7 +12,7 @@ type Props = {
 	versionsWithRemarks: Array<StepVersionWithRemark>;
 	inputCategories: InputCategory[];
 	outputVariables: Array<StepOutputVariable>;
-	onChange: OnStepPropertyChange;
+	onChange: OnStepChange;
 	onClone: VoidFunction;
 	onRemove: VoidFunction;
 };

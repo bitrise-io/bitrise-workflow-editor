@@ -1,4 +1,5 @@
 export type GetterSetter<T> = (value?: T) => T;
+
 export interface StepCatalouge {
 	steps: Record<string, Map<string, Record<string, any>>>;
 	latestStepVersions: Record<string, string>;
@@ -12,7 +13,7 @@ export interface Workflow {
 	workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
-export type OnStepPropertyChange = (values: Partial<Record<"name" | "version", string | null>>) => void;
+export type OnStepChange = (values: Partial<Record<string, unknown>>) => void;
 export type StepVersionWithRemark = { version: string; remark: string };
 
 export interface Step {
@@ -28,6 +29,7 @@ export interface Step {
 
 	runIf: GetterSetter<string>;
 	isAlwaysRun: GetterSetter<boolean>;
+
 	requestedVersion(): string | null;
 
 	displayName(): string;

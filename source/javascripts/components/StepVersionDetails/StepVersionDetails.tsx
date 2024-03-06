@@ -1,6 +1,6 @@
 import { Box, Icon, Text } from "@bitrise/bitkit";
 import classNames from "classnames";
-import { OnStepPropertyChange, Step, StepVersionWithRemark } from "../../models";
+import { OnStepChange, Step, StepVersionWithRemark } from "../../models";
 import { getVersionRemark } from "../../utils/stepVersionUtil";
 import stepOutDatedIcon from "../../../images/step/upgrade.svg";
 
@@ -9,7 +9,7 @@ type Props = {
 	latestVersion: string;
 	hasVersionUpdate: boolean;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
-	onChange: OnStepPropertyChange;
+	onChange: OnStepChange;
 };
 
 type DangerouslySetInnerHTMLProps = { __html: string };
