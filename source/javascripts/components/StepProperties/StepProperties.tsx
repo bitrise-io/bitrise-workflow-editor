@@ -55,7 +55,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
 			<Input {...register("name")} type="text" label="Name" placeholder="Step name" isRequired />
 			<Divider />
 			{isLibraryStep && (
-				<Select {...register("version")} label="Version updates" isRequired>
+				<Select {...register("version")} label="Version updates" isRequired backgroundSize="none">
 					{versionsWithRemarks.map(({ version: value, remark }) => {
 						return (
 							<option key={value} value={value || ""}>
