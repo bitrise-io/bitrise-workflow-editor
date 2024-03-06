@@ -1,5 +1,5 @@
 import { Box, ButtonGroup, IconButton } from "@bitrise/bitkit";
-import { FormControl, FormHelperText, forwardRef, Select, Textarea } from "@chakra-ui/react";
+import { FormControl, forwardRef, Select, Textarea } from "@chakra-ui/react";
 import omit from "lodash/omit";
 import { ComponentProps, ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
@@ -90,13 +90,6 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 					</>
 				)}
 			</Box>
-			<FormHelperText as="p">
-				{JSON.stringify({
-					isRequired,
-					isSensitive,
-					isReadOnly: rest.isReadOnly,
-				})}
-			</FormHelperText>
 		</FormControl>
 	);
 });
