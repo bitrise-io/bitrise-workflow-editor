@@ -20,7 +20,7 @@ const isFreshpaintEnabled = FRESHPAINT === "true";
 const isDataDogRumEnabled = DATADOG_RUM === "true";
 const isSegmentEnabled = SEGMENT === "true";
 const publicPath = `${urlPrefix}/${version}/`;
-const assetPath = isWebsiteMode ? publicPath : "/";
+const imagePath = isWebsiteMode ? publicPath : "/";
 
 const railsTransformer = (mode) => ({
 	loader: "shell-loader",
@@ -162,16 +162,16 @@ module.exports = {
 				generator: {
 					outputPath: "images",
 					filename: "[name]-[hash][ext][query]",
-					publicPath: `${assetPath}images/`,
+					publicPath: `${imagePath}images/`,
 				},
 			},
 			{
-				test: /\.(eot|woff2?|ttf)$/i,
+				test: /\.(woff2?)$/i,
 				type: "asset/resource",
 				generator: {
 					outputPath: "fonts",
 					filename: "[name]-[hash][ext][query]",
-					publicPath: `${assetPath}fonts/`,
+					publicPath: `${publicPath}fonts/`,
 				},
 			},
 			{
