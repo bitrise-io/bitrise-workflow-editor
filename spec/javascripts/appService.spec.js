@@ -9,6 +9,7 @@ describe("AppService", () => {
 	});
 
 	const runWithUrl = (url, fn) => {
+		// eslint-disable-next-line no-with
 		with ({ document: { location: { href: url } } }) fn;
 	};
 
