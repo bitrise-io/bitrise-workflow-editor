@@ -52,16 +52,16 @@
 								li
 									button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 				.step-edit-container
-					/ div[ng-if="workflowsCtrl.selectedStep" style="background: white"]
-					/ 	r-step-config[
-					/ 		step="workflowsCtrl.selectedStep"
-					/ 		on-clone="workflowsCtrl.cloneSelectedStep"
-					/ 		on-remove="workflowsCtrl.deleteSelectedStep"
-					/ 		has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
-					/ 		versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
-					/ 		output-variables="workflowsCtrl.outputVariables"
-					/ 		on-change="workflowsCtrl.handleStepPropertyChanged"
-					/ 	]
+					/ r-step-config[
+					/ 	ng-if="workflowsCtrl.selectedStep"
+					/ 	step="workflowsCtrl.selectedStep"
+					/ 	has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
+					/ 	versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
+					/ 	output-variables="workflowsCtrl.outputVariables"
+					/ 	on-change="workflowsCtrl.handleStepPropertyChanged"
+					/ 	on-clone="workflowsCtrl.cloneSelectedStep"
+					/ 	on-remove="workflowsCtrl.deleteSelectedStep"
+					/ ]
 					section.workflow
 						header.workflow-header
 							.header-info

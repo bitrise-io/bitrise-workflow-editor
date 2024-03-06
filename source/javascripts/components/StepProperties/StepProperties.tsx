@@ -31,7 +31,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
 	useEffect(() => {
 		setValue("name", name);
 		setValue("version", version);
-	}, [step.$$hashKey, setValue]);
+	}, [name, version, setValue]);
 
 	return (
 		<Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
@@ -52,10 +52,10 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
 				</Link>
 			)}
 
-			<Input {...register("name")} type="text" label="Name" placeholder="Step name" isRequired defaultValue={name} />
+			<Input {...register("name")} type="text" label="Name" placeholder="Step name" isRequired />
 			<Divider />
 			{isLibraryStep && (
-				<Select {...register("version")} label="Version updates" isRequired defaultValue={version}>
+				<Select {...register("version")} label="Version updates" isRequired>
 					{versionsWithRemarks.map(({ version: value, remark }) => {
 						return (
 							<option key={value} value={value || ""}>
