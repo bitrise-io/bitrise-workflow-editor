@@ -31,7 +31,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
 	useEffect(() => {
 		setValue("name", name);
 		setValue("version", version);
-	}, [name, version, setValue]);
+	}, [step.$$hashKey, setValue]);
 
 	return (
 		<Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
