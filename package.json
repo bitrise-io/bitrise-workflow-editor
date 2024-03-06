@@ -120,7 +120,7 @@
 		"karma-cli": "^2.0.0",
 		"karma-coverage": "^2.2.1",
 		"karma-jasmine": "^5.1.0",
-		"karma-jsdom-launcher": "^16.0.0",
+		"karma-jsdom-launcher": "^17.0.0",
 		"karma-spec-reporter": "^0.0.36",
 		"mini-css-extract-plugin": "^2.7.6",
 		"mocha-junit-reporter": "^2.2.1",
