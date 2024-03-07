@@ -20,7 +20,6 @@ const isFreshpaintEnabled = FRESHPAINT === "true";
 const isDataDogRumEnabled = DATADOG_RUM === "true";
 const isSegmentEnabled = SEGMENT === "true";
 const publicPath = `${urlPrefix}/${version}/`;
-const imagePath = isWebsiteMode ? publicPath : "/";
 
 const railsTransformer = (mode) => ({
 	loader: "shell-loader",
@@ -162,7 +161,7 @@ module.exports = {
 				generator: {
 					outputPath: "images",
 					filename: "[name]-[hash][ext][query]",
-					publicPath: `${imagePath}images/`,
+					publicPath: `${publicPath}images/`,
 				},
 			},
 			{
