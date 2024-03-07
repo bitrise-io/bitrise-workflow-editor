@@ -5,11 +5,14 @@ import { ComponentProps, ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
 
 import useAutosize from "../../../../hooks/utils/useAutosize";
+import StepInputHelper from "./StepInputHelper";
 import StepInputLabel from "./StepInputLabel";
 
 type CommonProps = {
 	label?: ReactNode;
 	isSensitive?: boolean;
+	helperSummary?: string;
+	helperDetails?: string;
 };
 
 type SelectProps = ComponentProps<typeof Select> &
@@ -30,7 +33,7 @@ function isTextareaInput(props: Props): props is TextareaProps {
 }
 
 const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) => {
-	const { label, isRequired, isSensitive, ...rest } = props;
+	const { label, isRequired, isSensitive, helperSummary, helperDetails, ...rest } = props;
 
 	const { watch, setValue } = useFormContext();
 	const textareaRef = useAutosize<HTMLTextAreaElement>(ref);
@@ -89,6 +92,8 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 						)}
 					</>
 				)}
+
+				<StepInputHelper summary={helperSummary} details={helperDetails} />
 			</Box>
 		</FormControl>
 	);

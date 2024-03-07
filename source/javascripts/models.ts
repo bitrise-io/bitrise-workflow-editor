@@ -21,38 +21,27 @@ export interface Step {
 	id: string;
 	cvs: string;
 	version: string;
+
 	defaultStepConfig: {
 		version: string;
 		source_code_url: string;
 		inputs: Array<object>;
 	};
 
-	runIf: GetterSetter<string>;
+	description: GetterSetter<string>;
+	displayName: GetterSetter<string>;
+	displayTooltip: GetterSetter<string>;
+	iconURL: GetterSetter<string>;
 	isAlwaysRun: GetterSetter<boolean>;
-
-	requestedVersion(): string | null;
-
-	displayName(): string;
-
-	displayTooltip(): string;
-
-	isVerified(): boolean;
-
-	isOfficial(): boolean;
-
-	isConfigured(): boolean;
-
-	isDeprecated(): boolean;
-
-	isLibraryStep(): boolean;
-
-	iconURL(): string;
-
-	summary(): string;
-
-	description(): string;
-
-	sourceURL(): string;
+	isConfigured: GetterSetter<boolean>;
+	isDeprecated: GetterSetter<boolean>;
+	isLibraryStep: GetterSetter<boolean>;
+	isOfficial: GetterSetter<boolean>;
+	isVerified: GetterSetter<boolean>;
+	requestedVersion: GetterSetter<string | null>;
+	runIf: GetterSetter<string>;
+	sourceURL: GetterSetter<string>;
+	summary: GetterSetter<string>;
 }
 
 export interface StepOutputVariable {
@@ -63,12 +52,14 @@ export interface StepOutputVariable {
 }
 
 export interface Variable {
-	key: GetterSetter<string>;
-	title: GetterSetter<string>;
-	value: GetterSetter<string>;
+	description: GetterSetter<string>;
+	isDontChangeValue: GetterSetter<boolean>;
 	isRequired: GetterSetter<boolean>;
 	isSensitive: GetterSetter<boolean>;
-	isDontChangeValue: GetterSetter<boolean>;
+	key: GetterSetter<string>;
+	summary: GetterSetter<string>;
+	title: GetterSetter<string>;
+	value: GetterSetter<string>;
 	valueOptions: GetterSetter<string[] | undefined>;
 }
 
