@@ -7,10 +7,12 @@ import {
 	DialogBody,
 	DialogFooter,
 	Divider,
+	Icon,
 	Input,
 	ProgressIndicator,
 	Select,
 	Text,
+	Toggletip,
 	Tooltip,
 } from "@bitrise/bitkit";
 import { useForm } from "react-hook-form";
@@ -97,6 +99,9 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 					<Checkbox marginBottom="8" {...register("checkbox")}>
 						Use regex pattern
 					</Checkbox>
+					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
+						<Icon name="Info" size="16" marginLeft="5" />
+					</Toggletip>
 					<Input placeholder={getPlaceholderText()} {...register("value")}></Input>
 				</Card>
 
