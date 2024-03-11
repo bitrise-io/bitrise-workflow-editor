@@ -58,7 +58,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		return PLACEHOLDER_MAP[type];
 	};
 
-	const createNewCard = (conditionNumber: number) => {
+	const conditionCard = (conditionNumber: number) => {
 		return (
 			<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
 				<Text textStyle="heading/h5" marginBottom="16">
@@ -80,15 +80,16 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		);
 	};
 
-	const [conditions, setConditions] = useState<ReactNode[]>([createNewCard(1)]);
+	const [conditions, setConditions] = useState<ReactNode[]>([conditionCard(1)]);
 
 	const handleAddCondition = () => {
-		setConditions((prevCards) => [...prevCards, createNewCard(prevCards.length + 1)]);
+		setConditions((prevCards) => [...prevCards, conditionCard(prevCards.length + 1)]);
 	};
 
 	const onFormCancel = () => {
 		onClose();
 		reset();
+		setConditions([conditionCard(1)]);
 	};
 
 	return (
