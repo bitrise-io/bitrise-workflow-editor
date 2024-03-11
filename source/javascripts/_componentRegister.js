@@ -109,6 +109,7 @@ angular
 		"rStepConfig",
 		register(StepConfig, [
 			"step",
+			"secrets",
 			"hasVersionUpdate",
 			"versionsWithRemarks",
 			"inputCategories",
@@ -116,5 +117,6 @@ angular
 			"onChange",
 			"onClone",
 			"onRemove",
+			"onCreateSecret",
 		]),
 	);

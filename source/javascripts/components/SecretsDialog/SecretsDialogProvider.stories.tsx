@@ -8,21 +8,21 @@ import { Secret } from "./types";
 const defaultSecrets: Secret[] = [
 	{
 		source: "Bitrise.io",
-		key: "$BITRISE_APP_SLUG",
+		key: "BITRISE_APP_SLUG",
 		value: "7ce75f61-556f-4163-8a5f-a9b16ef55a8",
 		isExpand: true,
 		isExpose: true,
 	},
 	{
 		source: "Bitrise.io",
-		key: "$BITRISE_BUILD_URL",
+		key: "BITRISE_BUILD_URL",
 		value: "https://app.bitrise.io/build/7ce75f61-556f-4163-8a5f-a9b16ef55a8",
 		isExpand: true,
 		isExpose: true,
 	},
 	{
 		source: "Bitrise.io",
-		key: "$REPOSITORY_URL",
+		key: "REPOSITORY_URL",
 		value: "git@github.com:flutter/flutter.git",
 		isExpand: true,
 		isExpose: true,
@@ -31,13 +31,16 @@ const defaultSecrets: Secret[] = [
 
 export default {
 	component: SecretsDialogProvider,
+	argTypes: {
+		onCreate: { action: "onCreate" },
+	},
 } as Meta<typeof SecretsDialogProvider>;
 
 export const WithProps: StoryObj<typeof SecretsDialogProvider> = {
 	decorators: [
-		(Story) => {
+		(Story, ctx) => {
 			return (
-				<SecretsDialogProvider defaultSecrets={defaultSecrets}>
+				<SecretsDialogProvider defaultSecrets={defaultSecrets} onCreate={ctx.args.onCreate}>
 					<Story />
 				</SecretsDialogProvider>
 			);
@@ -50,7 +53,6 @@ export const WithProps: StoryObj<typeof SecretsDialogProvider> = {
 		const onOpen = () => {
 			open({
 				source: "Storybook",
-				onCreate: setSecret,
 				onSelect: setSecret,
 			});
 		};
@@ -58,7 +60,7 @@ export const WithProps: StoryObj<typeof SecretsDialogProvider> = {
 		return (
 			<Box display="flex" flexDirection="column" height="100dvh" justifyContent="center" alignItems="center" gap="8">
 				<Button onClick={onOpen}>Select secret</Button>
-				<Text>{secret?.key ?? "No secret selected!"}</Text>
+				<Text>{secret?.key ? `$${secret.key}` : "No secret selected!"}</Text>
 			</Box>
 		);
 	},

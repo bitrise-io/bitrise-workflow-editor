@@ -6,5 +6,6 @@ export type Secret = {
 	isExpose: boolean;
 };
 
+export type HandlerFn = (secret: Secret) => void;
 export type SelectSecretFormValues = { key: string };
 export type CreateSecretFormValues = Secret;

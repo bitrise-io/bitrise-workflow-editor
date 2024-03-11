@@ -12,13 +12,13 @@ import { FormProvider, useController, useForm } from "react-hook-form";
 
 import CreateSecret from "./components/CreateSecret";
 import SecretsTable from "./components/SecretsTable";
-import { CreateSecretFormValues, Secret, SelectSecretFormValues } from "./types";
+import { CreateSecretFormValues, HandlerFn, Secret, SelectSecretFormValues } from "./types";
 
 type Props = Pick<DialogProps, "isOpen" | "onClose"> & {
 	source: string;
 	secrets: Secret[];
-	onSelect: (secret: Secret) => void;
-	onCreate: (secret: Secret) => void;
+	onSelect: HandlerFn;
+	onCreate: HandlerFn;
 };
 
 enum Segment {
@@ -41,9 +41,9 @@ const SecretsDialog = ({ source, secrets, isOpen, onClose, onSelect, onCreate }:
 		onClose();
 	});
 
-	const onCreateHandler = createSecretForm.handleSubmit(({ key, ...secret }) => {
-		onCreate({ key: `$${key}`, ...secret });
-		onSelect({ key: `$${key}`, ...secret });
+	const onCreateHandler = createSecretForm.handleSubmit((secret) => {
+		onCreate(secret);
+		onSelect(secret);
 		onClose();
 	});
 

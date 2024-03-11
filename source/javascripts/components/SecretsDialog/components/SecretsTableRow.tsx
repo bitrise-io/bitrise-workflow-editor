@@ -8,9 +8,10 @@ type Props = {
 
 const SecretsTableRow = ({ value, source }: Props) => {
 	const id = useId();
+	const valueWithVariablePrefix = `$${value}`;
 
 	return (
-		<SelectableRow id={id} label={value} value={value}>
+		<SelectableRow id={id} label={valueWithVariablePrefix} value={value}>
 			<Td>{source}</Td>
 		</SelectableRow>
 	);

@@ -1,10 +1,11 @@
 import { Box, ButtonGroup, IconButton } from "@bitrise/bitkit";
 import { FormControl, forwardRef, Select, Textarea } from "@chakra-ui/react";
 import omit from "lodash/omit";
-import { ComponentProps, ReactNode } from "react";
+import { ComponentProps, MouseEventHandler, ReactNode } from "react";
 import { useFormContext } from "react-hook-form";
 
 import useAutosize from "../../../../hooks/utils/useAutosize";
+import { useSecretsDialog } from "../../../SecretsDialog";
 import StepInputLabel from "./StepInputLabel";
 
 type CommonProps = {
@@ -33,10 +34,21 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 	const { label, isRequired, isSensitive, ...rest } = props;
 
 	const { watch, setValue } = useFormContext();
+	const { open: openSecretsDialog } = useSecretsDialog();
 	const textareaRef = useAutosize<HTMLTextAreaElement>(ref);
 
 	const onClear = () => setValue(rest.name!, "");
 	const isClearableInput = isSensitive && !!watch(rest.name || "", props.defaultValue);
+
+	const handleOnClickInsertSecret: MouseEventHandler<HTMLButtonElement> = (e) => {
+		// NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
+		e.currentTarget.blur();
+
+		openSecretsDialog({
+			source: "Secrets",
+			onSelect: (secret) => setValue(rest.name!, `$${secret.key}`),
+		});
+	};
 
 	return (
 		<FormControl isRequired={isRequired}>
@@ -79,7 +91,13 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 								)}
 
 								{isSensitive && (
-									<IconButton size="sm" iconName="Dollars" variant="secondary" aria-label="Insert secret" />
+									<IconButton
+										size="sm"
+										iconName="Dollars"
+										variant="secondary"
+										aria-label="Insert secret"
+										onClick={handleOnClickInsertSecret}
+									/>
 								)}
 
 								{!isSensitive && (
