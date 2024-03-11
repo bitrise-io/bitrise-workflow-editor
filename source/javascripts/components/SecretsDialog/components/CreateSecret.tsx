@@ -17,6 +17,7 @@ const CreateSecret = ({ source }: Props) => {
 		<Box display="flex" flexDirection="column" gap="24">
 			<Box display="flex" gap="8">
 				<Input
+					autoFocus
 					isRequired
 					flex="1"
 					label="Key"
