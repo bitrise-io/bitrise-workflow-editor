@@ -15,6 +15,7 @@ import {
 	Toggletip,
 	Tooltip,
 } from "@bitrise/bitkit";
+import { ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 
 type DialogProps = {
@@ -57,6 +58,34 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		return PLACEHOLDER_MAP[type];
 	};
 
+	const createNewCard = (conditionNumber: number) => {
+		return (
+			<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
+				<Text textStyle="heading/h5" marginBottom="16">
+					Condition {conditionNumber}
+				</Text>
+				<Select marginBottom="16" {...register("type")}>
+					<option value="push_branch">Push branch</option>
+					<option value="commit_message">Commit message</option>
+					<option value="file_change">File change</option>
+				</Select>
+				<Checkbox marginBottom="8" {...register("checkbox")}>
+					Use regex pattern
+				</Checkbox>
+				<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
+					<Icon name="Info" size="16" marginLeft="5" />
+				</Toggletip>
+				<Input placeholder={getPlaceholderText()} {...register("value")}></Input>
+			</Card>
+		);
+	};
+
+	const [conditions, setConditions] = useState<ReactNode[]>([createNewCard(1)]);
+
+	const handleAddCondition = () => {
+		setConditions((prevCards) => [...prevCards, createNewCard(prevCards.length + 1)]);
+	};
+
 	const onFormCancel = () => {
 		onClose();
 		reset();
@@ -87,25 +116,8 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 					</Tooltip>{" "}
 					that should all be met to execute the targeted Pipeline or Workflow.
 				</Text>
-				<Card marginBottom="16" padding="16px 16px 24px 16px">
-					<Text textStyle="heading/h5" marginBottom="16">
-						Condition 1
-					</Text>
-					<Select marginBottom="16" {...register("type")}>
-						<option value="push_branch">Push branch</option>
-						<option value="commit_message">Commit message</option>
-						<option value="file_change">File change</option>
-					</Select>
-					<Checkbox marginBottom="8" {...register("checkbox")}>
-						Use regex pattern
-					</Checkbox>
-					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
-						<Icon name="Info" size="16" marginLeft="5" />
-					</Toggletip>
-					<Input placeholder={getPlaceholderText()} {...register("value")}></Input>
-				</Card>
-
-				<Button variant="secondary" leftIconName="PlusAdd" width="100%">
+				{conditions}
+				<Button variant="secondary" leftIconName="PlusAdd" width="100%" onClick={handleAddCondition}>
 					Add condition
 				</Button>
 			</DialogBody>
