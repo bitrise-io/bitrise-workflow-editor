@@ -5,15 +5,21 @@ import {
 	Notification,
 	Tab,
 	TabList,
-	Tabs,
 	TabPanel,
 	TabPanels,
+	Tabs,
 	Text,
 	useDisclosure,
 } from "@bitrise/bitkit";
+
 import AddPushTriggerDialog from "./AddPushTriggerDialog";
 
-const TriggersPage = () => {
+type TriggersPageProps = {
+	pipelineables: string[];
+};
+
+const TriggersPage = (props: TriggersPageProps) => {
+	const { pipelineables } = props;
 	const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
 	const { isOpen: isDialogOpen, onOpen: openDialog, onClose: closeDialog } = useDisclosure();
 
@@ -65,7 +71,7 @@ const TriggersPage = () => {
 					<TabPanel>3</TabPanel>
 				</TabPanels>
 			</Tabs>
-			<AddPushTriggerDialog onClose={closeDialog} isOpen={isDialogOpen} />
+			<AddPushTriggerDialog pipelineables={pipelineables} onClose={closeDialog} isOpen={isDialogOpen} />
 		</>
 	);
 };
