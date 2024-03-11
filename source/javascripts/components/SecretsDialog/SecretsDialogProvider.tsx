@@ -4,7 +4,7 @@ import { createContext, PropsWithChildren, useContext, useMemo, useState } from 
 import SecretsDialog from "./SecretsDialog";
 import { HandlerFn, Secret } from "./types";
 
-type State = { open: (options: { source: string; onSelect: HandlerFn }) => void };
+type State = { open: (options: { onSelect: HandlerFn }) => void };
 type Props = PropsWithChildren<{ defaultSecrets?: Secret[]; onCreate: HandlerFn }>;
 
 const Context = createContext<State>({ open: () => undefined });
@@ -13,8 +13,7 @@ const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Prop
 	const { isOpen, onClose, onOpen } = useDisclosure();
 	const [secrets, setSecrets] = useState(defaultSecrets);
 
-	const [dynamicProps, setDynamicProps] = useState<{ source: string; onSelect: HandlerFn }>({
-		source: "",
+	const [dynamicProps, setDynamicProps] = useState<{ onSelect: HandlerFn }>({
 		onSelect: () => undefined,
 	});
 

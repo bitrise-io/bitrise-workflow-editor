@@ -1,4 +1,4 @@
-import { Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from "@bitrise/bitkit";
+import { Box, Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from "@bitrise/bitkit";
 import debounce from "lodash/debounce";
 import { ChangeEventHandler, useCallback, useMemo, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
@@ -32,7 +32,7 @@ const SecretsTable = ({ secrets }: Props) => {
 	}, [filterChangeHandler]);
 
 	return (
-		<>
+		<Box display="flex" flexDirection="column" gap="16">
 			<Input
 				autoFocus
 				leftIconName="Magnifier"
@@ -55,7 +55,7 @@ const SecretsTable = ({ secrets }: Props) => {
 					</RadioGroup>
 				</Table>
 			</TableContainer>
-		</>
+		</Box>
 	);
 };
 

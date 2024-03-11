@@ -45,7 +45,6 @@ const StepInput = forwardRef<Props, "textarea" | "select">((props: Props, ref) =
 		e.currentTarget.blur();
 
 		openSecretsDialog({
-			source: "Secrets",
 			onSelect: (secret) => setValue(rest.name!, `$${secret.key}`),
 		});
 	};

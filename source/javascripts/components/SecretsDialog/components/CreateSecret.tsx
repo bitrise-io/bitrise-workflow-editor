@@ -3,11 +3,7 @@ import { useFormContext } from "react-hook-form";
 
 import { CreateSecretFormValues } from "../types";
 
-type Props = {
-	source: string;
-};
-
-const CreateSecret = ({ source }: Props) => {
+const CreateSecret = () => {
 	const {
 		register,
 		formState: { errors },
@@ -50,7 +46,6 @@ const CreateSecret = ({ source }: Props) => {
 					Expose for Pull Requests
 				</Checkbox>
 			</Box>
-			<input {...register("source", { value: source })} type="hidden" />
 		</Box>
 	);
 };

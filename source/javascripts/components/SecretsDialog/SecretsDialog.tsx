@@ -15,7 +15,6 @@ import SecretsTable from "./components/SecretsTable";
 import { CreateSecretFormValues, HandlerFn, Secret, SelectSecretFormValues } from "./types";
 
 type Props = Pick<DialogProps, "isOpen" | "onClose"> & {
-	source: string;
 	secrets: Secret[];
 	onSelect: HandlerFn;
 	onCreate: HandlerFn;
@@ -26,7 +25,7 @@ enum Segment {
 	CREATE = "create",
 }
 
-const SecretsDialog = ({ source, secrets, isOpen, onClose, onSelect, onCreate }: Props) => {
+const SecretsDialog = ({ secrets, isOpen, onClose, onSelect, onCreate }: Props) => {
 	const selectSecretForm = useForm<SelectSecretFormValues>();
 	const createSecretForm = useForm<CreateSecretFormValues>({ mode: "all" });
 
@@ -42,8 +41,8 @@ const SecretsDialog = ({ source, secrets, isOpen, onClose, onSelect, onCreate }:
 	});
 
 	const onCreateHandler = createSecretForm.handleSubmit((secret) => {
-		onCreate(secret);
-		onSelect(secret);
+		onCreate({ ...secret, source: "Secrets" });
+		onSelect({ ...secret, source: "Secrets" });
 		onClose();
 	});
 
@@ -77,7 +76,7 @@ const SecretsDialog = ({ source, secrets, isOpen, onClose, onSelect, onCreate }:
 
 				{isCreateSegment && (
 					<FormProvider {...createSecretForm}>
-						<CreateSecret source={source} />
+						<CreateSecret />
 					</FormProvider>
 				)}
 			</DialogBody>
