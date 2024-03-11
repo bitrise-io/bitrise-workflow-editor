@@ -1,4 +1,4 @@
-import { Input, RadioGroup, Table, Th, Thead, Tr } from "@bitrise/bitkit";
+import { Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from "@bitrise/bitkit";
 import debounce from "lodash/debounce";
 import { ChangeEventHandler, useCallback, useMemo, useState } from "react";
 import { useController, useFormContext } from "react-hook-form";
@@ -39,20 +39,22 @@ const SecretsTable = ({ secrets }: Props) => {
 				placeholder="Filter by key..."
 				{...form.register("filter", { onChange: debouncedFilterChangeHandler })}
 			/>
-			<Table>
-				<Thead>
-					<Tr>
-						<Th />
-						<Th>Key</Th>
-						<Th>Source</Th>
-					</Tr>
-				</Thead>
-				<RadioGroup as="tbody" {...field}>
-					{filteredSecrets.map(({ key, source }) => (
-						<SecretsTableRow key={key} value={key} source={source} />
-					))}
-				</RadioGroup>
-			</Table>
+			<TableContainer>
+				<Table isFixed>
+					<Thead>
+						<Tr>
+							<Th width="40px" />
+							<Th>Key</Th>
+							<Th>Source</Th>
+						</Tr>
+					</Thead>
+					<RadioGroup as="tbody" {...field}>
+						{filteredSecrets.map(({ key, source }) => (
+							<SecretsTableRow key={key} value={key} source={source} />
+						))}
+					</RadioGroup>
+				</Table>
+			</TableContainer>
 		</>
 	);
 };
