@@ -1413,5 +1413,25 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 
 				safeDigest($scope);
 			};
+
+			viewModel.secretsForReact = appService?.secrets?.map((secret) => {
+				return {
+					key: secret.key(),
+					value: secret.value(),
+					source: "Secrets",
+					isExpand: secret.isExpand(),
+					isExpose: secret.isExpose(),
+				}
+			}) ?? [];
+
+			viewModel.saveSecretFromReact = function(secret) {
+				const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
+				
+				variable.isExpose(secret.isExpose);
+				variable.isExpand(secret.isExpand);
+
+				appService.secrets.push(variable);
+				appService.saveSecrets();
+			}
 		});
 })();
