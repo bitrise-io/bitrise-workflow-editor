@@ -52,17 +52,17 @@
 								li
 									button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 				.step-edit-container
-					r-step-config[
-						ng-if="workflowsCtrl.selectedStep"
-						step="workflowsCtrl.selectedStep"
-						has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
-						versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
-						input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
-						output-variables="workflowsCtrl.outputVariables"
-						on-clone="workflowsCtrl.cloneSelectedStep"
-						on-remove="workflowsCtrl.deleteSelectedStep"
-						on-change="workflowsCtrl.handleSelectedStepChanges"
-					]
+					/ r-step-config[
+					/ 	ng-if="workflowsCtrl.selectedStep"
+					/ 	step="workflowsCtrl.selectedStep"
+					/ 	has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
+					/ 	versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
+					/ 	input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
+					/ 	output-variables="workflowsCtrl.outputVariables"
+					/ 	on-clone="workflowsCtrl.cloneSelectedStep"
+					/ 	on-remove="workflowsCtrl.deleteSelectedStep"
+					/ 	on-change="workflowsCtrl.handleSelectedStepChanges"
+					/ ]
 					section.workflow
 						header.workflow-header
 							.header-info
