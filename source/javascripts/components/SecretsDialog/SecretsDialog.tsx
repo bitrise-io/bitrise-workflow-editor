@@ -64,8 +64,8 @@ const SecretsDialog = ({ secrets, isOpen, onClose, onSelect, onCreate }: Props) 
 		>
 			<DialogBody display="flex" flexDirection="column" gap="24">
 				<SegmentedControl {...segmentField}>
-					<SegmentedControlItem value="select">Select existing</SegmentedControlItem>
-					<SegmentedControlItem value="create">Create</SegmentedControlItem>
+					<SegmentedControlItem value={Segment.SELECT}>Select existing</SegmentedControlItem>
+					<SegmentedControlItem value={Segment.CREATE}>Create</SegmentedControlItem>
 				</SegmentedControl>
 
 				{isSelectSegment && (
