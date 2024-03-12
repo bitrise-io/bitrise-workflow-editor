@@ -13,7 +13,8 @@ const CODEBASE = path.join(__dirname, "source");
 
 const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, FRESHPAINT, SEGMENT, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === "prod";
-const urlPrefix = MODE === "WEBSITE" ? PUBLIC_URL_ROOT : "";
+const isWebsiteMode = MODE === "WEBSITE";
+const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : "";
 const isHotjarEnabled = HOTJAR === "true";
 const isFreshpaintEnabled = FRESHPAINT === "true";
 const isDataDogRumEnabled = DATADOG_RUM === "true";
@@ -58,6 +59,8 @@ if (isSegmentEnabled) {
 
 module.exports = {
 	context: CODEBASE,
+
+	mode: isProd ? "production" : "development",
 
 	devServer: {
 		compress: true,
@@ -188,7 +191,7 @@ module.exports = {
 		],
 	},
 	plugins: [
-		new webpack.EnvironmentPlugin(["MODE"]),
+		new webpack.EnvironmentPlugin({ MODE: MODE || "WEBSITE" }),
 		new CompressionPlugin({
 			algorithm: "gzip",
 			test: /.js$|.css$/,

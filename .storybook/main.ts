@@ -19,13 +19,13 @@ const config: StorybookConfig = {
 	},
 	swc: () => ({
 		jsc: {
-		  transform: {
-			react: {
-			  runtime: 'automatic',
+			transform: {
+				react: {
+					runtime: 'automatic',
+				},
 			},
-		  },
 		},
-	  }),	
+	}),
 	docs: {
 		autodocs: false
 	},
@@ -37,15 +37,18 @@ const config: StorybookConfig = {
 			config.module.rules.push({
 				test: /.*\/bitkit\/.*tsx?$/,
 				use: [
-				  {
-					loader: 'ts-loader',
-					options: { transpileOnly: true, configFile: require.resolve('@bitrise/bitkit/src/tsconfig.json') },
-				  },
+					{
+						loader: 'ts-loader',
+						options: { transpileOnly: true, configFile: require.resolve('@bitrise/bitkit/src/tsconfig.json') },
+					},
 				],
-			  });	  
+			});
 		}
 		return config;
-	  },
-	
+	},
+	typescript: {
+		reactDocgen: false,
+	},
 };
+
 export default config;
