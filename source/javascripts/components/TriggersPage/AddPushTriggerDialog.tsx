@@ -18,24 +18,13 @@ import {
 } from "@bitrise/bitkit";
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+import { ConditionType, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
 	onClose: () => void;
 	pipelineables: string[];
-};
-
-type ConditionType = "push_branch" | "commit_message" | "file_change";
-
-type Condition = {
-	checkbox: boolean;
-	type?: ConditionType;
-	value: string;
-};
-
-type Inputs = {
-	conditions: Condition[];
-	pipelineable: string;
+	onSubmit: (trigger: TriggerItem) => void;
 };
 
 const PLACEHOLDER_MAP: Record<ConditionType, string> = {
@@ -95,8 +84,16 @@ const ConditionCard = (props: ConditionCardProps) => {
 	);
 };
 
+interface FormItems extends Omit<TriggerItem, "conditions"> {
+	conditions: {
+		isRegex: boolean;
+		type?: ConditionType;
+		value: string;
+	}[];
+}
+
 const AddPushTriggerDialog = (props: DialogProps) => {
-	const { isOpen, onClose, pipelineables } = props;
+	const { isOpen, onClose, pipelineables, onSubmit } = props;
 	const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
 
 	const dialogStages: ProgressIndicatorProps["stages"] = [
@@ -104,27 +101,23 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		{ label: "Target" },
 	];
 
-	const formMethods = useForm<Inputs>({
+	const formMethods = useForm<FormItems>({
 		defaultValues: {
 			conditions: [
 				{
-					checkbox: false,
+					isRegex: false,
 					type: "push_branch",
 					value: "",
 				},
 			],
 		},
 	});
-	const { control, register, reset, handleSubmit } = formMethods;
+	const { control, register, reset, handleSubmit, watch } = formMethods;
 
 	const { append, fields, remove } = useFieldArray({
 		control,
 		name: "conditions",
 	});
-
-	const onSubmit = (data: any) => {
-		console.log(data);
-	};
 
 	const onFormCancel = () => {
 		onClose();
@@ -132,13 +125,20 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		setActiveStageIndex(0);
 	};
 
+	const onFormSubmit = (data: FormItems) => {
+		onSubmit(data as TriggerItem);
+		onFormCancel();
+	};
+
 	const onAppend = () => {
 		append({
-			checkbox: false,
+			isRegex: false,
 			type: undefined,
 			value: "",
 		});
 	};
+
+	const pipelineable = watch("pipelineable");
 
 	return (
 		<FormProvider {...formMethods}>
@@ -148,7 +148,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 				onClose={onFormCancel}
 				title="Add push trigger"
 				maxWidth="480"
-				onSubmit={handleSubmit(onSubmit)}
+				onSubmit={handleSubmit(onFormSubmit)}
 			>
 				<DialogBody>
 					<Box marginBottom="24">
@@ -201,8 +201,8 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 						</>
 					)}
 				</DialogBody>
-				<DialogFooter display="flex" justifyContent="space-between">
-					<Button onClick={onFormCancel} variant="tertiary">
+				<DialogFooter display="flex" justifyContent="flex-end">
+					<Button onClick={onFormCancel} variant="tertiary" marginInlineEnd="auto">
 						Cancel
 					</Button>
 					{activeStageIndex === 0 ? (
@@ -210,7 +210,14 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 							Next
 						</Button>
 					) : (
-						<Button type="submit">Add trigger</Button>
+						<>
+							<Button leftIconName="ArrowLeft" variant="secondary" onClick={() => setActiveStageIndex(0)}>
+								Previous
+							</Button>
+							<Button type="submit" isDisabled={!pipelineable}>
+								Add trigger
+							</Button>
+						</>
 					)}
 				</DialogFooter>
 			</Dialog>

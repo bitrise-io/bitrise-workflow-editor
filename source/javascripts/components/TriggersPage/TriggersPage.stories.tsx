@@ -9,4 +9,6 @@ export default {
 	},
 } as Meta<typeof TriggersPage>;
 
-export const Triggers = {};
+export const TriggersPageEmptyState = {};
+
+export const TriggerCards = {};
