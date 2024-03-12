@@ -27,8 +27,8 @@ const TriggerCard = (props: TriggerCardProps) => {
 	};
 
 	return (
-		<Card display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
-			<Box>
+		<Card display="flex" justifyContent="space-between" marginBottom="12" padding="16px 24px">
+			<Box display="flex" flexDir="column" gap="4">
 				<Text textStyle="body/md/semibold">Trigger conditions</Text>
 				{conditions.map(({ type, value }) => (
 					<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
@@ -36,13 +36,15 @@ const TriggerCard = (props: TriggerCardProps) => {
 					</Tag>
 				))}
 			</Box>
-			<Box display="flex">
+			<Box display="flex" alignItems="center">
 				<Icon name="ArrowRight" marginRight="16" />
-				<Text textStyle="body/md/semibold">Start build</Text>
-				<Text>{pipelineable}</Text>
+				<Box display="flex" flexDir="column" gap="4">
+					<Text textStyle="body/md/semibold">Start build</Text>
+					<Text>{pipelineable}</Text>
+				</Box>
 			</Box>
 			<Box display="flex" alignItems="center">
-				<Checkbox>Active</Checkbox>
+				<Checkbox marginRight="16">Active</Checkbox>
 				<IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
 				<IconButton
 					iconName="MinusRemove"

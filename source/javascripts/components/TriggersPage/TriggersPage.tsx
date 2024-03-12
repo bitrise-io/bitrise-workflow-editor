@@ -43,7 +43,6 @@ const TriggersPage = (props: TriggersPageProps) => {
 		}
 		if (action === "edit") {
 			const index = triggers.findIndex(({ id }) => id === trigger.id);
-			console.log(index);
 			newTriggers[index] = trigger;
 		}
 		setTriggers(newTriggers);

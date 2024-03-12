@@ -35,8 +35,8 @@ const PLACEHOLDER_MAP: Record<ConditionType, string> = {
 	file_change: "Enter a path",
 };
 
-const getPlaceholderText = (checkbox: boolean, type: ConditionType): string => {
-	if (checkbox) {
+const getPlaceholderText = (isRegex: boolean, type: ConditionType): string => {
+	if (isRegex) {
 		return "Enter a regex pattern";
 	}
 	return PLACEHOLDER_MAP[type];
@@ -51,7 +51,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 	const { children, conditionNumber } = props;
 	const { register, watch } = useFormContext();
 	const { conditions } = watch();
-	const { checkbox, type } = conditions[conditionNumber];
+	const { isRegex, type } = conditions[conditionNumber];
 
 	return (
 		<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
@@ -70,7 +70,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 			</Select>
 			{!!type && (
 				<>
-					<Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.checkbox`)}>
+					<Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
 						Use regex pattern
 					</Checkbox>
 					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
@@ -78,7 +78,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 					</Toggletip>
 					<Input
 						{...register(`conditions.${conditionNumber}.value`)}
-						placeholder={getPlaceholderText(checkbox, type)}
+						placeholder={getPlaceholderText(isRegex, type)}
 					></Input>
 				</>
 			)}
@@ -113,7 +113,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 				value: "",
 			},
 		],
-		id: useId(),
+		id: crypto.randomUUID(),
 		pipelineable: "",
 	};
 
@@ -122,7 +122,6 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		values: editedItem,
 	});
 
-	console.log(editedItem);
 	const { control, register, reset, handleSubmit, watch } = formMethods;
 
 	const { append, fields, remove } = useFieldArray({
