@@ -9,4 +9,5 @@ export type Condition = {
 export type TriggerItem = {
 	conditions: Condition[];
 	pipelineable: string;
+    id: string;
 };

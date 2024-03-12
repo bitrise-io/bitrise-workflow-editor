@@ -11,9 +11,9 @@ import {
 	Text,
 	useDisclosure,
 } from "@bitrise/bitkit";
+import { useState } from "react";
 
 import AddPushTriggerDialog from "./AddPushTriggerDialog";
-import { useState } from "react";
 import TriggerCard from "./TriggerCard";
 import { TriggerItem } from "./TriggersPage.types";
 
@@ -26,14 +26,34 @@ const TriggersPage = (props: TriggersPageProps) => {
 	const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
 	const { isOpen: isDialogOpen, onOpen: openDialog, onClose: closeDialog } = useDisclosure();
 	const [triggers, setTriggers] = useState<TriggerItem[]>([]);
+	const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
-	const onTriggersChange = (action: "add", trigger: TriggerItem) => {
-		if (action === "add") {
-			setTriggers([...triggers, trigger]);
-		}
+	const onCloseDialog = () => {
+		closeDialog();
+		setEditedItem(undefined);
 	};
 
-	console.log(triggers);
+	const onTriggersChange = (action: "add" | "remove" | "edit", trigger: TriggerItem) => {
+		let newTriggers = [...triggers];
+		if (action === "add") {
+			newTriggers.push(trigger);
+		}
+		if (action === "remove") {
+			newTriggers = triggers.filter(({ id }) => id !== trigger.id);
+		}
+		if (action === "edit") {
+			const index = triggers.findIndex(({ id }) => id === trigger.id);
+			console.log(index);
+			newTriggers[index] = trigger;
+		}
+		setTriggers(newTriggers);
+	};
+
+	const onTriggerEdit = (trigger: TriggerItem) => {
+		setEditedItem(trigger);
+		openDialog();
+	};
+
 	return (
 		<>
 			<Text as="h2" textStyle="heading/h2" marginBottom="4">
@@ -79,7 +99,15 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Link>
 							</EmptyState>
 						)}
-						{triggers.length > 0 && triggers.map((triggerItem) => <TriggerCard {...triggerItem} />)}
+						{triggers.length > 0 &&
+							triggers.map((triggerItem) => (
+								<TriggerCard
+									key={triggerItem.id}
+									triggerItem={triggerItem}
+									onRemove={(trigger) => onTriggersChange("remove", trigger)}
+									onEdit={(trigger) => onTriggerEdit(trigger)}
+								/>
+							))}
 					</TabPanel>
 					<TabPanel>2</TabPanel>
 					<TabPanel>3</TabPanel>
@@ -102,9 +130,10 @@ const TriggersPage = (props: TriggersPageProps) => {
 			)}
 			<AddPushTriggerDialog
 				pipelineables={pipelineables}
-				onClose={closeDialog}
+				onClose={onCloseDialog}
 				isOpen={isDialogOpen}
-				onSubmit={(trigger) => onTriggersChange("add", trigger)}
+				onSubmit={onTriggersChange}
+				editedItem={editedItem}
 			/>
 		</>
 	);

@@ -16,15 +16,17 @@ import {
 	Toggletip,
 	Tooltip,
 } from "@bitrise/bitkit";
-import { ReactNode, useState } from "react";
+import { ReactNode, useId, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
+
 import { ConditionType, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
 	onClose: () => void;
 	pipelineables: string[];
-	onSubmit: (trigger: TriggerItem) => void;
+	onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
+	editedItem?: TriggerItem;
 };
 
 const PLACEHOLDER_MAP: Record<ConditionType, string> = {
@@ -93,25 +95,34 @@ interface FormItems extends Omit<TriggerItem, "conditions"> {
 }
 
 const AddPushTriggerDialog = (props: DialogProps) => {
-	const { isOpen, onClose, pipelineables, onSubmit } = props;
+	const { isOpen, onClose, pipelineables, onSubmit, editedItem } = props;
 	const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
+
+	const isEditMode = !!editedItem;
 
 	const dialogStages: ProgressIndicatorProps["stages"] = [
 		{ action: activeStageIndex === 1 ? { onClick: () => setActiveStageIndex(0) } : undefined, label: "Conditions" },
 		{ label: "Target" },
 	];
 
+	const defaultValues: FormItems = {
+		conditions: [
+			{
+				isRegex: false,
+				type: "push_branch",
+				value: "",
+			},
+		],
+		id: useId(),
+		pipelineable: "",
+	};
+
 	const formMethods = useForm<FormItems>({
-		defaultValues: {
-			conditions: [
-				{
-					isRegex: false,
-					type: "push_branch",
-					value: "",
-				},
-			],
-		},
+		defaultValues,
+		values: editedItem,
 	});
+
+	console.log(editedItem);
 	const { control, register, reset, handleSubmit, watch } = formMethods;
 
 	const { append, fields, remove } = useFieldArray({
@@ -121,12 +132,12 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
 	const onFormCancel = () => {
 		onClose();
-		reset();
+		reset(defaultValues);
 		setActiveStageIndex(0);
 	};
 
 	const onFormSubmit = (data: FormItems) => {
-		onSubmit(data as TriggerItem);
+		onSubmit(isEditMode ? "edit" : "add", data as TriggerItem);
 		onFormCancel();
 	};
 
@@ -146,7 +157,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 				as="form"
 				isOpen={isOpen}
 				onClose={onFormCancel}
-				title="Add push trigger"
+				title={isEditMode ? "Edit trigger" : "Add push trigger"}
 				maxWidth="480"
 				onSubmit={handleSubmit(onFormSubmit)}
 			>
@@ -215,7 +226,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 								Previous
 							</Button>
 							<Button type="submit" isDisabled={!pipelineable}>
-								Add trigger
+								{isEditMode ? "Done" : "Add trigger"}
 							</Button>
 						</>
 					)}

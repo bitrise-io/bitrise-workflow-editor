@@ -1,7 +1,12 @@
-import { Box, Card, Checkbox, Icon, IconButton, Link, Notification, Tag, Text, TypeIconName } from "@bitrise/bitkit";
+import { Box, Card, Checkbox, Icon, IconButton, Tag, Text, TypeIconName } from "@bitrise/bitkit";
+
 import { ConditionType, TriggerItem } from "./TriggersPage.types";
 
-type TriggerCardProps = TriggerItem;
+type TriggerCardProps = {
+	triggerItem: TriggerItem;
+	onRemove: (triggerItem: TriggerItem) => void;
+	onEdit: (triggerItem: TriggerItem) => void;
+};
 
 const iconMap: Record<ConditionType, TypeIconName> = {
 	push_branch: "Branch",
@@ -10,14 +15,23 @@ const iconMap: Record<ConditionType, TypeIconName> = {
 };
 
 const TriggerCard = (props: TriggerCardProps) => {
-	const { conditions, pipelineable } = props;
+	const { triggerItem, onRemove, onEdit } = props;
+	const { conditions, pipelineable } = triggerItem;
+
+	const handleRemove = () => {
+		onRemove(triggerItem);
+	};
+
+	const handleEdit = () => {
+		onEdit(triggerItem);
+	};
 
 	return (
 		<Card display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
 			<Box>
 				<Text textStyle="body/md/semibold">Trigger conditions</Text>
 				{conditions.map(({ type, value }) => (
-					<Tag iconName={iconMap[type]} iconColor="neutral.50">
+					<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
 						{value}
 					</Tag>
 				))}
@@ -29,8 +43,14 @@ const TriggerCard = (props: TriggerCardProps) => {
 			</Box>
 			<Box display="flex" alignItems="center">
 				<Checkbox>Active</Checkbox>
-				<IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" />
-				<IconButton iconName="MinusRemove" aria-label="Remove trigger" variant="tertiary" isDanger />
+				<IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
+				<IconButton
+					iconName="MinusRemove"
+					aria-label="Remove trigger"
+					variant="tertiary"
+					isDanger
+					onClick={handleRemove}
+				/>
 			</Box>
 		</Card>
 	);
