@@ -3,12 +3,12 @@ import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
 import EnvironmentVariablesDialogProvider from './EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
+import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 import { Secret, SecretsDialogProvider } from './SecretsDialog';
 import StepConfiguration from './StepConfiguration/StepConfiguration';
 import StepItemBadge from './StepItem/StepItemBadge';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties/StepProperties';
-import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 
 type Props = {
   step: Step;
