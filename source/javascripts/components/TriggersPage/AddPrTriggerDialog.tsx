@@ -67,7 +67,10 @@ const ConditionCard = (props: ConditionCardProps) => {
 				placeholder="Select a condition type"
 				{...register(`conditions.${conditionNumber}.type`)}
 			>
-				<option value="push_branch">Push branch</option>
+				<option value="target_branch">Target branch</option>
+				<option value="source_branch">Source branch</option>
+				<option value="pr_label">PR label</option>
+				<option value="pr_comment">PR comment</option>
 				<option value="commit_message">Commit message</option>
 				<option value="file_change">File change</option>
 			</Select>
@@ -104,13 +107,13 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 		conditions: [
 			{
 				isRegex: false,
-				type: "push_branch",
+				type: "target_branch",
 				value: "",
 			},
 		],
 		id: crypto.randomUUID(),
 		pipelineable: "",
-		source: "push",
+		source: "pull_request",
 	};
 
 	const formMethods = useForm<FormItems>({

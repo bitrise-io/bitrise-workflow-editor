@@ -1,6 +1,6 @@
 import { Box, Card, Checkbox, Icon, IconButton, Tag, Text, TypeIconName } from "@bitrise/bitkit";
 
-import { PushConditionType, TagConditionType, TriggerItem } from "./TriggersPage.types";
+import { PrConditionType, PushConditionType, TagConditionType, TriggerItem } from "./TriggersPage.types";
 
 type TriggerCardProps = {
 	triggerItem: TriggerItem;
@@ -8,10 +8,14 @@ type TriggerCardProps = {
 	onEdit: (triggerItem: TriggerItem) => void;
 };
 
-const iconMap: Record<PushConditionType | TagConditionType, TypeIconName> = {
+const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, TypeIconName> = {
 	push_branch: "Branch",
 	commit_message: "Commit",
 	file_change: "Doc",
+	source_branch: "Pull",
+	target_branch: "ArrowRight",
+	pr_label: "Tag",
+	pr_comment: "Chat",
 	tag: "Tag",
 };
 
