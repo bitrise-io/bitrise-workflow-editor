@@ -151,13 +151,8 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 	const pipelineable = watch("pipelineable");
 
 	const conditions = watch("conditions");
-	let canPressNext = true;
 
-	for (let i = 0; i < conditions.length; i++) {
-		if (conditions[i].value.length === 0) {
-			canPressNext = false;
-		}
-	}
+	const canPressNext = conditions.find(({ value }) => value.length === 0) === undefined;
 
 	return (
 		<FormProvider {...formMethods}>
