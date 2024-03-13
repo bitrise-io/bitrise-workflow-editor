@@ -4,6 +4,7 @@ export type Condition = {
 	isRegex: boolean;
 	type: ConditionType;
 	value: string;
+    id?: string;
 };
 
 export type TriggerItem = {

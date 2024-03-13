@@ -12,10 +12,10 @@ import {
 	useDisclosure,
 } from "@bitrise/bitkit";
 import { useState } from "react";
-
 import AddPushTriggerDialog from "./AddPushTriggerDialog";
 import TriggerCard from "./TriggerCard";
 import { TriggerItem } from "./TriggersPage.types";
+import AddTagTriggerDialog from "./AddTagTriggerDialog";
 
 type TriggersPageProps = {
 	pipelineables: string[];
@@ -27,12 +27,23 @@ const TriggersPage = (props: TriggersPageProps) => {
 	const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
 		defaultIsOpen: true,
 	});
-	const { isOpen: isDialogOpen, onOpen: openDialog, onClose: closeDialog } = useDisclosure();
+	const {
+		isOpen: isPushTriggerDialogOpen,
+		onOpen: openPushTriggerDialog,
+		onClose: closePushTriggerDialog,
+	} = useDisclosure();
+
+	const {
+		isOpen: isTagTriggerDialogOpen,
+		onOpen: openTagTriggerDialog,
+		onClose: closeTagTriggerDialog,
+	} = useDisclosure();
+
 	const [triggers, setTriggers] = useState<TriggerItem[]>([]);
 	const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
 	const onCloseDialog = () => {
-		closeDialog();
+		closePushTriggerDialog();
 		setEditedItem(undefined);
 	};
 
@@ -53,7 +64,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 
 	const onTriggerEdit = (trigger: TriggerItem) => {
 		setEditedItem(trigger);
-		openDialog();
+		openPushTriggerDialog();
 	};
 
 	return (
@@ -85,7 +96,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 				</TabList>
 				<TabPanels paddingTop="24">
 					<TabPanel>
-						<Button marginBottom="24" variant="secondary" onClick={openDialog} leftIconName="PlusAdd">
+						<Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
 							Add push trigger
 						</Button>
 						{triggers.length === 0 && (
@@ -113,7 +124,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 					</TabPanel>
 					<TabPanel>
 						{" "}
-						<Button marginBottom="24" variant="secondary" onClick={openDialog} leftIconName="PlusAdd">
+						<Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
 							Add pull request trigger
 						</Button>
 						{triggers.length === 0 && (
@@ -132,7 +143,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 						)}
 					</TabPanel>
 					<TabPanel>
-						<Button marginBottom="24" variant="secondary" onClick={openDialog} leftIconName="PlusAdd">
+						<Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
 							Add tag trigger
 						</Button>
 						{triggers.length === 0 && (
@@ -169,10 +180,11 @@ const TriggersPage = (props: TriggersPageProps) => {
 			<AddPushTriggerDialog
 				pipelineables={pipelineables}
 				onClose={onCloseDialog}
-				isOpen={isDialogOpen}
+				isOpen={isPushTriggerDialogOpen}
 				onSubmit={onTriggersChange}
 				editedItem={editedItem}
 			/>
+			<AddTagTriggerDialog isOpen={isTagTriggerDialogOpen} onClose={closeTagTriggerDialog} />
 		</>
 	);
 };

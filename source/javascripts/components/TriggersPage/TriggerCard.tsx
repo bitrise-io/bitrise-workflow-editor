@@ -28,9 +28,9 @@ const TriggerCard = (props: TriggerCardProps) => {
 
 	return (
 		<Card display="flex" justifyContent="space-between" marginBottom="12" padding="16px 24px">
-			<Box display="flex" flexDir="column" gap="4">
+			<Box width="calc((100% - 190px) / 2)" display="flex" flexDir="column" gap="4">
 				<Text textStyle="body/md/semibold">Trigger conditions</Text>
-				<Box display="flex" alignItems="center">
+				<Box display="flex" alignItems="center" flexWrap="wrap" gap="8px 0">
 					{conditions.map(({ type, value }, index) =>
 						index > 0 ? (
 							<>
@@ -49,7 +49,7 @@ const TriggerCard = (props: TriggerCardProps) => {
 					)}
 				</Box>
 			</Box>
-			<Box display="flex" alignItems="center">
+			<Box width="calc((100% - 190px) / 2)" display="flex" alignItems="center">
 				<Icon name="ArrowRight" marginRight="16" />
 				<Box display="flex" flexDir="column" gap="4">
 					<Text textStyle="body/md/semibold">Start build</Text>

@@ -51,7 +51,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 	const { children, conditionNumber } = props;
 	const { register, watch } = useFormContext();
 	const { conditions } = watch();
-	const { isRegex, type } = conditions[conditionNumber];
+	const { isRegex, type } = conditions[conditionNumber] || {};
 
 	return (
 		<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
@@ -131,12 +131,21 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
 	const onFormCancel = () => {
 		onClose();
-		reset(defaultValues);
+		reset(editedItem || defaultValues);
 		setActiveStageIndex(0);
 	};
 
 	const onFormSubmit = (data: FormItems) => {
-		onSubmit(isEditMode ? "edit" : "add", data as TriggerItem);
+		const filteredData = data;
+		filteredData.conditions = data.conditions
+			.filter(({ type }) => !!type)
+			.map((condition) => {
+				if (condition.value === "") {
+					condition.value = "*";
+				}
+				return condition;
+			});
+		onSubmit(isEditMode ? "edit" : "add", filteredData as TriggerItem);
 		onFormCancel();
 	};
 
@@ -149,10 +158,6 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 	};
 
 	const pipelineable = watch("pipelineable");
-
-	const conditions = watch("conditions");
-
-	const canPressNext = conditions.find(({ value }) => value.length === 0) === undefined;
 
 	return (
 		<FormProvider {...formMethods}>
@@ -181,9 +186,9 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 								</Tooltip>{" "}
 								that should all be met to execute the targeted Pipeline or Workflow.
 							</Text>
-							{fields.map(({ id }, index) => {
+							{fields.map((item, index) => {
 								return (
-									<ConditionCard conditionNumber={index} key={id}>
+									<ConditionCard conditionNumber={index} key={item.id}>
 										{index > 0 && (
 											<Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
 												Remove
@@ -220,11 +225,9 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 						Cancel
 					</Button>
 					{activeStageIndex === 0 ? (
-						<Tooltip label={canPressNext ? "" : "Please fill all conditions"}>
-							<Button rightIconName="ArrowRight" onClick={() => setActiveStageIndex(1)} isDisabled={!canPressNext}>
-								Next
-							</Button>
-						</Tooltip>
+						<Button rightIconName="ArrowRight" onClick={() => setActiveStageIndex(1)}>
+							Next
+						</Button>
 					) : (
 						<>
 							<Button leftIconName="ArrowLeft" variant="secondary" onClick={() => setActiveStageIndex(0)}>
