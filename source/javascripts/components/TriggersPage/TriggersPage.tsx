@@ -16,6 +16,7 @@ import AddPushTriggerDialog from "./AddPushTriggerDialog";
 import TriggerCard from "./TriggerCard";
 import { TriggerItem } from "./TriggersPage.types";
 import AddTagTriggerDialog from "./AddTagTriggerDialog";
+import AddPrTriggerDialog from "./AddPrTriggerDialog";
 
 type TriggersPageProps = {
 	pipelineables: string[];
@@ -32,6 +33,8 @@ const TriggersPage = (props: TriggersPageProps) => {
 		onOpen: openPushTriggerDialog,
 		onClose: closePushTriggerDialog,
 	} = useDisclosure();
+
+	const { isOpen: isPrTriggerDialogOpen, onOpen: openPrTriggerDialog, onClose: closePrTriggerDialog } = useDisclosure();
 
 	const {
 		isOpen: isTagTriggerDialogOpen,
@@ -69,7 +72,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 
 	const onPrTriggerEdit = (trigger: TriggerItem) => {
 		setEditedItem(trigger);
-		//TODO
+		openPrTriggerDialog();
 	};
 
 	const onTagTriggerEdit = (trigger: TriggerItem) => {
@@ -140,7 +143,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 					</TabPanel>
 					<TabPanel>
 						{" "}
-						<Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
+						<Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusAdd">
 							Add pull request trigger
 						</Button>
 						{prTriggers.length === 0 && (
@@ -216,6 +219,13 @@ const TriggersPage = (props: TriggersPageProps) => {
 				onClose={onCloseDialog}
 				isOpen={isPushTriggerDialogOpen}
 				onSubmit={onTriggersChange}
+				editedItem={editedItem}
+			/>
+			<AddPrTriggerDialog
+				isOpen={isPrTriggerDialogOpen}
+				onClose={closePrTriggerDialog}
+				onSubmit={onTriggersChange}
+				pipelineables={pipelineables}
 				editedItem={editedItem}
 			/>
 			<AddTagTriggerDialog
