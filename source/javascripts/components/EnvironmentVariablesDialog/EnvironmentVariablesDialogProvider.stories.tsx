@@ -45,7 +45,7 @@ export const WithProps: StoryObj<typeof EnvironmentVariablesDialogProvider> = {
 	],
 	render() {
 		const { open } = useEnvironmentVariablesDialog();
-		const [cursorPosition, setCursorPosition] = useState<{ start: number; end: number }>({ start: 0, end: 0 });
+		const [cursorPosition, setCursorPosition] = useState<{ start: number; end: number }>();
 
 		const { register, getValues, setValue } = useForm({
 			defaultValues: {
@@ -56,10 +56,11 @@ export const WithProps: StoryObj<typeof EnvironmentVariablesDialogProvider> = {
 		const onOpen = () => {
 			open({
 				onSelect: ({ key }) => {
-					const inputValue = getValues().input;
-					const { start, end } = cursorPosition;
+					const value = getValues("input");
+					const { start, end } = cursorPosition ?? { start: value.length, end: value.length };
 
-					setValue("input", `${inputValue.slice(0, start)}$${key}${inputValue.slice(end)}`);
+					setCursorPosition({ start, end: end + `$${key}`.length });
+					setValue("input", `${value.slice(0, start)}$${key}${value.slice(end)}`);
 				},
 			});
 		};
