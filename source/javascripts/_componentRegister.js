@@ -14,7 +14,8 @@ import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
-import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
+import WorkflowRecipesInfoBanner
+	from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { ProductTour } from "./components/ProductTour/ProductTour";
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
 import Header from "./components/Header";
@@ -30,18 +31,18 @@ angular
 	.component("rNotification", register(Notification, ["message", "title", "status"]))
 	.component(
 		"rNotificationMessageWithLink",
-		register(NotificationMessageWithLink, ["message", "type", "linkUrl", "linkText"]),
+		register(NotificationMessageWithLink, ["message", "type", "linkUrl", "linkText"])
 	)
 	.component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
 	.component("rBitkitRoot", react2angular(BitkitRoot))
 	.component("rIcon", register(Icon, ["name", "textColor", "size"]))
 	.component(
 		"rStepItem",
-		register(StepItem, ["workflowIndex", "step", "title", "version", "hasVersionUpdate", "isSelected", "onSelected"]),
+		register(StepItem, ["workflowIndex", "step", "title", "version", "hasVersionUpdate", "isSelected", "onSelected"])
 	)
 	.component(
 		"rStepVersionDetails",
-		register(StepVersionDetails, ["step", "latestVersion", "hasVersionUpdate", "versionsWithRemarks", "onChange"]),
+		register(StepVersionDetails, ["step", "resolvedVersion", "latestVersion", "hasVersionUpdate", "versionsWithRemarks", "onChange"])
 	)
 	.component("rAddStepItem", register(AddStepItem, ["step", "disabled", "onSelected"]))
 	.component("rStepItemBadge", register(StepItemBadge, ["step"]))
@@ -51,16 +52,16 @@ angular
 			"appSlug",
 			"usesRepositoryYml",
 			"onUsesRepositoryYmlChangeSaved",
-			"repositoryYmlAvailable",
-		]),
+			"repositoryYmlAvailable"
+		])
 	)
 	.component(
 		"rUpdateYmlInRepositoryModal",
-		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "getDataToSave"]),
+		register(UpdateYmlInRepositoryModal, ["appSlug", "isVisible", "onClose", "onComplete", "getDataToSave"])
 	)
 	.component(
 		"rWorkflowSelector",
-		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"]),
+		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
 	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
 	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
@@ -83,8 +84,8 @@ angular
 			"uniqueStepCount",
 			"uniqueStepLimit",
 			"organizationSlug",
-			"hideWorkflowRecepiesLink",
-		]),
+			"hideWorkflowRecepiesLink"
+		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
 	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
@@ -101,8 +102,8 @@ angular
 			"isSaveDisabled",
 			"isSaveInProgress",
 			"onDiscardClick",
-			"isDiscardDisabled",
-		]),
+			"isDiscardDisabled"
+		])
 	)
 	.component("rNavigation", register(Navigation, ["items", "activeItem", "onItemSelected"]))
 	.component(
@@ -117,6 +118,6 @@ angular
 			"onChange",
 			"onClone",
 			"onRemove",
-			"onCreateSecret",
-		]),
+			"onCreateSecret"
+		])
 	);

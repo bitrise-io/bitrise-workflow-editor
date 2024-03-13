@@ -7,6 +7,7 @@ import { getVersionRemark } from "../../utils/stepVersionUtil";
 
 type Props = {
 	step: Step;
+	resolvedVersion: string;
 	latestVersion: string;
 	hasVersionUpdate: boolean;
 	versionsWithRemarks: Array<StepVersionWithRemark>;
@@ -16,8 +17,15 @@ type Props = {
 type DangerouslySetInnerHTMLProps = { __html: string };
 const html = (text: string): DangerouslySetInnerHTMLProps => ({ __html: text });
 
-const StepVersionDetails = ({ step, latestVersion, hasVersionUpdate, versionsWithRemarks = [], onChange }: Props) => {
-	if (step.version === undefined) {
+const StepVersionDetails = ({
+	step,
+	resolvedVersion,
+	latestVersion,
+	hasVersionUpdate,
+	versionsWithRemarks = [],
+	onChange,
+}: Props) => {
+	if (!step.version) {
 		return null;
 	}
 
@@ -43,7 +51,11 @@ const StepVersionDetails = ({ step, latestVersion, hasVersionUpdate, versionsWit
 						data-e2e-tag="step-version-details__version-text"
 						className={classNames("version__text", { error: !step.isConfigured() })}
 					>
-						{step.isConfigured() ? `Version: ${step.requestedVersion() || latestVersion}` : "Invalid version"}
+						{step.isConfigured()
+							? step.isVCSStep()
+								? `Branch: ${resolvedVersion}`
+								: `Version: ${resolvedVersion}`
+							: "Invalid version"}
 					</Text>
 				</div>
 				{step.isLibraryStep() && <Text className="latest-version">Step's latest version is: {latestVersion}</Text>}

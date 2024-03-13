@@ -770,6 +770,7 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 			$scope.stepSourceService = stepSourceService;
 
 			viewModel.selectedStep;
+			viewModel.selectedStepResolvedVersion;
 			viewModel.selectedStepLatestVersion;
 			viewModel.selectedStepVersionsWithRemarks;
 			viewModel.shouldShowDescription;
@@ -867,14 +868,16 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 			function setSelectedStepDependentData(step) {
 				if (!step) {
 					viewModel.selectedStep = null;
+					viewModel.selectedStepResolvedVersion = null;
 					viewModel.selectedStepLatestVersion = null;
 					viewModel.selectedStepVersionsWithRemarks = [];
 					return;
 				}
 
 				viewModel.selectedStep = step;
+				viewModel.selectedStepResolvedVersion = stepSourceService.resolveRequestedStepVersion(step.requestedVersion(), step);
 				viewModel.selectedStepLatestVersion = stepSourceService.latestVersion(step);
-				viewModel.selectedStepVersionsWithRemarks = stepSourceService.versionsOfStep(step).map((version) => ({
+				viewModel.selectedStepVersionsWithRemarks = stepSourceService.versionsOfStep(step)?.map((version) => ({
 					version,
 					remark: getVersionRemark(version)
 				})) || [];
@@ -893,8 +896,8 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 						resolve();
 					}
 				}).then(function() {
-					workflowIndex ||= viewModel.editedWorkflowIndex;
-					shouldScrollToStep ||= viewModel.editedWorkflowIndex != workflowIndex;
+					workflowIndex ??= viewModel.editedWorkflowIndex;
+					shouldScrollToStep ??= viewModel.editedWorkflowIndex != workflowIndex;
 
 					if (viewModel.editedWorkflowIndex != workflowIndex) {
 						viewModel.editWorkflowAtIndex(workflowIndex);
@@ -1017,6 +1020,7 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 
 				var oldDefaultStepConfig = step.defaultStepConfig;
 				stepSourceService.changeStepToVersion(step, version);
+				setSelectedStepDependentData(step);
 
 				// TODO remove when React tab is released
 				if (!oldDefaultStepConfig) {
@@ -1366,14 +1370,14 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 			};
 
 			viewModel.checkStepVersionUpdate = function(step) {
-				if (!step) {
+				if (!step || step.isLocal()) {
 					return false;
 				}
 
 				const isStepConfigured = step.isConfigured();
 				const isLatestStepVersion = stepSourceService.isLatestStepVersion(step);
 
-				return !isLatestStepVersion || !isStepConfigured;
+				return !isStepConfigured || !isLatestStepVersion;
 			};
 
 			viewModel.handleSelectedStepChanges = function(values) {
@@ -1420,18 +1424,18 @@ import { getVersionRemark } from "../utils/stepVersionUtil";
 					value: secret.value(),
 					source: "Secrets",
 					isExpand: secret.isExpand(),
-					isExpose: secret.isExpose(),
-				}
+					isExpose: secret.isExpose()
+				};
 			}) ?? [];
 
 			viewModel.saveSecretFromReact = function(secret) {
 				const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
-				
+
 				variable.isExpose(secret.isExpose);
 				variable.isExpand(secret.isExpand);
 
 				appService.secrets.push(variable);
 				appService.saveSecrets();
-			}
+			};
 		});
 })();
