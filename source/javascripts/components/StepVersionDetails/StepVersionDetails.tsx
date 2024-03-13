@@ -55,6 +55,7 @@ const StepVersionDetails = ({ step, latestVersion, hasVersionUpdate, versionsWit
 						dangerouslySetInnerHTML={html(getVersionRemark(step.requestedVersion() || ""))}
 					/>
 					<select
+						className="mak"
 						id="selected-step-version-select"
 						data-e2e-tag="step-version-details__version-selector"
 						value={step.requestedVersion() || ""}
