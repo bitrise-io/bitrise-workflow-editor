@@ -16,7 +16,7 @@ import {
 	Toggletip,
 	Tooltip,
 } from "@bitrise/bitkit";
-import { ReactNode, useId, useState } from "react";
+import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
 import { ConditionType, TriggerItem } from "./TriggersPage.types";
@@ -150,6 +150,15 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
 	const pipelineable = watch("pipelineable");
 
+	const conditions = watch("conditions");
+	let canPressNext = true;
+
+	for (let i = 0; i < conditions.length; i++) {
+		if (conditions[i].value.length === 0) {
+			canPressNext = false;
+		}
+	}
+
 	return (
 		<FormProvider {...formMethods}>
 			<Dialog
@@ -216,9 +225,11 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 						Cancel
 					</Button>
 					{activeStageIndex === 0 ? (
-						<Button rightIconName="ArrowRight" onClick={() => setActiveStageIndex(1)}>
-							Next
-						</Button>
+						<Tooltip label={canPressNext ? "" : "Please fill all conditions"}>
+							<Button rightIconName="ArrowRight" onClick={() => setActiveStageIndex(1)} isDisabled={!canPressNext}>
+								Next
+							</Button>
+						</Tooltip>
 					) : (
 						<>
 							<Button leftIconName="ArrowLeft" variant="secondary" onClick={() => setActiveStageIndex(0)}>
