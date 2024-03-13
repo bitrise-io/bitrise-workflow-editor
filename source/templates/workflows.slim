@@ -98,11 +98,11 @@
 											== svg("arrow-down")
 
 									r-step-version-details[
-										step= "workflowsCtrl.selectedStep"
-										latest-version= "workflowsCtrl.selectedStepLatestVersion"
-										has-version-update= "workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
-										versions-with-remarks= "workflowsCtrl.selectedStepVersionsWithRemarks"
-										on-change= "workflowsCtrl.handleStepPropertyChanged"
+										step="workflowsCtrl.selectedStep"
+										latest-version="workflowsCtrl.selectedStepLatestVersion"
+										has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
+										versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
+										on-change="workflowsCtrl.handleSelectedStepChanges"
 									]
 
 									section.run-if
