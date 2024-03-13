@@ -10,7 +10,6 @@ import {
 	Text,
 	Toggletip,
 } from "@bitrise/bitkit";
-import { useState } from "react";
 import { FormItems, TriggerItem } from "./TriggersPage.types";
 import { FormProvider, useForm } from "react-hook-form";
 
@@ -25,20 +24,11 @@ type DialogProps = {
 const AddTagTriggerDialog = (props: DialogProps) => {
 	const { isOpen, onClose, editedItem, pipelineables, onSubmit } = props;
 
-	const [isRegexChecked, setIsRegexChecked] = useState(false);
-	const inputPlaceholderText = isRegexChecked ? "Enter a regex pattern" : "Enter a tag";
-	const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-		setIsRegexChecked(event.target.checked);
-	};
-
-	const isEditMode = !!editedItem;
-
 	const defaultValues: FormItems = {
 		conditions: [
 			{
 				isRegex: false,
-				type: "push_branch",
-				//TODO: PUSH BRANCH >> TAG
+				type: "tag",
 				value: "",
 			},
 		],
@@ -52,7 +42,16 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 		values: editedItem,
 	});
 
-	const { control, register, reset, handleSubmit, watch } = formMethods;
+	const { register, reset, handleSubmit, watch } = formMethods;
+
+	const conditionNumber: number = 0;
+
+	const { conditions } = watch();
+	const { isRegex } = conditions[conditionNumber] || {};
+
+	const isEditMode = !!editedItem;
+
+	const inputPlaceholderText = (isRegex: boolean) => (isRegex ? "Enter a regex pattern" : "Enter a tag");
 
 	const onFormSubmit = (data: FormItems) => {
 		const filteredData = data;
@@ -75,8 +74,6 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
 	const pipelineable = watch("pipelineable");
 
-	const conditionNumber: number = 0;
-
 	return (
 		<FormProvider {...formMethods}>
 			<Dialog
@@ -98,7 +95,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 					<Text marginBottom="16" textStyle="body/md/semibold">
 						Tag
 					</Text>
-					<Checkbox marginBottom="8" onChange={handleCheckboxChange}>
+					<Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
 						Use regex pattern
 					</Checkbox>
 					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
@@ -106,7 +103,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 					</Toggletip>
 					<Input
 						marginBottom="24"
-						placeholder={inputPlaceholderText}
+						placeholder={inputPlaceholderText(isRegex)}
 						{...register(`conditions.${conditionNumber}.value`)}
 					></Input>
 					<Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">

@@ -118,14 +118,14 @@ const TriggersPage = (props: TriggersPageProps) => {
 						{pushTriggers.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your push triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
-									A push based trigger automatically starts builds when commits are pushed to your repository.
+									A push based trigger automatically starts builds when commits are pushed to your repository.{" "}
+									<Link
+										colorScheme="purple"
+										href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+									>
+										Learn more
+									</Link>
 								</Text>
-								<Link
-									colorScheme="purple"
-									href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-								>
-									Learn more
-								</Link>
 							</EmptyState>
 						)}
 						{pushTriggers.length > 0 &&
@@ -147,14 +147,14 @@ const TriggersPage = (props: TriggersPageProps) => {
 							<EmptyState iconName="Trigger" title="Your pull request triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A pull request based trigger automatically starts builds when specific PR related actions detected
-									within your repository.
+									within your repository.{" "}
+									<Link
+										colorScheme="purple"
+										href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+									>
+										Learn more
+									</Link>
 								</Text>
-								<Link
-									colorScheme="purple"
-									href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-								>
-									Learn more
-								</Link>
 							</EmptyState>
 						)}
 						{prTriggers.length > 0 &&
@@ -174,14 +174,14 @@ const TriggersPage = (props: TriggersPageProps) => {
 						{tagTriggers.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your tag triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
-									A tag-based trigger automatically starts builds when tags gets pushed to your repository. Learn more
+									A tag-based trigger automatically starts builds when tags gets pushed to your repository.{" "}
+									<Link
+										colorScheme="purple"
+										href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+									>
+										Learn more
+									</Link>
 								</Text>
-								<Link
-									colorScheme="purple"
-									href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-								>
-									Learn more
-								</Link>
 							</EmptyState>
 						)}
 						{tagTriggers.length > 0 &&

@@ -19,7 +19,7 @@ import {
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
-import { ConditionType, FormItems, TriggerItem } from "./TriggersPage.types";
+import { PushConditionType, FormItems, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -29,13 +29,13 @@ type DialogProps = {
 	editedItem?: TriggerItem;
 };
 
-const PLACEHOLDER_MAP: Record<ConditionType, string> = {
+const PLACEHOLDER_MAP: Record<PushConditionType, string> = {
 	push_branch: "Enter a push branch",
 	commit_message: "Enter a commit message",
 	file_change: "Enter a path",
 };
 
-const getPlaceholderText = (isRegex: boolean, type: ConditionType): string => {
+const getPlaceholderText = (isRegex: boolean, type: PushConditionType): string => {
 	if (isRegex) {
 		return "Enter a regex pattern";
 	}
