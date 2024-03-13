@@ -1,10 +1,11 @@
-import { ComponentProps, MouseEventHandler, ReactNode } from 'react';
-import { Box, ButtonGroup, IconButton } from '@bitrise/bitkit';
-import { FormControl, forwardRef, Select, Textarea } from '@chakra-ui/react';
-import omit from 'lodash/omit';
-import { useFormContext } from 'react-hook-form';
+import { Box, ButtonGroup, IconButton } from "@bitrise/bitkit";
+import { FormControl, forwardRef, Select, Textarea } from "@chakra-ui/react";
+import omit from "lodash/omit";
+import { ComponentProps, FocusEventHandler, MouseEventHandler, ReactNode, useState } from "react";
+import { useFormContext } from "react-hook-form";
 
 import useAutosize from '../../../../hooks/utils/useAutosize';
+import { useEnvironmentVariablesDialog } from "../../../EnvironmentVariablesDialog/EnvironmentVariablesDialog";
 import { useSecretsDialog } from '../../../SecretsDialog';
 import StepInputHelper from './StepInputHelper';
 import StepInputLabel from './StepInputLabel';
@@ -36,8 +37,10 @@ function isTextareaInput(props: Props): props is TextareaProps {
 const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) => {
   const { label, isRequired, isSensitive, helperSummary, helperDetails, ...rest } = props;
 
-  const { watch, setValue } = useFormContext();
+	const { watch, setValue, getValues } = useFormContext();
   const { open: openSecretsDialog } = useSecretsDialog();
+	const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
+	const [cursorPosition, setCursorPosition] = useState<{ start: number; end: number }>();
   const textareaRef = useAutosize<HTMLTextAreaElement>(ref);
 
   const onClear = () => setValue(rest.name || '', '');
@@ -51,6 +54,32 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
       onSelect: (secret) => setValue(rest.name || '', `$${secret.key}`),
     });
   };
+
+	const handleOnClickInsertEnvironmentVariable: MouseEventHandler<HTMLButtonElement> = (e) => {
+		// NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
+		e.currentTarget.blur();
+
+		openEnvironmentVariablesDialog({
+			onSelect: ({ key }) => {
+				const value = (getValues(props.name!) || "") as string;
+				const { start, end } = cursorPosition ?? { start: value.length, end: value.length };
+
+				setCursorPosition({ start, end: end + `$${key}`.length });
+				setValue(props.name || "", `${value.slice(0, start)}$${key}${value.slice(end)}`);
+			},
+		});
+	};
+
+	const handleOnBlur: FocusEventHandler<HTMLTextAreaElement> = (e) => {
+		if (isTextareaInput(rest) && rest.onBlur) {
+			rest.onBlur(e);
+		}
+
+		setCursorPosition({
+			end: Math.max(e.currentTarget.selectionStart, e.currentTarget.selectionEnd),
+			start: Math.min(e.currentTarget.selectionStart, e.currentTarget.selectionEnd),
+		});
+	};
 
   return (
     <FormControl isRequired={isRequired}>
@@ -74,6 +103,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
               {...rest}
               rows={1}
               resize="none"
+							onBlur={handleOnBlur}
               transition="height none"
               isReadOnly={isSensitive || rest.isReadOnly}
               placeholder={isSensitive ? 'Add secret' : 'Enter value'}
@@ -103,7 +133,13 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 )}
 
                 {!isSensitive && (
-                  <IconButton size="sm" iconName="Dollars" variant="secondary" aria-label="Insert variable" />
+									<IconButton
+										size="sm"
+										iconName="Dollars"
+										variant="secondary"
+										aria-label="Insert variable"
+										onClick={handleOnClickInsertEnvironmentVariable}
+									/>
                 )}
               </ButtonGroup>
             )}

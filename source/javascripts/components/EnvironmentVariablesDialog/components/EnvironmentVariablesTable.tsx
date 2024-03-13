@@ -47,7 +47,6 @@ const EnvironmentVariablesTable = ({ environmentVariables }: Props) => {
 						<Tr>
 							<Th width="40px" />
 							<Th>Key</Th>
-							<Th>Source</Th>
 						</Tr>
 					</Thead>
 					<RadioGroup as="tbody" {...field}>

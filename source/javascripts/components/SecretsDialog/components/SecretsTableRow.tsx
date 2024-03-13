@@ -1,5 +1,5 @@
 import { useId } from 'react';
-import { SelectableRow, Td } from '@bitrise/bitkit';
+import { Box, SelectableRow, Text } from '@bitrise/bitkit';
 
 type Props = {
   value: string;
@@ -11,9 +11,18 @@ const SecretsTableRow = ({ value, source }: Props) => {
   const valueWithVariablePrefix = `$${value}`;
 
   return (
-    <SelectableRow id={id} label={valueWithVariablePrefix} value={value}>
-      <Td>{source}</Td>
-    </SelectableRow>
+		<SelectableRow
+			id={id}
+			value={value}
+			label={
+				<Box>
+					<Text>{valueWithVariablePrefix}</Text>
+					<Text color="input/text/helper" size="2">
+						{source}
+					</Text>
+				</Box>
+			}
+		/>
   );
 };
 

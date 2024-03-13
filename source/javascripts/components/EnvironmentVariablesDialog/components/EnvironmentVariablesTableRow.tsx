@@ -1,4 +1,4 @@
-import { SelectableRow, Td } from "@bitrise/bitkit";
+import { Box, SelectableRow, Text } from "@bitrise/bitkit";
 import { useId } from "react";
 
 type Props = {
@@ -11,9 +11,18 @@ const EnvironmentVariablesTableRow = ({ value, source }: Props) => {
 	const valueWithVariablePrefix = `$${value}`;
 
 	return (
-		<SelectableRow id={id} label={valueWithVariablePrefix} value={value}>
-			<Td>{source}</Td>
-		</SelectableRow>
+		<SelectableRow
+			id={id}
+			value={value}
+			label={
+				<Box>
+					<Text>{valueWithVariablePrefix}</Text>
+					<Text color="input/text/helper" size="2">
+						{source}
+					</Text>
+				</Box>
+			}
+		/>
 	);
 };
 
