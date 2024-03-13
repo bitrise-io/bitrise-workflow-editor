@@ -35,7 +35,7 @@ function isTextareaInput(props: Props): props is TextareaProps {
 }
 
 const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) => {
-  const { label, isRequired, isSensitive, helperSummary, helperDetails, ...rest } = props;
+  const { label, isRequired, isSensitive, helperSummary, helperDetails, name = "", ...rest } = props;
 
 	const { watch, setValue, getValues } = useFormContext();
   const { open: openSecretsDialog } = useSecretsDialog();
@@ -61,11 +61,11 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
 		openEnvironmentVariablesDialog({
 			onSelect: ({ key }) => {
-				const value = (getValues(props.name!) || "") as string;
+				const value = getValues(name) as string;
 				const { start, end } = cursorPosition ?? { start: value.length, end: value.length };
 
 				setCursorPosition({ start, end: end + `$${key}`.length });
-				setValue(props.name || "", `${value.slice(0, start)}$${key}${value.slice(end)}`);
+				setValue(name, `${value.slice(0, start)}$${key}${value.slice(end)}`);
 			},
 		});
 	};
@@ -87,7 +87,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
       <Box pos="relative">
         {isSelectInput(rest) && (
-          <Select ref={ref} {...omit(rest, 'options')} size="medium" backgroundSize="unset">
+          <Select ref={ref} name={name} {...omit(rest, 'options')} size="medium" backgroundSize="unset">
             {rest.options.map((value) => (
               <option key={value} value={value}>
                 {value}
@@ -100,6 +100,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
           <>
             <Textarea
               ref={textareaRef}
+							name={name}
               {...rest}
               rows={1}
               resize="none"
