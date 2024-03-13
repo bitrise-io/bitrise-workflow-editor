@@ -10,5 +10,3 @@ export default {
 } as Meta<typeof TriggersPage>;
 
 export const TriggersPageEmptyState = {};
-
-export const TriggerCards = {};

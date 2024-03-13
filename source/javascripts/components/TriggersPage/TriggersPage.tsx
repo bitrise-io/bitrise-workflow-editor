@@ -62,10 +62,26 @@ const TriggersPage = (props: TriggersPageProps) => {
 		setTriggers(newTriggers);
 	};
 
-	const onTriggerEdit = (trigger: TriggerItem) => {
+	const onPushTriggerEdit = (trigger: TriggerItem) => {
 		setEditedItem(trigger);
 		openPushTriggerDialog();
 	};
+
+	const onPrTriggerEdit = (trigger: TriggerItem) => {
+		setEditedItem(trigger);
+		//TODO
+	};
+
+	const onTagTriggerEdit = (trigger: TriggerItem) => {
+		setEditedItem(trigger);
+		openTagTriggerDialog();
+	};
+
+	const pushTriggers = triggers.filter(({ source }) => source === "push");
+
+	const prTriggers = triggers.filter(({ source }) => source === "pull_request");
+
+	const tagTriggers = triggers.filter(({ source }) => source === "tag");
 
 	return (
 		<>
@@ -99,7 +115,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 						<Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
 							Add push trigger
 						</Button>
-						{triggers.length === 0 && (
+						{pushTriggers.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your push triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A push based trigger automatically starts builds when commits are pushed to your repository.
@@ -112,13 +128,13 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Link>
 							</EmptyState>
 						)}
-						{triggers.length > 0 &&
-							triggers.map((triggerItem) => (
+						{pushTriggers.length > 0 &&
+							pushTriggers.map((triggerItem) => (
 								<TriggerCard
 									key={triggerItem.id}
 									triggerItem={triggerItem}
 									onRemove={(trigger) => onTriggersChange("remove", trigger)}
-									onEdit={(trigger) => onTriggerEdit(trigger)}
+									onEdit={(trigger) => onPushTriggerEdit(trigger)}
 								/>
 							))}
 					</TabPanel>
@@ -127,7 +143,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 						<Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
 							Add pull request trigger
 						</Button>
-						{triggers.length === 0 && (
+						{prTriggers.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your pull request triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A pull request based trigger automatically starts builds when specific PR related actions detected
@@ -141,12 +157,21 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Link>
 							</EmptyState>
 						)}
+						{prTriggers.length > 0 &&
+							prTriggers.map((triggerItem) => (
+								<TriggerCard
+									key={triggerItem.id}
+									triggerItem={triggerItem}
+									onRemove={(trigger) => onTriggersChange("remove", trigger)}
+									onEdit={(trigger) => onPrTriggerEdit(trigger)}
+								/>
+							))}
 					</TabPanel>
 					<TabPanel>
 						<Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
 							Add tag trigger
 						</Button>
-						{triggers.length === 0 && (
+						{tagTriggers.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your tag triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A tag-based trigger automatically starts builds when tags gets pushed to your repository. Learn more
@@ -159,6 +184,15 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Link>
 							</EmptyState>
 						)}
+						{tagTriggers.length > 0 &&
+							tagTriggers.map((triggerItem) => (
+								<TriggerCard
+									key={triggerItem.id}
+									triggerItem={triggerItem}
+									onRemove={(trigger) => onTriggersChange("remove", trigger)}
+									onEdit={(trigger) => onTagTriggerEdit(trigger)}
+								/>
+							))}
 					</TabPanel>
 				</TabPanels>
 			</Tabs>
@@ -184,7 +218,13 @@ const TriggersPage = (props: TriggersPageProps) => {
 				onSubmit={onTriggersChange}
 				editedItem={editedItem}
 			/>
-			<AddTagTriggerDialog isOpen={isTagTriggerDialogOpen} onClose={closeTagTriggerDialog} />
+			<AddTagTriggerDialog
+				isOpen={isTagTriggerDialogOpen}
+				onClose={closeTagTriggerDialog}
+				onSubmit={onTriggersChange}
+				pipelineables={pipelineables}
+				editedItem={editedItem}
+			/>
 		</>
 	);
 };

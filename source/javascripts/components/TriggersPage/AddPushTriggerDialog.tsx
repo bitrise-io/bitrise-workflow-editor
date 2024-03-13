@@ -19,7 +19,7 @@ import {
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
-import { ConditionType, TriggerItem } from "./TriggersPage.types";
+import { ConditionType, FormItems, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -86,14 +86,6 @@ const ConditionCard = (props: ConditionCardProps) => {
 	);
 };
 
-interface FormItems extends Omit<TriggerItem, "conditions"> {
-	conditions: {
-		isRegex: boolean;
-		type?: ConditionType;
-		value: string;
-	}[];
-}
-
 const AddPushTriggerDialog = (props: DialogProps) => {
 	const { isOpen, onClose, pipelineables, onSubmit, editedItem } = props;
 	const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
@@ -115,6 +107,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		],
 		id: crypto.randomUUID(),
 		pipelineable: "",
+		source: "push",
 	};
 
 	const formMethods = useForm<FormItems>({
