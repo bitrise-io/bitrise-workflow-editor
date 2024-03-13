@@ -24,6 +24,9 @@ type TriggersPageProps = {
 const TriggersPage = (props: TriggersPageProps) => {
 	const { pipelineables } = props;
 	const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
+	const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
+		defaultIsOpen: true,
+	});
 	const { isOpen: isDialogOpen, onOpen: openDialog, onClose: closeDialog } = useDisclosure();
 	const [triggers, setTriggers] = useState<TriggerItem[]>([]);
 	const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
@@ -108,12 +111,48 @@ const TriggersPage = (props: TriggersPageProps) => {
 								/>
 							))}
 					</TabPanel>
-					<TabPanel>2</TabPanel>
-					<TabPanel>3</TabPanel>
+					<TabPanel>
+						{" "}
+						<Button marginBottom="24" variant="secondary" onClick={openDialog} leftIconName="PlusAdd">
+							Add pull request trigger
+						</Button>
+						{triggers.length === 0 && (
+							<EmptyState iconName="Trigger" title="Your pull request triggers will appear here" maxHeight="208">
+								<Text marginTop="8">
+									A pull request based trigger automatically starts builds when specific PR related actions detected
+									within your repository.
+								</Text>
+								<Link
+									colorScheme="purple"
+									href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+								>
+									Learn more
+								</Link>
+							</EmptyState>
+						)}
+					</TabPanel>
+					<TabPanel>
+						<Button marginBottom="24" variant="secondary" onClick={openDialog} leftIconName="PlusAdd">
+							Add tag trigger
+						</Button>
+						{triggers.length === 0 && (
+							<EmptyState iconName="Trigger" title="Your tag triggers will appear here" maxHeight="208">
+								<Text marginTop="8">
+									A tag-based trigger automatically starts builds when tags gets pushed to your repository. Learn more
+								</Text>
+								<Link
+									colorScheme="purple"
+									href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+								>
+									Learn more
+								</Link>
+							</EmptyState>
+						)}
+					</TabPanel>
 				</TabPanels>
 			</Tabs>
-			{triggers.length > 1 && (
-				<Notification status="info" marginTop="12">
+			{triggers.length > 1 && isTriggersNotificationOpen && (
+				<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
 					<Text fontWeight="bold">Order of triggers</Text>
 					<Text>
 						The first matching trigger is executed by the system, so make sure that the order of triggers is configured
