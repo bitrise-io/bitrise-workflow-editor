@@ -30,11 +30,24 @@ const TriggerCard = (props: TriggerCardProps) => {
 		<Card display="flex" justifyContent="space-between" marginBottom="12" padding="16px 24px">
 			<Box display="flex" flexDir="column" gap="4">
 				<Text textStyle="body/md/semibold">Trigger conditions</Text>
-				{conditions.map(({ type, value }) => (
-					<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
-						{value}
-					</Tag>
-				))}
+				<Box display="flex" alignItems="center">
+					{conditions.map(({ type, value }, index) =>
+						index > 0 ? (
+							<>
+								<Box as="span" mx={4}>
+									+
+								</Box>
+								<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
+									{value}
+								</Tag>
+							</>
+						) : (
+							<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
+								{value}
+							</Tag>
+						),
+					)}
+				</Box>
 			</Box>
 			<Box display="flex" alignItems="center">
 				<Icon name="ArrowRight" marginRight="16" />
