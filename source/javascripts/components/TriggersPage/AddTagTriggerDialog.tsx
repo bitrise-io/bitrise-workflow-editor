@@ -21,25 +21,26 @@ type DialogProps = {
 	onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
 };
 
+const defaultValues: FormItems = {
+	conditions: [
+		{
+			isRegex: false,
+			type: "tag",
+			value: "",
+		},
+	],
+	id: crypto.randomUUID(),
+	pipelineable: "",
+	source: "tag",
+	isActive: true,
+};
+
 const AddTagTriggerDialog = (props: DialogProps) => {
 	const { isOpen, onClose, editedItem, pipelineables, onSubmit } = props;
 
-	const defaultValues: FormItems = {
-		conditions: [
-			{
-				isRegex: false,
-				type: "tag",
-				value: "",
-			},
-		],
-		id: crypto.randomUUID(),
-		pipelineable: "",
-		source: "tag",
-	};
-
 	const formMethods = useForm<FormItems>({
 		defaultValues,
-		values: editedItem,
+		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { register, reset, handleSubmit, watch } = formMethods;
@@ -69,7 +70,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
 	const onFormCancel = () => {
 		onClose();
-		reset(editedItem || defaultValues);
+		reset(defaultValues);
 	};
 
 	const pipelineable = watch("pipelineable");

@@ -3,6 +3,7 @@ import {
 	Button,
 	Card,
 	Checkbox,
+	DefinitionTooltip,
 	Dialog,
 	DialogBody,
 	DialogFooter,
@@ -14,12 +15,11 @@ import {
 	Select,
 	Text,
 	Toggletip,
-	Tooltip,
 } from "@bitrise/bitkit";
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
-import { PushConditionType, FormItems, TriggerItem } from "./TriggersPage.types";
+import { PushConditionType, FormItems, TriggerItem, Condition } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -47,6 +47,12 @@ type ConditionCardProps = {
 	conditionNumber: number;
 };
 
+const OPTIONS_MAP: Record<PushConditionType, string> = {
+	push_branch: "Push branch",
+	commit_message: "Commit message",
+	file_change: "File change",
+};
+
 const ConditionCard = (props: ConditionCardProps) => {
 	const { children, conditionNumber } = props;
 	const { register, watch } = useFormContext();
@@ -64,9 +70,21 @@ const ConditionCard = (props: ConditionCardProps) => {
 				placeholder="Select a condition type"
 				{...register(`conditions.${conditionNumber}.type`)}
 			>
-				<option value="push_branch">Push branch</option>
-				<option value="commit_message">Commit message</option>
-				<option value="file_change">File change</option>
+				{Object.entries(OPTIONS_MAP).map(([type, text]) => {
+					const isConditionTypeUsed = conditions.some(
+						(condition: Condition) => condition.type === type && conditions.length > 1,
+					);
+
+					if (isConditionTypeUsed) {
+						return undefined;
+					}
+
+					return (
+						<option key={type} value={type}>
+							{text}
+						</option>
+					);
+				})}
 			</Select>
 			{!!type && (
 				<>
@@ -86,6 +104,20 @@ const ConditionCard = (props: ConditionCardProps) => {
 	);
 };
 
+const defaultValues: FormItems = {
+	conditions: [
+		{
+			isRegex: false,
+			type: "push_branch",
+			value: "",
+		},
+	],
+	id: crypto.randomUUID(),
+	pipelineable: "",
+	source: "push",
+	isActive: true,
+};
+
 const AddPushTriggerDialog = (props: DialogProps) => {
 	const { isOpen, onClose, pipelineables, onSubmit, editedItem } = props;
 	const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
@@ -97,22 +129,9 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		{ label: "Target" },
 	];
 
-	const defaultValues: FormItems = {
-		conditions: [
-			{
-				isRegex: false,
-				type: "push_branch",
-				value: "",
-			},
-		],
-		id: crypto.randomUUID(),
-		pipelineable: "",
-		source: "push",
-	};
-
 	const formMethods = useForm<FormItems>({
 		defaultValues,
-		values: editedItem,
+		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { control, register, reset, handleSubmit, watch } = formMethods;
@@ -124,7 +143,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
 	const onFormCancel = () => {
 		onClose();
-		reset(editedItem || defaultValues);
+		reset(defaultValues);
 		setActiveStageIndex(0);
 	};
 
@@ -174,9 +193,9 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 							</Text>
 							<Text color="text/secondary" marginBottom="24">
 								Configure the{" "}
-								<Tooltip label="Configure the conditions that should all be met to execute the targeted Pipeline or Workflow.">
+								<DefinitionTooltip label="Configure the conditions that should all be met to execute the targeted Pipeline or Workflow.">
 									conditions
-								</Tooltip>{" "}
+								</DefinitionTooltip>{" "}
 								that should all be met to execute the targeted Pipeline or Workflow.
 							</Text>
 							{fields.map((item, index) => {

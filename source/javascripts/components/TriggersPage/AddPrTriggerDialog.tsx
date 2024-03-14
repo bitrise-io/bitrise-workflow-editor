@@ -92,6 +92,21 @@ const ConditionCard = (props: ConditionCardProps) => {
 	);
 };
 
+const defaultValues: FormItems = {
+	conditions: [
+		{
+			isRegex: false,
+			type: "target_branch",
+			value: "",
+		},
+	],
+	id: crypto.randomUUID(),
+	pipelineable: "",
+	source: "pull_request",
+	isDraftPr: true,
+	isActive: true,
+};
+
 const AddPrTriggerDialog = (props: DialogProps) => {
 	const { isOpen, onClose, pipelineables, onSubmit, editedItem } = props;
 	const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
@@ -103,22 +118,9 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 		{ label: "Target" },
 	];
 
-	const defaultValues: FormItems = {
-		conditions: [
-			{
-				isRegex: false,
-				type: "target_branch",
-				value: "",
-			},
-		],
-		id: crypto.randomUUID(),
-		pipelineable: "",
-		source: "pull_request",
-	};
-
 	const formMethods = useForm<FormItems>({
 		defaultValues,
-		values: editedItem,
+		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { control, register, reset, handleSubmit, watch } = formMethods;
@@ -130,7 +132,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 
 	const onFormCancel = () => {
 		onClose();
-		reset(editedItem || defaultValues);
+		reset(defaultValues);
 		setActiveStageIndex(0);
 	};
 
@@ -197,9 +199,10 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 								);
 							})}
 
-							<Button variant="secondary" leftIconName="PlusAdd" width="100%" onClick={onAppend}>
+							<Button variant="secondary" leftIconName="PlusAdd" width="100%" marginBottom="24" onClick={onAppend}>
 								Add condition
 							</Button>
+							<Checkbox {...register(`isDraftPr`)}>Include draft pull requests</Checkbox>
 						</>
 					) : (
 						<>

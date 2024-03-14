@@ -47,6 +47,8 @@ const TriggersPage = (props: TriggersPageProps) => {
 
 	const onCloseDialog = () => {
 		closePushTriggerDialog();
+		closePrTriggerDialog();
+		closeTagTriggerDialog();
 		setEditedItem(undefined);
 	};
 
@@ -85,6 +87,8 @@ const TriggersPage = (props: TriggersPageProps) => {
 	const prTriggers = triggers.filter(({ source }) => source === "pull_request");
 
 	const tagTriggers = triggers.filter(({ source }) => source === "tag");
+
+	console.log(editedItem);
 
 	return (
 		<>
@@ -138,6 +142,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 									triggerItem={triggerItem}
 									onRemove={(trigger) => onTriggersChange("remove", trigger)}
 									onEdit={(trigger) => onPushTriggerEdit(trigger)}
+									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
 					</TabPanel>
@@ -167,6 +172,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 									triggerItem={triggerItem}
 									onRemove={(trigger) => onTriggersChange("remove", trigger)}
 									onEdit={(trigger) => onPrTriggerEdit(trigger)}
+									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
 					</TabPanel>
@@ -194,6 +200,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 									triggerItem={triggerItem}
 									onRemove={(trigger) => onTriggersChange("remove", trigger)}
 									onEdit={(trigger) => onTagTriggerEdit(trigger)}
+									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
 					</TabPanel>
@@ -223,14 +230,14 @@ const TriggersPage = (props: TriggersPageProps) => {
 			/>
 			<AddPrTriggerDialog
 				isOpen={isPrTriggerDialogOpen}
-				onClose={closePrTriggerDialog}
+				onClose={onCloseDialog}
 				onSubmit={onTriggersChange}
 				pipelineables={pipelineables}
 				editedItem={editedItem}
 			/>
 			<AddTagTriggerDialog
 				isOpen={isTagTriggerDialogOpen}
-				onClose={closeTagTriggerDialog}
+				onClose={onCloseDialog}
 				onSubmit={onTriggersChange}
 				pipelineables={pipelineables}
 				editedItem={editedItem}

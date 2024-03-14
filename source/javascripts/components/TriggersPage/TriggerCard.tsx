@@ -6,6 +6,7 @@ type TriggerCardProps = {
 	triggerItem: TriggerItem;
 	onRemove: (triggerItem: TriggerItem) => void;
 	onEdit: (triggerItem: TriggerItem) => void;
+	onActiveChange: (triggerItem: TriggerItem) => void;
 };
 
 const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, TypeIconName> = {
@@ -13,15 +14,15 @@ const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, Ty
 	commit_message: "Commit",
 	file_change: "Doc",
 	source_branch: "Pull",
-	target_branch: "ArrowRight",
+	target_branch: "Pull",
 	pr_label: "Tag",
 	pr_comment: "Chat",
 	tag: "Tag",
 };
 
 const TriggerCard = (props: TriggerCardProps) => {
-	const { triggerItem, onRemove, onEdit } = props;
-	const { conditions, pipelineable } = triggerItem;
+	const { triggerItem, onRemove, onEdit, onActiveChange } = props;
+	const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
 
 	const handleRemove = () => {
 		onRemove(triggerItem);
@@ -53,6 +54,11 @@ const TriggerCard = (props: TriggerCardProps) => {
 						),
 					)}
 				</Box>
+				{isDraftPr && (
+					<Text textStyle="body/md/regular" color="text/tertiary">
+						Draft PRs excluded
+					</Text>
+				)}
 			</Box>
 			<Box width="calc((100% - 190px) / 2)" display="flex" alignItems="center">
 				<Icon name="ArrowRight" marginRight="16" />
@@ -62,7 +68,13 @@ const TriggerCard = (props: TriggerCardProps) => {
 				</Box>
 			</Box>
 			<Box display="flex" alignItems="center">
-				<Checkbox marginRight="16">Active</Checkbox>
+				<Checkbox
+					marginRight="16"
+					isChecked={isActive}
+					onChange={() => onActiveChange({ ...triggerItem, isActive: !isActive })}
+				>
+					Active
+				</Checkbox>
 				<IconButton iconName="Pencil" aria-label="Edit trigger" variant="tertiary" onClick={handleEdit} />
 				<IconButton
 					iconName="MinusRemove"

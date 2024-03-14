@@ -18,6 +18,8 @@ export type TriggerItem = {
 	pipelineable: string;
     id: string;
     source: SourceType;
+    isDraftPr?: boolean;
+    isActive: boolean;
 };
 
 export interface FormItems extends Omit<TriggerItem, "conditions"> {
@@ -26,4 +28,6 @@ export interface FormItems extends Omit<TriggerItem, "conditions"> {
 		type?: PushConditionType | PrConditionType | TagConditionType;
 		value: string;
 	}[];
+    isDraftPr?: boolean;
+    isActive: boolean;
 }
