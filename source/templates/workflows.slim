@@ -48,7 +48,7 @@
 												has-version-update="workflowsCtrl.checkStepVersionUpdate(step)"
 												is-selected="step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex"
 												on-selected="workflowsCtrl.stepSelected"]
-											button.update-step[ng-if="stepSourceService.isLatestStepVersion(step) === false" ng-click="workflowsCtrl.upgradeStepToLatest(step, workflowIndex)"]
+											button.update-step[ng-if="workflowsCtrl.checkStepVersionUpdate(step)" ng-click="workflowsCtrl.changeStepToVersion(step, null)"]
 								li
 									button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
 				.step-edit-container
@@ -99,6 +99,7 @@
 
 									r-step-version-details[
 										step="workflowsCtrl.selectedStep"
+										resolved-version="workflowsCtrl.selectedStepResolvedVersion"
 										latest-version="workflowsCtrl.selectedStepLatestVersion"
 										has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
 										versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"

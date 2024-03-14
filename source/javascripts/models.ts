@@ -1,4 +1,5 @@
 export type GetterSetter<T> = (value?: T) => T;
+export type Getter<T> = () => T;
 
 export interface StepCatalouge {
 	steps: Record<string, Map<string, Record<string, any>>>;
@@ -28,20 +29,24 @@ export interface Step {
 		inputs: Array<object>;
 	};
 
-	description: GetterSetter<string>;
-	displayName: GetterSetter<string>;
-	displayTooltip: GetterSetter<string>;
-	iconURL: GetterSetter<string>;
-	isAlwaysRun: GetterSetter<boolean>;
-	isConfigured: GetterSetter<boolean>;
-	isDeprecated: GetterSetter<boolean>;
-	isLibraryStep: GetterSetter<boolean>;
-	isOfficial: GetterSetter<boolean>;
-	isVerified: GetterSetter<boolean>;
-	requestedVersion: GetterSetter<string | null>;
-	runIf: GetterSetter<string>;
-	sourceURL: GetterSetter<string>;
+	displayName: Getter<string>;
+	displayTooltip: Getter<string>;
+	title: GetterSetter<string>;
 	summary: GetterSetter<string>;
+	description: GetterSetter<string>;
+	sourceURL: GetterSetter<string>;
+	iconURL: GetterSetter<string>;
+	runIf: GetterSetter<string>;
+	isAlwaysRun: GetterSetter<boolean>;
+	isConfigured: Getter<boolean>;
+	isVerified: Getter<boolean>;
+	isOfficial: Getter<boolean>;
+	isDeprecated: Getter<boolean>;
+	isLibraryStep: Getter<boolean>;
+	isVCSStep: Getter<boolean>;
+	requestedVersion: Getter<string | null>;
+
+
 }
 
 export interface StepOutputVariable {
