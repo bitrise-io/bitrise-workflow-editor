@@ -59,9 +59,14 @@ if (isSegmentEnabled) {
 
 module.exports = {
 	context: CODEBASE,
-
 	mode: isProd ? "production" : "development",
-
+  cache: {
+    type: "filesystem",
+    cacheDirectory: path.resolve(__dirname, ".webpack_cache"),
+    buildDependencies: {
+      config: [__filename],
+    },
+  },
 	devServer: {
 		compress: true,
 		watchFiles: "./source/**/*",
@@ -176,7 +181,7 @@ module.exports = {
 			{
 				test: /\.css$/i,
 				include: path.join(__dirname, "node_modules"),
-				use: ["style-loader", "css-loader"],
+        use: [MiniCssExtractPlugin.loader, "css-loader"],
 			},
 
 			{

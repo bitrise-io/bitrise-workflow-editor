@@ -9,6 +9,8 @@ rice-box.go
 _bin/
 .idea
 .vscode
+.eslintcache
+.webpack_cache
 
 node_modules
 spec/integration/cypress/videos
