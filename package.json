@@ -87,6 +87,7 @@
     "underscore": "^1.13.6"
   },
   "devDependencies": {
+    "@bitrise/eslint-plugin": "^2.10.0",
     "@google-cloud/storage": "^7.9.0",
     "@storybook/addon-essentials": "^8.0.2",
     "@storybook/addon-interactions": "^8.0.2",
@@ -121,13 +122,8 @@
     "cypress-cucumber-preprocessor": "^4.3.1",
     "cypress-multi-reporters": "^1.6.4",
     "eslint": "^8.57.0",
-    "eslint-config-prettier": "^9.1.0",
     "eslint-plugin-jasmine": "^4.1.3",
-    "eslint-plugin-prettier": "^5.1.3",
-    "eslint-plugin-react": "^7.34.1",
-    "eslint-plugin-simple-import-sort": "^12.0.0",
-    "eslint-plugin-storybook": "^0.8.0",
-    "eslint-plugin-unused-imports": "^3.1.0",
+    "eslint-plugin-lodash": "^7.4.0",
     "file-loader": "^6.2.0",
     "glob": "^10.3.10",
     "jasmine-ajax": "^4.0.0",

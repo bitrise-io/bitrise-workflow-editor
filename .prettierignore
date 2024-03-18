@@ -1,2 +1,2 @@
 # Has ruby template notation
-source/javascripts/_apihandler.js.erb
+source/javascripts/**/*.js.erb
