@@ -10,7 +10,7 @@
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) == -1"] == data[:strings][:stack][:invalid_stack]
 					p.notification.warning.stack-error[ng-if="Stack.all.indexOf(appService.stack) != -1 && appService.availableStacks().indexOf(appService.stack) == -1"] == data[:strings][:stack][:incompatible_stack]
 					.stack-selector-wrapper
-						select.stack-selector[ng-model="appService.stack" ng-options="stackCtrl.stackOptionTitle(stack) for stack in stackCtrl.stackOptions()" ng-change="stackCtrl.onDefaultStackChange()"]
+						select.mak.stack-selector[ng-model="appService.stack" ng-options="stackCtrl.stackOptionTitle(stack) for stack in stackCtrl.stackOptions()" ng-change="stackCtrl.onDefaultStackChange()"]
 					.stack-info[ng-if="appService.stack.description"]
 						.info-badge-wrapper  == svg("info_badge")
 						.stack-info-text
@@ -74,7 +74,7 @@
 				p.notification.warning.stack-error[ng-if="Stack.all.indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) != -1 && appService.availableStacks().indexOf(stackCtrl.stackGetterSetterForWorkflow(workflow, true)()) == -1"] == data[:strings][:stack][:incompatible_stack]
 				.max-width-wrapper
 					.stack-selector-wrapper[ng-class="{'default': stackCtrl.stackGetterSetterForWorkflow(workflow)() === null}"]
-						select.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stackCtrl.stackOptionTitle(stack) for stack in [null].concat(stackCtrl.stackOptions())"]
+						select.mak.stack-selector[ng-model="stackCtrl.stackGetterSetterForWorkflow(workflow)" ng-model-options="{getterSetter: true}" ng-options="stackCtrl.stackOptionTitle(stack) for stack in [null].concat(stackCtrl.stackOptions())"]
 						label.default-stack == data[:strings][:stack][:default]
 					.stack-info[ng-if="stackCtrl.stackGetterSetterForWorkflow(workflow, true)().description"]
 						.info-badge-wrapper  == svg("info_badge")
