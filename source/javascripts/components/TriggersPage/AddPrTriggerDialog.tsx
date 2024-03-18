@@ -19,7 +19,7 @@ import {
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
-import { FormItems, TriggerItem, PrConditionType } from "./TriggersPage.types";
+import { FormItems, TriggerItem, PrConditionType, Condition } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -50,29 +50,48 @@ type ConditionCardProps = {
 	conditionNumber: number;
 };
 
+const OPTIONS_MAP: Record<PrConditionType, string> = {
+	target_branch: "Target branch",
+	source_branch: "Source branch",
+	pr_label: "PR label",
+	pr_comment: "PR comment",
+	commit_message: "Commit message",
+	file_change: "File change",
+};
+
 const ConditionCard = (props: ConditionCardProps) => {
 	const { children, conditionNumber } = props;
 	const { register, watch } = useFormContext();
 	const { conditions } = watch();
 	const { isRegex, type } = conditions[conditionNumber] || {};
+	const isPermanentCondition = ["target_branch", "source_branch"].includes(conditions[conditionNumber].type);
 
 	return (
 		<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
 			<Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
 				<Text textStyle="heading/h5">Condition {conditionNumber + 1}</Text>
-				{children}
+				{!isPermanentCondition && children}
 			</Box>
 			<Select
 				marginBottom="16"
 				placeholder="Select a condition type"
+				isDisabled={isPermanentCondition}
 				{...register(`conditions.${conditionNumber}.type`)}
 			>
-				<option value="target_branch">Target branch</option>
-				<option value="source_branch">Source branch</option>
-				<option value="pr_label">PR label</option>
-				<option value="pr_comment">PR comment</option>
-				<option value="commit_message">Commit message</option>
-				<option value="file_change">File change</option>
+				{Object.entries(OPTIONS_MAP).map(([type, text]) => {
+					const isConditionTypeUsed = conditions.some((condition: Condition) => condition.type === type);
+					const isTypeOfCurrentCard = type === conditions[conditionNumber].type;
+
+					if (isConditionTypeUsed && !isTypeOfCurrentCard) {
+						return undefined;
+					}
+
+					return (
+						<option key={type} value={type}>
+							{text}
+						</option>
+					);
+				})}
 			</Select>
 			{!!type && (
 				<>
@@ -97,7 +116,12 @@ const defaultValues: FormItems = {
 		{
 			isRegex: false,
 			type: "target_branch",
-			value: "",
+			value: "*",
+		},
+		{
+			isRegex: false,
+			type: "source_branch",
+			value: "*",
 		},
 	],
 	id: crypto.randomUUID(),
@@ -199,7 +223,14 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 								);
 							})}
 
-							<Button variant="secondary" leftIconName="PlusAdd" width="100%" marginBottom="24" onClick={onAppend}>
+							<Button
+								variant="secondary"
+								leftIconName="PlusAdd"
+								width="100%"
+								marginBottom="24"
+								onClick={onAppend}
+								isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
+							>
 								Add condition
 							</Button>
 							<Checkbox {...register(`isDraftPr`)}>Include draft pull requests</Checkbox>

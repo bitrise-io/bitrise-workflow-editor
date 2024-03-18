@@ -35,7 +35,7 @@ const PLACEHOLDER_MAP: Record<PushConditionType, string> = {
 	file_change: "Enter a path",
 };
 
-const getPlaceholderText = (isRegex: boolean, type: PushConditionType): string => {
+const getLabelText = (isRegex: boolean, type: PushConditionType): string => {
 	if (isRegex) {
 		return "Enter a regex pattern";
 	}
@@ -93,10 +93,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
 						<Icon name="Info" size="16" marginLeft="5" />
 					</Toggletip>
-					<Input
-						{...register(`conditions.${conditionNumber}.value`)}
-						placeholder={getPlaceholderText(isRegex, type)}
-					></Input>
+					<Input {...register(`conditions.${conditionNumber}.value`)} label={getLabelText(isRegex, type)}></Input>
 				</>
 			)}
 		</Card>
@@ -164,7 +161,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		append({
 			isRegex: false,
 			type: undefined,
-			value: "",
+			value: "*",
 		});
 	};
 

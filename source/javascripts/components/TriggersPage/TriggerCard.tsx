@@ -1,6 +1,7 @@
 import { Box, Card, Checkbox, Icon, IconButton, Tag, Text, TypeIconName } from "@bitrise/bitkit";
 
 import { PrConditionType, PushConditionType, TagConditionType, TriggerItem } from "./TriggersPage.types";
+import { Tooltip } from "@chakra-ui/react";
 
 type TriggerCardProps = {
 	triggerItem: TriggerItem;
@@ -17,6 +18,17 @@ const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, Ty
 	target_branch: "Pull",
 	pr_label: "Tag",
 	pr_comment: "Chat",
+	tag: "Tag",
+};
+
+const toolTip = {
+	push_branch: "Push branch",
+	commit_message: "Commit message",
+	file_change: "File change",
+	source_branch: "Source branch",
+	target_branch: "Target branch",
+	pr_label: "PR label",
+	pr_comment: "PR comment",
 	tag: "Tag",
 };
 
@@ -43,14 +55,18 @@ const TriggerCard = (props: TriggerCardProps) => {
 								<Box as="span" mx={4}>
 									+
 								</Box>
+								<Tooltip label={toolTip[type]}>
+									<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
+										{value}
+									</Tag>
+								</Tooltip>
+							</>
+						) : (
+							<Tooltip label={toolTip[type]}>
 								<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
 									{value}
 								</Tag>
-							</>
-						) : (
-							<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
-								{value}
-							</Tag>
+							</Tooltip>
 						),
 					)}
 				</Box>
