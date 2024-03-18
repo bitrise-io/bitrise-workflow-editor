@@ -71,11 +71,10 @@ const ConditionCard = (props: ConditionCardProps) => {
 				{...register(`conditions.${conditionNumber}.type`)}
 			>
 				{Object.entries(OPTIONS_MAP).map(([type, text]) => {
-					const isConditionTypeUsed = conditions.some(
-						(condition: Condition) => condition.type === type && conditions.length > 1,
-					);
+					const isConditionTypeUsed = conditions.some((condition: Condition) => condition.type === type);
+					const isTypeOfCurrentCard = type === conditions[conditionNumber].type;
 
-					if (isConditionTypeUsed) {
+					if (isConditionTypeUsed && !isTypeOfCurrentCard) {
 						return undefined;
 					}
 
@@ -210,7 +209,13 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 								);
 							})}
 
-							<Button variant="secondary" leftIconName="PlusAdd" width="100%" onClick={onAppend}>
+							<Button
+								variant="secondary"
+								leftIconName="PlusAdd"
+								width="100%"
+								onClick={onAppend}
+								isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
+							>
 								Add condition
 							</Button>
 						</>
