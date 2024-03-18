@@ -19,7 +19,7 @@ import {
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
-import { PushConditionType, FormItems, TriggerItem, Condition } from "./TriggersPage.types";
+import { Condition, FormItems, PushConditionType, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -30,14 +30,14 @@ type DialogProps = {
 };
 
 const PLACEHOLDER_MAP: Record<PushConditionType, string> = {
-	push_branch: "Enter a push branch",
-	commit_message: "Enter a commit message",
-	file_change: "Enter a path",
+	push_branch: "Push branch",
+	commit_message: "Commit message",
+	changed_files: "Path",
 };
 
 const getLabelText = (isRegex: boolean, type: PushConditionType): string => {
 	if (isRegex) {
-		return "Enter a regex pattern";
+		return "Regex pattern";
 	}
 	return PLACEHOLDER_MAP[type];
 };
@@ -50,7 +50,7 @@ type ConditionCardProps = {
 const OPTIONS_MAP: Record<PushConditionType, string> = {
 	push_branch: "Push branch",
 	commit_message: "Commit message",
-	file_change: "File change",
+	changed_files: "File change",
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
@@ -93,7 +93,12 @@ const ConditionCard = (props: ConditionCardProps) => {
 					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
 						<Icon name="Info" size="16" marginLeft="5" />
 					</Toggletip>
-					<Input {...register(`conditions.${conditionNumber}.value`)} label={getLabelText(isRegex, type)}></Input>
+					<Input
+						{...register(`conditions.${conditionNumber}.value`)}
+						isRequired
+						label={getLabelText(isRegex, type)}
+						placeholder="*"
+					></Input>
 				</>
 			)}
 		</Card>
@@ -105,7 +110,7 @@ const defaultValues: FormItems = {
 		{
 			isRegex: false,
 			type: "push_branch",
-			value: "",
+			value: "*",
 		},
 	],
 	id: crypto.randomUUID(),

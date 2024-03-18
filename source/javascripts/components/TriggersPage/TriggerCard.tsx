@@ -1,7 +1,8 @@
 import { Box, Card, Checkbox, Icon, IconButton, Tag, Text, TypeIconName } from "@bitrise/bitkit";
+import { Tooltip } from "@chakra-ui/react";
+import { Fragment } from "react";
 
 import { PrConditionType, PushConditionType, TagConditionType, TriggerItem } from "./TriggersPage.types";
-import { Tooltip } from "@chakra-ui/react";
 
 type TriggerCardProps = {
 	triggerItem: TriggerItem;
@@ -13,22 +14,22 @@ type TriggerCardProps = {
 const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, TypeIconName> = {
 	push_branch: "Branch",
 	commit_message: "Commit",
-	file_change: "Doc",
-	source_branch: "Pull",
-	target_branch: "Pull",
-	pr_label: "Tag",
-	pr_comment: "Chat",
+	changed_files: "Doc",
+	pull_request_source_branch: "Pull",
+	pull_request_target_branch: "Pull",
+	pull_request_label: "Tag",
+	pull_request_comment: "Chat",
 	tag: "Tag",
 };
 
-const toolTip = {
+const toolTip: Record<PushConditionType | PrConditionType | TagConditionType, string> = {
 	push_branch: "Push branch",
 	commit_message: "Commit message",
-	file_change: "File change",
-	source_branch: "Source branch",
-	target_branch: "Target branch",
-	pr_label: "PR label",
-	pr_comment: "PR comment",
+	changed_files: "File change",
+	pull_request_source_branch: "Source branch",
+	pull_request_target_branch: "Target branch",
+	pull_request_label: "PR label",
+	pull_request_comment: "PR comment",
 	tag: "Tag",
 };
 
@@ -43,7 +44,7 @@ const TriggerCard = (props: TriggerCardProps) => {
 	const handleEdit = () => {
 		onEdit(triggerItem);
 	};
-
+	//
 	return (
 		<Card display="flex" justifyContent="space-between" marginBottom="12" padding="16px 24px">
 			<Box width="calc((100% - 190px) / 2)" display="flex" flexDir="column" gap="4">
@@ -51,22 +52,24 @@ const TriggerCard = (props: TriggerCardProps) => {
 				<Box display="flex" alignItems="center" flexWrap="wrap" gap="8px 0">
 					{conditions.map(({ type, value }, index) =>
 						index > 0 ? (
-							<>
+							<Fragment key={type + value}>
 								<Box as="span" mx={4}>
 									+
 								</Box>
 								<Tooltip label={toolTip[type]}>
-									<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
+									<Tag iconName={iconMap[type]} iconColor="neutral.50">
 										{value}
 									</Tag>
 								</Tooltip>
-							</>
+							</Fragment>
 						) : (
-							<Tooltip label={toolTip[type]}>
-								<Tag key={type + value} iconName={iconMap[type]} iconColor="neutral.50">
-									{value}
-								</Tag>
-							</Tooltip>
+							<Fragment key={type + value}>
+								<Tooltip label={toolTip[type]}>
+									<Tag iconName={iconMap[type]} iconColor="neutral.50">
+										{value}
+									</Tag>
+								</Tooltip>
+							</Fragment>
 						),
 					)}
 				</Box>

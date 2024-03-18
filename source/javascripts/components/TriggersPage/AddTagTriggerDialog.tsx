@@ -10,8 +10,9 @@ import {
 	Text,
 	Toggletip,
 } from "@bitrise/bitkit";
-import { FormItems, TriggerItem } from "./TriggersPage.types";
 import { FormProvider, useForm } from "react-hook-form";
+
+import { FormItems, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;

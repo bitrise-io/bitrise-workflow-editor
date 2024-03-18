@@ -19,7 +19,7 @@ import {
 import { ReactNode, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
-import { FormItems, TriggerItem, PrConditionType, Condition } from "./TriggersPage.types";
+import { Condition, FormItems, PrConditionType, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -30,12 +30,12 @@ type DialogProps = {
 };
 
 const PLACEHOLDER_MAP: Record<PrConditionType, string> = {
-	target_branch: "Enter a target branch",
-	source_branch: "Enter a source branch",
-	pr_label: "Enter a label",
-	pr_comment: "Enter a comment",
+	pull_request_target_branch: "Enter a target branch",
+	pull_request_source_branch: "Enter a source branch",
+	pull_request_label: "Enter a label",
+	pull_request_comment: "Enter a comment",
 	commit_message: "Enter a commit message",
-	file_change: "Enter a path",
+	changed_files: "Enter a path",
 };
 
 const getPlaceholderText = (isRegex: boolean, type: PrConditionType): string => {
@@ -51,12 +51,12 @@ type ConditionCardProps = {
 };
 
 const OPTIONS_MAP: Record<PrConditionType, string> = {
-	target_branch: "Target branch",
-	source_branch: "Source branch",
-	pr_label: "PR label",
-	pr_comment: "PR comment",
+	pull_request_target_branch: "Target branch",
+	pull_request_source_branch: "Source branch",
+	pull_request_label: "PR label",
+	pull_request_comment: "PR comment",
 	commit_message: "Commit message",
-	file_change: "File change",
+	changed_files: "File change",
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
@@ -64,7 +64,9 @@ const ConditionCard = (props: ConditionCardProps) => {
 	const { register, watch } = useFormContext();
 	const { conditions } = watch();
 	const { isRegex, type } = conditions[conditionNumber] || {};
-	const isPermanentCondition = ["target_branch", "source_branch"].includes(conditions[conditionNumber].type);
+	const isPermanentCondition = (
+		["pull_request_source_branch", "pull_request_target_branch"] as PrConditionType[]
+	).includes(conditions[conditionNumber].type);
 
 	return (
 		<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
@@ -115,12 +117,12 @@ const defaultValues: FormItems = {
 	conditions: [
 		{
 			isRegex: false,
-			type: "target_branch",
+			type: "pull_request_target_branch",
 			value: "*",
 		},
 		{
 			isRegex: false,
-			type: "source_branch",
+			type: "pull_request_source_branch",
 			value: "*",
 		},
 	],
