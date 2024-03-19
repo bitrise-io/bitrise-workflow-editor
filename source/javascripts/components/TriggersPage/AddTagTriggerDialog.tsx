@@ -8,11 +8,12 @@ import {
 	Input,
 	Select,
 	Text,
-	Toggletip,
+	Tooltip,
 } from "@bitrise/bitkit";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormItems, TriggerItem } from "./TriggersPage.types";
+import { useEffect, useMemo } from "react";
 
 type DialogProps = {
 	isOpen: boolean;
@@ -22,29 +23,35 @@ type DialogProps = {
 	onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
 };
 
-const defaultValues: FormItems = {
-	conditions: [
-		{
-			isRegex: false,
-			type: "tag",
-			value: "",
-		},
-	],
-	id: crypto.randomUUID(),
-	pipelineable: "",
-	source: "tag",
-	isActive: true,
-};
-
 const AddTagTriggerDialog = (props: DialogProps) => {
 	const { isOpen, onClose, editedItem, pipelineables, onSubmit } = props;
 
+	const defaultValues: FormItems = useMemo(() => {
+		return {
+			conditions: [
+				{
+					isRegex: false,
+					type: "tag",
+					value: "",
+				},
+			],
+			id: crypto.randomUUID(),
+			pipelineable: "",
+			source: "tag",
+			isActive: true,
+			...editedItem,
+		};
+	}, [editedItem, isOpen]);
+
 	const formMethods = useForm<FormItems>({
 		defaultValues,
-		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { register, reset, handleSubmit, watch } = formMethods;
+
+	useEffect(() => {
+		reset(defaultValues);
+	}, [reset, defaultValues, isOpen, editedItem]);
 
 	const conditionNumber: number = 0;
 
@@ -100,9 +107,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 					<Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
 						Use regex pattern
 					</Checkbox>
-					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
+					<Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
 						<Icon name="Info" size="16" marginLeft="5" />
-					</Toggletip>
+					</Tooltip>
 					<Input
 						marginBottom="24"
 						placeholder={inputPlaceholderText(isRegex)}

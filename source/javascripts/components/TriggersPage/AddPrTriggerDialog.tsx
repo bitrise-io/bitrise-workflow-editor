@@ -133,12 +133,12 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 			source: "pull_request",
 			isDraftPr: true,
 			isActive: true,
+			...editedItem,
 		};
-	}, [editedItem]);
+	}, [editedItem, isOpen]);
 
 	const formMethods = useForm<FormItems>({
 		defaultValues,
-		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { control, register, reset, handleSubmit, watch } = formMethods;

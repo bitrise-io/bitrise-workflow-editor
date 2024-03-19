@@ -131,7 +131,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 			isActive: true,
 			...editedItem,
 		};
-	}, [editedItem]);
+	}, [editedItem, isOpen]);
 
 	const formMethods = useForm<FormItems>({
 		defaultValues,
