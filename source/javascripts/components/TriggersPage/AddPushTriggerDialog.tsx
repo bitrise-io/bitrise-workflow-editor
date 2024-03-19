@@ -14,9 +14,9 @@ import {
 	ProgressIndicatorProps,
 	Select,
 	Text,
-	Toggletip,
+	Tooltip,
 } from "@bitrise/bitkit";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
 import { Condition, FormItems, PushConditionType, TriggerItem } from "./TriggersPage.types";
@@ -90,9 +90,9 @@ const ConditionCard = (props: ConditionCardProps) => {
 					<Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
 						Use regex pattern
 					</Checkbox>
-					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
+					<Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
 						<Icon name="Info" size="16" marginLeft="5" />
-					</Toggletip>
+					</Tooltip>
 					<Input
 						{...register(`conditions.${conditionNumber}.value`)}
 						isRequired
@@ -103,20 +103,6 @@ const ConditionCard = (props: ConditionCardProps) => {
 			)}
 		</Card>
 	);
-};
-
-const defaultValues: FormItems = {
-	conditions: [
-		{
-			isRegex: false,
-			type: "push_branch",
-			value: "*",
-		},
-	],
-	id: crypto.randomUUID(),
-	pipelineable: "",
-	source: "push",
-	isActive: true,
 };
 
 const AddPushTriggerDialog = (props: DialogProps) => {
@@ -130,12 +116,32 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		{ label: "Target" },
 	];
 
+	const defaultValues: FormItems = useMemo(() => {
+		return {
+			conditions: [
+				{
+					isRegex: false,
+					type: "push_branch",
+					value: "*",
+				},
+			],
+			id: crypto.randomUUID(),
+			pipelineable: "",
+			source: "push",
+			isActive: true,
+			...editedItem,
+		};
+	}, [editedItem]);
+
 	const formMethods = useForm<FormItems>({
 		defaultValues,
-		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { control, register, reset, handleSubmit, watch } = formMethods;
+
+	useEffect(() => {
+		reset(defaultValues);
+	}, [reset, defaultValues, isOpen, editedItem]);
 
 	const { append, fields, remove } = useFieldArray({
 		control,
@@ -170,7 +176,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		});
 	};
 
-	const pipelineable = watch("pipelineable");
+	const { conditions, pipelineable } = watch();
 
 	return (
 		<FormProvider {...formMethods}>
@@ -202,7 +208,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 							{fields.map((item, index) => {
 								return (
 									<ConditionCard conditionNumber={index} key={item.id}>
-										{index > 0 && (
+										{conditions.length > 1 && (
 											<Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
 												Remove
 											</Button>
