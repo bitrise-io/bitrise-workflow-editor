@@ -1,14 +1,14 @@
 (function() {
-	"use strict";
+  "use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.service("certificateService", function($filter) {
-			var certificateService = {
-				certificates: undefined,
-				loadProgress: undefined
-			};
+  angular
+    .module("BitriseWorkflowEditor")
+    .service("certificateService", function($filter) {
+      var certificateService = {
+        certificates: undefined,
+        loadProgress: undefined
+      };
 
-			return certificateService;
-		});
+      return certificateService;
+    });
 })();

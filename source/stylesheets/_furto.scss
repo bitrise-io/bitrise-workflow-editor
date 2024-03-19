@@ -2,67 +2,67 @@
 @import "constants";
 
 .furto {
-	@include box-sizing(border-box);
-	border: 1px solid;
-	@include border-radius($def-radius);
-	padding: 0;
-	@include transition(border-color $def-transition_duration, background-color $def-transition_duration);
+  @include box-sizing(border-box);
+  border: 1px solid;
+  @include border-radius($def-radius);
+  padding: 0;
+  @include transition(border-color $def-transition_duration, background-color $def-transition_duration);
 
-	svg {
-		@include transition(fill $def-transition_duration);
-	}
+  svg {
+    @include transition(fill $def-transition_duration);
+  }
 }
 
 a.furto {
-	display: inline-block;
-	text-align: center;
-	text-decoration: none;
+  display: inline-block;
+  text-align: center;
+  text-decoration: none;
 }
 
 .furto.delete {
-	@include size(22px);
+  @include size(22px);
 
-	border-color: $def-danger;
-	background-color: $def-danger;
+  border-color: $def-danger;
+  background-color: $def-danger;
 
-	svg {
-		@include position(relative, -2px);
-		@include size(8px);
-		fill: white;
-	}
+  svg {
+    @include position(relative, -2px);
+    @include size(8px);
+    fill: white;
+  }
 
-	&:hover, &:focus {
-		border-color: $def-danger-shade;
-		background-color: $def-danger-shade;
-	}
+  &:hover, &:focus {
+    border-color: $def-danger-shade;
+    background-color: $def-danger-shade;
+  }
 }
 
 .furto.download {
-	@include size(22px);
+  @include size(22px);
 
-	border-color: $def-grey;
+  border-color: $def-grey;
 
-	svg {
-		@include size(7px, 12px);
-		fill: $def-grey;
-	}
+  svg {
+    @include size(7px, 12px);
+    fill: $def-grey;
+  }
 
-	&:hover, &:focus {
-		border-color: $def-darkgrey;
-		background-color: $def-verylightgrey;
+  &:hover, &:focus {
+    border-color: $def-darkgrey;
+    background-color: $def-verylightgrey;
 
-		svg {
-			fill: $def-darkgrey;
-		}
-	}
+    svg {
+      fill: $def-darkgrey;
+    }
+  }
 }
 
 .furto:disabled {
-	border-color: $def-mediumlightgrey;
-	color: white;
-	background-color: $def-mediumlightgrey;
+  border-color: $def-mediumlightgrey;
+  color: white;
+  background-color: $def-mediumlightgrey;
 
-	svg {
-		fill: white;
-	}
+  svg {
+    fill: white;
+  }
 }

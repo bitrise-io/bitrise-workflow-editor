@@ -1,386 +1,386 @@
 (function() {
-	"use strict";
+  "use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.controller("CertificateController", function(
-			$scope,
-			$q,
-			$timeout,
-			requestService,
-			stringService,
-			dateService,
-			certificateService,
-			appService,
-			Popup,
-			Progress,
-			Certificate
-		) {
-			var viewModel = this;
-			var canceler = $q.defer();
+  angular
+    .module("BitriseWorkflowEditor")
+    .controller("CertificateController", function(
+      $scope,
+      $q,
+      $timeout,
+      requestService,
+      stringService,
+      dateService,
+      certificateService,
+      appService,
+      Popup,
+      Progress,
+      Certificate
+    ) {
+      var viewModel = this;
+      var canceler = $q.defer();
 
-			$scope.dateService = dateService;
-			$scope.certificateService = certificateService;
+      $scope.dateService = dateService;
+      $scope.certificateService = certificateService;
 
-			viewModel.appService = appService;
+      viewModel.appService = appService;
 
-			var certificatesReloadIntervalInSeconds = 2;
-			var unresolvedCertificateReloadPromise = null;
-			viewModel.maximumCertificatesCount = 60;
+      var certificatesReloadIntervalInSeconds = 2;
+      var unresolvedCertificateReloadPromise = null;
+      viewModel.maximumCertificatesCount = 60;
 
-			viewModel.loadCertificatesProgress = certificateService.loadProgress = new Progress();
-			viewModel.uploadCertificatesProgress = new Progress();
-			viewModel.deleteCertificateProgress = new Progress();
-			viewModel.deleteAllCertificatesProgress = new Progress();
-			viewModel.changePasswordProgress = new Progress();
-			viewModel.certificatesToUpload;
-			viewModel.certificateUploader;
-			viewModel.passwordEditedCertificate = null;
-			viewModel.certificateSettings = {};
-			viewModel.isActionMenuForAllCertificatesVisible = false;
-			var passwordEditedCertificateOriginalPassword;
+      viewModel.loadCertificatesProgress = certificateService.loadProgress = new Progress();
+      viewModel.uploadCertificatesProgress = new Progress();
+      viewModel.deleteCertificateProgress = new Progress();
+      viewModel.deleteAllCertificatesProgress = new Progress();
+      viewModel.changePasswordProgress = new Progress();
+      viewModel.certificatesToUpload;
+      viewModel.certificateUploader;
+      viewModel.passwordEditedCertificate = null;
+      viewModel.certificateSettings = {};
+      viewModel.isActionMenuForAllCertificatesVisible = false;
+      var passwordEditedCertificateOriginalPassword;
 
-			viewModel.selectedCertificate = null;
-			viewModel.listOfIdentitiesPopup = new Popup();
-			viewModel.listOfIdentitiesPopup.afterDismissCallback = function() {
-				viewModel.selectedCertificate = null;
-			};
+      viewModel.selectedCertificate = null;
+      viewModel.listOfIdentitiesPopup = new Popup();
+      viewModel.listOfIdentitiesPopup.afterDismissCallback = function() {
+        viewModel.selectedCertificate = null;
+      };
 
-			viewModel.init = function() {
-				loadCertificates();
-			};
+      viewModel.init = function() {
+        loadCertificates();
+      };
 
-			function loadCertificates(shouldHideLoadingIndicator) {
-				if (!shouldHideLoadingIndicator) {
-					viewModel.loadCertificatesProgress.start(
-						"<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>"
-					);
-				}
-				if (
-					viewModel.uploadCertificatesProgress.isIdle &&
-					viewModel.uploadCertificatesProgress.statusMessage !== null
-				) {
-					viewModel.uploadCertificatesProgress.reset();
-				}
+      function loadCertificates(shouldHideLoadingIndicator) {
+        if (!shouldHideLoadingIndicator) {
+          viewModel.loadCertificatesProgress.start(
+            "<%= data[:strings][:code_signing][:certificate][:load_progress][:in_progress] %>"
+          );
+        }
+        if (
+          viewModel.uploadCertificatesProgress.isIdle &&
+          viewModel.uploadCertificatesProgress.statusMessage !== null
+        ) {
+          viewModel.uploadCertificatesProgress.reset();
+        }
 
-				requestService
-					.getCertificates({
-						timeout: canceler.promise
-					})
-					.then(
-						function(certificateDatas) {
-							certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
-								var certificate = new Certificate();
+        requestService
+          .getCertificates({
+            timeout: canceler.promise
+          })
+          .then(
+            function(certificateDatas) {
+              certificateService.certificates = _.map(certificateDatas, function(aCertificateData) {
+                var certificate = new Certificate();
 
-								certificate.databaseID = aCertificateData.databaseID;
-								certificate.isProcessed = aCertificateData.isProcessed;
-								certificate.uploadFileName = aCertificateData.uploadFileName;
-								certificate.password = aCertificateData.password;
-								certificate.isExpose = aCertificateData.isExpose;
-								certificate.isProtected = aCertificateData.isProtected;
+                certificate.databaseID = aCertificateData.databaseID;
+                certificate.isProcessed = aCertificateData.isProcessed;
+                certificate.uploadFileName = aCertificateData.uploadFileName;
+                certificate.password = aCertificateData.password;
+                certificate.isExpose = aCertificateData.isExpose;
+                certificate.isProtected = aCertificateData.isProtected;
 
-								var isExposeGetterSetterProgress = new Progress();
+                var isExposeGetterSetterProgress = new Progress();
 
-								viewModel.certificateSettings[certificate.databaseID] = {
-									progress: new Progress(),
-									isMenuVisible: false,
-									isInvalidPassword: false,
-									isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
-									isExposeGetterSetterProgress: isExposeGetterSetterProgress
-								};
+                viewModel.certificateSettings[certificate.databaseID] = {
+                  progress: new Progress(),
+                  isMenuVisible: false,
+                  isInvalidPassword: false,
+                  isExposeGetterSetter: isExposeGetterSetterForCertificate(certificate, isExposeGetterSetterProgress),
+                  isExposeGetterSetterProgress: isExposeGetterSetterProgress
+                };
 
-								if (!certificate.details && certificate.isProcessed) {
-									viewModel.getDetails(certificate);
-								}
+                if (!certificate.details && certificate.isProcessed) {
+                  viewModel.getDetails(certificate);
+                }
 
-								return certificate;
-							});
+                return certificate;
+              });
 
-							viewModel.loadCertificatesProgress.success();
+              viewModel.loadCertificatesProgress.success();
 
-							if (
-								_.find(certificateService.certificates, {
-									isProcessed: false
-								})
-							) {
-								unresolvedCertificateReloadPromise = $timeout(function() {
-									unresolvedCertificateReloadPromise = null;
-									loadCertificates(true);
-								}, certificatesReloadIntervalInSeconds * 1000);
-							}
-						},
-						function(error) {
-							viewModel.loadCertificatesProgress.error(error);
-						}
-					);
-			}
+              if (
+                _.find(certificateService.certificates, {
+                  isProcessed: false
+                })
+              ) {
+                unresolvedCertificateReloadPromise = $timeout(function() {
+                  unresolvedCertificateReloadPromise = null;
+                  loadCertificates(true);
+                }, certificatesReloadIntervalInSeconds * 1000);
+              }
+            },
+            function(error) {
+              viewModel.loadCertificatesProgress.error(error);
+            }
+          );
+      }
 
-			viewModel.filesSelectedForUpload = function(files) {
-				if (files.length == 0) {
-					return;
-				}
+      viewModel.filesSelectedForUpload = function(files) {
+        if (files.length == 0) {
+          return;
+        }
 
-				viewModel.certificatesToUpload = _.map(files, function(aFile) {
-					var certificate = new Certificate();
-					certificate.file = aFile;
+        viewModel.certificatesToUpload = _.map(files, function(aFile) {
+          var certificate = new Certificate();
+          certificate.file = aFile;
 
-					return certificate;
-				});
-			};
+          return certificate;
+        });
+      };
 
-			viewModel.uploadCertificates = function() {
-				viewModel.uploadCertificatesProgress.start(
-					"<%= data[:strings][:code_signing][:certificate][:upload_progress][:in_progress] %>"
-				);
+      viewModel.uploadCertificates = function() {
+        viewModel.uploadCertificatesProgress.start(
+          "<%= data[:strings][:code_signing][:certificate][:upload_progress][:in_progress] %>"
+        );
 
-				if (
-					certificateService.certificates.length + viewModel.certificatesToUpload.length >
-					viewModel.maximumCertificatesCount
-				) {
-					viewModel.uploadCertificatesProgress.error(
-						new Error(
-							stringService.stringReplacedWithParameters(
-								"<%= data[:strings][:code_signing][:certificate][:can_only_upload_x_more] %>",
-								{
-									count: viewModel.maximumCertificatesCount - certificateService.certificates.length
-								}
-							)
-						)
-					);
+        if (
+          certificateService.certificates.length + viewModel.certificatesToUpload.length >
+          viewModel.maximumCertificatesCount
+        ) {
+          viewModel.uploadCertificatesProgress.error(
+            new Error(
+              stringService.stringReplacedWithParameters(
+                "<%= data[:strings][:code_signing][:certificate][:can_only_upload_x_more] %>",
+                {
+                  count: viewModel.maximumCertificatesCount - certificateService.certificates.length
+                }
+              )
+            )
+          );
 
-					viewModel.certificatesToUpload = undefined;
+          viewModel.certificatesToUpload = undefined;
 
-					return;
-				}
+          return;
+        }
 
-				var uploadPromise = $q.when();
-				_.each(viewModel.certificatesToUpload, function(aCertificate) {
-					uploadPromise = uploadPromise.then(function() {
-						return aCertificate.upload();
-					});
-				});
+        var uploadPromise = $q.when();
+        _.each(viewModel.certificatesToUpload, function(aCertificate) {
+          uploadPromise = uploadPromise.then(function() {
+            return aCertificate.upload();
+          });
+        });
 
-				$q(function(resolve, reject) {
-					uploadPromise.then(
-						function() {
-							resolve();
-						},
-						function(error) {
-							reject(error);
-						}
-					);
-				}).then(
-					function() {
-						viewModel.uploadCertificatesProgress.success();
+        $q(function(resolve, reject) {
+          uploadPromise.then(
+            function() {
+              resolve();
+            },
+            function(error) {
+              reject(error);
+            }
+          );
+        }).then(
+          function() {
+            viewModel.uploadCertificatesProgress.success();
 
-						viewModel.certificatesToUpload = undefined;
-						loadCertificates();
-					},
-					function(error) {
-						viewModel.uploadCertificatesProgress.error(error);
-					}
-				);
-			};
+            viewModel.certificatesToUpload = undefined;
+            loadCertificates();
+          },
+          function(error) {
+            viewModel.uploadCertificatesProgress.error(error);
+          }
+        );
+      };
 
-			viewModel.makeCertificateProtected = function(certificate) {
-				Popup.showConfirmPopup(
-					"<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_question] %>",
-					"<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_details] %>",
-					"<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_ok] %>",
-					"<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_cancel] %>"
-				).then(function() {
-					certificate.protect();
-				});
-			};
+      viewModel.makeCertificateProtected = function(certificate) {
+        Popup.showConfirmPopup(
+          "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_question] %>",
+          "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_details] %>",
+          "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_ok] %>",
+          "<%= data[:strings][:code_signing][:certificate][:make_protected][:confirm_cancel] %>"
+        ).then(function() {
+          certificate.protect();
+        });
+      };
 
-			viewModel.deleteCertificate = function(certificate) {
-				Popup.showConfirmPopup(
-					"<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question_short] %>",
-					stringService.stringReplacedWithParameters(
-						"<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question] %>",
-						{
-							certificate_name: certificate.displayName()
-						}
-					),
-					"<%= data[:strings][:code_signing][:certificate][:delete_confirm][:yes_title] %>",
-					"<%= data[:strings][:code_signing][:certificate][:delete_confirm][:no_title] %>",
-					function() {
-						viewModel.deleteCertificateProgress.start(
-							"<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>"
-						);
+      viewModel.deleteCertificate = function(certificate) {
+        Popup.showConfirmPopup(
+          "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question_short] %>",
+          stringService.stringReplacedWithParameters(
+            "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:question] %>",
+            {
+              certificate_name: certificate.displayName()
+            }
+          ),
+          "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:yes_title] %>",
+          "<%= data[:strings][:code_signing][:certificate][:delete_confirm][:no_title] %>",
+          function() {
+            viewModel.deleteCertificateProgress.start(
+              "<%= data[:strings][:code_signing][:certificate][:delete_progress][:in_progress] %>"
+            );
 
-						if (
-							viewModel.uploadCertificatesProgress.isIdle &&
-							viewModel.uploadCertificatesProgress.statusMessage !== null
-						) {
-							viewModel.uploadCertificatesProgress.reset();
-						}
+            if (
+              viewModel.uploadCertificatesProgress.isIdle &&
+              viewModel.uploadCertificatesProgress.statusMessage !== null
+            ) {
+              viewModel.uploadCertificatesProgress.reset();
+            }
 
-						certificate.delete().then(
-							function() {
-								viewModel.deleteCertificateProgress.success();
+            certificate.delete().then(
+              function() {
+                viewModel.deleteCertificateProgress.success();
 
-								loadCertificates();
-							},
-							function(error) {
-								viewModel.deleteCertificateProgress.error(error);
-							}
-						);
-					}
-				);
-			};
+                loadCertificates();
+              },
+              function(error) {
+                viewModel.deleteCertificateProgress.error(error);
+              }
+            );
+          }
+        );
+      };
 
-			viewModel.deleteAllCertificates = function() {
-				Popup.showConfirmPopup(
-					"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>",
-					"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>",
-					"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:yes_title] %>",
-					"<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:no_title] %>",
-					function() {
-						viewModel.deleteAllCertificatesProgress.start(
-							"<%= data[:strings][:code_signing][:certificate][:delete_all_progress][:in_progress] %>"
-						);
+      viewModel.deleteAllCertificates = function() {
+        Popup.showConfirmPopup(
+          "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question_short] %>",
+          "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:question] %>",
+          "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:yes_title] %>",
+          "<%= data[:strings][:code_signing][:certificate][:delete_all_confirm][:no_title] %>",
+          function() {
+            viewModel.deleteAllCertificatesProgress.start(
+              "<%= data[:strings][:code_signing][:certificate][:delete_all_progress][:in_progress] %>"
+            );
 
-						if (
-							viewModel.uploadCertificatesProgress.isIdle &&
-							viewModel.uploadCertificatesProgress.statusMessage !== null
-						) {
-							viewModel.uploadCertificatesProgress.reset();
-						}
+            if (
+              viewModel.uploadCertificatesProgress.isIdle &&
+              viewModel.uploadCertificatesProgress.statusMessage !== null
+            ) {
+              viewModel.uploadCertificatesProgress.reset();
+            }
 
-						requestService.deleteAllCertificates().then(
-							function() {
-								viewModel.deleteAllCertificatesProgress.success();
+            requestService.deleteAllCertificates().then(
+              function() {
+                viewModel.deleteAllCertificatesProgress.success();
 
-								loadCertificates();
-							},
-							function(error) {
-								viewModel.deleteAllCertificatesProgress.error(error);
-							}
-						);
-					}
-				);
-			};
+                loadCertificates();
+              },
+              function(error) {
+                viewModel.deleteAllCertificatesProgress.error(error);
+              }
+            );
+          }
+        );
+      };
 
-			viewModel.changePasswordSelected = function(certificate) {
-				viewModel.passwordEditedCertificate = certificate;
-				passwordEditedCertificateOriginalPassword = certificate.password;
-			};
+      viewModel.changePasswordSelected = function(certificate) {
+        viewModel.passwordEditedCertificate = certificate;
+        passwordEditedCertificateOriginalPassword = certificate.password;
+      };
 
-			viewModel.changePassword = function() {
-				viewModel.changePasswordProgress.start(
-					"<%= data[:strings][:code_signing][:certificate][:change_password_progress][:in_progress] %>"
-				);
-				if (
-					viewModel.uploadCertificatesProgress.isIdle &&
-					viewModel.uploadCertificatesProgress.statusMessage !== null
-				) {
-					viewModel.uploadCertificatesProgress.reset();
-				}
+      viewModel.changePassword = function() {
+        viewModel.changePasswordProgress.start(
+          "<%= data[:strings][:code_signing][:certificate][:change_password_progress][:in_progress] %>"
+        );
+        if (
+          viewModel.uploadCertificatesProgress.isIdle &&
+          viewModel.uploadCertificatesProgress.statusMessage !== null
+        ) {
+          viewModel.uploadCertificatesProgress.reset();
+        }
 
-				viewModel.passwordEditedCertificate.savePassword().then(
-					function() {
-						viewModel.getDetails(viewModel.passwordEditedCertificate);
+        viewModel.passwordEditedCertificate.savePassword().then(
+          function() {
+            viewModel.getDetails(viewModel.passwordEditedCertificate);
 
-						viewModel.passwordEditedCertificate = null;
-						passwordEditedCertificateOriginalPassword = undefined;
+            viewModel.passwordEditedCertificate = null;
+            passwordEditedCertificateOriginalPassword = undefined;
 
-						viewModel.changePasswordProgress.success();
-					},
-					function(error) {
-						viewModel.changePasswordProgress.error(error);
-					}
-				);
-			};
+            viewModel.changePasswordProgress.success();
+          },
+          function(error) {
+            viewModel.changePasswordProgress.error(error);
+          }
+        );
+      };
 
-			viewModel.cancelPasswordChange = function() {
-				viewModel.passwordEditedCertificate.password = passwordEditedCertificateOriginalPassword;
-				viewModel.passwordEditedCertificate = null;
-				passwordEditedCertificateOriginalPassword = undefined;
-			};
+      viewModel.cancelPasswordChange = function() {
+        viewModel.passwordEditedCertificate.password = passwordEditedCertificateOriginalPassword;
+        viewModel.passwordEditedCertificate = null;
+        passwordEditedCertificateOriginalPassword = undefined;
+      };
 
-			viewModel.getDetails = function(certificate) {
-				viewModel.certificateSettings[certificate.databaseID].progress.start(
-					"<%= data[:strings][:code_signing][:certificate][:get_details_progress][:in_progress] %>"
-				);
-				if (
-					viewModel.uploadCertificatesProgress.isIdle &&
-					viewModel.uploadCertificatesProgress.statusMessage !== null
-				) {
-					viewModel.uploadCertificatesProgress.reset();
-				}
+      viewModel.getDetails = function(certificate) {
+        viewModel.certificateSettings[certificate.databaseID].progress.start(
+          "<%= data[:strings][:code_signing][:certificate][:get_details_progress][:in_progress] %>"
+        );
+        if (
+          viewModel.uploadCertificatesProgress.isIdle &&
+          viewModel.uploadCertificatesProgress.statusMessage !== null
+        ) {
+          viewModel.uploadCertificatesProgress.reset();
+        }
 
-				requestService.getDetailsOfCertificate(certificate.databaseID, certificate.password).then(
-					function(data) {
-						certificate.isDetailsLoaded = true;
+        requestService.getDetailsOfCertificate(certificate.databaseID, certificate.password).then(
+          function(data) {
+            certificate.isDetailsLoaded = true;
 
-						var certificateFileDetails = [];
-						_.each(data, function(aCertificateDetail) {
-							certificateFileDetails.push({
-								commonName: aCertificateDetail.commonName,
-								startDate: aCertificateDetail.startDate,
-								endDate: aCertificateDetail.endDate,
-								teamName: aCertificateDetail.teamName,
-								teamID: aCertificateDetail.teamID,
-								serial: aCertificateDetail.serial
-							});
-						});
+            var certificateFileDetails = [];
+            _.each(data, function(aCertificateDetail) {
+              certificateFileDetails.push({
+                commonName: aCertificateDetail.commonName,
+                startDate: aCertificateDetail.startDate,
+                endDate: aCertificateDetail.endDate,
+                teamName: aCertificateDetail.teamName,
+                teamID: aCertificateDetail.teamID,
+                serial: aCertificateDetail.serial
+              });
+            });
 
-						certificate.details = certificateFileDetails;
+            certificate.details = certificateFileDetails;
 
-						viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = false;
+            viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = false;
 
-						viewModel.certificateSettings[certificate.databaseID].progress.success();
-					},
-					function(error) {
-						var errorTypes = error.name ? error.name.split(",") : [];
-						if (_.contains(errorTypes, "invalid_password")) {
-							certificate.details = null;
+            viewModel.certificateSettings[certificate.databaseID].progress.success();
+          },
+          function(error) {
+            var errorTypes = error.name ? error.name.split(",") : [];
+            if (_.contains(errorTypes, "invalid_password")) {
+              certificate.details = null;
 
-							viewModel.certificateSettings[certificate.databaseID].progress.reset();
+              viewModel.certificateSettings[certificate.databaseID].progress.reset();
 
-							viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
-						} else {
-							viewModel.certificateSettings[certificate.databaseID].progress.error(error);
-						}
-					}
-				);
-			};
+              viewModel.certificateSettings[certificate.databaseID].isInvalidPassword = true;
+            } else {
+              viewModel.certificateSettings[certificate.databaseID].progress.error(error);
+            }
+          }
+        );
+      };
 
-			function isExposeGetterSetterForCertificate(certificate, progress) {
-				return function(isExpose) {
-					if (isExpose === undefined) {
-						return certificate.isExpose;
-					}
+      function isExposeGetterSetterForCertificate(certificate, progress) {
+        return function(isExpose) {
+          if (isExpose === undefined) {
+            return certificate.isExpose;
+          }
 
-					var oldIsExpose = certificate.isExpose;
-					certificate.isExpose = isExpose;
+          var oldIsExpose = certificate.isExpose;
+          certificate.isExpose = isExpose;
 
-					progress.start();
-					requestService.updateCertificateIsExposeState(certificate.databaseID, certificate.isExpose).then(
-						function() {
-							progress.success();
-						},
-						function(error) {
-							certificate.isExpose = oldIsExpose;
-							progress.reset();
-							Popup.showErrorPopup(error.message);
-						}
-					);
-				};
-			}
+          progress.start();
+          requestService.updateCertificateIsExposeState(certificate.databaseID, certificate.isExpose).then(
+            function() {
+              progress.success();
+            },
+            function(error) {
+              certificate.isExpose = oldIsExpose;
+              progress.reset();
+              Popup.showErrorPopup(error.message);
+            }
+          );
+        };
+      }
 
-			viewModel.showIncludedIdentities = function(aSelectedCertificate) {
-				viewModel.selectedCertificate = aSelectedCertificate;
+      viewModel.showIncludedIdentities = function(aSelectedCertificate) {
+        viewModel.selectedCertificate = aSelectedCertificate;
 
-				viewModel.listOfIdentitiesPopup.isVisible = true;
-			};
+        viewModel.listOfIdentitiesPopup.isVisible = true;
+      };
 
-			$scope.$on("$destroy", function() {
-				canceler.resolve();
-				if (unresolvedCertificateReloadPromise) {
-					$timeout.cancel(unresolvedCertificateReloadPromise);
-				}
-			});
-		});
+      $scope.$on("$destroy", function() {
+        canceler.resolve();
+        if (unresolvedCertificateReloadPromise) {
+          $timeout.cancel(unresolvedCertificateReloadPromise);
+        }
+      });
+    });
 })();

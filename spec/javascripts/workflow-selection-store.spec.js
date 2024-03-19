@@ -1,94 +1,94 @@
 describe("Workflow selection store", () => {
-	let selectionStore;
+  let selectionStore;
 
-	beforeEach(module("BitriseWorkflowEditor"));
-	beforeEach(inject((_workflowSelectionStore_) => {
-		selectionStore = _workflowSelectionStore_;
+  beforeEach(module("BitriseWorkflowEditor"));
+  beforeEach(inject((_workflowSelectionStore_) => {
+    selectionStore = _workflowSelectionStore_;
 
-		// selection store is singleton
-		selectionStore.reset();
-	}));
+    // selection store is singleton
+    selectionStore.reset();
+  }));
 
-	it("should have required properties", () => {
-		expect(selectionStore).toEqual(
-			jasmine.objectContaining({
-				lastSelectedWorkflowID: null,
-				lastEditedWorkflowID: null,
-				lastEditedWorkflowIndex: null,
-				lastSelectedStepCVS: null,
-				lastSelectedStepIndex: null,
-			}),
-		);
-	});
+  it("should have required properties", () => {
+    expect(selectionStore).toEqual(
+      jasmine.objectContaining({
+        lastSelectedWorkflowID: null,
+        lastEditedWorkflowID: null,
+        lastEditedWorkflowIndex: null,
+        lastSelectedStepCVS: null,
+        lastSelectedStepIndex: null
+      })
+    );
+  });
 
-	it("should be able to reset properties", () => {
-		selectionStore.lastSelectedWorkflowID = 5;
-		selectionStore.lastEditedWorkflowIndex = 10;
+  it("should be able to reset properties", () => {
+    selectionStore.lastSelectedWorkflowID = 5;
+    selectionStore.lastEditedWorkflowIndex = 10;
 
-		selectionStore.reset();
+    selectionStore.reset();
 
-		expect(selectionStore.lastSelectedWorkflowID).toBeNull();
-		expect(selectionStore.lastEditedWorkflowIndex).toBeNull();
-	});
+    expect(selectionStore.lastSelectedWorkflowID).toBeNull();
+    expect(selectionStore.lastEditedWorkflowIndex).toBeNull();
+  });
 
-	describe("applyState", () => {
-		const mockStep = {
-			id: "mockStep",
-			cvs: "mockStep@1.1",
-		};
+  describe("applyState", () => {
+    const mockStep = {
+      id: "mockStep",
+      cvs: "mockStep@1.1"
+    };
 
-		const mockWorkflow = {
-			id: "wf1",
-			steps: [mockStep],
-		};
+    const mockWorkflow = {
+      id: "wf1",
+      steps: [mockStep]
+    };
 
-		beforeEach(() => {
-			selectionStore.enable();
-		});
+    beforeEach(() => {
+      selectionStore.enable();
+    });
 
-		it("should set properties based on values passed", () => {
-			selectionStore.applyState({
-				lastSelectedWorkflow: mockWorkflow,
-				lastEditedWorkflow: mockWorkflow,
-				lastEditedWorkflowIndex: 10,
-				lastSelectedStep: mockStep,
-			});
+    it("should set properties based on values passed", () => {
+      selectionStore.applyState({
+        lastSelectedWorkflow: mockWorkflow,
+        lastEditedWorkflow: mockWorkflow,
+        lastEditedWorkflowIndex: 10,
+        lastSelectedStep: mockStep
+      });
 
-			expect(selectionStore).toEqual(
-				jasmine.objectContaining({
-					lastSelectedWorkflowID: "wf1",
-					lastEditedWorkflowID: "wf1",
-					lastEditedWorkflowIndex: 10,
-					lastSelectedStepCVS: "mockStep@1.1",
-					lastSelectedStepIndex: 0,
-				}),
-			);
-		});
+      expect(selectionStore).toEqual(
+        jasmine.objectContaining({
+          lastSelectedWorkflowID: "wf1",
+          lastEditedWorkflowID: "wf1",
+          lastEditedWorkflowIndex: 10,
+          lastSelectedStepCVS: "mockStep@1.1",
+          lastSelectedStepIndex: 0
+        })
+      );
+    });
 
-		it("should be able to partially apply", () => {
-			selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
+    it("should be able to partially apply", () => {
+      selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
 
-			expect(selectionStore).toEqual(
-				jasmine.objectContaining({
-					lastSelectedWorkflowID: mockWorkflow.id,
-					lastEditedWorkflowID: mockWorkflow.id,
-					lastEditedWorkflowIndex: 0,
-					lastSelectedStepCVS: null,
-					lastSelectedStepIndex: null,
-				}),
-			);
-		});
+      expect(selectionStore).toEqual(
+        jasmine.objectContaining({
+          lastSelectedWorkflowID: mockWorkflow.id,
+          lastEditedWorkflowID: mockWorkflow.id,
+          lastEditedWorkflowIndex: 0,
+          lastSelectedStepCVS: null,
+          lastSelectedStepIndex: null
+        })
+      );
+    });
 
-		it("should not work when disabled", () => {
-			selectionStore.disable();
-			selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
+    it("should not work when disabled", () => {
+      selectionStore.disable();
+      selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
 
-			expect(selectionStore.lastSelectedWorkflowID).toBeNull();
+      expect(selectionStore.lastSelectedWorkflowID).toBeNull();
 
-			selectionStore.enable();
-			selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
+      selectionStore.enable();
+      selectionStore.applyState({ lastSelectedWorkflow: mockWorkflow });
 
-			expect(selectionStore.lastSelectedWorkflowID).toEqual("wf1");
-		});
-	});
+      expect(selectionStore.lastSelectedWorkflowID).toEqual("wf1");
+    });
+  });
 });

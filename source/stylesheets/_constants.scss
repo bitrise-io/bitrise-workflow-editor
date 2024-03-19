@@ -67,13 +67,13 @@ $cardo-verticalpadding: 12px;
 $cardo-borderradius: 6px;
 
 @mixin SourceCodeProWithFallback {
-	font-family: "SourceCodePro", monospace;
+  font-family: "SourceCodePro", monospace;
 }
 
 @function triangle_as_svg_content($width, $height) {
-	@return svg_with_content(
-		"<polygon points='#{ $width / 2 },0 #{ $width },#{ $height }, 0,#{ $height }'/>",
-		$width,
-		$height
-	);
+  @return svg_with_content(
+      "<polygon points='#{ $width / 2 },0 #{ $width },#{ $height }, 0,#{ $height }'/>",
+      $width,
+      $height
+  );
 }

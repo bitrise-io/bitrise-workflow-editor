@@ -2,65 +2,66 @@
 @import "constants";
 
 .auto-code-signing {
-	header {
-		@include display-flex;
-		@include align-items(center);
-		$spacing: 25px;
+  header {
+    @include display-flex;
+    @include align-items(center);
+    $spacing: 25px;
 
-		.icon {
-			@include margin-x($spacing);
-			svg {
-				display: block;
-				@include size(32px, 41px);
-				fill: $def-yellow;
-			}
-		}
+    .icon {
+      @include margin-x($spacing);
 
-		.summary {
-			@include padding-y(15px);
+      svg {
+        display: block;
+        @include size(32px, 41px);
+        fill: $def-yellow;
+      }
+    }
 
-			h2 {
-				margin-top: 0;
-				margin-bottom: 5px;
-				font-size: 19px;
-				font-weight: 700;
-				color: $def-darkgrey;
-			}
+    .summary {
+      @include padding-y(15px);
 
-			p {
-				@include margin-y(0);
-				font-size: 16px;
-				font-weight: 500;
-				color: $def-darkgrey;
-			}
-		}
+      h2 {
+        margin-top: 0;
+        margin-bottom: 5px;
+        font-size: 19px;
+        font-weight: 700;
+        color: $def-darkgrey;
+      }
 
-		.manual-code-signing {
-			margin-left: $spacing;
-			border: none;
-			padding: 0;
-			font-size: 16px;
-			font-weight: 500;
-			background-color: transparent;
-			color: $def-violet_blue;
+      p {
+        @include margin-y(0);
+        font-size: 16px;
+        font-weight: 500;
+        color: $def-darkgrey;
+      }
+    }
 
-			&:hover, &:focus {
-				text-decoration: underline;
-			}
-		}
+    .manual-code-signing {
+      margin-left: $spacing;
+      border: none;
+      padding: 0;
+      font-size: 16px;
+      font-weight: 500;
+      background-color: transparent;
+      color: $def-violet_blue;
 
-		@include media-below-mid {
-			@include align-items(flex-start);
-			@include flex-direction(column);
+      &:hover, &:focus {
+        text-decoration: underline;
+      }
+    }
 
-			.icon {
-				@include margin-y($spacing);
-			}
+    @include media-below-mid {
+      @include align-items(flex-start);
+      @include flex-direction(column);
 
-			.manual-code-signing {
-				margin-left: 0;
-				margin-top: $spacing;
-			}
-		}
-	}
+      .icon {
+        @include margin-y($spacing);
+      }
+
+      .manual-code-signing {
+        margin-left: 0;
+        margin-top: $spacing;
+      }
+    }
+  }
 }

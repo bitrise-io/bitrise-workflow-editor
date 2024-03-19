@@ -1,123 +1,123 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import { configureMonacoYaml } from 'monaco-yaml';
+import { configureMonacoYaml } from "monaco-yaml";
 
 (function() {
-	"use strict";
+  "use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.controller("YMLController", function($scope, $timeout, appService, requestService) {
-			var viewModel = this;
-			var editor;
-			var model;
+  angular
+    .module("BitriseWorkflowEditor")
+    .controller("YMLController", function($scope, $timeout, appService, requestService) {
+      var viewModel = this;
+      var editor;
+      var model;
 
-			const defaultSchema = {
-				uri: 'https://raw.githubusercontent.com/bitrise-io/bitrise-json-schemas/main/bitrise.schema.json',
-				fileMatch: ['monaco-yaml.yaml'],
-			};
+      const defaultSchema = {
+        uri: "https://raw.githubusercontent.com/bitrise-io/bitrise-json-schemas/main/bitrise.schema.json",
+        fileMatch: ["monaco-yaml.yaml"]
+      };
 
-			configureMonacoYaml(monaco, {
-  			validate: true,
-				enableSchemaRequest: true,
-				format: true,
-				hover: true,
-				completion: true,
-				schemas: [defaultSchema],
-			});
+      configureMonacoYaml(monaco, {
+        validate: true,
+        enableSchemaRequest: true,
+        format: true,
+        hover: true,
+        completion: true,
+        schemas: [defaultSchema]
+      });
 
-			viewModel.shouldShowYmlStorageSettings = false;
-			viewModel.usesRepositoryYml = false;
-			viewModel.appSlug = undefined;
-			viewModel.repositoryYmlAvailable = true;
+      viewModel.shouldShowYmlStorageSettings = false;
+      viewModel.usesRepositoryYml = false;
+      viewModel.appSlug = undefined;
+      viewModel.repositoryYmlAvailable = true;
 
-			viewModel.downloadAppConfigYMLPath = function() {
-				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
-			}
+      viewModel.downloadAppConfigYMLPath = function() {
+        return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
+      };
 
-			$scope.$watch(
-				function() {
-					return appService.appConfigYML;
-				},
-				function() {
-					if (model && !model.isDisposed()) {
-						if (appService.appConfigYML !== model.getValue()) {
-							model.setValue(appService.appConfigYML || '')
-						}
-					}
-				}
-			);
+      $scope.$watch(
+        function() {
+          return appService.appConfigYML;
+        },
+        function() {
+          if (model && !model.isDisposed()) {
+            if (appService.appConfigYML !== model.getValue()) {
+              model.setValue(appService.appConfigYML || "");
+            }
+          }
+        }
+      );
 
-			$scope.$watch(
-				function() {
-					return viewModel.usesRepositoryYml;
-				},
-				function(usesRepositoryYml) {
-					editor.updateOptions({ readOnly: !!usesRepositoryYml });
-				}
-			);
+      $scope.$watch(
+        function() {
+          return viewModel.usesRepositoryYml;
+        },
+        function(usesRepositoryYml) {
+          editor.updateOptions({ readOnly: !!usesRepositoryYml });
+        }
+      );
 
-			function init() {
-				if (requestService.isWebsiteMode()) {
-					appService.getPipelineConfig()
-						.then(function() {
-							viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
-							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
-							viewModel.appSlug = appService.appDetails.slug;
-						})
-					requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
-					.then(function(ownerPlanData) {
-						viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
-					})
-				}
-			}
+      function init() {
+        if (requestService.isWebsiteMode()) {
+          appService.getPipelineConfig()
+            .then(function() {
+              viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+              viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
+              viewModel.appSlug = appService.appDetails.slug;
+            });
+          requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+            .then(function(ownerPlanData) {
+              viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
+            });
+        }
+      }
 
-			init();
+      init();
 
-			function configureEditor() {
-				model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
+      function configureEditor() {
+        model = monaco.editor.createModel(appService.appConfigYML, "yaml", monaco.Uri.parse("monaco-yaml.yaml"));
 
-				editor = monaco.editor.create(document.getElementById("code-container"), {
-					model: model,
-					language: "yaml",
-					lineNumbers: "on",
-					roundedSelection: false,
-					scrollBeyondLastLine: false,
-					readOnly: false,
-					theme: "vs-dark"
-				});
-				editor.layout();
-				editor.focus();
-				editor.onDidChangeModelContent(updateAppConfigYML);
-			}
+        editor = monaco.editor.create(document.getElementById("code-container"), {
+          model: model,
+          language: "yaml",
+          lineNumbers: "on",
+          roundedSelection: false,
+          scrollBeyondLastLine: false,
+          readOnly: false,
+          theme: "vs-dark"
+        });
+        editor.layout();
+        editor.focus();
+        editor.onDidChangeModelContent(updateAppConfigYML);
+      }
 
-			function updateAppConfigYML() {
-				$timeout(function() {
-					if (model && !model.isDisposed()) {
-						appService.appConfigYML = model.getValue();
-					}
-				}, 100);
-			}
+      function updateAppConfigYML() {
+        $timeout(function() {
+          if (model && !model.isDisposed()) {
+            appService.appConfigYML = model.getValue();
+          }
+        }, 100);
+      }
 
-			viewModel.onUsesRepositoryYmlChangeSaved = function(usesRepositoryYml) {
-				appService.getAppConfigYML(true);
+      viewModel.onUsesRepositoryYmlChangeSaved = function(usesRepositoryYml) {
+        appService.getAppConfigYML(true);
 
-				appService.appConfig = undefined;
-				appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
+        appService.appConfig = undefined;
+        appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
 
-				$timeout(function() {
-					viewModel.usesRepositoryYml = usesRepositoryYml;
-				}, 0);
-			};
+        $timeout(function() {
+          viewModel.usesRepositoryYml = usesRepositoryYml;
+        }, 0);
+      };
 
-			configureEditor();
+      configureEditor();
 
-			$scope.$on("$destroy", function() {
-				if (editor) {
-					editor.dispose();
-				}
-				if (model) {
-					model.dispose();
-				}
-			});
-		});
+      $scope.$on("$destroy", function() {
+        if (editor) {
+          editor.dispose();
+        }
+        if (model) {
+          model.dispose();
+        }
+      });
+    });
 })();

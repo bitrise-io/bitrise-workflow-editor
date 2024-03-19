@@ -1,429 +1,429 @@
 (function() {
-	"use strict";
+  "use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.controller("AutoCodeSigningController", function(
-			$q,
-			$scope,
-			Progress,
-			appService,
-			requestService,
-			certificateService
-		) {
-			var canceler = $q.defer();
-			$scope.$on("$destroy", function() {
-				canceler.resolve();
-			});
+  angular
+    .module("BitriseWorkflowEditor")
+    .controller("AutoCodeSigningController", function(
+      $q,
+      $scope,
+      Progress,
+      appService,
+      requestService,
+      certificateService
+    ) {
+      var canceler = $q.defer();
+      $scope.$on("$destroy", function() {
+        canceler.resolve();
+      });
 
-			var viewModel = this;
+      var viewModel = this;
 
-			viewModel.steps = [
-				{
-					id: "upload-certificates"
-				},
-				{
-					id: "connect-apple-developer-account"
-				},
-				{
-					id: "select-team"
-				},
-				{
-					id: "add-trigger"
-				}
-			];
-			viewModel.uploadCertificatesStep = _.find(viewModel.steps, {
-				id: "upload-certificates"
-			});
-			viewModel.connectAppleDeveloperAccountStep = _.find(viewModel.steps, {
-				id: "connect-apple-developer-account"
-			});
-			viewModel.selectTeamStep = _.find(viewModel.steps, { id: "select-team" });
-			viewModel.addTriggerStep = _.find(viewModel.steps, { id: "add-trigger" });
-			viewModel.activeStep = _.first(viewModel.steps);
+      viewModel.steps = [
+        {
+          id: "upload-certificates"
+        },
+        {
+          id: "connect-apple-developer-account"
+        },
+        {
+          id: "select-team"
+        },
+        {
+          id: "add-trigger"
+        }
+      ];
+      viewModel.uploadCertificatesStep = _.find(viewModel.steps, {
+        id: "upload-certificates"
+      });
+      viewModel.connectAppleDeveloperAccountStep = _.find(viewModel.steps, {
+        id: "connect-apple-developer-account"
+      });
+      viewModel.selectTeamStep = _.find(viewModel.steps, { id: "select-team" });
+      viewModel.addTriggerStep = _.find(viewModel.steps, { id: "add-trigger" });
+      viewModel.activeStep = _.first(viewModel.steps);
 
-			$scope.appService = appService;
-			$scope.certificateService = certificateService;
+      $scope.appService = appService;
+      $scope.certificateService = certificateService;
 
-			// Steps
+      // Steps
 
-			viewModel.numberForStep = function(step) {
-				return _.indexOf(viewModel.steps, step) + 1;
-			};
+      viewModel.numberForStep = function(step) {
+        return _.indexOf(viewModel.steps, step) + 1;
+      };
 
-			viewModel.isUpcomingStep = function(step) {
-				return (
-					_.indexOf(viewModel.steps, step) >
-					_.indexOf(viewModel.steps, viewModel.activeStep)
-				);
-			};
+      viewModel.isUpcomingStep = function(step) {
+        return (
+          _.indexOf(viewModel.steps, step) >
+          _.indexOf(viewModel.steps, viewModel.activeStep)
+        );
+      };
 
-			viewModel.isStepInProgress = function(step) {
-				return step == viewModel.activeStep;
-			};
+      viewModel.isStepInProgress = function(step) {
+        return step == viewModel.activeStep;
+      };
 
-			viewModel.isStepCompleted = function(step) {
-				return (
-					_.indexOf(viewModel.steps, step) <
-					_.indexOf(viewModel.steps, viewModel.activeStep)
-				);
-			};
+      viewModel.isStepCompleted = function(step) {
+        return (
+          _.indexOf(viewModel.steps, step) <
+          _.indexOf(viewModel.steps, viewModel.activeStep)
+        );
+      };
 
-			viewModel.goToNextStep = function() {
-				viewModel.activeStep =
-					viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) + 1];
-			};
+      viewModel.goToNextStep = function() {
+        viewModel.activeStep =
+          viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) + 1];
+      };
 
-			viewModel.goToPreviousStep = function() {
-				viewModel.activeStep =
-					viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) - 1];
-			};
+      viewModel.goToPreviousStep = function() {
+        viewModel.activeStep =
+          viewModel.steps[_.indexOf(viewModel.steps, viewModel.activeStep) - 1];
+      };
 
-			// Upload certificates step
+      // Upload certificates step
 
-			viewModel.loadCodesigndocScriptProgress = new Progress();
-			viewModel.codesigndocScript;
-			viewModel.copyCodesigndocScriptToClipboardProgress = new Progress();
-			viewModel.certificates = [];
+      viewModel.loadCodesigndocScriptProgress = new Progress();
+      viewModel.codesigndocScript;
+      viewModel.copyCodesigndocScriptToClipboardProgress = new Progress();
+      viewModel.certificates = [];
 
-			viewModel.loadCodesigndocScript = function() {
-				viewModel.loadCodesigndocScriptProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:codesigndoc_loading] %>"
-				);
+      viewModel.loadCodesigndocScript = function() {
+        viewModel.loadCodesigndocScriptProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:codesigndoc_loading] %>"
+        );
 
-				requestService
-					.getCodeSigningBashCommand({
-						timeout: canceler.promise
-					})
-					.then(
-						function(data) {
-							viewModel.codesigndocScript =
-								data.bashScriptCommand.slice(0, -1) + ' --certs-only"';
+        requestService
+          .getCodeSigningBashCommand({
+            timeout: canceler.promise
+          })
+          .then(
+            function(data) {
+              viewModel.codesigndocScript =
+                data.bashScriptCommand.slice(0, -1) + " --certs-only\"";
 
-							viewModel.loadCodesigndocScriptProgress.success();
-						},
-						function(error) {
-							viewModel.loadCodesigndocScriptProgress.error(error);
-						}
-					);
-			};
+              viewModel.loadCodesigndocScriptProgress.success();
+            },
+            function(error) {
+              viewModel.loadCodesigndocScriptProgress.error(error);
+            }
+          );
+      };
 
-			viewModel.copyCodesigndocScriptToClipboardSelected = function() {
-				viewModel.copyCodesigndocScriptToClipboardProgress.success("✔ Copied");
+      viewModel.copyCodesigndocScriptToClipboardSelected = function() {
+        viewModel.copyCodesigndocScriptToClipboardProgress.success("✔ Copied");
 
-				$timeout(function() {
-					viewModel.copyCodesigndocScriptToClipboardProgress.reset();
-				}, 5000);
-			};
+        $timeout(function() {
+          viewModel.copyCodesigndocScriptToClipboardProgress.reset();
+        }, 5000);
+      };
 
-			// Connect Apple Developer Account
+      // Connect Apple Developer Account
 
-			viewModel.loadAppleDeveloperAccountProgress = new Progress();
-			viewModel.appleDeveloperAccount;
+      viewModel.loadAppleDeveloperAccountProgress = new Progress();
+      viewModel.appleDeveloperAccount;
 
-			viewModel.connectAppleDeveloperAccountForm;
-			viewModel.connectAppleDeveloperAccountFormData = {
-				appleID: "",
-				password: ""
-			};
-			viewModel.connectAppleDeveloperAccountProgress = new Progress();
-			viewModel.appleDeveloperAccountConnectionConfig;
+      viewModel.connectAppleDeveloperAccountForm;
+      viewModel.connectAppleDeveloperAccountFormData = {
+        appleID: "",
+        password: ""
+      };
+      viewModel.connectAppleDeveloperAccountProgress = new Progress();
+      viewModel.appleDeveloperAccountConnectionConfig;
 
-			viewModel.isTwoStepAuthRequired;
-			viewModel.selectedTrustedDevice;
-			viewModel.appleDeveloperAccountTwoStepAuthForm;
-			viewModel.appleDeveloperAccountTwoStepAuthFormData = {
-				firstDigit: "",
-				secondDigit: "",
-				thirdDigit: "",
-				fourthDigit: ""
-			};
-			viewModel.sendTwoStepAuthVerificationCodeProgress = new Progress();
+      viewModel.isTwoStepAuthRequired;
+      viewModel.selectedTrustedDevice;
+      viewModel.appleDeveloperAccountTwoStepAuthForm;
+      viewModel.appleDeveloperAccountTwoStepAuthFormData = {
+        firstDigit: "",
+        secondDigit: "",
+        thirdDigit: "",
+        fourthDigit: ""
+      };
+      viewModel.sendTwoStepAuthVerificationCodeProgress = new Progress();
 
-			viewModel.isTwoFactorAuthRequired;
-			viewModel.appleDeveloperAccountTwoFactorAuthForm;
-			viewModel.appleDeveloperAccountTwoFactorAuthFormData = {
-				firstDigit: "",
-				secondDigit: "",
-				thirdDigit: "",
-				fourthDigit: "",
-				fifthDigit: "",
-				sixthDigit: ""
-			};
-			viewModel.sendTwoFactorAuthVerificationCodeProgress = new Progress();
+      viewModel.isTwoFactorAuthRequired;
+      viewModel.appleDeveloperAccountTwoFactorAuthForm;
+      viewModel.appleDeveloperAccountTwoFactorAuthFormData = {
+        firstDigit: "",
+        secondDigit: "",
+        thirdDigit: "",
+        fourthDigit: "",
+        fifthDigit: "",
+        sixthDigit: ""
+      };
+      viewModel.sendTwoFactorAuthVerificationCodeProgress = new Progress();
 
-			viewModel.selectableAppleDeveloperAccountTeams;
-			viewModel.shouldShowNoSelectableTeamNotification;
+      viewModel.selectableAppleDeveloperAccountTeams;
+      viewModel.shouldShowNoSelectableTeamNotification;
 
-			viewModel.loadAppleDeveloperAccount = function() {
-				viewModel.loadAppleDeveloperAccountProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:apple_dev_account_loading] %>"
-				);
+      viewModel.loadAppleDeveloperAccount = function() {
+        viewModel.loadAppleDeveloperAccountProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:apple_dev_account_loading] %>"
+        );
 
-				requestService
-					.getAppleDeveloperAccount({
-						timeout: canceler.promise
-					})
-					.then(
-						function(data) {
-							viewModel.appleDeveloperAccount = data.isAccepted
-								? data.connectedAccount
-								: null;
+        requestService
+          .getAppleDeveloperAccount({
+            timeout: canceler.promise
+          })
+          .then(
+            function(data) {
+              viewModel.appleDeveloperAccount = data.isAccepted
+                ? data.connectedAccount
+                : null;
 
-							if (viewModel.appleDeveloperAccount) {
-								viewModel.connectAppleDeveloperAccount();
-							}
+              if (viewModel.appleDeveloperAccount) {
+                viewModel.connectAppleDeveloperAccount();
+              }
 
-							viewModel.loadAppleDeveloperAccountProgress.success();
-						},
-						function(error) {
-							viewModel.loadAppleDeveloperAccountProgress.error(error);
-						}
-					);
-			};
+              viewModel.loadAppleDeveloperAccountProgress.success();
+            },
+            function(error) {
+              viewModel.loadAppleDeveloperAccountProgress.error(error);
+            }
+          );
+      };
 
-			viewModel.connectAppleDeveloperAccount = function() {
-				viewModel.connectAppleDeveloperAccountProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:connecting_apple_dev_account] %>"
-				);
+      viewModel.connectAppleDeveloperAccount = function() {
+        viewModel.connectAppleDeveloperAccountProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:connecting_apple_dev_account] %>"
+        );
 
-				requestService
-					.addAppleDeveloperAccountWithAuthentication(
-						viewModel.connectAppleDeveloperAccountFormData.appleID,
-						viewModel.connectAppleDeveloperAccountFormData.password,
-						{
-							timeout: canceler.promise
-						}
-					)
-					.then(
-						function(data) {
-							viewModel.appleDeveloperAccountConnectionConfig = {
-								headers: data.headers
-							};
+        requestService
+          .addAppleDeveloperAccountWithAuthentication(
+            viewModel.connectAppleDeveloperAccountFormData.appleID,
+            viewModel.connectAppleDeveloperAccountFormData.password,
+            {
+              timeout: canceler.promise
+            }
+          )
+          .then(
+            function(data) {
+              viewModel.appleDeveloperAccountConnectionConfig = {
+                headers: data.headers
+              };
 
-							if (data.isMoreInfoNeeded) {
-								viewModel.appleDeveloperAccountConnectionConfig.trustedDevices = angular.copy(
-									data.trustedDevices
-								);
-								viewModel.isTwoStepAuthRequired = data.isTwoStepAuthRequired;
-								viewModel.isTwoFactorAuthRequired =
-									data.isTwoFactorAuthRequired;
-							} else {
-								handleConnectedAppleDeveloperAccountResponseData(data);
-							}
+              if (data.isMoreInfoNeeded) {
+                viewModel.appleDeveloperAccountConnectionConfig.trustedDevices = angular.copy(
+                  data.trustedDevices
+                );
+                viewModel.isTwoStepAuthRequired = data.isTwoStepAuthRequired;
+                viewModel.isTwoFactorAuthRequired =
+                  data.isTwoFactorAuthRequired;
+              } else {
+                handleConnectedAppleDeveloperAccountResponseData(data);
+              }
 
-							viewModel.connectAppleDeveloperAccountProgress.success();
-						},
-						function(error) {
-							viewModel.connectAppleDeveloperAccountProgress.error(error);
-						}
-					);
-			};
+              viewModel.connectAppleDeveloperAccountProgress.success();
+            },
+            function(error) {
+              viewModel.connectAppleDeveloperAccountProgress.error(error);
+            }
+          );
+      };
 
-			viewModel.sendTwoStepAuthVerificationCode = function() {
-				viewModel.sendTwoStepAuthVerificationCodeProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:sending_two_step_auth_verification_code] %>"
-				);
+      viewModel.sendTwoStepAuthVerificationCode = function() {
+        viewModel.sendTwoStepAuthVerificationCodeProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:sending_two_step_auth_verification_code] %>"
+        );
 
-				var verificationCode = [
-					viewModel.twoStepAuthVerificationCodeFormData.firstDigit,
-					viewModel.twoStepAuthVerificationCodeFormData.secondDigit,
-					viewModel.twoStepAuthVerificationCodeFormData.thirdDigit,
-					viewModel.twoStepAuthVerificationCodeFormData.fourthDigit
-				].join("");
+        var verificationCode = [
+          viewModel.twoStepAuthVerificationCodeFormData.firstDigit,
+          viewModel.twoStepAuthVerificationCodeFormData.secondDigit,
+          viewModel.twoStepAuthVerificationCodeFormData.thirdDigit,
+          viewModel.twoStepAuthVerificationCodeFormData.fourthDigit
+        ].join("");
 
-				requestService
-					.verifyCodeForAppleDeveloperAccountAuthentication(
-						viewModel.appleDeveloperAccountConnectionConfig.headers,
-						viewModel.connectAppleDeveloperAccountFormData.appleID,
-						viewModel.connectAppleDeveloperAccountFormData.password,
-						verificationCode,
-						viewModel.selectedTrustedDevice
-							? viewModel.selectedTrustedDevice.id
-							: null,
-						{
-							timeout: canceler.promise
-						}
-					)
-					.then(
-						function(data) {
-							viewModel.sendTwoStepAuthVerificationCodeProgress.success();
+        requestService
+          .verifyCodeForAppleDeveloperAccountAuthentication(
+            viewModel.appleDeveloperAccountConnectionConfig.headers,
+            viewModel.connectAppleDeveloperAccountFormData.appleID,
+            viewModel.connectAppleDeveloperAccountFormData.password,
+            verificationCode,
+            viewModel.selectedTrustedDevice
+              ? viewModel.selectedTrustedDevice.id
+              : null,
+            {
+              timeout: canceler.promise
+            }
+          )
+          .then(
+            function(data) {
+              viewModel.sendTwoStepAuthVerificationCodeProgress.success();
 
-							handleConnectedAppleDeveloperAccountResponseData(data);
-						},
-						function(error) {
-							viewModel.sendTwoStepAuthVerificationCodeProgress.error(error);
-						}
-					);
-			};
+              handleConnectedAppleDeveloperAccountResponseData(data);
+            },
+            function(error) {
+              viewModel.sendTwoStepAuthVerificationCodeProgress.error(error);
+            }
+          );
+      };
 
-			viewModel.sendTwoFactorAuthVerificationCode = function() {
-				viewModel.sendTwoFactorAuthVerificationCodeProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:sending_two_factor_auth_verification_code] %>"
-				);
+      viewModel.sendTwoFactorAuthVerificationCode = function() {
+        viewModel.sendTwoFactorAuthVerificationCodeProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:sending_two_factor_auth_verification_code] %>"
+        );
 
-				var verificationCode = [
-					viewModel.twoFactorAuthVerificationCodeFormData.firstDigit,
-					viewModel.twoFactorAuthVerificationCodeFormData.secondDigit,
-					viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit,
-					viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit,
-					viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit,
-					viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit
-				].join("");
+        var verificationCode = [
+          viewModel.twoFactorAuthVerificationCodeFormData.firstDigit,
+          viewModel.twoFactorAuthVerificationCodeFormData.secondDigit,
+          viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit,
+          viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit,
+          viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit,
+          viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit
+        ].join("");
 
-				requestService
-					.verifyCodeForAppleDeveloperAccountAuthentication(
-						viewModel.appleDeveloperAccountConnectionConfig.headers,
-						viewModel.connectAppleDeveloperAccountFormData.appleID,
-						viewModel.connectAppleDeveloperAccountFormData.password,
-						verificationCode,
-						null,
-						{
-							timeout: canceler.promise
-						}
-					)
-					.then(
-						function(data) {
-							viewModel.sendTwoFactorAuthVerificationCodeProgress.success();
+        requestService
+          .verifyCodeForAppleDeveloperAccountAuthentication(
+            viewModel.appleDeveloperAccountConnectionConfig.headers,
+            viewModel.connectAppleDeveloperAccountFormData.appleID,
+            viewModel.connectAppleDeveloperAccountFormData.password,
+            verificationCode,
+            null,
+            {
+              timeout: canceler.promise
+            }
+          )
+          .then(
+            function(data) {
+              viewModel.sendTwoFactorAuthVerificationCodeProgress.success();
 
-							handleConnectedAppleDeveloperAccountResponseData(data);
-						},
-						function(error) {
-							viewModel.sendTwoFactorAuthVerificationCodeProgress.error(error);
-						}
-					);
-			};
+              handleConnectedAppleDeveloperAccountResponseData(data);
+            },
+            function(error) {
+              viewModel.sendTwoFactorAuthVerificationCodeProgress.error(error);
+            }
+          );
+      };
 
-			function handleConnectedAppleDeveloperAccountResponseData(data) {
-				viewModel.appleDeveloperAccount = data.connectedAccount;
-				viewModel.selectableAppleDeveloperAccountTeams = _.filter(
-					data.appleDeveloperAccountTeams,
-					function(team) {
-						return (
-							team.currentTeamMember.roles.isAgent.status ||
-							team.currentTeamMember.roles.isAdmin.status
-						);
-					}
-				);
+      function handleConnectedAppleDeveloperAccountResponseData(data) {
+        viewModel.appleDeveloperAccount = data.connectedAccount;
+        viewModel.selectableAppleDeveloperAccountTeams = _.filter(
+          data.appleDeveloperAccountTeams,
+          function(team) {
+            return (
+              team.currentTeamMember.roles.isAgent.status ||
+              team.currentTeamMember.roles.isAdmin.status
+            );
+          }
+        );
 
-				viewModel.goToNextStep();
-			}
+        viewModel.goToNextStep();
+      }
 
-			// Select team
+      // Select team
 
-			viewModel.selectedTeam;
-			viewModel.removeConnectedAppleDeveloperAccountProgress = new Progress();
-			viewModel.saveSelectedTeamProgress = new Progress();
+      viewModel.selectedTeam;
+      viewModel.removeConnectedAppleDeveloperAccountProgress = new Progress();
+      viewModel.saveSelectedTeamProgress = new Progress();
 
-			viewModel.changeAppleDeveloperAccount = function() {
-				viewModel.removeConnectedAppleDeveloperAccountProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:removing_connected_apple_developer_account] %>"
-				);
+      viewModel.changeAppleDeveloperAccount = function() {
+        viewModel.removeConnectedAppleDeveloperAccountProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:removing_connected_apple_developer_account] %>"
+        );
 
-				requestService
-					.deleteAppleDeveloperAccount({
-						timeout: canceler.promise
-					})
-					.then(
-						function() {
-							viewModel.appleDeveloperAccount = undefined;
+        requestService
+          .deleteAppleDeveloperAccount({
+            timeout: canceler.promise
+          })
+          .then(
+            function() {
+              viewModel.appleDeveloperAccount = undefined;
 
-							viewModel.appleDeveloperAccountConnectionConfig = undefined;
-							viewModel.connectAppleDeveloperAccountFormData.appleID = "";
-							viewModel.connectAppleDeveloperAccountFormData.password = "";
+              viewModel.appleDeveloperAccountConnectionConfig = undefined;
+              viewModel.connectAppleDeveloperAccountFormData.appleID = "";
+              viewModel.connectAppleDeveloperAccountFormData.password = "";
 
-							viewModel.isTwoStepAuthRequired = undefined;
-							viewModel.selectedTrustedDevice = undefined;
-							viewModel.twoStepAuthVerificationCodeFormData.firstDigit = "";
-							viewModel.twoStepAuthVerificationCodeFormData.secondDigit = "";
-							viewModel.twoStepAuthVerificationCodeFormData.thirdDigit = "";
-							viewModel.twoStepAuthVerificationCodeFormData.fourthDigit = "";
+              viewModel.isTwoStepAuthRequired = undefined;
+              viewModel.selectedTrustedDevice = undefined;
+              viewModel.twoStepAuthVerificationCodeFormData.firstDigit = "";
+              viewModel.twoStepAuthVerificationCodeFormData.secondDigit = "";
+              viewModel.twoStepAuthVerificationCodeFormData.thirdDigit = "";
+              viewModel.twoStepAuthVerificationCodeFormData.fourthDigit = "";
 
-							viewModel.isTwoFactorAuthRequired = undefined;
-							viewModel.twoFactorAuthVerificationCodeFormData.firstDigit = "";
-							viewModel.twoFactorAuthVerificationCodeFormData.secondDigit = "";
-							viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit = "";
-							viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit = "";
-							viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit = "";
-							viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit = "";
+              viewModel.isTwoFactorAuthRequired = undefined;
+              viewModel.twoFactorAuthVerificationCodeFormData.firstDigit = "";
+              viewModel.twoFactorAuthVerificationCodeFormData.secondDigit = "";
+              viewModel.twoFactorAuthVerificationCodeFormData.thirdDigit = "";
+              viewModel.twoFactorAuthVerificationCodeFormData.fourthDigit = "";
+              viewModel.twoFactorAuthVerificationCodeFormData.fifthDigit = "";
+              viewModel.twoFactorAuthVerificationCodeFormData.sixthDigit = "";
 
-							viewModel.removeConnectedAppleDeveloperAccountProgress.success();
+              viewModel.removeConnectedAppleDeveloperAccountProgress.success();
 
-							viewModel.goToPreviousStep();
-						},
-						function(error) {
-							viewModel.removeConnectedAppleDeveloperAccountProgress.error(
-								error
-							);
-						}
-					);
-			};
+              viewModel.goToPreviousStep();
+            },
+            function(error) {
+              viewModel.removeConnectedAppleDeveloperAccountProgress.error(
+                error
+              );
+            }
+          );
+      };
 
-			viewModel.saveSelectedTeam = function() {
-				viewModel.saveSelectedTeamProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:saving_team] %>"
-				);
+      viewModel.saveSelectedTeam = function() {
+        viewModel.saveSelectedTeamProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:saving_team] %>"
+        );
 
-				requestService
-					.saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams(
-						viewModel.selectedTeam.id,
-						{
-							timeout: canceler.promise
-						}
-					)
-					.then(
-						function() {
-							viewModel.saveSelectedTeamProgress.success();
+        requestService
+          .saveSelectedDefaultTeamIDForAppFromAppleDeveloperAccountTeams(
+            viewModel.selectedTeam.id,
+            {
+              timeout: canceler.promise
+            }
+          )
+          .then(
+            function() {
+              viewModel.saveSelectedTeamProgress.success();
 
-							viewModel.goToNextStep();
-						},
-						function(error) {
-							viewModel.saveSelectedTeamProgress.error(error);
-						}
-					);
-			};
+              viewModel.goToNextStep();
+            },
+            function(error) {
+              viewModel.saveSelectedTeamProgress.error(error);
+            }
+          );
+      };
 
-			// Final step
+      // Final step
 
-			viewModel.saveAppleCredentialUserProgress = new Progress();
+      viewModel.saveAppleCredentialUserProgress = new Progress();
 
-			viewModel.saveAppleCredentialUser = function() {
-				viewModel.saveAppleCredentialUserProgress.start(
-					"<%= data[:strings][:code_signing][:auto_code_signing][:saving_apple_credential_user] %>"
-				);
+      viewModel.saveAppleCredentialUser = function() {
+        viewModel.saveAppleCredentialUserProgress.start(
+          "<%= data[:strings][:code_signing][:auto_code_signing][:saving_apple_credential_user] %>"
+        );
 
-				$q(function(resolve, reject) {
-					requestService
-						.getCurrentUserData({
-							timeout: canceler.promise
-						})
-						.then(
-							function(data) {
-								requestService
-									.updateAppleCredentialUser(data.slug, {
-										timeout: canceler.promise
-									})
-									.then(
-										function() {
-											resolve();
-										},
-										function(error) {
-											reject(error);
-										}
-									);
-							},
-							function(error) {
-								reject(error);
-							}
-						);
-				}).then(
-					function() {
-						viewModel.saveAppleCredentialUserProgress.success();
-					},
-					function(error) {
-						viewModel.saveAppleCredentialUserProgress.error(error);
-					}
-				);
-			};
-		});
+        $q(function(resolve, reject) {
+          requestService
+            .getCurrentUserData({
+              timeout: canceler.promise
+            })
+            .then(
+              function(data) {
+                requestService
+                  .updateAppleCredentialUser(data.slug, {
+                    timeout: canceler.promise
+                  })
+                  .then(
+                    function() {
+                      resolve();
+                    },
+                    function(error) {
+                      reject(error);
+                    }
+                  );
+              },
+              function(error) {
+                reject(error);
+              }
+            );
+        }).then(
+          function() {
+            viewModel.saveAppleCredentialUserProgress.success();
+          },
+          function(error) {
+            viewModel.saveAppleCredentialUserProgress.error(error);
+          }
+        );
+      };
+    });
 })();

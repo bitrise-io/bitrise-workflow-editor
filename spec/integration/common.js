@@ -8,117 +8,117 @@ import { typeKeySelector } from "./typeKeys";
 const PORT = Cypress.env("PORT");
 
 export const click = (element) => {
-	$(element).click();
+  $(element).click();
 };
 
 export const clickAway = () => {
-	click("#away");
+  click("#away");
 };
 
 export const clear = (element) => {
-	$(element).clear();
+  $(element).clear();
 };
 
 export const pressKey = (key) => {
-	$("body").type(typeKeySelector(key));
+  $("body").type(typeKeySelector(key));
 };
 
 export const select = (value, element) => {
-	$(element).then((elem) => {
-		if (!elem.is("select")) {
-			click(element);
-			return click(value);
-		}
+  $(element).then((elem) => {
+    if (!elem.is("select")) {
+      click(element);
+      return click(value);
+    }
 
-		$(elem).select(value);
-	});
+    $(elem).select(value);
+  });
 };
 
 export const type = (text, element) => {
-	$(element).type(text, { force: true }).trigger("input");
+  $(element).type(text, { force: true }).trigger("input");
 };
 
 export const toggleCheckbox = (element, checked) => {
-	if (checked) {
-		$(element).check();
-	} else {
-		$(element).uncheck();
-	}
+  if (checked) {
+    $(element).check();
+  } else {
+    $(element).uncheck();
+  }
 };
 
 export const popupButtonClick = (popup, buttonType) => {
-	const popupButton = `${selector(popup)} [data-e2e-tag="${buttonType}-button"]`;
-	click(popupButton);
+  const popupButton = `${selector(popup)} [data-e2e-tag="${buttonType}-button"]`;
+  click(popupButton);
 };
 
 export const popupConfirm = (popup) => {
-	popupButtonClick(popup, "confirm");
+  popupButtonClick(popup, "confirm");
 };
 
 export const popupCancel = (popup) => {
-	popupButtonClick(popup, "cancel");
+  popupButtonClick(popup, "cancel");
 };
 
 export const assertInputValueEQ = (value, element) => {
-	$(element).should(($el) => {
-		expect($el).to.contain(value);
-	});
+  $(element).should(($el) => {
+    expect($el).to.contain(value);
+  });
 };
 
 export const assertNotInputValueNotEQ = (text, element) => {
-	$(element).should(($el) => {
-		expect($el).not.to.contain(text);
-	});
+  $(element).should(($el) => {
+    expect($el).not.to.contain(text);
+  });
 };
 
 export const save = () => {
-	cy.get("button.save.rebo").then((btn) => {
-		if (!btn.is(":disabled")) {
-			btn.click();
-		}
-	});
+  cy.get("button.save.rebo").then((btn) => {
+    if (!btn.is(":disabled")) {
+      btn.click();
+    }
+  });
 };
 
 export const wait = (ms) => {
-	cy.wait(ms);
+  cy.wait(ms);
 };
 
 export const should = (element, expectation) => {
-	let [shouldExpr, ...values] = expectation.split(":");
-	const trimmedValues = values.map((val) => val.trim());
+  let [shouldExpr, ...values] = expectation.split(":");
+  const trimmedValues = values.map((val) => val.trim());
 
-	shouldExpr = shouldExpr.replace(/\s/g, ".");
+  shouldExpr = shouldExpr.replace(/\s/g, ".");
 
-	if (trimmedValues) {
-		return $(element).should(shouldExpr, ...trimmedValues);
-	}
+  if (trimmedValues) {
+    return $(element).should(shouldExpr, ...trimmedValues);
+  }
 
-	$(element).should(shouldExpr);
+  $(element).should(shouldExpr);
 };
 
 const changeTab = (newTab) => {
-	click(newTab);
+  click(newTab);
 
-	if (newTab === "Workflows tab") {
-		cy.waitForSteps();
-	}
+  if (newTab === "Workflows tab") {
+    cy.waitForSteps();
+  }
 };
 
 const scrollTo = (position) => {
-	cy.scrollTo(position);
+  cy.scrollTo(position);
 };
 
 const scrollElementToPx = (element, position) => {
-	$(element).scrollTo(0, position);
+  $(element).scrollTo(0, position);
 };
 
 Given("workflows tab is open", () => {
-	cy.loadSteps(() => cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`));
+  cy.loadSteps(() => cy.visit(`http://localhost:${PORT}/${version}/#!/workflows`));
 });
 
 Given("{string} workflow is selected", (workflow) => {
-	click("Selected Workflow Name");
-	click(`${workflow} workflow`);
+  click("Selected Workflow Name");
+  click(`${workflow} workflow`);
 });
 
 When("I click on {string}", click);
@@ -139,22 +139,22 @@ Then("I should not see {string} in {string}", assertNotInputValueNotEQ);
 Then("I wait {int}", wait);
 Then("{string} should {string}", should);
 Then("{string} should be the selected step", (element) => {
-	$(element).closest("li").should("have.class", "selected");
+  $(element).closest("li").should("have.class", "selected");
 });
 Then("{string} should contain {int} {string}", (element, expectation, childElement) => {
-	$(element).find(selector(childElement)).should("have.length", expectation);
+  $(element).find(selector(childElement)).should("have.length", expectation);
 });
 
 Then("{string} should have {string} {string} style", (element, cssValue, cssProperty) => {
-	$(element).should("have.css", cssProperty, styleValueSelector(cssValue));
+  $(element).should("have.css", cssProperty, styleValueSelector(cssValue));
 });
 
 Then("{string} should have attribute {string} with value {string}", (element, attrName, attrValue) => {
-	$(element).should("have.attr", attrName, attrValue);
+  $(element).should("have.attr", attrName, attrValue);
 });
 
 Then("I save", save);
 
 Then("the {string} should have a {string} icon", (element, iconName) => {
-	$(element).find(selector("r-icon")).should("be.visible").should("have.attr", "name", `'${iconName}'`);
+  $(element).find(selector("r-icon")).should("be.visible").should("have.attr", "name", `'${iconName}'`);
 });

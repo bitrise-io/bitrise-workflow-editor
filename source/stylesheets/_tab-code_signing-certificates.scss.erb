@@ -3,120 +3,120 @@
 @import "tab-code_signing-constants";
 
 .certificates {
-	header {
+  header {
 
-		.label.title {
-			width: $column_left-width;
-			margin-right: $details_icon-width + $details_icon_and_column-spacing + $details_icon_and_column-spacing;
-		}
-	}
+    .label.title {
+      width: $column_left-width;
+      margin-right: $details_icon-width + $details_icon_and_column-spacing + $details_icon_and_column-spacing;
+    }
+  }
 
-	article .uploaded-files .uploaded-file .details {
+  article .uploaded-files .uploaded-file .details {
 
-		.icon svg {
-			fill: $def-purple;
-		}
+    .icon svg {
+      fill: $def-purple;
+    }
 
-		.unprocessed svg {
-			fill: $def-mediumlightgrey;
-		}
+    .unprocessed svg {
+      fill: $def-mediumlightgrey;
+    }
 
-		.column {
+    .column {
 
-			.detail.serial {
-				background-color: $def-purple-light;
-			}
-		}
+      .detail.serial {
+        background-color: $def-purple-light;
+      }
+    }
 
-		.password {
+    .password {
 
-			.password-field-wrapper {
-				position: relative;
-				max-width: 300px;
+      .password-field-wrapper {
+        position: relative;
+        max-width: 300px;
 
-				$eye_checkbox-width: 22px;
-				$padding: 4px;
+        $eye_checkbox-width: 22px;
+        $padding: 4px;
 
-				input.password-field {
-					display: block;
-					width: 100%;
-					@include box-sizing(border-box);
-					border: 1px solid $def-mediumlightgrey;
-					@include border-radius($def-radius);
-					padding: $padding;
-					padding-right: $padding + $eye_checkbox-width + $padding;
-					background-color: $def-verylightgrey;
-					font-size: 16px;
+        input.password-field {
+          display: block;
+          width: 100%;
+          @include box-sizing(border-box);
+          border: 1px solid $def-mediumlightgrey;
+          @include border-radius($def-radius);
+          padding: $padding;
+          padding-right: $padding + $eye_checkbox-width + $padding;
+          background-color: $def-verylightgrey;
+          font-size: 16px;
 
-					&.invalid {
-						border-color: #F17420;
-					}
-				}
+          &.invalid {
+            border-color: #F17420;
+          }
+        }
 
-				.eye-checkbox {
-					@include position(absolute, 50%, $padding);
-					@include transform(translateY(-50%));
-				}
-			}
+        .eye-checkbox {
+          @include position(absolute, 50%, $padding);
+          @include transform(translateY(-50%));
+        }
+      }
 
-			.change-actions {
-				$spacing: 10px;
+      .change-actions {
+        $spacing: 10px;
 
-				@include display-flex;
-				margin-left: $spacing;
+        @include display-flex;
+        margin-left: $spacing;
 
-				.action:not(:last-child) {
-					margin-right: $spacing;
-				}
-			}
+        .action:not(:last-child) {
+          margin-right: $spacing;
+        }
+      }
 
-			.error-notice {
-				@include display-flex;
-				margin-top: 10px;
-				font-size: 13px;
-				color: #F17420;
+      .error-notice {
+        @include display-flex;
+        margin-top: 10px;
+        font-size: 13px;
+        color: #F17420;
 
-				.icon {
-					margin-right: 10px;
+        .icon {
+          margin-right: 10px;
 
-					svg {
-						@include size(16px, 15px);
-						fill: #F17420;
-					}
-				}
-			}
-		}
-	}
+          svg {
+            @include size(16px, 15px);
+            fill: #F17420;
+          }
+        }
+      }
+    }
+  }
 
-	@include media-above($layout-style_change_screenwidth) {
+  @include media-above($layout-style_change_screenwidth) {
 
-		article .uploaded-files .uploaded-file .details .password .label.on-small {
-			display: none;
-		}
-	}
+    article .uploaded-files .uploaded-file .details .password .label.on-small {
+      display: none;
+    }
+  }
 
-	@include media-below-inclusive($layout-style_change_screenwidth) {
+  @include media-below-inclusive($layout-style_change_screenwidth) {
 
-		header {
+    header {
 
-			.label.title {
-				width: 100%;
-				margin-right: 0;
-			}
+      .label.title {
+        width: 100%;
+        margin-right: 0;
+      }
 
-			.label.password {
-				display: none;
-			}
-		}
+      .label.password {
+        display: none;
+      }
+    }
 
-		article .uploaded-files .uploaded-file .details .password {
-			margin-bottom: 15px;
+    article .uploaded-files .uploaded-file .details .password {
+      margin-bottom: 15px;
 
-			.label.on-small {
-				margin-bottom: 10px;
-				font-size: 16px;
-				font-weight: 500;
-			}
-		}
-	}
+      .label.on-small {
+        margin-bottom: 10px;
+        font-size: 16px;
+        font-weight: 500;
+      }
+    }
+  }
 }

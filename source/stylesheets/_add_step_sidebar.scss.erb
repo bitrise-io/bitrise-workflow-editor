@@ -3,441 +3,450 @@
 
 .add-step-sidebar {
 
-	// Sidebar appear-disappear
-
-	.content {
-		@include position(fixed, 0, null, null, 100%);
-	}
-
-	&.open {
-
-		.close-layer {
-			@include position(fixed, 0, 0);
-			@include size(100%);
-		}
-
-		.content {
-			@include transform(translateX(-100%));
-		}
-	}
-
-	&:not(.open) {
-
-		.close-layer {
-			display: none;
-		}
-	}
-
-	.close-layer, .content {
-		z-index: $zindex-add_step_sidebar;
-	}
-
-	//
-
-	&.open .content {
-		@include box-shadow(0px 3px 50px 0px rgba(0, 0, 0, 0.3));
-	}
-
-	.content {
-		$sidebar-padding: 20px;
-
-		padding: $sidebar-padding;
-		@include box-sizing(border-box);
-		overflow-x: hidden;
-		overflow-y: scroll;
-		text-align: center;
-		word-wrap: break-word;
-		@include transition(transform, $def-transition_duration ease-in-out);
-		background-color: white;
-
-		// Sidebar size
-
-		@include size(840px, 100%);
-		max-width: 60%;
-
-		@include media-below-mid {
-			max-width: 80%;
-		}
-
-		@include media-below-small {
-			max-width: 90%;
-		}
-
-		//
-
-		header {
-			$spacing: 10px;
-			@include flex-shrink(0);
-
-			.filters {
-				@include display-flex;
-
-				button.category-mode {
-					@include flex-shrink(0);
-					margin-right: $spacing;
-					@include border-radius($def-radius);
-					@include padding-x(13px);
-					background-color: $def-verylightgrey;
-					@include transition(background-color, $def-transition_duration);
-
-					svg {
-						@include size(15px, 9px);
-						@include transform(rotate(90deg));
-						fill: $def-darkgrey;
-					}
-
-					&:hover, &:focus {
-						background-color: $def-green-light;
-					}
-				}
-
-				input.step-filter {
-					$padding-x: 12px;
-					$search_icon-width: 18px;
-
-					@include flex-grow(1);
-					display: block;
-					@include box-sizing(border-box);
-					width: 100%;
-					@include margin-y(0);
-					border: none;
-					@include border-radius($def-radius);
-					padding: 12px $padding-x;
-					padding-left: $padding-x + $search_icon-width + $padding-x;
-					font-size: 16px;
-					font-weight: 400;
-					color: $def-darkgrey;
-					background-color: $def-verylightgrey;
-					background-image: background_image_from_svg_content('<%= svg("search") %>');
-					background-size: $search_icon-width 18px;
-					background-position: $padding-x center;
-					background-repeat: no-repeat;
-				}
-
-				.project-type-filter {
-					@include flex-shrink(0);
-					@include display-flex;
-					margin-left: $spacing;
-					border: 1px solid $def-darkgrey;
-					@include border-radius($def-radius);
-
-					button {
-						@include padding-x(15px);
-						background-color: white;
-						color: $def-darkgrey;
-						@include transition(background-color $def-transition_duration, color $def-transition_duration);
-
-						&:disabled {
-							cursor: default;
-						}
-
-						&:disabled, &:hover, &:focus {
-							background-color: $def-darkgrey;
-							color: white;
-
-							svg {
-								fill: white;
-							}
-						}
-
-						svg {
-							position: relative;
-							vertical-align: middle;
-							fill: $def-darkgrey;
-							@include transition(fill $def-transition_duration);
-						}
-					}
-
-					button.current {
-
-						span.platform-icon {
-							display: none;
-						}
-
-						&:before {
-							content: "?";
-						}
-
-						svg {
-							@include size(24px);
-						}
-
-						@mixin icon_styling($icon_class) {
-
-							&:before {
-								content: none;
-							}
-
-							span.platform-icon.#{$icon_class} {
-								display: inline;
-							}
-						}
-
-						&.ios {
-							@include icon_styling("apple");
-						}
-						&.osx, &.macos {
-							@include icon_styling("macos");
-						}
-						&.android {
-							@include icon_styling("android");
-						}
-						&.xamarin {
-							@include icon_styling("xamarin");
-						}
-						&.cordova {
-							@include icon_styling("cordova");
-						}
-						&.ionic {
-							@include icon_styling("ionic");
-						}
-						&.flutter {
-							@include icon_styling("flutter");
-						}
-						&.react-native {
-							@include icon_styling("react-native");
-						}
-						&.flutter {
-							@include icon_styling("flutter");
-						}
-						&.other {
-							@include icon_styling("other");
-						}
-					}
-
-					button.all {
-						font-size: 13px;
-						text-transform: uppercase;
-					}
-				}
-			}
-
-			ol.type-filters {
-				$type_filter-spacing: 3px;
-
-				@include display-flex;
-				@include flex-wrap(wrap);
-				@include justify-content(space-between);
-				margin-top: $spacing - $type_filter-spacing;
-				margin-bottom: 0;
-				@include margin-x(- $type_filter-spacing);
-				padding-left: 0;
-				list-style: none;
-
-				li {
-					@include flex-grow(1);
-					@include display-flex;
-					margin: $type_filter-spacing;
-
-					button {
-						@include flex-grow(1);
-						@include border-radius($def-radius);
-						padding: 3px;
-						font-size: 13px;
-						font-weight: 400;
-						background-color: $def-verylightgrey;
-						@include transition(color $def-transition_duration, background-color $def-transition_duration);
-					}
-
-					button:hover, button:focus {
-						background-color: $def-purple-light;
-					}
-
-					button.selected {
-						color: white;
-						background-color: $def-purple;
-
-						&:hover, &:focus {
-							background-color: $def-purple-shade;
-						}
-					}
-				}
-			}
-		}
-
-		ol.categories {
-			@include margin-y(0);
-			padding-left: 0;
-			list-style: none;
-			text-align: left;
-
-			li.category {
-
-				header {
-					@include display-flex;
-					@include justify-content(space-between);
-
-					h3 {
-						@include margin-y(20px);
-						font-size: 13px;
-						font-weight: 700;
-						text-transform: uppercase;
-
-						&:before {
-							content: "";
-							display: inline-block;
-							vertical-align: sub;
-							@include size(18px);
-							margin-right: 6px;
-							letter-spacing: 0.5px;
-							background-position: center bottom;
-							background-repeat: no-repeat;
-						}
-					}
-
-					.step-pagination {
-						@include display-flex;
-						@include align-items(center);
-						max-width: 75%;
-						margin-left: 10px;
-
-						button.page {
-							@include size(28px, 3px);
-							@include box-sizing(content-box);
-							margin-right: 3px;
-							@include padding-y(20px);
-							background-color: $def-verylightgrey;
-							background-clip: content-box;
-							@include transition(background-color $def-transition_duration);
-
-							&:hover, &:focus {
-								background-color: $def-grey;
-							}
-
-							&:disabled {
-								background-color: $def-grey;
-								cursor: default;
-							}
-						}
-					}
-				}
-
-				&.new-releases header h3 {
-					color: #f89b4c;
-
-					&:before {
-						content: "⚡";
-						font-size: 18px;
-					}
-				}
-
-				&.type-test header h3:before {
-					content: "🔍";
-					font-size: 18px;
-				}
-
-				&.type-deploy header h3:before {
-					content: "🚀";
-					font-size: 18px;
-				}
-
-				&.type-notification header h3:before {
-					content: "🔔";
-					font-size: 18px;
-				}
-
-				&.type-utility header h3:before {
-					content: "🛠️";
-					font-size: 18px;
-				}
-
-				.steps-wrapper {
-					position: relative;
-
-					button.paginate {
-						@include position(absolute, 0);
-						@include size($sidebar-padding, 100%);
-
-						&.left {
-							right: 100%;
-						}
-
-						&.right {
-							left: 100%;
-						}
-
-						&:disabled {
-							cursor: default;
-						}
-					}
-
-					ol.steps {
-						@include display-flex;
-						@include align-items(center);
-						position: relative;
-						left: 0%;
-						margin-top: 0;
-
-						&.animated-scroll {
-							@include transition(left, $def-transition_duration);
-						}
-
-						li.add-step-sidebar-step {
-							margin-bottom: 0;
-						}
-
-						li.add-step-sidebar-step .step {
-							@include margin-x(7px);
-						}
-					}
-				}
-			}
-		}
-
-		button.show-all-steps {
-			margin-top: 20px;
-			margin-bottom: 20px;
-			@include border-radius($def-radius);
-			padding: 10px 24px;
-			font-size: 13px;
-			font-weight: 700;
-			text-transform: uppercase;
-			color: white;
-			background-color: $def-darkgrey;
-			@include transition(background-color $def-transition_duration);
-
-			svg {
-				@include position(relative, -1px);
-				@include size(18px, 13px);
-				vertical-align: middle;
-				margin-right: 8px;
-				fill: white;
-			}
-
-			&:hover, &:focus {
-				background-color: $def-verydarkgrey;
-			}
-		}
-
-		ol.steps {
-			margin-top: 20px;
-			padding-left: 0;
-			list-style: none;
-			text-align: left;
-
-			li.add-step-sidebar-step {
-				@include flex-shrink(0);
-
-				&:not(:last-child) {
-					margin-bottom: 15px;
-				}
-			}
-
-			.not-found-all {
-				display: flex;
-
-				.create-new-step{
-					margin-left: 5px;
-					margin-top: 1px;
-					font-size: 15px;
-					font-weight: 500;
-					color: $def-green;
-
-					&:hover, &:focus {
-						text-decoration: underline;
-					}
-				}
-			}
-		}
-	}
+  // Sidebar appear-disappear
+
+  .content {
+    @include position(fixed, 0, null, null, 100%);
+  }
+
+  &.open {
+
+    .close-layer {
+      @include position(fixed, 0, 0);
+      @include size(100%);
+    }
+
+    .content {
+      @include transform(translateX(-100%));
+    }
+  }
+
+  &:not(.open) {
+
+    .close-layer {
+      display: none;
+    }
+  }
+
+  .close-layer, .content {
+    z-index: $zindex-add_step_sidebar;
+  }
+
+  //
+
+  &.open .content {
+    @include box-shadow(0px 3px 50px 0px rgba(0, 0, 0, 0.3));
+  }
+
+  .content {
+    $sidebar-padding: 20px;
+
+    padding: $sidebar-padding;
+    @include box-sizing(border-box);
+    overflow-x: hidden;
+    overflow-y: scroll;
+    text-align: center;
+    word-wrap: break-word;
+    @include transition(transform, $def-transition_duration ease-in-out);
+    background-color: white;
+
+    // Sidebar size
+
+    @include size(840px, 100%);
+    max-width: 60%;
+
+    @include media-below-mid {
+      max-width: 80%;
+    }
+
+    @include media-below-small {
+      max-width: 90%;
+    }
+
+    //
+
+    header {
+      $spacing: 10px;
+      @include flex-shrink(0);
+
+      .filters {
+        @include display-flex;
+
+        button.category-mode {
+          @include flex-shrink(0);
+          margin-right: $spacing;
+          @include border-radius($def-radius);
+          @include padding-x(13px);
+          background-color: $def-verylightgrey;
+          @include transition(background-color, $def-transition_duration);
+
+          svg {
+            @include size(15px, 9px);
+            @include transform(rotate(90deg));
+            fill: $def-darkgrey;
+          }
+
+          &:hover, &:focus {
+            background-color: $def-green-light;
+          }
+        }
+
+        input.step-filter {
+          $padding-x: 12px;
+          $search_icon-width: 18px;
+
+          @include flex-grow(1);
+          display: block;
+          @include box-sizing(border-box);
+          width: 100%;
+          @include margin-y(0);
+          border: none;
+          @include border-radius($def-radius);
+          padding: 12px $padding-x;
+          padding-left: $padding-x + $search_icon-width + $padding-x;
+          font-size: 16px;
+          font-weight: 400;
+          color: $def-darkgrey;
+          background-color: $def-verylightgrey;
+          background-image: background_image_from_svg_content('<%= svg("search") %>');
+          background-size: $search_icon-width 18px;
+          background-position: $padding-x center;
+          background-repeat: no-repeat;
+        }
+
+        .project-type-filter {
+          @include flex-shrink(0);
+          @include display-flex;
+          margin-left: $spacing;
+          border: 1px solid $def-darkgrey;
+          @include border-radius($def-radius);
+
+          button {
+            @include padding-x(15px);
+            background-color: white;
+            color: $def-darkgrey;
+            @include transition(background-color $def-transition_duration, color $def-transition_duration);
+
+            &:disabled {
+              cursor: default;
+            }
+
+            &:disabled, &:hover, &:focus {
+              background-color: $def-darkgrey;
+              color: white;
+
+              svg {
+                fill: white;
+              }
+            }
+
+            svg {
+              position: relative;
+              vertical-align: middle;
+              fill: $def-darkgrey;
+              @include transition(fill $def-transition_duration);
+            }
+          }
+
+          button.current {
+
+            span.platform-icon {
+              display: none;
+            }
+
+            &:before {
+              content: "?";
+            }
+
+            svg {
+              @include size(24px);
+            }
+
+            @mixin icon_styling($icon_class) {
+
+              &:before {
+                content: none;
+              }
+
+              span.platform-icon.#{$icon_class} {
+                display: inline;
+              }
+            }
+
+            &.ios {
+              @include icon_styling("apple");
+            }
+
+            &.osx, &.macos {
+              @include icon_styling("macos");
+            }
+
+            &.android {
+              @include icon_styling("android");
+            }
+
+            &.xamarin {
+              @include icon_styling("xamarin");
+            }
+
+            &.cordova {
+              @include icon_styling("cordova");
+            }
+
+            &.ionic {
+              @include icon_styling("ionic");
+            }
+
+            &.flutter {
+              @include icon_styling("flutter");
+            }
+
+            &.react-native {
+              @include icon_styling("react-native");
+            }
+
+            &.flutter {
+              @include icon_styling("flutter");
+            }
+
+            &.other {
+              @include icon_styling("other");
+            }
+          }
+
+          button.all {
+            font-size: 13px;
+            text-transform: uppercase;
+          }
+        }
+      }
+
+      ol.type-filters {
+        $type_filter-spacing: 3px;
+
+        @include display-flex;
+        @include flex-wrap(wrap);
+        @include justify-content(space-between);
+        margin-top: $spacing - $type_filter-spacing;
+        margin-bottom: 0;
+        @include margin-x(- $type_filter-spacing);
+        padding-left: 0;
+        list-style: none;
+
+        li {
+          @include flex-grow(1);
+          @include display-flex;
+          margin: $type_filter-spacing;
+
+          button {
+            @include flex-grow(1);
+            @include border-radius($def-radius);
+            padding: 3px;
+            font-size: 13px;
+            font-weight: 400;
+            background-color: $def-verylightgrey;
+            @include transition(color $def-transition_duration, background-color $def-transition_duration);
+          }
+
+          button:hover, button:focus {
+            background-color: $def-purple-light;
+          }
+
+          button.selected {
+            color: white;
+            background-color: $def-purple;
+
+            &:hover, &:focus {
+              background-color: $def-purple-shade;
+            }
+          }
+        }
+      }
+    }
+
+    ol.categories {
+      @include margin-y(0);
+      padding-left: 0;
+      list-style: none;
+      text-align: left;
+
+      li.category {
+
+        header {
+          @include display-flex;
+          @include justify-content(space-between);
+
+          h3 {
+            @include margin-y(20px);
+            font-size: 13px;
+            font-weight: 700;
+            text-transform: uppercase;
+
+            &:before {
+              content: "";
+              display: inline-block;
+              vertical-align: sub;
+              @include size(18px);
+              margin-right: 6px;
+              letter-spacing: 0.5px;
+              background-position: center bottom;
+              background-repeat: no-repeat;
+            }
+          }
+
+          .step-pagination {
+            @include display-flex;
+            @include align-items(center);
+            max-width: 75%;
+            margin-left: 10px;
+
+            button.page {
+              @include size(28px, 3px);
+              @include box-sizing(content-box);
+              margin-right: 3px;
+              @include padding-y(20px);
+              background-color: $def-verylightgrey;
+              background-clip: content-box;
+              @include transition(background-color $def-transition_duration);
+
+              &:hover, &:focus {
+                background-color: $def-grey;
+              }
+
+              &:disabled {
+                background-color: $def-grey;
+                cursor: default;
+              }
+            }
+          }
+        }
+
+        &.new-releases header h3 {
+          color: #f89b4c;
+
+          &:before {
+            content: "⚡";
+            font-size: 18px;
+          }
+        }
+
+        &.type-test header h3:before {
+          content: "🔍";
+          font-size: 18px;
+        }
+
+        &.type-deploy header h3:before {
+          content: "🚀";
+          font-size: 18px;
+        }
+
+        &.type-notification header h3:before {
+          content: "🔔";
+          font-size: 18px;
+        }
+
+        &.type-utility header h3:before {
+          content: "🛠️";
+          font-size: 18px;
+        }
+
+        .steps-wrapper {
+          position: relative;
+
+          button.paginate {
+            @include position(absolute, 0);
+            @include size($sidebar-padding, 100%);
+
+            &.left {
+              right: 100%;
+            }
+
+            &.right {
+              left: 100%;
+            }
+
+            &:disabled {
+              cursor: default;
+            }
+          }
+
+          ol.steps {
+            @include display-flex;
+            @include align-items(center);
+            position: relative;
+            left: 0%;
+            margin-top: 0;
+
+            &.animated-scroll {
+              @include transition(left, $def-transition_duration);
+            }
+
+            li.add-step-sidebar-step {
+              margin-bottom: 0;
+            }
+
+            li.add-step-sidebar-step .step {
+              @include margin-x(7px);
+            }
+          }
+        }
+      }
+    }
+
+    button.show-all-steps {
+      margin-top: 20px;
+      margin-bottom: 20px;
+      @include border-radius($def-radius);
+      padding: 10px 24px;
+      font-size: 13px;
+      font-weight: 700;
+      text-transform: uppercase;
+      color: white;
+      background-color: $def-darkgrey;
+      @include transition(background-color $def-transition_duration);
+
+      svg {
+        @include position(relative, -1px);
+        @include size(18px, 13px);
+        vertical-align: middle;
+        margin-right: 8px;
+        fill: white;
+      }
+
+      &:hover, &:focus {
+        background-color: $def-verydarkgrey;
+      }
+    }
+
+    ol.steps {
+      margin-top: 20px;
+      padding-left: 0;
+      list-style: none;
+      text-align: left;
+
+      li.add-step-sidebar-step {
+        @include flex-shrink(0);
+
+        &:not(:last-child) {
+          margin-bottom: 15px;
+        }
+      }
+
+      .not-found-all {
+        display: flex;
+
+        .create-new-step {
+          margin-left: 5px;
+          margin-top: 1px;
+          font-size: 15px;
+          font-weight: 500;
+          color: $def-green;
+
+          &:hover, &:focus {
+            text-decoration: underline;
+          }
+        }
+      }
+    }
+  }
 }
