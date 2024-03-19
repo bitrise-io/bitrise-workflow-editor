@@ -75,19 +75,31 @@ import { configureMonacoYaml } from 'monaco-yaml';
 
 			function configureEditor() {
 				model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
+				
+				const container = document.getElementById("code-container")
 
-				editor = monaco.editor.create(document.getElementById("code-container"), {
-					model: model,
+				editor = monaco.editor.create(container, {
+					model,
+					readOnly: false,
+					theme: "vs-dark",
 					language: "yaml",
 					lineNumbers: "on",
+					automaticLayout: true,
+					overviewRulerLanes: 0,
 					roundedSelection: false,
+					minimap: { enabled: false },
 					scrollBeyondLastLine: false,
-					readOnly: false,
-					theme: "vs-dark"
+					scrollbar: { alwaysConsumeMouseWheel: false },
 				});
+
 				editor.layout();
 				editor.focus();
 				editor.onDidChangeModelContent(updateAppConfigYML);
+				
+				editor.onDidContentSizeChange((e) => {
+					container.style.height = `${e.contentHeight}px`;
+					editor.layout({ width: container.clientWidth, height: e.contentHeight });
+				});
 			}
 
 			function updateAppConfigYML() {
