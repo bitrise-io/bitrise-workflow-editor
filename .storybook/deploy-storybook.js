@@ -34,6 +34,8 @@ async function createComment(path) {
 
 async function uploadFiles() {
   if (!process.env.STORYBOOK_GCP_DEPLOY_BUCKET || !process.env.STORYBOOK_GCP_DEPLOY_KEY) {
+    console.log(!!process.env.STORYBOOK_GCP_DEPLOY_BUCKET);
+    console.log(!!process.env.STORYBOOK_GCP_DEPLOY_KEY);
     throw new Error('Storybook deploy config not found!');
   }
 
