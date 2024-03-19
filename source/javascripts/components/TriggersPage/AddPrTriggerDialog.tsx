@@ -13,10 +13,9 @@ import {
 	ProgressIndicatorProps,
 	Select,
 	Text,
-	Toggletip,
 	Tooltip,
 } from "@bitrise/bitkit";
-import { ReactNode, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from "react";
 import { FormProvider, useFieldArray, useForm, useFormContext } from "react-hook-form";
 
 import { Condition, FormItems, PrConditionType, TriggerItem } from "./TriggersPage.types";
@@ -64,20 +63,16 @@ const ConditionCard = (props: ConditionCardProps) => {
 	const { register, watch } = useFormContext();
 	const { conditions } = watch();
 	const { isRegex, type } = conditions[conditionNumber] || {};
-	const isPermanentCondition = (
-		["pull_request_source_branch", "pull_request_target_branch"] as PrConditionType[]
-	).includes(conditions[conditionNumber].type);
 
 	return (
 		<Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
 			<Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
 				<Text textStyle="heading/h5">Condition {conditionNumber + 1}</Text>
-				{!isPermanentCondition && children}
+				{children}
 			</Box>
 			<Select
 				marginBottom="16"
 				placeholder="Select a condition type"
-				isDisabled={isPermanentCondition}
 				{...register(`conditions.${conditionNumber}.type`)}
 			>
 				{Object.entries(OPTIONS_MAP).map(([type, text]) => {
@@ -100,9 +95,9 @@ const ConditionCard = (props: ConditionCardProps) => {
 					<Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
 						Use regex pattern
 					</Checkbox>
-					<Toggletip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
+					<Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
 						<Icon name="Info" size="16" marginLeft="5" />
-					</Toggletip>
+					</Tooltip>
 					<Input
 						{...register(`conditions.${conditionNumber}.value`)}
 						placeholder={getPlaceholderText(isRegex, type)}
@@ -111,26 +106,6 @@ const ConditionCard = (props: ConditionCardProps) => {
 			)}
 		</Card>
 	);
-};
-
-const defaultValues: FormItems = {
-	conditions: [
-		{
-			isRegex: false,
-			type: "pull_request_target_branch",
-			value: "*",
-		},
-		{
-			isRegex: false,
-			type: "pull_request_source_branch",
-			value: "*",
-		},
-	],
-	id: crypto.randomUUID(),
-	pipelineable: "",
-	source: "pull_request",
-	isDraftPr: true,
-	isActive: true,
 };
 
 const AddPrTriggerDialog = (props: DialogProps) => {
@@ -144,12 +119,33 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 		{ label: "Target" },
 	];
 
+	const defaultValues: FormItems = useMemo(() => {
+		return {
+			conditions: [
+				{
+					isRegex: false,
+					type: "pull_request_target_branch",
+					value: "*",
+				},
+			],
+			id: crypto.randomUUID(),
+			pipelineable: "",
+			source: "pull_request",
+			isDraftPr: true,
+			isActive: true,
+		};
+	}, [editedItem]);
+
 	const formMethods = useForm<FormItems>({
 		defaultValues,
 		values: { ...defaultValues, ...editedItem },
 	});
 
 	const { control, register, reset, handleSubmit, watch } = formMethods;
+
+	useEffect(() => {
+		reset(defaultValues);
+	}, [reset, defaultValues, isOpen, editedItem]);
 
 	const { append, fields, remove } = useFieldArray({
 		control,
