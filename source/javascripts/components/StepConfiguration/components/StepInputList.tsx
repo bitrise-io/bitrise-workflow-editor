@@ -23,6 +23,8 @@ const StepInputList = ({ inputs }: Props) => {
 							label={input.title()}
 							defaultValue={input.value()}
 							options={input.valueOptions()}
+							helperSummary={input.summary()}
+							helperDetails={input.description()}
 							isRequired={input.isRequired()}
 							isSensitive={input.isSensitive()}
 							isReadOnly={input.isDontChangeValue()}

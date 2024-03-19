@@ -38,6 +38,10 @@ class SemverService {
 	};
 
 	isMajorVersionChange = (from: string, to: string): boolean => {
+		if (!from || !to) {
+			return false;
+		}
+
 		const fromMajor = from.split(".")[0];
 		const toMajor = to.split(".")[0];
 		return fromMajor != toMajor;

@@ -1,4 +1,5 @@
 export type GetterSetter<T> = (value?: T) => T;
+export type Getter<T> = () => T;
 
 export interface StepCatalouge {
 	steps: Record<string, Map<string, Record<string, any>>>;
@@ -21,38 +22,31 @@ export interface Step {
 	id: string;
 	cvs: string;
 	version: string;
+
 	defaultStepConfig: {
 		version: string;
 		source_code_url: string;
 		inputs: Array<object>;
 	};
 
+	displayName: Getter<string>;
+	displayTooltip: Getter<string>;
+	title: GetterSetter<string>;
+	summary: GetterSetter<string>;
+	description: GetterSetter<string>;
+	sourceURL: GetterSetter<string>;
+	iconURL: GetterSetter<string>;
 	runIf: GetterSetter<string>;
 	isAlwaysRun: GetterSetter<boolean>;
+	isConfigured: Getter<boolean>;
+	isVerified: Getter<boolean>;
+	isOfficial: Getter<boolean>;
+	isDeprecated: Getter<boolean>;
+	isLibraryStep: Getter<boolean>;
+	isVCSStep: Getter<boolean>;
+	requestedVersion: Getter<string | null>;
 
-	requestedVersion(): string | null;
 
-	displayName(): string;
-
-	displayTooltip(): string;
-
-	isVerified(): boolean;
-
-	isOfficial(): boolean;
-
-	isConfigured(): boolean;
-
-	isDeprecated(): boolean;
-
-	isLibraryStep(): boolean;
-
-	iconURL(): string;
-
-	summary(): string;
-
-	description(): string;
-
-	sourceURL(): string;
 }
 
 export interface StepOutputVariable {
@@ -63,12 +57,14 @@ export interface StepOutputVariable {
 }
 
 export interface Variable {
-	key: GetterSetter<string>;
-	title: GetterSetter<string>;
-	value: GetterSetter<string>;
+	description: GetterSetter<string>;
+	isDontChangeValue: GetterSetter<boolean>;
 	isRequired: GetterSetter<boolean>;
 	isSensitive: GetterSetter<boolean>;
-	isDontChangeValue: GetterSetter<boolean>;
+	key: GetterSetter<string>;
+	summary: GetterSetter<string>;
+	title: GetterSetter<string>;
+	value: GetterSetter<string>;
 	valueOptions: GetterSetter<string[] | undefined>;
 }
 
