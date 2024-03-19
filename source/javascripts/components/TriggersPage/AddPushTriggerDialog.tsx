@@ -122,7 +122,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 				{
 					isRegex: false,
 					type: "push_branch",
-					value: "*",
+					value: "",
 				},
 			],
 			id: crypto.randomUUID(),
@@ -172,7 +172,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 		append({
 			isRegex: false,
 			type: undefined,
-			value: "*",
+			value: "",
 		});
 	};
 

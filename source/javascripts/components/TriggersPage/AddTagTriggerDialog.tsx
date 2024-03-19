@@ -60,7 +60,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
 	const isEditMode = !!editedItem;
 
-	const inputPlaceholderText = (isRegex: boolean) => (isRegex ? "Enter a regex pattern" : "Enter a tag");
+	const getLabelText = (isRegex: boolean) => (isRegex ? "Enter a regex pattern" : "Enter a tag");
 
 	const onFormSubmit = (data: FormItems) => {
 		const filteredData = data;
@@ -112,7 +112,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 					</Tooltip>
 					<Input
 						marginBottom="24"
-						placeholder={inputPlaceholderText(isRegex)}
+						label={getLabelText(isRegex)}
+						isRequired
+						placeholder="*"
 						{...register(`conditions.${conditionNumber}.value`)}
 					></Input>
 					<Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">

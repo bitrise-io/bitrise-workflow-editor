@@ -37,7 +37,7 @@ const PLACEHOLDER_MAP: Record<PrConditionType, string> = {
 	changed_files: "Enter a path",
 };
 
-const getPlaceholderText = (isRegex: boolean, type: PrConditionType): string => {
+const getLabelText = (isRegex: boolean, type: PrConditionType): string => {
 	if (isRegex) {
 		return "Enter a regex pattern";
 	}
@@ -100,7 +100,9 @@ const ConditionCard = (props: ConditionCardProps) => {
 					</Tooltip>
 					<Input
 						{...register(`conditions.${conditionNumber}.value`)}
-						placeholder={getPlaceholderText(isRegex, type)}
+						isRequired
+						label={getLabelText(isRegex, type)}
+						placeholder="*"
 					></Input>
 				</>
 			)}
@@ -125,7 +127,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 				{
 					isRegex: false,
 					type: "pull_request_target_branch",
-					value: "*",
+					value: "",
 				},
 			],
 			id: crypto.randomUUID(),

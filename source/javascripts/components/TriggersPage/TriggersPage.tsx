@@ -203,6 +203,21 @@ const TriggersPage = (props: TriggersPageProps) => {
 									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
+						{pushTriggers.length > 1 && isTriggersNotificationOpen && (
+							<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
+								<Text fontWeight="bold">Order of triggers</Text>
+								<Text>
+									The first matching trigger is executed by the system, so make sure that the order of triggers is
+									configured correctly.{" "}
+									<Link
+										href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+										isUnderlined
+									>
+										Learn more
+									</Link>
+								</Text>
+							</Notification>
+						)}
 					</TabPanel>
 					<TabPanel>
 						{" "}
@@ -233,6 +248,21 @@ const TriggersPage = (props: TriggersPageProps) => {
 									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
+						{prTriggers.length > 1 && isTriggersNotificationOpen && (
+							<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
+								<Text fontWeight="bold">Order of triggers</Text>
+								<Text>
+									The first matching trigger is executed by the system, so make sure that the order of triggers is
+									configured correctly.{" "}
+									<Link
+										href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+										isUnderlined
+									>
+										Learn more
+									</Link>
+								</Text>
+							</Notification>
+						)}
 					</TabPanel>
 					<TabPanel>
 						<Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
@@ -261,24 +291,24 @@ const TriggersPage = (props: TriggersPageProps) => {
 									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
+						{tagTriggers.length > 1 && isTriggersNotificationOpen && (
+							<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
+								<Text fontWeight="bold">Order of triggers</Text>
+								<Text>
+									The first matching trigger is executed by the system, so make sure that the order of triggers is
+									configured correctly.{" "}
+									<Link
+										href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+										isUnderlined
+									>
+										Learn more
+									</Link>
+								</Text>
+							</Notification>
+						)}
 					</TabPanel>
 				</TabPanels>
 			</Tabs>
-			{triggers.length > 1 && isTriggersNotificationOpen && (
-				<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
-					<Text fontWeight="bold">Order of triggers</Text>
-					<Text>
-						The first matching trigger is executed by the system, so make sure that the order of triggers is configured
-						correctly.{" "}
-						<Link
-							href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-							isUnderlined
-						>
-							Learn more
-						</Link>
-					</Text>
-				</Notification>
-			)}
 			<AddPushTriggerDialog
 				pipelineables={pipelineables}
 				onClose={onCloseDialog}
