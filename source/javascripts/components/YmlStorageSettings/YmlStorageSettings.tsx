@@ -1,9 +1,9 @@
-import { useEffect, useMemo, useState } from "react";
-import { Box, Link, Text } from "@bitrise/bitkit";
+import { useEffect, useMemo, useState } from 'react';
+import { Box, Link, Text } from '@bitrise/bitkit';
 
-import StoreInRepository from "./StoreInRepository";
-import StoreOnWebsite from "./StoreOnWebsite";
-import YmlStorageOption from "./YmlStorageOption";
+import StoreInRepository from './StoreInRepository';
+import StoreOnWebsite from './StoreOnWebsite';
+import YmlStorageOption from './YmlStorageOption';
 
 type YmlStorageSettingsProps = {
   appSlug: string;
@@ -18,12 +18,8 @@ const YmlStorageSettings = ({
   repositoryYmlAvailable,
   onUsesRepositoryYmlChangeSaved,
 }: YmlStorageSettingsProps): JSX.Element => {
-  const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(
-    _initialUsesRepositoryYml,
-  );
-  const [usesRepositoryYml, setUsesRepositoryYml] = useState(
-    _initialUsesRepositoryYml,
-  );
+  const [initialUsesRepositoryYml, setInitialUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
+  const [usesRepositoryYml, setUsesRepositoryYml] = useState(_initialUsesRepositoryYml);
 
   const selectionDiffers = useMemo(
     () => usesRepositoryYml !== initialUsesRepositoryYml,
@@ -39,27 +35,14 @@ const YmlStorageSettings = ({
   }, [initialUsesRepositoryYml, onUsesRepositoryYmlChangeSaved]);
 
   return (
-    <Box
-      borderRadius="8"
-      borderStyle="solid"
-      borderWidth="1px"
-      borderColor="neutral.80"
-      overflow="hidden"
-    >
-      <Box
-        backgroundColor="neutral.93"
-        paddingX="16"
-        paddingY="12"
-        gap="8"
-        display="flex"
-        flexDirection="column"
-      >
+    <Box borderRadius="8" borderStyle="solid" borderWidth="1px" borderColor="neutral.80" overflow="hidden">
+      <Box backgroundColor="neutral.93" paddingX="16" paddingY="12" gap="8" display="flex" flexDirection="column">
         <Text fontWeight="bold" size="3" textColor="purple.10">
           Where do you want to store the bitrise.yml file?
         </Text>
         <Text size="2" textColor="neutral.40">
-          Store and manage the bitrise.yml configuration file on either
-          bitrise.io or in your app's repository. Check out the{" "}
+          Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
+          out the{' '}
           <Link
             href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
             colorScheme="purple"
@@ -67,7 +50,7 @@ const YmlStorageSettings = ({
             isExternal
           >
             documentation
-          </Link>{" "}
+          </Link>{' '}
           for the details.
         </Text>
       </Box>

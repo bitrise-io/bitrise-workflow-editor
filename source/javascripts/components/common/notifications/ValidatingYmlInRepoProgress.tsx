@@ -1,6 +1,6 @@
-import { Notification } from "@bitrise/bitkit";
+import { Notification } from '@bitrise/bitkit';
 
-import { WFEWindow } from "../../../typings/global";
+import { WFEWindow } from '../../../typings/global';
 
 const ValidatingYmlInRepoProgress = (): JSX.Element => (
   <Notification status="progress">

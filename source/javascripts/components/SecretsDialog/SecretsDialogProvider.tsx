@@ -1,14 +1,8 @@
-import {
-  createContext,
-  PropsWithChildren,
-  useContext,
-  useMemo,
-  useState,
-} from "react";
-import { useDisclosure } from "@bitrise/bitkit";
+import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
+import { useDisclosure } from '@bitrise/bitkit';
 
-import SecretsDialog from "./SecretsDialog";
-import { HandlerFn, Secret } from "./types";
+import SecretsDialog from './SecretsDialog';
+import { HandlerFn, Secret } from './types';
 
 type State = { open: (options: { onSelect: HandlerFn }) => void };
 type Props = PropsWithChildren<{
@@ -18,11 +12,7 @@ type Props = PropsWithChildren<{
 
 const Context = createContext<State>({ open: () => undefined });
 
-const SecretsDialogProvider = ({
-  children,
-  defaultSecrets = [],
-  onCreate,
-}: Props) => {
+const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Props) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [secrets, setSecrets] = useState(defaultSecrets);
 
@@ -31,7 +21,7 @@ const SecretsDialogProvider = ({
   });
 
   const value = useMemo(() => {
-    const open: State["open"] = (options) => {
+    const open: State['open'] = (options) => {
       onOpen();
       setDynamicProps(options);
     };
@@ -47,13 +37,7 @@ const SecretsDialogProvider = ({
   return (
     <Context.Provider value={value}>
       {children}
-      <SecretsDialog
-        isOpen={isOpen}
-        secrets={secrets}
-        onClose={onClose}
-        onCreate={handleCreate}
-        {...dynamicProps}
-      />
+      <SecretsDialog isOpen={isOpen} secrets={secrets} onClose={onClose} onCreate={handleCreate} {...dynamicProps} />
     </Context.Provider>
   );
 };

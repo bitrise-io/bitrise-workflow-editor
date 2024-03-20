@@ -1,18 +1,14 @@
-import { Box } from "@bitrise/bitkit";
-import { Converter } from "showdown";
+import { Box } from '@bitrise/bitkit';
+import { Converter } from 'showdown';
 
 type MarkdownTextProps = {
   markdown: string;
   [x: string]: any;
 };
 
-const stripHtml = (text: string): string =>
-  String(text).replace(/<[^>]+>/gm, "");
+const stripHtml = (text: string): string => String(text).replace(/<[^>]+>/gm, '');
 
-const MarkdownText = ({
-  markdown,
-  ...rest
-}: MarkdownTextProps): JSX.Element => {
+const MarkdownText = ({ markdown, ...rest }: MarkdownTextProps): JSX.Element => {
   const converter = new Converter();
   const markdownHtml = converter.makeHtml(stripHtml(markdown));
 

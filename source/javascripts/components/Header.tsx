@@ -1,11 +1,4 @@
-import {
-  Box,
-  Breadcrumb,
-  BreadcrumbLink,
-  Button,
-  ButtonGroup,
-  Text,
-} from "@bitrise/bitkit";
+import { Box, Breadcrumb, BreadcrumbLink, Button, ButtonGroup, Text } from '@bitrise/bitkit';
 
 type Props = {
   appName: string;
@@ -30,34 +23,19 @@ const Header = ({
   onDiscardClick,
   isDiscardDisabled,
 }: Props) => {
-  const isBreadcrumbVisible =
-    appName && appPath && workspacePath && workflowsAndPipelinesPath;
+  const isBreadcrumbVisible = appName && appPath && workspacePath && workflowsAndPipelinesPath;
 
   return (
-    <Box
-      as="header"
-      borderBottom="1px solid"
-      borderColor="separator.primary"
-      p={32}
-      pt={24}
-    >
+    <Box as="header" borderBottom="1px solid" borderColor="separator.primary" p={32} pt={24}>
       {isBreadcrumbVisible && (
         <Breadcrumb hasSeparatorAfterLast>
           <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
           <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-          <BreadcrumbLink href={workflowsAndPipelinesPath}>
-            Workflows & Pipelines
-          </BreadcrumbLink>
+          <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
         </Breadcrumb>
       )}
 
-      <Box
-        display="flex"
-        alignItems="center"
-        justifyContent="space-between"
-        gap={32}
-        mt={isBreadcrumbVisible ? 24 : 0}
-      >
+      <Box display="flex" alignItems="center" justifyContent="space-between" gap={32} mt={isBreadcrumbVisible ? 24 : 0}>
         <Text id="away" as="h1" size="6">
           Workflow Editor
         </Text>

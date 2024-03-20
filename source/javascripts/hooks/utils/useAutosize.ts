@@ -1,5 +1,5 @@
-import { ForwardedRef, useEffect, useRef } from "react";
-import autosize from "autosize";
+import { ForwardedRef, useEffect, useRef } from 'react';
+import autosize from 'autosize';
 
 const intersectionObserver = new IntersectionObserver((entries) => {
   entries.forEach((entry) => {
@@ -17,7 +17,7 @@ const useAutosize = <T extends Element>(ref: ForwardedRef<T>) => {
       return;
     }
 
-    if (typeof ref === "function") {
+    if (typeof ref === 'function') {
       ref(innerRef.current);
     } else {
       // eslint-disable-next-line no-param-reassign

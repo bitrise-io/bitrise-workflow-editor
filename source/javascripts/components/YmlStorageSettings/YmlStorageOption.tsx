@@ -1,4 +1,4 @@
-import { Badge, Box, Icon, Text, Tooltip, TypeIconName } from "@bitrise/bitkit";
+import { Badge, Box, Icon, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
 
 type StepItemProps = {
   icon: TypeIconName;
@@ -19,10 +19,10 @@ const YmlStorageOption = ({
 }: StepItemProps): JSX.Element => (
   <Box
     boxShadow="medium"
-    backgroundColor={isActive ? "purple.95" : "white"}
+    backgroundColor={isActive ? 'purple.95' : 'white'}
     borderStyle="solid"
-    borderColor={isActive ? "purple.50" : "neutral.93"}
-    borderWidth={isActive ? "0.125rem" : "0.0625rem"}
+    borderColor={isActive ? 'purple.50' : 'neutral.93'}
+    borderWidth={isActive ? '0.125rem' : '0.0625rem'}
     borderRadius="8"
     display="flex"
     flexDirection="row"
@@ -32,9 +32,9 @@ const YmlStorageOption = ({
     flexGrow="1"
     flexShrink="1"
     minWidth="0"
-    filter={available ? undefined : "opacity(0.6)"}
+    filter={available ? undefined : 'opacity(0.6)'}
     onClick={available ? onClick : undefined}
-    cursor={available ? "pointer" : "not-allowed"}
+    cursor={available ? 'pointer' : 'not-allowed'}
   >
     <Icon textColor="purple.30" name={icon} />
     <Box flexGrow="1" flexShrink="1" minWidth="0">
@@ -47,11 +47,7 @@ const YmlStorageOption = ({
             label="Storing YAML in your app's repository is not available in your current plan."
             shouldWrapChildren
           >
-            <Badge
-              filter="none"
-              color="neutral.40"
-              backgroundColor="neutral.90"
-            >
+            <Badge filter="none" color="neutral.40" backgroundColor="neutral.90">
               Not available
             </Badge>
           </Tooltip>

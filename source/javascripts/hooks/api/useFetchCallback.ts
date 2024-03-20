@@ -1,6 +1,6 @@
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useRef, useState } from 'react';
 
-import { useAsyncError } from "../utils/useAsyncError";
+import { useAsyncError } from '../utils/useAsyncError';
 
 export interface FetchResponse<T, E> {
   result: T | undefined;
@@ -37,8 +37,8 @@ function useFetchCallback<T, E>(
       (async () => {
         setLoading(true);
         try {
-          if (url === "") {
-            throwError(new Error("Url is required"));
+          if (url === '') {
+            throwError(new Error('Url is required'));
             return;
           }
 
@@ -47,8 +47,8 @@ function useFetchCallback<T, E>(
             ...init,
             ...options,
             headers: {
-              "Content-Type": "application/json",
-              Accept: "application/json",
+              'Content-Type': 'application/json',
+              Accept: 'application/json',
               ...init?.headers,
               ...options?.headers,
             },
@@ -57,9 +57,7 @@ function useFetchCallback<T, E>(
           setStatusCode(fetchResult.status);
 
           if (fetchResult.status >= 500) {
-            throwError(
-              new Error(`Failed to fetch, ${fetchResult.statusText} ${url}`),
-            );
+            throwError(new Error(`Failed to fetch, ${fetchResult.statusText} ${url}`));
             return;
           }
           const body = await fetchResult.text();

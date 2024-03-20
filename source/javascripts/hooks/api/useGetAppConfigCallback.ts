@@ -1,7 +1,5 @@
-import { AppConfig } from "../../models/AppConfig";
-import useMonolithApiCallback, {
-  MonolithError,
-} from "./useMonolithApiCallback";
+import { AppConfig } from '../../models/AppConfig';
+import useMonolithApiCallback, { MonolithError } from './useMonolithApiCallback';
 
 export interface FetchResponse {
   appConfig: AppConfig | undefined;
@@ -11,9 +9,7 @@ export interface FetchResponse {
   getAppConfig: () => void;
 }
 
-export default function useGetAppConfigCallback(
-  appSlug: string,
-): FetchResponse {
+export default function useGetAppConfigCallback(appSlug: string): FetchResponse {
   const {
     statusCode: getAppConfigStatus,
     loading: getAppConfigLoading,

@@ -1,15 +1,13 @@
-import { dump } from "js-yaml";
+import { dump } from 'js-yaml';
 
-import { AppConfig } from "../models/AppConfig";
+import { AppConfig } from '../models/AppConfig';
 
-export default function appConfigAsYml(
-  appConfig: AppConfig | undefined,
-): string {
+export default function appConfigAsYml(appConfig: AppConfig | undefined): string {
   if (!appConfig) {
-    return "";
+    return '';
   }
 
-  if (typeof appConfig === "string") {
+  if (typeof appConfig === 'string') {
     return appConfig;
   }
 

@@ -1,17 +1,10 @@
-import { useEffect } from "react";
-import {
-  Box,
-  Card,
-  Divider,
-  ExpandableCard,
-  Text,
-  Toggle,
-} from "@bitrise/bitkit";
-import { FormProvider, useForm } from "react-hook-form";
+import { useEffect } from 'react';
+import { Box, Card, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { FormProvider, useForm } from 'react-hook-form';
 
-import { InputCategory, Step } from "../../models";
-import StepInput from "./components/StepInput/StepInput";
-import StepInputList from "./components/StepInputList";
+import { InputCategory, Step } from '../../models';
+import StepInput from './components/StepInput/StepInput';
+import StepInputList from './components/StepInputList';
 
 type StepConfigurationProps = {
   step: Step;
@@ -19,11 +12,7 @@ type StepConfigurationProps = {
   onChange: (data: Record<string, unknown>) => void;
 };
 
-const StepConfiguration = ({
-  step,
-  inputCategories,
-  onChange,
-}: StepConfigurationProps) => {
+const StepConfiguration = ({ step, inputCategories, onChange }: StepConfigurationProps) => {
   const form = useForm<Record<string, unknown>>();
 
   /**
@@ -40,31 +29,17 @@ const StepConfiguration = ({
   return (
     <FormProvider {...form}>
       <Box as="form" display="flex" flexDir="column" p="12" gap="12">
-        <ExpandableCard
-          buttonContent={<Text fontWeight="demiBold">When to run</Text>}
-          isExpanded
-        >
+        <ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>} isExpanded>
           <Box display="flex">
             <Text flex="1">Run if previous Step(s) failed</Text>
-            <Toggle
-              {...form.register("is_always_run")}
-              defaultChecked={step.isAlwaysRun()}
-            />
+            <Toggle {...form.register('is_always_run')} defaultChecked={step.isAlwaysRun()} />
           </Box>
           <Divider my="24" />
-          <StepInput
-            {...form.register("run_if")}
-            label="Additional run conditions"
-            defaultValue={step.runIf()}
-          />
+          <StepInput {...form.register('run_if')} label="Additional run conditions" defaultValue={step.runIf()} />
         </ExpandableCard>
 
         {inputCategories.map((category, index) => {
-          const key = [
-            step.displayName(),
-            category.name || "group",
-            index,
-          ].join("");
+          const key = [step.displayName(), category.name || 'group', index].join('');
 
           if (!category.name) {
             return (
@@ -75,10 +50,7 @@ const StepConfiguration = ({
           }
 
           return (
-            <ExpandableCard
-              key={key}
-              buttonContent={<Text fontWeight="demiBold">{category.name}</Text>}
-            >
+            <ExpandableCard key={key} buttonContent={<Text fontWeight="demiBold">{category.name}</Text>}>
               <StepInputList inputs={category.inputs} />
             </ExpandableCard>
           );

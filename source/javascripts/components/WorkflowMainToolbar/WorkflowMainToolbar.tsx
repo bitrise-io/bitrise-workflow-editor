@@ -11,13 +11,11 @@ import {
   Text,
   Tooltip,
   useDisclosure,
-} from "@bitrise/bitkit";
+} from '@bitrise/bitkit';
 
-import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
-import RunWorkflowDialog from "../RunWorkflowDialog/RunWorkflowDialog";
-import WorkflowSelector, {
-  WorkflowSelectorProps,
-} from "../WorkflowSelector/WorkflowSelector";
+import { useTrackingFunction } from '../../hooks/utils/useTrackingFunction';
+import RunWorkflowDialog from '../RunWorkflowDialog/RunWorkflowDialog';
+import WorkflowSelector, { WorkflowSelectorProps } from '../WorkflowSelector/WorkflowSelector';
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
   defaultBranch: string;
@@ -53,15 +51,14 @@ const WorkflowMainToolbar = ({
   organizationSlug,
 }: WorkflowMainToolbarProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure();
-  const showStepLimit = typeof uniqueStepLimit === "number";
-  const stepLimitReached =
-    uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
+  const showStepLimit = typeof uniqueStepLimit === 'number';
+  const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
   const upgradeLink = organizationSlug
     ? `/organization/${organizationSlug}/credit_subscription/plan_selector_page`
     : undefined;
 
   const trackDialogOpen = useTrackingFunction(() => ({
-    event: "WFE - Run Workflow Dialog Opened",
+    event: 'WFE - Run Workflow Dialog Opened',
     payload: {},
   }));
 
@@ -73,12 +70,7 @@ const WorkflowMainToolbar = ({
   return (
     <Box display="flex" flexDirection="column" gap="20">
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Box
-          display="flex"
-          alignItems="center"
-          gap="8"
-          id="workflow-main-toolbar"
-        >
+        <Box display="flex" alignItems="center" gap="8" id="workflow-main-toolbar">
           {selectedWorkflow && (
             <WorkflowSelector
               selectedWorkflow={selectedWorkflow}
@@ -94,12 +86,7 @@ const WorkflowMainToolbar = ({
             aria-label="Add new Workflow"
           />
           <Menu placement="bottom-end">
-            <MenuButton
-              as={IconButton}
-              variant="secondary"
-              iconName="MoreHorizontal"
-              aria-label="Manage Workflows"
-            />
+            <MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
             <MenuList>
               <MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
                 Insert Workflow before
@@ -109,18 +96,12 @@ const WorkflowMainToolbar = ({
               </MenuItem>
               <MenuItem
                 iconName="Request"
-                isDisabled={
-                  selectedWorkflow.workflowChain(workflows).length === 1
-                }
+                isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
                 onClick={onRearrangeWorkflow}
               >
                 Change Workflow execution order
               </MenuItem>
-              <MenuItem
-                iconName="Trash"
-                onClick={onDeleteSelectedWorkflow}
-                isDanger
-              >
+              <MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
                 Delete selected Workflow
               </MenuItem>
             </MenuList>
@@ -132,11 +113,7 @@ const WorkflowMainToolbar = ({
           </Text>
         )}
         {canRunWorkflow && (
-          <Tooltip
-            label={
-              isRunWorkflowDisabled ? "Save this Workflow first" : undefined
-            }
-          >
+          <Tooltip label={isRunWorkflowDisabled ? 'Save this Workflow first' : undefined}>
             <Button
               aria-label="Run Workflow"
               marginInlineStart="8"
@@ -161,9 +138,8 @@ const WorkflowMainToolbar = ({
           <Text size="3" fontWeight="bold">
             You cannot add a new Step now.
           </Text>
-          Your team has already reached the limit for this app (
-          {uniqueStepLimit} unique Steps per app) included in your current plan.
-          To add more Steps,{" "}
+          Your team has already reached the limit for this app ({uniqueStepLimit} unique Steps per app) included in your
+          current plan. To add more Steps,{' '}
           <Link isUnderlined href={upgradeLink}>
             upgrade your plan first
           </Link>

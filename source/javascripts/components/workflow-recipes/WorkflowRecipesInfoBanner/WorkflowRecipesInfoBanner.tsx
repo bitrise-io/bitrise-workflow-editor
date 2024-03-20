@@ -1,23 +1,20 @@
-import { useState } from "react";
-import { Box, ColorButton, Icon, Link, Text } from "@bitrise/bitkit";
+import { useState } from 'react';
+import { Box, ColorButton, Icon, Link, Text } from '@bitrise/bitkit';
 
-import Hotjar from "../../../utils/hotjar";
+import Hotjar from '../../../utils/hotjar';
 
-const WorkflowRecipesInfoBannerClosedKey =
-  "workflow-recipes-step-banner-closed";
+const WorkflowRecipesInfoBannerClosedKey = 'workflow-recipes-step-banner-closed';
 
 const WorkflowRecipesInfoBanner = (): JSX.Element => {
-  const [isClosed, setClosed] = useState<boolean>(
-    Boolean(localStorage.getItem(WorkflowRecipesInfoBannerClosedKey)),
-  );
+  const [isClosed, setClosed] = useState<boolean>(Boolean(localStorage.getItem(WorkflowRecipesInfoBannerClosedKey)));
 
   const trackAction = (): void => {
-    Hotjar.event("wfe_workflow_recipes_action_step_sidebar");
+    Hotjar.event('wfe_workflow_recipes_action_step_sidebar');
   };
 
   const handleClose = (): void => {
     trackAction();
-    localStorage.setItem(WorkflowRecipesInfoBannerClosedKey, "true");
+    localStorage.setItem(WorkflowRecipesInfoBannerClosedKey, 'true');
     setClosed(true);
   };
 
@@ -36,11 +33,7 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
           padding="16"
           marginBottom="32"
         >
-          <Box
-            display="flex"
-            alignItems="center"
-            justifyContent="space-between"
-          >
+          <Box display="flex" alignItems="center" justifyContent="space-between">
             <Box display="flex" gap="8" alignItems="center">
               <Icon name="Lightbulb" size="24" />
               <Text fontWeight="bold" lineHeight="16px">
@@ -57,9 +50,8 @@ const WorkflowRecipesInfoBanner = (): JSX.Element => {
             />
           </Box>
           <Text textAlign="left">
-            Workflow Recipes provide ready-made solutions for common Workflow
-            tasks. Follow the step-by-step guide or simply copy and paste the
-            YML into an existing Workflow.
+            Workflow Recipes provide ready-made solutions for common Workflow tasks. Follow the step-by-step guide or
+            simply copy and paste the YML into an existing Workflow.
           </Text>
           <Link
             id="workflow-editor-step-sidebar-workflow-recipes-link"

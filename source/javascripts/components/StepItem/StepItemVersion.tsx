@@ -1,4 +1,4 @@
-import { Badge, Icon, Text } from "@bitrise/bitkit";
+import { Badge, Icon, Text } from '@bitrise/bitkit';
 
 type StepItemVersionProps = {
   requestedVersion: string;
@@ -6,11 +6,7 @@ type StepItemVersionProps = {
   hasVersionUpdate: boolean;
 };
 
-const StepItemVersion = ({
-  actualVersion,
-  requestedVersion,
-  hasVersionUpdate,
-}: StepItemVersionProps): JSX.Element => (
+const StepItemVersion = ({ actualVersion, requestedVersion, hasVersionUpdate }: StepItemVersionProps): JSX.Element => (
   <em className="version" data-e2e-tag="step-item__version">
     {requestedVersion && hasVersionUpdate && (
       <Badge
