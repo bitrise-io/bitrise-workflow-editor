@@ -1,44 +1,46 @@
-import autosize from "autosize";
 import { ForwardedRef, useEffect, useRef } from "react";
+import autosize from "autosize";
 
 const intersectionObserver = new IntersectionObserver((entries) => {
-	for (const entry of entries) {
-		if (entry.isIntersecting) {
-			autosize.update(entry.target);
-		}
-	}
+  entries.forEach((entry) => {
+    if (entry.isIntersecting) {
+      autosize.update(entry.target);
+    }
+  });
 });
 
 const useAutosize = <T extends Element>(ref: ForwardedRef<T>) => {
-	const innerRef = useRef<T>(null);
+  const innerRef = useRef<T>(null);
 
-	useEffect(() => {
-		if (!ref) {
-			return;
-		}
+  useEffect(() => {
+    if (!ref) {
+      return;
+    }
 
-		if (typeof ref === "function") {
-			ref(innerRef.current);
-		} else {
-			ref.current = innerRef.current;
-		}
-	}, [innerRef.current, ref]);
+    if (typeof ref === "function") {
+      ref(innerRef.current);
+    } else {
+      // eslint-disable-next-line no-param-reassign
+      ref.current = innerRef.current;
+    }
+  }, [ref]);
 
-	useEffect(() => {
-		if (innerRef.current) {
-			autosize(innerRef.current);
-			intersectionObserver.observe(innerRef.current);
-		}
+  useEffect(() => {
+    const refVal = innerRef.current;
+    if (refVal) {
+      autosize(refVal);
+      intersectionObserver.observe(refVal);
+    }
 
-		return () => {
-			if (innerRef.current) {
-				autosize.destroy(innerRef.current);
-				intersectionObserver.unobserve(innerRef.current);
-			}
-		};
-	}, [innerRef.current]);
+    return () => {
+      if (refVal) {
+        autosize.destroy(refVal);
+        intersectionObserver.unobserve(refVal);
+      }
+    };
+  }, []);
 
-	return innerRef;
+  return innerRef;
 };
 
 export default useAutosize;

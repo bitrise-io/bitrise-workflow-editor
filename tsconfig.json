@@ -1,28 +1,54 @@
 {
-	"compilerOptions": {
-		"outDir": "build",
-		"module": "commonjs",
-		"target": "es5",
-		"lib": ["dom", "es2015", "es2019"],
-		"sourceMap": true,
-		"allowJs": true,
-		"jsx": "react-jsx",
-		"moduleResolution": "node",
-		"experimentalDecorators": true,
-		"noImplicitReturns": true,
-		"noImplicitThis": true,
-		"noUnusedParameters": true,
-		"noUnusedLocals": true,
-		"skipLibCheck": true,
-		"noImplicitAny": true,
-		"allowSyntheticDefaultImports": true,
-		"esModuleInterop": true,
-		"strictNullChecks": true,
-		"strict": true,
-		"resolveJsonModule": true,
-		"typeRoots": ["./node_modules/@types", "source/javascripts/typings"]
-	},
-	"exclude": ["node_modules", "build", "scripts"],
-	"include": ["source/**/*.ts", "source/**/*.tsx"],
-	"lib": ["dom", "es2015", "es2019"]
+  "compilerOptions": {
+    "baseUrl": ".",
+    "outDir": "./build",
+    "typeRoots": [
+      "./node_modules/@types",
+      "source/javascripts/typings"
+    ],
+    "target": "es5",
+    "lib": [
+      "dom",
+      "es2015",
+      "es2019"
+    ],
+    "module": "commonjs",
+    "moduleResolution": "node",
+    "sourceMap": true,
+    "allowJs": true,
+    "jsx": "react-jsx",
+    "allowSyntheticDefaultImports": true,
+    "esModuleInterop": true,
+    "strict": true,
+    "noFallthroughCasesInSwitch": true,
+    "noImplicitReturns": true,
+    "noUnusedLocals": true,
+    "noUnusedParameters": true,
+    "allowUnreachableCode": false,
+    "forceConsistentCasingInFileNames": true,
+    "skipLibCheck": true,
+    "resolveJsonModule": true,
+    "noImplicitThis": true,
+    "noImplicitAny": true,
+    "experimentalDecorators": true
+  },
+  "include": [
+    "source/javascripts/**/*.js",
+    "source/javascripts/**/*.ts",
+    "source/javascripts/**/*.tsx"
+  ],
+  "exclude": [
+    ".ruby-lsp",
+    ".storybook",
+    "_bin",
+    "_scripts",
+    "apiserver",
+    "build",
+    "cmd",
+    "cypress",
+    "node_modules",
+    "rails",
+    "release",
+    "version"
+  ]
 }
