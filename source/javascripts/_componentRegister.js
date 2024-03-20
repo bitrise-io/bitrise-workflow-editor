@@ -21,6 +21,7 @@ import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import StepConfig from "./components/StepConfig";
+import TriggersPage from "./components/TriggersPage/TriggersPage";
 
 function register(component, props, injects) {
 	return react2angular(withBitkitProvider(component), props, injects);
@@ -119,5 +120,13 @@ angular
 			"onClone",
 			"onRemove",
 			"onCreateSecret"
+		]))
+	.component(
+		"rTriggersPage",
+		register(TriggersPage, [
+			"onTriggerMapChange",
+			"pipelineables",
+			"triggerMap",
+			"setDiscard"
 		])
 	);

@@ -79,10 +79,11 @@ type TriggersPageProps = {
 	onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
 	pipelineables: string[];
 	triggerMap?: FinalTriggerItem[];
+	setDiscard: (fn: () => void) => void;
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-	const { onTriggerMapChange, pipelineables, triggerMap } = props;
+	const { onTriggerMapChange, pipelineables, triggerMap, setDiscard } = props;
 	const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
 	const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
 		defaultIsOpen: true,
@@ -102,6 +103,11 @@ const TriggersPage = (props: TriggersPageProps) => {
 	} = useDisclosure();
 
 	const [triggers, setTriggers] = useState<TriggerItem[]>(convertTriggerMapToItems(triggerMap || []));
+
+	setDiscard(() => {
+		setTriggers(convertTriggerMapToItems(triggerMap || []));
+	});
+
 	const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
 	const onCloseDialog = () => {
