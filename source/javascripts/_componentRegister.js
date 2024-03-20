@@ -12,7 +12,6 @@ import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettin
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner
 	from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
@@ -64,7 +63,6 @@ angular
 		register(WorkflowSelector, ["selectedWorkflow", "workflows", "selectWorkflow", "renameWorkflowConfirmed"])
 	)
 	.component("rYmlEditorHeader", register(YmlEditorHeader, ["url", "usesRepositoryYml"]))
-	.component("rTriggersDescription", register(TriggersDescription, ["hasTriggers"]))
 	.component(
 		"rWorkflowMainToolbar",
 		register(WorkflowMainToolbar, [
