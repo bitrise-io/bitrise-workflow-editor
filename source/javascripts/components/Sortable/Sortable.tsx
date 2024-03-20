@@ -15,22 +15,88 @@ import {
 import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 
-const Item = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
-  return <Card padding="16" cursor="grabbing" ref={ref} {...props} />;
+interface ItemProps extends CardProps {
+  activatorListeners?: any;
+  activatorRef?: (element: HTMLElement | null) => void;
+  isActive: boolean;
+  handlerStyle?: BoxProps;
+}
+
+const Item = forwardRef<HTMLDivElement, ItemProps>((props, ref) => {
+  const { activatorListeners, activatorRef, children, cursor, handlerStyle, isActive, ...rest } = props;
+
+  const cardProps: CardProps = {
+    _hover: {
+      backgroundColor: 'background/secondary',
+      borderColor: 'border/regular',
+    },
+    ...rest,
+  };
+
+  const handlerProps: BoxProps = {
+    as: 'button',
+    cursor: cursor || 'grab',
+    position: 'absolute',
+    left: 0,
+    top: 0,
+    bottom: 0,
+    padding: '8',
+    borderStartRadius: 7,
+    color: 'icon/tertiary',
+    _hover: {
+      backgroundColor: 'background/hover',
+      color: 'icon/secondary',
+    },
+    ...handlerStyle,
+  };
+
+  return (
+    <Card ref={ref} {...cardProps}>
+      <Box visibility={isActive ? 'hidden' : 'visible'} position="relative" padding="16" paddingInlineStart="32">
+        <Box {...handlerProps} ref={activatorRef} {...activatorListeners}>
+          <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="2" cy="2" r="1" />
+            <circle cx="6" cy="2" r="1" />
+            <circle cx="2" cy="6" r="1" />
+            <circle cx="6" cy="6" r="1" />
+            <circle cx="2" cy="10" r="1" />
+            <circle cx="6" cy="10" r="1" />
+          </svg>
+        </Box>
+        {children}
+      </Box>
+    </Card>
+  );
 });
 
 const SortableItem = (props: CardProps) => {
   const { children } = props;
 
-  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: children as number });
+  const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
+    id: children as number,
+  });
 
-  const style: BoxProps['sx'] = {
+  const isActive = children === active?.id;
+
+  const style: CardProps = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
+  if (isActive) {
+    style.backgroundColor = 'background/secondary';
+    style.borderColor = 'border/hover';
+    style.borderStyle = 'dashed';
+  }
+
   return (
-    <Item ref={setNodeRef} sx={style} cursor="grab" {...attributes} {...listeners}>
+    <Item
+      isActive={isActive}
+      ref={setNodeRef}
+      activatorRef={setActivatorNodeRef}
+      activatorListeners={listeners}
+      {...style}
+    >
       {children}
     </Item>
   );
@@ -61,6 +127,7 @@ const Sortable = () => {
       const newIndex = items.indexOf(over?.id as number);
       const newItems = arrayMove(items, oldIndex, newIndex);
       setItems(newItems);
+      setActiveId(null);
       console.log(newItems);
     }
   };
@@ -82,7 +149,21 @@ const Sortable = () => {
               <SortableItem key={id}>{id}</SortableItem>
             ))}
           </SortableContext>
-          <DragOverlay>{activeId ? <Item>{activeId}</Item> : null}</DragOverlay>
+          <DragOverlay>
+            {activeId ? (
+              <Item
+                isActive={false}
+                handlerStyle={{ cursor: 'grabbing', _hover: { backgroundColor: 'background/active' } }}
+                _hover={{
+                  backgroundColor: 'background/secondary',
+                  borderColor: 'border/strong',
+                  boxShadow: 'large',
+                }}
+              >
+                {activeId}
+              </Item>
+            ) : null}
+          </DragOverlay>
         </DndContext>
       </Box>
     </>
