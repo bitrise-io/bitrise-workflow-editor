@@ -5,7 +5,9 @@
 		.module("BitriseWorkflowEditor")
 		.controller("TriggersController", function($scope, $rootScope, $location, appService, Progress, Trigger, launchDarklyService) {
 			var viewModel = this;
-			viewModel.pipelineables = Object.keys(appService.appConfig.workflows);
+			console.log(appService.appConfig)
+			viewModel.pipelines = appService.appConfig.pipelines ? Object.keys(appService.appConfig.pipelines) : [];
+			viewModel.workflows = Object.keys(appService.appConfig.workflows);
 			viewModel.triggerMap = appService.appConfig.trigger_map;
 			
 			var origMap = appService.appConfig.trigger_map;

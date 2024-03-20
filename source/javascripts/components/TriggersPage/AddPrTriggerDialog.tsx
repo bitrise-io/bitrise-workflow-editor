@@ -23,9 +23,10 @@ import { Condition, FormItems, PrConditionType, TriggerItem } from "./TriggersPa
 type DialogProps = {
 	isOpen: boolean;
 	onClose: () => void;
-	pipelineables: string[];
+	pipelines: string[];
 	onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
 	editedItem?: TriggerItem;
+	workflows: string[];
 };
 
 const PLACEHOLDER_MAP: Record<PrConditionType, string> = {
@@ -111,7 +112,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 };
 
 const AddPrTriggerDialog = (props: DialogProps) => {
-	const { isOpen, onClose, pipelineables, onSubmit, editedItem } = props;
+	const { isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;
 	const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
 
 	const isEditMode = !!editedItem;
@@ -244,11 +245,24 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 								Select the Pipeline or Workflow you want Bitrise to run when trigger conditions are met.
 							</Text>
 							<Select placeholder="Select a Pipeline or Workflow" {...register("pipelineable")}>
-								{pipelineables.map((p) => (
-									<option key={p} value={p}>
-										{p}
-									</option>
-								))}
+								{pipelines.length && (
+									<optgroup label="Pipelines">
+										{pipelines.map((p) => (
+											<option key={p} value={p}>
+												{p}
+											</option>
+										))}
+									</optgroup>
+								)}
+								{workflows.length && (
+									<optgroup label="Workflows">
+										{workflows.map((p) => (
+											<option key={p} value={p}>
+												{p}
+											</option>
+										))}
+									</optgroup>
+								)}
 							</Select>
 						</>
 					)}

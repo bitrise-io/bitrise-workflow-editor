@@ -77,13 +77,14 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): TriggerItem[]
 
 type TriggersPageProps = {
 	onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
-	pipelineables: string[];
-	triggerMap?: FinalTriggerItem[];
+	pipelines: string[];
 	setDiscard: (fn: () => void) => void;
+	triggerMap?: FinalTriggerItem[];
+	workflows: string[];
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-	const { onTriggerMapChange, pipelineables, triggerMap, setDiscard } = props;
+	const { onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 	const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
 	const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
 		defaultIsOpen: true,
@@ -226,7 +227,6 @@ const TriggersPage = (props: TriggersPageProps) => {
 						)}
 					</TabPanel>
 					<TabPanel>
-						{" "}
 						<Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusAdd">
 							Add pull request trigger
 						</Button>
@@ -316,24 +316,27 @@ const TriggersPage = (props: TriggersPageProps) => {
 				</TabPanels>
 			</Tabs>
 			<AddPushTriggerDialog
-				pipelineables={pipelineables}
 				onClose={onCloseDialog}
 				isOpen={isPushTriggerDialogOpen}
 				onSubmit={onTriggersChange}
 				editedItem={editedItem}
+				pipelines={pipelines}
+				workflows={workflows}
 			/>
 			<AddPrTriggerDialog
 				isOpen={isPrTriggerDialogOpen}
 				onClose={onCloseDialog}
 				onSubmit={onTriggersChange}
-				pipelineables={pipelineables}
 				editedItem={editedItem}
+				pipelines={pipelines}
+				workflows={workflows}
 			/>
 			<AddTagTriggerDialog
 				isOpen={isTagTriggerDialogOpen}
 				onClose={onCloseDialog}
 				onSubmit={onTriggersChange}
-				pipelineables={pipelineables}
+				pipelines={pipelines}
+				workflows={workflows}
 				editedItem={editedItem}
 			/>
 		</>

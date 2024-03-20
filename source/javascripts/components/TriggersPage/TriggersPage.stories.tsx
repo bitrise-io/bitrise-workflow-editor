@@ -5,7 +5,8 @@ import TriggersPage from "./TriggersPage";
 export default {
 	component: TriggersPage,
 	args: {
-		pipelineables: ["foo", "bar"],
+		pipelines: ["foo", "bar"],
+		workflows: ["foo", "bar"],
 		onTriggerMapChange: console.log,
 	},
 } as Meta<typeof TriggersPage>;

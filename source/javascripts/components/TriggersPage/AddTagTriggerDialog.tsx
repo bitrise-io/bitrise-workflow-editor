@@ -10,21 +10,22 @@ import {
 	Text,
 	Tooltip,
 } from "@bitrise/bitkit";
+import { useEffect, useMemo } from "react";
 import { FormProvider, useForm } from "react-hook-form";
 
 import { FormItems, TriggerItem } from "./TriggersPage.types";
-import { useEffect, useMemo } from "react";
 
 type DialogProps = {
 	isOpen: boolean;
 	onClose: () => void;
 	editedItem?: TriggerItem;
-	pipelineables: string[];
+	pipelines: string[];
 	onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
+	workflows: string[];
 };
 
 const AddTagTriggerDialog = (props: DialogProps) => {
-	const { isOpen, onClose, editedItem, pipelineables, onSubmit } = props;
+	const { isOpen, onClose, editedItem, pipelines, onSubmit, workflows } = props;
 
 	const defaultValues: FormItems = useMemo(() => {
 		return {
@@ -121,11 +122,24 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 						Targeted Pipeline or Workflow
 					</Text>
 					<Select placeholder="Select a Pipeline or Workflow" {...register("pipelineable")}>
-						{pipelineables.map((p) => (
-							<option key={p} value={p}>
-								{p}
-							</option>
-						))}
+						{pipelines.length && (
+							<optgroup label="Pipelines">
+								{pipelines.map((p) => (
+									<option key={p} value={p}>
+										{p}
+									</option>
+								))}
+							</optgroup>
+						)}
+						{workflows.length && (
+							<optgroup label="Workflows">
+								{workflows.map((p) => (
+									<option key={p} value={p}>
+										{p}
+									</option>
+								))}
+							</optgroup>
+						)}
 					</Select>
 				</DialogBody>
 				<DialogFooter display="flex" justifyContent="space-between">

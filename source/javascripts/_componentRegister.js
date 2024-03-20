@@ -125,8 +125,9 @@ angular
 		"rTriggersPage",
 		register(TriggersPage, [
 			"onTriggerMapChange",
-			"pipelineables",
+			"pipelines",
 			"triggerMap",
-			"setDiscard"
+			"setDiscard",
+			"workflows"
 		])
 	);
