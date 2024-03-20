@@ -1,5 +1,5 @@
-import { useId } from "react";
-import { SelectableRow, Td } from "@bitrise/bitkit";
+import { useId } from 'react';
+import { SelectableRow, Td } from '@bitrise/bitkit';
 
 type Props = {
   value: string;

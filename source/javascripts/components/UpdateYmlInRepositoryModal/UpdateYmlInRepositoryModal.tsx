@@ -1,21 +1,12 @@
-import { ReactElement, useEffect } from "react";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Notification,
-  Text,
-} from "@bitrise/bitkit";
+import { ReactElement, useEffect } from 'react';
+import { Box, Button, ButtonGroup, Dialog, DialogBody, DialogFooter, Notification, Text } from '@bitrise/bitkit';
 
-import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
-import { AppConfig } from "../../models/AppConfig";
-import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
-import YmlInRepositoryInvalidError from "../common/notifications/YmlInRepositoryInvalidError";
-import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
-import RepoYmlStorageActions from "../common/RepoYmlStorageActions";
+import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
+import { AppConfig } from '../../models/AppConfig';
+import LookingForYmlInRepoProgress from '../common/notifications/LookingForYmlInRepoProgress';
+import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
+import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
+import RepoYmlStorageActions from '../common/RepoYmlStorageActions';
 
 type Props = {
   appSlug: string;
@@ -24,12 +15,7 @@ type Props = {
   getDataToSave: () => AppConfig | string;
 };
 
-const UpdateYmlInRepositoryModal = ({
-  appSlug,
-  getDataToSave,
-  onClose,
-  onComplete,
-}: Props): JSX.Element => {
+const UpdateYmlInRepositoryModal = ({ appSlug, getDataToSave, onClose, onComplete }: Props): JSX.Element => {
   const {
     getAppConfigFromRepoLoading,
     getAppConfigFromRepo,
@@ -50,19 +36,9 @@ const UpdateYmlInRepositoryModal = ({
       case 404:
         return <YmlNotFoundInRepositoryError />;
       case 422:
-        return (
-          <YmlInRepositoryInvalidError
-            errorMessage={
-              getAppConfigFromRepoFailed?.error_msg || "Unknown error"
-            }
-          />
-        );
+        return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed?.error_msg || 'Unknown error'} />;
       default:
-        return (
-          <Notification status="error">
-            {getAppConfigFromRepoFailed?.error_msg || "Unknown error"}
-          </Notification>
-        );
+        return <Notification status="error">{getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}</Notification>;
     }
   };
 
@@ -77,14 +53,13 @@ const UpdateYmlInRepositoryModal = ({
       <DialogBody>
         <Box display="flex" flexDirection="column" gap="16">
           <Text textColor="neutral.30">
-            In order to apply your changes to your next build, you need to
-            update the bitrise.yml file on your repository's main branch.
+            In order to apply your changes to your next build, you need to update the bitrise.yml file on your
+            repository's main branch.
           </Text>
           <RepoYmlStorageActions appConfig={dataToSave} />
           <Text textColor="neutral.30">
-            Once you are done, Bitrise will fetch the updated bitrise.yml file
-            from your app's repository, and refresh the Workflow Editor. Any
-            unsaved changes will be lost!
+            Once you are done, Bitrise will fetch the updated bitrise.yml file from your app's repository, and refresh
+            the Workflow Editor. Any unsaved changes will be lost!
           </Text>
 
           {getAppConfigFromRepoLoading && <LookingForYmlInRepoProgress />}

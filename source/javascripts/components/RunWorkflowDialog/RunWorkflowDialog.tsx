@@ -1,32 +1,20 @@
-import { useState } from "react";
-import {
-  Button,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Input,
-} from "@bitrise/bitkit";
-import { DialogProps } from "@bitrise/bitkit/src/Components/Dialog/Dialog";
+import { useState } from 'react';
+import { Button, Dialog, DialogBody, DialogFooter, Input } from '@bitrise/bitkit';
+import { DialogProps } from '@bitrise/bitkit/src/Components/Dialog/Dialog';
 
-import { useTrackingFunction } from "../../hooks/utils/useTrackingFunction";
+import { useTrackingFunction } from '../../hooks/utils/useTrackingFunction';
 
-type RunWorkflowDialogProps = Pick<DialogProps, "isOpen" | "onClose"> & {
+type RunWorkflowDialogProps = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   defaultBranch: string;
   workflow: string;
   onAction: (branch: string) => void;
 };
 
-const RunWorkflowDialog = ({
-  isOpen,
-  onClose,
-  defaultBranch,
-  workflow,
-  onAction,
-}: RunWorkflowDialogProps) => {
+const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflow, onAction }: RunWorkflowDialogProps) => {
   const [branch, setBranch] = useState(defaultBranch);
 
   const trackRunWorkflow = useTrackingFunction(() => ({
-    event: "WFE - Run Workflow Clicked",
+    event: 'WFE - Run Workflow Clicked',
     payload: {},
   }));
 
@@ -53,12 +41,7 @@ const RunWorkflowDialog = ({
         />
       </DialogBody>
       <DialogFooter>
-        <Button
-          aria-label="Run Workflow"
-          rightIconName="OpenInBrowser"
-          isDisabled={!branch}
-          onClick={handleAction}
-        >
+        <Button aria-label="Run Workflow" rightIconName="OpenInBrowser" isDisabled={!branch} onClick={handleAction}>
           Run Workflow
         </Button>
       </DialogFooter>

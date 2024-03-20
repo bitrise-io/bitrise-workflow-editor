@@ -5,10 +5,7 @@ declare global {
     strings: { [s: string]: any };
     routes: { [s: string]: any };
     analytics: {
-      track: (
-        event: string,
-        payload: Record<string, string | number | null | undefined>,
-      ) => void;
+      track: (event: string, payload: Record<string, string | number | null | undefined>) => void;
     };
   }
 

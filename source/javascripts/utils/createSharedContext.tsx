@@ -20,16 +20,8 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 */
-import {
-  ComponentProps,
-  ComponentType,
-  Fragment,
-  useEffect,
-  useId,
-  useRef,
-  useState,
-} from "react";
-import { createPortal } from "react-dom";
+import { ComponentProps, ComponentType, Fragment, useEffect, useId, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 
 interface SharedContextComponent<Props = object> {
   key: string;
@@ -44,29 +36,21 @@ interface SharedComponentInstance<T> {
 }
 
 type RenderMethod = {
-  <T extends object>(
-    component: SharedContextComponent<T>,
-  ): SharedComponentInstance<T>;
+  <T extends object>(component: SharedContextComponent<T>): SharedComponentInstance<T>;
 };
 
 type SharedContextReturn<Root extends object> = {
   component: (root: Root) => JSX.Element;
-  use<Props extends object>(
-    c: ComponentType<Props>,
-  ): (props: Props) => JSX.Element;
+  use<Props extends object>(c: ComponentType<Props>): (props: Props) => JSX.Element;
 };
 
-const createSharedContext = <R extends object>(
-  Root: ComponentType<R> = Fragment,
-): SharedContextReturn<R> => {
+const createSharedContext = <R extends object>(Root: ComponentType<R> = Fragment): SharedContextReturn<R> => {
   // Make method accessible by both SharedContext and withSharedContext
   let renderWithSharedContext: RenderMethod;
 
   const SharedContext = (rootProps: R): JSX.Element => {
     // List of components and their props to be rendered with react portal in their designated nodes
-    const [components, setComponents] = useState<
-      Array<SharedContextComponent | undefined>
-    >([]);
+    const [components, setComponents] = useState<Array<SharedContextComponent | undefined>>([]);
 
     useEffect(() => {
       renderWithSharedContext = <T extends object>(
@@ -74,9 +58,7 @@ const createSharedContext = <R extends object>(
       ): SharedComponentInstance<T> => {
         // Add component to list
         setComponents((prevState) => {
-          prevState.push(
-            component as unknown as SharedContextComponent<object>,
-          );
+          prevState.push(component as unknown as SharedContextComponent<object>);
           return [...prevState];
         });
 
@@ -84,9 +66,7 @@ const createSharedContext = <R extends object>(
         return {
           update: (props) => {
             setComponents((prevState) => {
-              const prevComponent = prevState.find(
-                (c) => c?.key === component.key,
-              );
+              const prevComponent = prevState.find((c) => c?.key === component.key);
               if (!prevComponent) {
                 return prevState;
               }
@@ -96,9 +76,7 @@ const createSharedContext = <R extends object>(
           },
           remove: () => {
             setComponents((prevState) => {
-              const index = prevState.findIndex(
-                (c) => c?.key === component.key,
-              );
+              const index = prevState.findIndex((c) => c?.key === component.key);
               if (index === -1) {
                 return prevState;
               }
@@ -129,16 +107,13 @@ const createSharedContext = <R extends object>(
     <T extends object>(component: ComponentType<T>): (p: T) => JSX.Element;
   } = (component) => {
     // Create as local variable instead of returning inline to fix TSLint
-    const UseSharedContext = (
-      props: ComponentProps<typeof component>,
-    ): JSX.Element => {
+    const UseSharedContext = (props: ComponentProps<typeof component>): JSX.Element => {
       // Create unique key for this instance
       const key = useId();
       // Hold reference to rendered hidden DOM node
       const ref = useRef<HTMLDivElement>(null);
       // Instance is SharedContext
-      const instance =
-        useRef<SharedComponentInstance<ComponentProps<typeof component>>>();
+      const instance = useRef<SharedComponentInstance<ComponentProps<typeof component>>>();
 
       useEffect(() => {
         if (instance.current) {
@@ -165,7 +140,7 @@ const createSharedContext = <R extends object>(
       }, [key, props]);
 
       // Hidden <div> component only used to get reference in dom
-      return <div ref={ref} style={{ display: "none" }} />;
+      return <div ref={ref} style={{ display: 'none' }} />;
     };
 
     return UseSharedContext;

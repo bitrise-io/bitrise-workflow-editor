@@ -1,6 +1,6 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from '@storybook/react';
 
-import InfoTooltip from "./InfoTooltip";
+import InfoTooltip from './InfoTooltip';
 
 export default {
   component: InfoTooltip,
@@ -8,6 +8,6 @@ export default {
 
 export const WithProps: StoryObj<typeof InfoTooltip> = {
   args: {
-    label: "Label text",
+    label: 'Label text',
   },
 };

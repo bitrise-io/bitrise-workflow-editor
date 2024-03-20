@@ -1,29 +1,12 @@
-import {
-  Avatar,
-  Box,
-  ButtonGroup,
-  Icon,
-  IconButton,
-  Tab,
-  TabList,
-  Tabs,
-  Text,
-  Tooltip,
-} from "@bitrise/bitkit";
-import { TabPanel, TabPanels } from "@chakra-ui/react";
+import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from '@bitrise/bitkit';
+import { TabPanel, TabPanels } from '@chakra-ui/react';
 
-import {
-  InputCategory,
-  OnStepChange,
-  Step,
-  StepOutputVariable,
-  StepVersionWithRemark,
-} from "../models";
-import { Secret, SecretsDialogProvider } from "./SecretsDialog";
-import StepConfiguration from "./StepConfiguration/StepConfiguration";
-import StepItemBadge from "./StepItem/StepItemBadge";
-import StepOutputVariables from "./StepOutputVariables";
-import StepProperties from "./StepProperties/StepProperties";
+import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
+import { Secret, SecretsDialogProvider } from './SecretsDialog';
+import StepConfiguration from './StepConfiguration/StepConfiguration';
+import StepItemBadge from './StepItem/StepItemBadge';
+import StepOutputVariables from './StepOutputVariables';
+import StepProperties from './StepProperties/StepProperties';
 
 type Props = {
   step: Step;
@@ -84,7 +67,7 @@ const StepConfig = ({
                     name="WarningColored"
                     aria-label="New version available"
                     cursor="pointer"
-                    onClick={() => onChange({ version: "" })}
+                    onClick={() => onChange({ version: '' })}
                   />
                 </Tooltip>
               )}
@@ -114,9 +97,7 @@ const StepConfig = ({
           <TabList paddingX="8">
             <Tab id="configuration">Configuration</Tab>
             <Tab id="properties">Properties</Tab>
-            {showOutputVariables && (
-              <Tab id="output-variables">Output variables</Tab>
-            )}
+            {showOutputVariables && <Tab id="output-variables">Output variables</Tab>}
           </TabList>
           <TabPanels>
             <TabPanel id="configuration">
@@ -128,11 +109,7 @@ const StepConfig = ({
               />
             </TabPanel>
             <TabPanel id="properties">
-              <StepProperties
-                step={step}
-                versionsWithRemarks={versionsWithRemarks}
-                onChange={onChange}
-              />
+              <StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onChange} />
             </TabPanel>
             {showOutputVariables && (
               <TabPanel id="output-variables">

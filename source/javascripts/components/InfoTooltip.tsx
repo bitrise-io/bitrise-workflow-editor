@@ -1,4 +1,4 @@
-import { Icon, Tooltip } from "@bitrise/bitkit";
+import { Icon, Tooltip } from '@bitrise/bitkit';
 
 type InfoTooltipProps = {
   label: string;

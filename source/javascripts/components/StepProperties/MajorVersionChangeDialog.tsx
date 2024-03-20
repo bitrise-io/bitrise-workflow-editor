@@ -1,13 +1,4 @@
-import {
-  Box,
-  Button,
-  CodeSnippet,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Link,
-  Text,
-} from "@bitrise/bitkit";
+import { Box, Button, CodeSnippet, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
 
 type Props = {
   isOpen: boolean;
@@ -27,11 +18,8 @@ const MajorVersionChangeDialog = ({
   onClose,
 }: Props) => {
   const [title, context] = isMajorChange
-    ? [
-        "Major version change",
-        "The new major version likely contains breaking changes in the step behavior.",
-      ]
-    : ["Version change", "The new version contains some input changes."];
+    ? ['Major version change', 'The new major version likely contains breaking changes in the step behavior.']
+    : ['Version change', 'The new version contains some input changes.'];
 
   return (
     <Dialog title={title} isOpen={isOpen} onClose={onClose}>
@@ -40,7 +28,7 @@ const MajorVersionChangeDialog = ({
           {context}
           {releaseNotesUrl && (
             <>
-              {" Please check the "}
+              {' Please check the '}
               <Link href={releaseNotesUrl} isExternal colorScheme="purple">
                 release notes
               </Link>
@@ -51,8 +39,7 @@ const MajorVersionChangeDialog = ({
         {removedInputs.length > 0 && (
           <>
             <Text textStyle="body/lg/semibold">
-              The following inputs are not available in the selected version
-              anymore:
+              The following inputs are not available in the selected version anymore:
             </Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {removedInputs.map((input) => (
@@ -63,9 +50,7 @@ const MajorVersionChangeDialog = ({
         )}
         {newInputs.length > 0 && (
           <>
-            <Text textStyle="body/lg/semibold">
-              The following inputs are new in the selected version:
-            </Text>
+            <Text textStyle="body/lg/semibold">The following inputs are new in the selected version:</Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {newInputs.map((input) => (
                 <CodeSnippet key={input}>{input}</CodeSnippet>

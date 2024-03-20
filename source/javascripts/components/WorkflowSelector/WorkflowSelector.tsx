@@ -1,17 +1,8 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  Box,
-  Icon,
-  IconButton,
-  Input,
-  Popover,
-  PopoverContent,
-  PopoverTrigger,
-  Text,
-} from "@bitrise/bitkit";
+import { useEffect, useMemo, useState } from 'react';
+import { Box, Icon, IconButton, Input, Popover, PopoverContent, PopoverTrigger, Text } from '@bitrise/bitkit';
 
-import { Workflow } from "../../models";
-import WorkflowSelectorItem from "./WorkflowSelectorItem/WorkflowSelectorItem";
+import { Workflow } from '../../models';
+import WorkflowSelectorItem from './WorkflowSelectorItem/WorkflowSelectorItem';
 
 const popoverOffset: [number, number] = [-8, 8];
 
@@ -29,32 +20,32 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
   renameWorkflowConfirmed,
 }: WorkflowSelectorProps) => {
   const [visible, setVisible] = useState(false);
-  const [search, setSearch] = useState("");
+  const [search, setSearch] = useState('');
 
   const onItemClick = (workflow: Workflow): void => {
     selectWorkflow(workflow);
     setVisible(false);
-    setSearch("");
+    setSearch('');
   };
 
   const onEscPress = ({ key }: KeyboardEvent): void => {
-    if (key === "Escape") {
+    if (key === 'Escape') {
       setVisible(false);
-      setSearch("");
+      setSearch('');
     }
   };
 
   useEffect(() => {
-    document.addEventListener("keydown", onEscPress, false);
+    document.addEventListener('keydown', onEscPress, false);
     return () => {
-      document.removeEventListener("keydown", onEscPress, false);
+      document.removeEventListener('keydown', onEscPress, false);
     };
   }, []);
 
   const filteredWorkflows = useMemo(() => {
     let result = [...workflows];
     if (search) {
-      const regExp = new RegExp(search, "i");
+      const regExp = new RegExp(search, 'i');
       result = workflows.filter((workflow) => regExp.test(workflow.id));
     }
 
@@ -66,7 +57,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
   }, [workflows]);
 
   const onClearSearch = (): void => {
-    setTimeout(() => setSearch(""), 0);
+    setTimeout(() => setSearch(''), 0);
   };
 
   return (
@@ -113,7 +104,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
             onClick={() => setVisible(true)}
             data-e2e-tag="workflow-selector-dropdown"
             _hover={{
-              background: "neutral.93",
+              background: 'neutral.93',
             }}
           >
             <Text
@@ -136,9 +127,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
           autoFocus
           placeholder="Search workflows..."
           value={search}
-          onChange={(ev: React.ChangeEvent<HTMLInputElement>) =>
-            setSearch(ev.target.value)
-          }
+          onChange={(ev: React.ChangeEvent<HTMLInputElement>) => setSearch(ev.target.value)}
           rightAddon={
             search ? (
               <IconButton
@@ -146,19 +135,15 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
                 iconName="CloseSmall"
                 onClick={onClearSearch}
                 variant="tertiary"
-                _active={{ background: "transparent" }}
-                _hover={{ background: "transparent" }}
+                _active={{ background: 'transparent' }}
+                _hover={{ background: 'transparent' }}
               />
             ) : null
           }
           rightAddonPlacement="inside"
         />
         {filteredWorkflows.length ? (
-          <Box
-            maxHeight="360px"
-            overflow="scroll"
-            data-e2e-tag="workflow-selector-list"
-          >
+          <Box maxHeight="360px" overflow="scroll" data-e2e-tag="workflow-selector-list">
             {filteredWorkflows.map((workflow) => (
               <WorkflowSelectorItem
                 key={workflow.id}
@@ -182,13 +167,7 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
             padding="20"
           >
             <Icon name="BitbotError" width="40px" height="40px" />
-            <Box
-              display="flex"
-              flexDirection="column"
-              alignItems="center"
-              justifyContent="center"
-              gap="4"
-            >
+            <Box display="flex" flexDirection="column" alignItems="center" justifyContent="center" gap="4">
               <Text fontWeight="bold">No workflows found.</Text>
               <Text>Modify or reset the search.</Text>
             </Box>

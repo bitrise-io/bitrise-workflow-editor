@@ -1,9 +1,9 @@
-import { Box, Icon, Text } from "@bitrise/bitkit";
-import classNames from "classnames";
+import { Box, Icon, Text } from '@bitrise/bitkit';
+import classNames from 'classnames';
 
-import stepOutDatedIcon from "../../../images/step/upgrade.svg";
-import { OnStepChange, Step, StepVersionWithRemark } from "../../models";
-import { getVersionRemark } from "../../utils/stepVersionUtil";
+import stepOutDatedIcon from '../../../images/step/upgrade.svg';
+import { OnStepChange, Step, StepVersionWithRemark } from '../../models';
+import { getVersionRemark } from '../../utils/stepVersionUtil';
 
 type Props = {
   step: Step;
@@ -31,7 +31,7 @@ const StepVersionDetails = ({
 
   const getStepVersionText = () => {
     if (!step.isConfigured()) {
-      return "Invalid version";
+      return 'Invalid version';
     }
 
     if (step.isVCSStep()) {
@@ -51,56 +51,43 @@ const StepVersionDetails = ({
               aria-label="Update version"
               data-e2e-tag="step-version-details__update-button"
               className="icon icon-danger"
-              onClick={() => onChange({ version: "" })}
+              onClick={() => onChange({ version: '' })}
             >
-              <img
-                alt="Update version"
-                data-e2e-tag="step-version-details__update-icon"
-                src={stepOutDatedIcon}
-              />
+              <img alt="Update version" data-e2e-tag="step-version-details__update-icon" src={stepOutDatedIcon} />
             </button>
           ) : (
-            <Text
-              data-e2e-tag="step-version-details__branch-icon"
-              className="icon"
-            >
+            <Text data-e2e-tag="step-version-details__branch-icon" className="icon">
               <Icon name="Branch" />
             </Text>
           )}
 
           <Text
             data-e2e-tag="step-version-details__version-text"
-            className={classNames("version__text", {
+            className={classNames('version__text', {
               error: !step.isConfigured(),
             })}
           >
             {getStepVersionText()}
           </Text>
         </div>
-        {step.isLibraryStep() && (
-          <Text className="latest-version">
-            Step's latest version is: {latestVersion}
-          </Text>
-        )}
+        {step.isLibraryStep() && <Text className="latest-version">Step's latest version is: {latestVersion}</Text>}
       </Box>
       {step.isLibraryStep() && (
         <Box className="version-selector">
           <Text
-            className={classNames("remark", { error: !step.isConfigured() })}
-            dangerouslySetInnerHTML={html(
-              getVersionRemark(step.requestedVersion() || ""),
-            )}
+            className={classNames('remark', { error: !step.isConfigured() })}
+            dangerouslySetInnerHTML={html(getVersionRemark(step.requestedVersion() || ''))}
           />
           <select
             className="mak"
             id="selected-step-version-select"
             data-e2e-tag="step-version-details__version-selector"
-            value={step.requestedVersion() || ""}
+            value={step.requestedVersion() || ''}
             onChange={(event) => onChange({ version: event.target.value })}
           >
             {versionsWithRemarks.map(({ version }) => (
               <option key={version} value={version}>
-                {version || "Always latest"}
+                {version || 'Always latest'}
               </option>
             ))}
           </select>

@@ -1,6 +1,6 @@
-import { Box, Icon } from "@bitrise/bitkit";
+import { Box, Icon } from '@bitrise/bitkit';
 
-import deprecatedIcon from "../../../images/step/badge-deprecated.svg";
+import deprecatedIcon from '../../../images/step/badge-deprecated.svg';
 
 type StepItemBadgeProps = {
   isOfficial: boolean;
@@ -8,11 +8,7 @@ type StepItemBadgeProps = {
   isDeprecated: boolean;
 };
 
-const StepItemBadge = ({
-  isOfficial,
-  isVerified,
-  isDeprecated,
-}: StepItemBadgeProps): JSX.Element => (
+const StepItemBadge = ({ isOfficial, isVerified, isDeprecated }: StepItemBadgeProps): JSX.Element => (
   <>
     {isOfficial && (
       <Box title="Bitrise step" paddingX="4" data-e2e-tag="official-badge">
@@ -32,13 +28,7 @@ const StepItemBadge = ({
         alignItems="center"
         data-e2e-tag="deprecated-badge"
       >
-        <img
-          className="deprecated"
-          src={deprecatedIcon}
-          width="18"
-          height="18"
-          alt="Deprecated"
-        />
+        <img className="deprecated" src={deprecatedIcon} width="18" height="18" alt="Deprecated" />
       </Box>
     )}
   </>
