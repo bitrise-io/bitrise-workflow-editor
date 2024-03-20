@@ -1,5 +1,3 @@
-import triggerElements from "./triggers/elements";
-
 const workflowSelectElement = (workflowName) => `[data-e2e-tag="workflow-selector-option-${workflowName}"]`;
 const stepSelector = (index) => `.workflow.edited .steps ul li:eq(${index - 1}) button.step`;
 const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
@@ -208,8 +206,6 @@ export const elements = {
 	"Insert variable filter field": "#insert-variable-popup-body header input",
 
 	"Step edit container": ".step-edit-container",
-
-	...triggerElements,
 };
 
 export const selector = (elementSelector) => elements[elementSelector] || elementSelector;
