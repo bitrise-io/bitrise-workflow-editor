@@ -11,7 +11,7 @@ import {
 	Text,
 	useDisclosure,
 } from "@bitrise/bitkit";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import AddPrTriggerDialog from "./AddPrTriggerDialog";
 import AddPushTriggerDialog from "./AddPushTriggerDialog";
@@ -21,21 +21,25 @@ import { ConditionType, SourceType, TriggerItem } from "./TriggersPage.types";
 
 type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 
-const convertItemsToTriggerMap = (triggers: TriggerItem[]): FinalTriggerItem[] => {
-	const triggerMap: FinalTriggerItem[] = triggers.map((trigger) => {
-		const finalItem: FinalTriggerItem = {};
-		trigger.conditions.forEach(({ isRegex, type, value }) => {
-			finalItem[type] = isRegex ? { regex: value } : value;
+const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
+	const triggerMap: FinalTriggerItem[] = Object.values(triggers)
+		.flat()
+		.map((trigger) => {
+			const finalItem: FinalTriggerItem = {};
+			trigger.conditions.forEach(({ isRegex, type, value }) => {
+				finalItem[type] = isRegex ? { regex: value } : value;
+			});
+			if (!trigger.isActive) {
+				finalItem.enabled = false;
+			}
+			if (trigger.source === "pull_request" && !trigger.isDraftPr) {
+				finalItem.draft_pull_request_enabled = false;
+			}
+			finalItem.type = trigger.source;
+			finalItem.workflow = trigger.pipelineable;
+			return finalItem;
 		});
-		if (!trigger.isActive) {
-			finalItem.enabled = false;
-		}
-		if (trigger.source === "pull_request" && !trigger.isDraftPr) {
-			finalItem.draft_pull_request_enabled = false;
-		}
-		finalItem.workflow = trigger.pipelineable;
-		return finalItem;
-	});
+
 	return triggerMap;
 };
 
@@ -49,14 +53,20 @@ const getSourceType = (triggerKeys: string[]): SourceType => {
 	return "pull_request";
 };
 
-const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): TriggerItem[] => {
-	const items: TriggerItem[] = triggerMap.map((trigger) => {
+const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<SourceType, TriggerItem[]> => {
+	const triggers: Record<SourceType, TriggerItem[]> = {
+		pull_request: [],
+		push: [],
+		tag: [],
+	};
+	triggerMap.forEach((trigger) => {
 		const triggerKeys = Object.keys(trigger);
+		const source = getSourceType(triggerKeys);
 		const finalItem: TriggerItem = {
 			conditions: [],
 			pipelineable: trigger.workflow as string,
 			id: "",
-			source: getSourceType(triggerKeys),
+			source,
 			isActive: trigger.enabled !== false,
 		};
 		triggerKeys.forEach((key) => {
@@ -69,10 +79,9 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): TriggerItem[]
 				});
 			}
 		});
-
-		return finalItem;
+		triggers[source].push(finalItem);
 	});
-	return items;
+	return triggers;
 };
 
 type TriggersPageProps = {
@@ -103,11 +112,9 @@ const TriggersPage = (props: TriggersPageProps) => {
 		onClose: closeTagTriggerDialog,
 	} = useDisclosure();
 
-	const [triggers, setTriggers] = useState<TriggerItem[]>(convertTriggerMapToItems(triggerMap || []));
-
-	setDiscard(() => {
-		setTriggers(convertTriggerMapToItems(triggerMap || []));
-	});
+	const [triggers, setTriggers] = useState<Record<SourceType, TriggerItem[]>>(
+		convertTriggerMapToItems(triggerMap || []),
+	);
 
 	const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
@@ -119,16 +126,16 @@ const TriggersPage = (props: TriggersPageProps) => {
 	};
 
 	const onTriggersChange = (action: "add" | "remove" | "edit", trigger: TriggerItem) => {
-		let newTriggers = [...triggers];
+		const newTriggers = { ...triggers };
 		if (action === "add") {
-			newTriggers.push(trigger);
+			newTriggers[trigger.source].push(trigger);
 		}
 		if (action === "remove") {
-			newTriggers = triggers.filter(({ id }) => id !== trigger.id);
+			newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
 		}
 		if (action === "edit") {
-			const index = triggers.findIndex(({ id }) => id === trigger.id);
-			newTriggers[index] = trigger;
+			const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
+			newTriggers[trigger.source][index] = trigger;
 		}
 		setTriggers(newTriggers);
 		onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
@@ -149,11 +156,11 @@ const TriggersPage = (props: TriggersPageProps) => {
 		openTagTriggerDialog();
 	};
 
-	const pushTriggers = triggers.filter(({ source }) => source === "push");
-
-	const prTriggers = triggers.filter(({ source }) => source === "pull_request");
-
-	const tagTriggers = triggers.filter(({ source }) => source === "tag");
+	useEffect(() => {
+		setDiscard(() => {
+			setTriggers(convertTriggerMapToItems(triggerMap || []));
+		});
+	}, []);
 
 	return (
 		<>
@@ -187,7 +194,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 						<Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
 							Add push trigger
 						</Button>
-						{pushTriggers.length === 0 && (
+						{triggers.push.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your push triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A push based trigger automatically starts builds when commits are pushed to your repository.{" "}
@@ -200,8 +207,8 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Text>
 							</EmptyState>
 						)}
-						{pushTriggers.length > 0 &&
-							pushTriggers.map((triggerItem) => (
+						{triggers.push.length > 0 &&
+							triggers.push.map((triggerItem) => (
 								<TriggerCard
 									key={triggerItem.id}
 									triggerItem={triggerItem}
@@ -210,7 +217,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
-						{pushTriggers.length > 1 && isTriggersNotificationOpen && (
+						{triggers.push.length > 1 && isTriggersNotificationOpen && (
 							<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
 								<Text fontWeight="bold">Order of triggers</Text>
 								<Text>
@@ -230,7 +237,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 						<Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusAdd">
 							Add pull request trigger
 						</Button>
-						{prTriggers.length === 0 && (
+						{triggers.pull_request.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your pull request triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A pull request based trigger automatically starts builds when specific PR related actions detected
@@ -244,8 +251,8 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Text>
 							</EmptyState>
 						)}
-						{prTriggers.length > 0 &&
-							prTriggers.map((triggerItem) => (
+						{triggers.pull_request.length > 0 &&
+							triggers.pull_request.map((triggerItem) => (
 								<TriggerCard
 									key={triggerItem.id}
 									triggerItem={triggerItem}
@@ -254,7 +261,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
-						{prTriggers.length > 1 && isTriggersNotificationOpen && (
+						{triggers.pull_request.length > 1 && isTriggersNotificationOpen && (
 							<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
 								<Text fontWeight="bold">Order of triggers</Text>
 								<Text>
@@ -274,7 +281,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 						<Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
 							Add tag trigger
 						</Button>
-						{tagTriggers.length === 0 && (
+						{triggers.tag.length === 0 && (
 							<EmptyState iconName="Trigger" title="Your tag triggers will appear here" maxHeight="208">
 								<Text marginTop="8">
 									A tag-based trigger automatically starts builds when tags gets pushed to your repository.{" "}
@@ -287,8 +294,8 @@ const TriggersPage = (props: TriggersPageProps) => {
 								</Text>
 							</EmptyState>
 						)}
-						{tagTriggers.length > 0 &&
-							tagTriggers.map((triggerItem) => (
+						{triggers.tag.length > 0 &&
+							triggers.tag.map((triggerItem) => (
 								<TriggerCard
 									key={triggerItem.id}
 									triggerItem={triggerItem}
@@ -297,7 +304,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 									onActiveChange={(trigger) => onTriggersChange("edit", trigger)}
 								/>
 							))}
-						{tagTriggers.length > 1 && isTriggersNotificationOpen && (
+						{triggers.tag.length > 1 && isTriggersNotificationOpen && (
 							<Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
 								<Text fontWeight="bold">Order of triggers</Text>
 								<Text>
@@ -316,6 +323,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 				</TabPanels>
 			</Tabs>
 			<AddPushTriggerDialog
+				currentTriggers={triggers.push}
 				onClose={onCloseDialog}
 				isOpen={isPushTriggerDialogOpen}
 				onSubmit={onTriggersChange}
@@ -324,6 +332,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 				workflows={workflows}
 			/>
 			<AddPrTriggerDialog
+				currentTriggers={triggers.pull_request}
 				isOpen={isPrTriggerDialogOpen}
 				onClose={onCloseDialog}
 				onSubmit={onTriggersChange}
@@ -332,6 +341,7 @@ const TriggersPage = (props: TriggersPageProps) => {
 				workflows={workflows}
 			/>
 			<AddTagTriggerDialog
+				currentTriggers={triggers.tag}
 				isOpen={isTagTriggerDialogOpen}
 				onClose={onCloseDialog}
 				onSubmit={onTriggersChange}

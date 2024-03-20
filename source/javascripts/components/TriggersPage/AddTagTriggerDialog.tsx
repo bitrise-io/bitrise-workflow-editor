@@ -16,6 +16,7 @@ import { FormProvider, useForm } from "react-hook-form";
 import { FormItems, TriggerItem } from "./TriggersPage.types";
 
 type DialogProps = {
+	currentTriggers: TriggerItem[];
 	isOpen: boolean;
 	onClose: () => void;
 	editedItem?: TriggerItem;
@@ -25,7 +26,7 @@ type DialogProps = {
 };
 
 const AddTagTriggerDialog = (props: DialogProps) => {
-	const { isOpen, onClose, editedItem, pipelines, onSubmit, workflows } = props;
+	const { currentTriggers, isOpen, onClose, editedItem, pipelines, onSubmit, workflows } = props;
 
 	const defaultValues: FormItems = useMemo(() => {
 		return {
@@ -56,7 +57,8 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
 	const conditionNumber: number = 0;
 
-	const { conditions } = watch();
+	const { conditions, pipelineable } = watch();
+
 	const { isRegex } = conditions[conditionNumber] || {};
 
 	const isEditMode = !!editedItem;
@@ -82,7 +84,21 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 		reset(defaultValues);
 	};
 
-	const pipelineable = watch("pipelineable");
+	const isPipelineableMissing = !pipelineable;
+	const isConditionsUsed = currentTriggers
+		.map(({ conditions }) => JSON.stringify(conditions))
+		.includes(
+			JSON.stringify(
+				conditions.map((condition) => {
+					if (condition.value === "") {
+						condition.value = "*";
+					}
+					return condition;
+				}),
+			),
+		);
+
+	const isSubmitDisabled = isPipelineableMissing || isConditionsUsed;
 
 	return (
 		<FormProvider {...formMethods}>
@@ -114,7 +130,6 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 					<Input
 						marginBottom="24"
 						label={getLabelText(isRegex)}
-						isRequired
 						placeholder="*"
 						{...register(`conditions.${conditionNumber}.value`)}
 					></Input>
@@ -146,9 +161,18 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 					<Button variant="tertiary" onClick={onFormCancel}>
 						Cancel
 					</Button>
-					<Button type="submit" isDisabled={!pipelineable}>
-						{isEditMode ? "Done" : "Add trigger"}
-					</Button>
+					<Tooltip
+						isDisabled={!isSubmitDisabled}
+						label={
+							isPipelineableMissing
+								? "Please select a pipeline or workflow."
+								: "You previously added the same set of conditions for another trigger. Please check and try again."
+						}
+					>
+						<Button type="submit" isDisabled={isSubmitDisabled}>
+							{isEditMode ? "Done" : "Add trigger"}
+						</Button>
+					</Tooltip>
 				</DialogFooter>
 			</Dialog>
 		</FormProvider>

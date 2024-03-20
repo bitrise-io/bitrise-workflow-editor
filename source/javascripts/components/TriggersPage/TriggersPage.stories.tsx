@@ -8,6 +8,7 @@ export default {
 		pipelines: ["foo", "bar"],
 		workflows: ["foo", "bar"],
 		onTriggerMapChange: console.log,
+		setDiscard: console.log,
 	},
 } as Meta<typeof TriggersPage>;
 
