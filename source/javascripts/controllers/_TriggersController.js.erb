@@ -9,12 +9,12 @@
 			viewModel.workflows = Object.keys(appService.appConfig.workflows);
 			viewModel.triggerMap = appService.appConfig.trigger_map;
 			
-			var origMap = appService.appConfig.trigger_map;
+			var originalTriggerMap = appService.appConfig.trigger_map;
 
 			$scope.$on(
 				"$destroy",
 				$rootScope.$on("MainController::changesDiscarded", function() {
-					appService.appConfig.trigger_map = origMap;
+					appService.appConfig.trigger_map = originalTriggerMap;
 					viewModel.onDiscard();
 				})
 			);

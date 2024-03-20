@@ -183,11 +183,11 @@
 			return function(triggerType) {
 				switch (triggerType) {
 					case "push":
-						return "<%= data[:strings][:triggers][:types][:push] %>";
+						return "Push";
 					case "pull-request":
-						return "<%= data[:strings][:triggers][:types][:pull_request] %>";
+						return "Pull request";
 					case "tag":
-						return "<%= data[:strings][:triggers][:types][:tag] %>";
+						return "Tag";
 				}
 			};
 		});
