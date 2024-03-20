@@ -1,3 +1,3 @@
 export interface PipelineConfig {
-	uses_repository_yml: boolean;
+  uses_repository_yml: boolean;
 }

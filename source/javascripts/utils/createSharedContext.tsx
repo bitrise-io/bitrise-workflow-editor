@@ -20,132 +20,161 @@
 	OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 	SOFTWARE.
 */
-import { ComponentProps, ComponentType, Fragment, useEffect, useId, useRef, useState } from "react";
+import {
+  ComponentProps,
+  ComponentType,
+  Fragment,
+  useEffect,
+  useId,
+  useRef,
+  useState,
+} from "react";
 import { createPortal } from "react-dom";
 
 interface SharedContextComponent<Props = object> {
-	key: string;
-	node: HTMLElement;
-	component: ComponentType<Props>;
-	props: Props;
+  key: string;
+  node: HTMLElement;
+  component: ComponentType<Props>;
+  props: Props;
 }
 
 interface SharedComponentInstance<T> {
-	update: (props: T) => void;
-	remove: () => void;
+  update: (props: T) => void;
+  remove: () => void;
 }
 
 type RenderMethod = {
-	<T extends object>(component: SharedContextComponent<T>): SharedComponentInstance<T>;
+  <T extends object>(
+    component: SharedContextComponent<T>,
+  ): SharedComponentInstance<T>;
 };
 
 type SharedContextReturn<Root extends object> = {
-	component: (root: Root) => JSX.Element;
-	use<Props extends object>(c: ComponentType<Props>): (props: Props) => JSX.Element;
+  component: (root: Root) => JSX.Element;
+  use<Props extends object>(
+    c: ComponentType<Props>,
+  ): (props: Props) => JSX.Element;
 };
 
-const createSharedContext = <R extends object>(Root: ComponentType<R> = Fragment): SharedContextReturn<R> => {
-	// Make method accessible by both SharedContext and withSharedContext
-	let renderWithSharedContext: RenderMethod;
+const createSharedContext = <R extends object>(
+  Root: ComponentType<R> = Fragment,
+): SharedContextReturn<R> => {
+  // Make method accessible by both SharedContext and withSharedContext
+  let renderWithSharedContext: RenderMethod;
 
-	const SharedContext = (rootProps: R): JSX.Element => {
-		// List of components and their props to be rendered with react portal in their designated nodes
-		const [components, setComponents] = useState<Array<SharedContextComponent | undefined>>([]);
+  const SharedContext = (rootProps: R): JSX.Element => {
+    // List of components and their props to be rendered with react portal in their designated nodes
+    const [components, setComponents] = useState<
+      Array<SharedContextComponent | undefined>
+    >([]);
 
-		useEffect(() => {
-			renderWithSharedContext = <T extends object>(
-				component: SharedContextComponent<T>,
-			): SharedComponentInstance<T> => {
-				// Add component to list
-				setComponents((prevState) => {
-					prevState.push(component as unknown as SharedContextComponent<object>);
-					return [...prevState];
-				});
+    useEffect(() => {
+      renderWithSharedContext = <T extends object>(
+        component: SharedContextComponent<T>,
+      ): SharedComponentInstance<T> => {
+        // Add component to list
+        setComponents((prevState) => {
+          prevState.push(
+            component as unknown as SharedContextComponent<object>,
+          );
+          return [...prevState];
+        });
 
-				// Return callbacks to update and remove component from list
-				return {
-					update: (props) => {
-						setComponents((prevState) => {
-							const prevComponent = prevState.find((c) => c?.key === component.key);
-							if (!prevComponent) {
-								return prevState;
-							}
-							prevComponent.props = props;
-							return [...prevState];
-						});
-					},
-					remove: () => {
-						setComponents((prevState) => {
-							const index = prevState.findIndex((c) => c?.key === component.key);
-							if (index === -1) {
-								return prevState;
-							}
-							prevState[index] = undefined;
-							return [...prevState];
-						});
-					},
-				};
-			};
-		}, []);
+        // Return callbacks to update and remove component from list
+        return {
+          update: (props) => {
+            setComponents((prevState) => {
+              const prevComponent = prevState.find(
+                (c) => c?.key === component.key,
+              );
+              if (!prevComponent) {
+                return prevState;
+              }
+              prevComponent.props = props;
+              return [...prevState];
+            });
+          },
+          remove: () => {
+            setComponents((prevState) => {
+              const index = prevState.findIndex(
+                (c) => c?.key === component.key,
+              );
+              if (index === -1) {
+                return prevState;
+              }
+              // eslint-disable-next-line no-param-reassign
+              prevState[index] = undefined;
+              return [...prevState];
+            });
+          },
+        };
+      };
+    }, []);
 
-		// Return list of react portals wrapped in one or multiple providers
-		return (
-			<Root {...rootProps}>
-				{components.map((component) => {
-					if (!component) {
-						return null;
-					}
-					const { key, node, component: C, props } = component;
-					return createPortal(<C key={key} {...props} />, node);
-				})}
-			</Root>
-		);
-	};
+    // Return list of react portals wrapped in one or multiple providers
+    return (
+      <Root {...rootProps}>
+        {components.map((component) => {
+          if (!component) {
+            return null;
+          }
+          const { key, node, component: C, props } = component;
+          return createPortal(<C key={key} {...props} />, node);
+        })}
+      </Root>
+    );
+  };
 
-	const useSharedContext: { <T extends object>(component: ComponentType<T>): (p: T) => JSX.Element } = (component) => {
-		// Create as local variable instead of returning inline to fix TSLint
-		const UseSharedContext = (props: ComponentProps<typeof component>): JSX.Element => {
-			// Create unique key for this instance
-			const key = useId();
-			// Hold reference to rendered hidden DOM node
-			const ref = useRef<HTMLDivElement>(null);
-			// Instance is SharedContext
-			const instance = useRef<SharedComponentInstance<ComponentProps<typeof component>>>();
+  const useSharedContext: {
+    <T extends object>(component: ComponentType<T>): (p: T) => JSX.Element;
+  } = (component) => {
+    // Create as local variable instead of returning inline to fix TSLint
+    const UseSharedContext = (
+      props: ComponentProps<typeof component>,
+    ): JSX.Element => {
+      // Create unique key for this instance
+      const key = useId();
+      // Hold reference to rendered hidden DOM node
+      const ref = useRef<HTMLDivElement>(null);
+      // Instance is SharedContext
+      const instance =
+        useRef<SharedComponentInstance<ComponentProps<typeof component>>>();
 
-			useEffect(() => {
-				if (instance.current) {
-					// Pass prop updates to instance in SharedContext
-					instance.current.update(props);
-				}
-			}, [props]);
+      useEffect(() => {
+        if (instance.current) {
+          // Pass prop updates to instance in SharedContext
+          instance.current.update(props);
+        }
+      }, [props]);
 
-			useEffect(() => {
-				if (ref.current && ref.current.parentElement) {
-					// Create instance in SharedContext
-					instance.current = renderWithSharedContext({
-						key,
-						node: ref.current.parentElement,
-						component,
-						props,
-					});
+      useEffect(() => {
+        if (ref.current && ref.current.parentElement) {
+          // Create instance in SharedContext
+          instance.current = renderWithSharedContext({
+            key,
+            node: ref.current.parentElement,
+            component,
+            props,
+          });
 
-					// Return callback to unmount component in SharedContext when this component is unmounted
-					return instance.current.remove;
-				}
-				return;
-			}, []);
+          // Return callback to unmount component in SharedContext when this component is unmounted
+          return instance.current.remove;
+        }
 
-			// Hidden <div> component only used to get reference in dom
-			return <div ref={ref} style={{ display: "none" }} />;
-		};
+        return undefined;
+      }, [key, props]);
 
-		return UseSharedContext;
-	};
+      // Hidden <div> component only used to get reference in dom
+      return <div ref={ref} style={{ display: "none" }} />;
+    };
 
-	return {
-		component: SharedContext,
-		use: useSharedContext,
-	};
+    return UseSharedContext;
+  };
+
+  return {
+    component: SharedContext,
+    use: useSharedContext,
+  };
 };
 
 export default createSharedContext;
