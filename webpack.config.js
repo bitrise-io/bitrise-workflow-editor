@@ -102,11 +102,11 @@ module.exports = {
     ],
   },
 
-	performance: {
-		hints: "warning",
-		maxAssetSize: 30000000,
-		maxEntrypointSize: 50000000,
-	},
+  performance: {
+    hints: 'warning',
+    maxAssetSize: 20000000,
+    maxEntrypointSize: 40000000,
+  },
 
   output: {
     filename: 'javascripts/[name].js',
