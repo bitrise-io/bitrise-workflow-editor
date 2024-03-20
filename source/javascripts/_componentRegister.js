@@ -16,7 +16,6 @@ import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner
 	from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
-import { ProductTour } from "./components/ProductTour/ProductTour";
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
@@ -89,7 +88,6 @@ angular
 		])
 	)
 	.component("rWorkflowRecipesInfoBanner", register(WorkflowRecipesInfoBanner, []))
-	.component("rProductTour", register(ProductTour, ["menuIds", "currentUser", "productTourShown"]))
 	.component("rInfoTooltip", register(InfoTooltip, ["label"]))
 	.component("rToggle", register(Toggle, ["tooltipLabel", "isDisabled", "isChecked", "onChange", "listItemId"]))
 	.component(
