@@ -1,4 +1,4 @@
-import { datadogRum } from "@datadog/browser-rum";
+import { datadogRum } from '@datadog/browser-rum';
 
 const reportedTimings: Set<string> = new Set();
 

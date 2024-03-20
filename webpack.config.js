@@ -26,7 +26,7 @@ const railsTransformer = (mode) => ({
   options: {
     script: `bundle exec ruby transformer.rb ${mode}`,
     cwd: './rails',
-    maxBuffer: Math.pow(1024, 3),
+    maxBuffer: 1024 ** 3,
     env: { ...process.env, wfe_version: version },
   },
 });
@@ -77,13 +77,13 @@ module.exports = {
     },
     static: {
       directory: OUTPUT_FOLDER,
-      publicPath: publicPath,
+      publicPath,
     },
   },
 
   devtool: `${isProd ? 'hidden-' : ''}source-map`,
 
-  entry: entry,
+  entry,
 
   optimization: {
     minimize: isProd,

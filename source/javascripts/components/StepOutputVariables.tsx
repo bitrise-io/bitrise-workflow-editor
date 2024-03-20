@@ -1,15 +1,7 @@
-import { Fragment, useState } from "react";
-import {
-  Box,
-  Collapse,
-  Divider,
-  Input,
-  Link,
-  MarkdownContent,
-  Text,
-} from "@bitrise/bitkit";
+import { Fragment, useState } from 'react';
+import { Box, Collapse, Divider, Input, Link, MarkdownContent, Text } from '@bitrise/bitkit';
 
-import { StepOutputVariable } from "../models";
+import { StepOutputVariable } from '../models';
 
 type ItemProps = {
   item: StepOutputVariable;
@@ -21,29 +13,14 @@ const StepOutputVariableItem = ({ item }: ItemProps) => {
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
-      <Input
-        type="text"
-        label={title}
-        value={key}
-        helperText={summary}
-        isReadOnly
-        isRequired
-      />
+      <Input type="text" label={title} value={key} helperText={summary} isReadOnly isRequired />
       {description && (
         <>
-          <Collapse
-            in={showMore}
-            transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
-          >
-            <MarkdownContent md={description || ""} />
+          <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
+            <MarkdownContent md={description || ''} />
           </Collapse>
-          <Link
-            as="button"
-            colorScheme="purple"
-            alignSelf="self-start"
-            onClick={() => setShowMore((prev) => !prev)}
-          >
-            {showMore ? "Show less" : "Show more"}
+          <Link as="button" colorScheme="purple" alignSelf="self-start" onClick={() => setShowMore((prev) => !prev)}>
+            {showMore ? 'Show less' : 'Show more'}
           </Link>
         </>
       )}

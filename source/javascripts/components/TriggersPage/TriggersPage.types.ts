@@ -1,22 +1,16 @@
-export type TagConditionType = "tag";
+export type TagConditionType = 'tag';
 
-export type PushConditionType =
-  | "push_branch"
-  | "commit_message"
-  | "changed_files";
+export type PushConditionType = 'push_branch' | 'commit_message' | 'changed_files';
 
 export type PrConditionType =
-  | "pull_request_source_branch"
-  | "pull_request_target_branch"
-  | "pull_request_label"
-  | "pull_request_comment"
-  | "commit_message"
-  | "changed_files";
+  | 'pull_request_source_branch'
+  | 'pull_request_target_branch'
+  | 'pull_request_label'
+  | 'pull_request_comment'
+  | 'commit_message'
+  | 'changed_files';
 
-export type ConditionType =
-  | PushConditionType
-  | PrConditionType
-  | TagConditionType;
+export type ConditionType = PushConditionType | PrConditionType | TagConditionType;
 
 export type Condition = {
   isRegex: boolean;
@@ -25,7 +19,7 @@ export type Condition = {
   id?: string;
 };
 
-export type SourceType = "push" | "pull_request" | "tag";
+export type SourceType = 'push' | 'pull_request' | 'tag';
 
 export type TriggerItem = {
   conditions: Condition[];
@@ -36,7 +30,7 @@ export type TriggerItem = {
   isActive: boolean;
 };
 
-export interface FormItems extends Omit<TriggerItem, "conditions"> {
+export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   conditions: {
     isRegex: boolean;
     type?: ConditionType;

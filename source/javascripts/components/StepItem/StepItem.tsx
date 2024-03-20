@@ -1,13 +1,13 @@
-import "./StepItem.scss";
-import "react-lazy-load-image-component/src/effects/blur.css";
+import './StepItem.scss';
+import 'react-lazy-load-image-component/src/effects/blur.css';
 
-import { Tooltip } from "@bitrise/bitkit";
+import { Tooltip } from '@bitrise/bitkit';
 
-import { Step } from "../../models";
-import StepItemBadge from "./StepItemBadge";
-import StepItemIcon from "./StepItemIcon";
-import StepItemTitle from "./StepItemTitle";
-import StepItemVersion from "./StepItemVersion";
+import { Step } from '../../models';
+import StepItemBadge from './StepItemBadge';
+import StepItemIcon from './StepItemIcon';
+import StepItemTitle from './StepItemTitle';
+import StepItemVersion from './StepItemVersion';
 
 type StepItemProps = {
   workflowIndex: number;
@@ -31,7 +31,7 @@ const StepItem = ({
   onSelected,
 }: StepItemProps): JSX.Element => {
   return (
-    <Tooltip label={step.displayTooltip()} style={{ whiteSpace: "pre-line" }}>
+    <Tooltip label={step.displayTooltip()} style={{ whiteSpace: 'pre-line' }}>
       <button
         type="button"
         aria-label={`Select ${title} step`}
@@ -52,7 +52,7 @@ const StepItem = ({
           </strong>
           <StepItemVersion
             actualVersion={step.version}
-            requestedVersion={version || ""}
+            requestedVersion={version || ''}
             hasVersionUpdate={hasVersionUpdate}
           />
         </span>

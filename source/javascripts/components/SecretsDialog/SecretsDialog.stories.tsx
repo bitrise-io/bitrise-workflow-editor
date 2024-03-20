@@ -1,27 +1,27 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from '@storybook/react';
 
-import SecretsDialog from "./SecretsDialog";
-import { Secret } from "./types";
+import SecretsDialog from './SecretsDialog';
+import { Secret } from './types';
 
 const defaultSecrets: Secret[] = [
   {
-    source: "Secrets",
-    key: "BITRISE_APP_SLUG",
-    value: "7ce75f61-556f-4163-8a5f-a9b16ef55a8",
+    source: 'Secrets',
+    key: 'BITRISE_APP_SLUG',
+    value: '7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: true,
   },
   {
-    source: "Secrets",
-    key: "BITRISE_BUILD_URL",
-    value: "https://app.bitrise.io/build/7ce75f61-556f-4163-8a5f-a9b16ef55a8",
+    source: 'Secrets',
+    key: 'BITRISE_BUILD_URL',
+    value: 'https://app.bitrise.io/build/7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: true,
   },
   {
-    source: "Secrets",
-    key: "REPOSITORY_URL",
-    value: "git@github.com:flutter/flutter.git",
+    source: 'Secrets',
+    key: 'REPOSITORY_URL',
+    value: 'git@github.com:flutter/flutter.git',
     isExpand: true,
     isExpose: true,
   },
@@ -30,12 +30,12 @@ const defaultSecrets: Secret[] = [
 export default {
   component: SecretsDialog,
   argTypes: {
-    source: { type: "string" },
-    isOpen: { type: "boolean" },
-    secrets: { type: "symbol" },
-    onClose: { action: "onClose" },
-    onSelect: { action: "onSelect" },
-    onCreate: { action: "onCreate" },
+    source: { type: 'string' },
+    isOpen: { type: 'boolean' },
+    secrets: { type: 'symbol' },
+    onClose: { action: 'onClose' },
+    onSelect: { action: 'onSelect' },
+    onCreate: { action: 'onCreate' },
   },
 } as Meta<typeof SecretsDialog>;
 

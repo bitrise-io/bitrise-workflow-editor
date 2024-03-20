@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from "react";
+import { useEffect, useMemo } from 'react';
 import {
   Button,
   Checkbox,
@@ -10,13 +10,12 @@ import {
   Select,
   Text,
   Tooltip,
-} from "@bitrise/bitkit";
-import { FormProvider, useForm } from "react-hook-form";
+} from '@bitrise/bitkit';
+import { FormProvider, useForm } from 'react-hook-form';
 
-import { FormItems, TriggerItem } from "./TriggersPage.types";
+import { FormItems, TriggerItem } from './TriggersPage.types';
 
-const getLabelText = (isRegex: boolean) =>
-  isRegex ? "Enter a regex pattern" : "Enter a tag";
+const getLabelText = (isRegex: boolean) => (isRegex ? 'Enter a regex pattern' : 'Enter a tag');
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
@@ -24,33 +23,25 @@ type DialogProps = {
   onClose: () => void;
   editedItem?: TriggerItem;
   pipelines: string[];
-  onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
+  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
   workflows: string[];
 };
 
 const AddTagTriggerDialog = (props: DialogProps) => {
-  const {
-    currentTriggers,
-    isOpen,
-    onClose,
-    editedItem,
-    pipelines,
-    onSubmit,
-    workflows,
-  } = props;
+  const { currentTriggers, isOpen, onClose, editedItem, pipelines, onSubmit, workflows } = props;
 
   const defaultValues: FormItems = useMemo(() => {
     return {
       conditions: [
         {
           isRegex: false,
-          type: "tag",
-          value: "",
+          type: 'tag',
+          value: '',
         },
       ],
       id: crypto.randomUUID(),
-      pipelineable: "",
-      source: "tag",
+      pipelineable: '',
+      source: 'tag',
       isActive: true,
       ...editedItem,
     };
@@ -80,12 +71,12 @@ const AddTagTriggerDialog = (props: DialogProps) => {
       .filter(({ type }) => !!type)
       .map((condition) => {
         const newCondition = { ...condition };
-        if (newCondition.value === "") {
-          newCondition.value = "*";
+        if (newCondition.value === '') {
+          newCondition.value = '*';
         }
         return newCondition;
       });
-    onSubmit(isEditMode ? "edit" : "add", filteredData as TriggerItem);
+    onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
     onFormCancel();
   };
 
@@ -96,15 +87,13 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
   const isPipelineableMissing = !pipelineable;
   const isConditionsUsed = currentTriggers
-    .map(({ conditions: currentConditions }) =>
-      JSON.stringify(currentConditions),
-    )
+    .map(({ conditions: currentConditions }) => JSON.stringify(currentConditions))
     .includes(
       JSON.stringify(
         conditions.map((condition) => {
           const newCondition = { ...condition };
-          if (newCondition.value === "") {
-            newCondition.value = "*";
+          if (newCondition.value === '') {
+            newCondition.value = '*';
           }
           return newCondition;
         }),
@@ -116,7 +105,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
   return (
     <FormProvider {...formMethods}>
       <Dialog
-        title={isEditMode ? "Edit trigger" : "Add tag trigger"}
+        title={isEditMode ? 'Edit trigger' : 'Add tag trigger'}
         as="form"
         maxWidth="480"
         isOpen={isOpen}
@@ -128,16 +117,13 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             Set up trigger
           </Text>
           <Text marginBottom="24" color="text/secondary">
-            Define a tag and select a Pipeline or Workflow for execution on
-            Bitrise whenever the tag is pushed to your repository.
+            Define a tag and select a Pipeline or Workflow for execution on Bitrise whenever the tag is pushed to your
+            repository.
           </Text>
           <Text marginBottom="16" textStyle="body/md/semibold">
             Tag
           </Text>
-          <Checkbox
-            marginBottom="8"
-            {...register(`conditions.${conditionNumber}.isRegex`)}
-          >
+          <Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
             Use regex pattern
           </Checkbox>
           <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
@@ -149,17 +135,10 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             placeholder="*"
             {...register(`conditions.${conditionNumber}.value`)}
           />
-          <Text
-            color="text/primary"
-            textStyle="body/md/semibold"
-            marginBottom="4"
-          >
+          <Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">
             Targeted Pipeline or Workflow
           </Text>
-          <Select
-            placeholder="Select a Pipeline or Workflow"
-            {...register("pipelineable")}
-          >
+          <Select placeholder="Select a Pipeline or Workflow" {...register('pipelineable')}>
             {pipelines.length && (
               <optgroup label="Pipelines">
                 {pipelines.map((p) => (
@@ -188,12 +167,12 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             isDisabled={!isSubmitDisabled}
             label={
               isPipelineableMissing
-                ? "Please select a pipeline or workflow."
-                : "You previously added the same set of conditions for another trigger. Please check and try again."
+                ? 'Please select a pipeline or workflow.'
+                : 'You previously added the same set of conditions for another trigger. Please check and try again.'
             }
           >
             <Button type="submit" isDisabled={isSubmitDisabled}>
-              {isEditMode ? "Done" : "Add trigger"}
+              {isEditMode ? 'Done' : 'Add trigger'}
             </Button>
           </Tooltip>
         </DialogFooter>

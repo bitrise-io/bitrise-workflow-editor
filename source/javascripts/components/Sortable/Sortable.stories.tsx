@@ -1,6 +1,6 @@
-import { Meta } from "@storybook/react";
+import { Meta } from '@storybook/react';
 
-import Sortable from "./Sortable";
+import Sortable from './Sortable';
 
 const meta: Meta<typeof Sortable> = {
   component: Sortable,

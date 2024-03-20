@@ -1,12 +1,12 @@
-import { Meta, StoryObj } from "@storybook/react";
+import { Meta, StoryObj } from '@storybook/react';
 
-import TriggersPage from "./TriggersPage";
+import TriggersPage from './TriggersPage';
 
 export default {
   component: TriggersPage,
   args: {
-    pipelines: ["foo", "bar"],
-    workflows: ["foo", "bar"],
+    pipelines: ['foo', 'bar'],
+    workflows: ['foo', 'bar'],
     onTriggerMapChange: console.log,
     setDiscard: console.log,
   },
@@ -18,14 +18,14 @@ export const TriggersPageWithTriggerMap: StoryObj<typeof TriggersPage> = {
   args: {
     triggerMap: [
       {
-        push_branch: "*",
+        push_branch: '*',
         enabled: false,
-        workflow: "foo",
+        workflow: 'foo',
       },
       {
-        pull_request_target_branch: "*",
-        pull_request_source_branch: "*",
-        workflow: "bar",
+        pull_request_target_branch: '*',
+        pull_request_source_branch: '*',
+        workflow: 'bar',
       },
     ],
   },

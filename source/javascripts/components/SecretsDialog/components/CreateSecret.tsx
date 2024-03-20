@@ -1,7 +1,7 @@
-import { Box, Checkbox, Input, Text } from "@bitrise/bitkit";
-import { useFormContext } from "react-hook-form";
+import { Box, Checkbox, Input, Text } from '@bitrise/bitkit';
+import { useFormContext } from 'react-hook-form';
 
-import { CreateSecretFormValues } from "../types";
+import { CreateSecretFormValues } from '../types';
 
 const CreateSecret = () => {
   const {
@@ -20,12 +20,11 @@ const CreateSecret = () => {
           leftIconName="Dollars"
           placeholder="Enter key"
           errorText={errors.key?.message?.toString()}
-          {...register("key", {
+          {...register('key', {
             required: true,
             pattern: {
               value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
-              message:
-                "Should contain letters, numbers, underscores, should not begin with a number.",
+              message: 'Should contain letters, numbers, underscores, should not begin with a number.',
             },
           })}
         />
@@ -36,14 +35,14 @@ const CreateSecret = () => {
           label="Value"
           placeholder="Enter value"
           errorText={errors.value?.message?.toString()}
-          {...register("value", { required: true })}
+          {...register('value', { required: true })}
         />
       </Box>
       <Box display="flex" gap="24">
-        <Checkbox {...register("isExpand")} flex="1">
+        <Checkbox {...register('isExpand')} flex="1">
           Replace variables in inputs
         </Checkbox>
-        <Checkbox {...register("isExpose")} flex="1">
+        <Checkbox {...register('isExpose')} flex="1">
           Expose for Pull Requests
         </Checkbox>
       </Box>

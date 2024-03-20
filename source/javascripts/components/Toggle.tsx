@@ -1,9 +1,4 @@
-import {
-  Box,
-  Toggle as BitkitToggle,
-  ToggleProps as BitkitToggleProps,
-  Tooltip,
-} from "@bitrise/bitkit";
+import { Box, Toggle as BitkitToggle, ToggleProps as BitkitToggleProps, Tooltip } from '@bitrise/bitkit';
 
 type ToggleProps = {
   tooltipLabel?: string;
@@ -11,7 +6,7 @@ type ToggleProps = {
   isChecked: boolean;
   // if toggle is used in a loop this can be used the identify what data is connected to this toggle
   listItemId?: string;
-} & Pick<BitkitToggleProps, "isDisabled">;
+} & Pick<BitkitToggleProps, 'isDisabled'>;
 
 const Toggle = (props: ToggleProps) => {
   const { tooltipLabel, isChecked, onChange, listItemId, ...rest } = props;
@@ -20,9 +15,7 @@ const Toggle = (props: ToggleProps) => {
     onChange(event.target.checked, listItemId);
   };
 
-  const toggle = (
-    <BitkitToggle {...rest} isChecked={isChecked} onChange={handleChange} />
-  );
+  const toggle = <BitkitToggle {...rest} isChecked={isChecked} onChange={handleChange} />;
 
   if (tooltipLabel) {
     return (

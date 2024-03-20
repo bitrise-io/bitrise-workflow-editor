@@ -7,42 +7,31 @@ import {
   DialogProps,
   SegmentedControl,
   SegmentedControlItem,
-} from "@bitrise/bitkit";
-import { FormProvider, useController, useForm } from "react-hook-form";
+} from '@bitrise/bitkit';
+import { FormProvider, useController, useForm } from 'react-hook-form';
 
-import CreateSecret from "./components/CreateSecret";
-import SecretsTable from "./components/SecretsTable";
-import {
-  CreateSecretFormValues,
-  HandlerFn,
-  Secret,
-  SelectSecretFormValues,
-} from "./types";
+import CreateSecret from './components/CreateSecret';
+import SecretsTable from './components/SecretsTable';
+import { CreateSecretFormValues, HandlerFn, Secret, SelectSecretFormValues } from './types';
 
-type Props = Pick<DialogProps, "isOpen" | "onClose"> & {
+type Props = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   secrets: Secret[];
   onSelect: HandlerFn;
   onCreate: HandlerFn;
 };
 
 enum Segment {
-  SELECT = "select",
-  CREATE = "create",
+  SELECT = 'select',
+  CREATE = 'create',
 }
 
-const SecretsDialog = ({
-  secrets,
-  isOpen,
-  onClose,
-  onSelect,
-  onCreate,
-}: Props) => {
+const SecretsDialog = ({ secrets, isOpen, onClose, onSelect, onCreate }: Props) => {
   const selectSecretForm = useForm<SelectSecretFormValues>();
-  const createSecretForm = useForm<CreateSecretFormValues>({ mode: "all" });
+  const createSecretForm = useForm<CreateSecretFormValues>({ mode: 'all' });
 
   const segmentForm = useForm({ defaultValues: { segment: Segment.SELECT } });
   const { field: segmentField } = useController({
-    name: "segment",
+    name: 'segment',
     control: segmentForm.control,
   });
 
@@ -58,8 +47,8 @@ const SecretsDialog = ({
   });
 
   const onCreateHandler = createSecretForm.handleSubmit((secret) => {
-    onCreate({ ...secret, source: "Secrets" });
-    onSelect({ ...secret, source: "Secrets" });
+    onCreate({ ...secret, source: 'Secrets' });
+    onSelect({ ...secret, source: 'Secrets' });
     onClose();
   });
 
@@ -81,12 +70,8 @@ const SecretsDialog = ({
     >
       <DialogBody display="flex" flexDirection="column" gap="24">
         <SegmentedControl {...segmentField}>
-          <SegmentedControlItem value={Segment.SELECT}>
-            Select existing
-          </SegmentedControlItem>
-          <SegmentedControlItem value={Segment.CREATE}>
-            Create
-          </SegmentedControlItem>
+          <SegmentedControlItem value={Segment.SELECT}>Select existing</SegmentedControlItem>
+          <SegmentedControlItem value={Segment.CREATE}>Create</SegmentedControlItem>
         </SegmentedControl>
 
         {isSelectSegment && (
@@ -108,19 +93,13 @@ const SecretsDialog = ({
           </Button>
 
           {isSelectSegment && (
-            <Button
-              type="submit"
-              isDisabled={!selectSecretForm.formState.isValid}
-            >
+            <Button type="submit" isDisabled={!selectSecretForm.formState.isValid}>
               Insert selected
             </Button>
           )}
 
           {isCreateSegment && (
-            <Button
-              type="submit"
-              isDisabled={!createSecretForm.formState.isValid}
-            >
+            <Button type="submit" isDisabled={!createSecretForm.formState.isValid}>
               Create and insert
             </Button>
           )}

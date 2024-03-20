@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState } from 'react';
 import {
   Button,
   EmptyState,
@@ -11,19 +11,17 @@ import {
   Tabs,
   Text,
   useDisclosure,
-} from "@bitrise/bitkit";
+} from '@bitrise/bitkit';
 
-import AddPrTriggerDialog from "./AddPrTriggerDialog";
-import AddPushTriggerDialog from "./AddPushTriggerDialog";
-import AddTagTriggerDialog from "./AddTagTriggerDialog";
-import TriggerCard from "./TriggerCard";
-import { ConditionType, SourceType, TriggerItem } from "./TriggersPage.types";
+import AddPrTriggerDialog from './AddPrTriggerDialog';
+import AddPushTriggerDialog from './AddPushTriggerDialog';
+import AddTagTriggerDialog from './AddTagTriggerDialog';
+import TriggerCard from './TriggerCard';
+import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
 
 type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 
-const convertItemsToTriggerMap = (
-  triggers: Record<SourceType, TriggerItem[]>,
-): FinalTriggerItem[] => {
+const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
   const triggerMap: FinalTriggerItem[] = Object.values(triggers)
     .flat()
     .map((trigger) => {
@@ -34,7 +32,7 @@ const convertItemsToTriggerMap = (
       if (!trigger.isActive) {
         finalItem.enabled = false;
       }
-      if (trigger.source === "pull_request" && !trigger.isDraftPr) {
+      if (trigger.source === 'pull_request' && !trigger.isDraftPr) {
         finalItem.draft_pull_request_enabled = false;
       }
       finalItem.type = trigger.source;
@@ -46,18 +44,16 @@ const convertItemsToTriggerMap = (
 };
 
 const getSourceType = (triggerKeys: string[]): SourceType => {
-  if (triggerKeys.includes("push_branch")) {
-    return "push";
+  if (triggerKeys.includes('push_branch')) {
+    return 'push';
   }
-  if (triggerKeys.includes("tag")) {
-    return "tag";
+  if (triggerKeys.includes('tag')) {
+    return 'tag';
   }
-  return "pull_request";
+  return 'pull_request';
 };
 
-const convertTriggerMapToItems = (
-  triggerMap: FinalTriggerItem[],
-): Record<SourceType, TriggerItem[]> => {
+const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<SourceType, TriggerItem[]> => {
   const triggers: Record<SourceType, TriggerItem[]> = {
     pull_request: [],
     push: [],
@@ -69,21 +65,17 @@ const convertTriggerMapToItems = (
     const finalItem: TriggerItem = {
       conditions: [],
       pipelineable: trigger.workflow as string,
-      id: "",
+      id: '',
       source,
       isActive: trigger.enabled !== false,
     };
     triggerKeys.forEach((key) => {
-      if (
-        !["workflow", "enabled", "draft_pull_request_enabled"].includes(key)
-      ) {
-        const isRegex = typeof trigger[key] !== "string";
+      if (!['workflow', 'enabled', 'draft_pull_request_enabled'].includes(key)) {
+        const isRegex = typeof trigger[key] !== 'string';
         finalItem.conditions.push({
           isRegex,
           type: key as ConditionType,
-          value: isRegex
-            ? (trigger[key] as { regex: string }).regex
-            : (trigger[key] as string),
+          value: isRegex ? (trigger[key] as { regex: string }).regex : (trigger[key] as string),
         });
       }
     });
@@ -101,14 +93,9 @@ type TriggersPageProps = {
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-  const { onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } =
-    props;
-  const { isOpen: isNotificationOpen, onClose: closeNotification } =
-    useDisclosure({ defaultIsOpen: true });
-  const {
-    isOpen: isTriggersNotificationOpen,
-    onClose: closeTriggersNotification,
-  } = useDisclosure({
+  const { onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+  const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
+  const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
     defaultIsOpen: true,
   });
   const {
@@ -117,11 +104,7 @@ const TriggersPage = (props: TriggersPageProps) => {
     onClose: closePushTriggerDialog,
   } = useDisclosure();
 
-  const {
-    isOpen: isPrTriggerDialogOpen,
-    onOpen: openPrTriggerDialog,
-    onClose: closePrTriggerDialog,
-  } = useDisclosure();
+  const { isOpen: isPrTriggerDialogOpen, onOpen: openPrTriggerDialog, onClose: closePrTriggerDialog } = useDisclosure();
 
   const {
     isOpen: isTagTriggerDialogOpen,
@@ -142,23 +125,16 @@ const TriggersPage = (props: TriggersPageProps) => {
     setEditedItem(undefined);
   };
 
-  const onTriggersChange = (
-    action: "add" | "remove" | "edit",
-    trigger: TriggerItem,
-  ) => {
+  const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
     const newTriggers = { ...triggers };
-    if (action === "add") {
+    if (action === 'add') {
       newTriggers[trigger.source].push(trigger);
     }
-    if (action === "remove") {
-      newTriggers[trigger.source] = triggers[trigger.source].filter(
-        ({ id }) => id !== trigger.id,
-      );
+    if (action === 'remove') {
+      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
     }
-    if (action === "edit") {
-      const index = triggers[trigger.source].findIndex(
-        ({ id }) => id === trigger.id,
-      );
+    if (action === 'edit') {
+      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
       newTriggers[trigger.source][index] = trigger;
     }
     setTriggers(newTriggers);
@@ -193,7 +169,7 @@ const TriggersPage = (props: TriggersPageProps) => {
         Triggers
       </Text>
       <Text color="text/secondary">
-        Triggers help you start builds automatically.{" "}
+        Triggers help you start builds automatically.{' '}
         <Link
           colorScheme="purple"
           href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -203,17 +179,9 @@ const TriggersPage = (props: TriggersPageProps) => {
         </Link>
       </Text>
       {isNotificationOpen && (
-        <Notification
-          status="info"
-          onClose={closeNotification}
-          action={{ label: "Set up webhooks" }}
-          marginTop="32"
-        >
+        <Notification status="info" onClose={closeNotification} action={{ label: 'Set up webhooks' }} marginTop="32">
           <Text fontWeight="bold">Configure webhooks</Text>
-          <Text>
-            Enable Bitrise to interact with third-party services and are
-            necessary for triggers to work.
-          </Text>
+          <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>
       )}
       <Tabs marginTop="24" marginBottom="24">
@@ -224,23 +192,13 @@ const TriggersPage = (props: TriggersPageProps) => {
         </TabList>
         <TabPanels paddingTop="24">
           <TabPanel>
-            <Button
-              marginBottom="24"
-              variant="secondary"
-              onClick={openPushTriggerDialog}
-              leftIconName="PlusAdd"
-            >
+            <Button marginBottom="24" variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
               Add push trigger
             </Button>
             {triggers.push.length === 0 && (
-              <EmptyState
-                iconName="Trigger"
-                title="Your push triggers will appear here"
-                maxHeight="208"
-              >
+              <EmptyState iconName="Trigger" title="Your push triggers will appear here" maxHeight="208">
                 <Text marginTop="8">
-                  A push based trigger automatically starts builds when commits
-                  are pushed to your repository.{" "}
+                  A push based trigger automatically starts builds when commits are pushed to your repository.{' '}
                   <Link
                     colorScheme="purple"
                     href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -255,23 +213,17 @@ const TriggersPage = (props: TriggersPageProps) => {
                 <TriggerCard
                   key={triggerItem.id}
                   triggerItem={triggerItem}
-                  onRemove={(trigger) => onTriggersChange("remove", trigger)}
+                  onRemove={(trigger) => onTriggersChange('remove', trigger)}
                   onEdit={(trigger) => onPushTriggerEdit(trigger)}
-                  onActiveChange={(trigger) =>
-                    onTriggersChange("edit", trigger)
-                  }
+                  onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
                 />
               ))}
             {triggers.push.length > 1 && isTriggersNotificationOpen && (
-              <Notification
-                status="info"
-                marginTop="12"
-                onClose={closeTriggersNotification}
-              >
+              <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
-                  The first matching trigger is executed by the system, so make
-                  sure that the order of triggers is configured correctly.{" "}
+                  The first matching trigger is executed by the system, so make sure that the order of triggers is
+                  configured correctly.{' '}
                   <Link
                     href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
                     isUnderlined
@@ -283,23 +235,14 @@ const TriggersPage = (props: TriggersPageProps) => {
             )}
           </TabPanel>
           <TabPanel>
-            <Button
-              marginBottom="24"
-              variant="secondary"
-              onClick={openPrTriggerDialog}
-              leftIconName="PlusAdd"
-            >
+            <Button marginBottom="24" variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusAdd">
               Add pull request trigger
             </Button>
             {triggers.pull_request.length === 0 && (
-              <EmptyState
-                iconName="Trigger"
-                title="Your pull request triggers will appear here"
-                maxHeight="208"
-              >
+              <EmptyState iconName="Trigger" title="Your pull request triggers will appear here" maxHeight="208">
                 <Text marginTop="8">
-                  A pull request based trigger automatically starts builds when
-                  specific PR related actions detected within your repository.{" "}
+                  A pull request based trigger automatically starts builds when specific PR related actions detected
+                  within your repository.{' '}
                   <Link
                     colorScheme="purple"
                     href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -314,23 +257,17 @@ const TriggersPage = (props: TriggersPageProps) => {
                 <TriggerCard
                   key={triggerItem.id}
                   triggerItem={triggerItem}
-                  onRemove={(trigger) => onTriggersChange("remove", trigger)}
+                  onRemove={(trigger) => onTriggersChange('remove', trigger)}
                   onEdit={(trigger) => onPrTriggerEdit(trigger)}
-                  onActiveChange={(trigger) =>
-                    onTriggersChange("edit", trigger)
-                  }
+                  onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
                 />
               ))}
             {triggers.pull_request.length > 1 && isTriggersNotificationOpen && (
-              <Notification
-                status="info"
-                marginTop="12"
-                onClose={closeTriggersNotification}
-              >
+              <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
-                  The first matching trigger is executed by the system, so make
-                  sure that the order of triggers is configured correctly.{" "}
+                  The first matching trigger is executed by the system, so make sure that the order of triggers is
+                  configured correctly.{' '}
                   <Link
                     href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
                     isUnderlined
@@ -342,23 +279,13 @@ const TriggersPage = (props: TriggersPageProps) => {
             )}
           </TabPanel>
           <TabPanel>
-            <Button
-              marginBottom="24"
-              variant="secondary"
-              onClick={openTagTriggerDialog}
-              leftIconName="PlusAdd"
-            >
+            <Button marginBottom="24" variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
               Add tag trigger
             </Button>
             {triggers.tag.length === 0 && (
-              <EmptyState
-                iconName="Trigger"
-                title="Your tag triggers will appear here"
-                maxHeight="208"
-              >
+              <EmptyState iconName="Trigger" title="Your tag triggers will appear here" maxHeight="208">
                 <Text marginTop="8">
-                  A tag-based trigger automatically starts builds when tags gets
-                  pushed to your repository.{" "}
+                  A tag-based trigger automatically starts builds when tags gets pushed to your repository.{' '}
                   <Link
                     colorScheme="purple"
                     href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -373,23 +300,17 @@ const TriggersPage = (props: TriggersPageProps) => {
                 <TriggerCard
                   key={triggerItem.id}
                   triggerItem={triggerItem}
-                  onRemove={(trigger) => onTriggersChange("remove", trigger)}
+                  onRemove={(trigger) => onTriggersChange('remove', trigger)}
                   onEdit={(trigger) => onTagTriggerEdit(trigger)}
-                  onActiveChange={(trigger) =>
-                    onTriggersChange("edit", trigger)
-                  }
+                  onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
                 />
               ))}
             {triggers.tag.length > 1 && isTriggersNotificationOpen && (
-              <Notification
-                status="info"
-                marginTop="12"
-                onClose={closeTriggersNotification}
-              >
+              <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
-                  The first matching trigger is executed by the system, so make
-                  sure that the order of triggers is configured correctly.{" "}
+                  The first matching trigger is executed by the system, so make sure that the order of triggers is
+                  configured correctly.{' '}
                   <Link
                     href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
                     isUnderlined

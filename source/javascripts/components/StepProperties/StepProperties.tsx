@@ -1,21 +1,11 @@
-import { useEffect, useState } from "react";
-import {
-  Box,
-  Collapse,
-  Divider,
-  Icon,
-  Input,
-  Link,
-  MarkdownContent,
-  Select,
-  Text,
-} from "@bitrise/bitkit";
-import { useForm } from "react-hook-form";
+import { useEffect, useState } from 'react';
+import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
+import { useForm } from 'react-hook-form';
 
-import { OnStepChange, Step, StepVersionWithRemark } from "../../models";
-import MajorVersionChangeDialog from "./MajorVersionChangeDialog";
-import useVersionChange from "./useVersionChange";
-import { extractInputNames, extractStepFields } from "./utils";
+import { OnStepChange, Step, StepVersionWithRemark } from '../../models';
+import MajorVersionChangeDialog from './MajorVersionChangeDialog';
+import useVersionChange from './useVersionChange';
+import { extractInputNames, extractStepFields } from './utils';
 
 type Props = {
   step: Step;
@@ -24,12 +14,10 @@ type Props = {
 };
 
 const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
-  const { name, version, sourceURL, summary, description, isLibraryStep } =
-    extractStepFields(step);
+  const { name, version, sourceURL, summary, description, isLibraryStep } = extractStepFields(step);
   const [showMore, setShowMore] = useState(false);
 
-  const { register, setValue, handleSubmit } =
-    useForm<Record<"name" | "version", string>>();
+  const { register, setValue, handleSubmit } = useForm<Record<'name' | 'version', string>>();
   const { createSnapshot, ...dialogProps } = useVersionChange(step);
   const handleChange = handleSubmit((values) => {
     createSnapshot({
@@ -41,19 +29,12 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
   });
 
   useEffect(() => {
-    setValue("name", name);
-    setValue("version", version);
+    setValue('name', name);
+    setValue('version', version);
   }, [name, version, setValue]);
 
   return (
-    <Box
-      as="form"
-      display="flex"
-      flexDirection="column"
-      p="24"
-      gap="24"
-      onChange={handleChange}
-    >
+    <Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
       {sourceURL && (
         <Link
           display="flex"
@@ -71,25 +52,14 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         </Link>
       )}
 
-      <Input
-        {...register("name")}
-        type="text"
-        label="Name"
-        placeholder="Step name"
-        isRequired
-      />
+      <Input {...register('name')} type="text" label="Name" placeholder="Step name" isRequired />
       <Divider />
       {isLibraryStep && (
-        <Select
-          {...register("version")}
-          label="Version updates"
-          isRequired
-          backgroundSize="none"
-        >
+        <Select {...register('version')} label="Version updates" isRequired backgroundSize="none">
           {versionsWithRemarks.map(({ version: value, remark }) => {
             return (
-              <option key={value} value={value || ""}>
-                {value || "Always latest"} - {remark}
+              <option key={value} value={value || ''}>
+                {value || 'Always latest'} - {remark}
               </option>
             );
           })}
@@ -103,19 +73,11 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         {summary && <MarkdownContent md={summary} />}
         {description && (
           <>
-            <Collapse
-              in={showMore}
-              transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
-            >
+            <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            <Link
-              as="button"
-              alignSelf="self-start"
-              colorScheme="purple"
-              onClick={() => setShowMore((prev) => !prev)}
-            >
-              {showMore ? "Show less" : "Show more"}
+            <Link as="button" alignSelf="self-start" colorScheme="purple" onClick={() => setShowMore((prev) => !prev)}>
+              {showMore ? 'Show less' : 'Show more'}
             </Link>
           </>
         )}

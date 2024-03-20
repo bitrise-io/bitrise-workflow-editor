@@ -1,4 +1,4 @@
-import { ReactNode, useEffect, useMemo, useState } from "react";
+import { ReactNode, useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,40 +16,30 @@ import {
   Select,
   Text,
   Tooltip,
-} from "@bitrise/bitkit";
-import {
-  FormProvider,
-  useFieldArray,
-  useForm,
-  useFormContext,
-} from "react-hook-form";
+} from '@bitrise/bitkit';
+import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
-import {
-  Condition,
-  FormItems,
-  PushConditionType,
-  TriggerItem,
-} from "./TriggersPage.types";
+import { Condition, FormItems, PushConditionType, TriggerItem } from './TriggersPage.types';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
   isOpen: boolean;
   onClose: () => void;
   pipelines: string[];
-  onSubmit: (action: "add" | "edit", trigger: TriggerItem) => void;
+  onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
   editedItem?: TriggerItem;
   workflows: string[];
 };
 
 const LABEL_MAP: Record<PushConditionType, string> = {
-  push_branch: "Push branch",
-  commit_message: "Commit message",
-  changed_files: "Path",
+  push_branch: 'Push branch',
+  commit_message: 'Commit message',
+  changed_files: 'Path',
 };
 
 const getLabelText = (isRegex: boolean, type: PushConditionType): string => {
   if (isRegex) {
-    return "Regex pattern";
+    return 'Regex pattern';
   }
   return LABEL_MAP[type];
 };
@@ -60,9 +50,9 @@ type ConditionCardProps = {
 };
 
 const OPTIONS_MAP: Record<PushConditionType, string> = {
-  push_branch: "Push branch",
-  commit_message: "Commit message",
-  changed_files: "File change",
+  push_branch: 'Push branch',
+  commit_message: 'Commit message',
+  changed_files: 'File change',
 };
 
 const ConditionCard = (props: ConditionCardProps) => {
@@ -73,12 +63,7 @@ const ConditionCard = (props: ConditionCardProps) => {
 
   return (
     <Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
-      <Box
-        display="flex"
-        justifyContent="space-between"
-        alignItems="center"
-        marginBottom="12"
-      >
+      <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
         <Text textStyle="heading/h5">Condition {conditionNumber + 1}</Text>
         {children}
       </Box>
@@ -88,11 +73,8 @@ const ConditionCard = (props: ConditionCardProps) => {
         {...register(`conditions.${conditionNumber}.type`)}
       >
         {Object.entries(OPTIONS_MAP).map(([optionType, text]) => {
-          const isConditionTypeUsed = conditions.some(
-            (condition: Condition) => condition.type === optionType,
-          );
-          const isTypeOfCurrentCard =
-            optionType === conditions[conditionNumber].type;
+          const isConditionTypeUsed = conditions.some((condition: Condition) => condition.type === optionType);
+          const isTypeOfCurrentCard = optionType === conditions[conditionNumber].type;
 
           if (isConditionTypeUsed && !isTypeOfCurrentCard) {
             return undefined;
@@ -107,10 +89,7 @@ const ConditionCard = (props: ConditionCardProps) => {
       </Select>
       {!!type && (
         <>
-          <Checkbox
-            marginBottom="8"
-            {...register(`conditions.${conditionNumber}.isRegex`)}
-          >
+          <Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
             Use regex pattern
           </Checkbox>
           <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
@@ -128,28 +107,17 @@ const ConditionCard = (props: ConditionCardProps) => {
 };
 
 const AddPushTriggerDialog = (props: DialogProps) => {
-  const {
-    currentTriggers,
-    isOpen,
-    onClose,
-    pipelines,
-    onSubmit,
-    editedItem,
-    workflows,
-  } = props;
+  const { currentTriggers, isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;
   const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
 
   const isEditMode = !!editedItem;
 
-  const dialogStages: ProgressIndicatorProps["stages"] = [
+  const dialogStages: ProgressIndicatorProps['stages'] = [
     {
-      action:
-        activeStageIndex === 1
-          ? { onClick: () => setActiveStageIndex(0) }
-          : undefined,
-      label: "Conditions",
+      action: activeStageIndex === 1 ? { onClick: () => setActiveStageIndex(0) } : undefined,
+      label: 'Conditions',
     },
-    { label: "Target" },
+    { label: 'Target' },
   ];
 
   const defaultValues: FormItems = useMemo(() => {
@@ -157,13 +125,13 @@ const AddPushTriggerDialog = (props: DialogProps) => {
       conditions: [
         {
           isRegex: false,
-          type: "push_branch",
-          value: "",
+          type: 'push_branch',
+          value: '',
         },
       ],
       id: crypto.randomUUID(),
-      pipelineable: "",
-      source: "push",
+      pipelineable: '',
+      source: 'push',
       isActive: true,
       ...editedItem,
     };
@@ -181,7 +149,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
   const { append, fields, remove } = useFieldArray({
     control,
-    name: "conditions",
+    name: 'conditions',
   });
 
   const onFormCancel = () => {
@@ -196,12 +164,12 @@ const AddPushTriggerDialog = (props: DialogProps) => {
       .filter(({ type }) => !!type)
       .map((condition) => {
         const newCondition = { ...condition };
-        if (newCondition.value === "") {
-          newCondition.value = "*";
+        if (newCondition.value === '') {
+          newCondition.value = '*';
         }
         return newCondition;
       });
-    onSubmit(isEditMode ? "edit" : "add", filteredData as TriggerItem);
+    onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
     onFormCancel();
   };
 
@@ -209,7 +177,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     append({
       isRegex: false,
       type: undefined,
-      value: "",
+      value: '',
     });
   };
 
@@ -217,14 +185,12 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
   const isPipelineableMissing = !pipelineable;
   const isConditionsUsed = currentTriggers
-    .map(({ conditions: currentConditions }) =>
-      JSON.stringify(currentConditions),
-    )
+    .map(({ conditions: currentConditions }) => JSON.stringify(currentConditions))
     .includes(
       JSON.stringify(conditions)
         .replace(/"value":""/g, '"value":"*"')
-        .replace(/,{"isRegex":false,"value":"\*"}/g, "")
-        .replace(/,{"isRegex":false,"type":"","value":"\*"}/g, ""),
+        .replace(/,{"isRegex":false,"value":"\*"}/g, '')
+        .replace(/,{"isRegex":false,"type":"","value":"\*"}/g, ''),
     );
 
   return (
@@ -233,46 +199,32 @@ const AddPushTriggerDialog = (props: DialogProps) => {
         as="form"
         isOpen={isOpen}
         onClose={onFormCancel}
-        title={isEditMode ? "Edit trigger" : "Add push trigger"}
+        title={isEditMode ? 'Edit trigger' : 'Add push trigger'}
         maxWidth="480"
         onSubmit={handleSubmit(onFormSubmit)}
       >
         <DialogBody>
           <Box marginBottom="24">
-            <ProgressIndicator
-              variant="horizontal"
-              stages={dialogStages}
-              activeStageIndex={activeStageIndex}
-            />
+            <ProgressIndicator variant="horizontal" stages={dialogStages} activeStageIndex={activeStageIndex} />
           </Box>
           <Divider marginBottom="24" />
           {activeStageIndex === 0 ? (
             <>
-              <Text
-                color="text/primary"
-                textStyle="heading/h3"
-                marginBottom="4"
-              >
+              <Text color="text/primary" textStyle="heading/h3" marginBottom="4">
                 Set up trigger conditions
               </Text>
               <Text color="text/secondary" marginBottom="24">
-                Configure the{" "}
+                Configure the{' '}
                 <DefinitionTooltip label="Configure the conditions that should all be met to execute the targeted Pipeline or Workflow.">
                   conditions
-                </DefinitionTooltip>{" "}
-                that should all be met to execute the targeted Pipeline or
-                Workflow.
+                </DefinitionTooltip>{' '}
+                that should all be met to execute the targeted Pipeline or Workflow.
               </Text>
               {fields.map((item, index) => {
                 return (
                   <ConditionCard conditionNumber={index} key={item.id}>
                     {conditions.length > 1 && (
-                      <Button
-                        leftIconName="MinusRemove"
-                        onClick={() => remove(index)}
-                        size="sm"
-                        variant="tertiary"
-                      >
+                      <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
                         Remove
                       </Button>
                     )}
@@ -292,21 +244,13 @@ const AddPushTriggerDialog = (props: DialogProps) => {
             </>
           ) : (
             <>
-              <Text
-                color="text/primary"
-                textStyle="heading/h3"
-                marginBottom="4"
-              >
+              <Text color="text/primary" textStyle="heading/h3" marginBottom="4">
                 Targeted Pipeline or Workflow
               </Text>
               <Text color="text/secondary" marginBottom="24">
-                Select the Pipeline or Workflow you want Bitrise to run when
-                trigger conditions are met.
+                Select the Pipeline or Workflow you want Bitrise to run when trigger conditions are met.
               </Text>
-              <Select
-                placeholder="Select a Pipeline or Workflow"
-                {...register("pipelineable")}
-              >
+              <Select placeholder="Select a Pipeline or Workflow" {...register('pipelineable')}>
                 {pipelines.length && (
                   <optgroup label="Pipelines">
                     {pipelines.map((p) => (
@@ -330,11 +274,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
           )}
         </DialogBody>
         <DialogFooter display="flex" justifyContent="flex-end">
-          <Button
-            onClick={onFormCancel}
-            variant="tertiary"
-            marginInlineEnd="auto"
-          >
+          <Button onClick={onFormCancel} variant="tertiary" marginInlineEnd="auto">
             Cancel
           </Button>
           {activeStageIndex === 0 ? (
@@ -342,29 +282,18 @@ const AddPushTriggerDialog = (props: DialogProps) => {
               isDisabled={!isConditionsUsed}
               label="You previously added the same set of conditions for another trigger. Please check and try again."
             >
-              <Button
-                isDisabled={isConditionsUsed}
-                rightIconName="ArrowRight"
-                onClick={() => setActiveStageIndex(1)}
-              >
+              <Button isDisabled={isConditionsUsed} rightIconName="ArrowRight" onClick={() => setActiveStageIndex(1)}>
                 Next
               </Button>
             </Tooltip>
           ) : (
             <>
-              <Button
-                leftIconName="ArrowLeft"
-                variant="secondary"
-                onClick={() => setActiveStageIndex(0)}
-              >
+              <Button leftIconName="ArrowLeft" variant="secondary" onClick={() => setActiveStageIndex(0)}>
                 Previous
               </Button>
-              <Tooltip
-                isDisabled={!isPipelineableMissing}
-                label="Please select a pipeline or workflow."
-              >
+              <Tooltip isDisabled={!isPipelineableMissing} label="Please select a pipeline or workflow.">
                 <Button type="submit" isDisabled={isPipelineableMissing}>
-                  {isEditMode ? "Done" : "Add trigger"}
+                  {isEditMode ? 'Done' : 'Add trigger'}
                 </Button>
               </Tooltip>
             </>

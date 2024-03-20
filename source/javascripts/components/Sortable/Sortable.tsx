@@ -1,6 +1,6 @@
 /* eslint-disable react/display-name */
-import { forwardRef, useState } from "react";
-import { Box, BoxProps, Button, Card, CardProps } from "@bitrise/bitkit";
+import { forwardRef, useState } from 'react';
+import { Box, BoxProps, Button, Card, CardProps } from '@bitrise/bitkit';
 import {
   closestCenter,
   DndContext,
@@ -11,14 +11,9 @@ import {
   PointerSensor,
   useSensor,
   useSensors,
-} from "@dnd-kit/core";
-import {
-  arrayMove,
-  SortableContext,
-  sortableKeyboardCoordinates,
-  useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
+} from '@dnd-kit/core';
+import { arrayMove, SortableContext, sortableKeyboardCoordinates, useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
 
 const Item = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
   return <Card padding="16" cursor="grabbing" ref={ref} {...props} />;
@@ -27,22 +22,15 @@ const Item = forwardRef<HTMLDivElement, CardProps>((props, ref) => {
 const SortableItem = (props: CardProps) => {
   const { children } = props;
 
-  const { attributes, listeners, setNodeRef, transform, transition } =
-    useSortable({ id: children as number });
+  const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: children as number });
 
-  const style: BoxProps["sx"] = {
+  const style: BoxProps['sx'] = {
     transform: CSS.Transform.toString(transform),
     transition,
   };
 
   return (
-    <Item
-      ref={setNodeRef}
-      sx={style}
-      cursor="grab"
-      {...attributes}
-      {...listeners}
-    >
+    <Item ref={setNodeRef} sx={style} cursor="grab" {...attributes} {...listeners}>
       {children}
     </Item>
   );
@@ -79,10 +67,7 @@ const Sortable = () => {
 
   return (
     <>
-      <Button
-        marginBlockEnd="32"
-        onClick={() => setItems([...items, items.length + 1])}
-      >
+      <Button marginBlockEnd="32" onClick={() => setItems([...items, items.length + 1])}>
         Add 1 more
       </Button>
       <Box display="flex" flexDirection="column" gap="16">

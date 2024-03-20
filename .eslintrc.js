@@ -1,7 +1,7 @@
 module.exports = {
   root: true,
   parserOptions: {
-    project: ["tsconfig.json", "tsconfig.eslint.json"],
+    project: ['tsconfig.json', 'tsconfig.eslint.json'],
     tsconfigRootDir: __dirname,
   },
   env: {
@@ -17,51 +17,51 @@ module.exports = {
     Cypress: false,
     Promise: false,
   },
-  extends: ["plugin:@bitrise/config"],
-  plugins: ["jasmine", "lodash"],
+  extends: ['plugin:@bitrise/config'],
+  plugins: ['jasmine', 'lodash'],
   rules: {
     /** * Import related rules ** */
-    "import/no-extraneous-dependencies": [
-      "error",
+    'import/no-extraneous-dependencies': [
+      'error',
       {
         devDependencies: [
-          "**/*.stories.tsx",
-          "**/*.spec.{ts,tsx}",
-          "**/*.mocks.ts",
-          "**/*.utils.ts",
-          "**/*.factory.ts",
-          "*rc.js",
-          "*.config.{js,ts}",
+          '**/*.stories.tsx',
+          '**/*.spec.{ts,tsx}',
+          '**/*.mocks.ts',
+          '**/*.utils.ts',
+          '**/*.factory.ts',
+          '*rc.js',
+          '*.config.{js,ts}',
         ],
       },
     ],
-    "prettier/prettier": ["error", { useTabs: false }],
-    "no-use-before-define": "off",
-    "@typescript-eslint/no-use-before-define": "off",
-    "jsx-a11y/anchor-is-valid": "warn",
-    "@typescript-eslint/no-non-null-assertion": "error",
-    "@typescript-eslint/no-explicit-any": "warn",
-    "@typescript-eslint/ban-types": ["warn", { types: { "{}": false }, extendDefaults: true }],
-    "react/no-unescaped-entities": ["error", { forbid: [">", '"', "}"] }],
+    // "prettier/prettier": ["error", { useTabs: false }],
+    'no-use-before-define': 'off',
+    '@typescript-eslint/no-use-before-define': 'off',
+    'jsx-a11y/anchor-is-valid': 'warn',
+    '@typescript-eslint/no-non-null-assertion': 'error',
+    '@typescript-eslint/no-explicit-any': 'warn',
+    '@typescript-eslint/ban-types': ['warn', { types: { '{}': false }, extendDefaults: true }],
+    'react/no-unescaped-entities': ['error', { forbid: ['>', '"', '}'] }],
   },
   overrides: [
     {
-      files: ["*.js"],
+      files: ['*.js'],
       rules: {
-        "@typescript-eslint/no-var-requires": "off",
-        "@typescript-eslint/explicit-function-return-type": "off",
+        '@typescript-eslint/no-var-requires': 'off',
+        '@typescript-eslint/explicit-function-return-type': 'off',
       },
     },
     {
-      files: ["*.stories.*"],
+      files: ['*.stories.*'],
       rules: {
-        "react-hooks/rules-of-hooks": "warn",
+        'react-hooks/rules-of-hooks': 'warn',
       },
     },
     {
-      files: ["*.spec.{ts,tsx}", "*.stories.tsx", "*.mocks.ts", "*.factory.ts", "*.utils.ts"],
+      files: ['*.spec.{ts,tsx}', '*.stories.tsx', '*.mocks.ts', '*.factory.ts', '*.utils.ts'],
       rules: {
-        "@typescript-eslint/no-non-null-assertion": "off",
+        '@typescript-eslint/no-non-null-assertion': 'off',
       },
     },
   ],

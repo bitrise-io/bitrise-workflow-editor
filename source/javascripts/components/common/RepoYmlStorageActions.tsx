@@ -1,10 +1,10 @@
-import { useEffect, useRef, useState } from "react";
-import { Box, Icon, Link, Notification, Text } from "@bitrise/bitkit";
-import CopyToClipboard from "react-copy-to-clipboard";
+import { useEffect, useRef, useState } from 'react';
+import { Box, Icon, Link, Notification, Text } from '@bitrise/bitkit';
+import CopyToClipboard from 'react-copy-to-clipboard';
 
-import useMonolithApiCallback from "../../hooks/api/useMonolithApiCallback";
-import { AppConfig } from "../../models/AppConfig";
-import appConfigAsYml from "../../utils/appConfigAsYml";
+import useMonolithApiCallback from '../../hooks/api/useMonolithApiCallback';
+import { AppConfig } from '../../models/AppConfig';
+import appConfigAsYml from '../../utils/appConfigAsYml';
 
 type RepoYmlStorageActionsProps = {
   appConfig: AppConfig | string;
@@ -13,16 +13,14 @@ type RepoYmlStorageActionsProps = {
 const identityParser = (result: string): any => result;
 
 const useFormattedYml = (appConfig: AppConfig): string => {
-  const [yml, setYml] = useState(
-    typeof appConfig === "string" ? appConfig : "",
-  );
+  const [yml, setYml] = useState(typeof appConfig === 'string' ? appConfig : '');
   const formatAppConfigRef = useRef<(options?: RequestInit) => void>();
   const { failed, result, call } = useMonolithApiCallback<string>(
-    "/api/cli/format",
+    '/api/cli/format',
     {
-      method: "POST",
+      method: 'POST',
       headers: {
-        Accept: "application/x-yaml, application/json",
+        Accept: 'application/x-yaml, application/json',
       },
     },
     identityParser,
@@ -38,7 +36,7 @@ const useFormattedYml = (appConfig: AppConfig): string => {
     const yaml = appConfigAsYml(appConfig);
     setYml(yaml);
 
-    if (typeof appConfig === "object") {
+    if (typeof appConfig === 'object') {
       formatAppConfigRef.current?.({
         body: JSON.stringify({
           app_config_datastore_yaml: yaml,
@@ -57,13 +55,9 @@ const useFormattedYml = (appConfig: AppConfig): string => {
   return yml;
 };
 
-const RepoYmlStorageActions = ({
-  appConfig,
-}: RepoYmlStorageActionsProps): JSX.Element => {
+const RepoYmlStorageActions = ({ appConfig }: RepoYmlStorageActionsProps): JSX.Element => {
   const [actionSelected, setActionSelected] = useState<string | null>(null);
-  const [clearActionTimeout, setClearActionTimeout] = useState<
-    number | undefined
-  >();
+  const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
   const yml = useFormattedYml(appConfig);
 
@@ -74,20 +68,16 @@ const RepoYmlStorageActions = ({
       window.clearTimeout(clearActionTimeout);
     }
 
-    setClearActionTimeout(
-      window.setTimeout(() => setActionSelected(null), 5000),
-    );
+    setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
   };
 
   return (
     <Box display="flex" flexDirection="column" gap="16">
       <Box display="flex" flexDirection="column" gap="24">
-        <CopyToClipboard text={yml} onCopy={() => selectAction("clipboard")}>
+        <CopyToClipboard text={yml} onCopy={() => selectAction('clipboard')}>
           <Box display="flex" gap="8" cursor="pointer">
             <Icon color="purple.50" name="Duplicate" />
-            <Text color="purple.50">
-              Copy the content of the current bitrise.yml file to the clipboard
-            </Text>
+            <Text color="purple.50">Copy the content of the current bitrise.yml file to the clipboard</Text>
           </Box>
         </CopyToClipboard>
 
@@ -95,7 +85,7 @@ const RepoYmlStorageActions = ({
           href={`data:attachment/text,${encodeURIComponent(yml)}`}
           target="_blank"
           download="bitrise.yml"
-          onClick={() => selectAction("download")}
+          onClick={() => selectAction('download')}
         >
           <Box display="flex" gap="8">
             <Icon color="purple.50" name="Download" />
@@ -106,9 +96,9 @@ const RepoYmlStorageActions = ({
 
       {actionSelected && (
         <Notification marginY="8" status="success">
-          {actionSelected === "clipboard"
-            ? "Copied the content of the current bitrise.yml file to the clipboard. "
-            : "Downloading bitrise.yml. "}
+          {actionSelected === 'clipboard'
+            ? 'Copied the content of the current bitrise.yml file to the clipboard. '
+            : 'Downloading bitrise.yml. '}
           Commit the file to the app's repository before updating the setting.
         </Notification>
       )}

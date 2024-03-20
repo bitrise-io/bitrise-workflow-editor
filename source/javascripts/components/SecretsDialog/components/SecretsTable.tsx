@@ -1,19 +1,10 @@
-import { ChangeEventHandler, useCallback, useMemo, useState } from "react";
-import {
-  Box,
-  Input,
-  RadioGroup,
-  Table,
-  TableContainer,
-  Th,
-  Thead,
-  Tr,
-} from "@bitrise/bitkit";
-import debounce from "lodash/debounce";
-import { useController, useFormContext } from "react-hook-form";
+import { ChangeEventHandler, useCallback, useMemo, useState } from 'react';
+import { Box, Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from '@bitrise/bitkit';
+import debounce from 'lodash/debounce';
+import { useController, useFormContext } from 'react-hook-form';
 
-import { Secret, SelectSecretFormValues } from "../types";
-import SecretsTableRow from "./SecretsTableRow";
+import { Secret, SelectSecretFormValues } from '../types';
+import SecretsTableRow from './SecretsTableRow';
 
 type Props = {
   secrets: Secret[];
@@ -24,18 +15,14 @@ const SecretsTable = ({ secrets }: Props) => {
   const [filteredSecrets, setFilteredSecrets] = useState(secrets);
 
   const { field } = useController({
-    name: "key",
+    name: 'key',
     control: form.control,
     rules: { required: true },
   });
 
   const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      setFilteredSecrets(
-        secrets.filter((secret) =>
-          secret.key.toUpperCase().includes(e.target.value.toUpperCase()),
-        ),
-      );
+      setFilteredSecrets(secrets.filter((secret) => secret.key.toUpperCase().includes(e.target.value.toUpperCase())));
     },
     [secrets],
   );
@@ -50,7 +37,7 @@ const SecretsTable = ({ secrets }: Props) => {
         autoFocus
         leftIconName="Magnifier"
         placeholder="Filter by key..."
-        {...form.register("filter", { onChange: debouncedFilterChangeHandler })}
+        {...form.register('filter', { onChange: debouncedFilterChangeHandler })}
       />
       <TableContainer>
         <Table isFixed>

@@ -1,21 +1,14 @@
-import { useEffect, useMemo, useState } from "react";
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Notification,
-  Radio,
-  Text,
-} from "@bitrise/bitkit";
+import { useEffect, useMemo, useState } from 'react';
+import { Box, Button, ButtonGroup, Notification, Radio, Text } from '@bitrise/bitkit';
 
-import useGetAppConfigFromRepoCallback from "../../hooks/api/useGetAppConfigFromRepoCallback";
-import usePostAppConfigCallback from "../../hooks/api/usePostAppConfigCallback";
-import useUpdatePipelineConfigCallback from "../../hooks/api/useUpdatePipelineConfigCallback";
-import { WFEWindow } from "../../typings/global";
-import appConfigAsYml from "../../utils/appConfigAsYml";
-import LookingForYmlInRepoProgress from "../common/notifications/LookingForYmlInRepoProgress";
-import CreatingYmlOnWebsiteProgress from "../common/notifications/CreatingYmlOnWebsiteProgress";
-import YmlNotFoundInRepositoryError from "../common/notifications/YmlNotFoundInRepositoryError";
+import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
+import usePostAppConfigCallback from '../../hooks/api/usePostAppConfigCallback';
+import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
+import { WFEWindow } from '../../typings/global';
+import appConfigAsYml from '../../utils/appConfigAsYml';
+import LookingForYmlInRepoProgress from '../common/notifications/LookingForYmlInRepoProgress';
+import CreatingYmlOnWebsiteProgress from '../common/notifications/CreatingYmlOnWebsiteProgress';
+import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
 
 type StoreOnWebsiteProps = {
   appSlug: string;
@@ -23,11 +16,7 @@ type StoreOnWebsiteProps = {
   onSuccess(): void;
 };
 
-const StoreOnWebsite = ({
-  appSlug,
-  onCancel,
-  onSuccess,
-}: StoreOnWebsiteProps): JSX.Element => {
+const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): JSX.Element => {
   const {
     getAppConfigFromRepoStatus,
     getAppConfigFromRepoFailed,
@@ -35,23 +24,14 @@ const StoreOnWebsite = ({
     getAppConfigFromRepo,
     appConfigFromRepo,
   } = useGetAppConfigFromRepoCallback(appSlug);
-  const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(
-    appSlug,
-    appConfigAsYml(appConfigFromRepo),
-  );
-  const {
-    updatePipelineConfigStatus,
-    updatePipelineConfigLoading,
-    updatePipelineConfig,
-  } = useUpdatePipelineConfigCallback(appSlug, false);
-  const [copyRepositoryYmlToWebsite, setCopyRepositoryYmlToWebsite] =
-    useState(true);
+  const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(appSlug, appConfigAsYml(appConfigFromRepo));
+  const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig } =
+    useUpdatePipelineConfigCallback(appSlug, false);
+  const [copyRepositoryYmlToWebsite, setCopyRepositoryYmlToWebsite] = useState(true);
 
   const isFinished = useMemo(() => {
-    const isSuccessful =
-      !updatePipelineConfigLoading && updatePipelineConfigStatus === 200;
-    const isUploadFinished =
-      !copyRepositoryYmlToWebsite || postAppConfigStatus === 200;
+    const isSuccessful = !updatePipelineConfigLoading && updatePipelineConfigStatus === 200;
+    const isUploadFinished = !copyRepositoryYmlToWebsite || postAppConfigStatus === 200;
     if (isSuccessful && isUploadFinished) {
       onSuccess();
     }
@@ -72,19 +52,10 @@ const StoreOnWebsite = ({
   }, [appConfigFromRepo, getAppConfigFromRepoStatus]);
 
   useEffect(() => {
-    if (
-      !updatePipelineConfigLoading &&
-      updatePipelineConfigStatus === 200 &&
-      copyRepositoryYmlToWebsite
-    ) {
+    if (!updatePipelineConfigLoading && updatePipelineConfigStatus === 200 && copyRepositoryYmlToWebsite) {
       postAppConfig();
     }
-  }, [
-    updatePipelineConfigLoading,
-    updatePipelineConfigStatus,
-    copyRepositoryYmlToWebsite,
-    postAppConfig,
-  ]);
+  }, [updatePipelineConfigLoading, updatePipelineConfigStatus, copyRepositoryYmlToWebsite, postAppConfig]);
 
   useEffect(() => {
     getAppConfigFromRepo();
@@ -95,11 +66,7 @@ const StoreOnWebsite = ({
       case 404:
         return <YmlNotFoundInRepositoryError />;
       default:
-        return (
-          <Notification status="error">
-            {getAppConfigFromRepoFailed?.error_msg || "Unknown error"}
-          </Notification>
-        );
+        return <Notification status="error">{getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}</Notification>;
     }
   };
 
@@ -117,17 +84,14 @@ const StoreOnWebsite = ({
         <Text size="5" fontWeight="bold" textColor="neutral.30">
           Store bitrise.yml on bitrise.io
         </Text>
-        <Text>
-          Choose which bitrise.yml file should be used on bitrise.io from now:
-        </Text>
+        <Text>Choose which bitrise.yml file should be used on bitrise.io from now:</Text>
         <Radio
           disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
           name="website-copy-option"
           isChecked={copyRepositoryYmlToWebsite}
           onChange={() => setCopyRepositoryYmlToWebsite(true)}
         >
-          Copy the content of the bitrise.yml file stored in the app's
-          repository
+          Copy the content of the bitrise.yml file stored in the app's repository
         </Radio>
         <Radio
           disabled={updatePipelineConfigLoading || getAppConfigFromRepoLoading}
@@ -143,18 +107,16 @@ const StoreOnWebsite = ({
       {getAppConfigFromRepoFailed && renderError()}
 
       {updatePipelineConfigLoading && <CreatingYmlOnWebsiteProgress />}
-      {!getAppConfigFromRepoLoading &&
-        !updatePipelineConfigLoading &&
-        !isFinished && (
-          <ButtonGroup spacing="16">
-            <Button variant="primary" onClick={updatePipelineConfig}>
-              Update settings
-            </Button>
-            <Button variant="secondary" onClick={onCancel}>
-              Cancel
-            </Button>
-          </ButtonGroup>
-        )}
+      {!getAppConfigFromRepoLoading && !updatePipelineConfigLoading && !isFinished && (
+        <ButtonGroup spacing="16">
+          <Button variant="primary" onClick={updatePipelineConfig}>
+            Update settings
+          </Button>
+          <Button variant="secondary" onClick={onCancel}>
+            Cancel
+          </Button>
+        </ButtonGroup>
+      )}
     </Box>
   );
 };
