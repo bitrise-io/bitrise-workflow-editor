@@ -51,14 +51,16 @@ type ConditionCardProps = {
   conditionNumber: number;
 };
 
-const OPTIONS_MAP: Record<PrConditionType, string> = {
-  pull_request_target_branch: 'Target branch',
-  pull_request_source_branch: 'Source branch',
-  pull_request_label: 'PR label',
-  pull_request_comment: 'PR comment',
-  commit_message: 'Commit message',
-  changed_files: 'File change',
-};
+// const OPTIONS_MAP: Record<PrConditionType, string> = {
+const OPTIONS_MAP: Record<'pull_request_target_branch' | 'pull_request_source_branch' | 'pull_request_label', string> =
+  {
+    pull_request_target_branch: 'Target branch',
+    pull_request_source_branch: 'Source branch',
+    pull_request_label: 'PR label',
+    // pull_request_comment: 'PR comment',
+    // commit_message: 'Commit message',
+    // changed_files: 'File change',
+  };
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;

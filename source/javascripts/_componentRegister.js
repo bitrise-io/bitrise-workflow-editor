@@ -124,6 +124,7 @@ angular
 			"pipelines",
 			"triggerMap",
 			"setDiscard",
-			"workflows"
+			"workflows",
+			"isWebsiteMode"
 		])
 	);

@@ -32,6 +32,12 @@ export const TriggersPageWithTriggerMap: StoryObj<typeof TriggersPage> = {
         pull_request_source_branch: '*',
         workflow: 'bar',
       },
+      {
+        pull_request_target_branch: '123',
+        pull_request_source_branch: '*',
+        workflow: 'bar',
+        draft_pull_request_enabled: true,
+      },
     ],
   },
 };

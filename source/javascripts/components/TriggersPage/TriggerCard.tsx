@@ -1,15 +1,18 @@
 import { Fragment } from 'react';
-import { Box, Card, Checkbox, Icon, IconButton, Tag, Text, TypeIconName } from '@bitrise/bitkit';
-import { Tooltip } from '@chakra-ui/react';
+import { Box, CardProps, Checkbox, Icon, IconButton, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
 
+import { useSortable } from '@dnd-kit/sortable';
+import { CSS } from '@dnd-kit/utilities';
+import DraggableCard from './DraggableCard';
 import { PrConditionType, PushConditionType, TagConditionType, TriggerItem } from './TriggersPage.types';
 
-type TriggerCardProps = {
+interface TriggerCardProps extends CardProps {
+  isOverlay?: boolean;
   triggerItem: TriggerItem;
-  onRemove: (triggerItem: TriggerItem) => void;
-  onEdit: (triggerItem: TriggerItem) => void;
-  onActiveChange: (triggerItem: TriggerItem) => void;
-};
+  onRemove?: (triggerItem: TriggerItem) => void;
+  onEdit?: (triggerItem: TriggerItem) => void;
+  onActiveChange?: (triggerItem: TriggerItem) => void;
+}
 
 const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, TypeIconName> = {
   push_branch: 'Branch',
@@ -34,19 +37,44 @@ const toolTip: Record<PushConditionType | PrConditionType | TagConditionType, st
 };
 
 const TriggerCard = (props: TriggerCardProps) => {
-  const { triggerItem, onRemove, onEdit, onActiveChange } = props;
+  const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
   const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
 
+  const { active, listeners, setActivatorNodeRef, setNodeRef, transform, transition } = useSortable({
+    id: triggerItem.id as string,
+  });
+
+  const style: CardProps = {
+    transform: CSS.Transform.toString(transform),
+    transition,
+  };
+
   const handleRemove = () => {
-    onRemove(triggerItem);
+    if (onRemove) {
+      onRemove(triggerItem);
+    }
   };
 
   const handleEdit = () => {
-    onEdit(triggerItem);
+    if (onEdit) {
+      onEdit(triggerItem);
+    }
   };
-  //
+
   return (
-    <Card display="flex" justifyContent="space-between" marginBottom="12" padding="16px 24px">
+    <DraggableCard
+      activatorRef={setActivatorNodeRef}
+      activatorListeners={listeners}
+      ref={setNodeRef}
+      marginBottom="12"
+      sx={style}
+      isDragging={active?.id === triggerItem.id}
+      childrenWrapperStyle={{
+        display: 'flex',
+      }}
+      isOverlay={isOverlay}
+      {...rest}
+    >
       <Box width="calc((100% - 190px) / 2)" display="flex" flexDir="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
         <Box display="flex" alignItems="center" flexWrap="wrap" gap="8px 0">
@@ -90,7 +118,7 @@ const TriggerCard = (props: TriggerCardProps) => {
         <Checkbox
           marginRight="16"
           isChecked={isActive}
-          onChange={() => onActiveChange({ ...triggerItem, isActive: !isActive })}
+          onChange={() => onActiveChange && onActiveChange({ ...triggerItem, isActive: !isActive })}
         >
           Active
         </Checkbox>
@@ -103,7 +131,7 @@ const TriggerCard = (props: TriggerCardProps) => {
           onClick={handleRemove}
         />
       </Box>
-    </Card>
+    </DraggableCard>
   );
 };
 

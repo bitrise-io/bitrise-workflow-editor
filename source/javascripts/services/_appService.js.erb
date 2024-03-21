@@ -140,6 +140,7 @@
 					if (appService.hasTriggers) {
 						appService.appConfig.trigger_map = _.sortBy(appService.appConfig.trigger_map, function(aTriggerConfig) {
 							var trigger = new Trigger(aTriggerConfig);
+							console.log('aTriggerConfig', aTriggerConfig, trigger)
 
 							return _.indexOf(["push", "pull-request", "tag"], trigger.type());
 						});

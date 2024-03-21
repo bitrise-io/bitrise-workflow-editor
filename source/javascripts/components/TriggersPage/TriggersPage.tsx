@@ -12,6 +12,24 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
+import {
+  closestCenter,
+  DndContext,
+  DragEndEvent,
+  DragOverlay,
+  DragStartEvent,
+  KeyboardSensor,
+  PointerSensor,
+  useSensor,
+  useSensors,
+} from '@dnd-kit/core';
+import {
+  SortableContext,
+  arrayMove,
+  sortableKeyboardCoordinates,
+  verticalListSortingStrategy,
+} from '@dnd-kit/sortable';
+import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
@@ -69,8 +87,17 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
       source,
       isActive: trigger.enabled !== false,
     };
+
+    if (source === 'pull_request') {
+      if (trigger.draft_pull_request_enabled !== false) {
+        finalItem.isDraftPr = true;
+      } else {
+        finalItem.isDraftPr = false;
+      }
+    }
+
     triggerKeys.forEach((key) => {
-      if (!['workflow', 'enabled', 'draft_pull_request_enabled'].includes(key)) {
+      if (!['workflow', 'enabled', 'draft_pull_request_enabled', 'type'].includes(key)) {
         const isRegex = typeof trigger[key] !== 'string';
         finalItem.conditions.push({
           isRegex,
@@ -85,6 +112,7 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 };
 
 type TriggersPageProps = {
+  isWebsiteMode?: boolean;
   onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
   pipelines: string[];
   setDiscard: (fn: () => void) => void;
@@ -93,8 +121,9 @@ type TriggersPageProps = {
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-  const { onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
-  const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: true });
+  const { isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+
+  const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: isWebsiteMode });
   const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
     defaultIsOpen: true,
   });
@@ -117,6 +146,8 @@ const TriggersPage = (props: TriggersPageProps) => {
   );
 
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
+
+  const [activeId, setActiveId] = useState<string | null>(null);
 
   const onCloseDialog = () => {
     closePushTriggerDialog();
@@ -163,6 +194,37 @@ const TriggersPage = (props: TriggersPageProps) => {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  const sensors = useSensors(
+    useSensor(PointerSensor),
+    useSensor(KeyboardSensor, {
+      coordinateGetter: sortableKeyboardCoordinates,
+    }),
+  );
+
+  const handleDragStart = (event: DragStartEvent) => {
+    const { active } = event;
+
+    setActiveId(active.id as string);
+  };
+
+  const handleDragEnd = (event: DragEndEvent, type: SourceType) => {
+    const { active, over } = event;
+    const items = triggers[type];
+
+    if (active.id !== over?.id) {
+      const oldIndex = items.findIndex((item) => item.id === active.id);
+      const newIndex = items.findIndex((item) => item.id === over?.id);
+      const newItems = arrayMove(items, oldIndex, newIndex);
+      const newTriggers = {
+        ...triggers,
+        [type]: newItems,
+      };
+      setActiveId(null);
+      setTriggers(newTriggers);
+      onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
+    }
+  };
+
   return (
     <>
       <Text as="h2" textStyle="heading/h2" marginBottom="4">
@@ -208,16 +270,36 @@ const TriggersPage = (props: TriggersPageProps) => {
                 </Text>
               </EmptyState>
             )}
-            {triggers.push.length > 0 &&
-              triggers.push.map((triggerItem) => (
-                <TriggerCard
-                  key={triggerItem.id}
-                  triggerItem={triggerItem}
-                  onRemove={(trigger) => onTriggersChange('remove', trigger)}
-                  onEdit={(trigger) => onPushTriggerEdit(trigger)}
-                  onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
-                />
-              ))}
+            <div>
+              <DndContext
+                collisionDetection={closestCenter}
+                modifiers={[restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges]}
+                onDragStart={handleDragStart}
+                onDragEnd={(event) => handleDragEnd(event, 'push')}
+                sensors={sensors}
+              >
+                <SortableContext strategy={verticalListSortingStrategy} items={triggers.push.map(({ id }) => id)}>
+                  {triggers.push.length > 0 &&
+                    triggers.push.map((triggerItem) => (
+                      <TriggerCard
+                        key={triggerItem.id}
+                        triggerItem={triggerItem}
+                        onRemove={(trigger) => onTriggersChange('remove', trigger)}
+                        onEdit={(trigger) => onPushTriggerEdit(trigger)}
+                        onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
+                      />
+                    ))}
+                </SortableContext>
+                <DragOverlay>
+                  {activeId ? (
+                    <TriggerCard
+                      triggerItem={triggers.push.find(({ id }) => id === activeId) || triggers.push[0]}
+                      isOverlay
+                    />
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
+            </div>
             {triggers.push.length > 1 && isTriggersNotificationOpen && (
               <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
@@ -252,16 +334,39 @@ const TriggersPage = (props: TriggersPageProps) => {
                 </Text>
               </EmptyState>
             )}
-            {triggers.pull_request.length > 0 &&
-              triggers.pull_request.map((triggerItem) => (
-                <TriggerCard
-                  key={triggerItem.id}
-                  triggerItem={triggerItem}
-                  onRemove={(trigger) => onTriggersChange('remove', trigger)}
-                  onEdit={(trigger) => onPrTriggerEdit(trigger)}
-                  onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
-                />
-              ))}
+            <div>
+              <DndContext
+                collisionDetection={closestCenter}
+                modifiers={[restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges]}
+                onDragStart={handleDragStart}
+                onDragEnd={(event) => handleDragEnd(event, 'pull_request')}
+                sensors={sensors}
+              >
+                <SortableContext
+                  strategy={verticalListSortingStrategy}
+                  items={triggers.pull_request.map(({ id }) => id)}
+                >
+                  {triggers.pull_request.length > 0 &&
+                    triggers.pull_request.map((triggerItem) => (
+                      <TriggerCard
+                        key={triggerItem.id}
+                        triggerItem={triggerItem}
+                        onRemove={(trigger) => onTriggersChange('remove', trigger)}
+                        onEdit={(trigger) => onPrTriggerEdit(trigger)}
+                        onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
+                      />
+                    ))}
+                </SortableContext>
+                <DragOverlay>
+                  {activeId ? (
+                    <TriggerCard
+                      triggerItem={triggers.pull_request.find(({ id }) => id === activeId) || triggers.pull_request[0]}
+                      isOverlay
+                    />
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
+            </div>
             {triggers.pull_request.length > 1 && isTriggersNotificationOpen && (
               <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
@@ -295,16 +400,36 @@ const TriggersPage = (props: TriggersPageProps) => {
                 </Text>
               </EmptyState>
             )}
-            {triggers.tag.length > 0 &&
-              triggers.tag.map((triggerItem) => (
-                <TriggerCard
-                  key={triggerItem.id}
-                  triggerItem={triggerItem}
-                  onRemove={(trigger) => onTriggersChange('remove', trigger)}
-                  onEdit={(trigger) => onTagTriggerEdit(trigger)}
-                  onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
-                />
-              ))}
+            <div>
+              <DndContext
+                collisionDetection={closestCenter}
+                modifiers={[restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges]}
+                onDragStart={handleDragStart}
+                onDragEnd={(event) => handleDragEnd(event, 'tag')}
+                sensors={sensors}
+              >
+                <SortableContext strategy={verticalListSortingStrategy} items={triggers.tag.map(({ id }) => id)}>
+                  {triggers.tag.length > 0 &&
+                    triggers.tag.map((triggerItem) => (
+                      <TriggerCard
+                        key={triggerItem.id}
+                        triggerItem={triggerItem}
+                        onRemove={(trigger) => onTriggersChange('remove', trigger)}
+                        onEdit={(trigger) => onTagTriggerEdit(trigger)}
+                        onActiveChange={(trigger) => onTriggersChange('edit', trigger)}
+                      />
+                    ))}
+                </SortableContext>
+                <DragOverlay>
+                  {activeId ? (
+                    <TriggerCard
+                      triggerItem={triggers.tag.find(({ id }) => id === activeId) || triggers.tag[0]}
+                      isOverlay
+                    />
+                  ) : null}
+                </DragOverlay>
+              </DndContext>
+            </div>
             {triggers.tag.length > 1 && isTriggersNotificationOpen && (
               <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>

@@ -162,18 +162,6 @@
 			return this.triggerConfig.tag;
 		};
 
-		Trigger.prototype.toggleDraftPrDisabled = function() {
-			let enabled = this.triggerConfig.draft_pull_request_enabled == undefined || this.triggerConfig.draft_pull_request_enabled == true;
-
-			if(enabled) {
-				this.triggerConfig.draft_pull_request_enabled = false;
-			}else{
-				this.triggerConfig.draft_pull_request_enabled = undefined;
-			}
-
-			return !enabled;
-		};
-
 		return Trigger;
 	});
 
