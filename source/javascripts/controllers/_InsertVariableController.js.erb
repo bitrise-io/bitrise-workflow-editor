@@ -107,15 +107,19 @@
 				}
 				$q.all(loadPromises).then(
 					function() {
+						viewModel.insertableVariablesForReact = _.uniq(
+							viewModel.insertableVariables.flatMap((group) => {
+								return group.variables?.map((variable) => ({
+									key: variable.key(),
+									value: variable.value(),
+									source: group.title,
+									isExpand: Boolean(variable.isExpand()) ,
+								})) ?? [];
+							}), 
+							(variable) => variable.key
+						);
+
 						viewModel.loadInsertableVariablesProgress.success();
-						viewModel.insertableVariablesForReact = viewModel.insertableVariables.flatMap((group) => {
-							return group.variables?.map((variable) => ({
-								key: variable.key(),
-								value: variable.value(),
-								source: group.title,
-								isExpand: Boolean(variable.isExpand()) ,
-							})) ?? [];
-						});
 					},
 					function(error) {
 						viewModel.loadInsertableVariablesProgress.error(error);
