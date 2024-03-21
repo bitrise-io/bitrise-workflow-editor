@@ -45,7 +45,8 @@ const AddTagTriggerDialog = (props: DialogProps) => {
       isActive: true,
       ...editedItem,
     };
-  }, [editedItem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedItem, isOpen]);
 
   const formMethods = useForm<FormItems>({
     defaultValues,

@@ -81,7 +81,7 @@ const ConditionCard = (props: ConditionCardProps) => {
           }
 
           return (
-            <option key={type} value={type}>
+            <option key={optionType} value={optionType}>
               {text}
             </option>
           );
@@ -135,7 +135,8 @@ const AddPushTriggerDialog = (props: DialogProps) => {
       isActive: true,
       ...editedItem,
     };
-  }, [editedItem]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [editedItem, isOpen]);
 
   const formMethods = useForm<FormItems>({
     defaultValues,

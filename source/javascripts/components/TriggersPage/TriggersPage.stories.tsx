@@ -23,6 +23,11 @@ export const TriggersPageWithTriggerMap: StoryObj<typeof TriggersPage> = {
         workflow: 'foo',
       },
       {
+        push_branch: 'adssaads',
+        enabled: true,
+        workflow: 'foo',
+      },
+      {
         pull_request_target_branch: '*',
         pull_request_source_branch: '*',
         workflow: 'bar',

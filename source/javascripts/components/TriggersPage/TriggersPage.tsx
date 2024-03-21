@@ -65,7 +65,7 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
     const finalItem: TriggerItem = {
       conditions: [],
       pipelineable: trigger.workflow as string,
-      id: '',
+      id: crypto.randomUUID(),
       source,
       isActive: trigger.enabled !== false,
     };
