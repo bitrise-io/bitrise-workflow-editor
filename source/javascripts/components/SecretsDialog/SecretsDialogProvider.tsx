@@ -16,14 +16,14 @@ const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Prop
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [secrets, setSecrets] = useState(defaultSecrets);
 
-  const [dynamicProps, setDynamicProps] = useState<{ onSelect: HandlerFn }>({
+  const [dialogProps, setDialogProps] = useState<{ onSelect: HandlerFn }>({
     onSelect: () => undefined,
   });
 
   const value = useMemo(() => {
     const open: State['open'] = (options) => {
       onOpen();
-      setDynamicProps(options);
+      setDialogProps(options);
     };
 
     return { open } as State;
@@ -37,7 +37,7 @@ const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Prop
   return (
     <Context.Provider value={value}>
       {children}
-      <SecretsDialog isOpen={isOpen} secrets={secrets} onClose={onClose} onCreate={handleCreate} {...dynamicProps} />
+      <SecretsDialog isOpen={isOpen} secrets={secrets} onClose={onClose} onCreate={handleCreate} {...dialogProps} />
     </Context.Provider>
   );
 };

@@ -11,18 +11,18 @@ const SecretsTableRow = ({ value, source }: Props) => {
   const valueWithVariablePrefix = `$${value}`;
 
   return (
-		<SelectableRow
-			id={id}
-			value={value}
-			label={
-				<Box>
-					<Text>{valueWithVariablePrefix}</Text>
-					<Text color="input/text/helper" size="2">
-						{source}
-					</Text>
-				</Box>
-			}
-		/>
+    <SelectableRow
+      id={id}
+      value={value}
+      label={
+        <Box>
+          <Text>{valueWithVariablePrefix}</Text>
+          <Text color="input/text/helper" size="2">
+            {source}
+          </Text>
+        </Box>
+      }
+    />
   );
 };
 
