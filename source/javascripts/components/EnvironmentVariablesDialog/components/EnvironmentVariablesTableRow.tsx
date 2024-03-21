@@ -6,7 +6,7 @@ type Props = {
   source: string;
 };
 
-const SecretsTableRow = ({ value, source }: Props) => {
+const EnvironmentVariablesTableRow = ({ value, source }: Props) => {
   const id = useId();
   const valueWithVariablePrefix = `$${value}`;
 
@@ -26,4 +26,4 @@ const SecretsTableRow = ({ value, source }: Props) => {
   );
 };
 
-export default SecretsTableRow;
+export default EnvironmentVariablesTableRow;

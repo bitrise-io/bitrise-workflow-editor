@@ -108,6 +108,7 @@ angular
 		"rStepConfig",
 		register(StepConfig, [
 			"step",
+			"environmentVariables",
 			"secrets",
 			"hasVersionUpdate",
 			"versionsWithRemarks",

@@ -1,20 +1,18 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
 import { useDisclosure } from '@bitrise/bitkit';
 
-import SecretsDialog from './SecretsDialog';
-import { HandlerFn, Secret } from './types';
+import EnvironmentVariablesDialog from './EnvironmentVariablesDialog';
+import { EnvironmentVariable, HandlerFn } from './types';
 
 type State = { open: (options: { onSelect: HandlerFn }) => void };
 type Props = PropsWithChildren<{
-  defaultSecrets?: Secret[];
-  onCreate: HandlerFn;
+  environmentVariables?: EnvironmentVariable[];
 }>;
 
 const Context = createContext<State>({ open: () => undefined });
 
-const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Props) => {
+const EnvironmentVariablesDialogProvider = ({ children, environmentVariables = [] }: Props) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [secrets, setSecrets] = useState(defaultSecrets);
 
   const [dialogProps, setDialogProps] = useState<{ onSelect: HandlerFn }>({
     onSelect: () => undefined,
@@ -29,19 +27,19 @@ const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Prop
     return { open } as State;
   }, [onOpen]);
 
-  const handleCreate = (secret: Secret) => {
-    onCreate(secret);
-    setSecrets((s) => [...s, secret]);
-  };
-
   return (
     <Context.Provider value={value}>
       {children}
-      <SecretsDialog isOpen={isOpen} secrets={secrets} onClose={onClose} onCreate={handleCreate} {...dialogProps} />
+      <EnvironmentVariablesDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        environmentVariables={environmentVariables}
+        {...dialogProps}
+      />
     </Context.Provider>
   );
 };
 
-export const useSecretsDialog = () => useContext(Context);
+export const useEnvironmentVariablesDialog = () => useContext(Context);
 
-export default SecretsDialogProvider;
+export default EnvironmentVariablesDialogProvider;
