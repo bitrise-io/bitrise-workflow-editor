@@ -109,7 +109,6 @@ const ConditionCard = (props: ConditionCardProps) => {
               <Input
                 {...field}
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
-                isRequired
                 label={getLabelText(isRegex, type)}
                 placeholder="*"
               />

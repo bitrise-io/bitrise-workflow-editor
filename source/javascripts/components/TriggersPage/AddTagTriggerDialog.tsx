@@ -11,7 +11,8 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Controller, FormProvider, useForm } from 'react-hook-form';
+import { checkIsConditionsUsed } from './TriggersPage.utils';
 
 import { FormItems, TriggerItem } from './TriggersPage.types';
 
@@ -72,6 +73,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
       .filter(({ type }) => !!type)
       .map((condition) => {
         const newCondition = { ...condition };
+        newCondition.value = newCondition.value.trim();
         if (newCondition.value === '') {
           newCondition.value = '*';
         }
@@ -87,19 +89,8 @@ const AddTagTriggerDialog = (props: DialogProps) => {
   };
 
   const isPipelineableMissing = !pipelineable;
-  const isConditionsUsed = currentTriggers
-    .map(({ conditions: currentConditions }) => JSON.stringify(currentConditions))
-    .includes(
-      JSON.stringify(
-        conditions.map((condition) => {
-          const newCondition = { ...condition };
-          if (newCondition.value === '') {
-            newCondition.value = '*';
-          }
-          return newCondition;
-        }),
-      ),
-    );
+
+  const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
   const isSubmitDisabled = isPipelineableMissing || isConditionsUsed;
 
@@ -130,11 +121,17 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
             <Icon name="Info" size="16" marginLeft="5" />
           </Tooltip>
-          <Input
-            marginBottom="24"
-            label={getLabelText(isRegex)}
-            placeholder="*"
-            {...register(`conditions.${conditionNumber}.value`)}
+          <Controller
+            name={`conditions.${conditionNumber}.value`}
+            render={({ field }) => (
+              <Input
+                marginBottom="24"
+                {...field}
+                onChange={(e) => field.onChange(e.target.value.trimStart())}
+                label={getLabelText(isRegex)}
+                placeholder="*"
+              />
+            )}
           />
           <Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">
             Targeted Pipeline or Workflow
