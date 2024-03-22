@@ -16,9 +16,10 @@ import {
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
+import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
 import { Condition, FormItems, PrConditionType, TriggerItem } from './TriggersPage.types';
+import { checkIsConditionsUsed } from './TriggersPage.utils';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
@@ -102,11 +103,17 @@ const ConditionCard = (props: ConditionCardProps) => {
           <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
             <Icon name="Info" size="16" marginLeft="5" />
           </Tooltip>
-          <Input
-            {...register(`conditions.${conditionNumber}.value`)}
-            isRequired
-            label={getLabelText(isRegex, type)}
-            placeholder="*"
+          <Controller
+            name={`conditions.${conditionNumber}.value`}
+            render={({ field }) => (
+              <Input
+                {...field}
+                onChange={(e) => field.onChange(e.target.value.trimStart())}
+                isRequired
+                label={getLabelText(isRegex, type)}
+                placeholder="*"
+              />
+            )}
           />
         </>
       )}
@@ -174,6 +181,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
       .filter(({ type }) => !!type)
       .map((condition) => {
         const newCondition = { ...condition };
+        newCondition.value = newCondition.value.trim();
         if (newCondition.value === '') {
           newCondition.value = '*';
         }
@@ -191,17 +199,10 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const { conditions, pipelineable } = watch();
+  const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
+  const { pipelineable } = watch();
   const isPipelineableMissing = !pipelineable;
-  const isConditionsUsed = currentTriggers
-    .map(({ conditions: currentConditions }) => JSON.stringify(currentConditions))
-    .includes(
-      JSON.stringify(conditions)
-        .replace(/"value":""/g, '"value":"*"')
-        .replace(/,{"isRegex":false,"value":"\*"}/g, '')
-        .replace(/,{"isRegex":false,"type":"","value":"\*"}/g, ''),
-    );
 
   return (
     <FormProvider {...formMethods}>

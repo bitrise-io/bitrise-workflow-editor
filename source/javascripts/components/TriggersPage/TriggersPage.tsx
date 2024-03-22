@@ -54,7 +54,8 @@ const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): 
         finalItem.draft_pull_request_enabled = false;
       }
       finalItem.type = trigger.source;
-      finalItem.workflow = trigger.pipelineable;
+      const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
+      finalItem[pipelinableType] = pipelinableName;
       return finalItem;
     });
 
@@ -96,8 +97,15 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
       }
     }
 
+    if (trigger.workflow) {
+      finalItem.pipelineable = `workflow#${trigger.workflow}`;
+    }
+    if (trigger.pipeline) {
+      finalItem.pipelineable = `pipeline#${trigger.pipeline}`;
+    }
+
     triggerKeys.forEach((key) => {
-      if (!['workflow', 'enabled', 'draft_pull_request_enabled', 'type'].includes(key)) {
+      if (!['workflow', 'enabled', 'draft_pull_request_enabled', 'type', 'pipeline'].includes(key)) {
         const isRegex = typeof trigger[key] !== 'string';
         finalItem.conditions.push({
           isRegex,
