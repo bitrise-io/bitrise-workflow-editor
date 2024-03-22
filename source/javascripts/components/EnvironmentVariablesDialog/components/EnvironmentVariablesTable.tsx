@@ -3,16 +3,16 @@ import { Box, Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from '@b
 import debounce from 'lodash/debounce';
 import { useController, useFormContext } from 'react-hook-form';
 
-import { Secret, SelectSecretFormValues } from '../types';
-import SecretsTableRow from './SecretsTableRow';
+import { EnvironmentVariable, SelectEnvironmentVariableFormValues } from '../types';
+import EnvironmentVariablesTableRow from './EnvironmentVariablesTableRow';
 
 type Props = {
-  secrets: Secret[];
+  environmentVariables: EnvironmentVariable[];
 };
 
-const SecretsTable = ({ secrets }: Props) => {
-  const form = useFormContext<SelectSecretFormValues>();
-  const [filteredSecrets, setFilteredSecrets] = useState(secrets);
+const EnvironmentVariablesTable = ({ environmentVariables }: Props) => {
+  const form = useFormContext<SelectEnvironmentVariableFormValues>();
+  const [filteredVariables, setFilteredVariables] = useState(environmentVariables);
 
   const { field } = useController({
     name: 'key',
@@ -22,9 +22,11 @@ const SecretsTable = ({ secrets }: Props) => {
 
   const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
     (e) => {
-      setFilteredSecrets(secrets.filter((secret) => secret.key.toUpperCase().includes(e.target.value.toUpperCase())));
+      setFilteredVariables(
+        environmentVariables.filter(({ key }) => key.toUpperCase().includes(e.target.value.toUpperCase())),
+      );
     },
-    [secrets],
+    [environmentVariables],
   );
 
   const debouncedFilterChangeHandler = useMemo(() => {
@@ -48,8 +50,8 @@ const SecretsTable = ({ secrets }: Props) => {
             </Tr>
           </Thead>
           <RadioGroup as="tbody" {...field}>
-            {filteredSecrets.map(({ key, source }) => (
-              <SecretsTableRow key={key} value={key} source={source} />
+            {filteredVariables.map(({ key, source }) => (
+              <EnvironmentVariablesTableRow key={key} value={key} source={source} />
             ))}
           </RadioGroup>
         </Table>
@@ -58,4 +60,4 @@ const SecretsTable = ({ secrets }: Props) => {
   );
 };
 
-export default SecretsTable;
+export default EnvironmentVariablesTable;

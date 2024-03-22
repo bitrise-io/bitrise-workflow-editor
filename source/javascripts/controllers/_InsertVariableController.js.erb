@@ -55,6 +55,8 @@
 				}
 			];
 
+			viewModel.insertableVariablesForReact = [];
+
 			var availableVariableGroupIDs;
 			var workflows;
 			var selectedWorkflow;
@@ -105,6 +107,18 @@
 				}
 				$q.all(loadPromises).then(
 					function() {
+						viewModel.insertableVariablesForReact = _.uniq(
+							viewModel.insertableVariables.flatMap((group) => {
+								return group.variables?.map((variable) => ({
+									key: variable.key(),
+									value: variable.value(),
+									source: group.title,
+									isExpand: Boolean(variable.isExpand()) ,
+								})) ?? [];
+							}), 
+							(variable) => variable.key
+						);
+
 						viewModel.loadInsertableVariablesProgress.success();
 					},
 					function(error) {
@@ -321,6 +335,7 @@
 					) == variable
 				);
 			};
+
 
 			$scope.$on("$destroy", function() {
 				viewModel.canceler.resolve();
