@@ -266,7 +266,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                 {pipelines.length && (
                   <optgroup label="Pipelines">
                     {pipelines.map((p) => (
-                      <option key={p} value={p}>
+                      <option key={p} value={`pipeline#${p}`}>
                         {p}
                       </option>
                     ))}
@@ -275,7 +275,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                 {workflows.length && (
                   <optgroup label="Workflows">
                     {workflows.map((p) => (
-                      <option key={p} value={p}>
+                      <option key={p} value={`worfklow#${p}`}>
                         {p}
                       </option>
                     ))}

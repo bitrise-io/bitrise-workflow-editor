@@ -5,7 +5,7 @@ import TriggersPage from './TriggersPage';
 export default {
   component: TriggersPage,
   args: {
-    pipelines: ['foo', 'bar'],
+    pipelines: ['foo', 'bar', 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long'],
     workflows: ['foo', 'bar'],
     onTriggerMapChange: console.log,
     setDiscard: console.log,
@@ -20,10 +20,11 @@ export const TriggersPageWithTriggerMap: StoryObj<typeof TriggersPage> = {
       {
         push_branch: '*',
         enabled: false,
-        workflow: 'foo',
+        workflow: 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long',
       },
       {
-        push_branch: 'adssaads',
+        push_branch:
+          'ABC-1234-POC-awesomething-to-do-a-very-long-branch-name-just-for-fun-because-we-need-it-to-test-text-trruncate',
         enabled: true,
         workflow: 'foo',
       },

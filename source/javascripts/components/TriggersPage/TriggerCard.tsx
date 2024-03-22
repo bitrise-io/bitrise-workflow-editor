@@ -75,31 +75,19 @@ const TriggerCard = (props: TriggerCardProps) => {
       isOverlay={isOverlay}
       {...rest}
     >
-      <Box width="calc((100% - 190px) / 2)" display="flex" flexDir="column" gap="4">
+      <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
-        <Box display="flex" alignItems="center" flexWrap="wrap" gap="8px 0">
-          {conditions.map(({ type, value }, index) =>
-            index > 0 ? (
-              <Fragment key={type + value}>
-                <Box as="span" mx={4}>
-                  +
-                </Box>
-                <Tooltip label={toolTip[type]}>
-                  <Tag iconName={iconMap[type]} iconColor="neutral.50">
-                    {value}
-                  </Tag>
-                </Tooltip>
-              </Fragment>
-            ) : (
-              <Fragment key={type + value}>
-                <Tooltip label={toolTip[type]}>
-                  <Tag iconName={iconMap[type]} iconColor="neutral.50">
-                    {value}
-                  </Tag>
-                </Tooltip>
-              </Fragment>
-            ),
-          )}
+        <Box display="flex" alignItems="center" flexWrap="wrap" rowGap="8" columnGap="4">
+          {conditions.map(({ type, value }, index) => (
+            <Fragment key={type + value}>
+              <Tooltip label={toolTip[type]}>
+                <Tag iconName={iconMap[type]} iconColor="neutral.60" size="sm">
+                  {value}
+                </Tag>
+              </Tooltip>
+              {conditions.length - 1 > index && <Text as="span">+</Text>}
+            </Fragment>
+          ))}
         </Box>
         {isDraftPr && (
           <Text textStyle="body/md/regular" color="text/tertiary">
@@ -107,11 +95,11 @@ const TriggerCard = (props: TriggerCardProps) => {
           </Text>
         )}
       </Box>
-      <Box width="calc((100% - 190px) / 2)" display="flex" alignItems="center">
+      <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" alignItems="center">
         <Icon name="ArrowRight" marginRight="16" />
         <Box display="flex" flexDir="column" gap="4">
           <Text textStyle="body/md/semibold">Start build</Text>
-          <Text>{pipelineable}</Text>
+          <Text>{pipelineable.replace('#', ': ')}</Text>
         </Box>
       </Box>
       <Box display="flex" alignItems="center">

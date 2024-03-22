@@ -16,7 +16,6 @@ const DraggableCard = forwardRef<HTMLDivElement, DraggableCardProps>((props, ref
 
   const cardProps: CardProps = {
     _hover: {
-      backgroundColor: 'background/secondary',
       borderColor: 'border/regular',
     },
     ...rest,
@@ -46,7 +45,6 @@ const DraggableCard = forwardRef<HTMLDivElement, DraggableCardProps>((props, ref
 
   if (isOverlay) {
     cardProps._hover = {
-      backgroundColor: 'background/secondary',
       borderColor: 'border/strong',
       boxShadow: 'large',
     };
