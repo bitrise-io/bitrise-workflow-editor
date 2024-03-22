@@ -45,15 +45,6 @@ import { safeDigest } from "../services/react-compat";
 					possibleURLParameterKeys: ["workflow_id"],
 					cssClass: "workflows"
 				},
-				requestService.mode == "website"
-					? {
-						id: "code-signing",
-						title: "<%= data[:strings][:main][:menus][:code_signing] %>",
-						path: "<%= data[:routes][:endpoints][:code_signing] %>",
-						possibleURLParameterKeys: [],
-						cssClass: "code-signing"
-					}
-					: null,
 				{
 					id: "secrets",
 					title: "<%= data[:strings][:main][:menus][:secrets] %>",
