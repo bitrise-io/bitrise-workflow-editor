@@ -7,8 +7,8 @@ require (
 	github.com/bitrise-io/bitrise v0.0.0-20240216102702-83e3e4058ae1
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20230802102824-1300c57d49c4
-	github.com/bitrise-io/go-utils v1.0.11
-	github.com/bitrise-io/stepman v0.0.0-20230728094915-939f0fe5c19a
+	github.com/bitrise-io/go-utils v1.0.13
+	github.com/bitrise-io/stepman v0.0.0-20240322112727-33fb100ced91
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.8.4
@@ -28,7 +28,7 @@ require (
 	github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 // indirect
 	github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef // indirect
 	github.com/bitrise-io/gows v0.0.0-20220531144754-6f5657a0dd7c // indirect
-	github.com/cpuguy83/go-md2man/v2 v2.0.3 // indirect
+	github.com/cpuguy83/go-md2man/v2 v2.0.4 // indirect
 	github.com/daaku/go.zipexe v1.0.2 // indirect
 	github.com/davecgh/go-spew v1.1.1 // indirect
 	github.com/distribution/reference v0.5.0 // indirect
@@ -38,7 +38,7 @@ require (
 	github.com/docker/go-units v0.4.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.4 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.5 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -50,8 +50,8 @@ require (
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
 	github.com/urfave/cli v1.22.14 // indirect
-	golang.org/x/crypto v0.17.0 // indirect
-	golang.org/x/sys v0.15.0 // indirect
-	golang.org/x/term v0.15.0 // indirect
+	golang.org/x/crypto v0.21.0 // indirect
+	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/term v0.18.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

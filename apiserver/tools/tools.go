@@ -1,26 +1,26 @@
 package tools
 
 import (
-	"errors"
 	"fmt"
 
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/command"
+	"github.com/bitrise-io/go-utils/log"
+	stepman "github.com/bitrise-io/stepman/cli"
 	stepmanModels "github.com/bitrise-io/stepman/models"
-	"gopkg.in/yaml.v2"
 )
+
+type stepmanLogger struct {
+}
+
+func (l stepmanLogger) Warnf(format string, v ...interface{}) {
+	log.Warnf(format, v...)
+}
 
 // StepmanStepInfo ...
 func StepmanStepInfo(library, id, version string) (stepmanModels.StepInfoModel, error) {
-	cmd := command.New("bitrise", "stepman", "step-info", "--library", library, "--id", id, "--version", version, "--format", "json")
-	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	stepInfo, err := stepman.QueryStepInfo(library, id, version, stepmanLogger{})
 	if err != nil {
-		return stepmanModels.StepInfoModel{}, fmt.Errorf("failed to get step info, out: %s, error: %s", out, err)
-	}
-
-	var stepInfo stepmanModels.StepInfoModel
-	if err := yaml.Unmarshal([]byte(out), &stepInfo); err != nil {
-		return stepmanModels.StepInfoModel{}, fmt.Errorf("failed to unmarshal stepman step info output (%s), error: %s", stepInfo, err)
+		return stepmanModels.StepInfoModel{}, fmt.Errorf("failed to get step info: %w", err)
 	}
 
 	// fix: json: unsupported type: map[interface {}]interface {}
@@ -48,39 +48,17 @@ func StepmanStepInfo(library, id, version string) (stepmanModels.StepInfoModel, 
 
 // StepmanLocalLibraryInfos ...
 func StepmanLocalLibraryInfos() ([]stepmanModels.SteplibInfoModel, error) {
-	type StepmanCollectionsOutputModel struct {
-		Data  *([]stepmanModels.SteplibInfoModel) `json:"data,omitempty" yaml:"data,omitempty"`
-		Error string                              `json:"error,omitempty" yaml:"error,omitempty"`
-	}
-
-	cmd := command.New("bitrise", "stepman", "collections", "--format", "json")
-	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
+	stepLibInfos, err := stepman.Collections()
 	if err != nil {
-		return []stepmanModels.SteplibInfoModel{}, fmt.Errorf("failed to get steplib spec, out: %s, error: %s", out, err)
+		return []stepmanModels.SteplibInfoModel{}, fmt.Errorf("failed to get steplib spec: %w", err)
 	}
-
-	var output StepmanCollectionsOutputModel
-	if err := yaml.Unmarshal([]byte(out), &output); err != nil {
-		return []stepmanModels.SteplibInfoModel{}, fmt.Errorf("failed to parse stepman collections output (%s), error: %s", out, err)
-	}
-
-	if output.Error != "" {
-		return []stepmanModels.SteplibInfoModel{}, errors.New(output.Error)
-	}
-
-	if output.Data == nil {
-		return []stepmanModels.SteplibInfoModel{}, errors.New("empty output data")
-	}
-
-	return *output.Data, nil
+	return stepLibInfos, nil
 }
 
 // StepmanSetupLibrary ...
 func StepmanSetupLibrary(libraryURI string) error {
-	cmd := command.New("bitrise", "stepman", "setup", "--collection", libraryURI)
-	out, err := cmd.RunAndReturnTrimmedCombinedOutput()
-	if err != nil {
-		return fmt.Errorf("failed to setup library (%s), out: %s, err: %s", libraryURI, out, err)
+	if err := stepman.Setup(libraryURI, "", stepmanLogger{}); err != nil {
+		return fmt.Errorf("failed to setup library (%s): %w", libraryURI, err)
 	}
 
 	return nil
