@@ -28,8 +28,6 @@ const findItemIcon = (item: Item): TypeIconName | undefined => {
   switch (item.id) {
     case 'workflows':
       return 'Workflow';
-    case 'code-signing':
-      return 'CodeSigning';
     case 'secrets':
       return 'Lock';
     case 'env-vars':
