@@ -126,6 +126,7 @@ angular
 			"triggerMap",
 			"setDiscard",
 			"workflows",
-			"isWebsiteMode"
+			"isWebsiteMode",
+			"integrationsUrl"
 		])
 	);

@@ -120,16 +120,17 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 };
 
 type TriggersPageProps = {
+  integrationsUrl?: string;
   isWebsiteMode?: boolean;
   onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
   pipelines: string[];
-  setDiscard: (fn: () => void) => void;
+  setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
   triggerMap?: FinalTriggerItem[];
   workflows: string[];
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-  const { isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+  const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
   const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: isWebsiteMode });
   const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
@@ -196,11 +197,10 @@ const TriggersPage = (props: TriggersPageProps) => {
   };
 
   useEffect(() => {
-    setDiscard(() => {
-      setTriggers(convertTriggerMapToItems(triggerMap || []));
+    setDiscard((originalTriggerMap) => {
+      setTriggers(convertTriggerMapToItems(originalTriggerMap || []));
     });
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [setDiscard]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -249,7 +249,12 @@ const TriggersPage = (props: TriggersPageProps) => {
         </Link>
       </Text>
       {isNotificationOpen && (
-        <Notification status="info" onClose={closeNotification} action={{ label: 'Set up webhooks' }} marginTop="32">
+        <Notification
+          status="info"
+          onClose={closeNotification}
+          action={{ href: integrationsUrl, label: 'Set up webhooks' }}
+          marginTop="32"
+        >
           <Text fontWeight="bold">Configure webhooks</Text>
           <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>

@@ -10,14 +10,17 @@ app:
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
 - workflow: wf6
-  pull_request_target_branch: asasd
+  pull_request_source_branch: ads
+  pull_request_target_branch: dsax
   draft_pull_request_enabled: false
 - workflow: wf3
   pull_request_target_branch: dsa*asd
-- workflow: wf2
-  push_branch: releaseasd
 - workflow: wf1
-  push_branch: master
+  push_branch: uj
+- workflow: wf1
+  tag: asd
+- workflow: wf1
+  tag: asdf
 workflows:
   wf1:
     envs:

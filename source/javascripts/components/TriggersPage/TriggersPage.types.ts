@@ -33,7 +33,7 @@ export type TriggerItem = {
 export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   conditions: {
     isRegex: boolean;
-    type?: ConditionType;
+    type?: ConditionType | '';
     value: string;
   }[];
   isDraftPr?: boolean;
