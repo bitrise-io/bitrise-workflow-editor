@@ -177,7 +177,7 @@ section.manage-workflows {
 			$spacing: 8px;
 			$icon-size: 52px;
 			$icon-size_small: 36px;
-			$steptitle-width: 360px;
+			$steptitle-width: 280px;
 			$steptitle-width_small: 220px;
 			border-top: 1px solid $def-lightgrey;
 
@@ -188,30 +188,28 @@ section.manage-workflows {
 			background-color: $def-ultralightgrey;
 
 			.steps-container {
-				flex: 1;
-				display: flex;
+				border-right: 1px solid $def-lightgrey;
 				overflow-y: auto;
-				align-items: center;
-				flex-direction: column;
+				background: #ffffff;
 			}
 
 			.step-edit-container {
 				flex: 1;
-				max-width: 720px;
 				overflow-y: auto;
 				background: white;
-				padding-bottom: 64px;
-				border-left: 1px solid $def-lightgrey;
 			}
 
 			section.workflow {
-
 				@include flex-shrink(0);
 				@include padding-x($main-horizontalpadding);
 				@include transition(background-color $def-transition_duration);
 
 				&:not(:first-child) {
 					border-top: 1px dashed $def-grey;
+				}
+
+				&:last-child {
+					@include flex-grow(1);
 				}
 
 				header.workflow-header {
@@ -439,7 +437,6 @@ section.manage-workflows {
 									}
 
 									span.info {
-										
 										@include display-flex;
 										@include flex-direction(column);
 										@include justify-content(center);
@@ -451,7 +448,7 @@ section.manage-workflows {
 										@include border-radius($def-box-radius);
 										@include padding-x(20px);
 										@include transition(border-color $def-transition_duration, color $def-transition_duration, background-color $def-transition_duration);
-										background-color: white;
+										background-color: $def-ultralightgrey;
 
 										strong {
 											@include display-flex;
@@ -1643,6 +1640,10 @@ section.manage-workflows {
 						}
 					}
 				}
+			}
+
+			section.workflow.selected {
+				background-color: white;
 			}
 
 			section.workflow:not(.selected) {
