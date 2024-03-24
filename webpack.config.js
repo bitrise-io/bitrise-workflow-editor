@@ -240,7 +240,7 @@ module.exports = {
       test: /.js$|.css$/,
     }),
     new MiniCssExtractPlugin({
-      filename: 'stylesheets/[name][contenthash].css',
+      filename: 'stylesheets/[name].css',
     }),
     new MonacoWebpackPlugin(MonacoPluginOptions),
     new ProvidePlugin({
