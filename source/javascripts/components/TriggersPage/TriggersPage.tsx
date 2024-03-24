@@ -121,7 +121,6 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 
 type TriggersPageProps = {
   integrationsUrl?: string;
-  isWebsiteMode?: boolean;
   onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
   pipelines: string[];
   setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
@@ -130,9 +129,14 @@ type TriggersPageProps = {
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-  const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+  const { integrationsUrl, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
-  const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({ defaultIsOpen: isWebsiteMode });
+  const triggersNotificationKey = 'triggersNotificationDismissed';
+  const notificationDismissed = !!localStorage.getItem(triggersNotificationKey);
+
+  const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({
+    defaultIsOpen: !notificationDismissed,
+  });
   const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
     defaultIsOpen: true,
   });
@@ -157,6 +161,11 @@ const TriggersPage = (props: TriggersPageProps) => {
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
   const [activeId, setActiveId] = useState<string | null>(null);
+
+  const closeAndSaveNotification = () => {
+    closeNotification();
+    localStorage.setItem(triggersNotificationKey, 'true');
+  };
 
   const onCloseDialog = () => {
     closePushTriggerDialog();
@@ -251,7 +260,7 @@ const TriggersPage = (props: TriggersPageProps) => {
       {isNotificationOpen && (
         <Notification
           status="info"
-          onClose={closeNotification}
+          onClose={closeAndSaveNotification}
           action={{ href: integrationsUrl, label: 'Set up webhooks' }}
           marginTop="32"
         >
