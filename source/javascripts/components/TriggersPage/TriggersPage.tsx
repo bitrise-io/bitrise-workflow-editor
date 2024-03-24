@@ -131,14 +131,17 @@ type TriggersPageProps = {
 const TriggersPage = (props: TriggersPageProps) => {
   const { integrationsUrl, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
-  const triggersNotificationKey = 'triggersNotificationDismissed';
-  const notificationDismissed = !!localStorage.getItem(triggersNotificationKey);
+  const webhookNotificationKey = 'webhookNotificationDismissed';
+  const triggersOrderNotificationKey = 'triggersNotificationDismissed';
+  const webhookNotificationDismissed = !!localStorage.getItem(webhookNotificationKey);
+
+  const triggersNotificationDismissed = !!localStorage.getItem(triggersOrderNotificationKey);
 
   const { isOpen: isNotificationOpen, onClose: closeNotification } = useDisclosure({
-    defaultIsOpen: !notificationDismissed,
+    defaultIsOpen: !webhookNotificationDismissed,
   });
   const { isOpen: isTriggersNotificationOpen, onClose: closeTriggersNotification } = useDisclosure({
-    defaultIsOpen: true,
+    defaultIsOpen: !triggersNotificationDismissed,
   });
   const {
     isOpen: isPushTriggerDialogOpen,
@@ -162,9 +165,14 @@ const TriggersPage = (props: TriggersPageProps) => {
 
   const [activeId, setActiveId] = useState<string | null>(null);
 
-  const closeAndSaveNotification = () => {
+  const closeAndSaveWebhookNotification = () => {
     closeNotification();
-    localStorage.setItem(triggersNotificationKey, 'true');
+    localStorage.setItem(webhookNotificationKey, 'true');
+  };
+
+  const closeAndSaveTriggersNotification = () => {
+    closeTriggersNotification();
+    localStorage.setItem(triggersOrderNotificationKey, 'true');
   };
 
   const onCloseDialog = () => {
@@ -260,7 +268,7 @@ const TriggersPage = (props: TriggersPageProps) => {
       {isNotificationOpen && (
         <Notification
           status="info"
-          onClose={closeAndSaveNotification}
+          onClose={closeAndSaveWebhookNotification}
           action={{ href: integrationsUrl, label: 'Set up webhooks' }}
           marginTop="32"
         >
@@ -323,7 +331,7 @@ const TriggersPage = (props: TriggersPageProps) => {
               </DndContext>
             </div>
             {triggers.push.length > 1 && isTriggersNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
+              <Notification status="info" marginTop="12" onClose={closeAndSaveTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
@@ -390,7 +398,7 @@ const TriggersPage = (props: TriggersPageProps) => {
               </DndContext>
             </div>
             {triggers.pull_request.length > 1 && isTriggersNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
+              <Notification status="info" marginTop="12" onClose={closeAndSaveTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
@@ -453,7 +461,7 @@ const TriggersPage = (props: TriggersPageProps) => {
               </DndContext>
             </div>
             {triggers.tag.length > 1 && isTriggersNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeTriggersNotification}>
+              <Notification status="info" marginTop="12" onClose={closeAndSaveTriggersNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
