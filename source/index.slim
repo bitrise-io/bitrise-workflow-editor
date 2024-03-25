@@ -9,10 +9,6 @@ html
 		script[src="#{ mode_dependant_asset_path 'javascripts/vendor.js' }"]
 		script[src="#{ mode_dependant_asset_path 'javascripts/strings.js' }"]
 		script[src="#{ mode_dependant_asset_path 'javascripts/routes.js' }"]
-		- if hotjar?
-			script[src="#{ mode_dependant_asset_path 'javascripts/hotjar.js' }"]
-		- if freshpaint?
-			script[src="#{ mode_dependant_asset_path 'javascripts/freshpaint.js' }"]
 		- if datadog_rum?
 			script[src="#{ mode_dependant_asset_path 'javascripts/datadogrum.js' }"]
 		- if segment?
