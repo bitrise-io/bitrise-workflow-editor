@@ -78,6 +78,7 @@ const TriggerCard = (props: TriggerCardProps) => {
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
         <Text textStyle="body/md/semibold">Trigger conditions</Text>
         <Box display="flex" alignItems="center" flexWrap="wrap" rowGap="8" columnGap="4">
+          {(!conditions || conditions.length === 0) && <Tag size="sm">No conditions.</Tag>}
           {conditions.map(({ type, value }, index) => (
             <Fragment key={type + value}>
               <Tooltip label={toolTip[type]}>
