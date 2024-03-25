@@ -7,8 +7,8 @@ github.com/GeertJohan/go.rice v1.0.3/go.mod h1:XVdrU4pW00M4ikZed5q56tPf1v2KwnIKe
 github.com/Microsoft/go-winio v0.6.1 h1:9/kr64B9VUZrLm5YYwbGtUJnMgqWVOdUAXu6Migciow=
 github.com/Microsoft/go-winio v0.6.1/go.mod h1:LRdKpFKfdobln8UmuiYcKPot9D2v6svN5+sAH+4kjUM=
 github.com/akavel/rsrc v0.8.0/go.mod h1:uLoCtb9J+EyAqh+26kdrTgmzRBFPGOolLWKpdxkKq+c=
-github.com/bitrise-io/bitrise v0.0.0-20240325134217-27183b9b592e h1:CuowgEYqfCyxLVL1s9QYij3b8y6MyDdleEKC+7+Xi5I=
-github.com/bitrise-io/bitrise v0.0.0-20240325134217-27183b9b592e/go.mod h1:pdf6LHu6/9YjhvMAEh8QTw3VedVQgTBWdc+ok0e/Df4=
+github.com/bitrise-io/bitrise v0.0.0-20240325135542-6b80ce337b94 h1:XeUiv6V1pJ/mHjz8vpDvKeeLAfwt9QdIpNYsntL637g=
+github.com/bitrise-io/bitrise v0.0.0-20240325135542-6b80ce337b94/go.mod h1:pdf6LHu6/9YjhvMAEh8QTw3VedVQgTBWdc+ok0e/Df4=
 github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192 h1:vSHYT6kCL/iOT9BVuUPm0tVcbW57r5zldLWg0aB7qbQ=
 github.com/bitrise-io/colorstring v0.0.0-20180614154802-a8cd70115192/go.mod h1:CIHVcxZUvsG99XUJV6JlR7okNsMMGY81jMvPC20W+O0=
 github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92 h1:+alkNYr5sbvCpvu2YQC4SLddnIP2BeAIjr8/EsObonw=
