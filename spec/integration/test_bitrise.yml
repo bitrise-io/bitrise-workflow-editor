@@ -13,7 +13,11 @@ trigger_map:
   workflow: wf6
 - type: pull_request
   workflow: wf3
-  pull_request_target_branch: dsa*asd
+  pull_request_target_branch: "1"
+  draft_pull_request_enabled: false
+- type: pull_request
+  workflow: wf1
+  pull_request_target_branch: "1"
 - type: push
   enabled: false
   workflow: wf1

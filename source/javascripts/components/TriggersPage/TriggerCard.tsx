@@ -90,7 +90,7 @@ const TriggerCard = (props: TriggerCardProps) => {
             </Fragment>
           ))}
         </Box>
-        {isDraftPr && (
+        {isDraftPr === false && (
           <Text textStyle="body/md/regular" color="text/tertiary">
             Draft PRs excluded
           </Text>

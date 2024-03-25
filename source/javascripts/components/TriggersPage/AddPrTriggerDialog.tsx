@@ -158,7 +158,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { control, register, reset, handleSubmit, watch } = formMethods;
+  const { control, formState, register, reset, handleSubmit, watch } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -196,7 +196,12 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 
   const { conditions, pipelineable } = watch();
 
-  const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
+  let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
+
+  // Because draft PR checkbox is a condition
+  if (formState.dirtyFields.isDraftPr) {
+    isConditionsUsed = false;
+  }
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {

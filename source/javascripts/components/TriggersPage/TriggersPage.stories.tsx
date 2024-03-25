@@ -5,10 +5,12 @@ import TriggersPage from './TriggersPage';
 export default {
   component: TriggersPage,
   args: {
-    pipelines: ['foo', 'bar', 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long'],
-    workflows: ['foo', 'bar'],
+    integrationsUrl: '',
+    isWebsiteMode: false,
     onTriggerMapChange: console.log,
+    pipelines: ['foo', 'bar', 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long'],
     setDiscard: console.log,
+    workflows: ['foo', 'bar'],
   },
 } as Meta<typeof TriggersPage>;
 

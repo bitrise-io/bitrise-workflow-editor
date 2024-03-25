@@ -125,6 +125,7 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 
 type TriggersPageProps = {
   integrationsUrl?: string;
+  isWebsiteMode: boolean;
   onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
   pipelines: string[];
   setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
@@ -133,7 +134,7 @@ type TriggersPageProps = {
 };
 
 const TriggersPage = (props: TriggersPageProps) => {
-  const { integrationsUrl, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+  const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
   const webhookNotificationKey = 'webhookNotificationDismissed';
   const triggersOrderNotificationKey = 'triggersNotificationDismissed';
@@ -269,7 +270,7 @@ const TriggersPage = (props: TriggersPageProps) => {
           Learn more
         </Link>
       </Text>
-      {isNotificationOpen && (
+      {isWebsiteMode && isNotificationOpen && (
         <Notification
           status="info"
           onClose={closeAndSaveWebhookNotification}
