@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import isObject from 'lodash/isObject';
 import {
   Button,
   EmptyState,
@@ -62,7 +63,10 @@ const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): 
   return triggerMap;
 };
 
-const getSourceType = (triggerKeys: string[]): SourceType => {
+const getSourceType = (triggerKeys: string[], type?: SourceType): SourceType => {
+  if (type) {
+    return type;
+  }
   if (triggerKeys.includes('push_branch')) {
     return 'push';
   }
@@ -80,7 +84,7 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
   };
   triggerMap.forEach((trigger) => {
     const triggerKeys = Object.keys(trigger);
-    const source = getSourceType(triggerKeys);
+    const source = getSourceType(triggerKeys, trigger.type as SourceType);
     const finalItem: TriggerItem = {
       conditions: [],
       pipelineable: trigger.workflow as string,
@@ -106,7 +110,7 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 
     triggerKeys.forEach((key) => {
       if (!['workflow', 'enabled', 'draft_pull_request_enabled', 'type', 'pipeline'].includes(key)) {
-        const isRegex = typeof trigger[key] !== 'string';
+        const isRegex = isObject(trigger[key]);
         finalItem.conditions.push({
           isRegex,
           type: key as ConditionType,
