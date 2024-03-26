@@ -4,7 +4,7 @@ go 1.17
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20240325150119-1eaf5acc2cdf
+	github.com/bitrise-io/bitrise v0.0.0-20240326140609-6bcf3254e72a
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20230802102824-1300c57d49c4
 	github.com/bitrise-io/go-utils v1.0.13
