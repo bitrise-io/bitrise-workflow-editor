@@ -37,7 +37,7 @@ const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInReposito
   useEffect(() => {
     getAppConfigFromRepo();
     getAppConfig();
-  }, [getAppConfig, getAppConfigFromRepo]);
+  }, []);
 
   useEffect(() => {
     if (!getAppConfigLoading && !getAppConfigFromRepoLoading && getAppConfigFromRepoStatus && !initialCheckComplete) {
