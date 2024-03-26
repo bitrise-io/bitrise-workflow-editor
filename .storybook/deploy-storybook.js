@@ -48,11 +48,12 @@ async function uploadFiles() {
   }
   const files = glob.sync('**', { nodir: true, cwd: 'storybook-static' });
   let count = 1;
-  for (const file of files) {
-    console.log(`[${count}/${files.length}] ${file}`);
+
+  await Promise.all(files.map(async (file) => {
     await storage.upload(`storybook-static/${file}`, { destination: `${path}/${file}` });
-    count += 1;
-  }
+    console.log(`[${count++}/${files.length}] ${file}`);
+  }));
+
   storage.file(`${path}/robots.txt`).createWriteStream({ resumable: false }).end('User-agent: *\nDisallow: /\n');
   console.log(
     `Storybook uploaded to: https://storybook.services.bitrise.dev/projects/${path}/`,
