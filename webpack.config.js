@@ -10,13 +10,60 @@ const { version } = require('./package.json');
 
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
+const MonacoPluginOptions = {
+  languages: ['yaml'],
+  customLanguages: [
+    {
+      label: 'yaml',
+      entry: 'monaco-yaml',
+      worker: {
+        id: 'monaco-yaml/yamlWorker',
+        entry: 'monaco-yaml/yaml.worker',
+      },
+    },
+  ],
+  features: [
+    '!accessibilityHelp',
+    '!bracketMatching',
+    '!caretOperations',
+    '!clipboard',
+    '!codeAction',
+    '!codelens',
+    '!colorDetector',
+    '!contextmenu',
+    '!cursorUndo',
+    '!dnd',
+    '!fontZoom',
+    '!format',
+    '!gotoError',
+    '!gotoSymbol',
+    '!hover',
+    '!iPadShowKeyboard',
+    '!inPlaceReplace',
+    '!inspectTokens',
+    '!links',
+    '!multicursor',
+    '!parameterHints',
+    '!quickCommand',
+    '!quickOutline',
+    '!referenceSearch',
+    '!rename',
+    '!smartSelect',
+    '!snippets',
+    '!suggest',
+    '!toggleHighContrast',
+    '!toggleTabFocusMode',
+    '!transpose',
+    '!wordHighlighter',
+    '!wordOperations',
+    '!wordPartOperations',
+  ],
+};
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, FRESHPAINT, SEGMENT, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, SEGMENT, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
-const isHotjarEnabled = HOTJAR === 'true';
-const isFreshpaintEnabled = FRESHPAINT === 'true';
 const isDataDogRumEnabled = DATADOG_RUM === 'true';
 const isSegmentEnabled = SEGMENT === 'true';
 const publicPath = `${urlPrefix}/${version}/`;
@@ -44,12 +91,6 @@ const entry = {
   routes: './javascripts/routes.js.erb',
   main: './javascripts/index.js',
 };
-if (isHotjarEnabled) {
-  entry.hotjar = './javascripts/hotjar.js';
-}
-if (isFreshpaintEnabled) {
-  entry.freshpaint = './javascripts/freshpaint.js.erb';
-}
 if (isDataDogRumEnabled) {
   entry.datadogrum = './javascripts/datadog-rum.js.erb';
 }
@@ -59,9 +100,16 @@ if (isSegmentEnabled) {
 
 module.exports = {
   context: CODEBASE,
-
+  entry,
   mode: isProd ? 'production' : 'development',
+  output: {
+    filename: 'javascripts/[name].js',
+    path: OUTPUT_FOLDER,
+    publicPath,
+  },
 
+  /* --- Development --- */
+  devtool: isProd ? 'hidden-source-map' : 'source-map',
   devServer: {
     compress: true,
     watchFiles: './source/**/*',
@@ -81,10 +129,7 @@ module.exports = {
     },
   },
 
-  devtool: `${isProd ? 'hidden-' : ''}source-map`,
-
-  entry,
-
+  /* --- Performance --- */
   optimization: {
     minimize: isProd,
     minimizer: [
@@ -101,25 +146,19 @@ module.exports = {
       }),
     ],
   },
-
   performance: {
     hints: 'warning',
     maxAssetSize: 40000000,
     maxEntrypointSize: 60000000,
   },
 
-  output: {
-    filename: 'javascripts/[name].js',
-    path: OUTPUT_FOLDER,
-    publicPath,
-  },
-
+  /* --- Rules --- */
   resolve: {
     extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
   },
-
   module: {
     rules: [
+      /* --- Javascript & TypeScript --- */
       {
         test: /\.erb$/i,
         use: railsTransformer('erb'),
@@ -136,7 +175,6 @@ module.exports = {
         },
         exclude: /node_modules/,
       },
-
       {
         test: /\.tsx?$/,
         use: {
@@ -151,10 +189,26 @@ module.exports = {
         include: /node_modules\/@bitrise\/bitkit/,
       },
 
+      /* --- HTML & CSS --- */
       {
         test: /\.(slim)$/,
         use: [htmlExporter, railsTransformer('slim')],
       },
+      {
+        test: /\.css$/i,
+        include: path.join(__dirname, 'node_modules'),
+        use: ['style-loader', 'css-loader'],
+      },
+      {
+        test: path.resolve(__dirname, 'node_modules/normalize.css'),
+        use: 'null-loader',
+      },
+      {
+        test: /\.s[ac]ss(\.erb)?$/i,
+        use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
+      },
+
+      /* --- Images --- */
       {
         test: /\.(png|jpe?g|gif|svg)$/i,
         type: 'asset/resource',
@@ -164,6 +218,8 @@ module.exports = {
           publicPath: `${publicPath}images/`,
         },
       },
+
+      /* --- Fonts --- */
       {
         test: /\.(eot|woff2?|ttf)$/i,
         type: 'asset/resource',
@@ -173,23 +229,10 @@ module.exports = {
           publicPath: `${publicPath}fonts/`,
         },
       },
-      {
-        test: /\.css$/i,
-        include: path.join(__dirname, 'node_modules'),
-        use: ['style-loader', 'css-loader'],
-      },
-
-      {
-        test: /\.s[ac]ss(\.erb)?$/i,
-        use: [MiniCssExtractPlugin.loader, 'css-loader', railsTransformer('erb'), 'sass-loader'],
-      },
-
-      {
-        test: path.resolve(__dirname, 'node_modules/normalize.css'),
-        use: 'null-loader',
-      },
     ],
   },
+
+  /* --- Plugins --- */
   plugins: [
     new webpack.EnvironmentPlugin({ MODE: MODE || 'WEBSITE' }),
     new CompressionPlugin({
@@ -199,55 +242,7 @@ module.exports = {
     new MiniCssExtractPlugin({
       filename: 'stylesheets/[name].css',
     }),
-    new MonacoWebpackPlugin({
-      languages: ['yaml'],
-      customLanguages: [
-        {
-          label: 'yaml',
-          entry: 'monaco-yaml',
-          worker: {
-            id: 'monaco-yaml/yamlWorker',
-            entry: 'monaco-yaml/yaml.worker',
-          },
-        },
-      ],
-      features: [
-        '!accessibilityHelp',
-        '!bracketMatching',
-        '!caretOperations',
-        '!clipboard',
-        '!codeAction',
-        '!codelens',
-        '!colorDetector',
-        '!contextmenu',
-        '!cursorUndo',
-        '!dnd',
-        '!fontZoom',
-        '!format',
-        '!gotoError',
-        '!gotoSymbol',
-        '!hover',
-        '!iPadShowKeyboard',
-        '!inPlaceReplace',
-        '!inspectTokens',
-        '!links',
-        '!multicursor',
-        '!parameterHints',
-        '!quickCommand',
-        '!quickOutline',
-        '!referenceSearch',
-        '!rename',
-        '!smartSelect',
-        '!snippets',
-        '!suggest',
-        '!toggleHighContrast',
-        '!toggleTabFocusMode',
-        '!transpose',
-        '!wordHighlighter',
-        '!wordOperations',
-        '!wordPartOperations',
-      ],
-    }),
+    new MonacoWebpackPlugin(MonacoPluginOptions),
     new ProvidePlugin({
       'window.jQuery': 'jquery',
       'window._': 'underscore',

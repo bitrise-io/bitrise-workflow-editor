@@ -35,7 +35,6 @@ module.exports = {
         ],
       },
     ],
-    // "prettier/prettier": ["error", { useTabs: false }],
     'no-use-before-define': 'off',
     '@typescript-eslint/no-use-before-define': 'off',
     'jsx-a11y/anchor-is-valid': 'warn',

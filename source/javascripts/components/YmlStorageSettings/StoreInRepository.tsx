@@ -37,7 +37,8 @@ const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInReposito
   useEffect(() => {
     getAppConfigFromRepo();
     getAppConfig();
-  }, [getAppConfig, getAppConfigFromRepo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   useEffect(() => {
     if (!getAppConfigLoading && !getAppConfigFromRepoLoading && getAppConfigFromRepoStatus && !initialCheckComplete) {
@@ -46,13 +47,13 @@ const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInReposito
     if (initialCheckComplete && !getAppConfigFromRepoLoading && appConfigFromRepo) {
       updatePipelineConfig();
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [
     getAppConfigLoading,
     getAppConfigFromRepoLoading,
     getAppConfigFromRepoStatus,
     initialCheckComplete,
     appConfigFromRepo,
-    updatePipelineConfig,
   ]);
 
   const isFinished = useMemo(() => {
