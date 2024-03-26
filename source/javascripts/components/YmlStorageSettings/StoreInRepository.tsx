@@ -37,6 +37,7 @@ const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInReposito
   useEffect(() => {
     getAppConfigFromRepo();
     getAppConfig();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
