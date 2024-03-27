@@ -71,115 +71,15 @@
               on-create-secret="workflowsCtrl.saveSecretFromReact"
             ]
 
-					section.workflow
-						header.workflow-header
-							.header-info
-								.stack[ng-if="requestService.mode == 'website'"]
-									.icon == svg("layers")
-									.name[ng-bind="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow, true).name"]
-									label.default-badge[ng-if="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow) === null"] == data[:strings][:stack][:default]
-						article
-							aside[workflow-description="workflowsCtrl.editedWorkflow" ng-if="!workflowsCtrl.selectedStep"]
-							aside.selected-step[ng-if="workflowsCtrl.selectedStep" callback-on-mousedown-elsewhere="workflowsCtrl.deselectStep()" callback-on-mousedown-elsewhere-target-filter-selector="'.tab-workflows section.workflow, .tab-workflows header.workflow-header, .tab-workflows article, .tab-workflows ul.steps'"]
-								.step-details
-									header.manage-step
-										.title[ng-if="!workflowsCtrl.renamedStep"]
-											button.rename[ng-bind="workflowsCtrl.selectedStep.displayName()" ng-click="workflowsCtrl.renamedStep = workflowsCtrl.selectedStep"]
-											r-step-item-badge[step="workflowsCtrl.selectedStep"]
-										.rename-title[ng-if="workflowsCtrl.renamedStep"]
-											input[type="text" ng-model="workflowsCtrl.renamedStepTitle" ng-model-options="{ debounce: 250, getterSetter: true}" ng-blur="workflowsCtrl.renamedStep = null"]
-											button.ok.rebo.purple[ng-click="workflowsCtrl.renamedStep = null" ng-disabled="!Step.isValidTitle(workflowsCtrl.renamedStepTitle)"] == svg("check")
-										aside
-											button.clone[ng-click="workflowsCtrl.cloneSelectedStep()" trigger-popover="#{ data[:strings][:workflows][:steps][:clone_popover_info] }"] == svg("step/clone")
-											a.source[ng-if="workflowsCtrl.selectedStep.sourceURL()" href="{{ workflowsCtrl.selectedStep.sourceURL() }}" target="_blank" rel="noreferrer noopener" ng-class="step | stepSourceCSSClass" trigger-popover="#{ data[:strings][:workflows][:steps][:source_popover_info] }"] == svg("logo/github")
-											button.delete[ng-click="workflowsCtrl.deleteSelectedStep()"] == svg("trash")
-									section.description[ng-if="workflowsCtrl.selectedStep.description() !== undefined && workflowsCtrl.selectedStep.description().length > 0" ng-class="{'open': workflowsCtrl.shouldShowDescription}"]
-										span.icon
-											== svg("code")
-										.markdown[ng-if="workflowsCtrl.shouldShowDescription" sanitized-markdown="workflowsCtrl.selectedStep.description() ? workflowsCtrl.selectedStep.description() : workflowsCtrl.selectedStep.summary()"]
-										.markdown.oneliner[ng-if="!workflowsCtrl.shouldShowDescription" sanitized-markdown="workflowsCtrl.selectedStep.summary() ? workflowsCtrl.selectedStep.summary() : workflowsCtrl.selectedStep.description()"]
-										span.toggle-visibility
-											button[ng-click="workflowsCtrl.shouldShowDescription = !workflowsCtrl.shouldShowDescription"]
-											== svg("arrow-down")
-
-									r-step-version-details[
-										step="workflowsCtrl.selectedStep"
-										resolved-version="workflowsCtrl.selectedStepResolvedVersion"
-										latest-version="workflowsCtrl.selectedStepLatestVersion"
-										has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
-										versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
-										on-change="workflowsCtrl.handleSelectedStepChanges"
-									]
-
-            section.run-if
-              h3 == data[:strings][:workflows][:steps][:run_if_section_title]
-              .run-if-details[ng-if="workflowsCtrl.selectedStep.isAlwaysRun() !== undefined"]
-                .always-run
-                  label[for="selected-step-is-always-run-checkbox"] == data[:strings][:workflows][:steps][:is_always_run]
-                  checkbox[ng-model="workflowsCtrl.selectedStep.isAlwaysRun" ng-model-options="{getterSetter: true}" checkbox-id-expression="'selected-step-is-always-run-checkbox'"]
-              .run-if-details[ng-if="workflowsCtrl.runIfFeatureFlag"]
-                h5
-                  span.title == data[:strings][:workflows][:steps][:run_if_title]
-                  button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(workflowsCtrl.runIfAsInput)"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-                .run-if-description[ng-bind-html="workflowsCtrl.runIfDescription"]
-                textarea[msd-elastic rows="1" ng-model="workflowsCtrl.selectedStep.runIf" ng-model-options="{getterSetter: true}" ng-trim="false" ng-blur="workflowsCtrl.inputValueBlurred($event, workflowsCtrl.runIfAsInput)"]
-            section.inputs[ng-if="workflowsCtrl.inputCategoriesOfSelectedStep[0] && workflowsCtrl.inputCategoriesOfSelectedStep[0].inputs.length > 0"]
-              h3 == data[:strings][:workflows][:inputs][:header]
-              ol.input-category[ng-repeat="inputCategory in workflowsCtrl.inputCategoriesOfSelectedStep" ng-class="{'open': workflowsCtrl.openedInputCategories.indexOf(inputCategory) != -1, 'main': inputCategory == workflowsCtrl.mainInputCategory}"]
-                h4[ng-if="inputCategory != workflowsCtrl.mainInputCategory"]
-                  strong.category-name[ng-bind="inputCategory.name"]
-                  button.toggle-category[ng-click="workflowsCtrl.inputCategoryToggled(inputCategory)"] == svg("plus")
-                ol.inputs-list[ng-if="workflowsCtrl.openedInputCategories.indexOf(inputCategory) != -1"]
-                  li.input[ng-repeat="input in inputCategory.inputs" ng-class="{'selected': isOpen, 'dont-change': input.isDontChangeValue(), 'sensitive': input.isSensitive(), 'required-empty': input.isRequired() && (!input.value() || input.value().length == 0)}" ng-attr-title="{{ input.isDontChangeValue() ? '#{ data[:strings][:workflows][:inputs][:dont_change_info] }' : undefined }}" opened-input-flag-setter="{{ isOpen = workflowsCtrl.openedInputs.indexOf(input) != -1 }}"]
-                    .input-info
-                      h5
-                        span.title
-                          span[ng-bind="input.title()"]
-                          em.required<[ng-if="input.isRequired()"] == data[:strings][:workflows][:inputs][:required]
-                          em.sensitive<[ng-if="input.isSensitive()"] == data[:strings][:workflows][:inputs][:sensitive]
-                        button.insert-variable.rebo.small.light-purple[ng-click="workflowsCtrl.insertVariableSelected(input)" ng-if="isOpen && !input.isSensitive()"] == data[:strings][:workflows][:inputs][:insert_variable][:action]
-                      .input-description[sanitized-markdown="isOpen ? input.description() : input.summary()" ng-class="{'oneliner': !isOpen}"]
-                      .flex-wrapper
-                        textarea[msd-elastic rows="1" ng-class="{'has-button': input.isSensitive() && input.value()}" ng-model="input.value" ng-model-options="{getterSetter: true}" ng-trim="false" ng-if="!input.valueOptions()" ng-blur="workflowsCtrl.inputValueBlurred($event, input)" ng-click="isOpen && input.isSensitive() ? workflowsCtrl.insertSecretSelected(input) : ''" ng-disabled="!isOpen" placeholder="#{ data[:strings][:workflows][:inputs][:value_placeholder] }"]
-                        button.clear-value[ng-if="input.isSensitive() && input.value()" ng-click="workflowsCtrl.clearSensitiveInputValue(input)"]
-                          | Clear
-                      .sensitive-input-warning[ng-if="isOpen && input.isSensitive() && !input.valueOptions()"]
-                        span
-                          span == data[:strings][:workflows][:inputs][:sensitive_warning_message][:info]
-                          span< == data[:strings][:workflows][:inputs][:sensitive_warning_message][:prompt_with_button_label][:part_1_text]
-                          button<>[ng-click="mainCtrl.selectMenuByID('secrets')"] == data[:strings][:workflows][:inputs][:sensitive_warning_message][:prompt_with_button_label][:part_2_button_label]
-                          span == data[:strings][:workflows][:inputs][:sensitive_warning_message][:prompt_with_button_label][:part_3_text]
-                        button.insert-variable.rebo.light-purple[ng-click="workflowsCtrl.insertSecretSelected(input)"] == data[:strings][:workflows][:inputs][:select_secret_variable][:action]
-                      select[ng-model="input.value" ng-model-options="{getterSetter: true}" ng-if="input.valueOptions()" ng-disabled="!isOpen" ng-options="valueOption for valueOption in (input.valueOptions().indexOf(input.value()) != -1 ? input.valueOptions() : input.valueOptions().concat([input.value()]))"]
-                      .is-expand[ng-if="isOpen"]
-                        p.expanded[ng-if="input.isExpand()"]
-                          == svg("check")
-                          span == data[:strings][:workflows][:inputs][:will_be_replaced]
-                        p.not-expanded[ng-if="!input.isExpand()"]
-                          == svg("cross")
-                          span == data[:strings][:workflows][:inputs][:wont_be_replaced]
-                        a.devcenter-info[href="#{ data[:routes][:devcenter][:env_var_is_expand] }" target="_blank"]
-                    .input-change
-                      button[ng-click="workflowsCtrl.inputSelected(input)"]
-                      span == data[:strings][:workflows][:inputs][:change]
-                      == svg("arrow-down")
-            section.outputs[ng-if="workflowsCtrl.selectedStep.isConfigured()"]
-              h3 == data[:strings][:workflows][:outputs][:header]
-              p.no-outputs[ng-if="!workflowsCtrl.outputsOfSelectedStep || workflowsCtrl.outputsOfSelectedStep.length == 0"] == data[:strings][:workflows][:outputs][:no_outputs]
-              .output-box[ng-if="workflowsCtrl.outputsOfSelectedStep && workflowsCtrl.outputsOfSelectedStep.length > 0"]
-                .output[ng-repeat="output in workflowsCtrl.outputsOfSelectedStep"]
-                  .parameter.key
-                    input[value="{{ output | prettifiedVariableKey }}" readonly]
-                  .parameter.description
-                    p[ng-if="!output.title()"] == data[:strings][:workflows][:outputs][:no_description]
-                    div[ng-if="output.title()"]
-                      button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)" ng-click="workflowsCtrl.outputSelected(output)"]
-                      .toggleabble-description
-                        p[sanitized-markdown="workflowsCtrl.isOutputOpened(output) ? output.longestDescription() : output.title() " ng-class="{'oneliner': !workflowsCtrl.isOutputOpened(output)}"]
-                        .toggle-arrow-button[ng-if="workflowsCtrl.hasOutputDescriptionOrSummary(output)"]
-                          == svg("arrow-down")
-          r-notification[status="'error'" message="'#{ data[:strings][:workflows][:steps][:invalid_version][:message] }'" ng-show="!workflowsCtrl.selectedStep.isConfigured()"]
-          button.delete-step.rebo.big.hollow-danger[ng-show="workflowsCtrl.selectedStep.isConfigured()" ng-click="workflowsCtrl.deleteSelectedStep()" ng-bind="workflowsCtrl.deleteStepButtonText()"]
+      section.workflow
+        header.workflow-header
+          .header-info
+            .stack[ng-if="requestService.mode == 'website'"]
+              .icon == svg("layers")
+              .name[ng-bind="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow, true).name"]
+              label.default-badge[ng-if="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow) === null"] == data[:strings][:stack][:default]
+        article
+          aside[workflow-description="workflowsCtrl.editedWorkflow" ng-if="!workflowsCtrl.selectedStep"]
   popup[model="workflowsCtrl.addWorkflowPopup"]
     form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
       header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
@@ -226,51 +126,3 @@
     new-inputs='workflowsCtrl.selectedStepVersionChangeDialogProps.newInputs'
     release-notes-url='workflowsCtrl.selectedStepVersionChangeDialogProps.releaseNotesUrl'
   ]
-  popup[model="workflowsCtrl.insertVariableToStepInputConfig.popup"]
-    .popup-body.snowflake#insert-variable-popup-body[ng-if="workflowsCtrl.insertVariableToStepInputConfig.popup.isVisible" ng-controller="InsertVariableController as insertVariableCtrl" ng-init="insertVariableCtrl.init(workflowsCtrl.insertVariableToStepInputConfig.variableSelected, null, workflowsCtrl.insertVariableToStepInputConfig.workflows, workflowsCtrl.insertVariableToStepInputConfig.selectedWorkflow, workflowsCtrl.insertVariableToStepInputConfig.selectedStep)"]
-      header
-        h2 == data[:strings][:workflows][:inputs][:insert_variable][:action]
-        input[type="text" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_variable][:key_filter_placeholder] }"]
-      article.vertical-scroll
-        .list-of-available-env-vars
-          p.progress-indicator[progress-model="insertVariableCtrl.loadInsertableVariablesProgress"]
-          div[ng-if="insertVariableCtrl.loadInsertableVariablesProgress.isIdle"]
-            ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
-              li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter" ng-if="insertVariableCtrl.shouldShowVariable(variable)"]
-                button[ng-click="insertVariableCtrl.variableSelected(variable)"]
-                  strong[ng-bind="variable | prettifiedVariableKey"]
-                  em[ng-bind="variablesOfSource.title"]
-  popup[model="workflowsCtrl.insertSecretToStepInputConfig.popup"]
-    .popup-body.snowflake#insert-variable-popup-body
-      header
-        h2 == data[:strings][:workflows][:inputs][:insert_secret][:action]
-      article.vertical-scroll
-        .create-new-secret[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ng-controller="CreateAndInsertSecretVariableController as createAndInsertSecretVariableCtrl" ng-init="createAndInsertSecretVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
-          .title == data[:strings][:workflows][:inputs][:insert_secret][:create_new_secret_env_var_label]
-          form[name="newSecretEnvVarForm" ng-submit="createAndInsertSecretVariableCtrl.saveAndInsertSecretEnvVar()" ng-if="!createAndInsertSecretVariableCtrl.newSecretEnvVar.customProperties.progress.isInProgress" autocomplete="off" autocapitalize="none" method="POST"]
-            .key-value-delete
-              input.key[type="text" name="key" ng-model="createAndInsertSecretVariableCtrl.newSecretEnvVar.key" ng-model-options="{getterSetter: true}" ng-disabled="!createAndInsertSecretVariableCtrl.newSecretEnvVar.isKeyChangeable" custom-validators="{'key': createAndInsertSecretVariableCtrl.isValidSecretEnvVarKey()}" placeholder="#{ data[:strings][:env_vars][:key_placeholder] }" autocomplete="off" autocorrect="off" autocapitalize="none" spellcheck="false" skip-drag-order]
-              .value-with-actions.secret
-                textarea.value[name="value" msd-elastic ng-model="createAndInsertSecretVariableCtrl.newSecretEnvVar.value" ng-model-options="{getterSetter: true}" ng-class="{'protected' : requestService.mode == 'website' && createAndInsertSecretVariableCtrl.newSecretEnvVar.isProtected()}" ng-disabled="!createAndInsertSecretVariableCtrl.newSecretEnvVar.shouldShowValue" ng-trim="false" placeholder="#{ data[:strings][:env_vars][:value_placeholder] }" skip-drag-order]
-            .env-var-settings
-              .is-expand
-                checkbox.small[name="isExpand" ng-model="createAndInsertSecretVariableCtrl.newSecretEnvVar.isExpand" ng-model-options="{getterSetter: true}" ng-disabled="createAndInsertSecretVariableCtrl.newSecretEnvVar.isProtected()" checkbox-id-expression="'env-var-editor-is-expand-checkbox-' + $index"]
-                label[for="env-var-editor-is-expand-checkbox-{{ $index }}"] == data[:strings][:env_vars][:replace_variables_label]
-              .is-expose-with-popover
-                .is-expose[ng-attr-trigger-popover="#{ data[:strings][:env_vars][:expose_for_pr_popover_content] }"]
-                  checkbox.small[name="isExpose" ng-model="createAndInsertSecretVariableCtrl.newSecretEnvVar.isExpose" ng-model-options="{getterSetter: true}" ng-disabled="createAndInsertSecretVariableCtrl.newSecretEnvVar.isProtected()" checkbox-id-expression="'env-var-editor-is-expose-checkbox-' + $index"]
-                  label[for="env-var-editor-is-expose-checkbox-{{ $index }}"] == data[:strings][:env_vars][:expose_for_pr_label]
-            p.notification.warning[ng-if="newSecretEnvVarForm.key.$invalid && !newSecretEnvVarForm.key.$pristine" ng-bind="createAndInsertSecretVariableCtrl.envVarValidationWarning()"]
-            button.add.rebo.purple[type="submit" ng-disabled="!createAndInsertSecretVariableCtrl.newSecretEnvVar.key || !createAndInsertSecretVariableCtrl.newSecretEnvVar.value"] == data[:strings][:env_vars][:add_new]
-        .list-of-available-secrets[ng-if="workflowsCtrl.insertSecretToStepInputConfig.popup.isVisible" ng-controller="InsertVariableController as insertVariableCtrl" ng-init="insertVariableCtrl.init(workflowsCtrl.insertSecretToStepInputConfig.secretSelected, requestService.mode == 'website' ? ['from_code_signing_files', 'from_secrets'] : ['from_secrets'], workflowsCtrl.insertSecretToStepInputConfig.workflows, workflowsCtrl.insertSecretToStepInputConfig.selectedWorkflow, workflowsCtrl.insertSecretToStepInputConfig.selectedStep)"]
-          .title == data[:strings][:workflows][:inputs][:insert_secret][:choose_secret_env_var_label]
-          input.searchbar[type="text" ng-if="appService.secrets.length > 1" ng-model="insertVariableCtrl.keyFilter" placeholder="#{ data[:strings][:workflows][:inputs][:insert_secret][:key_filter_placeholder] }"]
-          p.progress-indicator[progress-model="insertVariableCtrl.loadInsertableVariablesProgress"]
-          p.notification.notice[ng-if="(requestService.mode == 'website' ? (insertVariableCtrl.variablesOfSourceFromCodeSigningFiles().variables.length < 1 && appService.secrets.length < 1) : appService.secrets.length < 1) && !insertVariableCtrl.loadInsertableVariablesProgress.isInProgress && !insertVariableCtrl.loadInsertableVariablesProgress.isError"]
-            span == data[:strings][:workflows][:inputs][:insert_secret][:there_is_no_secrets_in_the_list]
-          div[ng-if="insertVariableCtrl.loadInsertableVariablesProgress.isIdle"]
-            ul.variable-source[ng-repeat="variablesOfSource in insertVariableCtrl.insertableVariables"]
-              li[ng-repeat="variable in variablesOfSource.variables | variablesfilteredByKey: insertVariableCtrl.keyFilter" ng-if="insertVariableCtrl.shouldShowVariable(variable)"]
-                button[ng-click="insertVariableCtrl.variableSelected(variable)"]
-                  strong[ng-bind="variable | prettifiedVariableKey"]
-                  em[ng-bind="variablesOfSource.title"]
