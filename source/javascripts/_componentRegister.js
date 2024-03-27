@@ -7,7 +7,6 @@ import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepItemBadge from "./components/StepItem/StepItemBadge";
-import StepVersionDetails from "./components/StepVersionDetails/StepVersionDetails";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
@@ -53,17 +52,6 @@ angular
       "hasVersionUpdate",
       "isSelected",
       "onSelected",
-    ]),
-  )
-  .component(
-    "rStepVersionDetails",
-    register(StepVersionDetails, [
-      "step",
-      "resolvedVersion",
-      "latestVersion",
-      "hasVersionUpdate",
-      "versionsWithRemarks",
-      "onChange",
     ]),
   )
   .component(
