@@ -25,10 +25,6 @@ const StepVersionDetails = ({
   versionsWithRemarks = [],
   onChange,
 }: Props) => {
-  if (!step.version) {
-    return null;
-  }
-
   const getStepVersionText = () => {
     if (!step.isConfigured()) {
       return 'Invalid version';
