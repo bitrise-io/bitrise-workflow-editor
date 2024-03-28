@@ -5,14 +5,12 @@ import { Box, BoxProps, Card, CardProps } from '@bitrise/bitkit';
 interface DraggableCardProps extends CardProps {
   activatorListeners?: any;
   activatorRef?: (element: HTMLElement | null) => void;
-  childrenWrapperStyle?: BoxProps;
   isDragging?: boolean;
   isOverlay?: boolean;
 }
 
 const DraggableCard = forwardRef<HTMLDivElement, DraggableCardProps>((props, ref) => {
-  const { activatorListeners, activatorRef, children, childrenWrapperStyle, cursor, isDragging, isOverlay, ...rest } =
-    props;
+  const { activatorListeners, activatorRef, children, cursor, isDragging, isOverlay, ...rest } = props;
 
   const cardProps: CardProps = {
     _hover: {
@@ -59,7 +57,7 @@ const DraggableCard = forwardRef<HTMLDivElement, DraggableCardProps>((props, ref
         position="relative"
         padding="16"
         paddingInlineStart="32"
-        {...childrenWrapperStyle}
+        display="flex"
       >
         <Box {...handlerProps} ref={activatorRef} {...activatorListeners}>
           <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">

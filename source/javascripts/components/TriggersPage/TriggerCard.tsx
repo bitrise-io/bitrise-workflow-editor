@@ -69,9 +69,6 @@ const TriggerCard = (props: TriggerCardProps) => {
       marginBottom="12"
       sx={style}
       isDragging={active?.id === triggerItem.id}
-      childrenWrapperStyle={{
-        display: 'flex',
-      }}
       isOverlay={isOverlay}
       {...rest}
     >
