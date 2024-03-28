@@ -4,7 +4,6 @@ import { FormControl, forwardRef, Select, Textarea } from '@chakra-ui/react';
 import omit from 'lodash/omit';
 import { useFormContext } from 'react-hook-form';
 
-import useAutosize from '../../../../hooks/utils/useAutosize';
 import { useSecretsDialog } from '../../../SecretsDialog';
 import { useEnvironmentVariablesDialog } from '../../../EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
 import StepInputHelper from './StepInputHelper';
@@ -27,6 +26,11 @@ type TextareaProps = ComponentProps<typeof Textarea> & CommonProps;
 
 type Props = SelectProps | TextareaProps;
 
+type CursorPosition = {
+  start: number;
+  end: number;
+};
+
 function isSelectInput(props: Props): props is SelectProps {
   return !!(props as unknown as SelectProps).options;
 }
@@ -38,24 +42,22 @@ function isTextareaInput(props: Props): props is TextareaProps {
 const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) => {
   const { label, isRequired, isSensitive, helperSummary, helperDetails, ...rest } = props;
 
-  const { watch, setValue, getValues } = useFormContext();
+  const { watch, setValue } = useFormContext();
   const { open: openSecretsDialog } = useSecretsDialog();
   const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
-  const [cursorPosition, setCursorPosition] = useState<{
-    start: number;
-    end: number;
-  }>();
-  const textareaRef = useAutosize<HTMLTextAreaElement>(ref);
+  const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
-  const onClear = () => setValue(rest.name || '', '');
-  const isClearableInput = isSensitive && !!watch(rest.name || '', props.defaultValue);
+  const name = rest.name || '';
+  const onClear = () => setValue(name, '');
+  const value = watch(name, props.defaultValue);
+  const isClearableInput = isSensitive && !!value;
 
   const handleOnClickInsertSecret: MouseEventHandler<HTMLButtonElement> = (e) => {
     // NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
     e.currentTarget.blur();
 
     openSecretsDialog({
-      onSelect: (secret) => setValue(rest.name || '', `$${secret.key}`),
+      onSelect: (secret) => setValue(name, `$${secret.key}`),
     });
   };
 
@@ -65,14 +67,10 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
     openEnvironmentVariablesDialog({
       onSelect: ({ key }) => {
-        const value = getValues(rest.name) as string;
-        const { start, end } = cursorPosition ?? {
-          start: value.length,
-          end: value.length,
-        };
+        const { start, end } = cursorPosition ?? { start: 0, end: value.length };
 
         setCursorPosition({ start, end: end + `$${key}`.length });
-        setValue(rest.name, `${value.slice(0, start)}$${key}${value.slice(end)}`);
+        setValue(name, `${value.slice(0, start)}$${key}${value.slice(end)}`);
       },
     });
   };
@@ -95,9 +93,9 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
       <Box pos="relative">
         {isSelectInput(rest) && (
           <Select ref={ref} {...omit(rest, 'options')} size="medium" backgroundSize="unset">
-            {rest.options.map((value) => (
-              <option key={value} value={value}>
-                {value}
+            {rest.options.map((optionValue) => (
+              <option key={optionValue} value={optionValue}>
+                {optionValue}
               </option>
             ))}
           </Select>
@@ -105,16 +103,32 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
         {isTextareaInput(rest) && (
           <>
-            <Textarea
-              ref={textareaRef}
-              {...rest}
-              rows={1}
-              resize="none"
-              onBlur={handleOnBlur}
-              transition="height none"
-              isReadOnly={isSensitive || rest.isReadOnly}
-              placeholder={isSensitive ? 'Add secret' : 'Enter value'}
-            />
+            <Box
+              display="grid"
+              position="relative"
+              data-replicated-value={value}
+              _after={{
+                padding: '11px',
+                visibility: 'hidden',
+                whiteSpace: 'pre-wrap',
+                wordBreak: 'break-all',
+                gridArea: '1 / 1 / 2 / 2',
+                content: 'attr(data-replicated-value) " "',
+              }}
+            >
+              <Textarea
+                ref={ref}
+                {...rest}
+                rows={1}
+                resize="none"
+                overflow="hidden"
+                onBlur={handleOnBlur}
+                transition="height none"
+                gridArea="1 / 1 / 2 / 2"
+                isReadOnly={isSensitive || rest.isReadOnly}
+                placeholder={isSensitive ? 'Add secret' : 'Enter value'}
+              />
+            </Box>
 
             {!rest.isReadOnly && (
               <ButtonGroup position="absolute" top="8" right="8">

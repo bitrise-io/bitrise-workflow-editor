@@ -3,9 +3,7 @@ import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Tex
 import { useForm } from 'react-hook-form';
 
 import { OnStepChange, Step, StepVersionWithRemark } from '../../models';
-import MajorVersionChangeDialog from './MajorVersionChangeDialog';
-import useVersionChange from './useVersionChange';
-import { extractInputNames, extractStepFields } from './utils';
+import { extractStepFields } from './utils';
 
 type Props = {
   step: Step;
@@ -18,21 +16,12 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
   const [showMore, setShowMore] = useState(false);
 
   const { register, setValue, handleSubmit } = useForm<Record<'name' | 'version', string>>();
-  const { createSnapshot, ...dialogProps } = useVersionChange(step);
-  const handleChange = handleSubmit((values) => {
-    createSnapshot({
-      oldHashKey: step.$$hashKey,
-      oldVersion: step.defaultStepConfig.version,
-      oldInputNames: extractInputNames(step),
-    });
-    onChange(values);
-  });
-
   useEffect(() => {
     setValue('name', name);
     setValue('version', version);
   }, [name, version, setValue]);
 
+  const handleChange = handleSubmit(onChange);
   return (
     <Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
       {sourceURL && (
@@ -82,7 +71,6 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
           </>
         )}
       </Box>
-      <MajorVersionChangeDialog {...dialogProps} />
     </Box>
   );
 };

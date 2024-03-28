@@ -29,7 +29,7 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
   return (
     <FormProvider {...form}>
       <Box as="form" display="flex" flexDir="column" p="12" gap="12">
-        <ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>} isExpanded>
+        <ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>}>
           <Box display="flex">
             <Text flex="1">Run if previous Step(s) failed</Text>
             <Toggle {...form.register('is_always_run')} defaultChecked={step.isAlwaysRun()} />

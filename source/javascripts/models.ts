@@ -17,6 +17,13 @@ export interface Workflow {
 export type OnStepChange = (values: Partial<Record<string, unknown>>) => void;
 export type StepVersionWithRemark = { version: string; remark: string };
 
+export type VersionChangeDialogProps = {
+  isMajorChange: boolean;
+  releaseNotesUrl: string;
+  removedInputs: Array<string>;
+  newInputs: Array<string>;
+};
+
 export interface Step {
   $$hashKey: string;
   id: string;
