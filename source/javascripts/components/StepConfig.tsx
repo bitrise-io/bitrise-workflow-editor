@@ -44,7 +44,14 @@ const StepConfig = ({
       <SecretsDialogProvider defaultSecrets={secrets} onCreate={onCreateSecret}>
         <Box display="flex" flexDirection="column" gap="8">
           <Box as="header" display="flex" px="24" pt="24" gap="16">
-            <Avatar name="ci" size="48" src={step.iconURL()} />
+            <Avatar
+              name="ci"
+              size="48"
+              borderWidth="1px"
+              borderStyle="solid"
+              borderColor="neutral.93"
+              src={step.iconURL()}
+            />
 
             <Box flex="1" minW={0}>
               <Box display="flex" gap="4" alignItems="center">

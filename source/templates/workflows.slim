@@ -70,7 +70,7 @@
               on-change="workflowsCtrl.handleSelectedStepChanges"
               on-create-secret="workflowsCtrl.saveSecretFromReact"
             ]
-          section.workflow
+          section.workflow[ng-if='!workflowsCtrl.selectedStep && workflowsCtrl.editedWorkflow']
             header.workflow-header
               .header-info
                 .stack[ng-if="requestService.mode == 'website'"]
@@ -78,7 +78,7 @@
                   .name[ng-bind="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow, true).name"]
                   label.default-badge[ng-if="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow) === null"] == data[:strings][:stack][:default]
             article
-              aside[workflow-description="workflowsCtrl.editedWorkflow" ng-if='!workflowsCtrl.selectedStep']
+              aside[workflow-description="workflowsCtrl.editedWorkflow"]
   popup[model="workflowsCtrl.addWorkflowPopup"]
     form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
       header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
