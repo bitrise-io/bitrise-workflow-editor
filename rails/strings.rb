@@ -222,31 +222,8 @@ def strings
             code_signing: {
                 available_project_types_load: "Loading, wait a sec...",
                 expose_for_pr_popover_content: "You can decide which files should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.",
-                auto_code_signing: {
-                    header: {
-                        title: "Manage your code signing files automatically!",
-                        summary: "With a connected Apple Developer Account and our iOS Auto Provision Step, you no longer have to worry about dealing with Provisioning Profiles",
-                        action: "Set up your code signing files manually"
-                    },
-                    codesigndoc_loading: "Loading codesigndoc script...",
-                    apple_dev_account_loading: "Loading Apple Developer Account...",
-                    connecting_apple_dev_account: "Connecting Apple Developer Account...",
-                    sending_two_step_auth_verification_code: "Sending verification code...",
-                    sending_two_factor_auth_verification_code: "Sending verification code...",
-                    removing_connected_apple_developer_account: "Removing connected Apple Developer Account...",
-                    saving_team: "Saving selected team...",
-                    saving_apple_credential_user: "Saving Apple Credential User..."
-                },
+
                 manual_code_signing: {
-                    auto_code_signing: {
-                        header: {
-                            title: "Update Automatically",
-                            description: "Use our wizard to manage your code signing files"
-                        },
-                        body: {
-                            action: "Update provisioning profiles automatically"
-                        }
-                    },
                     header: {
                         title: "Update Manually",
                         description: "If you prefer the hard way"
