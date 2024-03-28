@@ -115,6 +115,14 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	yamlContObj.Workflows = workflows
 
+	triggerMap, err := convertTriggerMapElementTypes(yamlContObj.TriggerMap)
+	if err != nil {
+		log.Errorf("Failed to convert trigger map types, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to convert trigger map types")
+		return
+	}
+	yamlContObj.TriggerMap = triggerMap
+
 	RespondWithJSON(w, 200, yamlContObj)
 }
 
@@ -163,6 +171,33 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
+}
+
+func convertMultiTypeTriggerItemType(value interface{}) interface{} {
+	if v, ok := value.(string); ok {
+		return v
+	}
+	if v, ok := value.(map[interface{}]interface{}); ok {
+		for key, val := range v {
+			if v, ok := key.(string); ok {
+				return map[string]interface{}{v: val}
+			}
+		}
+	}
+	return value
+}
+
+func convertTriggerMapElementTypes(triggerMap models.TriggerMapModel) (models.TriggerMapModel, error) {
+	for i, triggerMapItem := range triggerMap {
+		triggerMap[i].PushBranch = convertMultiTypeTriggerItemType(triggerMapItem.PushBranch)
+		triggerMap[i].Tag = convertMultiTypeTriggerItemType(triggerMapItem.Tag)
+		triggerMap[i].PullRequestSourceBranch = convertMultiTypeTriggerItemType(triggerMapItem.PullRequestSourceBranch)
+		triggerMap[i].PullRequestTargetBranch = convertMultiTypeTriggerItemType(triggerMapItem.PullRequestTargetBranch)
+		triggerMap[i].PullRequestLabel = convertMultiTypeTriggerItemType(triggerMapItem.PullRequestLabel)
+		triggerMap[i].CommitMessage = convertMultiTypeTriggerItemType(triggerMapItem.CommitMessage)
+		triggerMap[i].ChangedFiles = convertMultiTypeTriggerItemType(triggerMapItem.ChangedFiles)
+	}
+	return triggerMap, nil
 }
 
 func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map[string]models.WorkflowModel, error) {

@@ -70,7 +70,7 @@ workflows:
 		warnings, err := ValidateBitriseConfigAndSecret(validWithWarning,
 			config.MinimalValidSecrets)
 		require.NoError(t, err)
-		require.Equal(t, "workflow (_prepare_and_setup) defined in trigger item (pattern: ci/quick && is_pull_request_allowed: false -> workflow: _prepare_and_setup), but utility workflows can't be triggered directly", warnings.Config[0])
+		require.Equal(t, "trigger item #1: utility workflow (_prepare_and_setup) defined as trigger target, but utility workflows can't be triggered directly", warnings.Config[0])
 	}
 
 	t.Log("Invalid configs - empty")
