@@ -98,7 +98,7 @@
         ul.workflow-chain
           ul.workflow-subchain.before-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'before-run'})"]
             li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
-          select.run-workflow-selector[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflowsToAdd()" ng-model="workflowsCtrl.runWorkflowToAdd" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowMode == 'before', 'after-run': workflowsCtrl.addRunWorkflowMode == 'after'}"]
+          select.run-workflow-selector.mak[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflowsToAdd()" ng-model="workflowsCtrl.runWorkflowToAdd" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowMode == 'before', 'after-run': workflowsCtrl.addRunWorkflowMode == 'after'}"]
           ul.workflow-subchain.selected
             li[ng-bind="workflowsCtrl.selectedWorkflow.id"]
           ul.workflow-subchain.after-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'after-run'})"]
