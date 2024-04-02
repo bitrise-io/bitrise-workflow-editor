@@ -19,7 +19,12 @@ const StepInputList = ({ inputs }: Props) => {
           <Fragment key={input.key()}>
             {index > 0 && <Divider my={24} />}
             <StepInputComponent
-              {...register(input.key())}
+              {...register(input.key(), {
+                required: {
+                  value: input.isRequired(),
+                  message: 'This field is required',
+                },
+              })}
               label={input.title()}
               defaultValue={input.value()}
               options={input.valueOptions()}

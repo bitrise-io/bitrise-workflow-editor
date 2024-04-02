@@ -13,7 +13,7 @@ type StepConfigurationProps = {
 };
 
 const StepConfiguration = ({ step, inputCategories, onChange }: StepConfigurationProps) => {
-  const form = useForm<Record<string, unknown>>();
+  const form = useForm<Record<string, unknown>>({ mode: 'all' });
 
   /**
    * NOTE: The native form onChange handler is NOT called on input clear,

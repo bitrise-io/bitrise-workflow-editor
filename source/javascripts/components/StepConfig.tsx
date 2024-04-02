@@ -113,24 +113,14 @@ const StepConfig = ({
             </TabList>
             <TabPanels>
               <TabPanel id="configuration">
-                <StepConfiguration
-                  key={step.$$hashKey}
-                  step={step}
-                  inputCategories={inputCategories}
-                  onChange={onChange}
-                />
+                <StepConfiguration step={step} inputCategories={inputCategories} onChange={onChange} />
               </TabPanel>
               <TabPanel id="properties">
-                <StepProperties
-                  key={step.$$hashKey}
-                  step={step}
-                  versionsWithRemarks={versionsWithRemarks}
-                  onChange={onChange}
-                />
+                <StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onChange} />
               </TabPanel>
               {showOutputVariables && (
                 <TabPanel id="output-variables">
-                  <StepOutputVariables key={step.$$hashKey} outputVariables={outputVariables} />
+                  <StepOutputVariables outputVariables={outputVariables} />
                 </TabPanel>
               )}
             </TabPanels>

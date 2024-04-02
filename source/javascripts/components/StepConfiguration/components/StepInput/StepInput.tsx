@@ -1,6 +1,6 @@
 import { ComponentProps, FocusEventHandler, MouseEventHandler, ReactNode, useState } from 'react';
 import { Box, ButtonGroup, IconButton } from '@bitrise/bitkit';
-import { FormControl, forwardRef, Select, Textarea } from '@chakra-ui/react';
+import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
 import omit from 'lodash/omit';
 import { useFormContext } from 'react-hook-form';
 
@@ -42,15 +42,22 @@ function isTextareaInput(props: Props): props is TextareaProps {
 const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) => {
   const { label, isRequired, isSensitive, helperSummary, helperDetails, ...rest } = props;
 
-  const { watch, setValue } = useFormContext();
+  const {
+    watch,
+    setValue,
+    formState: { errors },
+  } = useFormContext();
+
+  const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
+
   const { open: openSecretsDialog } = useSecretsDialog();
   const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
-  const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
   const name = rest.name || '';
   const onClear = () => setValue(name, '');
   const value = watch(name, props.defaultValue);
   const isClearableInput = isSensitive && !!value;
+  const errorText = errors?.[name]?.message?.toString();
 
   const handleOnClickInsertSecret: MouseEventHandler<HTMLButtonElement> = (e) => {
     // NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
@@ -87,7 +94,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
   };
 
   return (
-    <FormControl isRequired={isRequired}>
+    <FormControl isRequired={isRequired} isInvalid={!!errorText}>
       <StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>
 
       <Box pos="relative">
@@ -167,6 +174,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
           </>
         )}
 
+        {errorText && <FormErrorMessage as="p">{errorText}</FormErrorMessage>}
         <StepInputHelper summary={helperSummary} details={helperDetails} />
       </Box>
     </FormControl>
