@@ -1072,7 +1072,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
             category.inputs.forEach((variable) => {
               if (variable.key() === key) {
-                variable.value(String(value));
+                variable.value(value);
               }
             });
           });
