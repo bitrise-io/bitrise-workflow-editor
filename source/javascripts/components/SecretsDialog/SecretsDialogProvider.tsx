@@ -6,15 +6,15 @@ import { HandlerFn, Secret } from './types';
 
 type State = { open: (options: { onSelect: HandlerFn }) => void };
 type Props = PropsWithChildren<{
-  defaultSecrets?: Secret[];
+  onOpen?: () => Promise<Secret[]>;
   onCreate: HandlerFn;
 }>;
 
 const Context = createContext<State>({ open: () => undefined });
 
-const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Props) => {
+const SecretsDialogProvider = ({ children, onOpen: onOpenExternal, onCreate }: Props) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [secrets, setSecrets] = useState(defaultSecrets);
+  const [secrets, setSecrets] = useState<Secret[]>([]);
 
   const [dialogProps, setDialogProps] = useState<{ onSelect: HandlerFn }>({
     onSelect: () => undefined,
@@ -24,10 +24,11 @@ const SecretsDialogProvider = ({ children, defaultSecrets = [], onCreate }: Prop
     const open: State['open'] = (options) => {
       onOpen();
       setDialogProps(options);
+      onOpenExternal?.().then(setSecrets);
     };
 
     return { open } as State;
-  }, [onOpen]);
+  }, [onOpen, onOpenExternal]);
 
   const handleCreate = (secret: Secret) => {
     onCreate(secret);

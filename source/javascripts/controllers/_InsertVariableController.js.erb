@@ -13,8 +13,7 @@
 			Variable,
 			ProvProfile,
 			Certificate,
-			GenericFile,
-			KeystoreFile
+			GenericFile
 		) {
 			var viewModel = this;
 			viewModel.canceler = $q.defer();
@@ -81,6 +80,15 @@
 				loadInsertableVariables();
 			};
 
+			viewModel.initForReact = function(_availableVariableGroupIDs, _workflows, _selectedWorkflow, _selectedStep) {
+				availableVariableGroupIDs = _availableVariableGroupIDs;
+				workflows = _workflows;
+				selectedWorkflow = _selectedWorkflow;
+				selectedStep = _selectedStep;
+
+				return loadInsertableVariables;
+			};
+
 			function loadInsertableVariables() {
 				viewModel.loadInsertableVariablesProgress.start(
 					"<%= data[:strings][:workflows][:inputs][:insert_variable][:load_progress] %>"
@@ -105,24 +113,32 @@
 				) {
 					loadPromises.push(loadRemainingVars());
 				}
-				$q.all(loadPromises).then(
-					function() {
-						viewModel.insertableVariablesForReact = _.uniq(
-							viewModel.insertableVariables.flatMap((group) => {
-								return group.variables?.map((variable) => ({
-									key: variable.key(),
-									value: variable.value(),
-									source: group.title,
-									isExpand: Boolean(variable.isExpand()) ,
-								})) ?? [];
-							}), 
-							(variable) => variable.key
-						);
 
+				return $q.all(loadPromises).then(
+					function() {
+						const variables = [];
+
+						viewModel.insertableVariables.forEach((group) => {
+							group.variables?.forEach((variable) => {
+								if (variables.every(({ key }) => key !== variable.key())) {
+									variables.push({
+										key: variable.key(),
+										value: variable.value(),
+										source: group.title,
+										isExpand: Boolean(variable.isExpand()),
+										isExpose: Boolean(variable.isExpose()),
+									});
+								}
+							});
+						});
+		
 						viewModel.loadInsertableVariablesProgress.success();
+						
+						return variables;
 					},
 					function(error) {
 						viewModel.loadInsertableVariablesProgress.error(error);
+						return [];
 					}
 				);
 			}
@@ -132,7 +148,7 @@
 					timeout: viewModel.canceler.promise
 				};
 
-				$q.all([
+				return $q.all([
 					requestService
 						.getProvProfiles(requestConfig)
 						.then(function(provProfileDatas) {

@@ -164,6 +164,8 @@ angular
       "onClone",
       "onRemove",
       "onCreateSecret",
+      "onOpenSecretsDialog",
+      "onOpenEnvironmentVariablesDialog",
     ]),
   )
   .component(

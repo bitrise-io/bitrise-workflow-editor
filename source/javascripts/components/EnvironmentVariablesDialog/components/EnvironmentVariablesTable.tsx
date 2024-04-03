@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback, useMemo, useState } from 'react';
+import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
 import { Box, Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from '@bitrise/bitkit';
 import debounce from 'lodash/debounce';
 import { useController, useFormContext } from 'react-hook-form';
@@ -32,6 +32,10 @@ const EnvironmentVariablesTable = ({ environmentVariables }: Props) => {
   const debouncedFilterChangeHandler = useMemo(() => {
     return debounce(filterChangeHandler, 300);
   }, [filterChangeHandler]);
+
+  useEffect(() => {
+    setFilteredVariables(environmentVariables);
+  }, [environmentVariables]);
 
   return (
     <Box display="flex" flexDirection="column" gap="16">

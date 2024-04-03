@@ -1,47 +1,48 @@
+import { memo } from 'react';
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
 import EnvironmentVariablesDialogProvider from './EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
-import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 import { Secret, SecretsDialogProvider } from './SecretsDialog';
 import StepConfiguration from './StepConfiguration/StepConfiguration';
 import StepItemBadge from './StepItem/StepItemBadge';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties/StepProperties';
+import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 
 type Props = {
   step: Step;
-  environmentVariables: EnvironmentVariable[];
-  secrets: Secret[];
   hasVersionUpdate?: boolean;
-  versionsWithRemarks: Array<StepVersionWithRemark>;
   inputCategories: InputCategory[];
   outputVariables: Array<StepOutputVariable>;
-  onChange: OnStepChange;
+  versionsWithRemarks: Array<StepVersionWithRemark>;
   onClone: VoidFunction;
+  onChange: OnStepChange;
   onRemove: VoidFunction;
   onCreateSecret: (secret: Secret) => void;
+  onOpenSecretsDialog?: () => Promise<Secret[]>;
+  onOpenEnvironmentVariablesDialog?: () => Promise<EnvironmentVariable[]>;
 };
 
 const StepConfig = ({
   step,
-  environmentVariables,
-  secrets,
-  hasVersionUpdate,
-  versionsWithRemarks,
   inputCategories,
   outputVariables,
-  onChange,
+  hasVersionUpdate,
+  versionsWithRemarks,
   onClone,
+  onChange,
   onRemove,
   onCreateSecret,
+  onOpenSecretsDialog,
+  onOpenEnvironmentVariablesDialog,
 }: Props): JSX.Element => {
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
   return (
-    <EnvironmentVariablesDialogProvider environmentVariables={environmentVariables}>
-      <SecretsDialogProvider defaultSecrets={secrets} onCreate={onCreateSecret}>
+    <EnvironmentVariablesDialogProvider onOpen={onOpenEnvironmentVariablesDialog}>
+      <SecretsDialogProvider onCreate={onCreateSecret} onOpen={onOpenSecretsDialog}>
         <Box display="flex" flexDirection="column" gap="8">
           <Box as="header" display="flex" px="24" pt="24" gap="16">
             <Avatar
@@ -131,4 +132,4 @@ const StepConfig = ({
   );
 };
 
-export default StepConfig;
+export default memo(StepConfig, () => true);
