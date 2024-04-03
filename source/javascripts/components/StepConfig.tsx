@@ -1,4 +1,3 @@
-import { memo } from 'react';
 import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
@@ -132,4 +131,4 @@ const StepConfig = ({
   );
 };
 
-export default memo(StepConfig, () => true);
+export default StepConfig;
