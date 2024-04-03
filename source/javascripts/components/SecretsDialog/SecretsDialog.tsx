@@ -83,7 +83,7 @@ const SecretsDialog = ({ secrets, isOpen, isLoading, onClose, onSelect, onCreate
 
         {isCreateSegment && (
           <FormProvider {...createSecretForm}>
-            <CreateSecret />
+            <CreateSecret secrets={secrets} />
           </FormProvider>
         )}
       </DialogBody>
