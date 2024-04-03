@@ -1072,7 +1072,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
             category.inputs.forEach((variable) => {
               if (variable.key() === key) {
-                variable.value(value);
+                variable.value(String(value || ""));
               }
             });
           });
@@ -1080,16 +1080,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
         safeDigest($scope);
       };
-
-      viewModel.secretsForReact = appService?.secrets?.map((secret) => {
-        return {
-          key: secret.key(),
-          value: secret.value(),
-          source: "from secrets",
-          isExpand: secret.isExpand(),
-          isExpose: secret.isExpose()
-        };
-      }) ?? [];
 
       viewModel.saveSecretFromReact = function(secret) {
         const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
