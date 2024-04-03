@@ -48,7 +48,12 @@ const CreateSecret = ({ secrets }: Props) => {
           label="Value"
           placeholder="Enter value"
           errorText={errors.value?.message?.toString()}
-          {...register('value', { required: true })}
+          {...register('value', {
+            required: true,
+            validate: {
+              isNotEmpty: (value) => !!value.trim() || 'Secret value should not be empty.',
+            },
+          })}
         />
       </Box>
       <Box display="flex" gap="24">
