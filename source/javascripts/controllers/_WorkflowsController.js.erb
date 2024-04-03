@@ -1072,7 +1072,13 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
             category.inputs.forEach((variable) => {
               if (variable.key() === key) {
-                variable.value(value);
+                if (['true', 'false'].includes(value)) {
+                  variable.value(value === 'true' ? true : false);
+                } else if (Number(value) !== NaN) {
+                  variable.value(Number(value));
+                } else {
+                  variable.value(value);
+                }
               }
             });
           });
