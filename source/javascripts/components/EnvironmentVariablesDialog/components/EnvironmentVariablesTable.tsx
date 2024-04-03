@@ -5,12 +5,14 @@ import { useController, useFormContext } from 'react-hook-form';
 
 import { EnvironmentVariable, SelectEnvironmentVariableFormValues } from '../types';
 import EnvironmentVariablesTableRow from './EnvironmentVariablesTableRow';
+import LoadingState from './LoadingState';
 
 type Props = {
   environmentVariables: EnvironmentVariable[];
+  isLoading?: boolean;
 };
 
-const EnvironmentVariablesTable = ({ environmentVariables }: Props) => {
+const EnvironmentVariablesTable = ({ environmentVariables, isLoading }: Props) => {
   const form = useFormContext<SelectEnvironmentVariableFormValues>();
   const [filteredVariables, setFilteredVariables] = useState(environmentVariables);
 
@@ -46,18 +48,21 @@ const EnvironmentVariablesTable = ({ environmentVariables }: Props) => {
         {...form.register('filter', { onChange: debouncedFilterChangeHandler })}
       />
       <TableContainer>
-        <Table isFixed>
+        <Table disableRowHover={isLoading} isFixed>
           <Thead>
             <Tr>
               <Th width="40px" />
               <Th>Key</Th>
             </Tr>
           </Thead>
-          <RadioGroup as="tbody" {...field}>
-            {filteredVariables.map(({ key, source }) => (
-              <EnvironmentVariablesTableRow key={key} value={key} source={source} />
-            ))}
-          </RadioGroup>
+          {isLoading && <LoadingState />}
+          {!isLoading && (
+            <RadioGroup as="tbody" {...field}>
+              {filteredVariables.map(({ key, source }) => (
+                <EnvironmentVariablesTableRow key={key} value={key} source={source} />
+              ))}
+            </RadioGroup>
+          )}
         </Table>
       </TableContainer>
     </Box>

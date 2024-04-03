@@ -13,6 +13,7 @@ const Context = createContext<State>({ open: () => undefined });
 
 const EnvironmentVariablesDialogProvider = ({ children, onOpen: onOpenExternal }: Props) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const [isLoading, setIsLoading] = useState(!!onOpenExternal);
   const [environmentVariables, setEnvironmentVariables] = useState<EnvironmentVariable[]>([]);
 
   const [dialogProps, setDialogProps] = useState<{ onSelect: HandlerFn }>({
@@ -23,7 +24,10 @@ const EnvironmentVariablesDialogProvider = ({ children, onOpen: onOpenExternal }
     const open: State['open'] = (options) => {
       onOpen();
       setDialogProps(options);
-      onOpenExternal?.().then(setEnvironmentVariables);
+      setIsLoading(!!onOpenExternal);
+      onOpenExternal?.()
+        .then(setEnvironmentVariables)
+        .finally(() => setIsLoading(false));
     };
 
     return { open } as State;
@@ -35,6 +39,7 @@ const EnvironmentVariablesDialogProvider = ({ children, onOpen: onOpenExternal }
       <EnvironmentVariablesDialog
         isOpen={isOpen}
         onClose={onClose}
+        isLoading={isLoading}
         environmentVariables={environmentVariables}
         {...dialogProps}
       />

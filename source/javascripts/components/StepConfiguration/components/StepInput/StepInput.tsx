@@ -55,7 +55,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
   const name = rest.name || '';
   const onClear = () => setValue(name, '');
-  const value = watch(name, props.defaultValue);
+  const value = watch(name, props.defaultValue || '');
   const isClearableInput = isSensitive && !!value;
   const errorText = errors?.[name]?.message?.toString();
 

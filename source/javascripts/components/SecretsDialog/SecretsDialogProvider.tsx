@@ -15,6 +15,7 @@ const Context = createContext<State>({ open: () => undefined });
 const SecretsDialogProvider = ({ children, onOpen: onOpenExternal, onCreate }: Props) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [secrets, setSecrets] = useState<Secret[]>([]);
+  const [isLoading, setIsLoading] = useState(!!onOpenExternal);
 
   const [dialogProps, setDialogProps] = useState<{ onSelect: HandlerFn }>({
     onSelect: () => undefined,
@@ -24,7 +25,10 @@ const SecretsDialogProvider = ({ children, onOpen: onOpenExternal, onCreate }: P
     const open: State['open'] = (options) => {
       onOpen();
       setDialogProps(options);
-      onOpenExternal?.().then(setSecrets);
+      setIsLoading(!!onOpenExternal);
+      onOpenExternal?.()
+        .then(setSecrets)
+        .finally(() => setIsLoading(false));
     };
 
     return { open } as State;
@@ -38,7 +42,14 @@ const SecretsDialogProvider = ({ children, onOpen: onOpenExternal, onCreate }: P
   return (
     <Context.Provider value={value}>
       {children}
-      <SecretsDialog isOpen={isOpen} secrets={secrets} onClose={onClose} onCreate={handleCreate} {...dialogProps} />
+      <SecretsDialog
+        isOpen={isOpen}
+        secrets={secrets}
+        isLoading={isLoading}
+        onClose={onClose}
+        onCreate={handleCreate}
+        {...dialogProps}
+      />
     </Context.Provider>
   );
 };
