@@ -136,12 +136,14 @@
 					: this.defaultVariableConfig[key];
 			}
 
+			const hasDefaultConfig = Object.keys(this.defaultVariableConfig ?? {}).includes(key);
+
 			if (newValue) {
 				this.userVariableConfig[key] = newValue;
-			} else if (this.defaultVariableConfig && this.defaultVariableConfig[key]) {
-				this.userVariableConfig[key] = '';
+			} else if (newValue === null) {
+				this.userVariableConfig[key] = hasDefaultConfig ? '' : newValue;
 			} else {
-				this.userVariableConfig[key] = null;
+				this.userVariableConfig[key] = undefined;
 			}
 
 			return newValue;
