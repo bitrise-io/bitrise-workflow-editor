@@ -64,7 +64,12 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     e.currentTarget.blur();
 
     openSecretsDialog({
-      onSelect: (secret) => setValue(name, `$${secret.key}`),
+      onSelect: (secret) =>
+        setValue(name, `$${secret.key}`, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        }),
     });
   };
 
@@ -77,7 +82,11 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
         const { start, end } = cursorPosition ?? { start: 0, end: value.length };
 
         setCursorPosition({ start, end: end + `$${key}`.length });
-        setValue(name, `${value.slice(0, start)}$${key}${value.slice(end)}`);
+        setValue(name, `${value.slice(0, start)}$${key}${value.slice(end)}`, {
+          shouldDirty: true,
+          shouldTouch: true,
+          shouldValidate: true,
+        });
       },
     });
   };
