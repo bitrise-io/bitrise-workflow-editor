@@ -12,6 +12,7 @@ import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 
 type Props = {
   step: Step;
+  tabId?: string;
   hasVersionUpdate?: boolean;
   inputCategories: InputCategory[];
   outputVariables: Array<StepOutputVariable>;
@@ -19,6 +20,7 @@ type Props = {
   onClone: VoidFunction;
   onChange: OnStepChange;
   onRemove: VoidFunction;
+  onChangeTabId: (tabId?: string) => void;
   onCreateSecret: (secret: Secret) => void;
   onOpenSecretsDialog?: () => Promise<Secret[]>;
   onOpenEnvironmentVariablesDialog?: () => Promise<EnvironmentVariable[]>;
@@ -26,6 +28,7 @@ type Props = {
 
 const StepConfig = ({
   step,
+  tabId,
   inputCategories,
   outputVariables,
   hasVersionUpdate,
@@ -33,6 +36,7 @@ const StepConfig = ({
   onClone,
   onChange,
   onRemove,
+  onChangeTabId,
   onCreateSecret,
   onOpenSecretsDialog,
   onOpenEnvironmentVariablesDialog,
@@ -105,7 +109,7 @@ const StepConfig = ({
             </ButtonGroup>
           </Box>
 
-          <Tabs>
+          <Tabs tabId={tabId} onChange={(_, newTabId) => onChangeTabId(newTabId)}>
             <TabList paddingX="8">
               <Tab id="configuration">Configuration</Tab>
               <Tab id="properties">Properties</Tab>

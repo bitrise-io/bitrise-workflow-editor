@@ -1103,5 +1103,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         viewModel.selectedStepVersionChangeDialogProps = null;
         safeDigest($scope);
       };
+
+      // Keep configuration panel Tabs state on version change.
+      viewModel.tabId = undefined;
+      viewModel.setTabId = (tabId) => { viewModel.tabId = tabId; };
+      $scope.$watch(() => viewModel.selectedStep, () => { viewModel.tabId = undefined; });
     });
 })();
