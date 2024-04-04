@@ -860,22 +860,24 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         stepSourceService.changeStepToVersion(step, version);
 
         // Writes the user step config to the workflow config
-        var oldWrappedUserStepConfig = _.find(viewModel.editedWorkflow.workflowConfig.steps, function(
-          aWrappedUserStepConfig
-        ) {
-          return (
-            aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] ==
-            viewModel.selectedStep.userStepConfig
-          );
-        });
+        if (viewModel.editedWorkflow.workflowConfig.steps) {
+          var oldWrappedUserStepConfig = _.find(viewModel.editedWorkflow.workflowConfig.steps, function(
+            aWrappedUserStepConfig
+          ) {
+            return (
+              aWrappedUserStepConfig[Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig)] ==
+              step.userStepConfig
+            );
+          });
 
-        var newWrappedUserStepConfig = {};
-        newWrappedUserStepConfig[viewModel.selectedStep.cvs] = viewModel.selectedStep.userStepConfig;
-        viewModel.editedWorkflow.workflowConfig.steps.splice(
-          _.indexOf(viewModel.editedWorkflow.workflowConfig.steps, oldWrappedUserStepConfig),
-          1,
-          newWrappedUserStepConfig
-        );
+          var newWrappedUserStepConfig = {};
+          newWrappedUserStepConfig[step.cvs] = step.userStepConfig;
+          viewModel.editedWorkflow.workflowConfig.steps.splice(
+            _.indexOf(viewModel.editedWorkflow.workflowConfig.steps, oldWrappedUserStepConfig),
+            1,
+            newWrappedUserStepConfig
+          );
+        }
 
         // Calculate version changes
         const newVersion = step.version;
