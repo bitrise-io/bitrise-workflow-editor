@@ -34,6 +34,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
           target="_blank"
           rel="noreferrer noopener"
           colorScheme="purple"
+          className="source"
           isExternal
         >
           <Text>View source code</Text>
@@ -55,7 +56,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         </Select>
       )}
       <Divider />
-      <Box display="flex" flexDirection="column" gap="8">
+      <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
         <Text size="2" fontWeight="600">
           Summary
         </Text>
@@ -65,7 +66,13 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            <Link as="button" alignSelf="self-start" colorScheme="purple" onClick={() => setShowMore((prev) => !prev)}>
+            <Link
+              as="button"
+              colorScheme="purple"
+              alignSelf="self-start"
+              data-e2e-tag="step-description__toggle"
+              onClick={() => setShowMore((prev) => !prev)}
+            >
               {showMore ? 'Show less' : 'Show more'}
             </Link>
           </>

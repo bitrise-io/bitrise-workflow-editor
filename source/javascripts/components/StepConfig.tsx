@@ -59,7 +59,7 @@ const StepConfig = ({
 
             <Box flex="1" minW={0}>
               <Box display="flex" gap="4" alignItems="center">
-                <Text size="4" fontWeight="bold" hasEllipsis>
+                <Text size="4" fontWeight="bold" data-e2e-tag="step-title" hasEllipsis>
                   {step.displayName()}
                 </Text>
                 <StepItemBadge
@@ -69,8 +69,8 @@ const StepConfig = ({
                 />
               </Box>
 
-              <Box display="flex" gap="4" alignItems="center">
-                <Text size="2" color="text.secondary">
+              <Box display="flex" gap="4" alignItems="center" data-e2e-tag="step-version-details">
+                <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
                   {step.version || step.defaultStepConfig.version}
                 </Text>
                 {hasVersionUpdate && (
@@ -84,6 +84,7 @@ const StepConfig = ({
                       aria-label="New version available"
                       cursor="pointer"
                       onClick={() => onChange({ version: '' })}
+                      data-e2e-tag="step-version-details__update-icon"
                     />
                   </Tooltip>
                 )}

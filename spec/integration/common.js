@@ -40,9 +40,9 @@ export const type = (text, element) => {
 
 export const toggleCheckbox = (element, checked) => {
 	if (checked) {
-		$(element).check();
+		$(element).check({ force: true });
 	} else {
-		$(element).uncheck();
+		$(element).uncheck({ force: true });
 	}
 };
 

@@ -28,17 +28,13 @@ export const elements = {
 	"Selected Workflow Name": '[data-e2e-tag="workflow-selector-selected-workflow-name"]',
 	"Workflow selector": '[data-e2e-tag="workflow-selector-dropdown"]',
 
-	"Step Title": ".selected-step .title .rename",
-	"Step Title Edit Box": ".selected-step .rename-title input",
 	"Step Rename Confirm Button": ".selected-step .rename-title button.ok",
 	"Step Description": ".step-details .description .markdown",
 	"Step Description Toggle": ".step-details .description .toggle-visibility",
-	"Step Delete Button": ".selected-step button.delete-step",
 	"Step Delete Icon": ".selected-step button.delete",
 	"Step Always run indicator": "#selected-step-is-always-run-checkbox",
 	"Step Version Details": '[data-e2e-tag="step-version-details"]',
 	"Step Version": '[data-e2e-tag="step-version-details__version-text"]',
-	"Step Version Selector": '[data-e2e-tag="step-version-details__version-selector"]',
 	"Step Version Branch Icon": '[data-e2e-tag="step-version-details__branch-icon"]',
 	"Step Version Update Icon": '[data-e2e-tag="step-version-details__update-icon"]',
 	"Selected Step First Input": ".selected-step .input:eq(0)",
@@ -168,7 +164,6 @@ export const elements = {
 	"Workflow chain second after wf5 workflow": ".workflow-chain .after-run li:nth(1)",
 	"Workflow chain after wf6 workflow": ".workflow-chain .after-run li:nth(2)",
 
-	"Step clone button": "button.clone",
 	"Step source link": "a.source",
 
 	"Insert variable element called BITRISE_SOURCE_DIR": inputVariableSelector("BITRISE_SOURCE_DIR"),
@@ -208,6 +203,19 @@ export const elements = {
 	"Insert variable filter field": "#insert-variable-popup-body header input",
 
 	"Step edit container": ".step-edit-container",
+
+	"Step Clone Button": `r-step-config button[aria-label="Clone this step"]`,
+	"Step Delete Button": `r-step-config button[aria-label="Remove this step"]`,
+	"Step Title": `r-step-config header p[data-e2e-tag="step-title"]`,
+	"Step Configuration Tab": `r-step-config .chakra-tabs__tablist button:nth-child(1)`,
+	"Step Properties Tab": `r-step-config .chakra-tabs__tablist button:nth-child(2)`,
+	"Step Title Edit Box": `r-step-config .chakra-tabs__tab-panel:nth-child(2) input[name="name"]`,
+	"Step Version Selector": `r-step-config .chakra-tabs__tab-panel:nth-child(2) select[name="version"]`,
+	"Step Description": `[data-e2e-tag="step-description"]`,
+	"Step Description Toggle": `[data-e2e-tag="step-description__toggle"]`,
+	"Step Always run indicator": `input[name="is_always_run"]`,
+	"Close version change dialog": `button[data-e2e-tag="close-version-change-dialog"]`,
+	"Step When to run group": `r-step-config .chakra-tabs__tab-panel:nth-child(1) button[role="group"]:nth-child(1)`,
 
 	...triggerElements,
 };

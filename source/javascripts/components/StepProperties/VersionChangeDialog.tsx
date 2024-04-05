@@ -60,7 +60,7 @@ const VersionChangeDialog = ({
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose} data-e2e-tag="close-version-change-dialog">
           Close
         </Button>
       </DialogFooter>
