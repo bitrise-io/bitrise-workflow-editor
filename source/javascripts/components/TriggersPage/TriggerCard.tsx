@@ -1,9 +1,19 @@
 import { Fragment } from 'react';
-import { Box, CardProps, Checkbox, Icon, IconButton, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
+import {
+  Box,
+  CardProps,
+  Checkbox,
+  DraggableCard,
+  Icon,
+  IconButton,
+  Tag,
+  Text,
+  Tooltip,
+  TypeIconName,
+} from '@bitrise/bitkit';
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import DraggableCard from './DraggableCard';
 import { PrConditionType, PushConditionType, TagConditionType, TriggerItem } from './TriggersPage.types';
 
 interface TriggerCardProps extends CardProps {
@@ -67,9 +77,9 @@ const TriggerCard = (props: TriggerCardProps) => {
       activatorListeners={listeners}
       ref={setNodeRef}
       marginBottom="12"
-      sx={style}
       isDragging={active?.id === triggerItem.id}
       isOverlay={isOverlay}
+      {...style}
       {...rest}
     >
       <Box width="calc((100% - 190px) / 2)" paddingInlineEnd="16" display="flex" flexDir="column" gap="4">
