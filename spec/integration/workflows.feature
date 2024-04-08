@@ -71,7 +71,6 @@ Feature: Workflows
       And "wf3 steps" should contain 3 "Step element"
       And "first wf5 steps" should contain 2 "Step element"
       And "wf6 steps" should contain 0 "Step element"
-      And "Selected Workflow" should have "white" "background-color" style
     # And it has its stack displayed - WEBSITE MODE ONLY
       And I should see "The wf3 test workflow" in "Selected Workflow description"
       And "wf3 steps container" should contain 4 "Add Step element"

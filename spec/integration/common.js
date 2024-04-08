@@ -158,3 +158,7 @@ Then("I save", save);
 Then("the {string} should have a {string} icon", (element, iconName) => {
 	$(element).find(selector("r-icon")).should("be.visible").should("have.attr", "name", `'${iconName}'`);
 });
+
+When("I blur {string}", (element) => {
+	$(element).blur();
+})

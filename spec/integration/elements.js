@@ -5,7 +5,7 @@ const stepSelector = (index) => `.workflow.edited .steps ul li:eq(${index - 1}) 
 const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
 	`.workflow:nth-child(${workflowIndex}) .steps ul li:eq(${stepIndex - 1}) button.step`;
 const inputVariableSelector = (name) =>
-	`#insert-variable-popup-body .variable-source > li:has(button strong:contains("$${name}"))`;
+	`.chakra-modal__content-container table tbody tr:has(label:contains("$${name}"))`;
 
 export const elements = {
 	"Add Workflow Button": "[aria-label='Add new Workflow']",
@@ -44,17 +44,14 @@ export const elements = {
 	"Selected Step First Input Change Button": ".selected-step .input .input-change:eq(0)",
 	"Selected Step First Input Description": ".selected-step .input:eq(0) .input-description",
 	"Insert Variable Popup": "#insert-variable-popup-body",
-	"Selected Step Second Input Category": ".selected-step .input-category:eq(1)",
 	"Selected Step Second Input Category Toggle Button": ".selected-step .input-category:eq(1) .toggle-category",
 	"Selected Step Second Input Category Title": ".selected-step .input-category:eq(1) .category-name",
 	"Selected Step Second Input Category Inputs": ".selected-step .input-category:eq(1) .inputs-list",
-	"Step Inputs Without Category": ".selected-step .inputs h3 + .input-category.open.main",
 	"Selected Input": ".input.selected",
 	"Selected Input Textarea": ".input.selected textarea",
 	"Selected Input Insert Variable Button": ".input.selected .insert-variable",
 	"Selected Input Clear Button": ".input.selected .clear-value",
 	"Variables for insert": "#insert-variable-popup-body .variable-source:has(li)",
-	"First variable for insert": "#insert-variable-popup-body .variable-source > li:eq(0)",
 
 	Steps: ".workflow.edited .steps ul li",
 	"Step Icons": ".workflow.edited .steps ul li img",
@@ -215,8 +212,31 @@ export const elements = {
 	"Step Description Toggle": `[data-e2e-tag="step-description__toggle"]`,
 	"Step Always run indicator": `input[name="is_always_run"]`,
 	"Close version change dialog": `button[data-e2e-tag="close-version-change-dialog"]`,
-	"Step When to run group": `r-step-config .chakra-tabs__tab-panel:nth-child(1) button[role="group"]:nth-child(1)`,
+	"Step When to run group": `.step-inputs-category.when-to-run`,
+	"Step Inputs Without Category": `.step-inputs-group`,
+	"Selected Step Second Input Category": `.step-inputs-category:nth-child(3)`,
+	"Selected Step Second Input Category Title": `.step-inputs-category:nth-child(3) button[role="group"] p`,
+	"Selected Step Second Input Category Inputs": `.step-inputs-category:nth-child(3) textarea`,
+	"Selected Step Second Input Category Toggle Button": `.step-inputs-category:nth-child(3) button[role="group"]`,
+	"Selected Step First Input": `.step-inputs-category:nth-of-type(1) .chakra-form-control:nth-of-type(2) textarea:nth-of-type(1)`,
+	"Selected Step First Input Variable Button": `.step-inputs-category:nth-of-type(1) .chakra-form-control:nth-of-type(2) button[aria-label="Insert variable"]`,
+	
+	"Dialog": ".chakra-modal__content-container",
+	"Dialog Header": ".chakra-modal__content-container .chakra-modal__header",
+	
+	"First Sensitive Form Control": `.chakra-form-control:has(.chakra-badge):nth-of-type(1)`,
+	"First Sensitive Form Control Label": `.chakra-form-control:has(.chakra-badge):nth-of-type(1) label`,
+	"First Sensitive Form Control Input": `.chakra-form-control:has(.chakra-badge):nth-of-type(1) textarea`,
+	"First Sensitive Form Control Badge": `.chakra-form-control:has(.chakra-badge):nth-of-type(1) .chakra-badge`,
+	"First Sensitive Form Control Clear Button": `.chakra-form-control:has(.chakra-badge):nth-of-type(1) button[aria-label="Clear"]`,
+	"First Sensitive Form Control Error Message": `.chakra-form-control:has(.chakra-badge):nth-of-type(1) .chakra-form__error-message`,
 
+	"First Input": `.step-inputs-group .chakra-form-control:first-of-type textarea`,
+	"First Insert Variable Button": `.step-inputs-group .chakra-form-control:first-of-type button[aria-label="Insert variable"]`,
+	"First variable for insert": `.chakra-modal__content-container table tbody tr.chakra-linkbox:first-of-type`,
+	"Insert Selected Variable Button": `.chakra-modal__footer button[type="submit"]`,
+	"Variable Filter Input": `.chakra-modal__content-container input[name="filter"]`,
+	
 	...triggerElements,
 };
 

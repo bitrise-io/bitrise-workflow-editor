@@ -29,7 +29,10 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
   return (
     <FormProvider {...form}>
       <Box as="form" display="flex" flexDir="column" p="12" gap="12">
-        <ExpandableCard buttonContent={<Text fontWeight="demiBold">When to run</Text>}>
+        <ExpandableCard
+          className="step-inputs-category when-to-run"
+          buttonContent={<Text fontWeight="demiBold">When to run</Text>}
+        >
           <Box display="flex">
             <Text flex="1">Run if previous Step(s) failed</Text>
             <Toggle {...form.register('is_always_run')} defaultChecked={step.isAlwaysRun()} />
@@ -43,14 +46,18 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
 
           if (!category.name) {
             return (
-              <Card key={key} variant="outline" p="16">
+              <Card key={key} variant="outline" p="16" className="step-inputs-group">
                 <StepInputList inputs={category.inputs} />
               </Card>
             );
           }
 
           return (
-            <ExpandableCard key={key} buttonContent={<Text fontWeight="demiBold">{category.name}</Text>}>
+            <ExpandableCard
+              key={key}
+              className="step-inputs-category"
+              buttonContent={<Text fontWeight="demiBold">{category.name}</Text>}
+            >
               <StepInputList inputs={category.inputs} />
             </ExpandableCard>
           );

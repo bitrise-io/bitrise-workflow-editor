@@ -54,10 +54,16 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
   const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
 
   const name = rest.name || '';
-  const onClear = () => setValue(name, '');
   const value = watch(name, props.defaultValue || '');
   const isClearableInput = isSensitive && !!value;
   const errorText = errors?.[name]?.message?.toString();
+
+  const handleClear: MouseEventHandler<HTMLButtonElement> = (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    setValue(name, '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+  };
 
   const handleOnClickInsertSecret: MouseEventHandler<HTMLButtonElement> = (e) => {
     // NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
@@ -121,6 +127,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
           <>
             <Box
               display="grid"
+              fontFamily="mono"
               position="relative"
               data-replicated-value={value}
               _after={{
@@ -152,9 +159,9 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                   <IconButton
                     size="sm"
                     type="submit"
-                    onClick={onClear}
                     variant="tertiary"
                     aria-label="Clear"
+                    onClick={handleClear}
                     iconName="CloseSmall"
                   />
                 )}
