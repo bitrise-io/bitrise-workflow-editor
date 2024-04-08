@@ -140,6 +140,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
               }}
             >
               <Textarea
+                data-1p-ignore
                 ref={ref}
                 {...rest}
                 rows={1}
