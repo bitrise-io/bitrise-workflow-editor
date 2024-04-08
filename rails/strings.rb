@@ -653,21 +653,7 @@ def strings
                     title: "Triggers are changing for the better",
                     details_1: "We're converting your current trigger maps to the new format, to enable specifying Pushes and Pull Requests separately, as well as setting the source and target branch for PRs. You don't have to worry, though, everything you've set so far will work the same!",
                     details_2: "For more information, please check the <a href='<url>' target='_blank'>blogpost</a>!"
-                },
-                add: "Add trigger",
-                push_branch: "Push branch",
-                source_branch: "Source branch",
-                target_branch: "Target branch",
-                tag: "Tag",
-                workflow: "Workflow",
-                types: {
-                    push: "Push",
-                    pull_request: "Pull request",
-                    tag: "Tag"
-                },
-                delete: "Delete",
-                done: "Done",
-                cancel: "Cancel"
+                }
             },
             stack: {
                 load_stacks_progress: {

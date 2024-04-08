@@ -11,7 +11,6 @@ import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettin
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import TriggersDescription from "./components/triggers/Description";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
@@ -19,6 +18,7 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import StepConfig from "./components/StepConfig";
 import VersionChangeDialog from "./components/StepProperties/VersionChangeDialog";
+import TriggersPage from "./components/TriggersPage/TriggersPage";
 
 function register(component, props, injects) {
   return react2angular(withBitkitProvider(component), props, injects);
@@ -90,10 +90,6 @@ angular
   .component(
     "rYmlEditorHeader",
     register(YmlEditorHeader, ["url", "usesRepositoryYml"]),
-  )
-  .component(
-    "rTriggersDescription",
-    register(TriggersDescription, ["hasTriggers"]),
   )
   .component(
     "rWorkflowMainToolbar",
@@ -180,4 +176,16 @@ angular
       "removedInputs",
       "releaseNotesUrl",
     ]),
+  )
+  .component(
+		"rTriggersPage",
+		register(TriggersPage, [
+			"onTriggerMapChange",
+			"pipelines",
+			"triggerMap",
+			"setDiscard",
+			"workflows",
+			"isWebsiteMode",
+			"integrationsUrl"
+		]),
   );

@@ -14,7 +14,6 @@ import { safeDigest } from "../services/react-compat";
 			Workflow,
 			Stack,
 			MachineType,
-			planServiceUtil,
 			dateService,
 			requestService,
 			appServiceUtil
@@ -98,7 +97,7 @@ import { safeDigest } from "../services/react-compat";
 
 				var isStackChanged = appService.savedStack.id !== appService.stack.id;
 
-				var rollbackVersion = appService.stack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying);
+				var rollbackVersion = appService.stack.getRollbackVersion(appService.savedDefaultMachineType.id, isPaying, appService.appDetails.ownerData.slug);
 				var rollbackVersionInYml = appService.getRollbackVersionFromBitriseYml();
 
 				var hasUnsavedChanges = appService.rollbackVersionHasUnsavedChanges() || appService.stackHasUnsavedChanges() || appService.defaultMachineTypeHasUnsavedChanges();
@@ -115,7 +114,7 @@ import { safeDigest } from "../services/react-compat";
 						id: listItemId
 					});
 
-					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying());
+					var isRollbackVersionInYmlNotAvailable = workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, appService.isOwnerPaying(), appService.appDetails.ownerData.slug);
 					return !!workflow.getRollbackVersion() && !isRollbackVersionInYmlNotAvailable;
 			}
 
@@ -127,7 +126,7 @@ import { safeDigest } from "../services/react-compat";
 					if (isChecked === true) {
 						var isPaying = appService.isOwnerPaying();
 
-						workflow.setRollbackVersion(isPaying, MachineType.all);
+						workflow.setRollbackVersion(isPaying, appService.appDetails.ownerData.slug, MachineType.all);
 						$scope.$apply();
 					} else if (isChecked === false) {
 						workflow.removeRollbackVersion();
@@ -139,7 +138,7 @@ import { safeDigest } from "../services/react-compat";
 				var isPaying = appService.isOwnerPaying();
 				var machineTypeId = appService.defaultMachineType.id;
 
-				return workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, isPaying);
+				return workflow.isRollbackVersionInBitriseYmlNoLongerAvailable(MachineType.all, isPaying, appService.appDetails.ownerData.slug);
 			}
 
 			viewModel.init = function() {
@@ -330,7 +329,7 @@ import { safeDigest } from "../services/react-compat";
 
 			function getShowMachineCreditCost() {
 				if (appService.ownerPlanData) {
-					return !planServiceUtil.isModernConcurrencyPlan(appService.ownerPlanData.name);
+					return appService.ownerPlanData.creditBased;
 				}
 				return true;
 			}

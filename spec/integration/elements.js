@@ -1,5 +1,3 @@
-import triggerElements from "./triggers/elements";
-
 const workflowSelectElement = (workflowName) => `[data-e2e-tag="workflow-selector-option-${workflowName}"]`;
 const stepSelector = (index) => `.workflow.edited .steps ul li:eq(${index - 1}) button.step`;
 const stepSelectorInWorkflowWithIndex = (stepIndex, workflowIndex) =>
@@ -236,8 +234,6 @@ export const elements = {
 	"First variable for insert": `.chakra-modal__content-container table tbody tr.chakra-linkbox:first-of-type`,
 	"Insert Selected Variable Button": `.chakra-modal__footer button[type="submit"]`,
 	"Variable Filter Input": `.chakra-modal__content-container input[name="filter"]`,
-	
-	...triggerElements,
 };
 
 export const selector = (elementSelector) => elements[elementSelector] || elementSelector;

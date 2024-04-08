@@ -72,8 +72,18 @@
 				return this.id.startsWith('agent-pool-')
 			}
 
-			Stack.prototype.getRollbackVersion = function(machineType, isPaying) {
-				return this.rollbackVersions && this.rollbackVersions[machineType] && this.rollbackVersions[machineType][isPaying ? 'paying' : 'free'];
+			Stack.prototype.getRollbackVersion = function(machineType, isPaying, accountSlug) {
+				if (!this.rollbackVersions) {
+					return;
+				}
+				if (!this.rollbackVersions[machineType]) {
+					return;
+				}
+				if (this.rollbackVersions[machineType][accountSlug]) {
+					return this.rollbackVersions[machineType][accountSlug];
+				}
+
+				return this.rollbackVersions[machineType][isPaying ? 'paying' : 'free'];
 			}
 
 			return Stack;
