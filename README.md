@@ -108,7 +108,7 @@ If new release requires Bitrise CLI to be updated, in `bitrise-plugin.yml` chang
 
 ## Testing if version release works, without actually releasing
 
-- In bitrise.yml, create a workflow e. g. `test-release`
+- In bitrise.yml, create a workflow e.g. `test-release`
 - From the `create-release` workflow, copy-paste the _GitHub release_ and _Create Discuss topic_ steps.
 - In the GitHub release step, remove the `files_to_upload` input, set the `$NEW_RELEASE_VERSION` everywhere to something arbitrary, same for the `body`, and **most importantly set `draft: 'yes'`**
 - In the Create Discuss topic step, **change the `DISCUSS_CHANGELOG_CATEGORY_ID` to the ID of one our discuss.bitrise.io's internal channels' ID** (you can find an ID using the Discourse API with a cURL request) so that it is only visible to us; also change the `title` and the `raw` parameter to something arbitrary.
