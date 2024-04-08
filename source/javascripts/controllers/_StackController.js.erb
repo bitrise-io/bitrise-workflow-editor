@@ -14,7 +14,6 @@ import { safeDigest } from "../services/react-compat";
 			Workflow,
 			Stack,
 			MachineType,
-			planServiceUtil,
 			dateService,
 			requestService,
 			appServiceUtil
@@ -330,7 +329,7 @@ import { safeDigest } from "../services/react-compat";
 
 			function getShowMachineCreditCost() {
 				if (appService.ownerPlanData) {
-					return !planServiceUtil.isModernConcurrencyPlan(appService.ownerPlanData.name);
+					return appService.ownerPlanData.creditBased;
 				}
 				return true;
 			}
