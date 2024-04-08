@@ -558,7 +558,7 @@
 					return undefined;
 				}
 
-				return stack.getRollbackVersion(machineType.id, isPaying);
+				return stack.getRollbackVersion(machineType.id, isPaying, appService.appDetails.ownerData.slug);
 			}
 
 			appService.isOwnerPaying = function() {
