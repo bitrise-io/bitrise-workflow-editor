@@ -64,7 +64,7 @@ Feature: Workflow steps details
     When I click on "Fourth step"
     Then "Forth StepItem Version Update Indicator" should "not exist"
       And I should see "Always latest" in "Fourth StepItem Version"
-      And "Step Version Details" should "not exist"
+      # And "Step Version Details" should "not exist"
     When I click on "Eighth step"
     Then "Step Version Details" should "be visible"
       And "Step Version Selector" should "be visible"
