@@ -7,9 +7,10 @@ import { EnvironmentVariable, HandlerFn, SelectEnvironmentVariableFormValues } f
 type Props = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   onSelect: HandlerFn;
   environmentVariables: EnvironmentVariable[];
+  isLoading?: boolean;
 };
 
-const EnvironmentVariablesDialog = ({ environmentVariables, isOpen, onClose, onSelect }: Props) => {
+const EnvironmentVariablesDialog = ({ environmentVariables, isOpen, isLoading, onClose, onSelect }: Props) => {
   const form = useForm<SelectEnvironmentVariableFormValues>();
 
   const onSelectHandler = form.handleSubmit(({ key }) => {
@@ -32,7 +33,7 @@ const EnvironmentVariablesDialog = ({ environmentVariables, isOpen, onClose, onS
         onCloseComplete={form.reset}
       >
         <DialogBody py="4">
-          <EnvironmentVariablesTable environmentVariables={environmentVariables} />
+          <EnvironmentVariablesTable environmentVariables={environmentVariables} isLoading={isLoading} />
         </DialogBody>
         <DialogFooter>
           <ButtonGroup>

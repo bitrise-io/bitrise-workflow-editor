@@ -1,9 +1,13 @@
 import { Box, Checkbox, Input, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 
-import { CreateSecretFormValues } from '../types';
+import { CreateSecretFormValues, Secret } from '../types';
 
-const CreateSecret = () => {
+type Props = {
+  secrets: Secret[];
+};
+
+const CreateSecret = ({ secrets }: Props) => {
   const {
     register,
     formState: { errors },
@@ -26,6 +30,15 @@ const CreateSecret = () => {
               value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
               message: 'Should contain letters, numbers, underscores, should not begin with a number.',
             },
+            validate: {
+              isUnique: (value) => {
+                if (secrets.some((secret) => secret.key === value)) {
+                  return 'Secret key should be unique.';
+                }
+
+                return true;
+              },
+            },
           })}
         />
         <Text pt="35">=</Text>
@@ -35,7 +48,12 @@ const CreateSecret = () => {
           label="Value"
           placeholder="Enter value"
           errorText={errors.value?.message?.toString()}
-          {...register('value', { required: true })}
+          {...register('value', {
+            required: true,
+            validate: {
+              isNotEmpty: (value) => !!value.trim() || 'Secret value should not be empty.',
+            },
+          })}
         />
       </Box>
       <Box display="flex" gap="24">

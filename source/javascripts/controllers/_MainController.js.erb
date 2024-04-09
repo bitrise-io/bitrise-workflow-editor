@@ -137,7 +137,7 @@ import { safeDigest } from "../services/react-compat";
 						case "workflows":
 						case "env-vars":
 						case "triggers":
-							var loadPromises = [appService.getAppConfig(), appService.getSecrets()];
+							var loadPromises = [appService.getAppConfig()];
 							if (requestService.isWebsiteMode()) {
 								loadPromises.push(Stack.getAll());
 								loadPromises.push(appService.getPipelineConfig());

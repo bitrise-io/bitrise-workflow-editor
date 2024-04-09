@@ -3,9 +3,7 @@ import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Tex
 import { useForm } from 'react-hook-form';
 
 import { OnStepChange, Step, StepVersionWithRemark } from '../../models';
-import MajorVersionChangeDialog from './MajorVersionChangeDialog';
-import useVersionChange from './useVersionChange';
-import { extractInputNames, extractStepFields } from './utils';
+import { extractStepFields } from './utils';
 
 type Props = {
   step: Step;
@@ -18,21 +16,12 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
   const [showMore, setShowMore] = useState(false);
 
   const { register, setValue, handleSubmit } = useForm<Record<'name' | 'version', string>>();
-  const { createSnapshot, ...dialogProps } = useVersionChange(step);
-  const handleChange = handleSubmit((values) => {
-    createSnapshot({
-      oldHashKey: step.$$hashKey,
-      oldVersion: step.defaultStepConfig.version,
-      oldInputNames: extractInputNames(step),
-    });
-    onChange(values);
-  });
-
   useEffect(() => {
     setValue('name', name);
     setValue('version', version);
   }, [name, version, setValue]);
 
+  const handleChange = handleSubmit(onChange);
   return (
     <Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
       {sourceURL && (
@@ -45,6 +34,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
           target="_blank"
           rel="noreferrer noopener"
           colorScheme="purple"
+          className="source"
           isExternal
         >
           <Text>View source code</Text>
@@ -66,7 +56,7 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         </Select>
       )}
       <Divider />
-      <Box display="flex" flexDirection="column" gap="8">
+      <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
         <Text size="2" fontWeight="600">
           Summary
         </Text>
@@ -76,13 +66,18 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
               <MarkdownContent md={description} />
             </Collapse>
-            <Link as="button" alignSelf="self-start" colorScheme="purple" onClick={() => setShowMore((prev) => !prev)}>
+            <Link
+              as="button"
+              colorScheme="purple"
+              alignSelf="self-start"
+              data-e2e-tag="step-description__toggle"
+              onClick={() => setShowMore((prev) => !prev)}
+            >
               {showMore ? 'Show less' : 'Show more'}
             </Link>
           </>
         )}
       </Box>
-      <MajorVersionChangeDialog {...dialogProps} />
     </Box>
   );
 };

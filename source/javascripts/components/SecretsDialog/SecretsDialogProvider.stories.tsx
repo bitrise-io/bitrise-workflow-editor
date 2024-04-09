@@ -40,7 +40,7 @@ export const WithProps: StoryObj<typeof SecretsDialogProvider> = {
   decorators: [
     (Story, ctx) => {
       return (
-        <SecretsDialogProvider defaultSecrets={defaultSecrets} onCreate={ctx.args.onCreate}>
+        <SecretsDialogProvider onOpen={() => Promise.resolve(defaultSecrets)} onCreate={ctx.args.onCreate}>
           <Story />
         </SecretsDialogProvider>
       );
