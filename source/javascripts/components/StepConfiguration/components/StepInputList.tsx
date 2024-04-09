@@ -32,7 +32,7 @@ const StepInputList = ({ inputs }: Props) => {
               helperDetails={input.description()}
               isRequired={input.isRequired()}
               isSensitive={input.isSensitive()}
-              isReadOnly={input.isDontChangeValue()}
+              isDisabled={input.isDontChangeValue()}
             />
           </Fragment>
         );

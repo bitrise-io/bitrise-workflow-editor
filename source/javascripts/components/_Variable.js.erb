@@ -135,18 +135,21 @@
 					? this.userVariableConfig[key]
 					: this.defaultVariableConfig[key];
 			}
-
+			
 			const hasDefaultConfig = Object.keys(this.defaultVariableConfig ?? {}).includes(key);
+			const typeOfDefaultValue = hasDefaultConfig ? typeof this.defaultVariableConfig[key] : 'undefined';
 
-			if (newValue) {
-				this.userVariableConfig[key] = newValue;
-			} else if (newValue === null) {
-				this.userVariableConfig[key] = hasDefaultConfig ? '' : newValue;
-			} else {
+			if ((typeOfDefaultValue === 'undefined' && !newValue && newValue !== null)) {
 				this.userVariableConfig[key] = undefined;
+			} else if (typeOfDefaultValue === 'number' && !Number.isNaN(Number(newValue))) {
+				this.userVariableConfig[key] = Number(newValue);
+			} else if (typeOfDefaultValue === 'boolean' && ['true', 'false'].includes(String(newValue))) {
+				this.userVariableConfig[key] = Boolean(newValue);
+			} else {
+				this.userVariableConfig[key] = newValue || null;
 			}
 
-			return newValue;
+			return this.userVariableConfig[key];
 		};
 
 		Variable.prototype.title = function(newValue) {

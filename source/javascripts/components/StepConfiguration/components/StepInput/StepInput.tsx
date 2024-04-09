@@ -40,7 +40,7 @@ function isTextareaInput(props: Props): props is TextareaProps {
 }
 
 const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) => {
-  const { label, isRequired, isSensitive, helperSummary, helperDetails, ...rest } = props;
+  const { label, isRequired, isDisabled, isSensitive, helperSummary, helperDetails, ...rest } = props;
 
   const {
     watch,
@@ -149,12 +149,12 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 onBlur={handleOnBlur}
                 transition="height none"
                 gridArea="1 / 1 / 2 / 2"
-                isReadOnly={isSensitive || rest.isReadOnly}
+                isDisabled={isSensitive || isDisabled}
                 placeholder={isSensitive ? 'Add secret' : 'Enter value'}
               />
             </Box>
 
-            {!rest.isReadOnly && (
+            {!isDisabled && (
               <ButtonGroup position="absolute" top="8" right="8">
                 {isClearableInput && (
                   <IconButton
