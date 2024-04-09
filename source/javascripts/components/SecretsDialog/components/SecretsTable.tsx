@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEventHandler, useCallback, useMemo, useState } from 'react';
 import { Box, Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from '@bitrise/bitkit';
 import debounce from 'lodash/debounce';
 import { useController, useFormContext } from 'react-hook-form';
@@ -13,8 +13,8 @@ type Props = {
 };
 
 const SecretsTable = ({ secrets, isLoading }: Props) => {
+  const [filter, setFilter] = useState('');
   const form = useFormContext<SelectSecretFormValues>();
-  const [filteredSecrets, setFilteredSecrets] = useState(secrets);
 
   const { field } = useController({
     name: 'key',
@@ -22,20 +22,21 @@ const SecretsTable = ({ secrets, isLoading }: Props) => {
     rules: { required: true },
   });
 
-  const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (e) => {
-      setFilteredSecrets(secrets.filter((secret) => secret.key.toUpperCase().includes(e.target.value.toUpperCase())));
-    },
-    [secrets],
-  );
+  const filteredSecrets = useMemo(() => {
+    if (!filter) {
+      return secrets;
+    }
+
+    return secrets.filter(({ key }) => key.toUpperCase().includes(filter));
+  }, [secrets, filter]);
+
+  const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
+    setFilter(e.target.value.toUpperCase());
+  }, []);
 
   const debouncedFilterChangeHandler = useMemo(() => {
     return debounce(filterChangeHandler, 300);
   }, [filterChangeHandler]);
-
-  useEffect(() => {
-    setFilteredSecrets(secrets);
-  }, [secrets]);
 
   return (
     <Box display="flex" flexDirection="column" gap="16">

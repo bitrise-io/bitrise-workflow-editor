@@ -1,4 +1,4 @@
-import { ChangeEventHandler, useCallback, useEffect, useMemo, useState } from 'react';
+import { ChangeEventHandler, useCallback, useMemo, useState } from 'react';
 import { Box, Input, RadioGroup, Table, TableContainer, Th, Thead, Tr } from '@bitrise/bitkit';
 import debounce from 'lodash/debounce';
 import { useController, useFormContext } from 'react-hook-form';
@@ -13,8 +13,8 @@ type Props = {
 };
 
 const EnvironmentVariablesTable = ({ environmentVariables, isLoading }: Props) => {
+  const [filter, setFilter] = useState('');
   const form = useFormContext<SelectEnvironmentVariableFormValues>();
-  const [filteredVariables, setFilteredVariables] = useState(environmentVariables);
 
   const { field } = useController({
     name: 'key',
@@ -22,22 +22,21 @@ const EnvironmentVariablesTable = ({ environmentVariables, isLoading }: Props) =
     rules: { required: true },
   });
 
-  const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (e) => {
-      setFilteredVariables(
-        environmentVariables.filter(({ key }) => key.toUpperCase().includes(e.target.value.toUpperCase())),
-      );
-    },
-    [environmentVariables],
-  );
+  const filteredVariables = useMemo(() => {
+    if (!filter) {
+      return environmentVariables;
+    }
+
+    return environmentVariables.filter(({ key }) => key.toUpperCase().includes(filter));
+  }, [environmentVariables, filter]);
+
+  const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
+    setFilter(e.target.value.toUpperCase());
+  }, []);
 
   const debouncedFilterChangeHandler = useMemo(() => {
     return debounce(filterChangeHandler, 300);
   }, [filterChangeHandler]);
-
-  useEffect(() => {
-    setFilteredVariables(environmentVariables);
-  }, [environmentVariables]);
 
   return (
     <Box display="flex" flexDirection="column" gap="16">
