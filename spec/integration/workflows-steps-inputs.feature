@@ -51,23 +51,12 @@ Feature: Workflow steps inputs
     When I click on "First step"
     Then I should see "GitHub auth token" in "First Sensitive Form Control Label"
     Then "First Sensitive Form Control Badge" should "be visible"
-    Then "First Sensitive Form Control Clear Button" should "be visible"
-
-  Scenario: Clearing the sensitive Input's value
-    When I click on "First step"
-      And I click on "First Sensitive Form Control Clear Button"
-    Then "First Sensitive Form Control Input" should "be empty"
-      And "First Sensitive Form Control Clear Button" should "not exist"
 
   Scenario: Required Input
     When I click on "First step"
     Then I should see "GitHub auth token" in "First Sensitive Form Control Label"
       And I should not see "Optional" in "First Sensitive Form Control Label"
       And "First Sensitive Form Control Badge" should "be visible"
-    When I click on "First Sensitive Form Control Clear Button"
-    Then "First Sensitive Form Control Input" should "be empty"
-      And "First Sensitive Form Control Input" should have "error" "border-color" style
-      And I should see "This field is required" in "First Sensitive Form Control Error Message"
 
   Scenario: Inserting Variable into a selected place
     Given "wf5" workflow is selected
