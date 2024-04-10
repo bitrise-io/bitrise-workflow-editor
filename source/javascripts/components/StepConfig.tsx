@@ -3,52 +3,63 @@ import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
 import EnvironmentVariablesDialogProvider from './EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
-import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 import { Secret, SecretsDialogProvider } from './SecretsDialog';
 import StepConfiguration from './StepConfiguration/StepConfiguration';
 import StepItemBadge from './StepItem/StepItemBadge';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties/StepProperties';
+import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
 
 type Props = {
   step: Step;
-  environmentVariables: EnvironmentVariable[];
-  secrets: Secret[];
+  tabId?: string;
   hasVersionUpdate?: boolean;
-  versionsWithRemarks: Array<StepVersionWithRemark>;
   inputCategories: InputCategory[];
   outputVariables: Array<StepOutputVariable>;
-  onChange: OnStepChange;
+  versionsWithRemarks: Array<StepVersionWithRemark>;
   onClone: VoidFunction;
+  onChange: OnStepChange;
   onRemove: VoidFunction;
+  onChangeTabId: (tabId?: string) => void;
   onCreateSecret: (secret: Secret) => void;
+  onOpenSecretsDialog?: () => Promise<Secret[]>;
+  onOpenEnvironmentVariablesDialog?: () => Promise<EnvironmentVariable[]>;
 };
 
 const StepConfig = ({
   step,
-  environmentVariables,
-  secrets,
-  hasVersionUpdate,
-  versionsWithRemarks,
+  tabId,
   inputCategories,
   outputVariables,
-  onChange,
+  hasVersionUpdate,
+  versionsWithRemarks,
   onClone,
+  onChange,
   onRemove,
+  onChangeTabId,
   onCreateSecret,
+  onOpenSecretsDialog,
+  onOpenEnvironmentVariablesDialog,
 }: Props): JSX.Element => {
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
   return (
-    <EnvironmentVariablesDialogProvider environmentVariables={environmentVariables}>
-      <SecretsDialogProvider defaultSecrets={secrets} onCreate={onCreateSecret}>
+    <EnvironmentVariablesDialogProvider onOpen={onOpenEnvironmentVariablesDialog}>
+      <SecretsDialogProvider onCreate={onCreateSecret} onOpen={onOpenSecretsDialog}>
         <Box display="flex" flexDirection="column" gap="8">
           <Box as="header" display="flex" px="24" pt="24" gap="16">
-            <Avatar name="ci" size="48" src={step.iconURL()} />
+            <Avatar
+              name="ci"
+              size="48"
+              borderWidth="1px"
+              borderStyle="solid"
+              borderColor="neutral.93"
+              src={step.iconURL()}
+            />
 
             <Box flex="1" minW={0}>
               <Box display="flex" gap="4" alignItems="center">
-                <Text size="4" fontWeight="bold" hasEllipsis>
+                <Text size="4" fontWeight="bold" data-e2e-tag="step-title" hasEllipsis>
                   {step.displayName()}
                 </Text>
                 <StepItemBadge
@@ -58,8 +69,8 @@ const StepConfig = ({
                 />
               </Box>
 
-              <Box display="flex" gap="4" alignItems="center">
-                <Text size="2" color="text.secondary">
+              <Box display="flex" gap="4" alignItems="center" data-e2e-tag="step-version-details">
+                <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
                   {step.version || step.defaultStepConfig.version}
                 </Text>
                 {hasVersionUpdate && (
@@ -73,6 +84,7 @@ const StepConfig = ({
                       aria-label="New version available"
                       cursor="pointer"
                       onClick={() => onChange({ version: '' })}
+                      data-e2e-tag="step-version-details__update-icon"
                     />
                   </Tooltip>
                 )}
@@ -98,7 +110,7 @@ const StepConfig = ({
             </ButtonGroup>
           </Box>
 
-          <Tabs>
+          <Tabs tabId={tabId} onChange={(_, newTabId) => onChangeTabId(newTabId)}>
             <TabList paddingX="8">
               <Tab id="configuration">Configuration</Tab>
               <Tab id="properties">Properties</Tab>
@@ -106,12 +118,7 @@ const StepConfig = ({
             </TabList>
             <TabPanels>
               <TabPanel id="configuration">
-                <StepConfiguration
-                  key={step.$$hashKey}
-                  step={step}
-                  inputCategories={inputCategories}
-                  onChange={onChange}
-                />
+                <StepConfiguration step={step} inputCategories={inputCategories} onChange={onChange} />
               </TabPanel>
               <TabPanel id="properties">
                 <StepProperties step={step} versionsWithRemarks={versionsWithRemarks} onChange={onChange} />

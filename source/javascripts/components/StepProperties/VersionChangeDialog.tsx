@@ -9,13 +9,13 @@ type Props = {
   onClose: VoidFunction;
 };
 
-const MajorVersionChangeDialog = ({
+const VersionChangeDialog = ({
   isOpen,
   isMajorChange,
+  removedInputs = [],
+  newInputs = [],
   releaseNotesUrl,
-  removedInputs,
-  newInputs,
-  onClose,
+  onClose = () => {},
 }: Props) => {
   const [title, context] = isMajorChange
     ? ['Major version change', 'The new major version likely contains breaking changes in the step behavior.']
@@ -60,7 +60,7 @@ const MajorVersionChangeDialog = ({
         )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={onClose} data-e2e-tag="close-version-change-dialog">
           Close
         </Button>
       </DialogFooter>
@@ -68,4 +68,4 @@ const MajorVersionChangeDialog = ({
   );
 };
 
-export default MajorVersionChangeDialog;
+export default VersionChangeDialog;

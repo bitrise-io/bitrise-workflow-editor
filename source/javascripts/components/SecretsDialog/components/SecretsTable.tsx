@@ -5,14 +5,16 @@ import { useController, useFormContext } from 'react-hook-form';
 
 import { Secret, SelectSecretFormValues } from '../types';
 import SecretsTableRow from './SecretsTableRow';
+import LoadingState from './LoadingState';
 
 type Props = {
   secrets: Secret[];
+  isLoading?: boolean;
 };
 
-const SecretsTable = ({ secrets }: Props) => {
+const SecretsTable = ({ secrets, isLoading }: Props) => {
+  const [filter, setFilter] = useState('');
   const form = useFormContext<SelectSecretFormValues>();
-  const [filteredSecrets, setFilteredSecrets] = useState(secrets);
 
   const { field } = useController({
     name: 'key',
@@ -20,12 +22,17 @@ const SecretsTable = ({ secrets }: Props) => {
     rules: { required: true },
   });
 
-  const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback(
-    (e) => {
-      setFilteredSecrets(secrets.filter((secret) => secret.key.toUpperCase().includes(e.target.value.toUpperCase())));
-    },
-    [secrets],
-  );
+  const filteredSecrets = useMemo(() => {
+    if (!filter) {
+      return secrets;
+    }
+
+    return secrets.filter(({ key }) => key.toUpperCase().includes(filter));
+  }, [secrets, filter]);
+
+  const filterChangeHandler: ChangeEventHandler<HTMLInputElement> = useCallback((e) => {
+    setFilter(e.target.value.toUpperCase());
+  }, []);
 
   const debouncedFilterChangeHandler = useMemo(() => {
     return debounce(filterChangeHandler, 300);
@@ -40,18 +47,21 @@ const SecretsTable = ({ secrets }: Props) => {
         {...form.register('filter', { onChange: debouncedFilterChangeHandler })}
       />
       <TableContainer>
-        <Table isFixed>
+        <Table disableRowHover={isLoading} isFixed>
           <Thead>
             <Tr>
               <Th width="40px" />
               <Th>Key</Th>
             </Tr>
           </Thead>
-          <RadioGroup as="tbody" {...field}>
-            {filteredSecrets.map(({ key, source }) => (
-              <SecretsTableRow key={key} value={key} source={source} />
-            ))}
-          </RadioGroup>
+          {isLoading && <LoadingState />}
+          {!isLoading && (
+            <RadioGroup as="tbody" {...field}>
+              {filteredSecrets.map(({ key, source }) => (
+                <SecretsTableRow key={key} value={key} source={source} />
+              ))}
+            </RadioGroup>
+          )}
         </Table>
       </TableContainer>
     </Box>

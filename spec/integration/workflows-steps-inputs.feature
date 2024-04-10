@@ -14,7 +14,6 @@ Feature: Workflow steps inputs
 
   Scenario: Inputs without categories don't get wrapped into expandable container
     When I click on "First step"
-    And I scroll "Step edit container" to 220px
     Then "Step Inputs Without Category" should "be visible"
 
   Scenario: Inputs with categories get wrapped into expandable container
@@ -29,112 +28,86 @@ Feature: Workflow steps inputs
     When I click on "Selected Step Second Input Category"
     Then "Selected Step Second Input Category Inputs" should "be visible"
     When I click on "Selected Step Second Input Category Toggle Button"
-    Then "Selected Step Second Input Category Inputs" should "not exist"
+    Then "Selected Step Second Input Category Inputs" should "not be visible"
 
   Scenario: A changeable Input
     When I click on "First step"
-    And I click on "Selected Step First Input"
-    Then "Selected Input Insert Variable Button" should "be visible"
-    When I click on "Selected Input Insert Variable Button"
-    Then "Insert Variable Popup" should "be visible"
-
-  Scenario: Input in non-edit mode
-    When I click on "First step"
-    And I wait 1000
-    And I scroll "Step edit container" to 220px
-    Then "Selected Step First Input Change Button" should "be visible"
+      And I click on "Step When to run group"
+    Then "Selected Step First Input" should "be visible"
+    Then "Selected Step First Input Variable Button" should "be visible"
+    When I click on "Selected Step First Input Variable Button"
+    Then "Dialog" should "be visible"
+      And I should see "Insert variable" in "Dialog Header"
 
   Scenario: User changes Input text value
     When I click on "Second step"
-    And I click on "Selected Step First Input"
-    Then "Selected Step First Input Description" should "be visible"
-    When I click on "Selected Input Textarea"
-    And I clear "Selected Input Textarea"
-    And I type "whatever" in "Selected Input Textarea"
-    Then "Selected Input Textarea" should "have value:whatever"
+      And I click on "Step When to run group"
+      And I click on "Selected Step First Input"
+    And I clear "Selected Step First Input"
+    And I type "whatever" in "Selected Step First Input"
+    Then "Selected Step First Input" should "have value:whatever"
 
   Scenario: Sensitive Input
     When I click on "First step"
-    And I wait 1000
-    And I scroll "Step edit container" to 220px
-    Then I should see "GitHub auth token" in "Selected Step First Input Title"
-    Then "Selected Step First Input Sensitive Badge" should "be visible"
-    When I click on "Selected Step First Input"
-    Then "Selected Input Clear Button" should "be visible"
-
-  Scenario: Clearing the sensitive Input's value
-    When I click on "First step"
-    And I click on "Selected Step First Input"
-    When I click on "Selected Input Clear Button"
-    Then "Selected Input Textarea" should "be empty"
-    Then "Selected Input Clear Button" should "not exist"
+    Then I should see "GitHub auth token" in "First Sensitive Form Control Label"
+    Then "First Sensitive Form Control Badge" should "be visible"
 
   Scenario: Required Input
     When I click on "First step"
-    And I wait 1000
-    And I scroll "Step edit container" to 220px
-    Then I should see "GitHub auth token" in "Selected Step First Input Title"
-    And "Selected Step First Input Required Badge" should "be visible"
-    When I click on "Selected Step First Input"
-    And I click on "Selected Input Clear Button"
-    Then "Selected Input Textarea" should "be empty"
-    And "Selected Input Textarea" should have "red" "border-color" style
+    Then I should see "GitHub auth token" in "First Sensitive Form Control Label"
+      And I should not see "Optional" in "First Sensitive Form Control Label"
+      And "First Sensitive Form Control Badge" should "be visible"
 
   Scenario: Inserting Variable into a selected place
     Given "wf5" workflow is selected
     And "First" step is selected
-    When I click on "Selected Step First Input"
-    And I click on "Selected Input Textarea"
-    And I click on "Selected Input Insert Variable Button"
-    And I click on "First variable for insert"
-    Then "Selected Input Textarea" should "have value:#!/usr/bin/env bash$BITRISE_SOURCE_DIR"
+    When I click on "First Input"
+      And I blur "First Input"
+      And I click on "First Insert Variable Button"
+    Then "First variable for insert" should "be visible"
+    Then I click on "First variable for insert"
+      And I click on "Insert Selected Variable Button"
+    Then "First Input" should "have value:#!/usr/bin/env bash$BITRISE_SOURCE_DIR"
 
 
   Scenario: Inserting Variable into a selected space
     Given "wf5" workflow is selected
-    And "First" step is selected
-    When I click on "Selected Step First Input"
-    And I click on "Selected Input Textarea"
-    And Highlight all text in "Selected Input Textarea"
-    And I click on "Selected Input Insert Variable Button"
-    And I click on "First variable for insert"
-    Then "Selected Input Textarea" should "have value:$BITRISE_SOURCE_DIR"
-    And "Insert Variable Popup" should "not be visible"
+      And "First" step is selected
+    When I click on "First Input"
+      And Highlight all text in "First Input"
+      And I click on "First Insert Variable Button"
+      And I click on "First variable for insert"
+      And I click on "Insert Selected Variable Button"
+    Then "First Input" should "have value:$BITRISE_SOURCE_DIR"
+      And "Dialog" should "not exist"
 
   Scenario: Insert Variable popup's Variable list
     Given "wf3" workflow is selected
-    And "Third" step is selected
-    And Insert Variable popup is open
+      And "Third" step is selected
+      And I click on "First Insert Variable Button"
     Then "Insert variable element called BITRISE_SOURCE_DIR" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called BITRISE_SOURCE_DIR source"
-    And "Insert variable element called BITRISE_DEPLOY_DIR" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called BITRISE_DEPLOY_DIR source"
-    And "Insert variable element called BITRISE_BUILD_STATUS" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called BITRISE_BUILD_STATUS source"
-    And "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID source"
-    And "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE source"
-    And "Insert variable element called CI" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called CI source"
-    And "Insert variable element called PR" should "exist"
-    And I should see "from bitrise CLI" in "Insert variable element called PR source"
-    And "Insert variable element called VERYSECRET" should "exist"
-    And I should see "from secrets" in "Insert variable element called VERYSECRET source"
-    And "Insert variable element called ACCESS_KEY" should "exist"
-    And I should see "from app env vars" in "Insert variable element called ACCESS_KEY source"
-    And "Insert variable element called GITHUB_TOKEN" should "exist"
-    And I should see "from app env vars" in "Insert variable element called GITHUB_TOKEN source"
-    And "Insert variable element called SLACK_WEBHOOK" should "exist"
-    And I should see "from app env vars" in "Insert variable element called SLACK_WEBHOOK source"
-    And "Insert variable element called COMPANY_NAME" should "exist"
-    And I should see "output of step: A local step" in "Insert variable element called COMPANY_NAME source"
-    And "Insert variable element called project" should "exist"
-    And I should see "env var of workflow: wf3" in "Insert variable element called project source"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_SOURCE_DIR"
+      And "Insert variable element called BITRISE_DEPLOY_DIR" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_DEPLOY_DIR"
+      And "Insert variable element called BITRISE_BUILD_STATUS" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_BUILD_STATUS"
+      And "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_ID"
+      And "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called BITRISE_TRIGGERED_WORKFLOW_TITLE"
+      And "Insert variable element called CI" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called CI"
+      And "Insert variable element called PR" should "exist"
+      And I should see "from bitrise CLI" in "Insert variable element called PR"
+      And "Insert variable element called VERYSECRET" should "exist"
+      And I should see "from secrets" in "Insert variable element called VERYSECRET"
+      And "Insert variable element called ACCESS_KEY" should "exist"
+      And I should see "from app env vars" in "Insert variable element called ACCESS_KEY"
 
   Scenario: Insert Variable popup's filter
     Given "wf3" workflow is selected
-    And "Third" step is selected
-    And Insert Variable popup is open
-    When I type "proj" in "Insert variable filter field"
-    Then "Variables for insert" should contain 1 "li"
+      And "Third" step is selected
+      And I click on "First Insert Variable Button"
+    When I type "proj" in "Variable Filter Input"
+      Then "Insert variable element called project" should "be visible"
+      And I should see "env var of workflow: wf4" in "Insert variable element called project"

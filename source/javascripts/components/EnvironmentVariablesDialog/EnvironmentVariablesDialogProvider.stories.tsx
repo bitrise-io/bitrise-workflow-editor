@@ -37,7 +37,7 @@ export const WithProps: StoryObj<typeof EnvironmentVariablesDialogProvider> = {
   decorators: [
     (Story) => {
       return (
-        <EnvironmentVariablesDialogProvider environmentVariables={environmentVariables}>
+        <EnvironmentVariablesDialogProvider onOpen={() => Promise.resolve(environmentVariables)}>
           <Story />
         </EnvironmentVariablesDialogProvider>
       );
