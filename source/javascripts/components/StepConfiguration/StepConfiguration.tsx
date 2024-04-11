@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { Box, Card, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { Badge, Box, Card, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { FormProvider, useForm } from 'react-hook-form';
 
 import { InputCategory, Step } from '../../models';
@@ -12,8 +12,23 @@ type StepConfigurationProps = {
   onChange: (data: Record<string, unknown>) => void;
 };
 
+const extractDefaultValues = (step: Step, inputCategories: InputCategory[]) => {
+  return {
+    run_if: step.runIf(),
+    ...inputCategories.reduce<Record<string, unknown>>((a, category) => {
+      return {
+        ...a,
+        ...category.inputs.reduce<Record<string, unknown>>((b, input) => {
+          return { ...b, [input.key()]: input.value() };
+        }, {}),
+      };
+    }, {}),
+  };
+};
+
 const StepConfiguration = ({ step, inputCategories, onChange }: StepConfigurationProps) => {
-  const form = useForm<Record<string, unknown>>({ mode: 'all' });
+  const defaultValues = extractDefaultValues(step, inputCategories);
+  const form = useForm<Record<string, unknown>>({ mode: 'all', defaultValues });
 
   /**
    * NOTE: The native form onChange handler is NOT called on input clear,
@@ -22,6 +37,7 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
    * @see StepInput onClear function
    */
   useEffect(() => {
+    form.trigger();
     const { unsubscribe } = form.watch(onChange);
     return () => unsubscribe();
   }, [onChange, form]);
@@ -38,7 +54,7 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
             <Toggle {...form.register('is_always_run')} defaultChecked={step.isAlwaysRun()} />
           </Box>
           <Divider my="24" />
-          <StepInput {...form.register('run_if')} label="Additional run conditions" defaultValue={step.runIf()} />
+          <StepInput {...form.register('run_if')} label="Additional run conditions" />
         </ExpandableCard>
 
         {inputCategories.map((category, index) => {
@@ -52,11 +68,20 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
             );
           }
 
+          const numberOfErrors = category.inputs.reduce((prev, input) => {
+            return prev + Number(form.getFieldState(input.key()).invalid);
+          }, 0);
+
           return (
             <ExpandableCard
               key={key}
               className="step-inputs-category"
-              buttonContent={<Text fontWeight="demiBold">{category.name}</Text>}
+              buttonContent={
+                <Box display="flex" gap="8">
+                  <Text fontWeight="demiBold">{category.name}</Text>
+                  {!!numberOfErrors && <Badge backgroundColor="sys/critical/bold">{numberOfErrors}</Badge>}
+                </Box>
+              }
             >
               <StepInputList inputs={category.inputs} />
             </ExpandableCard>
