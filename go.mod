@@ -11,7 +11,7 @@ require (
 	github.com/bitrise-io/stepman v0.0.0-20240322134046-851edc788eaf
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.0
-	github.com/stretchr/testify v1.8.4
+	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
