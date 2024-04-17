@@ -2,5 +2,8 @@
   "$schema": "https://docs.renovatebot.com/renovate-schema.json",
   "extends": [
     "local>bitrise-io/renovate-config:web-pillar-repositories"
-  ]
+  ],
+  "asdf": {
+    "enabled": false
+  }
 }
