@@ -45,7 +45,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
   const {
     watch,
     setValue,
-    formState: { errors },
+    formState: { errors, defaultValues },
   } = useFormContext();
 
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
@@ -54,7 +54,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
   const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
 
   const name = rest.name || '';
-  const value = watch(name, props.defaultValue || '');
+  const value = watch(name, props.defaultValue);
   const isClearableInput = isSensitive && !!value;
   const errorText = errors?.[name]?.message?.toString();
 
@@ -120,6 +120,11 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 {optionValue}
               </option>
             ))}
+            {defaultValues?.[name] && rest.options.every((optionValue) => optionValue !== defaultValues[name]) && (
+              <option key={defaultValues[name]} value={defaultValues[name]}>
+                {defaultValues[name]}
+              </option>
+            )}
           </Select>
         )}
 
