@@ -16,8 +16,10 @@ import {
 import { useTrackingFunction } from '../../hooks/utils/useTrackingFunction';
 import RunWorkflowDialog from '../RunWorkflowDialog/RunWorkflowDialog';
 import WorkflowSelector, { WorkflowSelectorProps } from '../WorkflowSelector/WorkflowSelector';
+import { Workflow } from '../../models';
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
+  selectedWorkflow?: Workflow;
   defaultBranch: string;
   uniqueStepCount: number;
   uniqueStepLimit?: number;
@@ -85,27 +87,29 @@ const WorkflowMainToolbar = ({
             onClick={onAddNewWorkflow}
             aria-label="Add new Workflow"
           />
-          <Menu placement="bottom-end">
-            <MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
-            <MenuList>
-              <MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
-                Insert Workflow before
-              </MenuItem>
-              <MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>
-                Insert Workflow after
-              </MenuItem>
-              <MenuItem
-                iconName="Request"
-                isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
-                onClick={onRearrangeWorkflow}
-              >
-                Change Workflow execution order
-              </MenuItem>
-              <MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
-                Delete selected Workflow
-              </MenuItem>
-            </MenuList>
-          </Menu>
+          {selectedWorkflow && (
+            <Menu placement="bottom-end">
+              <MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
+              <MenuList>
+                <MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
+                  Insert Workflow before
+                </MenuItem>
+                <MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>
+                  Insert Workflow after
+                </MenuItem>
+                <MenuItem
+                  iconName="Request"
+                  isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
+                  onClick={onRearrangeWorkflow}
+                >
+                  Change Workflow execution order
+                </MenuItem>
+                <MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
+                  Delete selected Workflow
+                </MenuItem>
+              </MenuList>
+            </Menu>
+          )}
         </Box>
         {showStepLimit && (
           <Text color="neutral.40" marginInlineStart="auto" marginInlineEnd="8">
@@ -125,13 +129,15 @@ const WorkflowMainToolbar = ({
             </Button>
           </Tooltip>
         )}
-        <RunWorkflowDialog
-          workflow={selectedWorkflow.id}
-          isOpen={isOpen}
-          onClose={onClose}
-          defaultBranch={defaultBranch}
-          onAction={(branch) => onRunWorkflow(branch)}
-        />
+        {selectedWorkflow && (
+          <RunWorkflowDialog
+            workflow={selectedWorkflow?.id}
+            isOpen={isOpen}
+            onClose={onClose}
+            defaultBranch={defaultBranch}
+            onAction={(branch) => onRunWorkflow(branch)}
+          />
+        )}
       </Box>
       {stepLimitReached && (
         <Notification status="warning">

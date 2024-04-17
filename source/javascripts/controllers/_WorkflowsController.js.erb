@@ -217,14 +217,15 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           var wf = workflowSelectionService.findSelectedWorkflow(viewModel);
           workflowSelectionService.rearrangeSelection(viewModel, wf, workflowSelectionStore.lastEditedWorkflowID);
 
+          if (workflows.length === 0) {
+            delete appService.appConfig["workflows"];
+            return;
+          }
+
           appService.appConfig.workflows = {};
           _.each(workflows, function(aWorkflow) {
             appService.appConfig.workflows[aWorkflow.id] = aWorkflow.workflowConfig;
           });
-
-          if (angular.equals(appService.appConfig.workflows, {})) {
-            delete appService.appConfig["workflows"];
-          }
         }
       );
 
@@ -919,92 +920,92 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       $scope.Step = Step;
 
       // Inputs
-      
-      var inputWatchers
+
+      var inputWatchers;
       viewModel.inputCategoriesOfSelectedStep;
 
       function configureInputsForStep(step) {
         viewModel.inputCategoriesOfSelectedStep = [];
 
-				if (step && step.defaultStepConfig) {
-					_.each(step.defaultStepConfig.inputs, function(anDefaultInputConfig) {
-						var userInputConfig = _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
-							return (
-								Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig)
-							);
-						});
+        if (step && step.defaultStepConfig) {
+          _.each(step.defaultStepConfig.inputs, function(anDefaultInputConfig) {
+            var userInputConfig = _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
+              return (
+                Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig)
+              );
+            });
 
-						var input = new Variable(userInputConfig, anDefaultInputConfig);
-						var inputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
-							name: input.category()
-						});
+            var input = new Variable(userInputConfig, anDefaultInputConfig);
+            var inputCategory = _.find(viewModel.inputCategoriesOfSelectedStep, {
+              name: input.category()
+            });
 
-						if (!inputCategory) {
-							inputCategory = {
-								name: input.category(),
-								inputs: []
-							};
-							viewModel.inputCategoriesOfSelectedStep.push(inputCategory);
-						}
+            if (!inputCategory) {
+              inputCategory = {
+                name: input.category(),
+                inputs: []
+              };
+              viewModel.inputCategoriesOfSelectedStep.push(inputCategory);
+            }
 
-						inputCategory.inputs.push(input);
-					});
-				}
+            inputCategory.inputs.push(input);
+          });
+        }
 
-				_.each(inputWatchers, function(anInputWatcher) {
-					anInputWatcher();
-				});
-				
+        _.each(inputWatchers, function(anInputWatcher) {
+          anInputWatcher();
+        });
+
         inputWatchers = [];
 
-				_.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
-					_.each(anInputCategory.inputs, function(anInput) {
-						inputWatchers.push(
-							$scope.$watch(
-								function() {
-									var userVariableConfigWithOnlyDefaultKeyAndDefaultValue = {};
-									var defaultKey = Variable.keyFromVariableConfig(anInput.defaultVariableConfig);
-									userVariableConfigWithOnlyDefaultKeyAndDefaultValue[defaultKey] =
-										anInput.defaultVariableConfig[defaultKey];
+        _.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
+          _.each(anInputCategory.inputs, function(anInput) {
+            inputWatchers.push(
+              $scope.$watch(
+                function() {
+                  var userVariableConfigWithOnlyDefaultKeyAndDefaultValue = {};
+                  var defaultKey = Variable.keyFromVariableConfig(anInput.defaultVariableConfig);
+                  userVariableConfigWithOnlyDefaultKeyAndDefaultValue[defaultKey] =
+                    anInput.defaultVariableConfig[defaultKey];
 
-									return (
-										angular.equals(anInput.userVariableConfig, {}) ||
-										angular.equals(anInput.userVariableConfig, userVariableConfigWithOnlyDefaultKeyAndDefaultValue)
-									);
-								},
-								function(isUserInputConfigDefaultNow, wasUserInputConfigDefaultBefore) {
-									if (isUserInputConfigDefaultNow === true && wasUserInputConfigDefaultBefore === false) {
-										var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
-											return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
-										});
+                  return (
+                    angular.equals(anInput.userVariableConfig, {}) ||
+                    angular.equals(anInput.userVariableConfig, userVariableConfigWithOnlyDefaultKeyAndDefaultValue)
+                  );
+                },
+                function(isUserInputConfigDefaultNow, wasUserInputConfigDefaultBefore) {
+                  if (isUserInputConfigDefaultNow === true && wasUserInputConfigDefaultBefore === false) {
+                    var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+                      return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
+                    });
 
-										step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
+                    step.userStepConfig.inputs.splice(indexOfUserInputConfig, 1);
 
-										if (angular.equals(step.userStepConfig.inputs, [])) {
-											delete step.userStepConfig["inputs"];
-										}
-									}
+                    if (angular.equals(step.userStepConfig.inputs, [])) {
+                      delete step.userStepConfig["inputs"];
+                    }
+                  }
 
-									if (isUserInputConfigDefaultNow === false && wasUserInputConfigDefaultBefore === true) {
-										if (!step.userStepConfig.inputs) {
-											step.userStepConfig.inputs = [];
-										}
+                  if (isUserInputConfigDefaultNow === false && wasUserInputConfigDefaultBefore === true) {
+                    if (!step.userStepConfig.inputs) {
+                      step.userStepConfig.inputs = [];
+                    }
 
-										var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
-											return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
-										});
+                    var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+                      return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
+                    });
 
-										step.userStepConfig.inputs.splice(
-											indexOfUserInputConfig,
-											indexOfUserInputConfig == -1 ? 0 : 1,
-											anInput.userVariableConfig
-										);
-									}
-								}
-							)
-						);
-					});
-				});
+                    step.userStepConfig.inputs.splice(
+                      indexOfUserInputConfig,
+                      indexOfUserInputConfig == -1 ? 0 : 1,
+                      anInput.userVariableConfig
+                    );
+                  }
+                }
+              )
+            );
+          });
+        });
 
         safeDigest($scope);
       }
@@ -1100,7 +1101,11 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
       // Keep configuration panel Tabs state on version change.
       viewModel.tabId = undefined;
-      viewModel.setTabId = (tabId) => { viewModel.tabId = tabId; };
-      $scope.$watch(() => viewModel.selectedStep, () => { viewModel.tabId = undefined; });
+      viewModel.setTabId = (tabId) => {
+        viewModel.tabId = tabId;
+      };
+      $scope.$watch(() => viewModel.selectedStep, () => {
+        viewModel.tabId = undefined;
+      });
     });
 })();
