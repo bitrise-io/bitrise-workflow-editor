@@ -3,18 +3,18 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 
 app:
   envs:
-  - BIN_NAME: workflow-editor
-  - BIN_ARCH: x86_64
-  - BIN_ARCH_ARM64: arm64
-  - BIN_OS_DARWIN: Darwin
-  - BIN_OS_LINUX: Linux
-  - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
-  - BIN_PATH_DARWIN_ARM64: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH_ARM64
-  - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
+    - BIN_NAME: workflow-editor
+    - BIN_ARCH: x86_64
+    - BIN_ARCH_ARM64: arm64
+    - BIN_OS_DARWIN: Darwin
+    - BIN_OS_LINUX: Linux
+    - BIN_PATH_DARWIN: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH
+    - BIN_PATH_DARWIN_ARM64: _bin/$BIN_NAME-$BIN_OS_DARWIN-$BIN_ARCH_ARM64
+    - BIN_PATH_LINUX: _bin/$BIN_NAME-$BIN_OS_LINUX-$BIN_ARCH
 
-  - PORT: "1234"
-  - DEV_SERVER_PORT: "4567"
-  - MODE: "CLI"
+    - PORT: "1234"
+    - DEV_SERVER_PORT: "4567"
+    - MODE: "CLI"
 
 workflows:
   up-api:
@@ -23,172 +23,172 @@ workflows:
       - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
       - USE_DEV_SERVER: "true"
     steps:
-    - change-workdir@1.0.2:
-        inputs:
-        - path: $GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor
-    - script:
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            gin --immediate --appPort=$PORT
+      - change-workdir@1.0.2:
+          inputs:
+            - path: $GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor
+      - script:
+          inputs:
+            - content: |
+                #!/bin/bash
+                set -ex
+                gin --immediate --appPort=$PORT
 
   setup-client:
     steps:
-    - script@1.1.5:
-        title: install nodejs with asdf
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            set -x
-            if ! [ -d ~/.asdf ]; then
-              git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3
-            fi
-            envman add --key PATH --value $PATH
-            source ~/.asdf/asdf.sh
-            asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git ||:
-            asdf reshim nodejs
-            asdf install nodejs
-    - script:
-        title: Install NPM and Bundler
-        deps:
-          apt_get:
-          - name: ruby
-          - name: ruby-dev
-          - name: build-essential
-          # for cypress
-          - name: xvfb
-          - name: libgtk2.0-0
-          - name: libgtk-3-0
-          - name: libgconf-2-4
-          - name: libnss3
-          - name: libxss1
-          - name: libasound2
-          - name: libxtst6
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            gem install -f bundler:2.1.4
-            bundle install
-            npm install
-    - script:
-        title: Build client
-        inputs:
-        - content: "npm run build"
+      - script@1.1.5:
+          title: install nodejs with asdf
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -x
+                if ! [ -d ~/.asdf ]; then
+                  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3
+                fi
+                envman add --key PATH --value $PATH
+                source ~/.asdf/asdf.sh
+                asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git ||:
+                asdf reshim nodejs
+                asdf install nodejs
+      - script:
+          title: Install NPM and Bundler
+          deps:
+            apt_get:
+              - name: ruby
+              - name: ruby-dev
+              - name: build-essential
+              # for cypress
+              - name: xvfb
+              - name: libgtk2.0-0
+              - name: libgtk-3-0
+              - name: libgconf-2-4
+              - name: libnss3
+              - name: libxss1
+              - name: libasound2
+              - name: libxtst6
+          inputs:
+            - content: |
+                #!/bin/bash
+                set -ex
+                gem install -f bundler:2.1.4
+                bundle install
+                npm install
 
   up:
     steps:
-    - script:
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            ./_scripts/forkpty-run.sh docker-sync-stack start
+      - script:
+          inputs:
+            - content: |
+                #!/bin/bash
+                set -ex
+                ./_scripts/forkpty-run.sh docker-sync-stack start
   setup:
     steps:
-    - script:
-        inputs:
-        - content: |
-            #!/bin/bash
-            set -ex
-            docker-sync clean
-            docker-sync start
-            docker-sync stop
+      - script:
+          inputs:
+            - content: |
+                #!/bin/bash
+                set -ex
+                docker-sync clean
+                docker-sync start
+                docker-sync stop
 
-            docker-compose kill
-            docker-compose rm -f -v
-            docker-compose build
+                docker-compose kill
+                docker-compose rm -f -v
+                docker-compose build
 
   ci:
     envs:
       - NODE_ENV: "prod"
     before_run:
-    - _install_test_tools
-    - test-api
-    - test-client
+      - _install_test_tools
+      - test-api
+      - test-client
 
   _install_test_tools:
     steps:
-    - script:
-        title: Install required testing tools
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            # Check for unhandled errors
-            go install github.com/kisielk/errcheck@latest
-            # Go lint
-            go install golang.org/x/lint/golint@latest
+      - script:
+          title: Install required testing tools
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                # Check for unhandled errors
+                go install github.com/kisielk/errcheck@latest
+                # Go lint
+                go install golang.org/x/lint/golint@latest
   test-client:
     envs:
       - NODE_ENV: "prod"
     before_run:
       - setup-plugin-api
     steps:
-    - script:
-        title: Unit tests & linting
-        inputs:
-        - content: npm run test-ci
-    - script:
-        title: E2E tests
-        inputs:
-        - content: npm run e2e-ci
+      - script:
+          title: Unit tests & linting
+          inputs:
+            - content: npm run test-ci
+      - script:
+          title: E2E tests
+          inputs:
+            - content: npm run e2e-ci
 
   test-api:
     steps:
-    - script:
-        title: Go Test
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            go test ./...
-    - script:
-        title: Go Vet
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            go vet ./...
-    - script:
-        title: Err check
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            errcheck -asserts=true -blank=true ./...
-    - script:
-        title: Go Lint
-        inputs:
-        - content: |-
-            #!/bin/bash
-            set -ex
-            # lint
-            golint ./...
+      - script:
+          title: Go Test
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                go test ./...
+      - script:
+          title: Go Vet
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                go vet ./...
+      - script:
+          title: Err check
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                errcheck -asserts=true -blank=true ./...
+      - script:
+          title: Go Lint
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+                # lint
+                golint ./...
 
   setup-plugin-api:
     title: Set up local plugin api
     description: |
-        Set up and build plugin api from clean state
+      Set up and build plugin api from clean state
     envs:
       - NODE_ENV: "prod"
     before_run:
       - setup-client
     steps:
       - script:
+          title: Build client
+          inputs:
+            - content: "npm run build"
+      - script:
           title: Compile Api
           inputs:
-          - content: ./_scripts/compile_api.sh
+            - content: ./_scripts/compile_api.sh
 
   create-binaries:
     title: Create binaries
     description: |
-        Creates Linux and Darwin binaries with embedded assets
+      Creates Linux and Darwin binaries with embedded assets
     envs:
       - NODE_ENV: "prod"
     steps:
       - script:
           title: Compile Api
           inputs:
-          - content: ./_scripts/compile_api.sh
+            - content: ./_scripts/compile_api.sh
