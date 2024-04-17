@@ -31,7 +31,7 @@
     "test-ci": "npm run lint && npm run karma",
     "test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",
     "build": "webpack --bail",
-    "build:website": "MODE=WEBSITE ANALYTICS=true SEGMENT=true DATADOG_RUM=true npm run build",
+    "build:website": "MODE=WEBSITE ANALYTICS=true HOTJAR=true SEGMENT=true DATADOG_RUM=true npm run build",
     "build:plugin": "MODE=CLI ANALYTICS=true npm run build && bitrise run create-binaries",
     "start:dev": "webpack-dev-server",
     "start:base": "concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 4000\"",
