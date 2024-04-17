@@ -33,7 +33,7 @@ workflows:
                 set -ex
                 gin --immediate --appPort=$PORT
 
-  setup-client:
+  install-deps:
     steps:
       - script@1.1.5:
           title: install nodejs with asdf
@@ -170,7 +170,7 @@ workflows:
     envs:
       - NODE_ENV: "prod"
     before_run:
-      - setup-client
+      - install-deps
     steps:
       - script:
           title: Build client
