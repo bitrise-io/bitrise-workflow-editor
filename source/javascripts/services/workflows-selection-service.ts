@@ -21,6 +21,7 @@ type WorkflowViewModel = {
     wfIndex: number | undefined,
     scrollToStep: boolean,
   ) => void;
+  deselectStep: () => void;
   selectedWorkflowChain: Array<WfChainWrapper>;
 };
 
@@ -137,6 +138,7 @@ export class WorkflowsSelectionService {
     if (!wf) {
       viewModel.editedWorkflow = undefined;
       viewModel.editWorkflowAtIndex(null);
+      viewModel.deselectStep();
       return;
     }
 
