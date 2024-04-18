@@ -1,7 +1,11 @@
 .tab-workflows[ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
   p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
-    section.manage-workflows
+    div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
+      r-workflow-empty-state[
+        on-add-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
+      ]
+    section.manage-workflows[ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       r-workflow-main-toolbar.react-toolbar[
         default-branch="workflowsCtrl.defaultBranch"
         can-run-workflow="workflowsCtrl.canRunWorkflow"
@@ -20,7 +24,7 @@
         unique-step-limit="workflowsCtrl.uniqueStepLimit"
         organization-slug="appService.appDetails.ownerData.slug"
       ]
-    .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()"]
+    .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
         .steps-container
           section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30" id="steps-container"]

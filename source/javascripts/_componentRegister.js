@@ -19,6 +19,7 @@ import Navigation from "./components/Navigation";
 import StepConfig from "./components/StepConfig";
 import VersionChangeDialog from "./components/StepProperties/VersionChangeDialog";
 import TriggersPage from "./components/TriggersPage/TriggersPage";
+import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
 
 function register(component, props, injects) {
   return react2angular(withBitkitProvider(component), props, injects);
@@ -114,6 +115,10 @@ angular
     ]),
   )
   .component(
+    "rWorkflowEmptyState",
+    register(WorkflowEmptyState, ["onAddWorkflow"]),
+  )
+  .component(
     "rWorkflowRecipesInfoBanner",
     register(WorkflowRecipesInfoBanner, []),
   )
@@ -178,14 +183,14 @@ angular
     ]),
   )
   .component(
-		"rTriggersPage",
-		register(TriggersPage, [
-			"onTriggerMapChange",
-			"pipelines",
-			"triggerMap",
-			"setDiscard",
-			"workflows",
-			"isWebsiteMode",
-			"integrationsUrl"
-		]),
+    "rTriggersPage",
+    register(TriggersPage, [
+      "onTriggerMapChange",
+      "pipelines",
+      "triggerMap",
+      "setDiscard",
+      "workflows",
+      "isWebsiteMode",
+      "integrationsUrl",
+    ]),
   );
