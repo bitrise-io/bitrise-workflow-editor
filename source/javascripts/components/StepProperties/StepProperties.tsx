@@ -15,10 +15,12 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
   const { name, version, sourceURL, summary, description, isLibraryStep } = extractStepFields(step);
   const [showMore, setShowMore] = useState(false);
 
-  const { register, setValue, handleSubmit } = useForm<Record<'name' | 'version', string>>();
+  const { register, setValue, handleSubmit } = useForm<{
+    properties: { name: string; version: string };
+  }>();
   useEffect(() => {
-    setValue('name', name);
-    setValue('version', version);
+    setValue('properties.name', name);
+    setValue('properties.version', version);
   }, [name, version, setValue]);
 
   const handleChange = handleSubmit(onChange);
@@ -42,10 +44,10 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         </Link>
       )}
 
-      <Input {...register('name')} type="text" label="Name" placeholder="Step name" isRequired />
+      <Input {...register('properties.name')} type="text" label="Name" placeholder="Step name" isRequired />
       <Divider />
       {isLibraryStep && (
-        <Select {...register('version')} label="Version updates" isRequired backgroundSize="none">
+        <Select {...register('properties.version')} label="Version updates" isRequired backgroundSize="none">
           {versionsWithRemarks.map(({ version: value, remark }) => {
             return (
               <option key={value} value={value || ''}>
