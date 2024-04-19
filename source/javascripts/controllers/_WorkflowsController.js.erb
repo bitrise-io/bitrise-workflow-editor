@@ -1052,13 +1052,8 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         }
 
         Object.entries(values).forEach(([key, value]) => {
-          if (key === "name") {
-            renameStep(viewModel.selectedStep, String(value));
-            return;
-          }
-
-          if (key === "version") {
-            changeStepToVersion(viewModel.selectedStep, String(value));
+          if (key === "properties") {
+            handleStepPropertiesChanged(value);
             return;
           }
 
@@ -1082,6 +1077,20 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         });
 
         safeDigest($scope);
+      };
+
+      function handleStepPropertiesChanged(properties) {
+        Object.entries(properties).forEach(([key, value]) => {
+          if (key === "name") {
+            renameStep(viewModel.selectedStep, String(value));
+            return;
+          }
+
+          if (key === "version") {
+            changeStepToVersion(viewModel.selectedStep, String(value));
+            return;
+          }
+        });
       };
 
       viewModel.saveSecretFromReact = function(secret) {
