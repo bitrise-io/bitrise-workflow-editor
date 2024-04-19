@@ -34,6 +34,10 @@ workflows:
                 gin --immediate --appPort=$PORT
 
   install-deps:
+    before_run:
+      - _restore_node_modules
+    after_run:
+      - _cache_node_modules
     steps:
       - script@1.1.5:
           title: install nodejs with asdf
@@ -103,6 +107,25 @@ workflows:
       - _install_test_tools
       - test-api
       - test-client
+
+  _restore_node_modules:
+    steps:
+      - git::https://github.com/bitrise-steplib/bitrise-step-restore-cache.git@main:
+          title: Restore cache
+          inputs:
+            - key: |
+                npm-cache-v4-{{ checksum "package-lock.json" }}
+                npm-cache-v4-
+            - verbose: 'true'
+  _cache_node_modules:
+    steps:
+      - git::https://github.com/bitrise-steplib/bitrise-step-save-cache.git@main:
+          title: Save cache
+          inputs:
+            - verbose: 'true'
+            - key: npm-cache-v4-{{ checksum "package-lock.json" }}
+            - paths: node_modules
+            - is_key_unique: 'true'
 
   _install_test_tools:
     steps:
