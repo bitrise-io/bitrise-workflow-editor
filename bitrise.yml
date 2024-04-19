@@ -17,26 +17,12 @@ app:
     - MODE: "CLI"
 
 workflows:
-  up-api:
-    envs:
-      - BITRISE_CONFIG: "$TEST_BITRISE_CONFIG_PATH"
-      - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
-      - USE_DEV_SERVER: "true"
-    steps:
-      - change-workdir@1.0.2:
-          inputs:
-            - path: $GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor
-      - script:
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                gin --immediate --appPort=$PORT
-
   install-deps:
+    envs:
+      - NODE_ENV: "prod"
     steps:
       - script@1.1.5:
-          title: install nodejs with asdf
+          title: Install NodeJS with asdf
           inputs:
             - content: |-
                 #!/usr/bin/env bash
@@ -50,7 +36,6 @@ workflows:
                 asdf reshim nodejs
                 asdf install nodejs
       - script:
-          title: Install NPM and Bundler
           deps:
             apt_get:
               - name: ruby
@@ -66,120 +51,94 @@ workflows:
               - name: libasound2
               - name: libxtst6
           inputs:
-            - content: |
+            - content: |-
                 #!/bin/bash
                 set -ex
                 gem install -f bundler:2.1.4
                 bundle install
                 npm install
-
-  up:
+  install-go-tools:
     steps:
       - script:
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                ./_scripts/forkpty-run.sh docker-sync-stack start
-  setup:
-    steps:
-      - script:
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                docker-sync clean
-                docker-sync start
-                docker-sync stop
-
-                docker-compose kill
-                docker-compose rm -f -v
-                docker-compose build
-
-  ci:
-    envs:
-      - NODE_ENV: "prod"
-    before_run:
-      - _install_test_tools
-      - test-api
-      - test-client
-
-  _install_test_tools:
-    steps:
-      - script:
-          title: Install required testing tools
+          title: Install Go tools
           inputs:
             - content: |-
                 #!/bin/bash
                 set -ex
-                # Check for unhandled errors
-                go install github.com/kisielk/errcheck@latest
-                # Go lint
+
                 go install golang.org/x/lint/golint@latest
-  test-client:
+                go install github.com/kisielk/errcheck@latest
+                go install github.com/GeertJohan/go.rice/rice@latest
+  setup-client:
     envs:
       - NODE_ENV: "prod"
-    before_run:
-      - setup-plugin-api
     steps:
       - script:
-          title: Unit tests & linting
+          title: Build & compile client
+          description: Set up and build plugin api from clean state
           inputs:
-            - content: npm run test-ci
-      - script:
-          title: E2E tests
+            - content: |-
+                #!/bin/bash
+                set -ex
+                npm run build
+                ./_scripts/compile_api.sh
+
+  ci:
+    envs:
+      - NODE_ENV: "prod"
+    steps:
+      - bitrise-run@0:
+          title: Test API
           inputs:
-            - content: npm run e2e-ci
+            - workflow_id: test-api
+      - bitrise-run@0:
+          title: Test client
+          inputs:
+            - workflow_id: test-client
 
   test-api:
+    before_run:
+      - install-go-tools
     steps:
+      - script:
+          title: Go Lint & Vet & Check for unhandled errors
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+
+                go vet ./...
+                golint ./...
+                errcheck -asserts=true -blank=true ./...
       - script:
           title: Go Test
           inputs:
             - content: |-
                 #!/bin/bash
                 set -ex
-                go test ./...
-      - script:
-          title: Go Vet
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                go vet ./...
-      - script:
-          title: Err check
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                errcheck -asserts=true -blank=true ./...
-      - script:
-          title: Go Lint
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                # lint
-                golint ./...
 
-  setup-plugin-api:
-    title: Set up local plugin api
-    description: |
-      Set up and build plugin api from clean state
+                go test ./...
+
+
+  test-client:
     envs:
       - NODE_ENV: "prod"
     before_run:
       - install-deps
+      - setup-client
     steps:
-      - script:
-          title: Build client
+      - npm@1:
+          title: Run linter
           inputs:
-            - content: "npm run build"
-      - script:
-          title: Compile Api
+            - command: run lint
+      - npm@1:
+          title: Run unit tests
           inputs:
-            - content: ./_scripts/compile_api.sh
+            - command: run test
+      - npm@1:
+          title: Run E2E tests
+          inputs:
+            - command: run e2e-ci
 
   create-binaries:
     title: Create binaries
@@ -191,4 +150,7 @@ workflows:
       - script:
           title: Compile Api
           inputs:
-            - content: ./_scripts/compile_api.sh
+            - content: |-
+                #!/bin/bash
+                set -ex
+                ./_scripts/compile_api.sh
