@@ -1,6 +1,4 @@
-import { Box, Icon, Link, Text, Tooltip, BoxProps } from '@bitrise/bitkit';
-
-import Hotjar from '../../../utils/hotjar';
+import { Box, BoxProps, Icon, Link, Text, Tooltip } from '@bitrise/bitkit';
 
 type WorkflowRecipesLinkProps = {
   linkId: string;
@@ -8,11 +6,6 @@ type WorkflowRecipesLinkProps = {
 } & BoxProps;
 
 const WorkflowRecipesLink = ({ linkId, trackingName, ...boxProps }: WorkflowRecipesLinkProps): JSX.Element => {
-  const trackAction = (): void => {
-    const eventName = `wfe_workflow_recipes_action_${trackingName}`;
-    Hotjar.event(eventName);
-  };
-
   return (
     <Box display="flex" alignItems="center" gap="8" paddingY="4" {...boxProps}>
       <Link
@@ -20,7 +13,6 @@ const WorkflowRecipesLink = ({ linkId, trackingName, ...boxProps }: WorkflowReci
         href="https://github.com/bitrise-io/workflow-recipes"
         target="_blank"
         colorScheme="purple"
-        onClick={trackAction}
         display="flex"
         alignItems="center"
         gap="4"

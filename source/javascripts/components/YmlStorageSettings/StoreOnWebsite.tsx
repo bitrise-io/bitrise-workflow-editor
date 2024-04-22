@@ -55,11 +55,13 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
     if (!updatePipelineConfigLoading && updatePipelineConfigStatus === 200 && copyRepositoryYmlToWebsite) {
       postAppConfig();
     }
-  }, [updatePipelineConfigLoading, updatePipelineConfigStatus, copyRepositoryYmlToWebsite, postAppConfig]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatePipelineConfigLoading, updatePipelineConfigStatus, copyRepositoryYmlToWebsite]);
 
   useEffect(() => {
     getAppConfigFromRepo();
-  }, [getAppConfigFromRepo]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const renderError = (): React.ReactElement => {
     switch (getAppConfigFromRepoStatus) {

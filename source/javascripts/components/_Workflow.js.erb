@@ -177,7 +177,7 @@
 			});
 		};
 
-		Workflow.prototype.setRollbackVersion = function(isPaying, machineTypes) {
+		Workflow.prototype.setRollbackVersion = function(isPaying, accountSlug, machineTypes) {
 				var stack = this.stack();
 				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
 
@@ -188,7 +188,7 @@
 					this.workflowConfig.meta[BITRISE_META_KEY] = {};
 				}
 
-				this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version = stack.getRollbackVersion(machineTypeId, isPaying);
+				this.workflowConfig.meta[BITRISE_META_KEY].stack_rollback_version = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
 		}
 
 		Workflow.prototype.removeRollbackVersion = function() {
@@ -210,7 +210,7 @@
 			);
 		}
 
-		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function(machineTypes, isPaying) {
+		Workflow.prototype.isRollbackVersionInBitriseYmlNoLongerAvailable = function(machineTypes, isPaying, accountSlug) {
 				var stack = this.stack();
 
 				if (!stack) {
@@ -219,7 +219,7 @@
 
 				var machineTypeId = this.machineType(stack.type, undefined, machineTypes).id;
 
-				var rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying);
+				var rollbackVersion = stack.getRollbackVersion(machineTypeId, isPaying, accountSlug);
 				var rollbackVersionInYml = this.getRollbackVersion();
 
 				return rollbackVersionInYml && !angular.equals(rollbackVersion, rollbackVersionInYml);

@@ -162,18 +162,6 @@
 			return this.triggerConfig.tag;
 		};
 
-		Trigger.prototype.toggleDraftPrDisabled = function() {
-			let enabled = this.triggerConfig.draft_pull_request_enabled == undefined || this.triggerConfig.draft_pull_request_enabled == true;
-
-			if(enabled) {
-				this.triggerConfig.draft_pull_request_enabled = false;
-			}else{
-				this.triggerConfig.draft_pull_request_enabled = undefined;
-			}
-
-			return !enabled;
-		};
-
 		return Trigger;
 	});
 
@@ -183,11 +171,11 @@
 			return function(triggerType) {
 				switch (triggerType) {
 					case "push":
-						return "<%= data[:strings][:triggers][:types][:push] %>";
+						return "Push";
 					case "pull-request":
-						return "<%= data[:strings][:triggers][:types][:pull_request] %>";
+						return "Pull request";
 					case "tag":
-						return "<%= data[:strings][:triggers][:types][:tag] %>";
+						return "Tag";
 				}
 			};
 		});

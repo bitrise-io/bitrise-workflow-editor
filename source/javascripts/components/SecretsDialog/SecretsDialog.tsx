@@ -18,6 +18,7 @@ type Props = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   secrets: Secret[];
   onSelect: HandlerFn;
   onCreate: HandlerFn;
+  isLoading?: boolean;
 };
 
 enum Segment {
@@ -25,7 +26,7 @@ enum Segment {
   CREATE = 'create',
 }
 
-const SecretsDialog = ({ secrets, isOpen, onClose, onSelect, onCreate }: Props) => {
+const SecretsDialog = ({ secrets, isOpen, isLoading, onClose, onSelect, onCreate }: Props) => {
   const selectSecretForm = useForm<SelectSecretFormValues>();
   const createSecretForm = useForm<CreateSecretFormValues>({ mode: 'all' });
 
@@ -76,13 +77,13 @@ const SecretsDialog = ({ secrets, isOpen, onClose, onSelect, onCreate }: Props) 
 
         {isSelectSegment && (
           <FormProvider {...selectSecretForm}>
-            <SecretsTable secrets={secrets} />
+            <SecretsTable secrets={secrets} isLoading={isLoading} />
           </FormProvider>
         )}
 
         {isCreateSegment && (
           <FormProvider {...createSecretForm}>
-            <CreateSecret />
+            <CreateSecret secrets={secrets} />
           </FormProvider>
         )}
       </DialogBody>
