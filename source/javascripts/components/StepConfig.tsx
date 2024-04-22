@@ -83,7 +83,7 @@ const StepConfig = ({
                       name="WarningColored"
                       aria-label="New version available"
                       cursor="pointer"
-                      onClick={() => onChange({ version: '' })}
+                      onClick={() => onChange({ properties: { version: '' } })}
                       data-e2e-tag="step-version-details__update-icon"
                     />
                   </Tooltip>
