@@ -16,8 +16,6 @@ import { checkIsConditionsUsed } from './TriggersPage.utils';
 
 import { FormItems, TriggerItem } from './TriggersPage.types';
 
-const getLabelText = (isRegex: boolean) => (isRegex ? 'Enter a regex pattern' : 'Enter a tag');
-
 type DialogProps = {
   currentTriggers: TriggerItem[];
   isOpen: boolean;
@@ -61,9 +59,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
   const conditionNumber: number = 0;
 
-  const { conditions, pipelineable } = watch();
-
-  const { isRegex } = conditions[conditionNumber] || {};
+  const { pipelineable } = watch();
 
   const isEditMode = !!editedItem;
 
@@ -72,6 +68,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
+      if (!newCondition.value) {
+        newCondition.value = '*';
+      }
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
@@ -87,19 +86,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
   const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
-  let hasEmptyCondition = false;
-  conditions.forEach(({ type, value }) => {
-    if (!type || !value) {
-      hasEmptyCondition = true;
-    }
-  });
-
-  const isSubmitDisabled = isPipelineableMissing || isConditionsUsed || hasEmptyCondition;
+  const isSubmitDisabled = isPipelineableMissing || isConditionsUsed;
 
   let submitTooltipLabel = 'Please select a pipeline or workflow.';
-  if (hasEmptyCondition) {
-    submitTooltipLabel = 'Please enter a tag.';
-  }
   if (isConditionsUsed) {
     submitTooltipLabel = 'You previously added this tag for another trigger. Please check and try again.';
   }
@@ -122,8 +111,11 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             Define a tag and select a Pipeline or Workflow for execution on Bitrise whenever the tag is pushed to your
             repository.
           </Text>
-          <Text marginBottom="16" textStyle="body/md/semibold">
-            Tag
+          <Text color="text/secondary" marginBottom="16">
+            <Text as="span" textStyle="body/md/semibold" color="input/text/label">
+              Tag{' '}
+            </Text>
+            (optional)
           </Text>
           <Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
             Use regex pattern
@@ -137,10 +129,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
               <Input
                 marginBottom="24"
                 {...field}
-                isRequired
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
-                label={getLabelText(isRegex)}
                 placeholder="*"
+                helperText="If you leave it blank, Bitrise will mark it as a * and start builds for any tag."
               />
             )}
           />
