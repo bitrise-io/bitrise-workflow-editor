@@ -134,6 +134,13 @@ module.exports = {
   },
 
   /* --- Performance --- */
+  cache: {
+    type: 'filesystem',
+    buildDependencies: {
+      // This makes all dependencies of this file - build dependencies
+      config: [__filename],
+    },
+  },
   optimization: {
     minimize: isProd,
     minimizer: [
