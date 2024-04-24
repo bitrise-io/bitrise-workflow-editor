@@ -42,6 +42,7 @@ workflows:
               - name: ruby-dev
               - name: build-essential
               # for cypress
+              - name: xdg-open
               - name: xvfb
               - name: libgtk2.0-0
               - name: libgtk-3-0
@@ -119,7 +120,6 @@ workflows:
 
                 go test ./...
 
-
   test-client:
     envs:
       - NODE_ENV: "prod"
@@ -138,7 +138,7 @@ workflows:
       - npm@1:
           title: Run E2E tests
           inputs:
-            - command: run e2e-ci
+            - command: run e2e:ci
 
   create-binaries:
     title: Create binaries

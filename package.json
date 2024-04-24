@@ -40,7 +40,11 @@
     "e2e:run": "cypress run",
     "e2e:api": "./_scripts/run_api.sh",
     "e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\"",
-    "e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY --reporter cypress-multi-reporters --reporter-options configFile=reporter-config.js\""
+    "e2e:ci": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:feature:workflows\" \"npm:e2e:feature:step-list\" \"npm:e2e:feature:step-inputs\" \"npm:e2e:feature:step-details\"",
+    "e2e:feature:workflows": "wait-on tcp:4000 -t 30s && cypress run --spec spec/integration/workflows.feature",
+    "e2e:feature:step-list": "wait-on tcp:4000 -t 30s && cypress run --spec spec/integration/workflows-steps-list.feature",
+    "e2e:feature:step-inputs": "wait-on tcp:4000 -t 30s && cypress run --spec spec/integration/workflows-steps-inputs.feature",
+    "e2e:feature:step-details": "wait-on tcp:4000 -t 30s && cypress run --spec spec/integration/workflows-steps-details.feature"
   },
   "cypress-cucumber-preprocessor": {
     "nonGlobalStepDefinitions": true,
@@ -155,6 +159,7 @@
     "terser-webpack-plugin": "^5.3.10",
     "ts-loader": "^9.5.1",
     "typescript": "^5.4.4",
+    "wait-on": "^7.2.0",
     "webpack": "^5.91.0",
     "webpack-bundle-analyzer": "^4.10.1",
     "webpack-cli": "^5.1.4",
