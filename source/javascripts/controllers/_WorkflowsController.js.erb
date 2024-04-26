@@ -1113,8 +1113,16 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.setTabId = (tabId) => {
         viewModel.tabId = tabId;
       };
+
+      // Preserve the focus state of the selected input during a safe digest cycle.
+      viewModel.focusInput = undefined;
+      viewModel.setFocusInput = (name) => {
+        viewModel.focusInput = name;
+      };
+
       $scope.$watch(() => viewModel.selectedStep, () => {
         viewModel.tabId = undefined;
+        viewModel.focusInput = undefined;
       });
     });
 })();

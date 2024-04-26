@@ -6,6 +6,7 @@ import { useFormContext } from 'react-hook-form';
 
 import { useSecretsDialog } from '../../../SecretsDialog';
 import { useEnvironmentVariablesDialog } from '../../../EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
+import { useFocusInput } from '../../../FocusInputProvider';
 import StepInputHelper from './StepInputHelper';
 import StepInputLabel from './StepInputLabel';
 
@@ -50,6 +51,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
+  const { isInFocus, handleFocus } = useFocusInput();
   const { open: openSecretsDialog } = useSecretsDialog();
   const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
 
@@ -114,7 +116,14 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
 
       <Box pos="relative">
         {isSelectInput(rest) && (
-          <Select ref={ref} {...omit(rest, 'options')} size="medium" backgroundSize="unset">
+          <Select
+            ref={ref}
+            {...omit(rest, 'options')}
+            size="medium"
+            backgroundSize="unset"
+            onFocus={handleFocus(name)}
+            autoFocus={isInFocus(name)}
+          >
             {rest.options.map((optionValue) => (
               <option key={optionValue} value={optionValue}>
                 {optionValue}
@@ -154,6 +163,8 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 onBlur={handleOnBlur}
                 transition="height none"
                 gridArea="1 / 1 / 2 / 2"
+                onFocus={handleFocus(name)}
+                autoFocus={isInFocus(name)}
                 isDisabled={isSensitive || isDisabled}
                 placeholder={isSensitive ? 'Add secret' : 'Enter value'}
               />

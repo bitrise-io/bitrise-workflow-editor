@@ -1,8 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 
 import { OnStepChange, Step, StepVersionWithRemark } from '../../models';
+import { useFocusInput } from '../FocusInputProvider';
 import { extractStepFields } from './utils';
 
 type Props = {
@@ -14,16 +15,24 @@ type Props = {
 const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
   const { name, version, sourceURL, summary, description, isLibraryStep } = extractStepFields(step);
   const [showMore, setShowMore] = useState(false);
+  const { isInFocus, handleFocus } = useFocusInput();
 
-  const { register, setValue, handleSubmit } = useForm<{
-    properties: { name: string; version: string };
-  }>();
-  useEffect(() => {
-    setValue('properties.name', name);
-    setValue('properties.version', version);
-  }, [name, version, setValue]);
+  const { register, handleSubmit } = useForm<{
+    properties: {
+      name: string;
+      version: string;
+    };
+  }>({
+    defaultValues: {
+      properties: {
+        name,
+        version,
+      },
+    },
+  });
 
   const handleChange = handleSubmit(onChange);
+
   return (
     <Box as="form" display="flex" flexDirection="column" p="24" gap="24" onChange={handleChange}>
       {sourceURL && (
@@ -44,10 +53,25 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         </Link>
       )}
 
-      <Input {...register('properties.name')} type="text" label="Name" placeholder="Step name" isRequired />
+      <Input
+        {...register('properties.name')}
+        type="text"
+        label="Name"
+        placeholder="Step name"
+        onFocus={handleFocus('properties.name')}
+        autoFocus={isInFocus('properties.name')}
+        isRequired
+      />
       <Divider />
       {isLibraryStep && (
-        <Select {...register('properties.version')} label="Version updates" isRequired backgroundSize="none">
+        <Select
+          {...register('properties.version')}
+          isRequired
+          backgroundSize="none"
+          label="Version updates"
+          onFocus={handleFocus('properties.version')}
+          autoFocus={isInFocus('properties.version')}
+        >
           {versionsWithRemarks.map(({ version: value, remark }) => {
             return (
               <option key={value} value={value || ''}>

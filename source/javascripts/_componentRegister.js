@@ -156,6 +156,7 @@ angular
     register(StepConfig, [
       "step",
       "tabId",
+      "focusInput",
       "environmentVariables",
       "secrets",
       "hasVersionUpdate",
@@ -167,6 +168,7 @@ angular
       "onRemove",
       "onChangeTabId",
       "onCreateSecret",
+      "onChangeFocusInput",
       "onOpenSecretsDialog",
       "onOpenEnvironmentVariablesDialog",
     ]),

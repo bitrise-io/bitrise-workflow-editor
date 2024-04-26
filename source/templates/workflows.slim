@@ -61,6 +61,7 @@
               r-step-config[
                 tab-id="workflowsCtrl.tabId"
                 step="workflowsCtrl.selectedStep"
+                focus-input="workflowsCtrl.focusInput"
                 secrets="insertSecretCtrl.insertableVariablesForReact"
                 environment-variables="insertVariableCtrl.insertableVariablesForReact"
                 has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
@@ -71,6 +72,7 @@
                 on-clone="workflowsCtrl.cloneSelectedStep"
                 on-remove="workflowsCtrl.deleteSelectedStep"
                 on-change="workflowsCtrl.handleSelectedStepChanges"
+                on-change-focus-input="workflowsCtrl.setFocusInput"
                 on-create-secret="workflowsCtrl.saveSecretFromReact"
                 on-open-environment-variables-dialog="insertVariableCtrl.initForReact(null, workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
                 on-open-secrets-dialog="insertSecretCtrl.initForReact(requestService.mode == 'website' ? ['from_code_signing_files', 'from_secrets'] : ['from_secrets'], workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
