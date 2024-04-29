@@ -43,7 +43,8 @@
     "e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY --reporter cypress-multi-reporters --reporter-options configFile=reporter-config.js\"",
     "e2e": "concurrently -k -s first \"npm:e2e:api\" \"npm:e2e:run\"",
     "storybook": "storybook dev -p 6006",
-    "build-storybook": "storybook build"
+    "build-storybook": "storybook build",
+    "generate-theme-types": "chakra-cli tokens node_modules/@bitrise/bitkit/src/theme.ts"
   },
   "cypress-cucumber-preprocessor": {
     "nonGlobalStepDefinitions": true,
@@ -92,6 +93,7 @@
   },
   "devDependencies": {
     "@bitrise/eslint-plugin": "^2.10.2",
+    "@chakra-ui/cli": "^2.4.1",
     "@google-cloud/storage": "^7.9.0",
     "@storybook/addon-essentials": "^8.0.6",
     "@storybook/addon-interactions": "^8.0.6",

@@ -1093,6 +1093,23 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         });
       };
 
+      viewModel.saveEnvVarFromReact = function(envVar) {
+        const variable = new Variable({ [envVar.key]: envVar.value }, Variable.defaultVariableConfig());
+
+        variable.isExpand(envVar.isExpand);
+
+        const appConfig = appService.appConfig;
+
+        if (appConfig && appConfig.workflows && appConfig.workflows[viewModel.selectedWorkflow.id]) {
+          const wf = appConfig.workflows[viewModel.selectedWorkflow.id];
+          if (!wf.envs) {
+            wf.envs = [];
+          }
+
+          wf.envs.push(variable.userVariableConfig);
+        }
+      };
+
       viewModel.saveSecretFromReact = function(secret) {
         const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
 
