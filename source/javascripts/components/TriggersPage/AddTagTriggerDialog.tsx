@@ -1,21 +1,10 @@
 import { useEffect, useMemo } from 'react';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Icon,
-  Input,
-  Link,
-  Select,
-  Text,
-  Tooltip,
-} from '@bitrise/bitkit';
+import { Button, Dialog, DialogBody, DialogFooter, Input, Select, Text, Tooltip } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { checkIsConditionsUsed } from './TriggersPage.utils';
 
 import { FormItems, TriggerItem } from './TriggersPage.types';
+import RegexCheckbox from './RegexCheckbox';
 
 const getLabelText = (isRegex: boolean) => (isRegex ? 'Enter a regex pattern' : 'Enter a tag');
 
@@ -60,9 +49,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen, editedItem]);
 
-  const conditionNumber: number = 0;
-
   const { conditions, pipelineable } = watch();
+
+  const conditionNumber: number = 0;
 
   const { isRegex } = conditions[conditionNumber] || {};
 
@@ -126,30 +115,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Text marginBottom="16" textStyle="body/md/semibold">
             Tag
           </Text>
-          <Checkbox
-            helperText={
-              <>
-                Bitrise uses Ruby's standard{' '}
-                {
-                  <Link
-                    href="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
-                    target="_blank"
-                    colorScheme="purple"
-                  >
-                    Regexp#match
-                  </Link>
-                }{' '}
-                method.
-              </>
-            }
-            marginBottom="8"
-            {...register(`conditions.${conditionNumber}.isRegex`)}
-          >
-            Use regex pattern
-            <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
-              <Icon name="Info" size="16" marginLeft="5" />
-            </Tooltip>
-          </Checkbox>
+          <RegexCheckbox {...register(`conditions.${conditionNumber}.isRegex`)} />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (

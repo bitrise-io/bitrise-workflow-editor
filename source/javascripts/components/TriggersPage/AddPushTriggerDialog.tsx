@@ -3,15 +3,12 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
   DefinitionTooltip,
   Dialog,
   DialogBody,
   DialogFooter,
   Divider,
-  Icon,
   Input,
-  Link,
   ProgressIndicator,
   ProgressIndicatorProps,
   Select,
@@ -22,6 +19,7 @@ import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from
 
 import { Condition, FormItems, PushConditionType, TriggerItem } from './TriggersPage.types';
 import { checkIsConditionsUsed } from './TriggersPage.utils';
+import RegexCheckbox from './RegexCheckbox';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
@@ -91,30 +89,7 @@ const ConditionCard = (props: ConditionCardProps) => {
       </Select>
       {!!type && (
         <>
-          <Checkbox
-            helperText={
-              <>
-                Bitrise uses Ruby's standard{' '}
-                {
-                  <Link
-                    href="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
-                    target="_blank"
-                    colorScheme="purple"
-                  >
-                    Regexp#match
-                  </Link>
-                }{' '}
-                method.
-              </>
-            }
-            marginBottom="8"
-            {...register(`conditions.${conditionNumber}.isRegex`)}
-          >
-            Use regex pattern
-            <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
-              <Icon name="Info" size="16" marginLeft="5" />
-            </Tooltip>
-          </Checkbox>
+          <RegexCheckbox {...register(`conditions.${conditionNumber}.isRegex`)} />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
