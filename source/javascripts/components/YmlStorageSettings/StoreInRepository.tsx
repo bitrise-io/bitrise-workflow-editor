@@ -48,13 +48,7 @@ const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInReposito
       updatePipelineConfig();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [
-    getAppConfigLoading,
-    getAppConfigFromRepoLoading,
-    getAppConfigFromRepoStatus,
-    initialCheckComplete,
-    appConfigFromRepo,
-  ]);
+  }, [getAppConfigLoading, getAppConfigFromRepoLoading, getAppConfigFromRepoStatus]);
 
   const isFinished = useMemo(() => {
     const isSuccessful = !updatePipelineConfigLoading && updatePipelineConfigStatus === 200;
@@ -63,7 +57,8 @@ const StorageInRepository = ({ appSlug, onCancel, onSuccess }: StorageInReposito
     }
 
     return isSuccessful;
-  }, [updatePipelineConfigLoading, updatePipelineConfigStatus, onSuccess]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatePipelineConfigLoading, updatePipelineConfigStatus]);
 
   const checkBitriseYmlInRepository = (): void => {
     getAppConfigFromRepo();
