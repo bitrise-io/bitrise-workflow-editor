@@ -43,7 +43,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { register, reset, handleSubmit, watch } = formMethods;
+  const { register, reset, handleSubmit, watch, setValue } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -115,7 +115,10 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Text marginBottom="16" textStyle="body/md/semibold">
             Tag
           </Text>
-          <RegexCheckbox {...register(`conditions.${conditionNumber}.isRegex`)} />
+          <RegexCheckbox
+            isChecked={isRegex}
+            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
+          />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (

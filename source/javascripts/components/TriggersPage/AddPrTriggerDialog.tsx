@@ -63,7 +63,7 @@ const OPTIONS_MAP: Record<PrConditionType, string> = {
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;
-  const { register, watch } = useFormContext();
+  const { register, watch, setValue } = useFormContext();
   const { conditions } = watch();
   const { isRegex, type } = conditions[conditionNumber] || {};
 
@@ -95,7 +95,10 @@ const ConditionCard = (props: ConditionCardProps) => {
       </Select>
       {!!type && (
         <>
-          <RegexCheckbox {...register(`conditions.${conditionNumber}.isRegex`)} />
+          <RegexCheckbox
+            isChecked={isRegex}
+            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
+          />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
@@ -151,7 +154,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { control, formState, register, reset, handleSubmit, watch } = formMethods;
+  const { control, formState, register, reset, handleSubmit, watch, setValue } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -187,7 +190,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const { conditions, pipelineable } = watch();
+  const { conditions, pipelineable, isDraftPr } = watch();
 
   let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
@@ -254,7 +257,9 @@ const AddPrTriggerDialog = (props: DialogProps) => {
               >
                 Add condition
               </Button>
-              <Checkbox {...register(`isDraftPr`)}>Include draft pull requests</Checkbox>
+              <Checkbox isChecked={isDraftPr} onChange={(e) => setValue(`isDraftPr`, e.target.checked)}>
+                Include draft pull requests
+              </Checkbox>
             </>
           ) : (
             <>

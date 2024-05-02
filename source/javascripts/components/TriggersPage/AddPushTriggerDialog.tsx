@@ -57,7 +57,7 @@ const OPTIONS_MAP: Record<PushConditionType, string> = {
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;
-  const { register, watch } = useFormContext();
+  const { register, watch, setValue } = useFormContext();
   const { conditions } = watch();
   const { isRegex, type } = conditions[conditionNumber] || {};
 
@@ -89,7 +89,10 @@ const ConditionCard = (props: ConditionCardProps) => {
       </Select>
       {!!type && (
         <>
-          <RegexCheckbox {...register(`conditions.${conditionNumber}.isRegex`)} />
+          <RegexCheckbox
+            isChecked={isRegex}
+            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
+          />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
