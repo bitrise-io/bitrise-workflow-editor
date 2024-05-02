@@ -1112,9 +1112,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.tabId = undefined;
       viewModel.setTabId = (tabId) => {
         viewModel.tabId = tabId;
+        safeDigest($scope);
       };
       $scope.$watch(() => viewModel.selectedStep, () => {
-        viewModel.tabId = undefined;
+        viewModel.setTabId(undefined);
       });
     });
 })();
