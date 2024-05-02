@@ -7,6 +7,7 @@ import {
   DialogFooter,
   Icon,
   Input,
+  Link,
   Select,
   Text,
   Tooltip,
@@ -125,12 +126,30 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Text marginBottom="16" textStyle="body/md/semibold">
             Tag
           </Text>
-          <Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
+          <Checkbox
+            helperText={
+              <>
+                Bitrise uses Ruby's standard{' '}
+                {
+                  <Link
+                    href="https://docs.ruby-lang.org/en/3.2/Regexp.html#class-Regexp-label-Regexp-23match+Method"
+                    target="_blank"
+                    colorScheme="purple"
+                  >
+                    Regexp#match
+                  </Link>
+                }{' '}
+                method.
+              </>
+            }
+            marginBottom="8"
+            {...register(`conditions.${conditionNumber}.isRegex`)}
+          >
             Use regex pattern
+            <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
+              <Icon name="Info" size="16" marginLeft="5" />
+            </Tooltip>
           </Checkbox>
-          <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
-            <Icon name="Info" size="16" marginLeft="5" />
-          </Tooltip>
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
