@@ -1,11 +1,12 @@
 import { ComponentProps, FocusEventHandler, MouseEventHandler, ReactNode, useState } from 'react';
-import { Box, ButtonGroup, IconButton } from '@bitrise/bitkit';
+import { Box, ButtonGroup, Dropdown, DropdownOption, DropdownProps, IconButton } from '@bitrise/bitkit';
 import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
-import omit from 'lodash/omit';
 import { useFormContext } from 'react-hook-form';
 
 import { useSecretsDialog } from '../../../SecretsDialog';
-import { useEnvironmentVariablesDialog } from '../../../EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
+import InsertEnvVarMenu from '../../../InsertEnvVarMenu/InsertEnvVarMenu';
+import { EnvironmentVariable } from '../../../InsertEnvVarMenu/types';
+import { useEnvironmentVariables } from '../../../InsertEnvVarMenu/EnvironmentVariablesProvider';
 import StepInputHelper from './StepInputHelper';
 import StepInputLabel from './StepInputLabel';
 
@@ -45,13 +46,13 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
   const {
     watch,
     setValue,
-    formState: { errors, defaultValues },
+    formState: { errors },
   } = useFormContext();
 
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
 
   const { open: openSecretsDialog } = useSecretsDialog();
-  const { open: openEnvironmentVariablesDialog } = useEnvironmentVariablesDialog();
+  const { isLoading, load: loadEnvVars, get: getEnvVars, create: createEnvVar } = useEnvironmentVariables();
 
   const name = rest.name || '';
   const value = watch(name, props.defaultValue);
@@ -62,7 +63,11 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     e.preventDefault();
     e.stopPropagation();
 
-    setValue(name, '', { shouldValidate: true, shouldDirty: true, shouldTouch: true });
+    setValue(name, '', {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
   };
 
   const handleOnClickInsertSecret: MouseEventHandler<HTMLButtonElement> = (e) => {
@@ -79,21 +84,24 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     });
   };
 
-  const handleOnClickInsertEnvironmentVariable: MouseEventHandler<HTMLButtonElement> = (e) => {
-    // NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
-    e.currentTarget.blur();
+  const handleCreateEnvVarIntoInput = (ev: EnvironmentVariable) => {
+    handleInsertEnvVarIntoInput(ev);
+    createEnvVar(ev);
+  };
 
-    openEnvironmentVariablesDialog({
-      onSelect: ({ key }) => {
-        const { start, end } = cursorPosition ?? { start: 0, end: value.length };
+  const handleInsertEnvVarIntoInput = (ev: EnvironmentVariable) => {
+    const inputValue = value || '';
+    const { key } = ev;
+    const { start, end } = cursorPosition ?? {
+      start: 0,
+      end: inputValue.length,
+    };
 
-        setCursorPosition({ start, end: end + `$${key}`.length });
-        setValue(name, `${value.slice(0, start)}$${key}${value.slice(end)}`, {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: true,
-        });
-      },
+    setCursorPosition({ start, end: end + `$${key}`.length });
+    setValue(name, `${inputValue.slice(0, start)}$${key.toUpperCase()}${inputValue.slice(end)}`, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
     });
   };
 
@@ -108,31 +116,59 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     });
   };
 
+  const handleCreateEnvVarIntoDropdown = (envVar: EnvironmentVariable) => {
+    handleInsertEnvVarIntoDropdown(envVar);
+    createEnvVar(envVar);
+  };
+
+  const handleInsertEnvVarIntoDropdown = (envVar: EnvironmentVariable) => {
+    setValue(name, `$${envVar.key}`, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
+  const handleOnDropdownChange: DropdownProps<string | null>['onChange'] = (event) => {
+    setValue(name, event.target.value || '', {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+  };
+
   return (
     <FormControl isRequired={isRequired} isInvalid={!!errorText}>
       <StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>
 
       <Box pos="relative">
         {isSelectInput(rest) && (
-          <Select ref={ref} {...omit(rest, 'options')} size="medium" backgroundSize="unset">
-            {rest.options.map((optionValue) => (
-              <option key={optionValue} value={optionValue}>
-                {optionValue}
-              </option>
-            ))}
-            {defaultValues?.[name] && rest.options.every((optionValue) => optionValue !== defaultValues[name]) && (
-              <option key={defaultValues[name]} value={defaultValues[name]}>
-                {defaultValues[name]}
-              </option>
-            )}
-          </Select>
+          <Box display="flex" flexDir="row" alignItems="center" gap="8">
+            <Dropdown size="md" flex="1" ref={ref} search={false} value={value} onChange={handleOnDropdownChange}>
+              {rest.options.map((optionValue) => (
+                <DropdownOption key={optionValue} value={optionValue}>
+                  {optionValue}
+                </DropdownOption>
+              ))}
+              {value && rest.options.every((optionValue) => optionValue !== value) && (
+                <DropdownOption value={value}>{value}</DropdownOption>
+              )}
+            </Dropdown>
+            <InsertEnvVarMenu
+              size="md"
+              environmentVariables={getEnvVars()}
+              isLoading={isLoading}
+              onOpen={() => loadEnvVars()}
+              onCreate={handleCreateEnvVarIntoDropdown}
+              onSelect={handleInsertEnvVarIntoDropdown}
+            />
+          </Box>
         )}
 
         {isTextareaInput(rest) && (
           <>
             <Box
               display="grid"
-              fontFamily="mono"
               position="relative"
               data-replicated-value={value}
               _after={{
@@ -148,6 +184,8 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 data-1p-ignore
                 ref={ref}
                 {...rest}
+                fontFamily="mono"
+                textStyle="body/md/regular"
                 rows={1}
                 resize="none"
                 overflow="hidden"
@@ -183,12 +221,13 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 )}
 
                 {!isSensitive && (
-                  <IconButton
+                  <InsertEnvVarMenu
                     size="sm"
-                    iconName="Dollars"
-                    variant="secondary"
-                    aria-label="Insert variable"
-                    onClick={handleOnClickInsertEnvironmentVariable}
+                    isLoading={isLoading}
+                    onOpen={() => loadEnvVars()}
+                    environmentVariables={getEnvVars()}
+                    onCreate={handleCreateEnvVarIntoInput}
+                    onSelect={handleInsertEnvVarIntoInput}
                   />
                 )}
               </ButtonGroup>

@@ -168,7 +168,8 @@ angular
       "onChangeTabId",
       "onCreateSecret",
       "onOpenSecretsDialog",
-      "onOpenEnvironmentVariablesDialog",
+      "onCreateEnvVar",
+      "onLoadEnvVars",
     ]),
   )
   .component(

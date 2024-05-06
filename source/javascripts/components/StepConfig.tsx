@@ -2,13 +2,13 @@ import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, T
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
-import EnvironmentVariablesDialogProvider from './EnvironmentVariablesDialog/EnvironmentVariablesDialogProvider';
+import EnvironmentVariablesProvider from './InsertEnvVarMenu/EnvironmentVariablesProvider';
 import { Secret, SecretsDialogProvider } from './SecretsDialog';
 import StepConfiguration from './StepConfiguration/StepConfiguration';
 import StepItemBadge from './StepItem/StepItemBadge';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties/StepProperties';
-import { EnvironmentVariable } from './EnvironmentVariablesDialog/types';
+import { EnvironmentVariable } from './InsertEnvVarMenu/types';
 
 type Props = {
   step: Step;
@@ -23,7 +23,8 @@ type Props = {
   onChangeTabId: (tabId?: string) => void;
   onCreateSecret: (secret: Secret) => void;
   onOpenSecretsDialog?: () => Promise<Secret[]>;
-  onOpenEnvironmentVariablesDialog?: () => Promise<EnvironmentVariable[]>;
+  onCreateEnvVar: (envVar: EnvironmentVariable) => void;
+  onLoadEnvVars: () => Promise<EnvironmentVariable[]>;
 };
 
 const StepConfig = ({
@@ -39,12 +40,13 @@ const StepConfig = ({
   onChangeTabId,
   onCreateSecret,
   onOpenSecretsDialog,
-  onOpenEnvironmentVariablesDialog,
+  onCreateEnvVar,
+  onLoadEnvVars,
 }: Props): JSX.Element => {
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
   return (
-    <EnvironmentVariablesDialogProvider onOpen={onOpenEnvironmentVariablesDialog}>
+    <EnvironmentVariablesProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
       <SecretsDialogProvider onCreate={onCreateSecret} onOpen={onOpenSecretsDialog}>
         <Box display="flex" flexDirection="column" gap="8">
           <Box as="header" display="flex" px="24" pt="24" gap="16">
@@ -132,7 +134,7 @@ const StepConfig = ({
           </Tabs>
         </Box>
       </SecretsDialogProvider>
-    </EnvironmentVariablesDialogProvider>
+    </EnvironmentVariablesProvider>
   );
 };
 
