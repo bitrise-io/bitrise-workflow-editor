@@ -172,10 +172,10 @@ import { safeDigest } from "../services/react-compat";
 			);
 
 			function configure() {
-				viewModel.workflows = _.map(appService.appConfig.workflows, function(
-					aWorkflowConfig,
-					workflowID
-				) {
+				viewModel.workflows = Object.keys(appService.appConfig.workflows).filter(function(workflowID) {
+					return !workflowID.startsWith('_');
+				}).map(function(workflowID) {
+					const aWorkflowConfig = appService.appConfig.workflows[workflowID];
 					return new Workflow(workflowID, aWorkflowConfig);
 				});
 			}
