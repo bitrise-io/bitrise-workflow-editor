@@ -127,6 +127,7 @@ const WorkflowMainToolbar = ({
           <Tooltip label={isRunWorkflowDisabled ? 'Save this Workflow first' : undefined}>
             <Button
               size="md"
+              variant="secondary"
               aria-label="Run Workflow"
               marginInlineStart="8"
               rightIconName="OpenInBrowser"
