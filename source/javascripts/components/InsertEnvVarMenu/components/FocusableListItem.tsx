@@ -15,8 +15,9 @@ const FocusableListItem = ({ ev, index, onSelect, onKeyDown }: FocusableListItem
     padding="8"
     onClick={() => onSelect(ev)}
     outline="none"
-    _focus={{ backgroundColor: 'background/hover' }}
+    cursor="pointer"
     _focusVisible={{ boxShadow: 'none' }}
+    _focus={{ backgroundColor: 'background/hover' }}
     _hover={{ backgroundColor: 'background/hover' }}
     onKeyDown={(event) => onKeyDown(event, index)}
   >
