@@ -25,7 +25,7 @@ const CreateEnvVar = forwardRef<HTMLInputElement, Props>(({ envVars, onCreate, o
   };
 
   return (
-    <Box display="flex" flexDirection="column">
+    <Box as="form" onSubmit={onCreateHandler} display="flex" flexDirection="column">
       <Box display="flex" flexDir="column" gap="8" paddingTop="12" paddingBottom="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
           <Input
@@ -76,7 +76,7 @@ const CreateEnvVar = forwardRef<HTMLInputElement, Props>(({ envVars, onCreate, o
         </Checkbox>
       </Box>
       <ButtonGroup spacing="12">
-        <Button size="sm" onClick={() => onCreateHandler()}>
+        <Button size="sm" type="submit">
           Create
         </Button>
         <Button size="sm" variant="tertiary" onClick={onCancelHandler}>

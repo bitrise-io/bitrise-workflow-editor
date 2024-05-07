@@ -8,6 +8,7 @@ import {
   PopoverContent,
   PopoverHeader,
   PopoverTrigger,
+  Portal,
   useDisclosure,
 } from '@chakra-ui/react';
 import FilterInput from '../FilterInput/FilterInput';
@@ -124,67 +125,69 @@ const InsertEnvVarMenu = ({
       <PopoverTrigger>
         <IconButton size={size} variant="secondary" aria-label="Insert variable" iconName="Dollars" />
       </PopoverTrigger>
-      <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">
-        <FocusLock autoFocus>
-          <PopoverHeader
-            h="32"
-            marginBottom="8"
-            display="flex"
-            flexDir="row"
-            alignItems="center"
-            justifyContent="space-between"
-          >
-            {isCreateMode && <Text textStyle="heading/h4">Create variable</Text>}
-            {isSelectMode && (
-              <>
-                <Text textStyle="heading/h4">Insert variable</Text>
-                <Button variant="tertiary" size="sm" leftIconName="PlusOpen" onClick={switchToCreateMode}>
-                  Create
-                </Button>
-              </>
-            )}
-          </PopoverHeader>
-          <PopoverBody>
-            {isCreateMode && (
-              <CreateEnvVar
-                envVars={environmentVariables}
-                onCreate={handleCreateEnvVar}
-                onCancel={handleCancelEnvVarCreate}
-              />
-            )}
-            {isSelectMode && (
-              <>
-                <FilterInput
-                  ref={filterRef}
-                  paddingBlock="8"
-                  placeholder="Filter by key or source"
-                  filter={filter}
-                  onFilterChange={setFilter}
+      <Portal>
+        <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">
+          <FocusLock autoFocus>
+            <PopoverHeader
+              h="32"
+              marginBottom="8"
+              display="flex"
+              flexDir="row"
+              alignItems="center"
+              justifyContent="space-between"
+            >
+              {isCreateMode && <Text textStyle="heading/h4">Create variable</Text>}
+              {isSelectMode && (
+                <>
+                  <Text textStyle="heading/h4">Insert variable</Text>
+                  <Button variant="tertiary" size="sm" leftIconName="PlusOpen" onClick={switchToCreateMode}>
+                    Create
+                  </Button>
+                </>
+              )}
+            </PopoverHeader>
+            <PopoverBody>
+              {isCreateMode && (
+                <CreateEnvVar
+                  envVars={environmentVariables}
+                  onCreate={handleCreateEnvVar}
+                  onCancel={handleCancelEnvVarCreate}
                 />
-                {isLoading && <LoadingState />}
-                {!isLoading && (
-                  <List ref={listRef} maxH="18rem" overflowY="scroll">
-                    {filteredEnvVars.length === 0 && (
-                      <Text marginTop="16" marginBottom="8">
-                        No env vars found
-                      </Text>
-                    )}
-                    {filteredEnvVars.map((ev, idx) => (
-                      <FocusableListItem
-                        key={ev.key}
-                        ev={ev}
-                        index={idx}
-                        onSelect={handleSelectEnvVar}
-                        onKeyDown={handleKeyDown}
-                      />
-                    ))}
-                  </List>
-                )}
-              </>
-            )}
-          </PopoverBody>
-        </FocusLock>
-      </PopoverContent>
+              )}
+              {isSelectMode && (
+                <>
+                  <FilterInput
+                    ref={filterRef}
+                    paddingBlock="8"
+                    placeholder="Filter by key or source"
+                    filter={filter}
+                    onFilterChange={setFilter}
+                  />
+                  {isLoading && <LoadingState />}
+                  {!isLoading && (
+                    <List ref={listRef} maxH="18rem" overflowY="scroll">
+                      {filteredEnvVars.length === 0 && (
+                        <Text marginTop="16" marginBottom="8">
+                          No env vars found
+                        </Text>
+                      )}
+                      {filteredEnvVars.map((ev, idx) => (
+                        <FocusableListItem
+                          key={ev.key}
+                          ev={ev}
+                          index={idx}
+                          onSelect={handleSelectEnvVar}
+                          onKeyDown={handleKeyDown}
+                        />
+                      ))}
+                    </List>
+                  )}
+                </>
+              )}
+            </PopoverBody>
+          </FocusLock>
+        </PopoverContent>
+      </Portal>
     </Popover>
   );
 };
