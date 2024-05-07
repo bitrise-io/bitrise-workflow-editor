@@ -82,6 +82,7 @@ const WorkflowMainToolbar = ({
             />
           )}
           <IconButton
+            size="md"
             iconName="PlusOpen"
             variant="secondary"
             onClick={onAddNewWorkflow}
@@ -89,7 +90,13 @@ const WorkflowMainToolbar = ({
           />
           {selectedWorkflow && (
             <Menu placement="bottom-end">
-              <MenuButton as={IconButton} variant="secondary" iconName="MoreHorizontal" aria-label="Manage Workflows" />
+              <MenuButton
+                as={IconButton}
+                size="md"
+                variant="secondary"
+                iconName="MoreHorizontal"
+                aria-label="Manage Workflows"
+              />
               <MenuList>
                 <MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
                   Insert Workflow before
@@ -119,6 +126,7 @@ const WorkflowMainToolbar = ({
         {canRunWorkflow && (
           <Tooltip label={isRunWorkflowDisabled ? 'Save this Workflow first' : undefined}>
             <Button
+              size="md"
               aria-label="Run Workflow"
               marginInlineStart="8"
               rightIconName="OpenInBrowser"
