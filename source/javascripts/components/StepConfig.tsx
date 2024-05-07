@@ -1,4 +1,4 @@
-import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from '@bitrise/bitkit';
+import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Tag, Text, Tooltip } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
@@ -49,7 +49,7 @@ const StepConfig = ({
     <EnvironmentVariablesProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
       <SecretsDialogProvider onCreate={onCreateSecret} onOpen={onOpenSecretsDialog}>
         <Box display="flex" flexDirection="column" gap="8">
-          <Box as="header" display="flex" px="24" pt="24" gap="16">
+          <Box as="header" display="flex" px="24" pt="24" gap="16" alignItems="center">
             <Avatar
               name="ci"
               size="48"
@@ -71,7 +71,7 @@ const StepConfig = ({
                 />
               </Box>
 
-              <Box display="flex" gap="4" alignItems="center" data-e2e-tag="step-version-details">
+              <Box display="flex" gap="8" alignItems="center" data-e2e-tag="step-version-details">
                 <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
                   {step.version || step.defaultStepConfig.version}
                 </Text>
@@ -80,20 +80,21 @@ const StepConfig = ({
                     isDisabled={!hasVersionUpdate}
                     label="Major version change. Click to update to the latest version."
                   >
-                    <Icon
-                      size="16"
-                      name="WarningColored"
-                      aria-label="New version available"
+                    <Tag
+                      size="sm"
+                      colorScheme="red"
                       cursor="pointer"
                       onClick={() => onChange({ properties: { version: '' } })}
                       data-e2e-tag="step-version-details__update-icon"
-                    />
+                    >
+                      Update to latest
+                    </Tag>
                   </Tooltip>
                 )}
               </Box>
             </Box>
 
-            <ButtonGroup>
+            <ButtonGroup alignSelf="flex-start">
               <IconButton
                 onClick={onClone}
                 size="sm"
