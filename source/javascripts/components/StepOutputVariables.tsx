@@ -1,5 +1,6 @@
 import { Fragment, useState } from 'react';
-import { Box, Collapse, Divider, Input, Link, MarkdownContent, Text } from '@bitrise/bitkit';
+import { Box, Collapse, Divider, IconButton, Input, Link, MarkdownContent, Text } from '@bitrise/bitkit';
+import { useCopyToClipboard } from 'usehooks-ts';
 
 import { StepOutputVariable } from '../models';
 
@@ -10,10 +11,24 @@ type ItemProps = {
 const StepOutputVariableItem = ({ item }: ItemProps) => {
   const { key, title, description, summary } = item;
   const [showMore, setShowMore] = useState(false);
+  const [, copy] = useCopyToClipboard();
+
+  const handeCopy = () => copy(key);
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
-      <Input type="text" label={title} value={key} helperText={summary} isReadOnly isRequired />
+      <Input
+        type="text"
+        label={title}
+        value={key}
+        helperText={summary}
+        isReadOnly
+        isRequired
+        rightAddon={
+          <IconButton variant="secondary" iconName="Duplicate" aria-label="Copy variable name" onClick={handeCopy} />
+        }
+        rightAddonPlacement="inside"
+      />
       {description && (
         <>
           <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
