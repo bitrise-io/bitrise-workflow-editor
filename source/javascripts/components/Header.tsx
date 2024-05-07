@@ -26,40 +26,50 @@ const Header = ({
   const isBreadcrumbVisible = appName && appPath && workspacePath && workflowsAndPipelinesPath;
 
   return (
-    <Box as="header" borderBottom="1px solid" borderColor="separator.primary" p={32} pt={24}>
+    <Box
+      as="header"
+      display="flex"
+      flexDir="row"
+      alignItems="center"
+      justifyContent={isBreadcrumbVisible ? 'space-between' : 'flex-end'}
+      borderBottom="1px solid"
+      borderColor="separator.primary"
+      paddingInline={32}
+      paddingBlock={24}
+    >
       {isBreadcrumbVisible && (
-        <Breadcrumb hasSeparatorAfterLast>
+        <Breadcrumb>
           <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
           <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
           <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+          <BreadcrumbLink isCurrentPage>
+            <Text textStyle="body/lg/semibold">Workflow Editor</Text>
+          </BreadcrumbLink>
         </Breadcrumb>
       )}
 
-      <Box display="flex" alignItems="center" justifyContent="space-between" gap={32} mt={isBreadcrumbVisible ? 24 : 0}>
-        <Text id="away" as="h1" size="6">
-          Workflow Editor
-        </Text>
-        <ButtonGroup>
-          <Button
-            isDanger
-            className="discard"
-            variant="secondary"
-            onClick={onDiscardClick}
-            isDisabled={isDiscardDisabled}
-          >
-            Discard
-          </Button>
-          <Button
-            className="save"
-            variant="primary"
-            onClick={onSaveClick}
-            isDisabled={isSaveDisabled}
-            isLoading={isSaveInProgress}
-          >
-            Save changes
-          </Button>
-        </ButtonGroup>
-      </Box>
+      <ButtonGroup spacing="16" align-self="flex-end">
+        <Button
+          isDanger
+          size="sm"
+          className="discard"
+          variant="secondary"
+          onClick={onDiscardClick}
+          isDisabled={isDiscardDisabled}
+        >
+          Discard
+        </Button>
+        <Button
+          size="sm"
+          className="save"
+          variant="primary"
+          onClick={onSaveClick}
+          isDisabled={isSaveDisabled}
+          isLoading={isSaveInProgress}
+        >
+          Save changes
+        </Button>
+      </ButtonGroup>
     </Box>
   );
 };
