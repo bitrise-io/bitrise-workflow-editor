@@ -158,6 +158,7 @@ angular
       "tabId",
       "environmentVariables",
       "secrets",
+      "resolvedVersion",
       "hasVersionUpdate",
       "versionsWithRemarks",
       "inputCategories",

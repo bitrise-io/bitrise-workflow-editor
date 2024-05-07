@@ -13,9 +13,10 @@ import { EnvironmentVariable } from './InsertEnvVarMenu/types';
 type Props = {
   step: Step;
   tabId?: string;
-  hasVersionUpdate?: boolean;
   inputCategories: InputCategory[];
   outputVariables: Array<StepOutputVariable>;
+  hasVersionUpdate?: boolean;
+  resolvedVersion: string;
   versionsWithRemarks: Array<StepVersionWithRemark>;
   onClone: VoidFunction;
   onChange: OnStepChange;
@@ -33,6 +34,7 @@ const StepConfig = ({
   inputCategories,
   outputVariables,
   hasVersionUpdate,
+  resolvedVersion,
   versionsWithRemarks,
   onClone,
   onChange,
@@ -73,7 +75,7 @@ const StepConfig = ({
 
               <Box display="flex" gap="8" alignItems="center" data-e2e-tag="step-version-details">
                 <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
-                  {step.version || step.defaultStepConfig.version}
+                  {resolvedVersion || step.version || step.defaultStepConfig.version}
                 </Text>
                 {hasVersionUpdate && (
                   <Tooltip
