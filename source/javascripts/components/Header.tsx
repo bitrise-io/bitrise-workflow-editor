@@ -30,8 +30,8 @@ const Header = ({
     <Box
       as="header"
       display="flex"
-      flexDir={!isMobile ? 'row' : 'column'}
-      alignItems={!isMobile ? 'center' : 'flex-start'}
+      flexDir={['column', 'row']}
+      alignItems={['flex-start', 'center']}
       justifyContent={isBreadcrumbVisible ? 'space-between' : 'flex-end'}
       gap="16"
       borderBottom="1px solid"
@@ -59,9 +59,9 @@ const Header = ({
 
       <Box
         display="flex"
-        flexDir={isMobile ? 'column' : 'row'}
-        gap={isMobile ? 8 : 16}
-        alignSelf={isMobile ? 'stretch' : 'flex-end'}
+        flexDir={['column', 'row']}
+        gap={[8, 16]}
+        alignSelf={['stretch', 'flex-end']}
         justifyContent="stretch"
       >
         <Button
