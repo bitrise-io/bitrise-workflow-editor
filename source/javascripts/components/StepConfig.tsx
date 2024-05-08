@@ -1,4 +1,4 @@
-import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Tag, Text, Tooltip } from '@bitrise/bitkit';
+import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
@@ -73,30 +73,24 @@ const StepConfig = ({
                 />
               </Box>
 
-              <Box display="flex" gap="8" alignItems="center" data-e2e-tag="step-version-details">
+              <Box h="20px" display="flex" gap="8" alignItems="center" data-e2e-tag="step-version-details">
                 <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
                   {resolvedVersion || step.version || step.defaultStepConfig.version}
                 </Text>
-                {hasVersionUpdate && (
-                  <Tooltip
-                    isDisabled={!hasVersionUpdate}
-                    label="Major version change. Click to update to the latest version."
-                  >
-                    <Tag
-                      size="sm"
-                      colorScheme="red"
-                      cursor="pointer"
-                      onClick={() => onChange({ properties: { version: '' } })}
-                      data-e2e-tag="step-version-details__update-icon"
-                    >
-                      Update to latest
-                    </Tag>
-                  </Tooltip>
-                )}
               </Box>
             </Box>
 
             <ButtonGroup alignSelf="flex-start">
+              {hasVersionUpdate && (
+                <IconButton
+                  size="sm"
+                  iconName="ArrowUp"
+                  variant="secondary"
+                  aria-label="Update to latest step version"
+                  onClick={() => onChange({ properties: { version: '' } })}
+                  data-e2e-tag="step-version-details__update-icon"
+                />
+              )}
               <IconButton
                 onClick={onClone}
                 size="sm"
