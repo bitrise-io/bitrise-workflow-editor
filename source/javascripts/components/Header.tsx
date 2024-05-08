@@ -1,4 +1,4 @@
-import { Box, Breadcrumb, BreadcrumbLink, Button, ButtonGroup, Text } from '@bitrise/bitkit';
+import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useResponsive } from '@bitrise/bitkit';
 
 type Props = {
   appName: string;
@@ -13,42 +13,55 @@ type Props = {
 };
 
 const Header = ({
-  appName,
-  appPath,
-  workspacePath,
-  workflowsAndPipelinesPath,
+  appName = 'App Name',
+  appPath = '/app',
+  workspacePath = '/workspace',
+  workflowsAndPipelinesPath = '/workflows-and-pipelines',
   onSaveClick,
   isSaveDisabled,
   isSaveInProgress,
   onDiscardClick,
   isDiscardDisabled,
 }: Props) => {
+  const { isMobile } = useResponsive();
   const isBreadcrumbVisible = appName && appPath && workspacePath && workflowsAndPipelinesPath;
 
   return (
     <Box
       as="header"
       display="flex"
-      flexDir="row"
-      alignItems="center"
+      flexDir={!isMobile ? 'row' : 'column'}
+      alignItems={!isMobile ? 'center' : 'flex-start'}
       justifyContent={isBreadcrumbVisible ? 'space-between' : 'flex-end'}
+      gap="16"
       borderBottom="1px solid"
       borderColor="separator.primary"
       paddingInline={32}
       paddingBlock={24}
     >
-      {isBreadcrumbVisible && (
-        <Breadcrumb>
-          <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
-          <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-          <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
-          <BreadcrumbLink isCurrentPage>
-            <Text textStyle="body/lg/semibold">Workflow Editor</Text>
-          </BreadcrumbLink>
-        </Breadcrumb>
-      )}
+      {isBreadcrumbVisible &&
+        (isMobile ? (
+          <Breadcrumb hasSeparatorBeforeFirst>
+            <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+          </Breadcrumb>
+        ) : (
+          <Breadcrumb>
+            <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
+            <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+            <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+            <BreadcrumbLink isCurrentPage>
+              <Text textStyle="body/lg/semibold">Workflow Editor</Text>
+            </BreadcrumbLink>
+          </Breadcrumb>
+        ))}
 
-      <ButtonGroup spacing="16" align-self="flex-end">
+      <Box
+        display="flex"
+        flexDir={isMobile ? 'column' : 'row'}
+        gap={isMobile ? 8 : 16}
+        alignSelf={isMobile ? 'stretch' : 'flex-end'}
+        justifyContent="stretch"
+      >
         <Button
           isDanger
           size="sm"
@@ -69,7 +82,7 @@ const Header = ({
         >
           Save changes
         </Button>
-      </ButtonGroup>
+      </Box>
     </Box>
   );
 };
