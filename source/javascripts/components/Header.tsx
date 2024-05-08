@@ -50,7 +50,9 @@ const Header = ({
             <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
             <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
             <BreadcrumbLink isCurrentPage>
-              <Text textStyle="body/lg/semibold">Workflow Editor</Text>
+              <Text id="away" textStyle="body/lg/semibold">
+                Workflow Editor
+              </Text>
             </BreadcrumbLink>
           </Breadcrumb>
         ))}
