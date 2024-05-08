@@ -169,7 +169,9 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
           <>
             <Box
               display="grid"
+              fontFamily="mono"
               position="relative"
+              textStyle="body/md/regular"
               data-replicated-value={value}
               _after={{
                 padding: '11px',
@@ -184,8 +186,6 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 data-1p-ignore
                 ref={ref}
                 {...rest}
-                fontFamily="mono"
-                textStyle="body/md/regular"
                 rows={1}
                 resize="none"
                 overflow="hidden"

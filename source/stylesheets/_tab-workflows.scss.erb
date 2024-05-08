@@ -177,7 +177,7 @@ section.manage-workflows {
 			$spacing: 8px;
 			$icon-size: 52px;
 			$icon-size_small: 36px;
-			$steptitle-width: 360px;
+			$steptitle-width: 320px;
 			$steptitle-width_small: 220px;
 			border-top: 1px solid $def-lightgrey;
 
@@ -193,14 +193,21 @@ section.manage-workflows {
 				overflow-y: auto;
 				align-items: center;
 				flex-direction: column;
+				@include media-below(1476px) {
+					flex: none;
+				}
 			}
 
 			.step-edit-container {
 				flex: 1;
+				min-width: 760px;
 				overflow-y: auto;
 				background: white;
 				padding-bottom: 64px;
 				border-left: 1px solid $def-lightgrey;
+				@include media-below(1476px) {
+					min-width: 0px;
+				}
 			}
 
 			section.workflow {
@@ -480,7 +487,7 @@ section.manage-workflows {
 											font-weight: 300;
 											color: $def-darkgrey;
 
-											@include media-below-big {
+											@include media-below-huge {
 												display: none;
 											}
 										}
@@ -1551,7 +1558,7 @@ section.manage-workflows {
 					@include padding-x($main-horizontalpadding_small);
 				}
 
-				@include media-below-big {
+				@include media-below-huge {
 
 					header.workflow-header {
 
@@ -1578,7 +1585,7 @@ section.manage-workflows {
 					}
 				}
 
-				@include media-below-mid {
+				@include media-below-big {
 
 					header.workflow-header {
 
