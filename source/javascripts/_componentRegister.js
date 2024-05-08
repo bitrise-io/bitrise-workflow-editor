@@ -16,8 +16,8 @@ import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRec
 import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-import StepConfig from "./components/StepConfig";
-import VersionChangeDialog from "./components/StepProperties/VersionChangeDialog";
+import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
+import VersionChangeDialog from "./components/StepConfigPanel/components/VersionChangeDialog";
 import TriggersPage from "./components/TriggersPage/TriggersPage";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
 
@@ -153,7 +153,7 @@ angular
   )
   .component(
     "rStepConfig",
-    register(StepConfig, [
+    register(StepConfigPanel, [
       "step",
       "tabId",
       "environmentVariables",

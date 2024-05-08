@@ -1,14 +1,14 @@
 import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
-import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
-import EnvironmentVariablesProvider from './InsertEnvVarMenu/EnvironmentVariablesProvider';
-import { Secret, SecretsDialogProvider } from './SecretsDialog';
-import StepConfiguration from './StepConfiguration/StepConfiguration';
-import StepItemBadge from './StepItem/StepItemBadge';
+import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../../models';
+import { Secret, SecretsDialogProvider } from '../SecretsDialog';
+import StepItemBadge from '../StepItem/StepItemBadge';
+import { EnvironmentVariable } from '../InsertEnvVarMenu/types';
+import EnvironmentVariablesProvider from '../InsertEnvVarMenu/EnvironmentVariablesProvider';
+import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
-import StepProperties from './StepProperties/StepProperties';
-import { EnvironmentVariable } from './InsertEnvVarMenu/types';
+import StepProperties from './StepProperties';
 
 type Props = {
   step: Step;
@@ -28,7 +28,7 @@ type Props = {
   onLoadEnvVars: () => Promise<EnvironmentVariable[]>;
 };
 
-const StepConfig = ({
+const StepConfigPanel = ({
   step,
   tabId,
   inputCategories,
@@ -135,4 +135,4 @@ const StepConfig = ({
   );
 };
 
-export default StepConfig;
+export default StepConfigPanel;

@@ -11,7 +11,7 @@ const components: ComponentProps<typeof MarkdownContent>['components'] = {
   pre: ({ node: _, ...props }) => <CodeBlock size="md">{props.children as string}</CodeBlock>,
 };
 
-const StepInputHelper = ({ summary, details }: Props) => {
+const StepHelperText = ({ summary, details }: Props) => {
   const { isOpen, onToggle } = useDisclosure();
   const showMoreLabel = isOpen ? 'Show less' : 'Show more';
   const detailsText = details?.trim() || '';
@@ -44,7 +44,11 @@ const StepInputHelper = ({ summary, details }: Props) => {
       {!isDetailsOverlapsSummary && <MarkdownContent md={summaryText} size="sm" gap="8" components={components} />}
       {detailsText && (
         <>
-          <Collapse startingHeight={isDetailsOverlapsSummary ? 20 : 0} in={isOpen}>
+          <Collapse
+            startingHeight={isDetailsOverlapsSummary ? 20 : 0}
+            in={isOpen}
+            transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
+          >
             <MarkdownContent md={detailsText} size="sm" gap="8" components={components} />
           </Collapse>
           <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
@@ -56,4 +60,4 @@ const StepInputHelper = ({ summary, details }: Props) => {
   );
 };
 
-export default StepInputHelper;
+export default StepHelperText;
