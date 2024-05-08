@@ -43,7 +43,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { register, reset, handleSubmit, watch, setValue } = formMethods;
+  const { control, reset, handleSubmit, watch, setValue } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -135,26 +135,32 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">
             Targeted Pipeline or Workflow
           </Text>
-          <Select placeholder="Select a Pipeline or Workflow" {...register('pipelineable')}>
-            {pipelines.length && (
-              <optgroup label="Pipelines">
-                {pipelines.map((p) => (
-                  <option key={p} value={`pipeline#${p}`}>
-                    {p}
-                  </option>
-                ))}
-              </optgroup>
+          <Controller
+            name="pipelineable"
+            control={control}
+            render={({ field }) => (
+              <Select placeholder="Select a Pipeline or Workflow" {...field}>
+                {pipelines.length && (
+                  <optgroup label="Pipelines">
+                    {pipelines.map((p) => (
+                      <option key={p} value={`pipeline#${p}`}>
+                        {p}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {workflows.length && (
+                  <optgroup label="Workflows">
+                    {workflows.map((p) => (
+                      <option key={p} value={`workflow#${p}`}>
+                        {p}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </Select>
             )}
-            {workflows.length && (
-              <optgroup label="Workflows">
-                {workflows.map((p) => (
-                  <option key={p} value={`workflow#${p}`}>
-                    {p}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </Select>
+          />
         </DialogBody>
         <DialogFooter display="flex" justifyContent="space-between">
           <Button variant="tertiary" onClick={onFormCancel}>
