@@ -1,7 +1,9 @@
-import { Fragment, useState } from 'react';
-import { Box, Collapse, Divider, Input, Link, MarkdownContent, Text } from '@bitrise/bitkit';
-
-import { StepOutputVariable } from '../models';
+import { Fragment } from 'react';
+import { Box, Divider, IconButton, Input, Text } from '@bitrise/bitkit';
+import { useCopyToClipboard } from 'usehooks-ts';
+import { FormControl } from '@chakra-ui/react';
+import { StepOutputVariable } from '../../models';
+import StepHelperText from './components/StepHelperText';
 
 type ItemProps = {
   item: StepOutputVariable;
@@ -9,21 +11,25 @@ type ItemProps = {
 
 const StepOutputVariableItem = ({ item }: ItemProps) => {
   const { key, title, description, summary } = item;
-  const [showMore, setShowMore] = useState(false);
+  const [, copy] = useCopyToClipboard();
+
+  const handeCopy = () => copy(key);
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
-      <Input type="text" label={title} value={key} helperText={summary} isReadOnly isRequired />
-      {description && (
-        <>
-          <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
-            <MarkdownContent md={description || ''} />
-          </Collapse>
-          <Link as="button" colorScheme="purple" alignSelf="self-start" onClick={() => setShowMore((prev) => !prev)}>
-            {showMore ? 'Show less' : 'Show more'}
-          </Link>
-        </>
-      )}
+      <FormControl>
+        <Input
+          type="text"
+          label={title}
+          value={key}
+          isReadOnly
+          rightAddon={
+            <IconButton variant="secondary" iconName="Duplicate" aria-label="Copy variable name" onClick={handeCopy} />
+          }
+          rightAddonPlacement="inside"
+        />
+        <StepHelperText summary={summary} details={description} />
+      </FormControl>
     </Box>
   );
 };

@@ -73,13 +73,14 @@ const WorkflowSelector: React.FC<WorkflowSelectorProps> = ({
       <PopoverTrigger>
         <Box
           display="flex"
-          height="47px"
+          height="40px"
           borderRadius="4"
           border="1px solid"
           borderColor="neutral.90"
           overflow="hidden"
           data-e2e-tag="workflow-selector"
           flexShrink={1}
+          gap="8"
         >
           <Box
             display="flex"

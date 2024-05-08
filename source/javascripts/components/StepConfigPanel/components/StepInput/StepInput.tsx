@@ -7,7 +7,7 @@ import { useSecretsDialog } from '../../../SecretsDialog';
 import InsertEnvVarMenu from '../../../InsertEnvVarMenu/InsertEnvVarMenu';
 import { EnvironmentVariable } from '../../../InsertEnvVarMenu/types';
 import { useEnvironmentVariables } from '../../../InsertEnvVarMenu/EnvironmentVariablesProvider';
-import StepInputHelper from './StepInputHelper';
+import StepHelperText from '../StepHelperText';
 import StepInputLabel from './StepInputLabel';
 
 type CommonProps = {
@@ -236,7 +236,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
         )}
 
         {errorText && <FormErrorMessage as="p">{errorText}</FormErrorMessage>}
-        <StepInputHelper summary={helperSummary} details={helperDetails} />
+        <StepHelperText summary={helperSummary} details={helperDetails} />
       </Box>
     </FormControl>
   );

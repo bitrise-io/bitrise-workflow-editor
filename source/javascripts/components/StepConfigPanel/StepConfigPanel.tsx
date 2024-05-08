@@ -1,21 +1,22 @@
-import { Avatar, Box, ButtonGroup, Icon, IconButton, Tab, TabList, Tabs, Text, Tooltip } from '@bitrise/bitkit';
+import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
-import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../models';
-import EnvironmentVariablesProvider from './InsertEnvVarMenu/EnvironmentVariablesProvider';
-import { Secret, SecretsDialogProvider } from './SecretsDialog';
-import StepConfiguration from './StepConfiguration/StepConfiguration';
-import StepItemBadge from './StepItem/StepItemBadge';
+import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../../models';
+import { Secret, SecretsDialogProvider } from '../SecretsDialog';
+import StepItemBadge from '../StepItem/StepItemBadge';
+import { EnvironmentVariable } from '../InsertEnvVarMenu/types';
+import EnvironmentVariablesProvider from '../InsertEnvVarMenu/EnvironmentVariablesProvider';
+import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
-import StepProperties from './StepProperties/StepProperties';
-import { EnvironmentVariable } from './InsertEnvVarMenu/types';
+import StepProperties from './StepProperties';
 
 type Props = {
   step: Step;
   tabId?: string;
-  hasVersionUpdate?: boolean;
   inputCategories: InputCategory[];
   outputVariables: Array<StepOutputVariable>;
+  hasVersionUpdate?: boolean;
+  resolvedVersion: string;
   versionsWithRemarks: Array<StepVersionWithRemark>;
   onClone: VoidFunction;
   onChange: OnStepChange;
@@ -27,12 +28,13 @@ type Props = {
   onLoadEnvVars: () => Promise<EnvironmentVariable[]>;
 };
 
-const StepConfig = ({
+const StepConfigPanel = ({
   step,
   tabId,
   inputCategories,
   outputVariables,
   hasVersionUpdate,
+  resolvedVersion,
   versionsWithRemarks,
   onClone,
   onChange,
@@ -49,7 +51,7 @@ const StepConfig = ({
     <EnvironmentVariablesProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
       <SecretsDialogProvider onCreate={onCreateSecret} onOpen={onOpenSecretsDialog}>
         <Box display="flex" flexDirection="column" gap="8">
-          <Box as="header" display="flex" px="24" pt="24" gap="16">
+          <Box as="header" display="flex" px="24" pt="24" gap="16" alignItems="center">
             <Avatar
               name="ci"
               size="48"
@@ -71,29 +73,24 @@ const StepConfig = ({
                 />
               </Box>
 
-              <Box display="flex" gap="4" alignItems="center" data-e2e-tag="step-version-details">
+              <Box h="20px" display="flex" gap="8" alignItems="center" data-e2e-tag="step-version-details">
                 <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
-                  {step.version || step.defaultStepConfig.version}
+                  {resolvedVersion || step.version || step.defaultStepConfig.version}
                 </Text>
-                {hasVersionUpdate && (
-                  <Tooltip
-                    isDisabled={!hasVersionUpdate}
-                    label="Major version change. Click to update to the latest version."
-                  >
-                    <Icon
-                      size="16"
-                      name="WarningColored"
-                      aria-label="New version available"
-                      cursor="pointer"
-                      onClick={() => onChange({ properties: { version: '' } })}
-                      data-e2e-tag="step-version-details__update-icon"
-                    />
-                  </Tooltip>
-                )}
               </Box>
             </Box>
 
-            <ButtonGroup>
+            <ButtonGroup alignSelf="flex-start">
+              {hasVersionUpdate && (
+                <IconButton
+                  size="sm"
+                  iconName="ArrowUp"
+                  variant="secondary"
+                  aria-label="Update to latest step version"
+                  onClick={() => onChange({ properties: { version: '' } })}
+                  data-e2e-tag="step-version-details__update-icon"
+                />
+              )}
               <IconButton
                 onClick={onClone}
                 size="sm"
@@ -138,4 +135,4 @@ const StepConfig = ({
   );
 };
 
-export default StepConfig;
+export default StepConfigPanel;
