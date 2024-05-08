@@ -64,8 +64,9 @@ Feature: Workflow steps details
       And I should see "Always latest" in "Fourth StepItem Version"
       And "Step Version" should "be empty"
     When I click on "Eighth step"
-    Then "Step Version Details" should "be visible"
-      When I click on "Step Properties Tab"
+    Then I wait 200
+      And "Step Version Details" should "be visible"
+    When I click on "Step Properties Tab"
       Then "Step Version Selector" should "be visible"
     When I change tab to "Triggers tab"
       And I change tab to "Workflows tab"
