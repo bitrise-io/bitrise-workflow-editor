@@ -19,6 +19,7 @@ import Navigation from "./components/Navigation";
 import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
 import VersionChangeDialog from "./components/StepConfigPanel/components/VersionChangeDialog";
 import TriggersPage from "./components/TriggersPage/TriggersPage";
+import SecretsPage from "./components/SecretsPage/SecretsPage";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
 
 function register(component, props, injects) {
@@ -195,4 +196,5 @@ angular
       "isWebsiteMode",
       "integrationsUrl",
     ]),
-  );
+  )
+  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug']));

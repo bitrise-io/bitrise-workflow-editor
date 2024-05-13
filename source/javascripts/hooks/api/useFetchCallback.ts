@@ -28,6 +28,8 @@ function useFetchCallback<T, E>(
 
   const call = useCallback(
     (options?: RequestInit) => {
+      console.log('FETCH', url);
+
       setStatusCode(undefined);
       setFailed(undefined);
 
