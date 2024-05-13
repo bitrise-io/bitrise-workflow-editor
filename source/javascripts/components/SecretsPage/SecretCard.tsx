@@ -43,7 +43,7 @@ const SecretCard = (props: SecretCardProps) => {
     <Card paddingY="16" paddingX="24" marginBottom="16">
       <Box as="form" onSubmit={form.handleSubmit(onSave)} width="100%" display="flex" gap="12" flexDir="column">
         <Box width="100%" display="flex" gap="8" alignItems="center">
-          <Input width={inputWidth} isDisabled {...form.register('key')} />=
+          <Input width={inputWidth} isDisabled={secret.isSaved} {...form.register('key')} />=
           {isSecretValueLoading ? (
             <Skeleton isActive width={inputWidth} height="48">
               <SkeletonBox width="100%" height="100%" borderRadius="4" />
@@ -94,7 +94,12 @@ const SecretCard = (props: SecretCardProps) => {
         )}
         {secret.isEditing && (
           <Box display="flex" flexDirection="column" marginY="16" gap="16">
-            <Checkbox isChecked={form.watch('isExpand')} {...form.register('isExpand')}>
+            <Checkbox
+              isChecked={form.watch('isExpand')}
+              {...form.register('isExpand')}
+              isReadOnly={secret.isProtected}
+              style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+            >
               <Box display="flex" flexDirection="column">
                 <Text size="3">Replace variables in inputs</Text>
                 <Text size="1" color="input/text/helper" casing="none">
@@ -102,7 +107,12 @@ const SecretCard = (props: SecretCardProps) => {
                 </Text>
               </Box>
             </Checkbox>
-            <Checkbox isChecked={form.watch('isExpose')} {...form.register('isExpose')}>
+            <Checkbox
+              isChecked={form.watch('isExpose')}
+              {...form.register('isExpose')}
+              isReadOnly={secret.isProtected}
+              style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+            >
               <Box display="flex" flexDirection="column">
                 <Text size="3">Expose for pull requests</Text>
                 <Text size="1" color="input/text/helper" casing="none">
@@ -110,7 +120,11 @@ const SecretCard = (props: SecretCardProps) => {
                 </Text>
               </Box>
             </Checkbox>
-            <Checkbox isChecked={secret.isProtected} isDisabled={secret.isProtected}>
+            <Checkbox
+              isChecked={secret.isProtected}
+              isReadOnly={secret.isProtected}
+              style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+            >
               <Box display="flex" flexDirection="column">
                 <Text size="3">Protected</Text>
                 <Text size="1" color="input/text/helper" casing="none">

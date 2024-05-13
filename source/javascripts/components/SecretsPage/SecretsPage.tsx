@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import { Text, Notification, Box, Dialog, DialogBody, Button, DialogFooter } from '@bitrise/bitkit';
 import { Secret, SecretWithState } from '../../models';
 import SecretCard from './SecretCard';
@@ -17,7 +17,7 @@ const SecretsPage = (props: SecretsPageProps) => {
     secrets.map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
   );
 
-  const handleEditClick = (id?: string | undefined) => () => {
+  const handleEdit = (id?: string | undefined) => () => {
     setSecretList(
       secretList.map((secret) => {
         return { ...secret, isEditing: secret.key === id };
@@ -42,11 +42,13 @@ const SecretsPage = (props: SecretsPageProps) => {
   };
 
   const handleSave = (changedSecret: SecretWithState) => {
-    setSecretList(
-      secretList.map((secret) => {
-        return secret.key === changedSecret.key ? { ...changedSecret, isEditing: false, isSaved: true } : secret;
-      }),
-    );
+    const newSecretList = secretList.map((secret) => {
+      return !secret.isSaved || secret.key === changedSecret.key
+        ? { ...changedSecret, isEditing: false, isSaved: true }
+        : secret;
+    });
+    setSecretList(newSecretList);
+    onSecretsChange(newSecretList);
   };
 
   const onAddClick = () => {
@@ -65,10 +67,6 @@ const SecretsPage = (props: SecretsPageProps) => {
       ...secretList,
     ]);
   };
-
-  useEffect(() => {
-    onSecretsChange(secretList);
-  }, [onSecretsChange, secretList]);
 
   return (
     <>
@@ -93,7 +91,7 @@ const SecretsPage = (props: SecretsPageProps) => {
             key={secret.key}
             id={secret.key}
             secret={secret}
-            onEdit={handleEditClick(secret.key)}
+            onEdit={handleEdit(secret.key)}
             onCancel={handleCancel}
             onSave={handleSave}
             onDelete={() => setDeleteId(secret.key)}
