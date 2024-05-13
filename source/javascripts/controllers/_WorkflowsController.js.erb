@@ -122,12 +122,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
       function loadAppAndUser() {
         $q.all([
-          launchDarklyService.initialize().then(() => {
-            var runWorkflow = launchDarklyService.variation("run-workflow-from-wfe", false);
-            var runIf = launchDarklyService.variation("enable-run-if-visual-editor", false);
-
-            return { runWorkflow, runIf };
-          }),
           requestService.getCurrentUserData(),
           requestService.getApp(appServiceUtil.getAppSlug()),
           appService.getOwnerPlanData()

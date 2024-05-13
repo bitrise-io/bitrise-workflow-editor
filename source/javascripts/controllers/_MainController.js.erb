@@ -105,7 +105,6 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.shouldAllowYMLMenuWithoutDiscard = false;
 			viewModel.currentUser;
-			viewModel.productTourShown = true;
 			viewModel.lastWorkflowEditedDate;
 
 			viewModel.isFirstBuildExperienceEnabled = false;
@@ -729,17 +728,10 @@ import { safeDigest } from "../services/react-compat";
 							}
 
 							launchDarklyService.initialize().then(() => {
-								const isProductTourEnabled = launchDarklyService.variation("enable-wfe-product-tour");
-								const lastWFEDateMetadataReq = requestService.getCurrentUserMetadata("last_workflow_edited_date");
-								const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
-
 								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
 
-								const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
-
-								return Promise.all(requests).then(([lastWFEDateMetadataResp, tourResp]) => {
+								requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
 									viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-									viewModel.productTourShown = tourResp ? tourResp.tourShown : true;
 								});
 							}).finally(() => {
 								appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
