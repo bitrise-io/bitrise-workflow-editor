@@ -43,20 +43,23 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
           <Icon name="OpenInBrowser" />
         </Link>
       )}
-
       <Input {...register('properties.name')} type="text" label="Name" placeholder="Step name" isRequired />
       <Divider />
-      {isLibraryStep && (
-        <Select {...register('properties.version')} label="Version updates" isRequired backgroundSize="none">
-          {versionsWithRemarks.map(({ version: value, remark }) => {
-            return (
-              <option key={value} value={value || ''}>
-                {value || 'Always latest'} - {remark}
-              </option>
-            );
-          })}
-        </Select>
-      )}
+      <Select
+        {...register('properties.version')}
+        label="Version updates"
+        isRequired
+        isDisabled={!isLibraryStep}
+        backgroundSize="none"
+      >
+        {versionsWithRemarks.map(({ version: value, remark }) => {
+          return (
+            <option key={value} value={value || ''}>
+              {value || 'Always latest'} - {remark}
+            </option>
+          );
+        })}
+      </Select>
       <Divider />
       <Box display="flex" flexDirection="column" gap="8" data-e2e-tag="step-description">
         <Text size="2" fontWeight="600">
