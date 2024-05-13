@@ -4,6 +4,7 @@ import {
   Card,
   CardProps,
   Checkbox,
+  Icon,
   IconButton,
   Input,
   Skeleton,
@@ -34,10 +35,13 @@ const SecretCard = (props: SecretCardProps) => {
   } = useGetSecretValue(appSlug, secret.key);
 
   const form = useForm<SecretWithState>({
-    values: { ...secret, value: fetchedSecretValue || secret.value },
+    values: { ...secret, value: secret.isEditing ? fetchedSecretValue || secret.value : '••••••••' },
   });
 
   const inputWidth = `calc((100% - ${secret.isEditing ? 0 : 108}px) / 2)`;
+
+  const protectedIcon = <Icon name="Lock" color="neutral.60" margin="12" />;
+  const showHideIcon = <Icon name="ShowPassword" color="neutral.60" margin="12" />;
 
   return (
     <Card paddingY="16" paddingX="24" marginBottom="16">
@@ -53,6 +57,8 @@ const SecretCard = (props: SecretCardProps) => {
               width={inputWidth}
               isDisabled={!secret.isEditing}
               type={secret.isEditing ? 'text' : 'password'}
+              rightAddon={secret.isProtected ? protectedIcon : showHideIcon}
+              rightAddonPlacement="inside"
               {...form.register('value')}
             />
           )}
