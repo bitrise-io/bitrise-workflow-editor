@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -27,21 +28,50 @@ interface SecretCardProps extends CardProps {
 
 const SecretCard = (props: SecretCardProps) => {
   const { onEdit, onCancel, onSave, onDelete, secret, appSlug } = props;
-
+  const [isShown, setIsShown] = useState(false);
   const {
-    call: getSecretValue,
+    call: fetchSecretValue,
     value: fetchedSecretValue,
     isLoading: isSecretValueLoading,
   } = useGetSecretValue(appSlug, secret.key);
 
+  const inputWidth = `calc((100% - ${secret.isEditing ? 0 : 108}px) / 2)`;
   const form = useForm<SecretWithState>({
-    values: { ...secret, value: secret.isEditing ? fetchedSecretValue || secret.value : '••••••••' },
+    values: { ...secret, value: secret.isEditing || isShown ? fetchedSecretValue || secret.value : '••••••••' },
   });
 
-  const inputWidth = `calc((100% - ${secret.isEditing ? 0 : 108}px) / 2)`;
+  const showSecretValue = () => {
+    setIsShown(true);
+    if (secret.isSaved && !secret.isProtected) {
+      fetchSecretValue();
+    }
+  };
+
+  const hideSecretValue = () => {
+    setIsShown(false);
+  };
 
   const protectedIcon = <Icon name="Lock" color="neutral.60" margin="12" />;
-  const showHideIcon = <Icon name="ShowPassword" color="neutral.60" margin="12" />;
+
+  const showHideButton = (
+    <IconButton
+      iconName={isShown ? 'HidePassword' : 'ShowPassword'}
+      onClick={() => (isShown ? hideSecretValue() : showSecretValue())}
+      aria-label={isShown ? 'Hide' : 'Show'}
+      borderLeftRadius={0}
+      variant="secondary"
+    />
+  );
+
+  let valueInputAddon;
+
+  if (!secret.isEditing) {
+    if (secret.isProtected) {
+      valueInputAddon = protectedIcon;
+    } else {
+      valueInputAddon = showHideButton;
+    }
+  }
 
   return (
     <Card paddingY="16" paddingX="24" marginBottom="16">
@@ -56,22 +86,22 @@ const SecretCard = (props: SecretCardProps) => {
             <Input
               width={inputWidth}
               isDisabled={!secret.isEditing}
-              type={secret.isEditing ? 'text' : 'password'}
-              rightAddon={secret.isProtected ? protectedIcon : showHideIcon}
+              type={isShown || secret.isEditing ? 'text' : 'password'}
+              rightAddon={valueInputAddon}
               rightAddonPlacement="inside"
               {...form.register('value')}
             />
           )}
           {!secret.isEditing && (
-            <>
+            <Box display="flex">
               <IconButton
                 iconName="Pencil"
+                iconSize="24"
                 aria-label="Edit trigger"
-                variant="tertiary"
+                variant="secondary"
+                border={0}
                 onClick={() => {
-                  if (secret.isSaved && !secret.isProtected) {
-                    getSecretValue();
-                  }
+                  showSecretValue();
 
                   onEdit?.(secret.key);
                 }}
@@ -81,10 +111,11 @@ const SecretCard = (props: SecretCardProps) => {
                 iconName="MinusRemove"
                 aria-label="Remove trigger"
                 variant="tertiary"
+                iconSize="24"
                 isDanger
                 onClick={() => onDelete?.(secret.key)}
               />
-            </>
+            </Box>
           )}
         </Box>
         {!secret.isEditing && (

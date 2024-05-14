@@ -53,6 +53,7 @@ const SecretsPage = (props: SecretsPageProps) => {
 
   const onAddClick = () => {
     setSecretList([
+      ...secretList,
       {
         key: '',
         value: '',
@@ -64,7 +65,6 @@ const SecretsPage = (props: SecretsPageProps) => {
         isEditing: true,
         isSaved: false,
       },
-      ...secretList,
     ]);
   };
 
@@ -81,9 +81,6 @@ const SecretsPage = (props: SecretsPageProps) => {
         <b>We advise not to expose Secrets in pull requests</b> <br />
         Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request.
       </Notification>
-      <Button variant="secondary" leftIconName="PlusAdd" size="md" onClick={onAddClick}>
-        Add new
-      </Button>
       <Box marginY="24">
         {secretList.map((secret) => (
           <SecretCard
@@ -98,6 +95,9 @@ const SecretsPage = (props: SecretsPageProps) => {
           />
         ))}
       </Box>
+      <Button variant="secondary" leftIconName="PlusAdd" size="md" onClick={onAddClick}>
+        Add new
+      </Button>
 
       <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
         <DialogBody>
