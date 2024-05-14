@@ -67,7 +67,7 @@ def strings
             workflows: {
                 load_workflows_progress: {
                     in_progress: "Loading workflows...",
-                    error: "Failed to load workflows."
+                    error: "Failed to load workflows: <error>"
                 },
                 load_secret_environment_keys_progress: {
                     in_progress: "Loading secret environment variable keys...",
@@ -739,10 +739,9 @@ def strings
                     default_error: "Error during request."
                 },
                 step_config_fetch: {
-                    default_error: "Error loading step.",
-                    error_prefix: "Error loading step: ",
-                    not_supported_host: "This host is not supported for step.yml load.",
-                    github_error: "Could not load step.yml from GitHub."
+                    default_error: "Error loading step <step_yml_url>.",
+                    not_supported_host: "This host (<step_yml_url>) is not supported for step.yml load.",
+                    github_error: "Could not load <step_yml_url> from GitHub. Make sure the repository is publicly accessible. Error: <error>"
                 },
                 libraries_fetch: {
                     default_error: "Error loading library",

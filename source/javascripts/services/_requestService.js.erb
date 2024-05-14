@@ -31,6 +31,8 @@ import jsyaml from "js-yaml";
 				if (response && response.data) {
 					if (response.data.error_msg) {
 						error.message = response.data.error_msg;
+					} else if (response.data.error) {
+						error.message = response.data.error;
 					} else if (response.data.message) {
 						error.message = response.data.message;
 					} else if (response.data.errors) {
@@ -886,14 +888,14 @@ import jsyaml from "js-yaml";
 												resolve(defaultStepConfig);
 											} catch (error) {
 												reject(
-													new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>")
+													new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>", { step_yml_url: stepYMLurl }))
 												);
 											}
 										},
 										function(response) {
 											reject(
 												new Error(
-													"<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:github_error] %>"
+													stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:github_error] %>", { step_yml_url: stepYMLurl, error: response.data || `Status ${response.status}` })
 												)
 											);
 										}
@@ -902,7 +904,7 @@ import jsyaml from "js-yaml";
 							} else {
 								return $q.reject(
 									new Error(
-										"<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>"
+										stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>", { step_yml_url: stepYMLurl })
 									)
 								);
 							}
@@ -930,8 +932,7 @@ import jsyaml from "js-yaml";
 							reject(
 								errorFromResponse(
 									response,
-									"<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>",
-									"<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %>"
+									"<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"
 								)
 							);
 						}

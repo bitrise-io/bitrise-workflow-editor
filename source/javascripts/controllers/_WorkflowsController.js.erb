@@ -187,7 +187,9 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
             viewModel.workflows = undefined;
             logger.error(error);
             viewModel.loadWorkflowsProgress.error(
-              new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>")
+              new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>", {
+                error: error.message
+              }))
             );
           }
         );
