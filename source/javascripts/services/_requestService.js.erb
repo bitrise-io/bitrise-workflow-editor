@@ -31,6 +31,8 @@ import jsyaml from "js-yaml";
 				if (response && response.data) {
 					if (response.data.error_msg) {
 						error.message = response.data.error_msg;
+					} else if (response.data.error) {
+						error.message = response.data.error;
 					} else if (response.data.message) {
 						error.message = response.data.message;
 					} else if (response.data.errors) {
