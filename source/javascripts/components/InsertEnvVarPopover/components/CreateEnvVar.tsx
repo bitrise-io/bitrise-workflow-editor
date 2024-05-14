@@ -1,54 +1,44 @@
-import { forwardRef } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 import { CreateEnvVarFormValues, EnvironmentVariable, HandlerFn } from '../types';
 
 type Props = {
-  envVars: EnvironmentVariable[];
+  items: EnvironmentVariable[];
   onCreate: HandlerFn;
   onCancel: VoidFunction;
 };
 
-const CreateEnvVar = forwardRef<HTMLInputElement, Props>(({ envVars, onCreate, onCancel }: Props, ref) => {
+const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
   const {
     register,
     formState: { errors },
     handleSubmit,
   } = useForm<CreateEnvVarFormValues>();
 
-  const onCreateHandler = handleSubmit((envVar) => {
-    onCreate(envVar);
-  });
-
-  const onCancelHandler = () => {
-    onCancel();
-  };
-
   return (
-    <Box as="form" onSubmit={onCreateHandler} display="flex" flexDirection="column">
+    <Box as="form" onSubmit={handleSubmit(onCreate)} display="flex" flexDirection="column">
       <Box display="flex" flexDir="column" gap="8" paddingTop="12" paddingBottom="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
           <Input
             autoFocus
-            inputRef={ref}
             isRequired
             flex="1"
-            inputStyle={{ textTransform: 'uppercase' }}
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
+            inputStyle={{ textTransform: 'uppercase' }}
             errorText={errors.key?.message?.toString()}
             {...register('key', {
               required: true,
               pattern: {
                 value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
-                message: 'Should contain letters, numbers, underscores, should not begin with a number.',
+                message: 'Key should contain letters, numbers, underscores, should not begin with a number.',
               },
               setValueAs: (value) => value.toUpperCase(),
               validate: {
                 isUnique: (value) => {
-                  if (envVars.some((ev) => ev.key === value)) {
-                    return 'Environment variable key should be unique.';
+                  if (items.some((secret) => secret.key === value)) {
+                    return 'Key should be unique.';
                   }
 
                   return true;
@@ -66,7 +56,7 @@ const CreateEnvVar = forwardRef<HTMLInputElement, Props>(({ envVars, onCreate, o
             {...register('value', {
               required: true,
               validate: {
-                isNotEmpty: (value) => !!value.trim() || 'Environment variable value should not be empty.',
+                isNotEmpty: (value) => !!value.trim() || 'Value should not be empty.',
               },
             })}
           />
@@ -79,12 +69,12 @@ const CreateEnvVar = forwardRef<HTMLInputElement, Props>(({ envVars, onCreate, o
         <Button size="sm" type="submit">
           Create
         </Button>
-        <Button size="sm" variant="tertiary" onClick={onCancelHandler}>
+        <Button size="sm" variant="tertiary" onClick={onCancel}>
           Cancel
         </Button>
       </ButtonGroup>
     </Box>
   );
-});
+};
 
 export default CreateEnvVar;
