@@ -36,9 +36,11 @@ const SecretsPage = (props: SecretsPageProps) => {
   };
 
   const handleDelete = (id: string | null) => {
-    setSecretList(secretList.filter((secret) => secret.key !== id));
+    const newSecretList = secretList.filter((secret) => secret.key !== id);
 
+    setSecretList(newSecretList);
     setDeleteId(null);
+    onSecretsChange(newSecretList);
   };
 
   const handleSave = (changedSecret: SecretWithState) => {

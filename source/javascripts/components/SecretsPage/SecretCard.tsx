@@ -5,6 +5,9 @@ import {
   Card,
   CardProps,
   Checkbox,
+  Dialog,
+  DialogBody,
+  DialogFooter,
   Icon,
   IconButton,
   Input,
@@ -28,6 +31,7 @@ interface SecretCardProps extends CardProps {
 
 const SecretCard = (props: SecretCardProps) => {
   const { onEdit, onCancel, onSave, onDelete, secret, appSlug } = props;
+
   const [isShown, setIsShown] = useState(false);
   const {
     call: fetchSecretValue,
@@ -49,6 +53,18 @@ const SecretCard = (props: SecretCardProps) => {
 
   const hideSecretValue = () => {
     setIsShown(false);
+  };
+
+  const onFormSubmit = (formData: SecretWithState) => {
+    setIsShown(false);
+
+    onSave(formData);
+  };
+
+  const onCancelClick = () => {
+    setIsShown(false);
+
+    onCancel();
   };
 
   const protectedIcon = <Icon name="Lock" color="neutral.60" margin="12" />;
@@ -75,7 +91,7 @@ const SecretCard = (props: SecretCardProps) => {
 
   return (
     <Card paddingY="16" paddingX="24" marginBottom="16">
-      <Box as="form" onSubmit={form.handleSubmit(onSave)} width="100%" display="flex" gap="12" flexDir="column">
+      <Box as="form" onSubmit={form.handleSubmit(onFormSubmit)} width="100%" display="flex" gap="12" flexDir="column">
         <Box width="100%" display="flex" gap="8" alignItems="center">
           <Input width={inputWidth} isDisabled={secret.isSaved} {...form.register('key')} />=
           {isSecretValueLoading ? (
@@ -158,9 +174,11 @@ const SecretCard = (props: SecretCardProps) => {
               </Box>
             </Checkbox>
             <Checkbox
-              isChecked={secret.isProtected}
+              isChecked={form.watch('isProtected')}
+              {...form.register('isProtected')}
               isReadOnly={secret.isProtected}
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
+              // onClick={() => onProtectedChange(secret)}
             >
               <Box display="flex" flexDirection="column">
                 <Text size="3">Protected</Text>
@@ -174,7 +192,7 @@ const SecretCard = (props: SecretCardProps) => {
                 <Button type="submit" size="md">
                   Done
                 </Button>
-                <Button onClick={onCancel} size="md" variant="secondary">
+                <Button onClick={onCancelClick} size="md" variant="secondary">
                   Cancel
                 </Button>
               </Box>
@@ -185,6 +203,22 @@ const SecretCard = (props: SecretCardProps) => {
           </Box>
         )}
       </Box>
+      <Dialog title="'Protected' will be irreversible after save" maxWidth="480" isOpen={false} onClose={() => {}}>
+        <DialogBody>
+          <Text>
+            If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the
+            value only by deleting the current one and creating a new one.
+          </Text>
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => {}}>
+            Cancel
+          </Button>
+          <Button isDanger onClick={() => {}}>
+            Make protected
+          </Button>
+        </DialogFooter>
+      </Dialog>
     </Card>
   );
 };
