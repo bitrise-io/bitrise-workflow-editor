@@ -7,5 +7,5 @@ export type Secret = {
 };
 
 export type HandlerFn = (secret: Secret) => void;
-export type SelectSecretFormValues = { key: string; filter: string };
 export type CreateSecretFormValues = Secret;
+export type SelectSecretFormValues = { key: string; filter: string };

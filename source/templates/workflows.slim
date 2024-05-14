@@ -73,7 +73,7 @@
                 on-remove="workflowsCtrl.deleteSelectedStep"
                 on-change="workflowsCtrl.handleSelectedStepChanges"
                 on-create-secret="workflowsCtrl.saveSecretFromReact"
-                on-open-secrets-dialog="insertSecretCtrl.initForReact(requestService.mode == 'website' ? ['from_code_signing_files', 'from_secrets'] : ['from_secrets'], workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
+                on-load-secrets="insertSecretCtrl.initForReact(requestService.mode == 'website' ? ['from_code_signing_files', 'from_secrets'] : ['from_secrets'], workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
                 on-create-env-var="workflowsCtrl.saveEnvVarFromReact"
                 on-load-env-vars="insertVariableCtrl.initForReact(null, workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
               ]

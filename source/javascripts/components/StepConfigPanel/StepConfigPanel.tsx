@@ -2,10 +2,11 @@ import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../../models';
-import { Secret, SecretsDialogProvider } from '../SecretsDialog';
 import StepItemBadge from '../StepItem/StepItemBadge';
-import { EnvironmentVariable } from '../InsertEnvVarMenu/types';
-import EnvironmentVariablesProvider from '../InsertEnvVarMenu/EnvironmentVariablesProvider';
+import { EnvironmentVariable } from '../InsertEnvVarPopover/types';
+import EnvVarProvider from '../InsertEnvVarPopover/EnvVarProvider';
+import { Secret } from '../InsertSecretPopover/types';
+import SecretsProvider from '../InsertSecretPopover/SecretsProvider';
 import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties';
@@ -23,7 +24,7 @@ type Props = {
   onRemove: VoidFunction;
   onChangeTabId: (tabId?: string) => void;
   onCreateSecret: (secret: Secret) => void;
-  onOpenSecretsDialog?: () => Promise<Secret[]>;
+  onLoadSecrets: () => Promise<Secret[]>;
   onCreateEnvVar: (envVar: EnvironmentVariable) => void;
   onLoadEnvVars: () => Promise<EnvironmentVariable[]>;
 };
@@ -41,15 +42,15 @@ const StepConfigPanel = ({
   onRemove,
   onChangeTabId,
   onCreateSecret,
-  onOpenSecretsDialog,
+  onLoadSecrets,
   onCreateEnvVar,
   onLoadEnvVars,
 }: Props): JSX.Element => {
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
 
   return (
-    <EnvironmentVariablesProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
-      <SecretsDialogProvider onCreate={onCreateSecret} onOpen={onOpenSecretsDialog}>
+    <EnvVarProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
+      <SecretsProvider onCreate={onCreateSecret} onLoad={onLoadSecrets}>
         <Box display="flex" flexDirection="column" gap="8">
           <Box as="header" display="flex" px="24" pt="24" gap="16" alignItems="center">
             <Avatar
@@ -130,8 +131,8 @@ const StepConfigPanel = ({
             </TabPanels>
           </Tabs>
         </Box>
-      </SecretsDialogProvider>
-    </EnvironmentVariablesProvider>
+      </SecretsProvider>
+    </EnvVarProvider>
   );
 };
 

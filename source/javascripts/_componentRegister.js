@@ -168,7 +168,7 @@ angular
       "onRemove",
       "onChangeTabId",
       "onCreateSecret",
-      "onOpenSecretsDialog",
+      "onLoadSecrets",
       "onCreateEnvVar",
       "onLoadEnvVars",
     ]),
