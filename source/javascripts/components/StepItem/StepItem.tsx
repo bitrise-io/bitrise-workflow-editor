@@ -10,7 +10,7 @@ import StepItemVersion from './StepItemVersion';
 type StepItemProps = {
   workflowIndex: number;
   step: Step;
-  title: string;
+  displayName: string;
   version?: string;
   isSelected: boolean;
   hasVersionUpdate: boolean;
@@ -22,7 +22,7 @@ const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 const StepItem = ({
   workflowIndex,
   step,
-  title,
+  displayName,
   version,
   hasVersionUpdate,
   isSelected,
@@ -31,7 +31,7 @@ const StepItem = ({
   return (
     <button
       type="button"
-      aria-label={`Select ${title} step`}
+      aria-label={`Select ${displayName} step`}
       data-e2e-tag="step-item"
       className="step"
       tabIndex={tabIndex(isSelected)}
@@ -40,7 +40,7 @@ const StepItem = ({
       <StepItemIcon iconUrl={step.iconURL()} />
       <span className="info">
         <strong>
-          <StepItemTitle displayName={title} />
+          <StepItemTitle displayName={displayName} />
           <StepItemBadge
             isOfficial={step.isOfficial()}
             isVerified={step.isVerified()}
