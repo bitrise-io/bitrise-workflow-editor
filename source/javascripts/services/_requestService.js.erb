@@ -895,7 +895,7 @@ import jsyaml from "js-yaml";
 										function(response) {
 											reject(
 												new Error(
-													stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:github_error] %>", { step_yml_url: stepYMLurl })
+													stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:github_error] %>", { step_yml_url: stepYMLurl, error: response.data || `Status ${response.status}` })
 												)
 											);
 										}
@@ -904,7 +904,7 @@ import jsyaml from "js-yaml";
 							} else {
 								return $q.reject(
 									new Error(
-										stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>", { step_yml_url: stepYMLurl })
+										stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>", { step_yml_url: stepYMLurl })
 									)
 								);
 							}
@@ -932,8 +932,7 @@ import jsyaml from "js-yaml";
 							reject(
 								errorFromResponse(
 									response,
-									"<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>",
-									"<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %>"
+									"<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>"
 								)
 							);
 						}

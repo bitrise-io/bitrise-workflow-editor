@@ -740,9 +740,8 @@ def strings
                 },
                 step_config_fetch: {
                     default_error: "Error loading step <step_yml_url>.",
-                    error_prefix: "Error loading step <step_yml_url>: ",
                     not_supported_host: "This host (<step_yml_url>) is not supported for step.yml load.",
-                    github_error: "Could not load <step_yml_url> from GitHub."
+                    github_error: "Could not load <step_yml_url> from GitHub. Make sure the repository is publicly accessible. Error: <error>"
                 },
                 libraries_fetch: {
                     default_error: "Error loading library",
