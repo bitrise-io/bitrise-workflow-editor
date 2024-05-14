@@ -886,14 +886,14 @@ import jsyaml from "js-yaml";
 												resolve(defaultStepConfig);
 											} catch (error) {
 												reject(
-													new Error("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>")
+													new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:default_error] %>", { step_yml_url: stepYMLurl }))
 												);
 											}
 										},
 										function(response) {
 											reject(
 												new Error(
-													"<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:github_error] %>"
+													stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:github_error] %>", { step_yml_url: stepYMLurl })
 												)
 											);
 										}
@@ -902,7 +902,7 @@ import jsyaml from "js-yaml";
 							} else {
 								return $q.reject(
 									new Error(
-										"<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>"
+										stringService.stringReplacedWithParameters("<%= data[:strings][:request_service][:step_config_fetch][:error_prefix] %><%= data[:strings][:request_service][:step_config_fetch][:not_supported_host] %>", { step_yml_url: stepYMLurl })
 									)
 								);
 							}

@@ -258,13 +258,8 @@
 										resolve(defaultStepConfig);
 									},
 									function(_error) {
-										if (requestService.mode == "cli") {
-											reject(_error);
-										} else {
-											logger.error(_error);
-
-											resolve(null);
-										}
+										logger.error(_error);
+										reject(_error);
 									}
 								);
 							})
