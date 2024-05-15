@@ -27,10 +27,11 @@ interface SecretCardProps extends CardProps {
   onCancel: () => void;
   onDelete: (id: string) => void;
   onSave: (secret: SecretWithState) => void;
+  isKeyUsed: (key: string) => boolean;
 }
 
 const SecretCard = (props: SecretCardProps) => {
-  const { onEdit, onCancel, onSave, onDelete, secret, appSlug } = props;
+  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed } = props;
 
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
@@ -41,8 +42,13 @@ const SecretCard = (props: SecretCardProps) => {
     isLoading: isSecretValueLoading,
   } = useGetSecretValue(appSlug, secret.key);
 
-  const inputWidth = `calc((100% - ${secret.isEditing ? 0 : 108}px) / 2)`;
-  const form = useForm<SecretWithState>({
+  const {
+    register,
+    watch,
+    handleSubmit,
+    setValue,
+    formState: { errors },
+  } = useForm<SecretWithState>({
     values: { ...secret, value: secret.isEditing || isShown ? fetchedSecretValue || secret.value : '••••••••' },
   });
 
@@ -77,10 +83,11 @@ const SecretCard = (props: SecretCardProps) => {
     onCancel();
   };
 
-  const protectedIcon = <Icon name="Lock" color="neutral.60" margin="12" />;
+  const protectedIcon = <Icon size="16" name="Lock" color="icon/tertiary" margin="12" />;
 
   const showHideButton = (
     <IconButton
+      size="md"
       iconName={isShown ? 'HidePassword' : 'ShowPassword'}
       onClick={() => (isShown ? hideSecretValue() : showSecretValue())}
       aria-label={isShown ? 'Hide' : 'Show'}
@@ -101,28 +108,44 @@ const SecretCard = (props: SecretCardProps) => {
 
   return (
     <Card paddingY="16" paddingX="24" marginBottom="16">
-      <Box as="form" onSubmit={form.handleSubmit(onFormSubmit)} width="100%" display="flex" gap="12" flexDir="column">
-        <Box width="100%" display="flex" gap="8" alignItems="center">
-          <Input width={inputWidth} isDisabled={secret.isSaved} {...form.register('key')} />=
-          {isSecretValueLoading ? (
-            <Skeleton isActive width={inputWidth} height="48">
-              <SkeletonBox width="100%" height="100%" borderRadius="4" />
-            </Skeleton>
-          ) : (
+      <Box as="form" onSubmit={handleSubmit(onFormSubmit)} width="100%" display="flex" gap="12" flexDir="column">
+        <Box width="100%" display="flex" gap="8">
+          <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
             <Input
-              width={inputWidth}
-              isDisabled={!secret.isEditing}
-              type={isShown || secret.isEditing ? 'text' : 'password'}
-              rightAddon={valueInputAddon}
-              rightAddonPlacement="inside"
-              {...form.register('value')}
+              flexGrow={1}
+              inputHeight={40}
+              isDisabled={secret.isSaved}
+              errorText={errors?.key?.message}
+              {...register('key', {
+                validate: (v) => !isKeyUsed(v) || 'This key is already used!',
+              })}
             />
-          )}
+            <Box as="span" lineHeight="40px">
+              =
+            </Box>
+            {isSecretValueLoading ? (
+              <Skeleton isActive height="40">
+                <SkeletonBox width="100%" height="100%" borderRadius="4" />
+              </Skeleton>
+            ) : (
+              <Input
+                inputHeight={40}
+                isDisabled={!secret.isEditing}
+                type={isShown || secret.isEditing ? 'text' : 'password'}
+                rightAddon={valueInputAddon}
+                rightAddonPlacement="inside"
+                {...register('value', { required: 'This field is required.' })}
+              />
+            )}
+          </Box>
           {!secret.isEditing && (
             <Box display="flex">
               <IconButton
+                size="md"
+                iconSize="24"
+                color="button/secondary"
                 iconName="Pencil"
-                aria-label="Edit trigger"
+                aria-label="Edit secret"
                 variant="tertiary"
                 onClick={() => {
                   showSecretValue();
@@ -132,8 +155,10 @@ const SecretCard = (props: SecretCardProps) => {
                 marginLeft="8"
               />
               <IconButton
+                size="md"
+                iconSize="24"
                 iconName="MinusRemove"
-                aria-label="Remove trigger"
+                aria-label="Delete secret"
                 variant="tertiary"
                 isDanger
                 onClick={() => onDelete?.(secret.key)}
@@ -155,8 +180,8 @@ const SecretCard = (props: SecretCardProps) => {
         {secret.isEditing && (
           <Box display="flex" flexDirection="column" marginY="16" gap="16">
             <Checkbox
-              isChecked={form.watch('isExpand')}
-              {...form.register('isExpand')}
+              isChecked={watch('isExpand')}
+              {...register('isExpand')}
               isReadOnly={secret.isProtected}
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
             >
@@ -168,8 +193,8 @@ const SecretCard = (props: SecretCardProps) => {
               </Box>
             </Checkbox>
             <Checkbox
-              isChecked={form.watch('isExpose')}
-              {...form.register('isExpose')}
+              isChecked={watch('isExpose')}
+              {...register('isExpose')}
               isReadOnly={secret.isProtected}
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
             >
@@ -181,8 +206,8 @@ const SecretCard = (props: SecretCardProps) => {
               </Box>
             </Checkbox>
             <Checkbox
-              isChecked={form.watch('isProtected')}
-              {...form.register('isProtected')}
+              isChecked={watch('isProtected')}
+              {...register('isProtected')}
               isReadOnly={secret.isProtected}
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
               // onClick={() => onProtectedChange(secret)}
@@ -196,7 +221,7 @@ const SecretCard = (props: SecretCardProps) => {
             </Checkbox>
             <Box display="flex" justifyContent="space-between">
               <Box display="flex" gap="16">
-                <Button type="submit" size="md">
+                <Button type="submit" size="md" isDisabled={!watch('key')}>
                   Save
                 </Button>
                 <Button onClick={onCancelClick} size="md" variant="secondary">
@@ -222,7 +247,7 @@ const SecretCard = (props: SecretCardProps) => {
           <Button
             variant="secondary"
             onClick={() => {
-              form.setValue('isProtected', false);
+              setValue('isProtected', false);
               setConfirmCallback(undefined);
             }}
           >

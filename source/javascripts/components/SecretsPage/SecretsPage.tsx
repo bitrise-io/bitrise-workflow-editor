@@ -94,6 +94,7 @@ const SecretsPage = (props: SecretsPageProps) => {
             onCancel={handleCancel}
             onSave={handleSave}
             onDelete={() => setDeleteId(secret.key)}
+            isKeyUsed={(key) => secretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
           />
         ))}
       </Box>

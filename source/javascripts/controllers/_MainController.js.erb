@@ -734,6 +734,7 @@ import { safeDigest } from "../services/react-compat";
 								const tourReq = isProductTourEnabled ? requestService.getProductTourShown() : null;
 
 								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
+								viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
 
 								const requests = _.compact([lastWFEDateMetadataReq, tourReq]);
 
