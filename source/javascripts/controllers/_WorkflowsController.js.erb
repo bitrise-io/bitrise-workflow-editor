@@ -23,7 +23,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       workflowSelectionService,
       addStepService,
       semverService,
-      launchDarklyService,
       logger,
       Progress,
       Popup,
@@ -125,7 +124,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
           requestService.getCurrentUserData(),
           requestService.getApp(appServiceUtil.getAppSlug()),
           appService.getOwnerPlanData()
-        ]).then(function([featureFlags, user, app]) {
+        ]).then(function([user, app]) {
           viewModel.username = user?.username;
           viewModel.defaultBranch = app?.default_branch;
           viewModel.buildTriggerToken = app?.build_trigger_token;
@@ -135,11 +134,11 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       }
 
       function updateCanRunWorkflow(buildTriggerToken, workflow) {
-        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && isUtilityWorkflow(workflow);
+        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && !isUtilityWorkflow(workflow);
       }
 
       function isUtilityWorkflow(workflow) {
-        return workflow && workflow.id && !workflow.id.startsWith("_");
+        return workflow && workflow.id && workflow.id.startsWith("_");
       }
 
       function loadWorkflows() {
