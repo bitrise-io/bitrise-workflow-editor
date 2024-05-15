@@ -198,7 +198,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
             </Box>
 
             {!isDisabled && (
-              <ButtonGroup position="absolute" top="8" right="8">
+              <ButtonGroup position="absolute" top="6" right="6">
                 {isClearableInput && (
                   <IconButton
                     size="sm"
