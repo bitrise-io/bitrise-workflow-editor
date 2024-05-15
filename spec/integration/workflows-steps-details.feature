@@ -56,13 +56,14 @@ Feature: Workflow steps details
     And I should see "master" in "Second StepItem Version"
     And "Step Version Details" should "be visible"
     And "Step Version Update Icon" should "not exist"
-    And "Step Version Selector" should "be visible"
+    When I click on "Step Properties Tab"
+    Then "Step Version Selector" should "be visible"
     And I should see "master" in "Step Version"
     # Local step
     When I click on "Fourth step"
     Then "Forth StepItem Version Update Indicator" should "not exist"
     And I should see "Always latest" in "Fourth StepItem Version"
-    And "Step Version" should "be empty"
+    And I should see "Always latest" in "Step Version"
     When I click on "Eighth step"
     Then I wait 500
     And "Step Version Details" should "be visible"
