@@ -26,7 +26,6 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
-            inputStyle={{ textTransform: 'uppercase' }}
             errorText={errors.key?.message?.toString()}
             {...register('key', {
               required: true,
@@ -34,7 +33,6 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
                 value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
                 message: 'Key should contain letters, numbers, underscores, should not begin with a number.',
               },
-              setValueAs: (value) => value.toUpperCase(),
               validate: {
                 isUnique: (value) => {
                   if (items.some((secret) => secret.key === value)) {
