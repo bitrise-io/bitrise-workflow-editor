@@ -75,7 +75,7 @@ const StepConfigPanel = ({
 
               <Box h="20px" display="flex" gap="8" alignItems="center" data-e2e-tag="step-version-details">
                 <Text size="2" color="text.secondary" data-e2e-tag="step-version-details__version-text">
-                  {resolvedVersion || step.version || step.defaultStepConfig.version}
+                  {resolvedVersion || step.version || step.defaultStepConfig.version || 'Always latest'}
                 </Text>
               </Box>
             </Box>
