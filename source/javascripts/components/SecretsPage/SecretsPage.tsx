@@ -39,8 +39,8 @@ const SecretsPage = (props: SecretsPageProps) => {
     const newSecretList = secretList.filter((secret) => secret.key !== id);
 
     setSecretList(newSecretList);
-    setDeleteId(null);
     onSecretsChange(newSecretList);
+    setDeleteId(null);
   };
 
   const handleSave = (changedSecret: SecretWithState) => {
@@ -97,13 +97,30 @@ const SecretsPage = (props: SecretsPageProps) => {
           />
         ))}
       </Box>
-      <Button variant="secondary" leftIconName="PlusAdd" size="md" onClick={onAddClick}>
+      <Button variant="secondary" leftIconName="PlusAdd" size="md" marginBottom="24" onClick={onAddClick}>
         Add new
       </Button>
 
       <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
         <DialogBody>
           <Text>Are you sure you want to delete this Secret? This cannot be undone once saved.</Text>
+        </DialogBody>
+        <DialogFooter>
+          <Button variant="secondary" onClick={() => setDeleteId(null)}>
+            Cancel
+          </Button>
+          <Button isDanger onClick={() => handleDelete(deleteId)}>
+            Delete secret
+          </Button>
+        </DialogFooter>
+      </Dialog>
+
+      <Dialog title="Delete Secret?" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
+        <DialogBody>
+          <Text>
+            Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
+            This action cannot be undone.
+          </Text>
         </DialogBody>
         <DialogFooter>
           <Button variant="secondary" onClick={() => setDeleteId(null)}>

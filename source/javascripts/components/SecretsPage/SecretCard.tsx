@@ -33,6 +33,8 @@ const SecretCard = (props: SecretCardProps) => {
   const { onEdit, onCancel, onSave, onDelete, secret, appSlug } = props;
 
   const [isShown, setIsShown] = useState(false);
+  const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
+
   const {
     call: fetchSecretValue,
     value: fetchedSecretValue,
@@ -46,6 +48,7 @@ const SecretCard = (props: SecretCardProps) => {
 
   const showSecretValue = () => {
     setIsShown(true);
+
     if (secret.isSaved && !secret.isProtected) {
       fetchSecretValue();
     }
@@ -56,8 +59,15 @@ const SecretCard = (props: SecretCardProps) => {
   };
 
   const onFormSubmit = (formData: SecretWithState) => {
-    setIsShown(false);
+    if (!secret.isProtected && formData.isProtected) {
+      setConfirmCallback(() => () => saveForm(formData));
+    } else {
+      saveForm(formData);
+    }
+  };
 
+  const saveForm = (formData: SecretWithState) => {
+    setIsShown(false);
     onSave(formData);
   };
 
@@ -112,10 +122,8 @@ const SecretCard = (props: SecretCardProps) => {
             <Box display="flex">
               <IconButton
                 iconName="Pencil"
-                iconSize="24"
                 aria-label="Edit trigger"
-                variant="secondary"
-                border={0}
+                variant="tertiary"
                 onClick={() => {
                   showSecretValue();
 
@@ -127,7 +135,6 @@ const SecretCard = (props: SecretCardProps) => {
                 iconName="MinusRemove"
                 aria-label="Remove trigger"
                 variant="tertiary"
-                iconSize="24"
                 isDanger
                 onClick={() => onDelete?.(secret.key)}
               />
@@ -190,7 +197,7 @@ const SecretCard = (props: SecretCardProps) => {
             <Box display="flex" justifyContent="space-between">
               <Box display="flex" gap="16">
                 <Button type="submit" size="md">
-                  Done
+                  Save
                 </Button>
                 <Button onClick={onCancelClick} size="md" variant="secondary">
                   Cancel
@@ -203,19 +210,32 @@ const SecretCard = (props: SecretCardProps) => {
           </Box>
         )}
       </Box>
-      <Dialog title="'Protected' will be irreversible after save" maxWidth="480" isOpen={false} onClose={() => {}}>
+
+      <Dialog title="Save and protect Secret permanently?" maxWidth="640" isOpen={!!confirmCallback} onClose={() => {}}>
         <DialogBody>
           <Text>
-            If you choose to make this variable protected no one will be able to reveal the value, you can overwrite the
-            value only by deleting the current one and creating a new one.
+            Making a Secret protected is irreversible. <br />
+            To change the value, you will need to delete this Secret Environment Variable and create a new one.
           </Text>
         </DialogBody>
         <DialogFooter>
-          <Button variant="secondary" onClick={() => {}}>
+          <Button
+            variant="secondary"
+            onClick={() => {
+              form.setValue('isProtected', false);
+              setConfirmCallback(undefined);
+            }}
+          >
             Cancel
           </Button>
-          <Button isDanger onClick={() => {}}>
-            Make protected
+          <Button
+            isDanger
+            onClick={() => {
+              confirmCallback?.();
+              setConfirmCallback(undefined);
+            }}
+          >
+            Save and protect
           </Button>
         </DialogFooter>
       </Dialog>
