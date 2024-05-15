@@ -6,5 +6,4 @@ export type EnvironmentVariable = {
 };
 
 export type HandlerFn = (envVar: EnvironmentVariable) => void;
-export type FilterEnvVarFormValues = { filter: string };
 export type CreateEnvVarFormValues = EnvironmentVariable;

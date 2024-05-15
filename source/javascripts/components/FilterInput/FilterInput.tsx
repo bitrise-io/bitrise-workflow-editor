@@ -1,26 +1,23 @@
 import { forwardRef, useCallback, useState } from 'react';
 import debounce from 'lodash/debounce';
-import { InputProps, SearchInput } from '@bitrise/bitkit';
+import { SearchInput, SearchInputProps } from '@bitrise/bitkit';
 
 const DEBOUNCE_TIME = 300;
 
-type Props = Omit<InputProps, 'value' | 'onChange'> & {
-  placeholder: string;
-  filter?: string;
-  onFilterChange: (filter: string) => void;
+export type FilterInputProps = SearchInputProps & {
   debounceTime?: number;
 };
 
-const FilterInput = forwardRef<HTMLInputElement, Props>(
-  ({ filter = '', onFilterChange, debounceTime = DEBOUNCE_TIME, ...rest }, ref) => {
-    const [state, setState] = useState(filter);
+const FilterInput = forwardRef<HTMLInputElement, FilterInputProps>(
+  ({ value: initialValue = '', onChange, debounceTime = DEBOUNCE_TIME, ...rest }, ref) => {
+    const [state, setState] = useState(initialValue);
 
     const onChangeHandler = useCallback(
-      (value: string) => {
-        setState(value);
-        debounce(() => onFilterChange(value), debounceTime)();
+      (filterValue: string) => {
+        setState(filterValue);
+        debounce(() => onChange(filterValue), debounceTime)();
       },
-      [debounceTime, onFilterChange],
+      [debounceTime, onChange],
     );
 
     return <SearchInput inputRef={ref} autoFocus name="filter" value={state} onChange={onChangeHandler} {...rest} />;

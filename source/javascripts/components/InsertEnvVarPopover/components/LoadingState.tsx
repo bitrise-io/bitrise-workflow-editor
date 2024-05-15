@@ -4,7 +4,7 @@ type Props = {
   rows?: number;
 };
 
-const LoadingState = ({ rows = 6 }: Props) => {
+const LoadingState = ({ rows = 4 }: Props) => {
   return (
     <>
       {Array(rows)
