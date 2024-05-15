@@ -114,7 +114,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     };
 
     setCursorPosition({ start, end: end + `$${key}`.length });
-    setValue(name, `${inputValue.slice(0, start)}$${key.toUpperCase()}${inputValue.slice(end)}`, {
+    setValue(name, `${inputValue.slice(0, start)}$${key}${inputValue.slice(end)}`, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
