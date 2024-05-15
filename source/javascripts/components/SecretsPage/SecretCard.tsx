@@ -221,7 +221,7 @@ const SecretCard = (props: SecretCardProps) => {
             </Checkbox>
             <Box display="flex" justifyContent="space-between">
               <Box display="flex" gap="16">
-                <Button type="submit" size="md" isDisabled={!watch('key')}>
+                <Button type="submit" size="md" isDisabled={!watch('key') || !watch('value')}>
                   Save
                 </Button>
                 <Button onClick={onCancelClick} size="md" variant="secondary">
