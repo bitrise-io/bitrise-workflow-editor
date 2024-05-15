@@ -8,4 +8,3 @@ export type Secret = {
 
 export type HandlerFn = (secret: Secret) => void;
 export type CreateSecretFormValues = Secret;
-export type SelectSecretFormValues = { key: string; filter: string };

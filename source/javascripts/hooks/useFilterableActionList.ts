@@ -40,7 +40,7 @@ const useFilterableActionList = <TActionItem>({
   const focusFilterInput = useCallback(() => {
     setTimeout(() => {
       filterRef.current?.focus();
-    }, 50);
+    }, 125);
   }, []);
 
   const getFilterInputProps = useCallback(
