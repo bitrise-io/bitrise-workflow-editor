@@ -83,7 +83,34 @@ const SecretsPage = (props: SecretsPageProps) => {
         <b>We advise not to expose Secrets in pull requests</b> <br />
         Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request.
       </Notification>
+
+      <Text as="h4" textStyle="heading/h4">
+        Shared Secrets
+      </Text>
+      <Text textColor="text/secondary" size="2">
+        All apps have access to shared Secrets. If the same Secret is configured at an app level here, it will overwrite
+        the shared resource.
+      </Text>
       <Box marginY="24">
+        {secretList.slice(0, 1).map((secret) => (
+          <SecretCard
+            appSlug={appSlug}
+            key={secret.key}
+            id={secret.key}
+            secret={secret}
+            onEdit={handleEdit(secret.key)}
+            onCancel={handleCancel}
+            onSave={handleSave}
+            onDelete={() => setDeleteId(secret.key)}
+            isKeyUsed={(key) => secretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
+          />
+        ))}
+      </Box>
+
+      <Text as="h4" textStyle="heading/h4">
+        App level Secrets
+      </Text>
+      <Box marginTop="16" marginBottom="24">
         {secretList.map((secret) => (
           <SecretCard
             appSlug={appSlug}
