@@ -102,7 +102,6 @@ const SecretsPage = (props: SecretsPageProps) => {
           <SecretCard
             appSlug={appSlug}
             key={secret.key}
-            id={secret.key}
             secret={secret}
             onEdit={handleEdit(secret.key)}
             onCancel={handleCancel}
@@ -121,7 +120,6 @@ const SecretsPage = (props: SecretsPageProps) => {
           <SecretCard
             appSlug={appSlug}
             key={secret.key}
-            id={secret.key}
             secret={secret}
             onEdit={handleEdit(secret.key)}
             onCancel={handleCancel}
