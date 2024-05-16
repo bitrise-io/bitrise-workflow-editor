@@ -79,7 +79,11 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
               buttonContent={
                 <Box display="flex" gap="8">
                   <Text fontWeight="demiBold">{category.name}</Text>
-                  {!!numberOfErrors && <Badge backgroundColor="sys/critical/bold">{numberOfErrors}</Badge>}
+                  {!!numberOfErrors && (
+                    <Badge variant="bold" colorScheme="negative">
+                      {numberOfErrors}
+                    </Badge>
+                  )}
                 </Box>
               }
             >
