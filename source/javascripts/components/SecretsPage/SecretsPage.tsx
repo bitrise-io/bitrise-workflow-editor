@@ -13,49 +13,54 @@ const SecretsPage = (props: SecretsPageProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
   const { secrets, onSecretsChange, appSlug } = props;
 
-  const [secretList, setSecretList] = useState<SecretWithState[]>(
-    secrets.map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
+  const workspaceSecretList = secrets
+    .filter((secret) => secret.isShared)
+    .map((secret) => ({ ...secret, isEditing: false, isSaved: true }));
+
+  const [appSecretList, setAppSecretList] = useState<SecretWithState[]>(
+    secrets.filter((s) => !s.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
   );
 
   const handleEdit = (id?: string | undefined) => () => {
-    setSecretList(
-      secretList.map((secret) => {
+    setAppSecretList(
+      appSecretList.map((secret) => {
         return { ...secret, isEditing: secret.key === id };
       }),
     );
   };
 
   const handleCancel = () => {
-    const newSecretList = secretList
+    const newSecretList = appSecretList
       .filter((secret) => secret.isSaved)
       .map((secret) => {
         return { ...secret, isEditing: false };
       });
 
-    setSecretList(newSecretList);
+    setAppSecretList(newSecretList);
   };
 
   const handleDelete = (id: string | null) => {
-    const newSecretList = secretList.filter((secret) => secret.key !== id);
+    const newAppSecretList = appSecretList.filter((secret) => secret.key !== id);
 
-    setSecretList(newSecretList);
-    onSecretsChange(newSecretList);
+    setAppSecretList(newAppSecretList);
+    onSecretsChange([...workspaceSecretList, ...newAppSecretList]);
     setDeleteId(null);
   };
 
   const handleSave = (changedSecret: SecretWithState) => {
-    const newSecretList = secretList.map((secret) => {
+    const newAppSecretList = appSecretList.map((secret) => {
       return !secret.isSaved || secret.key === changedSecret.key
         ? { ...changedSecret, isEditing: false, isSaved: true }
         : secret;
     });
-    setSecretList(newSecretList);
-    onSecretsChange(newSecretList);
+
+    setAppSecretList(newAppSecretList);
+    onSecretsChange([...workspaceSecretList, ...newAppSecretList]);
   };
 
   const onAddClick = () => {
-    setSecretList([
-      ...secretList,
+    setAppSecretList([
+      ...appSecretList,
       {
         key: '',
         value: '',
@@ -63,6 +68,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         isExpand: false,
         isExpose: false,
         isKeyChangeable: false,
+        isShared: false,
 
         isEditing: true,
         isSaved: false,
@@ -92,7 +98,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         the shared resource.
       </Text>
       <Box marginY="24">
-        {secretList.slice(0, 1).map((secret) => (
+        {workspaceSecretList.map((secret) => (
           <SecretCard
             appSlug={appSlug}
             key={secret.key}
@@ -102,7 +108,7 @@ const SecretsPage = (props: SecretsPageProps) => {
             onCancel={handleCancel}
             onSave={handleSave}
             onDelete={() => setDeleteId(secret.key)}
-            isKeyUsed={(key) => secretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
+            isKeyUsed={(key) => appSecretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
           />
         ))}
       </Box>
@@ -111,7 +117,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         App level Secrets
       </Text>
       <Box marginTop="16" marginBottom="24">
-        {secretList.map((secret) => (
+        {appSecretList.map((secret) => (
           <SecretCard
             appSlug={appSlug}
             key={secret.key}
@@ -121,7 +127,12 @@ const SecretsPage = (props: SecretsPageProps) => {
             onCancel={handleCancel}
             onSave={handleSave}
             onDelete={() => setDeleteId(secret.key)}
-            isKeyUsed={(key) => secretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
+            isKeyUsed={(key) =>
+              appSecretList
+                .filter((s) => !s.isShared)
+                .filter((s) => s.key !== secret.key && !secret.isShared)
+                .some((s) => s.key === key)
+            }
           />
         ))}
       </Box>
@@ -129,7 +140,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         Add new
       </Button>
 
-      <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
+      <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => { }}>
         <DialogBody>
           <Text>Are you sure you want to delete this Secret? This cannot be undone once saved.</Text>
         </DialogBody>
@@ -143,7 +154,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         </DialogFooter>
       </Dialog>
 
-      <Dialog title="Delete Secret?" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
+      <Dialog title="Delete Secret?" maxWidth="480" isOpen={!!deleteId} onClose={() => { }}>
         <DialogBody>
           <Text>
             Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />

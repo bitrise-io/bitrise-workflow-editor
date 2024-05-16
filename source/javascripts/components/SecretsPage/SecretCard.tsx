@@ -138,7 +138,7 @@ const SecretCard = (props: SecretCardProps) => {
               />
             )}
           </Box>
-          {!secret.isEditing && (
+          {!secret.isEditing && !secret.isShared && (
             <Box display="flex">
               <IconButton
                 size="md"
@@ -210,7 +210,7 @@ const SecretCard = (props: SecretCardProps) => {
               {...register('isProtected')}
               isReadOnly={secret.isProtected}
               style={secret.isProtected ? { opacity: 0.4, pointerEvents: 'none' } : {}}
-              // onClick={() => onProtectedChange(secret)}
+            // onClick={() => onProtectedChange(secret)}
             >
               <Box display="flex" flexDirection="column">
                 <Text size="3">Protected</Text>
@@ -236,7 +236,7 @@ const SecretCard = (props: SecretCardProps) => {
         )}
       </Box>
 
-      <Dialog title="Save and protect Secret permanently?" maxWidth="640" isOpen={!!confirmCallback} onClose={() => {}}>
+      <Dialog title="Save and protect Secret permanently?" maxWidth="640" isOpen={!!confirmCallback} onClose={() => { }}>
         <DialogBody>
           <Text>
             Making a Secret protected is irreversible. <br />

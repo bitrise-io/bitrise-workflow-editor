@@ -87,6 +87,7 @@ export type Secret = {
   isKeyChangeable: boolean;
   isSaved?: boolean;
   isEditing?: boolean;
+  isShared?: boolean;
 };
 
 export type SecretWithState = Secret & { isEditing: boolean; isSaved?: boolean };
