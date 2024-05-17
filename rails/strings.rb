@@ -1042,6 +1042,7 @@ def strings
             },
             website: {
                 dashboard_path: "/dashboard",
+                workspace_secrets_path: "/workspaces/<workspace_slug>/settings/shared-resources",
                 app_path: "/app/<app_slug>",
                 app_path_get: "/app/<app_slug>.json",
                 app_start_build_path: "/app/<app_slug>/build/start.json",

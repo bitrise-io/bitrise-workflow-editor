@@ -200,6 +200,10 @@
 			return optionGetterSetter(this, "value_options", newValue);
 		};
 
+		Variable.prototype.scope = function(newValue) {
+			return optionGetterSetter(this, "scope", newValue);
+		};
+
 		Variable.keyFromVariableConfig = function(variableConfig) {
 			return _.first(_.without(_.keys(angular.copy(variableConfig)), "opts"));
 		};
