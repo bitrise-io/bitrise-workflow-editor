@@ -30,10 +30,11 @@ interface SecretCardProps extends CardProps {
   onDelete: (id: string) => void;
   onSave: (secret: SecretWithState) => void;
   isKeyUsed: (key: string) => boolean;
+  secretSettingsUrl?: string;
 }
 
 const SecretCard = (props: SecretCardProps) => {
-  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed } = props;
+  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl } = props;
 
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
@@ -143,9 +144,10 @@ const SecretCard = (props: SecretCardProps) => {
           {secret.isShared ? (
             <Box width="88px" display="flex" alignItems="center" justifyContent="center">
               <Toggletip
+                trigger="hover"
                 label="Shared resources are managed at Workspace settings."
-                learnMoreUrl="#"
-                button={{ onClick: () => {}, label: 'Go to settings' }}
+                learnMoreUrl="https://devcenter.bitrise.io/en/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise"
+                button={{ href: secretSettingsUrl, label: 'Go to settings' }}
               >
                 <Badge background="sys/neutral/subtle" color="text/secondary">
                   Shared

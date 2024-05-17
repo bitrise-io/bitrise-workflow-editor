@@ -691,6 +691,12 @@ import { safeDigest } from "../services/react-compat";
 				}
 			};
 
+			viewModel.workspaceSecretsPath = function() {
+				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workspace_secrets_path]) %>", {
+					workspace_slug: appService.appDetails?.ownerData?.slug
+				});
+			};
+
 			viewModel.dashboardPath = function() {
 				return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>";
 			};

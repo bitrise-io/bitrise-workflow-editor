@@ -7,11 +7,12 @@ type SecretsPageProps = {
   secrets: Secret[];
   onSecretsChange: (secrets: Secret[]) => void;
   appSlug: string;
+  secretSettingsUrl: string;
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { secrets, onSecretsChange, appSlug } = props;
+  const { secrets, onSecretsChange, appSlug, secretSettingsUrl } = props;
 
   const workspaceSecretList = secrets
     .filter((secret) => secret.isShared)
@@ -103,6 +104,7 @@ const SecretsPage = (props: SecretsPageProps) => {
             appSlug={appSlug}
             key={secret.key}
             secret={secret}
+            secretSettingsUrl={secretSettingsUrl}
             onEdit={handleEdit(secret.key)}
             onCancel={handleCancel}
             onSave={handleSave}
@@ -138,7 +140,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         Add new
       </Button>
 
-      <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => { }}>
+      <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
         <DialogBody>
           <Text>Are you sure you want to delete this Secret? This cannot be undone once saved.</Text>
         </DialogBody>
@@ -152,7 +154,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         </DialogFooter>
       </Dialog>
 
-      <Dialog title="Delete Secret?" maxWidth="480" isOpen={!!deleteId} onClose={() => { }}>
+      <Dialog title="Delete Secret?" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
         <DialogBody>
           <Text>
             Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
