@@ -31,7 +31,7 @@ const StepInputLabel = ({ children, isSensitive }: Props) => {
           shouldWrapChildren
           label="This input holds sensitive information. You can only use secrets to securely reference it."
         >
-          <Badge color="yellow.40" backgroundColor="yellow.93">
+          <Badge variant="subtle" colorScheme="warning">
             SENSITIVE
           </Badge>
         </Tooltip>

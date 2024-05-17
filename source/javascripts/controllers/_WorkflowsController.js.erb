@@ -23,7 +23,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       workflowSelectionService,
       addStepService,
       semverService,
-      launchDarklyService,
       logger,
       Progress,
       Popup,
@@ -122,16 +121,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
       function loadAppAndUser() {
         $q.all([
-          launchDarklyService.initialize().then(() => {
-            var runWorkflow = launchDarklyService.variation("run-workflow-from-wfe", false);
-            var runIf = launchDarklyService.variation("enable-run-if-visual-editor", false);
-
-            return { runWorkflow, runIf };
-          }),
           requestService.getCurrentUserData(),
           requestService.getApp(appServiceUtil.getAppSlug()),
           appService.getOwnerPlanData()
-        ]).then(function([featureFlags, user, app]) {
+        ]).then(function([user, app]) {
           viewModel.username = user?.username;
           viewModel.defaultBranch = app?.default_branch;
           viewModel.buildTriggerToken = app?.build_trigger_token;
@@ -141,11 +134,11 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       }
 
       function updateCanRunWorkflow(buildTriggerToken, workflow) {
-        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && isUtilityWorkflow(workflow);
+        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && !isUtilityWorkflow(workflow);
       }
 
       function isUtilityWorkflow(workflow) {
-        return workflow && workflow.id && !workflow.id.startsWith("_");
+        return workflow && workflow.id && workflow.id.startsWith("_");
       }
 
       function loadWorkflows() {
@@ -193,7 +186,9 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
             viewModel.workflows = undefined;
             logger.error(error);
             viewModel.loadWorkflowsProgress.error(
-              new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>")
+              new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>", {
+                error: error.message
+              }))
             );
           }
         );

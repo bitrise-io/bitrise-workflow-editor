@@ -1,4 +1,4 @@
-import { Badge, Icon, Text } from '@bitrise/bitkit';
+import { Badge, Text } from '@bitrise/bitkit';
 
 type StepItemVersionProps = {
   requestedVersion: string;
@@ -10,14 +10,14 @@ const StepItemVersion = ({ actualVersion, requestedVersion, hasVersionUpdate }: 
   <em className="version" data-e2e-tag="step-item__version">
     {requestedVersion && hasVersionUpdate && (
       <Badge
+        variant="bold"
+        iconName="ArrowUp"
+        colorScheme="negative"
         className="Badge"
         padding="0 0.18rem"
         lineHeight="1.125rem"
-        backgroundColor="red.60"
-        textColor="neutral.100"
         data-e2e-tag="step-item__update-indicator"
       >
-        <Icon className="Icon" name="ArrowUp" />
         {actualVersion}
       </Badge>
     )}

@@ -28,7 +28,7 @@ Workflow editor uses webpack for static asset compilation and asset bundling. Fo
 Finally the local executable is written in GO. so you need to have go set up as well and dependencies.
 
 ```bash
-bitrise run setup-client
+bitrise run install-deps
 ```
 
 ## Development

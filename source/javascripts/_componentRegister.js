@@ -49,7 +49,7 @@ angular
     register(StepItem, [
       "workflowIndex",
       "step",
-      "title",
+      "displayName",
       "version",
       "hasVersionUpdate",
       "isSelected",
@@ -169,7 +169,7 @@ angular
       "onRemove",
       "onChangeTabId",
       "onCreateSecret",
-      "onOpenSecretsDialog",
+      "onLoadSecrets",
       "onCreateEnvVar",
       "onLoadEnvVars",
     ]),

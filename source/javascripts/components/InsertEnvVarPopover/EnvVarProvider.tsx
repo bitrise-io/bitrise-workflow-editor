@@ -10,8 +10,8 @@ type State = {
 
 const Context = createContext<State>({
   isLoading: false,
-  load: () => {},
-  create: () => {},
+  load: () => undefined,
+  create: () => undefined,
   get: () => [],
 });
 
@@ -20,8 +20,8 @@ type Props = PropsWithChildren<{
   onLoad: () => Promise<EnvironmentVariable[]>;
 }>;
 
-const EnvironmentVariablesProvider = ({ children, onLoad, onCreate }: Props) => {
-  const [isLoading, setIsLoading] = useState(!!onLoad);
+const EnvVarProvider = ({ children, onLoad, onCreate }: Props) => {
+  const [isLoading, setIsLoading] = useState(false);
   const [environmentVariables, setEnvironmentVariables] = useState<EnvironmentVariable[]>([]);
 
   const value = useMemo(() => {
@@ -51,4 +51,4 @@ const EnvironmentVariablesProvider = ({ children, onLoad, onCreate }: Props) => 
 
 export const useEnvironmentVariables = () => useContext(Context);
 
-export default EnvironmentVariablesProvider;
+export default EnvVarProvider;

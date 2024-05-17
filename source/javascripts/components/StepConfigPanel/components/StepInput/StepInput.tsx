@@ -3,11 +3,13 @@ import { Box, ButtonGroup, Dropdown, DropdownOption, DropdownProps, IconButton }
 import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
-import { useSecretsDialog } from '../../../SecretsDialog';
-import InsertEnvVarMenu from '../../../InsertEnvVarMenu/InsertEnvVarMenu';
-import { EnvironmentVariable } from '../../../InsertEnvVarMenu/types';
-import { useEnvironmentVariables } from '../../../InsertEnvVarMenu/EnvironmentVariablesProvider';
+import InsertEnvVarPopover from '../../../InsertEnvVarPopover/InsertEnvVarPopover';
+import { EnvironmentVariable } from '../../../InsertEnvVarPopover/types';
+import { useEnvironmentVariables } from '../../../InsertEnvVarPopover/EnvVarProvider';
 import StepHelperText from '../StepHelperText';
+import { useSecrets } from '../../../InsertSecretPopover/SecretsProvider';
+import InsertSecretPopover from '../../../InsertSecretPopover/InsertSecretPopover';
+import { Secret } from '../../../InsertSecretPopover/types';
 import StepInputLabel from './StepInputLabel';
 
 type CommonProps = {
@@ -50,14 +52,18 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
   } = useFormContext();
 
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
-
-  const { open: openSecretsDialog } = useSecretsDialog();
-  const { isLoading, load: loadEnvVars, get: getEnvVars, create: createEnvVar } = useEnvironmentVariables();
-
   const name = rest.name || '';
   const value = watch(name, props.defaultValue);
   const isClearableInput = isSensitive && !!value;
   const errorText = errors?.[name]?.message?.toString();
+
+  const { isLoading: isLoadingSecrets, load: loadSecrets, create: createSecret, get: getSecrets } = useSecrets();
+  const {
+    isLoading: isLoadingEnvVars,
+    load: loadEnvVars,
+    get: getEnvVars,
+    create: createEnvVar,
+  } = useEnvironmentVariables();
 
   const handleClear: MouseEventHandler<HTMLButtonElement> = (e) => {
     e.preventDefault();
@@ -70,17 +76,27 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     });
   };
 
-  const handleOnClickInsertSecret: MouseEventHandler<HTMLButtonElement> = (e) => {
-    // NOTE: This is necessary because without it, the tooltip on the button reappears after the dialog is closed.
-    e.currentTarget.blur();
+  const handleOnBlur: FocusEventHandler<HTMLTextAreaElement> = (e) => {
+    if (isTextareaInput(rest) && rest.onBlur) {
+      rest.onBlur(e);
+    }
 
-    openSecretsDialog({
-      onSelect: (secret) =>
-        setValue(name, `$${secret.key}`, {
-          shouldDirty: true,
-          shouldTouch: true,
-          shouldValidate: true,
-        }),
+    setCursorPosition({
+      end: Math.max(e.currentTarget.selectionStart, e.currentTarget.selectionEnd),
+      start: Math.min(e.currentTarget.selectionStart, e.currentTarget.selectionEnd),
+    });
+  };
+
+  const handleCreateSecretIntoInput = (secret: Secret) => {
+    handleInsertSecretIntoInput(secret);
+    createSecret(secret);
+  };
+
+  const handleInsertSecretIntoInput = (secret: Secret) => {
+    setValue(name, `$${secret.key}`, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
     });
   };
 
@@ -98,21 +114,10 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     };
 
     setCursorPosition({ start, end: end + `$${key}`.length });
-    setValue(name, `${inputValue.slice(0, start)}$${key.toUpperCase()}${inputValue.slice(end)}`, {
+    setValue(name, `${inputValue.slice(0, start)}$${key}${inputValue.slice(end)}`, {
       shouldDirty: true,
       shouldTouch: true,
       shouldValidate: true,
-    });
-  };
-
-  const handleOnBlur: FocusEventHandler<HTMLTextAreaElement> = (e) => {
-    if (isTextareaInput(rest) && rest.onBlur) {
-      rest.onBlur(e);
-    }
-
-    setCursorPosition({
-      end: Math.max(e.currentTarget.selectionStart, e.currentTarget.selectionEnd),
-      start: Math.min(e.currentTarget.selectionStart, e.currentTarget.selectionEnd),
     });
   };
 
@@ -154,11 +159,11 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 <DropdownOption value={value}>{value}</DropdownOption>
               )}
             </Dropdown>
-            <InsertEnvVarMenu
+            <InsertEnvVarPopover
               size="md"
+              onOpen={loadEnvVars}
+              isLoading={isLoadingEnvVars}
               environmentVariables={getEnvVars()}
-              isLoading={isLoading}
-              onOpen={() => loadEnvVars()}
               onCreate={handleCreateEnvVarIntoDropdown}
               onSelect={handleInsertEnvVarIntoDropdown}
             />
@@ -198,7 +203,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
             </Box>
 
             {!isDisabled && (
-              <ButtonGroup position="absolute" top="8" right="8">
+              <ButtonGroup position="absolute" top="6" right="6">
                 {isClearableInput && (
                   <IconButton
                     size="sm"
@@ -211,20 +216,21 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
                 )}
 
                 {isSensitive && (
-                  <IconButton
+                  <InsertSecretPopover
                     size="sm"
-                    iconName="Dollars"
-                    variant="secondary"
-                    aria-label="Insert secret"
-                    onClick={handleOnClickInsertSecret}
+                    secrets={getSecrets()}
+                    onOpen={loadSecrets}
+                    isLoading={isLoadingSecrets}
+                    onCreate={handleCreateSecretIntoInput}
+                    onSelect={handleInsertSecretIntoInput}
                   />
                 )}
 
                 {!isSensitive && (
-                  <InsertEnvVarMenu
+                  <InsertEnvVarPopover
                     size="sm"
-                    isLoading={isLoading}
-                    onOpen={() => loadEnvVars()}
+                    onOpen={loadEnvVars}
+                    isLoading={isLoadingEnvVars}
                     environmentVariables={getEnvVars()}
                     onCreate={handleCreateEnvVarIntoInput}
                     onSelect={handleInsertEnvVarIntoInput}
