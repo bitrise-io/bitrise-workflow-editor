@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import {
+  Badge,
   Box,
   Button,
   Card,
@@ -101,7 +102,7 @@ const SecretCard = (props: SecretCardProps) => {
   if (!secret.isEditing) {
     if (secret.isProtected) {
       valueInputAddon = protectedIcon;
-    } else {
+    } else if (!secret.isShared) {
       valueInputAddon = showHideButton;
     }
   }
@@ -138,32 +139,42 @@ const SecretCard = (props: SecretCardProps) => {
               />
             )}
           </Box>
-          {!secret.isEditing && (
-            <Box display="flex">
-              <IconButton
-                size="md"
-                iconSize="24"
-                color="button/secondary"
-                iconName="Pencil"
-                aria-label="Edit secret"
-                variant="tertiary"
-                onClick={() => {
-                  showSecretValue();
-
-                  onEdit?.(secret.key);
-                }}
-                marginLeft="8"
-              />
-              <IconButton
-                size="md"
-                iconSize="24"
-                iconName="MinusRemove"
-                aria-label="Delete secret"
-                variant="tertiary"
-                isDanger
-                onClick={() => onDelete?.(secret.key)}
-              />
+          {secret.isShared ? (
+            <Box width="88px" display="flex" alignItems="center" justifyContent="center">
+              <Badge background="sys/neutral/subtle" color="text/secondary">
+                Shared
+              </Badge>
             </Box>
+          ) : (
+            <>
+              {!secret.isEditing && (
+                <Box display="flex">
+                  <IconButton
+                    size="md"
+                    iconSize="24"
+                    color="button/secondary"
+                    iconName="Pencil"
+                    aria-label="Edit secret"
+                    variant="tertiary"
+                    onClick={() => {
+                      showSecretValue();
+
+                      onEdit?.(secret.key);
+                    }}
+                    marginLeft="8"
+                  />
+                  <IconButton
+                    size="md"
+                    iconSize="24"
+                    iconName="MinusRemove"
+                    aria-label="Delete secret"
+                    variant="tertiary"
+                    isDanger
+                    onClick={() => onDelete?.(secret.key)}
+                  />
+                </Box>
+              )}
+            </>
           )}
         </Box>
         {!secret.isEditing && (

@@ -86,6 +86,7 @@ export type Secret = {
   isExpose: boolean;
   isKeyChangeable: boolean;
   isSaved?: boolean;
+  isShared: boolean;
   isEditing?: boolean;
 };
 
