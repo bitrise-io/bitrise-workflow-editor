@@ -15,6 +15,7 @@ import {
   Skeleton,
   SkeletonBox,
   Text,
+  Toggletip,
 } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
@@ -141,9 +142,15 @@ const SecretCard = (props: SecretCardProps) => {
           </Box>
           {secret.isShared ? (
             <Box width="88px" display="flex" alignItems="center" justifyContent="center">
-              <Badge background="sys/neutral/subtle" color="text/secondary">
-                Shared
-              </Badge>
+              <Toggletip
+                label="Shared resources are managed at Workspace settings."
+                learnMoreUrl="#"
+                button={{ onClick: () => {}, label: 'Go to settings' }}
+              >
+                <Badge background="sys/neutral/subtle" color="text/secondary">
+                  Shared
+                </Badge>
+              </Toggletip>
             </Box>
           ) : (
             <>
