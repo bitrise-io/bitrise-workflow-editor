@@ -255,7 +255,7 @@ const SecretCard = (props: SecretCardProps) => {
         )}
       </Box>
 
-      <Dialog title="Save and protect Secret permanently?" maxWidth="640" isOpen={!!confirmCallback} onClose={() => { }}>
+      <Dialog title="Save and protect Secret permanently?" maxWidth="640" isOpen={!!confirmCallback} onClose={() => {}}>
         <DialogBody>
           <Text>
             Making a Secret protected is irreversible. <br />
