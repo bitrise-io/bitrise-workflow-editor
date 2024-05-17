@@ -375,9 +375,11 @@
 					return !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value());
 				});
 
-				return validateVariables(appService.secrets, true, true)
+				const appLevelSecrets = appService.secrets.filter((s) => s.scope() !== 'workspace');
+
+				return validateVariables(appLevelSecrets, true, true)
 					.then(function() {
-						return requestService.postSecrets(appService.secrets);
+						return requestService.postSecrets(appLevelSecrets);
 					})
 					.then(function() {
 						_.each(appService.secrets, appServiceUtil.handleSecretAfterSave);
