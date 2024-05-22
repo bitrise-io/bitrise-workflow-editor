@@ -1,0 +1,10 @@
+(function() {
+    "use strict";
+  
+    angular
+      .module("BitriseWorkflowEditor")
+      .controller("PipelinesController", function(appService) {
+        var viewModel = this;
+        viewModel.yml = appService.appConfig;
+      });
+})();
