@@ -14,6 +14,9 @@ def strings
             },
             segment: {
                 writeKey: "55iZpqNHYN37mfsfk9SOfKBv9GpGBBTv"
+            },
+            ld: {
+                client_id: ENV['NODE_ENV'] == "development" ? "5e70774c8a726707851d2ffe" : "5e70774c8a726707851d2fff",
             }
         },
         strings: {

@@ -37,6 +37,7 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.isUpdateYmlInRepositoryModalVisible = false;
 			viewModel.appDetails;
+			viewModel.showSharedSecrets = false;
 			viewModel.menus = _.compact([
 				{
 					id: "workflows",
@@ -765,6 +766,11 @@ import { safeDigest } from "../services/react-compat";
 							});
 							licensesMenu.cssClass = "licenses";
 						}
+
+						appService.getOwnerPlanData().then(function() {
+						viewModel.showSharedSecrets = Boolean(appService.ownerPlanData?.sharedResourcesAvailable);
+
+						});
 
 						viewModel.initAppProgress.success();
 					},
