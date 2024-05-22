@@ -8,6 +8,7 @@
 			viewModel.pipelines = appService.appConfig.pipelines ? Object.keys(appService.appConfig.pipelines) : [];
 			viewModel.workflows = Object.keys(appService.appConfig.workflows).filter(function(workflowID) {
 				return !workflowID.startsWith('_');
+			});
 			viewModel.triggerMap = appService.appConfig.trigger_map;
 			viewModel.isWebsiteMode = requestService.mode === 'website';
 
