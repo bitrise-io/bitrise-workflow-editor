@@ -7,6 +7,12 @@ declare global {
     analytics: {
       track: (event: string, payload: Record<string, string | number | null | undefined>) => void;
     };
+    globalProps?: {
+      featureFlags?: {
+        user: { [s: string]: unknown };
+        account: { [s: string]: unknown };
+      };
+    };
   }
 
   const process: {

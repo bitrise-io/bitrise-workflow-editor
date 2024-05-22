@@ -46,6 +46,13 @@ import { safeDigest } from "../services/react-compat";
 					cssClass: "workflows"
 				},
 				{
+					id: "pipelines",
+					title: "Pipelines",
+					path: "pipelines",
+					possibleURLParameterKeys: [],
+					cssClass: "pipelines"
+				},
+				{
 					id: "secrets",
 					title: "<%= data[:strings][:main][:menus][:secrets] %>",
 					path: "<%= data[:routes][:endpoints][:secrets] %>",
@@ -133,6 +140,9 @@ import { safeDigest } from "../services/react-compat";
 
 				$q(function(resolve, reject) {
 					switch (viewModel.currentMenu.id) {
+						case "pipelines":
+							appService.getAppConfig().then(resolve, reject);
+							break;
 						case "workflows":
 						case "env-vars":
 						case "triggers":
@@ -258,7 +268,7 @@ import { safeDigest } from "../services/react-compat";
 						return;
 					}
 
-					var menuIDsByHandledSource = [["workflows", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
+					var menuIDsByHandledSource = [["workflows", "pipelines", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
 
 					if (
 						_.find(menuIDsByHandledSource, function(menuIDsOfSource) {
