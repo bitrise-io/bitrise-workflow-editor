@@ -90,6 +90,7 @@
     "react-dom": "^18.2.0",
     "react-hook-form": "^7.51.2",
     "react-lazy-load-image-component": "^1.6.0",
+    "reactflow": "^11.11.3",
     "showdown": "^2.1.0",
     "underscore": "^1.13.6",
     "usehooks-ts": "^3.1.0"

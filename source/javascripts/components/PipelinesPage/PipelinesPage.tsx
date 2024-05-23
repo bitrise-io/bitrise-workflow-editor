@@ -1,13 +1,12 @@
 import { BitriseYml } from './PipelinesPage.types';
+import PipelinesCanvas from './components/PipelinesCanvas';
 
 type Props = {
   yml: BitriseYml;
 };
 
-const PipelinesPage = ({ yml }: Props) => {
-  // eslint-disable-next-line no-console
-  console.log(yml);
-  return <span>PipelinePage</span>;
+const PipelinesPage = ({ yml: _ }: Props) => {
+  return <PipelinesCanvas />;
 };
 
 export default PipelinesPage;
