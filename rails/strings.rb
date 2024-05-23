@@ -14,6 +14,9 @@ def strings
             },
             segment: {
                 writeKey: "55iZpqNHYN37mfsfk9SOfKBv9GpGBBTv"
+            },
+            ld: {
+                client_id: ENV['NODE_ENV'] == "development" ? "5e70774c8a726707851d2ffe" : "5e70774c8a726707851d2fff",
             }
         },
         strings: {
@@ -1045,6 +1048,7 @@ def strings
             website: {
                 dashboard_path: "/dashboard",
                 workspace_secrets_path: "/workspaces/<workspace_slug>/settings/shared-resources",
+                workspace_plan_selector_path: "/organization/<workspace_slug>/credit_subscription/plan_selector_page",
                 app_path: "/app/<app_slug>",
                 app_path_get: "/app/<app_slug>.json",
                 app_start_build_path: "/app/<app_slug>/build/start.json",
