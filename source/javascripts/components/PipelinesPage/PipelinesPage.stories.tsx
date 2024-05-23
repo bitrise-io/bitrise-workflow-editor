@@ -8,20 +8,8 @@ export default {
   args: {
     yml: mockYml,
   },
-  argTypes: {
-    yml: {
-      type: 'symbol',
-    },
-    selectedPipeline: {
-      type: 'string',
-    },
-    onSelectPipeline: {
-      type: 'function',
-    },
-  },
   parameters: {
     layout: 'fullscreen',
-    actions: { argTypesRegex: '^on.*' },
   },
   decorators: [
     (Story) => {

@@ -28,9 +28,9 @@ const PipelinesHeader = ({ pipelines }: Props) => {
       <Select
         size="md"
         flex={['1', '0']}
+        value={selectedPipeline}
         isDisabled={!hasOptions}
         minW={['unset', '320px']}
-        defaultValue={selectedPipeline}
         onChange={(e) => onSelectPipeline(e.target.value)}
         placeholder={!hasOptions ? `You've no pipelines in your bitrise.yml...` : undefined}
       >
