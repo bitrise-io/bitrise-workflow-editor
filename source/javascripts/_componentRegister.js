@@ -21,6 +21,7 @@ import VersionChangeDialog from "./components/StepConfigPanel/components/Version
 import TriggersPage from "./components/TriggersPage/TriggersPage";
 import SecretsPage from "./components/SecretsPage/SecretsPage";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
+import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
 
 function register(component, props, injects) {
   return react2angular(withBitkitProvider(component), props, injects);
@@ -197,4 +198,5 @@ angular
       "integrationsUrl",
     ]),
   )
-  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']));
+  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
+  .component('rPipelinesPage', register(PipelinesPage, ['yml']));

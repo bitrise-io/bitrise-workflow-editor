@@ -1022,6 +1022,7 @@ def strings
         routes: {
             endpoints: {
                 workflows: "workflows",
+                pipelines: "pipelines",
                 code_signing: "code_signing",
                 secrets: "secrets",
                 env_vars: "env_vars",
@@ -1032,6 +1033,7 @@ def strings
             },
             templates: {
                 workflows: "templates/workflows.html",
+                pipelines: "templates/pipelines.html",
                 code_signing: "templates/code_signing.html",
                 secrets: "templates/secrets.html",
                 env_vars: "templates/env_vars.html",
