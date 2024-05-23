@@ -197,4 +197,4 @@ angular
       "integrationsUrl",
     ]),
   )
-  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable']));
+  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']));
