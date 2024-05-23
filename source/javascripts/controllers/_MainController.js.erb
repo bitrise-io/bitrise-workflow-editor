@@ -37,6 +37,7 @@ import { safeDigest } from "../services/react-compat";
 
 			viewModel.isUpdateYmlInRepositoryModalVisible = false;
 			viewModel.appDetails;
+			viewModel.showSharedSecrets = false;
 			viewModel.menus = _.compact([
 				{
 					id: "workflows",
@@ -707,6 +708,12 @@ import { safeDigest } from "../services/react-compat";
 				});
 			};
 
+			viewModel.workspacePlanSelectorPath = function() {
+				return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workspace_plan_selector_path]) %>", {
+					workspace_slug: appService.appDetails?.ownerData?.slug
+				});
+			};
+
 			viewModel.dashboardPath = function() {
 				return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>";
 			};
@@ -775,6 +782,11 @@ import { safeDigest } from "../services/react-compat";
 							});
 							licensesMenu.cssClass = "licenses";
 						}
+
+						appService.getOwnerPlanData().then(function() {
+						viewModel.showSharedSecrets = Boolean(appService.ownerPlanData?.sharedResourcesAvailable);
+
+						});
 
 						viewModel.initAppProgress.success();
 					},

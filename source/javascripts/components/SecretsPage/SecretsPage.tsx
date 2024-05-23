@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { Text, Notification, Box, Dialog, DialogBody, Button, DialogFooter } from '@bitrise/bitkit';
+import { Text, Notification, Box, Dialog, DialogBody, Button, DialogFooter, EmptyState, Link } from '@bitrise/bitkit';
 import { Secret, SecretWithState } from '../../models';
 import SecretCard from './SecretCard';
 
@@ -8,11 +8,13 @@ type SecretsPageProps = {
   onSecretsChange: (secrets: Secret[]) => void;
   appSlug: string;
   secretSettingsUrl: string;
+  planSelectorPageUrl: string;
+  sharedSecretsAvailable: boolean;
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { secrets, onSecretsChange, appSlug, secretSettingsUrl } = props;
+  const { secrets, onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
 
   const workspaceSecretList = secrets
     .filter((secret) => secret.isShared)
@@ -77,6 +79,51 @@ const SecretsPage = (props: SecretsPageProps) => {
     ]);
   };
 
+  const sharedSecretsBlock = () => {
+    if (!sharedSecretsAvailable) {
+      return (
+        <Box marginBottom="24" marginTop="8">
+          <Link colorScheme="purple" textStyle="body/md/regular" href={planSelectorPageUrl}>
+            Upgrade your plan
+          </Link>
+        </Box>
+      );
+    }
+    return (
+      <Box marginY="24">
+        {workspaceSecretList.length === 0 && (
+          <EmptyState
+            title="You shared secrets will appear here"
+            iconName="Lock"
+            description={
+              <Text as="span" textStyle="body/md/regular" textColor="text/secondary">
+                Shared resources are managed at Workspace settings
+              </Text>
+            }
+          >
+            <Button size="md" variant="secondary" as="a" href={secretSettingsUrl}>
+              Go to Settings
+            </Button>
+          </EmptyState>
+        )}
+        {workspaceSecretList.length > 0 &&
+          workspaceSecretList.map((secret) => (
+            <SecretCard
+              appSlug={appSlug}
+              key={secret.key}
+              secret={secret}
+              secretSettingsUrl={secretSettingsUrl}
+              onEdit={handleEdit(secret.key)}
+              onCancel={handleCancel}
+              onSave={handleSave}
+              onDelete={() => setDeleteId(secret.key)}
+              isKeyUsed={(key) => appSecretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
+            />
+          ))}
+      </Box>
+    );
+  };
+
   return (
     <>
       <Text as="h2" textStyle="heading/h2" marginBottom="12">
@@ -96,23 +143,9 @@ const SecretsPage = (props: SecretsPageProps) => {
       </Text>
       <Text textColor="text/secondary" size="2">
         All apps have access to shared Secrets. If the same Secret is configured at an app level here, it will overwrite
-        the shared resource.
+        the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
       </Text>
-      <Box marginY="24">
-        {workspaceSecretList.map((secret) => (
-          <SecretCard
-            appSlug={appSlug}
-            key={secret.key}
-            secret={secret}
-            secretSettingsUrl={secretSettingsUrl}
-            onEdit={handleEdit(secret.key)}
-            onCancel={handleCancel}
-            onSave={handleSave}
-            onDelete={() => setDeleteId(secret.key)}
-            isKeyUsed={(key) => appSecretList.filter((s) => s.key !== secret.key).some((s) => s.key === key)}
-          />
-        ))}
-      </Box>
+      {sharedSecretsBlock()}
 
       <Text as="h4" textStyle="heading/h4">
         App level Secrets
