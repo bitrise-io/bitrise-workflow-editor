@@ -606,7 +606,7 @@ header.sticky header.menu {
 		padding: 32px;
 		overflow-y: auto;
 		overflow-x: hidden;
-		
+
 		&:has(.tab-workflows) {
 			padding: 0;
 
@@ -618,6 +618,15 @@ header.sticky header.menu {
 
 			.tab-content > .tab-workflows > .content > .workflows > .workflows-container {
 				flex: none;
+			}
+		}
+
+		&:has(.tab-pipelines) {
+			padding: 0;
+
+			.tab-content,
+			.tab-content > .tab-pipelines {
+				height: 100%;
 			}
 		}
 
