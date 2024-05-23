@@ -199,4 +199,4 @@ angular
     ]),
   )
   .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl']))
-  .component('rPipelinesPage', register(PipelinesPage, ['yml']));
+  .component('rPipelinesPage', register(PipelinesPage, ['yml', 'selectedPipeline', 'onSelectPipeline']));

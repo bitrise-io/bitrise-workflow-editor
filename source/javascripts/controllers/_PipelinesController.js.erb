@@ -1,10 +1,20 @@
+import { safeDigest } from "../services/react-compat";
+
 (function() {
     "use strict";
   
     angular
       .module("BitriseWorkflowEditor")
-      .controller("PipelinesController", function(appService) {
+      .controller("PipelinesController", function($scope, $location, appService) {
         var viewModel = this;
+
         viewModel.yml = appService.appConfig;
+        viewModel.selectedPipeline = $location.search().pipeline || '';
+        viewModel.onSelectPipeline = (key) => {
+          $scope.$apply(() => {
+            viewModel.selectedPipeline = key;
+            $location.search('pipeline', key).replace();
+          });
+        };
       });
 })();

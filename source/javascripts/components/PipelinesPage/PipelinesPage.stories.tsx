@@ -5,9 +5,23 @@ import { mockYml } from './PipelinesPage.mocks';
 
 export default {
   component: PipelinesPage,
-  args: { yml: mockYml },
+  args: {
+    yml: mockYml,
+  },
+  argTypes: {
+    yml: {
+      type: 'symbol',
+    },
+    selectedPipeline: {
+      type: 'string',
+    },
+    onSelectPipeline: {
+      type: 'function',
+    },
+  },
   parameters: {
     layout: 'fullscreen',
+    actions: { argTypesRegex: '^on.*' },
   },
   decorators: [
     (Story) => {
