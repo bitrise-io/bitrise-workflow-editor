@@ -6,7 +6,7 @@ RUN apt-get -y install \
     nodejs \
     liblzma-dev
 
-RUN gem install -f bundler:2.1.4
+RUN gem install -f bundler:2.5.6
 
 COPY . /bitrise/src
 WORKDIR /bitrise/src
