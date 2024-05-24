@@ -15,6 +15,22 @@ trigger_map:
     workflow: wf2
   - pull_request_target_branch: "*"
     workflow: wf3
+pipelines:
+  pl1:
+    stages: 
+      - st1: {}
+  pl2:
+    stages: 
+      - st1: {}
+      - st2: {}
+stages:
+  st1:
+    workflows: 
+      - wf1: {}
+  st2:
+    workflows: 
+      - wf1: {}
+      - wf2: {}
 workflows:
   wf1:
     envs:

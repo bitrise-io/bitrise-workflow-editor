@@ -501,3 +501,6 @@ export const bitriseYmlSchema = {
 } as const;
 
 export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
+export type Pipelines = Required<BitriseYml>['pipelines'];
+export type Workflow = Required<BitriseYml>['workflows'][string];
+export type Step = Required<Workflow>['steps'][number][string];

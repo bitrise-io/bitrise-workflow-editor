@@ -5,8 +5,8 @@ type Props = {
   yml: BitriseYml;
 };
 
-const PipelinesPage = ({ yml: _ }: Props) => {
-  return <PipelinesCanvas />;
+const PipelinesPage = ({ yml }: Props) => {
+  return <PipelinesCanvas pipelines={yml.pipelines} />;
 };
 
 export default PipelinesPage;

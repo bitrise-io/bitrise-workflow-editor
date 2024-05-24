@@ -5,7 +5,9 @@ import { mockYml } from './PipelinesPage.mocks';
 
 export default {
   component: PipelinesPage,
-  args: { yml: mockYml },
+  args: {
+    yml: mockYml,
+  },
   parameters: {
     layout: 'fullscreen',
   },
