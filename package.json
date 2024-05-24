@@ -27,7 +27,7 @@
     "karma": "karma start spec/karma.conf.js",
     "lint": "eslint source/javascripts --cache",
     "lint:fix": "eslint source/javascripts --cache --quiet --fix",
-    "test": "npm run build && npm run karma",
+    "test": "npm run karma",
     "test-ci": "npm run lint && npm run karma",
     "test-watch": "onchange -ik -d 500 'source/javascripts/**/*.js.erb' -- npm test",
     "build": "webpack --bail",
