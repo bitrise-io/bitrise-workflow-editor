@@ -236,7 +236,8 @@ import jsyaml from "js-yaml";
 								tier: response.data.current_plan.tier,
 								creditBased: response.data.current_plan.credit_based,
 								uniqueStepLimit: response.data.unique_step_limit,
-								repositoryYmlAvailable: response.data.repository_yml_available
+								repositoryYmlAvailable: response.data.repository_yml_available,
+								sharedResourcesAvailable: response.data.current_limits.shared_resources_available
 							});
 						},
 						function(response) {
