@@ -41,7 +41,7 @@
     "e2e:run": "cypress run",
     "e2e:api": "./_scripts/run_api.sh",
     "e2e-ci": "concurrently -k -s first \"npm:e2e:api\" \"cypress run --record --key $CYPRESS_API_KEY --reporter cypress-multi-reporters --reporter-options configFile=reporter-config.js\"",
-    "e2e": "start-test e2e:api http://localhost:4000/$(npm pkg get version | tr -d '\\\"') e2e:run",
+    "e2e": "start-test e2e:api http://localhost:4000/$(npm pkg get version | tr -d '\\\"')/ e2e:run",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build",
     "generate-theme-types": "chakra-cli tokens node_modules/@bitrise/bitkit/src/theme.ts",
