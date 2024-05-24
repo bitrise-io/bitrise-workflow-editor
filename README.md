@@ -3,9 +3,7 @@
 # Bitrise Workflow Editor
 
 > **Note: project is going through AngularJS -> React transition. Please read more about this in
->
-the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).
-**
+> the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).**
 
 ## How to install & use the Workflow Editor on your Mac/Linux
 
