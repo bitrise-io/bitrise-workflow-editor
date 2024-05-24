@@ -86,8 +86,7 @@ npm test        # run unit tests on already compiled client
 npm run e2e:api # run only the local binary api for e2e tests
 npm run e2e:dev # run e2e test dashboard (cypress dashboard)
 npm run e2e:run # run e2e tests itself (cypress)
-npm run e2e     # for self contained e2e tests (local binary api + testing logic) e2e:api + e2e:run
-npm run e2e:ci  # for CI, running e2e tests concurrently with the local binary api
+npm run e2e     # run e2e tests concurrently with the local binary api
 ```
 
 _NOTE: for e2e testing you could start a service normally with `npm start` (to develop and run tests on it parallel) or
