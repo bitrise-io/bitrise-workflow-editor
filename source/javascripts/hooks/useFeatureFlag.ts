@@ -1,10 +1,8 @@
-type FeatureFlags = {
-  'enable-wfe-pipeline-viewer': boolean;
-};
-
-const defaultValues: FeatureFlags = {
+const defaultValues = {
   'enable-wfe-pipeline-viewer': false,
 };
+
+type FeatureFlags = typeof defaultValues;
 
 const useFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => {
   return (window.parent?.globalProps?.featureFlags?.user?.[key] ??
