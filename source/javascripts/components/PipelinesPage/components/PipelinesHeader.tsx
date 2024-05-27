@@ -1,5 +1,4 @@
 import { Box, Button, Select } from '@bitrise/bitkit';
-import { Panel } from 'reactflow';
 import { Pipelines } from '../PipelinesPage.types';
 import usePipelineSelector from '../hooks/usePipelineSelector';
 
@@ -15,7 +14,6 @@ const PipelinesHeader = ({ pipelines }: Props) => {
 
   return (
     <Box
-      as={Panel}
       p="12"
       gap="12"
       display="flex"

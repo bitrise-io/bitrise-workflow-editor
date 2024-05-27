@@ -5,15 +5,13 @@ const useSearchParams = () => {
   const searchParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
 
   const setSearchParams = (setter: (prevSearchParams: URLSearchParams) => URLSearchParams) => {
-    const prevSearchParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-    const nextSearchParams = setter(prevSearchParams);
-    const basePath = `${window.location.href.replace(window.location.origin, '').replace(`?${prevSearchParams}`, '')}`;
+    const nextSearchParams = setter(searchParams);
+    const hasNextSearchParams = nextSearchParams.size > 0;
 
-    if (nextSearchParams.size === 0) {
-      history.replace(basePath);
-    } else {
-      history.replace(`${basePath}?${nextSearchParams}`);
-    }
+    const url = new URL(window.location.href);
+    url.hash = `#!/${url.hash.replace('#!/', '').split('?')[0]}${hasNextSearchParams ? `?${nextSearchParams}` : ''}`;
+
+    history.replace(url.href.replace(url.origin, ''));
   };
 
   return [searchParams, setSearchParams] as const;
