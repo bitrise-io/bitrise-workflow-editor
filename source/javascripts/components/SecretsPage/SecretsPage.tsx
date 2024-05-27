@@ -93,7 +93,7 @@ const SecretsPage = (props: SecretsPageProps) => {
       <Box marginY="24">
         {workspaceSecretList.length === 0 && (
           <EmptyState
-            title="You shared secrets will appear here"
+            title="Your shared secrets will appear here"
             iconName="Lock"
             description={
               <Text as="span" textStyle="body/md/regular" textColor="text/secondary">
@@ -138,7 +138,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         Be careful, anyone might be able to implement a workaround and log the value of the Secrets with a pull request.
       </Notification>
 
-      <Text as="h4" textStyle="heading/h4">
+      <Text as="h4" textStyle="heading/h4" paddingBottom="8">
         Shared Secrets
       </Text>
       <Text textColor="text/secondary" size="2">
