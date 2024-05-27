@@ -8,7 +8,7 @@ require (
 	github.com/GeertJohan/go.rice v1.0.3
 	github.com/bitrise-io/bitrise v0.0.0-20240424072115-f5fadde8ae03
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
-	github.com/bitrise-io/envman v0.0.0-20240410092641-54d928c910ed
+	github.com/bitrise-io/envman v0.0.0-20240516104659-4a3e6bd8252a
 	github.com/bitrise-io/go-utils v1.0.13
 	github.com/bitrise-io/stepman v0.0.0-20240402084208-9e349620ff4e
 	github.com/gorilla/mux v1.8.1

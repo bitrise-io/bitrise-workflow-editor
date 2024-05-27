@@ -9,6 +9,7 @@ import {
   DialogFooter,
   Divider,
   Input,
+  Link,
   ProgressIndicator,
   ProgressIndicatorProps,
   Select,
@@ -259,7 +260,22 @@ const AddPrTriggerDialog = (props: DialogProps) => {
               >
                 Add condition
               </Button>
-              <Checkbox isChecked={isDraftPr} onChange={(e) => setValue(`isDraftPr`, e.target.checked)}>
+              <Checkbox
+                isChecked={isDraftPr}
+                helperText={
+                  <>
+                    Supported for GitHub and GitLab.{' '}
+                    <Link
+                      colorScheme="purple"
+                      href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
+                      isExternal
+                    >
+                      Learn more
+                    </Link>
+                  </>
+                }
+                onChange={(e) => setValue(`isDraftPr`, e.target.checked)}
+              >
                 Include draft pull requests
               </Checkbox>
             </>
