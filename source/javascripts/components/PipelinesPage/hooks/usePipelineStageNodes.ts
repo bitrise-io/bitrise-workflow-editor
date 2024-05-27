@@ -26,6 +26,14 @@ const addNode = (id: string, x: number): Node => ({
   ...commonNodeProps,
 });
 
+const endNode = (id: string, x: number): Node => ({
+  id: `end-${id}`,
+  type: 'end',
+  data: undefined,
+  position: { x, y: CANVAS_PADDING + 14 },
+  ...commonNodeProps,
+});
+
 const stageNode = (id: string, x: number, stage: Stage) => ({
   id,
   type: 'stage',
@@ -42,21 +50,23 @@ function* nodeGenerator(stages: Stages): Iterable<Node> {
   for (let i = 0; i < entries.length; i++) {
     const [id, stage] = entries[i];
 
-    if (i === 0) {
+    const isBeforeFirstStage = i === 0;
+    const isAfterLastStage = i === entries.length - 1;
+    const isBetweenStages = i < entries.length;
+
+    if (isBeforeFirstStage) {
       yield runNode(id, x);
       x += 24 + STAGE_GAP;
-    } else {
+    } else if (isBetweenStages) {
       yield addNode(id, x);
       x += 24 + STAGE_GAP;
     }
 
     yield stageNode(id, x, stage);
-
     x += STAGE_WIDTH + STAGE_GAP;
 
-    // NOTE: I'm not sure this is necessary or not...
-    if (i === entries.length - 1) {
-      yield addNode('add-new', x);
+    if (isAfterLastStage) {
+      yield endNode(id, x);
     }
   }
 }

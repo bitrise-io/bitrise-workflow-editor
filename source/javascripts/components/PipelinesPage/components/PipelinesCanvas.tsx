@@ -8,6 +8,7 @@ import PipelinesHeader from './PipelinesHeader';
 import StageNode from './StageNode';
 import RunNode from './RunNode';
 import AddNode from './AddNode';
+import EndNode from './EndNode';
 
 type Props = {
   pipelines?: Pipelines;
@@ -17,6 +18,7 @@ type Props = {
 export const nodeTypes: NodeTypes = {
   add: AddNode,
   run: RunNode,
+  end: EndNode,
   stage: StageNode,
 };
 
