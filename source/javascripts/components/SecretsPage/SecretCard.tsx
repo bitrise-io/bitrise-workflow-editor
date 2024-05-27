@@ -68,6 +68,8 @@ const SecretCard = (props: SecretCardProps) => {
   };
 
   const onFormSubmit = (formData: SecretWithState) => {
+    if (secret.isShared) return;
+
     if (!secret.isProtected && formData.isProtected) {
       setConfirmCallback(() => () => saveForm(formData));
     } else {
