@@ -1,5 +1,6 @@
 import { Box, Icon } from '@bitrise/bitkit';
 import { NodeProps, Position } from 'reactflow';
+import { ICON_STAGE_WIDTH } from '../PipelinesPage.const';
 import InvisibleHandle from './InvisibleHandle';
 
 type Props = NodeProps;
@@ -9,8 +10,8 @@ const AddNode = (_props: Props) => {
     <>
       <InvisibleHandle type="target" position={Position.Left} />
       <Box
-        w="24"
-        h="24"
+        w={ICON_STAGE_WIDTH}
+        h={ICON_STAGE_WIDTH}
         bg="background/primary"
         display="flex"
         border="1px solid"

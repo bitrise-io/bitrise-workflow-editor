@@ -1,6 +1,6 @@
 import { Node, Position } from 'reactflow';
 import { Pipeline, Stage, Stages } from '../PipelinesPage.types';
-import { CANVAS_PADDING, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
+import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
 import usePipelineStages from './usePipelineStages';
 
 const commonNodeProps: Partial<Node> = {
@@ -42,8 +42,10 @@ const stageNode = (id: string, x: number, stage: Stage) => ({
   ...commonNodeProps,
 });
 
-function* nodeGenerator(stages: Stages): Iterable<Node> {
-  const entries = Object.entries(stages);
+const usePipelineStageNodes = (pipeline?: Pipeline, stages?: Stages): Node[] => {
+  const pipelinesStages = usePipelineStages(pipeline, stages);
+  const entries = Object.entries(pipelinesStages);
+  const nodes: Node[] = [];
 
   let x = CANVAS_PADDING;
 
@@ -54,25 +56,22 @@ function* nodeGenerator(stages: Stages): Iterable<Node> {
     const isLastStage = i === entries.length - 1;
 
     if (isFirstStage) {
-      yield runNode(id, x);
-      x += 24 + STAGE_GAP;
+      nodes.push(runNode(id, x));
+      x += ICON_STAGE_WIDTH + STAGE_GAP;
     }
 
-    yield stageNode(id, x, stage);
+    nodes.push(stageNode(id, x, stage));
     x += STAGE_WIDTH + STAGE_GAP;
 
     if (isLastStage) {
-      yield endNode(id, x);
+      nodes.push(endNode(id, x));
     } else {
-      yield addNode(id, x);
-      x += 24 + STAGE_GAP;
+      nodes.push(addNode(id, x));
+      x += ICON_STAGE_WIDTH + STAGE_GAP;
     }
   }
-}
 
-const usePipelineStageNodes = (pipeline?: Pipeline, stages?: Stages): Node[] => {
-  const pipelinesStages = usePipelineStages(pipeline, stages);
-  return Array.from(nodeGenerator(pipelinesStages));
+  return nodes;
 };
 
 export default usePipelineStageNodes;
