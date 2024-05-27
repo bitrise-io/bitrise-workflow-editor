@@ -50,23 +50,22 @@ function* nodeGenerator(stages: Stages): Iterable<Node> {
   for (let i = 0; i < entries.length; i++) {
     const [id, stage] = entries[i];
 
-    const isBeforeFirstStage = i === 0;
-    const isAfterLastStage = i === entries.length - 1;
-    const isBetweenStages = i < entries.length;
+    const isFirstStage = i === 0;
+    const isLastStage = i === entries.length - 1;
 
-    if (isBeforeFirstStage) {
+    if (isFirstStage) {
       yield runNode(id, x);
-      x += 24 + STAGE_GAP;
-    } else if (isBetweenStages) {
-      yield addNode(id, x);
       x += 24 + STAGE_GAP;
     }
 
     yield stageNode(id, x, stage);
     x += STAGE_WIDTH + STAGE_GAP;
 
-    if (isAfterLastStage) {
+    if (isLastStage) {
       yield endNode(id, x);
+    } else {
+      yield addNode(id, x);
+      x += 24 + STAGE_GAP;
     }
   }
 }
