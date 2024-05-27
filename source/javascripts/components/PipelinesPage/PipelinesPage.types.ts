@@ -504,6 +504,6 @@ export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 export type Pipelines = Required<BitriseYml>['pipelines'];
 export type Pipeline = Pipelines[string];
 export type Stages = Required<BitriseYml>['stages'];
-export type Stage = Required<BitriseYml>['stages'][string];
+export type Stage = Stages[string];
 export type Workflow = Required<BitriseYml>['workflows'][string];
 export type Step = Required<Workflow>['steps'][number][string];
