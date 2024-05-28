@@ -6,11 +6,11 @@ toolchain go1.22.2
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20240424072115-f5fadde8ae03
+	github.com/bitrise-io/bitrise v0.0.0-20240522094233-1abb70446576
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240516104659-4a3e6bd8252a
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240402084208-9e349620ff4e
+	github.com/bitrise-io/stepman v0.0.0-20240517143505-dd9c9e302775
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
