@@ -1,16 +1,9 @@
 import { Box, Button, Select } from '@bitrise/bitkit';
-import { Pipelines } from '../PipelinesPage.types';
 import usePipelineSelector from '../hooks/usePipelineSelector';
 
-type Props = {
-  pipelines?: Pipelines;
-};
-
-const PipelinesHeader = ({ pipelines }: Props) => {
-  const { options, selectedPipeline, onSelectPipeline } = usePipelineSelector(pipelines);
-
-  const optionKeys = Object.keys(options);
-  const hasOptions = optionKeys.length > 0;
+const PipelinesHeader = () => {
+  const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
+  const hasOptions = keys.length > 0;
 
   return (
     <Box
@@ -32,7 +25,7 @@ const PipelinesHeader = ({ pipelines }: Props) => {
         onChange={(e) => onSelectPipeline(e.target.value)}
         placeholder={!hasOptions ? `You've no pipelines in your bitrise.yml...` : undefined}
       >
-        {optionKeys.map((key) => {
+        {keys.map((key) => {
           return (
             <option value={key} key={key}>
               {options[key]}

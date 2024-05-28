@@ -1,14 +1,21 @@
-import { BitriseYml } from './PipelinesPage.types';
-import PipelinesCanvas from './components/PipelinesCanvas';
-
 import 'reactflow/dist/style.css';
+
+import { BitriseYml } from './PipelinesPage.types';
+import PipelinesHeader from './components/PipelinesHeader';
+import PipelinesCanvas from './components/PipelinesCanvas';
+import BitriseYmlProvider from './providers/BitriseYmlProvider';
 
 type Props = {
   yml: BitriseYml;
 };
 
 const PipelinesPage = ({ yml }: Props) => {
-  return <PipelinesCanvas pipelines={yml.pipelines} stages={yml.stages} />;
+  return (
+    <BitriseYmlProvider yml={yml}>
+      <PipelinesHeader />
+      <PipelinesCanvas />
+    </BitriseYmlProvider>
+  );
 };
 
 export default PipelinesPage;
