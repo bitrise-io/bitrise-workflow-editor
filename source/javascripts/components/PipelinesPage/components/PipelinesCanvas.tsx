@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import ReactFlow, { NodeTypes } from 'reactflow';
+import ReactFlow, { Controls, NodeTypes } from 'reactflow';
 import { Pipelines, Stages } from '../PipelinesPage.types';
 import usePipelineSelector from '../hooks/usePipelineSelector';
 import usePipelineStageNodes from '../hooks/usePipelineStageNodes';
@@ -31,7 +31,9 @@ const PipelinesCanvas = ({ pipelines, stages }: Props) => {
   return (
     <Box bg="background/secondary" display="flex" flexDir="column" h="100%">
       <PipelinesHeader pipelines={pipelines} />
-      <ReactFlow nodeTypes={nodeTypes} nodes={nodes} edges={edges} proOptions={{ hideAttribution: true }} />
+      <ReactFlow nodeTypes={nodeTypes} nodes={nodes} edges={edges} proOptions={{ hideAttribution: true }}>
+        <Controls />
+      </ReactFlow>
     </Box>
   );
 };
