@@ -501,9 +501,14 @@ export const bitriseYmlSchema = {
 } as const;
 
 export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
+export type Meta = Required<BitriseYml>['meta'] & {
+  'bitrise.io'?: { stack: string; machine_type_id: string };
+};
 export type Pipelines = Required<BitriseYml>['pipelines'];
 export type Pipeline = Pipelines[string];
 export type Stages = Required<BitriseYml>['stages'];
 export type Stage = Stages[string];
-export type Workflow = Required<BitriseYml>['workflows'][string];
+export type Workflow = Required<BitriseYml>['workflows'][string] & {
+  meta?: Meta;
+};
 export type Step = Required<Workflow>['steps'][number][string];
