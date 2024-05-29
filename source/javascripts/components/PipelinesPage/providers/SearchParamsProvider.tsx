@@ -2,34 +2,28 @@ import { Dispatch, PropsWithChildren, SetStateAction, createContext, useEffect, 
 
 type Props = PropsWithChildren;
 
-type Context = {
-  searchParams: URLSearchParams;
-  setSearchParams: Dispatch<SetStateAction<URLSearchParams>>;
-};
+type Context = readonly [URLSearchParams, Dispatch<SetStateAction<URLSearchParams>>];
 
-export const SearchParamsContext = createContext<Context>({
-  searchParams: new URLSearchParams(),
-  setSearchParams: () => undefined,
-});
+export const SearchParamsContext = createContext<Context>([new URLSearchParams(), () => undefined]);
+
+const getCurrentSearchParams = () => new URLSearchParams(window.location.hash.split('?')[1] || '');
 
 const SearchParamsProvider = ({ children }: Props) => {
-  const [searchParams, setSearchParams] = useState(new URLSearchParams(window.location.hash.split('?')[1] || ''));
-
-  const value = useMemo(() => {
-    return { searchParams, setSearchParams };
-  }, [searchParams]);
+  const [searchParams, setSearchParams] = useState(getCurrentSearchParams());
+  const value = useMemo(() => [searchParams, setSearchParams] as const, [searchParams]);
 
   useEffect(() => {
-    const prevSearchParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
-    const nextSearchParams = new URLSearchParams(searchParams);
+    const prevSearchParams = getCurrentSearchParams();
 
+    searchParams.sort();
     prevSearchParams.sort();
-    nextSearchParams.sort();
 
-    if (prevSearchParams.toString() !== nextSearchParams.toString()) {
+    if (prevSearchParams.toString() !== searchParams.toString()) {
       const url = new URL(window.location.href);
-      const hasNextSearchParams = nextSearchParams.size > 0;
-      url.hash = `#!/${url.hash.replace('#!/', '').split('?')[0]}${hasNextSearchParams ? `?${nextSearchParams}` : ''}`;
+      const hashBase = url.hash.split('?')[0];
+
+      url.hash = searchParams.size > 0 ? `${hashBase}?${searchParams}` : hashBase;
+
       window.location.assign(url);
     }
   }, [searchParams]);
