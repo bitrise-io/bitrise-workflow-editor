@@ -67,6 +67,7 @@
     "@tanstack/react-query": "^5.36.0",
     "@types/segment-analytics": "^0.0.38",
     "abortcontroller-polyfill": "^1.7.5",
+    "algoliasearch": "^4.23.3",
     "angular": "^1.8.3",
     "angular-animate": "^1.8.3",
     "angular-cookies": "^1.8.3",
@@ -91,6 +92,7 @@
     "react-hook-form": "^7.51.2",
     "react-lazy-load-image-component": "^1.6.0",
     "reactflow": "^11.11.3",
+    "semver": "^7.6.2",
     "showdown": "^2.1.0",
     "underscore": "^1.13.6",
     "usehooks-ts": "^3.1.0"
