@@ -1,5 +1,5 @@
 import { ComponentProps } from 'react';
-import { CodeBlock, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
+import { CodeSnippet, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
 import { Collapse, FormHelperText } from '@chakra-ui/react';
 
 type Props = {
@@ -8,7 +8,11 @@ type Props = {
 };
 
 const components: ComponentProps<typeof MarkdownContent>['components'] = {
-  pre: ({ node: _, ...props }) => <CodeBlock size="md">{props.children as string}</CodeBlock>,
+  pre: ({ node: _, ...props }) => (
+    <CodeSnippet variant="multi" size="md">
+      {props.children as string}
+    </CodeSnippet>
+  ),
 };
 
 const StepHelperText = ({ summary, details }: Props) => {

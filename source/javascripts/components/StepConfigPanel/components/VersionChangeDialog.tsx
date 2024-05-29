@@ -1,4 +1,4 @@
-import { Box, Button, CodeSnippet, Dialog, DialogBody, DialogFooter, Link, Text } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
 
 type Props = {
   isOpen: boolean;
@@ -43,7 +43,7 @@ const VersionChangeDialog = ({
             </Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {removedInputs.map((input) => (
-                <CodeSnippet key={input}>{input}</CodeSnippet>
+                <Tag key={input}>{input}</Tag>
               ))}
             </Box>
           </>
@@ -53,7 +53,7 @@ const VersionChangeDialog = ({
             <Text textStyle="body/lg/semibold">The following inputs are new in the selected version:</Text>
             <Box display="flex" flexWrap="wrap" gap="12">
               {newInputs.map((input) => (
-                <CodeSnippet key={input}>{input}</CodeSnippet>
+                <Tag key={input}>{input}</Tag>
               ))}
             </Box>
           </>
