@@ -52,7 +52,7 @@
     "stepDefinitions": "spec/integration"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.67.0",
+    "@bitrise/bitkit": "^13.77.0",
     "@bitrise/react2angular": "^5.0.0",
     "@bitrise/steplib-search": "^2.3.0",
     "@chakra-ui/react": "^2.8.2",
@@ -67,6 +67,7 @@
     "@tanstack/react-query": "^5.36.0",
     "@types/segment-analytics": "^0.0.38",
     "abortcontroller-polyfill": "^1.7.5",
+    "algoliasearch": "^4.23.3",
     "angular": "^1.8.3",
     "angular-animate": "^1.8.3",
     "angular-cookies": "^1.8.3",
@@ -91,7 +92,9 @@
     "react-hook-form": "^7.51.2",
     "react-lazy-load-image-component": "^1.6.0",
     "reactflow": "^11.11.3",
+    "semver": "^7.6.2",
     "showdown": "^2.1.0",
+    "type-fest": "^4.18.3",
     "underscore": "^1.13.6",
     "usehooks-ts": "^3.1.0"
   },
