@@ -94,6 +94,7 @@
     "reactflow": "^11.11.3",
     "semver": "^7.6.2",
     "showdown": "^2.1.0",
+    "type-fest": "^4.18.3",
     "underscore": "^1.13.6",
     "usehooks-ts": "^3.1.0"
   },
