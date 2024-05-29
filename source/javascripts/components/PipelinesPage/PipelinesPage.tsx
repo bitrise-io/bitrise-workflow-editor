@@ -4,6 +4,7 @@ import { BitriseYml } from './PipelinesPage.types';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
 import BitriseYmlProvider from './providers/BitriseYmlProvider';
+import SearchParamsProvider from './providers/SearchParamsProvider';
 
 type Props = {
   yml: BitriseYml;
@@ -11,10 +12,12 @@ type Props = {
 
 const PipelinesPage = ({ yml }: Props) => {
   return (
-    <BitriseYmlProvider yml={yml}>
-      <PipelinesHeader />
-      <PipelinesCanvas />
-    </BitriseYmlProvider>
+    <SearchParamsProvider>
+      <BitriseYmlProvider yml={yml}>
+        <PipelinesHeader />
+        <PipelinesCanvas />
+      </BitriseYmlProvider>
+    </SearchParamsProvider>
   );
 };
 
