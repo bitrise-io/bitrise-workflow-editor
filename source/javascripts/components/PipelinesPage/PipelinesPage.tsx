@@ -2,22 +2,23 @@ import 'reactflow/dist/style.css';
 
 import { Box } from '@bitrise/bitkit';
 import withQueryClientProvider from '../../utils/withQueryClientProvider';
-import { BitriseYml } from './PipelinesPage.types';
+import { BitriseYml, Meta } from './PipelinesPage.types';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
 import BitriseYmlProvider from './providers/BitriseYmlProvider';
 
 type Props = {
   yml: BitriseYml;
+  defaultMeta?: Meta;
 };
 
-const PipelinesPage = ({ yml }: Props) => {
+const PipelinesPage = ({ yml, defaultMeta }: Props) => {
   if (!yml) {
     return null;
   }
 
   return (
-    <BitriseYmlProvider yml={yml}>
+    <BitriseYmlProvider yml={yml} defaultMeta={defaultMeta}>
       <Box display="flex" flexDir="column" h="100%">
         <PipelinesHeader />
         <PipelinesCanvas />

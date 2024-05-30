@@ -6,5 +6,6 @@
       .controller("PipelinesController", function(appService) {
         var viewModel = this;
         viewModel.yml = appService.appConfig;
+        viewModel.defaultMeta = { 'bitrise.io': { stack: appService.stack?.id, machine_type_id: '' } };
       });
 })();

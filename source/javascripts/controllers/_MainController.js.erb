@@ -142,7 +142,12 @@ import { safeDigest } from "../services/react-compat";
 				$q(function(resolve, reject) {
 					switch (viewModel.currentMenu.id) {
 						case "pipelines":
-							appService.getAppConfig().then(resolve, reject);
+							appService.getAppConfig().then(() => {
+								if (requestService.isWebsiteMode()) {
+									return Stack.getAll().then(appService.getStackAndDockerImage);
+								}
+							}).then(resolve, reject);
+
 							break;
 						case "workflows":
 						case "env-vars":

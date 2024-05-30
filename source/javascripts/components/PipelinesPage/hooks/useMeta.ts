@@ -9,9 +9,8 @@ type Props = {
 
 const useMeta = ({ override }: Props) => {
   return useBitriseYmlStore(
-    useShallow(({ yml }) => {
-      const rootMeta = yml.meta || {};
-      return merge({}, rootMeta, override);
+    useShallow(({ yml, defaultMeta }) => {
+      return merge({}, defaultMeta, yml.meta, override);
     }),
   );
 };
