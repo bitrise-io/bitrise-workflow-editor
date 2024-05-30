@@ -508,7 +508,7 @@ export type Pipelines = Required<BitriseYml>['pipelines'];
 export type Pipeline = Pipelines[string];
 export type Stages = Required<BitriseYml>['stages'];
 export type Stage = Stages[string];
-export type Workflow = Required<BitriseYml>['workflows'][string] & {
-  meta?: Meta;
-};
-export type Step = Required<Workflow>['steps'][number][string];
+export type Workflows = Required<BitriseYml>['workflows'];
+export type Workflow = Workflows[string] & { meta?: Meta; run_if?: string };
+export type Steps = Required<Workflow>['steps'];
+export type Step = Steps[number][string];

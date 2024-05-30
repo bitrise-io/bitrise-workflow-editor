@@ -1,5 +1,6 @@
 import 'reactflow/dist/style.css';
 
+import withQueryClientProvider from '../../utils/withQueryClientProvider';
 import { BitriseYml } from './PipelinesPage.types';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
@@ -10,6 +11,10 @@ type Props = {
 };
 
 const PipelinesPage = ({ yml }: Props) => {
+  if (!yml) {
+    return null;
+  }
+
   return (
     <BitriseYmlProvider yml={yml}>
       <PipelinesHeader />
@@ -18,4 +23,4 @@ const PipelinesPage = ({ yml }: Props) => {
   );
 };
 
-export default PipelinesPage;
+export default withQueryClientProvider(PipelinesPage);

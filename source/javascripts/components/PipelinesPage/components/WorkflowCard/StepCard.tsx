@@ -40,7 +40,7 @@ const StepCard = ({ cvs, title, icon, showSecondary = true }: StepCardProps) => 
         outline="1px solid"
         outlineColor="neutral.90"
       />
-      <Box>
+      <Box minW={0}>
         <Text textStyle="body/sm/regular" hasEllipsis>
           {resolvedTitle}
         </Text>

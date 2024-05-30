@@ -17,20 +17,33 @@ trigger_map:
     workflow: wf3
 pipelines:
   pl1:
-    stages: 
+    stages:
       - st1: {}
   pl2:
-    stages: 
+    stages:
       - st1: {}
       - st2: {}
+  pl3:
+    stages:
+      - st3: {}
+      - st2: {}
+      - st1: {}
 stages:
   st1:
-    workflows: 
+    workflows:
       - wf1: {}
   st2:
-    workflows: 
+    workflows:
+      - wf2: {}
+      - wf3: {}
+  st3:
+    workflows:
       - wf1: {}
       - wf2: {}
+      - wf3: {}
+      - wf4: {}
+      - wf5: {}
+      - wf6: {}
 workflows:
   wf1:
     envs:
@@ -138,7 +151,8 @@ workflows:
     steps:
       - git::https://github.com/bitrise-steplib/steps-script:
           title: A script step referenced by git URL
-          summary: All non-overwritten attributes should be the step's default value
+          summary:
+            All non-overwritten attributes should be the step's default value
             from step.yml in the step's repository.
           inputs:
             - content: |
