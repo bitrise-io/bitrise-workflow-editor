@@ -1,7 +1,9 @@
 import { Box, Button, Select } from '@bitrise/bitkit';
 import usePipelineSelector from '../hooks/usePipelineSelector';
+import useNavigation from '../hooks/useNavigation';
 
 const PipelinesHeader = () => {
+  const { replace } = useNavigation();
   const { keys, options, selectedPipeline, onSelectPipeline } = usePipelineSelector();
   const hasOptions = keys.length > 0;
 
@@ -33,7 +35,7 @@ const PipelinesHeader = () => {
           );
         })}
       </Select>
-      <Button rightIconName="ArrowNorthEast" variant="tertiary" size="md">
+      <Button rightIconName="ArrowNorthEast" variant="tertiary" size="md" onClick={() => replace('/yml')}>
         View bitrise.yml
       </Button>
     </Box>
