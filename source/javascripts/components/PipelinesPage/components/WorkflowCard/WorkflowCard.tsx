@@ -1,5 +1,6 @@
 import { Box, Card, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-import { Meta, Workflow } from '../../PipelinesPage.types';
+import useWorkflow from '../../hooks/useWorkflow';
+import useMeta from '../../hooks/useMeta';
 import StepCard from './StepCard';
 
 type WorkflowCardHeaderProps = {
@@ -18,7 +19,7 @@ const WorkflowCardHeader = ({ title, stack, isOpen, onToggle }: WorkflowCardHead
         iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
         onClick={onToggle}
       />
-      <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1 0 0">
+      <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
         <Text textStyle="body/md/semibold" hasEllipsis>
           {title}
         </Text>
@@ -30,22 +31,16 @@ const WorkflowCardHeader = ({ title, stack, isOpen, onToggle }: WorkflowCardHead
   );
 };
 
-const getWorkflowStack = (meta?: Meta, defaultMeta?: Meta) => {
-  const workflowStack = meta?.['bitrise.io']?.stack;
-  const defaultStack = defaultMeta?.['bitrise.io']?.stack;
-  return workflowStack || defaultStack || 'Unknown stack';
-};
-
 type WorkflowCardProps = {
-  isExpanded: boolean;
   id: string;
-  defaultMeta: Meta;
-  workflow: Workflow;
+  isExpanded?: boolean;
 };
 
-const WorkflowCard = ({ isExpanded, id, defaultMeta, workflow: { title, meta, steps } }: WorkflowCardProps) => {
+const WorkflowCard = ({ id, isExpanded = false }: WorkflowCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded });
-  const stack = getWorkflowStack(meta, defaultMeta);
+  const { title, meta: workflowMeta, steps } = useWorkflow({ id });
+  const meta = useMeta({ override: workflowMeta });
+  const stack = meta['bitrise.io']?.stack || 'Unknown stack';
 
   return (
     <Card variant="elevated">
