@@ -1,5 +1,5 @@
 import { Node, Position } from 'reactflow';
-import { Pipeline, Stage, Stages } from '../PipelinesPage.types';
+import { Stage } from '../PipelinesPage.types';
 import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
 import usePipelineStages from './usePipelineStages';
 
@@ -42,9 +42,9 @@ const stageNode = (id: string, x: number, stage: Stage) => ({
   ...commonNodeProps,
 });
 
-const usePipelineStageNodes = (pipeline?: Pipeline, stages?: Stages): Node[] => {
-  const pipelinesStages = usePipelineStages(pipeline, stages);
-  const entries = Object.entries(pipelinesStages);
+const usePipelineStageNodes = (): Node[] => {
+  const stages = usePipelineStages();
+  const entries = Object.entries(stages);
   const nodes: Node[] = [];
 
   let x = CANVAS_PADDING;
