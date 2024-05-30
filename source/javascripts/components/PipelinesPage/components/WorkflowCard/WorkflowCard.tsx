@@ -1,6 +1,7 @@
-import { Box, Card, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Card, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import useWorkflow from '../../hooks/useWorkflow';
 import useMeta from '../../hooks/useMeta';
+import { useAfterRunWorkflows, useBeforeRunWorkflows } from '../../hooks/useWorkflowChain';
 import StepCard from './StepCard';
 
 type WorkflowCardHeaderProps = {
@@ -14,10 +15,11 @@ const WorkflowCardHeader = ({ title, stack, isOpen, onToggle }: WorkflowCardHead
   return (
     <Box display="flex" alignItems="center" gap="4" px="4" py="6">
       <ControlButton
-        aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
         size="xs"
-        iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+        className="nopan"
         onClick={onToggle}
+        iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+        aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
       />
       <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
         <Text textStyle="body/md/semibold" hasEllipsis>
@@ -31,22 +33,58 @@ const WorkflowCardHeader = ({ title, stack, isOpen, onToggle }: WorkflowCardHead
   );
 };
 
+type WorkflowChainProps = {
+  id: string;
+};
+
+const BeforeRunWorkflows = ({ id }: WorkflowChainProps) => {
+  const ids = useBeforeRunWorkflows({ id });
+  const hasChainedWorkflows = ids.length > 0;
+
+  return (
+    <>
+      {ids.map((workflowId) => (
+        <WorkflowCard key={workflowId} id={workflowId} isRoot={false} />
+      ))}
+      {hasChainedWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" />}
+    </>
+  );
+};
+
+const AfterRunWorkflows = ({ id }: WorkflowChainProps) => {
+  const ids = useAfterRunWorkflows({ id });
+  const hasChainedWorkflows = ids.length > 0;
+
+  return (
+    <>
+      {hasChainedWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" />}
+      {ids.map((workflowId) => (
+        <WorkflowCard key={workflowId} id={workflowId} isRoot={false} />
+      ))}
+    </>
+  );
+};
+
 type WorkflowCardProps = {
   id: string;
+  isRoot?: boolean;
   isExpanded?: boolean;
 };
 
-const WorkflowCard = ({ id, isExpanded = false }: WorkflowCardProps) => {
+const WorkflowCard = ({ id, isRoot = true, isExpanded = false }: WorkflowCardProps) => {
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded });
   const { title, meta: workflowMeta, steps } = useWorkflow({ id });
   const meta = useMeta({ override: workflowMeta });
+
   const stack = meta['bitrise.io']?.stack || 'Unknown stack';
 
   return (
-    <Card variant="elevated">
+    <Card variant={isRoot ? 'elevated' : 'outline'}>
       <WorkflowCardHeader title={title || id} stack={stack} isOpen={isOpen} onToggle={onToggle} />
-      <Collapse in={isOpen} style={{ overflow: 'unset' }}>
-        <Box display="flex" flexDir="column" gap="8" padding="8">
+      <Collapse in={isOpen} style={{ overflow: 'unset' }} unmountOnExit={false}>
+        <Box display="flex" flexDir="column" alignItems="center" gap="8" padding="8">
+          {isRoot && <BeforeRunWorkflows id={id} />}
+
           {(steps?.length || 0) === 0 && (
             <Card variant="outline" backgroundColor="background/secondary" px="8" py="16" textAlign="center">
               <Text textStyle="body/sm/regular" color="text/secondary">
@@ -54,6 +92,7 @@ const WorkflowCard = ({ id, isExpanded = false }: WorkflowCardProps) => {
               </Text>
             </Card>
           )}
+
           {steps?.map((s, index) => {
             const [cvs = '', step] = Object.entries(s)[0];
             return (
@@ -67,6 +106,8 @@ const WorkflowCard = ({ id, isExpanded = false }: WorkflowCardProps) => {
               />
             );
           })}
+
+          {isRoot && <AfterRunWorkflows id={id} />}
         </Box>
       </Collapse>
     </Card>

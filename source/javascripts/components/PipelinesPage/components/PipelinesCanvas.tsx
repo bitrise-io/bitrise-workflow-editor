@@ -19,7 +19,7 @@ const PipelinesCanvas = () => {
   const edges = usePipelineStageEdges(nodes);
 
   return (
-    <Box bg="background/secondary" display="flex" flexDir="column" h="100%">
+    <Box bg="background/secondary" flex="1">
       <ReactFlow nodeTypes={nodeTypes} nodes={nodes} edges={edges} proOptions={{ hideAttribution: true }}>
         <Controls />
       </ReactFlow>
