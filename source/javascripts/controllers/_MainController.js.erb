@@ -841,5 +841,13 @@ import { safeDigest } from "../services/react-compat";
 					app_slug: appService.appDetails?.slug || ""
 				});
 			};
+
+			window.addEventListener('navigation.replace', (e) => {
+				const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
+				
+				if (menu) {
+					viewModel.menuSelected(menu);
+				}
+			})
 		});
 })();
