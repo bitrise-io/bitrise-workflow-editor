@@ -10,14 +10,10 @@ const usePipelineSelector = (pipelines?: Pipelines) => {
     }),
   );
 
-  const selectedPipeline = searchParams.get('pipeline') || undefined;
+  const selectedPipeline = searchParams.pipeline || undefined;
 
   const onSelectPipeline = (key: string) => {
-    setSearchParams((prevSearchParams) => {
-      const newSearchParams = new URLSearchParams(prevSearchParams);
-      newSearchParams.set('pipeline', key);
-      return newSearchParams;
-    });
+    setSearchParams((prevSearchParams) => ({ ...prevSearchParams, pipeline: key }));
   };
 
   return {
