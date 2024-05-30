@@ -14,9 +14,10 @@ const StageNode = ({ id, data: stage }: Props) => {
       <Box display="flex" flexDir="column" bg="background/tertiary" borderRadius="12" p="16" w={STAGE_WIDTH} gap="16">
         <Text textStyle="body/md/semibold">{stage.title || id}</Text>
         <Box display="flex" flexDir="column" gap="8">
-          {stage.workflows?.map((wf) => {
+          {stage.workflows?.map((wf, i) => {
             const wfId = Object.keys(wf)[0];
-            return <WorkflowCard key={wfId} id={wfId} />;
+            // eslint-disable-next-line react/no-array-index-key
+            return <WorkflowCard key={`${wfId}-${i}`} id={wfId} />;
           })}
         </Box>
       </Box>
