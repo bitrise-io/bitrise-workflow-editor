@@ -142,110 +142,127 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     });
   };
 
-  return (
-    <FormControl isRequired={isRequired} isInvalid={!!errorText}>
-      <StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>
+  if (isSelectInput(rest)) {
+    return (
+      <Box display="flex" gap="8">
+        <Dropdown
+          ref={ref}
+          flex="1"
+          size="md"
+          value={value}
+          search={false}
+          isError={!!errorText}
+          errorText={errorText}
+          onChange={handleOnDropdownChange}
+          readOnly={isSensitive || isDisabled}
+          label={<StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>}
+          helperText={<StepHelperText summary={helperSummary} details={helperDetails} />}
+        >
+          {rest.options.map((optionValue) => (
+            <DropdownOption key={optionValue} value={optionValue}>
+              {optionValue}
+            </DropdownOption>
+          ))}
+          {value && rest.options.every((optionValue) => optionValue !== value) && (
+            <DropdownOption value={value}>{value}</DropdownOption>
+          )}
+        </Dropdown>
+        {/* TODO: The `pt="24"`isn't perfect when the dropdown label wraps to multiple lines. Check it later. */}
+        <Box pt="24">
+          <InsertEnvVarPopover
+            size="md"
+            onOpen={loadEnvVars}
+            isLoading={isLoadingEnvVars}
+            environmentVariables={getEnvVars()}
+            onCreate={handleCreateEnvVarIntoDropdown}
+            onSelect={handleInsertEnvVarIntoDropdown}
+          />
+        </Box>
+      </Box>
+    );
+  }
 
-      <Box pos="relative">
-        {isSelectInput(rest) && (
-          <Box display="flex" flexDir="row" alignItems="center" gap="8">
-            <Dropdown size="md" flex="1" ref={ref} search={false} value={value} onChange={handleOnDropdownChange}>
-              {rest.options.map((optionValue) => (
-                <DropdownOption key={optionValue} value={optionValue}>
-                  {optionValue}
-                </DropdownOption>
-              ))}
-              {value && rest.options.every((optionValue) => optionValue !== value) && (
-                <DropdownOption value={value}>{value}</DropdownOption>
-              )}
-            </Dropdown>
-            <InsertEnvVarPopover
-              size="md"
-              onOpen={loadEnvVars}
-              isLoading={isLoadingEnvVars}
-              environmentVariables={getEnvVars()}
-              onCreate={handleCreateEnvVarIntoDropdown}
-              onSelect={handleInsertEnvVarIntoDropdown}
+  if (isTextareaInput(rest)) {
+    return (
+      <FormControl isRequired={isRequired} isInvalid={!!errorText}>
+        <StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>
+
+        <Box pos="relative">
+          <Box
+            display="grid"
+            fontFamily="mono"
+            position="relative"
+            textStyle="body/md/regular"
+            data-replicated-value={value}
+            _after={{
+              padding: '11px',
+              visibility: 'hidden',
+              whiteSpace: 'pre-wrap',
+              wordBreak: 'break-all',
+              gridArea: '1 / 1 / 2 / 2',
+              content: 'attr(data-replicated-value) " "',
+            }}
+          >
+            <Textarea
+              data-1p-ignore
+              ref={ref}
+              {...rest}
+              rows={1}
+              resize="none"
+              overflow="hidden"
+              onBlur={handleOnBlur}
+              transition="height none"
+              gridArea="1 / 1 / 2 / 2"
+              isDisabled={isSensitive || isDisabled}
+              placeholder={isSensitive ? 'Add secret' : 'Enter value'}
             />
           </Box>
-        )}
 
-        {isTextareaInput(rest) && (
-          <>
-            <Box
-              display="grid"
-              fontFamily="mono"
-              position="relative"
-              textStyle="body/md/regular"
-              data-replicated-value={value}
-              _after={{
-                padding: '11px',
-                visibility: 'hidden',
-                whiteSpace: 'pre-wrap',
-                wordBreak: 'break-all',
-                gridArea: '1 / 1 / 2 / 2',
-                content: 'attr(data-replicated-value) " "',
-              }}
-            >
-              <Textarea
-                data-1p-ignore
-                ref={ref}
-                {...rest}
-                rows={1}
-                resize="none"
-                overflow="hidden"
-                onBlur={handleOnBlur}
-                transition="height none"
-                gridArea="1 / 1 / 2 / 2"
-                isDisabled={isSensitive || isDisabled}
-                placeholder={isSensitive ? 'Add secret' : 'Enter value'}
-              />
-            </Box>
+          {!isDisabled && (
+            <ButtonGroup position="absolute" top="6" right="6">
+              {isClearableInput && (
+                <IconButton
+                  size="sm"
+                  type="submit"
+                  variant="tertiary"
+                  aria-label="Clear"
+                  onClick={handleClear}
+                  iconName="CloseSmall"
+                />
+              )}
 
-            {!isDisabled && (
-              <ButtonGroup position="absolute" top="6" right="6">
-                {isClearableInput && (
-                  <IconButton
-                    size="sm"
-                    type="submit"
-                    variant="tertiary"
-                    aria-label="Clear"
-                    onClick={handleClear}
-                    iconName="CloseSmall"
-                  />
-                )}
+              {isSensitive && (
+                <InsertSecretPopover
+                  size="sm"
+                  secrets={getSecrets()}
+                  onOpen={loadSecrets}
+                  isLoading={isLoadingSecrets}
+                  onCreate={handleCreateSecretIntoInput}
+                  onSelect={handleInsertSecretIntoInput}
+                />
+              )}
 
-                {isSensitive && (
-                  <InsertSecretPopover
-                    size="sm"
-                    secrets={getSecrets()}
-                    onOpen={loadSecrets}
-                    isLoading={isLoadingSecrets}
-                    onCreate={handleCreateSecretIntoInput}
-                    onSelect={handleInsertSecretIntoInput}
-                  />
-                )}
+              {!isSensitive && (
+                <InsertEnvVarPopover
+                  size="sm"
+                  onOpen={loadEnvVars}
+                  isLoading={isLoadingEnvVars}
+                  environmentVariables={getEnvVars()}
+                  onCreate={handleCreateEnvVarIntoInput}
+                  onSelect={handleInsertEnvVarIntoInput}
+                />
+              )}
+            </ButtonGroup>
+          )}
 
-                {!isSensitive && (
-                  <InsertEnvVarPopover
-                    size="sm"
-                    onOpen={loadEnvVars}
-                    isLoading={isLoadingEnvVars}
-                    environmentVariables={getEnvVars()}
-                    onCreate={handleCreateEnvVarIntoInput}
-                    onSelect={handleInsertEnvVarIntoInput}
-                  />
-                )}
-              </ButtonGroup>
-            )}
-          </>
-        )}
+          {errorText && <FormErrorMessage as="p">{errorText}</FormErrorMessage>}
+          <StepHelperText summary={helperSummary} details={helperDetails} />
+        </Box>
+      </FormControl>
+    );
+  }
 
-        {errorText && <FormErrorMessage as="p">{errorText}</FormErrorMessage>}
-        <StepHelperText summary={helperSummary} details={helperDetails} />
-      </Box>
-    </FormControl>
-  );
+  return null;
 });
 
 export default StepInput;
