@@ -370,7 +370,7 @@
 				);
 			};
 
-			appService.saveSecrets = function() {
+			appService.saveSecrets = function(skipRequest) {
 				appService.secrets = _.filter(appService.secrets, function(aSecretVar) {
 					return !_.isEmpty(aSecretVar.key()) || !_.isEmpty(aSecretVar.value());
 				});
@@ -379,7 +379,9 @@
 
 				return validateVariables(appLevelSecrets, true, true)
 					.then(function() {
-						return requestService.postSecrets(appLevelSecrets);
+            if(!skipRequest) {
+              return requestService.postSecrets(appLevelSecrets);
+            }
 					})
 					.then(function() {
 						_.each(appService.secrets, appServiceUtil.handleSecretAfterSave);
@@ -542,7 +544,7 @@
 				) {
 					return undefined;
 				}
-				
+
 				return appService.appConfig.meta["<%= data[:constants][:meta_bundle_ids][:bitrise_io] %>"].stack_rollback_version;
 			}
 

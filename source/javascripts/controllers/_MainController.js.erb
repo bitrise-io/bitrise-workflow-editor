@@ -758,6 +758,7 @@ import { safeDigest } from "../services/react-compat";
 							launchDarklyService.initialize().then(() => {
 								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
 								viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
+								viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
 
 								requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
 									viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
@@ -849,7 +850,7 @@ import { safeDigest } from "../services/react-compat";
 
 			window.addEventListener('navigation.replace', (e) => {
 				const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
-				
+
 				if (menu) {
 					viewModel.menuSelected(menu);
 				}
