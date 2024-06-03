@@ -1,18 +1,9 @@
-import { ComponentProps } from 'react';
-import { CodeSnippet, Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
+import { Link, MarkdownContent, useDisclosure } from '@bitrise/bitkit';
 import { Collapse, FormHelperText } from '@chakra-ui/react';
 
 type Props = {
   summary?: string;
   details?: string;
-};
-
-const components: ComponentProps<typeof MarkdownContent>['components'] = {
-  pre: ({ node: _, ...props }) => (
-    <CodeSnippet variant="multi" size="md">
-      {props.children as string}
-    </CodeSnippet>
-  ),
 };
 
 const StepHelperText = ({ summary, details }: Props) => {
@@ -30,7 +21,7 @@ const StepHelperText = ({ summary, details }: Props) => {
   if (summaryText && !detailsText) {
     return (
       <FormHelperText>
-        <MarkdownContent md={summaryText} size="sm" gap="8" components={components} />
+        <MarkdownContent md={summaryText} size="sm" gap="8" />
       </FormHelperText>
     );
   }
@@ -38,14 +29,14 @@ const StepHelperText = ({ summary, details }: Props) => {
   if (isOneLinerDetails) {
     return (
       <FormHelperText>
-        <MarkdownContent md={detailsText} size="sm" gap="8" components={components} />
+        <MarkdownContent md={detailsText} size="sm" gap="8" />
       </FormHelperText>
     );
   }
 
   return (
     <FormHelperText display="flex" flexDirection="column" gap="8">
-      {!isDetailsOverlapsSummary && <MarkdownContent md={summaryText} size="sm" gap="8" components={components} />}
+      {!isDetailsOverlapsSummary && <MarkdownContent md={summaryText} size="sm" gap="8" />}
       {detailsText && (
         <>
           <Collapse
@@ -53,7 +44,7 @@ const StepHelperText = ({ summary, details }: Props) => {
             in={isOpen}
             transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}
           >
-            <MarkdownContent md={detailsText} size="sm" gap="8" components={components} />
+            <MarkdownContent md={detailsText} size="sm" gap="8" />
           </Collapse>
           <Link colorScheme="purple" cursor="pointer" size="2" onClick={onToggle}>
             {showMoreLabel}
