@@ -5,6 +5,7 @@ import withQueryClientProvider from '../../utils/withQueryClientProvider';
 import { BitriseYml, Meta } from './PipelinesPage.types';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
+import PipelinesEmptyState from './components/PipelinesEmptyState';
 import BitriseYmlProvider from './providers/BitriseYmlProvider';
 
 type Props = {
@@ -17,11 +18,13 @@ const PipelinesPage = ({ yml, defaultMeta }: Props) => {
     return null;
   }
 
+  const hasPipelines = Object.keys(yml.pipelines || {}).length > 0;
+
   return (
     <BitriseYmlProvider yml={yml} defaultMeta={defaultMeta}>
       <Box display="flex" flexDir="column" h="100%">
         <PipelinesHeader />
-        <PipelinesCanvas />
+        {hasPipelines ? <PipelinesCanvas /> : <PipelinesEmptyState />}
       </Box>
     </BitriseYmlProvider>
   );

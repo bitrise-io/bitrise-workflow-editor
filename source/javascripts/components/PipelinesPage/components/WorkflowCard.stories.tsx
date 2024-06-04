@@ -1,6 +1,6 @@
 import { Meta } from '@storybook/react';
-import { mockYml } from '../../PipelinesPage.mocks';
-import withQueryClientProvider from '../../../../utils/withQueryClientProvider';
+import { mockYml } from '../PipelinesPage.mocks';
+import withQueryClientProvider from '../../../utils/withQueryClientProvider';
 import WorkflowCard from './WorkflowCard';
 
 export default {
