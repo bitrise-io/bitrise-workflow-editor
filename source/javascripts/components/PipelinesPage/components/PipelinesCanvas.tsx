@@ -1,5 +1,5 @@
 import { Box } from '@bitrise/bitkit';
-import ReactFlow, { Controls, NodeTypes } from 'reactflow';
+import ReactFlow, { Controls, MiniMap, NodeTypes } from 'reactflow';
 import usePipelineStageNodes from '../hooks/usePipelineStageNodes';
 import usePipelineStageEdges from '../hooks/usePipelineStageEdges';
 import StageNode from './StageNode';
@@ -22,6 +22,7 @@ const PipelinesCanvas = () => {
     <Box bg="background/secondary" flex="1">
       <ReactFlow nodeTypes={nodeTypes} nodes={nodes} edges={edges} proOptions={{ hideAttribution: true }}>
         <Controls />
+        <MiniMap />
       </ReactFlow>
     </Box>
   );

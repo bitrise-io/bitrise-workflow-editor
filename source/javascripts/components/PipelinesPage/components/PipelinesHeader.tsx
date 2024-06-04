@@ -25,7 +25,7 @@ const PipelinesHeader = () => {
         isDisabled={!hasOptions}
         minW={['unset', '320px']}
         onChange={(e) => onSelectPipeline(e.target.value)}
-        placeholder={!hasOptions ? `You've no pipelines in your bitrise.yml...` : undefined}
+        placeholder={!hasOptions ? `Create a Pipeline first` : undefined}
       >
         {keys.map((key) => {
           return (

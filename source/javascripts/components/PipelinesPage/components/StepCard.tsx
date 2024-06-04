@@ -1,5 +1,5 @@
 import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
-import useStepCardData from '../../hooks/useStepCardData';
+import useStepCardData from '../hooks/useStepCardData';
 
 type StepCardProps = {
   cvs: string;

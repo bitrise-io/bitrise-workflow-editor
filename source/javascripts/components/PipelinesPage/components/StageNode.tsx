@@ -3,7 +3,7 @@ import { NodeProps, Position } from 'reactflow';
 import { Stage } from '../PipelinesPage.types';
 import { STAGE_WIDTH } from '../PipelinesPage.const';
 import InvisibleHandle from './InvisibleHandle';
-import WorkflowCard from './WorkflowCard/WorkflowCard';
+import WorkflowCard from './WorkflowCard';
 
 type Props = NodeProps<Stage>;
 
