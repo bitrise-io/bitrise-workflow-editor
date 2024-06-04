@@ -1,7 +1,7 @@
 import { Box, Card, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
-import useWorkflow from '../../hooks/useWorkflow';
-import useMeta from '../../hooks/useMeta';
-import { useAfterRunWorkflows, useBeforeRunWorkflows } from '../../hooks/useWorkflowChain';
+import useWorkflow from '../hooks/useWorkflow';
+import useMeta from '../hooks/useMeta';
+import { useAfterRunWorkflows, useBeforeRunWorkflows } from '../hooks/useWorkflowChain';
 import StepCard from './StepCard';
 
 type WorkflowCardHeaderProps = {
