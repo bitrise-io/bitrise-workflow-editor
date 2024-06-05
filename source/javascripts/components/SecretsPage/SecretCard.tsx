@@ -118,7 +118,7 @@ const SecretCard = (props: SecretCardProps) => {
           <Box flexGrow="1" display="grid" gridTemplateColumns="1fr auto 1fr" gap="8" alignItems="start">
             <Input
               flexGrow={1}
-              inputHeight={40}
+              size="md"
               isDisabled={secret.isSaved}
               errorText={errors?.key?.message}
               {...register('key', {
@@ -134,7 +134,7 @@ const SecretCard = (props: SecretCardProps) => {
               </Skeleton>
             ) : (
               <Input
-                inputHeight={40}
+                size="md"
                 isDisabled={!secret.isEditing}
                 type={isShown || secret.isEditing ? 'text' : 'password'}
                 rightAddon={valueInputAddon}
