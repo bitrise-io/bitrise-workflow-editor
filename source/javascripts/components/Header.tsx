@@ -47,7 +47,9 @@ const Header = ({
         (isMobile ? (
           <>
             {enableAppDetailsSidebar ? (
-              <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+              <Breadcrumb hasSeparatorBeforeFirst>
+                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+              </Breadcrumb>
             ) : (
               <Breadcrumb hasSeparatorBeforeFirst>
                 <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
