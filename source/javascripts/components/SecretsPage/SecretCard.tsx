@@ -21,6 +21,7 @@ import {
 
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
+import { queryClient } from '../../utils/withQueryClientProvider';
 import { monolith } from '../../hooks/api/client';
 import useGetSecretValue from '../../hooks/api/useGetSecretValue';
 import { SecretWithState } from '../../models';
@@ -48,7 +49,7 @@ const SecretCard = (props: SecretCardProps) => {
     value: fetchedSecretValueOld,
     isLoading: isSecretValueLoadingOld,
   } = useGetSecretValue(appSlug, secret.key);
-  const { data: fetchedSecret, isLoading: isSecretValueLoadingNew } = useQuery<{ value: string }>({
+  const { data: fetchedSecret, isFetching: isSecretValueLoadingNew } = useQuery<{ value: string }>({
     queryKey: ['app', appSlug, 'secret', secret.key],
     async queryFn() {
       const resp = await monolith.get<{ value: string }>(`/apps/${appSlug}/secrets/${secret.key}`);
@@ -82,6 +83,7 @@ const SecretCard = (props: SecretCardProps) => {
     onSuccess(_data, newSecret) {
       resetSave();
       onSave(newSecret);
+      queryClient.invalidateQueries({ queryKey: ['app', appSlug, 'secret', secret.key] });
     },
   });
 
