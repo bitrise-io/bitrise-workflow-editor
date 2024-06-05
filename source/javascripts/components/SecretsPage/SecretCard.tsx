@@ -44,7 +44,7 @@ const SecretCard = (props: SecretCardProps) => {
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
 
   const {
-    call: fetchSecretValueOld,
+    call: fetchSecretValue,
     value: fetchedSecretValueOld,
     isLoading: isSecretValueLoadingOld,
   } = useGetSecretValue(appSlug, secret.key);
@@ -58,11 +58,6 @@ const SecretCard = (props: SecretCardProps) => {
     placeholderData: (prev) => prev,
     staleTime: Infinity,
   });
-  const fetchSecretValue = () => {
-    if (!writeSecrets) {
-      fetchSecretValueOld();
-    }
-  };
   const fetchedSecretValue = fetchedSecretValueOld || fetchedSecret?.value;
   const isSecretValueLoading = isSecretValueLoadingOld || isSecretValueLoadingNew;
   const {
@@ -111,7 +106,7 @@ const SecretCard = (props: SecretCardProps) => {
   const showSecretValue = () => {
     setIsShown(true);
 
-    if (secret.isSaved && !secret.isProtected) {
+    if (secret.isSaved && !secret.isProtected && !writeSecrets) {
       fetchSecretValue();
     }
   };
