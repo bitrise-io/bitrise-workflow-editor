@@ -2,10 +2,8 @@ import { ReactNode } from 'react';
 import { theme } from '@bitrise/bitkit';
 import { ChakraProvider, mergeThemeOverride } from '@chakra-ui/react';
 
-import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import createSharedContext from './createSharedContext';
-
-const queryClient = new QueryClient();
+import withQueryClientProvider from './withQueryClientProvider';
 
 const wfeTheme = mergeThemeOverride(theme, {
   styles: {
@@ -17,13 +15,9 @@ const wfeTheme = mergeThemeOverride(theme, {
 });
 
 const Root = ({ children }: { children: ReactNode }): JSX.Element => {
-  return (
-    <QueryClientProvider client={queryClient}>
-      <ChakraProvider theme={wfeTheme}>{children}</ChakraProvider>
-    </QueryClientProvider>
-  );
+  return <ChakraProvider theme={wfeTheme}>{children}</ChakraProvider>;
 };
 
-const { component: RootComponent, use: withRootProvider } = createSharedContext(Root);
+const { component: RootComponent, use: withRootProvider } = createSharedContext(withQueryClientProvider(Root));
 
 export { RootComponent, withRootProvider };
