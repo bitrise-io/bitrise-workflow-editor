@@ -57,30 +57,18 @@ const Header = ({
             )}
           </>
         ) : (
-          <>
-            {enableAppDetailsSidebar ? (
-              <Breadcrumb>
-                <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
-                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-                <BreadcrumbLink isCurrentPage>
-                  <Text id="away" textStyle="body/lg/semibold">
-                    Workflow Editor
-                  </Text>
-                </BreadcrumbLink>
-              </Breadcrumb>
-            ) : (
-              <Breadcrumb>
-                <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
-                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-                <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
-                <BreadcrumbLink isCurrentPage>
-                  <Text id="away" textStyle="body/lg/semibold">
-                    Workflow Editor
-                  </Text>
-                </BreadcrumbLink>
-              </Breadcrumb>
+          <Breadcrumb>
+            <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
+            <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+            {!enableAppDetailsSidebar && (
+              <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
             )}
-          </>
+            <BreadcrumbLink isCurrentPage>
+              <Text id="away" textStyle="body/lg/semibold">
+                Workflow Editor
+              </Text>
+            </BreadcrumbLink>
+          </Breadcrumb>
         ))}
 
       <Box
