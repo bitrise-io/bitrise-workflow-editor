@@ -24,6 +24,6 @@ const Root = ({ children }: { children: ReactNode }): JSX.Element => {
   );
 };
 
-const { component: BitkitRoot, use: withBitkitProvider } = createSharedContext(Root);
+const { component: RootComponent, use: withRootProvider } = createSharedContext(Root);
 
-export { BitkitRoot, withBitkitProvider };
+export { RootComponent, withRootProvider };
