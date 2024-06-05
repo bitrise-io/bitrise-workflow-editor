@@ -47,7 +47,9 @@ const Header = ({
         (isMobile ? (
           <>
             {enableAppDetailsSidebar ? (
-              <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+              <Breadcrumb hasSeparatorBeforeFirst>
+                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+              </Breadcrumb>
             ) : (
               <Breadcrumb hasSeparatorBeforeFirst>
                 <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
@@ -55,18 +57,30 @@ const Header = ({
             )}
           </>
         ) : (
-          <Breadcrumb>
-            <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
-            <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-            {!enableAppDetailsSidebar && (
-              <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+          <>
+            {enableAppDetailsSidebar ? (
+              <Breadcrumb>
+                <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
+                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+                <BreadcrumbLink isCurrentPage>
+                  <Text id="away" textStyle="body/lg/semibold">
+                    Workflow Editor
+                  </Text>
+                </BreadcrumbLink>
+              </Breadcrumb>
+            ) : (
+              <Breadcrumb>
+                <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
+                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+                <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+                <BreadcrumbLink isCurrentPage>
+                  <Text id="away" textStyle="body/lg/semibold">
+                    Workflow Editor
+                  </Text>
+                </BreadcrumbLink>
+              </Breadcrumb>
             )}
-            <BreadcrumbLink isCurrentPage>
-              <Text id="away" textStyle="body/lg/semibold">
-                Workflow Editor
-              </Text>
-            </BreadcrumbLink>
-          </Breadcrumb>
+          </>
         ))}
 
       <Box
