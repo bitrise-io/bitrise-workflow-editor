@@ -1,4 +1,5 @@
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useResponsive } from '@bitrise/bitkit';
+import useFeatureFlag from '../hooks/useFeatureFlag';
 
 type Props = {
   appName: string;
@@ -24,7 +25,10 @@ const Header = ({
   isDiscardDisabled,
 }: Props) => {
   const { isMobile } = useResponsive();
-  const isBreadcrumbVisible = appName && appPath && workspacePath && workflowsAndPipelinesPath;
+  const enableAppDetailsSidebar = useFeatureFlag('enable-app-details-sidebar');
+
+  const isBreadcrumbVisible =
+    appName && appPath && workspacePath && (workflowsAndPipelinesPath || enableAppDetailsSidebar);
 
   return (
     <Box
@@ -41,14 +45,22 @@ const Header = ({
     >
       {isBreadcrumbVisible &&
         (isMobile ? (
-          <Breadcrumb hasSeparatorBeforeFirst>
-            <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
-          </Breadcrumb>
+          <>
+            {enableAppDetailsSidebar ? (
+              <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+            ) : (
+              <Breadcrumb hasSeparatorBeforeFirst>
+                <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+              </Breadcrumb>
+            )}
+          </>
         ) : (
           <Breadcrumb>
             <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
             <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-            <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+            {!enableAppDetailsSidebar && (
+              <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
+            )}
             <BreadcrumbLink isCurrentPage>
               <Text id="away" textStyle="body/lg/semibold">
                 Workflow Editor
