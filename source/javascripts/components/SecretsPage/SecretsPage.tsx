@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { Text, Notification, Box, Dialog, DialogBody, Button, DialogFooter, EmptyState, Link } from '@bitrise/bitkit';
+import { useMutation } from '@tanstack/react-query';
 import { Secret, SecretWithState } from '../../models';
+import { monolith } from '../../hooks/api/client';
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
@@ -10,11 +12,33 @@ type SecretsPageProps = {
   secretSettingsUrl: string;
   planSelectorPageUrl: string;
   sharedSecretsAvailable: boolean;
+  secretsWriteNew: boolean;
 };
 
 const SecretsPage = (props: SecretsPageProps) => {
+  const {
+    secrets,
+    onSecretsChange,
+    appSlug,
+    secretSettingsUrl,
+    sharedSecretsAvailable,
+    planSelectorPageUrl,
+    secretsWriteNew,
+  } = props;
   const [deleteId, setDeleteId] = useState<string | null>(null);
-  const { secrets, onSecretsChange, appSlug, secretSettingsUrl, sharedSecretsAvailable, planSelectorPageUrl } = props;
+
+  const {
+    mutate: deleteSecret,
+    isError: deleteError,
+    isPending: deleteLoading,
+    reset: resetDelete,
+  } = useMutation({
+    mutationFn: (key: string) => monolith.delete(`/apps/${appSlug}/secrets/${key}`),
+    onSuccess(_resp, key) {
+      resetDelete();
+      afterDelete(key);
+    },
+  });
 
   const workspaceSecretList = secrets
     .filter((secret) => secret.isShared)
@@ -43,6 +67,14 @@ const SecretsPage = (props: SecretsPageProps) => {
   };
 
   const handleDelete = (id: string | null) => {
+    if (id && secretsWriteNew) {
+      deleteSecret(id);
+    } else {
+      afterDelete(id);
+    }
+  };
+
+  const afterDelete = (id: string | null) => {
     const newAppSecretList = appSecretList.filter((secret) => secret.key !== id);
 
     setAppSecretList(newAppSecretList);
@@ -109,6 +141,7 @@ const SecretsPage = (props: SecretsPageProps) => {
         {workspaceSecretList.length > 0 &&
           workspaceSecretList.map((secret) => (
             <SecretCard
+              writeSecrets={secretsWriteNew}
               appSlug={appSlug}
               key={secret.key}
               secret={secret}
@@ -153,6 +186,7 @@ const SecretsPage = (props: SecretsPageProps) => {
       <Box marginTop="16" marginBottom="24">
         {appSecretList.map((secret) => (
           <SecretCard
+            writeSecrets={secretsWriteNew}
             appSlug={appSlug}
             key={secret.key}
             secret={secret}
@@ -173,22 +207,9 @@ const SecretsPage = (props: SecretsPageProps) => {
         Add new
       </Button>
 
-      <Dialog title="Delete Secret" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
+      <Dialog title="Delete Secret?" maxWidth="480" isOpen={Boolean(deleteId)} onClose={() => {}}>
         <DialogBody>
-          <Text>Are you sure you want to delete this Secret? This cannot be undone once saved.</Text>
-        </DialogBody>
-        <DialogFooter>
-          <Button variant="secondary" onClick={() => setDeleteId(null)}>
-            Cancel
-          </Button>
-          <Button isDanger onClick={() => handleDelete(deleteId)}>
-            Delete secret
-          </Button>
-        </DialogFooter>
-      </Dialog>
-
-      <Dialog title="Delete Secret?" maxWidth="480" isOpen={!!deleteId} onClose={() => {}}>
-        <DialogBody>
+          {deleteError && <Notification status="error">Error while deleting secret!</Notification>}
           <Text>
             Make sure to delete this Secret Environment Variable only if you no longer use it in Steps. <br />
             This action cannot be undone.
@@ -198,7 +219,7 @@ const SecretsPage = (props: SecretsPageProps) => {
           <Button variant="secondary" onClick={() => setDeleteId(null)}>
             Cancel
           </Button>
-          <Button isDanger onClick={() => handleDelete(deleteId)}>
+          <Button isLoading={deleteLoading} isDanger onClick={() => handleDelete(deleteId)}>
             Delete secret
           </Button>
         </DialogFooter>

@@ -198,5 +198,5 @@ angular
       "integrationsUrl",
     ]),
   )
-  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
+  .component('rSecretsPage', register(SecretsPage, ['secrets', 'secretsWriteNew', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'defaultMeta']));

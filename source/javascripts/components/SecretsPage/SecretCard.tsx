@@ -12,6 +12,7 @@ import {
   Icon,
   IconButton,
   Input,
+  Notification,
   Skeleton,
   SkeletonBox,
   Text,
@@ -19,6 +20,8 @@ import {
 } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
+import { useMutation, useQuery } from '@tanstack/react-query';
+import { monolith } from '../../hooks/api/client';
 import useGetSecretValue from '../../hooks/api/useGetSecretValue';
 import { SecretWithState } from '../../models';
 
@@ -31,19 +34,69 @@ interface SecretCardProps extends CardProps {
   onSave: (secret: SecretWithState) => void;
   isKeyUsed: (key: string) => boolean;
   secretSettingsUrl?: string;
+  writeSecrets: boolean;
 }
 
 const SecretCard = (props: SecretCardProps) => {
-  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl } = props;
+  const { onEdit, onCancel, onSave, onDelete, secret, appSlug, isKeyUsed, secretSettingsUrl, writeSecrets } = props;
 
   const [isShown, setIsShown] = useState(false);
   const [confirmCallback, setConfirmCallback] = useState<() => void | undefined>();
 
   const {
-    call: fetchSecretValue,
-    value: fetchedSecretValue,
-    isLoading: isSecretValueLoading,
+    call: fetchSecretValueOld,
+    value: fetchedSecretValueOld,
+    isLoading: isSecretValueLoadingOld,
   } = useGetSecretValue(appSlug, secret.key);
+  const { data: fetchedSecret, isLoading: isSecretValueLoadingNew } = useQuery<{ value: string }>({
+    queryKey: ['app', appSlug, 'secret', secret.key],
+    async queryFn() {
+      const resp = await monolith.get<{ value: string }>(`/apps/${appSlug}/secrets/${secret.key}`);
+      return resp.data;
+    },
+    enabled: isShown && writeSecrets,
+    placeholderData: (prev) => prev,
+    staleTime: Infinity,
+  });
+  const fetchSecretValue = () => {
+    if (!writeSecrets) {
+      fetchSecretValueOld();
+    }
+  };
+  const fetchedSecretValue = fetchedSecretValueOld || fetchedSecret?.value;
+  const isSecretValueLoading = isSecretValueLoadingOld || isSecretValueLoadingNew;
+  const {
+    mutate: saveSecret,
+    isError: saveError,
+    isPending: saveLoading,
+    reset: resetSave,
+  } = useMutation<unknown, unknown, SecretWithState>({
+    mutationFn: (newSecret) => {
+      const body = {
+        name: newSecret.key,
+        value: newSecret.value,
+        expandInStepsInput: newSecret.isExpand,
+        exposedForPullRequests: newSecret.isExpose,
+        isProtected: newSecret.isProtected,
+      };
+      if (newSecret.isSaved) {
+        return monolith.patch(`/apps/${appSlug}/secrets/${newSecret.key}`, body);
+      }
+      return monolith.post(`/apps/${appSlug}/secrets`, body);
+    },
+    onSuccess(_data, newSecret) {
+      resetSave();
+      onSave(newSecret);
+    },
+  });
+
+  const handleSave = (value: SecretWithState) => {
+    if (writeSecrets) {
+      saveSecret(value);
+    } else {
+      onSave(value);
+    }
+  };
 
   const {
     register,
@@ -79,7 +132,7 @@ const SecretCard = (props: SecretCardProps) => {
 
   const saveForm = (formData: SecretWithState) => {
     setIsShown(false);
-    onSave(formData);
+    handleSave(formData);
   };
 
   const onCancelClick = () => {
@@ -181,7 +234,7 @@ const SecretCard = (props: SecretCardProps) => {
                     aria-label="Delete secret"
                     variant="tertiary"
                     isDanger
-                    onClick={() => onDelete?.(secret.key)}
+                    onClick={() => onDelete(secret.key)}
                   />
                 </Box>
               )}
@@ -240,16 +293,17 @@ const SecretCard = (props: SecretCardProps) => {
                 </Text>
               </Box>
             </Checkbox>
+            {saveError && <Notification status="error">Error while updating secret!</Notification>}
             <Box display="flex" justifyContent="space-between">
               <Box display="flex" gap="16">
-                <Button type="submit" size="md" isDisabled={!watch('key') || !watch('value')}>
+                <Button type="submit" size="md" isDisabled={!watch('key') || !watch('value')} isLoading={saveLoading}>
                   Save
                 </Button>
                 <Button onClick={onCancelClick} size="md" variant="secondary">
                   Cancel
                 </Button>
               </Box>
-              <Button size="md" variant="danger-secondary" onClick={() => onDelete?.(secret.key)}>
+              <Button size="md" variant="danger-secondary" onClick={() => onDelete(secret.key)}>
                 Delete secret
               </Button>
             </Box>
@@ -276,6 +330,7 @@ const SecretCard = (props: SecretCardProps) => {
           </Button>
           <Button
             isDanger
+            isLoading={saveLoading}
             onClick={() => {
               confirmCallback?.();
               setConfirmCallback(undefined);
