@@ -10,6 +10,7 @@ export default {
       { key: 'key2', value: 'value2', id: '2' },
       { key: 'key3', value: 'value3', id: '3' },
     ],
+    secrets: [],
   },
 } as Meta<typeof EnvVarsPage>;
 
