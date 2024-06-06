@@ -10,7 +10,7 @@ require (
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240516104659-4a3e6bd8252a
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240402084208-9e349620ff4e
+	github.com/bitrise-io/stepman v0.0.0-20240530152555-8c02c2799166
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.0
 	github.com/stretchr/testify v1.9.0
