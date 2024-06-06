@@ -169,7 +169,7 @@ const SecretCard = (props: SecretCardProps) => {
             <Input
               flexGrow={1}
               size="md"
-              isDisabled={secret.isSaved}
+              isReadOnly={secret.isSaved}
               errorText={errors?.key?.message}
               {...register('key', {
                 validate: (v) => !isKeyUsed(v) || 'This key is already used!',
@@ -185,7 +185,13 @@ const SecretCard = (props: SecretCardProps) => {
             ) : (
               <Input
                 size="md"
-                isDisabled={!secret.isEditing}
+                isReadOnly={!secret.isEditing}
+                sx={{
+                  '& input': {
+                    pointerEvents: !secret.isEditing ? 'none' : undefined,
+                  },
+                }}
+                cursor={!secret.isEditing ? 'not-allowed' : undefined}
                 type={isShown || secret.isEditing ? 'text' : 'password'}
                 rightAddon={valueInputAddon}
                 rightAddonPlacement="inside"
