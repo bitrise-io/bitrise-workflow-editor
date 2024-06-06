@@ -16,6 +16,7 @@ import {
   Skeleton,
   SkeletonBox,
   Text,
+  Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
 
@@ -151,7 +152,7 @@ const SecretCard = (props: SecretCardProps) => {
     />
   );
 
-  let valueInputAddon;
+  let valueInputAddon: JSX.Element;
 
   if (!secret.isEditing) {
     if (secret.isProtected) {
@@ -160,6 +161,40 @@ const SecretCard = (props: SecretCardProps) => {
       valueInputAddon = showHideButton;
     }
   }
+
+  const secretValueElement = () => {
+    if (isSecretValueLoading) {
+      return (
+        <Skeleton isActive height="40">
+          <SkeletonBox width="100%" height="100%" borderRadius="4" />
+        </Skeleton>
+      );
+    }
+    if (secret.isEditing) {
+      return (
+        <Textarea
+          sx={{ '& textarea': { minHeight: '40', height: '40', paddingTop: '8', paddingX: '11px', fontSize: '2' } }}
+          {...register('value', { required: 'This field is required.' })}
+        />
+      );
+    }
+    return (
+      <Input
+        size="md"
+        isReadOnly
+        sx={{
+          '& input': {
+            pointerEvents: 'none',
+          },
+        }}
+        cursor="not-allowed"
+        type={isShown ? 'text' : 'password'}
+        rightAddon={valueInputAddon}
+        rightAddonPlacement="inside"
+        value={watch('value')}
+      />
+    );
+  };
 
   return (
     <Card paddingY="16" paddingX="24" marginBottom="16">
@@ -178,26 +213,7 @@ const SecretCard = (props: SecretCardProps) => {
             <Box as="span" lineHeight="40px">
               =
             </Box>
-            {isSecretValueLoading ? (
-              <Skeleton isActive height="40">
-                <SkeletonBox width="100%" height="100%" borderRadius="4" />
-              </Skeleton>
-            ) : (
-              <Input
-                size="md"
-                isReadOnly={!secret.isEditing}
-                sx={{
-                  '& input': {
-                    pointerEvents: !secret.isEditing ? 'none' : undefined,
-                  },
-                }}
-                cursor={!secret.isEditing ? 'not-allowed' : undefined}
-                type={isShown || secret.isEditing ? 'text' : 'password'}
-                rightAddon={valueInputAddon}
-                rightAddonPlacement="inside"
-                {...register('value', { required: 'This field is required.' })}
-              />
-            )}
+            {secretValueElement()}
           </Box>
           {secret.isShared ? (
             <Box width="88px" display="flex" alignItems="center" justifyContent="center">
