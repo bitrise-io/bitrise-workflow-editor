@@ -13,7 +13,7 @@ import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
-import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
+import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
@@ -24,7 +24,7 @@ import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptySta
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
 
 function register(component, props, injects) {
-  return react2angular(withBitkitProvider(component), props, injects);
+  return react2angular(withRootProvider(component), props, injects);
 }
 
 angular
@@ -43,7 +43,7 @@ angular
     ]),
   )
   .component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
-  .component("rBitkitRoot", react2angular(BitkitRoot))
+  .component("rRootComponent", react2angular(RootComponent))
   .component("rIcon", register(Icon, ["name", "textColor", "size"]))
   .component(
     "rStepItem",
@@ -198,5 +198,5 @@ angular
       "integrationsUrl",
     ]),
   )
-  .component('rSecretsPage', register(SecretsPage, ['secrets', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
+  .component('rSecretsPage', register(SecretsPage, ['secrets', 'secretsWriteNew', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'defaultMeta']));
