@@ -1129,5 +1129,27 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       $scope.$watch(() => viewModel.selectedStep, () => {
         viewModel.setTabId(undefined);
       });
+
+      // New workflow config panel related stuffs...
+      viewModel.editedWorkflowConfigForReact = {};
+      viewModel.editedWorkflowConfigForReactChanged = (data) => {
+        viewModel.editedWorkflow.title(data.properties.title || null);
+        viewModel.editedWorkflow.summary(data.properties.summary || null);
+        viewModel.editedWorkflow.description(data.properties.description || null);
+        safeDigest($scope);
+      };
+      $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
+        if (editedWorkflow) {
+          viewModel.editedWorkflowConfigForReact = {
+            properties: {
+              title: editedWorkflow.title(),
+              summary: editedWorkflow.summary(),
+              description: editedWorkflow.description(),
+            },
+          };
+        } else {
+          viewModel.editedWorkflowConfigForReact = {};
+        }
+      });
     });
 })();

@@ -212,7 +212,6 @@ section.manage-workflows {
 
       section.workflow {
         @include flex-shrink(0);
-        @include padding-x($main-horizontalpadding);
         @include transition(background-color $def-transition_duration);
 
         &:not(:first-child) {
@@ -221,6 +220,8 @@ section.manage-workflows {
 
         header.workflow-header {
           @include display-flex;
+          @include padding-x($main-horizontalpadding);
+
           margin-bottom: $spacing;
 
           .header-info {
@@ -366,6 +367,7 @@ section.manage-workflows {
 
           @include display-flex;
           @include align-items(flex-start);
+          @include padding-x($main-horizontalpadding);
 
           ul.steps {
             @include align-self(stretch);

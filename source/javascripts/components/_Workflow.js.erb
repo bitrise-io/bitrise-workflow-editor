@@ -78,6 +78,14 @@
 			return !_.contains(this.workflowChain(allWorkflows), workflow);
 		};
 
+		Workflow.prototype.title = function(title) {
+			if (title !== undefined) {
+				this.workflowConfig.title = title;
+			}
+
+			return this.workflowConfig.title;
+		};
+
 		Workflow.prototype.description = function(description) {
 			if (description !== undefined) {
 				this.workflowConfig.description = description;

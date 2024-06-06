@@ -22,6 +22,7 @@ import TriggersPage from "./components/TriggersPage/TriggersPage";
 import SecretsPage from "./components/SecretsPage/SecretsPage";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
+import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -199,4 +200,5 @@ angular
     ]),
   )
   .component('rSecretsPage', register(SecretsPage, ['secrets', 'secretsWriteNew', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
-  .component('rPipelinesPage', register(PipelinesPage, ['yml', 'defaultMeta']));
+  .component('rPipelinesPage', register(PipelinesPage, ['yml', 'defaultMeta']))
+  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['workflowId', 'defaultValues', 'onChange']));
