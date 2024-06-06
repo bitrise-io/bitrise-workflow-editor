@@ -11,3 +11,8 @@ export type FormValues = {
     description: string;
   };
 };
+
+export enum WorkflowConfigTab {
+  CONFIGURATION = 'configuration',
+  PROPERTIES = 'properties',
+}

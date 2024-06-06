@@ -2,9 +2,9 @@ import { FormProvider, useForm } from 'react-hook-form';
 import { Tab, TabList, TabPanels, Tabs } from '@bitrise/bitkit';
 import { PartialDeep } from 'type-fest';
 import Header from './components/Header';
-import { FormValues } from './WorkflowConfigPanel.types';
-import PropertiesTabPanel, { PROPERTIES_TAB_ID } from './components/PropertiesTabPanel';
-import ConfigurationTabPanel, { CONFIGURATION_TAB_ID } from './components/ConfigurationTabPanel';
+import { FormValues, WorkflowConfigTab } from './WorkflowConfigPanel.types';
+import PropertiesTabPanel from './components/PropertiesTabPanel';
+import ConfigurationTabPanel from './components/ConfigurationTabPanel';
 
 type Props = {
   workflowId: string;
@@ -20,11 +20,7 @@ const WorkflowConfigPanel = ({ workflowId, defaultValues, onChange }: Props) => 
     },
   });
 
-  const handleSubmit = form.handleSubmit((data, e) => {
-    e?.preventDefault();
-    e?.stopPropagation();
-    onChange(data);
-  });
+  const handleSubmit = form.handleSubmit(onChange);
 
   return (
     <FormProvider {...form}>
@@ -32,8 +28,8 @@ const WorkflowConfigPanel = ({ workflowId, defaultValues, onChange }: Props) => 
         <Header />
         <Tabs>
           <TabList px="8">
-            <Tab id={CONFIGURATION_TAB_ID}>Configuration</Tab>
-            <Tab id={PROPERTIES_TAB_ID}>Properties</Tab>
+            <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
+            <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
           </TabList>
           <TabPanels>
             <ConfigurationTabPanel />

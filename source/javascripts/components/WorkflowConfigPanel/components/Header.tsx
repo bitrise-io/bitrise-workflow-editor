@@ -3,10 +3,8 @@ import { useFormContext } from 'react-hook-form';
 import { FormValues } from '../WorkflowConfigPanel.types';
 
 const Header = () => {
-  const { watch, getValues } = useFormContext<FormValues>();
-
-  const title = watch('properties.title');
-  const workflowId = getValues('workflowId');
+  const { watch } = useFormContext<FormValues>();
+  const [title, workflowId] = watch(['properties.title', 'workflowId']);
 
   return (
     <Box px="24" py="16">
