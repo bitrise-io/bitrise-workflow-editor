@@ -1,20 +1,23 @@
 import { FormProvider, useForm } from 'react-hook-form';
 import { Tab, TabList, TabPanels, Tabs } from '@bitrise/bitkit';
 import { PartialDeep } from 'type-fest';
+import { getAppSlug } from '../../services/app-service';
 import Header from './components/Header';
 import { FormValues, WorkflowConfigTab } from './WorkflowConfigPanel.types';
 import PropertiesTabPanel from './components/PropertiesTabPanel';
 import ConfigurationTabPanel from './components/ConfigurationTabPanel';
 
 type Props = {
+  appSlug?: string;
   workflowId: string;
   defaultValues?: PartialDeep<Omit<FormValues, 'workflowId'>>;
   onChange: (data: FormValues) => void;
 };
 
-const WorkflowConfigPanel = ({ workflowId, defaultValues, onChange }: Props) => {
+const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, workflowId, defaultValues, onChange }: Props) => {
   const form = useForm<FormValues>({
     defaultValues: {
+      appSlug,
       workflowId,
       ...defaultValues,
     },

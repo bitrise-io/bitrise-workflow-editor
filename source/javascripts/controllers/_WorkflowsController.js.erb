@@ -1141,6 +1141,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
         if (editedWorkflow) {
           viewModel.editedWorkflowConfigForReact = {
+            configuration: {
+              stack: editedWorkflow.stack().id,
+              machineType: editedWorkflow.machineType().id,
+            },
             properties: {
               title: editedWorkflow.title(),
               summary: editedWorkflow.summary(),
