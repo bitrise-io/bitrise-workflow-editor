@@ -1,6 +1,8 @@
 import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
+import { useMutation } from '@tanstack/react-query';
+import { monolith } from '../../hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../../models';
 import StepItemBadge from '../StepItem/StepItemBadge';
 import { EnvironmentVariable } from '../InsertEnvVarPopover/types';
@@ -27,6 +29,8 @@ type Props = {
   onLoadSecrets: () => Promise<Secret[]>;
   onCreateEnvVar: (envVar: EnvironmentVariable) => void;
   onLoadEnvVars: () => Promise<EnvironmentVariable[]>;
+  appSlug: string;
+  secretsWriteNew: boolean;
 };
 
 const StepConfigPanel = ({
@@ -41,12 +45,35 @@ const StepConfigPanel = ({
   onChange,
   onRemove,
   onChangeTabId,
-  onCreateSecret,
+  onCreateSecret: onCreateSecretAngular,
   onLoadSecrets,
   onCreateEnvVar,
   onLoadEnvVars,
+  appSlug,
+  secretsWriteNew,
 }: Props): JSX.Element => {
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
+  const { mutate } = useMutation({
+    mutationFn: (secret: Secret) =>
+      monolith.post(`/apps/${appSlug}/secrets`, {
+        name: secret.key,
+        value: secret.value,
+        expandInStepsInput: secret.isExpand,
+        exposedForPullRequests: secret.isExpose,
+        isProtected: secret.source,
+      }),
+    onSuccess(_resp, secret) {
+      onCreateSecretAngular(secret);
+    },
+  });
+
+  const onCreateSecret = (secret: Secret) => {
+    if (secretsWriteNew) {
+      mutate(secret);
+    } else {
+      onCreateSecretAngular(secret);
+    }
+  };
 
   return (
     <EnvVarProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
