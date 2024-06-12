@@ -1112,7 +1112,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         variable.isExpand(secret.isExpand);
 
         appService.secrets.push(variable);
-        appService.saveSecrets();
+        appService.saveSecrets($scope.mainCtrl.appSecretsWriteNew);
       };
 
       viewModel.closeReactVersionChangeDialog = () => {
