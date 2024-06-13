@@ -44,14 +44,14 @@ const StackAndMachineCard = () => {
   return (
     <ExpandableCard buttonContent={<ButtonContent />}>
       <Box display="flex" flexDir="column" gap="24">
-        <Select label="Stack" isDisabled={isPending} {...register('configuration.stack')} isRequired>
+        <Select label="Stack" {...register('configuration.stack')} isRequired>
           {stackOptions.map(({ value, title }) => (
             <option key={value} value={value}>
               {title}
             </option>
           ))}
         </Select>
-        <Select label="Machine type" isDisabled={isPending} {...register('configuration.machineType')} isRequired>
+        <Select label="Machine type" {...register('configuration.machineType')} isRequired>
           {machineTypeOptions.map(({ value, title }) => (
             <option key={value} value={value}>
               {title}
