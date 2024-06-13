@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import { FormValues } from '../WorkflowConfigPanel.types';
@@ -22,9 +23,15 @@ const ButtonContent = () => {
 };
 
 const StackAndMachineCard = () => {
-  const { watch, register } = useFormContext<FormValues>();
-  const [appSlug, stack] = watch(['appSlug', 'configuration.stack', 'configuration.machineType']);
+  const { watch, register, setValue } = useFormContext<FormValues>();
+  const [appSlug, stack, machineType] = watch(['appSlug', 'configuration.stack', 'configuration.machineType']);
   const { isPending, stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack);
+
+  useEffect(() => {
+    if (!isPending && machineTypeOptions.every((m) => m.value !== machineType)) {
+      setValue('configuration.machineType', machineTypeOptions[0].value);
+    }
+  }, [isPending, machineType, machineTypeOptions, setValue]);
 
   if (!appSlug || isPending) {
     return null;
