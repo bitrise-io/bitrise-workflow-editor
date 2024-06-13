@@ -544,7 +544,7 @@ import { safeDigest } from "../services/react-compat";
 										})
 										.then(resolve, reject);
 								case "secrets":
-									return appService.saveSecrets().then(resolve, reject);
+									return appService.saveSecrets(viewModel.appSecretsWriteNew).then(resolve, reject);
 								case "stack":
 									viewModel.dataToSave = appService.appConfig;
 									var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();

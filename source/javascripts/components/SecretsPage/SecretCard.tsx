@@ -72,7 +72,7 @@ const SecretCard = (props: SecretCardProps) => {
       const body = {
         name: newSecret.key,
         value: newSecret.value,
-        expandInStepsInput: newSecret.isExpand,
+        expandInStepInputs: newSecret.isExpand,
         exposedForPullRequests: newSecret.isExpose,
         isProtected: newSecret.isProtected,
       };
