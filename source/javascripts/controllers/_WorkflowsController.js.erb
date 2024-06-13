@@ -30,7 +30,8 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       Step,
       Variable,
       $window,
-      $timeout
+      $timeout,
+      MachineType,
     ) {
       var viewModel = this;
 
@@ -1140,10 +1141,13 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       };
       $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
         if (editedWorkflow) {
+          const stack = editedWorkflow.stack() || appService.stack;
+          const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
+          
           viewModel.editedWorkflowConfigForReact = {
             configuration: {
-              stack: editedWorkflow.stack().id,
-              machineType: editedWorkflow.machineType().id,
+              stack: stack.id,
+              machineType: machineType.id,
             },
             properties: {
               title: editedWorkflow.title(),
