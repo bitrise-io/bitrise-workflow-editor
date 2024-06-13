@@ -33,8 +33,12 @@ const StackAndMachineCard = () => {
     }
   }, [isPending, machineType, machineTypeOptions, setValue]);
 
-  if (!appSlug || isPending) {
+  if (!appSlug) {
     return null;
+  }
+
+  if (isPending) {
+    return <ExpandableCard buttonContent={<ButtonContent />} />;
   }
 
   return (
