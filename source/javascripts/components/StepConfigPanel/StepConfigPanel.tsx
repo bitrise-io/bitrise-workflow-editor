@@ -58,7 +58,7 @@ const StepConfigPanel = ({
       monolith.post(`/apps/${appSlug}/secrets`, {
         name: secret.key,
         value: secret.value,
-        expandInStepsInput: secret.isExpand,
+        expandInStepInputs: secret.isExpand,
         exposedForPullRequests: secret.isExpose,
         isProtected: secret.source,
       }),
