@@ -30,7 +30,9 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       Step,
       Variable,
       $window,
-      $timeout
+      $timeout,
+      Stack,
+      MachineType,
     ) {
       var viewModel = this;
 
@@ -1136,11 +1138,27 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         viewModel.editedWorkflow.title(data.properties.title || null);
         viewModel.editedWorkflow.summary(data.properties.summary || null);
         viewModel.editedWorkflow.description(data.properties.description || null);
+
+        const newStack = Stack.all.find((s) => s.id === data.configuration.stack);
+        const defaultStack = appService.stack;
+        const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
+        const defaultMachineType = appService.defaultMachineType;
+
+        viewModel.editedWorkflow.stack(newStack.id === defaultStack.id ? null : newStack);
+        viewModel.editedWorkflow.machineType(undefined, newMachineType.id === defaultMachineType.id ? null : newMachineType);
+
         safeDigest($scope);
       };
       $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
         if (editedWorkflow) {
+          const stack = editedWorkflow.stack() || appService.stack;
+          const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
+          
           viewModel.editedWorkflowConfigForReact = {
+            configuration: {
+              stack: stack.id,
+              machineType: machineType.id,
+            },
             properties: {
               title: editedWorkflow.title(),
               summary: editedWorkflow.summary(),

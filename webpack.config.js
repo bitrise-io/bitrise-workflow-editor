@@ -171,6 +171,10 @@ module.exports = {
     rules: [
       /* --- Javascript & TypeScript --- */
       {
+        test: /\.(stories|mswMocks)\.tsx?$/i,
+        use: 'ignore-loader',
+      },
+      {
         test: /\.erb$/i,
         use: railsTransformer('erb'),
       },

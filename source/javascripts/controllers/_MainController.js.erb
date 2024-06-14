@@ -160,7 +160,9 @@ import { safeDigest } from "../services/react-compat";
 							}
 							var loadPromise = $q.all(loadPromises);
 							if (requestService.isWebsiteMode()) {
-								loadPromise = loadPromise.then(appService.getStackAndDockerImage);
+								loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
+									return MachineType.getAll().then(appService.getDefaultMachineType);
+								});
 							}
 
 							loadPromise.then(

@@ -1,4 +1,5 @@
 export type FormValues = {
+  appSlug?: string;
   workflowId: string;
   configuration: {
     stack: string;
