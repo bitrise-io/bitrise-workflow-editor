@@ -30,6 +30,10 @@ export const WithDefaultValues: Story = {
       configuration: {
         stack: 'linux-docker-android-22.04',
         machineType: 'elite-xl',
+        envs: [
+          { key: 'FOO', value: 'Bar', isExpand: true },
+          { key: 'HELLO', value: 'World', isExpand: false },
+        ],
       },
       properties: {
         title: 'First Workflow',

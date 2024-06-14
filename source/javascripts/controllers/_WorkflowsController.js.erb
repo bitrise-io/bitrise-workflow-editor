@@ -1147,6 +1147,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         viewModel.editedWorkflow.stack(newStack.id === defaultStack.id ? null : newStack);
         viewModel.editedWorkflow.machineType(undefined, newMachineType.id === defaultMachineType.id ? null : newMachineType);
 
+        viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
+          return { [key]: value, opts: { is_expand } };
+        }))
+
         safeDigest($scope);
       };
       $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
@@ -1158,6 +1162,12 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
             configuration: {
               stack: stack.id,
               machineType: machineType.id,
+              envs: editedWorkflow.envs()?.map(({ opts, ...env }) => {
+                const [key, value] = Object.entries(env)[0];
+                const isExpand = opts?.is_expand ?? true;
+                
+                return { key, value, isExpand };
+              })
             },
             properties: {
               title: editedWorkflow.title(),
