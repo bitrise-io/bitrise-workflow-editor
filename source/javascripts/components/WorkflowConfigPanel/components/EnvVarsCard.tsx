@@ -174,7 +174,7 @@ const EnvVarsCard = () => {
           <DndContext
             sensors={sensors}
             onDragEnd={handleDragEnd}
-            collisionDetection={pointerWithin}
+            collisionDetection={pointerWithin} // NOTE: This is the only one that works when EnvVar has dozens of lines... :/
             modifiers={[restrictToVerticalAxis, restrictToParentElement]}
           >
             <SortableContext items={fields.map(({ id }) => id)} strategy={verticalListSortingStrategy}>

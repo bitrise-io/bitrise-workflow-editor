@@ -1,4 +1,4 @@
-import { FormControl, FormControlProps, FormErrorMessage, Textarea, TextareaProps } from '@chakra-ui/react';
+import { FormControl, FormControlProps, FormErrorMessage, StyleProps, Textarea, TextareaProps } from '@chakra-ui/react';
 import { forwardRef } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 
@@ -11,6 +11,15 @@ const AutoGrowableInput = forwardRef(({ errorText, formControlProps, ...props }:
   const form = useFormContext();
   const value = form.watch(props.name || '');
 
+  const styleProps: StyleProps = {
+    py: '9px',
+    px: '11px',
+    overflowX: 'auto',
+    overflowY: 'hidden',
+    gridArea: '1 / 1 / 2 / 2',
+    whiteSpace: 'preserve nowrap',
+  };
+
   return (
     <FormControl
       {...formControlProps}
@@ -20,31 +29,12 @@ const AutoGrowableInput = forwardRef(({ errorText, formControlProps, ...props }:
       textStyle="body/md/regular"
       data-replicated-value={value}
       _after={{
-        w: '100%',
-        py: '9px',
-        px: '11px',
-        maxW: '100%',
-        overflow: 'hidden',
+        ...styleProps,
         visibility: 'hidden',
-        gridArea: '1 / 1 / 2 / 2',
-        whiteSpace: 'preserve nowrap',
         content: 'attr(data-replicated-value) " "',
       }}
     >
-      <Textarea
-        {...props}
-        ref={ref}
-        py="9px"
-        px="11px"
-        rows={1}
-        resize="none"
-        overflowX="auto"
-        overflowY="hidden"
-        gridArea="1 / 1 / 2 / 2"
-        transition="height none"
-        whiteSpace="preserve nowrap"
-        data-1p-ignore
-      />
+      <Textarea {...props} {...styleProps} ref={ref} rows={1} resize="none" transition="height none" data-1p-ignore />
       {errorText && <FormErrorMessage as="p">{errorText}</FormErrorMessage>}
     </FormControl>
   );
