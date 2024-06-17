@@ -1,11 +1,12 @@
 import { CSSProperties } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Box, Button, ControlButton, ExpandableCard, Input, Text, Checkbox, Badge } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent, PointerSensor, closestCenter, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import { FormValues } from '../WorkflowConfigPanel.types';
+import AutoGrowableInput from './AutoGrowableInput';
 
 const ButtonContent = () => {
   const {
@@ -59,7 +60,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
   const style: CSSProperties = {
     transition,
-    transform: CSS.Transform.toString(transform),
+    transform: CSS.Translate.toString(transform),
   };
 
   return (
@@ -122,11 +123,10 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
           <Text color="text/tertiary" pt="8">
             =
           </Text>
-          <Input
-            flex="1"
-            size="md"
+          <AutoGrowableInput
             aria-label="Value"
             placeholder="Enter value"
+            formControlProps={{ flex: 1 }}
             errorText={errors.configuration?.envs?.[index]?.value?.message?.toString()}
             {...register(`configuration.envs.${index}.value`, {
               required: {
@@ -168,13 +168,13 @@ const EnvVarsCard = () => {
   };
 
   return (
-    <ExpandableCard buttonContent={<ButtonContent />}>
+    <ExpandableCard buttonContent={<ButtonContent />} isExpanded>
       <Box m="-16" width="auto">
         <Box>
           <DndContext
             sensors={sensors}
             onDragEnd={handleDragEnd}
-            collisionDetection={closestCenter}
+            collisionDetection={pointerWithin}
             modifiers={[restrictToVerticalAxis, restrictToParentElement]}
           >
             <SortableContext items={fields.map(({ id }) => id)} strategy={verticalListSortingStrategy}>
