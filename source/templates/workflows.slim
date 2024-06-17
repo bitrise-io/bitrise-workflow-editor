@@ -82,7 +82,6 @@
           section.workflow[ng-if='!workflowsCtrl.selectedStep && workflowsCtrl.editedWorkflow']
             r-workflow-config-panel[
               ng-if="mainCtrl.enableNewWfeWorkflowConfigPanel"
-              workflow-id="workflowsCtrl.editedWorkflow.id"
               default-values="workflowsCtrl.editedWorkflowConfigForReact"
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]

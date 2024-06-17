@@ -6,7 +6,9 @@ export default {
   component: WorkflowConfigPanel,
   args: {
     appSlug: 'app-1',
-    workflowId: 'workflow-1',
+    defaultValues: {
+      workflowId: 'workflow-1',
+    },
   },
   argTypes: {
     onChange: {
@@ -27,6 +29,7 @@ export const Default: Story = {};
 export const WithDefaultValues: Story = {
   args: {
     defaultValues: {
+      workflowId: 'workflow-1',
       configuration: {
         stack: 'linux-docker-android-22.04',
         machineType: 'elite-xl',

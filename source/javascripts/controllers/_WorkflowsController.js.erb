@@ -533,7 +533,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         }, 0);
       };
 
-      viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID) {
+      viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID, shouldSelect = true) {
         var oldWorkflowID = workflow.id;
 
         delete appService.appConfig.workflows[oldWorkflowID];
@@ -572,7 +572,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         });
 
         workflow.id = newWorkflowID;
-        viewModel.selectWorkflow(workflow);
+
+        if (shouldSelect) {
+          viewModel.selectWorkflow(workflow);
+        }
 
         workflowSelectionStore.applyState({
           lastSelectedWorkflow: viewModel.selectedWorkflow,
@@ -1151,6 +1154,11 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
           return { [key]: value, opts: { is_expand } };
         }));
 
+        if (viewModel.editedWorkflow.id !== data.workflowId) {
+          viewModel.renameWorkflowConfirmed(viewModel.editedWorkflow, data.workflowId, false);
+          workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, data.workflowId);
+        }
+
         safeDigest($scope);
       };
       $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
@@ -1159,6 +1167,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
           const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
           
           viewModel.editedWorkflowConfigForReact = {
+            workflowId: editedWorkflow.id,
             configuration: {
               stack: stack.id,
               machineType: machineType.id,
