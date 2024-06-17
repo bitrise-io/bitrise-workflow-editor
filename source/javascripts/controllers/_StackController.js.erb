@@ -189,8 +189,6 @@ import { safeDigest } from "../services/react-compat";
 				if (currentDate < startDate) {
 					return {
 						message: "Upgrading to faster M2 Pro, applying the same credit multiplier. M1 Mac mini machines will be deprecated and your Workflows will automatically run on M2 Pro machines from the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
-						linkUrl: '',
-						linkLabel: 'Read announcement.',
 					}
 				} else if (currentDate >= startDate && currentDate <= endDate) {
 					return {
@@ -201,8 +199,6 @@ import { safeDigest } from "../services/react-compat";
 				} else if (currentDate > endDate) {
 					return {
 						message: "Your Workflows are now running on faster M2 Pro, applying the same credit multiplier. If you’d like to keep using the deprecated M1 Mac mini machines, reach out to support.",
-						linkUrl: '',
-						linkLabel: 'Read announcement.',
 					}
 				}
 			}
