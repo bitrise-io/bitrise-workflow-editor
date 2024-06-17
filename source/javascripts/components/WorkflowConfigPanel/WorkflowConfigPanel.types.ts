@@ -1,9 +1,10 @@
 export type FormValues = {
+  appSlug?: string;
   workflowId: string;
   configuration: {
     stack: string;
     machineType: string;
-    envs: Array<{ [key: string]: unknown; isExpand: boolean }>;
+    envs: Array<{ key: string; value: string; isExpand: boolean }>;
   };
   properties: {
     title: string;

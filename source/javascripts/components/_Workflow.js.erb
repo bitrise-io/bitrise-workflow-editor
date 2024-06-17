@@ -80,7 +80,7 @@
 
 		Workflow.prototype.title = function(title) {
 			if (title !== undefined) {
-				this.workflowConfig.title = title;
+				this.workflowConfig.title = title ? title : undefined;
 			}
 
 			return this.workflowConfig.title;
@@ -88,7 +88,7 @@
 
 		Workflow.prototype.description = function(description) {
 			if (description !== undefined) {
-				this.workflowConfig.description = description;
+				this.workflowConfig.description = description ? description : undefined;
 			}
 
 			return this.workflowConfig.description;
@@ -96,7 +96,7 @@
 
 		Workflow.prototype.summary = function(summary) {
 			if (summary !== undefined) {
-				this.workflowConfig.summary = summary;
+				this.workflowConfig.summary = summary ? summary : undefined;
 			}
 
 			return this.workflowConfig.summary;
@@ -266,6 +266,18 @@
 
 			return this.workflowConfig.meta[BITRISE_META_KEY].license_pool_id;
 		};
+
+		Workflow.prototype.envs = function(envs) {
+			if (envs !== undefined) {
+				if (Array.isArray(envs) && envs.length > 0) {
+					this.workflowConfig.envs = envs;
+				} else {
+					this.workflowConfig.envs = undefined;
+				}
+			}
+
+			return this.workflowConfig.envs;
+		}
 
 		return Workflow;
 	});
