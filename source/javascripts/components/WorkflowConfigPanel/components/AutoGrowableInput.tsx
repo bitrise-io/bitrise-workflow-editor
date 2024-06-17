@@ -34,7 +34,7 @@ const AutoGrowableInput = forwardRef(({ errorText, formControlProps, ...props }:
         content: 'attr(data-replicated-value) " "',
       }}
     >
-      <Textarea {...props} {...styleProps} ref={ref} rows={1} resize="none" transition="height none" data-1p-ignore />
+      <Textarea {...props} {...styleProps} ref={ref} rows={1} resize="none" data-1p-ignore />
       {errorText && <FormErrorMessage as="p">{errorText}</FormErrorMessage>}
     </FormControl>
   );

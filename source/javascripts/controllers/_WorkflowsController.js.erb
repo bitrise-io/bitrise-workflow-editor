@@ -1149,7 +1149,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
         viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
           return { [key]: value, opts: { is_expand } };
-        }))
+        }));
 
         safeDigest($scope);
       };
@@ -1163,7 +1163,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
               stack: stack.id,
               machineType: machineType.id,
               envs: editedWorkflow.envs()?.map(({ opts, ...env }) => {
-                const [key, value] = Object.entries(env)[0];
+                const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
                 
                 return { key, value, isExpand };

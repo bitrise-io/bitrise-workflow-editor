@@ -46,7 +46,6 @@ const DragHandleIcon = () => {
 const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
   const {
     register,
-    getValues,
     formState: { errors },
   } = useFormContext<FormValues>();
 
@@ -108,16 +107,6 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
                 value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
                 message: 'Key should contain letters, numbers, underscores, should not begin with a number.',
               },
-              validate: {
-                isUnique: (value) => {
-                  // TODO: Check the uniqueness in all EnvVars of the app.
-                  if (getValues('configuration.envs').filter(({ key }) => key === value).length > 1) {
-                    return 'Key should be unique.';
-                  }
-
-                  return true;
-                },
-              },
             })}
           />
           <Text color="text/tertiary" pt="8">
@@ -168,7 +157,7 @@ const EnvVarsCard = () => {
   };
 
   return (
-    <ExpandableCard buttonContent={<ButtonContent />} isExpanded>
+    <ExpandableCard buttonContent={<ButtonContent />}>
       <Box m="-16" width="auto">
         <Box>
           <DndContext
