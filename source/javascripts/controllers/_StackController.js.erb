@@ -154,11 +154,11 @@ import { safeDigest } from "../services/react-compat";
 
 				requestService.getApp(appServiceUtil.getAppSlug()).then((response) => {
 					var gracePeriodDates = {};
-					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started) {
-						gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started);
+					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started_at) {
+						gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started_at);
 					}
-					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_ended) {
-						gracePeriodDates.endsAt = new Date(response.deprecated_machines_replacement_config.grace_period_ended);
+					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_ended_at) {
+						gracePeriodDates.endsAt = new Date(response.deprecated_machines_replacement_config.grace_period_ended_at);
 					}
 					viewModel.buildMachineDeprecationData = buildMachineDeprecationDataBasedOnGracePeriodDates(gracePeriodDates.startsAt, gracePeriodDates.endsAt);
 				});
