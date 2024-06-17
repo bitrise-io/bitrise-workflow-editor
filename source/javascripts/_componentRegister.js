@@ -203,4 +203,4 @@ angular
   )
   .component('rSecretsPage', register(SecretsPage, ['secrets', 'secretsWriteNew', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
   .component('rPipelinesPage', register(PipelinesPage, ['yml', 'defaultMeta']))
-  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['workflowId', 'defaultValues', 'onChange']));
+  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['appSlug', 'defaultValues', 'onChange']));

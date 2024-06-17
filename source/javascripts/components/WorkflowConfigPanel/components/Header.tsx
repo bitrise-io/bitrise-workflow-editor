@@ -4,11 +4,11 @@ import { FormValues } from '../WorkflowConfigPanel.types';
 
 const Header = () => {
   const { watch } = useFormContext<FormValues>();
-  const [title, workflowId] = watch(['properties.title', 'workflowId']);
+  const workflowId = watch('workflowId');
 
   return (
     <Box px="24" py="16">
-      <Text textStyle="heading/h3">{title || workflowId}</Text>
+      <Text textStyle="heading/h3">{workflowId}</Text>
     </Box>
   );
 };
