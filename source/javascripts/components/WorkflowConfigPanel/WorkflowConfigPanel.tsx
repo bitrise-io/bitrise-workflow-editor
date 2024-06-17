@@ -17,6 +17,7 @@ type Props = {
 
 const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, workflowId, defaultValues, onChange }: Props) => {
   const form = useForm<FormValues>({
+    mode: 'all',
     defaultValues: {
       appSlug,
       workflowId,
