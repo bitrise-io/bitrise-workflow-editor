@@ -96,10 +96,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
       viewModel.buildTriggerToken = undefined;
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
-      viewModel.runIfDescription = stringService.stringReplacedWithParameters(
-        "<%= data[:strings][:workflows][:steps][:run_if_description] %>",
-        { url: "https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html" }
-      );
 
       viewModel.init = function() {
         logger.info("Loading workflows");
@@ -506,27 +502,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
       // Workflow rename
 
-      viewModel.renamedWorkflow = null;
-      viewModel.renamedWorkflowID = "";
-
-      $scope.$watch(
-        function() {
-          return viewModel.renamedWorkflow;
-        },
-        function(renamedWorkflow) {
-          viewModel.renamedWorkflowID = renamedWorkflow ? renamedWorkflow.id : "";
-        }
-      );
-
-      viewModel.isRenamedWorkflowIDValid = function() {
-        return (
-          Workflow.isValidID(viewModel.renamedWorkflowID) &&
-          !_.find(_.without(viewModel.workflows, viewModel.renamedWorkflow), {
-            id: viewModel.renamedWorkflowID
-          })
-        );
-      };
-
       viewModel.confirmRenameWorkflowWithDigest = function(workflow, newWorkflowID) {
         $timeout(function() {
           viewModel.renameWorkflowConfirmed(workflow, newWorkflowID);
@@ -839,12 +814,6 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         safeDigest($scope);
       };
 
-      viewModel.deleteStepButtonText = function() {
-        return stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:steps][:delete] %>", {
-          step_title: viewModel.selectedStep.displayName()
-        });
-      };
-
       // Step version
 
       function changeStepToVersion(step, version) {
@@ -1153,7 +1122,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         if (editedWorkflow) {
           const stack = editedWorkflow.stack() || appService.stack;
           const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
-          
+
           viewModel.editedWorkflowConfigForReact = {
             configuration: {
               stack: stack.id,
