@@ -6,16 +6,21 @@ import useStackAndMachine from '../hooks/useStackAndMachine';
 
 const ButtonContent = () => {
   const { watch } = useFormContext<FormValues>();
-  const [appSlug, stack, machineType] = watch(['appSlug', 'configuration.stack', 'configuration.machineType']);
-  const { stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack);
+  const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
+    'appSlug',
+    'configuration.stack',
+    'configuration.machineType',
+    'isMachineTypeSelectorAvailable',
+  ]);
+  const { stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack, isMachineTypeSelectorAvailable);
 
   const stackName = stackOptions.find((s) => s.value === stack)?.title || stack;
   const machineTypeName = machineTypeOptions.find((m) => m.value === machineType)?.name || machineType;
 
   return (
-    <Box display="flex" flexDir="column" alignItems="flex-start">
+    <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
       <Text textStyle="body/lg/semibold">Stack & Machine</Text>
-      <Text textStyle="body/md/regular" color="text/secondary">
+      <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
         {stackName} • {machineTypeName}
       </Text>
     </Box>
@@ -24,8 +29,17 @@ const ButtonContent = () => {
 
 const StackAndMachineCard = () => {
   const { watch, register, setValue } = useFormContext<FormValues>();
-  const [appSlug, stack, machineType] = watch(['appSlug', 'configuration.stack', 'configuration.machineType']);
-  const { isPending, stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack);
+  const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
+    'appSlug',
+    'configuration.stack',
+    'configuration.machineType',
+    'isMachineTypeSelectorAvailable',
+  ]);
+  const { isPending, stackOptions, machineTypeOptions } = useStackAndMachine(
+    appSlug,
+    stack,
+    isMachineTypeSelectorAvailable,
+  );
 
   useEffect(() => {
     if (!isPending && machineTypeOptions.every((m) => m.value !== machineType)) {
@@ -51,7 +65,12 @@ const StackAndMachineCard = () => {
             </option>
           ))}
         </Select>
-        <Select label="Machine type" {...register('configuration.machineType')} isRequired>
+        <Select
+          label="Machine type"
+          {...register('configuration.machineType')}
+          isDisabled={!isMachineTypeSelectorAvailable}
+          isRequired
+        >
           {machineTypeOptions.map(({ value, title }) => (
             <option key={value} value={value}>
               {title}

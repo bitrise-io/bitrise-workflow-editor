@@ -1,6 +1,7 @@
 export type FormValues = {
   appSlug?: string;
   workflowId: string;
+  isMachineTypeSelectorAvailable: boolean;
   configuration: {
     stack: string;
     machineType: string;

@@ -1150,11 +1150,15 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
         const newStack = Stack.all.find((s) => s.id === data.configuration.stack);
         const defaultStack = appService.stack;
-        const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
-        const defaultMachineType = appService.defaultMachineType;
 
         viewModel.editedWorkflow.stack(newStack.id === defaultStack.id ? null : newStack);
-        viewModel.editedWorkflow.machineType(undefined, newMachineType.id === defaultMachineType.id ? null : newMachineType);
+        
+        if (data.isMachineTypeSelectorAvailable) {
+          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
+          const defaultMachineType = appService.defaultMachineType;
+
+          viewModel.editedWorkflow.machineType(undefined, newMachineType.id === defaultMachineType.id ? null : newMachineType);
+        }
 
         viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
           return { [key]: value, opts: { is_expand } };
@@ -1175,9 +1179,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
           viewModel.editedWorkflowConfigForReact = {
             workflowId: viewModel.editedWorkflow.id,
+            isMachineTypeSelectorAvailable: appService.appDetails.isMachineTypeSelectorAvailable,
             configuration: {
-              stack: stack.id,
-              machineType: machineType.id,
+              stack: stack?.id,
+              machineType: machineType?.id,
               envs: viewModel.editedWorkflow.envs()?.map(({ opts, ...env }) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
