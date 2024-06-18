@@ -148,7 +148,7 @@ describe("WorkflowsSelectionService", () => {
 			selectionService.rearrangeSelection(mockVm, mockWf);
 
 			expect(mockVm.selectedWorkflow).toBe(mockWf);
-			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0);
+			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0, true);
 		});
 
 		it("should set editedWorkflow different than selected if passed", () => {
@@ -165,7 +165,7 @@ describe("WorkflowsSelectionService", () => {
 			selectionService.rearrangeSelection(mockVm, mockWf, mockedCopyWf.id);
 
 			expect(mockVm.selectedWorkflow).toBe(mockWf);
-			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0);
+			expect(mockVm.editWorkflowAtIndex).toHaveBeenCalledWith(0, true);
 		});
 
 		it("should recalculate the selected workflow chain", () => {

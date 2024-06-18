@@ -328,6 +328,8 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
                 1
               );
             }
+
+            workflowSelectionService.rearrangeSelection(viewModel);
           }
         );
       };
@@ -601,7 +603,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         workflowSelectionService.rearrangeSelection(viewModel, workflow);
       };
 
-      viewModel.editWorkflowAtIndex = function(workflowIndex) {
+      viewModel.editWorkflowAtIndex = function(workflowIndex, shouldTransformEditedWorkflowToReact = true) {
         viewModel.editedWorkflowIndex = workflowIndex === null ? null : workflowIndex;
         viewModel.editedWorkflow =
           workflowIndex === null ? null : viewModel.selectedWorkflowChain[workflowIndex].workflow;
@@ -612,6 +614,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
           lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
           lastSelectedStep: viewModel.selectedStep
         });
+
+        if (shouldTransformEditedWorkflowToReact) {
+          transformEditedWorkflowForReact();
+        }
       };
 
       viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
@@ -1161,17 +1167,18 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
 
         safeDigest($scope);
       };
-      $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
-        if (editedWorkflow) {
-          const stack = editedWorkflow.stack() || appService.stack;
-          const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
-          
+
+      function transformEditedWorkflowForReact() {
+        if (viewModel.editedWorkflow) {
+          const stack = viewModel.editedWorkflow.stack() || appService.stack;
+          const machineType = viewModel.editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
+
           viewModel.editedWorkflowConfigForReact = {
-            workflowId: editedWorkflow.id,
+            workflowId: viewModel.editedWorkflow.id,
             configuration: {
               stack: stack.id,
               machineType: machineType.id,
-              envs: editedWorkflow.envs()?.map(({ opts, ...env }) => {
+              envs: viewModel.editedWorkflow.envs()?.map(({ opts, ...env }) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
                 
@@ -1179,14 +1186,12 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
               })
             },
             properties: {
-              title: editedWorkflow.title(),
-              summary: editedWorkflow.summary(),
-              description: editedWorkflow.description(),
+              title: viewModel.editedWorkflow.title(),
+              summary: viewModel.editedWorkflow.summary(),
+              description: viewModel.editedWorkflow.description(),
             },
           };
-        } else {
-          viewModel.editedWorkflowConfigForReact = {};
         }
-      });
+      }
     });
 })();
