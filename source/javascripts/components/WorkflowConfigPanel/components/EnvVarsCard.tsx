@@ -1,6 +1,6 @@
 import { CSSProperties } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { Box, Button, ControlButton, ExpandableCard, Input, Text, Checkbox, Badge } from '@bitrise/bitkit';
+import { Box, Button, ControlButton, ExpandableCard, Input, Text, Badge, Checkbox } from '@bitrise/bitkit';
 import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -61,6 +61,9 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
     transition,
     transform: CSS.Translate.toString(transform),
   };
+
+  // NOTE: Default value doesn't apply because the ref connected to the FormControl instead the Checkbox component in Bitkit
+  const { ref: isExpandRef, ...isExpandProps } = register(`configuration.envs.${index}.isExpand`);
 
   return (
     <Box
@@ -129,7 +132,9 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
           />
           <ControlButton onClick={handleRemove} iconName="MinusRemove" aria-label="Remove" size="md" ml="8" isDanger />
         </Box>
-        <Checkbox {...register(`configuration.envs.${index}.isExpand`)}>Replace variables in inputs</Checkbox>
+        <Checkbox inputRef={isExpandRef} {...isExpandProps}>
+          Replace variables in inputs
+        </Checkbox>
       </Box>
     </Box>
   );
