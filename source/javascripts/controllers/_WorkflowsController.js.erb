@@ -508,7 +508,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         }, 0);
       };
 
-      viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID) {
+      viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID, shouldSelect = true) {
         var oldWorkflowID = workflow.id;
 
         delete appService.appConfig.workflows[oldWorkflowID];
@@ -547,7 +547,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         });
 
         workflow.id = newWorkflowID;
-        viewModel.selectWorkflow(workflow);
+
+        if (shouldSelect) {
+          viewModel.selectWorkflow(workflow);
+        }
 
         workflowSelectionStore.applyState({
           lastSelectedWorkflow: viewModel.selectedWorkflow,
@@ -1116,6 +1119,15 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         viewModel.editedWorkflow.stack(newStack.id === defaultStack.id ? null : newStack);
         viewModel.editedWorkflow.machineType(undefined, newMachineType.id === defaultMachineType.id ? null : newMachineType);
 
+        viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
+          return { [key]: value, opts: { is_expand } };
+        }));
+
+        if (viewModel.editedWorkflow.id !== data.workflowId) {
+          viewModel.renameWorkflowConfirmed(viewModel.editedWorkflow, data.workflowId, false);
+          workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, data.workflowId);
+        }
+
         safeDigest($scope);
       };
       $scope.$watch(() => viewModel.editedWorkflow, (editedWorkflow) => {
@@ -1124,9 +1136,16 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
           const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
 
           viewModel.editedWorkflowConfigForReact = {
+            workflowId: editedWorkflow.id,
             configuration: {
               stack: stack.id,
               machineType: machineType.id,
+              envs: editedWorkflow.envs()?.map(({ opts, ...env }) => {
+                const [key, value] = Object.entries(angular.copy(env))[0];
+                const isExpand = opts?.is_expand ?? true;
+                
+                return { key, value, isExpand };
+              })
             },
             properties: {
               title: editedWorkflow.title(),

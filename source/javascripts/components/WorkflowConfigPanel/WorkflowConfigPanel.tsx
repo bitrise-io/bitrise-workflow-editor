@@ -10,16 +10,15 @@ import ConfigurationTabPanel from './components/ConfigurationTabPanel';
 
 type Props = {
   appSlug?: string;
-  workflowId: string;
-  defaultValues?: PartialDeep<Omit<FormValues, 'workflowId'>>;
+  defaultValues?: PartialDeep<Omit<FormValues, 'appSlug'>>;
   onChange: (data: FormValues) => void;
 };
 
-const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, workflowId, defaultValues, onChange }: Props) => {
+const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, defaultValues, onChange }: Props) => {
   const form = useForm<FormValues>({
+    mode: 'all',
     defaultValues: {
       appSlug,
-      workflowId,
       ...defaultValues,
     },
   });

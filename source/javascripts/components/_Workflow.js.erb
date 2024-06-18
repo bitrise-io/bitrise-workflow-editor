@@ -267,6 +267,18 @@
 			return this.workflowConfig.meta[BITRISE_META_KEY].license_pool_id;
 		};
 
+		Workflow.prototype.envs = function(envs) {
+			if (envs !== undefined) {
+				if (Array.isArray(envs) && envs.length > 0) {
+					this.workflowConfig.envs = envs;
+				} else {
+					this.workflowConfig.envs = undefined;
+				}
+			}
+
+			return this.workflowConfig.envs;
+		}
+
 		return Workflow;
 	});
 })();
