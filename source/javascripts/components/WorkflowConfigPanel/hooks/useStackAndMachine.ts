@@ -25,19 +25,25 @@ const buildMachineTypeLabel = (machineType: MachineTypeWithKey) => {
   return `${name} ${cpuCount} @ ${cpuDescription} ${ram} (${creditPerMin} credits/min)`;
 };
 
-const useStackAndMachine = (appSlug?: string, selectedStack?: string) => {
+const useStackAndMachine = (appSlug?: string, selectedStack?: string, isMachineTypeSelectorAvailable = true) => {
   const {
     isPending,
     data: { allStackInfo, machineTypeConfigs },
   } = useQueries({
     queries: [
       { enabled: !!appSlug, ...getAllStackInfoQueryOptions(appSlug || '') },
-      { enabled: !!appSlug, ...getMachineTypeConfigsQueryOptions(appSlug || '') },
+      { enabled: !!(appSlug && isMachineTypeSelectorAvailable), ...getMachineTypeConfigsQueryOptions(appSlug || '') },
     ],
-    combine: (results) => ({
-      isPending: results.some((result) => result.isPending),
-      data: { allStackInfo: results[0].data, machineTypeConfigs: results[1].data },
-    }),
+    combine: (results) =>
+      isMachineTypeSelectorAvailable
+        ? {
+            isPending: results.some((result) => result.isPending),
+            data: { allStackInfo: results[0].data, machineTypeConfigs: results[1].data },
+          }
+        : {
+            isPending: results[0].isPending,
+            data: { allStackInfo: results[0].data },
+          },
   });
 
   const stackOptions = Object.entries(allStackInfo?.available_stacks ?? {}).map(([value, { title }]) => {
@@ -49,13 +55,19 @@ const useStackAndMachine = (appSlug?: string, selectedStack?: string) => {
     .map((key) => ({ key, ...findMachineTypeByKey(key, machineTypeConfigs) }))
     .sort((a, b) => (a?.credit_per_min ?? 0) - (b?.credit_per_min ?? 0));
 
-  const machineTypeOptions = availableMachineTypes.map((machineType) => {
-    return {
-      name: machineType.name,
-      value: machineType.key,
-      title: buildMachineTypeLabel(machineType),
-    };
-  });
+  const machineTypeOptions = isMachineTypeSelectorAvailable
+    ? availableMachineTypes.map((machineType) => ({
+        name: machineType.name,
+        value: machineType.key,
+        title: buildMachineTypeLabel(machineType),
+      }))
+    : [
+        {
+          name: 'Dedicated Machine',
+          value: '',
+          title: 'Dedicated Machine',
+        },
+      ];
 
   return {
     isPending,
