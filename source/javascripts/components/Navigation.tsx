@@ -84,7 +84,14 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
   const isPipelineViewerEnabled = useFeatureFlag('enable-wfe-pipeline-viewer');
 
   return (
-    <Sidebar width={256} height="100%" borderRight="1px solid" borderColor="separator.primary" id="menu-nav">
+    <Sidebar
+      width={256}
+      height="100%"
+      borderRight="1px solid"
+      borderColor="separator.primary"
+      id="menu-nav"
+      paddingTop="24"
+    >
       <SidebarContainer>
         {items.map((item) => {
           const isPipelines = item.id === 'pipelines';
