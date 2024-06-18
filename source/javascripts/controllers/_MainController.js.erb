@@ -761,7 +761,7 @@ import { safeDigest } from "../services/react-compat";
 								viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
 								viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
 								viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
-								viewModel.enableNewWfeWorkflowConfigPanel = launchDarklyService.variation("enable-new-wfe-workflow-config-panel");
+								viewModel.enableNewWfeWorkflowConfigPanel = true || launchDarklyService.variation("enable-new-wfe-workflow-config-panel");
 
 								requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
 									viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;

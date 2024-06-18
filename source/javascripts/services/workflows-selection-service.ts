@@ -129,6 +129,7 @@ export class WorkflowsSelectionService {
     viewModel: WorkflowViewModel,
     wf?: Workflow,
     editedId?: string,
+    shouldTransformEditedWorkflow?: boolean
   ): void => {
     viewModel.selectedWorkflow = wf;
 
