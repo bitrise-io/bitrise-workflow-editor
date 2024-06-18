@@ -328,6 +328,8 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
                 1
               );
             }
+
+            workflowSelectionService.rearrangeSelection(viewModel);
           }
         );
       };
@@ -601,7 +603,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         workflowSelectionService.rearrangeSelection(viewModel, workflow);
       };
 
-      viewModel.editWorkflowAtIndex = function(workflowIndex) {
+      viewModel.editWorkflowAtIndex = function(workflowIndex, shouldTransformEditedWorkflowToReact = true) {
         viewModel.editedWorkflowIndex = workflowIndex === null ? null : workflowIndex;
         viewModel.editedWorkflow =
           workflowIndex === null ? null : viewModel.selectedWorkflowChain[workflowIndex].workflow;
@@ -613,7 +615,9 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
           lastSelectedStep: viewModel.selectedStep
         });
 
-        transformEditedWorkflowForReact();
+        if (shouldTransformEditedWorkflowToReact) {
+          transformEditedWorkflowForReact();
+        }
       };
 
       viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
