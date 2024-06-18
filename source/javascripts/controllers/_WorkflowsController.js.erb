@@ -1134,7 +1134,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         if (editedWorkflow) {
           const stack = editedWorkflow.stack() || appService.stack;
           const machineType = editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
-
+          
           viewModel.editedWorkflowConfigForReact = {
             workflowId: editedWorkflow.id,
             configuration: {
