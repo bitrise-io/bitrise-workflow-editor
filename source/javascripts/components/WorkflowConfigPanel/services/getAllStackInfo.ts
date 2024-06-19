@@ -6,7 +6,7 @@ export type AllStackInfo = {
     [key: string]: {
       title: string;
       project_types: string[];
-      available_machines: string[];
+      available_machines?: string[];
     };
   };
   project_types_with_default_stacks: {

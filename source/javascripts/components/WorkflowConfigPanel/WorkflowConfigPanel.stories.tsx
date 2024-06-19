@@ -8,6 +8,7 @@ export default {
     appSlug: 'app-1',
     defaultValues: {
       workflowId: 'workflow-1',
+      isMachineTypeSelectorAvailable: true,
     },
   },
   argTypes: {
@@ -30,6 +31,7 @@ export const WithDefaultValues: Story = {
   args: {
     defaultValues: {
       workflowId: 'workflow-1',
+      isMachineTypeSelectorAvailable: true,
       configuration: {
         stack: 'linux-docker-android-22.04',
         machineType: 'elite-xl',
@@ -51,5 +53,15 @@ export const WithDefaultValues: Story = {
 export const WithoutAppSlug: Story = {
   args: {
     appSlug: undefined,
+  },
+};
+
+export const WithoutMachineTypeSelector: Story = {
+  args: {
+    appSlug: 'app-1',
+    defaultValues: {
+      workflowId: 'workflow-1',
+      isMachineTypeSelectorAvailable: false,
+    },
   },
 };
