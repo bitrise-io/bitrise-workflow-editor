@@ -1120,13 +1120,13 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepCon
         const newStack = Stack.all.find((s) => s.id === data.configuration.stack);
         const defaultStack = appService.stack;
 
-        viewModel.editedWorkflow.stack(newStack.id === defaultStack.id ? null : newStack);
+        viewModel.editedWorkflow.stack(newStack?.id === defaultStack?.id ? null : newStack);
 
         if (data.isMachineTypeSelectorAvailable) {
           const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
           const defaultMachineType = appService.defaultMachineType;
 
-          viewModel.editedWorkflow.machineType(undefined, newMachineType.id === defaultMachineType.id ? null : newMachineType);
+          viewModel.editedWorkflow.machineType(undefined, newMachineType?.id === defaultMachineType?.id ? null : newMachineType);
         }
 
         viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
