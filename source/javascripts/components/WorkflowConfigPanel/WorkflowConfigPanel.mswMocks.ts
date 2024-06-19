@@ -146,6 +146,10 @@ export const mockGetAllStackInfo = () => {
           'project-types': ['android', 'cordova', 'ionic', 'react-native', 'flutter'],
           available_machines: ['standard', 'elite', 'elite-xl'],
         },
+        'agent-pool-34563563456-34563456-34563567': {
+          title: "Self-Hosted Runner: Someone's test pool",
+          'project-types': ['ios', 'osx', 'macos', 'android', 'cordova', 'ionic', 'react-native', 'flutter', 'other'],
+        },
       },
       project_types_with_default_stacks: {
         android: { default_stack: 'linux-docker-android-22.04' },

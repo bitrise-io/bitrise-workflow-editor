@@ -6,12 +6,14 @@ import useStackAndMachine from '../hooks/useStackAndMachine';
 
 const ButtonContent = () => {
   const { watch } = useFormContext<FormValues>();
+
   const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
     'appSlug',
     'configuration.stack',
     'configuration.machineType',
     'isMachineTypeSelectorAvailable',
   ]);
+
   const { stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack, isMachineTypeSelectorAvailable);
 
   const stackName = stackOptions.find((s) => s.value === stack)?.title || stack;
@@ -21,7 +23,7 @@ const ButtonContent = () => {
     <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
       <Text textStyle="body/lg/semibold">Stack & Machine</Text>
       <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
-        {stackName} • {machineTypeName}
+        {[stackName, machineTypeName].filter(Boolean).join(' • ')}
       </Text>
     </Box>
   );
@@ -29,12 +31,14 @@ const ButtonContent = () => {
 
 const StackAndMachineCard = () => {
   const { watch, register, setValue } = useFormContext<FormValues>();
+
   const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
     'appSlug',
     'configuration.stack',
     'configuration.machineType',
     'isMachineTypeSelectorAvailable',
   ]);
+
   const { isPending, stackOptions, machineTypeOptions } = useStackAndMachine(
     appSlug,
     stack,
@@ -43,7 +47,7 @@ const StackAndMachineCard = () => {
 
   useEffect(() => {
     if (!isPending && machineTypeOptions.every((m) => m.value !== machineType)) {
-      setValue('configuration.machineType', machineTypeOptions[0].value);
+      setValue('configuration.machineType', machineTypeOptions[0]?.value);
     }
   }, [isPending, machineType, machineTypeOptions, setValue]);
 
@@ -66,10 +70,10 @@ const StackAndMachineCard = () => {
           ))}
         </Select>
         <Select
-          label="Machine type"
-          {...register('configuration.machineType')}
-          isDisabled={!isMachineTypeSelectorAvailable}
           isRequired
+          label="Machine type"
+          isDisabled={!isMachineTypeSelectorAvailable || !machineType}
+          {...register('configuration.machineType')}
         >
           {machineTypeOptions.map(({ value, title }) => (
             <option key={value} value={value}>

@@ -1,4 +1,4 @@
-import { useQueries } from '@tanstack/react-query';
+import { useQuery } from '@tanstack/react-query';
 import { getAllStackInfoQueryOptions } from '../services/getAllStackInfo';
 import { MachineTypeConfigs, getMachineTypeConfigsQueryOptions } from '../services/getMachineTypeConfigs';
 
@@ -25,49 +25,39 @@ const buildMachineTypeLabel = (machineType: MachineTypeWithKey) => {
   return `${name} ${cpuCount} @ ${cpuDescription} ${ram} (${creditPerMin} credits/min)`;
 };
 
-const useStackAndMachine = (appSlug?: string, selectedStack?: string, isMachineTypeSelectorAvailable = true) => {
-  const {
-    isPending,
-    data: { allStackInfo, machineTypeConfigs },
-  } = useQueries({
-    queries: [
-      { enabled: !!appSlug, ...getAllStackInfoQueryOptions(appSlug || '') },
-      { enabled: !!(appSlug && isMachineTypeSelectorAvailable), ...getMachineTypeConfigsQueryOptions(appSlug || '') },
-    ],
-    combine: (results) =>
-      isMachineTypeSelectorAvailable
-        ? {
-            isPending: results.some((result) => result.isPending),
-            data: { allStackInfo: results[0].data, machineTypeConfigs: results[1].data },
-          }
-        : {
-            isPending: results[0].isPending,
-            data: { allStackInfo: results[0].data },
-          },
+const useStackAndMachine = (appSlug = '', selectedStack?: string, isMachineTypeSelectorAvailable = true) => {
+  const { isPending: isPendingAllStackInfo, data: allStackInfo } = useQuery({
+    enabled: !!appSlug,
+    ...getAllStackInfoQueryOptions(appSlug),
   });
 
-  const stackOptions = Object.entries(allStackInfo?.available_stacks ?? {}).map(([value, { title }]) => {
-    return { value, title };
+  const { isPending: isPendingMachineTypeConfigs, data: machineTypeConfigs } = useQuery({
+    enabled: !!(appSlug && isMachineTypeSelectorAvailable),
+    ...getMachineTypeConfigsQueryOptions(appSlug),
   });
 
+  const isPending = isMachineTypeSelectorAvailable
+    ? isPendingAllStackInfo || isPendingMachineTypeConfigs
+    : isPendingAllStackInfo;
+
+  const availableStacks = allStackInfo?.available_stacks ?? {};
+  const stackOptions = Object.entries(availableStacks).map(([value, { title }]) => ({ value, title }));
   const stack = selectedStack || stackOptions?.[0]?.value || '';
-  const availableMachineTypes = (allStackInfo?.available_stacks?.[stack]?.available_machines ?? [])
-    .map((key) => ({ key, ...findMachineTypeByKey(key, machineTypeConfigs) }))
-    .sort((a, b) => (a?.credit_per_min ?? 0) - (b?.credit_per_min ?? 0));
 
-  const machineTypeOptions = isMachineTypeSelectorAvailable
-    ? availableMachineTypes.map((machineType) => ({
-        name: machineType.name,
-        value: machineType.key,
-        title: buildMachineTypeLabel(machineType),
-      }))
-    : [
-        {
-          name: 'Dedicated Machine',
-          value: '',
-          title: 'Dedicated Machine',
-        },
-      ];
+  const availableMachinesOfStack = allStackInfo?.available_stacks?.[stack]?.available_machines ?? [];
+  const availableMachineTypes = availableMachinesOfStack.map((key) => ({
+    key,
+    ...findMachineTypeByKey(key, machineTypeConfigs),
+  }));
+
+  let machineTypeOptions = [{ name: 'Dedicated Machine', value: '', title: 'Dedicated Machine' }];
+  if (isMachineTypeSelectorAvailable) {
+    machineTypeOptions = availableMachineTypes.map((machineType) => ({
+      value: machineType.key,
+      name: machineType.name || machineType.key,
+      title: buildMachineTypeLabel(machineType),
+    }));
+  }
 
   return {
     isPending,
