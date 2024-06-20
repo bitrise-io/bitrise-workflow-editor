@@ -116,7 +116,7 @@
     "@swc/core": "^1.5.7",
     "@testing-library/dom": "^10.0.0",
     "@testing-library/jest-dom": "^6.4.2",
-    "@testing-library/react": "^15.0.7",
+    "@testing-library/react": "^16.0.0",
     "@testing-library/user-event": "^14.5.2",
     "@types/cypress-cucumber-preprocessor": "^4.0.5",
     "@types/jasmine-ajax": "^3.3.5",
