@@ -4,7 +4,7 @@ import { TabPanel, TabPanels } from '@chakra-ui/react';
 import { useMutation } from '@tanstack/react-query';
 import { monolith } from '../../hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../../models';
-import StepItemBadge from '../StepItem/StepItemBadge';
+import StepBadge from '../StepItem/StepBadge';
 import { EnvironmentVariable } from '../InsertEnvVarPopover/types';
 import EnvVarProvider from '../InsertEnvVarPopover/EnvVarProvider';
 import { Secret } from '../InsertSecretPopover/types';
@@ -94,7 +94,7 @@ const StepConfigPanel = ({
                 <Text size="4" fontWeight="bold" data-e2e-tag="step-title" hasEllipsis>
                   {step.displayName()}
                 </Text>
-                <StepItemBadge
+                <StepBadge
                   isOfficial={step.isOfficial()}
                   isVerified={step.isVerified()}
                   isDeprecated={step.isDeprecated()}
