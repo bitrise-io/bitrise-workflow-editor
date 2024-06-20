@@ -7,7 +7,7 @@ type Props = {
 
 const StepFilter = ({ categories = [] }: Props) => {
   return (
-    <Box>
+    <Box display="flex" flexDir="column" gap="16">
       <Controller
         name="search"
         render={({ field: { ref, onChange, ...rest } }) => (
@@ -19,9 +19,9 @@ const StepFilter = ({ categories = [] }: Props) => {
           />
         )}
       />
-      <Box display="flex" flexWrap="wrap" gap="16">
+      <Box display="flex" flexWrap="wrap" gap="8">
         {categories.map((category) => (
-          <Tag>{category}</Tag>
+          <Tag size="sm">{category}</Tag>
         ))}
       </Box>
     </Box>

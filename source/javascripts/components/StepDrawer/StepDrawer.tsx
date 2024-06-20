@@ -26,7 +26,7 @@ const StepDrawer = ({ isOpen: isInitialOpen }: Props) => {
       <Drawer maxWidth={['100%', '50%']} title="Steps" isOpen={isOpen} onClose={onClose}>
         <Box display="flex" gap="16" flexDir="column">
           <Text textStyle="heading/h3">Add Step</Text>
-          <StepFilter />
+          <StepFilter categories={categories} />
           <StepList categories={categories} steps={steps} />
         </Box>
       </Drawer>
