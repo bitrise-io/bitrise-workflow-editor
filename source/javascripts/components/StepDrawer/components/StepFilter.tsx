@@ -1,16 +1,18 @@
-import { Box, SearchInput, SelectableTag, SelectableTagGroup } from '@bitrise/bitkit';
+import { Box, BoxProps, SearchInput, SelectableTag, SelectableTagGroup } from '@bitrise/bitkit';
 import { Controller } from 'react-hook-form';
 
 import useStepCategories from '../hooks/useStepCategories';
 import { SearchFormValues } from '../StepDrawer.types';
 import { formValueToArray } from '../StepDrawer.utils';
 
-const StepFilter = () => {
-  const { categories } = useStepCategories();
+type Props = BoxProps;
+
+const StepFilter = (props: Props) => {
+  const categories = useStepCategories();
 
   return (
-    <Box display="flex" flexDir="column" gap="16">
-      <Controller<SearchFormValues>
+    <Box display="flex" flexDir="column" gap="16" {...props}>
+      <Controller
         name="search"
         render={({ field: { ref, onChange, ...rest } }) => (
           <SearchInput

@@ -21,6 +21,7 @@ const StepGridCard = ({ icon, title, description, version, isOfficial, isVerifie
             borderWidth="1px"
             borderStyle="solid"
             borderColor="neutral.90"
+            loading="lazy"
           />
           <StepBadge
             position="absolute"

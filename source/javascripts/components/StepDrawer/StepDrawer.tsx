@@ -1,16 +1,23 @@
-import { Box, Drawer, Text, useDisclosure } from '@bitrise/bitkit';
-import { FormProvider, useForm } from 'react-hook-form';
+import { Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import {
+  Drawer,
+  DrawerBody,
+  DrawerCloseButton,
+  DrawerContent,
+  DrawerHeader,
+  DrawerOverlay,
+  UseDisclosureProps,
+} from '@chakra-ui/react';
 
+import { FormProvider, useForm } from 'react-hook-form';
 import { SearchFormValues } from './StepDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
-type Props = {
-  isOpen: boolean;
-};
+type Props = UseDisclosureProps;
 
-const StepDrawer = ({ isOpen: isInitialOpen }: Props) => {
-  const { isOpen, onClose } = useDisclosure({ defaultIsOpen: isInitialOpen });
+const StepDrawer = (props: Props) => {
+  const { isOpen, onClose } = useDisclosure(props);
   const form = useForm<SearchFormValues>({
     defaultValues: {
       search: '',
@@ -20,12 +27,22 @@ const StepDrawer = ({ isOpen: isInitialOpen }: Props) => {
 
   return (
     <FormProvider {...form}>
-      <Drawer maxWidth={['100%', '50%']} title="Steps" isOpen={isOpen} onClose={onClose}>
-        <Box display="flex" gap="16" flexDir="column">
-          <Text textStyle="heading/h3">Add Step</Text>
-          <StepFilter />
-          <StepList />
-        </Box>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose}>
+        <DrawerOverlay />
+        <DrawerContent maxWidth={['100%', '50%']}>
+          <DrawerCloseButton size="md">
+            <Icon name="CloseSmall" />
+          </DrawerCloseButton>
+          <DrawerHeader>
+            <Text as="h3" textStyle="heading/h3">
+              Add Step
+            </Text>
+            <StepFilter my={16} />
+          </DrawerHeader>
+          <DrawerBody overflowY="auto">
+            <StepList />
+          </DrawerBody>
+        </DrawerContent>
       </Drawer>
     </FormProvider>
   );
