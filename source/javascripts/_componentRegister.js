@@ -6,7 +6,7 @@ import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
-import StepBadge from "./components/StepItem/StepBadge";
+import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
