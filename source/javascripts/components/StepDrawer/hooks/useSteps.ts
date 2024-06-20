@@ -11,7 +11,7 @@ export const useSteps = () => {
 export const useCategories = () => {
   const { steps } = useSteps();
   const categories = useMemo(() => {
-    return uniq(steps.flatMap((step) => step.categories));
+    return uniq(steps.flatMap((step) => step.categories)).sort();
   }, [steps]);
   return { categories };
 };
