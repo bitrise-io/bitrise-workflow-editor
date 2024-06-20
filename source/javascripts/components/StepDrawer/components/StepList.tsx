@@ -11,7 +11,7 @@ type Props = {
 };
 
 const StepList = ({ categories = [], steps = [] }: Props) => {
-  const stepByCategories = useMemo(
+  const stepsByCategories = useMemo(
     () =>
       steps.reduce(
         (acc, step) => {
@@ -30,14 +30,18 @@ const StepList = ({ categories = [], steps = [] }: Props) => {
   return (
     <Box display="flex" flexDir="column" gap="16">
       {categories?.map((category) => (
-        <Box key={category}>
-          <Text textStyle="heading/h4" marginBottom="8">
-            {displayCategoryName(category)}
-          </Text>
-          <SimpleGrid columns={[1, 2]} spacing="16">
-            {stepByCategories[category]?.map((step) => <StepCard key={step.id} {...step} />)}
-          </SimpleGrid>
-        </Box>
+        <>
+          {stepsByCategories[category]?.length > 0 && (
+            <Box key={category}>
+              <Text textStyle="heading/h4" marginBottom="8">
+                {displayCategoryName(category)}
+              </Text>
+              <SimpleGrid columns={[1, 2]} spacing="16">
+                {stepsByCategories[category]?.map((step) => <StepCard key={step.id} {...step} />)}
+              </SimpleGrid>
+            </Box>
+          )}
+        </>
       ))}
     </Box>
   );
