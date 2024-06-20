@@ -36,6 +36,8 @@ import { safeDigest } from "../services/react-compat";
 				"gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
 			};
 
+			var m1ToM2AnnouncementUrl = 'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
+
 			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {
 				var stackMachineTypes = _.filter(MachineType.all, function(machineType) {
 					if (machineType.availableOnStacks) {
@@ -189,6 +191,8 @@ import { safeDigest } from "../services/react-compat";
 				if (currentDate < startDate) {
 					return {
 						message: "Upgrading to faster M2 Pro, applying the same credit multiplier. M1 Mac mini machines will be deprecated and your Workflows will automatically run on M2 Pro machines from the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
+						linkUrl: m1ToM2AnnouncementUrl,
+						linkLabel: 'Read announcement.',
 					}
 				} else if (currentDate >= startDate && currentDate <= endDate) {
 					return {
@@ -199,6 +203,8 @@ import { safeDigest } from "../services/react-compat";
 				} else if (currentDate > endDate) {
 					return {
 						message: "Your Workflows are now running on faster M2 Pro, applying the same credit multiplier. If you’d like to keep using the deprecated M1 Mac mini machines, reach out to support.",
+						linkUrl: m1ToM2AnnouncementUrl,
+						linkLabel: 'Read announcement.',
 					}
 				}
 			}
