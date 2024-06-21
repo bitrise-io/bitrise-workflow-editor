@@ -1,4 +1,4 @@
-import { BitriseYml } from './PipelinesPage.types';
+import { BitriseYml } from '../../models/BitriseYml';
 
 export const mockYml: BitriseYml = {
   format_version: '13',

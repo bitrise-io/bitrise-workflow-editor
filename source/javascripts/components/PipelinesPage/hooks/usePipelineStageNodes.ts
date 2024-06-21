@@ -1,6 +1,6 @@
 import { Node, Position } from 'reactflow';
-import { Stage } from '../PipelinesPage.types';
 import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
+import { Stage } from '../../../models/BitriseYml';
 import usePipelineStages from './usePipelineStages';
 
 const commonNodeProps: Partial<Node> = {

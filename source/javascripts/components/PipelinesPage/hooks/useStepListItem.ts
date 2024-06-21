@@ -1,7 +1,8 @@
 import semver from 'semver';
+
 import defaultIcon from '../../../../images/step/icon-default.svg';
+import useAlgoliaStep from '../../../hooks/useAlgoliaStep';
 import { isStepLib, normalizeVersion, parseCvs } from '../utils/steps';
-import useSearchStep from './useSearchStep';
 
 type Props = {
   cvs: string;
@@ -18,9 +19,9 @@ type StepCardData = {
   resolvedVersion: string;
 };
 
-const useStepCardData = ({ cvs, title, icon }: Props): StepCardData => {
+const useStepListItem = ({ cvs, title, icon }: Props): StepCardData => {
   const [id = '', version = ''] = parseCvs(cvs);
-  const { data, isLoading } = useSearchStep({
+  const { data, isLoading } = useAlgoliaStep({
     id,
     enabled: isStepLib(cvs),
     attributesToRetrieve: ['id', 'version', 'cvs', 'step.title', 'info.asset_urls', 'step.asset_urls'],
@@ -47,4 +48,4 @@ const useStepCardData = ({ cvs, title, icon }: Props): StepCardData => {
   };
 };
 
-export default useStepCardData;
+export default useStepListItem;

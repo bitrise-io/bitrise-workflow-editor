@@ -1,5 +1,5 @@
 import { useShallow } from 'zustand/react/shallow';
-import { Workflow } from '../PipelinesPage.types';
+import { Workflow } from '../../../models/BitriseYml';
 import useBitriseYmlStore from './useBitriseYmlStore';
 
 type Props = {
