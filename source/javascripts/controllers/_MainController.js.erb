@@ -520,14 +520,13 @@ import { safeDigest } from "../services/react-compat";
 
 				if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
 					viewModel.deferredUserSavedYmlToRepository = $q.defer();
-					$timeout(function() {
-						viewModel.isUpdateYmlInRepositoryModalVisible = true;
-					}, 0);
+					viewModel.deferredUserSavedYmlToRepository.promise.finally(undefined, function(signal) {
+						if (signal === 'open-update-yml-in-repository-dialog') {
+							viewModel.isUpdateYmlInRepositoryModalVisible = true;
+						}
+					});
 				}
 
-				var deferredSavePromise = viewModel.deferredUserSavedYmlToRepository
-					? viewModel.deferredUserSavedYmlToRepository.promise
-					: undefined;
 				var promise = $q
 					.all([
 						$q(function(resolve, reject) {
@@ -538,7 +537,7 @@ import { safeDigest } from "../services/react-compat";
 								case "licenses":
 									viewModel.dataToSave = appService.appConfig;
 									return appService
-										.saveAppConfig(deferredSavePromise, viewModel.currentMenu.id)
+										.saveAppConfig(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
 										.then(function() {
 											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
 												? reloadAppConfig()
@@ -551,55 +550,55 @@ import { safeDigest } from "../services/react-compat";
 									viewModel.dataToSave = appService.appConfig;
 									var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
 
-									return appService
-										.saveStackAndDockerImage(deferredSavePromise, viewModel.currentMenu.id)
-										.then(function() {
+								return appService
+									.saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
+									.then(function() {
 
-											if (machineTypeUpdated) {
-												const event = "Machine Type Changed - Stacks & Machines Tab";
-												window.analytics && window.analytics.track(event, {
-													machine_type_id: viewModel.dataToSave.meta["bitrise.io"].machine_type_id,
-													user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
-													organization_slug: appService.appDetails.ownerData.type === "Organization" ? appService.appDetails.ownerData.slug : undefined
-												});
-											}
+										if (machineTypeUpdated) {
+											const event = "Machine Type Changed - Stacks & Machines Tab";
+											window.analytics && window.analytics.track(event, {
+												machine_type_id: viewModel.dataToSave.meta["bitrise.io"].machine_type_id,
+												user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
+												organization_slug: appService.appDetails.ownerData.type === "Organization" ? appService.appDetails.ownerData.slug : undefined
+											});
+										}
 
-											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-												? reloadStack()
-												: $q.when();
-										})
-										.then(resolve, reject);
-								case "yml":
-									viewModel.dataToSave = appService.appConfigYML;
-									return appService
-										.saveAppConfigYML(deferredSavePromise)
-										.then(function() {
-											return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-												? reloadAppConfigYML()
-												: $q.when();
-										})
-										.then(resolve, reject);
-							}
-						}),
-						$timeout(function() {
-						}, dateService.defaultSaveDelayDurationInMilliseconds)
-					])
-					.then(
-						function() {
-							viewModel.saveProgress.reset();
-							$rootScope.$emit("MainController::savedFinishedWithSuccess");
-							updateLastWorkflowMetadata();
-						},
-						function(error) {
-							viewModel.saveProgress.reset();
-							$rootScope.$emit("MainController::savedFinishedWithError");
-							Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
-
-							if (shouldReturnPromise) {
-								return $q.reject(error);
-							}
+										return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+											? reloadStack()
+											: $q.when();
+									})
+									.then(resolve, reject);
+							case "yml":
+								viewModel.dataToSave = appService.appConfigYML;
+								return appService
+									.saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
+									.then(function() {
+										return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+											? reloadAppConfigYML()
+											: $q.when();
+									})
+									.then(resolve, reject);
 						}
-					);
+					}),
+					$timeout(function() {
+					}, dateService.defaultSaveDelayDurationInMilliseconds)
+				])
+				.then(
+					function() {
+						viewModel.saveProgress.reset();
+						$rootScope.$emit("MainController::savedFinishedWithSuccess");
+						updateLastWorkflowMetadata();
+					},
+					function(error) {
+						viewModel.saveProgress.reset();
+						$rootScope.$emit("MainController::savedFinishedWithError");
+						Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+
+						if (shouldReturnPromise) {
+							return $q.reject(error);
+						}
+					}
+				);
 
 				if (shouldReturnPromise) {
 					return promise;
