@@ -1,11 +1,11 @@
 import { Box, SearchInput, Tag } from '@bitrise/bitkit';
 import { Controller } from 'react-hook-form';
 
-type Props = {
-  categories?: string[];
-};
+import useStepCategories from '../hooks/useStepCategories';
 
-const StepFilter = ({ categories = [] }: Props) => {
+const StepFilter = () => {
+  const { categories } = useStepCategories();
+
   return (
     <Box display="flex" flexDir="column" gap="16">
       <Controller
@@ -21,7 +21,9 @@ const StepFilter = ({ categories = [] }: Props) => {
       />
       <Box display="flex" flexWrap="wrap" gap="8">
         {categories.map((category) => (
-          <Tag size="sm">{category}</Tag>
+          <Tag key={category} size="sm">
+            {category}
+          </Tag>
         ))}
       </Box>
     </Box>

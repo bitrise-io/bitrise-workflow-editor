@@ -1,47 +1,21 @@
 import { useMemo } from 'react';
-import { Box, Text } from '@bitrise/bitkit';
-import { SimpleGrid } from '@chakra-ui/react';
-import { Step } from '../StepDrawer.types';
-import { displayCategoryName } from '../StepDrawer.utils';
-import StepCard from './StepCard';
+import { Box } from '@bitrise/bitkit';
+import { useFormContext } from 'react-hook-form';
 
-type Props = {
-  categories: string[];
-  steps: Step[];
-};
+import { SearchFormValues } from '../StepDrawer.types';
+import { getStepsByCategories } from '../StepDrawer.utils';
+import useSearchSteps from '../hooks/useSearchSteps';
+import StepCategoryGrid from './StepCategoryGrid';
 
-const StepList = ({ categories = [], steps = [] }: Props) => {
-  const stepsByCategories = useMemo(
-    () =>
-      steps.reduce(
-        (acc, step) => {
-          step.categories.forEach((category) => {
-            acc[category] ||= [];
-            acc[category].push(step);
-          });
-
-          return acc;
-        },
-        {} as Record<string, Step[]>,
-      ),
-    [steps],
-  );
+const StepList = () => {
+  const form = useFormContext<SearchFormValues>();
+  const { steps } = useSearchSteps(form.watch());
+  const stepsByCategories = useMemo(() => getStepsByCategories(steps), [steps]);
 
   return (
     <Box display="flex" flexDir="column" gap="16">
-      {categories?.map((category) => (
-        <>
-          {stepsByCategories[category]?.length > 0 && (
-            <Box key={category}>
-              <Text textStyle="heading/h4" marginBottom="8">
-                {displayCategoryName(category)}
-              </Text>
-              <SimpleGrid columns={[1, 2]} spacing="16">
-                {stepsByCategories[category]?.map((step) => <StepCard key={step.id} {...step} />)}
-              </SimpleGrid>
-            </Box>
-          )}
-        </>
+      {Object.entries(stepsByCategories).map(([category, categorySteps]) => (
+        <StepCategoryGrid key={category} category={category} steps={categorySteps} />
       ))}
     </Box>
   );
