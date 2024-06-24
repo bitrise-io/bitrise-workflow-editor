@@ -25,6 +25,7 @@ const AutoGrowableInput = forwardRef(({ errorText, formControlProps, ...props }:
       {...formControlProps}
       display="grid"
       position="relative"
+      alignContent="start"
       isInvalid={!!errorText}
       textStyle="body/md/regular"
       data-replicated-value={value}

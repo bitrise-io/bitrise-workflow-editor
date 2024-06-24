@@ -218,7 +218,7 @@
 				appService.appConfig.trigger_map = updatedTriggerMap;
 			};
 
-			appService.saveAppConfig = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
+			appService.saveAppConfig = function(deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig) {
 				var variables = [];
 				if (appService.appConfig.app && appService.appConfig.app.envs) {
 					var variablesWithoutKeyAndValue = _.filter(
@@ -290,8 +290,10 @@
 
 				return validateVariables(variables)
 					.then(function() {
+						deferredUserSavedYmlToRepository?.notify('open-update-yml-in-repository-dialog');
+
 						return (
-							userSavedYmlToRepositoryPromise ||
+							deferredUserSavedYmlToRepository?.promise ||
 							requestService.postAppConfig(appService.appConfig, tabOpenDuringSave, requestConfig)
 						);
 					})
@@ -418,9 +420,11 @@
 				return !angular.equals(appService.appConfigYML, appService.savedAppConfigYML);
 			};
 
-			appService.saveAppConfigYML = function(userSavedYmlToRepositoryPromise, requestConfig) {
+			appService.saveAppConfigYML = function(deferredUserSavedYmlToRepository, requestConfig) {
+				deferredUserSavedYmlToRepository?.notify('open-update-yml-in-repository-dialog');
+
 				var promise =
-					userSavedYmlToRepositoryPromise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
+				deferredUserSavedYmlToRepository?.promise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
 
 				return promise.then(function(validationData) {
 					trackSavedYMLChanges();
@@ -598,7 +602,7 @@
 				);
 			};
 
-			appService.saveStackAndDockerImage = function(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig) {
+			appService.saveStackAndDockerImage = function(deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig) {
 				if (!appService.appConfig.meta) {
 					appService.appConfig.meta = {};
 				}
@@ -620,7 +624,7 @@
 				}
 
 				return appService
-					.saveAppConfig(userSavedYmlToRepositoryPromise, tabOpenDuringSave, requestConfig)
+					.saveAppConfig(deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig)
 					.then(function() {
 						appService.savedStack = angular.copy(appService.stack);
 						appService.savedDockerImage = appService.dockerImage;
