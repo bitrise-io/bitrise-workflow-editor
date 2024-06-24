@@ -16,3 +16,7 @@ export const getStepsByCategories = (steps: Step[]) => {
     {} as Record<string, Step[]>,
   );
 };
+
+export const formValueToArray = <T>(value: T | T[]): T[] => {
+  return Array.isArray(value) ? value : [value];
+};
