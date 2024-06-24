@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
+import { Pipeline } from '../../../models/BitriseYml';
 import useSearchParams from './useSearchParams';
 import useBitriseYmlStore from './useBitriseYmlStore';
 
@@ -7,7 +8,7 @@ const usePipelineSelector = () => {
   const options = useBitriseYmlStore(
     useShallow(({ yml }) => {
       return Object.fromEntries(
-        Object.entries(yml.pipelines ?? {}).map(([pipelineKey, pipeline]) => {
+        Object.entries<Pipeline>(yml.pipelines ?? {}).map(([pipelineKey, pipeline]) => {
           return [pipelineKey, pipeline.title || pipelineKey];
         }),
       );
@@ -22,7 +23,10 @@ const usePipelineSelector = () => {
 
   const onSelectPipeline = useCallback(
     (key: string) => {
-      setSearchParams((prevSearchParams) => ({ ...prevSearchParams, pipeline: key }));
+      setSearchParams((prevSearchParams) => ({
+        ...prevSearchParams,
+        pipeline: key,
+      }));
     },
     [setSearchParams],
   );

@@ -6,7 +6,7 @@ import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
-import StepItemBadge from "./components/StepItem/StepItemBadge";
+import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
@@ -62,7 +62,7 @@ angular
     "rAddStepItem",
     register(AddStepItem, ["step", "disabled", "onSelected"]),
   )
-  .component("rStepItemBadge", register(StepItemBadge, ["step"]))
+  .component("rStepItemBadge", register(StepBadge, ["step"]))
   .component(
     "rYmlStorageSettings",
     register(YmlStorageSettings, [
@@ -175,7 +175,7 @@ angular
       "onCreateEnvVar",
       "onLoadEnvVars",
       "appSlug",
-      "secretsWriteNew"
+      "secretsWriteNew",
     ]),
   )
   .component(
@@ -201,6 +201,21 @@ angular
       "integrationsUrl",
     ]),
   )
-  .component('rSecretsPage', register(SecretsPage, ['secrets', 'secretsWriteNew', 'onSecretsChange', 'getSecretValue', 'appSlug', 'secretSettingsUrl', 'sharedSecretsAvailable', 'planSelectorPageUrl']))
-  .component('rPipelinesPage', register(PipelinesPage, ['yml', 'defaultMeta']))
-  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['appSlug', 'defaultValues', 'onChange']));
+  .component(
+    "rSecretsPage",
+    register(SecretsPage, [
+      "secrets",
+      "secretsWriteNew",
+      "onSecretsChange",
+      "getSecretValue",
+      "appSlug",
+      "secretSettingsUrl",
+      "sharedSecretsAvailable",
+      "planSelectorPageUrl",
+    ]),
+  )
+  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]))
+  .component(
+    "rWorkflowConfigPanel",
+    register(WorkflowConfigPanel, ["appSlug", "defaultValues", "onChange"]),
+  );

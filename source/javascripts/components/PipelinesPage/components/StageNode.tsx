@@ -1,7 +1,7 @@
 import { Box, Text } from '@bitrise/bitkit';
 import { NodeProps, Position } from 'reactflow';
-import { Stage } from '../PipelinesPage.types';
 import { STAGE_WIDTH } from '../PipelinesPage.const';
+import { Stage } from '../../../models/BitriseYml';
 import InvisibleHandle from './InvisibleHandle';
 import WorkflowCard from './WorkflowCard';
 

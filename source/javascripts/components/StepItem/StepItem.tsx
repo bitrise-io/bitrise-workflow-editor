@@ -2,7 +2,7 @@ import './StepItem.scss';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { Step } from '../../models';
-import StepItemBadge from './StepItemBadge';
+import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
 import StepItemVersion from './StepItemVersion';
@@ -41,11 +41,7 @@ const StepItem = ({
       <span className="info">
         <strong>
           <StepItemTitle displayName={displayName} />
-          <StepItemBadge
-            isOfficial={step.isOfficial()}
-            isVerified={step.isVerified()}
-            isDeprecated={step.isDeprecated()}
-          />
+          <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
         </strong>
         <StepItemVersion
           actualVersion={step.version}
