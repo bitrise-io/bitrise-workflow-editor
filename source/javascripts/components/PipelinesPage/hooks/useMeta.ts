@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
-import { Meta } from '../PipelinesPage.types';
+import { Meta } from '../../../models/BitriseYml';
 import useBitriseYmlStore from './useBitriseYmlStore';
 
 type Props = {

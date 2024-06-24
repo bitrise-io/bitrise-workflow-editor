@@ -2,7 +2,7 @@ import { Box, Icon } from '@bitrise/bitkit';
 
 import { Step } from '../../models';
 import MarkdownText from '../MarkdownText';
-import StepItemBadge from './StepItemBadge';
+import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
 
@@ -34,11 +34,7 @@ const AddStepItem = ({ step, disabled = false, onSelected }: AddStepItemProps): 
           overflow="hidden"
         >
           <StepItemTitle displayName={step.displayName()} style={{ fontWeight: '900', flexShrink: 0 }} />
-          <StepItemBadge
-            isOfficial={step.isOfficial()}
-            isVerified={step.isVerified()}
-            isDeprecated={step.isDeprecated()}
-          />
+          <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
           <MarkdownText className="summary" markdown={step.summary()} />
         </Box>
       </Box>

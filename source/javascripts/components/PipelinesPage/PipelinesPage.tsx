@@ -1,12 +1,11 @@
 import 'reactflow/dist/style.css';
-
 import { Box } from '@bitrise/bitkit';
 import withQueryClientProvider from '../../utils/withQueryClientProvider';
-import { BitriseYml, Meta } from './PipelinesPage.types';
+import { BitriseYml, Meta } from '../../models/BitriseYml';
+import BitriseYmlProvider from '../../contexts/BitriseYmlProvider';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
 import PipelinesEmptyState from './components/PipelinesEmptyState';
-import BitriseYmlProvider from './providers/BitriseYmlProvider';
 
 type Props = {
   yml: BitriseYml;

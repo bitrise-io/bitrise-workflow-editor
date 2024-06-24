@@ -1,5 +1,5 @@
 import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
-import useStepCardData from '../hooks/useStepCardData';
+import useStepListItem from '../hooks/useStepListItem';
 
 type StepCardProps = {
   cvs: string;
@@ -14,7 +14,7 @@ const StepCard = ({ cvs, title, icon, showSecondary = true }: StepCardProps) => 
     icon: resolvedIcon,
     normalizedVersion,
     isLoading,
-  } = useStepCardData({ cvs, title, icon });
+  } = useStepListItem({ cvs, title, icon });
 
   if (isLoading) {
     return (
