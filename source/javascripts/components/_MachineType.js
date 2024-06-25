@@ -71,6 +71,26 @@
 							MachineType.all.push(machineType);
 						});
 					});
+
+					MachineType.all = _.sortBy(MachineType.all, function(machineType) {
+						var categories = ['intel', 'm1', 'm1-max', 'm2', 'other'];
+						var category = 'other';
+						if (machineType.chip === 'intel') {
+							category = 'intel';
+						}
+						else if (machineType.id.includes('m1')) {
+							if (machineType.id.includes('max')) {
+								category = 'm1-max';
+							} else {
+								category = 'm1';
+							}
+						}
+						else if (machineType.id.startsWith('g2.mac.')) {
+							category = 'm2';
+						}
+
+						return [categories.indexOf(category), machineType.creditPerMin];
+					});
 				});
 			};
 
