@@ -5,6 +5,7 @@ export type SearchFormValues = {
 
 export type Step = {
   id: string;
+  cvs: string;
   icon: string;
   title: string;
   summary: string;

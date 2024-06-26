@@ -14,10 +14,12 @@ import { SearchFormValues } from './StepDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
-type Props = UseDisclosureProps;
+type Props = UseDisclosureProps & {
+  onStepSelected: (cvs: string) => void;
+};
 
-const StepDrawer = (props: Props) => {
-  const { isOpen, onClose } = useDisclosure(props);
+const StepDrawer = ({ onStepSelected, ...disclosureProps }: Props) => {
+  const { isOpen, onClose } = useDisclosure(disclosureProps);
   const form = useForm<SearchFormValues>({
     defaultValues: {
       search: '',
@@ -40,7 +42,7 @@ const StepDrawer = (props: Props) => {
             <StepFilter my={16} />
           </DrawerHeader>
           <DrawerBody overflowY="auto">
-            <StepList />
+            <StepList onStepSelected={onStepSelected} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

@@ -7,7 +7,7 @@ import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 import { fromAlgolia, getStepsByCategories } from '../StepDrawer.utils';
 import { AlgoliaStepResponse } from '../../../models/Algolia';
 
-const AttributesToRetrieve = [
+const ATTRIBUTES_TO_RETRIEVE = [
   'id',
   'cvs',
   'info',
@@ -21,27 +21,23 @@ const AttributesToRetrieve = [
   'step.type_tags',
 ];
 
-const useSearchSteps = ({ search = '', categories = [] }: SearchFormValues) => {
+const useSearchSteps = ({ search, categories }: SearchFormValues) => {
   const {
     data: steps = [],
     isLoading,
     isError,
   } = useAlgoliaSteps({
-    attributesToRetrieve: AttributesToRetrieve,
+    attributesToRetrieve: ATTRIBUTES_TO_RETRIEVE,
   });
   const index = useMemo(() => {
     const options = {
       keys: [
-        { name: 'cvs', weight: 1.5 },
+        { name: 'id', weight: 1.5 },
         { name: 'step.title', weight: 2 },
         { name: 'step.summary', weight: 1 },
-        { name: 'step.description', weight: 0.5 },
-        {
-          name: 'step.type_tags',
-          weight: 1,
-          getFn: (item: AlgoliaStepResponse) => item.step?.type_tags?.join(' ') || '',
-        },
+        { name: 'step.type_tags' },
       ],
+      threshold: 0.25,
       ignoreLocation: true,
       useExtendedSearch: true,
     };
@@ -62,7 +58,7 @@ const useSearchSteps = ({ search = '', categories = [] }: SearchFormValues) => {
         const term = search.trim().toLowerCase();
         const exp = {
           $or: [
-            { $path: 'cvs', $val: term },
+            { $path: 'id', $val: term },
             { $path: 'step.title', $val: term },
             { $path: 'step.summary', $val: term },
             { $path: 'step.description', $val: term },
@@ -83,7 +79,13 @@ const useSearchSteps = ({ search = '', categories = [] }: SearchFormValues) => {
       }
 
       if (expressions.length > 0) {
-        items = index.search<AlgoliaStepResponse>({ $and: expressions }).map((result) => result.item);
+        const results = index.search<AlgoliaStepResponse>({
+          $and: expressions,
+        });
+        items = results.map((result) => result.item);
+        results.forEach((result) => {
+          console.log(result.item.id, result.matches);
+        });
       }
 
       const results = items.map(fromAlgolia);

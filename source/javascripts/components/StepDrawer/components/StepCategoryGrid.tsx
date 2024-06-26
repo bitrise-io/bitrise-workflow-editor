@@ -8,8 +8,9 @@ import StepGridCard from './StepGridCard';
 type Props = {
   category: string;
   steps: Step[];
+  onStepSelected: (cvs: string) => void;
 };
-const StepCategoryGrid = ({ category, steps }: Props) => {
+const StepCategoryGrid = ({ category, steps, onStepSelected }: Props) => {
   if (steps.length === 0) {
     return null;
   }
@@ -21,7 +22,7 @@ const StepCategoryGrid = ({ category, steps }: Props) => {
       </Text>
       <SimpleGrid columns={[1, 2]} spacing="16">
         {steps.map((step) => (
-          <StepGridCard key={`${category}/${step.id}`} {...step} />
+          <StepGridCard key={`${category}/${step.id}`} {...step} onClick={() => onStepSelected(step.cvs)} />
         ))}
       </SimpleGrid>
     </Box>

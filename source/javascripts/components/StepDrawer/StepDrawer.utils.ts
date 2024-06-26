@@ -8,6 +8,7 @@ export const displayCategoryName = (category: string) => capitalize(category).re
 export const fromAlgolia = (response: AlgoliaStepResponse): Step => {
   return {
     id: response.id || '',
+    cvs: response.cvs || '',
     icon:
       response.step?.asset_urls?.['icon.svg'] ||
       response.step?.asset_urls?.['icon.png'] ||

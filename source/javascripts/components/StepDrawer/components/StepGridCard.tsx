@@ -4,11 +4,13 @@ import defaultStepIcon from '../../../../images/step/icon-default.svg';
 import StepBadge from '../../StepBadge/StepBadge';
 import { Step } from '../StepDrawer.types';
 
-type Props = Step;
+type Props = Step & {
+  onClick: () => void;
+};
 
-const StepGridCard = ({ icon, title, description, version, isOfficial, isVerified, isDeprecated }: Props) => {
+const StepGridCard = ({ icon, title, description, version, isOfficial, isVerified, isDeprecated, onClick }: Props) => {
   return (
-    <Card variant="outline" position="relative" minW="256px" padding="12" className="group">
+    <Card variant="outline" position="relative" minW="256px" padding="12" className="group" onClick={onClick}>
       <Box display="flex" gap="8">
         <Box position="relative" minW="40px" minH="40px">
           <Image

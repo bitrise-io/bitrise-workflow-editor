@@ -26,7 +26,14 @@ const StepFilter = (props: Props) => {
       <Controller<SearchFormValues>
         name="categories"
         render={({ field: { ref, value, ...rest } }) => (
-          <SelectableTagGroup {...rest} value={formValueToArray(value)} display="flex" flexWrap="wrap" gap="8">
+          <SelectableTagGroup
+            {...rest}
+            value={formValueToArray(value)}
+            display="flex"
+            flexWrap="wrap"
+            columnGap="8"
+            rowGap="16"
+          >
             {categories.map((category) => (
               <SelectableTag key={category} value={category}>
                 {category}

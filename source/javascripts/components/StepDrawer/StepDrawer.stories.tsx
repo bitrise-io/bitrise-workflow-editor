@@ -7,8 +7,9 @@ export default {
   argTypes: {
     defaultIsOpen: { control: 'boolean', type: 'boolean' },
     isOpen: { control: 'boolean', type: 'boolean' },
-    onOpen: { action: 'onOpen' },
-    onClose: { action: 'onClose' },
+    onOpen: { type: 'function' },
+    onClose: { type: 'function' },
+    onStepSelected: { type: 'function' },
   },
   args: {
     defaultIsOpen: true,
@@ -18,17 +19,19 @@ export default {
 export const Uncontrolled: StoryObj = {};
 
 export const Controlled: StoryObj = {
-  render: () => {
-    // eslint-disable-next-line react-hooks/rules-of-hooks
-    const { isOpen, onOpen, onClose } = useDisclosure({
-      defaultIsOpen: true,
-    });
+  decorators: [
+    (Story) => {
+      // eslint-disable-next-line react-hooks/rules-of-hooks
+      const { isOpen, onOpen, onClose } = useDisclosure({
+        defaultIsOpen: true,
+      });
 
-    return (
-      <Box>
-        <Button onClick={onOpen}>Open</Button>
-        <StepDrawer isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
-      </Box>
-    );
-  },
+      return (
+        <Box>
+          <Button onClick={onOpen}>Open</Button>
+          <Story isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
+        </Box>
+      );
+    },
+  ],
 };
