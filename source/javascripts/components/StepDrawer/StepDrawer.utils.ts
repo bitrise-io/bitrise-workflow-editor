@@ -1,7 +1,10 @@
 import capitalize from 'lodash/capitalize';
 import { AlgoliaStepResponse } from '../../models/Algolia';
 import defaultIcon from '../../../images/step/icon-default.svg';
-import { Step } from './StepDrawer.types';
+import { CategoryRowItem, Step, StepsRowItem, VirtualizedListItem } from './StepDrawer.types';
+
+export const isCategoryRow = (item: VirtualizedListItem): item is CategoryRowItem => item.type === 'category';
+export const isStepsRow = (item: VirtualizedListItem): item is StepsRowItem => item.type === 'steps';
 
 export const displayCategoryName = (category: string) => capitalize(category).replace('-', ' ');
 

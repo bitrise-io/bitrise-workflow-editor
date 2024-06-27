@@ -16,3 +16,18 @@ export type Step = {
   isVerified: boolean;
   isDeprecated: boolean;
 };
+
+export type CategoryRowItem = {
+  type: 'category';
+  category: string;
+  rows: number;
+};
+
+export type StepsRowItem = {
+  type: 'steps';
+  row: number;
+  category: string;
+  steps: Step[];
+};
+
+export type VirtualizedListItem = CategoryRowItem | StepsRowItem;
