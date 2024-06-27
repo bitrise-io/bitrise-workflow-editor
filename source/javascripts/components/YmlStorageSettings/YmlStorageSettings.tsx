@@ -41,8 +41,8 @@ const YmlStorageSettings = ({
           Where do you want to store the bitrise.yml file?
         </Text>
         <Text size="2" textColor="neutral.40">
-          Store and manage the bitrise.yml configuration file on either bitrise.io or in your app's repository. Check
-          out the{' '}
+          Store and manage the bitrise.yml configuration file on either bitrise.io or in your project's repository.
+          Check out the{' '}
           <Link
             href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
             colorScheme="purple"
@@ -71,7 +71,7 @@ const YmlStorageSettings = ({
               title="Store in app repository"
               available={repositoryYmlAvailable}
               // eslint-disable-next-line max-len
-              description="The bitrise.yml file is stored in your app's repository and it's versioned and maintained using Git."
+              description="The bitrise.yml file is stored in your project's repository and it's versioned and maintained using Git."
             />
           </Box>
 
