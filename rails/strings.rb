@@ -640,8 +640,8 @@ def strings
                     }
                 },
                 app: {
-                    title: "App Environment Variables",
-                    notification: "App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
+                    title: "Project Environment Variables",
+                    notification: "Project Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
                 },
                 workflow: {
                     title_postfix: "Workflow Environment Variables",
@@ -766,8 +766,8 @@ def strings
                     error_prefix: "Error loading secrets: "
                 },
                 save_app_config: {
-                    default_error: "Error saving app config.",
-                    error_prefix: "Error saving app config: "
+                    default_error: "Error saving CI config.",
+                    error_prefix: "Error saving CI config: "
                 },
                 load_prov_profiles: {
                     default_error: "Error loading provisioning profiles.",
