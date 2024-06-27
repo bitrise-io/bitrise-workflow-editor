@@ -22,6 +22,7 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
     getAppConfigFromRepoFailed,
     getAppConfigFromRepoLoading,
     getAppConfigFromRepo,
+    getAppConfigFromRepoReset,
     appConfigFromRepo,
   } = useGetAppConfigFromRepoCallback(appSlug);
   const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(appSlug, appConfigAsYml(appConfigFromRepo));
@@ -59,9 +60,13 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
   }, [updatePipelineConfigLoading, updatePipelineConfigStatus, copyRepositoryYmlToWebsite]);
 
   useEffect(() => {
-    getAppConfigFromRepo();
+    if (copyRepositoryYmlToWebsite) {
+      getAppConfigFromRepo();
+    } else {
+      getAppConfigFromRepoReset();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [copyRepositoryYmlToWebsite]);
 
   const renderError = (): React.ReactElement => {
     switch (getAppConfigFromRepoStatus) {
