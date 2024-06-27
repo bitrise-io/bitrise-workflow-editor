@@ -178,13 +178,13 @@ const SecretsPage = (props: SecretsPageProps) => {
         Shared Secrets
       </Text>
       <Text textColor="text/secondary" size="2">
-        All apps have access to shared Secrets. If the same Secret is configured at an app level here, it will overwrite
-        the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
+        All projects have access to shared Secrets. If the same Secret is configured at a project level here, it will
+        overwrite the shared resource. {sharedSecretsAvailable || '(Available with the Enterprise plans.)'}
       </Text>
       {sharedSecretsBlock()}
 
       <Text as="h4" textStyle="heading/h4">
-        App level Secrets
+        Project level Secrets
       </Text>
       <Box marginTop="16" marginBottom="24">
         {appSecretList.map((secret) => (
