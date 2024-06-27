@@ -116,7 +116,11 @@ const StoreOnWebsite = ({ appSlug, onCancel, onSuccess }: StoreOnWebsiteProps): 
       {updatePipelineConfigLoading && <CreatingYmlOnWebsiteProgress />}
       {!getAppConfigFromRepoLoading && !updatePipelineConfigLoading && !isFinished && (
         <ButtonGroup spacing="16">
-          <Button variant="primary" onClick={updatePipelineConfig}>
+          <Button
+            variant="primary"
+            onClick={updatePipelineConfig}
+            isDisabled={copyRepositoryYmlToWebsite && (!!getAppConfigFromRepoFailed || getAppConfigFromRepoLoading)}
+          >
             Update settings
           </Button>
           <Button variant="secondary" onClick={onCancel}>
