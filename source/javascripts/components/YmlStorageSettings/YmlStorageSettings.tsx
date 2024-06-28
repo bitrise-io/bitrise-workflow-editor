@@ -68,7 +68,7 @@ const YmlStorageSettings = ({
               onClick={() => setUsesRepositoryYml(true)}
               icon="Branch"
               isActive={usesRepositoryYml}
-              title="Store in app repository"
+              title="Store in project repository"
               available={repositoryYmlAvailable}
               // eslint-disable-next-line max-len
               description="The bitrise.yml file is stored in your project's repository and it's versioned and maintained using Git."
