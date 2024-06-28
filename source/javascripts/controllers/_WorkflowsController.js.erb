@@ -114,8 +114,7 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
           }
         });
 
-        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", true);
-        console.log("enableReactStepDrawer", viewModel.enableReactStepDrawer);
+        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
 
         if (requestService.isWebsiteMode()) {
           loadAppAndUser();
@@ -695,8 +694,6 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
 
       viewModel.addStepSelectedAtIndex = function (index, workflowIndex) {
         viewModel.editWorkflowAtIndex(workflowIndex);
-
-        console.log('opening react drawer...', viewModel.enableReactStepDrawer);
 
         if (viewModel.enableReactStepDrawer) {
           viewModel.openReactStepDrawer(index);
