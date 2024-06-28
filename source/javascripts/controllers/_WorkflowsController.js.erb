@@ -113,8 +113,8 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
             viewModel.openAddWorkflowPopup();
           }
         });
-        
-        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
+
+        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", true);
         console.log("enableReactStepDrawer", viewModel.enableReactStepDrawer);
 
         if (requestService.isWebsiteMode()) {

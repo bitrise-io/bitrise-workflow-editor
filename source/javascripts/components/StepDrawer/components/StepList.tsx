@@ -1,13 +1,13 @@
-import { CSSProperties, useMemo, useRef } from 'react';
-import { Box, Button, EmptyState, useResponsive } from '@bitrise/bitkit';
+import { CSSProperties, useRef } from 'react';
+import { Box, Button, EmptyState, Notification } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
-import useSearchSteps from '../hooks/useSearchSteps';
+import useColumnCount from '../hooks/useColumnCount';
 import useDebouncedFormValues from '../hooks/useDebouncedFormValues';
+import useSearchSteps from '../hooks/useSearchSteps';
 import useVirtualizedItems from '../hooks/useVirtualizedItems';
-import { RowGaps, RowHeights, RowSizes } from '../contants';
 import { SearchFormValues } from '../StepDrawer.types';
-import VirtualizedRow from './VirtualizedRow';
 import SkeletonRows from './SkeletonRows';
+import VirtualizedRow from './VirtualizedRow';
 
 type Props = {
   onStepSelected: (cvs: string) => void;
@@ -15,19 +15,10 @@ type Props = {
 
 const StepList = ({ onStepSelected }: Props) => {
   const parentRef = useRef<HTMLDivElement>(null);
-  const responsive = useResponsive();
-  const columns = useMemo(() => {
-    if (responsive.isWideDesktop) {
-      return 3;
-    }
-    if (responsive.isDesktop) {
-      return 2;
-    }
-    return 1;
-  }, [responsive]);
+  const columns = useColumnCount();
   const { reset } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues();
-  const { data: stepsByCategories = {}, isLoading, isError } = useSearchSteps(formValues);
+  const { data: stepsByCategories = {}, isLoading, isError, refetch } = useSearchSteps(formValues);
   const { items, virtualizer } = useVirtualizedItems({
     containerRef: parentRef,
     stepsByCategories,
@@ -41,7 +32,20 @@ const StepList = ({ onStepSelected }: Props) => {
   }
 
   if (isError) {
-    return <Box>Error...</Box>;
+    return (
+      <Notification
+        action={{
+          label: 'Retry',
+          placement: 'end',
+          onClick: () => {
+            refetch();
+          },
+        }}
+        status="error"
+      >
+        Failed to fetch steps
+      </Notification>
+    );
   }
 
   if (items.length === 0) {
@@ -71,15 +75,9 @@ const StepList = ({ onStepSelected }: Props) => {
             left: 0,
             width: `100%`,
             transform: `translateY(${start}px)`,
-            minHeight: item.type === 'category' ? `${RowSizes.category}px` : `${RowHeights.steps}px`,
-            marginBottom: item.type === 'category' ? `${RowGaps.category}px` : `${RowGaps.steps}px`,
           };
 
-          return (
-            <Box ref={virtualizer.measureElement} key={key}>
-              <VirtualizedRow style={style} columns={columns} item={item} onStepSelected={onStepSelected} />
-            </Box>
-          );
+          return <VirtualizedRow key={key} style={style} item={item} onStepSelected={onStepSelected} />;
         })}
       </Box>
     </Box>

@@ -26,6 +26,7 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
     data: steps = [],
     isLoading,
     isError,
+    refetch,
   } = useAlgoliaSteps({
     attributesToRetrieve: ATTRIBUTES_TO_RETRIEVE,
   });
@@ -98,6 +99,7 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
     data: query.data as Record<string, Step[]>,
     isLoading: isLoading || query.isFetching,
     isError: isError || query.isError,
+    refetch,
   };
 };
 

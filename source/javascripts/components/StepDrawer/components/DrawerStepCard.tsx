@@ -23,18 +23,18 @@ const DrawerStepCard = ({
   return (
     <Card
       as="button"
+      className="group"
       variant="outline"
       position="relative"
       textAlign="left"
       padding="12"
-      {...cardProps}
-      className="group"
-      onClick={onClick}
       _hover={{
         backgroundColor: 'inherit',
         borderColor: 'border.strong',
         boxShadow: 'small',
       }}
+      {...cardProps}
+      onClick={onClick}
     >
       <Box display="flex" gap="8" mb="8">
         <Box position="relative" minW="40px" minH="40px">

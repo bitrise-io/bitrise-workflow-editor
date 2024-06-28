@@ -1,5 +1,4 @@
-// eslint-disable-next-line import/no-extraneous-dependencies
-import { HttpResponse, delay, http } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { GET_ALL_STACK_INFO_PATH } from './services/getAllStackInfo';
 import { GET_MACHINE_TYPE_CONFIGS_PATH } from './services/getMachineTypeConfigs';
 

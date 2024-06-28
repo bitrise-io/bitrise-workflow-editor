@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Box, Button, useDisclosure } from '@bitrise/bitkit';
+import { useDisclosure } from '@bitrise/bitkit';
 import StepDrawer from './StepDrawer';
+import { error, successful } from './hooks/StepDrawer.mswMocks';
 
 export default {
   component: StepDrawer,
@@ -14,11 +15,19 @@ export default {
   args: {
     defaultIsOpen: true,
   },
+  parameters: {
+    msw: {
+      handlers: [successful],
+    },
+  },
 } as Meta<typeof StepDrawer>;
 
 export const Uncontrolled: StoryObj = {};
 
 export const Controlled: StoryObj = {
+  args: {
+    isOpen: true,
+  },
   decorators: [
     (Story) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
@@ -26,12 +35,15 @@ export const Controlled: StoryObj = {
         defaultIsOpen: true,
       });
 
-      return (
-        <Box>
-          <Button onClick={onOpen}>Open</Button>
-          <Story isOpen={isOpen} onOpen={onOpen} onClose={onClose} />
-        </Box>
-      );
+      return <Story isOpen={isOpen} onOpen={onOpen} onClose={onClose} />;
     },
   ],
+};
+
+export const Error: StoryObj = {
+  parameters: {
+    msw: {
+      handlers: [error],
+    },
+  },
 };

@@ -1,15 +1,15 @@
 import { RefObject, useCallback, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Step, VirtualizedListItem } from '../StepDrawer.types';
-import { RowSizes } from '../contants';
+import { RowSizes } from '../StepDrawer.contants';
 
 type Props = {
   containerRef: RefObject<HTMLElement>;
   stepsByCategories: Record<string, Step[]>;
-  columns?: number;
+  columns: number;
 };
 
-const useVirtualizedItems = ({ containerRef, stepsByCategories, columns = 2 }: Props) => {
+const useVirtualizedItems = ({ containerRef, stepsByCategories, columns }: Props) => {
   const { items, count } = useMemo(() => {
     let virtualItemCount = 0;
     const virtualItems = Object.entries(stepsByCategories)
