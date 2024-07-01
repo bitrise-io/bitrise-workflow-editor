@@ -114,7 +114,7 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
           }
         });
 
-        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
+        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", true);
 
         if (requestService.isWebsiteMode()) {
           loadAppAndUser();
@@ -726,14 +726,16 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         safeDigest($scope);
       }
 
-      viewModel.handleInsertStepAtIndexFromReact = function (cvs) {
-        if (!viewModel.newStepDrawerAddStepIndex || !cvs) {
+      viewModel.handleInsertStepAtIndexFromReact = function (step) {
+        if (!viewModel.newStepDrawerAddStepIndex || !step.id || !step.cvs) {
           return;
         }
 
         const insertIndex = viewModel.newStepDrawerAddStepIndex;
-        const step = stepSourceService.stepFromCVS(cvs);
-        insertStepAtIndexCallback(step, insertIndex);
+        stepSourceService.loadStepVersions(step.id).then(function () {
+          var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
+          insertStepAtIndexCallback(stepToAdd, insertIndex);
+        });
 
         viewModel.closeReactStepDrawer();
         safeDigest($scope);
@@ -1181,7 +1183,7 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
       function transformEditedWorkflowForReact() {
         if (viewModel.editedWorkflow) {
           const stack = viewModel.editedWorkflow.stack() || appService.stack;
-          const machineType = viewModel.editedWorkflow.machineType(stack.type, undefined, MachineType.all) || appService.defaultMachineType;
+          const machineType = viewModel.editedWorkflow.machineType(stack?.type, undefined, MachineType.all) || appService.defaultMachineType;
 
           viewModel.editedWorkflowConfigForReact = {
             workflowId: viewModel.editedWorkflow.id,

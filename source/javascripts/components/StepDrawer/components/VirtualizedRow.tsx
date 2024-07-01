@@ -2,14 +2,14 @@ import { CSSProperties } from 'react';
 import { SimpleGrid } from '@chakra-ui/react';
 import { Text } from '@bitrise/bitkit';
 import { displayCategoryName, isCategoryRow, isStepsRow } from '../StepDrawer.utils';
-import { VirtualizedListItem } from '../StepDrawer.types';
+import { StepSelected, VirtualizedListItem } from '../StepDrawer.types';
 import { ColumnValues, RowGaps, RowHeights, RowSizes } from '../StepDrawer.constants';
 import DrawerStepCard from './DrawerStepCard';
 
 type VirtualizedRowProps = {
   item: VirtualizedListItem;
   style?: CSSProperties;
-  onStepSelected: (cvs: string) => void;
+  onStepSelected: StepSelected;
 };
 
 const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProps) => {
@@ -36,7 +36,7 @@ const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProp
             key={`${item.category}/${step.id}`}
             {...step}
             cardProps={{ minH: `${RowHeights.steps}px` }}
-            onClick={() => onStepSelected(step.cvs)}
+            onClick={() => onStepSelected(step)}
           />
         ))}
       </SimpleGrid>
