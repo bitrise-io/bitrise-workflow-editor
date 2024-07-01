@@ -7,6 +7,7 @@ export interface FetchResponse {
   getAppConfigFromRepoLoading: boolean;
   getAppConfigFromRepoFailed: MonolithError | undefined;
   getAppConfigFromRepo: () => void;
+  getAppConfigFromRepoReset: () => void;
 }
 
 export default function useGetAppConfigFromRepoCallback(appSlug: string): FetchResponse {
@@ -16,6 +17,7 @@ export default function useGetAppConfigFromRepoCallback(appSlug: string): FetchR
     failed: getAppConfigFromRepoFailed,
     call: getAppConfigFromRepo,
     result: appConfigFromRepo,
+    reset: getAppConfigFromRepoReset,
   } = useMonolithApiCallback<AppConfig>(`/api/app/${appSlug}/config?is_force_from_repo=1`);
 
   return {
@@ -24,5 +26,6 @@ export default function useGetAppConfigFromRepoCallback(appSlug: string): FetchR
     getAppConfigFromRepoFailed,
     getAppConfigFromRepo,
     appConfigFromRepo,
+    getAppConfigFromRepoReset,
   };
 }

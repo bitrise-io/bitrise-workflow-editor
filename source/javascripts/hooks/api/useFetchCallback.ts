@@ -8,6 +8,7 @@ export interface FetchResponse<T, E> {
   loading: boolean;
   failed: E | undefined;
   call: (options?: RequestInit) => void;
+  reset: () => void;
 }
 
 type ResponseParser = (data: string) => any;
@@ -81,7 +82,14 @@ function useFetchCallback<T, E>(
     [url, init, throwError, parser],
   );
 
-  return { result, statusCode, loading, failed, call };
+  const reset = () => {
+    setStatusCode(undefined);
+    setFailed(undefined);
+    setLoading(false);
+    setResult(undefined);
+  };
+
+  return { result, statusCode, loading, failed, call, reset };
 }
 
 export default useFetchCallback;
