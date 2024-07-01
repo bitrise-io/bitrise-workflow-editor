@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import { useResponsive } from '@bitrise/bitkit';
-import { Columns } from '../StepDrawer.contants';
+import { Columns } from '../StepDrawer.constants';
 
 const useColumnCount = (): number => {
   const responsive = useResponsive();

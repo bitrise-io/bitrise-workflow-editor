@@ -1,6 +1,6 @@
 import { Box, Card, Skeleton, SkeletonBox } from '@bitrise/bitkit';
 import { SimpleGrid } from '@chakra-ui/react';
-import { ColumnValues, RowGaps, RowHeights } from '../StepDrawer.contants';
+import { ColumnValues, RowGaps, RowHeights } from '../StepDrawer.constants';
 
 const SkeletonCard = () => (
   <Card variant="outline" padding="12" minH={RowHeights.steps}>

@@ -1,7 +1,7 @@
 import { RefObject, useCallback, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Step, VirtualizedListItem } from '../StepDrawer.types';
-import { RowSizes } from '../StepDrawer.contants';
+import { RowSizes } from '../StepDrawer.constants';
 
 type Props = {
   containerRef: RefObject<HTMLElement>;

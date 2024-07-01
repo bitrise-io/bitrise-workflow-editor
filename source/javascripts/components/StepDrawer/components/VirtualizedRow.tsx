@@ -3,7 +3,7 @@ import { SimpleGrid } from '@chakra-ui/react';
 import { Text } from '@bitrise/bitkit';
 import { displayCategoryName, isCategoryRow, isStepsRow } from '../StepDrawer.utils';
 import { VirtualizedListItem } from '../StepDrawer.types';
-import { ColumnValues, RowGaps, RowHeights, RowSizes } from '../StepDrawer.contants';
+import { ColumnValues, RowGaps, RowHeights, RowSizes } from '../StepDrawer.constants';
 import DrawerStepCard from './DrawerStepCard';
 
 type VirtualizedRowProps = {
