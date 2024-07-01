@@ -3,11 +3,11 @@ import uniq from 'lodash/uniq';
 import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 
 const useStepCategories = () => {
-  const stepObjs = useAlgoliaSteps();
-  const categories = useMemo(() => {
-    return uniq(stepObjs.flatMap((obj) => obj.step?.type_tags || [])).sort();
-  }, [stepObjs]);
-  return { categories };
+  const { data: steps = [] } = useAlgoliaSteps({
+    attributesToRetrieve: ['cvs', 'step.type_tags'],
+  });
+
+  return useMemo(() => uniq(steps.flatMap((step) => step.step?.type_tags || [])).sort(), [steps]);
 };
 
 export default useStepCategories;
