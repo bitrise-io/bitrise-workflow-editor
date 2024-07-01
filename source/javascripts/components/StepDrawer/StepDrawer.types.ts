@@ -31,3 +31,5 @@ export type StepsRowItem = {
 };
 
 export type VirtualizedListItem = CategoryRowItem | StepsRowItem;
+
+export type StepSelected = (step: Step) => void;

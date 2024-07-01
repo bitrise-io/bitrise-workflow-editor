@@ -84,9 +84,6 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
           $and: expressions,
         });
         items = results.map((result) => result.item);
-        results.forEach((result) => {
-          console.log(result.item.id, result.matches);
-        });
       }
 
       const results = items.map(fromAlgolia);
