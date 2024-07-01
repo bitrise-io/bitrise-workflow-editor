@@ -131,6 +131,11 @@
         button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
         button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
   add-step-sidebar
+  r-step-drawer[
+    is-open='workflowsCtrl.showReactStepDrawer'
+    on-close='workflowsCtrl.closeReactStepDrawer'
+    on-step-selected='workflowsCtrl.handleInsertStepAtIndexFromReact'
+  ]
   r-version-change-dialog[
     is-open='workflowsCtrl.selectedStepVersionChangeDialogProps'
     on-close='workflowsCtrl.closeReactVersionChangeDialog'

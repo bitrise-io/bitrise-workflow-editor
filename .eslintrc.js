@@ -28,6 +28,7 @@ module.exports = {
           '**/*.stories.tsx',
           '**/*.spec.{ts,tsx}',
           '**/*.mocks.ts',
+          '**/*.mswMocks.ts',
           '**/*.utils.ts',
           '**/*.factory.ts',
           '*rc.js',
@@ -58,7 +59,7 @@ module.exports = {
       },
     },
     {
-      files: ['*.spec.{ts,tsx}', '*.stories.tsx', '*.mocks.ts', '*.factory.ts', '*.utils.ts'],
+      files: ['*.spec.{ts,tsx}', '*.stories.tsx', '*.mocks.ts', '*.mswMocks.ts', '*.factory.ts', '*.utils.ts'],
       rules: {
         '@typescript-eslint/no-non-null-assertion': 'off',
       },

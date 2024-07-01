@@ -1,15 +1,42 @@
-import { Box, Card, Icon, Image, Text } from '@bitrise/bitkit';
+import { Box, Card, CardProps, Icon, Image, Text } from '@bitrise/bitkit';
 
 import defaultStepIcon from '../../../../images/step/icon-default.svg';
 import StepBadge from '../../StepBadge/StepBadge';
 import { Step } from '../StepDrawer.types';
 
-type Props = Step;
+type Props = Step & {
+  cardProps?: CardProps;
+  onClick: () => void;
+};
 
-const StepGridCard = ({ icon, title, description, version, isOfficial, isVerified, isDeprecated }: Props) => {
+const DrawerStepCard = ({
+  icon,
+  title,
+  description,
+  version,
+  isOfficial,
+  isVerified,
+  isDeprecated,
+  onClick,
+  cardProps,
+}: Props) => {
   return (
-    <Card variant="outline" position="relative" minW="256px" padding="12" className="group">
-      <Box display="flex" gap="8">
+    <Card
+      as="button"
+      className="group"
+      variant="outline"
+      position="relative"
+      textAlign="left"
+      padding="12"
+      _hover={{
+        backgroundColor: 'inherit',
+        borderColor: 'border.strong',
+        boxShadow: 'small',
+      }}
+      {...cardProps}
+      onClick={onClick}
+    >
+      <Box display="flex" gap="8" mb="8">
         <Box position="relative" minW="40px" minH="40px">
           <Image
             height="40px"
@@ -21,6 +48,7 @@ const StepGridCard = ({ icon, title, description, version, isOfficial, isVerifie
             borderWidth="1px"
             borderStyle="solid"
             borderColor="neutral.90"
+            loading="lazy"
           />
           <StepBadge
             position="absolute"
@@ -31,8 +59,8 @@ const StepGridCard = ({ icon, title, description, version, isOfficial, isVerifie
             isDeprecated={isDeprecated}
           />
         </Box>
-        <Box w="100%">
-          <Text textStyle="body/lg/semibold" hasEllipsis marginRight="32">
+        <Box overflow="hidden" marginRight="32">
+          <Text textStyle="body/lg/semibold" hasEllipsis>
             {title}
           </Text>
           <Text textStyle="body/md/regular" color="text/secondary">
@@ -40,7 +68,7 @@ const StepGridCard = ({ icon, title, description, version, isOfficial, isVerifie
           </Text>
         </Box>
       </Box>
-      <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+      <Text textStyle="body/sm/regular" noOfLines={2} color="text/secondary">
         {description}
       </Text>
       <Icon
@@ -56,4 +84,4 @@ const StepGridCard = ({ icon, title, description, version, isOfficial, isVerifie
   );
 };
 
-export default StepGridCard;
+export default DrawerStepCard;
