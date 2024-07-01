@@ -18,20 +18,19 @@ const useAlgoliaStep = ({
 }: Props): UseQueryResult<Array<AlgoliaStepResponse>> => {
   const { algoliaStepsClient } = useAlgolia();
 
-  return useQuery({
-    enabled,
+  return useQuery<AlgoliaStepResponse[]>({
     queryKey: [id, latestOnly, attributesToRetrieve] as const,
     queryFn: async ({ queryKey: [_id, _latestOnly, _attributesToRetrieve = ['*']] }) => {
       const results: Array<AlgoliaStepResponse> = [];
-
       await algoliaStepsClient.browseObjects<AlgoliaStepResponse>({
         batch: (batch) => results.push(...batch),
-        attributesToRetrieve: _attributesToRetrieve,
+        attributesToRetrieve: _attributesToRetrieve as string[],
         filters: _latestOnly ? `id:${_id} AND is_latest:true` : `id:${_id}`,
       });
-
       return results;
     },
+    enabled: Boolean(algoliaStepsClient && enabled),
+    staleTime: Infinity,
   });
 };
 

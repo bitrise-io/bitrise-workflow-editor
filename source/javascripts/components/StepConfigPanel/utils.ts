@@ -12,7 +12,7 @@ export const extractStepFields = (step?: Step) => {
 };
 
 export const extractInputNames = (step?: Step) => {
-  if (!step) {
+  if (!step || !step.defaultStepConfig || !step.defaultStepConfig.inputs) {
     return [];
   }
 
@@ -22,7 +22,7 @@ export const extractInputNames = (step?: Step) => {
 };
 
 export const extractReleaseNotesUrl = (step?: Step) => {
-  if (!step) {
+  if (!step || !step.defaultStepConfig) {
     return '';
   }
 
