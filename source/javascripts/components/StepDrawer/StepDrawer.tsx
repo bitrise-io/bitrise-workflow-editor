@@ -10,12 +10,12 @@ import {
 } from '@chakra-ui/react';
 
 import { FormProvider, useForm } from 'react-hook-form';
-import { SearchFormValues } from './StepDrawer.types';
+import { SearchFormValues, StepSelected } from './StepDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
 type Props = UseDisclosureProps & {
-  onStepSelected: (cvs: string) => void;
+  onStepSelected: StepSelected;
 };
 
 const StepDrawer = ({ onStepSelected, ...disclosureProps }: Props) => {

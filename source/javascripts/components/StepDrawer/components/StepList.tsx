@@ -5,12 +5,12 @@ import useColumnCount from '../hooks/useColumnCount';
 import useDebouncedFormValues from '../hooks/useDebouncedFormValues';
 import useSearchSteps from '../hooks/useSearchSteps';
 import useVirtualizedItems from '../hooks/useVirtualizedItems';
-import { SearchFormValues } from '../StepDrawer.types';
+import { SearchFormValues, StepSelected } from '../StepDrawer.types';
 import SkeletonRows from './SkeletonRows';
 import VirtualizedRow from './VirtualizedRow';
 
 type Props = {
-  onStepSelected: (cvs: string) => void;
+  onStepSelected: StepSelected;
 };
 
 const StepList = ({ onStepSelected }: Props) => {
