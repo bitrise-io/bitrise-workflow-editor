@@ -1,0 +1,23 @@
+#!/bin/sh
+. "$(dirname "$0")/_/husky.sh"
+
+# Run TypeScript compiler
+echo "Running TypeScript checks..."
+npx tsc --noEmit
+
+if [ $? -ne 0 ]; then
+  echo "TypeScript checks failed."
+  exit 1
+fi
+
+echo "TypeScript checks passed."
+
+echo "Running ESLint checks..."
+npm run lint
+
+if [ $? -ne 0 ]; then
+  echo "ESLint checks failed."
+  exit 1
+fi
+
+echo "ESLint checks passed."
