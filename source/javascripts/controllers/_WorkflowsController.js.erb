@@ -677,22 +677,19 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
           return;
         }
 
-        viewModel.allowedStepIds = new Set();
+        var allowedStepIds = new Set();
         viewModel.workflows.forEach(function (wf) {
           wf.steps.forEach(function (step) {
-            viewModel.allowedStepIds.add(step.id);
+            if (step.id) {
+              allowedStepIds.add(step.id);
+            }
           });
         });
 
-        viewModel.uniqueStepCount = viewModel.allowedStepIds.size;
+        viewModel.uniqueStepCount = allowedStepIds.size;
         var uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
         var hasReachedLimit = viewModel.uniqueStepCount >= uniqueStepLimit;
-
-        if (hasReachedLimit) {
-          appService.allowedStepIds = viewModel.allowedStepIds;
-        } else {
-          appService.allowedStepIds = undefined;
-        }
+        appService.allowedStepIds = hasReachedLimit ? allowedStepIds : undefined;
       }
 
       viewModel.addStepSelectedAtIndex = function (index, workflowIndex) {
