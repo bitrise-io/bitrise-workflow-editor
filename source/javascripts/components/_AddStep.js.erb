@@ -1,614 +1,615 @@
-import { safeDigest } from "../services/react-compat";
-
-(function() {
-	"use strict";
-
-	angular
-		.module("BitriseWorkflowEditor")
-		.service("addStepService", function(stepSourceService) {
-			var addStepService = {
-				isVisible: false,
-				stepSelected: undefined
-			};
-
-			addStepService.showWithInsertIndex = function(insertIndex, stepSelectedCallback) {
-				this.stepSelected = function(step) {
-					this.isVisible = false;
-
-					stepSourceService.loadStepVersions(step.id).then(function() {
-						var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
-						stepSelectedCallback(stepToAdd, insertIndex);
-					});
-				};
-
-				this.isVisible = true;
-			};
-
-			return addStepService;
-		})
-		.controller("AddStepController", function(
-			$scope,
-			$q,
-			addStepService,
-			requestService,
-			stepSourceService,
-			appService,
-			logger,
-			Progress
-		) {
-			var viewModel = this;
-			var canceler = $q.defer();
-
-			var shouldFilterByProjectTypeDefaultValue = requestService.mode == "website";
-
-			$scope.addStepService = addStepService;
-			$scope.appService = appService;
-
-			viewModel.isDragInProgress = false;
-			viewModel.allStepsHaveBeenLoaded = false;
-
-			var steps;
-			viewModel.categories = [
-				{
-					id: "new_releases",
-					title: "<%= data[:strings][:workflows][:steps][:add][:categories][:new_releases] %>",
-					cssClass: "new-releases",
-					steps: undefined,
-					paginateStepsConfig: {
-						pageCount: undefined,
-						stepsCountPerPage: 2,
-						currentPageIndex: 0,
-						currentOffsetInPage: 0
-					}
-				}
-			];
-			_.each(["test", "deploy", "notification", "utility"], function(aTypeTag) {
-				viewModel.categories.push({
-					id: aTypeTag,
-					title: aTypeTag,
-					cssClass: "type-" + aTypeTag,
-					steps: undefined,
-					paginateStepsConfig: {
-						pageCount: undefined,
-						stepsCountPerPage: 2,
-						currentPageIndex: 0,
-						currentOffsetInPage: 0
-					}
-				});
-			});
-
-			viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
-
-			viewModel.isCategoryMode = true;
-			viewModel.isWindowSizeForcingListMode;
-
-			viewModel.stepFilter = "";
-			viewModel.filteredStepIds = null;
-
-			viewModel.typeFilters;
-			viewModel.selectedTypeFilter = null;
-
-			viewModel.loadProgress = new Progress();
-
-			viewModel.isStepAllowed = function(id) {
-				if(!appService.reachedStepLimit()) {
-					return true;
-				}
-				return Boolean(appService.allowedStepMap[id]);
-			};
-
-			function parseStepsInfo() {
-				_.each(stepSourceService.libraries, function(aLibrary) {
-					steps = steps.concat(
-						_.map(
-							_.omit(aLibrary.latestStepVersions, function(aStepVersion, stepID) {
-								var version = aLibrary.steps[stepID][aStepVersion];
-								return !version || version.isDeprecated();
-							}),
-							function(aStepVersion, stepID) {
-								var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
-
-								if (aLibrary.url != stepSourceService.defaultLibraryURL) {
-									step.libraryURL = aLibrary.url;
-									step.cvs = step.libraryURL + "::" + step.cvs;
-								}
-
-								_.each(step.typeTags(), function(aTypeTag) {
-									if (!_.contains(viewModel.typeFilters, aTypeTag)) {
-										viewModel.typeFilters.push(aTypeTag);
-									}
-								});
-
-								return step;
-							}
-						)
-					);
-				});
-
-				_.each(viewModel.categories, function(aCategory) {
-					switch (aCategory.id) {
-						case "new_releases":
-							aCategory.steps = _.map(
-								_.first(
-									_.sortBy(steps, function(aStep) {
-										return -new Date(aStep.defaultStepConfig.published_at);
-									}),
-									5
-								)
-							);
-
-							break;
-						default:
-							aCategory.steps = _.filter(steps, function(aStep) {
-								return _.contains(aStep.typeTags(), aCategory.id);
-							});
-
-							break;
-					}
-				});
-
-				updatePagination();
-
-				viewModel.loadProgress.success();
-			}
-
-			viewModel.isCategoryModeAllowed = function() {
-				return !viewModel.isWindowSizeForcingListMode && !appService.reachedStepLimit();
-			}
-
-			$scope.$watch(
-				function() {
-					return addStepService.isVisible;
-				},
-				function(isVisible) {
-					if (isVisible === undefined) {
-						return;
-					}
-
-					if (isVisible) {
-						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
-
-						var loadPromises = [];
-
-						if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
-							canceler.resolve();
-							canceler = $q.defer();
-
-							loadPromises.push(
-								stepSourceService.loadLibrariesWithURLs(
-									[stepSourceService.defaultLibraryURL],
-									{
-										timeout: canceler.promise
-									},
-									true
-								)
-							);
-
-							// NOTE: quick fix for step filtering - it seems there is an issue with the Algolia query or service filetring steps by project type (returns 0 steps)
-							// this was originally stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID) when filtering is enabled
-							loadPromises.push(stepSourceService.loadLatestOfficialSteps());
-						}
-
-						steps = [];
-						viewModel.typeFilters = [];
-
-						$q.all(loadPromises).then(parseStepsInfo, function(error) {
-							logger.error(error);
-							viewModel.loadProgress.error(error);
-						}).then(function() {
-							viewModel.allStepsHaveBeenLoaded = true;
-						});
-
-						viewModel.isCategoryMode = false;
-						if (viewModel.isCategoryModeAllowed()) {
-							viewModel.isCategoryMode = true;
-						}
-					} else {
-						viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
-						viewModel.stepFilter = "";
-						viewModel.selectedTypeFilter = null;
-					}
-				}
-			);
-
-			$scope.$watch(
-				function() {
-					return viewModel.isCategoryMode;
-				},
-				function(isCategoryMode) {
-					viewModel.selectedTypeFilter = null;
-
-					if (isCategoryMode) {
-						viewModel.stepFilter = "";
-
-						_.each(viewModel.categories, function(aCategory) {
-							aCategory.paginateStepsConfig.currentPageIndex = 0;
-							aCategory.paginateStepsConfig.currentOffsetInPage = 0;
-						});
-					} else {
-						viewModel.filteredStepIds = null;
-					}
-				}
-			);
-
-			$scope.$watch(function() {
-				return viewModel.stepFilter;
-			}, function(newStepFilter, oldStepFilter) {
-				if (oldStepFilter === "" && newStepFilter !== "") {
-					viewModel.isCategoryMode = false;
-				}
-				if (newStepFilter) {
-					stepSourceService
-						.searchOfficialSteps(newStepFilter)
-						.then(function(stepIds) {
-							viewModel.filteredStepIds = stepIds;
-							safeDigest($scope);
-						})
-						.catch(function(error) {
-							logger.error(error);
-							viewModel.loadProgress.error(error);
-						});
-				} else {
-					viewModel.filteredStepIds = null;
-				}
-			});
-
-			$scope.$watch(
-				function() {
-					return viewModel.shouldFilterByProjectType;
-				},
-				function(shouldFilterByProjectType) {
-					if (!shouldFilterByProjectType && !viewModel.allStepsHaveBeenLoaded) {
-						steps = [];
-						viewModel.typeFilters = [];
-						viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
-						stepSourceService
-							.loadLatestOfficialSteps()
-							.then(parseStepsInfo)
-							.then(function() {
-								viewModel.allStepsHaveBeenLoaded = true;
-								safeDigest($scope);
-							});
-					} else {
-						updatePagination();
-					}
-				}
-			);
-
-			function updatePagination() {
-				_.each(viewModel.categories, function(aCategory) {
-					aCategory.paginateStepsConfig.pageCount = aCategory.steps
-						? Math.ceil(
-								viewModel.filteredSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage
-							)
-						: undefined;
-					aCategory.paginateStepsConfig.currentPageIndex = 0;
-					aCategory.paginateStepsConfig.currentOffsetInPage = 0;
-				});
-			}
-
-			viewModel.filteredSteps = function(_steps) {
-				if (_steps === undefined) {
-					_steps = steps;
-				}
-				var filteredSteps = _steps;
-
-				if (viewModel.shouldFilterByProjectType) {
-					filteredSteps = _.filter(filteredSteps, function(aStep) {
-						return (
-							!aStep.projectTypeTags() ||
-							aStep.projectTypeTags().length == 0 ||
-							_.contains(aStep.projectTypeTags(), appService.appDetails.projectTypeID)
-						);
-					});
-				}
-
-				if (!viewModel.isCategoryMode) {
-					if (viewModel.selectedTypeFilter) {
-						filteredSteps = _.filter(filteredSteps, function(aStep) {
-							return _.contains(aStep.typeTags(), viewModel.selectedTypeFilter);
-						});
-					}
-
-					if (viewModel.filteredStepIds) {
-						filteredSteps = _.filter(filteredSteps, function(aStep) {
-							return viewModel.filteredStepIds.includes(aStep.id);
-						});
-					}
-				}
-
-				if(appService.reachedStepLimit()) {
-					return _.sortBy(filteredSteps, function(item) {
-						if(appService.allowedStepMap[item.id]) {
-							return 0;
-						} else {
-							return 1;
-						}
-					})
-				}
-
-				return filteredSteps;
-			};
-
-			viewModel.filteredTypeFilters = function() {
-				return _.filter(viewModel.typeFilters, function(aTypeFilter) {
-					return _.any(viewModel.filteredSteps(), function(aStep) {
-						return _.contains(aStep.typeTags(), aTypeFilter);
-					});
-				});
-			};
-
-			viewModel.stepSelected = function(step) {
-				if (viewModel.isDragInProgress) {
-					return;
-				}
-
-				addStepService.stepSelected(step);
-			};
-
-			viewModel.navigateToAllCategories = function() {
-				viewModel.shouldFilterByProjectType = false;
-			};
-
-			viewModel.getStackNameByProjectType = function(projectType) {
-				switch (projectType) {
-								case "ios":
-									return "iOS";
-								case "osx":
-									return "OSX";
-								case "macos":
-									return "MacOS";
-								case "android":
-									return "Android";
-								case "xamarin":
-									return "Xamarin";
-								case "cordova":
-									return "Cordova";
-								case "ionic":
-									return "Ionic";
-								case "react-native":
-									return "React Native";
-								case "flutter":
-									return "Flutter";
-								case "other":
-									return "Other";
-								default:
-									return projectType;
-							}
-			};
-
-			viewModel.paginateSelected = function(category, direction) {
-				if (direction == "left") {
-					if (category.paginateStepsConfig.currentOffsetInPage > 0) {
-						category.paginateStepsConfig.currentOffsetInPage = 0;
-					} else {
-						category.paginateStepsConfig.currentPageIndex--;
-					}
-				} else if (direction == "right") {
-					category.paginateStepsConfig.currentPageIndex++;
-					if (category.paginateStepsConfig.currentOffsetInPage > 0) {
-						category.paginateStepsConfig.currentOffsetInPage = 0;
-					}
-				}
-			};
-
-			viewModel.isStepVisible = function(step, category) {
-				if (!viewModel.isCategoryMode) {
-					return undefined;
-				}
-
-				var stepIndex = _.indexOf(category.steps, step);
-
-				return (
-					stepIndex <
-						category.paginateStepsConfig.stepsCountPerPage * category.paginateStepsConfig.currentPageIndex +
-							category.paginateStepsConfig.currentOffsetInPage ||
-					stepIndex >=
-						category.paginateStepsConfig.stepsCountPerPage * (category.paginateStepsConfig.currentPageIndex + 1) +
-							category.paginateStepsConfig.currentOffsetInPage
-				);
-			};
-		})
-		.directive("addStepSidebar", function($parse, $document, $timeout, addStepService) {
-			return {
-				restrict: "E",
-				replace: true,
-				templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar] )%>",
-				link: function(scope, element, attrs) {
-					function keyupHandler(event) {
-						if (event.keyCode != 27) {
-							return;
-						}
-
-						addStepService.isVisible = false;
-						safeDigest(scope);
-					}
-
-					scope.$watch(
-						function() {
-							return addStepService.isVisible;
-						},
-						function(isVisible) {
-							if (isVisible === undefined) {
-								return;
-							}
-
-							if (isVisible) {
-								angular.element($document).bind("keyup", keyupHandler);
-								windowSizeHandler();
-								$(window).bind("resize", windowSizeHandler);
-
-								$timeout(function() {
-									element.find("#add-step-sidebar-step-filter-input").focus();
-								}, 10);
-							} else {
-								angular.element($document).unbind("keyup", keyupHandler);
-								$(window).unbind("resize", windowSizeHandler);
-							}
-						}
-					);
-
-					function windowSizeHandler() {
-						var contentElement = _.first(element.children(".content"));
-						var isWindowSizeTooSmallForCategoryMode = $(contentElement).width() < 600;
-
-						$parse(attrs.forceListModeFlag).assign(scope, isWindowSizeTooSmallForCategoryMode);
-						if (isWindowSizeTooSmallForCategoryMode) {
-							$parse(attrs.isCategoryModeFlag).assign(scope, false);
-						}
-
-						safeDigest(scope);
-					}
-
-					scope.$on("$destroy", function() {
-						$(window).unbind("resize", windowSizeHandler);
-					});
-				}
-			};
-		})
-		.directive("addStepDragger", function($parse, $document, $timeout, addStepService) {
-			return {
-				restrict: "A",
-				link: function(scope, element, attrs) {
-					var paginateStepsConfig = $parse(attrs.paginateStepsConfig)(scope);
-					var latestDragPositionX;
-
-					function mouseDownHandler(event) {
-						element.unbind("mousedown", mouseDownHandler);
-						$document.bind("mousemove", mouseMoveHandler);
-						$document.bind("mouseup", mouseUpHandler);
-
-						latestDragPositionX = event.pageX;
-					}
-
-					function mouseMoveHandler(event) {
-						$parse(attrs.dragInProgressFlag).assign(scope, true);
-
-						var originalScrollPositionX = -parseFloat(element.css("left").replace("px", ""));
-						var scrollPositionX = originalScrollPositionX - (event.pageX - latestDragPositionX);
-						scrollPositionX = Math.max(scrollPositionX, 0);
-						var lastStepElementPositionX = $(_.last(element.children())).position().left;
-						scrollPositionX = Math.min(scrollPositionX, lastStepElementPositionX);
-
-						element.css("left", -scrollPositionX + "px");
-
-						latestDragPositionX = event.pageX;
-					}
-
-					function mouseUpHandler() {
-						$document.unbind("mousemove", mouseMoveHandler);
-						$document.unbind("mouseup", mouseUpHandler);
-
-						if (!$parse(attrs.dragInProgressFlag)(scope)) {
-							return;
-						}
-
-						latestDragPositionX = undefined;
-
-						var stepIndex = 0;
-						var minimumStepElementScrolledPositionX;
-						_.each(element.children(), function(aStepElement, index) {
-							var originalScrollPositionX = -parseFloat(element.css("left").replace("px", ""));
-							var stepElementPositionX = $(aStepElement).position().left;
-							var stepElementScrolledPositionX = stepElementPositionX - originalScrollPositionX;
-
-							if (
-								minimumStepElementScrolledPositionX === undefined ||
-								Math.abs(stepElementScrolledPositionX) < Math.abs(minimumStepElementScrolledPositionX)
-							) {
-								minimumStepElementScrolledPositionX = stepElementScrolledPositionX;
-								stepIndex = index;
-							}
-						});
-
-						scrollToStepWithIndex(stepIndex);
-
-						paginateStepsConfig.currentPageIndex = Math.floor(stepIndex / paginateStepsConfig.stepsCountPerPage);
-						paginateStepsConfig.currentOffsetInPage = stepIndex % paginateStepsConfig.stepsCountPerPage;
-						safeDigest(scope);
-
-						$timeout(function() {
-							$parse(attrs.dragInProgressFlag).assign(scope, false);
-						}, 0);
-					}
-
-					function windowSizeHandler() {
-						if (!addStepService.isVisible) {
-							return;
-						}
-
-						if (element === undefined || element.children().length == 0) {
-							return;
-						}
-
-						scrollToStepWithIndex(
-							paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage +
-								paginateStepsConfig.currentOffsetInPage
-						);
-					}
-
-					function scrollToStepWithIndex(stepIndex) {
-						var scrollPositionX = $(element.children()[stepIndex]).position().left;
-						element.addClass("animated-scroll");
-						element.css("left", -scrollPositionX + "px");
-
-						var transitionDuration;
-						_.any(
-							[
-								"-webkit-transition-duration",
-								"-moz-transition-duration",
-								"-o-transition-duration",
-								"transition-duration"
-							],
-							function(property) {
-								if (element.css(property) === undefined) {
-									return false;
-								}
-
-								var transitionDurations = _.map(element.css(property).split(", "), function(
-									aTransitionDurationPropertyValue
-								) {
-									return parseFloat(aTransitionDurationPropertyValue.replace("s", ""));
-								});
-
-								transitionDuration = Math.max.apply(null, transitionDurations) * 1000;
-
-								return true;
-							}
-						);
-
-						setTimeout(function() {
-							element.removeClass("animated-scroll");
-							element.bind("mousedown", mouseDownHandler);
-						}, transitionDuration);
-					}
-
-					scope.$watch(
-						function() {
-							return (
-								paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage +
-								paginateStepsConfig.currentOffsetInPage
-							);
-						},
-						function(stepIndex) {
-							if (stepIndex === undefined || element === undefined || element.children().length == 0) {
-								return;
-							}
-
-							scrollToStepWithIndex(stepIndex);
-						}
-					);
-
-					element.bind("mousedown", mouseDownHandler);
-					$(window).bind("resize", windowSizeHandler);
-
-					scope.$on("$destroy", function() {
-						element.unbind("mousedown", mouseDownHandler);
-						$document.unbind("mousemove", mouseMoveHandler);
-						$document.unbind("mouseup", mouseUpHandler);
-						$(window).unbind("resize", windowSizeHandler);
-					});
-				}
-			};
-		});
+import {safeDigest} from "../services/react-compat";
+
+(function () {
+  "use strict";
+
+  angular
+    .module("BitriseWorkflowEditor")
+    .service("addStepService", function (stepSourceService) {
+      var addStepService = {
+        isVisible: false,
+        stepSelected: undefined
+      };
+
+      addStepService.showWithInsertIndex = function (insertIndex, stepSelectedCallback) {
+        this.stepSelected = function (step) {
+          this.isVisible = false;
+
+          stepSourceService.loadStepVersions(step.id).then(function () {
+            var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
+            stepSelectedCallback(stepToAdd, insertIndex);
+          });
+        };
+
+        this.isVisible = true;
+      };
+
+      return addStepService;
+    })
+    .controller("AddStepController", function (
+      $scope,
+      $q,
+      addStepService,
+      requestService,
+      stepSourceService,
+      appService,
+      logger,
+      Progress
+    ) {
+      var viewModel = this;
+      var canceler = $q.defer();
+
+      var shouldFilterByProjectTypeDefaultValue = requestService.mode == "website";
+
+      $scope.addStepService = addStepService;
+      $scope.appService = appService;
+
+      viewModel.isDragInProgress = false;
+      viewModel.allStepsHaveBeenLoaded = false;
+
+      var steps;
+      viewModel.categories = [
+        {
+          id: "new_releases",
+          title: "<%= data[:strings][:workflows][:steps][:add][:categories][:new_releases] %>",
+          cssClass: "new-releases",
+          steps: undefined,
+          paginateStepsConfig: {
+            pageCount: undefined,
+            stepsCountPerPage: 2,
+            currentPageIndex: 0,
+            currentOffsetInPage: 0
+          }
+        }
+      ];
+      _.each(["test", "deploy", "notification", "utility"], function (aTypeTag) {
+        viewModel.categories.push({
+          id: aTypeTag,
+          title: aTypeTag,
+          cssClass: "type-" + aTypeTag,
+          steps: undefined,
+          paginateStepsConfig: {
+            pageCount: undefined,
+            stepsCountPerPage: 2,
+            currentPageIndex: 0,
+            currentOffsetInPage: 0
+          }
+        });
+      });
+
+      viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
+
+      viewModel.isCategoryMode = true;
+      viewModel.isWindowSizeForcingListMode;
+
+      viewModel.stepFilter = "";
+      viewModel.filteredStepIds = null;
+
+      viewModel.typeFilters;
+      viewModel.selectedTypeFilter = null;
+
+      viewModel.loadProgress = new Progress();
+
+      viewModel.isStepAllowed = function (id) {
+        if (!appService.reachedStepLimit()) {
+          return true;
+        }
+        return Boolean(appService.allowedStepIds?.has(id));
+      };
+
+      function parseStepsInfo() {
+        _.each(stepSourceService.libraries, function (aLibrary) {
+          steps = steps.concat(
+            _.map(
+              _.omit(aLibrary.latestStepVersions, function (aStepVersion, stepID) {
+                var version = aLibrary.steps[stepID][aStepVersion];
+                return !version || version.isDeprecated();
+              }),
+              function (aStepVersion, stepID) {
+                var step = angular.copy(aLibrary.steps[stepID][aStepVersion]);
+
+                if (aLibrary.url != stepSourceService.defaultLibraryURL) {
+                  step.libraryURL = aLibrary.url;
+                  step.cvs = step.libraryURL + "::" + step.cvs;
+                }
+
+                _.each(step.typeTags(), function (aTypeTag) {
+                  if (!_.contains(viewModel.typeFilters, aTypeTag)) {
+                    viewModel.typeFilters.push(aTypeTag);
+                  }
+                });
+
+                return step;
+              }
+            )
+          );
+        });
+
+        _.each(viewModel.categories, function (aCategory) {
+          switch (aCategory.id) {
+            case "new_releases":
+              aCategory.steps = _.map(
+                _.first(
+                  _.sortBy(steps, function (aStep) {
+                    return -new Date(aStep.defaultStepConfig.published_at);
+                  }),
+                  5
+                )
+              );
+
+              break;
+            default:
+              aCategory.steps = _.filter(steps, function (aStep) {
+                return _.contains(aStep.typeTags(), aCategory.id);
+              });
+
+              break;
+          }
+        });
+
+        updatePagination();
+
+        viewModel.loadProgress.success();
+      }
+
+      viewModel.isCategoryModeAllowed = function () {
+        return !viewModel.isWindowSizeForcingListMode && !appService.reachedStepLimit();
+      }
+
+      $scope.$watch(
+        function () {
+          return addStepService.isVisible;
+        },
+        function (isVisible) {
+          if (isVisible === undefined) {
+            return;
+          }
+
+          if (isVisible) {
+            viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
+
+            var loadPromises = [];
+
+            if (!_.contains(stepSourceService.libraries, stepSourceService.defaultLibraryURL)) {
+              canceler.resolve();
+              canceler = $q.defer();
+
+              loadPromises.push(
+                stepSourceService.loadLibrariesWithURLs(
+                  [stepSourceService.defaultLibraryURL],
+                  {
+                    timeout: canceler.promise
+                  },
+                  true
+                )
+              );
+
+              // NOTE: quick fix for step filtering - it seems there is an issue with the Algolia query or service filetring steps by project type (returns 0 steps)
+              // this was originally stepSourceService.loadLatestOfficialSteps(appService.appDetails.projectTypeID) when filtering is enabled
+              loadPromises.push(stepSourceService.loadLatestOfficialSteps());
+            }
+
+            steps = [];
+            viewModel.typeFilters = [];
+
+            $q.all(loadPromises).then(parseStepsInfo, function (error) {
+              logger.error(error);
+              viewModel.loadProgress.error(error);
+            }).then(function () {
+              viewModel.allStepsHaveBeenLoaded = true;
+            });
+
+            viewModel.isCategoryMode = false;
+            if (viewModel.isCategoryModeAllowed()) {
+              viewModel.isCategoryMode = true;
+            }
+          } else {
+            viewModel.shouldFilterByProjectType = shouldFilterByProjectTypeDefaultValue;
+            viewModel.stepFilter = "";
+            viewModel.selectedTypeFilter = null;
+          }
+        }
+      );
+
+      $scope.$watch(
+        function () {
+          return viewModel.isCategoryMode;
+        },
+        function (isCategoryMode) {
+          viewModel.selectedTypeFilter = null;
+
+          if (isCategoryMode) {
+            viewModel.stepFilter = "";
+
+            _.each(viewModel.categories, function (aCategory) {
+              aCategory.paginateStepsConfig.currentPageIndex = 0;
+              aCategory.paginateStepsConfig.currentOffsetInPage = 0;
+            });
+          } else {
+            viewModel.filteredStepIds = null;
+          }
+        }
+      );
+
+      $scope.$watch(function () {
+        return viewModel.stepFilter;
+      }, function (newStepFilter, oldStepFilter) {
+        if (oldStepFilter === "" && newStepFilter !== "") {
+          viewModel.isCategoryMode = false;
+        }
+        if (newStepFilter) {
+          stepSourceService
+            .searchOfficialSteps(newStepFilter)
+            .then(function (stepIds) {
+              viewModel.filteredStepIds = stepIds;
+              safeDigest($scope);
+            })
+            .catch(function (error) {
+              logger.error(error);
+              viewModel.loadProgress.error(error);
+            });
+        } else {
+          viewModel.filteredStepIds = null;
+        }
+      });
+
+      $scope.$watch(
+        function () {
+          return viewModel.shouldFilterByProjectType;
+        },
+        function (shouldFilterByProjectType) {
+          if (!shouldFilterByProjectType && !viewModel.allStepsHaveBeenLoaded) {
+            steps = [];
+            viewModel.typeFilters = [];
+            viewModel.loadProgress.start("<%= data[:strings][:workflows][:steps][:add][:load][:in_progress] %>");
+            stepSourceService
+              .loadLatestOfficialSteps()
+              .then(parseStepsInfo)
+              .then(function () {
+                viewModel.allStepsHaveBeenLoaded = true;
+                safeDigest($scope);
+              });
+          } else {
+            updatePagination();
+          }
+        }
+      );
+
+      function updatePagination() {
+        _.each(viewModel.categories, function (aCategory) {
+          aCategory.paginateStepsConfig.pageCount = aCategory.steps
+            ? Math.ceil(
+              viewModel.filteredSteps(aCategory.steps).length / aCategory.paginateStepsConfig.stepsCountPerPage
+            )
+            : undefined;
+          aCategory.paginateStepsConfig.currentPageIndex = 0;
+          aCategory.paginateStepsConfig.currentOffsetInPage = 0;
+        });
+      }
+
+      viewModel.filteredSteps = function (_steps) {
+        if (_steps === undefined) {
+          _steps = steps;
+        }
+        var filteredSteps = _steps;
+
+        if (viewModel.shouldFilterByProjectType) {
+          filteredSteps = _.filter(filteredSteps, function (aStep) {
+            return (
+              !aStep.projectTypeTags() ||
+              aStep.projectTypeTags().length == 0 ||
+              _.contains(aStep.projectTypeTags(), appService.appDetails.projectTypeID)
+            );
+          });
+        }
+
+        if (!viewModel.isCategoryMode) {
+          if (viewModel.selectedTypeFilter) {
+            filteredSteps = _.filter(filteredSteps, function (aStep) {
+              return _.contains(aStep.typeTags(), viewModel.selectedTypeFilter);
+            });
+          }
+
+          if (viewModel.filteredStepIds) {
+            filteredSteps = _.filter(filteredSteps, function (aStep) {
+              return viewModel.filteredStepIds.includes(aStep.id);
+            });
+          }
+        }
+
+        if (appService.reachedStepLimit()) {
+          return _.sortBy(filteredSteps, function (item) {
+              if (appService.allowedStepIds?.has(item.id)) {
+                return 0;
+              } else {
+                return 1;
+              }
+            }
+          )
+        }
+
+        return filteredSteps;
+      };
+
+      viewModel.filteredTypeFilters = function () {
+        return _.filter(viewModel.typeFilters, function (aTypeFilter) {
+          return _.any(viewModel.filteredSteps(), function (aStep) {
+            return _.contains(aStep.typeTags(), aTypeFilter);
+          });
+        });
+      };
+
+      viewModel.stepSelected = function (step) {
+        if (viewModel.isDragInProgress) {
+          return;
+        }
+
+        addStepService.stepSelected(step);
+      };
+
+      viewModel.navigateToAllCategories = function () {
+        viewModel.shouldFilterByProjectType = false;
+      };
+
+      viewModel.getStackNameByProjectType = function (projectType) {
+        switch (projectType) {
+          case "ios":
+            return "iOS";
+          case "osx":
+            return "OSX";
+          case "macos":
+            return "MacOS";
+          case "android":
+            return "Android";
+          case "xamarin":
+            return "Xamarin";
+          case "cordova":
+            return "Cordova";
+          case "ionic":
+            return "Ionic";
+          case "react-native":
+            return "React Native";
+          case "flutter":
+            return "Flutter";
+          case "other":
+            return "Other";
+          default:
+            return projectType;
+        }
+      };
+
+      viewModel.paginateSelected = function (category, direction) {
+        if (direction == "left") {
+          if (category.paginateStepsConfig.currentOffsetInPage > 0) {
+            category.paginateStepsConfig.currentOffsetInPage = 0;
+          } else {
+            category.paginateStepsConfig.currentPageIndex--;
+          }
+        } else if (direction == "right") {
+          category.paginateStepsConfig.currentPageIndex++;
+          if (category.paginateStepsConfig.currentOffsetInPage > 0) {
+            category.paginateStepsConfig.currentOffsetInPage = 0;
+          }
+        }
+      };
+
+      viewModel.isStepVisible = function (step, category) {
+        if (!viewModel.isCategoryMode) {
+          return undefined;
+        }
+
+        var stepIndex = _.indexOf(category.steps, step);
+
+        return (
+          stepIndex <
+          category.paginateStepsConfig.stepsCountPerPage * category.paginateStepsConfig.currentPageIndex +
+          category.paginateStepsConfig.currentOffsetInPage ||
+          stepIndex >=
+          category.paginateStepsConfig.stepsCountPerPage * (category.paginateStepsConfig.currentPageIndex + 1) +
+          category.paginateStepsConfig.currentOffsetInPage
+        );
+      };
+    })
+    .directive("addStepSidebar", function ($parse, $document, $timeout, addStepService) {
+      return {
+        restrict: "E",
+        replace: true,
+        templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:add_step_sidebar] )%>",
+        link: function (scope, element, attrs) {
+          function keyupHandler(event) {
+            if (event.keyCode != 27) {
+              return;
+            }
+
+            addStepService.isVisible = false;
+            safeDigest(scope);
+          }
+
+          scope.$watch(
+            function () {
+              return addStepService.isVisible;
+            },
+            function (isVisible) {
+              if (isVisible === undefined) {
+                return;
+              }
+
+              if (isVisible) {
+                angular.element($document).bind("keyup", keyupHandler);
+                windowSizeHandler();
+                $(window).bind("resize", windowSizeHandler);
+
+                $timeout(function () {
+                  element.find("#add-step-sidebar-step-filter-input").focus();
+                }, 10);
+              } else {
+                angular.element($document).unbind("keyup", keyupHandler);
+                $(window).unbind("resize", windowSizeHandler);
+              }
+            }
+          );
+
+          function windowSizeHandler() {
+            var contentElement = _.first(element.children(".content"));
+            var isWindowSizeTooSmallForCategoryMode = $(contentElement).width() < 600;
+
+            $parse(attrs.forceListModeFlag).assign(scope, isWindowSizeTooSmallForCategoryMode);
+            if (isWindowSizeTooSmallForCategoryMode) {
+              $parse(attrs.isCategoryModeFlag).assign(scope, false);
+            }
+
+            safeDigest(scope);
+          }
+
+          scope.$on("$destroy", function () {
+            $(window).unbind("resize", windowSizeHandler);
+          });
+        }
+      };
+    })
+    .directive("addStepDragger", function ($parse, $document, $timeout, addStepService) {
+      return {
+        restrict: "A",
+        link: function (scope, element, attrs) {
+          var paginateStepsConfig = $parse(attrs.paginateStepsConfig)(scope);
+          var latestDragPositionX;
+
+          function mouseDownHandler(event) {
+            element.unbind("mousedown", mouseDownHandler);
+            $document.bind("mousemove", mouseMoveHandler);
+            $document.bind("mouseup", mouseUpHandler);
+
+            latestDragPositionX = event.pageX;
+          }
+
+          function mouseMoveHandler(event) {
+            $parse(attrs.dragInProgressFlag).assign(scope, true);
+
+            var originalScrollPositionX = -parseFloat(element.css("left").replace("px", ""));
+            var scrollPositionX = originalScrollPositionX - (event.pageX - latestDragPositionX);
+            scrollPositionX = Math.max(scrollPositionX, 0);
+            var lastStepElementPositionX = $(_.last(element.children())).position().left;
+            scrollPositionX = Math.min(scrollPositionX, lastStepElementPositionX);
+
+            element.css("left", -scrollPositionX + "px");
+
+            latestDragPositionX = event.pageX;
+          }
+
+          function mouseUpHandler() {
+            $document.unbind("mousemove", mouseMoveHandler);
+            $document.unbind("mouseup", mouseUpHandler);
+
+            if (!$parse(attrs.dragInProgressFlag)(scope)) {
+              return;
+            }
+
+            latestDragPositionX = undefined;
+
+            var stepIndex = 0;
+            var minimumStepElementScrolledPositionX;
+            _.each(element.children(), function (aStepElement, index) {
+              var originalScrollPositionX = -parseFloat(element.css("left").replace("px", ""));
+              var stepElementPositionX = $(aStepElement).position().left;
+              var stepElementScrolledPositionX = stepElementPositionX - originalScrollPositionX;
+
+              if (
+                minimumStepElementScrolledPositionX === undefined ||
+                Math.abs(stepElementScrolledPositionX) < Math.abs(minimumStepElementScrolledPositionX)
+              ) {
+                minimumStepElementScrolledPositionX = stepElementScrolledPositionX;
+                stepIndex = index;
+              }
+            });
+
+            scrollToStepWithIndex(stepIndex);
+
+            paginateStepsConfig.currentPageIndex = Math.floor(stepIndex / paginateStepsConfig.stepsCountPerPage);
+            paginateStepsConfig.currentOffsetInPage = stepIndex % paginateStepsConfig.stepsCountPerPage;
+            safeDigest(scope);
+
+            $timeout(function () {
+              $parse(attrs.dragInProgressFlag).assign(scope, false);
+            }, 0);
+          }
+
+          function windowSizeHandler() {
+            if (!addStepService.isVisible) {
+              return;
+            }
+
+            if (element === undefined || element.children().length == 0) {
+              return;
+            }
+
+            scrollToStepWithIndex(
+              paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage +
+              paginateStepsConfig.currentOffsetInPage
+            );
+          }
+
+          function scrollToStepWithIndex(stepIndex) {
+            var scrollPositionX = $(element.children()[stepIndex]).position().left;
+            element.addClass("animated-scroll");
+            element.css("left", -scrollPositionX + "px");
+
+            var transitionDuration;
+            _.any(
+              [
+                "-webkit-transition-duration",
+                "-moz-transition-duration",
+                "-o-transition-duration",
+                "transition-duration"
+              ],
+              function (property) {
+                if (element.css(property) === undefined) {
+                  return false;
+                }
+
+                var transitionDurations = _.map(element.css(property).split(", "), function (
+                  aTransitionDurationPropertyValue
+                ) {
+                  return parseFloat(aTransitionDurationPropertyValue.replace("s", ""));
+                });
+
+                transitionDuration = Math.max.apply(null, transitionDurations) * 1000;
+
+                return true;
+              }
+            );
+
+            setTimeout(function () {
+              element.removeClass("animated-scroll");
+              element.bind("mousedown", mouseDownHandler);
+            }, transitionDuration);
+          }
+
+          scope.$watch(
+            function () {
+              return (
+                paginateStepsConfig.currentPageIndex * paginateStepsConfig.stepsCountPerPage +
+                paginateStepsConfig.currentOffsetInPage
+              );
+            },
+            function (stepIndex) {
+              if (stepIndex === undefined || element === undefined || element.children().length == 0) {
+                return;
+              }
+
+              scrollToStepWithIndex(stepIndex);
+            }
+          );
+
+          element.bind("mousedown", mouseDownHandler);
+          $(window).bind("resize", windowSizeHandler);
+
+          scope.$on("$destroy", function () {
+            element.unbind("mousedown", mouseDownHandler);
+            $document.unbind("mousemove", mouseMoveHandler);
+            $document.unbind("mouseup", mouseUpHandler);
+            $(window).unbind("resize", windowSizeHandler);
+          });
+        }
+      };
+    });
 })();

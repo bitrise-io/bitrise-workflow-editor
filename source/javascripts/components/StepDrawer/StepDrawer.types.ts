@@ -15,6 +15,7 @@ export type Step = {
   isOfficial: boolean;
   isVerified: boolean;
   isDeprecated: boolean;
+  isDisabled?: boolean;
 };
 
 export type CategoryRowItem = {

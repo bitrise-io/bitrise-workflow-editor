@@ -222,5 +222,10 @@ angular
   )
   .component(
     "rStepDrawer",
-    register(StepDrawer, ["isOpen", "onClose", "onStepSelected"]),
+    register(StepDrawer, [
+      "isOpen",
+      "onClose",
+      "allowedStepIds",
+      "onStepSelected",
+    ]),
   );
