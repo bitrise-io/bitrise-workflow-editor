@@ -1,40 +1,24 @@
-import { Box, Button, Text } from '@bitrise/bitkit';
+import { Box, Button, Card, Text } from '@bitrise/bitkit';
 
-import WorkflowRecipesLink from '../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink';
-
-type YmlEditorHeaderProps = {
+export type YmlEditorHeaderProps = {
   url: string;
   usesRepositoryYml?: boolean;
 };
-const YmlEditorHeader = ({ url, usesRepositoryYml }: YmlEditorHeaderProps): JSX.Element => {
+const YmlEditorHeader = ({ url, usesRepositoryYml }: YmlEditorHeaderProps) => {
+  console.log({ usesRepositoryYml });
   return (
-    <Box
-      display="flex"
-      flexDirection={['column', 'row']}
-      backgroundColor="gray-2"
-      paddingX="16"
-      paddingY="12"
-      justifyContent="space-between"
-      gap="8"
-    >
-      <Box>
-        <Text fontWeight="bold" marginBottom="8">
-          {usesRepositoryYml ? 'bitrise.yml' : 'bitrise.yml editor'}
-        </Text>
-        <Text size="2" color="neutral.40">
-          {usesRepositoryYml
-            ? "The content of the bitrise.yml file, fetched from the app's repository."
-            : 'You can edit your current config in YAML format:'}
-        </Text>
-      </Box>
-      <Box display="flex" flexDirection={['column-reverse', 'row']} gap="8">
-        <WorkflowRecipesLink linkId="workflow-editor-yml-editor-workflow-recipes-link" trackingName="yml_editor" />
-        {url && (
-          <Button as="a" href={url} target="_blank">
-            Download currently saved config
-          </Button>
-        )}
-      </Box>
+    <Box display="flex" gap="16" alignItems="center" marginBlockEnd="24">
+      <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
+        Configuration YAML
+      </Text>
+      {url && (
+        <Button as="a" href={url} leftIconName="Download" size="sm" target="_blank" variant="tertiary">
+          Download
+        </Button>
+      )}
+      <Card height="40" variant="outline" width="auto">
+        Source widget
+      </Card>
     </Box>
   );
 };
