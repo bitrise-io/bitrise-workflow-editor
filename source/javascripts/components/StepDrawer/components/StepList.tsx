@@ -10,10 +10,11 @@ import SkeletonRows from './SkeletonRows';
 import VirtualizedRow from './VirtualizedRow';
 
 type Props = {
+  allowedStepIds?: Set<string>;
   onStepSelected: StepSelected;
 };
 
-const StepList = ({ onStepSelected }: Props) => {
+const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
   const parentRef = useRef<HTMLDivElement>(null);
   const columns = useColumnCount();
   const { reset } = useFormContext<SearchFormValues>();
@@ -23,6 +24,7 @@ const StepList = ({ onStepSelected }: Props) => {
     containerRef: parentRef,
     stepsByCategories,
     columns,
+    allowedStepIds,
   });
 
   const virtualItems = virtualizer.getVirtualItems();

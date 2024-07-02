@@ -676,19 +676,22 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         if (!requestService.isWebsiteMode() || typeof (appService?.ownerPlanData?.uniqueStepLimit) !== "number") {
           return;
         }
-        var steps = {};
 
+        viewModel.allowedStepIds = new Set();
         viewModel.workflows.forEach(function (wf) {
           wf.steps.forEach(function (step) {
-            steps[step.id] = true;
+            viewModel.allowedStepIds.add(step.id);
           });
         });
 
-        viewModel.uniqueStepCount = Object.keys(steps).length;
-        if (appService.ownerPlanData.uniqueStepLimit <= viewModel.uniqueStepCount) {
-          appService.allowedStepMap = steps;
+        viewModel.uniqueStepCount = viewModel.allowedStepIds.size;
+        var uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
+        var hasReachedLimit = viewModel.uniqueStepCount >= uniqueStepLimit;
+
+        if (hasReachedLimit) {
+          appService.allowedStepIds = viewModel.allowedStepIds;
         } else {
-          appService.allowedStepMap = undefined;
+          appService.allowedStepIds = undefined;
         }
       }
 
@@ -722,12 +725,12 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
 
       viewModel.closeReactStepDrawer = function () {
         viewModel.showReactStepDrawer = false;
-        viewModel.newStepDrawerAddStepIndex = null;
+        viewModel.newStepDrawerAddStepIndex = undefined;
         safeDigest($scope);
       }
 
       viewModel.handleInsertStepAtIndexFromReact = function (step) {
-        if (!viewModel.newStepDrawerAddStepIndex || !step.id || !step.cvs) {
+        if (viewModel.newStepDrawerAddStepIndex === undefined || !step.id || !step.cvs) {
           return;
         }
 

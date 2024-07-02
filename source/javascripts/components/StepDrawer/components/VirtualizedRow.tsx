@@ -35,6 +35,7 @@ const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProp
           <DrawerStepCard
             key={`${item.category}/${step.id}`}
             {...step}
+            isDisabled={step.isDisabled}
             cardProps={{ minH: `${RowHeights.steps}px` }}
             onClick={() => onStepSelected(step)}
           />

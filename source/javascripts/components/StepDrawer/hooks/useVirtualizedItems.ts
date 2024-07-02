@@ -7,9 +7,10 @@ type Props = {
   containerRef: RefObject<HTMLElement>;
   stepsByCategories: Record<string, Step[]>;
   columns: number;
+  allowedStepIds?: Set<string>;
 };
 
-const useVirtualizedItems = ({ containerRef, stepsByCategories, columns }: Props) => {
+const useVirtualizedItems = ({ allowedStepIds, containerRef, stepsByCategories, columns }: Props) => {
   const { items, count } = useMemo(() => {
     let virtualItemCount = 0;
     const virtualItems = Object.entries(stepsByCategories)
@@ -20,17 +21,22 @@ const useVirtualizedItems = ({ containerRef, stepsByCategories, columns }: Props
 
         acc.push({ type: 'category', category, rows });
         for (let i = 0; i < rows; i++) {
+          const stepsInRow = steps.slice(i * columns, (i + 1) * columns).map((step) => {
+            const isDisabled = allowedStepIds && !allowedStepIds.has(step.id);
+            return { ...step, isDisabled };
+          });
+
           acc.push({
             type: 'steps',
             category,
             row: i,
-            steps: steps.slice(i * columns, (i + 1) * columns),
+            steps: stepsInRow,
           });
         }
         return acc;
       }, [] as VirtualizedListItem[]);
     return { items: virtualItems, count: virtualItemCount };
-  }, [columns, stepsByCategories]);
+  }, [allowedStepIds, columns, stepsByCategories]);
 
   const getItemKey = useCallback(
     (idx: number) => {
