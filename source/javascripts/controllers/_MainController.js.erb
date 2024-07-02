@@ -120,6 +120,9 @@ import { safeDigest } from "../services/react-compat";
 			$scope.$on("$locationChangeSuccess", function(event, next, current) {
 				$timeout(function() {
 					viewModel.changeMenuProgress.success();
+					if (window.parent && next !== current) {
+						window.parent.location.hash = new URL(next).hash;
+					}
 				}, 0);
 			});
 
