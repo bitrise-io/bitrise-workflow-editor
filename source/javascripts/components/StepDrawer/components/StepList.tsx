@@ -19,10 +19,10 @@ const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
   const columns = useColumnCount();
   const { reset } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues();
-  const { data: stepsByCategories = {}, isLoading, isError, refetch } = useSearchSteps(formValues);
+  const { data: steps = [], isLoading, isError, refetch } = useSearchSteps(formValues);
   const { items, virtualizer } = useVirtualizedItems({
     containerRef: parentRef,
-    stepsByCategories,
+    steps,
     columns,
     allowedStepIds,
   });

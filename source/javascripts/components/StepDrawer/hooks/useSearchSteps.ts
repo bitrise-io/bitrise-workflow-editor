@@ -4,7 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { SearchFormValues, Step } from '../StepDrawer.types';
 import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
-import { fromAlgolia, getStepsByCategories } from '../StepDrawer.utils';
+import { fromAlgolia } from '../StepDrawer.utils';
 import { AlgoliaStepResponse } from '../../../models/Algolia';
 
 const ATTRIBUTES_TO_RETRIEVE = [
@@ -86,14 +86,13 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
         items = results.map((result) => result.item);
       }
 
-      const results = items.map(fromAlgolia);
-      return getStepsByCategories(results);
+      return items.map(fromAlgolia);
     },
   });
 
   return {
     ...query,
-    data: query.data as Record<string, Step[]>,
+    data: query.data as Step[],
     isLoading: isLoading || query.isFetching,
     isError: isError || query.isError,
     refetch,

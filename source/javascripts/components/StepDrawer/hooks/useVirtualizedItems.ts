@@ -2,41 +2,32 @@ import { RefObject, useCallback, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
 import { Step, VirtualizedListItem } from '../StepDrawer.types';
 import { RowSizes } from '../StepDrawer.constants';
+import { createVirtualItemsCategory, getStepsByCategories } from '../StepDrawer.utils';
 
 type Props = {
   containerRef: RefObject<HTMLElement>;
-  stepsByCategories: Record<string, Step[]>;
+  steps: Step[];
   columns: number;
   allowedStepIds?: Set<string>;
 };
 
-const useVirtualizedItems = ({ allowedStepIds, containerRef, stepsByCategories, columns }: Props) => {
-  const { items, count } = useMemo(() => {
-    let virtualItemCount = 0;
-    const virtualItems = Object.entries(stepsByCategories)
+const useVirtualizedItems = ({ allowedStepIds, containerRef, steps, columns }: Props) => {
+  const items = useMemo(() => {
+    const virtualItems: VirtualizedListItem[] = [];
+    if (allowedStepIds) {
+      const allowedSteps = steps.filter((step) => allowedStepIds.has(step.id));
+      virtualItems.push(...createVirtualItemsCategory('Allowed steps', allowedSteps, columns, allowedStepIds));
+    }
+
+    Object.entries(getStepsByCategories(steps))
       .sort((a, b) => a[0].localeCompare(b[0]))
-      .reduce((acc, [category, steps]) => {
-        const rows = Math.ceil(steps.length / columns);
-        virtualItemCount += rows + 1;
-
-        acc.push({ type: 'category', category, rows });
-        for (let i = 0; i < rows; i++) {
-          const stepsInRow = steps.slice(i * columns, (i + 1) * columns).map((step) => {
-            const isDisabled = allowedStepIds && !allowedStepIds.has(step.id);
-            return { ...step, isDisabled };
-          });
-
-          acc.push({
-            type: 'steps',
-            category,
-            row: i,
-            steps: stepsInRow,
-          });
-        }
+      .reduce((acc, [category, categorySteps]) => {
+        acc.push(...createVirtualItemsCategory(category, categorySteps, columns, allowedStepIds));
         return acc;
-      }, [] as VirtualizedListItem[]);
-    return { items: virtualItems, count: virtualItemCount };
-  }, [allowedStepIds, columns, stepsByCategories]);
+      }, virtualItems);
+
+    return virtualItems;
+  }, [allowedStepIds, steps, columns]);
 
   const getItemKey = useCallback(
     (idx: number) => {
@@ -51,7 +42,7 @@ const useVirtualizedItems = ({ allowedStepIds, containerRef, stepsByCategories, 
     estimateSize: (idx) => RowSizes[items[idx].type],
     getItemKey,
     overscan: 3,
-    count,
+    count: items.length,
   });
 
   return { items, virtualizer };
