@@ -2,7 +2,7 @@ module github.com/bitrise-io/bitrise-workflow-editor
 
 go 1.21
 
-toolchain go1.22.2
+toolchain go1.22.4
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
@@ -12,10 +12,9 @@ require (
 	github.com/bitrise-io/go-utils v1.0.13
 	github.com/bitrise-io/stepman v0.0.0-20240530152555-8c02c2799166
 	github.com/gorilla/mux v1.8.1
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
-	gopkg.in/yaml.v3 v3.0.1
 )
 
 require (
@@ -58,4 +57,5 @@ require (
 	golang.org/x/sys v0.18.0 // indirect
 	golang.org/x/term v0.18.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
+	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
