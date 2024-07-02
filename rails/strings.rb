@@ -33,7 +33,7 @@ def strings
                     stack: "Stack",
                     stacks_and_machines: "Stacks & Machines",
                     licenses: "Licenses",
-                    yml: "bitrise.yml"
+                    yml: "Configuration YAML"
                 },
                 discard: "Discard",
                 save: "Save",
