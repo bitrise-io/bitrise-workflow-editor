@@ -12,17 +12,51 @@ import {
   Radio,
   RadioGroup,
   Text,
+  useToast,
 } from '@bitrise/bitkit';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { useFormattedYml } from '../common/RepoYmlStorageActions';
+import { AppConfig } from '../../models/AppConfig';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   initialUsesRepositoryYml: boolean;
+  appConfig: AppConfig | string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
-  const { isOpen, onClose, initialUsesRepositoryYml } = props;
+  const { isOpen, onClose, initialUsesRepositoryYml, appConfig } = props;
+
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
+  const [actionSelected, setActionSelected] = useState<string | null>(null);
+  const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
+
+  const yml = useFormattedYml(appConfig);
+
+  const selectAction = (actionName: string): void => {
+    setActionSelected(actionName);
+
+    if (clearActionTimeout) {
+      window.clearTimeout(clearActionTimeout);
+    }
+
+    setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
+  };
+
+  const toast = useToast();
+
+  if (actionSelected) {
+    toast({
+      title: actionSelected === 'clipboard' ? ' Copied to clipboard' : 'Downloading the configuration YAML',
+      description:
+        actionSelected === 'clipboard'
+          ? 'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. '
+          : 'Commit the file to the app’s repository before updating the setting. ',
+      status: 'success',
+      isClosable: true,
+    });
+  }
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
@@ -108,12 +142,27 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   </Link>
                 </Text>
                 <Box display="flex" flexDir="column" gap="8">
-                  <Button variant="tertiary" leftIconName="Download" width="fit-content" size="sm">
-                    Download current version
-                  </Button>
-                  <Button variant="tertiary" leftIconName="Duplicate" width="fit-content" size="sm" marginBlockEnd="16">
-                    Copy configuration content
-                  </Button>
+                  <Link
+                    href={`data:attachment/text,${encodeURIComponent(yml)}`}
+                    target="_blank"
+                    download="bitrise.yml"
+                    onClick={() => selectAction('download')}
+                  >
+                    <Button variant="tertiary" leftIconName="Download" width="fit-content" size="sm">
+                      Download current version
+                    </Button>
+                  </Link>
+                  <CopyToClipboard text={yml} onCopy={() => selectAction('clipboard')}>
+                    <Button
+                      variant="tertiary"
+                      leftIconName="Duplicate"
+                      width="fit-content"
+                      size="sm"
+                      marginBlockEnd="16"
+                    >
+                      Copy configuration content
+                    </Button>
+                  </CopyToClipboard>
                 </Box>
               </ListItem>
               <ListItem>
