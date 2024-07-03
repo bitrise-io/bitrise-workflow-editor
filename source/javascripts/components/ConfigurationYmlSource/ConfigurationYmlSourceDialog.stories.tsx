@@ -5,8 +5,17 @@ export default {
   component: ConfigurationYmlSourceDialog,
   args: {
     isOpen: true,
-    initialUsesRepositoryYml: false,
   },
 } as Meta<typeof ConfigurationYmlSourceDialog>;
 
-export const Default: StoryObj<typeof ConfigurationYmlSourceDialog> = {};
+export const StoreOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+  args: {
+    initialUsesRepositoryYml: false,
+  },
+};
+
+export const StoreOnGitRepository: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+  args: {
+    initialUsesRepositoryYml: true,
+  },
+};

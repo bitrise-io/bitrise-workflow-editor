@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -9,25 +9,38 @@ import {
   Link,
   List,
   ListItem,
+  Notification,
   Radio,
   RadioGroup,
   Text,
+  Tooltip,
   useToast,
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
+import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
   onClose: () => void;
   initialUsesRepositoryYml: boolean;
   appConfig: AppConfig | string;
+  appSlug: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
-  const { isOpen, onClose, initialUsesRepositoryYml, appConfig } = props;
+  const { isOpen, onClose, initialUsesRepositoryYml, appConfig, appSlug } = props;
+  const {
+    getAppConfigFromRepoStatus,
+    getAppConfigFromRepoFailed,
+    getAppConfigFromRepoLoading,
+    getAppConfigFromRepo,
+    getAppConfigFromRepoReset,
+    appConfigFromRepo,
+  } = useGetAppConfigFromRepoCallback(appSlug);
 
+  const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
   const [actionSelected, setActionSelected] = useState<string | null>(null);
   const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
@@ -46,17 +59,50 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const toast = useToast();
 
-  if (actionSelected) {
+  if (actionSelected === 'clipboard') {
     toast({
-      title: actionSelected === 'clipboard' ? ' Copied to clipboard' : 'Downloading the configuration YAML',
+      title: ' Copied to clipboard',
       description:
-        actionSelected === 'clipboard'
-          ? 'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. '
-          : 'Commit the file to the app’s repository before updating the setting. ',
+        'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
       status: 'success',
       isClosable: true,
     });
   }
+
+  const isSourceSelected = initialUsesRepositoryYml !== usesRepositoryYml;
+
+  let toolTip;
+  if (!usesRepositoryYml) {
+    toolTip = 'You are already storing your configuration on bitrise.io';
+  }
+  if (usesRepositoryYml) {
+    toolTip = 'You are already storing your configuration in a Git repository.';
+  }
+
+  const renderError = (): React.ReactElement => {
+    switch (getAppConfigFromRepoStatus) {
+      case 404:
+        return (
+          <Notification status="error">
+            Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the
+            default branch and the app's Service Credential User has read rights on that.
+          </Notification>
+        );
+      default:
+        return <Notification status="error">{getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}</Notification>;
+    }
+  };
+
+  useEffect(() => {
+    if (!usesRepositoryYml) {
+      if (configurationSource === 'git') {
+        getAppConfigFromRepo();
+      } else {
+        getAppConfigFromRepoReset();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [configurationSource, usesRepositoryYml]);
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
@@ -85,18 +131,19 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             Git repository
           </Radio>
         </RadioGroup>
-
-        {/*  (
-          <Notification status="progress">Looking for a configuration file in the app’s repository.</Notification>
-        ) */}
-        {!usesRepositoryYml && (
+        {isSourceSelected && !usesRepositoryYml && (
           <>
             <Divider marginY="24" />
             <Text textStyle="heading/h3" marginBlockEnd="4">
               Set configuration file
             </Text>
             <Text marginBlockEnd="24">Choose which configuration file should be used on bitrise.io from now.</Text>
-            <RadioGroup>
+            <RadioGroup
+              onChange={(value: 'bitrise' | 'git') => {
+                setConfigurationSource(value);
+              }}
+              value={configurationSource}
+            >
               <Radio
                 helperText={
                   <>
@@ -121,7 +168,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             </RadioGroup>
           </>
         )}
-        {usesRepositoryYml && (
+        {isSourceSelected && usesRepositoryYml && (
           <>
             <Divider marginY="24" />
             <Text marginBlockEnd="4" textStyle="heading/h3">
@@ -196,12 +243,23 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             </List>
           </>
         )}
+        {getAppConfigFromRepoLoading && (
+          <Notification status="progress">Looking for a configuration file in the app’s repository.</Notification>
+        )}
+        {getAppConfigFromRepoFailed && renderError()}
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
-        <Button>Validate and save</Button>
+        <Tooltip label={toolTip} isDisabled={isSourceSelected}>
+          <Button
+            onClick={getAppConfigFromRepo}
+            isDisabled={!isSourceSelected || !!getAppConfigFromRepoFailed || getAppConfigFromRepoLoading}
+          >
+            Validate and save
+          </Button>
+        </Tooltip>
       </DialogFooter>
     </Dialog>
   );
