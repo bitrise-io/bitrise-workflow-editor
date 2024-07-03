@@ -64,7 +64,18 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             <Text marginBlockEnd="24">Choose which configuration file should be used on bitrise.io from now.</Text>
             <RadioGroup>
               <Radio
-                helperText="Multiple configuration files will be merged into a single file. Learn more"
+                helperText={
+                  <>
+                    Multiple configuration files will be merged into a single file.{' '}
+                    <Link
+                      href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
+                      colorScheme="purple"
+                      isExternal
+                    >
+                      Learn more
+                    </Link>
+                  </>
+                }
                 marginBlockEnd="12"
                 value="git"
               >
@@ -100,16 +111,37 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   <Button variant="tertiary" leftIconName="Download" width="fit-content" size="sm">
                     Download current version
                   </Button>
-                  <Button variant="tertiary" leftIconName="Duplicate" width="fit-content" size="sm">
+                  <Button variant="tertiary" leftIconName="Duplicate" width="fit-content" size="sm" marginBlockEnd="16">
                     Copy configuration content
                   </Button>
                 </Box>
               </ListItem>
               <ListItem>
                 Provide repository access
-                <Text>
+                <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
                   Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
-                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/">Learn more</Link>
+                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
+                    Learn more
+                  </Link>
+                </Text>
+              </ListItem>
+              <ListItem>
+                Split up your configuration{' '}
+                <Text as="span" color="text/secondary">
+                  (optional)
+                </Text>
+                <Text textStyle="body/md/regular" color="text/secondary">
+                  <Link href="" colorScheme="purple" isExternal>
+                    Follow this guide
+                  </Link>{' '}
+                  to split up your configuration into smaller, more manageable files. This feature is only available for
+                  Workspaces on{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    Enterprise plan.
+                  </Text>{' '}
+                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
+                    Learn more
+                  </Link>
                 </Text>
               </ListItem>
             </List>
