@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -93,16 +93,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     }
   };
 
-  useEffect(() => {
-    if (!usesRepositoryYml) {
-      if (configurationSource === 'git') {
-        getAppConfigFromRepo();
-      } else {
-        getAppConfigFromRepoReset();
-      }
+  const onValidateAndSave = () => {
+    if (configurationSource === 'git') {
+      getAppConfigFromRepo();
     }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [configurationSource, usesRepositoryYml]);
+  };
 
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
@@ -141,6 +136,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             <RadioGroup
               onChange={(value: 'bitrise' | 'git') => {
                 setConfigurationSource(value);
+                if (value === 'bitrise') {
+                  getAppConfigFromRepoReset();
+                }
               }}
               value={configurationSource}
             >
@@ -254,7 +252,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         </Button>
         <Tooltip label={toolTip} isDisabled={isSourceSelected}>
           <Button
-            onClick={getAppConfigFromRepo}
+            onClick={onValidateAndSave}
             isDisabled={!isSourceSelected || !!getAppConfigFromRepoFailed || getAppConfigFromRepoLoading}
           >
             Validate and save

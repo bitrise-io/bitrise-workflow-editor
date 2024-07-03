@@ -1,10 +1,14 @@
 import { Meta, StoryObj } from '@storybook/react';
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
+import { getConfig } from './ConfigurationYmlSource.mswMocks';
 
 export default {
   component: ConfigurationYmlSourceDialog,
   args: {
     isOpen: true,
+  },
+  parameters: {
+    msw: [getConfig()],
   },
 } as Meta<typeof ConfigurationYmlSourceDialog>;
 
