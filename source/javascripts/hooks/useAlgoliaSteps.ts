@@ -18,7 +18,7 @@ const useAlgoliaSteps = ({ attributesToRetrieve = ['*'] }: Props): UseQueryResul
       await algoliaStepsClient.browseObjects<AlgoliaStepResponse>({
         batch: (objects) => results.push(...objects),
         attributesToRetrieve: attrs,
-        filters: 'is_latest:true',
+        filters: 'is_latest:true AND is_deprecated:false',
       });
       return uniqBy(results, 'id');
     },
