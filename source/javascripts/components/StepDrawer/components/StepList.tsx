@@ -20,14 +20,16 @@ const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
   const { reset } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues();
   const { data: steps = [], isLoading, isError, refetch } = useSearchSteps(formValues);
-  const { items, virtualizer } = useVirtualizedItems({
+  const {
+    items,
+    virtualizer: { getTotalSize, getVirtualItems },
+  } = useVirtualizedItems({
     containerRef: listRef,
     steps,
     columns,
     allowedStepIds,
+    categoryFilter: formValues.categories,
   });
-
-  const virtualItems = virtualizer.getVirtualItems();
 
   if (isLoading) {
     return <SkeletonRows columns={columns} />;
@@ -67,8 +69,8 @@ const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
 
   return (
     <Box ref={listRef} maxH="100%" overflow="auto">
-      <Box height={`${virtualizer.getTotalSize()}px`} position="relative">
-        {virtualItems.map((virtualItem) => {
+      <Box height={getTotalSize()} position="relative">
+        {getVirtualItems().map((virtualItem) => {
           const { key, index, start } = virtualItem;
           const item = items[index];
           const style: CSSProperties = {

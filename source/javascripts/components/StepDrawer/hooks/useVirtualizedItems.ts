@@ -9,9 +9,10 @@ type Props = {
   steps: Step[];
   columns: number;
   allowedStepIds?: Set<string>;
+  categoryFilter?: string[];
 };
 
-const useVirtualizedItems = ({ allowedStepIds, containerRef, steps, columns }: Props) => {
+const useVirtualizedItems = ({ containerRef, steps, columns, allowedStepIds, categoryFilter }: Props) => {
   const items = useMemo(() => {
     const virtualItems: VirtualizedListItem[] = [];
     if (allowedStepIds) {
@@ -22,12 +23,15 @@ const useVirtualizedItems = ({ allowedStepIds, containerRef, steps, columns }: P
     Object.entries(getStepsByCategories(steps))
       .sort((a, b) => a[0].localeCompare(b[0]))
       .reduce((acc, [category, categorySteps]) => {
-        acc.push(...createVirtualItemsCategory(category, categorySteps, columns, allowedStepIds));
+        if (categoryFilter?.length === 0 || categoryFilter?.includes(category)) {
+          acc.push(...createVirtualItemsCategory(category, categorySteps, columns, allowedStepIds));
+        }
+
         return acc;
       }, virtualItems);
 
     return virtualItems;
-  }, [allowedStepIds, steps, columns]);
+  }, [allowedStepIds, steps, columns, categoryFilter]);
 
   const getItemKey = useCallback(
     (idx: number) => {
