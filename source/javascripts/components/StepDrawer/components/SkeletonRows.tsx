@@ -1,6 +1,6 @@
 import { Box, Card, Skeleton, SkeletonBox } from '@bitrise/bitkit';
 import { SimpleGrid } from '@chakra-ui/react';
-import { ColumnValues, RowGaps, RowHeights } from '../StepDrawer.constants';
+import { RowGaps, RowHeights } from '../StepDrawer.constants';
 
 const SkeletonCard = () => (
   <Card variant="outline" padding="12" minH={RowHeights.steps}>
@@ -23,7 +23,7 @@ type RowProps = {
 };
 
 const SkeletonRow = ({ groupIdx, rowIdx, columns }: RowProps) => (
-  <SimpleGrid columns={ColumnValues} spacing="16" mb={RowGaps.steps}>
+  <SimpleGrid columns={columns} spacing="16" mb={RowGaps.steps}>
     {Array.from({ length: columns }).map((___, colIdx) => (
       // eslint-disable-next-line react/no-array-index-key
       <SkeletonCard key={`group-${groupIdx}/row-${rowIdx}/card-${colIdx}`} />
