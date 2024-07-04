@@ -6,6 +6,6 @@ executable:
   osx-arm64: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.3.421/workflow-editor-Darwin-arm64
   linux: https://github.com/bitrise-io/bitrise-workflow-editor/releases/download/1.3.421/workflow-editor-Linux-x86_64
 requirements:
-- tool: bitrise
-  min_version: 1.18.0
-  max_version: ""
+  - tool: bitrise
+    min_version: 1.18.0
+    max_version: ""
