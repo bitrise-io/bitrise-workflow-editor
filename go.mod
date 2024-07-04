@@ -6,13 +6,13 @@ toolchain go1.22.2
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20240607091922-073c9a1820d7
+	github.com/bitrise-io/bitrise v0.0.0-20240701130426-22197944c07e
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240624065735-ca81d0a80500
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240530152555-8c02c2799166
+	github.com/bitrise-io/stepman v0.0.0-20240702101314-8f699c59bbe5
 	github.com/gorilla/mux v1.8.1
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
 )
@@ -51,11 +51,11 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/urfave/cli v1.22.14 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
+	github.com/urfave/cli v1.22.15 // indirect
+	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/sys v0.20.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )
