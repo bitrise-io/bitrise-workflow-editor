@@ -23,8 +23,8 @@ github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.22 h1:/SD9xE4LlX/Ju9YZ+n/yW/uDs7h
 github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.22/go.mod h1:Laih4ji980SQkRgdnMCH0g4u2GZI/5nnbqmYT9UfKFQ=
 github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef h1:R5FOa8RHjqZwMN9g1FQ8W7nXxQAG7iwq1Cw+mUk5S9A=
 github.com/bitrise-io/goinp v0.0.0-20240103152431-054ed78518ef/go.mod h1:27ldH2bkCdYN5CEJ6x92EK+gkd5EcDBkA7dMrSKQFYU=
-github.com/bitrise-io/stepman v0.0.0-20240530152555-8c02c2799166 h1:bqcwVelwkx/UKSfoNfiAz5gygH1ZEmmz5CIgupXQFtE=
-github.com/bitrise-io/stepman v0.0.0-20240530152555-8c02c2799166/go.mod h1:netRLDQD95IzWZbzmn7CBolzNqH1tErRKS31BrZKt9s=
+github.com/bitrise-io/stepman v0.0.0-20240702101314-8f699c59bbe5 h1:uVl877SuoHvA26qpaBBNhgWzl+ZIT+h324hwsAVps1k=
+github.com/bitrise-io/stepman v0.0.0-20240702101314-8f699c59bbe5/go.mod h1:Lq9nEqKerBD35w3eSU8lf83F7uZPkXfmRSZEUDJN40w=
 github.com/cpuguy83/go-md2man/v2 v2.0.2/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/cpuguy83/go-md2man/v2 v2.0.3/go.mod h1:tgQtvFlXSQOSOSIRvRPT7W67SCa46tRHOmNcaadrF8o=
 github.com/cpuguy83/go-md2man/v2 v2.0.4 h1:wfIWP927BUkWJb2NmU/kNDYIBTh/ziUX91+lVfRxZq4=
