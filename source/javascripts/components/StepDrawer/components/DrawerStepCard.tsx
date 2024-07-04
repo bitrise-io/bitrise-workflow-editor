@@ -1,7 +1,8 @@
-import { useCallback } from 'react';
-import { Box, Card, CardProps, Icon, Image, Text } from '@bitrise/bitkit';
+import { useCallback, useRef } from 'react';
+import { Box, Card, CardProps, Icon, Image, Text, Tooltip } from '@bitrise/bitkit';
 
 import { ColorProps } from '@chakra-ui/react';
+import useIsTruncated from '../../../hooks/useIsTruncated';
 import defaultStepIcon from '../../../../images/step/icon-default.svg';
 import StepBadge from '../../StepBadge/StepBadge';
 import { Step } from '../StepDrawer.types';
@@ -30,6 +31,8 @@ const DrawerStepCard = ({
   onClick,
   cardProps,
 }: Props) => {
+  const titleRef = useRef<HTMLParagraphElement>(null);
+  const isTitleTruncated = useIsTruncated(titleRef);
   const getColor = useCallback((color: ColorProps['color']) => (isDisabled ? 'text/disabled' : color), [isDisabled]);
 
   return (
@@ -70,9 +73,11 @@ const DrawerStepCard = ({
           />
         </Box>
         <Box overflow="hidden" marginRight="32">
-          <Text textStyle="body/lg/semibold" hasEllipsis color={getColor('inherit')}>
-            {title}
-          </Text>
+          <Tooltip label={title} aria-label={title} isDisabled={!isTitleTruncated}>
+            <Text ref={titleRef} textStyle="body/lg/semibold" hasEllipsis color={getColor('inherit')}>
+              {title}
+            </Text>
+          </Tooltip>
           <Text textStyle="body/md/regular" color={getColor('text/secondary')}>
             {version}
           </Text>
