@@ -15,13 +15,13 @@ type Props = {
 };
 
 const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const columns = useColumnCount();
+  const listRef = useRef<HTMLDivElement>(null);
+  const columns = useColumnCount({ ref: listRef });
   const { reset } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues();
   const { data: stepsByCategories = {}, isLoading, isError, refetch } = useSearchSteps(formValues);
   const { items, virtualizer } = useVirtualizedItems({
-    containerRef: parentRef,
+    containerRef: listRef,
     stepsByCategories,
     columns,
     allowedStepIds,
@@ -66,7 +66,7 @@ const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
   }
 
   return (
-    <Box ref={parentRef} maxH="100%" overflow="auto">
+    <Box ref={listRef} maxH="100%" overflow="auto">
       <Box height={`${virtualizer.getTotalSize()}px`} position="relative">
         {virtualItems.map((virtualItem) => {
           const { key, index, start } = virtualItem;

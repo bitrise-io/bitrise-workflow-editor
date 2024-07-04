@@ -30,6 +30,7 @@ const useVirtualizedItems = ({ allowedStepIds, containerRef, stepsByCategories, 
             type: 'steps',
             category,
             row: i,
+            columns,
             steps: stepsInRow,
           });
         }
