@@ -20,6 +20,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
+import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
@@ -31,6 +32,7 @@ type ConfigurationYmlSourceDialogProps = {
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
   const { isOpen, onClose, initialUsesRepositoryYml, appConfig, appSlug } = props;
+
   const {
     getAppConfigFromRepoStatus,
     getAppConfigFromRepoFailed,
@@ -44,6 +46,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
   const [actionSelected, setActionSelected] = useState<string | null>(null);
   const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
+
+  const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig } =
+    useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml);
 
   const yml = useFormattedYml(appConfig);
 
@@ -96,6 +101,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const onValidateAndSave = () => {
     if (configurationSource === 'git') {
       getAppConfigFromRepo();
+      updatePipelineConfig();
+    }
+    if (configurationSource === 'bitrise') {
+      updatePipelineConfig();
     }
   };
 
