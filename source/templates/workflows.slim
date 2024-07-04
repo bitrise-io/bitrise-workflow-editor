@@ -81,18 +81,10 @@
               ]
           section.workflow[ng-if='!workflowsCtrl.selectedStep && workflowsCtrl.editedWorkflow']
             r-workflow-config-panel[
-              ng-if="mainCtrl.enableNewWfeWorkflowConfigPanel"
               default-values="workflowsCtrl.editedWorkflowConfigForReact"
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]
-            header.workflow-header[ng-if="!mainCtrl.enableNewWfeWorkflowConfigPanel"]
-              .header-info
-                .stack[ng-if="requestService.mode == 'website'"]
-                  .icon == svg("layers")
-                  .name[ng-bind="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow, true).name"]
-                  label.default-badge[ng-if="workflowsCtrl.stackForWorkflow(workflowsCtrl.editedWorkflow) === null"] == data[:strings][:stack][:default]
-            article[ng-if="!mainCtrl.enableNewWfeWorkflowConfigPanel"]
-              aside[workflow-description="workflowsCtrl.editedWorkflow"]
+
   popup[model="workflowsCtrl.addWorkflowPopup"]
     form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
       header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
@@ -134,7 +126,7 @@
   r-step-drawer[
     is-open='workflowsCtrl.showReactStepDrawer'
     on-close='workflowsCtrl.closeReactStepDrawer'
-    allowed-step-ids='workflowsCtrl.allowedStepIds'
+    allowed-step-ids='appService.allowedStepIds'
     on-step-selected='workflowsCtrl.handleInsertStepAtIndexFromReact'
   ]
   r-version-change-dialog[
