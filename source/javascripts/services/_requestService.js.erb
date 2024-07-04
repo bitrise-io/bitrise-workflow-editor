@@ -411,7 +411,9 @@ import jsyaml from "js-yaml";
 										buildData: {
 											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
 											lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at
-										}
+										},
+										defaultBranch: response.data.default_branch_name,
+										gitRepoSlug: response.data.git_repo_slug
 									});
 								},
 								function(response) {

@@ -29,6 +29,9 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			viewModel.usesRepositoryYml = false;
 			viewModel.appSlug = undefined;
 			viewModel.repositoryYmlAvailable = true;
+			viewModel.appConfigYML = undefined;
+			viewModel.defaultBranch = appService.appDetails.defaultBranch;
+			viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -99,6 +102,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				$timeout(function() {
 					if (model && !model.isDisposed()) {
 						appService.appConfigYML = model.getValue();
+						viewModel.appConfigYML = model.getValue();
 					}
 				}, 100);
 			}

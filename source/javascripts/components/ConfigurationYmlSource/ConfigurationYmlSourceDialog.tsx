@@ -30,10 +30,22 @@ type ConfigurationYmlSourceDialogProps = {
   initialUsesRepositoryYml: boolean;
   appConfig: AppConfig | string;
   appSlug: string;
+  onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
+  defaultBranch: string;
+  gitRepoSlug: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
-  const { isOpen, onClose, initialUsesRepositoryYml, appConfig, appSlug } = props;
+  const {
+    defaultBranch,
+    gitRepoSlug,
+    isOpen,
+    onClose,
+    initialUsesRepositoryYml,
+    appConfig,
+    appSlug,
+    onUsesRepositoryYmlChangeSaved,
+  } = props;
 
   const {
     getAppConfigFromRepoStatus,
@@ -145,6 +157,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       status: 'success',
       isClosable: true,
     });
+    onUsesRepositoryYmlChangeSaved(usesRepositoryYml);
   };
 
   return (
@@ -230,8 +243,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               <ListItem>
                 Add configuration file
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="8">
-                  Add your current configuration YAML from Bitrise to your repository_name repository’s{' '}
-                  default_branch_name branch.{' '}
+                  Add your current configuration YAML from Bitrise to your {gitRepoSlug} repository’s {defaultBranch}{' '}
+                  branch.{' '}
                   <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
                     Learn more
                   </Link>

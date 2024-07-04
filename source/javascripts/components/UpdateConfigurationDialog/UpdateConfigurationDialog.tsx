@@ -18,13 +18,8 @@ type UpdateConfigurationDialogProps = {
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const { isOpen, onClose, appSlug, appConfig, onComplete } = props;
 
-  const {
-    getAppConfigFromRepoLoading,
-    getAppConfigFromRepo,
-    appConfigFromRepo,
-    getAppConfigFromRepoStatus,
-    getAppConfigFromRepoFailed,
-  } = useGetAppConfigFromRepoCallback(appSlug);
+  const { getAppConfigFromRepo, appConfigFromRepo, getAppConfigFromRepoStatus, getAppConfigFromRepoFailed } =
+    useGetAppConfigFromRepoCallback(appSlug);
 
   const [actionSelected, setActionSelected] = useState<string | null>(null);
   const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();

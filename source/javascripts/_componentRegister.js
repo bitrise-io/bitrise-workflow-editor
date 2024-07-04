@@ -94,7 +94,17 @@ angular
   )
   .component(
     "rYmlEditorHeader",
-    register(YmlEditorHeader, ["url", "usesRepositoryYml"]),
+    register(YmlEditorHeader, [
+      "url",
+      "usesRepositoryYml",
+      "appSlug",
+      "appConfig",
+      "onUsesRepositoryYmlChangeSaved",
+      "repositoryYmlAvailable",
+      "shouldShowYmlStorageSettings",
+      "defaultBranch",
+      "gitRepoSlug"
+]),
   )
   .component(
     "rWorkflowMainToolbar",
