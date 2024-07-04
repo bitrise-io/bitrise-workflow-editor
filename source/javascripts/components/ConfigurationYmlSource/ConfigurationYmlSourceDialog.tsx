@@ -189,7 +189,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               Make sure to complete all the mandatory tasks before updating. A missing or invalid configuration file can
               lead to failed builds.
             </Text>
-            <List isOrdered>
+            <List variant="ordered">
               <ListItem>
                 Add configuration file
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="8">
