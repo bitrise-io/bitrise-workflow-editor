@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -21,6 +21,8 @@ import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
 import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
+import usePostAppConfigCallback from '../../hooks/api/usePostAppConfigCallback';
+import appConfigAsYml from '../../utils/appConfigAsYml';
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
@@ -42,6 +44,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     appConfigFromRepo,
   } = useGetAppConfigFromRepoCallback(appSlug);
 
+  const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(appSlug, appConfigAsYml(appConfigFromRepo));
+
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
   const [actionSelected, setActionSelected] = useState<string | null>(null);
@@ -62,10 +66,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
   };
 
-  const toast = useToast();
+  const copyToast = useToast();
+  const successToast = useToast();
 
   if (actionSelected === 'clipboard') {
-    toast({
+    copyToast({
       title: ' Copied to clipboard',
       description:
         'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
@@ -101,13 +106,45 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const onValidateAndSave = () => {
     if (configurationSource === 'git') {
       getAppConfigFromRepo();
-      updatePipelineConfig();
-      onClose();
     }
     if (configurationSource === 'bitrise') {
       updatePipelineConfig();
-      onClose();
     }
+  };
+
+  useEffect(() => {
+    if (getAppConfigFromRepoStatus === 200) {
+      updatePipelineConfig();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [getAppConfigFromRepoStatus]);
+
+  useEffect(() => {
+    if (updatePipelineConfigStatus === 200) {
+      if (configurationSource === 'bitrise') {
+        postAppConfig();
+      } else {
+        onSuccess();
+      }
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [updatePipelineConfigStatus]);
+
+  useEffect(() => {
+    if (postAppConfigStatus === 200) {
+      onSuccess();
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [postAppConfigStatus]);
+
+  const onSuccess = () => {
+    onClose();
+    successToast({
+      title: ' Source succesfully changed',
+      description: 'From now you can manage your Configuration YAML on bitrise.io.',
+      status: 'success',
+      isClosable: true,
+    });
   };
 
   return (
@@ -121,7 +158,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             setUsesRepositoryYml(value === 'git');
           }}
           value={usesRepositoryYml ? 'git' : 'bitrise'}
-          isDisabled={getAppConfigFromRepoLoading}
+          isDisabled={getAppConfigFromRepoLoading || updatePipelineConfigLoading}
         >
           <Radio
             helperText="Store and manage all your configuration on bitrise.io."
@@ -153,7 +190,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 }
               }}
               value={configurationSource}
-              isDisabled={getAppConfigFromRepoLoading}
+              isDisabled={getAppConfigFromRepoLoading || updatePipelineConfigLoading}
             >
               <Radio
                 helperText={
@@ -255,7 +292,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           </>
         )}
         {getAppConfigFromRepoLoading && (
-          <Notification status="progress">Looking for a configuration file in the app’s repository.</Notification>
+          <Notification status="progress" marginBlockStart="24">
+            Looking for a configuration file in the app’s repository.
+          </Notification>
         )}
         {getAppConfigFromRepoFailed && renderError()}
       </DialogBody>
@@ -267,7 +306,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           <Button
             onClick={onValidateAndSave}
             isDisabled={!isSourceSelected || !!getAppConfigFromRepoFailed || getAppConfigFromRepoLoading}
-            isLoading={getAppConfigFromRepoLoading}
+            isLoading={getAppConfigFromRepoLoading || updatePipelineConfigLoading}
           >
             Validate and save
           </Button>

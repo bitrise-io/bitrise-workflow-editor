@@ -1,15 +1,16 @@
 import { Meta, StoryObj } from '@storybook/react';
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
-import { getConfig, putPipelineConfig, putPipelineConfigFailed } from './ConfigurationYmlSource.mswMocks';
+import { getConfig, postConfig, putPipelineConfig, putPipelineConfigFailed } from './ConfigurationYmlSource.mswMocks';
 
 export default {
   component: ConfigurationYmlSourceDialog,
   args: {
     isOpen: true,
     appSlug: '1c75ec44-ef64-4da0-8ab8-339f512eecc8',
+    onClose: () => {},
   },
   parameters: {
-    msw: [getConfig(), putPipelineConfig()],
+    msw: [getConfig(), putPipelineConfig(), postConfig()],
   },
 } as Meta<typeof ConfigurationYmlSourceDialog>;
 
