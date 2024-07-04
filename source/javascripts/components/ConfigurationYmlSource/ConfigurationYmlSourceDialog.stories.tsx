@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import ConfigurationYmlSourceDialog from './ConfigurationYmlSourceDialog';
-import { getConfig, putPipelineConfig } from './ConfigurationYmlSource.mswMocks';
+import { getConfig, putPipelineConfig, putPipelineConfigFailed } from './ConfigurationYmlSource.mswMocks';
 
 export default {
   component: ConfigurationYmlSourceDialog,
@@ -22,5 +22,23 @@ export const StoredOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
 export const StoredOnGitRepository: StoryObj<typeof ConfigurationYmlSourceDialog> = {
   args: {
     initialUsesRepositoryYml: true,
+  },
+};
+
+export const StoringFailedOnGit: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+  args: {
+    initialUsesRepositoryYml: false,
+  },
+  parameters: {
+    msw: [putPipelineConfigFailed()],
+  },
+};
+
+export const StoringFailedOnBitrise: StoryObj<typeof ConfigurationYmlSourceDialog> = {
+  args: {
+    initialUsesRepositoryYml: true,
+  },
+  parameters: {
+    msw: [putPipelineConfigFailed()],
   },
 };

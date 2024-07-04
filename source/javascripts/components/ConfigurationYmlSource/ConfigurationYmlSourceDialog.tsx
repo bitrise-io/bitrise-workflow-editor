@@ -88,7 +88,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     switch (getAppConfigFromRepoStatus) {
       case 404:
         return (
-          <Notification status="error">
+          <Notification status="error" marginBlockStart="24">
             Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the
             default branch and the app's Service Credential User has read rights on that.
           </Notification>
@@ -102,9 +102,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     if (configurationSource === 'git') {
       getAppConfigFromRepo();
       updatePipelineConfig();
+      onClose();
     }
     if (configurationSource === 'bitrise') {
       updatePipelineConfig();
+      onClose();
     }
   };
 
@@ -119,6 +121,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             setUsesRepositoryYml(value === 'git');
           }}
           value={usesRepositoryYml ? 'git' : 'bitrise'}
+          isDisabled={getAppConfigFromRepoLoading}
         >
           <Radio
             helperText="Store and manage all your configuration on bitrise.io."
@@ -150,6 +153,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 }
               }}
               value={configurationSource}
+              isDisabled={getAppConfigFromRepoLoading}
             >
               <Radio
                 helperText={
@@ -263,6 +267,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           <Button
             onClick={onValidateAndSave}
             isDisabled={!isSourceSelected || !!getAppConfigFromRepoFailed || getAppConfigFromRepoLoading}
+            isLoading={getAppConfigFromRepoLoading}
           >
             Validate and save
           </Button>

@@ -18,3 +18,12 @@ export const putPipelineConfig = () => {
     });
   });
 };
+
+export const putPipelineConfigFailed = () => {
+  return http.put(pipelineConfigPath(':slug'), async () => {
+    await delay();
+    return new HttpResponse(null, {
+      status: 400,
+    });
+  });
+};
