@@ -1,4 +1,8 @@
 import { Meta } from '@storybook/react';
+import {
+  getNotificationMetaData,
+  putNotificationMetaData,
+} from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
 import YmlEditorHeader, { YmlEditorHeaderProps } from './YmlEditorHeader';
 
 const meta: Meta<YmlEditorHeaderProps> = {
@@ -7,6 +11,9 @@ const meta: Meta<YmlEditorHeaderProps> = {
     url: 'url',
     usesRepositoryYml: false,
     lines: 400,
+  },
+  parameters: {
+    msw: [getNotificationMetaData(), putNotificationMetaData()],
   },
 };
 

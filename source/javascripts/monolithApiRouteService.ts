@@ -5,3 +5,7 @@ export const configPath = (appSlug: string): string => {
 export const pipelineConfigPath = (appSlug: string): string => {
   return `/app/${appSlug}/pipeline_config`;
 };
+
+export const notificationMetaDataPath = (): string => {
+  return `/me/profile/metadata.json`;
+};

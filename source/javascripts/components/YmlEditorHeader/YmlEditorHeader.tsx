@@ -53,7 +53,8 @@ const YmlEditorHeader = ({
 
   useEffect(() => {
     notificationMetaDataResponse.call();
-  }, [notificationMetaDataResponse]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const showNotification = notificationMetaDataResponse.value === null;
 
@@ -65,28 +66,6 @@ const YmlEditorHeader = ({
 
   let notification;
   if (isNotificationOpen && !split && lines > 500) {
-    let notificationText;
-    if (modularYmlSupported) {
-      notificationText = (
-        <>
-          <Text textStyle="heading/h4">Optimize your configuration file</Text>
-          <Text>
-            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance.
-          </Text>
-        </>
-      );
-    } else {
-      notificationText = (
-        <>
-          <Text textStyle="heading/h4">Optimize your configuration file</Text>
-          <Text>
-            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance. This feature is only available for Workspaces on Enterprise plan.
-          </Text>
-        </>
-      );
-    }
     notification = (
       <Notification
         status="info"
@@ -98,7 +77,12 @@ const YmlEditorHeader = ({
         onClose={handleNotificationClose}
         marginBlockEnd="24"
       >
-        {notificationText}
+        <Text textStyle="heading/h4">Optimize your configuration file</Text>
+        <Text>
+          We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable files
+          for easier maintenance.{' '}
+          {modularYmlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
+        </Text>
       </Notification>
     );
   }
