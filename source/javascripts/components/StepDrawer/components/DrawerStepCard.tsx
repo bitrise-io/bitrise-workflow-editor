@@ -1,4 +1,4 @@
-import { useCallback, useRef } from 'react';
+import { useCallback, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Icon, Image, Text, Tooltip } from '@bitrise/bitkit';
 
 import { ColorProps } from '@chakra-ui/react';
@@ -22,6 +22,7 @@ type Props = Step & {
 const DrawerStepCard = ({
   icon,
   title,
+  summary,
   description,
   version,
   isOfficial,
@@ -34,6 +35,7 @@ const DrawerStepCard = ({
   const titleRef = useRef<HTMLParagraphElement>(null);
   const isTitleTruncated = useIsTruncated(titleRef);
   const getColor = useCallback((color: ColorProps['color']) => (isDisabled ? 'text/disabled' : color), [isDisabled]);
+  const detail = useMemo(() => summary || description.split('\n')[0], [summary, description]);
 
   return (
     <Card
@@ -84,7 +86,7 @@ const DrawerStepCard = ({
         </Box>
       </Box>
       <Text textStyle="body/sm/regular" noOfLines={2} color={getColor('text/secondary')}>
-        {description}
+        {detail}
       </Text>
       {!isDisabled && (
         <Icon
