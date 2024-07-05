@@ -164,7 +164,10 @@ const SecretsPage = (props: SecretsPageProps) => {
       </Text>
       <Text>
         Secrets are not shown in the bitrise.yml. They are stored encrypted, and you can prevent them from being exposed
-        on the UI by marking them as protected. Learn more
+        on the UI by marking them as protected.{' '}
+        <Link href="https://devcenter.bitrise.io/en/getting-started/migrating-to-bitrise/migrating-from-jenkins-to-bitrise.html#environment-variables-and-secrets-on-bitrise">
+          Learn more
+        </Link>
       </Text>
       <Notification status="info" marginY="24">
         <b>We advise not to expose Secrets in pull requests</b> <br />
