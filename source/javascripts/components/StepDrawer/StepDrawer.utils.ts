@@ -68,6 +68,7 @@ export const createVirtualItemsCategory = (
         type: 'steps',
         category,
         row: i,
+        columns,
         steps: stepsInRow,
       });
     }
