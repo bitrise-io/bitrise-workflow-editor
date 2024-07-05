@@ -27,7 +27,7 @@ export type CategoryRowItem = {
 export type StepsRowItem = {
   type: 'steps';
   row: number;
-  category: string;
+  category?: string;
   columns: number;
   steps: Step[];
 };

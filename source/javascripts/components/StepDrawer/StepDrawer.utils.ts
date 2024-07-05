@@ -47,21 +47,30 @@ export const formValueToArray = <T>(value: T | T[]): T[] => {
   return Array.isArray(value) ? value : [value];
 };
 
-export const createVirtualItemsCategory = (
-  category: string,
-  steps: Step[],
-  columns: number,
-  allowedStepIds: Set<string> | undefined = undefined,
-) => {
+type CreateVirtualItemsGroupParams = {
+  columns: number;
+  category?: string;
+  enabledStepIds?: Set<string>;
+  steps: Step[];
+};
+
+export const createVirtualItemsGroup = ({
+  columns,
+  category,
+  enabledStepIds,
+  steps,
+}: CreateVirtualItemsGroupParams) => {
   const items: VirtualizedListItem[] = [];
 
   if (steps.length > 0) {
     const rows = Math.ceil(steps.length / columns);
-    items.push({ type: 'category', category, rows });
+    if (category) {
+      items.push({ type: 'category', category, rows });
+    }
 
     for (let i = 0; i < rows; i++) {
       const stepsInRow = steps.slice(i * columns, (i + 1) * columns).map((step) => {
-        const isDisabled = allowedStepIds && !allowedStepIds.has(step.id);
+        const isDisabled = enabledStepIds && !enabledStepIds.has(step.id);
         return { ...step, isDisabled };
       });
       items.push({
