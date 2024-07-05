@@ -1,6 +1,9 @@
+import { useEffect, useState } from 'react';
 import { Box, Button, Card, Text, Notification, useDisclosure } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import { AppConfig } from '../../models/AppConfig';
+import usePutUserMetaData from '../../hooks/api/usePutUserMetaData';
+import useGetUserMetaData from '../../hooks/api/useGetUserMetaData';
 
 export type YmlEditorHeaderProps = {
   appSlug: string;
@@ -32,10 +35,36 @@ const YmlEditorHeader = ({
   lines,
   lastModified,
 }: YmlEditorHeaderProps) => {
+  const metaDataKey = modularYmlSupported
+    ? 'wfe_modular_yml_enterprise_notification_closed'
+    : 'wfe_modular_yml_split_notification_closed';
+
+  const { call: putNotificationMetaData } = usePutUserMetaData(metaDataKey, true);
+
+  const notificationMetaDataResponse = useGetUserMetaData(metaDataKey);
+
   const { isOpen, onClose, onOpen } = useDisclosure();
+  const [isNotificationOpen, setIsNotificationOpen] = useState(true);
+
+  const handleNotificationClose = () => {
+    setIsNotificationOpen(false);
+    putNotificationMetaData();
+  };
+
+  useEffect(() => {
+    notificationMetaDataResponse.call();
+  }, [notificationMetaDataResponse]);
+
+  const showNotification = notificationMetaDataResponse.value === null;
+
+  useEffect(() => {
+    if (showNotification === true) {
+      setIsNotificationOpen(true);
+    }
+  }, [showNotification]);
 
   let notification;
-  if (!split && lines > 500) {
+  if (isNotificationOpen && !split && lines > 500) {
     let notificationText;
     if (modularYmlSupported) {
       notificationText = (
@@ -43,7 +72,7 @@ const YmlEditorHeader = ({
           <Text textStyle="heading/h4">Optimize your configuration file</Text>
           <Text>
             We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance. This feature is only available for Workspaces on Enterprise plan.
+            files for easier maintenance.
           </Text>
         </>
       );
@@ -53,7 +82,7 @@ const YmlEditorHeader = ({
           <Text textStyle="heading/h4">Optimize your configuration file</Text>
           <Text>
             We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance.
+            files for easier maintenance. This feature is only available for Workspaces on Enterprise plan.
           </Text>
         </>
       );
@@ -66,7 +95,7 @@ const YmlEditorHeader = ({
           label: 'Learn more',
           target: '_blank',
         }}
-        onClose={onClose}
+        onClose={handleNotificationClose}
         marginBlockEnd="24"
       >
         {notificationText}
