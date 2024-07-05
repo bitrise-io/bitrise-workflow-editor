@@ -38,7 +38,16 @@ const YmlEditorHeader = ({
   if (!split && lines > 500) {
     if (modularYmlSupported) {
       notification = (
-        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
+        <Notification
+          status="info"
+          action={{
+            href: 'https://devcenter.bitrise.io/builds/bitrise-yml-online/',
+            label: 'Learn more',
+            target: '_blank',
+          }}
+          onClose={onClose}
+          marginBlockEnd="24"
+        >
           <Text textStyle="heading/h4">Optimize your configuration file</Text>
           <Text>
             We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
@@ -48,7 +57,16 @@ const YmlEditorHeader = ({
       );
     } else {
       notification = (
-        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
+        <Notification
+          status="info"
+          action={{
+            href: 'https://devcenter.bitrise.io/builds/bitrise-yml-online/',
+            label: 'Learn more',
+            target: '_blank',
+          }}
+          onClose={onClose}
+          marginBlockEnd="24"
+        >
           <Text textStyle="heading/h4">Optimize your configuration file</Text>
           <Text>
             We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
