@@ -15,11 +15,11 @@ import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
 
 type Props = UseDisclosureProps & {
-  allowedStepIds?: Set<string>;
+  enabledStepIds?: Set<string>;
   onStepSelected: StepSelected;
 };
 
-const StepDrawer = ({ allowedStepIds, onStepSelected, ...disclosureProps }: Props) => {
+const StepDrawer = ({ enabledStepIds, onStepSelected, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -54,7 +54,7 @@ const StepDrawer = ({ allowedStepIds, onStepSelected, ...disclosureProps }: Prop
             <StepFilter my={16} />
           </DrawerHeader>
           <DrawerBody flex="1" overflow="auto">
-            <StepList allowedStepIds={allowedStepIds} onStepSelected={onStepSelected} />
+            <StepList enabledStepIds={enabledStepIds} onStepSelected={onStepSelected} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

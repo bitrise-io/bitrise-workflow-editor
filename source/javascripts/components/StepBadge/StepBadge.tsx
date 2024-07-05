@@ -22,7 +22,7 @@ const StepBadge = ({ isOfficial, isVerified, isDeprecated, ...rest }: StepItemBa
   if (isVerified) {
     return (
       <Box title="Verified step" data-e2e-tag="verified-badge" {...rest}>
-        <Tooltip label="Maintained by 3rd party">
+        <Tooltip label="Verified by Bitrise">
           <Icon name="Badge3rdParty" />
         </Tooltip>
       </Box>
