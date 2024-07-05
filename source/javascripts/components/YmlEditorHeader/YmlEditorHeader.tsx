@@ -18,7 +18,7 @@ export type YmlEditorHeaderProps = {
   split: boolean;
   modularYmlSupported: boolean;
   lines: number;
-  lastModified: string;
+  lastModified: string | null;
 };
 const YmlEditorHeader = ({
   appSlug,

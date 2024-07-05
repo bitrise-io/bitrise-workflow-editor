@@ -17,6 +17,7 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { format } from 'date-fns';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
@@ -33,7 +34,7 @@ type ConfigurationYmlSourceDialogProps = {
   onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
   defaultBranch: string;
   gitRepoSlug: string;
-  lastModified: string;
+  lastModified: string | null;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -162,6 +163,12 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     onUsesRepositoryYmlChangeSaved(usesRepositoryYml);
   };
 
+  let lastModifiedFormatted;
+  if (lastModified !== null) {
+    const date = new Date(lastModified);
+    lastModifiedFormatted = format(date, 'MMMM d, yyyy');
+  }
+
   return (
     <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
       <DialogBody>
@@ -225,7 +232,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               >
                 Use the configuration file stored in the Git repository
               </Radio>
-              <Radio helperText={<>Last updated:{lastModified}</>} value="bitrise">
+              <Radio helperText={<>The source setting was last changed on {lastModifiedFormatted}.</>} value="bitrise">
                 Use the last version you stored on bitrise.io
               </Radio>
             </RadioGroup>

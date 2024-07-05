@@ -11,6 +11,7 @@ const meta: Meta<YmlEditorHeaderProps> = {
     url: 'url',
     usesRepositoryYml: false,
     lines: 400,
+    lastModified: '2024-05-12T09:23:48.190Z',
   },
   parameters: {
     msw: [getNotificationMetaData(), putNotificationMetaData()],
