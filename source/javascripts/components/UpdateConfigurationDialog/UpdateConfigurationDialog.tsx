@@ -13,10 +13,12 @@ type UpdateConfigurationDialogProps = {
   appSlug: string;
   appConfig: AppConfig | string;
   onComplete(): void;
+  defaultBranch: string;
+  gitRepoSlug: string;
 };
 
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
-  const { isOpen, onClose, appSlug, appConfig, onComplete } = props;
+  const { isOpen, onClose, appSlug, appConfig, onComplete, defaultBranch, gitRepoSlug } = props;
 
   const { getAppConfigFromRepo, appConfigFromRepo, getAppConfigFromRepoStatus, getAppConfigFromRepoFailed } =
     useGetAppConfigFromRepoCallback(appSlug);
@@ -76,7 +78,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Using a single configuration file
         </Text>
         <Text marginBlockEnd="16">
-          Update the content of the configuration YAML in the REPONAME repository’s BRANCHNAME branch.
+          Update the content of the configuration YAML in the {gitRepoSlug} repository’s {defaultBranch} branch.
         </Text>
         <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
           <Link

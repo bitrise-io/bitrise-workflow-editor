@@ -33,6 +33,7 @@ type ConfigurationYmlSourceDialogProps = {
   onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
   defaultBranch: string;
   gitRepoSlug: string;
+  lastModified: string;
 };
 
 const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) => {
@@ -45,6 +46,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     appConfig,
     appSlug,
     onUsesRepositoryYmlChangeSaved,
+    lastModified,
   } = props;
 
   const {
@@ -223,7 +225,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               >
                 Use the configuration file stored in the Git repository
               </Radio>
-              <Radio helperText="Last updated: May 12, 2024" value="bitrise">
+              <Radio helperText={<>Last updated:{lastModified}</>} value="bitrise">
                 Use the last version you stored on bitrise.io
               </Radio>
             </RadioGroup>

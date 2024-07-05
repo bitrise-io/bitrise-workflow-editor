@@ -6,6 +6,9 @@ const meta: Meta<YmlEditorHeaderProps> = {
   args: {
     url: 'url',
     usesRepositoryYml: false,
+    lines: 550,
+    split: false,
+    modularYmlSupported: true,
   },
 };
 

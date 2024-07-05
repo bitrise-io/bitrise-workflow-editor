@@ -7,6 +7,8 @@ export default {
   args: {
     isOpen: true,
     appSlug: '123',
+    defaultBranch: 'main',
+    gitRepoSlug: 'VoyagerGitRepo',
   },
   parameters: {
     msw: [getConfig()],
