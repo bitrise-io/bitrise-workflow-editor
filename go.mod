@@ -2,7 +2,7 @@ module github.com/bitrise-io/bitrise-workflow-editor
 
 go 1.21
 
-toolchain go1.22.2
+toolchain go1.22.5
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
