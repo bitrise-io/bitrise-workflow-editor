@@ -602,7 +602,7 @@ header.sticky header.menu {
 
 	> .main {
 		grid-area: content;
-		
+
 		padding: 32px;
 		overflow-y: auto;
 		overflow-x: hidden;
@@ -632,6 +632,10 @@ header.sticky header.menu {
 
 		&:has(.tab-code-signing) {
 			padding: 20px 0;
+		}
+
+		> :not(:first-child) {
+			margin-top: 20px;
 		}
 	}
 

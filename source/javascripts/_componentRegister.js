@@ -23,6 +23,7 @@ import SecretsPage from "./components/SecretsPage/SecretsPage";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
 import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
+import StepDrawer from "./components/StepDrawer/StepDrawer";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -218,4 +219,13 @@ angular
   .component(
     "rWorkflowConfigPanel",
     register(WorkflowConfigPanel, ["appSlug", "defaultValues", "onChange"]),
+  )
+  .component(
+    "rStepDrawer",
+    register(StepDrawer, [
+      "isOpen",
+      "onClose",
+      "allowedStepIds",
+      "onStepSelected",
+    ]),
   );

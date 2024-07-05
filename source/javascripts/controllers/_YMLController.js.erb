@@ -58,16 +58,21 @@ import { configureMonacoYaml } from 'monaco-yaml';
 
 			function init() {
 				if (requestService.isWebsiteMode()) {
+					viewModel.appSlug = requestService.appSlug;
+
 					appService.getPipelineConfig()
 						.then(function() {
 							viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
 							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
-							viewModel.appSlug = appService.appDetails.slug;
 						})
-					requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
-					.then(function(ownerPlanData) {
-						viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
-					})
+					if (appService.appDetails && appService.appDetails.ownerData) {
+						requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+						.then(function(ownerPlanData) {
+							viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
+						});
+					} else {
+						viewModel.repositoryYmlAvailable = undefined;
+					}
 				}
 			}
 
