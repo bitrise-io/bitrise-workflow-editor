@@ -6,12 +6,34 @@ const meta: Meta<YmlEditorHeaderProps> = {
   args: {
     url: 'url',
     usesRepositoryYml: false,
-    lines: 550,
-    split: false,
-    modularYmlSupported: true,
+    lines: 400,
   },
 };
 
 export default meta;
 
 export const WithProps = {};
+
+export const ModularYmlSupported = {
+  args: {
+    split: false,
+    lines: 550,
+    modularYmlSupported: true,
+  },
+};
+
+export const ModularYmlNotSupported = {
+  args: {
+    split: false,
+    lines: 550,
+    modularYmlSupported: false,
+  },
+};
+
+export const SplittedConfig = {
+  args: {
+    split: true,
+    lines: 550,
+    modularYmlSupported: false,
+  },
+};

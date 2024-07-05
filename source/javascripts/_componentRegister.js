@@ -102,8 +102,12 @@ angular
       "onUsesRepositoryYmlChangeSaved",
       "repositoryYmlAvailable",
       "shouldShowYmlStorageSettings",
-      "defaultBranch",
-      "gitRepoSlug"
+      "defaultBranch",            
+      "gitRepoSlug",
+      "lines",
+      "split",
+      "modularYmlSupported",
+      "lastModified"
 ]),
   )
   .component(

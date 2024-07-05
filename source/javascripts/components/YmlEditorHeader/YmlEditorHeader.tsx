@@ -34,6 +34,31 @@ const YmlEditorHeader = ({
 }: YmlEditorHeaderProps) => {
   const { isOpen, onClose, onOpen } = useDisclosure();
 
+  let notification;
+  if (!split && lines > 500) {
+    if (modularYmlSupported) {
+      notification = (
+        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
+          <Text textStyle="heading/h4">Optimize your configuration file</Text>
+          <Text>
+            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
+            files for easier maintenance. This feature is only available for Workspaces on Enterprise plan.
+          </Text>
+        </Notification>
+      );
+    } else {
+      notification = (
+        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
+          <Text textStyle="heading/h4">Optimize your configuration file</Text>
+          <Text>
+            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
+            files for easier maintenance.
+          </Text>
+        </Notification>
+      );
+    }
+  }
+
   return (
     <>
       <Box display="flex" gap="16" alignItems="center" marginBlockEnd="24" minHeight="40">
@@ -53,33 +78,7 @@ const YmlEditorHeader = ({
           </Card>
         )}
       </Box>
-      {!split && lines > 500 && (
-        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
-          <Text textStyle="heading/h4">Optimize your configuration file</Text>
-          <Text>
-            Your configuration file is {lines} lines of code. For easier maintenance, we recommend split it up into
-            smaller, more manageable files. This feature is only available for Workspaces on Enterprise plan.
-          </Text>
-        </Notification>
-      )}
-      {modularYmlSupported && (
-        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
-          <Text textStyle="heading/h4">Optimize your configuration file</Text>
-          <Text>
-            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance. This feature is only available for Workspaces on Enterprise plan.
-          </Text>
-        </Notification>
-      )}
-      {!modularYmlSupported && (
-        <Notification status="info" action={{ label: 'Learn more' }} onClose={onClose}>
-          <Text textStyle="heading/h4">Optimize your configuration file</Text>
-          <Text>
-            We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable
-            files for easier maintenance.
-          </Text>
-        </Notification>
-      )}
+      {notification}
       <ConfigurationYmlSourceDialog
         isOpen={isOpen}
         onClose={onClose}
