@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "1.3.421",
+  "version": "1.3.429",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -52,7 +52,7 @@
     "stepDefinitions": "spec/integration"
   },
   "dependencies": {
-    "@bitrise/bitkit": "^13.108.0",
+    "@bitrise/bitkit": "^13.112.0",
     "@bitrise/react2angular": "^5.0.0",
     "@bitrise/steplib-search": "^2.3.0",
     "@chakra-ui/react": "^2.8.2",
@@ -86,7 +86,7 @@
     "json-schema-to-ts": "^3.1.0",
     "launchdarkly-js-client-sdk": "^3.2.0",
     "lodash": "^4.17.21",
-    "monaco-editor": "^0.48.0",
+    "monaco-editor": "^0.50.0",
     "monaco-yaml": "^5.1.1",
     "ng-showdown": "^1.1.0",
     "prop-types": "^15.8.1",
@@ -168,7 +168,7 @@
     "node-sass": "^9.0.0",
     "null-loader": "^4.0.1",
     "onchange": "^7.1.0",
-    "prettier": "3.2.5",
+    "prettier": "3.3.2",
     "sass-loader": "^14.1.1",
     "shell-loader": "^1.2.1",
     "start-server-and-test": "^2.0.3",

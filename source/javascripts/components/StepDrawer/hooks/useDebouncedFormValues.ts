@@ -1,22 +1,21 @@
 import { useEffect } from 'react';
-import { useFormContext } from 'react-hook-form';
+import { FieldValues, UseFormWatch } from 'react-hook-form';
 import { useDebounceValue } from 'usehooks-ts';
-import { SearchFormValues } from '../StepDrawer.types';
-
-const InitialValues: SearchFormValues = {
-  search: '',
-  categories: [],
-};
 
 const DebounceDelay = 150;
 
-const useDebouncedFormValues = () => {
-  const { watch } = useFormContext<SearchFormValues>();
-  const [debouncedValues, setDebouncedValues] = useDebounceValue<SearchFormValues>(InitialValues, DebounceDelay);
+type Props<T extends FieldValues> = {
+  watch: UseFormWatch<T>;
+  initialValues: T;
+  delay?: number;
+};
+
+const useDebouncedFormValues = <T extends FieldValues>({ watch, initialValues, delay = DebounceDelay }: Props<T>) => {
+  const [debouncedValues, setDebouncedValues] = useDebounceValue<T>(initialValues, delay);
 
   useEffect(() => {
     const { unsubscribe } = watch((value) => {
-      setDebouncedValues(value as SearchFormValues);
+      setDebouncedValues(value as T);
     });
     return () => unsubscribe();
   }, [watch, setDebouncedValues]);

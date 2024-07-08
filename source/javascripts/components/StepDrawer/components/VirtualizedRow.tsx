@@ -3,7 +3,7 @@ import { SimpleGrid } from '@chakra-ui/react';
 import { Text } from '@bitrise/bitkit';
 import { displayCategoryName, isCategoryRow, isStepsRow } from '../StepDrawer.utils';
 import { StepSelected, VirtualizedListItem } from '../StepDrawer.types';
-import { ColumnValues, RowGaps, RowHeights, RowSizes } from '../StepDrawer.constants';
+import { RowGaps, RowHeights, RowSizes } from '../StepDrawer.constants';
 import DrawerStepCard from './DrawerStepCard';
 
 type VirtualizedRowProps = {
@@ -30,7 +30,7 @@ const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProp
 
   if (isStepsRow(item)) {
     return (
-      <SimpleGrid columns={ColumnValues} spacing={RowGaps.steps} mb={`${RowGaps.steps}px`} style={style}>
+      <SimpleGrid columns={item.columns} spacing={RowGaps.steps} mb={`${RowGaps.steps}px`} style={style}>
         {item.steps.map((step) => (
           <DrawerStepCard
             key={`${item.category}/${step.id}`}

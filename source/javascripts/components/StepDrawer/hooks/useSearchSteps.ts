@@ -33,9 +33,9 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
   const index = useMemo(() => {
     const options = {
       keys: [
-        { name: 'id', weight: 1.5 },
-        { name: 'step.title', weight: 2 },
-        { name: 'step.summary', weight: 1 },
+        { name: 'id', weight: 2 },
+        { name: 'step.title', weight: 3 },
+        { name: 'step.summary', weight: 0.5 },
         { name: 'step.type_tags' },
       ],
       threshold: 0.25,

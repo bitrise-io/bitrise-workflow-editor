@@ -1,33 +1,50 @@
-import { CSSProperties, useRef } from 'react';
+import { CSSProperties, useMemo, useRef } from 'react';
 import { Box, Button, EmptyState, Notification } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import useColumnCount from '../hooks/useColumnCount';
-import useDebouncedFormValues from '../hooks/useDebouncedFormValues';
-import useSearchSteps from '../hooks/useSearchSteps';
 import useVirtualizedItems from '../hooks/useVirtualizedItems';
 import { SearchFormValues, StepSelected } from '../StepDrawer.types';
+import useDebouncedFormValues from '../hooks/useDebouncedFormValues';
+import useSearchSteps from '../hooks/useSearchSteps';
 import SkeletonRows from './SkeletonRows';
 import VirtualizedRow from './VirtualizedRow';
 
+const InitialValues: SearchFormValues = {
+  search: '',
+  categories: [],
+};
+
 type Props = {
-  allowedStepIds?: Set<string>;
+  enabledStepIds?: Set<string>;
   onStepSelected: StepSelected;
 };
 
-const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
-  const parentRef = useRef<HTMLDivElement>(null);
-  const columns = useColumnCount();
-  const { reset } = useFormContext<SearchFormValues>();
-  const formValues = useDebouncedFormValues();
-  const { data: steps = [], isLoading, isError, refetch } = useSearchSteps(formValues);
-  const { items, virtualizer } = useVirtualizedItems({
-    containerRef: parentRef,
-    steps,
-    columns,
-    allowedStepIds,
+const StepList = ({ enabledStepIds, onStepSelected }: Props) => {
+  const listRef = useRef<HTMLDivElement>(null);
+  const columns = useColumnCount({ ref: listRef });
+  const { reset, watch } = useFormContext<SearchFormValues>();
+  const formValues = useDebouncedFormValues({
+    watch,
+    initialValues: InitialValues,
   });
+  const { data: steps = [], isLoading, isError, refetch: onRetry } = useSearchSteps(formValues);
+  const highlightedStepGroups = useMemo(
+    () => (enabledStepIds ? { 'Allowed steps': enabledStepIds } : undefined),
+    [enabledStepIds],
+  );
 
-  const virtualItems = virtualizer.getVirtualItems();
+  const {
+    items,
+    virtualizer: { getTotalSize, getVirtualItems },
+  } = useVirtualizedItems({
+    containerRef: listRef,
+    columns,
+    hideCategoryNames: Boolean(formValues.search),
+    selectedCategories: formValues.categories,
+    steps,
+    enabledStepIds,
+    highlightedStepGroups,
+  });
 
   if (isLoading) {
     return <SkeletonRows columns={columns} />;
@@ -36,16 +53,14 @@ const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
   if (isError) {
     return (
       <Notification
+        status="error"
         action={{
           label: 'Retry',
           placement: 'end',
-          onClick: () => {
-            refetch();
-          },
+          onClick: onRetry,
         }}
-        status="error"
       >
-        Failed to fetch steps
+        Network error: Failed to fetch steps. Please try again.
       </Notification>
     );
   }
@@ -66,9 +81,9 @@ const StepList = ({ allowedStepIds, onStepSelected }: Props) => {
   }
 
   return (
-    <Box ref={parentRef} maxH="100%" overflow="auto">
-      <Box height={`${virtualizer.getTotalSize()}px`} position="relative">
-        {virtualItems.map((virtualItem) => {
+    <Box ref={listRef} maxH="100%" overflow="auto">
+      <Box height={getTotalSize()} position="relative">
+        {getVirtualItems().map((virtualItem) => {
           const { key, index, start } = virtualItem;
           const item = items[index];
           const style: CSSProperties = {
