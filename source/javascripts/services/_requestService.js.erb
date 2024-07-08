@@ -708,7 +708,11 @@ import jsyaml from "js-yaml";
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
 							resolve({
-								usesRepositoryYml: response.data.uses_repository_yml
+								usesRepositoryYml: response.data.uses_repository_yml,
+								lines: response.data.lines || 0,
+								split: !!response.data.split,
+								modularYmlSupported: !!response.data.modular_yml_supported,
+								lastModified: response.data.last_modified || null
 							});
 						},
 						function(response) {

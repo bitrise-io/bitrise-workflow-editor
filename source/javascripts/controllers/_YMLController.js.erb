@@ -35,7 +35,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			viewModel.lines = 0;
 			viewModel.split = false;
 			viewModel.modularYmlSupported = false;
-			viewModel.lastModified = "";
+			viewModel.lastModified = null;
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -70,7 +70,12 @@ import { configureMonacoYaml } from 'monaco-yaml';
 					appService.getPipelineConfig()
 						.then(function() {
 							viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+							viewModel.lines = appService.pipelineConfig.lines;
+							viewModel.split = appService.pipelineConfig.split;
+							viewModel.modularYmlSupported = appService.pipelineConfig.modularYmlSupported;
+							viewModel.lastModified = appService.pipelineConfig.lastModified;
 							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
+							console.log(viewModel)
 						})
 					if (appService.appDetails && appService.appDetails.ownerData) {
 						requestService.getOrgPlanData(appService.appDetails.ownerData.slug)

@@ -232,7 +232,14 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               >
                 Use the configuration file stored in the Git repository
               </Radio>
-              <Radio helperText={<>The source setting was last changed on {lastModifiedFormatted}.</>} value="bitrise">
+              <Radio
+                helperText={
+                  lastModifiedFormatted ? (
+                    <>The source setting was last changed on {lastModifiedFormatted}.</>
+                  ) : undefined
+                }
+                value="bitrise"
+              >
                 Use the last version you stored on bitrise.io
               </Radio>
             </RadioGroup>
