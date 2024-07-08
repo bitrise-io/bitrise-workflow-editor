@@ -6,23 +6,27 @@ import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
-import StepItemBadge from "./components/StepItem/StepItemBadge";
+import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
-import { BitkitRoot, withBitkitProvider } from "./utils/withBitkitProvider";
+import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-import StepConfig from "./components/StepConfig";
-import VersionChangeDialog from "./components/StepProperties/VersionChangeDialog";
+import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
+import VersionChangeDialog from "./components/StepConfigPanel/components/VersionChangeDialog";
 import TriggersPage from "./components/TriggersPage/TriggersPage";
+import SecretsPage from "./components/SecretsPage/SecretsPage";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
+import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
+import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
+import StepDrawer from "./components/StepDrawer/StepDrawer";
 
 function register(component, props, injects) {
-  return react2angular(withBitkitProvider(component), props, injects);
+  return react2angular(withRootProvider(component), props, injects);
 }
 
 angular
@@ -41,14 +45,14 @@ angular
     ]),
   )
   .component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
-  .component("rBitkitRoot", react2angular(BitkitRoot))
+  .component("rRootComponent", react2angular(RootComponent))
   .component("rIcon", register(Icon, ["name", "textColor", "size"]))
   .component(
     "rStepItem",
     register(StepItem, [
       "workflowIndex",
       "step",
-      "title",
+      "displayName",
       "version",
       "hasVersionUpdate",
       "isSelected",
@@ -59,7 +63,7 @@ angular
     "rAddStepItem",
     register(AddStepItem, ["step", "disabled", "onSelected"]),
   )
-  .component("rStepItemBadge", register(StepItemBadge, ["step"]))
+  .component("rStepItemBadge", register(StepBadge, ["step"]))
   .component(
     "rYmlStorageSettings",
     register(YmlStorageSettings, [
@@ -153,11 +157,12 @@ angular
   )
   .component(
     "rStepConfig",
-    register(StepConfig, [
+    register(StepConfigPanel, [
       "step",
       "tabId",
       "environmentVariables",
       "secrets",
+      "resolvedVersion",
       "hasVersionUpdate",
       "versionsWithRemarks",
       "inputCategories",
@@ -167,8 +172,11 @@ angular
       "onRemove",
       "onChangeTabId",
       "onCreateSecret",
-      "onOpenSecretsDialog",
-      "onOpenEnvironmentVariablesDialog",
+      "onLoadSecrets",
+      "onCreateEnvVar",
+      "onLoadEnvVars",
+      "appSlug",
+      "secretsWriteNew",
     ]),
   )
   .component(
@@ -192,5 +200,32 @@ angular
       "workflows",
       "isWebsiteMode",
       "integrationsUrl",
+    ]),
+  )
+  .component(
+    "rSecretsPage",
+    register(SecretsPage, [
+      "secrets",
+      "secretsWriteNew",
+      "onSecretsChange",
+      "getSecretValue",
+      "appSlug",
+      "secretSettingsUrl",
+      "sharedSecretsAvailable",
+      "planSelectorPageUrl",
+    ]),
+  )
+  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]))
+  .component(
+    "rWorkflowConfigPanel",
+    register(WorkflowConfigPanel, ["appSlug", "defaultValues", "onChange"]),
+  )
+  .component(
+    "rStepDrawer",
+    register(StepDrawer, [
+      "isOpen",
+      "onClose",
+      "allowedStepIds",
+      "onStepSelected",
     ]),
   );

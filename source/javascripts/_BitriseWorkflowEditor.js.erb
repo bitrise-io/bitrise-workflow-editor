@@ -17,7 +17,7 @@ window.mode = "<%= mode %>";
 	]);
 
 	BitriseWorkflowEditor.config(function($compileProvider, $qProvider) {
-		$compileProvider.debugInfoEnabled(false);
+    $compileProvider.debugInfoEnabled(<%= ENV['NODE_ENV'] == 'development' %>);
 		$qProvider.errorOnUnhandledRejections(false);
 		$compileProvider.aHrefSanitizationWhitelist(/^\s*(https?|ftp|mailto|blob|itms-services):/);
 	});
@@ -29,6 +29,11 @@ window.mode = "<%= mode %>";
 	BitriseWorkflowEditor.config(function($routeProvider) {
 		$routeProvider.when("/<%= data[:routes][:endpoints][:workflows] %>", {
 			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:workflows]) %>",
+			reloadOnSearch: false
+		});
+
+		$routeProvider.when("/<%= data[:routes][:endpoints][:pipelines] %>", {
+			templateUrl: "<%= mode_dependant_asset_path(data[:routes][:templates][:pipelines]) %>",
 			reloadOnSearch: false
 		});
 

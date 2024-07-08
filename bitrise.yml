@@ -17,178 +17,178 @@ app:
     - MODE: "CLI"
 
 workflows:
-  up-api:
+  install-client-deps:
+    title: Install the client dependencies
     envs:
-      - BITRISE_CONFIG: "$TEST_BITRISE_CONFIG_PATH"
-      - BITRISE_SECRETS: "$TEST_BITRISE_SECRETS_PATH"
-      - USE_DEV_SERVER: "true"
-    steps:
-      - change-workdir@1.0.2:
-          inputs:
-            - path: $GOPATH/src/github.com/bitrise-io/bitrise-workflow-editor
-      - script:
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                gin --immediate --appPort=$PORT
-
-  install-deps:
+      - NODE_ENV: "prod"
     steps:
       - script@1.1.5:
-          title: install nodejs with asdf
+          title: asdf install nodejs
           inputs:
             - content: |-
                 #!/usr/bin/env bash
-                set -x
+                set -ex
+
                 if ! [ -d ~/.asdf ]; then
-                  git clone https://github.com/asdf-vm/asdf.git ~/.asdf --branch v0.11.3
+                  git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+                  source ~/.asdf/asdf.sh
                 fi
+
                 envman add --key PATH --value $PATH
-                source ~/.asdf/asdf.sh
-                asdf plugin add nodejs https://github.com/asdf-vm/asdf-nodejs.git ||:
-                asdf reshim nodejs
+
+                asdf plugin add nodejs ||:
                 asdf install nodejs
       - script:
-          title: Install NPM and Bundler
+          title: bundle install & npm ci
           deps:
             apt_get:
               - name: ruby
               - name: ruby-dev
               - name: build-essential
-              # for cypress
-              - name: xvfb
-              - name: libgtk2.0-0
-              - name: libgtk-3-0
-              - name: libgconf-2-4
-              - name: libnss3
-              - name: libxss1
-              - name: libasound2
-              - name: libxtst6
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                gem install -f bundler:2.1.4
-                bundle install
-                npm install
-
-  up:
-    steps:
-      - script:
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                ./_scripts/forkpty-run.sh docker-sync-stack start
-  setup:
-    steps:
-      - script:
-          inputs:
-            - content: |
-                #!/bin/bash
-                set -ex
-                docker-sync clean
-                docker-sync start
-                docker-sync stop
-
-                docker-compose kill
-                docker-compose rm -f -v
-                docker-compose build
-
-  ci:
-    envs:
-      - NODE_ENV: "prod"
-    before_run:
-      - _install_test_tools
-      - test-api
-      - test-client
-
-  _install_test_tools:
-    steps:
-      - script:
-          title: Install required testing tools
           inputs:
             - content: |-
                 #!/bin/bash
                 set -ex
-                # Check for unhandled errors
-                go install github.com/kisielk/errcheck@latest
-                # Go lint
-                go install golang.org/x/lint/golint@latest
-  test-client:
+
+                gem install -f bundler:2.5.6
+                bundle install
+                npm ci
+  build-client:
+    title: Build the client
     envs:
       - NODE_ENV: "prod"
-    before_run:
-      - setup-plugin-api
     steps:
       - script:
-          title: Unit tests & linting
+          title: npm run build
           inputs:
-            - content: npm run test-ci
-      - script:
-          title: E2E tests
-          inputs:
-            - content: npm run e2e-ci
+            - content: |-
+                #!/bin/bash
+                set -ex
 
-  test-api:
+                npm run build
+  install-api-server-deps:
+    title: Install the API server dependencies
     steps:
+      - script:
+          title: asdf install golang
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                set -ex
+
+                if ! [ -d ~/.asdf ]; then
+                  git clone https://github.com/asdf-vm/asdf.git ~/.asdf
+                  source ~/.asdf/asdf.sh
+                fi
+
+                envman add --key PATH --value $PATH
+
+                asdf plugin add golang ||:
+                asdf install golang
+      - script:
+          title: go install
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+
+                go install golang.org/x/lint/golint@latest
+                go install github.com/kisielk/errcheck@latest
+                go install github.com/GeertJohan/go.rice/rice@latest
+                asdf reshim golang
+  build-api-server:
+    title: Build the Go API server binaries
+    description: |
+      Creates Linux and Darwin binaries with embedded assets
+    steps:
+      - script:
+          title: Compile Api server
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+
+                ./_scripts/compile_api.sh
+
+  setup:
+    before_run:
+      - install-client-deps
+      - install-api-server-deps
+      - build-client
+      - build-api-server
+
+  ci:
+    title: Run the CI checks
+    envs:
+      - NODE_ENV: "prod"
+    steps:
+      - bitrise-run@0:
+          title: Run API server tests
+          inputs:
+            - workflow_id: test-api
+      - bitrise-run@0:
+          title: Run client unit & E2E tests
+          inputs:
+            - workflow_id: test-client
+  test-api:
+    title: Run the API server tests
+    before_run:
+      - install-api-server-deps
+    steps:
+      - script:
+          title: Go Lint & Vet & Check for unhandled errors
+          inputs:
+            - content: |-
+                #!/bin/bash
+                set -ex
+
+                go vet ./...
+                golint ./...
+                errcheck -asserts=true -blank=true ./...
       - script:
           title: Go Test
           inputs:
             - content: |-
                 #!/bin/bash
                 set -ex
-                go test ./...
-      - script:
-          title: Go Vet
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                go vet ./...
-      - script:
-          title: Err check
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                errcheck -asserts=true -blank=true ./...
-      - script:
-          title: Go Lint
-          inputs:
-            - content: |-
-                #!/bin/bash
-                set -ex
-                # lint
-                golint ./...
 
-  setup-plugin-api:
-    title: Set up local plugin api
-    description: |
-      Set up and build plugin api from clean state
+                go test ./...
+
+  test-client:
+    title: Run the client unit & E2E tests
     envs:
       - NODE_ENV: "prod"
     before_run:
-      - install-deps
+      - install-client-deps
+      - build-client
+      - build-api-server
     steps:
       - script:
-          title: Build client
+          title: Run linter
           inputs:
-            - content: "npm run build"
+            - content: |-
+                npm run lint
       - script:
-          title: Compile Api
+          title: Run unit tests
           inputs:
-            - content: ./_scripts/compile_api.sh
+            - content: |-
+                npm run test
+      - script:
+          title: Run E2E tests
+          deps:
+            apt_get:
+              - name: libasound2
+              - name: libgbm-dev
+              - name: libgconf-2-4
+              - name: libgtk-3-0
+              - name: libgtk2.0-0
+              - name: libnss3
+              - name: libxss1
+              - name: libxtst6
+              - name: xauth
+              - name: xvfb
+              - name: xdg-utils
+          inputs:
+            - content: |-
+                npm run e2e:ci
 
-  create-binaries:
-    title: Create binaries
-    description: |
-      Creates Linux and Darwin binaries with embedded assets
-    envs:
-      - NODE_ENV: "prod"
-    steps:
-      - script:
-          title: Compile Api
-          inputs:
-            - content: ./_scripts/compile_api.sh

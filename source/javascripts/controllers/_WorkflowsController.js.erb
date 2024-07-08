@@ -1,14 +1,14 @@
-import { safeDigest } from "../services/react-compat";
+import {safeDigest} from "../services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getVersionRemark } from "../utils/stepVersionUtil";
-import { extractInputNames, extractReleaseNotesUrl } from "../components/StepProperties/utils";
+import {getVersionRemark} from "../utils/stepVersionUtil";
+import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfigPanel/utils";
 
-(function() {
+(function () {
   "use strict";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("WorkflowsController", function(
+    .controller("WorkflowsController", function (
       $scope,
       $rootScope,
       $q,
@@ -31,17 +31,19 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       Step,
       Variable,
       $window,
-      $timeout
+      $timeout,
+      Stack,
+      MachineType,
     ) {
       var viewModel = this;
 
       viewModel.loadWorkflowsProgress = new Progress();
       viewModel.workflowsHeight = 0;
       viewModel.shouldShowWorkflowsContent = false;
-      viewModel.getAvailableHeightForWorkflows = function() {
+      viewModel.getAvailableHeightForWorkflows = function () {
         viewModel.shouldShowWorkflowsContent = false;
 
-        $timeout(function() {
+        $timeout(function () {
           var element = angular.element(document.querySelector("div.workflows"));
           viewModel.workflowsHeight = element[0].offsetHeight - 1; // this 1px is required to avoid a bug with the sticky header
 
@@ -51,7 +53,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
       var resizeTimeout;
       var RESIZE_DELAY = 500;
-      angular.element($window).on("resize", function() {
+      angular.element($window).on("resize", function () {
         if (resizeTimeout) {
           $timeout.cancel(resizeTimeout);
         }
@@ -63,7 +65,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
       $scope.requestService = requestService;
 
-      $scope.$on("$destroy", function() {
+      $scope.$on("$destroy", function () {
         viewModel.canceler.resolve();
 
         if (resizeTimeout) {
@@ -71,7 +73,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         }
       });
 
-      $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function() {
+      $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function () {
         updateUniqueCount();
         workflowSelectionStore.disable();
         var lastSelectedWorkflowNotFound = !_.find(viewModel.workflows, {
@@ -79,14 +81,14 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         });
 
         loadWorkflows()
-          .then(function() {
+          .then(function () {
             if (lastSelectedWorkflowNotFound) {
               workflowSelectionStore.reset();
             }
 
             workflowSelectionService.restoreSelection(viewModel);
           })
-          .then(function() {
+          .then(function () {
             workflowSelectionStore.enable();
           });
       }));
@@ -95,17 +97,14 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.buildTriggerToken = undefined;
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
-      viewModel.runIfDescription = stringService.stringReplacedWithParameters(
-        "<%= data[:strings][:workflows][:steps][:run_if_description] %>",
-        { url: "https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html" }
-      );
+      viewModel.enableReactStepDrawer = false;
 
-      viewModel.init = function() {
+      viewModel.init = function () {
         logger.info("Loading workflows");
 
         workflowSelectionStore.disable();
 
-        loadWorkflows().then(function() {
+        loadWorkflows().then(function () {
           workflowSelectionService.restoreSelection(viewModel);
           workflowSelectionStore.enable();
         }).then(() => {
@@ -115,6 +114,8 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           }
         });
 
+        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
+
         if (requestService.isWebsiteMode()) {
           loadAppAndUser();
         }
@@ -122,16 +123,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
       function loadAppAndUser() {
         $q.all([
-          launchDarklyService.initialize().then(() => {
-            var runWorkflow = launchDarklyService.variation("run-workflow-from-wfe", false);
-            var runIf = launchDarklyService.variation("enable-run-if-visual-editor", false);
-
-            return { runWorkflow, runIf };
-          }),
           requestService.getCurrentUserData(),
           requestService.getApp(appServiceUtil.getAppSlug()),
-          appService.getOwnerPlanData()
-        ]).then(function([featureFlags, user, app]) {
+          appService.getOwnerPlanData(),
+        ]).then(function ([user, app, _planData]) {
           viewModel.username = user?.username;
           viewModel.defaultBranch = app?.default_branch;
           viewModel.buildTriggerToken = app?.build_trigger_token;
@@ -141,11 +136,11 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       }
 
       function updateCanRunWorkflow(buildTriggerToken, workflow) {
-        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && isUtilityWorkflow(workflow);
+        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && !isUtilityWorkflow(workflow);
       }
 
       function isUtilityWorkflow(workflow) {
-        return workflow && workflow.id && !workflow.id.startsWith("_");
+        return workflow && workflow.id && workflow.id.startsWith("_");
       }
 
       function loadWorkflows() {
@@ -154,16 +149,16 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         );
 
         var canceler = $q.defer();
-        $scope.$on("$destroy", function() {
+        $scope.$on("$destroy", function () {
           canceler.resolve();
         });
 
         stepSourceService.defaultLibraryURL = appService.appConfig.default_step_lib_source;
 
-        return $q(function(resolve, reject) {
+        return $q(function (resolve, reject) {
           var CVSs = [];
-          _.each(appService.appConfig.workflows, function(aWorkflowConfig) {
-            _.each(aWorkflowConfig.steps, function(aWrappedUserStepConfig) {
+          _.each(appService.appConfig.workflows, function (aWorkflowConfig) {
+            _.each(aWorkflowConfig.steps, function (aWrappedUserStepConfig) {
               CVSs.push(Step.cvsFromWrappedStepConfig(aWrappedUserStepConfig));
             });
           });
@@ -173,27 +168,29 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
               timeout: canceler.promise
             })
             .then(
-              function() {
+              function () {
                 datadogRumCustomTiming("wfe", "workflows");
-                viewModel.workflows = _.map(appService.appConfig.workflows, function(aWorkflowConfig, aWorkflowID) {
+                viewModel.workflows = _.map(appService.appConfig.workflows, function (aWorkflowConfig, aWorkflowID) {
                   return new Workflow(aWorkflowID, aWorkflowConfig);
                 }).sort((a, b) => a.id.localeCompare(b.id));
                 updateUniqueCount();
                 resolve();
               },
-              function(error) {
+              function (error) {
                 reject(error);
               }
             );
         }).then(
-          function() {
+          function () {
             viewModel.loadWorkflowsProgress.success();
           },
-          function(error) {
+          function (error) {
             viewModel.workflows = undefined;
             logger.error(error);
             viewModel.loadWorkflowsProgress.error(
-              new Error("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>")
+              new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>", {
+                error: error.message
+              }))
             );
           }
         );
@@ -206,10 +203,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.selectedWorkflowChain = null;
 
       $scope.$watchCollection(
-        function() {
+        function () {
           return viewModel.workflows;
         },
-        function(workflows) {
+        function (workflows) {
           if (workflows === undefined) {
             return;
           }
@@ -223,17 +220,17 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           }
 
           appService.appConfig.workflows = {};
-          _.each(workflows, function(aWorkflow) {
+          _.each(workflows, function (aWorkflow) {
             appService.appConfig.workflows[aWorkflow.id] = aWorkflow.workflowConfig;
           });
         }
       );
 
       $scope.$watch(
-        function() {
+        function () {
           return viewModel.selectedWorkflow;
         },
-        function(selectedWorkflow) {
+        function (selectedWorkflow) {
           viewModel.renamedWorkflow = null;
           updateCanRunWorkflow(viewModel.buildTriggerToken, selectedWorkflow);
 
@@ -254,22 +251,22 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.addWorkflowID;
       viewModel.addWorkflowSourceWorkflow;
 
-      viewModel.openAddWorkflowPopup = function() {
+      viewModel.openAddWorkflowPopup = function () {
         viewModel.addWorkflowPopup.isVisible = true;
       };
 
-      viewModel.openAddWorkflowPopupWithDigest = function() {
-        $timeout(function() {
+      viewModel.openAddWorkflowPopupWithDigest = function () {
+        $timeout(function () {
           viewModel.openAddWorkflowPopup();
         }, 0);
       };
 
-      viewModel.addWorkflowPopup.beforeAppearCallback = function() {
+      viewModel.addWorkflowPopup.beforeAppearCallback = function () {
         viewModel.addWorkflowID = "";
         viewModel.addWorkflowSourceWorkflow = viewModel.selectedWorkflow;
       };
 
-      viewModel.addWorkflow = function() {
+      viewModel.addWorkflow = function () {
         var workflow = new Workflow(
           viewModel.addWorkflowID,
           viewModel.addWorkflowSourceWorkflow ? angular.copy(viewModel.addWorkflowSourceWorkflow.workflowConfig) : {}
@@ -284,7 +281,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
       // Workflow delete
 
-      viewModel.deleteWorkflowSelected = function() {
+      viewModel.deleteWorkflowSelected = function () {
         Popup.showConfirmPopup(
           "<%= data[:strings][:workflows][:confirm_workflow_delete_popup][:title] %>",
           stringService.stringReplacedWithParameters(
@@ -295,12 +292,12 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           ),
           undefined,
           undefined,
-          function() {
-            viewModel.workflows = viewModel.workflows.filter(function(workflow) {
+          function () {
+            viewModel.workflows = viewModel.workflows.filter(function (workflow) {
               return workflow.id !== viewModel.selectedWorkflow.id;
             });
 
-            _.each(viewModel.workflows, function(aWorkflow) {
+            _.each(viewModel.workflows, function (aWorkflow) {
               if (aWorkflow.workflowConfig.before_run) {
                 while (_.contains(aWorkflow.workflowConfig.before_run, viewModel.selectedWorkflow.id)) {
                   aWorkflow.workflowConfig.before_run.splice(
@@ -331,32 +328,34 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
                 1
               );
             }
+
+            workflowSelectionService.rearrangeSelection(viewModel);
           }
         );
       };
 
-      viewModel.deleteWorkflowSelectedWithDigest = function() {
-        $timeout(function() {
+      viewModel.deleteWorkflowSelectedWithDigest = function () {
+        $timeout(function () {
           viewModel.deleteWorkflowSelected();
         }, 0);
       };
 
-      viewModel.runWorkflow = function(branch) {
+      viewModel.runWorkflow = function (branch) {
         requestService.startBuild({
           branch: branch,
           workflow: viewModel.selectedWorkflow.id,
           triggerToken: viewModel.buildTriggerToken,
           triggeredBy: viewModel.username
-        }).then(function(data) {
+        }).then(function (data) {
           if (data.status === "ok" && data.build_url) {
             window.open(data.build_url, "_blank");
           }
-        }, function(error) {
+        }, function (error) {
           console.log(error);
         });
       };
 
-      viewModel.runWorkflowWithDigest = function(branch) {
+      viewModel.runWorkflowWithDigest = function (branch) {
         viewModel.runWorkflow(branch);
         safeDigest($scope);
       };
@@ -369,7 +368,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       function workflowChainHierarchy(workflow) {
         var _workflowChainHierarchy = [];
 
-        _.each(workflow.beforeRunWorkflows(viewModel.workflows), function(aBeforeRunWorkflow) {
+        _.each(workflow.beforeRunWorkflows(viewModel.workflows), function (aBeforeRunWorkflow) {
           _workflowChainHierarchy.push({
             type: "before-run",
             cssClass: "before-run",
@@ -385,7 +384,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           workflowChain: [viewModel.selectedWorkflow]
         });
 
-        _.each(workflow.afterRunWorkflows(viewModel.workflows), function(anAfterRunWorkflow) {
+        _.each(workflow.afterRunWorkflows(viewModel.workflows), function (anAfterRunWorkflow) {
           _workflowChainHierarchy.push({
             type: "after-run",
             cssClass: "after-run",
@@ -397,36 +396,36 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         return _workflowChainHierarchy;
       }
 
-      viewModel.addRunWorkflowSelected = function(mode) {
+      viewModel.addRunWorkflowSelected = function (mode) {
         viewModel.addRunWorkflowMode = mode;
         viewModel.runWorkflowToAdd = null;
         viewModel.addRunWorkflowChainHierarchy = workflowChainHierarchy(viewModel.selectedWorkflow);
         viewModel.addRunWorkflowPopup.isVisible = true;
       };
 
-      viewModel.addRunWorkflowBeforeSelectedWithDigest = function() {
-        $timeout(function() {
+      viewModel.addRunWorkflowBeforeSelectedWithDigest = function () {
+        $timeout(function () {
           viewModel.addRunWorkflowSelected("before");
         }, 0);
       };
 
-      viewModel.addRunWorkflowAfterSelectedWithDigest = function() {
-        $timeout(function() {
+      viewModel.addRunWorkflowAfterSelectedWithDigest = function () {
+        $timeout(function () {
           viewModel.addRunWorkflowSelected("after");
         }, 0);
       };
 
-      viewModel.availableRunWorkflowsToAdd = function() {
+      viewModel.availableRunWorkflowsToAdd = function () {
         if (!viewModel.workflows || !viewModel.selectedWorkflow) {
           return;
         }
 
-        return _.filter(viewModel.workflows, function(aWorkflow) {
+        return _.filter(viewModel.workflows, function (aWorkflow) {
           return aWorkflow.isLoopSafeRunForWorkflow(viewModel.selectedWorkflow, viewModel.workflows);
         });
       };
 
-      viewModel.addRunWorkflow = function() {
+      viewModel.addRunWorkflow = function () {
         var runKey = viewModel.addRunWorkflowMode == "before" ? "before_run" : "after_run";
         if (!viewModel.selectedWorkflow.workflowConfig[runKey]) {
           viewModel.selectedWorkflow.workflowConfig[runKey] = [];
@@ -439,7 +438,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, viewModel.runWorkflowToAdd.id);
       };
 
-      viewModel.deleteBeforeAfterWorkflowAtWorkflowChainLink = function(workflowChainLink) {
+      viewModel.deleteBeforeAfterWorkflowAtWorkflowChainLink = function (workflowChainLink) {
         if (workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex != -1) {
           viewModel.selectedWorkflow.workflowConfig.before_run.splice(
             workflowChainLink.selectedWorkflowBeforeRunWorkflowIndex,
@@ -459,28 +458,28 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.rearrangeWorkflowsPopup = new Popup();
       viewModel.rearrangeWorkflowsChainHierarchy;
 
-      viewModel.openRearrangeWorkflowsPopup = function() {
+      viewModel.openRearrangeWorkflowsPopup = function () {
         viewModel.rearrangeWorkflowsPopup.isVisible = true;
       };
 
-      viewModel.openRearrangeWorkflowsPopupWithDigest = function() {
-        $timeout(function() {
+      viewModel.openRearrangeWorkflowsPopupWithDigest = function () {
+        $timeout(function () {
           viewModel.openRearrangeWorkflowsPopup();
         }, 0);
       };
 
-      viewModel.rearrangeWorkflowsPopup.beforeAppearCallback = function() {
+      viewModel.rearrangeWorkflowsPopup.beforeAppearCallback = function () {
         viewModel.rearrangeWorkflowsChainHierarchy = workflowChainHierarchy(viewModel.selectedWorkflow);
       };
 
-      viewModel.rearrangeWorkflowsFinished = function() {
+      viewModel.rearrangeWorkflowsFinished = function () {
         var selectedWorkflowSubchainIndex = _.findIndex(viewModel.rearrangeWorkflowsChainHierarchy, {
           type: "selected"
         });
 
         viewModel.selectedWorkflow.workflowConfig.before_run =
           selectedWorkflowSubchainIndex > 0
-            ? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(0, selectedWorkflowSubchainIndex), function(
+            ? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(0, selectedWorkflowSubchainIndex), function (
               aWorkflowSubchain
             ) {
               return aWorkflowSubchain.workflow.id;
@@ -492,7 +491,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
         viewModel.selectedWorkflow.workflowConfig.after_run =
           selectedWorkflowSubchainIndex < viewModel.rearrangeWorkflowsChainHierarchy.length - 1
-            ? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(selectedWorkflowSubchainIndex + 1), function(
+            ? _.map(viewModel.rearrangeWorkflowsChainHierarchy.slice(selectedWorkflowSubchainIndex + 1), function (
               aWorkflowSubchain
             ) {
               return aWorkflowSubchain.workflow.id;
@@ -509,49 +508,28 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
       // Workflow rename
 
-      viewModel.renamedWorkflow = null;
-      viewModel.renamedWorkflowID = "";
-
-      $scope.$watch(
-        function() {
-          return viewModel.renamedWorkflow;
-        },
-        function(renamedWorkflow) {
-          viewModel.renamedWorkflowID = renamedWorkflow ? renamedWorkflow.id : "";
-        }
-      );
-
-      viewModel.isRenamedWorkflowIDValid = function() {
-        return (
-          Workflow.isValidID(viewModel.renamedWorkflowID) &&
-          !_.find(_.without(viewModel.workflows, viewModel.renamedWorkflow), {
-            id: viewModel.renamedWorkflowID
-          })
-        );
-      };
-
-      viewModel.confirmRenameWorkflowWithDigest = function(workflow, newWorkflowID) {
-        $timeout(function() {
+      viewModel.confirmRenameWorkflowWithDigest = function (workflow, newWorkflowID) {
+        $timeout(function () {
           viewModel.renameWorkflowConfirmed(workflow, newWorkflowID);
         }, 0);
       };
 
-      viewModel.renameWorkflowConfirmed = function(workflow, newWorkflowID) {
+      viewModel.renameWorkflowConfirmed = function (workflow, newWorkflowID, shouldSelect = true) {
         var oldWorkflowID = workflow.id;
 
         delete appService.appConfig.workflows[oldWorkflowID];
         appService.appConfig.workflows[newWorkflowID] = workflow.workflowConfig;
 
-        _.each(viewModel.workflows, function(aWorkflow) {
+        _.each(viewModel.workflows, function (aWorkflow) {
           if (aWorkflow.workflowConfig.before_run) {
-            _.each(aWorkflow.workflowConfig.before_run, function(aBeforeRunWorkflowID, index) {
+            _.each(aWorkflow.workflowConfig.before_run, function (aBeforeRunWorkflowID, index) {
               if (aBeforeRunWorkflowID == oldWorkflowID) {
                 aWorkflow.workflowConfig.before_run[index] = newWorkflowID;
               }
             });
           }
           if (aWorkflow.workflowConfig.after_run) {
-            _.each(aWorkflow.workflowConfig.after_run, function(anAfterRunWorkflowID, index) {
+            _.each(aWorkflow.workflowConfig.after_run, function (anAfterRunWorkflowID, index) {
               if (anAfterRunWorkflowID == oldWorkflowID) {
                 aWorkflow.workflowConfig.after_run[index] = newWorkflowID;
               }
@@ -559,14 +537,14 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           }
         });
 
-        _.each(appService.appConfig.trigger_map, function(aTriggerConfig) {
+        _.each(appService.appConfig.trigger_map, function (aTriggerConfig) {
           if (aTriggerConfig.workflow == oldWorkflowID) {
             aTriggerConfig.workflow = newWorkflowID;
           }
         });
 
-        _.each(appService.appConfig.stages, function(aStage) {
-          _.each(aStage.workflows, function(aWorkflow) {
+        _.each(appService.appConfig.stages, function (aStage) {
+          _.each(aStage.workflows, function (aWorkflow) {
             if (aWorkflow[oldWorkflowID]) {
               aWorkflow[newWorkflowID] = aWorkflow[oldWorkflowID];
               delete aWorkflow[oldWorkflowID];
@@ -575,7 +553,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         });
 
         workflow.id = newWorkflowID;
-        viewModel.selectWorkflow(workflow);
+
+        if (shouldSelect) {
+          viewModel.selectWorkflow(workflow);
+        }
 
         workflowSelectionStore.applyState({
           lastSelectedWorkflow: viewModel.selectedWorkflow,
@@ -591,17 +572,17 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.editedWorkflowIndex;
 
 
-      viewModel.selectWorkflowWithDigest = function(workflow) {
-        $timeout(function() {
+      viewModel.selectWorkflowWithDigest = function (workflow) {
+        $timeout(function () {
           viewModel.selectWorkflow(workflow);
         }, 0);
       };
 
-      viewModel.selectWorkflow = function(workflow) {
+      viewModel.selectWorkflow = function (workflow) {
         workflowSelectionService.rearrangeSelection(viewModel, workflow);
       };
 
-      viewModel.editWorkflowAtIndex = function(workflowIndex) {
+      viewModel.editWorkflowAtIndex = function (workflowIndex, shouldTransformEditedWorkflowToReact = true) {
         viewModel.editedWorkflowIndex = workflowIndex === null ? null : workflowIndex;
         viewModel.editedWorkflow =
           workflowIndex === null ? null : viewModel.selectedWorkflowChain[workflowIndex].workflow;
@@ -612,9 +593,13 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           lastEditedWorkflowIndex: viewModel.editedWorkflowIndex,
           lastSelectedStep: viewModel.selectedStep
         });
+
+        if (shouldTransformEditedWorkflowToReact) {
+          transformEditedWorkflowForReact();
+        }
       };
 
-      viewModel.stackForWorkflow = function(workflow, shouldNormalize) {
+      viewModel.stackForWorkflow = function (workflow, shouldNormalize) {
         if (shouldNormalize === undefined) {
           shouldNormalize = false;
         }
@@ -640,10 +625,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.stepOrderWorkflow;
 
       $scope.$watch(
-        function() {
+        function () {
           return viewModel.editedWorkflow;
         },
-        function(editedWorkflow) {
+        function (editedWorkflow) {
           if (editedWorkflow && !_.contains(editedWorkflow.steps, viewModel.selectedStep)) {
             viewModel.selectedStep = null;
           }
@@ -651,19 +636,19 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       );
 
       $scope.$watchCollection(
-        function() {
+        function () {
           return viewModel.editedWorkflow ? viewModel.editedWorkflow.steps : undefined;
         },
-        function(steps) {
+        function (steps) {
           updateWorkflowWithSteps(viewModel.editedWorkflow, steps);
         }
       );
 
       $scope.$watchCollection(
-        function() {
+        function () {
           return viewModel.stepOrderWorkflow ? viewModel.stepOrderWorkflow.steps : undefined;
         },
-        function(steps) {
+        function (steps) {
           updateWorkflowWithSteps(viewModel.stepOrderWorkflow, steps);
         }
       );
@@ -675,7 +660,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
         workflow.workflowConfig.steps = [];
 
-        _.each(steps, function(aStep) {
+        _.each(steps, function (aStep) {
           var wrappedUserStepConfig = {};
           wrappedUserStepConfig[aStep.cvs] = aStep.userStepConfig;
 
@@ -691,35 +676,70 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         if (!requestService.isWebsiteMode() || typeof (appService?.ownerPlanData?.uniqueStepLimit) !== "number") {
           return;
         }
-        var steps = {};
 
-        viewModel.workflows.forEach(function(wf) {
-          wf.steps.forEach(function(step) {
-            steps[step.id] = true;
+        var allowedStepIds = new Set();
+        viewModel.workflows.forEach(function (wf) {
+          wf.steps.forEach(function (step) {
+            if (step.id) {
+              allowedStepIds.add(step.id);
+            }
           });
         });
 
-        viewModel.uniqueStepCount = Object.keys(steps).length;
-        if (appService.ownerPlanData.uniqueStepLimit <= viewModel.uniqueStepCount) {
-          appService.allowedStepMap = steps;
-        } else {
-          appService.allowedStepMap = undefined;
-        }
+        viewModel.uniqueStepCount = allowedStepIds.size;
+        var uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
+        var hasReachedLimit = viewModel.uniqueStepCount >= uniqueStepLimit;
+        appService.allowedStepIds = hasReachedLimit ? allowedStepIds : undefined;
       }
 
-      viewModel.addStepSelectedAtIndex = function(index, workflowIndex) {
+      viewModel.addStepSelectedAtIndex = function (index, workflowIndex) {
         viewModel.editWorkflowAtIndex(workflowIndex);
 
-        addStepService.showWithInsertIndex(index, function(step, insertIndex) {
-          viewModel.editedWorkflow.steps.splice(insertIndex, 0, step);
-          updateUniqueCount();
-
-          // force to set latest version for step being added
-          changeStepToVersion(step, null);
-
-          viewModel.stepSelected(step);
-        });
+        if (viewModel.enableReactStepDrawer) {
+          viewModel.openReactStepDrawer(index);
+          safeDigest($scope);
+        } else {
+          addStepService.showWithInsertIndex(index, insertStepAtIndexCallback);
+        }
       };
+
+      function insertStepAtIndexCallback(step, insertIndex) {
+        viewModel.editedWorkflow.steps.splice(insertIndex, 0, step);
+        updateUniqueCount();
+
+        // force to set latest version for step being added
+        changeStepToVersion(step, null);
+
+        viewModel.stepSelected(step);
+      }
+
+      viewModel.showReactStepDrawer = false;
+
+      viewModel.openReactStepDrawer = function (index) {
+        viewModel.newStepDrawerAddStepIndex = index;
+        viewModel.showReactStepDrawer = true;
+      }
+
+      viewModel.closeReactStepDrawer = function () {
+        viewModel.showReactStepDrawer = false;
+        viewModel.newStepDrawerAddStepIndex = undefined;
+        safeDigest($scope);
+      }
+
+      viewModel.handleInsertStepAtIndexFromReact = function (step) {
+        if (viewModel.newStepDrawerAddStepIndex === undefined || !step.id || !step.cvs) {
+          return;
+        }
+
+        const insertIndex = viewModel.newStepDrawerAddStepIndex;
+        stepSourceService.loadStepVersions(step.id).then(function () {
+          var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
+          insertStepAtIndexCallback(stepToAdd, insertIndex);
+        });
+
+        viewModel.closeReactStepDrawer();
+        safeDigest($scope);
+      }
 
       function resetEditContainerScrollPosition() {
         var el = $(".step-edit-container");
@@ -749,10 +769,10 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       }
 
 
-      viewModel.stepSelected = function(step, workflowIndex, shouldScrollToStep) {
-        $q(function(resolve) {
+      viewModel.stepSelected = function (step, workflowIndex, shouldScrollToStep) {
+        $q(function (resolve) {
           if (step.libraryURL === appService.appConfig.default_step_lib_source) {
-            stepSourceService.loadStepVersions(step.id).then(function() {
+            stepSourceService.loadStepVersions(step.id).then(function () {
               setSelectedStepDependentData(step);
               resolve();
             });
@@ -760,7 +780,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
             setSelectedStepDependentData(step);
             resolve();
           }
-        }).then(function() {
+        }).then(function () {
           workflowIndex ??= viewModel.editedWorkflowIndex;
           shouldScrollToStep ??= viewModel.editedWorkflowIndex != workflowIndex;
 
@@ -769,7 +789,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           }
 
           if (shouldScrollToStep) {
-            setTimeout(function() {
+            setTimeout(function () {
               scrollService.scrollToTarget();
             }, 300);
           }
@@ -779,16 +799,16 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         });
       };
 
-      viewModel.deselectStep = function() {
+      viewModel.deselectStep = function () {
         setSelectedStepDependentData(null);
         safeDigest($scope);
       };
 
       $scope.$watch(
-        function() {
+        function () {
           return viewModel.selectedStep;
         },
-        function(step) {
+        function (step) {
           viewModel.shouldShowDescription = false;
           workflowSelectionStore.applyState({
             lastSelectedWorkflow: viewModel.selectedWorkflow,
@@ -802,26 +822,26 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         }
       );
       $scope.$watch(
-        function() {
+        function () {
           return viewModel.selectedStep;
         },
-        function(selectedStep) {
+        function (selectedStep) {
           configureInputsForStep(selectedStep);
           configureOutputsForStep(selectedStep);
         }
       );
 
       $scope.$watch(
-        function() {
+        function () {
           return viewModel.selectedStep ? viewModel.selectedStep.requestedVersion() : undefined;
         },
-        function() {
+        function () {
           configureInputsForStep(viewModel.selectedStep);
           configureOutputsForStep(viewModel.selectedStep);
         }
       );
 
-      viewModel.cloneSelectedStep = function() {
+      viewModel.cloneSelectedStep = function () {
         var clonedStep = stepSourceService.stepFromCVS(viewModel.selectedStep.cvs);
         clonedStep.userStepConfig = angular.copy(viewModel.selectedStep.userStepConfig);
 
@@ -834,18 +854,12 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         safeDigest($scope);
       };
 
-      viewModel.deleteSelectedStep = function() {
+      viewModel.deleteSelectedStep = function () {
         var index = _.indexOf(viewModel.editedWorkflow.steps, viewModel.selectedStep);
         viewModel.editedWorkflow.steps.splice(index, 1);
         updateUniqueCount();
         viewModel.deselectStep();
         safeDigest($scope);
-      };
-
-      viewModel.deleteStepButtonText = function() {
-        return stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:steps][:delete] %>", {
-          step_title: viewModel.selectedStep.displayName()
-        });
       };
 
       // Step version
@@ -862,7 +876,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
 
         // Writes the user step config to the workflow config
         if (viewModel.editedWorkflow.workflowConfig.steps) {
-          var oldWrappedUserStepConfig = _.find(viewModel.editedWorkflow.workflowConfig.steps, function(
+          var oldWrappedUserStepConfig = _.find(viewModel.editedWorkflow.workflowConfig.steps, function (
             aWrappedUserStepConfig
           ) {
             return (
@@ -928,8 +942,8 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         viewModel.inputCategoriesOfSelectedStep = [];
 
         if (step && step.defaultStepConfig) {
-          _.each(step.defaultStepConfig.inputs, function(anDefaultInputConfig) {
-            var userInputConfig = _.find(step.userStepConfig.inputs, function(aUserInputConfig) {
+          _.each(step.defaultStepConfig.inputs, function (anDefaultInputConfig) {
+            var userInputConfig = _.find(step.userStepConfig.inputs, function (aUserInputConfig) {
               return (
                 Variable.keyFromVariableConfig(aUserInputConfig) == Variable.keyFromVariableConfig(anDefaultInputConfig)
               );
@@ -952,17 +966,17 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
           });
         }
 
-        _.each(inputWatchers, function(anInputWatcher) {
+        _.each(inputWatchers, function (anInputWatcher) {
           anInputWatcher();
         });
 
         inputWatchers = [];
 
-        _.each(viewModel.inputCategoriesOfSelectedStep, function(anInputCategory) {
-          _.each(anInputCategory.inputs, function(anInput) {
+        _.each(viewModel.inputCategoriesOfSelectedStep, function (anInputCategory) {
+          _.each(anInputCategory.inputs, function (anInput) {
             inputWatchers.push(
               $scope.$watch(
-                function() {
+                function () {
                   var userVariableConfigWithOnlyDefaultKeyAndDefaultValue = {};
                   var defaultKey = Variable.keyFromVariableConfig(anInput.defaultVariableConfig);
                   userVariableConfigWithOnlyDefaultKeyAndDefaultValue[defaultKey] =
@@ -973,9 +987,9 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
                     angular.equals(anInput.userVariableConfig, userVariableConfigWithOnlyDefaultKeyAndDefaultValue)
                   );
                 },
-                function(isUserInputConfigDefaultNow, wasUserInputConfigDefaultBefore) {
+                function (isUserInputConfigDefaultNow, wasUserInputConfigDefaultBefore) {
                   if (isUserInputConfigDefaultNow === true && wasUserInputConfigDefaultBefore === false) {
-                    var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+                    var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function (aUserInputConfig) {
                       return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
                     });
 
@@ -991,7 +1005,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
                       step.userStepConfig.inputs = [];
                     }
 
-                    var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function(aUserInputConfig) {
+                    var indexOfUserInputConfig = _.findIndex(step.userStepConfig.inputs, function (aUserInputConfig) {
                       return Variable.keyFromVariableConfig(aUserInputConfig) == anInput.key();
                     });
 
@@ -1017,12 +1031,12 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       function configureOutputsForStep(step) {
         viewModel.outputsOfSelectedStep =
           step && step.defaultStepConfig
-            ? _.map(step.defaultStepConfig.outputs, function(anDefaultOutputConfig) {
+            ? _.map(step.defaultStepConfig.outputs, function (anDefaultOutputConfig) {
               return new Variable(undefined, anDefaultOutputConfig);
             })
             : undefined;
         viewModel.outputVariables = viewModel.outputsOfSelectedStep ?
-          viewModel.outputsOfSelectedStep.map(function(variable) {
+          viewModel.outputsOfSelectedStep.map(function (variable) {
             const varKey = variable.key();
             const key = varKey ? `$${varKey}` : undefined;
             return ({
@@ -1035,7 +1049,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         safeDigest($scope);
       }
 
-      viewModel.checkStepVersionUpdate = function(step) {
+      viewModel.checkStepVersionUpdate = function (step) {
         if (!step || step.isLocal()) {
           return false;
         }
@@ -1046,7 +1060,7 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         return !isStepConfigured || !isLatestStepVersion;
       };
 
-      viewModel.handleSelectedStepChanges = function(values) {
+      viewModel.handleSelectedStepChanges = function (values) {
         if (!viewModel.selectedStep || !values) {
           return;
         }
@@ -1093,14 +1107,31 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
         });
       };
 
-      viewModel.saveSecretFromReact = function(secret) {
-        const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
+      viewModel.saveEnvVarFromReact = function (envVar) {
+        const variable = new Variable({[envVar.key]: envVar.value}, Variable.defaultVariableConfig());
+
+        variable.isExpand(envVar.isExpand);
+
+        const appConfig = appService.appConfig;
+
+        if (appConfig && appConfig.workflows && appConfig.workflows[viewModel.selectedWorkflow.id]) {
+          const wf = appConfig.workflows[viewModel.selectedWorkflow.id];
+          if (!wf.envs) {
+            wf.envs = [];
+          }
+
+          wf.envs.push(variable.userVariableConfig);
+        }
+      };
+
+      viewModel.saveSecretFromReact = function (secret) {
+        const variable = new Variable({[secret.key]: secret.value}, Variable.defaultVariableConfig());
 
         variable.isExpose(secret.isExpose);
         variable.isExpand(secret.isExpand);
 
         appService.secrets.push(variable);
-        appService.saveSecrets();
+        appService.saveSecrets($scope.mainCtrl.appSecretsWriteNew);
       };
 
       viewModel.closeReactVersionChangeDialog = () => {
@@ -1112,9 +1143,68 @@ import { extractInputNames, extractReleaseNotesUrl } from "../components/StepPro
       viewModel.tabId = undefined;
       viewModel.setTabId = (tabId) => {
         viewModel.tabId = tabId;
+        safeDigest($scope);
       };
       $scope.$watch(() => viewModel.selectedStep, () => {
-        viewModel.tabId = undefined;
+        viewModel.setTabId(undefined);
       });
+
+      // New workflow config panel related stuffs...
+      viewModel.editedWorkflowConfigForReact = {};
+      viewModel.editedWorkflowConfigForReactChanged = (data) => {
+        viewModel.editedWorkflow.title(data.properties.title || null);
+        viewModel.editedWorkflow.summary(data.properties.summary || null);
+        viewModel.editedWorkflow.description(data.properties.description || null);
+
+        const newStack = Stack.all.find((s) => s.id === data.configuration.stack);
+        const defaultStack = appService.stack;
+
+        viewModel.editedWorkflow.stack(newStack?.id === defaultStack?.id ? null : newStack);
+
+        if (data.isMachineTypeSelectorAvailable) {
+          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
+          const defaultMachineType = appService.defaultMachineType;
+
+          viewModel.editedWorkflow.machineType(undefined, newMachineType?.id === defaultMachineType?.id ? null : newMachineType);
+        }
+
+        viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
+          return {[key]: value, opts: {is_expand}};
+        }));
+
+        if (viewModel.editedWorkflow.id !== data.workflowId) {
+          viewModel.renameWorkflowConfirmed(viewModel.editedWorkflow, data.workflowId, false);
+          workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, data.workflowId);
+        }
+
+        safeDigest($scope);
+      };
+
+      function transformEditedWorkflowForReact() {
+        if (viewModel.editedWorkflow) {
+          const stack = viewModel.editedWorkflow.stack() || appService.stack;
+          const machineType = viewModel.editedWorkflow.machineType(stack?.type, undefined, MachineType.all) || appService.defaultMachineType;
+
+          viewModel.editedWorkflowConfigForReact = {
+            workflowId: viewModel.editedWorkflow.id,
+            isMachineTypeSelectorAvailable: appService.appDetails?.isMachineTypeSelectorAvailable,
+            configuration: {
+              stack: stack?.id,
+              machineType: machineType?.id,
+              envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
+                const [key, value] = Object.entries(angular.copy(env))[0];
+                const isExpand = opts?.is_expand ?? true;
+
+                return {key, value, isExpand};
+              })
+            },
+            properties: {
+              title: viewModel.editedWorkflow.title(),
+              summary: viewModel.editedWorkflow.summary(),
+              description: viewModel.editedWorkflow.description(),
+            },
+          };
+        }
+      }
     });
 })();

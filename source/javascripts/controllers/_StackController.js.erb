@@ -36,6 +36,8 @@ import { safeDigest } from "../services/react-compat";
 				"gen2": "<%= data[:strings][:stack][:machine_type_notes][:gen2] %>"
 			};
 
+			var m1ToM2AnnouncementUrl = 'https://docs.google.com/document/d/1aZw_nhce3qZus84qwUpoDGYtTdlSbYDnqd6E_WLVeow';
+
 			viewModel.stackMachineMap = appService.availableStacks().reduce(function(result, stack) {
 				var stackMachineTypes = _.filter(MachineType.all, function(machineType) {
 					if (machineType.availableOnStacks) {
@@ -154,11 +156,11 @@ import { safeDigest } from "../services/react-compat";
 
 				requestService.getApp(appServiceUtil.getAppSlug()).then((response) => {
 					var gracePeriodDates = {};
-					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started) {
-						gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started);
+					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_started_at) {
+						gracePeriodDates.startsAt = new Date(response.deprecated_machines_replacement_config.grace_period_started_at);
 					}
-					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_ended) {
-						gracePeriodDates.endsAt = new Date(response.deprecated_machines_replacement_config.grace_period_ended);
+					if (response.deprecated_machines_replacement_config && response.deprecated_machines_replacement_config.grace_period_ended_at) {
+						gracePeriodDates.endsAt = new Date(response.deprecated_machines_replacement_config.grace_period_ended_at);
 					}
 					viewModel.buildMachineDeprecationData = buildMachineDeprecationDataBasedOnGracePeriodDates(gracePeriodDates.startsAt, gracePeriodDates.endsAt);
 				});
@@ -172,10 +174,10 @@ import { safeDigest } from "../services/react-compat";
 			);
 
 			function configure() {
-				viewModel.workflows = _.map(appService.appConfig.workflows, function(
-					aWorkflowConfig,
-					workflowID
-				) {
+				viewModel.workflows = Object.keys(appService.appConfig.workflows).filter(function(workflowID) {
+					return !workflowID.startsWith('_');
+				}).map(function(workflowID) {
+					const aWorkflowConfig = appService.appConfig.workflows[workflowID];
 					return new Workflow(workflowID, aWorkflowConfig);
 				});
 			}
@@ -188,20 +190,20 @@ import { safeDigest } from "../services/react-compat";
 				const currentDate = new Date();
 				if (currentDate < startDate) {
 					return {
-						message: "Intel machines will be deprecated. Your Workflows will automatically run on Apple Silicon machines on the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
-						linkUrl: 'https://discuss.bitrise.io/t/transitioning-from-apple-intel-to-apple-silicon-helpful-links/22615',
+						message: "Upgrading to faster M2 Pro, applying the same credit multiplier. M1 Mac mini machines will be deprecated and your Workflows will automatically run on M2 Pro machines from the " + dateService.toLocaleMonthDayDateString(startDate) + ".",
+						linkUrl: m1ToM2AnnouncementUrl,
 						linkLabel: 'Read announcement.',
 					}
 				} else if (currentDate >= startDate && currentDate <= endDate) {
 					return {
-						message: "Deprecated machine type. Workflows running on Intel machines were automatically switched to Apple Silicon machines. To continue using Intel machines until the " + dateService.toLocaleMonthDayDateString(endDate) + ", opt to extend the transition period in the",
+						message: "Your Workflows were automatically switched to faster M2 Pro, applying the same credit multiplier. To continue using the deprecated M1 Mac mini machines until the " + dateService.toLocaleMonthDayDateString(endDate) + ", opt to extend the transition period in the",
 						linkUrl: '/workspaces/' + appService.appDetails.ownerData.slug + '/settings/apps',
 						linkLabel: 'Workspace settings.',
 					}
 				} else if (currentDate > endDate) {
 					return {
-						message: "Deprecated machine type. Your Workflows are now running on Apple Silicon. If you’d like to keep using Intel machines, reach out to support.",
-						linkUrl: 'https://discuss.bitrise.io/t/transitioning-from-apple-intel-to-apple-silicon-helpful-links/22615',
+						message: "Your Workflows are now running on faster M2 Pro, applying the same credit multiplier. If you’d like to keep using the deprecated M1 Mac mini machines, reach out to support.",
+						linkUrl: m1ToM2AnnouncementUrl,
 						linkLabel: 'Read announcement.',
 					}
 				}

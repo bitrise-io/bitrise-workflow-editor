@@ -134,6 +134,13 @@ module.exports = {
   },
 
   /* --- Performance --- */
+  cache: {
+    type: 'filesystem',
+    buildDependencies: {
+      // This makes all dependencies of this file - build dependencies
+      config: [__filename],
+    },
+  },
   optimization: {
     minimize: isProd,
     minimizer: [
@@ -163,6 +170,10 @@ module.exports = {
   module: {
     rules: [
       /* --- Javascript & TypeScript --- */
+      {
+        test: /\.(stories|mswMocks)\.tsx?$/i,
+        use: 'ignore-loader',
+      },
       {
         test: /\.erb$/i,
         use: railsTransformer('erb'),

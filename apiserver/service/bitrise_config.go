@@ -207,25 +207,56 @@ func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map
 			return nil, err
 		}
 
-		for stepIdx, sItem := range wf.Steps {
-			for stepID, step := range sItem {
-				if len(step.Inputs) == 0 {
-					continue
+		for stepListItemIdx, stepListItem := range wf.Steps {
+			key, step, with, err := stepListItem.GetStepListItemKeyAndValue()
+			if err != nil {
+				return nil, err
+			}
+
+			if key != models.StepListItemWithKey {
+				step, err = convertStepType(step)
+				if err != nil {
+					return nil, err
 				}
-				for inputIdx, input := range step.Inputs {
-					convertedInput, err := convertStepInputMetadataType(input)
+
+				stepID := key
+				wf.Steps[stepListItemIdx] = map[string]interface{}{stepID: step}
+			} else {
+				for stepIdx, stepItem := range with.Steps {
+					stepID, step, err := stepItem.GetStepIDAndStep()
 					if err != nil {
 						return nil, err
 					}
-					step.Inputs[inputIdx] = convertedInput
+
+					step, err = convertStepType(step)
+					if err != nil {
+						return nil, err
+					}
+
+					with.Steps[stepIdx] = map[string]stepmanModels.StepModel{stepID: step}
 				}
-				wf.Steps[stepIdx] = map[string]stepmanModels.StepModel{stepID: step}
+				wf.Steps[stepListItemIdx] = map[string]interface{}{key: with}
 			}
 		}
+
 		workflows[wfKey] = wf
 	}
 
 	return workflows, nil
+}
+
+func convertStepType(step stepmanModels.StepModel) (stepmanModels.StepModel, error) {
+	if len(step.Inputs) == 0 {
+		return step, nil
+	}
+	for inputIdx, input := range step.Inputs {
+		convertedInput, err := convertStepInputMetadataType(input)
+		if err != nil {
+			return stepmanModels.StepModel{}, err
+		}
+		step.Inputs[inputIdx] = convertedInput
+	}
+	return step, nil
 }
 
 func convertWorkflowMetadataType(workflow *models.WorkflowModel) error {

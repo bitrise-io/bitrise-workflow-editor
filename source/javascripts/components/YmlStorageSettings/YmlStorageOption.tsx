@@ -47,7 +47,7 @@ const YmlStorageOption = ({
             label="Storing YAML in your app's repository is not available in your current plan."
             shouldWrapChildren
           >
-            <Badge filter="none" color="neutral.40" backgroundColor="neutral.90">
+            <Badge filter="none" variant="subtle" colorScheme="neutral">
               Not available
             </Badge>
           </Tooltip>

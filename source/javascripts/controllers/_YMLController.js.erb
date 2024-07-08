@@ -12,7 +12,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			var model;
 
 			const defaultSchema = {
-				uri: 'https://raw.githubusercontent.com/bitrise-io/bitrise-json-schemas/main/bitrise.schema.json',
+				uri: 'https://json.schemastore.org/bitrise.json',
 				fileMatch: ['monaco-yaml.yaml'],
 			};
 
@@ -58,16 +58,21 @@ import { configureMonacoYaml } from 'monaco-yaml';
 
 			function init() {
 				if (requestService.isWebsiteMode()) {
+					viewModel.appSlug = requestService.appSlug;
+
 					appService.getPipelineConfig()
 						.then(function() {
 							viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
 							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
-							viewModel.appSlug = appService.appDetails.slug;
 						})
-					requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
-					.then(function(ownerPlanData) {
-						viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
-					})
+					if (appService.appDetails && appService.appDetails.ownerData) {
+						requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+						.then(function(ownerPlanData) {
+							viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
+						});
+					} else {
+						viewModel.repositoryYmlAvailable = undefined;
+					}
 				}
 			}
 

@@ -1,20 +1,10 @@
 import { useEffect, useMemo } from 'react';
-import {
-  Button,
-  Checkbox,
-  Dialog,
-  DialogBody,
-  DialogFooter,
-  Icon,
-  Input,
-  Select,
-  Text,
-  Tooltip,
-} from '@bitrise/bitkit';
+import { Button, Dialog, DialogBody, DialogFooter, Input, Select, Text, Tooltip } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { checkIsConditionsUsed } from './TriggersPage.utils';
 
 import { FormItems, TriggerItem } from './TriggersPage.types';
+import RegexCheckbox from './RegexCheckbox';
 
 const getLabelText = (isRegex: boolean) => (isRegex ? 'Enter a regex pattern' : 'Enter a tag');
 
@@ -53,15 +43,15 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { register, reset, handleSubmit, watch } = formMethods;
+  const { control, reset, handleSubmit, watch, setValue } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen, editedItem]);
 
-  const conditionNumber: number = 0;
-
   const { conditions, pipelineable } = watch();
+
+  const conditionNumber: number = 0;
 
   const { isRegex } = conditions[conditionNumber] || {};
 
@@ -125,12 +115,10 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Text marginBottom="16" textStyle="body/md/semibold">
             Tag
           </Text>
-          <Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
-            Use regex pattern
-          </Checkbox>
-          <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
-            <Icon name="Info" size="16" marginLeft="5" />
-          </Tooltip>
+          <RegexCheckbox
+            isChecked={isRegex}
+            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
+          />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
@@ -147,26 +135,32 @@ const AddTagTriggerDialog = (props: DialogProps) => {
           <Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">
             Targeted Pipeline or Workflow
           </Text>
-          <Select placeholder="Select a Pipeline or Workflow" {...register('pipelineable')}>
-            {pipelines.length && (
-              <optgroup label="Pipelines">
-                {pipelines.map((p) => (
-                  <option key={p} value={`pipeline#${p}`}>
-                    {p}
-                  </option>
-                ))}
-              </optgroup>
+          <Controller
+            name="pipelineable"
+            control={control}
+            render={({ field }) => (
+              <Select placeholder="Select a Pipeline or Workflow" {...field}>
+                {pipelines.length && (
+                  <optgroup label="Pipelines">
+                    {pipelines.map((p) => (
+                      <option key={p} value={`pipeline#${p}`}>
+                        {p}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+                {workflows.length && (
+                  <optgroup label="Workflows">
+                    {workflows.map((p) => (
+                      <option key={p} value={`workflow#${p}`}>
+                        {p}
+                      </option>
+                    ))}
+                  </optgroup>
+                )}
+              </Select>
             )}
-            {workflows.length && (
-              <optgroup label="Workflows">
-                {workflows.map((p) => (
-                  <option key={p} value={`workflow#${p}`}>
-                    {p}
-                  </option>
-                ))}
-              </optgroup>
-            )}
-          </Select>
+          />
         </DialogBody>
         <DialogFooter display="flex" justifyContent="space-between">
           <Button variant="tertiary" onClick={onFormCancel}>

@@ -4,21 +4,15 @@ import (
 	"fmt"
 
 	envmanModels "github.com/bitrise-io/envman/models"
-	"github.com/bitrise-io/go-utils/log"
+	logv2 "github.com/bitrise-io/go-utils/v2/log"
 	stepman "github.com/bitrise-io/stepman/cli"
 	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
-type stepmanLogger struct {
-}
-
-func (l stepmanLogger) Warnf(format string, v ...interface{}) {
-	log.Warnf(format, v...)
-}
-
 // StepmanStepInfo ...
 func StepmanStepInfo(library, id, version string) (stepmanModels.StepInfoModel, error) {
-	stepInfo, err := stepman.QueryStepInfo(library, id, version, stepmanLogger{})
+	logger := logv2.NewLogger()
+	stepInfo, err := stepman.QueryStepInfo(library, id, version, logger)
 	if err != nil {
 		return stepmanModels.StepInfoModel{}, fmt.Errorf("failed to get step info: %w", err)
 	}
@@ -57,7 +51,8 @@ func StepmanLocalLibraryInfos() ([]stepmanModels.SteplibInfoModel, error) {
 
 // StepmanSetupLibrary ...
 func StepmanSetupLibrary(libraryURI string) error {
-	if err := stepman.Setup(libraryURI, "", stepmanLogger{}); err != nil {
+	logger := logv2.NewLogger()
+	if err := stepman.Setup(libraryURI, "", logger); err != nil {
 		return fmt.Errorf("failed to setup library (%s): %w", libraryURI, err)
 	}
 

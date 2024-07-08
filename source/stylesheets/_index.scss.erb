@@ -602,11 +602,11 @@ header.sticky header.menu {
 
 	> .main {
 		grid-area: content;
-		
+
 		padding: 32px;
 		overflow-y: auto;
 		overflow-x: hidden;
-		
+
 		&:has(.tab-workflows) {
 			padding: 0;
 
@@ -621,8 +621,21 @@ header.sticky header.menu {
 			}
 		}
 
+		&:has(.tab-pipelines) {
+			padding: 0;
+
+			.tab-content,
+			.tab-content > .tab-pipelines {
+				height: 100%;
+			}
+		}
+
 		&:has(.tab-code-signing) {
 			padding: 20px 0;
+		}
+
+		> :not(:first-child) {
+			margin-top: 20px;
 		}
 	}
 

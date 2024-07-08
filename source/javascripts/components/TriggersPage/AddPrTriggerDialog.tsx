@@ -8,8 +8,8 @@ import {
   DialogBody,
   DialogFooter,
   Divider,
-  Icon,
   Input,
+  Link,
   ProgressIndicator,
   ProgressIndicatorProps,
   Select,
@@ -20,6 +20,7 @@ import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from
 
 import { Condition, FormItems, PrConditionType, TriggerItem } from './TriggersPage.types';
 import { checkIsConditionsUsed } from './TriggersPage.utils';
+import RegexCheckbox from './RegexCheckbox';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
@@ -52,20 +53,18 @@ type ConditionCardProps = {
   conditionNumber: number;
 };
 
-// const OPTIONS_MAP: Record<PrConditionType, string> = {
-const OPTIONS_MAP: Record<'pull_request_target_branch' | 'pull_request_source_branch' | 'pull_request_label', string> =
-  {
-    pull_request_target_branch: 'Target branch',
-    pull_request_source_branch: 'Source branch',
-    pull_request_label: 'PR label',
-    // pull_request_comment: 'PR comment',
-    // commit_message: 'Commit message',
-    // changed_files: 'File change',
-  };
+const OPTIONS_MAP: Record<PrConditionType, string> = {
+  pull_request_target_branch: 'Target branch',
+  pull_request_source_branch: 'Source branch',
+  pull_request_label: 'PR label',
+  pull_request_comment: 'PR comment',
+  commit_message: 'Commit message',
+  changed_files: 'File change',
+};
 
 const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;
-  const { register, watch } = useFormContext();
+  const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
   const { isRegex, type } = conditions[conditionNumber] || {};
 
@@ -75,34 +74,34 @@ const ConditionCard = (props: ConditionCardProps) => {
         <Text textStyle="heading/h5">Condition {conditionNumber + 1}</Text>
         {children}
       </Box>
-      <Select
-        marginBottom="16"
-        placeholder="Select a condition type"
-        {...register(`conditions.${conditionNumber}.type`)}
-      >
-        {Object.entries(OPTIONS_MAP).map(([optionType, text]) => {
-          const isConditionTypeUsed = conditions.some((condition: Condition) => condition.type === optionType);
-          const isTypeOfCurrentCard = optionType === conditions[conditionNumber].type;
+      <Controller
+        name={`conditions.${conditionNumber}.type`}
+        control={control}
+        render={({ field }) => (
+          <Select marginBottom="16" placeholder="Select a condition type" {...field}>
+            {Object.entries(OPTIONS_MAP).map(([optionType, text]) => {
+              const isConditionTypeUsed = conditions.some((condition: Condition) => condition.type === optionType);
+              const isTypeOfCurrentCard = optionType === conditions[conditionNumber].type;
 
-          if (isConditionTypeUsed && !isTypeOfCurrentCard) {
-            return undefined;
-          }
+              if (isConditionTypeUsed && !isTypeOfCurrentCard) {
+                return undefined;
+              }
 
-          return (
-            <option key={optionType} value={optionType}>
-              {text}
-            </option>
-          );
-        })}
-      </Select>
+              return (
+                <option key={optionType} value={optionType}>
+                  {text}
+                </option>
+              );
+            })}
+          </Select>
+        )}
+      />
       {!!type && (
         <>
-          <Checkbox marginBottom="8" {...register(`conditions.${conditionNumber}.isRegex`)}>
-            Use regex pattern
-          </Checkbox>
-          <Tooltip label="Regular Expression (regex) is a sequence of characters that specifies a match pattern in text.">
-            <Icon name="Info" size="16" marginLeft="5" />
-          </Tooltip>
+          <RegexCheckbox
+            isChecked={isRegex}
+            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
+          />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
@@ -158,7 +157,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { control, formState, register, reset, handleSubmit, watch } = formMethods;
+  const { control, formState, reset, handleSubmit, watch, setValue } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -194,7 +193,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const { conditions, pipelineable } = watch();
+  const { conditions, pipelineable, isDraftPr } = watch();
 
   let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
@@ -261,7 +260,24 @@ const AddPrTriggerDialog = (props: DialogProps) => {
               >
                 Add condition
               </Button>
-              <Checkbox {...register(`isDraftPr`)}>Include draft pull requests</Checkbox>
+              <Checkbox
+                isChecked={isDraftPr}
+                helperText={
+                  <>
+                    Supported for GitHub and GitLab.{' '}
+                    <Link
+                      colorScheme="purple"
+                      href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
+                      isExternal
+                    >
+                      Learn more
+                    </Link>
+                  </>
+                }
+                onChange={(e) => setValue(`isDraftPr`, e.target.checked)}
+              >
+                Include draft pull requests
+              </Checkbox>
             </>
           ) : (
             <>
@@ -271,26 +287,32 @@ const AddPrTriggerDialog = (props: DialogProps) => {
               <Text color="text/secondary" marginBottom="24">
                 Select the Pipeline or Workflow you want Bitrise to run when trigger conditions are met.
               </Text>
-              <Select placeholder="Select a Pipeline or Workflow" {...register('pipelineable')}>
-                {pipelines.length && (
-                  <optgroup label="Pipelines">
-                    {pipelines.map((p) => (
-                      <option key={p} value={`pipeline#${p}`}>
-                        {p}
-                      </option>
-                    ))}
-                  </optgroup>
+              <Controller
+                name="pipelineable"
+                control={control}
+                render={({ field }) => (
+                  <Select placeholder="Select a Pipeline or Workflow" {...field}>
+                    {pipelines.length && (
+                      <optgroup label="Pipelines">
+                        {pipelines.map((p) => (
+                          <option key={p} value={`pipeline#${p}`}>
+                            {p}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                    {workflows.length && (
+                      <optgroup label="Workflows">
+                        {workflows.map((p) => (
+                          <option key={p} value={`workflow#${p}`}>
+                            {p}
+                          </option>
+                        ))}
+                      </optgroup>
+                    )}
+                  </Select>
                 )}
-                {workflows.length && (
-                  <optgroup label="Workflows">
-                    {workflows.map((p) => (
-                      <option key={p} value={`workflow#${p}`}>
-                        {p}
-                      </option>
-                    ))}
-                  </optgroup>
-                )}
-              </Select>
+              />
             </>
           )}
         </DialogBody>

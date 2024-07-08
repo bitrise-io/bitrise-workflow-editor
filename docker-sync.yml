@@ -1,6 +1,0 @@
-version: 2
-syncs:
-  nsync_wfe:
-    src: '.'
-    sync_strategy: 'native_osx'
-    sync_excludes: ['tmp','.git','coverage', '*.log', 'gin-bin']

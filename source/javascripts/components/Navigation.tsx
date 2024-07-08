@@ -1,5 +1,7 @@
 import { ComponentPropsWithoutRef, Fragment, useEffect, useRef } from 'react';
 import {
+  Badge,
+  Box,
   Sidebar,
   SidebarContainer,
   SidebarDivider,
@@ -7,8 +9,10 @@ import {
   SidebarItem,
   SidebarItemIcon,
   SidebarItemLabel,
+  Text,
   TypeIconName,
 } from '@bitrise/bitkit';
+import useFeatureFlag from '../hooks/useFeatureFlag';
 
 type Item = {
   id: string;
@@ -28,6 +32,10 @@ const findItemIcon = (item: Item): TypeIconName | undefined => {
   switch (item.id) {
     case 'workflows':
       return 'Workflow';
+    case 'pipelines':
+      return 'WorkflowFlow';
+    case 'code-signing':
+      return 'CodeSigning';
     case 'secrets':
       return 'Lock';
     case 'env-vars':
@@ -73,10 +81,25 @@ const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem
 };
 
 const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
+  const isPipelineViewerEnabled = useFeatureFlag('enable-wfe-pipeline-viewer');
+
   return (
-    <Sidebar width={256} height="100%" borderRight="1px solid" borderColor="separator.primary" id="menu-nav">
+    <Sidebar
+      width={256}
+      height="100%"
+      borderRight="1px solid"
+      borderColor="separator.primary"
+      id="menu-nav"
+      paddingTop="24"
+    >
       <SidebarContainer>
         {items.map((item) => {
+          const isPipelines = item.id === 'pipelines';
+
+          if (!isPipelineViewerEnabled && isPipelines) {
+            return null;
+          }
+
           const icon = findItemIcon(item);
           const isSelected = activeItem?.id === item.id;
 
@@ -85,7 +108,19 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
               {item.divided && <SidebarDivider />}
               <NavigationItem e2e={item.cssClass} selected={isSelected} onClick={() => onItemSelected(item)}>
                 {icon && <SidebarItemIcon name={icon} />}
-                <SidebarItemLabel>{item.title}</SidebarItemLabel>
+
+                {isPipelines ? (
+                  <SidebarItemLabel>
+                    <Box display="flex" justifyContent="space-between" pr="12">
+                      <Text>{item.title}</Text>
+                      <Badge size="sm" variant="subtle" colorScheme="warning">
+                        BETA
+                      </Badge>
+                    </Box>
+                  </SidebarItemLabel>
+                ) : (
+                  <SidebarItemLabel>{item.title}</SidebarItemLabel>
+                )}
               </NavigationItem>
             </Fragment>
           );

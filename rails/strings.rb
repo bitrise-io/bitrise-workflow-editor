@@ -14,6 +14,9 @@ def strings
             },
             segment: {
                 writeKey: "55iZpqNHYN37mfsfk9SOfKBv9GpGBBTv"
+            },
+            ld: {
+                client_id: ENV['NODE_ENV'] == "development" ? "5e70774c8a726707851d2ffe" : "5e70774c8a726707851d2fff",
             }
         },
         strings: {
@@ -67,7 +70,7 @@ def strings
             workflows: {
                 load_workflows_progress: {
                     in_progress: "Loading workflows...",
-                    error: "Failed to load workflows."
+                    error: "Failed to load workflows: <error>"
                 },
                 load_secret_environment_keys_progress: {
                     in_progress: "Loading secret environment variable keys...",
@@ -141,7 +144,6 @@ def strings
                     community_created: "Community created",
                     clone_popover_info: "Clone this step",
                     source_popover_info: "Source code",
-                    delete: "Delete Step: <step_title>",
                     version: "Version: <version>",
                     branch: "Branch: <version>",
                     always_latest: "Always latest",
@@ -149,10 +151,8 @@ def strings
                     exact_version_remark: "Step version set to \\“<version>\\” in the <b>bitrise.yml</b> file",
                     patch_update_remark: "You will get patch updates on this step",
                     minor_update_remark: "You will get minor and patch updates on this step",
-                    run_if_section_title: "When to run",
                     is_always_run: "Run even if previous Step(s) failed",
                     run_if_title: "Additional run conditions",
-                    run_if_description: "Enter any valid Go template - the Step will only run if it evaluates to ”true”. <br/> You can refer to Env Vars and more, see <a href='<url>' target='_blank'>the docs for details.</a>",
                     major_version_change_title: "Major version change",
                     major_version_change_desc: "A new major version likely contains breaking changes in the step behavior. Please check the <a href='<url>' target='_blank'>release notes</a>.",
                     inputs_removed_desc: "<br><b>The following inputs are not available in the selected version anymore: <inputList></b>",
@@ -716,10 +716,9 @@ def strings
                     default_error: "Error during request."
                 },
                 step_config_fetch: {
-                    default_error: "Error loading step.",
-                    error_prefix: "Error loading step: ",
-                    not_supported_host: "This host is not supported for step.yml load.",
-                    github_error: "Could not load step.yml from GitHub."
+                    default_error: "Error loading step <step_yml_url>.",
+                    not_supported_host: "This host (<step_yml_url>) is not supported for step.yml load.",
+                    github_error: "Could not load <step_yml_url> from GitHub. Make sure the repository is publicly accessible. Error: <error>"
                 },
                 libraries_fetch: {
                     default_error: "Error loading library",
@@ -997,6 +996,7 @@ def strings
         routes: {
             endpoints: {
                 workflows: "workflows",
+                pipelines: "pipelines",
                 code_signing: "code_signing",
                 secrets: "secrets",
                 env_vars: "env_vars",
@@ -1007,6 +1007,7 @@ def strings
             },
             templates: {
                 workflows: "templates/workflows.html",
+                pipelines: "templates/pipelines.html",
                 code_signing: "templates/code_signing.html",
                 secrets: "templates/secrets.html",
                 env_vars: "templates/env_vars.html",
@@ -1020,6 +1021,8 @@ def strings
             },
             website: {
                 dashboard_path: "/dashboard",
+                workspace_secrets_path: "/workspaces/<workspace_slug>/settings/shared-resources",
+                workspace_plan_selector_path: "/organization/<workspace_slug>/credit_subscription/plan_selector_page",
                 app_path: "/app/<app_slug>",
                 app_path_get: "/app/<app_slug>.json",
                 app_start_build_path: "/app/<app_slug>/build/start.json",

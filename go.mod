@@ -1,23 +1,25 @@
 module github.com/bitrise-io/bitrise-workflow-editor
 
-go 1.17
+go 1.21
+
+toolchain go1.22.5
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20240327073218-52199a875a0a
+	github.com/bitrise-io/bitrise v0.0.0-20240705083642-016883ca9498
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
-	github.com/bitrise-io/envman v0.0.0-20230802102824-1300c57d49c4
+	github.com/bitrise-io/envman v0.0.0-20240624065735-ca81d0a80500
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240322134046-851edc788eaf
+	github.com/bitrise-io/stepman v0.0.0-20240705083635-ec8abbe0d555
 	github.com/gorilla/mux v1.8.1
-	github.com/spf13/cobra v1.8.0
+	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
 	gopkg.in/yaml.v2 v2.4.0
 )
 
 require (
 	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 // indirect
-	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.20 // indirect
+	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.22
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 )
@@ -38,7 +40,7 @@ require (
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/google/go-cmp v0.6.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-retryablehttp v0.7.5 // indirect
+	github.com/hashicorp/go-retryablehttp v0.7.7 // indirect
 	github.com/hashicorp/go-version v1.6.0 // indirect
 	github.com/inconshreveable/mousetrap v1.1.0 // indirect
 	github.com/opencontainers/go-digest v1.0.0 // indirect
@@ -49,11 +51,11 @@ require (
 	github.com/ryanuber/go-glob v1.0.0 // indirect
 	github.com/sirupsen/logrus v1.9.3 // indirect
 	github.com/spf13/pflag v1.0.5 // indirect
-	github.com/urfave/cli v1.22.14 // indirect
-	golang.org/x/crypto v0.21.0 // indirect
+	github.com/urfave/cli v1.22.15 // indirect
+	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
-	golang.org/x/term v0.18.0 // indirect
+	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 )

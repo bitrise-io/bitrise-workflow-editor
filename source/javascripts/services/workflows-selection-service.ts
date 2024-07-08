@@ -15,7 +15,7 @@ type WorkflowViewModel = {
   selectedWorkflow?: Workflow;
   workflows: Array<Workflow>;
   editedWorkflow?: Workflow;
-  editWorkflowAtIndex: (arg0: number | null) => void;
+  editWorkflowAtIndex: (arg0: number | null, shouldTransformEditedWorkflowToReact?: boolean) => void;
   stepSelected: (
     arg0: Step | undefined,
     wfIndex: number | undefined,
@@ -191,7 +191,7 @@ export class WorkflowsSelectionService {
       );
     }
 
-    viewModel.editWorkflowAtIndex(editedIndex);
+    viewModel.editWorkflowAtIndex(editedIndex, viewModel.editedWorkflow?.id !== editedId);
   };
 }
 
