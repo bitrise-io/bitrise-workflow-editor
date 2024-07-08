@@ -68,7 +68,7 @@ angular
     "rYmlStorageSettings",
     register(YmlStorageSettings, [
       "appSlug",
-      "usesRepositoryYml",
+      "initialUsesRepositoryYml",
       "onUsesRepositoryYmlChangeSaved",
       "repositoryYmlAvailable",
     ]),

@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Card, Text, Notification, useDisclosure } from '@bitrise/bitkit';
+import { Box, Button, Text, Notification, useDisclosure, DataWidget, DataWidgetItem, Tooltip } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import { AppConfig } from '../../models/AppConfig';
 import usePutUserMetaData from '../../hooks/api/usePutUserMetaData';
@@ -9,7 +9,7 @@ export type YmlEditorHeaderProps = {
   appSlug: string;
   appConfig: AppConfig | string;
   url: string;
-  usesRepositoryYml?: boolean;
+  initialUsesRepositoryYml?: boolean;
   repositoryYmlAvailable: boolean;
   shouldShowYmlStorageSettings: boolean;
   onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
@@ -29,7 +29,7 @@ const YmlEditorHeader = ({
   repositoryYmlAvailable,
   shouldShowYmlStorageSettings,
   url,
-  usesRepositoryYml,
+  initialUsesRepositoryYml,
   split,
   modularYmlSupported,
   lines,
@@ -45,6 +45,8 @@ const YmlEditorHeader = ({
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [isNotificationOpen, setIsNotificationOpen] = useState(true);
+
+  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
 
   const handleNotificationClose = () => {
     setIsNotificationOpen(false);
@@ -87,6 +89,13 @@ const YmlEditorHeader = ({
     );
   }
 
+  let infoLabel;
+  if (usesRepositoryYml) {
+    infoLabel = split
+      ? `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`
+      : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
+  }
+
   return (
     <>
       <Box display="flex" gap="16" alignItems="center" marginBlockEnd="24" minHeight="40">
@@ -99,21 +108,38 @@ const YmlEditorHeader = ({
           </Button>
         )}
         {shouldShowYmlStorageSettings && (
-          <Card height="40" variant="outline" width="auto">
-            <Button isDisabled={!repositoryYmlAvailable} onClick={onOpen} size="sm" variant="tertiary">
-              Change
-            </Button>
-          </Card>
+          <DataWidget
+            additionalElement={
+              <Tooltip
+                isDisabled={repositoryYmlAvailable}
+                label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
+              >
+                <Button isDisabled={!repositoryYmlAvailable} onClick={onOpen} size="sm" variant="tertiary">
+                  Change
+                </Button>
+              </Tooltip>
+            }
+            infoLabel={infoLabel}
+          >
+            <DataWidgetItem
+              label="Source:"
+              labelTooltip="The source is where your configuration file is stored and managed."
+              value={usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
+            />
+          </DataWidget>
         )}
       </Box>
       {notification}
       <ConfigurationYmlSourceDialog
         isOpen={isOpen}
         onClose={onClose}
-        initialUsesRepositoryYml={!!usesRepositoryYml}
+        initialUsesRepositoryYml={usesRepositoryYml}
         appConfig={appConfig}
         appSlug={appSlug}
-        onUsesRepositoryYmlChangeSaved={onUsesRepositoryYmlChangeSaved}
+        onUsesRepositoryYmlChangeSaved={(newValue: boolean) => {
+          onUsesRepositoryYmlChangeSaved(newValue);
+          setUsesRepositoryYml(newValue);
+        }}
         defaultBranch={defaultBranch}
         gitRepoSlug={gitRepoSlug}
         lastModified={lastModified}
