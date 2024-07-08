@@ -5,7 +5,7 @@
 			.title == data[:strings][:yml][:warn][:title]
 			ul
 				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
-	r-yml-editor-header[url="ymlCtrl.downloadAppConfigYMLPath()" uses-repository-yml='ymlCtrl.usesRepositoryYml' app-slug='ymlCtrl.appSlug' app-config='ymlCtrl.appConfigYML' on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved" repository-yml-available="ymlCtrl.repositoryYmlAvailable" should-show-yml-storage-settings="ymlCtrl.shouldShowYmlStorageSettings" default-branch="ymlCtrl.defaultBranch" git-repo-slug="ymlCtrl.gitRepoSlug" lines="ymlCtrl.lines" split="ymlCtrl.split" modular-yml-supported="ymlCtrl.modularYmlSupported" last-modified="ymlCtrl.lastModified"]
+	r-yml-editor-header[url="ymlCtrl.downloadAppConfigYMLPath()" initial-uses-repository-yml='ymlCtrl.usesRepositoryYml' app-slug='ymlCtrl.appSlug' app-config='ymlCtrl.appConfigYML' on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved" repository-yml-available="ymlCtrl.repositoryYmlAvailable" should-show-yml-storage-settings="ymlCtrl.shouldShowYmlStorageSettings" default-branch="ymlCtrl.defaultBranch" git-repo-slug="ymlCtrl.gitRepoSlug" lines="ymlCtrl.lines" split="ymlCtrl.split" modular-yml-supported="ymlCtrl.modularYmlSupported" last-modified="ymlCtrl.lastModified"]
 	section.cardo
 		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article

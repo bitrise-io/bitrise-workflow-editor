@@ -11,7 +11,7 @@ export default {
     defaultBranch: 'main',
     gitRepoSlug: 'VoyagerGitRepo',
     lastModified: '2024-05-12T09:23:48.190Z',
-    onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => {},
+    onUsesRepositoryYmlChangeSaved: () => {},
   },
   parameters: {
     msw: [getConfig(), putPipelineConfig(), postConfig()],

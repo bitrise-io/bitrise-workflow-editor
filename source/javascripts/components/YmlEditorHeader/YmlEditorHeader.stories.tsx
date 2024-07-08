@@ -1,4 +1,4 @@
-import { Meta } from '@storybook/react';
+import { Meta, StoryObj } from '@storybook/react';
 import {
   getNotificationMetaData,
   putNotificationMetaData,
@@ -8,8 +8,12 @@ import YmlEditorHeader, { YmlEditorHeaderProps } from './YmlEditorHeader';
 const meta: Meta<YmlEditorHeaderProps> = {
   component: YmlEditorHeader,
   args: {
+    defaultBranch: 'master',
+    gitRepoSlug: 'MyRepo',
+    repositoryYmlAvailable: true,
+    shouldShowYmlStorageSettings: true,
     url: 'url',
-    usesRepositoryYml: false,
+    initialUsesRepositoryYml: false,
     lines: 400,
     lastModified: '2024-05-12T09:23:48.190Z',
   },
@@ -20,9 +24,9 @@ const meta: Meta<YmlEditorHeaderProps> = {
 
 export default meta;
 
-export const WithProps = {};
+export const WithProps: StoryObj<YmlEditorHeaderProps> = {};
 
-export const ModularYmlSupported = {
+export const ModularYmlSupported: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: false,
     lines: 550,
@@ -30,7 +34,7 @@ export const ModularYmlSupported = {
   },
 };
 
-export const ModularYmlNotSupported = {
+export const ModularYmlNotSupported: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: false,
     lines: 550,
@@ -38,7 +42,7 @@ export const ModularYmlNotSupported = {
   },
 };
 
-export const SplittedConfig = {
+export const SplittedConfig: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: true,
     lines: 550,
