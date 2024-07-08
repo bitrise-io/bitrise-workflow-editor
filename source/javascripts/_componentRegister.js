@@ -68,7 +68,7 @@ angular
     "rYmlStorageSettings",
     register(YmlStorageSettings, [
       "appSlug",
-      "initialUsesRepositoryYml",
+      "usesRepositoryYml",
       "onUsesRepositoryYmlChangeSaved",
       "repositoryYmlAvailable",
     ]),
@@ -96,7 +96,7 @@ angular
     "rYmlEditorHeader",
     register(YmlEditorHeader, [
       "url",
-      "usesRepositoryYml",
+      "initialUsesRepositoryYml",
       "appSlug",
       "appConfig",
       "onUsesRepositoryYmlChangeSaved",

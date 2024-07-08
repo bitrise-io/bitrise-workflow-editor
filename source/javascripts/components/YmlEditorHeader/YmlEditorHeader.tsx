@@ -96,6 +96,8 @@ const YmlEditorHeader = ({
       : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
   }
 
+  const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
+
   return (
     <>
       <Box display="flex" gap="16" alignItems="center" marginBlockEnd="24" minHeight="40">
@@ -111,10 +113,10 @@ const YmlEditorHeader = ({
           <DataWidget
             additionalElement={
               <Tooltip
-                isDisabled={repositoryYmlAvailable}
+                isDisabled={isChangeEnabled}
                 label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
               >
-                <Button isDisabled={!repositoryYmlAvailable} onClick={onOpen} size="sm" variant="tertiary">
+                <Button isDisabled={!isChangeEnabled} onClick={onOpen} size="sm" variant="tertiary">
                   Change
                 </Button>
               </Tooltip>

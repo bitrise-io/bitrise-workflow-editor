@@ -10,6 +10,18 @@ export const getConfig = () => {
   });
 };
 
+export const getConfigFailed = () => {
+  return http.get(configPath(':slug'), async () => {
+    await delay(1000);
+    return new HttpResponse('{ "error_msg": "Split configuration requires an Enterprise plan" }', {
+      headers: {
+        'Content-Type': 'text/json',
+      },
+      status: 422,
+    });
+  });
+};
+
 export const putPipelineConfig = () => {
   return http.put(pipelineConfigPath(':slug'), async () => {
     await delay();

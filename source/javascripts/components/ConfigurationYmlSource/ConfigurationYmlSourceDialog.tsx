@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { ReactNode, useEffect, useState } from 'react';
 import {
   Box,
   Button,
@@ -10,6 +10,7 @@ import {
   List,
   ListItem,
   Notification,
+  NotificationProps,
   Radio,
   RadioGroup,
   Text,
@@ -24,6 +25,35 @@ import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFrom
 import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '../../hooks/api/usePostAppConfigCallback';
 import appConfigAsYml from '../../utils/appConfigAsYml';
+
+const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
+  let action: NotificationProps['action'];
+  let content: ReactNode = message;
+  if (status === 404) {
+    content =
+      "Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the default branch and the app's Service Credential User has read rights on that.";
+  } else if (message && message.includes('Split configuration requires an Enterprise plan')) {
+    content = (
+      <>
+        <Text fontWeight="bold">Split configuration requires an Enterprise plan</Text>
+        Contact our customer support if you'd like to try it out.
+      </>
+    );
+    action = {
+      href: 'https://bitrise.io/contact',
+      label: 'Contact us',
+      target: '_blank',
+    };
+  } else {
+    content = 'Unknown error';
+  }
+
+  return (
+    <Notification marginBlockStart="24" status="error" action={action}>
+      {content}
+    </Notification>
+  );
+};
 
 type ConfigurationYmlSourceDialogProps = {
   isOpen: boolean;
@@ -59,7 +89,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     appConfigFromRepo,
   } = useGetAppConfigFromRepoCallback(appSlug);
 
-  const { postAppConfig, postAppConfigStatus } = usePostAppConfigCallback(appSlug, appConfigAsYml(appConfigFromRepo));
+  const { postAppConfig, postAppConfigStatus, postAppConfigLoading } = usePostAppConfigCallback(
+    appSlug,
+    appConfigAsYml(appConfigFromRepo),
+  );
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
@@ -104,20 +137,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     toolTip = 'You are already storing your configuration in a Git repository.';
   }
 
-  const renderError = (): React.ReactElement => {
-    switch (getAppConfigFromRepoStatus) {
-      case 404:
-        return (
-          <Notification status="error" marginBlockStart="24">
-            Couldn't find the bitrise.yml file in the app's repository. Please make sure that the file exists on the
-            default branch and the app's Service Credential User has read rights on that.
-          </Notification>
-        );
-      default:
-        return <Notification status="error">{getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}</Notification>;
-    }
-  };
-
   const onValidateAndSave = () => {
     if (configurationSource === 'git') {
       getAppConfigFromRepo();
@@ -136,7 +155,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   useEffect(() => {
     if (updatePipelineConfigStatus === 200) {
-      if (configurationSource === 'bitrise') {
+      if (!usesRepositoryYml && configurationSource === 'git') {
         postAppConfig();
       } else {
         onSuccess();
@@ -153,7 +172,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   }, [postAppConfigStatus]);
 
   const onSuccess = () => {
-    onClose();
+    onCloseDialog();
     successToast({
       title: ' Source succesfully changed',
       description: 'From now you can manage your Configuration YAML on bitrise.io.',
@@ -163,14 +182,21 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     onUsesRepositoryYmlChangeSaved(usesRepositoryYml);
   };
 
+  const onCloseDialog = () => {
+    getAppConfigFromRepoReset();
+    onClose();
+  };
+
   let lastModifiedFormatted;
   if (lastModified !== null) {
     const date = new Date(lastModified);
     lastModifiedFormatted = format(date, 'MMMM d, yyyy');
   }
 
+  const isDialogDisabled = getAppConfigFromRepoLoading || updatePipelineConfigLoading || postAppConfigLoading;
+
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Configuration YAML source">
+    <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
       <DialogBody>
         <Text textStyle="body/md/semibold" marginBlockEnd="12">
           Source
@@ -178,9 +204,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         <RadioGroup
           onChange={(value: 'bitrise' | 'git') => {
             setUsesRepositoryYml(value === 'git');
+            getAppConfigFromRepoReset();
           }}
           value={usesRepositoryYml ? 'git' : 'bitrise'}
-          isDisabled={getAppConfigFromRepoLoading || updatePipelineConfigLoading}
+          isDisabled={isDialogDisabled}
         >
           <Radio
             helperText="Store and manage all your configuration on bitrise.io."
@@ -207,12 +234,10 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             <RadioGroup
               onChange={(value: 'bitrise' | 'git') => {
                 setConfigurationSource(value);
-                if (value === 'bitrise') {
-                  getAppConfigFromRepoReset();
-                }
+                getAppConfigFromRepoReset();
               }}
               value={configurationSource}
-              isDisabled={getAppConfigFromRepoLoading || updatePipelineConfigLoading}
+              isDisabled={isDialogDisabled}
             >
               <Radio
                 helperText={
@@ -325,18 +350,16 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             Looking for a configuration file in the app’s repository.
           </Notification>
         )}
-        {getAppConfigFromRepoFailed && renderError()}
+        {getAppConfigFromRepoFailed && (
+          <ErrorNotification status={getAppConfigFromRepoStatus} message={getAppConfigFromRepoFailed?.error_msg} />
+        )}
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={onClose}>
+        <Button variant="secondary" onClick={onCloseDialog}>
           Cancel
         </Button>
         <Tooltip label={toolTip} isDisabled={isSourceSelected}>
-          <Button
-            onClick={onValidateAndSave}
-            isDisabled={!isSourceSelected || !!getAppConfigFromRepoFailed || getAppConfigFromRepoLoading}
-            isLoading={getAppConfigFromRepoLoading || updatePipelineConfigLoading}
-          >
+          <Button onClick={onValidateAndSave} isDisabled={!isSourceSelected} isLoading={isDialogDisabled}>
             Validate and save
           </Button>
         </Tooltip>
