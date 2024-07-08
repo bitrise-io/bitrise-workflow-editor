@@ -1,24 +1,13 @@
-import { useEffect } from 'react';
 import { Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import { FormValues } from '../WorkflowConfigPanel.types';
 import useStackAndMachine from '../hooks/useStackAndMachine';
 
-const ButtonContent = () => {
-  const { watch } = useFormContext<FormValues>();
-
-  const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
-    'appSlug',
-    'configuration.stack',
-    'configuration.machineType',
-    'isMachineTypeSelectorAvailable',
-  ]);
-
-  const { stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack, isMachineTypeSelectorAvailable);
-
-  const stackName = stackOptions.find((s) => s.value === stack)?.title || stack;
-  const machineTypeName = machineTypeOptions.find((m) => m.value === machineType)?.name || machineType;
-
+type ButtonContentProps = {
+  stackName?: string;
+  machineTypeName?: string;
+};
+const ButtonContent = ({ stackName, machineTypeName }: ButtonContentProps) => {
   return (
     <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
       <Text textStyle="body/lg/semibold">Stack & Machine</Text>
@@ -30,39 +19,49 @@ const ButtonContent = () => {
 };
 
 const StackAndMachineCard = () => {
-  const { watch, register, setValue } = useFormContext<FormValues>();
+  const { watch, register } = useFormContext<FormValues>();
 
-  const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
+  const [
+    appSlug = '',
+    defaultStackId,
+    defaultMachineTypeId,
+    selectedStackId,
+    selectedMachineTypeId,
+    isMachineTypeSelectorAvailable,
+  ] = watch([
     'appSlug',
+    'defaultStackId',
+    'defaultMachineTypeId',
     'configuration.stack',
     'configuration.machineType',
     'isMachineTypeSelectorAvailable',
   ]);
 
-  const { isPending, stackOptions, machineTypeOptions } = useStackAndMachine(
-    appSlug,
-    stack,
-    isMachineTypeSelectorAvailable,
-  );
-
-  useEffect(() => {
-    if (!isPending && machineTypeOptions.every((m) => m.value !== machineType)) {
-      setValue('configuration.machineType', machineTypeOptions[0]?.value);
-    }
-  }, [isPending, machineType, machineTypeOptions, setValue]);
+  const { isPending, stack, defaultStack, stackOptions, machineType, defaultMachineType, machineTypeOptions } =
+    useStackAndMachine({
+      appSlug,
+      selectedStackId,
+      defaultStackId,
+      selectedMachineTypeId,
+      defaultMachineTypeId,
+      canChangeMachineType: isMachineTypeSelectorAvailable,
+    });
 
   if (!appSlug) {
     return null;
   }
 
   if (isPending) {
-    return <ExpandableCard buttonContent={<ButtonContent />} />;
+    return (
+      <ExpandableCard buttonContent={<ButtonContent stackName={stack?.title} machineTypeName={machineType?.name} />} />
+    );
   }
 
   return (
-    <ExpandableCard buttonContent={<ButtonContent />}>
+    <ExpandableCard buttonContent={<ButtonContent stackName={stack?.title} machineTypeName={machineType?.name} />}>
       <Box display="flex" flexDir="column" gap="24">
         <Select label="Stack" {...register('configuration.stack')} isRequired>
+          <option value="">{`Default (${defaultStack?.title})`}</option>
           {stackOptions.map(({ value, title }) => (
             <option key={value} value={value}>
               {title}
@@ -72,9 +71,10 @@ const StackAndMachineCard = () => {
         <Select
           isRequired
           label="Machine type"
-          isDisabled={!isMachineTypeSelectorAvailable || !machineType}
+          isDisabled={!isMachineTypeSelectorAvailable}
           {...register('configuration.machineType')}
         >
+          <option value="">{`Default (${defaultMachineType?.name})`}</option>
           {machineTypeOptions.map(({ value, title }) => (
             <option key={value} value={value}>
               {title}

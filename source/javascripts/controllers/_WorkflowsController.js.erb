@@ -1156,16 +1156,18 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         viewModel.editedWorkflow.summary(data.properties.summary || null);
         viewModel.editedWorkflow.description(data.properties.description || null);
 
-        const newStack = Stack.all.find((s) => s.id === data.configuration.stack);
+
+        const newStack = Stack.all.find((s) => s.id === data.configuration.stack) ?? null;
         const defaultStack = appService.stack;
 
-        viewModel.editedWorkflow.stack(newStack?.id === defaultStack?.id ? null : newStack);
+        viewModel.editedWorkflow.stack(newStack);
 
         if (data.isMachineTypeSelectorAvailable) {
-          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
+
+          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType) ?? null;
           const defaultMachineType = appService.defaultMachineType;
 
-          viewModel.editedWorkflow.machineType(undefined, newMachineType?.id === defaultMachineType?.id ? null : newMachineType);
+          viewModel.editedWorkflow.machineType(undefined, newMachineType);
         }
 
         viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
@@ -1182,15 +1184,18 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
 
       function transformEditedWorkflowForReact() {
         if (viewModel.editedWorkflow) {
-          const stack = viewModel.editedWorkflow.stack() || appService.stack;
-          const machineType = viewModel.editedWorkflow.machineType(stack?.type, undefined, MachineType.all) || appService.defaultMachineType;
+          const stack = viewModel.editedWorkflow.stack();
+          const stackType = stack?.type || appService.stack?.type;
+          const machineType = viewModel.editedWorkflow.machineType(stackType, undefined, MachineType.all);
 
           viewModel.editedWorkflowConfigForReact = {
             workflowId: viewModel.editedWorkflow.id,
+            defaultStackId: appService.stack?.id || '',
+            defaultMachineTypeId: appService.defaultMachineType?.id || '',
             isMachineTypeSelectorAvailable: appService.appDetails?.isMachineTypeSelectorAvailable,
             configuration: {
-              stack: stack?.id,
-              machineType: machineType?.id,
+              stack: stack?.id || '',
+              machineType: machineType?.id || '',
               envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
