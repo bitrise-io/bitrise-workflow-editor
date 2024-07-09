@@ -1,69 +1,70 @@
-import { useQuery } from '@tanstack/react-query';
-import { getAllStackInfoQueryOptions } from '../services/getAllStackInfo';
-import { MachineTypeConfigs, getMachineTypeConfigsQueryOptions } from '../services/getMachineTypeConfigs';
+import useStackOptions from './useStackOptions';
+import useMachineTypeOptions from './useMachineTypeOptions';
+import useStackById from './useStackById';
+import useMachineTypeById from './useMachineTypeById';
+import useDefaultStackAndMachine from './useDefaultStackAndMachine';
 
-type MachineType = MachineTypeConfigs['available_machine_type_configs'][string]['machine_types'][string];
-type MachineTypeWithKey = Partial<MachineType> & { key: string };
-
-const findMachineTypeByKey = (machineTypeKey: string, machineTypeConfigs?: MachineTypeConfigs) => {
-  let result: MachineType | undefined;
-
-  Object.values(machineTypeConfigs?.available_machine_type_configs ?? {}).forEach(({ machine_types }) => {
-    result ??= machine_types[machineTypeKey];
-  });
-
-  return result;
+type Props = {
+  appSlug: string;
+  selectedStackId: string;
+  selectedMachineTypeId: string;
+  defaultStackId: string;
+  defaultMachineTypeId: string;
+  canChangeMachineType: boolean;
 };
 
-const buildMachineTypeLabel = (machineType: MachineTypeWithKey) => {
-  if (!machineType?.name) {
-    return machineType.key;
-  }
+const useStackAndMachine = ({
+  appSlug = '',
+  canChangeMachineType = true,
+  selectedStackId,
+  selectedMachineTypeId,
+  defaultStackId,
+  defaultMachineTypeId,
+}: Props) => {
+  const stackId = selectedStackId || defaultStackId;
+  const machineTypeId = selectedMachineTypeId || defaultMachineTypeId;
 
-  const { name, cpu_count: cpuCount, cpu_description: cpuDescription, credit_per_min: creditPerMin, ram } = machineType;
-
-  return `${name} ${cpuCount} @ ${cpuDescription} ${ram} (${creditPerMin} credits/min)`;
-};
-
-const useStackAndMachine = (appSlug = '', selectedStack?: string, isMachineTypeSelectorAvailable = true) => {
-  const { isPending: isPendingAllStackInfo, data: allStackInfo } = useQuery({
-    enabled: !!appSlug,
-    ...getAllStackInfoQueryOptions(appSlug),
+  const { isLoading: isStackOptionsLoading, stackOptions } = useStackOptions({
+    appSlug,
+  });
+  const { isLoading: isMachineTypeOptionsLoading, machineTypeOptions } = useMachineTypeOptions({
+    appSlug,
+    stackId,
+    canChangeMachineType,
+  });
+  const {
+    isLoading: isDefaultsLoading,
+    defaultStack,
+    defaultMachineType,
+  } = useDefaultStackAndMachine({
+    appSlug,
+    stackId: defaultStackId,
+    machineTypeId: defaultMachineTypeId,
+    canChangeMachineType,
   });
 
-  const { isPending: isPendingMachineTypeConfigs, data: machineTypeConfigs } = useQuery({
-    enabled: !!(appSlug && isMachineTypeSelectorAvailable),
-    ...getMachineTypeConfigsQueryOptions(appSlug),
+  const { isLoading: isStackLoading, stack = defaultStack } = useStackById({
+    appSlug,
+    stackId,
   });
 
-  const isPending = isMachineTypeSelectorAvailable
-    ? isPendingAllStackInfo || isPendingMachineTypeConfigs
-    : isPendingAllStackInfo;
+  const { isLoading: isMachineTypeLoading, machineType } = useMachineTypeById({
+    appSlug,
+    stackId,
+    machineTypeId,
+    canChangeMachineType,
+  });
 
-  const availableStacks = allStackInfo?.available_stacks ?? {};
-  const stackOptions = Object.entries(availableStacks).map(([value, { title }]) => ({ value, title }));
-  const stack = selectedStack || stackOptions?.[0]?.value || '';
-
-  const availableMachinesOfStack = allStackInfo?.available_stacks?.[stack]?.available_machines ?? [];
-  const availableMachineTypes = availableMachinesOfStack.map((key) => ({
-    key,
-    ...findMachineTypeByKey(key, machineTypeConfigs),
-  }));
-
-  let machineTypeOptions = [{ name: 'Dedicated Machine', value: '', title: 'Dedicated Machine' }];
-  if (isMachineTypeSelectorAvailable) {
-    machineTypeOptions = availableMachineTypes.map((machineType) => ({
-      value: machineType.key,
-      name: machineType.name || machineType.key,
-      title: buildMachineTypeLabel(machineType),
-    }));
-  }
+  const isLoading =
+    isStackLoading || isStackOptionsLoading || isMachineTypeLoading || isMachineTypeOptionsLoading || isDefaultsLoading;
 
   return {
-    isPending,
-    allStackInfo,
+    isLoading,
+    stack,
+    defaultStack,
     stackOptions,
-    machineTypeConfigs,
+    machineType,
+    defaultMachineType,
     machineTypeOptions,
   };
 };

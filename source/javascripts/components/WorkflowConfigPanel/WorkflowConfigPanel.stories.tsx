@@ -8,6 +8,12 @@ export default {
     appSlug: 'app-1',
     defaultValues: {
       workflowId: 'workflow-1',
+      defaultStackId: 'osx-xcode-15.0.x',
+      defaultMachineTypeId: 'g2-m1.8core',
+      configuration: {
+        stackId: '',
+        machineTypeId: '',
+      },
       isMachineTypeSelectorAvailable: true,
     },
   },
@@ -27,14 +33,16 @@ type Story = StoryObj<typeof WorkflowConfigPanel>;
 
 export const Default: Story = {};
 
-export const WithDefaultValues: Story = {
+export const WithOverrides: Story = {
   args: {
     defaultValues: {
       workflowId: 'workflow-1',
+      defaultStackId: 'osx-xcode-15.0.x',
+      defaultMachineTypeId: 'g2-m1.8core',
       isMachineTypeSelectorAvailable: true,
       configuration: {
-        stack: 'linux-docker-android-22.04',
-        machineType: 'elite-xl',
+        stackId: 'linux-docker-android-22.04',
+        machineTypeId: 'elite-xl',
         envs: [
           { key: 'FOO', value: 'Bar', isExpand: true },
           { key: 'HELLO', value: 'World', isExpand: false },
@@ -56,12 +64,26 @@ export const WithoutAppSlug: Story = {
   },
 };
 
-export const WithoutMachineTypeSelector: Story = {
+export const WithDedicatedMachine: Story = {
   args: {
     appSlug: 'app-1',
     defaultValues: {
       workflowId: 'workflow-1',
+      defaultStackId: 'osx-xcode-15.0.x',
+      defaultMachineTypeId: 'g2-m1.8core',
       isMachineTypeSelectorAvailable: false,
+    },
+  },
+};
+
+export const WithSelfHostedRunner: Story = {
+  args: {
+    appSlug: 'app-1',
+    defaultValues: {
+      workflowId: 'workflow-1',
+      defaultStackId: 'osx-xcode-15.0.x',
+      defaultMachineTypeId: undefined,
+      isMachineTypeSelectorAvailable: true,
     },
   },
 };
