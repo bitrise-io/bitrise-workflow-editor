@@ -1,7 +1,7 @@
 import { Node, Position } from 'reactflow';
 import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
-import { Stage } from '../../../models/BitriseYml';
 import usePipelineStages from './usePipelineStages';
+import { Stage } from '@/models/Stage';
 
 const commonNodeProps: Partial<Node> = {
   draggable: false,

@@ -1,4 +1,4 @@
-import { Step } from './BitriseYml';
+import { Step } from './Step';
 
 type StepInfoModel = {
   maintainer?: string;
