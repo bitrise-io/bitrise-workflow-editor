@@ -24,16 +24,16 @@ const useStackAndMachine = ({
   const stackId = selectedStackId || defaultStackId;
   const machineTypeId = selectedMachineTypeId || defaultMachineTypeId;
 
-  const { isPending: isStackOptionsPending, stackOptions } = useStackOptions({
+  const { isLoading: isStackOptionsLoading, stackOptions } = useStackOptions({
     appSlug,
   });
-  const { isPending: isMachineTypeOptionsPending, machineTypeOptions } = useMachineTypeOptions({
+  const { isLoading: isMachineTypeOptionsLoading, machineTypeOptions } = useMachineTypeOptions({
     appSlug,
     stackId,
     canChangeMachineType,
   });
   const {
-    isPending: isDefaultsPending,
+    isLoading: isDefaultsLoading,
     defaultStack,
     defaultMachineType,
   } = useDefaultStackAndMachine({
@@ -43,23 +43,23 @@ const useStackAndMachine = ({
     canChangeMachineType,
   });
 
-  const { isPending: isStackPending, stack = defaultStack } = useStackById({
+  const { isLoading: isStackLoading, stack = defaultStack } = useStackById({
     appSlug,
     stackId,
   });
 
-  const { isPending: isMachineTypePending, machineType } = useMachineTypeById({
+  const { isLoading: isMachineTypeLoading, machineType } = useMachineTypeById({
     appSlug,
     stackId,
     machineTypeId,
     canChangeMachineType,
   });
 
-  const isPending =
-    isStackOptionsPending || isMachineTypeOptionsPending || isDefaultsPending || isStackPending || isMachineTypePending;
+  const isLoading =
+    isStackLoading || isStackOptionsLoading || isMachineTypeLoading || isMachineTypeOptionsLoading || isDefaultsLoading;
 
   return {
-    isPending,
+    isLoading,
     stack,
     defaultStack,
     stackOptions,

@@ -5,17 +5,17 @@ type Props = {
   appSlug: string;
 };
 const useStackOptions = ({ appSlug }: Props) => {
-  const { isPending, data: allStackInfo } = useStacks({ appSlug });
+  const { isLoading, data: allStackInfo } = useStacks({ appSlug });
 
   return useMemo(() => {
     return {
-      isPending,
+      isLoading,
       stackOptions: Object.entries(allStackInfo?.available_stacks ?? {}).map(([value, { title }]) => ({
         value,
         title,
       })),
     };
-  }, [allStackInfo, isPending]);
+  }, [allStackInfo, isLoading]);
 };
 
 export default useStackOptions;

@@ -9,7 +9,7 @@ const useStacks = ({ appSlug }: Props) => {
   return useQuery({
     enabled: !!appSlug,
     ...getAllStackInfoQueryOptions(appSlug),
-    staleTime: 1000 * 60 * 5,
+    staleTime: Infinity,
   });
 };
 

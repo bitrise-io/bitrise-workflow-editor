@@ -32,21 +32,17 @@ type Props = {
 };
 
 const useMachineTypeOptions = ({ appSlug, canChangeMachineType, stackId }: Props) => {
-  const { isPending: isStackPending, data: allStackInfo } = useStacks({
+  const { isLoading: isStackLoading, data: allStackInfo } = useStacks({
     appSlug,
   });
-  const { isPending: isMachineTypePending, data: machineTypeConfigs } = useMachineTypes({
+  const { isLoading: isMachineTypeLoading, data: machineTypeConfigs } = useMachineTypes({
     appSlug,
     canChangeMachineType,
   });
 
-  const isPending = isStackPending || isMachineTypePending;
+  const isLoading = isStackLoading || isMachineTypeLoading;
 
   const machineTypeOptions = useMemo(() => {
-    if (!canChangeMachineType) {
-      return [{ name: 'Dedicated Machine', value: '', title: 'Dedicated Machine' }];
-    }
-
     const availableMachinesOfStack = allStackInfo?.available_stacks?.[stackId]?.available_machines ?? [];
     const availableMachineTypes = availableMachinesOfStack.map((key) => ({
       key,
@@ -58,10 +54,10 @@ const useMachineTypeOptions = ({ appSlug, canChangeMachineType, stackId }: Props
       name: machineType.name || machineType.key,
       title: buildMachineTypeLabel(machineType),
     }));
-  }, [allStackInfo?.available_stacks, canChangeMachineType, machineTypeConfigs, stackId]);
+  }, [allStackInfo?.available_stacks, machineTypeConfigs, stackId]);
 
   return {
-    isPending,
+    isLoading,
     machineTypeOptions,
   };
 };

@@ -9,17 +9,17 @@ type Props = {
 };
 
 const useMachineTypeById = ({ appSlug, stackId, machineTypeId, canChangeMachineType }: Props) => {
-  const { isPending, machineTypeOptions } = useMachineTypeOptions({
+  const { isLoading, machineTypeOptions } = useMachineTypeOptions({
     appSlug,
     stackId,
     canChangeMachineType,
   });
   return useMemo(
     () => ({
-      isPending,
+      isLoading,
       machineType: machineTypeOptions.find((machineType) => machineType.value === machineTypeId),
     }),
-    [isPending, machineTypeOptions, machineTypeId],
+    [isLoading, machineTypeOptions, machineTypeId],
   );
 };
 

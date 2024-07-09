@@ -1157,14 +1157,14 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         viewModel.editedWorkflow.description(data.properties.description || null);
 
 
-        const newStack = Stack.all.find((s) => s.id === data.configuration.stack) ?? null;
+        const newStack = Stack.all.find((s) => s.id === data.configuration.stackId) ?? null;
         const defaultStack = appService.stack;
 
         viewModel.editedWorkflow.stack(newStack);
 
         if (data.isMachineTypeSelectorAvailable) {
 
-          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType) ?? null;
+          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineTypeId) ?? null;
           const defaultMachineType = appService.defaultMachineType;
 
           viewModel.editedWorkflow.machineType(undefined, newMachineType);
@@ -1194,8 +1194,8 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
             defaultMachineTypeId: appService.defaultMachineType?.id || '',
             isMachineTypeSelectorAvailable: appService.appDetails?.isMachineTypeSelectorAvailable,
             configuration: {
-              stack: stack?.id || '',
-              machineType: machineType?.id || '',
+              stackId: stack?.id || '',
+              machineTypeId: machineType?.id || '',
               envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;

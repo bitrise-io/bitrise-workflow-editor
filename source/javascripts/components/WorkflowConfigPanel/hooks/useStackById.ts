@@ -7,13 +7,13 @@ type Props = {
 };
 
 const useStackById = ({ appSlug, stackId }: Props) => {
-  const { isPending, stackOptions } = useStackOptions({ appSlug });
+  const { isLoading, stackOptions } = useStackOptions({ appSlug });
   return useMemo(
     () => ({
-      isPending,
+      isLoading,
       stack: stackOptions.find((stack) => stack.value === stackId),
     }),
-    [isPending, stackId, stackOptions],
+    [isLoading, stackId, stackOptions],
   );
 };
 

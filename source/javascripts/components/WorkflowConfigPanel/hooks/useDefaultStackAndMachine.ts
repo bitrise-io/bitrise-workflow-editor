@@ -9,8 +9,8 @@ type Props = {
 };
 
 const useDefaultStackAndMachine = ({ appSlug, stackId, machineTypeId, canChangeMachineType }: Props) => {
-  const { isPending: isDefaultStackPending, stack: defaultStack } = useStackById({ appSlug, stackId });
-  const { isPending: isDefaultMachineTypePending, machineType: defaultMachineType } = useMachineTypeById({
+  const { isLoading: isDefaultStackLoading, stack: defaultStack } = useStackById({ appSlug, stackId });
+  const { isLoading: isDefaultMachineTypeLoading, machineType: defaultMachineType } = useMachineTypeById({
     appSlug,
     stackId,
     machineTypeId,
@@ -18,7 +18,7 @@ const useDefaultStackAndMachine = ({ appSlug, stackId, machineTypeId, canChangeM
   });
 
   return {
-    isPending: isDefaultStackPending || isDefaultMachineTypePending,
+    isLoading: isDefaultStackLoading || isDefaultMachineTypeLoading,
     defaultStack,
     defaultMachineType,
   };
