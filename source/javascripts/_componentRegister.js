@@ -8,7 +8,6 @@ import NotificationMessageWithLink from "./components/NotificationMessageWithLin
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
-import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
@@ -24,6 +23,7 @@ import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptySta
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
 import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
 import StepDrawer from "./components/StepDrawer/StepDrawer";
+import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -74,13 +74,15 @@ angular
     ]),
   )
   .component(
-    "rUpdateYmlInRepositoryModal",
-    register(UpdateYmlInRepositoryModal, [
-      "appSlug",
-      "isVisible",
+    "rUpdateConfigurationDialog",
+    register(UpdateConfigurationDialog, [
+      "isOpen",
       "onClose",
+      "appSlug",
+      "appConfig",
       "onComplete",
-      "getDataToSave",
+      "defaultBranch",
+      "gitRepoSlug",
     ]),
   )
   .component(

@@ -28,12 +28,14 @@ r-root-component
 			p.progress-indicator[progress-model="mainCtrl.changeMenuProgress"]
 			.tab-content[ng-view ng-if="mainCtrl.isTabEnabledForMenu(mainCtrl.currentMenu)"]
 
-	r-update-yml-in-repository-modal[
-		ng-if="mainCtrl.isUpdateYmlInRepositoryModalVisible"
+	r-update-configuration-dialog[
+		ng-if="mainCtrl.isUpdateConfigurationDialogOpen"
 		app-slug="appService.appDetails.slug"
-		on-close="mainCtrl.closeUpdateYmlInRepositoryModal"
+		on-close="mainCtrl.closeUpdateConfigurationDialog"
 		on-complete="mainCtrl.onSaveToRepoComplete"
-		get-data-to-save="mainCtrl.getDataToSave"
+		app-config='mainCtrl.appConfigYML'
+		default-branch="mainCtrl.defaultBranch" 
+		git-repo-slug="mainCtrl.gitRepoSlug"
 	]
 
 aside[ng-controller="DefaultPopupController as defaultPopupCtrl"]
