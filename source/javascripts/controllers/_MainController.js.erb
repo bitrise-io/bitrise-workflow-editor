@@ -37,8 +37,8 @@ import {safeDigest} from "../services/react-compat";
 
       viewModel.isUpdateConfigurationDialogOpen = false;
       viewModel.appConfigYML = undefined;
-      viewModel.defaultBranch = appService.appDetails.defaultBranch;
-			viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
+      viewModel.defaultBranch = "";
+			viewModel.gitRepoSlug = "";
       viewModel.appDetails;
       viewModel.showSharedSecrets = false;
       viewModel.menus = _.compact([
@@ -780,6 +780,10 @@ import {safeDigest} from "../services/react-compat";
           }
         }).then(
           function () {
+            if (requestService.mode == "website") {
+              viewModel.defaultBranch = appService.appDetails.defaultBranch;
+              viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
+            }
             if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
               var stackMenu = _.find(viewModel.menus, {
                 id: "stack"
