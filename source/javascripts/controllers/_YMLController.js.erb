@@ -58,9 +58,9 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				function() {
 					return viewModel.usesRepositoryYml;
 				},
-				function(usesRepositoryYml) {
-					editor.updateOptions({ readOnly: !!usesRepositoryYml });
-				}
+				# function(usesRepositoryYml) {
+				# 	editor.updateOptions({ readOnly: !!usesRepositoryYml });
+				# }
 			);
 
 			function init() {
