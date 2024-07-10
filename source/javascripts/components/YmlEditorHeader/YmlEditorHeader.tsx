@@ -44,7 +44,7 @@ const YmlEditorHeader = ({
   const notificationMetaDataResponse = useGetUserMetaData(metaDataKey);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [isNotificationOpen, setIsNotificationOpen] = useState(true);
+  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
 
@@ -65,6 +65,8 @@ const YmlEditorHeader = ({
       setIsNotificationOpen(true);
     }
   }, [showNotification]);
+
+  console.log('split:', split, 'lines:', lines, 'isNotificationOpen:', isNotificationOpen);
 
   let notification;
   if (isNotificationOpen && !split && lines > 500) {
