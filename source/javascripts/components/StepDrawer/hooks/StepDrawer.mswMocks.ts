@@ -1,5 +1,5 @@
 import { delay, http, HttpResponse } from 'msw';
-import { AlgoliaStepResponse } from '../../../models/Algolia';
+import { AlgoliaStepResponse, Maintainer } from '../../../models/Algolia';
 
 export const MockSteps: AlgoliaStepResponse[] = [
   {
@@ -7,7 +7,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/activate-ssh-key/assets/icon.svg',
       },
-      maintainer: 'bitrise',
+      maintainer: Maintainer.Bitrise,
     },
     latest_version_number: '4.1.1',
     cvs: 'activate-ssh-key@4.1.1',
@@ -79,7 +79,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/git-clone/assets/icon.svg',
       },
-      maintainer: 'bitrise',
+      maintainer: Maintainer.Bitrise,
     },
     latest_version_number: '8.2.2',
     cvs: 'git-clone@8.2.2',
@@ -253,7 +253,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/npm/assets/icon.svg',
       },
-      maintainer: 'bitrise',
+      maintainer: Maintainer.Bitrise,
     },
     latest_version_number: '1.1.6',
     cvs: 'npm@1.1.6',
@@ -305,7 +305,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/xcode-test/assets/icon.svg',
       },
-      maintainer: 'bitrise',
+      maintainer: Maintainer.Bitrise,
     },
     latest_version_number: '5.1.1',
     cvs: 'xcode-test@5.1.1',
@@ -449,7 +449,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/xcode-archive/assets/icon.svg',
       },
-      maintainer: 'bitrise',
+      maintainer: Maintainer.Bitrise,
     },
     latest_version_number: '5.1.1',
     cvs: 'xcode-archive@5.1.1',
@@ -643,7 +643,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/codecov/assets/icon.svg',
       },
-      maintainer: 'verified',
+      maintainer: Maintainer.Verified,
     },
     latest_version_number: '3.3.3',
     cvs: 'codecov@3.3.3',
@@ -681,7 +681,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/deploy-to-bitrise-io/assets/icon.svg',
       },
-      maintainer: 'bitrise',
+      maintainer: Maintainer.Bitrise,
     },
     latest_version_number: '2.8.1',
     cvs: 'deploy-to-bitrise-io@2.8.1',
@@ -812,7 +812,7 @@ export const MockSteps: AlgoliaStepResponse[] = [
       asset_urls: {
         'icon.svg': 'https://bitrise-steplib-collection.s3.amazonaws.com/steps/azure-devops-status/assets/icon.svg',
       },
-      maintainer: 'community',
+      maintainer: Maintainer.Community,
     },
     latest_version_number: '1.0.1',
     cvs: 'azure-devops-status@1.0.1',
