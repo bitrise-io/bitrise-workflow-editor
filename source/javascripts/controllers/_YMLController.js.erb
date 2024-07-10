@@ -113,7 +113,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 					});
 				}
 
-				resizeEditor();
+				$timeout(resizeEditor, 0);
 				window.addEventListener('resize', resizeEditor);
 			}
 
