@@ -165,6 +165,9 @@ module.exports = {
 
   /* --- Rules --- */
   resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'source/javascripts'),
+    },
     extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
   },
   module: {
