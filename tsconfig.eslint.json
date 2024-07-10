@@ -8,6 +8,7 @@
     "reporter-config.js",
     "webpack.config.js",
     "cypress.config.ts",
-    ".storybook/**/*"
+    ".storybook/**/*",
+    "jest.config.js"
   ]
 }
