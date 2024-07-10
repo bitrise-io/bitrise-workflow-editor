@@ -2,9 +2,11 @@
 @import "constants";
 
 .tab-yml {
+	display: flex;
+	width: 100%;
 
 	#code-container {
-		height: 100%;
+		width: 100%;
 		min-height: 640px;
 
 		.monaco-editor textarea:focus {
@@ -17,6 +19,9 @@
 	}
 
 	section.cardo {
+		display: flex;
+		width: 100%;
+		flex-grow: 1;	
 
 		&:not(.ninja) > p.notification {
 			@include margin-y(0);
@@ -47,6 +52,8 @@
 
 		article {
 			padding: 0;
+			display: flex;
+			width: 100%;		
 
 			p.progress-indicator {
 				@include margin-y(0);
