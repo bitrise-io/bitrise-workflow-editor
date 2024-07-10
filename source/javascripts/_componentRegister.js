@@ -76,10 +76,9 @@ angular
   .component(
     "rUpdateConfigurationDialog",
     register(UpdateConfigurationDialog, [
-      "isOpen",
       "onClose",
       "appSlug",
-      "appConfig",
+      "getDataToSave",
       "onComplete",
       "defaultBranch",
       "gitRepoSlug",
