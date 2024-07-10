@@ -8,20 +8,21 @@ import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
 
 type UpdateConfigurationDialogProps = {
-  isOpen: boolean;
   onClose: () => void;
   appSlug: string;
-  appConfig: AppConfig | string;
+  getDataToSave: () => AppConfig | string;
   onComplete(): void;
   defaultBranch: string;
   gitRepoSlug: string;
 };
 
 const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
-  const { isOpen, onClose, appSlug, appConfig, onComplete, defaultBranch, gitRepoSlug } = props;
+  const { onClose, appSlug, getDataToSave, onComplete, defaultBranch, gitRepoSlug } = props;
 
   const { getAppConfigFromRepo, appConfigFromRepo, getAppConfigFromRepoStatus, getAppConfigFromRepoFailed } =
     useGetAppConfigFromRepoCallback(appSlug);
+
+  const appConfig = getDataToSave();
 
   const [actionSelected, setActionSelected] = useState<string | null>(null);
   const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
@@ -68,7 +69,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   }
 
   return (
-    <Dialog isOpen={isOpen} onClose={onClose} title="Update configuration YAML">
+    <Dialog isOpen onClose={onClose} title="Update configuration YAML">
       <DialogBody>
         <Text marginBlockEnd="24">
           If you would like to apply these changes to your configuration, depending on your setup, you need to do the

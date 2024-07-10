@@ -513,6 +513,10 @@ import {safeDigest} from "../services/react-compat";
           });
       }
 
+      viewModel.getDataToSave = function () {
+        return viewModel.dataToSave;
+      };
+
       viewModel.save = function (shouldReturnPromise) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
@@ -523,7 +527,7 @@ import {safeDigest} from "../services/react-compat";
         if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
           viewModel.deferredUserSavedYmlToRepository = $q.defer();
           viewModel.deferredUserSavedYmlToRepository.promise.finally(undefined, function (signal) {
-            if (signal === 'open-update-yml-in-repository-dialog') {
+            if (signal === 'open-update-configuration-dialog') {
               viewModel.isUpdateConfigurationDialogOpen = true;
             }
           });
@@ -572,7 +576,7 @@ import {safeDigest} from "../services/react-compat";
                     .then(resolve, reject);
                 case "yml":
                   viewModel.appConfigYML = appService.appConfigYML;
-                  return appService
+                                    return appService
                     .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
                     .then(function () {
                       return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml

@@ -33,7 +33,7 @@ r-root-component
 		app-slug="appService.appDetails.slug"
 		on-close="mainCtrl.closeUpdateConfigurationDialog"
 		on-complete="mainCtrl.onSaveToRepoComplete"
-		app-config='mainCtrl.appConfigYML'
+		get-data-to-save='mainCtrl.getDataToSave'
 		default-branch="mainCtrl.defaultBranch" 
 		git-repo-slug="mainCtrl.gitRepoSlug"
 	]
