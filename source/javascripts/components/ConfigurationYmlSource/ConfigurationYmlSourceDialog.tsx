@@ -44,6 +44,8 @@ const ErrorNotification = ({ status, message }: { status?: number; message: stri
       label: 'Contact us',
       target: '_blank',
     };
+  } else if (message) {
+    content = message;
   } else {
     content = 'Unknown error';
   }
