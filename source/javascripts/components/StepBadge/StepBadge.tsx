@@ -5,6 +5,7 @@ import deprecatedIcon from '../../../images/step/badge-deprecated.svg';
 type StepItemBadgeProps = BoxProps & {
   isOfficial?: boolean;
   isVerified?: boolean;
+  isCommunity?: boolean;
   isDeprecated?: boolean;
 };
 

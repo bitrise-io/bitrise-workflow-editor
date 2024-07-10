@@ -10,7 +10,7 @@ const extractBeforeRunChain = (yml: BitriseYml, id: string): string[] => {
   const ids = yml.workflows?.[id]?.before_run ?? [];
 
   return ids.reduce<string[]>((mergedIds, currentId) => {
-    return [...mergedIds, ...extractBeforeRunChain(yml, currentId), currentId];
+    return [...mergedIds, ...extractBeforeRunChain(yml, currentId), currentId, ...extractAfterRunChain(yml, currentId)];
   }, []);
 };
 
@@ -18,7 +18,7 @@ const extractAfterRunChain = (yml: BitriseYml, id: string): string[] => {
   const ids = yml.workflows?.[id]?.after_run ?? [];
 
   return ids.reduce<string[]>((mergedIds, currentId) => {
-    return [...mergedIds, currentId, ...extractAfterRunChain(yml, currentId)];
+    return [...mergedIds, ...extractBeforeRunChain(yml, currentId), currentId, ...extractAfterRunChain(yml, currentId)];
   }, []);
 };
 

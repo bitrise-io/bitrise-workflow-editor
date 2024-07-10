@@ -14,6 +14,7 @@ export type Step = {
   categories: string[];
   isOfficial: boolean;
   isVerified: boolean;
+  isCommunity: boolean;
   isDeprecated: boolean;
   isDisabled?: boolean;
 };

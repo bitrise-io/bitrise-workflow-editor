@@ -1,68 +1,88 @@
-import { useEffect } from 'react';
-import { Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
+import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import { FormValues } from '../WorkflowConfigPanel.types';
 import useStackAndMachine from '../hooks/useStackAndMachine';
 
-const ButtonContent = () => {
-  const { watch } = useFormContext<FormValues>();
-
-  const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
-    'appSlug',
-    'configuration.stack',
-    'configuration.machineType',
-    'isMachineTypeSelectorAvailable',
-  ]);
-
-  const { stackOptions, machineTypeOptions } = useStackAndMachine(appSlug, stack, isMachineTypeSelectorAvailable);
-
-  const stackName = stackOptions.find((s) => s.value === stack)?.title || stack;
-  const machineTypeName = machineTypeOptions.find((m) => m.value === machineType)?.name || machineType;
-
+type ButtonContentProps = {
+  stackName?: string;
+  machineTypeName?: string;
+  isDefault?: boolean;
+};
+const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentProps) => {
   return (
-    <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
-      <Text textStyle="body/lg/semibold">Stack & Machine</Text>
-      <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
-        {[stackName, machineTypeName].filter(Boolean).join(' • ')}
-      </Text>
+    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" mr="16">
+      <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
+        <Text textStyle="body/lg/semibold">Stack & Machine</Text>
+        <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
+          {[stackName, machineTypeName].filter(Boolean).join(' • ')}
+        </Text>
+      </Box>
+      {isDefault && (
+        <Badge variant="subtle" colorScheme="info">
+          Default
+        </Badge>
+      )}
     </Box>
   );
 };
 
 const StackAndMachineCard = () => {
-  const { watch, register, setValue } = useFormContext<FormValues>();
+  const { watch, register } = useFormContext<FormValues>();
 
-  const [appSlug, stack, machineType, isMachineTypeSelectorAvailable] = watch([
+  const [
+    appSlug = '',
+    defaultStackId,
+    defaultMachineTypeId,
+    selectedStackId,
+    selectedMachineTypeId,
+    isMachineTypeSelectorAvailable,
+  ] = watch([
     'appSlug',
-    'configuration.stack',
-    'configuration.machineType',
+    'defaultStackId',
+    'defaultMachineTypeId',
+    'configuration.stackId',
+    'configuration.machineTypeId',
     'isMachineTypeSelectorAvailable',
   ]);
 
-  const { isPending, stackOptions, machineTypeOptions } = useStackAndMachine(
-    appSlug,
-    stack,
-    isMachineTypeSelectorAvailable,
-  );
+  const { isLoading, stack, defaultStack, stackOptions, machineType, defaultMachineType, machineTypeOptions } =
+    useStackAndMachine({
+      appSlug,
+      selectedStackId,
+      defaultStackId,
+      selectedMachineTypeId,
+      defaultMachineTypeId,
+      canChangeMachineType: isMachineTypeSelectorAvailable,
+    });
 
-  useEffect(() => {
-    if (!isPending && machineTypeOptions.every((m) => m.value !== machineType)) {
-      setValue('configuration.machineType', machineTypeOptions[0]?.value);
-    }
-  }, [isPending, machineType, machineTypeOptions, setValue]);
+  const isDedicatedMachine = !isMachineTypeSelectorAvailable;
+  const isSelfHostedRunner = !defaultMachineTypeId;
+  const isMachineTypeSelectorDisabled = isDedicatedMachine || isSelfHostedRunner;
+  const isDefault = !selectedStackId && !selectedMachineTypeId;
 
   if (!appSlug) {
     return null;
   }
 
-  if (isPending) {
-    return <ExpandableCard buttonContent={<ButtonContent />} />;
+  if (isLoading) {
+    return (
+      <ExpandableCard
+        buttonContent={
+          <ButtonContent stackName={stack?.title} machineTypeName={machineType?.name} isDefault={isDefault} />
+        }
+      />
+    );
   }
 
   return (
-    <ExpandableCard buttonContent={<ButtonContent />}>
+    <ExpandableCard
+      buttonContent={
+        <ButtonContent stackName={stack?.title} machineTypeName={machineType?.name} isDefault={isDefault} />
+      }
+    >
       <Box display="flex" flexDir="column" gap="24">
-        <Select label="Stack" {...register('configuration.stack')} isRequired>
+        <Select label="Stack" {...register('configuration.stackId')} isRequired>
+          <option value="">Default ({defaultStack?.title})</option>
           {stackOptions.map(({ value, title }) => (
             <option key={value} value={value}>
               {title}
@@ -72,14 +92,21 @@ const StackAndMachineCard = () => {
         <Select
           isRequired
           label="Machine type"
-          isDisabled={!isMachineTypeSelectorAvailable || !machineType}
-          {...register('configuration.machineType')}
+          isDisabled={isMachineTypeSelectorDisabled}
+          {...register('configuration.machineTypeId')}
         >
-          {machineTypeOptions.map(({ value, title }) => (
-            <option key={value} value={value}>
-              {title}
-            </option>
-          ))}
+          {isDedicatedMachine && <option value="">Dedicated Machine</option>}
+          {isSelfHostedRunner && <option value="">Self-hosted Runner</option>}
+          {!isDedicatedMachine && !isSelfHostedRunner && (
+            <>
+              <option value="">Default ({defaultMachineType?.name})</option>
+              {machineTypeOptions.map(({ value, title }) => (
+                <option key={value} value={value}>
+                  {title}
+                </option>
+              ))}
+            </>
+          )}
         </Select>
       </Box>
     </ExpandableCard>
