@@ -92,7 +92,8 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			function configureEditor() {
 				model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
 
-				editor = monaco.editor.create(document.getElementById("code-container"), {
+				let codeContainer = document.getElementById("code-container");
+				editor = monaco.editor.create(codeContainer, {
 					model: model,
 					language: "yaml",
 					lineNumbers: "on",
@@ -104,6 +105,16 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				editor.layout();
 				editor.focus();
 				editor.onDidChangeModelContent(updateAppConfigYML);
+
+				function resizeEditor() {
+					editor.layout({
+						width: codeContainer.clientWidth,
+						height: codeContainer.clientHeight,
+					});
+				}
+
+				resizeEditor();
+				window.addEventListener('resize', resizeEditor);
 			}
 
 			function updateAppConfigYML() {
