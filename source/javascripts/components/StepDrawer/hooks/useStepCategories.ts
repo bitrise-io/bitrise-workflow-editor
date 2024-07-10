@@ -1,6 +1,6 @@
 import { useMemo } from 'react';
 import uniq from 'lodash/uniq';
-import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
+import { useAlgoliaSteps } from '@/hooks/service/useAlgolia';
 
 const useStepCategories = () => {
   const { data: steps = [] } = useAlgoliaSteps({

@@ -1,7 +1,8 @@
 import capitalize from 'lodash/capitalize';
-import { AlgoliaStepResponse } from '../../models/Algolia';
+
 import defaultIcon from '../../../images/step/icon-default.svg';
 import { CategoryRowItem, Step, StepsRowItem, VirtualizedListItem } from './StepDrawer.types';
+import { AlgoliaStepResponse } from '@/models/service/Algolia';
 
 export const isCategoryRow = (item: VirtualizedListItem): item is CategoryRowItem => item.type === 'category';
 export const isStepsRow = (item: VirtualizedListItem): item is StepsRowItem => item.type === 'steps';

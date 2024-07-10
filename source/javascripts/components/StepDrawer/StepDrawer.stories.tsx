@@ -1,7 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useDisclosure } from '@bitrise/bitkit';
+
 import StepDrawer from './StepDrawer';
-import { error, successful } from './hooks/StepDrawer.mswMocks';
+import { error, successful } from './StepDrawer.mswMocks';
 
 export default {
   component: StepDrawer,

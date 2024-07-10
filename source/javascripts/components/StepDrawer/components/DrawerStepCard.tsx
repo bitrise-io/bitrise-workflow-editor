@@ -1,11 +1,11 @@
 import { useCallback, useMemo, useRef } from 'react';
 import { Box, Card, CardProps, Icon, Image, Text, Tooltip } from '@bitrise/bitkit';
-
 import { ColorProps } from '@chakra-ui/react';
-import useIsTruncated from '../../../hooks/useIsTruncated';
+
 import defaultStepIcon from '../../../../images/step/icon-default.svg';
 import StepBadge from '../../StepBadge/StepBadge';
 import { Step } from '../StepDrawer.types';
+import useIsTruncated from '@/hooks/utils/useIsTruncated';
 
 const HoverStyles = {
   backgroundColor: 'inherit',

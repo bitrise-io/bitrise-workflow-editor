@@ -1,4 +1,4 @@
-import { BitriseYml } from '@/models/BitriseYml';
+import { BitriseYml } from '@/models/domain/BitriseYml';
 
 export const mockYml: BitriseYml = {
   format_version: '13',

@@ -2,12 +2,13 @@ import { useEffect, useState } from 'react';
 import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 
-import { OnStepChange, Step, StepVersionWithRemark } from '../../models';
-import { extractStepFields } from './utils';
+import { extractStepFields } from './StepConfigPanel.utils';
+import { OnStepChange, VersionRemark } from './StepConfigPanel.types';
+import { Step } from '@/models';
 
 type Props = {
   step: Step;
-  versionsWithRemarks: Array<StepVersionWithRemark>;
+  versionsWithRemarks: Array<VersionRemark>;
   onChange: OnStepChange;
 };
 

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { ChainableWorkflow } from '../ChainWorkflowDrawer.types';
-import { useWorkflows } from '@/hooks/useWorkflows';
-import { extractChainableWorkflows, extractUsedByWorkflows } from '@/models/Workflow';
+import { useWorkflows } from '@/hooks/domain/useWorkflows';
+import { extractChainableWorkflows, extractUsedByWorkflows } from '@/models/domain/Workflow';
 
 type Props = {
   id: string;

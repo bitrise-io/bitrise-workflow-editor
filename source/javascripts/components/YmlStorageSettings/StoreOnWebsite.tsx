@@ -5,10 +5,10 @@ import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFrom
 import usePostAppConfigCallback from '../../hooks/api/usePostAppConfigCallback';
 import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
 import { WFEWindow } from '../../typings/global';
-import appConfigAsYml from '../../utils/appConfigAsYml';
 import LookingForYmlInRepoProgress from '../common/notifications/LookingForYmlInRepoProgress';
 import CreatingYmlOnWebsiteProgress from '../common/notifications/CreatingYmlOnWebsiteProgress';
 import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
+import { appConfigAsYml } from '@/models/api/AppConfig';
 
 type StoreOnWebsiteProps = {
   appSlug: string;

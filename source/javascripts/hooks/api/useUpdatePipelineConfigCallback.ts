@@ -1,5 +1,5 @@
-import { PipelineConfig } from '../../models/PipelineConfig';
 import useMonolithApiCallback, { MonolithError } from './useMonolithApiCallback';
+import { PipelineConfig } from '@/models/api/PipelineConfig';
 
 export interface FetchResponse {
   updatePipelineConfigStatus?: number;

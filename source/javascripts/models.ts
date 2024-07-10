@@ -14,9 +14,6 @@ export interface Workflow {
   workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
 }
 
-export type OnStepChange = (values: Partial<Record<string, unknown>>) => void;
-export type StepVersionWithRemark = { version: string; remark: string };
-
 export type VersionChangeDialogProps = {
   isMajorChange: boolean;
   releaseNotesUrl: string;
@@ -54,13 +51,6 @@ export interface Step {
   requestedVersion: Getter<string | null>;
 }
 
-export interface StepOutputVariable {
-  key: string;
-  title?: string;
-  summary?: string;
-  description?: string;
-}
-
 export interface Variable {
   description: GetterSetter<string>;
   isDontChangeValue: GetterSetter<boolean>;
@@ -77,17 +67,3 @@ export interface InputCategory {
   name: string;
   inputs: Variable[];
 }
-
-export type Secret = {
-  key: string;
-  value: string;
-  isProtected: boolean;
-  isExpand: boolean;
-  isExpose: boolean;
-  isKeyChangeable: boolean;
-  isSaved?: boolean;
-  isEditing?: boolean;
-  isShared?: boolean;
-};
-
-export type SecretWithState = Secret & { isEditing: boolean; isSaved?: boolean };

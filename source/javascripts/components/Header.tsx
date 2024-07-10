@@ -1,5 +1,5 @@
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useResponsive } from '@bitrise/bitkit';
-import useFeatureFlag from '../hooks/useFeatureFlag';
+import useFeatureFlag from '../hooks/service/useFeatureFlag';
 
 type Props = {
   appName: string;

@@ -3,13 +3,13 @@ import { Box, ButtonGroup, Dropdown, DropdownOption, DropdownProps, IconButton }
 import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
-import InsertEnvVarPopover from '../../../InsertEnvVarPopover/InsertEnvVarPopover';
-import { EnvironmentVariable } from '../../../InsertEnvVarPopover/types';
-import { useEnvironmentVariables } from '../../../InsertEnvVarPopover/EnvVarProvider';
+import InsertEnvVarPopover from '../InsertEnvVarPopover/InsertEnvVarPopover';
+import { EnvironmentVariable } from '../InsertEnvVarPopover/InsertEnvVarPopover.types';
+import { useEnvironmentVariables } from '../InsertEnvVarPopover/EnvVarProvider';
 import StepHelperText from '../StepHelperText';
-import { useSecrets } from '../../../InsertSecretPopover/SecretsProvider';
-import InsertSecretPopover from '../../../InsertSecretPopover/InsertSecretPopover';
-import { Secret } from '../../../InsertSecretPopover/types';
+import { useSecrets } from '../InsertSecretPopover/SecretsProvider';
+import InsertSecretPopover from '../InsertSecretPopover/InsertSecretPopover';
+import { Secret } from '../InsertSecretPopover/InsertSecretPopover.types';
 import StepInputLabel from './StepInputLabel';
 
 type CommonProps = {

@@ -1,26 +1,28 @@
 import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '@bitrise/bitkit';
 import { TabPanel, TabPanels } from '@chakra-ui/react';
-
 import { useMutation } from '@tanstack/react-query';
-import { monolith } from '../../hooks/api/client';
-import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '../../models';
-import { EnvironmentVariable } from '../InsertEnvVarPopover/types';
-import EnvVarProvider from '../InsertEnvVarPopover/EnvVarProvider';
-import { Secret } from '../InsertSecretPopover/types';
-import SecretsProvider from '../InsertSecretPopover/SecretsProvider';
+
 import StepBadge from '../StepBadge/StepBadge';
+import EnvVarProvider from './components/InsertEnvVarPopover/EnvVarProvider';
+import { Secret } from './components/InsertSecretPopover/InsertSecretPopover.types';
+import SecretsProvider from './components/InsertSecretPopover/SecretsProvider';
+import { EnvironmentVariable } from './components/InsertEnvVarPopover/InsertEnvVarPopover.types';
 import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties';
+import { OnStepChange, VersionRemark } from './StepConfigPanel.types';
+import { InputCategory, Step } from '@/models';
+import { monolith } from '@/hooks/api/client';
+import { OutputVariable } from '@/models/domain/Step';
 
 type Props = {
   step: Step;
   tabId?: string;
   inputCategories: InputCategory[];
-  outputVariables: Array<StepOutputVariable>;
+  outputVariables: Array<OutputVariable>;
   hasVersionUpdate?: boolean;
   resolvedVersion: string;
-  versionsWithRemarks: Array<StepVersionWithRemark>;
+  versionsWithRemarks: Array<VersionRemark>;
   onClone: VoidFunction;
   onChange: OnStepChange;
   onRemove: VoidFunction;

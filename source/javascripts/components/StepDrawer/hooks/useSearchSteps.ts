@@ -3,9 +3,9 @@ import Fuse from 'fuse.js';
 import { useQuery } from '@tanstack/react-query';
 
 import { SearchFormValues, Step } from '../StepDrawer.types';
-import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 import { fromAlgolia } from '../StepDrawer.utils';
-import { AlgoliaStepResponse } from '../../../models/Algolia';
+import { AlgoliaStepResponse } from '@/models/service/Algolia';
+import { useAlgoliaSteps } from '@/hooks/service/useAlgolia';
 
 const ATTRIBUTES_TO_RETRIEVE = [
   'id',

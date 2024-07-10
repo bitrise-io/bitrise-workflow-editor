@@ -2,9 +2,9 @@ import { useEffect } from 'react';
 import { Badge, Box, Card, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { FormProvider, useForm } from 'react-hook-form';
 
-import { InputCategory, Step } from '../../models';
 import StepInput from './components/StepInput/StepInput';
 import StepInputList from './components/StepInputList';
+import { InputCategory, Step } from '@/models';
 
 type StepConfigurationProps = {
   step: Step;

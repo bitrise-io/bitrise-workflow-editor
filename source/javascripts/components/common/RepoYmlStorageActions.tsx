@@ -3,8 +3,7 @@ import { Box, Icon, Link, Notification, Text } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
 import useMonolithApiCallback from '../../hooks/api/useMonolithApiCallback';
-import { AppConfig } from '../../models/AppConfig';
-import appConfigAsYml from '../../utils/appConfigAsYml';
+import { AppConfig, appConfigAsYml } from '@/models/api/AppConfig';
 
 type RepoYmlStorageActionsProps = {
   appConfig: AppConfig | string;

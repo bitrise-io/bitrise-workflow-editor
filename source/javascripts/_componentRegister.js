@@ -23,9 +23,9 @@ import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfig
 import ChainWorkflowDrawer from "./components/ChainWorkflowDrawer/ChainWorkflowDrawer";
 import StepDrawer from "./components/StepDrawer/StepDrawer";
 
-import TriggersPage from "./components/TriggersPage/TriggersPage";
-import SecretsPage from "./components/SecretsPage/SecretsPage";
-import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
+import TriggersPage from "./pages/TriggersPage/TriggersPage";
+import SecretsPage from "./pages/SecretsPage/SecretsPage";
+import PipelinesPage from "./pages/PipelinesPage/PipelinesPage";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);

@@ -1,12 +1,12 @@
 import { FormEventHandler, useEffect } from 'react';
-import { FormProvider, WatchObserver, useForm } from 'react-hook-form';
+import { FormProvider, useForm, WatchObserver } from 'react-hook-form';
 import { Tab, TabList, TabPanels, Tabs } from '@bitrise/bitkit';
 import { PartialDeep } from 'type-fest';
-import { getAppSlug } from '../../services/app-service';
 import Header from './components/Header';
 import { FormValues, WorkflowConfigTab } from './WorkflowConfigPanel.types';
 import PropertiesTabPanel from './components/PropertiesTabPanel';
 import ConfigurationTabPanel from './components/ConfigurationTabPanel';
+import { getAppSlug } from '@/services/app-service';
 
 type Props = {
   appSlug?: string;

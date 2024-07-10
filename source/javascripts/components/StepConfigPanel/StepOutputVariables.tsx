@@ -2,11 +2,12 @@ import { Fragment } from 'react';
 import { Box, Divider, IconButton, Input, Text } from '@bitrise/bitkit';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { FormControl } from '@chakra-ui/react';
-import { StepOutputVariable } from '../../models';
+
 import StepHelperText from './components/StepHelperText';
+import { OutputVariable } from '@/models/domain/Step';
 
 type ItemProps = {
-  item: StepOutputVariable;
+  item: OutputVariable;
 };
 
 const StepOutputVariableItem = ({ item }: ItemProps) => {
@@ -35,7 +36,7 @@ const StepOutputVariableItem = ({ item }: ItemProps) => {
 };
 
 type Props = {
-  outputVariables: Array<StepOutputVariable>;
+  outputVariables: Array<OutputVariable>;
 };
 
 const StepOutputVariables = ({ outputVariables }: Props) => {

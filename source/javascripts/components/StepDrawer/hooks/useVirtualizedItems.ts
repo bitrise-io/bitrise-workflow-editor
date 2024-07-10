@@ -1,7 +1,8 @@
 import { RefObject, useCallback, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
+
 import { Step, VirtualizedListItem } from '../StepDrawer.types';
-import { RowSizes } from '../StepDrawer.constants';
+import { ROW_SIZES } from '../StepDrawer.constants';
 import { createVirtualItemsGroup, getStepsByCategories } from '../StepDrawer.utils';
 
 type Props = {
@@ -80,7 +81,7 @@ const useVirtualizedItems = ({
 
   const virtualizer = useVirtualizer({
     getScrollElement: () => containerRef.current,
-    estimateSize: (idx) => RowSizes[items[idx].type],
+    estimateSize: (idx) => ROW_SIZES[items[idx].type],
     getItemKey,
     overscan: 3,
     count: items.length,

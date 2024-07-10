@@ -8,8 +8,8 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-
 import { FormProvider, useForm } from 'react-hook-form';
+
 import { SearchFormValues, StepSelected } from './StepDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';

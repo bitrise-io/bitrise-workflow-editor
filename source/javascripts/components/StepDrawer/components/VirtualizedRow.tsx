@@ -1,9 +1,10 @@
 import { CSSProperties } from 'react';
 import { SimpleGrid } from '@chakra-ui/react';
 import { Text } from '@bitrise/bitkit';
+
 import { displayCategoryName, isCategoryRow, isStepsRow } from '../StepDrawer.utils';
 import { StepSelected, VirtualizedListItem } from '../StepDrawer.types';
-import { RowGaps, RowHeights, RowSizes } from '../StepDrawer.constants';
+import { ROW_GAPS, ROW_HEIGHTS, ROW_SIZES } from '../StepDrawer.constants';
 import DrawerStepCard from './DrawerStepCard';
 
 type VirtualizedRowProps = {
@@ -19,8 +20,8 @@ const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProp
         key={item.category}
         as="h4"
         textStyle="heading/h4"
-        minH={`${RowSizes.category}px`}
-        mb={`${RowGaps.category}px`}
+        minH={`${ROW_SIZES.category}px`}
+        mb={`${ROW_GAPS.category}px`}
         style={style}
       >
         {displayCategoryName(item.category)}
@@ -30,13 +31,13 @@ const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProp
 
   if (isStepsRow(item)) {
     return (
-      <SimpleGrid columns={item.columns} spacing={RowGaps.steps} mb={`${RowGaps.steps}px`} style={style}>
+      <SimpleGrid columns={item.columns} spacing={ROW_GAPS.steps} mb={`${ROW_GAPS.steps}px`} style={style}>
         {item.steps.map((step) => (
           <DrawerStepCard
             key={`${item.category}/${step.id}`}
             {...step}
             isDisabled={step.isDisabled}
-            cardProps={{ minH: `${RowHeights.steps}px` }}
+            cardProps={{ minH: `${ROW_HEIGHTS.steps}px` }}
             onClick={() => onStepSelected(step)}
           />
         ))}

@@ -4,7 +4,7 @@ import { Box, Button, EmptyState } from '@bitrise/bitkit';
 import { InitialValues, SearchFormValues } from '../ChainWorkflowDrawer.types';
 import useSearchChainableWorkflows from '../hooks/useSearchChainableWorkflows';
 import ChainableWorkflowCard from './ChainableWorkflowCard';
-import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
+import useDebouncedFormValues from '@/hooks/utils/useDebouncedFormValues';
 
 type Props = {
   id: string;

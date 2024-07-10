@@ -12,7 +12,7 @@ import {
   Text,
   TypeIconName,
 } from '@bitrise/bitkit';
-import useFeatureFlag from '../hooks/useFeatureFlag';
+import useFeatureFlag from '../hooks/service/useFeatureFlag';
 
 type Item = {
   id: string;
