@@ -16,7 +16,7 @@ export type YmlEditorHeaderProps = {
   defaultBranch: string;
   gitRepoSlug: string;
   split: boolean;
-  modularYmlSupported: boolean;
+  modularYamlSupported: boolean;
   lines: number;
   lastModified: string | null;
 };
@@ -31,13 +31,13 @@ const YmlEditorHeader = ({
   url,
   initialUsesRepositoryYml,
   split,
-  modularYmlSupported,
+  modularYamlSupported,
   lines,
   lastModified,
 }: YmlEditorHeaderProps) => {
-  const metaDataKey = modularYmlSupported
-    ? 'wfe_modular_yml_enterprise_notification_closed'
-    : 'wfe_modular_yml_split_notification_closed';
+  const metaDataKey = modularYamlSupported
+    ? 'wfe_modular_yaml_enterprise_notification_closed'
+    : 'wfe_modular_yaml_split_notification_closed';
 
   const { call: putNotificationMetaData } = usePutUserMetaData(metaDataKey, true);
 
@@ -85,7 +85,7 @@ const YmlEditorHeader = ({
         <Text>
           We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable files
           for easier maintenance.{' '}
-          {modularYmlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
+          {modularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
         </Text>
       </Notification>
     );

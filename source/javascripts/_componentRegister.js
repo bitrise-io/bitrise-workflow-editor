@@ -108,7 +108,7 @@ angular
       "gitRepoSlug",
       "lines",
       "split",
-      "modularYmlSupported",
+      "modularYamlSupported",
       "lastModified"
 ]),
   )

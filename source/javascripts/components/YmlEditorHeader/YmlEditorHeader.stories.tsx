@@ -26,19 +26,19 @@ export default meta;
 
 export const WithProps: StoryObj<YmlEditorHeaderProps> = {};
 
-export const ModularYmlSupported: StoryObj<YmlEditorHeaderProps> = {
+export const ModularYamlSupported: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: false,
     lines: 550,
-    modularYmlSupported: true,
+    modularYamlSupported: true,
   },
 };
 
-export const ModularYmlNotSupported: StoryObj<YmlEditorHeaderProps> = {
+export const ModularYamlNotSupported: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: false,
     lines: 550,
-    modularYmlSupported: false,
+    modularYamlSupported: false,
   },
 };
 
@@ -46,6 +46,6 @@ export const SplittedConfig: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: true,
     lines: 550,
-    modularYmlSupported: false,
+    modularYamlSupported: false,
   },
 };
