@@ -1,14 +1,16 @@
 import { Meta, StoryObj } from '@storybook/react/*';
-import { getConfig } from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
+import { getConfig, getConfigFailed } from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
 import UpdateConfigurationDialog from './UpdateConfigurationDialog';
 
 export default {
   component: UpdateConfigurationDialog,
   args: {
-    isOpen: true,
     appSlug: '123',
     defaultBranch: 'main',
     gitRepoSlug: 'VoyagerGitRepo',
+    getDataToSave: () => {
+      return { key: 'value' };
+    },
   },
   parameters: {
     msw: [getConfig()],
@@ -16,3 +18,9 @@ export default {
 } as Meta<typeof UpdateConfigurationDialog>;
 
 export const Default: StoryObj = {};
+
+export const Failed: StoryObj = {
+  parameters: {
+    msw: [getConfigFailed()],
+  },
+};
