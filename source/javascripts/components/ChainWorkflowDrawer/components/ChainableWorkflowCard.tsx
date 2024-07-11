@@ -42,7 +42,7 @@ const ChainableWorkflowCard = ({ workflowId, onChainWorkflow }: Props) => {
         <Button
           variant="tertiary"
           size="sm"
-          leftIconName="ArrowQuit"
+          leftIconName="ArrowForwardAndDown"
           onClick={() => onChainWorkflow('after', workflowId)}
         >
           Add after
