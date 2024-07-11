@@ -355,6 +355,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         {getAppConfigFromRepoFailed && (
           <ErrorNotification status={getAppConfigFromRepoStatus} message={getAppConfigFromRepoFailed?.error_msg} />
         )}
+        {updatePipelineConfigStatus && updatePipelineConfigStatus !== 200 && (
+          <ErrorNotification status={getAppConfigFromRepoStatus} message="Unknown error" />
+        )}
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={onCloseDialog}>
