@@ -529,7 +529,7 @@ describe('Workflow', () => {
       expect(result).toEqual(['wf-2', 'wf-3']);
     });
 
-    it('should not return the workflows that indirectly use the current workflow', () => {
+    it('should return the workflows that indirectly use the current workflow', () => {
       const id = 'wf-1';
       const workflows: Workflows = {
         'wf-1': {},
@@ -558,8 +558,7 @@ describe('Workflow', () => {
 
       const result = extractUsedByWorkflows(workflows, id);
 
-      expect(result).not.toContain(['wf-3', 'wf-4', 'wf-6']);
-      expect(result).toEqual(['wf-2', 'wf-5']);
+      expect(result).toEqual(['wf-2', 'wf-3', 'wf-4', 'wf-5', 'wf-6']);
     });
   });
 });

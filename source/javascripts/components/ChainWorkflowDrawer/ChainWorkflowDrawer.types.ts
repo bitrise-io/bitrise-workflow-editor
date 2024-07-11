@@ -6,7 +6,4 @@ export const InitialValues: SearchFormValues = {
   search: '',
 };
 
-export type ChainableWorkflow = {
-  id: string;
-  usedBy: string[];
-};
+export type ChainWorkflowCallback = (mode: 'before' | 'after', workflowId: string) => void;

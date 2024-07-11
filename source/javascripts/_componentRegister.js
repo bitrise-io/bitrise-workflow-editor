@@ -140,8 +140,7 @@ angular
       "selectWorkflow",
       "renameWorkflowConfirmed",
       "onAddNewWorkflow",
-      "onInsertBeforeWorkflow",
-      "onInsertAfterWorkflow",
+      "onOpenChainWorkflowDialog",
       "onRearrangeWorkflow",
       "onDeleteSelectedWorkflow",
       "onRunWorkflow",
@@ -225,7 +224,12 @@ angular
   )
   .component(
     "rWorkflowConfigPanel",
-    register(WorkflowConfigPanel, ["appSlug", "defaultValues", "onChange"]),
+    register(WorkflowConfigPanel, [
+      "appSlug",
+      "yml",
+      "defaultValues",
+      "onChange",
+    ]),
   )
   .component(
     "rStepDrawer",
@@ -239,9 +243,10 @@ angular
   .component(
     "rChainWorkflowDrawer",
     register(ChainWorkflowDrawer, [
+      "id",
+      "yml",
       "isOpen",
       "onClose",
-      "onChainBefore",
-      "onChainAfter",
+      "onChainWorkflow",
     ]),
   );

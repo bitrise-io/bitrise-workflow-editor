@@ -10,14 +10,7 @@ type Props = {
 const useSearchChainableWorkflows = ({ id, search }: Props) => {
   const workflows = useChainableWorkflows({ id });
   const index = useMemo(() => {
-    const options = {
-      keys: [{ name: 'id', weight: 2 }],
-      threshold: 0.25,
-      ignoreLocation: true,
-      useExtendedSearch: true,
-    };
-    const idx = Fuse.createIndex(options.keys, workflows);
-    return new Fuse(workflows, options, idx);
+    return new Fuse(workflows);
   }, [workflows]);
 
   return useQuery({

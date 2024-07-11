@@ -1,45 +1,50 @@
-import { Box, Button, ButtonGroup, Card, DefinitionTooltip, Divider, Text } from '@bitrise/bitkit';
-
-const getUsedByText = (usedBy: string[]) => {
-  if (usedBy.length === 0) {
-    return 'Not used by other Workflow';
-  }
-
-  const text = usedBy.length === 1 ? '1 Workflow' : `${usedBy.length.toString()} Workflows`;
-  return (
-    <Text as="dl">
-      Used by{' '}
-      <Text as="dd" display="inline-block">
-        <DefinitionTooltip label={usedBy.join(', ')}>{text}</DefinitionTooltip>
-      </Text>
-    </Text>
-  );
-};
+import { Box, Button, ButtonGroup, Card, Divider, Text } from '@bitrise/bitkit';
+import WorkflowUsedByText from '@/components/WorkflowUsedByText/WorkflowUsedByText';
+import { ChainWorkflowCallback } from '@/components/ChainWorkflowDrawer/ChainWorkflowDrawer.types';
 
 type Props = {
   workflowId: string;
-  usedBy: string[];
-  onChainBefore: (workflowId: string) => void;
-  onChainAfter: (workflowId: string) => void;
+  onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainableWorkflowCard = ({ workflowId, usedBy, onChainBefore, onChainAfter }: Props) => {
+const ChainableWorkflowCard = ({ workflowId, onChainWorkflow }: Props) => {
   return (
-    <Card variant="outline" display="flex" alignItems="center" justifyContent="space-between" px="16" py="8">
+    <Card
+      className="group"
+      variant="outline"
+      display="flex"
+      alignItems="center"
+      justifyContent="space-between"
+      px="16"
+      py="8"
+      _hover={{
+        backgroundColor: 'inherit',
+        borderColor: 'border.strong',
+        boxShadow: 'small',
+      }}
+    >
       <Box overflow="hidden">
         <Text textStyle="body/lg/semibold" mb="4" hasEllipsis>
           {workflowId}
         </Text>
-        <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-          {getUsedByText(usedBy)}
-        </Text>
+        <WorkflowUsedByText id={workflowId} />
       </Box>
-      <ButtonGroup flexShrink={0}>
-        <Button variant="tertiary" size="sm" leftIconName="ArrowQuit" onClick={() => onChainBefore(workflowId)}>
+      <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>
+        <Button
+          variant="tertiary"
+          size="sm"
+          leftIconName="ArrowQuit"
+          onClick={() => onChainWorkflow('before', workflowId)}
+        >
           Add before
         </Button>
         <Divider orientation="vertical" height="32px" />
-        <Button variant="tertiary" size="sm" leftIconName="ArrowQuit" onClick={() => onChainAfter(workflowId)}>
+        <Button
+          variant="tertiary"
+          size="sm"
+          leftIconName="ArrowQuit"
+          onClick={() => onChainWorkflow('after', workflowId)}
+        >
           Add after
         </Button>
       </ButtonGroup>

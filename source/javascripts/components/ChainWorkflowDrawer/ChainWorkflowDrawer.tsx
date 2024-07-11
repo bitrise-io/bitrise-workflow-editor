@@ -9,7 +9,7 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import { InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
+import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/models/BitriseYml';
@@ -17,11 +17,10 @@ import { BitriseYml } from '@/models/BitriseYml';
 type Props = UseDisclosureProps & {
   id: string;
   yml: BitriseYml;
-  onChainBefore: (workflowId: string) => void;
-  onChainAfter: (workflowId: string) => void;
+  onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainWorkflowDrawer = ({ id, yml, onChainBefore, onChainAfter, ...disclosureProps }: Props) => {
+const ChainWorkflowDrawer = ({ id, yml, onChainWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -29,7 +28,7 @@ const ChainWorkflowDrawer = ({ id, yml, onChainBefore, onChainAfter, ...disclosu
     },
   });
 
-  if (!yml) {
+  if (!yml || !id) {
     return null;
   }
 
@@ -77,7 +76,7 @@ const ChainWorkflowDrawer = ({ id, yml, onChainBefore, onChainAfter, ...disclosu
                   />
                 )}
               />
-              <ChainableWorkflowList id={id} onChainBefore={onChainBefore} onChainAfter={onChainAfter} />
+              <ChainableWorkflowList id={id} onChainWorkflow={onChainWorkflow} />
             </DrawerBody>
           </DrawerContent>
         </Drawer>

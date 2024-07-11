@@ -64,8 +64,9 @@ export const extractChainableWorkflows = (workflows: Workflows, id: string): str
 };
 
 export const extractUsedByWorkflows = (workflows: Workflows, id: string): string[] => {
-  return Object.entries(workflows || {}).reduce<string[]>((usedByWorkflows, [workflowId, workflow]) => {
-    if (workflow?.before_run?.includes(id) || workflow?.after_run?.includes(id)) {
+  const workflowChains = extractAllWorkflowChains(workflows);
+  return Object.entries(workflowChains).reduce<string[]>((usedByWorkflows, [workflowId, chain]) => {
+    if (chain.includes(id) && id !== workflowId) {
       return [...usedByWorkflows, workflowId];
     }
     return usedByWorkflows;

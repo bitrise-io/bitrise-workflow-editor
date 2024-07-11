@@ -1,6 +1,7 @@
 import { Box, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import { FormValues } from '../WorkflowConfigPanel.types';
+import WorkflowUsedByText from '@/components/WorkflowUsedByText/WorkflowUsedByText';
 
 const Header = () => {
   const { watch } = useFormContext<FormValues>();
@@ -9,6 +10,7 @@ const Header = () => {
   return (
     <Box px="24" py="16">
       <Text textStyle="heading/h3">{workflowId}</Text>
+      <WorkflowUsedByText id={workflowId} />
     </Box>
   );
 };

@@ -1,18 +1,17 @@
 import { useFormContext } from 'react-hook-form';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
 
-import { InitialValues, SearchFormValues } from '../ChainWorkflowDrawer.types';
+import { ChainWorkflowCallback, InitialValues, SearchFormValues } from '../ChainWorkflowDrawer.types';
 import useSearchChainableWorkflows from '../hooks/useSearchChainableWorkflows';
 import ChainableWorkflowCard from './ChainableWorkflowCard';
 import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 
 type Props = {
   id: string;
-  onChainBefore: (workflowId: string) => void;
-  onChainAfter: (workflowId: string) => void;
+  onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainableWorkflowList = ({ id: workflowId, onChainBefore, onChainAfter }: Props) => {
+const ChainableWorkflowList = ({ id: workflowId, onChainWorkflow }: Props) => {
   const { reset, watch } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues({
     watch,
@@ -52,14 +51,8 @@ const ChainableWorkflowList = ({ id: workflowId, onChainBefore, onChainAfter }: 
 
   return (
     <Box display="flex" flexDir="column" gap="12">
-      {workflows.map(({ id: chainableId, usedBy }) => (
-        <ChainableWorkflowCard
-          key={chainableId}
-          workflowId={chainableId}
-          usedBy={usedBy}
-          onChainBefore={onChainBefore}
-          onChainAfter={onChainAfter}
-        />
+      {workflows.map((chainableId) => (
+        <ChainableWorkflowCard key={chainableId} workflowId={chainableId} onChainWorkflow={onChainWorkflow} />
       ))}
     </Box>
   );
