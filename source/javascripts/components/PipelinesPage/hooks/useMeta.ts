@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
-import { Meta } from '../../../models/BitriseYml';
-import useBitriseYmlStore from './useBitriseYmlStore';
+import { Meta } from '@/models/BitriseYml';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
   override?: Meta;

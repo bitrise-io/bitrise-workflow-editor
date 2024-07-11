@@ -504,11 +504,3 @@ export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 export type Meta = Required<BitriseYml>['meta'] & {
   'bitrise.io'?: { stack: string; machine_type_id: string };
 };
-export type Pipelines = Required<BitriseYml>['pipelines'];
-export type Pipeline = Pipelines[string];
-export type Stages = Required<BitriseYml>['stages'];
-export type Stage = Stages[string];
-export type Workflows = Required<BitriseYml>['workflows'];
-export type Workflow = Workflows[string] & { meta?: Meta; run_if?: string };
-export type Steps = Required<Workflow>['steps'];
-export type Step = Steps[number][string];

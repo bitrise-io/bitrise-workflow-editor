@@ -1,6 +1,6 @@
 import { useShallow } from 'zustand/react/shallow';
-import { Workflow } from '../../../models/BitriseYml';
-import useBitriseYmlStore from './useBitriseYmlStore';
+import { Workflow } from '@/models/Workflow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
   id: string;

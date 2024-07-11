@@ -1,8 +1,8 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { Pipeline } from '../../../models/BitriseYml';
 import useSearchParams from './useSearchParams';
-import useBitriseYmlStore from './useBitriseYmlStore';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { Pipeline } from '@/models/Pipeline';
 
 const usePipelineSelector = () => {
   const options = useBitriseYmlStore(

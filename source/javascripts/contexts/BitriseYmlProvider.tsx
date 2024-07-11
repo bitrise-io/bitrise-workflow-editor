@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useRef } from 'react';
 import { createStore } from 'zustand';
-import { BitriseYml, Meta } from '../models/BitriseYml';
+import { BitriseYml, Meta } from '@/models/BitriseYml';
 
 type BitriseYmlProviderProps = PropsWithChildren<{
   yml: BitriseYml;
