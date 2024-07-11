@@ -34,7 +34,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
 			viewModel.lines = 0;
 			viewModel.split = false;
-			viewModel.modularYamlSupported = false;
+			viewModel.modularYamlSupported = undefined;
 			viewModel.lastModified = null;
 
 			viewModel.downloadAppConfigYMLPath = function() {

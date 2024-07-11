@@ -66,8 +66,6 @@ const YmlEditorHeader = ({
     }
   }, [showNotification]);
 
-  console.log('split:', split, 'lines:', lines, 'isNotificationOpen:', isNotificationOpen);
-
   let notification;
   if (isNotificationOpen && !split && lines > 500) {
     notification = (
