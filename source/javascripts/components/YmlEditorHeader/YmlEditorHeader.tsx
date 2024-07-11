@@ -1,9 +1,9 @@
-import { useEffect, useState } from 'react';
-import { Box, Button, Text, Notification, useDisclosure, DataWidget, DataWidgetItem, Tooltip } from '@bitrise/bitkit';
+import { useState } from 'react';
+import { Box, Button, Text, useDisclosure, DataWidget, DataWidgetItem, Tooltip } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import { AppConfig } from '../../models/AppConfig';
-import usePutUserMetaData from '../../hooks/api/usePutUserMetaData';
-import useGetUserMetaData from '../../hooks/api/useGetUserMetaData';
+import SplitNotification from './SplitNotification';
+import GitNotification from './GitNotification';
 
 export type YmlEditorHeaderProps = {
   appSlug: string;
@@ -35,89 +35,9 @@ const YmlEditorHeader = ({
   lines,
   lastModified,
 }: YmlEditorHeaderProps) => {
-  const metaDataKey = modularYamlSupported
-    ? 'wfe_modular_yaml_enterprise_notification_closed'
-    : 'wfe_modular_yaml_split_notification_closed';
-
-  const gitMetaDataKey = 'wfe_modular_yaml_git_notification_closed';
-
-  const { call: putNotificationMetaData } = usePutUserMetaData(metaDataKey, true);
-  const { call: putGitNotificationMetaData } = usePutUserMetaData(gitMetaDataKey, true);
-
-  const notificationMetaDataResponse = useGetUserMetaData(metaDataKey);
-  const gitNotificationMetaDataResponse = useGetUserMetaData(gitMetaDataKey);
-
   const { isOpen, onClose, onOpen } = useDisclosure();
-  const [isNotificationOpen, setIsNotificationOpen] = useState(false);
-  const [isGitNotificationOpen, setIsGitNotificationOpen] = useState(false);
 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
-
-  const handleNotificationClose = () => {
-    setIsNotificationOpen(false);
-    putNotificationMetaData();
-  };
-
-  const handleGitNotificationClose = () => {
-    setIsGitNotificationOpen(false);
-    putGitNotificationMetaData();
-  };
-
-  useEffect(() => {
-    if (modularYamlSupported !== undefined) {
-      notificationMetaDataResponse.call();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [modularYamlSupported]);
-
-  useEffect(() => {
-    gitNotificationMetaDataResponse.call();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const showNotification = notificationMetaDataResponse.value === null;
-  const showGitNotification = gitNotificationMetaDataResponse.value === null;
-
-  useEffect(() => {
-    if (showNotification === true) {
-      setIsNotificationOpen(true);
-    }
-  }, [showNotification]);
-
-  useEffect(() => {
-    if (showGitNotification === true) {
-      setIsGitNotificationOpen(true);
-    }
-  }, [showGitNotification]);
-
-  let notification;
-  if (isNotificationOpen && !split && lines > 500) {
-    notification = (
-      <Notification
-        status="info"
-        action={{
-          href: 'https://devcenter.bitrise.io/builds/bitrise-yml-online/',
-          label: 'Learn more',
-          target: '_blank',
-        }}
-        onClose={handleNotificationClose}
-        marginBlockEnd="24"
-      >
-        <Text textStyle="heading/h4">Optimize your configuration file</Text>
-        <Text>
-          We recommend splitting your configuration file with {lines} lines of code into smaller, more manageable files
-          for easier maintenance.{' '}
-          {modularYamlSupported ? '' : 'This feature is only available for Workspaces on Enterprise plan.'}
-        </Text>
-      </Notification>
-    );
-  }
-  if (isGitNotificationOpen && split && usesRepositoryYml) {
-    <Notification status="info" onClose={handleGitNotificationClose} marginBlockEnd="24">
-      Your configuration in the Git repository is split across multiple files, but on this page you can see it as one
-      merged YAML.
-    </Notification>;
-  }
 
   let infoLabel;
   if (usesRepositoryYml) {
@@ -161,7 +81,8 @@ const YmlEditorHeader = ({
           </DataWidget>
         )}
       </Box>
-      {notification}
+      <SplitNotification modularYamlSupported={modularYamlSupported} split={split} lines={lines} />
+      <GitNotification split={split} usesRepositoryYml={usesRepositoryYml} />
       <ConfigurationYmlSourceDialog
         isOpen={isOpen}
         onClose={onClose}

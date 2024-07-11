@@ -46,6 +46,6 @@ export const SplittedConfig: StoryObj<YmlEditorHeaderProps> = {
   args: {
     split: true,
     lines: 550,
-    modularYamlSupported: false,
+    initialUsesRepositoryYml: true,
   },
 };

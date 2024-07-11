@@ -52,7 +52,7 @@ export const postConfig = () => {
 export const getNotificationMetaData = () => {
   return http.get(notificationMetaDataPath(), async () => {
     await delay();
-    return new HttpResponse(null, {
+    return new HttpResponse(`{ "value": null }`, {
       status: 200,
     });
   });
