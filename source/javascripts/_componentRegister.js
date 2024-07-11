@@ -17,9 +17,13 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
 import VersionChangeDialog from "./components/StepConfigPanel/components/VersionChangeDialog";
+import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
+import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
+import ChainWorkflowDrawer from "./components/ChainWorkflowDrawer/ChainWorkflowDrawer";
+import StepDrawer from "./components/StepDrawer/StepDrawer";
+
 import TriggersPage from "./components/TriggersPage/TriggersPage";
 import SecretsPage from "./components/SecretsPage/SecretsPage";
-import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
 import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
 import StepDrawer from "./components/StepDrawer/StepDrawer";
@@ -29,6 +33,37 @@ function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
 }
 
+// Page components
+angular
+  .module("BitriseWorkflowEditor")
+  .component(
+    "rTriggersPage",
+    register(TriggersPage, [
+      "onTriggerMapChange",
+      "pipelines",
+      "triggerMap",
+      "setDiscard",
+      "workflows",
+      "isWebsiteMode",
+      "integrationsUrl",
+    ]),
+  )
+  .component(
+    "rSecretsPage",
+    register(SecretsPage, [
+      "secrets",
+      "secretsWriteNew",
+      "onSecretsChange",
+      "getSecretValue",
+      "appSlug",
+      "secretSettingsUrl",
+      "sharedSecretsAvailable",
+      "planSelectorPageUrl",
+    ]),
+  )
+  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]));
+
+// Components
 angular
   .module("BitriseWorkflowEditor")
   .component(
@@ -122,8 +157,7 @@ angular
       "selectWorkflow",
       "renameWorkflowConfirmed",
       "onAddNewWorkflow",
-      "onInsertBeforeWorkflow",
-      "onInsertAfterWorkflow",
+      "onOpenChainWorkflowDialog",
       "onRearrangeWorkflow",
       "onDeleteSelectedWorkflow",
       "onRunWorkflow",
@@ -206,34 +240,13 @@ angular
     ]),
   )
   .component(
-    "rTriggersPage",
-    register(TriggersPage, [
-      "onTriggerMapChange",
-      "pipelines",
-      "triggerMap",
-      "setDiscard",
-      "workflows",
-      "isWebsiteMode",
-      "integrationsUrl",
-    ]),
-  )
-  .component(
-    "rSecretsPage",
-    register(SecretsPage, [
-      "secrets",
-      "secretsWriteNew",
-      "onSecretsChange",
-      "getSecretValue",
-      "appSlug",
-      "secretSettingsUrl",
-      "sharedSecretsAvailable",
-      "planSelectorPageUrl",
-    ]),
-  )
-  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]))
-  .component(
     "rWorkflowConfigPanel",
-    register(WorkflowConfigPanel, ["appSlug", "defaultValues", "onChange"]),
+    register(WorkflowConfigPanel, [
+      "appSlug",
+      "yml",
+      "defaultValues",
+      "onChange",
+    ]),
   )
   .component(
     "rStepDrawer",
@@ -242,5 +255,15 @@ angular
       "onClose",
       "allowedStepIds",
       "onStepSelected",
+    ]),
+  )
+  .component(
+    "rChainWorkflowDrawer",
+    register(ChainWorkflowDrawer, [
+      "id",
+      "yml",
+      "isOpen",
+      "onClose",
+      "onChainWorkflow",
     ]),
   );

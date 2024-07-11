@@ -104,6 +104,7 @@ const InsertEnvVarPopover = ({
                       {...getActionListProps({
                         maxH: '18rem',
                         overflowY: 'scroll',
+                        marginInlineStart: 0,
                       })}
                     >
                       {filteredItems.length === 0 && (

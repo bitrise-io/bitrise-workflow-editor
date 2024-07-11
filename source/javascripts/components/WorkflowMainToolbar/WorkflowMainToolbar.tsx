@@ -13,10 +13,10 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 
-import { useTrackingFunction } from '../../hooks/utils/useTrackingFunction';
 import RunWorkflowDialog from '../RunWorkflowDialog/RunWorkflowDialog';
 import WorkflowSelector, { WorkflowSelectorProps } from '../WorkflowSelector/WorkflowSelector';
-import { Workflow } from '../../models';
+import { useTrackingFunction } from '@/hooks/utils/useTrackingFunction';
+import { Workflow } from '@/models';
 
 type WorkflowMainToolbarProps = WorkflowSelectorProps & {
   selectedWorkflow?: Workflow;
@@ -26,8 +26,7 @@ type WorkflowMainToolbarProps = WorkflowSelectorProps & {
   canRunWorkflow: boolean;
   isRunWorkflowDisabled: boolean;
   onAddNewWorkflow: () => void;
-  onInsertBeforeWorkflow: () => void;
-  onInsertAfterWorkflow: () => void;
+  onOpenChainWorkflowDialog: (mode: 'before' | 'after') => void;
   onRearrangeWorkflow: () => void;
   onDeleteSelectedWorkflow: () => void;
   onRunWorkflow: (branch: string) => void;
@@ -43,8 +42,7 @@ const WorkflowMainToolbar = ({
   selectWorkflow,
   renameWorkflowConfirmed,
   onAddNewWorkflow,
-  onInsertBeforeWorkflow,
-  onInsertAfterWorkflow,
+  onOpenChainWorkflowDialog,
   onRearrangeWorkflow,
   onDeleteSelectedWorkflow,
   onRunWorkflow,
@@ -98,10 +96,10 @@ const WorkflowMainToolbar = ({
                 aria-label="Manage Workflows"
               />
               <MenuList>
-                <MenuItem iconName="ArrowQuit" onClick={onInsertBeforeWorkflow}>
+                <MenuItem iconName="ArrowQuit" onClick={() => onOpenChainWorkflowDialog('before')}>
                   Insert Workflow before
                 </MenuItem>
-                <MenuItem iconName="ArrowQuit" onClick={onInsertAfterWorkflow}>
+                <MenuItem iconName="ArrowQuit" onClick={() => onOpenChainWorkflowDialog('after')}>
                   Insert Workflow after
                 </MenuItem>
                 <MenuItem

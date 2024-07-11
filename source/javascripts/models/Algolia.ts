@@ -1,4 +1,4 @@
-import { Step } from './BitriseYml';
+import { Step } from './Step';
 
 export enum Maintainer {
   Bitrise = 'bitrise',
