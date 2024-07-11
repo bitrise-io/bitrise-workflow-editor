@@ -39,18 +39,28 @@ const YmlEditorHeader = ({
     ? 'wfe_modular_yaml_enterprise_notification_closed'
     : 'wfe_modular_yaml_split_notification_closed';
 
+  const gitMetaDataKey = 'wfe_modular_yaml_git_notification_closed';
+
   const { call: putNotificationMetaData } = usePutUserMetaData(metaDataKey, true);
+  const { call: putGitNotificationMetaData } = usePutUserMetaData(gitMetaDataKey, true);
 
   const notificationMetaDataResponse = useGetUserMetaData(metaDataKey);
+  const gitNotificationMetaDataResponse = useGetUserMetaData(gitMetaDataKey);
 
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [isNotificationOpen, setIsNotificationOpen] = useState(false);
+  const [isGitNotificationOpen, setIsGitNotificationOpen] = useState(false);
 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
 
   const handleNotificationClose = () => {
     setIsNotificationOpen(false);
     putNotificationMetaData();
+  };
+
+  const handleGitNotificationClose = () => {
+    setIsGitNotificationOpen(false);
+    putGitNotificationMetaData();
   };
 
   useEffect(() => {
@@ -60,13 +70,25 @@ const YmlEditorHeader = ({
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [modularYamlSupported]);
 
+  useEffect(() => {
+    gitNotificationMetaDataResponse.call();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
   const showNotification = notificationMetaDataResponse.value === null;
+  const showGitNotification = gitNotificationMetaDataResponse.value === null;
 
   useEffect(() => {
     if (showNotification === true) {
       setIsNotificationOpen(true);
     }
   }, [showNotification]);
+
+  useEffect(() => {
+    if (showGitNotification === true) {
+      setIsGitNotificationOpen(true);
+    }
+  }, [showGitNotification]);
 
   let notification;
   if (isNotificationOpen && !split && lines > 500) {
@@ -89,6 +111,12 @@ const YmlEditorHeader = ({
         </Text>
       </Notification>
     );
+  }
+  if (isGitNotificationOpen && split && usesRepositoryYml) {
+    <Notification status="info" onClose={handleGitNotificationClose} marginBlockEnd="24">
+      Your configuration in the Git repository is split across multiple files, but on this page you can see it as one
+      merged YAML.
+    </Notification>;
   }
 
   let infoLabel;
