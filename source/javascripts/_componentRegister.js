@@ -18,10 +18,7 @@ import Navigation from "./components/Navigation";
 import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
 import VersionChangeDialog from "./components/StepConfigPanel/components/VersionChangeDialog";
 import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
-import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
 import ChainWorkflowDrawer from "./components/ChainWorkflowDrawer/ChainWorkflowDrawer";
-import StepDrawer from "./components/StepDrawer/StepDrawer";
-
 import TriggersPage from "./components/TriggersPage/TriggersPage";
 import SecretsPage from "./components/SecretsPage/SecretsPage";
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
