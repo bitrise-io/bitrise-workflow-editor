@@ -1,5 +1,5 @@
 import capitalize from 'lodash/capitalize';
-import { AlgoliaStepResponse } from '../../models/Algolia';
+import { AlgoliaStepResponse, Maintainer } from '../../models/Algolia';
 import defaultIcon from '../../../images/step/icon-default.svg';
 import { CategoryRowItem, Step, StepsRowItem, VirtualizedListItem } from './StepDrawer.types';
 
@@ -23,8 +23,9 @@ export const fromAlgolia = (response: AlgoliaStepResponse): Step => {
     description: response.step?.description || '',
     version: response.version || '',
     categories: response.step?.type_tags || [],
-    isOfficial: response.info?.maintainer === 'bitrise' || false,
-    isVerified: response.info?.maintainer === 'community' || false,
+    isOfficial: response.info?.maintainer === Maintainer.Bitrise || false,
+    isVerified: response.info?.maintainer === Maintainer.Verified || false,
+    isCommunity: response.info?.maintainer === Maintainer.Community || false,
     isDeprecated: response.is_deprecated || false,
   };
 };

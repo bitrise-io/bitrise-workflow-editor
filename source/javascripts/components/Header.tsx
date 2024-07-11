@@ -1,11 +1,9 @@
 import { Box, Breadcrumb, BreadcrumbLink, Button, Text, useResponsive } from '@bitrise/bitkit';
-import useFeatureFlag from '../hooks/useFeatureFlag';
 
 type Props = {
   appName: string;
   appPath: string;
   workspacePath: string;
-  workflowsAndPipelinesPath: string;
   onSaveClick: () => void;
   isSaveDisabled: boolean;
   isSaveInProgress: boolean;
@@ -17,7 +15,6 @@ const Header = ({
   appName = 'App Name',
   appPath = '/app',
   workspacePath = '/workspace',
-  workflowsAndPipelinesPath = '/workflows-and-pipelines',
   onSaveClick,
   isSaveDisabled,
   isSaveInProgress,
@@ -25,10 +22,8 @@ const Header = ({
   isDiscardDisabled,
 }: Props) => {
   const { isMobile } = useResponsive();
-  const enableAppDetailsSidebar = useFeatureFlag('enable-app-details-sidebar');
 
-  const isBreadcrumbVisible =
-    appName && appPath && workspacePath && (workflowsAndPipelinesPath || enableAppDetailsSidebar);
+  const isBreadcrumbVisible = appName && appPath && workspacePath;
 
   return (
     <Box
@@ -45,24 +40,13 @@ const Header = ({
     >
       {isBreadcrumbVisible &&
         (isMobile ? (
-          <>
-            {enableAppDetailsSidebar ? (
-              <Breadcrumb hasSeparatorBeforeFirst>
-                <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-              </Breadcrumb>
-            ) : (
-              <Breadcrumb hasSeparatorBeforeFirst>
-                <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
-              </Breadcrumb>
-            )}
-          </>
+          <Breadcrumb hasSeparatorBeforeFirst>
+            <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
+          </Breadcrumb>
         ) : (
           <Breadcrumb>
             <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
             <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-            {!enableAppDetailsSidebar && (
-              <BreadcrumbLink href={workflowsAndPipelinesPath}>Workflows & Pipelines</BreadcrumbLink>
-            )}
             <BreadcrumbLink isCurrentPage>
               <Text id="away" textStyle="body/lg/semibold">
                 Workflow Editor

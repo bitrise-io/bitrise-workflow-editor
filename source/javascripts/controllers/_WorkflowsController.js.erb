@@ -98,11 +98,14 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
       viewModel.enableReactStepDrawer = false;
+      viewModel.enableReactChainWorkflowDrawer = false;
 
       viewModel.init = function () {
         logger.info("Loading workflows");
 
         workflowSelectionStore.disable();
+
+        viewModel.yml = appService.appConfig;
 
         loadWorkflows().then(function () {
           workflowSelectionService.restoreSelection(viewModel);
@@ -115,6 +118,7 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         });
 
         viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
+        viewModel.enableReactChainWorkflowDrawer = launchDarklyService.variation("enable-new-chain-workflow-drawer", false);
 
         if (requestService.isWebsiteMode()) {
           loadAppAndUser();
@@ -364,6 +368,7 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
       viewModel.addRunWorkflowMode;
       viewModel.addRunWorkflowChainHierarchy;
       viewModel.runWorkflowToAdd;
+      viewModel.showReactChainWorkflowDrawer = false;
 
       function workflowChainHierarchy(workflow) {
         var _workflowChainHierarchy = [];
@@ -396,23 +401,27 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         return _workflowChainHierarchy;
       }
 
-      viewModel.addRunWorkflowSelected = function (mode) {
+      viewModel.openReactChainWorkflowDrawer = function (index) {
+        viewModel.showReactChainWorkflowDrawer = true;
+        safeDigest($scope);
+      }
+
+      viewModel.closeReactChainWorkflowDrawer = function () {
+        viewModel.showReactChainWorkflowDrawer = false;
+        safeDigest($scope);
+      }
+
+      viewModel.openChainWorkflowDialog = function (mode) {
         viewModel.addRunWorkflowMode = mode;
         viewModel.runWorkflowToAdd = null;
         viewModel.addRunWorkflowChainHierarchy = workflowChainHierarchy(viewModel.selectedWorkflow);
-        viewModel.addRunWorkflowPopup.isVisible = true;
-      };
 
-      viewModel.addRunWorkflowBeforeSelectedWithDigest = function () {
-        $timeout(function () {
-          viewModel.addRunWorkflowSelected("before");
-        }, 0);
-      };
-
-      viewModel.addRunWorkflowAfterSelectedWithDigest = function () {
-        $timeout(function () {
-          viewModel.addRunWorkflowSelected("after");
-        }, 0);
+        if (viewModel.enableReactChainWorkflowDrawer) {
+          viewModel.openReactChainWorkflowDrawer();
+        } else {
+          viewModel.addRunWorkflowPopup.isVisible = true;
+        }
+        safeDigest($scope);
       };
 
       viewModel.availableRunWorkflowsToAdd = function () {
@@ -425,17 +434,20 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         });
       };
 
-      viewModel.addRunWorkflow = function () {
-        var runKey = viewModel.addRunWorkflowMode == "before" ? "before_run" : "after_run";
+      viewModel.addRunWorkflow = function (mode, addedWorkflowId) {
+        var runKey = mode === "before" ? "before_run" : "after_run";
         if (!viewModel.selectedWorkflow.workflowConfig[runKey]) {
           viewModel.selectedWorkflow.workflowConfig[runKey] = [];
         }
 
-        viewModel.selectedWorkflow.workflowConfig[runKey].push(viewModel.runWorkflowToAdd.id);
+        viewModel.selectedWorkflow.workflowConfig[runKey].push(addedWorkflowId);
         viewModel.addRunWorkflowPopup.isVisible = false;
+        viewModel.runWorkflowToAdd = null;
+        viewModel.addRunWorkflowChainHierarchy = null;
 
         // select the current one and edit newly generated one
-        workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, viewModel.runWorkflowToAdd.id);
+        workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, addedWorkflowId);
+        viewModel.closeReactChainWorkflowDrawer();
       };
 
       viewModel.deleteBeforeAfterWorkflowAtWorkflowChainLink = function (workflowChainLink) {
@@ -697,7 +709,6 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
 
         if (viewModel.enableReactStepDrawer) {
           viewModel.openReactStepDrawer(index);
-          safeDigest($scope);
         } else {
           addStepService.showWithInsertIndex(index, insertStepAtIndexCallback);
         }
@@ -718,6 +729,7 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
       viewModel.openReactStepDrawer = function (index) {
         viewModel.newStepDrawerAddStepIndex = index;
         viewModel.showReactStepDrawer = true;
+        safeDigest($scope);
       }
 
       viewModel.closeReactStepDrawer = function () {
@@ -1156,16 +1168,18 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
         viewModel.editedWorkflow.summary(data.properties.summary || null);
         viewModel.editedWorkflow.description(data.properties.description || null);
 
-        const newStack = Stack.all.find((s) => s.id === data.configuration.stack);
+
+        const newStack = Stack.all.find((s) => s.id === data.configuration.stackId) ?? null;
         const defaultStack = appService.stack;
 
-        viewModel.editedWorkflow.stack(newStack?.id === defaultStack?.id ? null : newStack);
+        viewModel.editedWorkflow.stack(newStack);
 
         if (data.isMachineTypeSelectorAvailable) {
-          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineType);
+
+          const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineTypeId) ?? null;
           const defaultMachineType = appService.defaultMachineType;
 
-          viewModel.editedWorkflow.machineType(undefined, newMachineType?.id === defaultMachineType?.id ? null : newMachineType);
+          viewModel.editedWorkflow.machineType(undefined, newMachineType);
         }
 
         viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
@@ -1182,15 +1196,18 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
 
       function transformEditedWorkflowForReact() {
         if (viewModel.editedWorkflow) {
-          const stack = viewModel.editedWorkflow.stack() || appService.stack;
-          const machineType = viewModel.editedWorkflow.machineType(stack?.type, undefined, MachineType.all) || appService.defaultMachineType;
+          const stack = viewModel.editedWorkflow.stack();
+          const stackType = stack?.type || appService.stack?.type;
+          const machineType = viewModel.editedWorkflow.machineType(stackType, undefined, MachineType.all);
 
           viewModel.editedWorkflowConfigForReact = {
             workflowId: viewModel.editedWorkflow.id,
+            defaultStackId: appService.stack?.id || '',
+            defaultMachineTypeId: appService.defaultMachineType?.id || '',
             isMachineTypeSelectorAvailable: appService.appDetails?.isMachineTypeSelectorAvailable,
             configuration: {
-              stack: stack?.id,
-              machineType: machineType?.id,
+              stackId: stack?.id || '',
+              machineTypeId: machineType?.id || '',
               envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;

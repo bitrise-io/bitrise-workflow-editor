@@ -1,6 +1,5 @@
 const defaultValues = {
   'enable-wfe-pipeline-viewer': false,
-  'enable-app-details-sidebar': false,
 };
 
 type FeatureFlags = typeof defaultValues;
