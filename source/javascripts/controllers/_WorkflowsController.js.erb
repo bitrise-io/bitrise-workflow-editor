@@ -117,8 +117,8 @@ import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfi
           }
         });
 
-        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", true);
-        viewModel.enableReactChainWorkflowDrawer = launchDarklyService.variation("enable-new-chain-workflow-drawer", true);
+        viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
+        viewModel.enableReactChainWorkflowDrawer = launchDarklyService.variation("enable-new-chain-workflow-drawer", false);
 
         if (requestService.isWebsiteMode()) {
           loadAppAndUser();
