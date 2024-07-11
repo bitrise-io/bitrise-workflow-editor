@@ -6,6 +6,7 @@ export interface FetchResponse {
   updatePipelineConfigLoading: boolean;
   updatePipelineConfigFailed: MonolithError | undefined;
   updatePipelineConfig: () => void;
+  updatePipelineConfigReset: () => void;
 }
 
 export default function useUpdatePipelineConfigCallback(appSlug: string, usesRepositoryYml: boolean): FetchResponse {
@@ -14,6 +15,7 @@ export default function useUpdatePipelineConfigCallback(appSlug: string, usesRep
     loading: updatePipelineConfigLoading,
     failed: updatePipelineConfigFailed,
     call: updatePipelineConfig,
+    reset: updatePipelineConfigReset,
   } = useMonolithApiCallback<PipelineConfig>(`/app/${appSlug}/pipeline_config`, {
     method: 'PUT',
     body: JSON.stringify({
@@ -26,5 +28,6 @@ export default function useUpdatePipelineConfigCallback(appSlug: string, usesRep
     updatePipelineConfigLoading,
     updatePipelineConfigFailed,
     updatePipelineConfig,
+    updatePipelineConfigReset,
   };
 }

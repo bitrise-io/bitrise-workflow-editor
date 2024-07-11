@@ -40,7 +40,11 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
       case 422:
         return <YmlInRepositoryInvalidError errorMessage={getAppConfigFromRepoFailed?.error_msg || 'Unknown error'} />;
       default:
-        return <Notification status="error">{getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}</Notification>;
+        return (
+          <Notification status="error" marginBlockStart="24">
+            {getAppConfigFromRepoFailed?.error_msg || 'Unknown error'}
+          </Notification>
+        );
     }
   };
 
@@ -102,8 +106,8 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Using multiple configuration files
         </Text>
         <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
+        {getAppConfigFromRepoFailed && renderError()}
       </DialogBody>
-      {getAppConfigFromRepoFailed && renderError()}
       <DialogFooter>
         <Button variant="secondary" onClick={onClose}>
           Cancel

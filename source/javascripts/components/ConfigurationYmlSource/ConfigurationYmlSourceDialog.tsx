@@ -101,7 +101,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const [actionSelected, setActionSelected] = useState<string | null>(null);
   const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
-  const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig } =
+  const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig, updatePipelineConfigReset } =
     useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml);
 
   const yml = useFormattedYml(appConfig);
@@ -186,6 +186,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const onCloseDialog = () => {
     getAppConfigFromRepoReset();
+    updatePipelineConfigReset();
     onClose();
   };
 
@@ -207,6 +208,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
           onChange={(value: 'bitrise' | 'git') => {
             setUsesRepositoryYml(value === 'git');
             getAppConfigFromRepoReset();
+            updatePipelineConfigReset();
           }}
           value={usesRepositoryYml ? 'git' : 'bitrise'}
           isDisabled={isDialogDisabled}
@@ -237,6 +239,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
               onChange={(value: 'bitrise' | 'git') => {
                 setConfigurationSource(value);
                 getAppConfigFromRepoReset();
+                updatePipelineConfigReset();
               }}
               value={configurationSource}
               isDisabled={isDialogDisabled}
