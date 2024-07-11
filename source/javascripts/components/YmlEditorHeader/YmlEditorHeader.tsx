@@ -16,7 +16,7 @@ export type YmlEditorHeaderProps = {
   defaultBranch: string;
   gitRepoSlug: string;
   split: boolean;
-  modularYamlSupported: boolean;
+  modularYamlSupported?: boolean;
   lines: number;
   lastModified: string | null;
 };
@@ -54,9 +54,11 @@ const YmlEditorHeader = ({
   };
 
   useEffect(() => {
-    notificationMetaDataResponse.call();
+    if (modularYamlSupported !== undefined) {
+      notificationMetaDataResponse.call();
+    }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [modularYamlSupported]);
 
   const showNotification = notificationMetaDataResponse.value === null;
 
