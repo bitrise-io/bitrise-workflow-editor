@@ -94,6 +94,18 @@ feature. And then run the test dashboard with `npm run e2e:dev`_
 If you only iterate on tests, you can also use `npm run test` as it skips transpilation and the transpilation and run
 the tests on an already transpiled JS.
 
+### Override LaunchDarkly flags
+
+You can create an `ld.local.json` file in the project root to override the LaunchDarkly flags.
+
+Example `ld.local.json` content:
+```json
+{
+  "enable-nice-feature": true,
+  "key-of-the-feature-flag": "local value of the feature flag"
+}
+```
+
 # Contributing
 
 This project is using squash & merge model, feel free to have as many commits as you like but at the end the work will
