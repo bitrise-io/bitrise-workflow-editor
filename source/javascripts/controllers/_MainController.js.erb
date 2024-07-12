@@ -123,7 +123,7 @@ import {safeDigest} from "../services/react-compat";
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
         $timeout(function () {
           viewModel.changeMenuProgress.success();
-          if (window.parent && next !== current) {
+          if (window !== window.parent && window.parent && next !== current) {
             window.parent.location.hash = new URL(next).hash;
           }
         }, 0);
@@ -756,32 +756,32 @@ import {safeDigest} from "../services/react-compat";
         });
 
         $q(function (resolve, reject) {
-          switch (requestService.mode) {
-            case "website":
-              requestService.appSlug = appServiceUtil.getAppSlug();
+          launchDarklyService.initialize().then(() => {
+            viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
+            viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
+            viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
 
-              if (!requestService.appSlug) {
-                return reject("No app slug specified.");
-              }
-
-              launchDarklyService.initialize().then(() => {
-                viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
-                viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
-                viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
-
+            switch (requestService.mode) {
+              case "website":
+                requestService.appSlug = appServiceUtil.getAppSlug();
+  
+                if (!requestService.appSlug) {
+                  return reject("No app slug specified.");
+                }
+  
                 requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
                   viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+                }).finally(() => {
+                  appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
                 });
-              }).finally(() => {
-                appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
-              });
-
-              break;
-            case "cli":
-              resolve();
-
-              break;
-          }
+  
+                break;
+              case "cli":
+                resolve();
+  
+                break;
+            }
+          });
         }).then(
           function () {
             if (requestService.mode == "website") {

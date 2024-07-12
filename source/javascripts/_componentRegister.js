@@ -8,23 +8,28 @@ import NotificationMessageWithLink from "./components/NotificationMessageWithLin
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
-import WorkflowSelector from "./components/WorkflowSelector/WorkflowSelector";
+import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
+import {
+  ChainWorkflowDrawer,
+  StepConfigPanel,
+  StepDrawer,
+  VersionChangeDialog,
+  WorkflowConfigPanel,
+  WorkflowEmptyState,
+  WorkflowSelector,
+  WorkflowToolbar,
+} from "@/pages/WorkflowsPage";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import WorkflowMainToolbar from "./components/WorkflowMainToolbar/WorkflowMainToolbar";
+
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-import StepConfigPanel from "./components/StepConfigPanel/StepConfigPanel";
-import VersionChangeDialog from "./components/StepConfigPanel/components/VersionChangeDialog";
-import WorkflowEmptyState from "./components/WorkflowEmptyState/WorkflowEmptyState";
-import ChainWorkflowDrawer from "./components/ChainWorkflowDrawer/ChainWorkflowDrawer";
 import TriggersPage from "./components/TriggersPage/TriggersPage";
 import SecretsPage from "./components/SecretsPage/SecretsPage";
 import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
-import WorkflowConfigPanel from "./components/WorkflowConfigPanel/WorkflowConfigPanel";
-import StepDrawer from "./components/StepDrawer/StepDrawer";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
+import { PipelinesPage, SecretsPage, TriggersPage } from "@/pages";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -144,8 +149,8 @@ angular
 ]),
   )
   .component(
-    "rWorkflowMainToolbar",
-    register(WorkflowMainToolbar, [
+    "rWorkflowToolbar",
+    register(WorkflowToolbar, [
       "defaultBranch",
       "canRunWorkflow",
       "isRunWorkflowDisabled",

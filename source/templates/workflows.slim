@@ -6,7 +6,7 @@
         on-add-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
       ]
     section.manage-workflows[ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
-      r-workflow-main-toolbar.react-toolbar[
+      r-workflow-toolbar.react-toolbar[
         default-branch="workflowsCtrl.defaultBranch"
         can-run-workflow="workflowsCtrl.canRunWorkflow"
         is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"

@@ -13,6 +13,9 @@ declare global {
         account: { [s: string]: unknown };
       };
     };
+    localFeatureFlags: Partial<{
+      [s: string]: string | number | boolean;
+    }>;
   }
 
   const process: {

@@ -5,10 +5,11 @@ const defaultValues = {
 type FeatureFlags = typeof defaultValues;
 
 const useFeatureFlag = <K extends keyof FeatureFlags>(key: K): FeatureFlags[K] => {
+  const localValue = window.localFeatureFlags[key];
   const accountValue = window.parent?.globalProps?.featureFlags?.account?.[key];
   const defaultValue = defaultValues[key];
 
-  return (accountValue ?? defaultValue) as FeatureFlags[K];
+  return (localValue ?? accountValue ?? defaultValue) as FeatureFlags[K];
 };
 
 export default useFeatureFlag;
