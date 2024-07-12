@@ -19,5 +19,8 @@ spec/integration/cypress/results
 .env
 .vendor
 
+# LD local
+ld.local.json
+
 # OS X
 .DS_Store

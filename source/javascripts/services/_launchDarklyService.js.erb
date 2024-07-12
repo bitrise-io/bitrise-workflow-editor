@@ -31,6 +31,10 @@
             };
 
             launchDarklyService.variation = (featureFlagKey, defaultValue = false) => {
+                if (window.localFeatureFlags[featureFlagKey] !== undefined) {
+                    return window.localFeatureFlags[featureFlagKey];
+                }
+
                 if (!requestService.isWebsiteMode()) {
                     return defaultValue;
                 }
