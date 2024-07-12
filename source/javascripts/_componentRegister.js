@@ -11,6 +11,7 @@ import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettin
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import {
   ChainWorkflowDrawer,
+  DeleteWorkflowDialog,
   StepConfigPanel,
   StepDrawer,
   VersionChangeDialog,
@@ -244,10 +245,19 @@ angular
   .component(
     "rChainWorkflowDrawer",
     register(ChainWorkflowDrawer, [
-      "id",
+      "workflowId",
       "yml",
       "isOpen",
       "onClose",
       "onChainWorkflow",
+    ]),
+  )
+  .component(
+    "rDeleteWorkflowDialog",
+    register(DeleteWorkflowDialog, [
+      "workflowId",
+      "isOpen",
+      "onClose",
+      "onDelete",
     ]),
   );
