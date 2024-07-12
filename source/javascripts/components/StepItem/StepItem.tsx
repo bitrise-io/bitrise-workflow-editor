@@ -1,11 +1,11 @@
 import './StepItem.scss';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
-import { Step } from '../../models';
 import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
 import StepItemVersion from './StepItemVersion';
+import { Step } from '@/models';
 
 type StepItemProps = {
   workflowIndex: number;

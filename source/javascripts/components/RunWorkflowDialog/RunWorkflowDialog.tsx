@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, Input } from '@bitrise/bitkit';
 import { DialogProps } from '@bitrise/bitkit/src/Components/Dialog/Dialog';
 
-import { useTrackingFunction } from '../../hooks/utils/useTrackingFunction';
+import { useTrackingFunction } from '@/hooks/utils/useTrackingFunction';
 
 type RunWorkflowDialogProps = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   defaultBranch: string;
@@ -41,6 +41,9 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflow, onAction 
         />
       </DialogBody>
       <DialogFooter>
+        <Button variant="secondary" aria-label="Cancel" onClick={onClose}>
+          Cancel
+        </Button>
         <Button aria-label="Run Workflow" rightIconName="OpenInBrowser" isDisabled={!branch} onClick={handleAction}>
           Run Workflow
         </Button>
