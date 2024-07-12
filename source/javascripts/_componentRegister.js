@@ -25,9 +25,6 @@ import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRec
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-import TriggersPage from "./components/TriggersPage/TriggersPage";
-import SecretsPage from "./components/SecretsPage/SecretsPage";
-import PipelinesPage from "./components/PipelinesPage/PipelinesPage";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
 import { PipelinesPage, SecretsPage, TriggersPage } from "@/pages";
 
