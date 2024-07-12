@@ -57,7 +57,7 @@ const ChainWorkflowDrawer = ({ id, yml, onChainWorkflow, ...disclosureProps }: P
                 Chain Workflows to '{id}'
               </Text>
             </DrawerHeader>
-            <DrawerBody display="flex" overflow="auto" flexDir="column" gap="16">
+            <DrawerBody display="flex" flexDir="column" gap="16">
               <Text>
                 Add Workflows before or after the Steps of the selected Workflow. Each linked Workflow executes on the
                 same VM, ensuring a cohesive build process.
