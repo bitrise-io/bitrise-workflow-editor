@@ -1,7 +1,10 @@
-import {safeDigest} from "../services/react-compat";
+import {safeDigest} from "@/services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {getVersionRemark} from "../utils/stepVersionUtil";
-import {extractInputNames, extractReleaseNotesUrl} from "../components/StepConfigPanel/utils";
+import {getVersionRemark} from "@/utils/stepVersionUtil";
+import {
+  extractInputNames,
+  extractReleaseNotesUrl
+} from "@/pages/WorkflowsPage/components/StepConfigPanel/StepConfigPanel.utils";
 
 (function () {
   "use strict";
