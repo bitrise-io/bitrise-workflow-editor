@@ -208,20 +208,30 @@ func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map
 		}
 
 		for stepListItemIdx, stepListItem := range wf.Steps {
-			key, step, with, err := stepListItem.GetStepListItemKeyAndValue()
+			key, t, err := stepListItem.GetKeyAndType()
 			if err != nil {
 				return nil, err
 			}
 
-			if key != models.StepListItemWithKey {
-				step, err = convertStepType(step)
+			if t == models.StepListItemTypeStep {
+				stepPtr, err := stepListItem.GetStep()
+				if err != nil {
+					return nil, err
+				}
+
+				step, err := convertStepType(*stepPtr)
 				if err != nil {
 					return nil, err
 				}
 
 				stepID := key
 				wf.Steps[stepListItemIdx] = map[string]interface{}{stepID: step}
-			} else {
+			} else if t == models.StepListItemTypeWith {
+				with, err := stepListItem.GetWith()
+				if err != nil {
+					return nil, err
+				}
+
 				for stepIdx, stepItem := range with.Steps {
 					stepID, step, err := stepItem.GetStepIDAndStep()
 					if err != nil {
@@ -236,6 +246,8 @@ func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map
 					with.Steps[stepIdx] = map[string]stepmanModels.StepModel{stepID: step}
 				}
 				wf.Steps[stepListItemIdx] = map[string]interface{}{key: with}
+			} else if t == models.StepListItemTypeBundle {
+
 			}
 		}
 
