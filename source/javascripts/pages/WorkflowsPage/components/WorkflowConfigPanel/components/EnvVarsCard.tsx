@@ -1,12 +1,13 @@
 import { CSSProperties } from 'react';
 import { useFieldArray, useFormContext } from 'react-hook-form';
-import { Box, Button, ControlButton, ExpandableCard, Input, Text, Badge, Checkbox } from '@bitrise/bitkit';
+import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
 import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useSensors } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import { FormValues } from '../WorkflowConfigPanel.types';
 import AutoGrowableInput from './AutoGrowableInput';
+import { isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, VALUE_IS_REQUIRED } from '@/models/EnvVar';
 
 const ButtonContent = () => {
   const {
@@ -46,8 +47,11 @@ const DragHandleIcon = () => {
 const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
   const {
     register,
+    watch,
     formState: { errors },
   } = useFormContext<FormValues>();
+
+  const envVars = watch('configuration.envs').filter((_, idx) => idx !== index);
 
   const { attributes, listeners, active, transform, transition, setNodeRef, setActivatorNodeRef } = useSortable({ id });
 
@@ -100,15 +104,13 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
-            errorText={errors.configuration?.envs?.[index]?.key?.message?.toString()}
+            errorText={errors.configuration?.envs?.[index]?.key?.message}
             {...register(`configuration.envs.${index}.key`, {
-              required: {
-                value: true,
-                message: 'Key is required.',
-              },
-              pattern: {
-                value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
-                message: 'Key should contain letters, numbers, underscores, should not begin with a number.',
+              required: KEY_IS_REQUIRED,
+              pattern: KEY_PATTERN,
+              validate: {
+                isUnique: isKeyUnique(envVars.map((ev) => ev.key)),
+                isNotEmpty,
               },
             })}
           />
@@ -119,15 +121,10 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             aria-label="Value"
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
-            errorText={errors.configuration?.envs?.[index]?.value?.message?.toString()}
+            errorText={errors.configuration?.envs?.[index]?.value?.message}
             {...register(`configuration.envs.${index}.value`, {
-              required: {
-                value: true,
-                message: 'Value is required.',
-              },
-              validate: {
-                isNotEmpty: (value) => !!value.trim() || 'Value should not be empty.',
-              },
+              required: VALUE_IS_REQUIRED,
+              validate: { isNotEmpty },
             })}
           />
           <ControlButton onClick={handleRemove} iconName="MinusRemove" aria-label="Remove" size="md" ml="8" isDanger />

@@ -1,8 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Mode } from '../../hooks/useMultiModePopover';
 import InsertSecretPopover from './InsertSecretPopover';
-
-import { Secret } from './types';
+import { Secret } from '@/models/Secret';
 
 const defaultSecrets: Secret[] = [
   {
@@ -11,6 +10,7 @@ const defaultSecrets: Secret[] = [
     value: '7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: false,
+    isProtected: false,
   },
   {
     source: 'Bitrise.io',
@@ -18,6 +18,7 @@ const defaultSecrets: Secret[] = [
     value: 'https://app-staging.bitrise.io/build/7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: false,
+    isProtected: false,
   },
   {
     source: 'Bitrise.io',
@@ -25,6 +26,7 @@ const defaultSecrets: Secret[] = [
     value: 'https://app-staging.bitrise.io/build/7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: false,
+    isProtected: false,
   },
   {
     source: 'Git clone step',
@@ -32,6 +34,7 @@ const defaultSecrets: Secret[] = [
     value: 'git@github.com:flutter/flutter.git',
     isExpand: true,
     isExpose: false,
+    isProtected: false,
   },
   {
     source: 'Bitrise.io',
@@ -39,6 +42,7 @@ const defaultSecrets: Secret[] = [
     value: '7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: false,
+    isProtected: true,
   },
   {
     source: 'Bitrise.io',
@@ -46,6 +50,7 @@ const defaultSecrets: Secret[] = [
     value: 'https://app-staging.bitrise.io/build/7ce75f61-556f-4163-8a5f-a9b16ef55a8',
     isExpand: true,
     isExpose: false,
+    isProtected: true,
   },
   {
     source: 'Git clone step',
@@ -53,6 +58,7 @@ const defaultSecrets: Secret[] = [
     value: 'git@github.com:flutter/flutter.git',
     isExpand: true,
     isExpose: false,
+    isProtected: true,
   },
 ];
 

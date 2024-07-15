@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
-import { HandlerFn, Secret } from './types';
+import { HandlerFn } from './types';
+import { Secret } from '@/models/Secret';
 
 type State = {
   isLoading: boolean;

@@ -1,6 +1,6 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {safeDigest} from "../services/react-compat";
+import {safeDigest} from "@/services/react-compat";
 
 (function () {
   "use strict";
@@ -761,21 +761,21 @@ import {safeDigest} from "../services/react-compat";
             switch (requestService.mode) {
               case "website":
                 requestService.appSlug = appServiceUtil.getAppSlug();
-  
+
                 if (!requestService.appSlug) {
                   return reject("No app slug specified.");
                 }
-  
+
                 requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
                   viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
                 }).finally(() => {
                   appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
                 });
-  
+
                 break;
               case "cli":
                 resolve();
-  
+
                 break;
             }
           });
