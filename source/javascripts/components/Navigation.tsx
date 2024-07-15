@@ -34,8 +34,6 @@ const findItemIcon = (item: Item): TypeIconName | undefined => {
       return 'Workflow';
     case 'pipelines':
       return 'WorkflowFlow';
-    case 'code-signing':
-      return 'CodeSigning';
     case 'secrets':
       return 'Lock';
     case 'env-vars':

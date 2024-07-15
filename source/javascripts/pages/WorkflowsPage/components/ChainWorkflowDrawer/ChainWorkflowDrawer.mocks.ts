@@ -14,7 +14,9 @@ export const mockYml: BitriseYml = {
       before_run: ['direct-before_run-wf-1'],
       after_run: ['direct-after_run-wf-1'],
     },
-    'wf-2': {},
+    'wf-2': {
+      before_run: ['wf-1'],
+    },
     'wf-3': {
       before_run: ['wf-2'],
       after_run: ['wf-4'],
