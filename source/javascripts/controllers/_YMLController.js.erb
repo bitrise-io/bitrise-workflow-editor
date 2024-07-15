@@ -90,15 +90,9 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			init();
 
 			function configureEditor() {
-				if (model) {
-					model.dispose();
-				}
 				model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
 
 				let codeContainer = document.getElementById("code-container");
-				if (editor) {
-          			editor.dispose();
-       			}
 				editor = monaco.editor.create(codeContainer, {
 					model: model,
 					language: "yaml",
