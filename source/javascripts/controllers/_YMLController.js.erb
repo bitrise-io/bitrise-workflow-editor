@@ -45,22 +45,22 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				function() {
 					return appService.appConfigYML;
 				},
-				function() {
-					if (model && !model.isDisposed()) {
-						if (appService.appConfigYML !== model.getValue()) {
-							model.setValue(appService.appConfigYML || '')
-						}
-					}
-				}
+				function(newVal, oldVal) {
+   				 	if (newVal !== oldVal && model && !model.isDisposed()) {
+     					 model.setValue(newVal || '');
+   				 	}
+ 				}
 			);
 
 			$scope.$watch(
 				function() {
 					return viewModel.usesRepositoryYml;
 				},
-				function(usesRepositoryYml) {
-					editor.updateOptions({ readOnly: !!usesRepositoryYml });
-				}
+				function(newVal, oldVal) {
+    				if (newVal !== oldVal) {
+      					editor.updateOptions({ readOnly: !!newVal });
+    				}
+  				}
 			);
 
 			function init() {
