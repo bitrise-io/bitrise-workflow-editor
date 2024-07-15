@@ -22,6 +22,7 @@ const GitNotification = (props: NotificationProps) => {
   };
 
   useEffect(() => {
+    console.log('GitNotification component mounted');
     gitNotificationMetaDataResponse.call();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -30,6 +31,7 @@ const GitNotification = (props: NotificationProps) => {
 
   useEffect(() => {
     if (showGitNotification === true) {
+      console.log('Setting isGitNotificationOpen to true');
       setIsGitNotificationOpen(true);
     }
   }, [showGitNotification]);

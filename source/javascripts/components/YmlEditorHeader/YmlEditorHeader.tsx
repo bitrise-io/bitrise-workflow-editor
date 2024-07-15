@@ -35,6 +35,7 @@ const YmlEditorHeader = ({
   lines,
   lastModified,
 }: YmlEditorHeaderProps) => {
+  console.log('YmlEditorHeader rendered');
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
