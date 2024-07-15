@@ -20,22 +20,24 @@ export type YmlEditorHeaderProps = {
   lines: number;
   lastModified: string | null;
 };
-const YmlEditorHeader = ({
-  appSlug,
-  appConfig,
-  defaultBranch,
-  gitRepoSlug,
-  onUsesRepositoryYmlChangeSaved,
-  repositoryYmlAvailable,
-  shouldShowYmlStorageSettings,
-  url,
-  initialUsesRepositoryYml,
-  split,
-  modularYamlSupported,
-  lines,
-  lastModified,
-}: YmlEditorHeaderProps) => {
+const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
+  const {
+    appSlug,
+    appConfig,
+    defaultBranch,
+    gitRepoSlug,
+    onUsesRepositoryYmlChangeSaved,
+    repositoryYmlAvailable,
+    shouldShowYmlStorageSettings,
+    url,
+    initialUsesRepositoryYml,
+    split,
+    modularYamlSupported,
+    lines,
+    lastModified,
+  } = props;
   console.log('YmlEditorHeader rendered');
+  console.log(props);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
