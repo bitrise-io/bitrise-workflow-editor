@@ -7,11 +7,11 @@ import ChainableWorkflowCard from './ChainableWorkflowCard';
 import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 
 type Props = {
-  id: string;
+  workflowId: string;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainableWorkflowList = ({ id: workflowId, onChainWorkflow }: Props) => {
+const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
   const { reset, watch } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues({
     watch,
