@@ -6,6 +6,7 @@ import ChainWorkflowDrawer from './components/ChainWorkflowDrawer/ChainWorkflowD
 import StepConfigPanel from './components/StepConfigPanel/StepConfigPanel';
 import StepDrawer from './components/StepDrawer/StepDrawer';
 import VersionChangeDialog from './components/StepConfigPanel/components/VersionChangeDialog';
+import DeleteWorkflowDialog from './components/DeleteWorkflowDialog/DeleteWorkflowDialog';
 
 export {
   WorkflowSelector,
@@ -16,4 +17,5 @@ export {
   StepDrawer,
   ChainWorkflowDrawer,
   VersionChangeDialog,
+  DeleteWorkflowDialog,
 };

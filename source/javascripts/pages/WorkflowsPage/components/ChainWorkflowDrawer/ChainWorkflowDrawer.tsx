@@ -15,12 +15,12 @@ import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/models/BitriseYml';
 
 type Props = UseDisclosureProps & {
-  id: string;
+  workflowId: string;
   yml: BitriseYml;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainWorkflowDrawer = ({ id, yml, onChainWorkflow, ...disclosureProps }: Props) => {
+const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
   const form = useForm<SearchFormValues>({
     defaultValues: {
@@ -28,7 +28,7 @@ const ChainWorkflowDrawer = ({ id, yml, onChainWorkflow, ...disclosureProps }: P
     },
   });
 
-  if (!yml || !id) {
+  if (!yml || !workflowId) {
     return null;
   }
 
@@ -54,7 +54,7 @@ const ChainWorkflowDrawer = ({ id, yml, onChainWorkflow, ...disclosureProps }: P
             </DrawerCloseButton>
             <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                Chain Workflows to '{id}'
+                Chain Workflows to '{workflowId}'
               </Text>
             </DrawerHeader>
             <DrawerBody display="flex" flexDir="column" gap="16" overflow="auto">
@@ -76,7 +76,7 @@ const ChainWorkflowDrawer = ({ id, yml, onChainWorkflow, ...disclosureProps }: P
                   />
                 )}
               />
-              <ChainableWorkflowList id={id} onChainWorkflow={onChainWorkflow} />
+              <ChainableWorkflowList workflowId={workflowId} onChainWorkflow={onChainWorkflow} />
             </DrawerBody>
           </DrawerContent>
         </Drawer>
