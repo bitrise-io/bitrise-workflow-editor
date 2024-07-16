@@ -37,6 +37,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			viewModel.modularYamlSupported = undefined;
 			viewModel.lastModified = null;
 			viewModel.isDataReady = false;
+			console.log("setting isDataReady to false")
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -90,6 +91,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
 					console.log("Promise.all response")
 					viewModel.isDataReady = true;
+					console.log("setting isDataReady to true")
 				  });
 				}
 			  }
