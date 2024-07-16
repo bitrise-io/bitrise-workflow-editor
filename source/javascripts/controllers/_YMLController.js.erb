@@ -70,6 +70,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 		
 				  const fetchPipelineConfig = appService.getPipelineConfig()
 					.then(function() {
+					  console.log("getPipelineConfig response")
 					  viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
 					  viewModel.lines = appService.pipelineConfig.lines;
 					  viewModel.split = appService.pipelineConfig.split;
@@ -81,11 +82,13 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				  const fetchOrgPlanData = appService.appDetails && appService.appDetails.ownerData
 					? requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
 						.then(function(ownerPlanData) {
+						  console.log("getOrgPlanData response")
 						  viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
 						})
 					: Promise.resolve();
 		
 				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
+					console.log("Promise.all response")
 					$scope.isDataReady = true;
 					$scope.$apply();
 				  });
