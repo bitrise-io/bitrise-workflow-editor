@@ -89,8 +89,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 		
 				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
 					console.log("Promise.all response")
-					$scope.isDataReady = true;
-					$scope.$apply();
+					viewModel.isDataReady = true;
 				  });
 				}
 			  }
