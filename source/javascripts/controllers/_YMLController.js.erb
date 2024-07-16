@@ -10,6 +10,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			var viewModel = this;
 			var editor;
 			var model;
+			var isInitialized = false;
 
 			const defaultSchema = {
 				uri: 'https://json.schemastore.org/bitrise.json',
@@ -36,7 +37,7 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			viewModel.split = false;
 			viewModel.modularYamlSupported = undefined;
 			viewModel.lastModified = null;
-			# viewModel.isDataReady = false;
+			viewModel.isDataReady = false;
 			console.log("setting isDataReady to false")
 
 			viewModel.downloadAppConfigYMLPath = function() {
@@ -66,6 +67,9 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			);
 
 			function init() {
+				if (isInitialized) return;
+				isInitialized = true;
+
 				if (requestService.isWebsiteMode()) {
 				  viewModel.appSlug = requestService.appSlug;
 		
@@ -91,7 +95,6 @@ import { configureMonacoYaml } from 'monaco-yaml';
 				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
 					console.log("Promise.all response")
 					viewModel.isDataReady = true;
-					console.log("setting isDataReady to true")
 				  });
 				}
 			  }
