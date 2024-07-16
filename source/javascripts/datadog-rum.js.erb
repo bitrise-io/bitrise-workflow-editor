@@ -6,6 +6,7 @@ datadogRum.init({
 	site: "datadoghq.com",
 	service: "wfe",
 	version: "<%= ENV['wfe_version'] %>",
-	sampleRate: 100,
+	sessionSampleRate: 100,
+	sessionReplaySampleRate: 20,
 	trackInteractions: false
 });
