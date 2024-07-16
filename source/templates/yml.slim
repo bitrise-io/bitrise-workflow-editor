@@ -6,6 +6,7 @@
 			ul
 				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
 	r-yml-editor-header[
+		ng-if="ymlCtrl.isDataReady"
 		url="ymlCtrl.downloadAppConfigYMLPath()"
 		initial-uses-repository-yml="ymlCtrl.usesRepositoryYml"
 		app-slug="ymlCtrl.appSlug"
