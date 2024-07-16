@@ -1,9 +1,9 @@
 import { useState } from 'react';
-import { Box, Button, Text, useDisclosure, DataWidget, DataWidgetItem, Tooltip } from '@bitrise/bitkit';
+import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
-import { AppConfig } from '../../models/AppConfig';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
+import { AppConfig } from '@/models/AppConfig';
 
 export type YmlEditorHeaderProps = {
   appSlug: string;
@@ -36,8 +36,6 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     lines,
     lastModified,
   } = props;
-  console.log('YmlEditorHeader rendered');
-  console.log(props);
   const { isOpen, onClose, onOpen } = useDisclosure();
 
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);

@@ -1,24 +1,27 @@
 import { Meta, StoryObj } from '@storybook/react';
-import {
-  getNotificationMetaData,
-  putNotificationMetaData,
-} from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
+import { makeNotificationMetadataEndpoint } from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
 import YmlEditorHeader, { YmlEditorHeaderProps } from './YmlEditorHeader';
 
 const meta: Meta<YmlEditorHeaderProps> = {
   component: YmlEditorHeader,
   args: {
+    appSlug: 'app-1',
+    appConfig: '',
     defaultBranch: 'master',
     gitRepoSlug: 'MyRepo',
     repositoryYmlAvailable: true,
     shouldShowYmlStorageSettings: true,
-    url: 'url',
     initialUsesRepositoryYml: false,
+    split: false,
+    modularYamlSupported: false,
     lines: 400,
     lastModified: '2024-05-12T09:23:48.190Z',
   },
+  argTypes: {
+    onUsesRepositoryYmlChangeSaved: { type: 'function' },
+  },
   parameters: {
-    msw: [getNotificationMetaData(), putNotificationMetaData()],
+    msw: [...makeNotificationMetadataEndpoint()],
   },
 };
 
@@ -32,6 +35,9 @@ export const ModularYamlSupported: StoryObj<YmlEditorHeaderProps> = {
     lines: 550,
     modularYamlSupported: true,
   },
+  parameters: {
+    msw: [...makeNotificationMetadataEndpoint()],
+  },
 };
 
 export const ModularYamlNotSupported: StoryObj<YmlEditorHeaderProps> = {
@@ -40,6 +46,9 @@ export const ModularYamlNotSupported: StoryObj<YmlEditorHeaderProps> = {
     lines: 550,
     modularYamlSupported: false,
   },
+  parameters: {
+    msw: [...makeNotificationMetadataEndpoint()],
+  },
 };
 
 export const SplittedConfig: StoryObj<YmlEditorHeaderProps> = {
@@ -47,5 +56,8 @@ export const SplittedConfig: StoryObj<YmlEditorHeaderProps> = {
     split: true,
     lines: 550,
     initialUsesRepositoryYml: true,
+  },
+  parameters: {
+    msw: [...makeNotificationMetadataEndpoint()],
   },
 };

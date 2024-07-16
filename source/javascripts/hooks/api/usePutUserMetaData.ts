@@ -1,29 +1,16 @@
-import useMonolithApiCallback, { MonolithError } from './useMonolithApiCallback';
+import { useMutation } from '@tanstack/react-query';
 
-export interface FetchResponse {
-  call: () => void;
-  result: { value: boolean } | undefined;
-  isLoading: boolean;
-  failed: MonolithError | undefined;
-}
-
-export default function useGetUserMetaData(key: string, value: boolean): FetchResponse {
-  const {
-    call,
-    loading: isLoading,
-    failed,
-    result,
-  } = useMonolithApiCallback<{ value: boolean }>(`/me/profile/metadata.json`, {
-    method: 'PUT',
-    body: JSON.stringify({
-      [key]: value,
-    }),
+export default function useGetUserMetaData(key: string, value: boolean) {
+  const url = '/me/profile/metadata.json';
+  return useMutation({
+    mutationKey: ['metadata', key, value, url],
+    mutationFn: async () => {
+      await fetch(url, {
+        method: 'PUT',
+        body: JSON.stringify({
+          [key]: value,
+        }),
+      });
+    },
   });
-
-  return {
-    call,
-    failed,
-    isLoading,
-    result,
-  };
 }

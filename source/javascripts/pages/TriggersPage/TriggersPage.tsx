@@ -26,8 +26,8 @@ import {
   useSensors,
 } from '@dnd-kit/core';
 import {
-  SortableContext,
   arrayMove,
+  SortableContext,
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
@@ -40,6 +40,10 @@ import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
+
+type MetadataResult = {
+  value: boolean | null;
+};
 
 type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 
@@ -139,41 +143,37 @@ type TriggersPageProps = {
 const TriggersPage = (props: TriggersPageProps) => {
   const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
-  const webhookNotificationMetaDataResponse = useGetUserMetaData('wfe_triggers_configure_webhooks_notification_closed');
-  const triggersOrderNotificationMetaDataResponse = useGetUserMetaData('wfe_triggers_order_notification_closed');
-
-  useEffect(() => {
-    webhookNotificationMetaDataResponse.call();
-    triggersOrderNotificationMetaDataResponse.call();
-  }, []);
+  const { data: webhookNotification } = useGetUserMetaData<MetadataResult>(
+    'wfe_triggers_configure_webhooks_notification_closed',
+  );
+  const { data: triggersOrderNotification } = useGetUserMetaData<MetadataResult>(
+    'wfe_triggers_order_notification_closed',
+  );
 
   const [isWebhookNotificationOpen, setWebhookNotificationOpen] = useState(false);
-  const showWebhookNotification = webhookNotificationMetaDataResponse.value === null;
+  const showWebhookNotification = webhookNotification && webhookNotification.value === null;
 
   useEffect(() => {
-    if (showWebhookNotification === true) {
+    if (showWebhookNotification) {
       setWebhookNotificationOpen(true);
     }
   }, [showWebhookNotification]);
 
   const [isOrderNotificationOpen, setOrderNotificationOpen] = useState(false);
-  const showOrderNotification = triggersOrderNotificationMetaDataResponse.value === null;
+  const showOrderNotification = triggersOrderNotification && triggersOrderNotification.value === null;
 
   useEffect(() => {
-    if (showOrderNotification === true) {
+    if (showOrderNotification) {
       setOrderNotificationOpen(true);
     }
   }, [showOrderNotification]);
 
-  const { call: putwebhookNotificationMetaData } = usePutUserMetaData(
+  const { mutate: putWebhookNotification } = usePutUserMetaData(
     'wfe_triggers_configure_webhooks_notification_closed',
     true,
   );
 
-  const { call: putTriggersOrderNotificationMetaData } = usePutUserMetaData(
-    'wfe_triggers_order_notification_closed',
-    true,
-  );
+  const { mutate: putTriggersOrderNotification } = usePutUserMetaData('wfe_triggers_order_notification_closed', true);
 
   const {
     isOpen: isPushTriggerDialogOpen,
@@ -198,13 +198,15 @@ const TriggersPage = (props: TriggersPageProps) => {
   const [activeId, setActiveId] = useState<string | null>(null);
 
   const closeAndSaveWebhookNotification = () => {
-    setWebhookNotificationOpen(false);
-    putwebhookNotificationMetaData();
+    putWebhookNotification(undefined, {
+      onSuccess: () => setWebhookNotificationOpen(false),
+    });
   };
 
   const closeAndSaveTriggersNotification = () => {
-    setOrderNotificationOpen(false);
-    putTriggersOrderNotificationMetaData();
+    putTriggersOrderNotification(undefined, {
+      onSuccess: () => setOrderNotificationOpen(false),
+    });
   };
 
   const onCloseDialog = () => {

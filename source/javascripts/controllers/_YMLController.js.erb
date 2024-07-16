@@ -1,159 +1,150 @@
 import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import { configureMonacoYaml } from 'monaco-yaml';
+import {configureMonacoYaml} from 'monaco-yaml';
 
-(function() {
-	"use strict";
+(function () {
+  "use strict";
 
-	angular
-		.module("BitriseWorkflowEditor")
-		.controller("YMLController", function($scope, $timeout, appService, requestService) {
-			var viewModel = this;
-			var editor;
-			var model;
+  angular
+    .module("BitriseWorkflowEditor")
+    .controller("YMLController", function ($scope, $timeout, appService, requestService) {
+      var viewModel = this;
+      var editor;
+      var model;
 
-			const defaultSchema = {
-				uri: 'https://json.schemastore.org/bitrise.json',
-				fileMatch: ['monaco-yaml.yaml'],
-			};
+      const defaultSchema = {
+        uri: 'https://json.schemastore.org/bitrise.json',
+        fileMatch: ['monaco-yaml.yaml'],
+      };
 
-			configureMonacoYaml(monaco, {
-  			validate: true,
-				enableSchemaRequest: true,
-				format: true,
-				hover: true,
-				completion: true,
-				schemas: [defaultSchema],
-			});
+      configureMonacoYaml(monaco, {
+        validate: true,
+        enableSchemaRequest: true,
+        format: true,
+        hover: true,
+        completion: true,
+        schemas: [defaultSchema],
+      });
 
-			viewModel.shouldShowYmlStorageSettings = false;
-			viewModel.usesRepositoryYml = false;
-			viewModel.appSlug = undefined;
-			viewModel.repositoryYmlAvailable = true;
-			viewModel.appConfigYML = undefined;
-			viewModel.defaultBranch = appService.appDetails.defaultBranch;
-			viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
-			viewModel.lines = 0;
-			viewModel.split = false;
-			viewModel.modularYamlSupported = undefined;
-			viewModel.lastModified = null;
-			viewModel.isDataReady = false;
-			console.log("setting isDataReady to false")
+      viewModel.shouldShowYmlStorageSettings = false;
+      viewModel.usesRepositoryYml = false;
+      viewModel.appSlug = undefined;
+      viewModel.repositoryYmlAvailable = true;
+      viewModel.appConfigYML = undefined;
+      viewModel.defaultBranch = appService.appDetails?.defaultBranch;
+      viewModel.gitRepoSlug = appService.appDetails?.gitRepoSlug;
+      viewModel.lines = 0;
+      viewModel.split = false;
+      viewModel.modularYamlSupported = undefined;
+      viewModel.lastModified = null;
 
-			viewModel.downloadAppConfigYMLPath = function() {
-				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
-			}
+      viewModel.downloadAppConfigYMLPath = function () {
+        return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
+      }
 
-			$scope.$watch(
-				function() {
-					return appService.appConfigYML;
-				},
-				function(newVal, oldVal) {
-   				 	if (newVal !== oldVal && model && !model.isDisposed()) {
-     					 model.setValue(newVal || '');
-   				 	}
- 				}
-			);
+      $scope.$watch(
+        function () {
+          return appService.appConfigYML;
+        },
+        function (newVal, oldVal) {
+          if (newVal !== oldVal && model && !model.isDisposed()) {
+            model.setValue(newVal || '');
+          }
+        }
+      );
 
-			$scope.$watch(
-				function() {
-					return viewModel.usesRepositoryYml;
-				},
-				function(newVal, oldVal) {
-    				if (newVal !== oldVal) {
-      					editor.updateOptions({ readOnly: !!newVal });
-    				}
-  				}
-			);
+      $scope.$watch(
+        function () {
+          return viewModel.usesRepositoryYml;
+        },
+        function (newVal, oldVal) {
+          if (newVal !== oldVal) {
+            editor.updateOptions({readOnly: !!newVal});
+          }
+        }
+      );
 
-			function init() {
-				if (requestService.isWebsiteMode()) {
-				  viewModel.appSlug = requestService.appSlug;
-		
-				  const fetchPipelineConfig = appService.getPipelineConfig()
-					.then(function() {
-					  console.log("getPipelineConfig response")
-					  viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
-					  viewModel.lines = appService.pipelineConfig.lines;
-					  viewModel.split = appService.pipelineConfig.split;
-					  viewModel.modularYamlSupported = appService.pipelineConfig.modularYamlSupported;
-					  viewModel.lastModified = appService.pipelineConfig.lastModified;
-					  viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
-					});
-		
-				  const fetchOrgPlanData = appService.appDetails && appService.appDetails.ownerData
-					? requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
-						.then(function(ownerPlanData) {
-						  console.log("getOrgPlanData response")
-						  viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
-						})
-					: Promise.resolve();
-		
-				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
-					console.log("Promise.all response")
-					viewModel.isDataReady = true;
-				  });
-				}
-			  }
+      function init() {
+        if (requestService.isWebsiteMode()) {
+          viewModel.appSlug = requestService.appSlug;
 
-			init();
+          const fetchPipelineConfig = appService.getPipelineConfig()
+            .then(function () {
+              viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+              viewModel.lines = appService.pipelineConfig.lines;
+              viewModel.split = appService.pipelineConfig.split;
+              viewModel.modularYamlSupported = appService.pipelineConfig.modularYamlSupported;
+              viewModel.lastModified = appService.pipelineConfig.lastModified;
+              viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
+            });
 
-			function configureEditor() {
-				model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
+          const fetchOrgPlanData = appService.appDetails && appService.appDetails.ownerData
+            ? requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+              .then(function (ownerPlanData) {
+                viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
+              })
+            : Promise.resolve();
+        }
+      }
 
-				let codeContainer = document.getElementById("code-container");
-				editor = monaco.editor.create(codeContainer, {
-					model: model,
-					language: "yaml",
-					lineNumbers: "on",
-					roundedSelection: false,
-					scrollBeyondLastLine: false,
-					readOnly: false,
-					theme: "vs-dark"
-				});
-				editor.layout();
-				editor.focus();
-				editor.onDidChangeModelContent(updateAppConfigYML);
+      init();
 
-				function resizeEditor() {
-					editor.layout({
-						width: codeContainer.clientWidth,
-						height: codeContainer.clientHeight,
-					});
-				}
+      function configureEditor() {
+        model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
 
-				$timeout(resizeEditor, 0);
-				window.addEventListener('resize', resizeEditor);
-			}
+        let codeContainer = document.getElementById("code-container");
+        editor = monaco.editor.create(codeContainer, {
+          model: model,
+          language: "yaml",
+          lineNumbers: "on",
+          roundedSelection: false,
+          scrollBeyondLastLine: false,
+          readOnly: false,
+          theme: "vs-dark"
+        });
+        editor.layout();
+        editor.focus();
+        editor.onDidChangeModelContent(updateAppConfigYML);
 
-			function updateAppConfigYML() {
-				$timeout(function() {
-					if (model && !model.isDisposed()) {
-						appService.appConfigYML = model.getValue();
-						viewModel.appConfigYML = model.getValue();
-					}
-				}, 100);
-			}
+        function resizeEditor() {
+          editor.layout({
+            width: codeContainer.clientWidth,
+            height: codeContainer.clientHeight,
+          });
+        }
 
-			viewModel.onUsesRepositoryYmlChangeSaved = function(usesRepositoryYml) {
-				appService.getAppConfigYML(true);
+        $timeout(resizeEditor, 0);
+        window.addEventListener('resize', resizeEditor);
+      }
 
-				appService.appConfig = undefined;
-				appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
+      function updateAppConfigYML() {
+        $timeout(function () {
+          if (model && !model.isDisposed()) {
+            appService.appConfigYML = model.getValue();
+            viewModel.appConfigYML = model.getValue();
+          }
+        }, 100);
+      }
 
-				$timeout(function() {
-					viewModel.usesRepositoryYml = usesRepositoryYml;
-				}, 0);
-			};
+      viewModel.onUsesRepositoryYmlChangeSaved = function (usesRepositoryYml) {
+        appService.getAppConfigYML(true);
 
-			configureEditor();
+        appService.appConfig = undefined;
+        appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
 
-			$scope.$on("$destroy", function() {
-				if (editor) {
-					editor.dispose();
-				}
-				if (model) {
-					model.dispose();
-				}
-			});
-		});
+        $timeout(function () {
+          viewModel.usesRepositoryYml = usesRepositoryYml;
+        }, 0);
+      };
+
+      configureEditor();
+
+      $scope.$on("$destroy", function () {
+        if (editor) {
+          editor.dispose();
+        }
+        if (model) {
+          model.dispose();
+        }
+      });
+    });
 })();

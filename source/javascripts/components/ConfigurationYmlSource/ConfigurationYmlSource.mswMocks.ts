@@ -1,4 +1,4 @@
-import { HttpResponse, delay, http } from 'msw';
+import { delay, http, HttpResponse } from 'msw';
 import { configPath, notificationMetaDataPath, pipelineConfigPath } from '../../monolithApiRouteService';
 
 export const getConfig = () => {
@@ -49,20 +49,29 @@ export const postConfig = () => {
   });
 };
 
-export const getNotificationMetaData = () => {
+type Context = {
+  value: boolean | null;
+};
+const InitialContext: Context = { value: null };
+export const getNotificationMetaData = (context: Context = InitialContext) => {
   return http.get(notificationMetaDataPath(), async () => {
     await delay();
-    return new HttpResponse(`{ "value": null }`, {
+    return HttpResponse.json({ value: context.value }, { status: 200 });
+  });
+};
+
+export const putNotificationMetaData = (updatedValue: boolean, context: Context = InitialContext) => {
+  return http.put(notificationMetaDataPath(), async () => {
+    await delay();
+    context.value = updatedValue;
+    return new HttpResponse(null, {
       status: 200,
     });
   });
 };
 
-export const putNotificationMetaData = () => {
-  return http.put(notificationMetaDataPath(), async () => {
-    await delay();
-    return new HttpResponse(null, {
-      status: 200,
-    });
-  });
+export const makeNotificationMetadataEndpoint = () => {
+  const ctx: Context = InitialContext;
+
+  return [getNotificationMetaData(ctx), putNotificationMetaData(true, ctx)];
 };
