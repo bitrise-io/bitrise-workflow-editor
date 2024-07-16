@@ -36,7 +36,6 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			viewModel.split = false;
 			viewModel.modularYamlSupported = undefined;
 			viewModel.lastModified = null;
-			viewModel.isDataReady = false;
 
 			viewModel.downloadAppConfigYMLPath = function() {
 				return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -86,7 +85,6 @@ import { configureMonacoYaml } from 'monaco-yaml';
 					: Promise.resolve();
 		
 				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
-					viewModel.isDataReady = true;
 					$scope.$apply();
 				  });
 				}
