@@ -1,58 +1,11 @@
 import { datadogRum } from "@datadog/browser-rum";
-import { datadogLogs } from '@datadog/browser-logs';
 
-const globalProps = window.parent ? window.parent.globalProps : {};
-const ENVIRONMENT = {
-  PRODUCTION: <%= ENV['NODE_ENV'] === 'prod' ? 'true' : 'false' %>,
-  DATADOG_RUM_ENABLED: <%= ENV['DATADOG_RUM'] === 'true' ? 'true' : 'false' %>,
-  DATADOG_APPLICATION_ID: 'f4cdd4d4-095c-4be2-955c-86755f9a84e6',
-  DATADOG_CLIENT_TOKEN: 'pub81c6e42340ce9a297fa2692812cff51f',
-  WFE_VERSION: "<%= ENV['wfe_version'] %>",
-};
-
-if (ENVIRONMENT.DATADOG_RUM_ENABLED) {
-  /**
-   * Some configuration values must be matching between RUM and logs.
-   * https://github.com/DataDog/browser-sdk/tree/2427f67053ca6041dd81eb565ea0d49483811f81/packages/logs#initialization-parameters
-   */
-  const datadogSharedConfig = {
-    trackSessionAcrossSubdomains: true,
-    useSecureSessionCookie: ENVIRONMENT.PRODUCTION,
-    useCrossSiteSessionCookie: ENVIRONMENT.PRODUCTION,
-    allowedTracingUrls: [/http(s)?:\/\/((?!ctst))[^.]*(\.services)?\.bitrise\.(io|dev)/],
-  };
-
-  const datadogConfig = {
-    ...datadogSharedConfig,
-    clientToken: ENVIRONMENT.DATADOG_CLIENT_TOKEN,
-    site: 'datadoghq.com',
-    service: 'wfe',
-    env: ENVIRONMENT.PRODUCTION ? 'production' : 'development',
-    version: ENVIRONMENT.WFE_VERSION,
-    silentMultipleInit: true,
-  };
-
-  datadogRum.init({
-    ...datadogConfig,
-    applicationId: ENVIRONMENT.DATADOG_APPLICATION_ID,
-    sessionSampleRate: 100,
-    sessionReplaySampleRate: 20,
-    trackUserInteractions: true,
-    trackLongTasks: true,
-    trackResources: true,
-  });
-
-  const { user } = globalProps;
-
-  if (user) {
-    datadogRum.setUser({
-      id: user.slug,
-      isCreditBased: user.isCreditBased,
-    });
-  }
-
-  datadogLogs.init({
-    ...datadogConfig,
-    forwardConsoleLogs: 'all',
-  });
-}
+datadogRum.init({
+	applicationId: 'f4cdd4d4-095c-4be2-955c-86755f9a84e6',
+	clientToken: 'pub81c6e42340ce9a297fa2692812cff51f',
+	site: "datadoghq.com",
+	service: "wfe",
+	version: "<%= ENV['wfe_version'] %>",
+	sampleRate: 100,
+	trackInteractions: false
+});
