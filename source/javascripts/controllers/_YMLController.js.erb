@@ -65,27 +65,30 @@ import { configureMonacoYaml } from 'monaco-yaml';
 
 			function init() {
 				if (requestService.isWebsiteMode()) {
-					viewModel.appSlug = requestService.appSlug;
-
-					appService.getPipelineConfig()
-						.then(function() {
-							viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
-							viewModel.lines = appService.pipelineConfig.lines;
-							viewModel.split = appService.pipelineConfig.split;
-							viewModel.modularYamlSupported = appService.pipelineConfig.modularYamlSupported;
-							viewModel.lastModified = appService.pipelineConfig.lastModified;
-							viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
-						})
-					if (appService.appDetails && appService.appDetails.ownerData) {
-						requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
+				  viewModel.appSlug = requestService.appSlug;
+		
+				  const fetchPipelineConfig = appService.getPipelineConfig()
+					.then(function() {
+					  viewModel.usesRepositoryYml = appService.pipelineConfig.usesRepositoryYml;
+					  viewModel.lines = appService.pipelineConfig.lines;
+					  viewModel.split = appService.pipelineConfig.split;
+					  viewModel.modularYamlSupported = appService.pipelineConfig.modularYamlSupported;
+					  viewModel.lastModified = appService.pipelineConfig.lastModified;
+					  viewModel.shouldShowYmlStorageSettings = requestService.isWebsiteMode();
+					});
+		
+				  const fetchOrgPlanData = appService.appDetails && appService.appDetails.ownerData
+					? requestService.getOrgPlanData(appService.appDetails.ownerData.slug)
 						.then(function(ownerPlanData) {
-							viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
-						});
-					} else {
-						viewModel.repositoryYmlAvailable = undefined;
-					}
+						  viewModel.repositoryYmlAvailable = ownerPlanData.repositoryYmlAvailable;
+						})
+					: Promise.resolve();
+		
+				  Promise.all([fetchPipelineConfig, fetchOrgPlanData]).then(() => {
+					$scope.$apply();
+				  });
 				}
-			}
+			  }
 
 			init();
 
