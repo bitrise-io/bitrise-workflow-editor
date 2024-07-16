@@ -10,7 +10,7 @@ const meta: Meta<YmlEditorHeaderProps> = {
     defaultBranch: 'master',
     gitRepoSlug: 'MyRepo',
     repositoryYmlAvailable: true,
-    shouldShowYmlStorageSettings: true,
+    isWebsiteMode: true,
     initialUsesRepositoryYml: false,
     split: false,
     modularYamlSupported: false,

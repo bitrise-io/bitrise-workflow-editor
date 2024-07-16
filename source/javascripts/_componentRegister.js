@@ -8,7 +8,6 @@ import NotificationMessageWithLink from "./components/NotificationMessageWithLin
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
-import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import {
   ChainWorkflowDrawer,
   DeleteWorkflowDialog,
@@ -137,14 +136,14 @@ angular
       "appConfig",
       "onUsesRepositoryYmlChangeSaved",
       "repositoryYmlAvailable",
-      "shouldShowYmlStorageSettings",
-      "defaultBranch",            
+      "isWebsiteMode",
+      "defaultBranch",
       "gitRepoSlug",
       "lines",
       "split",
       "modularYamlSupported",
-      "lastModified"
-]),
+      "lastModified",
+    ]),
   )
   .component(
     "rWorkflowToolbar",

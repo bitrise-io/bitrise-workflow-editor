@@ -32,18 +32,12 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
-
-import useGetUserMetaData from '../../hooks/api/useGetUserMetaData';
-import usePutUserMetaData from '../../hooks/api/usePutUserMetaData';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
-
-type MetadataResult = {
-  value: boolean | null;
-};
+import { useMetadata } from '@/hooks/useMetadata';
 
 type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 
@@ -130,6 +124,9 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
   return triggers;
 };
 
+const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
+const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
+
 type TriggersPageProps = {
   integrationsUrl?: string;
   isWebsiteMode: boolean;
@@ -143,37 +140,14 @@ type TriggersPageProps = {
 const TriggersPage = (props: TriggersPageProps) => {
   const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
-  const { data: webhookNotification } = useGetUserMetaData<MetadataResult>(
-    'wfe_triggers_configure_webhooks_notification_closed',
-  );
-  const { data: triggersOrderNotification } = useGetUserMetaData<MetadataResult>(
-    'wfe_triggers_order_notification_closed',
-  );
-
-  const [isWebhookNotificationOpen, setWebhookNotificationOpen] = useState(false);
-  const showWebhookNotification = webhookNotification && webhookNotification.value === null;
-
-  useEffect(() => {
-    if (showWebhookNotification) {
-      setWebhookNotificationOpen(true);
-    }
-  }, [showWebhookNotification]);
-
-  const [isOrderNotificationOpen, setOrderNotificationOpen] = useState(false);
-  const showOrderNotification = triggersOrderNotification && triggersOrderNotification.value === null;
-
-  useEffect(() => {
-    if (showOrderNotification) {
-      setOrderNotificationOpen(true);
-    }
-  }, [showOrderNotification]);
-
-  const { mutate: putWebhookNotification } = usePutUserMetaData(
-    'wfe_triggers_configure_webhooks_notification_closed',
-    true,
-  );
-
-  const { mutate: putTriggersOrderNotification } = usePutUserMetaData('wfe_triggers_order_notification_closed', true);
+  const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useMetadata({
+    key: TRIGGERS_CONFIGURED_METADATA_KEY,
+    enabled: isWebsiteMode,
+  });
+  const { isVisible: isOrderNotificationOpen, close: closeOrderNotification } = useMetadata({
+    key: ORDER_NOTIFICATION_METADATA_KEY,
+    enabled: isWebsiteMode,
+  });
 
   const {
     isOpen: isPushTriggerDialogOpen,
@@ -196,18 +170,6 @@ const TriggersPage = (props: TriggersPageProps) => {
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
 
   const [activeId, setActiveId] = useState<string | null>(null);
-
-  const closeAndSaveWebhookNotification = () => {
-    putWebhookNotification(undefined, {
-      onSuccess: () => setWebhookNotificationOpen(false),
-    });
-  };
-
-  const closeAndSaveTriggersNotification = () => {
-    putTriggersOrderNotification(undefined, {
-      onSuccess: () => setOrderNotificationOpen(false),
-    });
-  };
 
   const onCloseDialog = () => {
     closePushTriggerDialog();
@@ -299,10 +261,10 @@ const TriggersPage = (props: TriggersPageProps) => {
           Learn more
         </Link>
       </Text>
-      {isWebsiteMode && isWebhookNotificationOpen && (
+      {isWebhookNotificationOpen && (
         <Notification
           status="info"
-          onClose={closeAndSaveWebhookNotification}
+          onClose={closeWebhookNotification}
           action={{ href: integrationsUrl, label: 'Set up webhooks' }}
           marginTop="32"
         >
@@ -365,7 +327,7 @@ const TriggersPage = (props: TriggersPageProps) => {
               </DndContext>
             </div>
             {triggers.push.length > 1 && isOrderNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeAndSaveTriggersNotification}>
+              <Notification status="info" marginTop="12" onClose={closeOrderNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
@@ -432,7 +394,7 @@ const TriggersPage = (props: TriggersPageProps) => {
               </DndContext>
             </div>
             {triggers.pull_request.length > 1 && isOrderNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeAndSaveTriggersNotification}>
+              <Notification status="info" marginTop="12" onClose={closeOrderNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is
@@ -495,7 +457,7 @@ const TriggersPage = (props: TriggersPageProps) => {
               </DndContext>
             </div>
             {triggers.tag.length > 1 && isOrderNotificationOpen && (
-              <Notification status="info" marginTop="12" onClose={closeAndSaveTriggersNotification}>
+              <Notification status="info" marginTop="12" onClose={closeOrderNotification}>
                 <Text fontWeight="bold">Order of triggers</Text>
                 <Text>
                   The first matching trigger is executed by the system, so make sure that the order of triggers is

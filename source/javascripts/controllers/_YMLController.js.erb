@@ -36,9 +36,10 @@ import {configureMonacoYaml} from 'monaco-yaml';
       viewModel.split = false;
       viewModel.modularYamlSupported = undefined;
       viewModel.lastModified = null;
+      viewModel.isWebsiteMode = requestService.isWebsiteMode();
 
       viewModel.downloadAppConfigYMLPath = function () {
-        return requestService.mode == "website" && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
+        return requestService.isWebsiteMode() && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
       }
 
       $scope.$watch(

@@ -1,6 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
 import TriggersPage from './TriggersPage';
+import { makeNotificationMetadataEndpoint } from '@/components/ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
 
 export default {
   component: TriggersPage,
@@ -14,6 +15,9 @@ export default {
   argTypes: {
     onTriggerMapChange: { type: 'function' },
     setDiscard: { type: 'function' },
+  },
+  parameters: {
+    msw: [...makeNotificationMetadataEndpoint()],
   },
 } as Meta<typeof TriggersPage>;
 

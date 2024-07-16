@@ -1,41 +1,12 @@
 import { Notification, Text } from '@bitrise/bitkit';
-import useGetUserMetaData from '../../hooks/api/useGetUserMetaData';
-import usePutUserMetaData from '../../hooks/api/usePutUserMetaData';
-
-type MetadataResult = {
-  value: boolean | null;
-};
 
 type NotificationProps = {
   modularYamlSupported?: boolean;
-  split: boolean;
   lines: number;
+  onClose: VoidFunction;
 };
 
-const SplitNotification = (props: NotificationProps) => {
-  const { modularYamlSupported, split, lines } = props;
-  const metaDataKey = modularYamlSupported
-    ? 'wfe_modular_yaml_enterprise_notification_closed'
-    : 'wfe_modular_yaml_split_notification_closed';
-  const { mutate: putNotification } = usePutUserMetaData(metaDataKey, true);
-  const { data: notificationMetaData, refetch } = useGetUserMetaData<MetadataResult>(metaDataKey, {
-    enabled: !split && lines > 500,
-  });
-
-  const handleNotificationClose = () => {
-    putNotification(undefined, {
-      onSuccess: () => {
-        refetch();
-      },
-    });
-  };
-
-  const showNotification = notificationMetaData && notificationMetaData.value === null;
-
-  if (!showNotification) {
-    return null;
-  }
-
+const SplitNotification = ({ lines, modularYamlSupported, onClose }: NotificationProps) => {
   return (
     <Notification
       status="info"
@@ -44,7 +15,7 @@ const SplitNotification = (props: NotificationProps) => {
         label: 'Learn more',
         target: '_blank',
       }}
-      onClose={handleNotificationClose}
+      onClose={onClose}
       marginBlockEnd="24"
     >
       <Text textStyle="heading/h4">Optimize your configuration file</Text>

@@ -3,7 +3,12 @@ import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure }
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
+import { useMetadata } from '@/hooks/useMetadata';
 import { AppConfig } from '@/models/AppConfig';
+
+const GIT_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
+const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
+const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
 export type YmlEditorHeaderProps = {
   appSlug: string;
@@ -11,7 +16,7 @@ export type YmlEditorHeaderProps = {
   url: string;
   initialUsesRepositoryYml?: boolean;
   repositoryYmlAvailable: boolean;
-  shouldShowYmlStorageSettings: boolean;
+  isWebsiteMode: boolean;
   onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
   defaultBranch: string;
   gitRepoSlug: string;
@@ -28,7 +33,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     gitRepoSlug,
     onUsesRepositoryYmlChangeSaved,
     repositoryYmlAvailable,
-    shouldShowYmlStorageSettings,
+    isWebsiteMode,
     url,
     initialUsesRepositoryYml,
     split,
@@ -37,8 +42,15 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     lastModified,
   } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
-
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
+  const { isVisible: isGitNotiVisible, close: closeGitNoti } = useMetadata({
+    key: GIT_METADATA_KEY,
+    enabled: isWebsiteMode && split && usesRepositoryYml,
+  });
+  const { isVisible: isSplitNotiVisible, close: closeSplitNoti } = useMetadata({
+    key: modularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
+    enabled: isWebsiteMode && !split && lines > 500,
+  });
 
   let infoLabel;
   if (usesRepositoryYml) {
@@ -60,7 +72,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
             Download
           </Button>
         )}
-        {shouldShowYmlStorageSettings && (
+        {isWebsiteMode && (
           <DataWidget
             additionalElement={
               <Tooltip
@@ -82,8 +94,10 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           </DataWidget>
         )}
       </Box>
-      <SplitNotification modularYamlSupported={modularYamlSupported} split={split} lines={lines} />
-      <GitNotification split={split} usesRepositoryYml={usesRepositoryYml} />
+      {isSplitNotiVisible && (
+        <SplitNotification modularYamlSupported={modularYamlSupported} lines={lines} onClose={closeSplitNoti} />
+      )}
+      {isGitNotiVisible && <GitNotification onClose={closeGitNoti} />}
       <ConfigurationYmlSourceDialog
         isOpen={isOpen}
         onClose={onClose}
