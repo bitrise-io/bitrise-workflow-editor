@@ -10,7 +10,6 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			var viewModel = this;
 			var editor;
 			var model;
-			var isInitialized = false;
 
 			const defaultSchema = {
 				uri: 'https://json.schemastore.org/bitrise.json',
@@ -67,9 +66,6 @@ import { configureMonacoYaml } from 'monaco-yaml';
 			);
 
 			function init() {
-				if (isInitialized) return;
-				isInitialized = true;
-
 				if (requestService.isWebsiteMode()) {
 				  viewModel.appSlug = requestService.appSlug;
 		
