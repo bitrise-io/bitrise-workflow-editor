@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import { Box, Button, Text, useDisclosure, DataWidget, DataWidgetItem, Tooltip } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import { AppConfig } from '../../models/AppConfig';
@@ -19,6 +19,7 @@ export type YmlEditorHeaderProps = {
   modularYamlSupported?: boolean;
   lines: number;
   lastModified: string | null;
+  isDataReady: boolean;
 };
 const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   const {
@@ -35,6 +36,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
     modularYamlSupported,
     lines,
     lastModified,
+    isDataReady,
   } = props;
   console.log('YmlEditorHeader rendered');
   console.log(props);
@@ -50,6 +52,16 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   }
 
   const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
+
+  useEffect(() => {
+    if (isDataReady) {
+      setUsesRepositoryYml(!!initialUsesRepositoryYml);
+    }
+  }, [isDataReady, initialUsesRepositoryYml]);
+
+  if (!isDataReady) {
+    return null;
+  }
 
   return (
     <>
