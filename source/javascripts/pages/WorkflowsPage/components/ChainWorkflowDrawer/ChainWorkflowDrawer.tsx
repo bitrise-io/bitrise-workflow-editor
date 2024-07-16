@@ -1,4 +1,4 @@
-import { Icon, Notification, SearchInput, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Icon, Notification, SearchInput, Text, useDisclosure } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import {
   Drawer,
@@ -53,29 +53,31 @@ const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosurePr
               <Icon name="CloseSmall" />
             </DrawerCloseButton>
             <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
-              <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                Chain Workflows to '{workflowId}'
-              </Text>
+              <Box display="flex" flexDir="column" gap="16">
+                <Text as="h3" textStyle="heading/h3" fontWeight="bold">
+                  Chain Workflows to '{workflowId}'
+                </Text>
+                <Text size="3">
+                  Add Workflows before or after the Steps of the selected Workflow. Each linked Workflow executes on the
+                  same VM, ensuring a cohesive build process.
+                </Text>
+                <Notification status="info" flexShrink="0">
+                  Changes to a chained Workflow affect all other Workflows using it.
+                </Notification>
+                <Controller<SearchFormValues>
+                  name="search"
+                  render={({ field: { ref, onChange, ...rest } }) => (
+                    <SearchInput
+                      inputRef={ref}
+                      placeholder="Filter by name "
+                      onChange={(value) => onChange({ target: { value } })}
+                      {...rest}
+                    />
+                  )}
+                />
+              </Box>
             </DrawerHeader>
-            <DrawerBody display="flex" flexDir="column" gap="16" overflow="auto">
-              <Text>
-                Add Workflows before or after the Steps of the selected Workflow. Each linked Workflow executes on the
-                same VM, ensuring a cohesive build process.
-              </Text>
-              <Notification status="info" flexShrink="0">
-                Remember, changes to a chained Workflow affect all other Workflows using it.
-              </Notification>
-              <Controller<SearchFormValues>
-                name="search"
-                render={({ field: { ref, onChange, ...rest } }) => (
-                  <SearchInput
-                    inputRef={ref}
-                    placeholder="Filter by name "
-                    onChange={(value) => onChange({ target: { value } })}
-                    {...rest}
-                  />
-                )}
-              />
+            <DrawerBody flex="1" overflow="auto" mt="16">
               <ChainableWorkflowList workflowId={workflowId} onChainWorkflow={onChainWorkflow} />
             </DrawerBody>
           </DrawerContent>
