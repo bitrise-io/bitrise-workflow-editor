@@ -1,30 +1,28 @@
 import { Meta, StoryObj } from '@storybook/react';
 import WorkflowSelector from './WorkflowSelector';
-import { Workflows } from '@/models/Workflow';
 
 type Story = StoryObj<typeof WorkflowSelector>;
 
-const createWorkflows = (count = 12): Workflows => {
+const createWorkflowIds = (count = 12): string[] => {
   const items = Array(count).fill(null);
 
-  return items.reduce<Workflows>((workflows, _, index) => {
+  return items.map((_, index) => {
     const shouldBeUtility = index % 3 === 0;
-
-    const [id, title] = shouldBeUtility
-      ? [`_utility_${index}`, `Utility ${index}`]
-      : [`workflow_${index}`, `Workflow ${index}`];
-
-    return { ...workflows, ...{ [id]: { title } } };
-  }, {});
+    return shouldBeUtility ? `_utility_${index}` : `workflow_${index}`;
+  }, []);
 };
 
 const meta: Meta<typeof WorkflowSelector> = {
   component: WorkflowSelector,
   args: {
-    workflows: createWorkflows(),
+    workflowIds: createWorkflowIds(),
+    selectedWorkflowId: 'workflow_0',
   },
   argTypes: {
-    selectWorkflow: {
+    onSelectWorkflowId: {
+      type: 'function',
+    },
+    onClickCreateWorkflowButton: {
       type: 'function',
     },
   },

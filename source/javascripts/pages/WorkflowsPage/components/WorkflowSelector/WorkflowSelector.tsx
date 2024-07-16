@@ -1,44 +1,121 @@
-import { Dropdown, DropdownGroup, DropdownOption, DropdownSearch } from '@bitrise/bitkit';
-import { Workflows } from '@/models/Workflow';
+import { useMemo, useState } from 'react';
+import {
+  Box,
+  BoxProps,
+  Button,
+  Dropdown,
+  DropdownGroup,
+  DropdownNoResultsFound,
+  DropdownOption,
+  DropdownSearch,
+  EmptyState,
+} from '@bitrise/bitkit';
+import { useDebounceValue } from 'usehooks-ts';
 
 type Props = {
-  workflows: Workflows;
-  selectedWorkflowId?: string;
-  selectWorkflow: (workflowId: string) => void;
+  workflowIds: string[];
+  containerProps?: BoxProps;
+  selectedWorkflowId: string;
+  onSelectWorkflowId: (workflowId?: string | null) => void;
+  onClickCreateWorkflowButton: VoidFunction;
 };
 
-const WorkflowSelector = ({ workflows, selectWorkflow: __, selectedWorkflowId: ___ }: Props) => {
-  const utilityWorkflows: string[] = [];
-  const runnableWorkflows: string[] = [];
+const WorkflowSelector = ({
+  workflowIds,
+  containerProps,
+  selectedWorkflowId,
+  onSelectWorkflowId,
+  onClickCreateWorkflowButton,
+}: Props) => {
+  const [search, setSearch] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
 
-  Object.keys(workflows).forEach((id) => {
-    if (id.startsWith('_')) {
-      utilityWorkflows.push(id);
-    } else {
-      runnableWorkflows.push(id);
-    }
-  });
+  const [utilityWorkflows, runnableWorkflows] = useMemo(() => {
+    const utility: string[] = [];
+    const runnable: string[] = [];
+
+    workflowIds.forEach((id) => {
+      if (id.toLowerCase().includes(debouncedSearch.toLowerCase())) {
+        if (id.startsWith('_')) {
+          utility.push(id);
+        } else {
+          runnable.push(id);
+        }
+      }
+    });
+
+    return [utility, runnable];
+  }, [debouncedSearch, workflowIds]);
 
   const hasUtilityWorkflows = utilityWorkflows.length > 0;
+  const hasNoSearchResults = debouncedSearch && utilityWorkflows.length === 0 && runnableWorkflows.length === 0;
+
+  const onSearchChange = (value: string) => {
+    setSearch(value);
+    setDebouncedSearch(value);
+  };
 
   return (
-    <Dropdown size="md" search={<DropdownSearch placeholder="Filter by name..." />}>
-      {runnableWorkflows.map((id) => (
-        <DropdownOption key={id} value={id}>
-          {id}
-        </DropdownOption>
-      ))}
+    <Box sx={{ '--dropdown-floating-max': '359px' }} {...containerProps}>
+      <Dropdown
+        size="md"
+        value={selectedWorkflowId}
+        onChange={({ target: { value } }) => onSelectWorkflowId(value)}
+        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
+      >
+        {runnableWorkflows.map((id) => (
+          <DropdownOption key={id} value={id}>
+            {id}
+          </DropdownOption>
+        ))}
 
-      {hasUtilityWorkflows && (
-        <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
-          {utilityWorkflows.map((id) => (
-            <DropdownOption key={id} value={id}>
-              {id}
-            </DropdownOption>
-          ))}
-        </DropdownGroup>
-      )}
-    </Dropdown>
+        {hasUtilityWorkflows && (
+          <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
+            {utilityWorkflows.map((id) => (
+              <DropdownOption key={id} value={id}>
+                {id}
+              </DropdownOption>
+            ))}
+          </DropdownGroup>
+        )}
+
+        {hasNoSearchResults && (
+          <DropdownNoResultsFound>
+            <EmptyState
+              iconName="Magnifier"
+              backgroundColor="background/primary"
+              title="No Workflows are matching your filter"
+              description="Modify your search to get results"
+            />
+          </DropdownNoResultsFound>
+        )}
+
+        <Box
+          w="100%"
+          mt="8"
+          py="12"
+          mb="-12"
+          bottom="-12"
+          position="sticky"
+          borderTop="1px solid"
+          borderColor="border/regular"
+          backgroundColor="background/primary"
+        >
+          <Button
+            w="100%"
+            border="none"
+            fontWeight="400"
+            borderRadius="0"
+            variant="secondary"
+            leftIconName="PlusAdd"
+            justifyContent="flex-start"
+            onClick={onClickCreateWorkflowButton}
+          >
+            Create Workflow
+          </Button>
+        </Box>
+      </Dropdown>
+    </Box>
   );
 };
 

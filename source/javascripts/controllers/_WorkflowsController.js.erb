@@ -1164,17 +1164,11 @@ import {
           viewModel.editedWorkflow.summary(data.properties.summary || null);
           viewModel.editedWorkflow.description(data.properties.description || null);
 
-
-          const newStack = Stack.all.find((s) => s.id === data.configuration.stackId) ?? null;
-          const defaultStack = appService.stack;
-
+          const newStack = Stack.all?.find((s) => s.id === data.configuration.stackId) ?? null;
           viewModel.editedWorkflow.stack(newStack);
 
           if (data.isMachineTypeSelectorAvailable) {
-
             const newMachineType = MachineType.all.find((m) => m.id === data.configuration.machineTypeId) ?? null;
-            const defaultMachineType = appService.defaultMachineType;
-
             viewModel.editedWorkflow.machineType(undefined, newMachineType);
           }
 
