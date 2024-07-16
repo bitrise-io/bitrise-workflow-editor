@@ -7,11 +7,11 @@ import ChainableWorkflowCard from './ChainableWorkflowCard';
 import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 
 type Props = {
-  id: string;
+  workflowId: string;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainableWorkflowList = ({ id: workflowId, onChainWorkflow }: Props) => {
+const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
   const { reset, watch } = useFormContext<SearchFormValues>();
   const formValues = useDebouncedFormValues({
     watch,
@@ -50,7 +50,7 @@ const ChainableWorkflowList = ({ id: workflowId, onChainWorkflow }: Props) => {
   }
 
   return (
-    <Box display="flex" flexDir="column" gap="12">
+    <Box display="flex" flexDir="column" gap="12" maxH="100%" overflow="auto">
       {workflows.map((chainableId) => (
         <ChainableWorkflowCard key={chainableId} workflowId={chainableId} onChainWorkflow={onChainWorkflow} />
       ))}
