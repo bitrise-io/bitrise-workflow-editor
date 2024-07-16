@@ -6,6 +6,11 @@
       "./node_modules/@types",
       "source/javascripts/typings"
     ],
+    "paths": {
+      "@/*": [
+        "./source/javascripts/*"
+      ]
+    },
     "target": "es5",
     "lib": [
       "dom",

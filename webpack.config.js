@@ -1,13 +1,15 @@
 const path = require('path');
+const { existsSync, readFileSync } = require('fs');
 const webpack = require('webpack');
 const CompressionPlugin = require('compression-webpack-plugin');
 const MiniCssExtractPlugin = require('mini-css-extract-plugin');
 const MonacoWebpackPlugin = require('monaco-editor-webpack-plugin');
 const TerserPLugin = require('terser-webpack-plugin');
 const CopyPlugin = require('copy-webpack-plugin');
-const { ProvidePlugin } = require('webpack');
+const { ProvidePlugin, DefinePlugin } = require('webpack');
 const { version } = require('./package.json');
 
+const LD_LOCAL_FILE = path.join(__dirname, 'ld.local.json');
 const OUTPUT_FOLDER = path.join(__dirname, 'build');
 const CODEBASE = path.join(__dirname, 'source');
 const MonacoPluginOptions = {
@@ -165,6 +167,9 @@ module.exports = {
 
   /* --- Rules --- */
   resolve: {
+    alias: {
+      '@': path.resolve(__dirname, 'source/javascripts'),
+    },
     extensions: ['.js', '.js.erb', '.ts', '.tsx', '.css', '.scss', '.scss.erb'],
   },
   module: {
@@ -264,6 +269,26 @@ module.exports = {
     }),
     new CopyPlugin({
       patterns: [{ from: 'images/favicons/*', to: OUTPUT_FOLDER }],
+    }),
+    new DefinePlugin({
+      'window.localFeatureFlags': DefinePlugin.runtimeValue(
+        () => {
+          if (existsSync(LD_LOCAL_FILE)) {
+            try {
+              return JSON.parse(readFileSync(LD_LOCAL_FILE));
+            } catch (error) {
+              // eslint-disable-next-line no-console
+              console.warn('Failed to parse ld.local.json:', error);
+              return {};
+            }
+          }
+
+          return {};
+        },
+        {
+          fileDependencies: [LD_LOCAL_FILE],
+        },
+      ),
     }),
   ],
 };

@@ -5,9 +5,6 @@
 
 @import "_index.scss.erb";
 @import "_tab-workflows.scss.erb";
-@import "_tab-code_signing.scss.erb";
-@import "_tab-code_signing-certificates.scss.erb";
-@import "_auto_code_signing.scss.erb";
 @import "_tab-secrets.scss.erb";
 @import "_tab-env_vars.scss.erb";
 @import "_tab-stack.scss.erb";
@@ -19,7 +16,6 @@
 
 @import "_rebo";
 @import "_cardo";
-@import "_furto";
 @import "_popup.scss.erb";
 @import "_popover.scss.erb";
 @import "_notification-progress-indicator.scss.erb";

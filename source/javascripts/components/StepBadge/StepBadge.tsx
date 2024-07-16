@@ -5,6 +5,7 @@ import deprecatedIcon from '../../../images/step/badge-deprecated.svg';
 type StepItemBadgeProps = BoxProps & {
   isOfficial?: boolean;
   isVerified?: boolean;
+  isCommunity?: boolean;
   isDeprecated?: boolean;
 };
 
@@ -22,7 +23,7 @@ const StepBadge = ({ isOfficial, isVerified, isDeprecated, ...rest }: StepItemBa
   if (isVerified) {
     return (
       <Box title="Verified step" data-e2e-tag="verified-badge" {...rest}>
-        <Tooltip label="Maintained by 3rd party">
+        <Tooltip label="Verified by Bitrise">
           <Icon name="Badge3rdParty" />
         </Tooltip>
       </Box>

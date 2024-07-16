@@ -1,7 +1,13 @@
-import { Step } from './BitriseYml';
+import { Step } from './Step';
+
+export enum Maintainer {
+  Bitrise = 'bitrise',
+  Verified = 'verified',
+  Community = 'community',
+}
 
 type StepInfoModel = {
-  maintainer?: string;
+  maintainer?: Maintainer;
   asset_urls?: Step['asset_urls'] & {
     'icon.svg'?: string;
     'icon.png'?: string;

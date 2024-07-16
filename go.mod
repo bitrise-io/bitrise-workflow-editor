@@ -2,15 +2,15 @@ module github.com/bitrise-io/bitrise-workflow-editor
 
 go 1.21
 
-toolchain go1.22.2
+toolchain go1.22.5
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20240701130426-22197944c07e
+	github.com/bitrise-io/bitrise v0.0.0-20240705083642-016883ca9498
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240624065735-ca81d0a80500
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240702101314-8f699c59bbe5
+	github.com/bitrise-io/stepman v0.0.0-20240705083635-ec8abbe0d555
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0

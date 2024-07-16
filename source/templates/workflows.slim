@@ -6,7 +6,7 @@
         on-add-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
       ]
     section.manage-workflows[ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
-      r-workflow-main-toolbar.react-toolbar[
+      r-workflow-toolbar.react-toolbar[
         default-branch="workflowsCtrl.defaultBranch"
         can-run-workflow="workflowsCtrl.canRunWorkflow"
         is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
@@ -15,10 +15,9 @@
         select-workflow="workflowsCtrl.selectWorkflowWithDigest"
         rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
         on-add-new-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
-        on-insert-before-workflow="workflowsCtrl.addRunWorkflowBeforeSelectedWithDigest"
-        on-insert-after-workflow="workflowsCtrl.addRunWorkflowAfterSelectedWithDigest"
+        on-open-chain-workflow-dialog="workflowsCtrl.openChainWorkflowDialog"
         on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
-        on-delete-selected-workflow="workflowsCtrl.deleteWorkflowSelectedWithDigest"
+        on-delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
         on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
         unique-step-count="workflowsCtrl.uniqueStepCount"
         unique-step-limit="workflowsCtrl.uniqueStepLimit"
@@ -79,8 +78,9 @@
                 secrets-write-new="mainCtrl.appSecretsWriteNew"
                 app-slug="appService.appDetails.slug"
               ]
-          section.workflow[ng-if='!workflowsCtrl.selectedStep && workflowsCtrl.editedWorkflow']
+          section.workflow[ng-if='!workflowsCtrl.selectedStep && (workflowsCtrl.editedWorkflow && workflowsCtrl.yml)']
             r-workflow-config-panel[
+              yml="workflowsCtrl.yml"
               default-values="workflowsCtrl.editedWorkflowConfigForReact"
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]
@@ -110,7 +110,7 @@
           ul.workflow-subchain.after-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'after-run'})"]
             li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
       footer
-        button.done[ng-click="workflowsCtrl.addRunWorkflow()" ng-disabled="!workflowsCtrl.runWorkflowToAdd" data-e2e-tag="confirm-button"] == data[:strings][:workflows][:add_run_workflow][:done]
+        button.done[ng-click="workflowsCtrl.addRunWorkflow(workflowsCtrl.addRunWorkflowMode, workflowsCtrl.runWorkflowToAdd.id)" ng-disabled="!workflowsCtrl.runWorkflowToAdd" data-e2e-tag="confirm-button"] == data[:strings][:workflows][:add_run_workflow][:done]
         button.cancel[ng-click="workflowsCtrl.addRunWorkflowPopup.isVisible = false" data-e2e-tag="cancel-button"] == data[:strings][:workflows][:add_run_workflow][:cancel]
   popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
     .popup-body.snowflake#rearrange-workflow-chain-popup-body
@@ -124,16 +124,29 @@
         button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
   add-step-sidebar
   r-step-drawer[
-    is-open='workflowsCtrl.showReactStepDrawer'
-    on-close='workflowsCtrl.closeReactStepDrawer'
-    allowed-step-ids='appService.allowedStepIds'
-    on-step-selected='workflowsCtrl.handleInsertStepAtIndexFromReact'
+    is-open="workflowsCtrl.showReactStepDrawer"
+    on-close="workflowsCtrl.closeReactStepDrawer"
+    allowed-step-ids="appService.allowedStepIds"
+    on-step-selected="workflowsCtrl.handleInsertStepAtIndexFromReact"
+  ]
+  r-chain-workflow-drawer[
+    workflow-id="workflowsCtrl.selectedWorkflow.id"
+    yml="workflowsCtrl.yml"
+    is-open="workflowsCtrl.showReactChainWorkflowDrawer"
+    on-close="workflowsCtrl.closeReactChainWorkflowDrawer"
+    on-chain-workflow="workflowsCtrl.addRunWorkflow"
   ]
   r-version-change-dialog[
-    is-open='workflowsCtrl.selectedStepVersionChangeDialogProps'
-    on-close='workflowsCtrl.closeReactVersionChangeDialog'
-    is-major-change='workflowsCtrl.selectedStepVersionChangeDialogProps.isMajorChange'
-    removed-inputs='workflowsCtrl.selectedStepVersionChangeDialogProps.removedInputs'
-    new-inputs='workflowsCtrl.selectedStepVersionChangeDialogProps.newInputs'
-    release-notes-url='workflowsCtrl.selectedStepVersionChangeDialogProps.releaseNotesUrl'
+    is-open="workflowsCtrl.selectedStepVersionChangeDialogProps"
+    on-close="workflowsCtrl.closeReactVersionChangeDialog"
+    is-major-change="workflowsCtrl.selectedStepVersionChangeDialogProps.isMajorChange"
+    removed-inputs="workflowsCtrl.selectedStepVersionChangeDialogProps.removedInputs"
+    new-inputs="workflowsCtrl.selectedStepVersionChangeDialogProps.newInputs"
+    release-notes-url="workflowsCtrl.selectedStepVersionChangeDialogProps.releaseNotesUrl"
+  ]
+  r-delete-workflow-dialog[
+    workflow-id="workflowsCtrl.selectedWorkflow.id"
+    is-open="workflowsCtrl.showReactDeleteWorkflowDialog"
+    on-close="workflowsCtrl.closeReactDeleteWorkflowDialog"
+    on-delete="workflowsCtrl.deleteWorkflow"
   ]
