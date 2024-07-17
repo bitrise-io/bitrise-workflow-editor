@@ -116,7 +116,7 @@ import {
           }).then(() => {
             var queryParams = new URLSearchParams(window.location.search);
             if (queryParams.has("add-workflow")) {
-              viewModel.openAddWorkflowPopup();
+              viewModel.openReactCreateWorkflowDialog();
             }
           });
 
@@ -253,10 +253,6 @@ import {
 
         // Workflow add
 
-        $scope.Workflow = Workflow;
-        viewModel.addWorkflowPopup = new Popup();
-        viewModel.addWorkflowID;
-        viewModel.addWorkflowSourceWorkflow;
         viewModel.showReactCreateWorkflowDialog = false;
 
         viewModel.openReactCreateWorkflowDialog = () => {
@@ -276,29 +272,6 @@ import {
           viewModel.workflows = [...viewModel.workflows, createdWorkflow];
           workflowSelectionService.rearrangeSelection(viewModel, createdWorkflow);
         }
-
-        viewModel.openAddWorkflowPopup = function () {
-          viewModel.addWorkflowPopup.isVisible = true;
-          safeDigest($scope);
-        };
-
-        viewModel.addWorkflowPopup.beforeAppearCallback = function () {
-          viewModel.addWorkflowID = "";
-          viewModel.addWorkflowSourceWorkflow = viewModel.selectedWorkflow;
-        };
-
-        viewModel.addWorkflow = function () {
-          var workflow = new Workflow(
-            viewModel.addWorkflowID,
-            viewModel.addWorkflowSourceWorkflow ? angular.copy(viewModel.addWorkflowSourceWorkflow.workflowConfig) : {}
-          );
-
-          viewModel.workflows = [].concat(viewModel.workflows).concat([workflow]);
-
-          viewModel.addWorkflowPopup.isVisible = false;
-
-          workflowSelectionService.rearrangeSelection(viewModel, workflow);
-        };
 
         // Workflow delete
 

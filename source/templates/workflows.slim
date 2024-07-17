@@ -84,15 +84,6 @@
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]
 
-  popup[model="workflowsCtrl.addWorkflowPopup"]
-    form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
-      header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
-      article
-        input[type="text" ng-model="workflowsCtrl.addWorkflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
-        label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
-        select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowSourceWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
-      footer
-        input.rebo.big.purple[type="submit" ng-disabled="!Workflow.isValidID(workflowsCtrl.addWorkflowID) || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0" value="#{ data[:strings][:workflows][:add_workflow][:done] }" data-e2e-tag="confirm-button"]
   popup[model="workflowsCtrl.addRunWorkflowPopup"]
     .popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
       header
