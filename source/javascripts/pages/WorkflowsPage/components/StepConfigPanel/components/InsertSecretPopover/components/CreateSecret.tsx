@@ -1,7 +1,8 @@
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
-import { CreateSecretFormValues, HandlerFn, Secret } from '../types';
+import { CreateSecretFormValues, HandlerFn } from '../types';
+import { isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, Secret, VALUE_IS_REQUIRED } from '@/models/Secret';
 
 type Props = {
   items: Secret[];
@@ -14,10 +15,21 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
     register,
     formState: { errors },
     handleSubmit,
+    reset,
   } = useForm<CreateSecretFormValues>();
 
+  const handleCancel = () => {
+    onCancel();
+    reset();
+  };
+
+  const handleCreate = handleSubmit((formData) => {
+    onCreate(formData);
+    reset();
+  });
+
   return (
-    <Box as="form" onSubmit={handleSubmit(onCreate)} display="flex" flexDirection="column">
+    <Box as="form" onSubmit={handleCreate} display="flex" flexDirection="column">
       <Box display="flex" flexDir="column" gap="8" paddingTop="12" paddingBottom="24">
         <Box display="flex" gap="8" alignItems="top" fontFamily="mono" textStyle="body/md/regular">
           <Input
@@ -27,21 +39,13 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
-            errorText={errors.key?.message?.toString()}
+            errorText={errors.key?.message}
             {...register('key', {
-              required: true,
-              pattern: {
-                value: /^[a-zA-Z_]([a-zA-Z0-9_]+)?$/i,
-                message: 'Key should contain letters, numbers, underscores, should not begin with a number.',
-              },
+              required: KEY_IS_REQUIRED,
+              pattern: KEY_PATTERN,
               validate: {
-                isUnique: (value) => {
-                  if (items.some((secret) => secret.key === value)) {
-                    return 'Key should be unique.';
-                  }
-
-                  return true;
-                },
+                isUnique: isKeyUnique(items.map((s) => s.key)),
+                isNotEmpty,
               },
             })}
           />
@@ -51,12 +55,10 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             flex="1"
             aria-label="Value"
             placeholder="Enter value"
-            errorText={errors.value?.message?.toString()}
+            errorText={errors.value?.message}
             {...register('value', {
-              required: true,
-              validate: {
-                isNotEmpty: (value) => !!value.trim() || 'Value should not be empty.',
-              },
+              required: VALUE_IS_REQUIRED,
+              validate: { isNotEmpty },
             })}
           />
         </Box>
@@ -73,7 +75,7 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
         <Button size="sm" type="submit">
           Create
         </Button>
-        <Button size="sm" variant="tertiary" onClick={onCancel}>
+        <Button size="sm" variant="tertiary" onClick={handleCancel}>
           Cancel
         </Button>
       </ButtonGroup>

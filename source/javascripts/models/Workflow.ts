@@ -1,7 +1,30 @@
 import { BitriseYml, Meta } from '@/models/BitriseYml';
 
 export type Workflows = Required<BitriseYml>['workflows'];
-export type Workflow = Workflows[string] & { meta?: Meta; run_if?: string };
+export type Workflow = Workflows[string] & {
+  meta?: Meta;
+  run_if?: string;
+};
+
+export const WORKFLOW_NAME_REQUIRED = 'Workflow name is required';
+export const WORKFLOW_NAME_PATTERN = {
+  value: /^[A-Za-z0-9-_.]+$/,
+  message: 'Workflow name must only contain letters, numbers, dashes, underscores or periods',
+};
+
+function isNameMatching(value: string) {
+  return (workflowName: string) => workflowName === value;
+}
+
+export function isUnique(items: string[]) {
+  return (value: string) => {
+    return items.some(isNameMatching(value)) ? 'Workflow name should be unique.' : true;
+  };
+}
+
+export function isNotEmpty(value: string) {
+  return !!value.trim() || 'Workflow name should not be empty.';
+}
 
 export const extractBeforeRunChain = (workflows: Workflows, id: string): string[] => {
   const ids = workflows?.[id]?.before_run ?? [];

@@ -260,12 +260,7 @@ import {
 
         viewModel.openAddWorkflowPopup = function () {
           viewModel.addWorkflowPopup.isVisible = true;
-        };
-
-        viewModel.openAddWorkflowPopupWithDigest = function () {
-          $timeout(function () {
-            viewModel.openAddWorkflowPopup();
-          }, 0);
+          safeDigest($scope);
         };
 
         viewModel.addWorkflowPopup.beforeAppearCallback = function () {

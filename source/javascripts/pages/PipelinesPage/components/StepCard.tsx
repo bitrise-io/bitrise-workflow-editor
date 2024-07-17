@@ -32,14 +32,7 @@ const StepCard = ({ cvs, title, icon, showSecondary = true }: StepCardProps) => 
 
   return (
     <Card variant="outline" display="flex" gap="8" p="8" borderRadius="4">
-      <Avatar
-        name={resolvedTitle}
-        src={resolvedIcon}
-        size="32"
-        borderRadius="4"
-        outline="1px solid"
-        outlineColor="neutral.90"
-      />
+      <Avatar name={resolvedTitle} src={resolvedIcon} size="32" outline="1px solid" outlineColor="neutral.90" />
       <Box minW={0}>
         <Text textStyle="body/sm/regular" hasEllipsis>
           {resolvedTitle}

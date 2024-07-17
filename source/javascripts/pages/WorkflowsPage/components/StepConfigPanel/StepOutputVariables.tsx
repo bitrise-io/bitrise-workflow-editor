@@ -45,7 +45,7 @@ const StepOutputVariables = ({ outputVariables }: Props) => {
       {outputVariables.map((item, index) => {
         const isLast = index === outputVariables.length - 1;
         return (
-          <Fragment key={item.title}>
+          <Fragment key={item.key}>
             <StepOutputVariableItem item={item} />
             {!isLast && <Divider />}
           </Fragment>
