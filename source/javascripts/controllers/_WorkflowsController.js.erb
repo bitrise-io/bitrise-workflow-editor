@@ -260,12 +260,7 @@ import {
 
         viewModel.openAddWorkflowPopup = function () {
           viewModel.addWorkflowPopup.isVisible = true;
-        };
-
-        viewModel.openAddWorkflowPopupWithDigest = function () {
-          $timeout(function () {
-            viewModel.openAddWorkflowPopup();
-          }, 0);
+          safeDigest($scope);
         };
 
         viewModel.addWorkflowPopup.beforeAppearCallback = function () {
@@ -1165,7 +1160,7 @@ import {
           viewModel.editedWorkflow.description(data.properties.description || null);
 
 
-          const newStack = Stack.all.find((s) => s.id === data.configuration.stackId) ?? null;
+          const newStack = Stack.all?.find((s) => s.id === data.configuration.stackId) ?? null;
           const defaultStack = appService.stack;
 
           viewModel.editedWorkflow.stack(newStack);

@@ -1,10 +1,4 @@
-export type Secret = {
-  key: string;
-  value: string;
-  source: string;
-  isExpand: boolean;
-  isExpose: boolean;
-};
+import { Secret } from '@/models/Secret';
 
-export type HandlerFn = (secret: Secret) => void;
 export type CreateSecretFormValues = Secret;
+export type HandlerFn = (secret: Secret) => void;
