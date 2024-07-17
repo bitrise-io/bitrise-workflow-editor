@@ -56,9 +56,6 @@ section.manage-workflows {
   padding: 8px 16px;
   background-color: white;
 
-  .react-toolbar {
-    flex-grow: 1;
-  }
 
   [aria-label='Add new Workflow'] {
     padding: 11px;
@@ -179,7 +176,6 @@ section.manage-workflows {
 			$icon-size_small: 36px;
 			$steptitle-width: 320px;
 			$steptitle-width_small: 220px;
-			border-top: 1px solid $def-lightgrey;
 
       @include flex-grow(1);
       @include flex-shrink(0);
@@ -193,9 +189,20 @@ section.manage-workflows {
 				overflow-y: auto;
 				align-items: center;
 				flex-direction: column;
+
 				@include media-below(1476px) {
 					flex: none;
 				}
+
+        .react-toolbar {
+          top: 0px;
+          left: 0px;
+          right: 0px;
+          z-index: 10;
+          position: sticky;
+          align-self: stretch;
+          margin-bottom: 48px;
+        }
 			}
 
 			.step-edit-container {
