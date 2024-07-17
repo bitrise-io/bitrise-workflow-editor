@@ -257,6 +257,25 @@ import {
         viewModel.addWorkflowPopup = new Popup();
         viewModel.addWorkflowID;
         viewModel.addWorkflowSourceWorkflow;
+        viewModel.showReactCreateWorkflowDialog = false;
+
+        viewModel.openReactCreateWorkflowDialog = () => {
+          viewModel.showReactCreateWorkflowDialog = true;
+          safeDigest($scope);
+        };
+
+        viewModel.closeReactCreateWorkflowDialog = () => {
+          viewModel.showReactCreateWorkflowDialog = false;
+          safeDigest($scope);
+        }
+
+        viewModel.createReactWorkflow = ({ name, basedOn }) => {
+          const baseWorkflow = viewModel.workflows?.find(({ id }) => id === basedOn);
+          const createdWorkflow = new Workflow(name, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
+
+          viewModel.workflows = [...viewModel.workflows, createdWorkflow];
+          workflowSelectionService.rearrangeSelection(viewModel, createdWorkflow);
+        }
 
         viewModel.openAddWorkflowPopup = function () {
           viewModel.addWorkflowPopup.isVisible = true;

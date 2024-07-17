@@ -3,7 +3,7 @@
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
       r-workflow-empty-state[
-        on-add-workflow="workflowsCtrl.openAddWorkflowPopup"
+        on-add-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
       ]
     .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
@@ -16,7 +16,7 @@
             workflows="workflowsCtrl.workflows"
             select-workflow="workflowsCtrl.selectWorkflowWithDigest"
             rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
-            on-add-new-workflow="workflowsCtrl.openAddWorkflowPopup"
+            on-add-new-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
             on-open-chain-workflow-dialog="workflowsCtrl.openChainWorkflowDialog"
             on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
             on-delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
@@ -148,4 +148,10 @@
     is-open="workflowsCtrl.showReactDeleteWorkflowDialog"
     on-close="workflowsCtrl.closeReactDeleteWorkflowDialog"
     on-delete="workflowsCtrl.deleteWorkflow"
+  ]
+  r-create-workflow-dialog[
+    yml="workflowsCtrl.yml"
+    is-open="workflowsCtrl.showReactCreateWorkflowDialog"
+    on-close="workflowsCtrl.closeReactCreateWorkflowDialog"
+    on-create="workflowsCtrl.createReactWorkflow"
   ]
