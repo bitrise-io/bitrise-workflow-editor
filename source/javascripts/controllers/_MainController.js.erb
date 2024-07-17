@@ -398,7 +398,7 @@ import {safeDigest} from "@/services/react-compat";
       };
 
       function cleanupMenu() {
-        if (viewModel.currentMenu.id == "secrets") {
+        if (viewModel.currentMenu?.id == "secrets") {
           $rootScope.$emit("MainController::cleanupMenu");
         }
       }
