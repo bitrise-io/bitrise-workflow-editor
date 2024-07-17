@@ -5,12 +5,12 @@ import { useFormContext } from 'react-hook-form';
 
 import StepHelperText from '../StepHelperText';
 import InsertEnvVarPopover from '../InsertEnvVarPopover/InsertEnvVarPopover';
-import { EnvironmentVariable } from '../InsertEnvVarPopover/types';
 import { useEnvironmentVariables } from '../InsertEnvVarPopover/EnvVarProvider';
 import { useSecrets } from '../InsertSecretPopover/SecretsProvider';
 import InsertSecretPopover from '../InsertSecretPopover/InsertSecretPopover';
-import { Secret } from '../InsertSecretPopover/types';
 import StepInputLabel from './StepInputLabel';
+import { Secret } from '@/models/Secret';
+import { EnvVar } from '@/models/EnvVar';
 
 type CommonProps = {
   name: string;
@@ -100,12 +100,12 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     });
   };
 
-  const handleCreateEnvVarIntoInput = (ev: EnvironmentVariable) => {
+  const handleCreateEnvVarIntoInput = (ev: EnvVar) => {
     handleInsertEnvVarIntoInput(ev);
     createEnvVar(ev);
   };
 
-  const handleInsertEnvVarIntoInput = (ev: EnvironmentVariable) => {
+  const handleInsertEnvVarIntoInput = (ev: EnvVar) => {
     const inputValue = value || '';
     const { key } = ev;
     const { start, end } = cursorPosition ?? {
@@ -121,12 +121,12 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
     });
   };
 
-  const handleCreateEnvVarIntoDropdown = (envVar: EnvironmentVariable) => {
+  const handleCreateEnvVarIntoDropdown = (envVar: EnvVar) => {
     handleInsertEnvVarIntoDropdown(envVar);
     createEnvVar(envVar);
   };
 
-  const handleInsertEnvVarIntoDropdown = (envVar: EnvironmentVariable) => {
+  const handleInsertEnvVarIntoDropdown = (envVar: EnvVar) => {
     setValue(name, `$${envVar.key}`, {
       shouldDirty: true,
       shouldTouch: true,

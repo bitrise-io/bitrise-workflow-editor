@@ -12,9 +12,10 @@ import {
 } from '@chakra-ui/react';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
-import { HandlerFn, Secret } from './types';
+import { HandlerFn } from './types';
 import LoadingState from './components/LoadingState';
 import CreateSecret from './components/CreateSecret';
+import { Secret } from '@/models/Secret';
 
 type Props = {
   size: 'sm' | 'md';

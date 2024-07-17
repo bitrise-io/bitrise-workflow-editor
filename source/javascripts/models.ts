@@ -90,4 +90,7 @@ export type Secret = {
   isShared?: boolean;
 };
 
-export type SecretWithState = Secret & { isEditing: boolean; isSaved?: boolean };
+export type SecretWithState = Secret & {
+  isEditing: boolean;
+  isSaved?: boolean;
+};
