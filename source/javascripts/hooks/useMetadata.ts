@@ -23,11 +23,16 @@ const useMetadata = ({ key, enabled }: Props): NotificationResult => {
   });
 
   const close = useCallback(() => {
-    putMetadata(true, {
-      onSuccess: () => {
-        refetch();
+    console.log('Sending metadata update');
+    putMetadata(
+      { value: true },
+      {
+        onSuccess: () => {
+          console.log('Successfully updated metadata');
+          refetch();
+        },
       },
-    });
+    );
   }, [putMetadata, refetch]);
 
   const isVisible = useMemo(() => Boolean(metadata && metadata.value === null), [metadata]);
