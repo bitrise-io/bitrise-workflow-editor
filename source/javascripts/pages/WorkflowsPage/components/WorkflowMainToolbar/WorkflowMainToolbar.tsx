@@ -13,12 +13,14 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 
-import WorkflowSelector, { WorkflowSelectorProps } from '../WorkflowSelector/WorkflowSelector';
+import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 import RunWorkflowDialog from '@/components/RunWorkflowDialog/RunWorkflowDialog';
 import { useTrackingFunction } from '@/hooks/utils/useTrackingFunction';
 import { Workflow } from '@/models';
 
-type WorkflowMainToolbarProps = WorkflowSelectorProps & {
+type WorkflowMainToolbarProps = {
+  selectWorkflow: (workflow?: Workflow) => void;
+  workflows: Workflow[];
   selectedWorkflow?: Workflow;
   defaultBranch: string;
   uniqueStepCount: number;
@@ -40,7 +42,6 @@ const WorkflowMainToolbar = ({
   selectedWorkflow,
   workflows,
   selectWorkflow,
-  renameWorkflowConfirmed,
   onAddNewWorkflow,
   onOpenChainWorkflowDialog,
   onRearrangeWorkflow,
@@ -70,22 +71,16 @@ const WorkflowMainToolbar = ({
   return (
     <Box display="flex" flexDirection="column" gap="20">
       <Box display="flex" alignItems="center" justifyContent="space-between">
-        <Box display="flex" alignItems="center" gap="8" id="workflow-main-toolbar">
+        <Box display="flex" flex="1" alignItems="center" gap="8" id="workflow-main-toolbar">
           {selectedWorkflow && (
             <WorkflowSelector
-              selectedWorkflow={selectedWorkflow}
-              workflows={workflows}
-              selectWorkflow={selectWorkflow}
-              renameWorkflowConfirmed={renameWorkflowConfirmed}
+              containerProps={{ flex: 1, maxW: 384 }}
+              selectedWorkflowId={selectedWorkflow.id}
+              workflowIds={workflows.map(({ id }) => id)}
+              onClickCreateWorkflowButton={onAddNewWorkflow}
+              onSelectWorkflowId={(workflowId) => selectWorkflow(workflows.find(({ id }) => id === workflowId))}
             />
           )}
-          <IconButton
-            size="md"
-            iconName="PlusOpen"
-            variant="secondary"
-            onClick={onAddNewWorkflow}
-            aria-label="Add new Workflow"
-          />
           {selectedWorkflow && (
             <Menu placement="bottom-end">
               <MenuButton
