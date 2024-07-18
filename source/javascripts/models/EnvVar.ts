@@ -17,6 +17,24 @@ export function isKeyUnique(keys: string[]) {
   return (value: string) => (keys.some((key) => key === value) ? 'Key should be unique.' : true);
 }
 
-export function isNotEmpty(value: string) {
-  return !!value.trim() || 'Field should not be empty.';
+export function isNotEmpty(value: unknown) {
+  if (value === undefined || value === null || !String(value).trim()) {
+    return 'Field should not be empty.';
+  }
+
+  return true;
+}
+
+export function castEnvVarValueForYml(value: unknown) {
+  if (typeof value === 'string') {
+    if (['true', 'false'].includes(value)) {
+      return Boolean(value === 'true');
+    }
+
+    if (value && !Number.isNaN(Number(value))) {
+      return Number(value);
+    }
+  }
+
+  return value;
 }
