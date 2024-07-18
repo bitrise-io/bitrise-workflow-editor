@@ -116,7 +116,7 @@ import {
           }).then(() => {
             var queryParams = new URLSearchParams(window.location.search);
             if (queryParams.has("add-workflow")) {
-              viewModel.openAddWorkflowPopup();
+              viewModel.openReactCreateWorkflowDialog();
             }
           });
 
@@ -253,33 +253,25 @@ import {
 
         // Workflow add
 
-        $scope.Workflow = Workflow;
-        viewModel.addWorkflowPopup = new Popup();
-        viewModel.addWorkflowID;
-        viewModel.addWorkflowSourceWorkflow;
+        viewModel.showReactCreateWorkflowDialog = false;
 
-        viewModel.openAddWorkflowPopup = function () {
-          viewModel.addWorkflowPopup.isVisible = true;
+        viewModel.openReactCreateWorkflowDialog = () => {
+          viewModel.showReactCreateWorkflowDialog = true;
           safeDigest($scope);
         };
 
-        viewModel.addWorkflowPopup.beforeAppearCallback = function () {
-          viewModel.addWorkflowID = "";
-          viewModel.addWorkflowSourceWorkflow = viewModel.selectedWorkflow;
-        };
+        viewModel.closeReactCreateWorkflowDialog = () => {
+          viewModel.showReactCreateWorkflowDialog = false;
+          safeDigest($scope);
+        }
 
-        viewModel.addWorkflow = function () {
-          var workflow = new Workflow(
-            viewModel.addWorkflowID,
-            viewModel.addWorkflowSourceWorkflow ? angular.copy(viewModel.addWorkflowSourceWorkflow.workflowConfig) : {}
-          );
+        viewModel.createReactWorkflow = ({ name, basedOn }) => {
+          const baseWorkflow = viewModel.workflows?.find(({ id }) => id === basedOn);
+          const createdWorkflow = new Workflow(name, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
 
-          viewModel.workflows = [].concat(viewModel.workflows).concat([workflow]);
-
-          viewModel.addWorkflowPopup.isVisible = false;
-
-          workflowSelectionService.rearrangeSelection(viewModel, workflow);
-        };
+          viewModel.workflows = [...viewModel.workflows, createdWorkflow];
+          workflowSelectionService.rearrangeSelection(viewModel, createdWorkflow);
+        }
 
         // Workflow delete
 
