@@ -32,6 +32,7 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflow, onAction 
     <Dialog title={`Run "${workflow}"`} isOpen={isOpen} onClose={onClose}>
       <DialogBody>
         <Input
+          isRequired
           label="Branch"
           placeholder="your-branch"
           type="text"

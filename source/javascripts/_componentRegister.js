@@ -10,6 +10,7 @@ import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import {
   ChainWorkflowDrawer,
+  CreateWorkflowDialog,
   DeleteWorkflowDialog,
   StepConfigPanel,
   StepDrawer,
@@ -274,4 +275,8 @@ angular
       "onClose",
       "onDelete",
     ]),
+  )
+  .component(
+    "rCreateWorkflowDialog",
+    register(CreateWorkflowDialog, ["isOpen", "onClose", "onCreate"]),
   );

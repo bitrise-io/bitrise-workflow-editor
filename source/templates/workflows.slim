@@ -3,29 +3,28 @@
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
       r-workflow-empty-state[
-        on-add-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
-      ]
-    section.manage-workflows[ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
-      r-workflow-toolbar.react-toolbar[
-        default-branch="workflowsCtrl.defaultBranch"
-        can-run-workflow="workflowsCtrl.canRunWorkflow"
-        is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
-        selected-workflow="workflowsCtrl.selectedWorkflow"
-        workflows="workflowsCtrl.workflows"
-        select-workflow="workflowsCtrl.selectWorkflowWithDigest"
-        rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
-        on-add-new-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
-        on-open-chain-workflow-dialog="workflowsCtrl.openChainWorkflowDialog"
-        on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
-        on-delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
-        on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
-        unique-step-count="workflowsCtrl.uniqueStepCount"
-        unique-step-limit="workflowsCtrl.uniqueStepLimit"
-        organization-slug="appService.appDetails.ownerData.slug"
+        on-add-workflow="workflowsCtrl.openAddWorkflowPopup"
       ]
     .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
         .steps-container
+          r-workflow-toolbar.react-toolbar[
+            default-branch="workflowsCtrl.defaultBranch"
+            can-run-workflow="workflowsCtrl.canRunWorkflow"
+            is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
+            selected-workflow="workflowsCtrl.selectedWorkflow"
+            workflows="workflowsCtrl.workflows"
+            select-workflow="workflowsCtrl.selectWorkflowWithDigest"
+            rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
+            on-add-new-workflow="workflowsCtrl.openAddWorkflowPopup"
+            on-open-chain-workflow-dialog="workflowsCtrl.openChainWorkflowDialog"
+            on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
+            on-delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
+            on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
+            unique-step-count="workflowsCtrl.uniqueStepCount"
+            unique-step-limit="workflowsCtrl.uniqueStepLimit"
+            organization-slug="appService.appDetails.ownerData.slug"
+          ]
           section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30" id="steps-container"]
             header.workflow-header.with-flow-decoration
               .header-info
