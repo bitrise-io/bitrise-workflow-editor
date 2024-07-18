@@ -5,7 +5,7 @@ import Notification from "./components/Notification";
 import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
-import { AddStepItem, StepItem } from "./components/StepItem";
+import StepItem from "./components/StepItem/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
 import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
@@ -94,10 +94,6 @@ angular
       "isSelected",
       "onSelected",
     ]),
-  )
-  .component(
-    "rAddStepItem",
-    register(AddStepItem, ["step", "disabled", "onSelected"]),
   )
   .component("rStepItemBadge", register(StepBadge, ["step"]))
   .component(
