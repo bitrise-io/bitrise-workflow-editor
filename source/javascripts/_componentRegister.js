@@ -7,7 +7,6 @@ import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import { AddStepItem, StepItem } from "./components/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
-import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
@@ -99,15 +98,6 @@ angular
     register(AddStepItem, ["step", "disabled", "onSelected"]),
   )
   .component("rStepItemBadge", register(StepBadge, ["step"]))
-  .component(
-    "rYmlStorageSettings",
-    register(YmlStorageSettings, [
-      "appSlug",
-      "usesRepositoryYml",
-      "onUsesRepositoryYmlChangeSaved",
-      "repositoryYmlAvailable",
-    ]),
-  )
   .component(
     "rUpdateConfigurationDialog",
     register(UpdateConfigurationDialog, [

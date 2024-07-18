@@ -98,36 +98,13 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(initialUsesRepositoryYml);
-  const [actionSelected, setActionSelected] = useState<string | null>(null);
-  const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
 
   const { updatePipelineConfigStatus, updatePipelineConfigLoading, updatePipelineConfig, updatePipelineConfigReset } =
     useUpdatePipelineConfigCallback(appSlug, usesRepositoryYml);
 
   const yml = useFormattedYml(appConfig);
 
-  const selectAction = (actionName: string): void => {
-    setActionSelected(actionName);
-
-    if (clearActionTimeout) {
-      window.clearTimeout(clearActionTimeout);
-    }
-
-    setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
-  };
-
-  const copyToast = useToast();
-  const successToast = useToast();
-
-  if (actionSelected === 'clipboard') {
-    copyToast({
-      title: ' Copied to clipboard',
-      description:
-        'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
-      status: 'success',
-      isClosable: true,
-    });
-  }
+  const toast = useToast();
 
   const isSourceSelected = initialUsesRepositoryYml !== usesRepositoryYml;
 
@@ -175,7 +152,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const onSuccess = () => {
     onCloseDialog();
-    successToast({
+    toast({
       title: ' Source succesfully changed',
       description: 'From now you can manage your Configuration YAML on bitrise.io.',
       status: 'success',
@@ -296,17 +273,23 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   </Link>
                 </Text>
                 <Box display="flex" flexDir="column" gap="8">
-                  <Link
-                    href={`data:attachment/text,${encodeURIComponent(yml)}`}
-                    target="_blank"
-                    download="bitrise.yml"
-                    onClick={() => selectAction('download')}
-                  >
+                  <Link href={`data:attachment/text,${encodeURIComponent(yml)}`} target="_blank" download="bitrise.yml">
                     <Button variant="tertiary" leftIconName="Download" width="fit-content" size="sm">
                       Download current version
                     </Button>
                   </Link>
-                  <CopyToClipboard text={yml} onCopy={() => selectAction('clipboard')}>
+                  <CopyToClipboard
+                    text={yml}
+                    onCopy={() => {
+                      toast({
+                        title: ' Copied to clipboard',
+                        description:
+                          'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
+                        status: 'success',
+                        isClosable: true,
+                      });
+                    }}
+                  >
                     <Button
                       variant="tertiary"
                       leftIconName="Duplicate"

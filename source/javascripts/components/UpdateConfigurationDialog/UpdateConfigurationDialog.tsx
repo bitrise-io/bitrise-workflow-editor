@@ -1,4 +1,4 @@
-import { ReactElement, useEffect, useState } from 'react';
+import { ReactElement, useEffect } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Notification, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
@@ -24,9 +24,6 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
 
   const appConfig = getDataToSave();
 
-  const [actionSelected, setActionSelected] = useState<string | null>(null);
-  const [clearActionTimeout, setClearActionTimeout] = useState<number | undefined>();
-
   useEffect(() => {
     if (appConfigFromRepo) {
       onComplete();
@@ -50,27 +47,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
 
   const yml = useFormattedYml(appConfig);
 
-  const selectAction = (actionName: string): void => {
-    setActionSelected(actionName);
-
-    if (clearActionTimeout) {
-      window.clearTimeout(clearActionTimeout);
-    }
-
-    setClearActionTimeout(window.setTimeout(() => setActionSelected(null), 5000));
-  };
-
   const toast = useToast();
-
-  if (actionSelected === 'clipboard') {
-    toast({
-      title: ' Copied to clipboard',
-      description:
-        'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
-      status: 'success',
-      isClosable: true,
-    });
-  }
 
   return (
     <Dialog isOpen onClose={onClose} title="Update configuration YAML">
@@ -86,17 +63,23 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Update the content of the configuration YAML in the {gitRepoSlug} repository’s {defaultBranch} branch.
         </Text>
         <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
-          <Link
-            href={`data:attachment/text,${encodeURIComponent(yml)}`}
-            target="_blank"
-            download="bitrise.yml"
-            onClick={() => selectAction('download')}
-          >
+          <Link href={`data:attachment/text,${encodeURIComponent(yml)}`} target="_blank" download="bitrise.yml">
             <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Download">
               Download changed version
             </Button>
           </Link>
-          <CopyToClipboard text={yml} onCopy={() => selectAction('clipboard')}>
+          <CopyToClipboard
+            text={yml}
+            onCopy={() => {
+              toast({
+                title: ' Copied to clipboard',
+                description:
+                  'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
+                status: 'success',
+                isClosable: true,
+              });
+            }}
+          >
             <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Duplicate">
               Copy changed configuration
             </Button>
