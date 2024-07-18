@@ -46,8 +46,8 @@ import {configureMonacoYaml} from 'monaco-yaml';
           return appService.appConfigYML;
         },
         function (newVal, oldVal) {
-          if (newVal !== oldVal && model && !model.isDisposed()) {
-            model.setValue(newVal || '');
+					if (appService.appConfigYML !== model.getValue() && model && !model.isDisposed()) {
+            model.setValue(appService.appConfigYML || '')
           }
         }
       );
