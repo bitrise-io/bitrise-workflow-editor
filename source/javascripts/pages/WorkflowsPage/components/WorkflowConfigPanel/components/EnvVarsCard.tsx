@@ -125,6 +125,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             {...register(`configuration.envs.${index}.value`, {
               required: VALUE_IS_REQUIRED,
               validate: { isNotEmpty },
+              setValueAs: String,
             })}
           />
           <ControlButton onClick={handleRemove} iconName="MinusRemove" aria-label="Remove" size="md" ml="8" isDanger />
