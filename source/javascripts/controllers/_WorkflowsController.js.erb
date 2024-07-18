@@ -76,7 +76,6 @@ import semverDiff from 'semver/functions/diff'
       viewModel.buildTriggerToken = undefined;
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
-      viewModel.enableReactChainWorkflowDrawer = false;
 
       viewModel.init = function () {
         workflowSelectionStore.disable();
@@ -92,8 +91,6 @@ import semverDiff from 'semver/functions/diff'
             viewModel.openReactCreateWorkflowDialog();
           }
         });
-
-        viewModel.enableReactChainWorkflowDrawer = launchDarklyService.variation("enable-new-chain-workflow-drawer", false);
 
         if (requestService.isWebsiteMode()) {
           loadAppAndUser();
@@ -317,7 +314,7 @@ import semverDiff from 'semver/functions/diff'
 
         return _workflowChainHierarchy;
       }
-      
+
       viewModel.openReactChainWorkflowDrawer = function () {
         viewModel.showReactChainWorkflowDrawer = true;
         safeDigest($scope);
