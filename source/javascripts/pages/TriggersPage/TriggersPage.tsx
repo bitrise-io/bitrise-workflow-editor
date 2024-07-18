@@ -37,7 +37,7 @@ import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
-import { useMetadata } from '@/hooks/useMetadata';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
 
 type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 
@@ -140,11 +140,11 @@ type TriggersPageProps = {
 const TriggersPage = (props: TriggersPageProps) => {
   const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
 
-  const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useMetadata({
+  const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useUserMetaData({
     key: TRIGGERS_CONFIGURED_METADATA_KEY,
     enabled: isWebsiteMode,
   });
-  const { isVisible: isOrderNotificationOpen, close: closeOrderNotification } = useMetadata({
+  const { isVisible: isOrderNotificationOpen, close: closeOrderNotification } = useUserMetaData({
     key: ORDER_NOTIFICATION_METADATA_KEY,
     enabled: isWebsiteMode,
   });
