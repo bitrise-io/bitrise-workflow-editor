@@ -1,4 +1,4 @@
-import { useCallback, useMemo } from 'react';
+import { useMemo } from 'react';
 import usePutUserMetaData from '@/hooks/api/usePutUserMetaData';
 import useGetUserMetaData from '@/hooks/api/useGetUserMetaData';
 
@@ -17,20 +17,20 @@ type NotificationResult = {
 };
 
 const useMetadata = ({ key, enabled }: Props): NotificationResult => {
-  const { mutate: putMetadata } = usePutUserMetaData(key);
+  const { mutate: putMetadata } = usePutUserMetaData(key, {
+    onSuccess: () => {
+      console.log('Successfully updated metadata');
+      refetch();
+    },
+  });
   const { data: metadata, refetch } = useGetUserMetaData<MetadataResult>(key, {
     enabled,
   });
 
-  const close = useCallback(() => {
+  const close = () => {
     console.log('Sending metadata update');
-    putMetadata(true, {
-      onSuccess: () => {
-        console.log('Successfully updated metadata');
-        refetch();
-      },
-    });
-  }, [putMetadata, refetch]);
+    putMetadata(true);
+  };
 
   const isVisible = useMemo(() => Boolean(metadata && metadata.value === null), [metadata]);
   return { isVisible, close };
