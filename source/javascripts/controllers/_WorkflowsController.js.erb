@@ -6,6 +6,7 @@ import {
   extractInputNames,
   extractReleaseNotesUrl
 } from "@/pages/WorkflowsPage/components/StepConfigPanel/StepConfigPanel.utils";
+import semverDiff from 'semver/functions/diff'
 
 (function () {
   "use strict";
@@ -25,9 +26,7 @@ import {
         stepSourceService,
         workflowSelectionStore,
         workflowSelectionService,
-        semverService,
         launchDarklyService,
-        logger,
         Progress,
         Popup,
         Workflow,
@@ -103,8 +102,6 @@ import {
         viewModel.enableReactChainWorkflowDrawer = false;
 
         viewModel.init = function () {
-          logger.info("Loading workflows");
-
           workflowSelectionStore.disable();
 
           viewModel.yml = appService.appConfig;
@@ -191,7 +188,6 @@ import {
             },
             function (error) {
               viewModel.workflows = undefined;
-              logger.error(error);
               viewModel.loadWorkflowsProgress.error(
                 new Error(stringService.stringReplacedWithParameters("<%= data[:strings][:workflows][:load_workflows_progress][:error] %>", {
                   error: error.message
@@ -345,12 +341,6 @@ import {
           safeDigest($scope);
         };
 
-        viewModel.addRunWorkflowPopup = new Popup();
-        viewModel.addRunWorkflowMode;
-        viewModel.addRunWorkflowChainHierarchy;
-        viewModel.runWorkflowToAdd;
-        viewModel.showReactChainWorkflowDrawer = false;
-
         function workflowChainHierarchy(workflow) {
           var _workflowChainHierarchy = [];
 
@@ -392,39 +382,13 @@ import {
           safeDigest($scope);
         }
 
-        viewModel.openChainWorkflowDialog = function (mode) {
-          viewModel.addRunWorkflowMode = mode;
-          viewModel.runWorkflowToAdd = null;
-          viewModel.addRunWorkflowChainHierarchy = workflowChainHierarchy(viewModel.selectedWorkflow);
-
-          if (viewModel.enableReactChainWorkflowDrawer) {
-            viewModel.openReactChainWorkflowDrawer();
-          } else {
-            viewModel.addRunWorkflowPopup.isVisible = true;
-          }
-          safeDigest($scope);
-        };
-
-        viewModel.availableRunWorkflowsToAdd = function () {
-          if (!viewModel.workflows || !viewModel.selectedWorkflow) {
-            return;
-          }
-
-          return _.filter(viewModel.workflows, function (aWorkflow) {
-            return aWorkflow.isLoopSafeRunForWorkflow(viewModel.selectedWorkflow, viewModel.workflows);
-          });
-        };
-
-        viewModel.addRunWorkflow = function (mode, addedWorkflowId) {
+        viewModel.chainWorkflow = function (mode, addedWorkflowId) {
           var runKey = mode === "before" ? "before_run" : "after_run";
           if (!viewModel.selectedWorkflow.workflowConfig[runKey]) {
             viewModel.selectedWorkflow.workflowConfig[runKey] = [];
           }
 
           viewModel.selectedWorkflow.workflowConfig[runKey].push(addedWorkflowId);
-          viewModel.addRunWorkflowPopup.isVisible = false;
-          viewModel.runWorkflowToAdd = null;
-          viewModel.addRunWorkflowChainHierarchy = null;
 
           // select the current one and edit newly generated one
           workflowSelectionService.rearrangeSelection(viewModel, viewModel.selectedWorkflow, addedWorkflowId);
@@ -884,8 +848,11 @@ import {
 
           // Calculate version changes
           const newVersion = step.version;
-          const isVersionChanged = Boolean(oldVersion && newVersion && oldVersion !== newVersion);
-          const isMajorChange = Boolean(oldVersion && newVersion && semverService.isMajorVersionChange(oldVersion, newVersion));
+
+          // Check if major version has changed
+          const change = semverDiff(oldVersion, newVersion);
+          const isVersionChanged = Boolean(change);
+          const isMajorChange = change === "major";
 
           // Calculate input changes between different step versions
           const newInputNames = extractInputNames(step);

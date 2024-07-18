@@ -83,25 +83,6 @@
               default-values="workflowsCtrl.editedWorkflowConfigForReact"
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]
-
-  popup[model="workflowsCtrl.addRunWorkflowPopup"]
-    .popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
-      header
-        span[ng-if="workflowsCtrl.addRunWorkflowMode == 'before'"] == data[:strings][:workflows][:add_run_workflow][:before_run][:action_prefix]
-        span[ng-if="workflowsCtrl.addRunWorkflowMode == 'after'"] == data[:strings][:workflows][:add_run_workflow][:after_run][:action_prefix]
-        strong<[ng-bind="workflowsCtrl.selectedWorkflow.id"]
-      article.vertical-scroll
-        ul.workflow-chain
-          ul.workflow-subchain.before-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'before-run'})"]
-            li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
-          select.run-workflow-selector.mak[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflowsToAdd()" ng-model="workflowsCtrl.runWorkflowToAdd" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowMode == 'before', 'after-run': workflowsCtrl.addRunWorkflowMode == 'after'}"]
-          ul.workflow-subchain.selected
-            li[ng-bind="workflowsCtrl.selectedWorkflow.id"]
-          ul.workflow-subchain.after-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'after-run'})"]
-            li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
-      footer
-        button.done[ng-click="workflowsCtrl.addRunWorkflow(workflowsCtrl.addRunWorkflowMode, workflowsCtrl.runWorkflowToAdd.id)" ng-disabled="!workflowsCtrl.runWorkflowToAdd" data-e2e-tag="confirm-button"] == data[:strings][:workflows][:add_run_workflow][:done]
-        button.cancel[ng-click="workflowsCtrl.addRunWorkflowPopup.isVisible = false" data-e2e-tag="cancel-button"] == data[:strings][:workflows][:add_run_workflow][:cancel]
   popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
     .popup-body.snowflake#rearrange-workflow-chain-popup-body
       header == data[:strings][:workflows][:rearrange][:drag_n_drop]
@@ -123,7 +104,7 @@
     yml="workflowsCtrl.yml"
     is-open="workflowsCtrl.showReactChainWorkflowDrawer"
     on-close="workflowsCtrl.closeReactChainWorkflowDrawer"
-    on-chain-workflow="workflowsCtrl.addRunWorkflow"
+    on-chain-workflow="workflowsCtrl.chainWorkflow"
   ]
   r-version-change-dialog[
     is-open="workflowsCtrl.selectedStepVersionChangeDialogProps"
