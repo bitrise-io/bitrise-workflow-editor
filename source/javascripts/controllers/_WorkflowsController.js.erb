@@ -25,7 +25,6 @@ import {
         stepSourceService,
         workflowSelectionStore,
         workflowSelectionService,
-        addStepService,
         semverService,
         launchDarklyService,
         logger,
@@ -101,7 +100,6 @@ import {
         viewModel.buildTriggerToken = undefined;
         viewModel.defaultBranch = undefined;
         viewModel.canRunWorkflow = false;
-        viewModel.enableReactStepDrawer = false;
         viewModel.enableReactChainWorkflowDrawer = false;
 
         viewModel.init = function () {
@@ -121,7 +119,6 @@ import {
             }
           });
 
-          viewModel.enableReactStepDrawer = launchDarklyService.variation("enable-new-wfe-step-drawer", false);
           viewModel.enableReactChainWorkflowDrawer = launchDarklyService.variation("enable-new-chain-workflow-drawer", false);
 
           if (requestService.isWebsiteMode()) {
@@ -690,12 +687,7 @@ import {
 
         viewModel.addStepSelectedAtIndex = function (index, workflowIndex) {
           viewModel.editWorkflowAtIndex(workflowIndex);
-
-          if (viewModel.enableReactStepDrawer) {
-            viewModel.openReactStepDrawer(index);
-          } else {
-            addStepService.showWithInsertIndex(index, insertStepAtIndexCallback);
-          }
+          viewModel.openReactStepDrawer(index);
         };
 
         function insertStepAtIndexCallback(step, insertIndex) {

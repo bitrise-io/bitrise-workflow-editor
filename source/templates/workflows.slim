@@ -54,8 +54,8 @@
                 li
                   button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
         .step-edit-container
-          .[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertVariableCtrl"]
-            .[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertSecretCtrl"]
+          .ins-var[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertVariableCtrl"]
+            .ins-sec[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertSecretCtrl"]
               r-step-config[
                 tab-id="workflowsCtrl.tabId"
                 step="workflowsCtrl.selectedStep"
@@ -112,7 +112,6 @@
       footer
         button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
         button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
-  add-step-sidebar
   r-step-drawer[
     is-open="workflowsCtrl.showReactStepDrawer"
     on-close="workflowsCtrl.closeReactStepDrawer"
