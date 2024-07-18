@@ -81,14 +81,6 @@ def strings
                     postfix: "workflow",
                     select: "Select a Workflow from the list below:"
                 },
-                add_workflow: {
-                    action: "Workflow",
-                    add_new_workflow: "Add new workflow",
-                    workflow_name_placeholder: "Workflow name",
-                    based_on: "Based on:",
-                    empty_workflow: "Empty workflow",
-                    done: "Done"
-                },
                 add_run_workflow: {
                     before_run: {
                         action: "Add Workflow before",

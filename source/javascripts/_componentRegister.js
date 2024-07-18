@@ -264,5 +264,5 @@ angular
   )
   .component(
     "rCreateWorkflowDialog",
-    register(CreateWorkflowDialog, ["isOpen", "onClose", "onCreate"]),
+    register(CreateWorkflowDialog, ["yml", "isOpen", "onClose", "onCreate"]),
   );

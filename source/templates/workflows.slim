@@ -3,7 +3,7 @@
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
       r-workflow-empty-state[
-        on-add-workflow="workflowsCtrl.openAddWorkflowPopup"
+        on-add-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
       ]
     .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
@@ -16,7 +16,7 @@
             workflows="workflowsCtrl.workflows"
             select-workflow="workflowsCtrl.selectWorkflowWithDigest"
             rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
-            on-add-new-workflow="workflowsCtrl.openAddWorkflowPopup"
+            on-add-new-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
             on-open-chain-workflow-dialog="workflowsCtrl.openChainWorkflowDialog"
             on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
             on-delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
@@ -84,15 +84,6 @@
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]
 
-  popup[model="workflowsCtrl.addWorkflowPopup"]
-    form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
-      header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
-      article
-        input[type="text" ng-model="workflowsCtrl.addWorkflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
-        label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
-        select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowSourceWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
-      footer
-        input.rebo.big.purple[type="submit" ng-disabled="!Workflow.isValidID(workflowsCtrl.addWorkflowID) || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0" value="#{ data[:strings][:workflows][:add_workflow][:done] }" data-e2e-tag="confirm-button"]
   popup[model="workflowsCtrl.addRunWorkflowPopup"]
     .popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
       header
@@ -148,4 +139,10 @@
     is-open="workflowsCtrl.showReactDeleteWorkflowDialog"
     on-close="workflowsCtrl.closeReactDeleteWorkflowDialog"
     on-delete="workflowsCtrl.deleteWorkflow"
+  ]
+  r-create-workflow-dialog[
+    yml="workflowsCtrl.yml"
+    is-open="workflowsCtrl.showReactCreateWorkflowDialog"
+    on-close="workflowsCtrl.closeReactCreateWorkflowDialog"
+    on-create="workflowsCtrl.createReactWorkflow"
   ]
