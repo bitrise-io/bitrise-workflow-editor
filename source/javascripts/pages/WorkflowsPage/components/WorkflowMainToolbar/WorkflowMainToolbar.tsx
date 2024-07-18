@@ -25,10 +25,10 @@ type WorkflowMainToolbarProps = {
   uniqueStepLimit?: number;
   canRunWorkflow: boolean;
   isRunWorkflowDisabled: boolean;
-  onAddNewWorkflow: () => void;
-  onOpenChainWorkflowDialog: (mode: 'before' | 'after') => void;
-  onRearrangeWorkflow: () => void;
-  onDeleteSelectedWorkflow: () => void;
+  onAddNewWorkflow: VoidFunction;
+  onOpenChainWorkflowDialog: VoidFunction;
+  onRearrangeWorkflow: VoidFunction;
+  onDeleteSelectedWorkflow: VoidFunction;
   onRunWorkflow: (branch: string) => void;
   organizationSlug?: string;
 };
@@ -94,25 +94,22 @@ const WorkflowMainToolbar = ({
                 as={IconButton}
                 size="md"
                 variant="secondary"
-                iconName="MoreHorizontal"
+                iconName="MoreVertical"
                 aria-label="Manage Workflows"
               />
               <MenuList>
-                <MenuItem iconName="ArrowQuit" onClick={() => onOpenChainWorkflowDialog('before')}>
-                  Insert Workflow before
-                </MenuItem>
-                <MenuItem iconName="ArrowQuit" onClick={() => onOpenChainWorkflowDialog('after')}>
-                  Insert Workflow after
+                <MenuItem iconName="Link" onClick={() => onOpenChainWorkflowDialog()}>
+                  Chain Workflow
                 </MenuItem>
                 <MenuItem
                   iconName="Request"
                   isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
                   onClick={onRearrangeWorkflow}
                 >
-                  Change Workflow execution order
+                  Reorder Workflow chain
                 </MenuItem>
                 <MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
-                  Delete selected Workflow
+                  Delete `{selectedWorkflow.id}`
                 </MenuItem>
               </MenuList>
             </Menu>
