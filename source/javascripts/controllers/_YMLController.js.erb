@@ -45,7 +45,7 @@ import {configureMonacoYaml} from 'monaco-yaml';
         function () {
           return appService.appConfigYML;
         },
-        function (newVal, oldVal) {
+        function () {
 					if (appService.appConfigYML !== model.getValue() && model && !model.isDisposed()) {
             model.setValue(appService.appConfigYML || '')
           }
