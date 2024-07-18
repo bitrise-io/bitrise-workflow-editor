@@ -1,6 +1,7 @@
 import {safeDigest} from "@/services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 import {getVersionRemark} from "@/utils/stepVersionUtil";
+import { castEnvVarValueForYml } from '@/models/EnvVar';
 import {
   extractInputNames,
   extractReleaseNotesUrl
@@ -1160,7 +1161,7 @@ import {
           }
 
           viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
-            return {[key]: value, opts: {is_expand}};
+            return {[key]: castEnvVarValueForYml(value), opts: {is_expand}};
           }));
 
           if (viewModel.editedWorkflow.id !== data.workflowId) {
