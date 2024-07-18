@@ -81,7 +81,7 @@ section.manage-workflows {
     font-size: 14px;
   }
 
-  button.add-workflow, button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
+  button.add-before-run-workflow, button.add-after-run-workflow, button.rearrange, button.delete-workflow {
     @include flex-grow(1);
 
     svg:last-of-type {
@@ -97,13 +97,6 @@ section.manage-workflows {
       span {
         display: none;
       }
-    }
-  }
-
-  button.add-workflow {
-
-    svg {
-      @include size(10px);
     }
   }
 
@@ -1683,36 +1676,6 @@ section.manage-workflows {
           }
         }
       }
-    }
-  }
-}
-
-.popup-body#add-workflow-popup-body {
-  width: 480px !important;
-
-  article {
-
-    input, select {
-      display: block;
-      @include box-sizing(border-box);
-      width: 100%;
-      @include border-radius($def-radius);
-      border: 1px solid $def-mediumlightgrey;
-      padding: 12px;
-      font-size: 16px;
-      font-weight: 300;
-    }
-
-    input {
-      margin-bottom: 20px;
-    }
-
-    label {
-      display: block;
-      margin-bottom: 10px;
-      font-size: 13px;
-      font-weight: 600;
-      text-transform: uppercase;
     }
   }
 }
