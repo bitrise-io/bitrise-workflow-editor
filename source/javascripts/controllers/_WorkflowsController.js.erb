@@ -1,7 +1,7 @@
 import {safeDigest} from "@/services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 import {getVersionRemark} from "@/utils/stepVersionUtil";
-import { castEnvVarValueForYml } from '@/models/EnvVar';
+import {castEnvVarValueForYml} from '@/models/EnvVar';
 import {
   extractInputNames,
   extractReleaseNotesUrl
@@ -259,8 +259,8 @@ import semverDiff from 'semver/functions/diff'
           safeDigest($scope);
         }
 
-        viewModel.createReactWorkflow = ({ name, basedOn }) => {
-          const baseWorkflow = viewModel.workflows?.find(({ id }) => id === basedOn);
+        viewModel.createReactWorkflow = ({name, basedOn}) => {
+          const baseWorkflow = viewModel.workflows?.find(({id}) => id === basedOn);
           const createdWorkflow = new Workflow(name, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
 
           viewModel.workflows = [...viewModel.workflows, createdWorkflow];
@@ -850,7 +850,7 @@ import semverDiff from 'semver/functions/diff'
           const newVersion = step.version;
 
           // Check if major version has changed
-          const change = semverDiff(oldVersion, newVersion);
+          const change = semverDiff(oldVersion.replace(/x/g, '0'), newVersion.replace(/x/g, '0'));
           const isVersionChanged = Boolean(change);
           const isMajorChange = change === "major";
 
