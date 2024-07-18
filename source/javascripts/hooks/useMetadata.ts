@@ -1,5 +1,6 @@
 import { useMemo } from 'react';
-import usePutUserMetaData from '@/hooks/api/usePutUserMetaData';
+import { useMutation } from '@tanstack/react-query';
+import { monolith } from './api/client';
 import useGetUserMetaData from '@/hooks/api/useGetUserMetaData';
 
 type MetadataResult = {
@@ -17,9 +18,12 @@ type NotificationResult = {
 };
 
 const useMetadata = ({ key, enabled }: Props): NotificationResult => {
-  const { mutate: putMetadata } = usePutUserMetaData(key, {
+  const { mutate } = useMutation({
+    mutationFn: (value: boolean) =>
+      monolith.put('/me/profile/metadata.json', {
+        [key]: value,
+      }),
     onSuccess: () => {
-      console.log('Successfully updated metadata');
       refetch();
     },
   });
@@ -28,8 +32,7 @@ const useMetadata = ({ key, enabled }: Props): NotificationResult => {
   });
 
   const close = () => {
-    console.log('Sending metadata update');
-    putMetadata(true);
+    mutate(true);
   };
 
   const isVisible = useMemo(() => Boolean(metadata && metadata.value === null), [metadata]);
