@@ -3,7 +3,7 @@ import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure }
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
-import { useMetadata } from '@/hooks/useMetadata';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
 import { AppConfig } from '@/models/AppConfig';
 
 const GIT_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
@@ -43,11 +43,11 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   } = props;
   const { isOpen, onClose, onOpen } = useDisclosure();
   const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
-  const { isVisible: isGitNotiVisible, close: closeGitNoti } = useMetadata({
+  const { isVisible: isGitNotiVisible, close: closeGitNoti } = useUserMetaData({
     key: GIT_METADATA_KEY,
     enabled: isWebsiteMode && split && usesRepositoryYml,
   });
-  const { isVisible: isSplitNotiVisible, close: closeSplitNoti } = useMetadata({
+  const { isVisible: isSplitNotiVisible, close: closeSplitNoti } = useUserMetaData({
     key: modularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
     enabled: isWebsiteMode && !split && lines > 500,
   });

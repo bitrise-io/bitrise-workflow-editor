@@ -17,7 +17,7 @@ type NotificationResult = {
   close: VoidFunction;
 };
 
-const useMetadata = ({ key, enabled }: Props): NotificationResult => {
+const useUserMetaData = ({ key, enabled }: Props): NotificationResult => {
   const { mutate } = useMutation({
     mutationFn: (value: boolean) =>
       monolith.put('/me/profile/metadata.json', {
@@ -39,4 +39,4 @@ const useMetadata = ({ key, enabled }: Props): NotificationResult => {
   return { isVisible, close };
 };
 
-export { useMetadata };
+export { useUserMetaData };
