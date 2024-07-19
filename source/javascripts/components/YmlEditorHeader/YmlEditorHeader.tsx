@@ -63,7 +63,14 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
 
   return (
     <>
-      <Box display="flex" gap="16" alignItems="center" marginBlockEnd="24" minHeight="40">
+      <Box
+        display="flex"
+        flexDirection={['column', 'row']}
+        gap="16"
+        alignItems={['flex-start', 'center']}
+        marginBlockEnd="24"
+        minHeight="40"
+      >
         <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
           Configuration YAML
         </Text>
