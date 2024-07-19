@@ -29,6 +29,7 @@ import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 
 import { PipelinesPage, SecretsPage, TriggersPage } from "@/pages";
+import YmlEditor from "./components/YmlEditor/YmlEditor";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -127,6 +128,10 @@ angular
   .component(
     "rYmlEditorHeader",
     register(YmlEditorHeader, ["url", "usesRepositoryYml"]),
+  )
+  .component(
+    "rYmlEditor",
+    register(YmlEditor, ["yml", "readonly", "onChange"]),
   )
   .component(
     "rWorkflowToolbar",

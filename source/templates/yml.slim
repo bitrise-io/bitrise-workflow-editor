@@ -11,4 +11,4 @@
 		r-yml-editor-header[url="ymlCtrl.downloadAppConfigYMLPath()" uses-repository-yml='ymlCtrl.usesRepositoryYml']
 		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
 		article
-			#code-container
+			r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler"]
