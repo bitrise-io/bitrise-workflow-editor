@@ -25,6 +25,7 @@ import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFrom
 import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '../../hooks/api/usePostAppConfigCallback';
 import appConfigAsYml from '../../utils/appConfigAsYml';
+import useFeatureFlag from '../../hooks/useFeatureFlag';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
   let action: NotificationProps['action'];
@@ -175,6 +176,8 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const isDialogDisabled = getAppConfigFromRepoLoading || updatePipelineConfigLoading || postAppConfigLoading;
 
+  const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
+
   return (
     <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
       <DialogBody>
@@ -311,25 +314,31 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   </Link>
                 </Text>
               </ListItem>
-              <ListItem>
-                Split up your configuration{' '}
-                <Text as="span" color="text/secondary">
-                  (optional)
-                </Text>
-                <Text textStyle="body/md/regular" color="text/secondary">
-                  <Link href="" colorScheme="purple" isExternal>
-                    Follow this guide
-                  </Link>{' '}
-                  to split up your configuration into smaller, more manageable files. This feature is only available for
-                  Workspaces on{' '}
-                  <Text as="span" textStyle="body/md/semibold">
-                    Enterprise plan.
-                  </Text>{' '}
-                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
-                    Learn more
-                  </Link>
-                </Text>
-              </ListItem>
+              {isModularYAMLMentionsEnabled && (
+                <ListItem>
+                  Split up your configuration{' '}
+                  <Text as="span" color="text/secondary">
+                    (optional)
+                  </Text>
+                  <Text textStyle="body/md/regular" color="text/secondary">
+                    <Link href="" colorScheme="purple" isExternal>
+                      Follow this guide
+                    </Link>{' '}
+                    to split up your configuration into smaller, more manageable files. This feature is only available
+                    for Workspaces on{' '}
+                    <Text as="span" textStyle="body/md/semibold">
+                      Enterprise plan.
+                    </Text>{' '}
+                    <Link
+                      href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
+                      colorScheme="purple"
+                      isExternal
+                    >
+                      Learn more
+                    </Link>
+                  </Text>
+                </ListItem>
+              )}
             </List>
           </>
         )}

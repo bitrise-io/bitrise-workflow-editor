@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
+import useFeatureFlag from '../../hooks/useFeatureFlag';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
@@ -61,6 +62,8 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
 
   const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
 
+  const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
+
   return (
     <>
       <Box
@@ -101,7 +104,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           </DataWidget>
         )}
       </Box>
-      {isSplitNotiVisible && (
+      {isModularYAMLMentionsEnabled && isSplitNotiVisible && (
         <SplitNotification modularYamlSupported={modularYamlSupported} lines={lines} onClose={closeSplitNoti} />
       )}
       {isGitNotiVisible && <GitNotification onClose={closeGitNoti} />}
