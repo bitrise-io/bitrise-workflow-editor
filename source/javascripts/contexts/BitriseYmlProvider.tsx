@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useRef } from 'react';
+import { ComponentType, createContext, PropsWithChildren, useRef } from 'react';
 import { createStore } from 'zustand';
 import { BitriseYml, Meta } from '@/models/BitriseYml';
 
@@ -26,3 +26,11 @@ const BitriseYmlProvider = ({ yml, defaultMeta, children }: BitriseYmlProviderPr
 };
 
 export default BitriseYmlProvider;
+
+export const withBitriseYml = (yml: BitriseYml, Component: ComponentType) => {
+  return (
+    <BitriseYmlProvider yml={yml}>
+      <Component />
+    </BitriseYmlProvider>
+  );
+};

@@ -1,17 +1,16 @@
-import { Box, Card, Tab, TabList, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import { BoxProps, TabPanel } from '@chakra-ui/react';
-import { WorkflowConfigTab } from '../components/WorkflowConfigPanel/WorkflowConfigPanel.types';
+import { Box, Card, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
+import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
+import WorkflowUsedByText from '../WorkflowUsedByText';
+import { WorkflowConfigTab } from './WorkflowConfigPanel.types';
 
-type Props = BoxProps;
+const WorkflowConfigPanel = () => {
+  const [selectedWorkflowId] = useSelectedWorkflow();
 
-const WorkflowConfigPanel = (props: Props) => {
   return (
-    <Box display="flex" flexDir="column" {...props}>
+    <Box display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
       <Box px="24" py="16">
-        <Text textStyle="heading/h3">fake-selected-workflow</Text>
-        <Text textStyle="body/sm/regular" color="text/secondary">
-          Not used by other Workflow
-        </Text>
+        <Text textStyle="heading/h3">{selectedWorkflowId}</Text>
+        <WorkflowUsedByText id={selectedWorkflowId} />
       </Box>
       <Tabs display="flex" flexDir="column" flex="1" minH={0}>
         <TabList px="8">
