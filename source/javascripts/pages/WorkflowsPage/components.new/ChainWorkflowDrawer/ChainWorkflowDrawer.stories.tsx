@@ -17,6 +17,7 @@ export default {
     onChainBefore: { type: 'function' },
     onChainAfter: { type: 'function' },
   },
+  decorators: (Story) => withBitriseYml(mockYml, Story),
 } as Meta<typeof ChainWorkflowDrawer>;
 
 export const Default: StoryObj = {};

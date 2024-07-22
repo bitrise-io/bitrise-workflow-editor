@@ -18,7 +18,7 @@ type Props = UseDisclosureProps & {
 };
 
 const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => {
-  const [selectedWorkflowId] = useSelectedWorkflow();
+  const { id: selectedWorkflowId } = useSelectedWorkflow();
   const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const form = useForm<SearchFormValues>({
@@ -26,6 +26,10 @@ const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => 
       ...InitialValues,
     },
   });
+
+  if (!selectedWorkflowId) {
+    return null;
+  }
 
   return (
     <FormProvider {...form}>

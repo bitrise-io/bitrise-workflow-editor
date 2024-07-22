@@ -8,7 +8,7 @@ import { extractWorkflowChain } from '@/models/Workflow';
 
 const WorkflowCanvasPanel = () => {
   const workflows = useWorkflows();
-  const [selectedWorkflowId] = useSelectedWorkflow();
+  const { id: selectedWorkflowId } = useSelectedWorkflow();
   const { openChainWorkflowDialog } = useWorkflowsPageStore();
   const isRearrangeDisabled = extractWorkflowChain(workflows, selectedWorkflowId).length <= 1;
 

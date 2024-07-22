@@ -4,7 +4,7 @@ import WorkflowUsedByText from '../WorkflowUsedByText';
 import { WorkflowConfigTab } from './WorkflowConfigPanel.types';
 
 const WorkflowConfigPanel = () => {
-  const [selectedWorkflowId] = useSelectedWorkflow();
+  const { id: selectedWorkflowId } = useSelectedWorkflow();
 
   return (
     <Box display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
