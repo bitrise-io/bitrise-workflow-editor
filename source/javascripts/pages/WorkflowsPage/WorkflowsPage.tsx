@@ -4,6 +4,7 @@ import WorkflowConfigPanel from './components.new/WorkflowConfigPanel/WorkflowCo
 import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
+import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import { BitriseYml } from '@/models/BitriseYml';
 import { Workflows } from '@/models/Workflow';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
@@ -28,6 +29,7 @@ const WorkflowsPage = ({ yml, onChange: _ }: Props) => {
         onClose={closeDialog}
         isOpen={isDialogOpen === 'chain-workflow'}
       />
+      <DeleteWorkflowDialog onClose={closeDialog} isOpen={isDialogOpen === 'delete-workflow'} />
     </BitriseYmlProvider>
   );
 };

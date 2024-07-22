@@ -2,15 +2,11 @@ import { Box, Card, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bi
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
-import { useWorkflows } from '../../hooks/useWorkflows';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
-import { extractWorkflowChain } from '@/models/Workflow';
 
 const WorkflowCanvasPanel = () => {
-  const workflows = useWorkflows();
   const { id: selectedWorkflowId } = useSelectedWorkflow();
-  const { openChainWorkflowDialog } = useWorkflowsPageStore();
-  const isRearrangeDisabled = extractWorkflowChain(workflows, selectedWorkflowId).length <= 1;
+  const { openChainWorkflowDialog, openDeleteWorkflowDialog } = useWorkflowsPageStore();
 
   return (
     <Box h="100%" display="flex" flexDir="column">
@@ -29,15 +25,8 @@ const WorkflowCanvasPanel = () => {
             <MenuItem iconName="Link" onClick={openChainWorkflowDialog}>
               Chain Workflow
             </MenuItem>
-            <MenuItem
-              iconName="Request"
-              isDisabled={isRearrangeDisabled}
-              onClick={() => console.log('Open rearrange Workflows dialog')}
-            >
-              Reorder Workflow chain
-            </MenuItem>
-            <MenuItem iconName="Trash" onClick={() => console.log('Delete Workflow')} isDanger>
-              Delete `{selectedWorkflowId}`
+            <MenuItem iconName="Trash" onClick={openDeleteWorkflowDialog} isDanger>
+              Delete '{selectedWorkflowId}'
             </MenuItem>
           </MenuList>
         </Menu>
