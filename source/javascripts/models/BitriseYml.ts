@@ -1,4 +1,4 @@
-import type { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
 import { Workflow } from './Workflow';
 
 export const bitriseYmlSchema = {
@@ -565,7 +565,7 @@ export const bitriseYmlSchema = {
       type: 'object',
     },
   },
-} as const;
+} as const satisfies JSONSchema;
 
 export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 export type Meta = Required<BitriseYml>['meta'] & {

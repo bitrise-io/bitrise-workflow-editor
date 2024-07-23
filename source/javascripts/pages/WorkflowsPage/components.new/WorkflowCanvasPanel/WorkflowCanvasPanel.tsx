@@ -1,8 +1,9 @@
-import { Box, Card, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
+import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
 import useSelectWorkflow from '../../hooks/useSelectWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
+import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectWorkflow();
@@ -34,9 +35,7 @@ const WorkflowCanvasPanel = () => {
         {isWebsiteMode() && <IconButton iconName="Play" aria-label="Run Workflow" size="md" variant="secondary" />}
       </Box>
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
-        <Card mx="auto" w={400} h={2048} display="flex" alignItems="center" justifyContent="center">
-          {selectedWorkflowId}
-        </Card>
+        <WorkflowCard id={selectedWorkflowId} w={400} mx="auto" isFixed />
       </Box>
     </Box>
   );

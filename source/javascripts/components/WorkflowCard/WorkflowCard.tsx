@@ -1,26 +1,30 @@
-import { Box, Card, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
-import useWorkflow from '../hooks/useWorkflow';
-import useMeta from '../hooks/useMeta';
-import { useAfterRunWorkflows, useBeforeRunWorkflows } from '../hooks/useWorkflowChain';
-import StepCard from './StepCard';
+import { Box, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import useWorkflow from '../../pages/PipelinesPage/hooks/useWorkflow';
+import useMeta from '../../pages/PipelinesPage/hooks/useMeta';
+import { useAfterRunWorkflows, useBeforeRunWorkflows } from '../../pages/PipelinesPage/hooks/useWorkflowChain';
+import StepCard from '../../pages/PipelinesPage/components/StepCard';
+import { Step } from '@/models/Step';
 
 type WorkflowCardHeaderProps = {
   title: string;
   stack: string;
   isOpen: boolean;
+  isFixed?: boolean;
   onToggle: () => void;
 };
 
-const WorkflowCardHeader = ({ title, stack, isOpen, onToggle }: WorkflowCardHeaderProps) => {
+const WorkflowCardHeader = ({ title, stack, isOpen, isFixed, onToggle }: WorkflowCardHeaderProps) => {
   return (
-    <Box display="flex" alignItems="center" gap="4" px="4" py="6">
-      <ControlButton
-        size="xs"
-        className="nopan"
-        onClick={onToggle}
-        iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
-        aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
-      />
+    <Box display="flex" alignItems="center" gap="4" px={isFixed ? 12 : 4} py="6">
+      {!isFixed && (
+        <ControlButton
+          size="xs"
+          className="nopan"
+          onClick={onToggle}
+          iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
+          aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+        />
+      )}
       <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
         <Text textStyle="body/md/semibold" hasEllipsis>
           {title}
@@ -65,22 +69,23 @@ const AfterRunWorkflows = ({ id }: WorkflowChainProps) => {
   );
 };
 
-type WorkflowCardProps = {
+type WorkflowCardProps = CardProps & {
   id: string;
   isRoot?: boolean;
+  isFixed?: boolean;
   isExpanded?: boolean;
 };
 
-const WorkflowCard = ({ id, isRoot = true, isExpanded = false }: WorkflowCardProps) => {
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded });
+const WorkflowCard = ({ id, isRoot = true, isExpanded, isFixed, ...props }: WorkflowCardProps) => {
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded || isFixed });
   const { title, meta: workflowMeta, steps } = useWorkflow({ id });
   const meta = useMeta({ override: workflowMeta });
 
   const stack = meta['bitrise.io']?.stack || 'Unknown stack';
 
   return (
-    <Card variant={isRoot ? 'elevated' : 'outline'}>
-      <WorkflowCardHeader title={title || id} stack={stack} isOpen={isOpen} onToggle={onToggle} />
+    <Card variant={isRoot ? 'elevated' : 'outline'} {...props}>
+      <WorkflowCardHeader title={title || id} stack={stack} isOpen={isOpen} isFixed={isFixed} onToggle={onToggle} />
       <Collapse in={isOpen} style={{ overflow: 'unset' }} unmountOnExit={false}>
         <Box display="flex" flexDir="column" alignItems="center" gap="8" padding="8">
           {isRoot && <BeforeRunWorkflows id={id} />}
@@ -94,7 +99,8 @@ const WorkflowCard = ({ id, isRoot = true, isExpanded = false }: WorkflowCardPro
           )}
 
           {steps?.map((s, index) => {
-            const [cvs = '', step] = Object.entries(s)[0];
+            const [cvs = '', step] = Object.entries(s)[0] as [string, Step];
+
             return (
               <StepCard
                 // eslint-disable-next-line react/no-array-index-key
