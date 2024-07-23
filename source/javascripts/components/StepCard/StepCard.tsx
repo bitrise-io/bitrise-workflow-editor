@@ -1,5 +1,5 @@
 import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
-import useStepListItem from '../hooks/useStepListItem';
+import useStepListItem from './hooks/useStepListItem';
 
 type StepCardProps = {
   cvs: string;
@@ -32,7 +32,14 @@ const StepCard = ({ cvs, title, icon, showSecondary = true }: StepCardProps) => 
 
   return (
     <Card variant="outline" display="flex" gap="8" p="8" borderRadius="4">
-      <Avatar name={resolvedTitle} src={resolvedIcon} size="32" outline="1px solid" outlineColor="neutral.90" />
+      <Avatar
+        size="32"
+        variant="step"
+        src={resolvedIcon}
+        outline="1px solid"
+        name={resolvedTitle}
+        outlineColor="border/minimal"
+      />
       <Box minW={0}>
         <Text textStyle="body/sm/regular" hasEllipsis>
           {resolvedTitle}

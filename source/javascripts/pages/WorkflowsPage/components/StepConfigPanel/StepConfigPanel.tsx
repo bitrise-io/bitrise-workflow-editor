@@ -83,9 +83,10 @@ const StepConfigPanel = ({
             <Avatar
               name="ci"
               size="48"
+              variant="step"
               borderWidth="1px"
               borderStyle="solid"
-              borderColor="neutral.93"
+              borderColor="border/minimal"
               src={step.iconURL()}
             />
 

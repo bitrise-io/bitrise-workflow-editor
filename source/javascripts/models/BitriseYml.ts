@@ -1,4 +1,5 @@
-import type { FromSchema } from 'json-schema-to-ts';
+import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
+import { Workflow } from './Workflow';
 
 export const bitriseYmlSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -17,15 +18,7 @@ export const bitriseYmlSchema = {
           type: 'string',
         },
         envs: {
-          items: {
-            patternProperties: {
-              '.*': {
-                additionalProperties: true,
-              },
-            },
-            type: 'object',
-          },
-          type: 'array',
+          $ref: '#/definitions/EnvModel',
         },
       },
       additionalProperties: false,
@@ -72,6 +65,22 @@ export const bitriseYmlSchema = {
         },
         description: {
           type: 'string',
+        },
+        services: {
+          patternProperties: {
+            '.*': {
+              $ref: '#/definitions/ContainerModel',
+            },
+          },
+          type: 'object',
+        },
+        containers: {
+          patternProperties: {
+            '.*': {
+              $ref: '#/definitions/ContainerModel',
+            },
+          },
+          type: 'object',
         },
         app: {
           $ref: '#/definitions/AppModel',
@@ -139,6 +148,31 @@ export const bitriseYmlSchema = {
       additionalProperties: false,
       type: 'object',
     },
+    ContainerModel: {
+      required: ['image'],
+      properties: {
+        image: {
+          type: 'string',
+        },
+        credentials: {
+          $ref: '#/definitions/DockerCredentialModel',
+        },
+        ports: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+        envs: {
+          $ref: '#/definitions/EnvModel',
+        },
+        options: {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
     DepsModel: {
       properties: {
         brew: {
@@ -162,6 +196,33 @@ export const bitriseYmlSchema = {
       },
       additionalProperties: false,
       type: 'object',
+    },
+    DockerCredentialModel: {
+      required: ['username', 'password'],
+      properties: {
+        username: {
+          type: 'string',
+        },
+        password: {
+          type: 'string',
+        },
+        server: {
+          type: 'string',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    EnvModel: {
+      items: {
+        patternProperties: {
+          '.*': {
+            additionalProperties: true,
+          },
+        },
+        type: 'object',
+      },
+      type: 'array',
     },
     GoStepToolkitModel: {
       required: ['package_name'],
@@ -317,26 +378,10 @@ export const bitriseYmlSchema = {
           type: 'object',
         },
         inputs: {
-          items: {
-            patternProperties: {
-              '.*': {
-                additionalProperties: true,
-              },
-            },
-            type: 'object',
-          },
-          type: 'array',
+          $ref: '#/definitions/EnvModel',
         },
         outputs: {
-          items: {
-            patternProperties: {
-              '.*': {
-                additionalProperties: true,
-              },
-            },
-            type: 'object',
-          },
-          type: 'array',
+          $ref: '#/definitions/EnvModel',
         },
       },
       additionalProperties: false,
@@ -431,6 +476,33 @@ export const bitriseYmlSchema = {
       additionalProperties: false,
       type: 'object',
     },
+    WithModel: {
+      required: ['steps'],
+      properties: {
+        container: {
+          type: 'string',
+        },
+        services: {
+          type: 'array',
+          items: {
+            type: 'string',
+          },
+        },
+        steps: {
+          items: {
+            patternProperties: {
+              '.*': {
+                $ref: '#/definitions/StepModel',
+              },
+            },
+            type: 'object',
+          },
+          type: 'array',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
     WorkflowStageConfigModel: {
       properties: {
         run_if: {
@@ -464,19 +536,14 @@ export const bitriseYmlSchema = {
           type: 'array',
         },
         envs: {
-          items: {
-            patternProperties: {
-              '.*': {
-                additionalProperties: true,
-              },
-            },
-            type: 'object',
-          },
-          type: 'array',
+          $ref: '#/definitions/EnvModel',
         },
         steps: {
           items: {
             patternProperties: {
+              '^with$': {
+                $ref: '#/definitions/WithModel',
+              },
               '.*': {
                 $ref: '#/definitions/StepModel',
               },
@@ -498,9 +565,41 @@ export const bitriseYmlSchema = {
       type: 'object',
     },
   },
-} as const;
+} as const satisfies JSONSchema;
 
 export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 export type Meta = Required<BitriseYml>['meta'] & {
   'bitrise.io'?: { stack: string; machine_type_id: string };
 };
+
+export function deleteWorkflow(yml: BitriseYml, workfowId: string): BitriseYml {
+  const copy = JSON.parse(JSON.stringify(yml)) as BitriseYml;
+
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).reduce<[string, Workflow][]>((entries, [currentWorkflowId, workflow]) => {
+        if (currentWorkflowId === workfowId) {
+          return entries;
+        }
+
+        const afterRun = workflow.after_run?.filter((chainedWorkflowId) => chainedWorkflowId !== workfowId);
+        const beforeRun = workflow.before_run?.filter((chainedWorkflowId) => chainedWorkflowId !== workfowId);
+
+        return [...entries, [currentWorkflowId, { ...workflow, after_run: afterRun, before_run: beforeRun }]];
+      }, []),
+    );
+  }
+
+  if (copy.stages) {
+    copy.stages = Object.fromEntries(
+      Object.entries(copy.stages).map(([stageId, stage]) => {
+        const workflows = stage.workflows?.filter((workflow) => !Object.keys(workflow).includes(workfowId));
+        return [stageId, { ...stage, workflows }];
+      }),
+    );
+  }
+
+  copy.trigger_map = copy.trigger_map?.filter(({ workflow }) => workflow !== workfowId);
+
+  return copy;
+}
