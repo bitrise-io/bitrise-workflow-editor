@@ -634,6 +634,16 @@ header.sticky header.menu {
 			padding: 20px 0;
 		}
 
+		&:has(.tab-yml) {
+			display: flex;
+			flex-direction: column;
+
+			.tab-content {
+				display: flex;
+				height: 100%;
+			}
+		}
+
 		> :not(:first-child) {
 			margin-top: 20px;
 		}
