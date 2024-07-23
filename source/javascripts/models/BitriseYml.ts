@@ -1,6 +1,5 @@
 import type { FromSchema } from 'json-schema-to-ts';
 import { Workflow } from './Workflow';
-import { getSearchParamsFromLocationHash, setSearchParamsInLocationHash } from '@/hooks/useSearchParams';
 
 export const bitriseYmlSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -601,11 +600,6 @@ export function deleteWorkflow(yml: BitriseYml, workfowId: string): BitriseYml {
   }
 
   copy.trigger_map = copy.trigger_map?.filter(({ workflow }) => workflow !== workfowId);
-
-  // TODO: Move somewhere else...
-  const newSelectedWorkflowId = Object.keys(copy.workflows ?? {})[0];
-  const searchParams = getSearchParamsFromLocationHash();
-  setSearchParamsInLocationHash({ ...searchParams, workflow_id: newSelectedWorkflowId });
 
   return copy;
 }

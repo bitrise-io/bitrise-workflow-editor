@@ -1,10 +1,10 @@
 import { Box, Card, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
+import useSelectWorkflow from '../../hooks/useSelectWorkflow';
 import WorkflowUsedByText from '../WorkflowUsedByText';
 import { WorkflowConfigTab } from './WorkflowConfigPanel.types';
 
 const WorkflowConfigPanel = () => {
-  const { id: selectedWorkflowId } = useSelectedWorkflow();
+  const [{ id: selectedWorkflowId }] = useSelectWorkflow();
 
   return (
     <Box display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
