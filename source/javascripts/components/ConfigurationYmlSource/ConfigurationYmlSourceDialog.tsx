@@ -313,7 +313,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 Provide repository access
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
                   Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
-                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
+                  <Link
+                    href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
+                    colorScheme="purple"
+                    isExternal
+                  >
                     Learn more
                   </Link>
                 </Text>

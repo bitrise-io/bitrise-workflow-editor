@@ -11,7 +11,7 @@ const SplitNotification = ({ lines, modularYamlSupported, onClose }: Notificatio
     <Notification
       status="info"
       action={{
-        href: 'https://devcenter.bitrise.io/builds/bitrise-yml-online/',
+        href: 'https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html',
         label: 'Learn more',
         target: '_blank',
       }}
