@@ -368,7 +368,9 @@ import jsyaml from "js-yaml";
 										buildData: {
 											lastRunningBuildOrLastBuildStatus: response.data.last_running_build_or_last_build_build_status,
 											lastRunningBuildFinishDate: response.data.last_running_build_or_last_build_finished_at
-										}
+										},
+										defaultBranch: response.data.default_branch_name,
+										gitRepoSlug: response.data.git_repo_slug
 									});
 								},
 								function(response) {
@@ -663,7 +665,11 @@ import jsyaml from "js-yaml";
 					$http.get(requestURL, requestConfig).then(
 						function(response) {
 							resolve({
-								usesRepositoryYml: response.data.uses_repository_yml
+								usesRepositoryYml: response.data.uses_repository_yml,
+								lines: response.data.lines || 0,
+								split: !!response.data.split,
+								modularYamlSupported: !!response.data.modular_yaml_supported,
+								lastModified: response.data.last_modified || null
 							});
 						},
 						function(response) {

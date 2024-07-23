@@ -1,14 +1,13 @@
-import { useMemo } from 'react';
+import { useShallow } from 'zustand/react/shallow';
 import { extractUsedByWorkflows } from '@/models/Workflow';
-import { useWorkflows } from '@/pages/WorkflowsPage/hooks/useWorkflows';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
   id: string;
 };
 
 const useWorkflowUsedBy = ({ id }: Props) => {
-  const workflows = useWorkflows();
-  return useMemo(() => extractUsedByWorkflows(workflows, id), [workflows, id]);
+  return useBitriseYmlStore(useShallow(({ yml }) => extractUsedByWorkflows(yml.workflows ?? {}, id)));
 };
 
 export default useWorkflowUsedBy;

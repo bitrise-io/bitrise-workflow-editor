@@ -1,4 +1,9 @@
-.tab-workflows[ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
+.workflows-page[ng-if="mainCtrl.enableNewWorkflowsPage" ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
+  r-workflows-page[
+    yml="workflowsCtrl.yml"
+  ]
+
+.tab-workflows[ng-if='!mainCtrl.enableNewWorkflowsPage' ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
   p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]

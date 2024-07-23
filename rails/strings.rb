@@ -33,7 +33,7 @@ def strings
                     stack: "Stack",
                     stacks_and_machines: "Stacks & Machines",
                     licenses: "Licenses",
-                    yml: "bitrise.yml"
+                    yml: "Configuration YAML"
                 },
                 discard: "Discard",
                 save: "Save",
@@ -679,7 +679,6 @@ def strings
                 title: "bitrise.yml",
                 info_1: "You can edit your current config in YAML format:",
                 info_1_repo_yml: "The content of the bitrise.yml file, fetched from the app's repository.",
-                info_2: "You can download this YML and run it directly with <a href='<url>' target='_blank'>bitrise CLI</a> locally.",
                 download: "Download currently saved config",
                 load_progress: {
                     loading: "Loading, wait a sec..."

@@ -2,9 +2,9 @@ import { useMemo } from 'react';
 import Fuse from 'fuse.js';
 import { useQuery } from '@tanstack/react-query';
 
-import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 import { fromAlgolia } from '../StepDrawer.utils';
 import { SearchFormValues, Step } from '../StepDrawer.types';
+import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 import { AlgoliaStepResponse } from '@/models/Algolia';
 
 const ATTRIBUTES_TO_RETRIEVE = [

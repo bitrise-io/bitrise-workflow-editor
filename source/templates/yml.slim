@@ -1,14 +1,24 @@
 .tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
-	section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
-		.icon
-		.message
-			.title == data[:strings][:yml][:warn][:title]
-			ul
-				li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
-	section[ng-if="ymlCtrl.shouldShowYmlStorageSettings"]
-		r-yml-storage-settings[app-slug="ymlCtrl.appSlug" uses-repository-yml="ymlCtrl.usesRepositoryYml" on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved" repository-yml-available="ymlCtrl.repositoryYmlAvailable"]
-	section.cardo
-		r-yml-editor-header[url="ymlCtrl.downloadAppConfigYMLPath()" uses-repository-yml='ymlCtrl.usesRepositoryYml']
-		p.notification.no-icon[ng-if="ymlCtrl.downloadAppConfigYMLPath()"] == replaced_string(data[:strings][:yml][:info_2], [data[:routes][:devcenter][:bitrise_cli]])
-		article
-			r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler"]
+  section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
+    .icon
+    .message
+      .title == data[:strings][:yml][:warn][:title]
+      ul
+        li[ng-repeat="warning in appService.validationWarnings" ng-bind="warning"]
+  r-yml-editor-header[
+    url="ymlCtrl.downloadAppConfigYMLPath()"
+    initial-uses-repository-yml="ymlCtrl.usesRepositoryYml"
+    app-slug="ymlCtrl.appSlug"
+    app-config="ymlCtrl.appConfigYML"
+    on-uses-repository-yml-change-saved="ymlCtrl.onUsesRepositoryYmlChangeSaved"
+    repository-yml-available="ymlCtrl.repositoryYmlAvailable"
+    is-website-mode="ymlCtrl.isWebsiteMode"
+    default-branch="ymlCtrl.defaultBranch"
+    git-repo-slug="ymlCtrl.gitRepoSlug"
+    lines="ymlCtrl.lines"
+    split="ymlCtrl.split"
+    modular-yaml-supported="ymlCtrl.modularYamlSupported"
+    last-modified="ymlCtrl.lastModified"
+  ]
+  #editor-container
+    r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler"]

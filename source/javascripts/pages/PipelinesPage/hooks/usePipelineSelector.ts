@@ -1,6 +1,6 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import useSearchParams from './useSearchParams';
+import useSearchParams from '../../../hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { Pipeline } from '@/models/Pipeline';
 

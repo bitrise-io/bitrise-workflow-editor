@@ -290,7 +290,7 @@
 
         return validateVariables(variables)
           .then(function () {
-            deferredUserSavedYmlToRepository?.notify('open-update-yml-in-repository-dialog');
+            deferredUserSavedYmlToRepository?.notify('open-update-configuration-dialog');
 
             return (
               deferredUserSavedYmlToRepository?.promise ||

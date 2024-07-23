@@ -14,7 +14,6 @@ const YmlEditor = ({ readonly, yml, onChange }: YmlEditorProps) => {
 
   return (
     <Editor
-      height="calc(100dvh - 222px)"
       defaultLanguage="yaml"
       defaultValue={yml}
       theme="vs-dark"
@@ -22,6 +21,9 @@ const YmlEditor = ({ readonly, yml, onChange }: YmlEditorProps) => {
         readOnly: readonly,
         roundedSelection: false,
         scrollBeyondLastLine: false,
+        stickyScroll: {
+          enabled: true,
+        },
       }}
       onMount={(_, monaco) => {
         configureMonacoYaml(monaco, {

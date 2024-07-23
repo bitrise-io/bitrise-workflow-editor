@@ -1,24 +1,15 @@
-import useMonolithApiCallback, { MonolithError } from './useMonolithApiCallback';
+import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
-export interface FetchResponse {
-  call: () => void;
-  value: boolean | undefined;
-  isLoading: boolean;
-  failed: MonolithError | undefined;
-}
+type QueryOpts<T> = Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>;
 
-export default function useGetUserMetaData(key: string): FetchResponse {
-  const {
-    call,
-    loading: isLoading,
-    failed,
-    result,
-  } = useMonolithApiCallback<{ value: boolean }>(`/me/profile/metadata.json?key=${key}`);
-
-  return {
-    call,
-    failed,
-    isLoading,
-    value: result?.value,
-  };
+export default function useGetUserMetaData<T>(key: string, options?: QueryOpts<T>) {
+  const url = `/me/profile/metadata.json?key=${key}`;
+  return useQuery<T>({
+    queryKey: ['metadata', key, url],
+    queryFn: async () => {
+      const response = await fetch(url);
+      return (await response.json()) as T;
+    },
+    ...options,
+  });
 }
