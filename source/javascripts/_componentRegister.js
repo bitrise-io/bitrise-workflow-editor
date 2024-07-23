@@ -7,8 +7,6 @@ import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import StepItem from "./components/StepItem/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
-import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
-import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
@@ -27,7 +25,7 @@ import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRec
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-
+import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
 import {
   PipelinesPage,
   SecretsPage,
@@ -103,22 +101,14 @@ angular
   )
   .component("rStepItemBadge", register(StepBadge, ["step"]))
   .component(
-    "rYmlStorageSettings",
-    register(YmlStorageSettings, [
-      "appSlug",
-      "usesRepositoryYml",
-      "onUsesRepositoryYmlChangeSaved",
-      "repositoryYmlAvailable",
-    ]),
-  )
-  .component(
-    "rUpdateYmlInRepositoryModal",
-    register(UpdateYmlInRepositoryModal, [
-      "appSlug",
-      "isVisible",
+    "rUpdateConfigurationDialog",
+    register(UpdateConfigurationDialog, [
       "onClose",
-      "onComplete",
+      "appSlug",
       "getDataToSave",
+      "onComplete",
+      "defaultBranch",
+      "gitRepoSlug",
     ]),
   )
   .component(
@@ -132,7 +122,21 @@ angular
   )
   .component(
     "rYmlEditorHeader",
-    register(YmlEditorHeader, ["url", "usesRepositoryYml"]),
+    register(YmlEditorHeader, [
+      "url",
+      "initialUsesRepositoryYml",
+      "appSlug",
+      "appConfig",
+      "onUsesRepositoryYmlChangeSaved",
+      "repositoryYmlAvailable",
+      "isWebsiteMode",
+      "defaultBranch",
+      "gitRepoSlug",
+      "lines",
+      "split",
+      "modularYamlSupported",
+      "lastModified",
+    ]),
   )
   .component(
     "rWorkflowToolbar",
