@@ -9,7 +9,7 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import useSelectWorkflow from '../../hooks/useSelectWorkflow';
+import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
 
@@ -18,7 +18,7 @@ type Props = UseDisclosureProps & {
 };
 
 const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => {
-  const [{ id: selectedWorkflowId }] = useSelectWorkflow();
+  const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
   const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const form = useForm<SearchFormValues>({

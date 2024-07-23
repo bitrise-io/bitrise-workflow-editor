@@ -4,9 +4,12 @@ import useSearchParams from '@/hooks/useSearchParams';
 import { WithId, withId } from '@/models/WithId';
 import { Workflow } from '@/models/Workflow';
 
-type UseSelectWorkflowResult = [selectedWorkflow: WithId<Workflow>, setSelectedWorkflow: (workflowId?: string) => void];
+type UseSelectedWorkflowResult = [
+  selectedWorkflow: WithId<Workflow>,
+  setSelectedWorkflow: (workflowId?: string | null) => void,
+];
 
-const useSelectWorkflow = (): UseSelectWorkflowResult => {
+const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
   const [searchParams, setSearchParams] = useSearchParams();
@@ -16,7 +19,7 @@ const useSelectWorkflow = (): UseSelectWorkflowResult => {
     const workflowEntries = Object.entries(workflows);
     const selectedWorkflow = workflowEntries.find(([id]) => id === selectedWorkflowId) ?? ['', {}];
 
-    const setSelectedWorkflow = (workflowId?: string) => {
+    const setSelectedWorkflow = (workflowId?: string | null) => {
       setSearchParams((oldSearchParams) => {
         return {
           ...oldSearchParams,
@@ -29,4 +32,4 @@ const useSelectWorkflow = (): UseSelectWorkflowResult => {
   }, [selectedWorkflowId, setSearchParams, workflowIds, workflows]);
 };
 
-export default useSelectWorkflow;
+export default useSelectedWorkflow;

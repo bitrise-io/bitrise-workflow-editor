@@ -10,14 +10,14 @@ import {
   EmptyState,
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
-import useSearchParams from '@/hooks/useSearchParams';
 import useWorkflowIds from '@/pages/WorkflowsPage/hooks/useWorkflowIds';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
+import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
 
 const WorkflowSelector = () => {
-  const workflowNames = useWorkflowIds();
-  const [searchParams, setSearchParams] = useSearchParams();
+  const workflowIds = useWorkflowIds();
   const { openCreateWorkflowDialog } = useWorkflowsPageStore();
+  const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
@@ -26,7 +26,7 @@ const WorkflowSelector = () => {
     const utility: string[] = [];
     const runnable: string[] = [];
 
-    workflowNames.forEach((workflowName) => {
+    workflowIds.forEach((workflowName) => {
       if (workflowName.toLowerCase().includes(debouncedSearch.toLowerCase())) {
         if (workflowName.startsWith('_')) {
           utility.push(workflowName);
@@ -37,9 +37,8 @@ const WorkflowSelector = () => {
     });
 
     return [utility, runnable];
-  }, [debouncedSearch, workflowNames]);
+  }, [debouncedSearch, workflowIds]);
 
-  const selectedWorkflowId = searchParams.workflow_id || workflowNames[0] || '';
   const hasUtilityWorkflows = utilityWorkflows.length > 0;
   const hasNoSearchResults = debouncedSearch && utilityWorkflows.length === 0 && runnableWorkflows.length === 0;
 
@@ -48,25 +47,12 @@ const WorkflowSelector = () => {
     setDebouncedSearch(value);
   };
 
-  const onSelectWorkflowId = (newSelectedWorkflowId?: string | null) => {
-    setSearchParams((oldSearchParams) => {
-      // eslint-disable-next-line @typescript-eslint/naming-convention
-      const { workflow_id: _, ...otherSearchParams } = oldSearchParams;
-
-      if (newSelectedWorkflowId) {
-        return { ...otherSearchParams, workflow_id: newSelectedWorkflowId };
-      }
-
-      return { ...otherSearchParams };
-    });
-  };
-
   return (
     <Box flex="1" __css={{ '--dropdown-floating-max': '359px' }}>
       <Dropdown
         size="md"
         value={selectedWorkflowId}
-        onChange={({ target: { value } }) => onSelectWorkflowId(value)}
+        onChange={({ target: { value } }) => setSelectedWorkflow(value)}
         search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
       >
         {runnableWorkflows.map((id) => (

@@ -1,12 +1,12 @@
 import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
-import useSelectWorkflow from '../../hooks/useSelectWorkflow';
+import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 
 const WorkflowCanvasPanel = () => {
-  const [{ id: selectedWorkflowId }] = useSelectWorkflow();
+  const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
   const { openChainWorkflowDialog, openDeleteWorkflowDialog } = useWorkflowsPageStore();
 
   return (
