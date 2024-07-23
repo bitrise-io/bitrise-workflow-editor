@@ -103,16 +103,6 @@ import {configureMonacoYaml} from 'monaco-yaml';
         editor.layout();
         editor.focus();
         editor.onDidChangeModelContent(updateAppConfigYML);
-
-        function resizeEditor() {
-          editor.layout({
-            width: codeContainer.clientWidth,
-            height: codeContainer.clientHeight,
-          });
-        }
-
-        $timeout(resizeEditor, 0);
-        window.addEventListener('resize', resizeEditor);
       }
 
       function updateAppConfigYML() {

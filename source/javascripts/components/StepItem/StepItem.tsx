@@ -10,8 +10,6 @@ import { Step } from '@/models';
 type StepItemProps = {
   workflowIndex: number;
   step: Step;
-  displayName: string;
-  version?: string;
   isSelected: boolean;
   hasVersionUpdate: boolean;
   onSelected: (step: Step, index: number) => void;
@@ -19,15 +17,12 @@ type StepItemProps = {
 
 const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 
-const StepItem = ({
-  workflowIndex,
-  step,
-  displayName,
-  version,
-  hasVersionUpdate,
-  isSelected,
-  onSelected,
-}: StepItemProps): JSX.Element => {
+const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelected }: StepItemProps): JSX.Element => {
+  const displayName = step.displayName();
+  const version = step.requestedVersion();
+
+  const isWithGroup = step.cvs === 'with';
+
   return (
     <button
       type="button"
@@ -43,11 +38,14 @@ const StepItem = ({
           <StepItemTitle displayName={displayName} />
           <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
         </strong>
-        <StepItemVersion
-          actualVersion={step.version}
-          requestedVersion={version || ''}
-          hasVersionUpdate={hasVersionUpdate}
-        />
+        {!!version && (
+          <StepItemVersion
+            actualVersion={step.version}
+            requestedVersion={version || ''}
+            hasVersionUpdate={hasVersionUpdate}
+          />
+        )}
+        {isWithGroup && <>eee</>}
       </span>
     </button>
   );

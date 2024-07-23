@@ -24,6 +24,12 @@
 		};
 
 		Step.prototype.displayName = function() {
+			if (this.cvs.includes('bundle::')) {
+				return 'Step bundle: ' + this.cvs.replace('bundle::', '');
+			}
+			if (this.cvs === 'with') {
+				return 'With group';
+			}
 			if (this.title()) {
 				return this.title();
 			}
