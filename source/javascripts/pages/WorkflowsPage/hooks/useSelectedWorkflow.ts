@@ -17,6 +17,7 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
 
   return useMemo(() => {
     const workflowEntries = Object.entries(workflows);
+    // TODO: Thinking about how to notice the users when workflow is not found by the given ID.
     const selectedWorkflow = workflowEntries.find(([id]) => id === selectedWorkflowId) ?? ['', {}];
 
     const setSelectedWorkflow = (workflowId?: string | null) => {
