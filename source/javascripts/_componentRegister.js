@@ -26,7 +26,12 @@ import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
-import { PipelinesPage, SecretsPage, TriggersPage } from "@/pages";
+import {
+  PipelinesPage,
+  SecretsPage,
+  TriggersPage,
+  WorkflowsPage,
+} from "@/pages";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -60,7 +65,8 @@ angular
       "planSelectorPageUrl",
     ]),
   )
-  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]));
+  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]))
+  .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]));
 
 // Components
 angular

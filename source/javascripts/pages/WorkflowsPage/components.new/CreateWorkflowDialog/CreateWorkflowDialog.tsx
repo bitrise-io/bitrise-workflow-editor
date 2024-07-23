@@ -1,10 +1,8 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
-import { UseDisclosureProps } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
+import { UseDisclosureProps } from '@chakra-ui/react';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
 import { isNotEmpty, isUnique, WORKFLOW_NAME_PATTERN, WORKFLOW_NAME_REQUIRED } from '@/models/Workflow';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/models/BitriseYml';
 
 type FormValues = {
   name: string;
@@ -82,13 +80,4 @@ const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
   );
 };
 
-// TODO: Remove this after the whole page gets the BitriseYmlProvider
-const CreateWorkflowDialogWrapper = ({ yml, ...props }: Props & { yml: BitriseYml }) => {
-  return (
-    <BitriseYmlProvider yml={yml}>
-      <CreateWorkflowDialog {...props} />
-    </BitriseYmlProvider>
-  );
-};
-
-export default CreateWorkflowDialogWrapper;
+export default CreateWorkflowDialog;

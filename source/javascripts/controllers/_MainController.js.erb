@@ -1,6 +1,6 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {safeDigest} from "@/services/react-compat";
+import { safeDigest } from "@/services/react-compat";
 
 (function () {
   "use strict";
@@ -338,7 +338,7 @@ import {safeDigest} from "@/services/react-compat";
           );
         }).then(
           function () {
-            logger.setTags({menuID: menu.id});
+            logger.setTags({ menuID: menu.id });
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -760,6 +760,7 @@ import {safeDigest} from "@/services/react-compat";
             viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
             viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
             viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
+            viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
 
             switch (requestService.mode) {
               case "website":

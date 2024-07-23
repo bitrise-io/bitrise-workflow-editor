@@ -1,7 +1,7 @@
 import maxSatisfying from 'semver/ranges/max-satisfying';
 import defaultIcon from '../../../../images/step/icon-default.svg';
-import useAlgoliaStep from '../../WorkflowsPage/hooks/useAlgoliaStep';
-import { isStepLib, normalizeVersion, parseCvs } from '../utils/steps';
+import useAlgoliaStep from '@/hooks/useAlgoliaStep';
+import { isStepLib, normalizeStepVersion, parseStepCVS } from '@/models/Step';
 
 type Props = {
   cvs: string;
@@ -19,7 +19,7 @@ type StepCardData = {
 };
 
 const useStepListItem = ({ cvs, title, icon }: Props): StepCardData => {
-  const [id = '', version = ''] = parseCvs(cvs);
+  const [id = '', version = ''] = parseStepCVS(cvs);
   const { data, isLoading } = useAlgoliaStep({
     id,
     enabled: isStepLib(cvs),
@@ -27,7 +27,7 @@ const useStepListItem = ({ cvs, title, icon }: Props): StepCardData => {
   });
 
   const versions = (data?.map((s) => s.version) ?? []) as string[];
-  const normalizedVersion = normalizeVersion(version) || 'Always latest';
+  const normalizedVersion = normalizeStepVersion(version) || 'Always latest';
   const resolvedVersion = maxSatisfying(versions, normalizedVersion) || versions[0] || normalizedVersion;
   const defaultConfig = data?.find((s) => s.version === resolvedVersion);
 
