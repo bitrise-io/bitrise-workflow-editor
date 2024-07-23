@@ -1,8 +1,8 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
-import useWorkflow from '../../pages/PipelinesPage/hooks/useWorkflow';
-import useMeta from '../../pages/PipelinesPage/hooks/useMeta';
-import { useAfterRunWorkflows, useBeforeRunWorkflows } from '../../pages/PipelinesPage/hooks/useWorkflowChain';
-import StepCard from '../../pages/PipelinesPage/components/StepCard';
+import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
+import useMeta from './hooks/useMeta';
+import useWorkflow from './hooks/useWorkflow';
+import StepCard from '@/components/StepCard/StepCard';
 import { Step } from '@/models/Step';
 
 type WorkflowCardHeaderProps = {
