@@ -21,7 +21,7 @@
 		};
 
 		Progress.prototype.error = function(error) {
-			this.statusMessage = error.message;
+			this.statusMessage = error.message !== 'Split configuration requires an Enterprise plan' ? error.message : '<h2><strong>'+error.message + "</strong></h2> Contact our customer support if you'd like to try it out. <a href='https://bitrise.io/contact' target='_blank'><u>Contact us</u></a>";
 			this.isIdle = false;
 			this.isInProgress = false;
 			this.isError = true;

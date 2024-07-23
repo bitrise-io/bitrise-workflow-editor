@@ -1,41 +1,128 @@
-import { Box, Button, Text } from '@bitrise/bitkit';
+import { useState } from 'react';
+import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
+import useFeatureFlag from '../../hooks/useFeatureFlag';
+import SplitNotification from './SplitNotification';
+import GitNotification from './GitNotification';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
+import { AppConfig } from '@/models/AppConfig';
 
-import WorkflowRecipesLink from '../workflow-recipes/WorkflowRecipesLink/WorkflowRecipesLink';
+const GIT_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
+const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';
+const SPLIT_METADATA_KEY = 'wfe_modular_yaml_split_notification_closed';
 
-type YmlEditorHeaderProps = {
+export type YmlEditorHeaderProps = {
+  appSlug: string;
+  appConfig: AppConfig | string;
   url: string;
-  usesRepositoryYml?: boolean;
+  initialUsesRepositoryYml?: boolean;
+  repositoryYmlAvailable: boolean;
+  isWebsiteMode: boolean;
+  onUsesRepositoryYmlChangeSaved: (usesRepositoryYml: boolean) => void;
+  defaultBranch: string;
+  gitRepoSlug: string;
+  split: boolean;
+  modularYamlSupported?: boolean;
+  lines: number;
+  lastModified: string | null;
 };
-const YmlEditorHeader = ({ url, usesRepositoryYml }: YmlEditorHeaderProps): JSX.Element => {
+const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
+  const {
+    appSlug,
+    appConfig,
+    defaultBranch,
+    gitRepoSlug,
+    onUsesRepositoryYmlChangeSaved,
+    repositoryYmlAvailable,
+    isWebsiteMode,
+    url,
+    initialUsesRepositoryYml,
+    split,
+    modularYamlSupported,
+    lines,
+    lastModified,
+  } = props;
+  const { isOpen, onClose, onOpen } = useDisclosure();
+  const [usesRepositoryYml, setUsesRepositoryYml] = useState(!!initialUsesRepositoryYml);
+  const { isVisible: isGitNotiVisible, close: closeGitNoti } = useUserMetaData({
+    key: GIT_METADATA_KEY,
+    enabled: isWebsiteMode && split && usesRepositoryYml,
+  });
+  const { isVisible: isSplitNotiVisible, close: closeSplitNoti } = useUserMetaData({
+    key: modularYamlSupported ? SPLIT_METADATA_ENTERPRISE_KEY : SPLIT_METADATA_KEY,
+    enabled: isWebsiteMode && !split && lines > 500,
+  });
+
+  let infoLabel;
+  if (usesRepositoryYml) {
+    infoLabel = split
+      ? `The root configuration YAML is stored on ${gitRepoSlug} repository’s ${defaultBranch} branch. It also use configuration from other files.`
+      : `Stored on ${gitRepoSlug} repository’s ${defaultBranch} branch.`;
+  }
+
+  const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
+
+  const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
+
   return (
-    <Box
-      display="flex"
-      flexDirection={['column', 'row']}
-      backgroundColor="gray-2"
-      paddingX="16"
-      paddingY="12"
-      justifyContent="space-between"
-      gap="8"
-    >
-      <Box>
-        <Text fontWeight="bold" marginBottom="8">
-          {usesRepositoryYml ? 'bitrise.yml' : 'bitrise.yml editor'}
+    <>
+      <Box
+        display="flex"
+        flexDirection={['column', 'row']}
+        gap="16"
+        alignItems={['flex-start', 'center']}
+        marginBlockEnd="24"
+        minHeight="40"
+      >
+        <Text as="h2" alignSelf="flex-start" marginInlineEnd="auto" textStyle="heading/h2">
+          Configuration YAML
         </Text>
-        <Text size="2" color="neutral.40">
-          {usesRepositoryYml
-            ? "The content of the bitrise.yml file, fetched from the app's repository."
-            : 'You can edit your current config in YAML format:'}
-        </Text>
-      </Box>
-      <Box display="flex" flexDirection={['column-reverse', 'row']} gap="8">
-        <WorkflowRecipesLink linkId="workflow-editor-yml-editor-workflow-recipes-link" trackingName="yml_editor" />
         {url && (
-          <Button as="a" href={url} target="_blank">
-            Download currently saved config
+          <Button as="a" href={url} leftIconName="Download" size="sm" target="_blank" variant="tertiary">
+            Download
           </Button>
         )}
+        {isWebsiteMode && (
+          <DataWidget
+            additionalElement={
+              <Tooltip
+                isDisabled={isChangeEnabled}
+                label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
+              >
+                <Button isDisabled={!isChangeEnabled} onClick={onOpen} size="sm" variant="tertiary">
+                  Change
+                </Button>
+              </Tooltip>
+            }
+            infoLabel={infoLabel}
+          >
+            <DataWidgetItem
+              label="Source:"
+              labelTooltip="The source is where your configuration file is stored and managed."
+              value={usesRepositoryYml ? 'Git repository' : 'bitrise.io'}
+            />
+          </DataWidget>
+        )}
       </Box>
-    </Box>
+      {isModularYAMLMentionsEnabled && isSplitNotiVisible && (
+        <SplitNotification modularYamlSupported={modularYamlSupported} lines={lines} onClose={closeSplitNoti} />
+      )}
+      {isGitNotiVisible && <GitNotification onClose={closeGitNoti} />}
+      <ConfigurationYmlSourceDialog
+        isOpen={isOpen}
+        onClose={onClose}
+        initialUsesRepositoryYml={usesRepositoryYml}
+        appConfig={appConfig}
+        appSlug={appSlug}
+        onUsesRepositoryYmlChangeSaved={(newValue: boolean) => {
+          onUsesRepositoryYmlChangeSaved(newValue);
+          setUsesRepositoryYml(newValue);
+        }}
+        defaultBranch={defaultBranch}
+        gitRepoSlug={gitRepoSlug}
+        lastModified={lastModified}
+      />
+    </>
   );
 };
 
