@@ -1,7 +1,5 @@
 import { ComponentPropsWithoutRef, Fragment, useEffect, useRef } from 'react';
 import {
-  Badge,
-  Box,
   Sidebar,
   SidebarContainer,
   SidebarDivider,
@@ -9,7 +7,6 @@ import {
   SidebarItem,
   SidebarItemIcon,
   SidebarItemLabel,
-  Text,
   TypeIconName,
 } from '@bitrise/bitkit';
 import useFeatureFlag from '../hooks/useFeatureFlag';
@@ -106,19 +103,7 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
               {item.divided && <SidebarDivider />}
               <NavigationItem e2e={item.cssClass} selected={isSelected} onClick={() => onItemSelected(item)}>
                 {icon && <SidebarItemIcon name={icon} />}
-
-                {isPipelines ? (
-                  <SidebarItemLabel>
-                    <Box display="flex" justifyContent="space-between" pr="12">
-                      <Text>{item.title}</Text>
-                      <Badge size="sm" variant="subtle" colorScheme="warning">
-                        BETA
-                      </Badge>
-                    </Box>
-                  </SidebarItemLabel>
-                ) : (
-                  <SidebarItemLabel>{item.title}</SidebarItemLabel>
-                )}
+                <SidebarItemLabel>{item.title}</SidebarItemLabel>
               </NavigationItem>
             </Fragment>
           );
