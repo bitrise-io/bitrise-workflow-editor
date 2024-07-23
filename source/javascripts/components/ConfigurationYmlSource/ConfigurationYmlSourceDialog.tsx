@@ -271,7 +271,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="8">
                   Add your current configuration YAML from Bitrise to your {gitRepoSlug} repository’s {defaultBranch}{' '}
                   branch.{' '}
-                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
+                  <Link
+                    href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
+                    colorScheme="purple"
+                    isExternal
+                  >
                     Learn more
                   </Link>
                 </Text>
@@ -314,31 +318,29 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   </Link>
                 </Text>
               </ListItem>
-              {isModularYAMLMentionsEnabled && (
-                <ListItem>
-                  Split up your configuration{' '}
-                  <Text as="span" color="text/secondary">
-                    (optional)
-                  </Text>
-                  <Text textStyle="body/md/regular" color="text/secondary">
-                    <Link href="" colorScheme="purple" isExternal>
-                      Follow this guide
-                    </Link>{' '}
-                    to split up your configuration into smaller, more manageable files. This feature is only available
-                    for Workspaces on{' '}
-                    <Text as="span" textStyle="body/md/semibold">
-                      Enterprise plan.
-                    </Text>{' '}
-                    <Link
-                      href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
-                      colorScheme="purple"
-                      isExternal
-                    >
-                      Learn more
-                    </Link>
-                  </Text>
-                </ListItem>
-              )}
+              <ListItem>
+                Split up your configuration{' '}
+                <Text as="span" color="text/secondary">
+                  (optional)
+                </Text>
+                <Text textStyle="body/md/regular" color="text/secondary">
+                  <Link
+                    href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
+                    colorScheme="purple"
+                    isExternal
+                  >
+                    Follow this guide
+                  </Link>{' '}
+                  to split up your configuration into smaller, more manageable files. This feature is only available for
+                  Workspaces on{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    Enterprise plan.
+                  </Text>{' '}
+                  <Link href="https://devcenter.bitrise.io/builds/bitrise-yml-online/" colorScheme="purple" isExternal>
+                    Learn more
+                  </Link>
+                </Text>
+              </ListItem>
             </List>
           </>
         )}
