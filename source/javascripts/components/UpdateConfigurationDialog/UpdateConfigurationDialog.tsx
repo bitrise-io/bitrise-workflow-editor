@@ -1,5 +1,5 @@
 import { ReactElement, useEffect } from 'react';
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Notification, Text, useToast } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Notification, Text, useToast } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
 import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInRepositoryError';
@@ -66,11 +66,18 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
           Update the content of the configuration YAML in the {gitRepoSlug} repository’s {defaultBranch} branch.
         </Text>
         <Box display="flex" flexDir="column" gap="8" marginBlockEnd="24">
-          <Link href={`data:attachment/text,${encodeURIComponent(yml)}`} target="_blank" download="bitrise.yml">
-            <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Download">
-              Download changed version
-            </Button>
-          </Link>
+          <Button
+            as="a"
+            href={`data:attachment/text,${encodeURIComponent(yml)}`}
+            target="_blank"
+            download="bitrise.yml"
+            variant="tertiary"
+            width="fit-content"
+            size="sm"
+            leftIconName="Download"
+          >
+            Download changed version
+          </Button>
           <CopyToClipboard
             text={yml}
             onCopy={() => {

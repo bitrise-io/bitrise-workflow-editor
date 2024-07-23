@@ -226,16 +226,18 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             >
               <Radio
                 helperText={
-                  <>
-                    Multiple configuration files will be merged into a single file.{' '}
-                    <Link
-                      href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
-                      colorScheme="purple"
-                      isExternal
-                    >
-                      Learn more
-                    </Link>
-                  </>
+                  isModularYAMLMentionsEnabled ? (
+                    <>
+                      Multiple configuration files will be merged into a single file.{' '}
+                      <Link
+                        href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
+                        colorScheme="purple"
+                        isExternal
+                      >
+                        Learn more
+                      </Link>
+                    </>
+                  ) : undefined
                 }
                 marginBlockEnd="12"
                 value="git"
@@ -272,7 +274,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   Add your current configuration YAML from Bitrise to your {gitRepoSlug} repository’s {defaultBranch}{' '}
                   branch.{' '}
                   <Link
-                    href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
+                    href="https://devcenter.bitrise.io/en/builds/configuring-build-settings/managing-an-app-s-bitrise-yml-file.html#storing-the-bitrise-yml-file-in-your-repository"
                     colorScheme="purple"
                     isExternal
                   >
@@ -280,11 +282,18 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   </Link>
                 </Text>
                 <Box display="flex" flexDir="column" gap="8">
-                  <Link href={`data:attachment/text,${encodeURIComponent(yml)}`} target="_blank" download="bitrise.yml">
-                    <Button variant="tertiary" leftIconName="Download" width="fit-content" size="sm">
-                      Download current version
-                    </Button>
-                  </Link>
+                  <Button
+                    as="a"
+                    href={`data:attachment/text,${encodeURIComponent(yml)}`}
+                    target="_blank"
+                    download="bitrise.yml"
+                    variant="tertiary"
+                    leftIconName="Download"
+                    width="fit-content"
+                    size="sm"
+                  >
+                    Download current version
+                  </Button>
                   <CopyToClipboard
                     text={yml}
                     onCopy={() => {
@@ -314,7 +323,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 <Text textStyle="body/md/regular" color="text/secondary" marginBlockEnd="16">
                   Ensure Bitrise has read access to all the repositories where you store your configuration files.{' '}
                   <Link
-                    href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
+                    href="https://devcenter.bitrise.io/en/connectivity/connecting-to-services/connecting-your-github-gitlab-bitbucket-account-to-bitrise.html#github-app-integration"
                     colorScheme="purple"
                     isExternal
                   >
