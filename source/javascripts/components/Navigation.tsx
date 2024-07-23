@@ -9,7 +9,6 @@ import {
   SidebarItemLabel,
   TypeIconName,
 } from '@bitrise/bitkit';
-import useFeatureFlag from '../hooks/useFeatureFlag';
 
 type Item = {
   id: string;
@@ -76,8 +75,6 @@ const WorkflowRecepiesItem = (props: ComponentPropsWithoutRef<typeof SidebarItem
 };
 
 const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
-  const isPipelineViewerEnabled = useFeatureFlag('enable-wfe-pipeline-viewer');
-
   return (
     <Sidebar
       width={256}
@@ -89,12 +86,6 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
     >
       <SidebarContainer>
         {items.map((item) => {
-          const isPipelines = item.id === 'pipelines';
-
-          if (!isPipelineViewerEnabled && isPipelines) {
-            return null;
-          }
-
           const icon = findItemIcon(item);
           const isSelected = activeItem?.id === item.id;
 
