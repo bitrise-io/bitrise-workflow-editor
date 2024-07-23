@@ -1,5 +1,5 @@
 import maxSatisfying from 'semver/ranges/max-satisfying';
-import defaultIcon from '@/images/step/icon-default.svg';
+import defaultIcon from '../../../../images/step/icon-default.svg';
 import useAlgoliaStep from '@/hooks/useAlgoliaStep';
 import { isStepLib, normalizeStepVersion, parseStepCVS } from '@/models/Step';
 
