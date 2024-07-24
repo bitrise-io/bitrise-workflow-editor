@@ -652,7 +652,7 @@ def strings
                 rollback_version: {
                     not_available: "Previous version is not available",
                     use: "Use previous version",
-                    enable_if: "Enable this option if your build is failing after a Bitrise Stack Update.",
+                    enable_if: "Enable this option if your build is failing after a Bitrise Stack Update. Your build will start slower while using rollback stack versions.",
                     usage_warning: "Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.",
                     usage_warning_link_text: "Learn more",
                     usage_warning_link_href: "https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack",
