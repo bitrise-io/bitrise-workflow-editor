@@ -12,7 +12,7 @@ const PipelinesEmptyState = () => {
       description="After you have created a Pipeline, you will be able view it. You can create a Pipeline in the YML editor."
     >
       <Button variant="secondary" size="md" rightIconName="ArrowNorthEast" onClick={() => replace('/yml')}>
-        View bitrise.yml
+        View configuration YAML
       </Button>
     </EmptyState>
   );
