@@ -26,7 +26,7 @@ import { safeDigest } from "../services/react-compat";
         return requestService.isWebsiteMode() && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
       }
 
-      function init() {
+      viewModel.init = function () {
         if (requestService.isWebsiteMode()) {
           viewModel.appSlug = requestService.appSlug;
 
@@ -63,8 +63,6 @@ import { safeDigest } from "../services/react-compat";
           };
         });
       }
-
-      init();
 
       function updateAppConfigYML() {
         $timeout(function () {

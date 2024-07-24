@@ -1,4 +1,4 @@
-.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
+.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
   section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
     .icon
     .message
