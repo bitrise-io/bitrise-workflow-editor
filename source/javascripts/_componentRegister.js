@@ -15,6 +15,7 @@ import {
   StepDrawer,
   StepBundlePanel,
   VersionChangeDialog,
+  WithBlockPanel,
   WorkflowConfigPanel,
   WorkflowEmptyState,
   WorkflowSelector,
@@ -276,4 +277,8 @@ angular
   .component(
     "rStepBundlePanel",
     register(StepBundlePanel, ["step"]),
+  )
+  .component(
+    "rWithBlockPanel",
+    register(WithBlockPanel, ["step"]),
   );

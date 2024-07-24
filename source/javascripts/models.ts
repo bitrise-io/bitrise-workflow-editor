@@ -36,6 +36,12 @@ export interface Step {
     inputs: Array<object>;
   };
 
+  userStepConfig?: Record<string, any>;
+  withBlockData?: {
+    image: string;
+    services?: string[];
+  };
+
   displayName: Getter<string>;
   displayTooltip: Getter<string>;
   title: GetterSetter<string>;

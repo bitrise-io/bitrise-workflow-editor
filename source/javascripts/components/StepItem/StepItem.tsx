@@ -1,6 +1,7 @@
 import './StepItem.scss';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
+import { Text } from '@bitrise/bitkit';
 import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
@@ -22,6 +23,15 @@ const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelecte
   const version = step.requestedVersion();
 
   const isWithGroup = step.cvs === 'with';
+  let withGroupText;
+
+  if (isWithGroup && step.withBlockData?.image) {
+    withGroupText = `In ${step.withBlockData?.image}`;
+    const servicesLength = step.withBlockData?.services?.length;
+    if (servicesLength) {
+      withGroupText += ` with ${servicesLength} service${servicesLength > 1 ? 's' : ''}`;
+    }
+  }
 
   return (
     <button
@@ -45,7 +55,11 @@ const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelecte
             hasVersionUpdate={hasVersionUpdate}
           />
         )}
-        {isWithGroup && <>eee</>}
+        {!!withGroupText && (
+          <Text as="em" className="version" hasEllipsis>
+            {withGroupText}
+          </Text>
+        )}
       </span>
     </button>
   );

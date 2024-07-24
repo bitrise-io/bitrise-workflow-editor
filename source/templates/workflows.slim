@@ -83,6 +83,8 @@
                 ]
               div[ng-if="workflowsCtrl.selectedStep.cvs.includes('bundle::')"]
                 r-step-bundle-panel[step="workflowsCtrl.selectedStep"]
+              div[ng-if="workflowsCtrl.selectedStep.cvs === 'with'"]
+                r-with-block-panel[step="workflowsCtrl.selectedStep"]
           section.workflow[ng-if='!workflowsCtrl.selectedStep && (workflowsCtrl.editedWorkflow && workflowsCtrl.yml)']
             r-workflow-config-panel[
               yml="workflowsCtrl.yml"

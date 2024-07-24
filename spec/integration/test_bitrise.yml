@@ -10,27 +10,27 @@ containers:
 workflows:
   ci:
     steps:
-    - git-clone@8.1:
-        inputs:
-        - sparse_directories: null
-        - merge_pr: "no"
-    - bundle::install_deps: {}
-    - with:
-        container: ruby
-        services:
-        - postgres
-    - script@1.1.5:
-        inputs:
-        - content: |-
-            #!/usr/bin/env bash
-            # fail if any commands fails
-            set -e
-            # debug log
-            set -x
+      - git-clone@8.1:
+          inputs:
+            - sparse_directories: null
+            - merge_pr: "no"
+      - bundle::install_deps: {}
+      - with:
+          container: ruby
+          services:
+            - postgres
+      - script@1.1.5:
+          inputs:
+            - content: |-
+                #!/usr/bin/env bash
+                # fail if any commands fails
+                set -e
+                # debug log
+                set -x
 
-            # write your script here
-            git config --global user.name "Bitrise"
-            opts:
-            meta:
-                bitrise.io:
-                stack: osx-xcode-11.3.x
+                # write your script here
+                git config --global user.name "Bitrise"
+                opts:
+                meta:
+                    bitrise.io:
+                    stack: osx-xcode-11.3.x
