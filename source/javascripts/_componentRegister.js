@@ -22,6 +22,7 @@ import {
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import YmlEditor from "./components/YmlEditor/YmlEditor";
 
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
@@ -139,6 +140,10 @@ angular
       "modularYamlSupported",
       "lastModified",
     ]),
+  )
+  .component(
+    "rYmlEditor",
+    register(YmlEditor, ["yml", "readonly", "onChange"]),
   )
   .component(
     "rWorkflowToolbar",

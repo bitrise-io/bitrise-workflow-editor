@@ -1,31 +1,16 @@
-import * as monaco from "monaco-editor/esm/vs/editor/editor.api.js";
-import {configureMonacoYaml} from 'monaco-yaml';
+import "monaco-editor/esm/vs/editor/editor.api.js";
+import { safeDigest } from "../services/react-compat";
 
 (function () {
   "use strict";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("YMLController", function ($scope, $timeout, appService, requestService) {
+    .controller("YMLController", function($scope, $rootScope, $timeout, appService, requestService) {
       var viewModel = this;
-      var editor;
-      var model;
-
-      const defaultSchema = {
-        uri: 'https://json.schemastore.org/bitrise.json',
-        fileMatch: ['monaco-yaml.yaml'],
-      };
-
-      configureMonacoYaml(monaco, {
-        validate: true,
-        enableSchemaRequest: true,
-        format: true,
-        hover: true,
-        completion: true,
-        schemas: [defaultSchema],
-      });
 
       viewModel.usesRepositoryYml = false;
+      viewModel.appService = appService;
       viewModel.appSlug = undefined;
       viewModel.repositoryYmlAvailable = true;
       viewModel.appConfigYML = undefined;
@@ -41,29 +26,7 @@ import {configureMonacoYaml} from 'monaco-yaml';
         return requestService.isWebsiteMode() && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
       }
 
-      $scope.$watch(
-        function () {
-          return appService.appConfigYML;
-        },
-        function () {
-					if (appService.appConfigYML !== model.getValue() && model && !model.isDisposed()) {
-            model.setValue(appService.appConfigYML || '')
-          }
-        }
-      );
-
-      $scope.$watch(
-        function () {
-          return viewModel.usesRepositoryYml;
-        },
-        function (newVal, oldVal) {
-          if (newVal !== oldVal) {
-            editor.updateOptions({readOnly: !!newVal});
-          }
-        }
-      );
-
-      function init() {
+      viewModel.init = function () {
         if (requestService.isWebsiteMode()) {
           viewModel.appSlug = requestService.appSlug;
 
@@ -83,36 +46,22 @@ import {configureMonacoYaml} from 'monaco-yaml';
               })
             : Promise.resolve();
         }
-      }
 
-      init();
+        viewModel.yml;
 
-      function configureEditor() {
-        model = monaco.editor.createModel(appService.appConfigYML, 'yaml', monaco.Uri.parse('monaco-yaml.yaml'));
+        viewModel.onChangeHandler = (value) => {
+          appService.appConfigYML = value;
+          safeDigest($rootScope);
+        };
 
-        let codeContainer = document.getElementById("code-container");
-        editor = monaco.editor.create(codeContainer, {
-          model: model,
-          language: "yaml",
-          lineNumbers: "on",
-          roundedSelection: false,
-          scrollBeyondLastLine: false,
-          readOnly: false,
-          theme: "vs-dark"
+        var unwatchYMLChange = $scope.$watch(() => {
+          return appService.appConfigYML;
+        }, (value) => {
+          if (value !== undefined) {
+            viewModel.yml = value;
+            unwatchYMLChange();
+          };
         });
-        editor.layout();
-        editor.focus();
-        editor.onDidChangeModelContent(updateAppConfigYML);
-
-        function resizeEditor() {
-          editor.layout({
-            width: codeContainer.clientWidth,
-            height: codeContainer.clientHeight,
-          });
-        }
-
-        $timeout(resizeEditor, 0);
-        window.addEventListener('resize', resizeEditor);
       }
 
       function updateAppConfigYML() {
@@ -134,16 +83,5 @@ import {configureMonacoYaml} from 'monaco-yaml';
           viewModel.usesRepositoryYml = usesRepositoryYml;
         }, 0);
       };
-
-      configureEditor();
-
-      $scope.$on("$destroy", function () {
-        if (editor) {
-          editor.dispose();
-        }
-        if (model) {
-          model.dispose();
-        }
-      });
     });
 })();
