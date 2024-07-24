@@ -1,41 +1,33 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Box, Input, Textarea } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
 
 const PropertiesTab = () => {
-  const [{ id: name, summary, description }] = useSelectedWorkflow();
+  const [{ id: name, summary = '', description = '' }] = useSelectedWorkflow();
+  const defaultValues = useMemo(() => ({ name, summary, description }), [name, summary, description]);
 
-  const {
-    reset,
-    trigger,
-    register,
-    formState: { errors, defaultValues },
-  } = useForm({
+  const { reset, trigger, register, formState } = useForm({
     mode: 'all',
-    defaultValues: {
-      name,
-      summary,
-      description,
-    },
+    defaultValues,
   });
 
-  // NOTE: Reset default values when the selected workflow changed.
+  // NOTE: Reset form default values when the selected workflow was changed.
   useEffect(() => {
-    reset({ name, summary, description });
-  }, [reset, name, summary, description]);
+    reset(defaultValues);
+  }, [reset, defaultValues]);
 
-  // NOTE: Trigger validation when default values are changed.
+  // NOTE: Trigger form validation when the selected workflow was changed.
   useEffect(() => {
     trigger();
-  }, [trigger, defaultValues]);
+  }, [trigger, formState.defaultValues]);
 
   return (
     <Box as="form" gap="24" display="flex" flexDir="column">
       <Input
         isRequired
         label="Name"
-        errorText={errors.name?.message?.toString()}
+        errorText={formState.errors.name?.message?.toString()}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
         {...register('name', {
           required: {

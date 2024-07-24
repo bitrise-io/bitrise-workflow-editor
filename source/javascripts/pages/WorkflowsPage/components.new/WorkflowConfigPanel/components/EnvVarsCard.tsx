@@ -59,8 +59,9 @@ const DragHandleIcon = () => {
 const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
   const {
     watch,
+    trigger,
     register,
-    formState: { errors },
+    formState: { errors, defaultValues },
   } = useFormContext<FormValues>();
 
   const envVars = watch('envs', []).filter((_, idx) => idx !== index);
@@ -79,6 +80,11 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
   // NOTE: Default value doesn't apply because the ref connected to the FormControl instead the Checkbox component in Bitkit
   const { ref: isExpandRef, ...isExpandProps } = register(`envs.${index}.isExpand`);
+
+  // NOTE: Trigger form validation when the selected workflow was changed.
+  useEffect(() => {
+    trigger(`envs.${index}`);
+  }, [trigger, index, defaultValues]);
 
   return (
     <Box
@@ -153,14 +159,24 @@ const EnvVarsCard = () => {
   const sensors = useSensors(useSensor(PointerSensor));
   const [{ id: source, envs: envVarsFromYml }] = useSelectedWorkflow();
 
-  const envs = useMemo(() => {
-    return (envVarsFromYml ?? []).map((env) => {
-      return transformEnvVarFromYml(env, source);
-    });
+  const defaultValues = useMemo(() => {
+    return {
+      envs: (envVarsFromYml ?? []).map((env) => {
+        return transformEnvVarFromYml(env, source);
+      }),
+    };
   }, [envVarsFromYml, source]);
 
-  const { reset, trigger, ...form } = useForm<FormValues>({ mode: 'all', defaultValues: { envs } });
-  const { fields, append, remove, move, replace } = useFieldArray({ name: 'envs', control: form.control });
+  const { reset, trigger, ...form } = useForm<FormValues>({
+    mode: 'all',
+    defaultValues,
+    shouldUnregister: true,
+  });
+
+  const { fields, append, remove, move } = useFieldArray({
+    name: 'envs',
+    control: form.control,
+  });
 
   const handleAddNew = () => {
     append({ source, key: '', value: '', isExpand: false });
@@ -173,16 +189,15 @@ const EnvVarsCard = () => {
     );
   };
 
-  // NOTE: Reset default values when the selected workflow changed.
+  // NOTE: Reset form default values when the selected workflow was changed.
   useEffect(() => {
-    reset({ envs });
-    replace(envs);
-  }, [reset, replace, envs, source]);
+    reset(defaultValues);
+  }, [reset, defaultValues]);
 
-  // NOTE: Trigger validation when default values are changed.
+  // NOTE: Trigger form validation when the selected workflow was changed.
   useEffect(() => {
     trigger();
-  }, [trigger, form.formState.defaultValues]);
+  }, [trigger, fields]);
 
   return (
     <FormProvider reset={reset} trigger={trigger} {...form}>

@@ -15,7 +15,7 @@ export const mockYml: BitriseYml = {
         { 'save-dart-cache@1': {} },
       ],
       after_run: ['_utility2'],
-      envs: [{ TEST: 'hello', opts: { is_expand: true } }],
+      envs: [{ '!TEST': 'hello', opts: { is_expand: true } }],
     },
     wf2: {},
     _utility1: {
@@ -24,5 +24,6 @@ export const mockYml: BitriseYml = {
     _utility2: {
       steps: [{ 'deploy-to-bitrise-io@2': {} }],
     },
+    'invalid_wf !': {},
   },
 };
