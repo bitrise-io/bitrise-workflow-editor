@@ -1,25 +1,14 @@
-@import "default";
-@import "constants";
-
 .tab-yml {
 	width: 100%;
+	height: 100%;
+	display: flex;
+	flex-direction: column;
 
-	#code-container {
-		width: 100%;
-		min-height: calc(100vh - 201px);
-
-		.monaco-editor {
-			padding-top: 1rem;
-			outline: 0;
-		}
-		.monaco-editor textarea:focus {
-			box-shadow: none;
-		}
-	}
-
-	section.cardo {
-		article {
-			padding: 0;
-		}
+	#editor-container {
+		flex-grow: 1;
+		flex-shrink: 1;
+		border-radius: 8px;
+		padding-top: 12px;
+		background-color: #1e1e1e;
 	}
 }
