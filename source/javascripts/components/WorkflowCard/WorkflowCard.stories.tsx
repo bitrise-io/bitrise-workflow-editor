@@ -11,6 +11,11 @@ export default {
     isRoot: true,
     isExpanded: true,
   },
+  argTypes: {
+    onClickAddStepButton: {
+      type: 'function',
+    },
+  },
   decorators: (Story) => withBitriseYml(mockYml, Story),
   render: withQueryClientProvider((props) => <WorkflowCard {...props} />),
 } as Meta<typeof WorkflowCard>;
@@ -22,6 +27,13 @@ export const Default: Story = {};
 export const IsFixed: Story = {
   args: {
     isFixed: true,
+  },
+};
+
+export const IsFixedEditable: Story = {
+  args: {
+    isFixed: true,
+    isEditable: true,
   },
 };
 

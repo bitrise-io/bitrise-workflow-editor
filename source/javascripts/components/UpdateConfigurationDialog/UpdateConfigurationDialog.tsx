@@ -84,7 +84,7 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
               toast({
                 title: ' Copied to clipboard',
                 description:
-                  'Commit the content of the current configuration YAML file to the app’s repository before updating the setting. ',
+                  'Commit the content of the current configuration YAML file to the project’s repository before updating the setting. ',
                 status: 'success',
                 isClosable: true,
               });
