@@ -5,6 +5,7 @@ import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWo
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
+import StepDrawer from './components.new/StepDrawer/StepDrawer';
 import { BitriseYml } from '@/models/BitriseYml';
 import { Workflows } from '@/models/Workflow';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
@@ -30,6 +31,7 @@ const WorkflowsPage = ({ yml, onChange: _ }: Props) => {
         isOpen={isDialogOpen === 'chain-workflow'}
       />
       <DeleteWorkflowDialog onClose={closeDialog} isOpen={isDialogOpen === 'delete-workflow'} />
+      <StepDrawer onStepSelected={console.log} onClose={closeDialog} isOpen={isDialogOpen === 'step-drawer'} />
     </BitriseYmlProvider>
   );
 };
