@@ -1,4 +1,4 @@
-.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl"]
+.tab-yml.menu-content-padding[ng-controller="YMLController as ymlCtrl" ng-init="ymlCtrl.init()"]
   section.cardo.warn[ng-if="appService.validationWarnings.length!=0"]
     .icon
     .message
@@ -20,6 +20,5 @@
     modular-yaml-supported="ymlCtrl.modularYamlSupported"
     last-modified="ymlCtrl.lastModified"
   ]
-  section.cardo
-    article
-      #code-container
+  #editor-container
+    r-yml-editor[yml="ymlCtrl.yml" readonly="ymlCtrl.usesRepositoryYml" on-change="ymlCtrl.onChangeHandler"]
