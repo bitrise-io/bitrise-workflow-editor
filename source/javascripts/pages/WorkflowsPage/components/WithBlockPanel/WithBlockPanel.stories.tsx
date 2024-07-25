@@ -1,6 +1,10 @@
 import { Meta, StoryObj } from '@storybook/react/*';
 import { Step } from '../../../../models';
-import StepBundlePanel from './StepBundlePanel';
+import WithBlockPanel from './WithBlockPanel';
+
+export default {
+  component: WithBlockPanel,
+} as Meta<typeof WithBlockPanel>;
 
 const mockStep: Step = {
   $$hashKey: 'unique-key',
@@ -12,7 +16,11 @@ const mockStep: Step = {
     source_code_url: 'https://example.com/source-code',
     inputs: [{ key: 'input1', value: 'value1' }],
   },
-  displayName: () => 'Step bundle: install_debs',
+  withBlockData: {
+    image: 'mcr.microsoft.com/dotnet/sdk:6.0',
+    services: ['postgres:13'],
+  },
+  displayName: () => 'With group',
   displayTooltip: () => 'Tooltip for Test Step',
   title: (value?: string) => value || 'Test Step Title',
   summary: (value?: string) => value || 'Test Step Summary',
@@ -30,11 +38,7 @@ const mockStep: Step = {
   requestedVersion: () => null,
 };
 
-export default {
-  component: StepBundlePanel,
-} as Meta<typeof StepBundlePanel>;
-
-export const StepBundle: StoryObj = {
+export const WithBlock: StoryObj = {
   args: {
     step: mockStep,
   },
