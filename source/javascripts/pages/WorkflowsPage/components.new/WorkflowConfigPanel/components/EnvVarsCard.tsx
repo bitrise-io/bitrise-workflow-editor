@@ -59,9 +59,8 @@ const DragHandleIcon = () => {
 const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
   const {
     watch,
-    trigger,
     register,
-    formState: { errors, defaultValues },
+    formState: { errors },
   } = useFormContext<FormValues>();
 
   const envVars = watch('envs', []).filter((_, idx) => idx !== index);
@@ -80,11 +79,6 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
   // NOTE: Default value doesn't apply because the ref connected to the FormControl instead the Checkbox component in Bitkit
   const { ref: isExpandRef, ...isExpandProps } = register(`envs.${index}.isExpand`);
-
-  // NOTE: Trigger form validation when the selected workflow was changed.
-  useEffect(() => {
-    trigger(`envs.${index}`);
-  }, [trigger, index, defaultValues]);
 
   return (
     <Box
@@ -197,7 +191,7 @@ const EnvVarsCard = () => {
   // NOTE: Trigger form validation when the selected workflow was changed.
   useEffect(() => {
     trigger();
-  }, [trigger, fields]);
+  }, [trigger, form.formState.defaultValues]);
 
   return (
     <FormProvider reset={reset} trigger={trigger} {...form}>
