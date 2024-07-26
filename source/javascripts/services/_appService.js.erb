@@ -1,3 +1,5 @@
+import { segmentTrack } from "../utils/segmentTracking";
+
 (function () {
   "use strict";
 
@@ -308,7 +310,7 @@
       };
 
       function trackSavedYMLChanges() {
-        window.analytics && window.analytics.track("WFE - YML changes saved");
+        segmentTrack("WFE - YML changes saved");
       }
 
       appService.discardAppConfigChanges = function () {

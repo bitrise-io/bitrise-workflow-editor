@@ -12,8 +12,8 @@ import {
 } from '@bitrise/bitkit';
 
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
+import { segmentTrack } from '../../../../utils/segmentTracking';
 import RunWorkflowDialog from '@/components/RunWorkflowDialog/RunWorkflowDialog';
-import { useTrackingFunction } from '@/hooks/utils/useTrackingFunction';
 import { Workflow } from '@/models';
 
 type WorkflowMainToolbarProps = {
@@ -56,13 +56,8 @@ const WorkflowMainToolbar = ({
     ? `/organization/${organizationSlug}/credit_subscription/plan_selector_page`
     : undefined;
 
-  const trackDialogOpen = useTrackingFunction(() => ({
-    event: 'WFE - Run Workflow Dialog Opened',
-    payload: {},
-  }));
-
   const handleOpenRunWorkflowDialog = () => {
-    trackDialogOpen();
+    segmentTrack('WFE - Run Workflow Dialog Opened');
     onOpen();
   };
 
