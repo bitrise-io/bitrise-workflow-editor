@@ -13,7 +13,9 @@ import {
   DeleteWorkflowDialog,
   StepConfigPanel,
   StepDrawer,
+  StepBundlePanel,
   VersionChangeDialog,
+  WithBlockPanel,
   WorkflowConfigPanel,
   WorkflowEmptyState,
   WorkflowSelector,
@@ -276,4 +278,12 @@ angular
   .component(
     "rCreateWorkflowDialog",
     register(CreateWorkflowDialog, ["yml", "isOpen", "onClose", "onCreate"]),
+  )
+  .component(
+    "rStepBundlePanel",
+    register(StepBundlePanel, ["stepDisplayName"]),
+  )
+  .component(
+    "rWithBlockPanel",
+    register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),
   );
