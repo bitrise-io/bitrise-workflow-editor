@@ -6,7 +6,20 @@ import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
 import StepItemVersion from './StepItemVersion';
-import { Step } from '@/models';
+import { Step, WithBlockData } from '@/models';
+
+const getwithBlockText = (withBlockData: WithBlockData): string => {
+  let withBlockText = '';
+  if (withBlockData.image) {
+    withBlockText = `In ${withBlockData.image}`;
+    const servicesLength = withBlockData.services?.length;
+    if (servicesLength) {
+      withBlockText += ` with ${servicesLength} service${servicesLength > 1 ? 's' : ''}`;
+    }
+  }
+
+  return withBlockText;
+};
 
 type StepItemProps = {
   workflowIndex: number;
@@ -21,17 +34,6 @@ const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelected }: StepItemProps): JSX.Element => {
   const displayName = step.displayName();
   const version = step.requestedVersion();
-
-  const isWithGroup = step.cvs === 'with';
-  let withGroupText;
-
-  if (isWithGroup && step.withBlockData?.image) {
-    withGroupText = `In ${step.withBlockData?.image}`;
-    const servicesLength = step.withBlockData?.services?.length;
-    if (servicesLength) {
-      withGroupText += ` with ${servicesLength} service${servicesLength > 1 ? 's' : ''}`;
-    }
-  }
 
   return (
     <button
@@ -55,9 +57,9 @@ const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelecte
             hasVersionUpdate={hasVersionUpdate}
           />
         )}
-        {!!withGroupText && (
-          <Text as="em" className="version" hasEllipsis>
-            {withGroupText}
+        {!!step.isWithBlock() && step.withBlockData && (
+          <Text color={isSelected ? 'text/on-color' : 'text/secondary'} fontSize="13px" hasEllipsis>
+            {getwithBlockText(step.withBlockData)}
           </Text>
         )}
       </span>

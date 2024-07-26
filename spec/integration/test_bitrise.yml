@@ -1,6 +1,12 @@
-format_version: "8"
+format_version: "11"
 default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git
 project_type: ios
+services:
+  postgres:
+    image: postgres:13
+containers:
+  ruby:
+    image: ruby:3.2
 app:
   envs:
     - ACCESS_KEY: "120"
@@ -246,3 +252,14 @@ workflows:
       - opts:
           is_expand: false
         project: testproject
+  wf7:
+    steps:
+      - script@1:
+          inputs:
+            - content: "#!/usr/bin/env bash"
+      - xamarin-user-management: {}
+      - bundle::install_deps: {}
+      - with:
+          container: ruby
+          services:
+            - postgres

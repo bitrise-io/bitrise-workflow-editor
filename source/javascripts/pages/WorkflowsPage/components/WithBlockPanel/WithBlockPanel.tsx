@@ -1,15 +1,14 @@
 import { Box, Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
 import useNavigation from '../../../PipelinesPage/hooks/useNavigation';
-import { Step } from '@/models';
+import { WithBlockData } from '@/models';
 
 type WithBlockPanelProps = {
-  step: Step;
+  stepDisplayName: string;
+  withBlockData: WithBlockData;
 };
 
-const WithBlockPanel = (props: WithBlockPanelProps) => {
-  const { step } = props;
-  // eslint-disable-next-line @typescript-eslint/no-non-null-assertion
-  const { image, services } = step.withBlockData!;
+const WithBlockPanel = ({ stepDisplayName, withBlockData }: WithBlockPanelProps) => {
+  const { image, services } = withBlockData;
 
   const { replace } = useNavigation();
 
@@ -17,7 +16,7 @@ const WithBlockPanel = (props: WithBlockPanelProps) => {
     <Box display="flex" flexDirection="column" gap="8">
       <Box as="header" px="24" pt="16">
         <Text as="h3" textStyle="heading/h3">
-          {step.displayName()}
+          {stepDisplayName}
         </Text>
       </Box>
       <Box padding="24">

@@ -81,10 +81,10 @@
                   secrets-write-new="mainCtrl.appSecretsWriteNew"
                   app-slug="appService.appDetails.slug"
                 ]
-              div[ng-if="workflowsCtrl.selectedStep.cvs.includes('bundle::')"]
-                r-step-bundle-panel[step="workflowsCtrl.selectedStep"]
-              div[ng-if="workflowsCtrl.selectedStep.cvs === 'with'"]
-                r-with-block-panel[step="workflowsCtrl.selectedStep"]
+              div[ng-if="workflowsCtrl.selectedStep.isStepBundle()"]
+                r-step-bundle-panel[stepDisplayName="workflowsCtrl.selectedStep.displayName()"]
+              div[ng-if="workflowsCtrl.selectedStep.isWithBlock()"]
+                r-with-block-panel[stepDisplayName="workflowsCtrl.selectedStep.displayName()" with-block-data="workflowsCtrl.selectedStep.withBlockData"]
           section.workflow[ng-if='!workflowsCtrl.selectedStep && (workflowsCtrl.editedWorkflow && workflowsCtrl.yml)']
             r-workflow-config-panel[
               yml="workflowsCtrl.yml"

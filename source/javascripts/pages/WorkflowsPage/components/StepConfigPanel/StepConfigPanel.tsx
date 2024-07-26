@@ -75,8 +75,6 @@ const StepConfigPanel = ({
     }
   };
 
-  console.log(step);
-
   return (
     <EnvVarProvider onCreate={onCreateEnvVar} onLoad={onLoadEnvVars}>
       <SecretsProvider onCreate={onCreateSecret} onLoad={onLoadSecrets}>

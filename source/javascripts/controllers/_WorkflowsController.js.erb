@@ -538,20 +538,11 @@ import semverDiff from 'semver/functions/diff'
           var wrappedUserStepConfig = {};
           wrappedUserStepConfig[aStep.cvs] = aStep.userStepConfig;
 
-          if (aStep.cvs === 'with') {
-            const containerId = aStep.userStepConfig?.container;
-            let image;
-            if (containerId && appService.appConfig.containers) {
-              image = appService.appConfig.containers[containerId]?.image;
-            }
-          
-            let services = [];
-            const serviceIds = aStep.userStepConfig?.services;
-            if (Array.isArray(serviceIds) && serviceIds.length > 0 && appService.appConfig.services) {
-              services = serviceIds.map((id) => appService.appConfig.services[id].image);
-            }
-
-            aStep.withBlockData = {image, services};
+          if (aStep.isWithBlock()) {
+            aStep.withBlockData = {
+              image: appService.getwithBlockImage(aStep.userStepConfig?.container),
+              services: appService.getwithBlockServices(aStep.userStepConfig?.services)
+            };
           }
 
           workflow.workflowConfig.steps.push(wrappedUserStepConfig);

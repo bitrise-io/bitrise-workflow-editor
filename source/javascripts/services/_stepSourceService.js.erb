@@ -86,7 +86,7 @@
 				var version =
 					versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : LATEST_VERSION;
 
-				if (step.cvs !== 'with') {
+				if (!step.isWithBlock()) {
 					switch (source) {
 						case "path":
 							if (id.length == 0) {

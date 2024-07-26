@@ -281,9 +281,9 @@ angular
   )
   .component(
     "rStepBundlePanel",
-    register(StepBundlePanel, ["step"]),
+    register(StepBundlePanel, ["stepDisplayName"]),
   )
   .component(
     "rWithBlockPanel",
-    register(WithBlockPanel, ["step"]),
+    register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),
   );

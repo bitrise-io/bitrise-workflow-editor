@@ -24,6 +24,11 @@ export type VersionChangeDialogProps = {
   newInputs: Array<string>;
 };
 
+export type WithBlockData = {
+  image: string;
+  services?: string[];
+};
+
 export interface Step {
   $$hashKey: string;
   id: string;
@@ -37,10 +42,7 @@ export interface Step {
   };
 
   userStepConfig?: Record<string, any>;
-  withBlockData?: {
-    image: string;
-    services?: string[];
-  };
+  withBlockData?: WithBlockData;
 
   displayName: Getter<string>;
   displayTooltip: Getter<string>;
@@ -58,6 +60,8 @@ export interface Step {
   isLibraryStep: Getter<boolean>;
   isVCSStep: Getter<boolean>;
   requestedVersion: Getter<string | null>;
+  isStepBundle: Getter<boolean>;
+  isWithBlock: Getter<boolean>;
 }
 
 export interface StepOutputVariable {
