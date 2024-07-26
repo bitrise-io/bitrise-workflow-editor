@@ -25,6 +25,15 @@ export function isNotEmpty(value: unknown) {
   return true;
 }
 
+export function transformEnvVarFromYml({ opts, ...env }: { [key: string]: any }, source = ''): EnvVar {
+  return {
+    source,
+    key: Object.keys(env)[0],
+    value: Object.values(env)[0],
+    isExpand: Boolean(opts?.is_expand),
+  };
+}
+
 export function castEnvVarValueForYml(value: unknown) {
   if (typeof value === 'string') {
     if (['true', 'false'].includes(value)) {
