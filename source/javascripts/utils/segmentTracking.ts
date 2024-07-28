@@ -5,10 +5,10 @@ const { globalProps, dataLayer } = window.parent;
 
 const { account, user }: any = globalProps;
 
-let newSegmentAnalytics: AnalyticsBrowser;
+let segmentAnalytics: AnalyticsBrowser;
 
 if (window.segmentWriteKey) {
-  newSegmentAnalytics = AnalyticsBrowser.load(
+  segmentAnalytics = AnalyticsBrowser.load(
     {
       cdnURL: 'https://pa-events-cdn.bitrise.io',
       writeKey: window.segmentWriteKey,
@@ -25,7 +25,9 @@ if (window.segmentWriteKey) {
     },
   );
 
-  newSegmentAnalytics.identify(user.slug);
+  if (user?.slug) {
+    segmentAnalytics.identify(user.slug);
+  }
 }
 
 type SegmentEventProperties = {
@@ -58,18 +60,11 @@ const baseProperties: SegmentEventProperties = {
   source_service_name: 'workflow-editor',
   source_service_version: window.serviceVersion,
   tracking_type: 'client_side',
-  workspace_slug: account.slug,
+  workspace_slug: account?.slug || '',
 };
 
 const baseContext: SegmentEventContext = {
-  workspace_slug: account.slug,
-};
-
-const dataLayerPush = (eventName: string, props: Partial<SegmentEventProperties>) => {
-  dataLayer?.push({
-    event: eventName,
-    ...props,
-  });
+  workspace_slug: account?.slug || '',
 };
 
 export const segmentTrack = (
@@ -77,12 +72,17 @@ export const segmentTrack = (
   eventProps?: Partial<SegmentEventProperties>,
   eventContext?: Partial<SegmentEventContext>,
 ) => {
-  if (newSegmentAnalytics) {
+  if (segmentAnalytics) {
     const mergedProps = merge({}, baseProperties, eventProps || {});
     const mergedContext = merge({}, baseContext, eventContext || {});
 
-    newSegmentAnalytics?.track(eventName, mergedProps, mergedContext);
+    segmentAnalytics?.track(eventName, mergedProps, mergedContext);
 
-    dataLayerPush(eventName, mergedProps);
+    if (dataLayer) {
+      dataLayer.push({
+        event: eventName,
+        ...mergedProps,
+      });
+    }
   }
 };
