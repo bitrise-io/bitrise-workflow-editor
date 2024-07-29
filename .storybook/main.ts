@@ -1,6 +1,5 @@
 import type { StorybookConfig } from "@storybook/react-webpack5";
-
-const path = require("path");
+import path from "path";
 
 const config: StorybookConfig = {
   stories: ["../source/**/*.stories.tsx"],
