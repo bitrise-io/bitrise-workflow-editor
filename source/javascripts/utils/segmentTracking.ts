@@ -1,9 +1,9 @@
 import merge from 'lodash/merge';
 import { AnalyticsBrowser } from '@segment/analytics-next';
 
-const { globalProps, dataLayer } = window.parent;
+const { globalProps, dataLayer } = window.parent || {};
 
-const { account, user }: any = globalProps;
+const { account, user }: any = globalProps || {};
 
 let segmentAnalytics: AnalyticsBrowser;
 
