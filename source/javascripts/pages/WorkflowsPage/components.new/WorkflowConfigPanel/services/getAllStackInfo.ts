@@ -1,5 +1,5 @@
 import { UseQueryOptions } from '@tanstack/react-query';
-import getCookie from '@/hooks/utils/cookies';
+import getCookie from '@/utils/cookies';
 
 export type AllStackInfo = {
   available_stacks: {
