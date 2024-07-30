@@ -2,8 +2,6 @@ package service
 
 import (
 	"encoding/json"
-	"errors"
-	"fmt"
 	"net/http"
 
 	"gopkg.in/yaml.v2"
@@ -11,10 +9,8 @@ import (
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
 	"github.com/bitrise-io/bitrise/models"
-	envmanModels "github.com/bitrise-io/envman/models"
 	"github.com/bitrise-io/go-utils/fileutil"
 	"github.com/bitrise-io/go-utils/log"
-	stepmanModels "github.com/bitrise-io/stepman/models"
 )
 
 // GetBitriseYMLHandler ...
@@ -107,30 +103,6 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	workflows, err := convertWorkflowElementTypes(yamlContObj.Workflows)
-	if err != nil {
-		log.Errorf("Failed to convert workflow types, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to convert workflow types")
-		return
-	}
-	yamlContObj.Workflows = workflows
-
-	triggerMap, err := convertTriggerMapElementTypes(yamlContObj.TriggerMap)
-	if err != nil {
-		log.Errorf("Failed to convert trigger map types, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to convert trigger map types")
-		return
-	}
-	yamlContObj.TriggerMap = triggerMap
-
-	stepBundles, err := convertStepBundleElementTypes(yamlContObj.StepBundles)
-	if err != nil {
-		log.Errorf("Failed to convert step bundle types, error: %s", err)
-		RespondWithJSONBadRequestErrorMessage(w, "Failed to convert step bundle types")
-		return
-	}
-	yamlContObj.StepBundles = stepBundles
-
 	RespondWithJSON(w, 200, yamlContObj)
 }
 
@@ -179,173 +151,4 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	RespondWithJSON(w, 200, utility.ValidationResponse{Warnings: warnings})
-}
-
-func convertMultiTypeTriggerItemType(value interface{}) interface{} {
-	if v, ok := value.(string); ok {
-		return v
-	}
-	if v, ok := value.(map[interface{}]interface{}); ok {
-		for key, val := range v {
-			if v, ok := key.(string); ok {
-				return map[string]interface{}{v: val}
-			}
-		}
-	}
-	return value
-}
-
-func convertTriggerMapElementTypes(triggerMap models.TriggerMapModel) (models.TriggerMapModel, error) {
-	for i, triggerMapItem := range triggerMap {
-		triggerMap[i].PushBranch = convertMultiTypeTriggerItemType(triggerMapItem.PushBranch)
-		triggerMap[i].Tag = convertMultiTypeTriggerItemType(triggerMapItem.Tag)
-		triggerMap[i].PullRequestSourceBranch = convertMultiTypeTriggerItemType(triggerMapItem.PullRequestSourceBranch)
-		triggerMap[i].PullRequestTargetBranch = convertMultiTypeTriggerItemType(triggerMapItem.PullRequestTargetBranch)
-		triggerMap[i].PullRequestLabel = convertMultiTypeTriggerItemType(triggerMapItem.PullRequestLabel)
-		triggerMap[i].CommitMessage = convertMultiTypeTriggerItemType(triggerMapItem.CommitMessage)
-		triggerMap[i].ChangedFiles = convertMultiTypeTriggerItemType(triggerMapItem.ChangedFiles)
-	}
-	return triggerMap, nil
-}
-
-func convertStepBundleElementTypes(stepBundles map[string]models.StepBundleModel) (map[string]models.StepBundleModel, error) {
-	for stepBundleID, stepBundle := range stepBundles {
-		for i, env := range stepBundle.Environments {
-			convertedEnv, err := convertStepInputMetadataType(env)
-			if err != nil {
-				return nil, err
-			}
-			stepBundle.Environments[i] = convertedEnv
-		}
-
-		for i, stepListItem := range stepBundle.Steps {
-			stepID, step, err := stepListItem.GetStepIDAndStep()
-			if err != nil {
-				return nil, err
-			}
-			step, err = convertStepType(step)
-			if err != nil {
-				return nil, err
-			}
-			stepBundle.Steps[i] = map[string]stepmanModels.StepModel{stepID: step}
-		}
-		stepBundles[stepBundleID] = stepBundle
-	}
-
-	return stepBundles, nil
-}
-
-func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map[string]models.WorkflowModel, error) {
-	for wfKey, wf := range workflows {
-		err := convertWorkflowMetadataType(&wf)
-		if err != nil {
-			return nil, err
-		}
-
-		for stepListItemIdx, stepListItem := range wf.Steps {
-			key, t, err := stepListItem.GetKeyAndType()
-			if err != nil {
-				return nil, err
-			}
-
-			if t == models.StepListItemTypeStep {
-				stepPtr, err := stepListItem.GetStep()
-				if err != nil {
-					return nil, err
-				}
-
-				step, err := convertStepType(*stepPtr)
-				if err != nil {
-					return nil, err
-				}
-
-				stepID := key
-				wf.Steps[stepListItemIdx] = map[string]interface{}{stepID: step}
-			} else if t == models.StepListItemTypeWith {
-				with, err := stepListItem.GetWith()
-				if err != nil {
-					return nil, err
-				}
-
-				for stepIdx, stepItem := range with.Steps {
-					stepID, step, err := stepItem.GetStepIDAndStep()
-					if err != nil {
-						return nil, err
-					}
-
-					step, err = convertStepType(step)
-					if err != nil {
-						return nil, err
-					}
-
-					with.Steps[stepIdx] = map[string]stepmanModels.StepModel{stepID: step}
-				}
-				wf.Steps[stepListItemIdx] = map[string]interface{}{key: with}
-			} else if t == models.StepListItemTypeBundle {
-				bundle, err := stepListItem.GetBundle()
-				if err != nil {
-					return nil, err
-				}
-				for idx, env := range bundle.Environments {
-					convertedEnv, err := convertStepInputMetadataType(env)
-					if err != nil {
-						return nil, err
-					}
-					bundle.Environments[idx] = convertedEnv
-				}
-				wf.Steps[stepListItemIdx] = map[string]interface{}{key: bundle}
-			}
-		}
-
-		workflows[wfKey] = wf
-	}
-
-	return workflows, nil
-}
-
-func convertStepType(step stepmanModels.StepModel) (stepmanModels.StepModel, error) {
-	if len(step.Inputs) == 0 {
-		return step, nil
-	}
-	for inputIdx, input := range step.Inputs {
-		convertedInput, err := convertStepInputMetadataType(input)
-		if err != nil {
-			return stepmanModels.StepModel{}, err
-		}
-		step.Inputs[inputIdx] = convertedInput
-	}
-	return step, nil
-}
-
-func convertWorkflowMetadataType(workflow *models.WorkflowModel) error {
-	if workflow.Meta == nil {
-		return nil
-	}
-
-	wfMeta, ok := ymlToJSONKeyTypeConversion(workflow.Meta).(map[string]interface{})
-	if !ok {
-		return errors.New("Failed to convert metadata")
-	}
-	workflow.Meta = wfMeta
-	return nil
-}
-
-func convertStepInputMetadataType(input envmanModels.EnvironmentItemModel) (envmanModels.EnvironmentItemModel, error) {
-	if input["opts"] == nil {
-		return input, nil
-	}
-	opts, ok := input["opts"].(envmanModels.EnvironmentItemOptionsModel)
-	if !ok {
-		return envmanModels.EnvironmentItemModel{}, fmt.Errorf("Failed to convert opts: %#v", input["opts"])
-	}
-	if opts.Meta == nil {
-		return input, nil
-	}
-	meta, ok := ymlToJSONKeyTypeConversion(opts.Meta).(map[string]interface{})
-	if !ok {
-		return envmanModels.EnvironmentItemModel{}, errors.New("Failed to convert metadata")
-	}
-	opts.Meta = meta
-	input["opts"] = opts
-	return input, nil
 }

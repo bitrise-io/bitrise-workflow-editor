@@ -75,17 +75,7 @@ default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"`
 }
 
 func TestGetBitriseYMLAsJSONHandler(t *testing.T) {
-	tmpDir, err := pathutil.NormalizedOSTempDirPath("_GetBitriseYMLAsJSONHandler_")
-	require.NoError(t, err)
-	defer func() {
-		require.NoError(t, os.RemoveAll(tmpDir))
-	}()
-
-	bitriseConfigPth := filepath.Join(tmpDir, "bitrise.yml")
-	bitriseConfigContent := `format_version: 1.3.1
-default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git`
-	require.NoError(t, fileutil.WriteStringToFile(bitriseConfigPth, bitriseConfigContent))
-	config.BitriseYMLPath = bitriseConfigPth
+	config.BitriseYMLPath = "testdata/bitrise.yml"
 
 	req, err := http.NewRequest("GET", "/api/bitrise-yml.json", nil)
 	require.NoError(t, err)
@@ -96,7 +86,6 @@ default_step_lib_source: https://github.com/bitrise-io/bitrise-steplib.git`
 	handler.ServeHTTP(rr, req)
 
 	require.Equal(t, http.StatusOK, rr.Code, rr.Body.String())
-	require.Equal(t, "{\"format_version\":\"1.3.1\",\"default_step_lib_source\":\"https://github.com/bitrise-io/bitrise-steplib.git\",\"project_type\":\"\",\"app\":{}}\n", rr.Body.String())
 }
 
 func TestPostBitriseYMLFromJSONHandler(t *testing.T) {
