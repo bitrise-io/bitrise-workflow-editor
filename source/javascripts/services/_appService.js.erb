@@ -290,7 +290,7 @@
 
         return validateVariables(variables)
           .then(function () {
-            deferredUserSavedYmlToRepository?.notify('open-update-yml-in-repository-dialog');
+            deferredUserSavedYmlToRepository?.notify('open-update-configuration-dialog');
 
             return (
               deferredUserSavedYmlToRepository?.promise ||
@@ -697,6 +697,20 @@
         appService.publicApi = null;
         return $q.when();
       };
+
+      appService.getwithBlockImage = function (containerId) {
+        if (containerId && appService.appConfig.containers) {
+          return appService.appConfig.containers[containerId]?.image || '';
+        }
+        return '';
+      }
+
+      appService.getwithBlockServices = function (serviceIds) {
+        if (Array.isArray(serviceIds) && serviceIds.length > 0 && appService.appConfig.services) {
+          return serviceIds.map((id) => appService.appConfig.services[id].image);
+        }
+        return [];
+      }
 
       return appService;
     });

@@ -5,28 +5,36 @@ import Notification from "./components/Notification";
 import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
-import { AddStepItem, StepItem } from "./components/StepItem";
+import StepItem from "./components/StepItem/StepItem";
 import StepBadge from "./components/StepBadge/StepBadge";
-import YmlStorageSettings from "./components/YmlStorageSettings/YmlStorageSettings";
-import UpdateYmlInRepositoryModal from "./components/UpdateYmlInRepositoryModal/UpdateYmlInRepositoryModal";
 import {
   ChainWorkflowDrawer,
+  CreateWorkflowDialog,
+  DeleteWorkflowDialog,
   StepConfigPanel,
   StepDrawer,
+  StepBundlePanel,
   VersionChangeDialog,
+  WithBlockPanel,
   WorkflowConfigPanel,
   WorkflowEmptyState,
   WorkflowSelector,
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import YmlEditor from "./components/YmlEditor/YmlEditor";
 
 import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-
-import { PipelinesPage, SecretsPage, TriggersPage } from "@/pages";
+import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
+import {
+  PipelinesPage,
+  SecretsPage,
+  TriggersPage,
+  WorkflowsPage,
+} from "@/pages";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -60,7 +68,8 @@ angular
       "planSelectorPageUrl",
     ]),
   )
-  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]));
+  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]))
+  .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]));
 
 // Components
 angular
@@ -93,28 +102,16 @@ angular
       "onSelected",
     ]),
   )
-  .component(
-    "rAddStepItem",
-    register(AddStepItem, ["step", "disabled", "onSelected"]),
-  )
   .component("rStepItemBadge", register(StepBadge, ["step"]))
   .component(
-    "rYmlStorageSettings",
-    register(YmlStorageSettings, [
-      "appSlug",
-      "usesRepositoryYml",
-      "onUsesRepositoryYmlChangeSaved",
-      "repositoryYmlAvailable",
-    ]),
-  )
-  .component(
-    "rUpdateYmlInRepositoryModal",
-    register(UpdateYmlInRepositoryModal, [
-      "appSlug",
-      "isVisible",
+    "rUpdateConfigurationDialog",
+    register(UpdateConfigurationDialog, [
       "onClose",
-      "onComplete",
+      "appSlug",
       "getDataToSave",
+      "onComplete",
+      "defaultBranch",
+      "gitRepoSlug",
     ]),
   )
   .component(
@@ -128,7 +125,25 @@ angular
   )
   .component(
     "rYmlEditorHeader",
-    register(YmlEditorHeader, ["url", "usesRepositoryYml"]),
+    register(YmlEditorHeader, [
+      "url",
+      "initialUsesRepositoryYml",
+      "appSlug",
+      "appConfig",
+      "onUsesRepositoryYmlChangeSaved",
+      "repositoryYmlAvailable",
+      "isWebsiteMode",
+      "defaultBranch",
+      "gitRepoSlug",
+      "lines",
+      "split",
+      "modularYamlSupported",
+      "lastModified",
+    ]),
+  )
+  .component(
+    "rYmlEditor",
+    register(YmlEditor, ["yml", "readonly", "onChange"]),
   )
   .component(
     "rWorkflowToolbar",
@@ -244,10 +259,31 @@ angular
   .component(
     "rChainWorkflowDrawer",
     register(ChainWorkflowDrawer, [
-      "id",
+      "workflowId",
       "yml",
       "isOpen",
       "onClose",
       "onChainWorkflow",
     ]),
+  )
+  .component(
+    "rDeleteWorkflowDialog",
+    register(DeleteWorkflowDialog, [
+      "workflowId",
+      "isOpen",
+      "onClose",
+      "onDelete",
+    ]),
+  )
+  .component(
+    "rCreateWorkflowDialog",
+    register(CreateWorkflowDialog, ["yml", "isOpen", "onClose", "onCreate"]),
+  )
+  .component(
+    "rStepBundlePanel",
+    register(StepBundlePanel, ["stepDisplayName"]),
+  )
+  .component(
+    "rWithBlockPanel",
+    register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),
   );

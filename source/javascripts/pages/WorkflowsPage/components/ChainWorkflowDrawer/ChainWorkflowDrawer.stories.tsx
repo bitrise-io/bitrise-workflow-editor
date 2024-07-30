@@ -6,12 +6,12 @@ import { mockYml } from './ChainWorkflowDrawer.mocks';
 export default {
   component: ChainWorkflowDrawer,
   args: {
-    id: 'wf-1',
     yml: mockYml,
+    workflowId: 'wf-1',
     defaultIsOpen: true,
   },
   argTypes: {
-    id: { type: 'string' },
+    workflowId: { type: 'string' },
     defaultIsOpen: { control: 'boolean', type: 'boolean' },
     isOpen: { control: 'boolean', type: 'boolean' },
     onOpen: { type: 'function' },
@@ -21,7 +21,19 @@ export default {
   },
 } as Meta<typeof ChainWorkflowDrawer>;
 
-export const Uncontrolled: StoryObj = {};
+export const Default: StoryObj = {
+  args: {
+    workflowId: 'wf-1',
+  },
+};
+
+export const Empty: StoryObj = {
+  args: {
+    yml: {
+      workflows: {},
+    },
+  },
+};
 
 export const Controlled: StoryObj = {
   args: {
@@ -37,18 +49,4 @@ export const Controlled: StoryObj = {
       return <Story isOpen={isOpen} onOpen={onOpen} onClose={onClose} />;
     },
   ],
-};
-
-export const Empty: StoryObj = {
-  args: {
-    yml: {
-      workflows: {},
-    },
-  },
-};
-
-export const LoopFiltered: StoryObj = {
-  args: {
-    id: 'setup',
-  },
 };

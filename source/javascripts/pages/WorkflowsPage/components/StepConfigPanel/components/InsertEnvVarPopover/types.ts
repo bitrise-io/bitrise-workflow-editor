@@ -1,9 +1,4 @@
-export type EnvironmentVariable = {
-  key: string;
-  value: string;
-  source: string;
-  isExpand: boolean;
-};
+import { EnvVar } from '@/models/EnvVar';
 
-export type HandlerFn = (envVar: EnvironmentVariable) => void;
-export type CreateEnvVarFormValues = EnvironmentVariable;
+export type CreateEnvVarFormValues = EnvVar;
+export type HandlerFn = (envVar: EnvVar) => void;

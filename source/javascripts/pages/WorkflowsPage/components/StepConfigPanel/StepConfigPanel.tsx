@@ -5,13 +5,13 @@ import { useMutation } from '@tanstack/react-query';
 import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties';
-import { EnvironmentVariable } from './components/InsertEnvVarPopover/types';
 import EnvVarProvider from './components/InsertEnvVarPopover/EnvVarProvider';
-import { Secret } from './components/InsertSecretPopover/types';
 import SecretsProvider from './components/InsertSecretPopover/SecretsProvider';
 import StepBadge from '@/components/StepBadge/StepBadge';
 import { monolith } from '@/hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '@/models';
+import { Secret } from '@/models/Secret';
+import { EnvVar } from '@/models/EnvVar';
 
 type Props = {
   step: Step;
@@ -27,8 +27,8 @@ type Props = {
   onChangeTabId: (tabId?: string) => void;
   onCreateSecret: (secret: Secret) => void;
   onLoadSecrets: () => Promise<Secret[]>;
-  onCreateEnvVar: (envVar: EnvironmentVariable) => void;
-  onLoadEnvVars: () => Promise<EnvironmentVariable[]>;
+  onCreateEnvVar: (envVar: EnvVar) => void;
+  onLoadEnvVars: () => Promise<EnvVar[]>;
   appSlug: string;
   secretsWriteNew: boolean;
 };
@@ -83,9 +83,10 @@ const StepConfigPanel = ({
             <Avatar
               name="ci"
               size="48"
+              variant="step"
               borderWidth="1px"
               borderStyle="solid"
-              borderColor="neutral.93"
+              borderColor="border/minimal"
               src={step.iconURL()}
             />
 

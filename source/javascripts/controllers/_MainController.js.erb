@@ -1,6 +1,6 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {safeDigest} from "../services/react-compat";
+import { safeDigest } from "@/services/react-compat";
 
 (function () {
   "use strict";
@@ -35,7 +35,10 @@ import {safeDigest} from "../services/react-compat";
       $scope.requestService = requestService;
       $scope.osService = osService;
 
-      viewModel.isUpdateYmlInRepositoryModalVisible = false;
+      viewModel.isUpdateConfigurationDialogOpen = false;
+      viewModel.appConfigYML = undefined;
+      viewModel.defaultBranch = "";
+			viewModel.gitRepoSlug = "";
       viewModel.appDetails;
       viewModel.showSharedSecrets = false;
       viewModel.menus = _.compact([
@@ -335,7 +338,7 @@ import {safeDigest} from "../services/react-compat";
           );
         }).then(
           function () {
-            logger.setTags({menuID: menu.id});
+            logger.setTags({ menuID: menu.id });
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -398,7 +401,7 @@ import {safeDigest} from "../services/react-compat";
       };
 
       function cleanupMenu() {
-        if (viewModel.currentMenu.id == "secrets") {
+        if (viewModel.currentMenu?.id == "secrets") {
           $rootScope.$emit("MainController::cleanupMenu");
         }
       }
@@ -455,9 +458,9 @@ import {safeDigest} from "../services/react-compat";
         }
       };
 
-      viewModel.closeUpdateYmlInRepositoryModal = function () {
+      viewModel.closeUpdateConfigurationDialog = function () {
         $timeout(function () {
-          viewModel.isUpdateYmlInRepositoryModalVisible = false;
+          viewModel.isUpdateConfigurationDialogOpen = false;
         }, 0);
 
         viewModel.deferredUserSavedYmlToRepository.reject();
@@ -465,7 +468,7 @@ import {safeDigest} from "../services/react-compat";
 
       viewModel.onSaveToRepoComplete = function () {
         $timeout(function () {
-          viewModel.closeUpdateYmlInRepositoryModal();
+          viewModel.closeUpdateConfigurationDialog();
         }, 1500);
 
         viewModel.deferredUserSavedYmlToRepository.resolve();
@@ -524,8 +527,8 @@ import {safeDigest} from "../services/react-compat";
         if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
           viewModel.deferredUserSavedYmlToRepository = $q.defer();
           viewModel.deferredUserSavedYmlToRepository.promise.finally(undefined, function (signal) {
-            if (signal === 'open-update-yml-in-repository-dialog') {
-              viewModel.isUpdateYmlInRepositoryModalVisible = true;
+            if (signal === 'open-update-configuration-dialog') {
+              viewModel.isUpdateConfigurationDialogOpen = true;
             }
           });
         }
@@ -572,8 +575,8 @@ import {safeDigest} from "../services/react-compat";
                     })
                     .then(resolve, reject);
                 case "yml":
-                  viewModel.dataToSave = appService.appConfigYML;
-                  return appService
+                  viewModel.appConfigYML = appService.appConfigYML;
+                                    return appService
                     .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
                     .then(function () {
                       return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
@@ -757,30 +760,35 @@ import {safeDigest} from "../services/react-compat";
             viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
             viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
             viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
+            viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
 
             switch (requestService.mode) {
               case "website":
                 requestService.appSlug = appServiceUtil.getAppSlug();
-  
+
                 if (!requestService.appSlug) {
                   return reject("No app slug specified.");
                 }
-  
+
                 requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
                   viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
                 }).finally(() => {
                   appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
                 });
-  
+
                 break;
               case "cli":
                 resolve();
-  
+
                 break;
             }
           });
         }).then(
           function () {
+            if (requestService.mode == "website") {
+              viewModel.defaultBranch = appService.appDetails.defaultBranch;
+              viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
+            }
             if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
               var stackMenu = _.find(viewModel.menus, {
                 id: "stack"
