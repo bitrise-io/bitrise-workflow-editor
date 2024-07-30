@@ -51,26 +51,21 @@ import { safeDigest } from "../services/react-compat";
 
         viewModel.onChangeHandler = (value) => {
           appService.appConfigYML = value;
-          safeDigest($rootScope);
+          // safeDigest($rootScope);
         };
 
-        var unwatchYMLChange = $scope.$watch(() => {
+        $scope.$watch(() => {
           return appService.appConfigYML;
         }, (value) => {
-          if (value !== undefined) {
-            viewModel.yml = value;
-            unwatchYMLChange();
-          };
+          viewModel.yml = value;
         });
-      }
 
-      function updateAppConfigYML() {
-        $timeout(function () {
-          if (model && !model.isDisposed()) {
-            appService.appConfigYML = model.getValue();
-            viewModel.appConfigYML = model.getValue();
-          }
-        }, 100);
+        $scope.$on(
+          "$destroy",
+          $rootScope.$on("MainController::changesDiscarded", function() {
+            viewModel.yml = appService.appConfigYML;
+          })
+        );  
       }
 
       viewModel.onUsesRepositoryYmlChangeSaved = function (usesRepositoryYml) {
