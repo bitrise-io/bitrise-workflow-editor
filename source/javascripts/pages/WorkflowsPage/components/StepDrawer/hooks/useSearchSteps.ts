@@ -7,29 +7,8 @@ import { SearchFormValues, Step } from '../StepDrawer.types';
 import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 import { AlgoliaStepResponse } from '@/models/Algolia';
 
-const ATTRIBUTES_TO_RETRIEVE = [
-  'id',
-  'cvs',
-  'info',
-  'version',
-  'latest_version_number',
-  'is_deprecated',
-  'step.title',
-  'step.summary',
-  'step.description',
-  'step.asset_urls',
-  'step.type_tags',
-];
-
 const useSearchSteps = ({ search, categories }: SearchFormValues) => {
-  const {
-    data: steps = [],
-    isLoading,
-    isError,
-    refetch,
-  } = useAlgoliaSteps({
-    attributesToRetrieve: ATTRIBUTES_TO_RETRIEVE,
-  });
+  const { data: steps = [], isLoading, isError, refetch } = useAlgoliaSteps();
   const index = useMemo(() => {
     const options = {
       keys: [

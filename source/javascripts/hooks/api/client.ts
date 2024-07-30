@@ -1,7 +1,7 @@
 import axios from 'axios';
 import flatten from 'lodash/flatten';
-import getCookie from '../utils/cookies';
-import { camelCaseKeys, snakeCaseKeys } from '../../utils/changeCase';
+import getCookie from '@/utils/cookies';
+import { camelCaseKeys, snakeCaseKeys } from '@/utils/changeCase';
 
 const defaultHeaders = {
   'Content-Type': 'application/json',
