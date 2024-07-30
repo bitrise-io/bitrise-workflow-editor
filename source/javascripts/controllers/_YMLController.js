@@ -21,6 +21,7 @@ import { safeDigest } from "../services/react-compat";
       viewModel.modularYamlSupported = undefined;
       viewModel.lastModified = null;
       viewModel.isWebsiteMode = requestService.isWebsiteMode();
+      viewModel.isEditorLoading = true;
 
       viewModel.downloadAppConfigYMLPath = function () {
         return requestService.isWebsiteMode() && !viewModel.usesRepositoryYml ? requestService.appConfigYMLDownloadPath() : null;
@@ -59,6 +60,7 @@ import { safeDigest } from "../services/react-compat";
         }, (value) => {
           if (value !== undefined) {
             viewModel.yml = value;
+            viewModel.isEditorLoading = false;
             unwatchYMLChange();
           }
         });
@@ -75,7 +77,11 @@ import { safeDigest } from "../services/react-compat";
       }
 
       viewModel.onUsesRepositoryYmlChangeSaved = function (usesRepositoryYml) {
-        appService.getAppConfigYML(true);
+        viewModel.isEditorLoading = true;
+        appService.getAppConfigYML(true).then(() => {
+          viewModel.yml = appService.appConfigYML;
+          viewModel.isEditorLoading = false;
+        });
 
         appService.appConfig = undefined;
         appService.pipelineConfig.usesRepositoryYml = usesRepositoryYml;
