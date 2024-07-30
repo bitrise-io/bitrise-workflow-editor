@@ -6,7 +6,7 @@ import { safeDigest } from "../services/react-compat";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("YMLController", function($scope, $rootScope, $timeout, appService, requestService) {
+    .controller("YMLController", function ($scope, $rootScope, $timeout, appService, requestService) {
       var viewModel = this;
 
       viewModel.usesRepositoryYml = false;
@@ -51,21 +51,27 @@ import { safeDigest } from "../services/react-compat";
 
         viewModel.onChangeHandler = (value) => {
           appService.appConfigYML = value;
-          // safeDigest($rootScope);
+          safeDigest($rootScope);
         };
 
-        $scope.$watch(() => {
+        var unwatchYMLChange = $scope.$watch(() => {
           return appService.appConfigYML;
         }, (value) => {
-          viewModel.yml = value;
+          if (value !== undefined) {
+            viewModel.yml = value;
+            unwatchYMLChange();
+          }
         });
 
         $scope.$on(
           "$destroy",
-          $rootScope.$on("MainController::changesDiscarded", function() {
+          $rootScope.$on("MainController::changesDiscarded", function () {
+            viewModel.yml = undefined;
+            safeDigest($scope);
             viewModel.yml = appService.appConfigYML;
+            safeDigest($scope);
           })
-        );  
+        );
       }
 
       viewModel.onUsesRepositoryYmlChangeSaved = function (usesRepositoryYml) {
