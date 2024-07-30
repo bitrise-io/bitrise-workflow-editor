@@ -18,14 +18,14 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { format } from 'date-fns';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
-import { AppConfig } from '../../models/AppConfig';
-import useGetAppConfigFromRepoCallback from '../../hooks/api/useGetAppConfigFromRepoCallback';
-import useUpdatePipelineConfigCallback from '../../hooks/api/useUpdatePipelineConfigCallback';
-import usePostAppConfigCallback from '../../hooks/api/usePostAppConfigCallback';
-import appConfigAsYml from '../../utils/appConfigAsYml';
-import useFeatureFlag from '../../hooks/useFeatureFlag';
+import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
+import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
+import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
+import appConfigAsYml from '@/utils/appConfigAsYml';
+import useFeatureFlag from '@/hooks/useFeatureFlag';
+import { AppConfig } from '@/models/AppConfig';
+import DateFormatter from '@/utils/dateFormatter';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
   let action: NotificationProps['action'];
@@ -171,7 +171,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   let lastModifiedFormatted;
   if (lastModified !== null) {
     const date = new Date(lastModified);
-    lastModifiedFormatted = format(date, 'MMMM d, yyyy');
+    lastModifiedFormatted = DateFormatter.getFormattedDate(date);
   }
 
   const isDialogDisabled = getAppConfigFromRepoLoading || updatePipelineConfigLoading || postAppConfigLoading;

@@ -43,6 +43,7 @@ module.exports = {
     '@typescript-eslint/no-explicit-any': 'warn',
     '@typescript-eslint/ban-types': ['warn', { types: { '{}': false }, extendDefaults: true }],
     'react/no-unescaped-entities': ['error', { forbid: ['>', '"', '}'] }],
+    'testing-library/await-async-queries': 'off',
   },
   overrides: [
     {
@@ -56,6 +57,12 @@ module.exports = {
       files: ['*.stories.*'],
       rules: {
         'react-hooks/rules-of-hooks': 'warn',
+      },
+    },
+    {
+      files: ['*.spec.{ts,tsx}'],
+      rules: {
+        'testing-library/await-async-queries': 'error',
       },
     },
     {

@@ -1,7 +1,20 @@
 import { Workflow } from './Workflow';
+import { WithId } from '@/core/WithId';
 
-export type Steps = Required<Workflow>['steps'];
-export type Step = Extract<Steps[number][string], { website?: string }>;
+enum Maintainer {
+  Bitrise = 'bitrise',
+  Verified = 'verified',
+  Community = 'community',
+}
+
+type Steps = Required<Workflow>['steps'];
+type StepObject = Extract<Steps[number][string], { website?: string }>;
+type Step = WithId<StepObject>;
+
+type StepInput = {
+  id: string;
+  cvs: string;
+};
 
 export function parseStepCVS(cvs: string) {
   const cleaned = cvs.replace(/^(git::|path::|git@)/g, '');
@@ -25,3 +38,5 @@ export function normalizeStepVersion(version: string) {
   }
   return version;
 }
+
+export { Step, Steps, StepObject, Maintainer, StepInput };
