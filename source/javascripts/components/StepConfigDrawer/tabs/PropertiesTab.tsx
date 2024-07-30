@@ -16,7 +16,7 @@ import { getVersionRemark } from '@/utils/stepVersionUtil';
 
 const PropertiesTab = () => {
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
-  const { cvs, step, availableVersions, selectedVersion } = useStepDrawerContext();
+  const { cvs, step, title, availableVersions, selectedVersion } = useStepDrawerContext();
 
   const setOfSelectableVersions = new Set<string | null>([null, selectedVersion || null]);
   availableVersions?.forEach((version) => {
@@ -50,7 +50,7 @@ const PropertiesTab = () => {
           <Icon name="OpenInBrowser" />
         </Link>
       )}
-      <Input defaultValue={step?.title} type="text" label="Name" placeholder="Step name" isRequired />
+      <Input defaultValue={title} type="text" label="Name" placeholder="Step name" isRequired />
       <Divider />
       <Select
         backgroundSize="none"

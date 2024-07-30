@@ -1,5 +1,5 @@
+import { Fragment } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
-import { Fragment } from 'react/jsx-runtime';
 import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
 import useMeta from './hooks/useMeta';
 import useWorkflow from './hooks/useWorkflow';

@@ -10,7 +10,7 @@ import useAlgoliaStep from '@/hooks/useAlgoliaStep';
 import useAlgoliaStepInputs from '@/hooks/useAlgoliaStepInputs';
 import { Maintainer } from '@/models/Algolia';
 
-type UseStepFromResult = {
+type UseStepResult = {
   cvs: string;
   step?: Step;
   icon?: string;
@@ -22,7 +22,7 @@ type UseStepFromResult = {
   availableVersions?: string[];
 };
 
-const useStepFromYml = (workflowId: string, stepIndex: number): UseStepFromResult => {
+const useStepFromYml = (workflowId: string, stepIndex: number): UseStepResult => {
   return useBitriseYmlStore(
     useShallow(({ yml }) => {
       const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
@@ -42,7 +42,7 @@ const useStepFromYml = (workflowId: string, stepIndex: number): UseStepFromResul
   );
 };
 
-const useStepFromAlgolia = (cvs = ''): UseStepFromResult => {
+const useStepFromAlgolia = (cvs = ''): UseStepResult => {
   const [id, version] = parseStepCVS(cvs);
   const { data: info, isLoading: isLoadingInfo } = useAlgoliaStep({ id, enabled: Boolean(id && isStepLib(cvs)) });
 
@@ -71,7 +71,7 @@ const useStepFromAlgolia = (cvs = ''): UseStepFromResult => {
   }, [cvs, inputs, isLoadingInfo, isLoadingInputs, resolvedStepInfo, resolvedVersion, selectedVersion, versions]);
 };
 
-const useStepFromLocalApi = (cvs = ''): UseStepFromResult => {
+const useStepFromLocalApi = (cvs = ''): UseStepResult => {
   const [id, version] = parseStepCVS(cvs);
 
   let library: string = '';
@@ -111,31 +111,31 @@ const useStepFromLocalApi = (cvs = ''): UseStepFromResult => {
   }, [cvs, isLoading, data, version]);
 };
 
-const useStep = (workflowId: string, stepIndex: number): UseStepFromResult | undefined => {
-  const stepFromYml = useStepFromYml(workflowId, stepIndex);
-  const stepFromAlgolia = useStepFromAlgolia(stepFromYml?.cvs);
-  const stepFromLocalApi = useStepFromLocalApi(stepFromYml?.cvs);
+const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefined => {
+  const { cvs, step: stepFromYml } = useStepFromYml(workflowId, stepIndex);
+
+  const stepFromAlgolia = useStepFromAlgolia(cvs);
+  const stepFromLocalApi = useStepFromLocalApi(cvs);
 
   return useMemo(() => {
-    if (!stepFromYml) {
+    if (!cvs) {
       return undefined;
     }
 
-    const { cvs, step } = stepFromYml;
     const stepDefaults = stepFromAlgolia?.step || stepFromLocalApi?.step;
 
     const inputs = stepDefaults?.inputs?.map(({ opts, ...input }) => {
-      const [defaultInputName, defaultValue] = Object.entries(input)[0];
+      const [inputName, defaultValue] = Object.entries(input)[0];
 
-      const userDefinedValue = step?.inputs?.reduce<unknown>((value, { opts: _, ...userInput }) => {
-        const [userInputName, userValue] = Object.entries(userInput)[0];
-        return userInputName === defaultInputName ? userValue : value;
-      }, undefined);
+      const inputFromYml = stepFromYml?.inputs?.find(({ opts: _, ...inputObjectFromYml }) => {
+        const inputNameFromYml = Object.keys(inputObjectFromYml)[0];
+        return inputNameFromYml === inputName;
+      });
 
-      return { opts, [defaultInputName]: userDefinedValue ?? defaultValue };
+      return { opts, [inputName]: inputFromYml?.[inputName] ?? defaultValue };
     });
 
-    const mergedStep = { ...merge({}, stepDefaults, step), inputs };
+    const mergedStep = { ...merge({}, stepDefaults, stepFromYml), inputs };
 
     return {
       cvs,
@@ -153,7 +153,7 @@ const useStep = (workflowId: string, stepIndex: number): UseStepFromResult | und
         stepFromLocalApi?.icon ||
         defaultIcon,
     };
-  }, [stepFromAlgolia, stepFromLocalApi, stepFromYml]);
+  }, [cvs, stepFromAlgolia, stepFromLocalApi, stepFromYml]);
 };
 
 export default useStep;
