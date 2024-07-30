@@ -1,4 +1,4 @@
-import Client from '@/api/client';
+import Client from './client';
 
 // DTOs
 type UserMetadataRequest = Record<string, unknown>;

@@ -2,7 +2,6 @@ import { FromSchema } from 'json-schema-to-ts';
 import { bitriseYmlSchema } from '@/core/BitriseYml.schema';
 import WorkflowService, { Workflow } from '@/core/Workflow';
 import StageService, { Stage } from '@/core/Stage';
-import TriggerMapService from '@/core/TriggerMap';
 
 type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 type Meta = Required<BitriseYml>['meta'] & {
@@ -47,7 +46,7 @@ function deleteWorkflow(yml: BitriseYml, workflowId: string): BitriseYml {
   }
 
   if (copy.trigger_map) {
-    copy.trigger_map = TriggerMapService.deleteTrigger(copy.trigger_map, workflowId);
+    copy.trigger_map = copy.trigger_map?.filter(({ workflow }) => workflow !== workflowId);
   }
 
   return copy;

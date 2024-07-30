@@ -1,12 +1,6 @@
 import { BitriseYml } from './BitriseYml';
 
-type TriggerMap = Required<BitriseYml['trigger_map']>;
+type TriggerMap = Required<BitriseYml>['trigger_map'];
+type Trigger = TriggerMap[number];
 
-function deleteTrigger(trigger_map: TriggerMap, workflowId: string): TriggerMap {
-  return trigger_map?.filter(({ workflow }) => workflow !== workflowId);
-}
-
-export { TriggerMap };
-export default {
-  deleteTrigger,
-};
+export { TriggerMap, Trigger };

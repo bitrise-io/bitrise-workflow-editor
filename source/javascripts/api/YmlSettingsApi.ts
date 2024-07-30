@@ -1,5 +1,5 @@
+import Client from './client';
 import { YmlSettings } from '@/core/YmlSettings';
-import Client from '@/api/client';
 
 // DTOs
 type YmlSettingsResponse = {
