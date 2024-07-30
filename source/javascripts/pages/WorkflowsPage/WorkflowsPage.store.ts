@@ -1,22 +1,45 @@
 import { create } from 'zustand';
 
 type State = {
-  isDialogOpen?: 'create-workflow' | 'chain-workflow' | 'delete-workflow' | 'step-drawer';
+  stepIndex: number;
+  workflowId: string;
+  isDialogOpen?:
+    | 'chain-workflow'
+    | 'create-workflow'
+    | 'delete-workflow'
+    | 'step-config-drawer'
+    | 'step-selector-drawer';
 };
 
 type Action = {
   closeDialog: VoidFunction;
-  openStepDrawer: VoidFunction;
   openChainWorkflowDialog: VoidFunction;
   openCreateWorkflowDialog: VoidFunction;
   openDeleteWorkflowDialog: VoidFunction;
+  openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
+  openStepSelectorDrawer: (workflowId: string, stepIndex: number) => void;
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set) => ({
+  stepIndex: 0,
+  workflowId: '',
   isDialogOpen: undefined,
-  closeDialog: () => set(() => ({ isDialogOpen: undefined })),
-  openStepDrawer: () => set(() => ({ isDialogOpen: 'step-drawer' })),
-  openChainWorkflowDialog: () => set(() => ({ isDialogOpen: 'chain-workflow' })),
-  openCreateWorkflowDialog: () => set(() => ({ isDialogOpen: 'create-workflow' })),
-  openDeleteWorkflowDialog: () => set(() => ({ isDialogOpen: 'delete-workflow' })),
+  closeDialog: () => {
+    return set(() => ({ isDialogOpen: undefined }));
+  },
+  openChainWorkflowDialog: () => {
+    return set(() => ({ isDialogOpen: 'chain-workflow' }));
+  },
+  openCreateWorkflowDialog: () => {
+    return set(() => ({ isDialogOpen: 'create-workflow' }));
+  },
+  openDeleteWorkflowDialog: () => {
+    return set(() => ({ isDialogOpen: 'delete-workflow' }));
+  },
+  openStepConfigDrawer: (workflowId: string, stepIndex: number) => {
+    return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-config-drawer' }));
+  },
+  openStepSelectorDrawer: (workflowId: string, stepIndex: number) => {
+    return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-selector-drawer' }));
+  },
 }));
