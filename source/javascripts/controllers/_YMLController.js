@@ -6,7 +6,7 @@ import { safeDigest } from "../services/react-compat";
 
   angular
     .module("BitriseWorkflowEditor")
-    .controller("YMLController", function ($scope, $rootScope, $timeout, appService, requestService) {
+    .controller("YMLController", function($scope, $rootScope, $timeout, appService, requestService) {
       var viewModel = this;
 
       viewModel.usesRepositoryYml = false;
