@@ -14,7 +14,7 @@ type UseStepResult = {
   cvs: string;
   step?: Step;
   icon?: string;
-  title?: string;
+  title?: string; // TODO: should be removed because confusing (use step.title instead)
   isLoading?: boolean;
   maintainer?: Maintainer;
   selectedVersion?: string;
