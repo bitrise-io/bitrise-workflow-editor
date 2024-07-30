@@ -1,4 +1,4 @@
-import { DefaultError, useMutation, UseMutationOptions, useQuery } from '@tanstack/react-query';
+import { DefaultError, useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query';
 import SecretApi from '@/api/SecretApi';
 import { Secret, SecretWithState } from '@/core/Secret';
 
@@ -10,29 +10,41 @@ function getSecretValueQueryKey(appSlug: string, secretKey: string, useApi: bool
   return ['app', appSlug, 'secret', secretKey, { useApi }];
 }
 
-function useSecrets({ appSlug, useApi = false }: { appSlug: string; useApi?: boolean }) {
+function useSecrets({
+  appSlug,
+  useApi = false,
+  options,
+}: {
+  appSlug: string;
+  useApi?: boolean;
+  options?: Omit<UseQueryOptions<Secret[]>, 'queryKey' | 'queryFn'>;
+}) {
   return useQuery<Secret[]>({
     queryKey: getSecretsQueryKey(appSlug, useApi),
     queryFn: ({ signal }) => SecretApi.getSecrets({ appSlug, useApi, signal }),
     staleTime: 0,
     gcTime: 0,
+    ...options,
   });
 }
 
 function useSecretValue({
   appSlug,
   secretKey,
+  options,
   useApi = false,
 }: {
   appSlug: string;
   secretKey: string;
   useApi?: boolean;
+  options?: Omit<UseQueryOptions<string | undefined>, 'queryKey' | 'queryFn'>;
 }) {
   return useQuery<string | undefined>({
     queryKey: getSecretValueQueryKey(appSlug, secretKey, useApi),
     queryFn: ({ signal }) => SecretApi.getSecretValue({ appSlug, secretKey, useApi, signal }),
     staleTime: 0,
     gcTime: 0,
+    ...options,
   });
 }
 
