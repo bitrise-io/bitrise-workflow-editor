@@ -7,7 +7,8 @@ import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
-  const { openChainWorkflowDialog, openDeleteWorkflowDialog, openStepDrawer } = useWorkflowsPageStore();
+  const { openChainWorkflowDialog, openDeleteWorkflowDialog, openStepConfigDrawer, openStepSelectorDrawer } =
+    useWorkflowsPageStore();
 
   return (
     <Box h="100%" display="flex" flexDir="column">
@@ -41,7 +42,8 @@ const WorkflowCanvasPanel = () => {
           mx="auto"
           isFixed
           isEditable
-          onClickAddStepButton={openStepDrawer}
+          onClickStep={openStepConfigDrawer}
+          onClickAddStepButton={openStepSelectorDrawer}
         />
       </Box>
     </Box>
