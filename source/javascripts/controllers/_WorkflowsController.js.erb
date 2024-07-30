@@ -884,7 +884,7 @@ import semverDiff from 'semver/functions/diff'
       }
 
       viewModel.checkStepVersionUpdate = function (step) {
-        if (!step || step.isLocal()) {
+        if (!step || step.isLocal() || !step.defaultStepConfig) {
           return false;
         }
 
