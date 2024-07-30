@@ -1,4 +1,4 @@
-import { dump } from 'js-yaml';
+import { stringify } from 'yaml';
 import Client from './client';
 import { BitriseYml } from '@/core/BitriseYml';
 
@@ -18,7 +18,7 @@ function toYml(model?: BitriseYml): string {
     return '';
   }
 
-  return `---\n${dump(model, { noArrayIndent: true })}`;
+  return `---\n${stringify(model)}`;
 }
 
 // API CALLS
