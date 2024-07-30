@@ -12,22 +12,23 @@ import {
 } from '@chakra-ui/react';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
-import { EnvironmentVariable, HandlerFn } from './types';
+import { HandlerFn } from './types';
 import CreateEnvVar from './components/CreateEnvVar';
 import LoadingState from './components/LoadingState';
+import { EnvVar } from '@/models/EnvVar';
 
 type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
   isLoading?: boolean;
-  environmentVariables: EnvironmentVariable[];
+  environmentVariables: EnvVar[];
   onOpen: VoidFunction;
   onCreate: HandlerFn;
   onSelect: HandlerFn;
 };
 
-const filterPredicate = (item: EnvironmentVariable, filter: string): boolean =>
+const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
 const InsertEnvVarPopover = ({

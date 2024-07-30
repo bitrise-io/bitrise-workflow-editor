@@ -1,31 +1,35 @@
-.tab-workflows[ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
+.workflows-page[ng-if="mainCtrl.enableNewWorkflowsPage" ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
+  r-workflows-page[
+    yml="workflowsCtrl.yml"
+  ]
+
+.tab-workflows[ng-if='!mainCtrl.enableNewWorkflowsPage' ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
   p.progress-indicator[progress-model="workflowsCtrl.loadWorkflowsProgress"]
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
       r-workflow-empty-state[
-        on-add-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
-      ]
-    section.manage-workflows[ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
-      r-workflow-toolbar.react-toolbar[
-        default-branch="workflowsCtrl.defaultBranch"
-        can-run-workflow="workflowsCtrl.canRunWorkflow"
-        is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
-        selected-workflow="workflowsCtrl.selectedWorkflow"
-        workflows="workflowsCtrl.workflows"
-        select-workflow="workflowsCtrl.selectWorkflowWithDigest"
-        rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
-        on-add-new-workflow="workflowsCtrl.openAddWorkflowPopupWithDigest"
-        on-open-chain-workflow-dialog="workflowsCtrl.openChainWorkflowDialog"
-        on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
-        on-delete-selected-workflow="workflowsCtrl.deleteWorkflowSelectedWithDigest"
-        on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
-        unique-step-count="workflowsCtrl.uniqueStepCount"
-        unique-step-limit="workflowsCtrl.uniqueStepLimit"
-        organization-slug="appService.appDetails.ownerData.slug"
+        on-add-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
       ]
     .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
         .steps-container
+          r-workflow-toolbar.react-toolbar[
+            default-branch="workflowsCtrl.defaultBranch"
+            can-run-workflow="workflowsCtrl.canRunWorkflow"
+            is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
+            selected-workflow="workflowsCtrl.selectedWorkflow"
+            workflows="workflowsCtrl.workflows"
+            select-workflow="workflowsCtrl.selectWorkflowWithDigest"
+            rename-workflow-confirmed="workflowsCtrl.confirmRenameWorkflowWithDigest"
+            on-add-new-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
+            on-open-chain-workflow-dialog="workflowsCtrl.openReactChainWorkflowDrawer"
+            on-rearrange-workflow="workflowsCtrl.openRearrangeWorkflowsPopupWithDigest"
+            on-delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
+            on-run-workflow="workflowsCtrl.runWorkflowWithDigest"
+            unique-step-count="workflowsCtrl.uniqueStepCount"
+            unique-step-limit="workflowsCtrl.uniqueStepLimit"
+            organization-slug="appService.appDetails.ownerData.slug"
+          ]
           section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30" id="steps-container"]
             header.workflow-header.with-flow-decoration
               .header-info
@@ -46,8 +50,6 @@
                       r-step-item[
                         workflow-index="workflowIndex"
                         step="step"
-                        display-name="step.displayName()"
-                        version="step.requestedVersion()"
                         has-version-update="workflowsCtrl.checkStepVersionUpdate(step)"
                         is-selected="step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex"
                         on-selected="workflowsCtrl.stepSelected"]
@@ -55,63 +57,40 @@
                 li
                   button.add-step[ng-click="workflowsCtrl.addStepSelectedAtIndex(workflow.steps.length, workflowIndex)" ng-disabled="workflowIndex != workflowsCtrl.editedWorkflowIndex && workflow.steps.length > 0"]
         .step-edit-container
-          .[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertVariableCtrl"]
-            .[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertSecretCtrl"]
-              r-step-config[
-                tab-id="workflowsCtrl.tabId"
-                step="workflowsCtrl.selectedStep"
-                secrets="insertSecretCtrl.insertableVariablesForReact"
-                environment-variables="insertVariableCtrl.insertableVariablesForReact"
-                resolved-version="workflowsCtrl.selectedStepResolvedVersion"
-                has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
-                versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
-                input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
-                output-variables="workflowsCtrl.outputVariables"
-                on-change-tab-id="workflowsCtrl.setTabId"
-                on-clone="workflowsCtrl.cloneSelectedStep"
-                on-remove="workflowsCtrl.deleteSelectedStep"
-                on-change="workflowsCtrl.handleSelectedStepChanges"
-                on-create-secret="workflowsCtrl.saveSecretFromReact"
-                on-load-secrets="insertSecretCtrl.initForReact(requestService.mode == 'website' ? ['from_code_signing_files', 'from_secrets'] : ['from_secrets'], workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
-                on-create-env-var="workflowsCtrl.saveEnvVarFromReact"
-                on-load-env-vars="insertVariableCtrl.initForReact(null, workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
-                secrets-write-new="mainCtrl.appSecretsWriteNew"
-                app-slug="appService.appDetails.slug"
-              ]
+          .ins-var[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertVariableCtrl"]
+            .ins-sec[ng-if="workflowsCtrl.selectedStep" ng-controller="InsertVariableController as insertSecretCtrl"]
+              div[ng-if="!!workflowsCtrl.selectedStep.version"]
+                r-step-config[
+                  tab-id="workflowsCtrl.tabId"
+                  step="workflowsCtrl.selectedStep"
+                  secrets="insertSecretCtrl.insertableVariablesForReact"
+                  environment-variables="insertVariableCtrl.insertableVariablesForReact"
+                  resolved-version="workflowsCtrl.selectedStepResolvedVersion"
+                  has-version-update="workflowsCtrl.checkStepVersionUpdate(workflowsCtrl.selectedStep)"
+                  versions-with-remarks="workflowsCtrl.selectedStepVersionsWithRemarks"
+                  input-categories="workflowsCtrl.inputCategoriesOfSelectedStep"
+                  output-variables="workflowsCtrl.outputVariables"
+                  on-change-tab-id="workflowsCtrl.setTabId"
+                  on-clone="workflowsCtrl.cloneSelectedStep"
+                  on-remove="workflowsCtrl.deleteSelectedStep"
+                  on-change="workflowsCtrl.handleSelectedStepChanges"
+                  on-create-secret="workflowsCtrl.saveSecretFromReact"
+                  on-load-secrets="insertSecretCtrl.initForReact(requestService.mode == 'website' ? ['from_code_signing_files', 'from_secrets'] : ['from_secrets'], workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
+                  on-create-env-var="workflowsCtrl.saveEnvVarFromReact"
+                  on-load-env-vars="insertVariableCtrl.initForReact(null, workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
+                  secrets-write-new="mainCtrl.appSecretsWriteNew"
+                  app-slug="appService.appDetails.slug"
+                ]
+              div[ng-if="workflowsCtrl.selectedStep.isStepBundle()"]
+                r-step-bundle-panel[stepDisplayName="workflowsCtrl.selectedStep.displayName()"]
+              div[ng-if="workflowsCtrl.selectedStep.isWithBlock()"]
+                r-with-block-panel[stepDisplayName="workflowsCtrl.selectedStep.displayName()" with-block-data="workflowsCtrl.selectedStep.withBlockData"]
           section.workflow[ng-if='!workflowsCtrl.selectedStep && (workflowsCtrl.editedWorkflow && workflowsCtrl.yml)']
             r-workflow-config-panel[
               yml="workflowsCtrl.yml"
               default-values="workflowsCtrl.editedWorkflowConfigForReact"
               on-change="workflowsCtrl.editedWorkflowConfigForReactChanged"
             ]
-
-  popup[model="workflowsCtrl.addWorkflowPopup"]
-    form.popup-body.snowflake#add-workflow-popup-body.vertical-scroll[ng-submit="workflowsCtrl.addWorkflow()" method="POST"]
-      header == data[:strings][:workflows][:add_workflow][:add_new_workflow]
-      article
-        input[type="text" ng-model="workflowsCtrl.addWorkflowID" placeholder="#{ data[:strings][:workflows][:add_workflow][:workflow_name_placeholder] }"]
-        label[for="add-workflow-popup-based-on-select"] == data[:strings][:workflows][:add_workflow][:based_on]
-        select#add-workflow-popup-based-on-select[ng-model="workflowsCtrl.addWorkflowSourceWorkflow" ng-options="(workflow ? workflow.id : '#{ data[:strings][:workflows][:add_workflow][:empty_workflow] }') for workflow in [null].concat(workflowsCtrl.workflows)"]
-      footer
-        input.rebo.big.purple[type="submit" ng-disabled="!Workflow.isValidID(workflowsCtrl.addWorkflowID) || (workflowsCtrl.workflows | filter: { id: workflowsCtrl.addWorkflowID } : true).length > 0" value="#{ data[:strings][:workflows][:add_workflow][:done] }" data-e2e-tag="confirm-button"]
-  popup[model="workflowsCtrl.addRunWorkflowPopup"]
-    .popup-body.snowflake#add-run-workflow-popup-body.vertical-scroll
-      header
-        span[ng-if="workflowsCtrl.addRunWorkflowMode == 'before'"] == data[:strings][:workflows][:add_run_workflow][:before_run][:action_prefix]
-        span[ng-if="workflowsCtrl.addRunWorkflowMode == 'after'"] == data[:strings][:workflows][:add_run_workflow][:after_run][:action_prefix]
-        strong<[ng-bind="workflowsCtrl.selectedWorkflow.id"]
-      article.vertical-scroll
-        ul.workflow-chain
-          ul.workflow-subchain.before-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'before-run'})"]
-            li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
-          select.run-workflow-selector.mak[ng-options="workflow.id for workflow in workflowsCtrl.availableRunWorkflowsToAdd()" ng-model="workflowsCtrl.runWorkflowToAdd" placeholder="#{ data[:strings][:workflows][:add_run_workflow][:placeholder] }" ng-class="{'before-run': workflowsCtrl.addRunWorkflowMode == 'before', 'after-run': workflowsCtrl.addRunWorkflowMode == 'after'}"]
-          ul.workflow-subchain.selected
-            li[ng-bind="workflowsCtrl.selectedWorkflow.id"]
-          ul.workflow-subchain.after-run[ng-repeat="workflowSubChain in (workflowsCtrl.addRunWorkflowChainHierarchy | filter: {type: 'after-run'})"]
-            li[ng-repeat="workflow in workflowSubChain.workflowChain track by $index + '-' + workflow.id" ng-bind="workflow.id"]
-      footer
-        button.done[ng-click="workflowsCtrl.addRunWorkflow(workflowsCtrl.addRunWorkflowMode, workflowsCtrl.runWorkflowToAdd.id)" ng-disabled="!workflowsCtrl.runWorkflowToAdd" data-e2e-tag="confirm-button"] == data[:strings][:workflows][:add_run_workflow][:done]
-        button.cancel[ng-click="workflowsCtrl.addRunWorkflowPopup.isVisible = false" data-e2e-tag="cancel-button"] == data[:strings][:workflows][:add_run_workflow][:cancel]
   popup[model="workflowsCtrl.rearrangeWorkflowsPopup"]
     .popup-body.snowflake#rearrange-workflow-chain-popup-body
       header == data[:strings][:workflows][:rearrange][:drag_n_drop]
@@ -122,7 +101,6 @@
       footer
         button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
         button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
-  add-step-sidebar
   r-step-drawer[
     is-open="workflowsCtrl.showReactStepDrawer"
     on-close="workflowsCtrl.closeReactStepDrawer"
@@ -130,11 +108,11 @@
     on-step-selected="workflowsCtrl.handleInsertStepAtIndexFromReact"
   ]
   r-chain-workflow-drawer[
-    id="workflowsCtrl.selectedWorkflow.id"
+    workflow-id="workflowsCtrl.selectedWorkflow.id"
     yml="workflowsCtrl.yml"
     is-open="workflowsCtrl.showReactChainWorkflowDrawer"
     on-close="workflowsCtrl.closeReactChainWorkflowDrawer"
-    on-chain-workflow="workflowsCtrl.addRunWorkflow"
+    on-chain-workflow="workflowsCtrl.chainWorkflow"
   ]
   r-version-change-dialog[
     is-open="workflowsCtrl.selectedStepVersionChangeDialogProps"
@@ -143,4 +121,16 @@
     removed-inputs="workflowsCtrl.selectedStepVersionChangeDialogProps.removedInputs"
     new-inputs="workflowsCtrl.selectedStepVersionChangeDialogProps.newInputs"
     release-notes-url="workflowsCtrl.selectedStepVersionChangeDialogProps.releaseNotesUrl"
+  ]
+  r-delete-workflow-dialog[
+    workflow-id="workflowsCtrl.selectedWorkflow.id"
+    is-open="workflowsCtrl.showReactDeleteWorkflowDialog"
+    on-close="workflowsCtrl.closeReactDeleteWorkflowDialog"
+    on-delete="workflowsCtrl.deleteWorkflow"
+  ]
+  r-create-workflow-dialog[
+    yml="workflowsCtrl.yml"
+    is-open="workflowsCtrl.showReactCreateWorkflowDialog"
+    on-close="workflowsCtrl.closeReactCreateWorkflowDialog"
+    on-create="workflowsCtrl.createReactWorkflow"
   ]

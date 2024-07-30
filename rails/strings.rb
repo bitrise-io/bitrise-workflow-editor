@@ -33,7 +33,7 @@ def strings
                     stack: "Stack",
                     stacks_and_machines: "Stacks & Machines",
                     licenses: "Licenses",
-                    yml: "bitrise.yml"
+                    yml: "Configuration YAML"
                 },
                 discard: "Discard",
                 save: "Save",
@@ -80,14 +80,6 @@ def strings
                 run_workflows: {
                     postfix: "workflow",
                     select: "Select a Workflow from the list below:"
-                },
-                add_workflow: {
-                    action: "Workflow",
-                    add_new_workflow: "Add new workflow",
-                    workflow_name_placeholder: "Workflow name",
-                    based_on: "Based on:",
-                    empty_workflow: "Empty workflow",
-                    done: "Done"
                 },
                 add_run_workflow: {
                     before_run: {
@@ -222,31 +214,8 @@ def strings
             code_signing: {
                 available_project_types_load: "Loading, wait a sec...",
                 expose_for_pr_popover_content: "You can decide which files should be exposed for / available in Pull Request builds.<br> Be careful, exposing a secret is a potential security risk.",
-                auto_code_signing: {
-                    header: {
-                        title: "Manage your code signing files automatically!",
-                        summary: "With a connected Apple Developer Account and our iOS Auto Provision Step, you no longer have to worry about dealing with Provisioning Profiles",
-                        action: "Set up your code signing files manually"
-                    },
-                    codesigndoc_loading: "Loading codesigndoc script...",
-                    apple_dev_account_loading: "Loading Apple Developer Account...",
-                    connecting_apple_dev_account: "Connecting Apple Developer Account...",
-                    sending_two_step_auth_verification_code: "Sending verification code...",
-                    sending_two_factor_auth_verification_code: "Sending verification code...",
-                    removing_connected_apple_developer_account: "Removing connected Apple Developer Account...",
-                    saving_team: "Saving selected team...",
-                    saving_apple_credential_user: "Saving Apple Credential User..."
-                },
+
                 manual_code_signing: {
-                    auto_code_signing: {
-                        header: {
-                            title: "Update Automatically",
-                            description: "Use our wizard to manage your code signing files"
-                        },
-                        body: {
-                            action: "Update provisioning profiles automatically"
-                        }
-                    },
                     header: {
                         title: "Update Manually",
                         description: "If you prefer the hard way"
@@ -640,8 +609,8 @@ def strings
                     }
                 },
                 app: {
-                    title: "App Environment Variables",
-                    notification: "App Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
+                    title: "Project Environment Variables",
+                    notification: "Project Environment Variables will also be available in builds triggered by pull requests. You should NOT add any private information here."
                 },
                 workflow: {
                     title_postfix: "Workflow Environment Variables",
@@ -683,7 +652,7 @@ def strings
                 rollback_version: {
                     not_available: "Previous version is not available",
                     use: "Use previous version",
-                    enable_if: "Enable this option if your build is failing after a Bitrise Stack Update.",
+                    enable_if: "Enable this option if your build is failing after a Bitrise Stack Update. Your build will start slower while using rollback stack versions.",
                     usage_warning: "Previous version is a rollback option we provide if your build is failing after a Stack Update. Please keep in mind that this option is only available for a limited time, usually 2-3 days after a Stack Update. Once removed, your build will run on the latest Stable Stack.",
                     usage_warning_link_text: "Learn more",
                     usage_warning_link_href: "https://devcenter.bitrise.io/en/infrastructure/build-stacks/stack-update-policy.html#using-the-previous-version-of-a-stack",
@@ -710,7 +679,6 @@ def strings
                 title: "bitrise.yml",
                 info_1: "You can edit your current config in YAML format:",
                 info_1_repo_yml: "The content of the bitrise.yml file, fetched from the app's repository.",
-                info_2: "You can download this YML and run it directly with <a href='<url>' target='_blank'>bitrise CLI</a> locally.",
                 download: "Download currently saved config",
                 load_progress: {
                     loading: "Loading, wait a sec..."
@@ -766,8 +734,8 @@ def strings
                     error_prefix: "Error loading secrets: "
                 },
                 save_app_config: {
-                    default_error: "Error saving app config.",
-                    error_prefix: "Error saving app config: "
+                    default_error: "Error saving CI config.",
+                    error_prefix: "Error saving CI config: "
                 },
                 load_prov_profiles: {
                     default_error: "Error loading provisioning profiles.",

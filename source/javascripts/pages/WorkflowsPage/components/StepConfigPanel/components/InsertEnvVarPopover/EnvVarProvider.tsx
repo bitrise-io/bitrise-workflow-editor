@@ -1,11 +1,12 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
-import { EnvironmentVariable, HandlerFn } from './types';
+import { HandlerFn } from './types';
+import { EnvVar } from '@/models/EnvVar';
 
 type State = {
   isLoading: boolean;
   load: VoidFunction;
   create: HandlerFn;
-  get: (key?: string) => EnvironmentVariable[];
+  get: (key?: string) => EnvVar[];
 };
 
 const Context = createContext<State>({
@@ -17,12 +18,12 @@ const Context = createContext<State>({
 
 type Props = PropsWithChildren<{
   onCreate: HandlerFn;
-  onLoad: () => Promise<EnvironmentVariable[]>;
+  onLoad: () => Promise<EnvVar[]>;
 }>;
 
 const EnvVarProvider = ({ children, onLoad, onCreate }: Props) => {
   const [isLoading, setIsLoading] = useState(false);
-  const [environmentVariables, setEnvironmentVariables] = useState<EnvironmentVariable[]>([]);
+  const [environmentVariables, setEnvironmentVariables] = useState<EnvVar[]>([]);
 
   const value = useMemo(() => {
     const load: State['load'] = () => {

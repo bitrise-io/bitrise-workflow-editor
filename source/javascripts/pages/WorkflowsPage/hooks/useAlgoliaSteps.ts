@@ -1,7 +1,7 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
 import uniqBy from 'lodash/uniqBy';
-import { AlgoliaStepResponse } from '../../../models/Algolia';
-import useAlgolia from './useAlgolia';
+import useAlgolia from '@/hooks/useAlgolia';
+import { AlgoliaStepResponse } from '@/models/Algolia';
 
 type Props = {
   attributesToRetrieve: Array<string>;

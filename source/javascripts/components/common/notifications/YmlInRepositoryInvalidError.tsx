@@ -7,7 +7,7 @@ type Props = {
 };
 
 const YmlInRepositoryInvalidError = ({ errorMessage }: Props): JSX.Element => (
-  <Notification status="error" justifyContent="start">
+  <Notification status="error" justifyContent="start" marginBlockStart="24">
     <Box display="flex" flexDirection="column" gap="x4">
       <Text>
         {(window as WFEWindow).strings.yml.store_in_repository.validation_error}{' '}

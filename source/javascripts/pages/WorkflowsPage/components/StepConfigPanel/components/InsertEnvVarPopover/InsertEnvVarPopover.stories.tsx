@@ -1,10 +1,9 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Mode } from '../../hooks/useMultiModePopover';
 import InsertEnvVarPopover from './InsertEnvVarPopover';
+import { EnvVar } from '@/models/EnvVar';
 
-import { EnvironmentVariable } from './types';
-
-const defaultEnvironmentVariables: EnvironmentVariable[] = [
+const defaultEnvironmentVariables: EnvVar[] = [
   {
     source: 'Bitrise.io',
     key: 'BITRISE_APP_SLUG',

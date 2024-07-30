@@ -12,7 +12,7 @@ type RepoYmlStorageActionsProps = {
 
 const identityParser = (result: string): any => result;
 
-const useFormattedYml = (appConfig: AppConfig): string => {
+export const useFormattedYml = (appConfig: AppConfig): string => {
   const [yml, setYml] = useState(typeof appConfig === 'string' ? appConfig : '');
   const formatAppConfigRef = useRef<(options?: RequestInit) => void>();
   const { failed, result, call } = useMonolithApiCallback<string>(
