@@ -123,6 +123,14 @@ func GetBitriseYMLAsJSONHandler(w http.ResponseWriter, r *http.Request) {
 	}
 	yamlContObj.TriggerMap = triggerMap
 
+	stepBundles, err := convertStepBundleElementTypes(yamlContObj.StepBundles)
+	if err != nil {
+		log.Errorf("Failed to convert step bundle types, error: %s", err)
+		RespondWithJSONBadRequestErrorMessage(w, "Failed to convert step bundle types")
+		return
+	}
+	yamlContObj.StepBundles = stepBundles
+
 	RespondWithJSON(w, 200, yamlContObj)
 }
 
@@ -200,6 +208,33 @@ func convertTriggerMapElementTypes(triggerMap models.TriggerMapModel) (models.Tr
 	return triggerMap, nil
 }
 
+func convertStepBundleElementTypes(stepBundles map[string]models.StepBundleModel) (map[string]models.StepBundleModel, error) {
+	for stepBundleID, stepBundle := range stepBundles {
+		for i, env := range stepBundle.Environments {
+			convertedEnv, err := convertStepInputMetadataType(env)
+			if err != nil {
+				return nil, err
+			}
+			stepBundle.Environments[i] = convertedEnv
+		}
+
+		for i, stepListItem := range stepBundle.Steps {
+			stepID, step, err := stepListItem.GetStepIDAndStep()
+			if err != nil {
+				return nil, err
+			}
+			step, err = convertStepType(step)
+			if err != nil {
+				return nil, err
+			}
+			stepBundle.Steps[i] = map[string]stepmanModels.StepModel{stepID: step}
+		}
+		stepBundles[stepBundleID] = stepBundle
+	}
+
+	return stepBundles, nil
+}
+
 func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map[string]models.WorkflowModel, error) {
 	for wfKey, wf := range workflows {
 		err := convertWorkflowMetadataType(&wf)
@@ -247,7 +282,18 @@ func convertWorkflowElementTypes(workflows map[string]models.WorkflowModel) (map
 				}
 				wf.Steps[stepListItemIdx] = map[string]interface{}{key: with}
 			} else if t == models.StepListItemTypeBundle {
-
+				bundle, err := stepListItem.GetBundle()
+				if err != nil {
+					return nil, err
+				}
+				for idx, env := range bundle.Environments {
+					convertedEnv, err := convertStepInputMetadataType(env)
+					if err != nil {
+						return nil, err
+					}
+					bundle.Environments[idx] = convertedEnv
+				}
+				wf.Steps[stepListItemIdx] = map[string]interface{}{key: bundle}
 			}
 		}
 
