@@ -1,4 +1,3 @@
-import { UnionToIntersection } from 'type-fest';
 import { Workflow } from './Workflow';
 import { WithId } from '@/core/WithId';
 
@@ -9,21 +8,8 @@ enum Maintainer {
 }
 
 type Steps = Required<Workflow>['steps'];
-type StepObject = UnionToIntersection<Steps[number][string]>;
-
-type Step = WithId<{
-  cvs: string;
-  icon: string;
-  title: string;
-  summary: string;
-  description: string;
-  version: string;
-  categories: string[];
-  isOfficial: boolean;
-  isVerified: boolean;
-  isCommunity: boolean;
-  isDeprecated: boolean;
-}>;
+type StepObject = Extract<Steps[number][string], { website?: string }>;
+type Step = WithId<StepObject>;
 
 type StepInput = {
   id: string;

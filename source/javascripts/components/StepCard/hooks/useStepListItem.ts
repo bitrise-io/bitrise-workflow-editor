@@ -23,7 +23,6 @@ const useStepListItem = ({ cvs, title, icon }: Props): StepCardData => {
   const { data, isLoading } = useAlgoliaStep({
     id,
     enabled: isStepLib(cvs),
-    attributesToRetrieve: ['id', 'version', 'cvs', 'step.title', 'info.asset_urls', 'step.asset_urls'],
   });
 
   const versions = (data?.map((s) => s.version) ?? []) as string[];

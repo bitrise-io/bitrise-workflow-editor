@@ -1,8 +1,7 @@
-import { UnionToIntersection } from 'type-fest';
 import { Workflow } from './Workflow';
 
 export type Steps = Required<Workflow>['steps'];
-export type Step = UnionToIntersection<Steps[number][string]>;
+export type Step = Extract<Steps[number][string], { website?: string }>;
 
 export function parseStepCVS(cvs: string) {
   const cleaned = cvs.replace(/^(git::|path::|git@)/g, '');

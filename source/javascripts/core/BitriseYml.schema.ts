@@ -434,7 +434,6 @@ export const bitriseYmlSchema = {
         workflow: {
           type: 'string',
         },
-
         push_branch: {
           oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
         },
@@ -444,7 +443,6 @@ export const bitriseYmlSchema = {
         changed_files: {
           oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
         },
-
         pull_request_source_branch: {
           oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
         },
@@ -460,11 +458,9 @@ export const bitriseYmlSchema = {
         pull_request_comment: {
           oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
         },
-
         tag: {
           oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
         },
-
         pattern: {
           type: 'string',
         },
