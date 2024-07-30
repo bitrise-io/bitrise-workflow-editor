@@ -20,7 +20,7 @@ const WithBlockPanel = ({ stepDisplayName, withBlockData }: WithBlockPanelProps)
         </Text>
       </Box>
       <Box padding="24">
-        {image && <Input isReadOnly label="Image" isRequired marginBlockEnd="24" value={image} />}
+        {!!image && <Input isReadOnly label="Image" isRequired marginBlockEnd="24" value={image} />}
         {services && services.length > 0 && (
           <TagsInput
             isReadOnly
