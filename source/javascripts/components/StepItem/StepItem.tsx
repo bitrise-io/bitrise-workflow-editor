@@ -8,7 +8,7 @@ import StepItemTitle from './StepItemTitle';
 import StepItemVersion from './StepItemVersion';
 import { Step, WithBlockData } from '@/models';
 
-const getwithBlockText = (withBlockData: WithBlockData): string => {
+const getWithBlockText = (withBlockData: WithBlockData): string => {
   let withBlockText = '';
   if (withBlockData.image) {
     withBlockText = `In ${withBlockData.image}`;
@@ -59,7 +59,7 @@ const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelecte
         )}
         {!!step.isWithBlock() && step.withBlockData && (
           <Text color={isSelected ? 'text/on-color' : 'text/secondary'} fontSize="13px" hasEllipsis>
-            {getwithBlockText(step.withBlockData)}
+            {getWithBlockText(step.withBlockData)}
           </Text>
         )}
       </span>

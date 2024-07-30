@@ -540,8 +540,8 @@ import semverDiff from 'semver/functions/diff'
 
           if (aStep.isWithBlock()) {
             aStep.withBlockData = {
-              image: appService.getwithBlockImage(aStep.userStepConfig?.container),
-              services: appService.getwithBlockServices(aStep.userStepConfig?.services)
+              image: appService.getWithBlockImage(aStep.userStepConfig?.container),
+              services: appService.getWithBlockServices(aStep.userStepConfig?.services)
             };
           }
 
