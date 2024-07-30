@@ -2,7 +2,7 @@ import { YmlSettings } from '@/core/YmlSettings';
 import Client from '@/api/client';
 
 // DTOs
-type YmlSettingsDto = {
+type YmlSettingsResponse = {
   last_modified: string;
   lines: number;
   split: boolean;
@@ -10,8 +10,12 @@ type YmlSettingsDto = {
   modular_yaml_supported: boolean;
 };
 
+type YmlSettingsRequest = {
+  uses_repository_yml: boolean;
+};
+
 // TRANSFORMATIONS
-function toYmlSettings(response: YmlSettingsDto): YmlSettings {
+function toYmlSettings(response: YmlSettingsResponse): YmlSettings {
   return {
     lastModified: response.last_modified,
     lines: response.lines,
@@ -21,7 +25,7 @@ function toYmlSettings(response: YmlSettingsDto): YmlSettings {
   };
 }
 
-function toYmlSettingUpdateModel(model: Partial<YmlSettings>): Pick<YmlSettingsDto, 'uses_repository_yml'> {
+function toYmlSettingUpdateModel(model: Partial<YmlSettings>): YmlSettingsRequest {
   return {
     uses_repository_yml: Boolean(model?.isRepositoryYml),
   };
@@ -35,7 +39,7 @@ function getYmlSettingsPath(appSlug: string): string {
 }
 
 async function getYmlSettings({ appSlug, signal }: { appSlug: string; signal?: AbortSignal }): Promise<YmlSettings> {
-  const response = await Client.get<YmlSettingsDto>(getYmlSettingsPath(appSlug), {
+  const response = await Client.get<YmlSettingsResponse>(getYmlSettingsPath(appSlug), {
     signal,
   });
   return toYmlSettings(response);
@@ -49,8 +53,8 @@ function updateYmlSettings({
   appSlug: string;
   model: Partial<YmlSettings>;
   signal?: AbortSignal;
-}): Promise<unknown> {
-  return Client.put<unknown>(getYmlSettingsPath(appSlug), {
+}): Promise<YmlSettingsResponse> {
+  return Client.put<YmlSettingsResponse>(getYmlSettingsPath(appSlug), {
     body: JSON.stringify(toYmlSettingUpdateModel(model)),
     signal,
   });

@@ -10,7 +10,7 @@ const ALGOLIA_STEPLIB_STEPS_INDEX = 'steplib_steps';
 const ALGOLIA_STEPLIB_INPUTS_INDEX = 'steplib_inputs';
 
 // DTOs
-type AlgoliaStepDTO = Partial<{
+type AlgoliaStepResponse = Partial<{
   readonly objectID: string;
   id: string;
   cvs: string;
@@ -28,7 +28,7 @@ type AlgoliaStepDTO = Partial<{
   };
 }>;
 
-type Attributes = Paths<AlgoliaStepDTO> | '*';
+type Attributes = Paths<AlgoliaStepResponse> | '*';
 
 // type AlgoliaStepInputDTO = Partial<{
 //   readonly objectID: string;
@@ -39,7 +39,7 @@ type Attributes = Paths<AlgoliaStepDTO> | '*';
 // }>;
 
 // TRANSFORMATIONS
-function toStep(dto: AlgoliaStepDTO): Step | undefined {
+function toStep(dto: AlgoliaStepResponse): Step | undefined {
   if (!dto.id || !dto.cvs) {
     return undefined;
   }
@@ -87,9 +87,9 @@ function getAlgoliaClients() {
 
 async function getAllSteps({ attributesToRetrieve = ['*'] }: { attributesToRetrieve?: Attributes[] }) {
   const { stepsClient } = getAlgoliaClients();
-  const results: Array<AlgoliaStepDTO> = [];
+  const results: Array<AlgoliaStepResponse> = [];
   const attrs = attributesToRetrieve[0] === '*' ? ['*'] : ['id', ...(attributesToRetrieve as string[])];
-  await stepsClient.browseObjects<AlgoliaStepDTO>({
+  await stepsClient.browseObjects<AlgoliaStepResponse>({
     batch: (objects) => results.push(...objects),
     attributesToRetrieve: attrs,
     filters: 'is_latest:true AND is_deprecated:false',
@@ -107,8 +107,8 @@ async function getStepById({
   attributesToRetrieve?: Attributes[];
 }) {
   const { stepsClient } = getAlgoliaClients();
-  const results: AlgoliaStepDTO[] = [];
-  await stepsClient.browseObjects<AlgoliaStepDTO>({
+  const results: AlgoliaStepResponse[] = [];
+  await stepsClient.browseObjects<AlgoliaStepResponse>({
     batch: (batch) => results.push(...batch),
     attributesToRetrieve: attributesToRetrieve as string[],
     filters: latestOnly ? `id:${id} AND is_latest:true` : `id:${id}`,

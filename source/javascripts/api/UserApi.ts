@@ -1,8 +1,8 @@
 import Client from '@/api/client';
 
 // DTOs
-type UserMetadataDto = Record<string, unknown>;
-type UserMetadataValueDto = {
+type UserMetadataRequest = Record<string, unknown>;
+type UserMetadataValueResponse = {
   value: unknown;
 };
 
@@ -14,7 +14,7 @@ export function getUserMetadataByKeyPath(key: string): string {
 }
 
 export async function getUserMetadataValue({ key, signal }: { key: string; signal?: AbortSignal }): Promise<string> {
-  const response = await Client.get<UserMetadataValueDto>(getUserMetadataByKeyPath(key), {
+  const response = await Client.get<UserMetadataValueResponse>(getUserMetadataByKeyPath(key), {
     signal,
   });
   return response.value as string;
@@ -24,7 +24,7 @@ export function updateUserMetadata({
   metadata,
   signal,
 }: {
-  metadata: UserMetadataDto;
+  metadata: UserMetadataRequest;
   signal?: AbortSignal;
 }): Promise<unknown> {
   return Client.put(USER_METADATA_PATH, {

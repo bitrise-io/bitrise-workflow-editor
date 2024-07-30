@@ -3,7 +3,7 @@ import { Stack } from '@/core/Stack';
 import { WithId } from '@/core/WithId';
 
 // DTOs
-type StackCollectionDto = {
+type AllStackInfoResponse = {
   available_stacks: {
     [key: string]: {
       title: string;
@@ -17,10 +17,10 @@ type StackCollectionDto = {
     };
   };
 };
-type StackDto = StackCollectionDto['available_stacks'][string];
+type StackInfo = AllStackInfoResponse['available_stacks'][string];
 
 // TRANSFORMATIONS
-function toStack({ id, ...dto }: WithId<StackDto>): Stack {
+function toStack({ id, ...dto }: WithId<StackInfo>): Stack {
   const { title: name, available_machines: machineIds = [] } = dto;
 
   return {
@@ -30,7 +30,7 @@ function toStack({ id, ...dto }: WithId<StackDto>): Stack {
   };
 }
 
-function toStackArray(response: StackCollectionDto): Stack[] {
+function toStackArray(response: AllStackInfoResponse): Stack[] {
   return Object.entries(response.available_stacks).map<Stack>(([id, stack]) =>
     toStack({
       id,
@@ -47,7 +47,7 @@ function getStacksPath(appSlug: string): string {
 }
 
 async function getStacks({ appSlug, signal }: { appSlug: string; signal?: AbortSignal }): Promise<Stack[]> {
-  const response = await Client.get<StackCollectionDto>(getStacksPath(appSlug), {
+  const response = await Client.get<AllStackInfoResponse>(getStacksPath(appSlug), {
     signal,
   });
   return toStackArray(response);
