@@ -1,4 +1,5 @@
 import { Box, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import { Fragment } from 'react/jsx-runtime';
 import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
 import useMeta from './hooks/useMeta';
 import useWorkflow from './hooks/useWorkflow';
@@ -41,10 +42,11 @@ const WorkflowCardHeader = ({ title, stack, isOpen, isFixed, onToggle }: Workflo
 type WorkflowChainProps = {
   id: string;
   isEditable?: boolean;
+  onClickStep?: (workflowId: string, index: number) => void;
   onClickAddStepButton?: (workflowId: string, index: number) => void;
 };
 
-const BeforeRunWorkflows = ({ id, isEditable, onClickAddStepButton }: WorkflowChainProps) => {
+const BeforeRunWorkflows = ({ id, isEditable, onClickStep, onClickAddStepButton }: WorkflowChainProps) => {
   const ids = useBeforeRunWorkflows({ id });
   const hasChainedWorkflows = ids.length > 0;
 
@@ -56,6 +58,7 @@ const BeforeRunWorkflows = ({ id, isEditable, onClickAddStepButton }: WorkflowCh
           id={workflowId}
           isRoot={false}
           isEditable={isEditable}
+          onClickStep={onClickStep}
           onClickAddStepButton={onClickAddStepButton}
         />
       ))}
@@ -64,7 +67,7 @@ const BeforeRunWorkflows = ({ id, isEditable, onClickAddStepButton }: WorkflowCh
   );
 };
 
-const AfterRunWorkflows = ({ id, isEditable, onClickAddStepButton }: WorkflowChainProps) => {
+const AfterRunWorkflows = ({ id, isEditable, onClickStep, onClickAddStepButton }: WorkflowChainProps) => {
   const ids = useAfterRunWorkflows({ id });
   const hasChainedWorkflows = ids.length > 0;
 
@@ -77,6 +80,7 @@ const AfterRunWorkflows = ({ id, isEditable, onClickAddStepButton }: WorkflowCha
           id={workflowId}
           isRoot={false}
           isEditable={isEditable}
+          onClickStep={onClickStep}
           onClickAddStepButton={onClickAddStepButton}
         />
       ))}
@@ -90,6 +94,7 @@ type WorkflowCardProps = CardProps & {
   isFixed?: boolean;
   isExpanded?: boolean;
   isEditable?: boolean;
+  onClickStep?: (workflowId: string, index: number) => void;
   onClickAddStepButton?: (workflowId: string, index: number) => void;
 };
 
@@ -99,6 +104,7 @@ const WorkflowCard = ({
   isExpanded,
   isFixed,
   isEditable,
+  onClickStep,
   onClickAddStepButton,
   ...props
 }: WorkflowCardProps) => {
@@ -115,7 +121,14 @@ const WorkflowCard = ({
       <WorkflowCardHeader title={title || id} stack={stack} isOpen={isOpen} isFixed={isFixed} onToggle={onToggle} />
       <Collapse in={isOpen} style={{ overflow: 'unset' }} unmountOnExit={false}>
         <Box display="flex" flexDir="column" gap="8" p="8">
-          {isRoot && <BeforeRunWorkflows id={id} isEditable={isEditable} onClickAddStepButton={onClickAddStepButton} />}
+          {isRoot && (
+            <BeforeRunWorkflows
+              id={id}
+              isEditable={isEditable}
+              onClickStep={onClickStep}
+              onClickAddStepButton={onClickAddStepButton}
+            />
+          )}
 
           {hasNoSteps && (
             <Card variant="outline" backgroundColor="background/secondary" px="8" py="16" textAlign="center">
@@ -127,27 +140,33 @@ const WorkflowCard = ({
 
           {steps?.map((s, index) => {
             const isLastStep = index === numberOfSteps - 1;
-            const [cvs = '', step] = Object.entries(s)[0] as [string, Step];
+            const [cvs = ''] = Object.entries(s)[0] as [string, Step];
 
             return (
-              <>
+              // eslint-disable-next-line react/no-array-index-key
+              <Fragment key={`workflows[${id}].steps[${index}][${cvs}]`}>
                 {isEditable && <AddStepButton onClick={() => onClickAddStepButton?.(id, index)} my={-8} />}
                 <StepCard
-                  // eslint-disable-next-line react/no-array-index-key
-                  key={`workflows[${id}].steps[${index}][${cvs}]`}
-                  cvs={cvs}
-                  title={step.title}
-                  icon={step.asset_urls?.['icon.svg'] || step.asset_urls?.['icon.png']}
+                  workflowId={id}
+                  stepIndex={index}
+                  onClick={onClickStep && (() => onClickStep(id, index))}
                   showSecondary
                 />
                 {isEditable && isLastStep && (
                   <AddStepButton onClick={() => onClickAddStepButton?.(id, index + 1)} my={-8} />
                 )}
-              </>
+              </Fragment>
             );
           })}
 
-          {isRoot && <AfterRunWorkflows id={id} isEditable={isEditable} onClickAddStepButton={onClickAddStepButton} />}
+          {isRoot && (
+            <AfterRunWorkflows
+              id={id}
+              isEditable={isEditable}
+              onClickStep={onClickStep}
+              onClickAddStepButton={onClickAddStepButton}
+            />
+          )}
         </Box>
       </Collapse>
     </Card>

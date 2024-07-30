@@ -5,10 +5,11 @@ import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWo
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
-import StepDrawer from './components.new/StepDrawer/StepDrawer';
+import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
 import { BitriseYml } from '@/models/BitriseYml';
 import { Workflows } from '@/models/Workflow';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 
 type Props = {
   yml: BitriseYml;
@@ -16,7 +17,23 @@ type Props = {
 };
 
 const WorkflowsPage = ({ yml, onChange: _ }: Props) => {
-  const { isDialogOpen, closeDialog } = useWorkflowsPageStore();
+  const { workflowId, stepIndex, isDialogOpen, closeDialog } = useWorkflowsPageStore();
+
+  const {
+    noop,
+    isChainWorkflowDrawerOpen,
+    isDeleteWorkflowDialogOpen,
+    isCreateWorkflowDialogOpen,
+    isStepConfigDrawerOpen,
+    isStepSelectorDrawerOpen,
+  } = {
+    noop: () => {},
+    isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
+    isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
+    isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
+    isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
+    isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
+  };
 
   return (
     <BitriseYmlProvider yml={yml}>
@@ -24,14 +41,13 @@ const WorkflowsPage = ({ yml, onChange: _ }: Props) => {
         <WorkflowCanvasPanel />
         <WorkflowConfigPanel />
       </Box>
-      <CreateWorkflowDialog onCreate={console.log} onClose={closeDialog} isOpen={isDialogOpen === 'create-workflow'} />
-      <ChainWorkflowDrawer
-        onChainWorkflow={console.log}
-        onClose={closeDialog}
-        isOpen={isDialogOpen === 'chain-workflow'}
-      />
-      <DeleteWorkflowDialog onClose={closeDialog} isOpen={isDialogOpen === 'delete-workflow'} />
-      <StepDrawer onStepSelected={console.log} onClose={closeDialog} isOpen={isDialogOpen === 'step-drawer'} />
+
+      <ChainWorkflowDrawer onChainWorkflow={noop} onClose={closeDialog} isOpen={isChainWorkflowDrawerOpen} />
+      <CreateWorkflowDialog onCreate={noop} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
+      <DeleteWorkflowDialog onClose={closeDialog} isOpen={isDeleteWorkflowDialogOpen} />
+
+      <StepConfigDrawer {...{ workflowId, stepIndex }} onClose={closeDialog} isOpen={isStepConfigDrawerOpen} />
+      <StepSelectorDrawer onStepSelected={noop} onClose={closeDialog} isOpen={isStepSelectorDrawerOpen} />
     </BitriseYmlProvider>
   );
 };

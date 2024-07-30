@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Drawer,
   DrawerBody,
@@ -22,28 +23,34 @@ import {
   TabPanel,
 } from '@bitrise/bitkit';
 import StepBadge from '../StepBadge/StepBadge';
-import useStep from './hooks/useStep';
-import { normalizeStepVersion, parseStepCVS } from '@/models/Step';
+import ConfigurationTab from './tabs/ConfigurationTab';
+import PropertiesTab from './tabs/PropertiesTab';
+import OutputVariablesTab from './tabs/OutputVariablesTab';
+import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
+import { Maintainer } from '@/models/Algolia';
+import { isUpgradeableStep } from '@/models/Step';
 
 type Props = UseDisclosureProps & {
-  workflowId: string;
   stepIndex: number;
+  workflowId: string;
 };
 
-const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
-  const step = useStep(workflowId, stepIndex);
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
+const StepConfigDrawerContent = (props: UseDisclosureProps) => {
+  const { isOpen, onClose } = useDisclosure(props);
+  const [selectedTab, setSelectedTab] = useState<string | undefined>('configuration');
+  const { step, icon, title, resolvedVersion, maintainer, availableVersions } = useStepDrawerContext();
 
-  if (!step) {
-    return null;
-  }
-
-  const [id, version] = parseStepCVS(step.id);
-  const normalizedVersion = normalizeStepVersion(version || '');
+  const stepHasOutputVariables = (step?.outputs?.length ?? 0) > 0;
 
   return (
-    <Tabs>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false}>
+    <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
+      <Drawer
+        isFullHeight
+        isOpen={isOpen}
+        onClose={onClose}
+        autoFocus={false}
+        onCloseComplete={() => setSelectedTab('configuration')}
+      >
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -63,37 +70,43 @@ const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) 
           <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
-                name="ci"
                 size="48"
+                src={icon}
+                name={title || ''}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
                 borderColor="border/minimal"
-                src="https://bitrise-steplib-collection.s3.amazonaws.com/steps/git-clone/assets/icon.svg"
               />
 
               <Box flex="1" minW={0}>
                 <Box display="flex" gap="4" alignItems="center">
                   <Text as="h3" textStyle="heading/h3" hasEllipsis>
-                    {step.title || id}
+                    {title}
                   </Text>
-                  <StepBadge isOfficial />
+                  <StepBadge
+                    isOfficial={maintainer === Maintainer.Bitrise}
+                    isVerified={maintainer === Maintainer.Verified}
+                    isCommunity={maintainer === Maintainer.Community}
+                  />
                 </Box>
 
                 <Box h="20px" display="flex" gap="8" alignItems="center">
                   <Text textStyle="body/md/regular" color="text/secondary">
-                    v{normalizedVersion}
+                    {resolvedVersion}
                   </Text>
                 </Box>
               </Box>
 
               <ButtonGroup>
-                <IconButton
-                  size="sm"
-                  iconName="ArrowUp"
-                  variant="secondary"
-                  aria-label="Update to latest step version"
-                />
+                {isUpgradeableStep(resolvedVersion, availableVersions) && (
+                  <IconButton
+                    size="sm"
+                    iconName="ArrowUp"
+                    variant="secondary"
+                    aria-label="Update to latest step version"
+                  />
+                )}
                 <IconButton size="sm" variant="secondary" iconName="Duplicate" aria-label="Clone this step" />
                 <IconButton
                   size="sm"
@@ -108,15 +121,23 @@ const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) 
               <TabList paddingX="8">
                 <Tab id="configuration">Configuration</Tab>
                 <Tab id="properties">Properties</Tab>
-                <Tab id="output-variables">Output variables</Tab>
+                {stepHasOutputVariables && <Tab id="output-variables">Output variables</Tab>}
               </TabList>
             </Box>
           </DrawerHeader>
           <DrawerBody p="16" flex="1" overflowY="auto">
             <TabPanels>
-              <TabPanel id="configuration">Configuration</TabPanel>
-              <TabPanel id="properties">Properties</TabPanel>
-              <TabPanel id="output-variables">Output variables</TabPanel>
+              <TabPanel id="configuration">
+                <ConfigurationTab />
+              </TabPanel>
+              <TabPanel id="properties">
+                <PropertiesTab />
+              </TabPanel>
+              {stepHasOutputVariables && (
+                <TabPanel id="output-variables">
+                  <OutputVariablesTab />
+                </TabPanel>
+              )}
             </TabPanels>
           </DrawerBody>
           <DrawerFooter p="32" boxShadow="large">
@@ -130,6 +151,14 @@ const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) 
         </DrawerContent>
       </Drawer>
     </Tabs>
+  );
+};
+
+const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {
+  return (
+    <StepConfigDrawerProvider workflowId={workflowId} stepIndex={stepIndex}>
+      <StepConfigDrawerContent {...disclosureProps} />
+    </StepConfigDrawerProvider>
   );
 };
 
