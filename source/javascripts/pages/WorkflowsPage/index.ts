@@ -8,6 +8,8 @@ import StepDrawer from './components/StepDrawer/StepDrawer';
 import VersionChangeDialog from './components/StepConfigPanel/components/VersionChangeDialog';
 import DeleteWorkflowDialog from './components/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import CreateWorkflowDialog from './components/CreateWorkflowDialog/CreateWorkflowDialog';
+import StepBundlePanel from './components/StepBundlePanel/StepBundlePanel';
+import WithBlockPanel from './components/WithBlockPanel/WithBlockPanel';
 
 export {
   WorkflowSelector,
@@ -20,4 +22,6 @@ export {
   CreateWorkflowDialog,
   VersionChangeDialog,
   DeleteWorkflowDialog,
+  StepBundlePanel,
+  WithBlockPanel,
 };

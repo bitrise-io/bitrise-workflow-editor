@@ -36,7 +36,7 @@ const PipelinesHeader = () => {
         })}
       </Select>
       <Button rightIconName="ArrowNorthEast" variant="tertiary" size="md" onClick={() => replace('/yml')}>
-        View bitrise.yml
+        View configuration YAML
       </Button>
     </Box>
   );

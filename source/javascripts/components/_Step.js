@@ -23,7 +23,21 @@
 			this.defaultStepConfig = defaultStepConfig;
 		};
 
+		Step.prototype.isStepBundle = function() {
+			return !!this.cvs && this.cvs.includes('bundle::');
+		}
+
+		Step.prototype.isWithBlock = function() {
+			return this.cvs === 'with';
+		}
+		
 		Step.prototype.displayName = function() {
+			if (this.isStepBundle()) {
+				return 'Step bundle: ' + this.cvs.replace('bundle::', '');
+			}
+			if (this.isWithBlock()) {
+				return 'With group';
+			}
 			if (this.title()) {
 				return this.title();
 			}

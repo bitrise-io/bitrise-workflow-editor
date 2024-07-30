@@ -1,17 +1,29 @@
 import './StepItem.scss';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
+import { Text } from '@bitrise/bitkit';
 import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
 import StepItemVersion from './StepItemVersion';
-import { Step } from '@/models';
+import { Step, WithBlockData } from '@/models';
+
+const getwithBlockText = (withBlockData: WithBlockData): string => {
+  let withBlockText = '';
+  if (withBlockData.image) {
+    withBlockText = `In ${withBlockData.image}`;
+    const servicesLength = withBlockData.services?.length;
+    if (servicesLength) {
+      withBlockText += ` with ${servicesLength} service${servicesLength > 1 ? 's' : ''}`;
+    }
+  }
+
+  return withBlockText;
+};
 
 type StepItemProps = {
   workflowIndex: number;
   step: Step;
-  displayName: string;
-  version?: string;
   isSelected: boolean;
   hasVersionUpdate: boolean;
   onSelected: (step: Step, index: number) => void;
@@ -19,15 +31,10 @@ type StepItemProps = {
 
 const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 
-const StepItem = ({
-  workflowIndex,
-  step,
-  displayName,
-  version,
-  hasVersionUpdate,
-  isSelected,
-  onSelected,
-}: StepItemProps): JSX.Element => {
+const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelected }: StepItemProps): JSX.Element => {
+  const displayName = step.displayName();
+  const version = step.requestedVersion();
+
   return (
     <button
       type="button"
@@ -43,11 +50,18 @@ const StepItem = ({
           <StepItemTitle displayName={displayName} />
           <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
         </strong>
-        <StepItemVersion
-          actualVersion={step.version}
-          requestedVersion={version || ''}
-          hasVersionUpdate={hasVersionUpdate}
-        />
+        {!!version && (
+          <StepItemVersion
+            actualVersion={step.version}
+            requestedVersion={version || ''}
+            hasVersionUpdate={hasVersionUpdate}
+          />
+        )}
+        {!!step.isWithBlock() && step.withBlockData && (
+          <Text color={isSelected ? 'text/on-color' : 'text/secondary'} fontSize="13px" hasEllipsis>
+            {getwithBlockText(step.withBlockData)}
+          </Text>
+        )}
       </span>
     </button>
   );

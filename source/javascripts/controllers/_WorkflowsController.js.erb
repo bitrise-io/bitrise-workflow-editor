@@ -538,6 +538,13 @@ import semverDiff from 'semver/functions/diff'
           var wrappedUserStepConfig = {};
           wrappedUserStepConfig[aStep.cvs] = aStep.userStepConfig;
 
+          if (aStep.isWithBlock()) {
+            aStep.withBlockData = {
+              image: appService.getwithBlockImage(aStep.userStepConfig?.container),
+              services: appService.getwithBlockServices(aStep.userStepConfig?.services)
+            };
+          }
+
           workflow.workflowConfig.steps.push(wrappedUserStepConfig);
         });
 

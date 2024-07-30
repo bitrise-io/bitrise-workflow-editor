@@ -86,65 +86,68 @@
 				var version =
 					versionStartIndex != -1 && versionStartIndex != cvs.length ? cvs.slice(versionStartIndex) : LATEST_VERSION;
 
-				switch (source) {
-					case "path":
-						if (id.length == 0) {
-							throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_path] %>");
-						}
-
-						step.localPath = id;
-
-						var localStep = _.find(stepSourceService.localSteps, {
-							localPath: step.localPath
-						});
-
-						if (localStep) {
-							step.defaultStepConfig = localStep.defaultStepConfig;
-						}
-
-						break;
-					case "git":
-						if (id.length == 0) {
-							throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_git_url] %>");
-						}
-
-						step.gitURL = id;
-						step.version = version;
-
-						var gitStep = _.find(stepSourceService.gitSteps, {
-							gitURL: step.gitURL,
-							version: step.version
-						});
-
-						if (gitStep) {
-							step.defaultStepConfig = gitStep.defaultStepConfig;
-						}
-
-						break;
-					default:
-						if (!source && !stepSourceService.defaultLibraryURL) {
-							throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_library] %>");
-						}
-
-						if (id.length == 0) {
-							throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_id] %>");
-						}
-
-						step.libraryURL = source != null ? source : stepSourceService.defaultLibraryURL;
-						step.id = id;
-						step.version = version;
-
-						var library = _.find(stepSourceService.libraries, {
-							url: step.libraryURL
-						});
-
-						if (!library) {
+				if (!step.isWithBlock()) {
+					switch (source) {
+						case "path":
+							if (id.length == 0) {
+								throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_path] %>");
+							}
+	
+							step.localPath = id;
+	
+							var localStep = _.find(stepSourceService.localSteps, {
+								localPath: step.localPath
+							});
+	
+							if (localStep) {
+								step.defaultStepConfig = localStep.defaultStepConfig;
+							}
+	
 							break;
-						}
-
-						configureStepFromLib(step, library);
+						case "git":
+							if (id.length == 0) {
+								throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_git_url] %>");
+							}
+	
+							step.gitURL = id;
+							step.version = version;
+	
+							var gitStep = _.find(stepSourceService.gitSteps, {
+								gitURL: step.gitURL,
+								version: step.version
+							});
+	
+							if (gitStep) {
+								step.defaultStepConfig = gitStep.defaultStepConfig;
+							}
+	
+							break;
+						case "bundle":
+							break;
+						default:
+							if (!source && !stepSourceService.defaultLibraryURL) {
+								throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_library] %>");
+							}
+	
+							if (id.length == 0) {
+								throw new Error("<%= data[:strings][:step_source_service][:step_from_cvs][:no_id] %>");
+							}
+	
+							step.libraryURL = source != null ? source : stepSourceService.defaultLibraryURL;
+							step.id = id;
+							step.version = version;
+	
+							var library = _.find(stepSourceService.libraries, {
+								url: step.libraryURL
+							});
+	
+							if (!library) {
+								break;
+							}
+	
+							configureStepFromLib(step, library);
+					}	
 				}
-
 				return step;
 			};
 
