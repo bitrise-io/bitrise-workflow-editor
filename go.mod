@@ -6,7 +6,7 @@ toolchain go1.22.5
 
 require (
 	github.com/GeertJohan/go.rice v1.0.3
-	github.com/bitrise-io/bitrise v0.0.0-20240730132127-db6361340b74
+	github.com/bitrise-io/bitrise v0.0.0-20240731075819-cf5942fa6388
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
 	github.com/bitrise-io/go-utils v1.0.13
