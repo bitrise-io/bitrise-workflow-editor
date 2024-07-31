@@ -7,13 +7,12 @@ import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
 import { BitriseYml } from '@/models/BitriseYml';
-import { Workflows } from '@/models/Workflow';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 
 type Props = {
   yml: BitriseYml;
-  onChange: (workflows: Workflows) => void;
+  onChange: (yml: BitriseYml) => void;
 };
 
 const WorkflowsPage = ({ yml, onChange: _ }: Props) => {

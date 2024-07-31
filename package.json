@@ -36,6 +36,7 @@
     "build-storybook": "storybook build",
     "storybook": "storybook dev -p 6006",
     "test": "karma start spec/karma.conf.js",
+    "test:jest": "jest",
     "e2e:dev": "cypress open",
     "e2e:run": "cypress run",
     "e2e:api": "./_scripts/run_api.sh",

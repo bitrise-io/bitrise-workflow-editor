@@ -1,6 +1,6 @@
 import { ComponentType, createContext, PropsWithChildren, useRef } from 'react';
 import { createStore } from 'zustand';
-import { BitriseYml, Meta, deleteWorkflow } from '@/models/BitriseYml';
+import BitriseYmlService, { BitriseYml, Meta } from '@/core/BitriseYml';
 
 type BitriseYmlProviderProps = PropsWithChildren<{
   yml: BitriseYml;
@@ -21,7 +21,9 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
   return createStore<BitriseYmlProviderState>()((set) => ({
     yml,
     defaultMeta,
-    deleteWorkflow: (workflowId: string) => set((state) => ({ yml: deleteWorkflow(state.yml, workflowId) })),
+    deleteWorkflow(workflowId: string) {
+      return set((state) => ({ yml: BitriseYmlService.deleteWorkflow(state.yml, workflowId) }));
+    },
   }));
 };
 
