@@ -1,6 +1,5 @@
 import { Button, IconButton, Text } from '@bitrise/bitkit';
 import {
-  FocusLock,
   List,
   ListItem,
   Popover,
@@ -69,69 +68,67 @@ const InsertSecretPopover = ({
       </PopoverTrigger>
       <Portal>
         <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">
-          <FocusLock autoFocus>
-            <PopoverHeader
-              h="32"
-              marginBottom="8"
-              display="flex"
-              flexDir="row"
-              alignItems="center"
-              justifyContent="space-between"
-            >
-              {isMode(Mode.CREATE) && <Text textStyle="heading/h4">Create secret</Text>}
-              {isMode(Mode.SELECT) && (
-                <>
-                  <Text textStyle="heading/h4">Insert secret</Text>
-                  <Button variant="tertiary" size="sm" leftIconName="PlusOpen" onClick={() => switchTo(Mode.CREATE)}>
-                    Create
-                  </Button>
-                </>
-              )}
-            </PopoverHeader>
-            <PopoverBody>
-              {isMode(Mode.CREATE) && <CreateSecret {...getCreateFormProps()} />}
-              {isMode(Mode.SELECT) && (
-                <>
-                  <FilterInput
-                    {...getFilterInputProps({
-                      paddingBlock: '8',
-                      placeholder: 'Filter by key or source',
+          <PopoverHeader
+            h="32"
+            marginBottom="8"
+            display="flex"
+            flexDir="row"
+            alignItems="center"
+            justifyContent="space-between"
+          >
+            {isMode(Mode.CREATE) && <Text textStyle="heading/h4">Create secret</Text>}
+            {isMode(Mode.SELECT) && (
+              <>
+                <Text textStyle="heading/h4">Insert secret</Text>
+                <Button variant="tertiary" size="sm" leftIconName="PlusOpen" onClick={() => switchTo(Mode.CREATE)}>
+                  Create
+                </Button>
+              </>
+            )}
+          </PopoverHeader>
+          <PopoverBody>
+            {isMode(Mode.CREATE) && <CreateSecret {...getCreateFormProps()} />}
+            {isMode(Mode.SELECT) && (
+              <>
+                <FilterInput
+                  {...getFilterInputProps({
+                    paddingBlock: '8',
+                    placeholder: 'Filter by key or source',
+                  })}
+                />
+                {isLoading ? (
+                  <LoadingState />
+                ) : (
+                  <List
+                    {...getActionListProps({
+                      maxH: '18rem',
+                      overflowY: 'scroll',
+                      marginInlineStart: 0,
                     })}
-                  />
-                  {isLoading ? (
-                    <LoadingState />
-                  ) : (
-                    <List
-                      {...getActionListProps({
-                        maxH: '18rem',
-                        overflowY: 'scroll',
-                        marginInlineStart: 0,
-                      })}
-                    >
-                      {filteredItems.length === 0 && (
-                        <Text marginTop="16" marginBottom="8">
-                          No secrets found
+                  >
+                    {filteredItems.length === 0 && (
+                      <Text marginTop="16" marginBottom="8">
+                        No secrets found
+                      </Text>
+                    )}
+                    {filteredItems.map((ev) => (
+                      <ListItem
+                        key={ev.key}
+                        {...getActionListItemProps(ev, {
+                          padding: '8',
+                        })}
+                      >
+                        <Text textStyle="code/lg">${ev.key}</Text>
+                        <Text textStyle="body/sm/regular" color="text/secondary">
+                          From {ev.source}
                         </Text>
-                      )}
-                      {filteredItems.map((ev) => (
-                        <ListItem
-                          {...getActionListItemProps(ev, {
-                            key: ev.key,
-                            padding: '8',
-                          })}
-                        >
-                          <Text textStyle="code/lg">${ev.key}</Text>
-                          <Text textStyle="body/sm/regular" color="text/secondary">
-                            From {ev.source}
-                          </Text>
-                        </ListItem>
-                      ))}
-                    </List>
-                  )}
-                </>
-              )}
-            </PopoverBody>
-          </FocusLock>
+                      </ListItem>
+                    ))}
+                  </List>
+                )}
+              </>
+            )}
+          </PopoverBody>
         </PopoverContent>
       </Portal>
     </Popover>
