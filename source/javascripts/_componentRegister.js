@@ -143,7 +143,7 @@ angular
   )
   .component(
     "rYmlEditor",
-    register(YmlEditor, ["yml", "readonly", "onChange", 'isLoading']),
+    register(YmlEditor, ["yml", "readonly", "onChange", "isLoading"]),
   )
   .component(
     "rWorkflowToolbar",
