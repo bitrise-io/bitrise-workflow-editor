@@ -1,20 +1,21 @@
 import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
-import useStepListItem from './hooks/useStepListItem';
+import useStep from '@/hooks/useStep';
 
 type StepCardProps = {
-  cvs: string;
-  title?: string;
-  icon?: string;
+  workflowId: string;
+  stepIndex: number;
+  onClick?: VoidFunction;
   showSecondary?: boolean;
 };
 
-const StepCard = ({ cvs, title, icon, showSecondary = true }: StepCardProps) => {
-  const {
-    title: resolvedTitle,
-    icon: resolvedIcon,
-    normalizedVersion,
-    isLoading,
-  } = useStepListItem({ cvs, title, icon });
+const StepCard = ({ workflowId, stepIndex, showSecondary = true, onClick }: StepCardProps) => {
+  const step = useStep(workflowId, stepIndex);
+
+  if (!step) {
+    return null;
+  }
+
+  const { cvs, isLoading, icon, title, selectedVersion } = step;
 
   if (isLoading) {
     return (
@@ -30,26 +31,40 @@ const StepCard = ({ cvs, title, icon, showSecondary = true }: StepCardProps) => 
     );
   }
 
-  return (
-    <Card variant="outline" display="flex" gap="8" p="8" borderRadius="4">
+  const content = (
+    <>
       <Avatar
         size="32"
+        src={icon}
         variant="step"
-        src={resolvedIcon}
         outline="1px solid"
-        name={resolvedTitle}
+        name={title || cvs}
         outlineColor="border/minimal"
       />
-      <Box minW={0}>
+      <Box minW={0} textAlign="left">
         <Text textStyle="body/sm/regular" hasEllipsis>
-          {resolvedTitle}
+          {title}
         </Text>
         {showSecondary && (
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {normalizedVersion}
+            {selectedVersion || 'Always latest'}
           </Text>
         )}
       </Box>
+    </>
+  );
+
+  if (onClick) {
+    return (
+      <Card variant="outline" display="flex" gap="8" p="8" borderRadius="4" as="button" onClick={onClick} withHover>
+        {content}
+      </Card>
+    );
+  }
+
+  return (
+    <Card variant="outline" display="flex" gap="8" p="8" borderRadius="4">
+      {content}
     </Card>
   );
 };

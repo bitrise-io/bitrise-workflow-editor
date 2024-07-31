@@ -24,7 +24,7 @@
 		};
 
 		Step.prototype.isStepBundle = function() {
-			return !!this.cvs && this.cvs.includes('bundle::');
+			return !!this.cvs && this.cvs.startsWith('bundle::');
 		}
 
 		Step.prototype.isWithBlock = function() {

@@ -700,14 +700,14 @@ import { segmentTrack } from "../utils/segmentTracking";
         return $q.when();
       };
 
-      appService.getwithBlockImage = function (containerId) {
+      appService.getWithBlockImage = function (containerId) {
         if (containerId && appService.appConfig.containers) {
           return appService.appConfig.containers[containerId]?.image || '';
         }
         return '';
       }
 
-      appService.getwithBlockServices = function (serviceIds) {
+      appService.getWithBlockServices = function (serviceIds) {
         if (Array.isArray(serviceIds) && serviceIds.length > 0 && appService.appConfig.services) {
           return serviceIds.map((id) => appService.appConfig.services[id].image);
         }
