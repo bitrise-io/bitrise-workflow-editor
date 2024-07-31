@@ -18,7 +18,6 @@ declare global {
     analytics: {
       track: (event: string, payload: Record<string, string | number | null | undefined>) => void;
     };
-    segmentWriteKey: string;
     serviceVersion: string;
     datadogApiKey: string;
     isAnalyticsOn: boolean;

@@ -5,13 +5,14 @@ const { globalProps, dataLayer } = window.parent || {};
 
 const { account, user }: any = globalProps || {};
 
+const segmentKey = process.env.SEGMENT_KEY;
 let segmentAnalytics: AnalyticsBrowser;
 
-if (window.segmentWriteKey) {
+if (segmentKey) {
   segmentAnalytics = AnalyticsBrowser.load(
     {
       cdnURL: 'https://pa-events-cdn.bitrise.io',
-      writeKey: window.segmentWriteKey,
+      writeKey: segmentKey,
     },
     {
       initialPageview: false,
