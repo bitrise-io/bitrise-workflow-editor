@@ -47,7 +47,7 @@ go install
 ### Environment variables in development mode
 
 1. Make a `.env.keys` files in the root of repository
-2. Copy the content from the 1password `.env.keys - Workflow editor` to this file
+2. Look for `.env.keys - Workflow editor` in 1password and copy the content to this file
 
 ### Run in development mode
 
