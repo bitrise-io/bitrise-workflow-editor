@@ -15,7 +15,7 @@ type Props = {
   onChange: (yml: BitriseYml) => void;
 };
 
-const WorkflowsPage = ({ yml, onChange: _ }: Props) => {
+const WorkflowsPage = ({ yml, onChange }: Props) => {
   const { workflowId, stepIndex, isDialogOpen, closeDialog } = useWorkflowsPageStore();
 
   const {
@@ -35,7 +35,7 @@ const WorkflowsPage = ({ yml, onChange: _ }: Props) => {
   };
 
   return (
-    <BitriseYmlProvider yml={yml}>
+    <BitriseYmlProvider yml={yml} onChange={onChange}>
       <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
         <WorkflowCanvasPanel />
         <WorkflowConfigPanel />

@@ -2,6 +2,7 @@ import { FromSchema } from 'json-schema-to-ts';
 import { bitriseYmlSchema } from '@/core/BitriseYml.schema';
 import WorkflowService, { Workflow } from '@/core/Workflow';
 import StageService, { Stage } from '@/core/Stage';
+import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
 type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 type Meta = Required<BitriseYml>['meta'] & {
@@ -12,7 +13,7 @@ type Meta = Required<BitriseYml>['meta'] & {
 };
 
 function deleteWorkflow(yml: BitriseYml, workflowId: string): BitriseYml {
-  const copy = JSON.parse(JSON.stringify(yml)) as BitriseYml;
+  const copy = deepCloneSimpleObject(yml);
 
   if (copy.workflows) {
     // @ts-expect-error Workflows should be defined here

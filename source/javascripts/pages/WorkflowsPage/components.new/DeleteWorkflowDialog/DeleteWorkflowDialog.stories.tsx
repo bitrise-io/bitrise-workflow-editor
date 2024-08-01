@@ -9,7 +9,6 @@ export default {
     isOpen: true,
   },
   argTypes: {
-    workflowId: { type: 'string' },
     isOpen: { type: 'boolean' },
     onClose: { type: 'function' },
     onDelete: { type: 'function' },
