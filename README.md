@@ -2,7 +2,7 @@
 
 # Bitrise Workflow Editor
 
-> **Note: project is going through AngularJS -> React transition.
+> **Note: project is going through AngularJS -> React transition. 
 > Please read more about this in the [wiki section](https://github.com/bitrise-io/bitrise-workflow-editor/wiki/Angular-js-to-React-transition-timeline).**
 
 ## How to install & use the Workflow Editor on your Mac/Linux
@@ -43,11 +43,6 @@ bitrise run setup
 ```
 go install
 ```
-
-### Environment variables in development mode
-
-1. Make a `.env.keys` files in the root of repository
-2. Look for `.env.keys - Workflow editor` in 1password and copy the content to this file
 
 ### Run in development mode
 
@@ -104,7 +99,6 @@ the tests on an already transpiled JS.
 You can create an `ld.local.json` file in the project root to override the LaunchDarkly flags.
 
 Example `ld.local.json` content:
-
 ```json
 {
   "enable-nice-feature": true,
