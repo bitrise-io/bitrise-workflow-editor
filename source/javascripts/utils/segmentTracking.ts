@@ -33,12 +33,15 @@ if (segmentKey) {
 
 type SegmentEventProperties = {
   [key: string]: unknown;
+  app_slug: string;
   event_schema_version: number;
   event_scope: 'user' | 'app' | 'workspace';
   event_type: 'core' | 'product' | 'interaction' | 'technical';
   event_workspace_association: 'workspace_specific' | 'not_workspace_related' | 'implicit';
   initiator: 'user' | 'system';
   is_known_user: boolean;
+  page_url: string;
+  platform: 'website';
   source_service_name: 'workflow-editor';
   source_service_version: string;
   tracking_type: 'server_side' | 'client_side' | 'client_to_server';
@@ -51,6 +54,7 @@ type SegmentEventContext = {
 };
 
 const baseProperties: SegmentEventProperties = {
+  app_slug: '',
   event_schema_version: 1,
   event_scope: 'user',
   event_type: 'interaction',
@@ -58,6 +62,7 @@ const baseProperties: SegmentEventProperties = {
   initiator: 'user',
   is_known_user: true,
   page_url: window.location.href,
+  platform: 'website',
   source_service_name: 'workflow-editor',
   source_service_version: window.serviceVersion,
   tracking_type: 'client_side',
