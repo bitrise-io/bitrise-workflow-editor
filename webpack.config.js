@@ -62,7 +62,7 @@ const MonacoPluginOptions = {
   ],
 };
 
-const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, SEGMENT_KEY, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
+const { NODE_ENV, MODE, PUBLIC_URL_ROOT, HOTJAR, DEV_SERVER_PORT, DATADOG_RUM } = process.env;
 const isProd = NODE_ENV === 'prod';
 const isWebsiteMode = MODE === 'WEBSITE';
 const urlPrefix = isWebsiteMode ? PUBLIC_URL_ROOT : '';
@@ -250,10 +250,7 @@ module.exports = {
 
   /* --- Plugins --- */
   plugins: [
-    new webpack.EnvironmentPlugin({
-      MODE: MODE || 'WEBSITE',
-      SEGMENT_KEY: SEGMENT_KEY || '',
-    }),
+    new webpack.EnvironmentPlugin({ MODE: MODE || 'WEBSITE' }),
     new CompressionPlugin({
       algorithm: 'gzip',
       test: /.js$|.css$/,

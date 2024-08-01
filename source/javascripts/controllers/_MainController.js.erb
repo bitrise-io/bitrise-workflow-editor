@@ -1,7 +1,6 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
 import { safeDigest } from "@/services/react-compat";
-import { segmentTrack } from "../utils/segmentTracking.ts";
 
 (function () {
   "use strict";
@@ -560,15 +559,6 @@ import { segmentTrack } from "../utils/segmentTracking.ts";
                   return appService
                     .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
                     .then(function () {
-
-                      if (machineTypeUpdated) {
-                        const event = "Machine Type Changed - Stacks & Machines Tab";
-                        segmentTrack(event, {
-                          machine_type_id: viewModel.dataToSave.meta["bitrise.io"].machine_type_id,
-                          user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
-                          organization_slug: appService.appDetails.ownerData.type === "Organization" ? appService.appDetails.ownerData.slug : undefined
-                        });
-                      }
 
                       return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
                         ? reloadStack()

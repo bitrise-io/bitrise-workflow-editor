@@ -26,6 +26,9 @@ declare global {
 
     dataLayer?: object[];
     globalProps?: {
+      env: {
+        SEGMENT_JS_WRITE_KEY_NEW: string;
+      };
       featureFlags?: {
         user: { [s: string]: unknown };
         account: { [s: string]: unknown };

@@ -2,8 +2,6 @@ import { useState } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, Input } from '@bitrise/bitkit';
 import { DialogProps } from '@bitrise/bitkit/src/Components/Dialog/Dialog';
 
-import { segmentTrack } from '../../utils/segmentTracking';
-
 type RunWorkflowDialogProps = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   defaultBranch: string;
   workflow: string;
@@ -17,8 +15,6 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflow, onAction 
     if (!branch) {
       return;
     }
-
-    segmentTrack('WFE - Run Workflow Clicked');
     onAction(branch);
     onClose();
   };

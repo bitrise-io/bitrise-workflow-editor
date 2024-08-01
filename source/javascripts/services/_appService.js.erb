@@ -1,5 +1,3 @@
-import { segmentTrack } from "../utils/segmentTracking";
-
 (function () {
   "use strict";
 
@@ -300,7 +298,6 @@ import { segmentTrack } from "../utils/segmentTracking";
             );
           })
           .then(function () {
-            trackSavedYMLChanges();
             appService.savedAppConfig = angular.copy(appService.appConfig);
             appService.hasTriggers =
               appService.savedAppConfig.trigger_map && appService.savedAppConfig.trigger_map.length > 0;
@@ -308,10 +305,6 @@ import { segmentTrack } from "../utils/segmentTracking";
             appService.savedAppConfigYML = undefined;
           });
       };
-
-      function trackSavedYMLChanges() {
-        segmentTrack("WFE - YML changes saved");
-      }
 
       appService.discardAppConfigChanges = function () {
         appService.appConfig = angular.copy(appService.savedAppConfig);
@@ -429,7 +422,6 @@ import { segmentTrack } from "../utils/segmentTracking";
           deferredUserSavedYmlToRepository?.promise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
 
         return promise.then(function (validationData) {
-          trackSavedYMLChanges();
           appService.appConfig = undefined;
           appService.savedAppConfig = undefined;
           appService.savedAppConfigYML = appService.appConfigYML;

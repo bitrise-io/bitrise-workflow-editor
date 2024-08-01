@@ -12,7 +12,6 @@ import {
 } from '@bitrise/bitkit';
 
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
-import { segmentTrack } from '../../../../utils/segmentTracking';
 import RunWorkflowDialog from '@/components/RunWorkflowDialog/RunWorkflowDialog';
 import { Workflow } from '@/models';
 
@@ -57,7 +56,6 @@ const WorkflowMainToolbar = ({
     : undefined;
 
   const handleOpenRunWorkflowDialog = () => {
-    segmentTrack('WFE - Run Workflow Dialog Opened');
     onOpen();
   };
 

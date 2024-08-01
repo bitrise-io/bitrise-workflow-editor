@@ -24,5 +24,3 @@ ld.local.json
 
 # OS X
 .DS_Store
-
-.env.keys
