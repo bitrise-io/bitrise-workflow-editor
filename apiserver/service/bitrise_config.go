@@ -6,7 +6,7 @@ import (
 	"fmt"
 	"net/http"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
@@ -150,7 +150,7 @@ func PostBitriseYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contAsYAML, err := yaml.Marshal(reqObj.BitriseYML)
+	contAsYAML, err := yamlMarshal(reqObj.BitriseYML)
 	if err != nil {
 		log.Errorf("Failed to serialize bitrise_yml as YAML, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize bitrise_yml as YAML, error: %s", err)

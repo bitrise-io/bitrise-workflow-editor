@@ -4,7 +4,7 @@ import (
 	"encoding/json"
 	"net/http"
 
-	"gopkg.in/yaml.v2"
+	"gopkg.in/yaml.v3"
 
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/config"
 	"github.com/bitrise-io/bitrise-workflow-editor/apiserver/utility"
@@ -121,7 +121,7 @@ func PostSecretsYMLFromJSONHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	contAsYAML, err := yaml.Marshal(reqObj)
+	contAsYAML, err := yamlMarshal(reqObj)
 	if err != nil {
 		log.Errorf("Failed to serialize env model as YAML, error: %s", err)
 		RespondWithJSONBadRequestErrorMessage(w, "Failed to serialize env model as YAML, error: %s", err)
