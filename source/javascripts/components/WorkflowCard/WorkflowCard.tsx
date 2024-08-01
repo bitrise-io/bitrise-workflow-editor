@@ -1,66 +1,63 @@
 import { Fragment } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
+import merge from 'lodash/merge';
 import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
-import useMeta from './hooks/useMeta';
-import useWorkflow from './hooks/useWorkflow';
 import AddStepButton from './components/AddStepButton';
 import StepCard from '@/components/StepCard/StepCard';
 import { Step } from '@/models/Step';
-import { ChainedWorkflowPlacement } from '@/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { Meta } from '@/models/BitriseYml';
+import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
+
+type StepEditCallback = (workflowId: string, stepIndex: number) => void;
+type DeleteWorkflowCallback = (workflowId: string) => void;
 
 type WorkflowCardProps = CardProps & {
   id: string;
-  index?: number;
+  isRoot?: boolean;
   isFixed?: boolean;
-  parentId?: string;
-  placement?: ChainedWorkflowPlacement;
   isExpanded?: boolean;
   isEditable?: boolean;
-  onClickStep?: (workflowId: string, index: number) => void;
-  onDeleteWorkflow?: (workflowId: string) => void;
-  onClickAddStepButton?: (workflowId: string, index: number) => void;
+  onAddStep?: StepEditCallback;
+  onSelectStep?: StepEditCallback;
+  onDeleteWorkflow?: DeleteWorkflowCallback;
 };
 
-type WorkflowChainProps = Pick<
-  WorkflowCardProps,
-  'id' | 'isEditable' | 'onClickStep' | 'onClickAddStepButton' | 'onDeleteWorkflow'
->;
+type WorkflowChainProps = Pick<WorkflowCardProps, 'id' | 'isEditable' | 'onSelectStep' | 'onAddStep'>;
 
 const WorkflowCard = ({
   id,
-  index,
+  isRoot,
   isFixed,
-  parentId,
-  placement,
   isExpanded,
   isEditable,
-  onClickStep,
+  onAddStep,
+  onSelectStep,
   onDeleteWorkflow,
-  onClickAddStepButton,
   ...props
 }: WorkflowCardProps) => {
-  const { title, meta: workflowMeta, steps } = useWorkflow({ id });
+  const { notFound, workflow } = useBitriseYmlStore(
+    useShallow(({ yml, defaultMeta }) => ({
+      notFound: !yml.workflows?.[id],
+      workflow: {
+        ...yml.workflows?.[id],
+        meta: defaultMeta ? (merge(deepCloneSimpleObject(defaultMeta), yml.workflows?.[id]?.meta) as Meta) : undefined,
+      },
+    })),
+  );
+
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded || isFixed });
-  const deleteWorkflowFromChain = useBitriseYmlStore(useShallow((s) => s.deleteWorkflowFromChain));
 
-  const meta = useMeta({ override: workflowMeta });
+  if (notFound) {
+    // TODO: Missing mpty state
+    // eslint-disable-next-line no-console
+    console.warn(`Workflow '${id}' is not found in yml!`);
+    return null;
+  }
 
-  const stack = meta['bitrise.io']?.stack || 'Unknown stack';
-  const numberOfSteps = steps?.length ?? 0;
-  const hasNoSteps = numberOfSteps === 0;
-  const isRoot = !parentId && !placement;
-
-  const onDelete = () => {
-    if (isRoot && isEditable && onDeleteWorkflow) {
-      onDeleteWorkflow(id);
-    }
-
-    if (!isRoot && isEditable && parentId && placement && index !== undefined) {
-      deleteWorkflowFromChain(parentId, index, placement);
-    }
-  };
+  const hasNoSteps = !workflow.steps?.length;
+  const stack = workflow.meta?.['bitrise.io']?.stack || 'Unknown stack';
 
   return (
     <Card variant={isRoot ? 'elevated' : 'outline'} {...props}>
@@ -76,7 +73,7 @@ const WorkflowCard = ({
         )}
         <Box ml="4" display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <Text textStyle="body/md/semibold" hasEllipsis>
-            {title || id}
+            {workflow.title || id}
           </Text>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {stack}
@@ -87,8 +84,8 @@ const WorkflowCard = ({
             <ControlButton
               size="xs"
               iconName="Trash"
-              onClick={onDelete}
-              aria-label={isRoot ? `Delete '${id}' workflow` : `Remove '${id}' from '${parentId}.${placement}'`}
+              onClick={() => onDeleteWorkflow?.(id)}
+              aria-label={isRoot ? `Delete '${id}' workflow` : `Remove '${id}' from the chain`}
             />
           </ButtonGroup>
         )}
@@ -96,13 +93,7 @@ const WorkflowCard = ({
       <Collapse in={isOpen} style={{ overflow: 'unset' }} unmountOnExit={false}>
         <Box display="flex" flexDir="column" gap="8" p="8">
           {isRoot && (
-            <BeforeRunWorkflows
-              id={id}
-              isEditable={isEditable}
-              onClickStep={onClickStep}
-              onDeleteWorkflow={onDeleteWorkflow}
-              onClickAddStepButton={onClickAddStepButton}
-            />
+            <BeforeRunWorkflows id={id} isEditable={isEditable} onAddStep={onAddStep} onSelectStep={onSelectStep} />
           )}
 
           {hasNoSteps && (
@@ -113,35 +104,27 @@ const WorkflowCard = ({
             </Card>
           )}
 
-          {steps?.map((s, stepIndex) => {
-            const isLastStep = stepIndex === numberOfSteps - 1;
+          {workflow.steps?.map((s, stepIndex, steps) => {
+            const isLastStep = stepIndex === steps.length - 1;
             const [cvs = ''] = Object.entries(s)[0] as [string, Step];
 
             return (
               // eslint-disable-next-line react/no-array-index-key
               <Fragment key={`workflows[${id}].steps[${stepIndex}][${cvs}]`}>
-                {isEditable && <AddStepButton onClick={() => onClickAddStepButton?.(id, stepIndex)} my={-8} />}
+                {isEditable && <AddStepButton onClick={() => onAddStep?.(id, stepIndex)} my={-8} />}
                 <StepCard
                   workflowId={id}
                   stepIndex={stepIndex}
-                  onClick={onClickStep && (() => onClickStep(id, stepIndex))}
+                  onClick={onSelectStep && (() => onSelectStep(id, stepIndex))}
                   showSecondary
                 />
-                {isEditable && isLastStep && (
-                  <AddStepButton onClick={() => onClickAddStepButton?.(id, stepIndex + 1)} my={-8} />
-                )}
+                {isEditable && isLastStep && <AddStepButton onClick={() => onAddStep?.(id, stepIndex + 1)} my={-8} />}
               </Fragment>
             );
           })}
 
           {isRoot && (
-            <AfterRunWorkflows
-              id={id}
-              isEditable={isEditable}
-              onClickStep={onClickStep}
-              onDeleteWorkflow={onDeleteWorkflow}
-              onClickAddStepButton={onClickAddStepButton}
-            />
+            <AfterRunWorkflows id={id} isEditable={isEditable} onAddStep={onAddStep} onSelectStep={onSelectStep} />
           )}
         </Box>
       </Collapse>
@@ -152,19 +135,23 @@ const WorkflowCard = ({
 const BeforeRunWorkflows = ({ id, ...props }: WorkflowChainProps) => {
   const chain = useBeforeRunWorkflows({ id });
   const hasChainedWorkflows = chain.length > 0;
+  const deleteChainedWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteChainedWorkflow));
 
   return (
     <>
-      {chain.map(({ id: beforeWorkflowId, parentId, index, placement }) => (
-        <WorkflowCard
-          key={`${index}:${placement}:${beforeWorkflowId}->${parentId}->${id}`}
-          id={beforeWorkflowId}
-          index={index}
-          parentId={parentId}
-          placement={placement}
-          {...props}
-        />
-      ))}
+      {chain.map(({ id: chainedWorkflowId, parentId: parentWorkflowId, index: chainedWorkflowIndex }) => {
+        const onDeleteWorkflow = () => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, 'before_run');
+
+        return (
+          <WorkflowCard
+            key={`before_run:${chainedWorkflowIndex}:${chainedWorkflowId}->${parentWorkflowId}->${id}`}
+            {...props}
+            id={chainedWorkflowId}
+            isRoot={false}
+            onDeleteWorkflow={onDeleteWorkflow}
+          />
+        );
+      })}
       {hasChainedWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
     </>
   );
@@ -173,20 +160,24 @@ const BeforeRunWorkflows = ({ id, ...props }: WorkflowChainProps) => {
 const AfterRunWorkflows = ({ id, ...props }: WorkflowChainProps) => {
   const chain = useAfterRunWorkflows({ id });
   const hasChainedWorkflows = chain.length > 0;
+  const deleteChainedWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteChainedWorkflow));
 
   return (
     <>
       {hasChainedWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
-      {chain.map(({ id: afterWorkflowId, parentId, index, placement }) => (
-        <WorkflowCard
-          key={`${index}:${placement}:${id}->${parentId}->${afterWorkflowId}`}
-          id={afterWorkflowId}
-          index={index}
-          parentId={parentId}
-          placement={placement}
-          {...props}
-        />
-      ))}
+      {chain.map(({ id: chainedWorkflowId, parentId: parentWorkflowId, index: chainedWorkflowIndex }) => {
+        const onDeleteWorkflow = () => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, 'after_run');
+
+        return (
+          <WorkflowCard
+            key={`after_run:${chainedWorkflowIndex}:${id}->${parentWorkflowId}->${chainedWorkflowId}`}
+            {...props}
+            id={chainedWorkflowId}
+            isRoot={false}
+            onDeleteWorkflow={onDeleteWorkflow}
+          />
+        );
+      })}
     </>
   );
 };

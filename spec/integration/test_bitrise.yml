@@ -53,7 +53,7 @@ stages:
 workflows:
   wf1:
     envs:
-      - TEST!: test
+      - TEST: test
         opts:
           is_expand: false
     meta:

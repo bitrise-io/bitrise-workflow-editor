@@ -1,81 +1,118 @@
+import omit from 'lodash/omit';
+import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
+import mapValues from 'lodash/mapValues';
 import { BitriseYml } from './BitriseYml';
-import PipelineService from './PipelineService';
-import { Stage } from './Stage';
-import StageService from './StageService';
-import TriggerMapService from './TriggerMapService';
-import WorkflowService from './WorkflowService';
+import { Stages } from './Stage';
+import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
+import { Pipelines } from './Pipeline';
+import { TriggerMap } from './TriggerMap';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
-function deleteWorkflow(yml: BitriseYml, workflowId: string): BitriseYml {
+const isNotEmpty = <T>(v: T) => !isEmpty(v);
+const omitEmpty = <T>(o: Record<string, T>) => omitBy(o, isEmpty);
+const omitEmptyIfKeyNotExistsIn = <T>(o: Record<string, T>, keys: string[]) =>
+  omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k));
+
+function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (copy.workflows) {
-    // Remove workflow from `workflows` section of the YML
-    delete copy.workflows[workflowId];
-
-    // Remove workflow from other workflows `after_run` & `before_run` section
-    copy.workflows = Object.fromEntries(
-      Object.entries(copy.workflows).map(([id, workflow]) => {
-        return [id, WorkflowService.deleteChainedWorkflowById(workflow, workflowId)];
-      }),
-    );
-
-    if (isEmpty(copy.workflows)) {
-      delete copy.workflows;
-    }
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
   }
 
-  // Remove workflows from the `stages` section of the YML
-  if (copy.stages) {
-    copy.stages = Object.fromEntries(
-      Object.entries(copy.stages).reduce<[string, Stage][]>((stageEntries, [id, stage]) => {
-        const updatedStage = StageService.deleteWorkflow(stage, workflowId);
+  // Remove workflow from `workflows` section of the YML
+  delete copy.workflows[workflowId];
 
-        if (!updatedStage.workflows?.length) {
-          return stageEntries;
-        }
+  // Remove workflow from other workflow's chains (before_run, after_run)
+  copy.workflows = deleteWorkflowFromChains(workflowId, copy.workflows);
 
-        return [...stageEntries, [id, updatedStage]];
-      }, []),
-    );
+  // Remove the whole `workflows` section in the YML if empty
+  if (isEmpty(copy.workflows)) delete copy.workflows;
 
-    if (isEmpty(copy.stages)) {
-      delete copy.stages;
-    }
-  }
+  // Remove workflow from `stages` section of the YML
+  copy.stages = omitEmpty(deleteWorkflowFromStages(workflowId, copy.stages));
 
-  // Remove workflows from `pipelines.stages` section of the YML
-  if (copy.pipelines) {
-    copy.pipelines = Object.fromEntries(
-      Object.entries(copy.pipelines).reduce<[string, Stage][]>((pipelineEntries, [pipelineId, pipeline]) => {
-        const updatedPipeline = PipelineService.deleteWorkflow(pipeline, workflowId);
+  // Remove the whole `stages` section in the YML if empty
+  if (isEmpty(copy.stages)) delete copy.stages;
 
-        if (!updatedPipeline.stages?.length) {
-          return pipelineEntries;
-        }
+  // Remove workflow from `pipelines` section of the YML
+  copy.pipelines = omitEmpty(deleteWorkflowFromPipelines(workflowId, copy.pipelines, copy.stages));
 
-        return [...pipelineEntries, [pipelineId, updatedPipeline]];
-      }, []),
-    );
+  // Remove the whole `pipelines` section in the YML if empty
+  if (isEmpty(copy.pipelines)) delete copy.pipelines;
 
-    if (isEmpty(copy.pipelines)) {
-      delete copy.pipelines;
-    }
-  }
+  // Remove triggers what referencing to the workflow
+  copy.trigger_map = deleteWorkflowFromTriggerMap(workflowId, copy.trigger_map);
 
-  // Remove triggers what depends on the given workflow
-  if (copy.trigger_map) {
-    copy.trigger_map = TriggerMapService.deleteWorkflow(copy.trigger_map, workflowId);
+  // Remove the whole `trigger_map` section in the YML if empty
+  if (isEmpty(copy.trigger_map)) delete copy.trigger_map;
 
-    if (isEmpty(copy.trigger_map)) {
-      delete copy.trigger_map;
-    }
+  return copy;
+}
+
+function deleteChainedWorkflow(
+  chainedWorkflowIndex: number,
+  parentWorkflowId: string,
+  placement: Placement,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows?.[parentWorkflowId]?.[placement]?.[chainedWorkflowIndex]) {
+    copy.workflows[parentWorkflowId][placement].splice(chainedWorkflowIndex, 1);
+    if (!copy.workflows[parentWorkflowId][placement].length) delete copy.workflows[parentWorkflowId][placement];
   }
 
   return copy;
 }
 
+function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.after_run = workflowCopy.after_run?.filter((id) => id !== workflowId);
+    workflowCopy.before_run = workflowCopy.before_run?.filter((id) => id !== workflowId);
+
+    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
+    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
+
+    return workflowCopy;
+  });
+}
+
+function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stages {
+  return mapValues(stages, (stage) => {
+    const stageCopy = deepCloneSimpleObject(stage);
+
+    stageCopy.workflows = stageCopy.workflows?.map((w) => omit(w, workflowId)).filter(isNotEmpty);
+    if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
+
+    return stageCopy;
+  });
+}
+
+function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = {}, stages: Stages = {}): Pipelines {
+  const stageIds = Object.keys(stages);
+
+  return mapValues(pipelines, (pipeline) => {
+    const pipelineCopy = deepCloneSimpleObject(pipeline);
+
+    pipelineCopy.stages = pipelineCopy.stages?.map((s) => deleteWorkflowFromStages(workflowId, s));
+    pipelineCopy.stages = pipelineCopy.stages?.map((s) => omitEmptyIfKeyNotExistsIn(s, stageIds)).filter(isNotEmpty);
+
+    if (isEmpty(pipelineCopy.stages)) delete pipelineCopy.stages;
+
+    return pipelineCopy;
+  });
+}
+
+function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap = []): TriggerMap {
+  return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
+}
+
 export default {
   deleteWorkflow,
+  deleteChainedWorkflow,
 };

@@ -37,11 +37,12 @@ const WorkflowCanvasPanel = () => {
           id={selectedWorkflowId}
           w={400}
           mx="auto"
+          isRoot
           isFixed
           isEditable
-          onClickStep={openStepConfigDrawer}
+          onAddStep={openStepSelectorDrawer}
+          onSelectStep={openStepConfigDrawer}
           onDeleteWorkflow={openDeleteWorkflowDialog}
-          onClickAddStepButton={openStepSelectorDrawer}
         />
       </Box>
     </Box>

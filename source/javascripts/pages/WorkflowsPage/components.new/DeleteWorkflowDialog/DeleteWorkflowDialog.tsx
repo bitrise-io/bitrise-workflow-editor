@@ -16,8 +16,8 @@ const DeleteWorkflowDialog = ({ ...disclosureProps }: Props) => {
   const deleteWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteWorkflow));
 
   const handleDelete = () => {
-    deleteWorkflow(workflowId);
     setSelectedWorkflow(workflowIds.find((id) => id !== workflowId));
+    deleteWorkflow(workflowId);
     onClose();
   };
 

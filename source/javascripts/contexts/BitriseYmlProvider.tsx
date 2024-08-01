@@ -3,8 +3,6 @@ import { createStore } from 'zustand';
 import { BitriseYml, Meta } from '@/models/BitriseYml';
 import { ChainedWorkflowPlacement } from '@/models/Workflow';
 import BitriseYmlService from '@/models/BitriseYmlService';
-import WorkflowService from '@/models/WorkflowService';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
 type BitriseYmlProviderProps = PropsWithChildren<{
   yml: BitriseYml;
@@ -18,9 +16,9 @@ export type BitriseYmlProviderState = {
 
   // Workflow related actions
   deleteWorkflow: (workflowId: string) => void;
-  deleteWorkflowFromChain: (
-    workflowId: string,
+  deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
+    parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
 };
@@ -34,25 +32,15 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
     deleteWorkflow(workflowId) {
       return set((state) => {
         return {
-          yml: BitriseYmlService.deleteWorkflow(state.yml, workflowId),
+          yml: BitriseYmlService.deleteWorkflow(workflowId, state.yml),
         };
       });
     },
-    deleteWorkflowFromChain(workflowId, chainedWorkflowIndex, placement) {
+    deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement) {
       return set((state) => {
-        const copy = deepCloneSimpleObject(state.yml);
-
-        if (!copy.workflows?.[workflowId]?.[placement]) {
-          return state;
-        }
-
-        copy.workflows[workflowId] = WorkflowService.deleteChainedWorkflowByPlacement(
-          copy.workflows[workflowId],
-          chainedWorkflowIndex,
-          placement,
-        );
-
-        return { yml: copy };
+        return {
+          yml: BitriseYmlService.deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement, state.yml),
+        };
       });
     },
   }));
