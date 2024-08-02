@@ -2,11 +2,12 @@ import Editor from '@monaco-editor/react';
 import { configureMonacoYaml } from 'monaco-yaml';
 
 type YmlEditorProps = {
+  isLoading?: boolean;
   readonly: boolean;
   yml: string;
   onChange: VoidFunction;
 };
-const YmlEditor = ({ readonly, yml, onChange }: YmlEditorProps) => {
+const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
   const defaultSchema = {
     uri: 'https://json.schemastore.org/bitrise.json',
     fileMatch: ['*'],
@@ -14,11 +15,11 @@ const YmlEditor = ({ readonly, yml, onChange }: YmlEditorProps) => {
 
   return (
     <Editor
-      defaultLanguage="yaml"
-      defaultValue={yml}
+      language="yaml"
+      value={isLoading ? 'Loading...' : yml}
       theme="vs-dark"
       options={{
-        readOnly: readonly,
+        readOnly: readonly || isLoading,
         roundedSelection: false,
         scrollBeyondLastLine: false,
         stickyScroll: {
