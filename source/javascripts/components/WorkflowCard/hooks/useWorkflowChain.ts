@@ -6,19 +6,35 @@ type Props = {
   id: string;
 };
 
-const extractBeforeRunChain = (yml: BitriseYml, id: string): string[] => {
+type Result = {
+  id: string;
+  index: number;
+  parentId: string;
+};
+
+const extractBeforeRunChain = (yml: BitriseYml, id: string): Result[] => {
   const ids = yml.workflows?.[id]?.before_run ?? [];
 
-  return ids.reduce<string[]>((mergedIds, currentId) => {
-    return [...mergedIds, ...extractBeforeRunChain(yml, currentId), currentId, ...extractAfterRunChain(yml, currentId)];
+  return ids.reduce<Result[]>((results, currentId, index) => {
+    return [
+      ...results,
+      ...extractBeforeRunChain(yml, currentId),
+      { id: currentId, index, parentId: id },
+      ...extractAfterRunChain(yml, currentId),
+    ];
   }, []);
 };
 
-const extractAfterRunChain = (yml: BitriseYml, id: string): string[] => {
+const extractAfterRunChain = (yml: BitriseYml, id: string): Result[] => {
   const ids = yml.workflows?.[id]?.after_run ?? [];
 
-  return ids.reduce<string[]>((mergedIds, currentId) => {
-    return [...mergedIds, ...extractBeforeRunChain(yml, currentId), currentId, ...extractAfterRunChain(yml, currentId)];
+  return ids.reduce<Result[]>((results, currentId, index) => {
+    return [
+      ...results,
+      ...extractBeforeRunChain(yml, currentId),
+      { id: currentId, index, parentId: id },
+      ...extractAfterRunChain(yml, currentId),
+    ];
   }, []);
 };
 
