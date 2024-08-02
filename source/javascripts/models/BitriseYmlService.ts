@@ -86,7 +86,9 @@ function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stag
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
 
-    stageCopy.workflows = stageCopy.workflows?.map((w) => omit(w, workflowId)).filter(isNotEmpty);
+    stageCopy.workflows = stageCopy.workflows?.map((workflowsObj) => omit(workflowsObj, workflowId));
+    stageCopy.workflows = stageCopy.workflows?.filter(isNotEmpty);
+
     if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
 
     return stageCopy;
@@ -99,8 +101,9 @@ function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = 
   return mapValues(pipelines, (pipeline) => {
     const pipelineCopy = deepCloneSimpleObject(pipeline);
 
-    pipelineCopy.stages = pipelineCopy.stages?.map((s) => deleteWorkflowFromStages(workflowId, s));
-    pipelineCopy.stages = pipelineCopy.stages?.map((s) => omitEmptyIfKeyNotExistsIn(s, stageIds)).filter(isNotEmpty);
+    pipelineCopy.stages = pipelineCopy.stages?.map((stagesObj) => deleteWorkflowFromStages(workflowId, stagesObj));
+    pipelineCopy.stages = pipelineCopy.stages?.map((stagesObj) => omitEmptyIfKeyNotExistsIn(stagesObj, stageIds));
+    pipelineCopy.stages = pipelineCopy.stages?.filter(isNotEmpty);
 
     if (isEmpty(pipelineCopy.stages)) delete pipelineCopy.stages;
 
