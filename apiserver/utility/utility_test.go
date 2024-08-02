@@ -84,7 +84,7 @@ workflows:
 		{
 			_, err := ValidateBitriseConfigAndSecret(`{}`, config.MinimalValidSecrets)
 			require.Error(t, err)
-			require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: Failed to get config (bitrise.yml) from base 64 data, err: Failed to parse bitrise config, error: missing format_version"), err.Error())
+			require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: Failed to parse bitrise config, error: missing format_version"), err.Error())
 		}
 	}
 
@@ -97,7 +97,7 @@ app:
 `, config.MinimalValidSecrets)
 
 		require.Error(t, err)
-		require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: Failed to get config (bitrise.yml) from base 64 data, err: Failed to parse bitrise config, error: yaml: unmarshal errors:\n  line 4: cannot unmarshal !!str `A` into models.EnvironmentItemModel"), err.Error())
+		require.True(t, strings.Contains(err.Error(), "Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: Failed to parse bitrise config, error: yaml: unmarshal errors:\n  line 4: cannot unmarshal !!str `A` into models.EnvironmentItemModel"), err.Error())
 	}
 
 	t.Log("Invalid configs - missing format_version")
@@ -112,7 +112,7 @@ workflows:
 `, config.MinimalValidSecrets)
 
 		require.Error(t, err)
-		require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: Failed to get config (bitrise.yml) from base 64 data, err: Failed to parse bitrise config, error: missing format_version"), err.Error())
+		require.True(t, strings.Contains(err.Error(), "Validation failed: Config validation error: failed to get Bitrise config (bitrise.yml) from base 64 data: Failed to parse bitrise config, error: missing format_version"), err.Error())
 	}
 
 	t.Log("Invalid secrets - envs as empty hash")
