@@ -1,14 +1,12 @@
 import { Fragment } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import merge from 'lodash/merge';
 import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
 import AddStepButton from './components/AddStepButton';
+import useWorkflow from './hooks/useWorkflow';
 import StepCard from '@/components/StepCard/StepCard';
 import { Step } from '@/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Meta } from '@/models/BitriseYml';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
 type StepEditCallback = (workflowId: string, stepIndex: number) => void;
 type DeleteWorkflowCallback = (workflowId: string) => void;
@@ -37,19 +35,10 @@ const WorkflowCard = ({
   onDeleteWorkflow,
   ...props
 }: WorkflowCardProps) => {
-  const { notFound, workflow } = useBitriseYmlStore(
-    useShallow(({ yml, defaultMeta }) => ({
-      notFound: !yml.workflows?.[id],
-      workflow: {
-        ...yml.workflows?.[id],
-        meta: defaultMeta ? (merge(deepCloneSimpleObject(defaultMeta), yml.workflows?.[id]?.meta) as Meta) : undefined,
-      },
-    })),
-  );
-
+  const workflow = useWorkflow({ id });
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded || isFixed });
 
-  if (notFound) {
+  if (!workflow) {
     // TODO: Missing mpty state
     // eslint-disable-next-line no-console
     console.warn(`Workflow '${id}' is not found in yml!`);

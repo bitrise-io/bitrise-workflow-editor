@@ -11,16 +11,13 @@ export default {
     isExpanded: true,
   },
   argTypes: {
-    onClickStep: {
+    onAddStep: {
       type: 'function',
     },
-    onClickAddStepButton: {
+    onSelectStep: {
       type: 'function',
     },
     onDeleteWorkflow: {
-      type: 'function',
-    },
-    onDeleteChainedWorkflow: {
       type: 'function',
     },
   },
