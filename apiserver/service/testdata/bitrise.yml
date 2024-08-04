@@ -1,0 +1,73 @@
+format_version: "17"
+default_step_lib_source: "https://github.com/bitrise-io/bitrise-steplib.git"
+
+trigger_map:
+- push_branch: main
+  changed_files:
+    regex: '^ios\/.*'
+  workflow: test
+
+services:
+  postgres:
+    image: postgres:13
+    envs:
+    - POSTGRES_PASSWORD: password
+      opts:
+        is_expand: false
+    ports:
+    - 5435:5432
+    options: >-
+      --health-cmd pg_isready
+      --health-interval 10s
+      --health-timeout 5s
+      --health-retries 5
+
+containers:
+  ruby:
+    image: ruby:3.2
+
+step_bundles:
+  print-hello:
+    envs:
+    - NAME: World
+    steps:
+    - script:
+        inputs:
+        - content: echo "Hello, $NAME!"
+
+workflows:
+  test:
+    steps:
+    - bundle::print-hello:
+        envs:
+        - NAME: Universe
+    - with:
+        container: ruby
+        services:
+        - postgres
+        steps:
+        - script:
+            title: Setup DB
+            inputs:
+            - content: bundle exec rails db:setup
+        - script:
+            title: Run tests
+            inputs:
+            - content: bundle exec rspec
+              opts:
+                is_expand: false
+    - script:
+        title: Run tests
+        inputs:
+        - content: bundle exec rspec
+          opts:
+            is_expand: false
+    meta:
+      bitrise.io:
+        stack: osx-xcode-16.0.x-edge
+        machine_type_id: g2-m1-max.10core
+
+meta:
+  bitrise.io:
+    machine_type_id: g2-m1-max.10core
+    stack: osx-xcode-15.0.x

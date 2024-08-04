@@ -3,19 +3,21 @@ import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
 import { useShallow } from 'zustand/react/shallow';
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
+import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = UseDisclosureProps & {};
 
 const DeleteWorkflowDialog = ({ ...disclosureProps }: Props) => {
   const workflowIds = useWorkflowIds();
+  const { workflowId } = useWorkflowsPageStore();
+  const [, setSelectedWorkflow] = useSelectedWorkflow();
   const { isOpen, onClose } = useDisclosure(disclosureProps);
-  const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
   const deleteWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteWorkflow));
 
   const handleDelete = () => {
-    deleteWorkflow(selectedWorkflowId);
-    setSelectedWorkflow(workflowIds.find((id) => id !== selectedWorkflowId));
+    setSelectedWorkflow(workflowIds.find((id) => id !== workflowId));
+    deleteWorkflow(workflowId);
     onClose();
   };
 
@@ -23,7 +25,7 @@ const DeleteWorkflowDialog = ({ ...disclosureProps }: Props) => {
     <Dialog isOpen={isOpen} title="Delete Workflow?" onClose={onClose}>
       <DialogBody display="flex" flexDir="column" gap="24">
         <Text>
-          Are you sure you want to delete <strong>{selectedWorkflowId}</strong>?
+          Are you sure you want to delete <strong>{workflowId}</strong>?
         </Text>
         <List variant="unstyled" spacing="6">
           <ListItem iconSize="24" iconName="CloseSmall" iconColor="icon/negative">

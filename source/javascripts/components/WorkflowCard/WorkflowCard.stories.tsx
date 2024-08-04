@@ -8,11 +8,16 @@ export default {
   component: WorkflowCard,
   args: {
     id: 'wf1',
-    isRoot: true,
     isExpanded: true,
   },
   argTypes: {
-    onClickAddStepButton: {
+    onAddStep: {
+      type: 'function',
+    },
+    onSelectStep: {
+      type: 'function',
+    },
+    onDeleteWorkflow: {
       type: 'function',
     },
   },

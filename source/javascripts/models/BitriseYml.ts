@@ -1,5 +1,4 @@
 import type { FromSchema, JSONSchema } from 'json-schema-to-ts';
-import { Workflow } from './Workflow';
 
 export const bitriseYmlSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
@@ -571,35 +570,3 @@ export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 export type Meta = Required<BitriseYml>['meta'] & {
   'bitrise.io'?: { stack: string; machine_type_id: string };
 };
-
-export function deleteWorkflow(yml: BitriseYml, workfowId: string): BitriseYml {
-  const copy = JSON.parse(JSON.stringify(yml)) as BitriseYml;
-
-  if (copy.workflows) {
-    copy.workflows = Object.fromEntries(
-      Object.entries(copy.workflows).reduce<[string, Workflow][]>((entries, [currentWorkflowId, workflow]) => {
-        if (currentWorkflowId === workfowId) {
-          return entries;
-        }
-
-        const afterRun = workflow.after_run?.filter((chainedWorkflowId) => chainedWorkflowId !== workfowId);
-        const beforeRun = workflow.before_run?.filter((chainedWorkflowId) => chainedWorkflowId !== workfowId);
-
-        return [...entries, [currentWorkflowId, { ...workflow, after_run: afterRun, before_run: beforeRun }]];
-      }, []),
-    );
-  }
-
-  if (copy.stages) {
-    copy.stages = Object.fromEntries(
-      Object.entries(copy.stages).map(([stageId, stage]) => {
-        const workflows = stage.workflows?.filter((workflow) => !Object.keys(workflow).includes(workfowId));
-        return [stageId, { ...stage, workflows }];
-      }),
-    );
-  }
-
-  copy.trigger_map = copy.trigger_map?.filter(({ workflow }) => workflow !== workfowId);
-
-  return copy;
-}

@@ -55,6 +55,8 @@ import semverDiff from 'semver/functions/diff'
       $scope.$on("$destroy", $rootScope.$on("MainController::changesDiscarded", function () {
         updateUniqueCount();
         workflowSelectionStore.disable();
+        viewModel.yml = appService.appConfig;
+
         var lastSelectedWorkflowNotFound = !_.find(viewModel.workflows, {
           id: workflowSelectionStore.lastSelectedWorkflowID
         });
@@ -1038,6 +1040,11 @@ import semverDiff from 'semver/functions/diff'
             },
           };
         }
+      }
+
+      viewModel.onChangeYml = (yml) => {
+        appService.appConfig = yml;
+        safeDigest($rootScope);
       }
     });
 })();

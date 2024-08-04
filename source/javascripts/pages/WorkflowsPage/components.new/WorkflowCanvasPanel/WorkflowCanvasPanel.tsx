@@ -7,7 +7,7 @@ import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
-  const { openChainWorkflowDialog, openDeleteWorkflowDialog, openStepConfigDrawer, openStepSelectorDrawer } =
+  const { openChainWorkflowDialog, openStepConfigDrawer, openStepSelectorDrawer, openDeleteWorkflowDialog } =
     useWorkflowsPageStore();
 
   return (
@@ -27,9 +27,6 @@ const WorkflowCanvasPanel = () => {
             <MenuItem iconName="Link" onClick={openChainWorkflowDialog}>
               Chain Workflow
             </MenuItem>
-            <MenuItem iconName="Trash" onClick={openDeleteWorkflowDialog} isDanger>
-              Delete '{selectedWorkflowId}'
-            </MenuItem>
           </MenuList>
         </Menu>
 
@@ -40,10 +37,12 @@ const WorkflowCanvasPanel = () => {
           id={selectedWorkflowId}
           w={400}
           mx="auto"
+          isRoot
           isFixed
           isEditable
-          onClickStep={openStepConfigDrawer}
-          onClickAddStepButton={openStepSelectorDrawer}
+          onAddStep={openStepSelectorDrawer}
+          onSelectStep={openStepConfigDrawer}
+          onDeleteWorkflow={openDeleteWorkflowDialog}
         />
       </Box>
     </Box>
