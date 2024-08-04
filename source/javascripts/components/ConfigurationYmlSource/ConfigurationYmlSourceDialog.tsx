@@ -119,9 +119,13 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   }
 
   const onValidateAndSave = () => {
-    segmentTrack('Validate And Save Configuration Yml Source Button Clicked', {
+    const eventProps: any = {
       yml_source: usesRepositoryYml ? 'bitrise' : 'git',
-    });
+    };
+    if (!usesRepositoryYml) {
+      eventProps.selected_yml_source = configurationSource;
+    }
+    segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
     if (configurationSource === 'git') {
       getAppConfigFromRepo();
     }
