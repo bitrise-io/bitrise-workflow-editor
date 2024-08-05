@@ -24,6 +24,8 @@ const getWithBlockText = (withBlockData: WithBlockData): string => {
 type StepItemProps = {
   workflowIndex: number;
   step: Step;
+  displayName: string;
+  version?: string;
   isSelected: boolean;
   hasVersionUpdate: boolean;
   onSelected: (step: Step, index: number) => void;
@@ -31,10 +33,15 @@ type StepItemProps = {
 
 const tabIndex = (selected: boolean): number => (selected ? -1 : 0);
 
-const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelected }: StepItemProps): JSX.Element => {
-  const displayName = step.displayName();
-  const version = step.requestedVersion();
-
+const StepItem = ({
+  workflowIndex,
+  step,
+  displayName,
+  version,
+  hasVersionUpdate,
+  isSelected,
+  onSelected,
+}: StepItemProps): JSX.Element => {
   return (
     <button
       type="button"
@@ -50,7 +57,7 @@ const StepItem = ({ workflowIndex, step, hasVersionUpdate, isSelected, onSelecte
           <StepItemTitle displayName={displayName} />
           <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
         </strong>
-        {!!version && (
+        {version !== undefined && (
           <StepItemVersion
             actualVersion={step.version}
             requestedVersion={version || ''}
