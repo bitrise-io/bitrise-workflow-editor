@@ -31,7 +31,7 @@ const DeleteWorkflowDialog = ({ workflowId, onDelete, ...disclosureProps }: Prop
             Historical build logs will remain accessible.
           </ListItem>
         </List>
-        <Text textStyle="body/lg/semibold">This action cannot be undone.</Text>
+        <Text textStyle="body/lg/semibold">This action cannot be undone after the YML is saved.</Text>
       </DialogBody>
       <DialogFooter>
         <Button variant="secondary" onClick={() => onClose()}>
