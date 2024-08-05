@@ -61,6 +61,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
       if (!newCondition.value) {
         newCondition.value = '*';
       }
+      if (isRegex) {
+        newCondition.value = '.*';
+      }
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
@@ -113,7 +116,7 @@ const AddTagTriggerDialog = (props: DialogProps) => {
                 marginBottom="4"
                 {...field}
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
-                placeholder="*"
+                placeholder={isRegex ? '.*' : '*'}
               />
             )}
           />
