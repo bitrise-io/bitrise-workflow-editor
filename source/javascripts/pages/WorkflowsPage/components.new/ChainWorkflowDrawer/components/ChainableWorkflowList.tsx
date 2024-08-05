@@ -52,7 +52,12 @@ const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
   return (
     <Box display="flex" flexDir="column" gap="12" maxH="100%" overflow="auto">
       {workflows.map((chainableId) => (
-        <ChainableWorkflowCard key={chainableId} workflowId={chainableId} onChainWorkflow={onChainWorkflow} />
+        <ChainableWorkflowCard
+          key={chainableId}
+          chainableWorkflowId={chainableId}
+          parentWorkflowId={workflowId}
+          onChainWorkflow={onChainWorkflow}
+        />
       ))}
     </Box>
   );

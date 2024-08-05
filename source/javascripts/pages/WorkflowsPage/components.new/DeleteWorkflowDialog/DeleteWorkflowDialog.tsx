@@ -1,23 +1,21 @@
 import { Button, Dialog, DialogBody, DialogFooter, List, ListItem, Text } from '@bitrise/bitkit';
 import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
-import { useShallow } from 'zustand/react/shallow';
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
-import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
-type Props = UseDisclosureProps & {};
+type Props = UseDisclosureProps & {
+  workflowId: string;
+  onDeleteWorkflow: (workflowId: string) => void;
+};
 
-const DeleteWorkflowDialog = ({ ...disclosureProps }: Props) => {
+const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps }: Props) => {
   const workflowIds = useWorkflowIds();
-  const { workflowId } = useWorkflowsPageStore();
   const [, setSelectedWorkflow] = useSelectedWorkflow();
   const { isOpen, onClose } = useDisclosure(disclosureProps);
-  const deleteWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteWorkflow));
 
   const handleDelete = () => {
     setSelectedWorkflow(workflowIds.find((id) => id !== workflowId));
-    deleteWorkflow(workflowId);
+    onDeleteWorkflow(workflowId);
     onClose();
   };
 

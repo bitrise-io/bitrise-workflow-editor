@@ -3,11 +3,12 @@ import { ChainWorkflowCallback } from '../ChainWorkflowDrawer.types';
 import WorkflowUsedByText from '../../WorkflowUsedByText';
 
 type Props = {
-  workflowId: string;
+  chainableWorkflowId: string;
+  parentWorkflowId: string;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainableWorkflowCard = ({ workflowId, onChainWorkflow }: Props) => {
+const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
   return (
     <Card
       className="group"
@@ -25,16 +26,16 @@ const ChainableWorkflowCard = ({ workflowId, onChainWorkflow }: Props) => {
     >
       <Box overflow="hidden">
         <Text textStyle="body/lg/semibold" mb="4" hasEllipsis>
-          {workflowId}
+          {chainableWorkflowId}
         </Text>
-        <WorkflowUsedByText id={workflowId} />
+        <WorkflowUsedByText id={chainableWorkflowId} />
       </Box>
       <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>
         <Button
           variant="tertiary"
           size="sm"
           leftIconName="ArrowQuit"
-          onClick={() => onChainWorkflow('before', workflowId)}
+          onClick={() => onChainWorkflow(chainableWorkflowId, parentWorkflowId, 'before_run')}
         >
           Add before
         </Button>
@@ -43,7 +44,7 @@ const ChainableWorkflowCard = ({ workflowId, onChainWorkflow }: Props) => {
           variant="tertiary"
           size="sm"
           leftIconName="ArrowForwardAndDown"
-          onClick={() => onChainWorkflow('after', workflowId)}
+          onClick={() => onChainWorkflow(chainableWorkflowId, parentWorkflowId, 'after_run')}
         >
           Add after
         </Button>

@@ -77,7 +77,7 @@ const WorkflowCard = ({
           <ButtonGroup ml="4" display="none" _groupHover={{ display: 'flex' }}>
             <ControlButton
               size="xs"
-              iconName="PlusAdd"
+              iconName="PlusOpen"
               onClick={() => onChainWorkflow?.(id)}
               aria-label="Chain Workflows"
             />
@@ -151,12 +151,13 @@ const BeforeRunWorkflows = ({ id, ...props }: WorkflowChainProps) => {
 
   return (
     <>
-      {chain.map(({ id: chainedWorkflowId, parentId: parentWorkflowId, index: chainedWorkflowIndex }) => {
-        const onDeleteWorkflow = () => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, 'before_run');
+      {chain.map(({ id: chainedWorkflowId, parentId: parentWorkflowId, index: chainedWorkflowIndex, placement }, i) => {
+        const onDeleteWorkflow = () => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement);
 
         return (
           <WorkflowCard
-            key={`before_run:${chainedWorkflowIndex}:${chainedWorkflowId}->${parentWorkflowId}->${id}`}
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${placement}:${i}:${chainedWorkflowIndex}:${chainedWorkflowId}->${parentWorkflowId}->${id}`}
             {...props}
             id={chainedWorkflowId}
             isRoot={false}
@@ -177,12 +178,13 @@ const AfterRunWorkflows = ({ id, ...props }: WorkflowChainProps) => {
   return (
     <>
       {hasChainedWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
-      {chain.map(({ id: chainedWorkflowId, parentId: parentWorkflowId, index: chainedWorkflowIndex }) => {
-        const onDeleteWorkflow = () => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, 'after_run');
+      {chain.map(({ id: chainedWorkflowId, parentId: parentWorkflowId, index: chainedWorkflowIndex, placement }, i) => {
+        const onDeleteWorkflow = () => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement);
 
         return (
           <WorkflowCard
-            key={`after_run:${chainedWorkflowIndex}:${id}->${parentWorkflowId}->${chainedWorkflowId}`}
+            // eslint-disable-next-line react/no-array-index-key
+            key={`${placement}:${i}:${chainedWorkflowIndex}:${id}->${parentWorkflowId}->${chainedWorkflowId}`}
             {...props}
             id={chainedWorkflowId}
             isRoot={false}
