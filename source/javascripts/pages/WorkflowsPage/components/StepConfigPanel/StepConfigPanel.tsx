@@ -10,7 +10,7 @@ import SecretsProvider from './components/InsertSecretPopover/SecretsProvider';
 import StepBadge from '@/components/StepBadge/StepBadge';
 import { monolith } from '@/hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '@/models';
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 import { EnvVar } from '@/models/EnvVar';
 
 type Props = {

@@ -1,4 +1,4 @@
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 
 export type CreateSecretFormValues = Secret;
 export type HandlerFn = (secret: Secret) => void;

@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Mode } from '../../hooks/useMultiModePopover';
 import InsertSecretPopover from './InsertSecretPopover';
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 
 const defaultSecrets: Secret[] = [
   {

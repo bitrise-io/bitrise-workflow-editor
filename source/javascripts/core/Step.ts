@@ -26,7 +26,7 @@ export function parseStepCVS(cvs: string) {
 }
 
 export function isStepLib(cvs: string) {
-  return /^(git::|path::|git@)/g.test(cvs) === false;
+  return !/^(git::|path::|git@)/g.test(cvs);
 }
 
 export function normalizeStepVersion(version: string) {

@@ -120,7 +120,7 @@ const InsertEnvVarPopover = ({
                       >
                         <Text textStyle="code/lg">${ev.key}</Text>
                         <Text textStyle="body/sm/regular" color="text/secondary">
-                          From {ev.source}
+                          {ev.source}
                         </Text>
                       </ListItem>
                     ))}

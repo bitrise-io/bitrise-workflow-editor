@@ -1,12 +1,12 @@
 import Client from './client';
-import { Secret, SecretWithState } from '@/core/Secret'; // DTOs
+import { Secret } from '@/core/Secret'; // DTOs
 
 // DTOs
 type SecretApiValueResponse = {
   value?: string;
 };
 
-type SecretApiResponse = { [key: string]: null } & {
+type ApiSecretItem = { [key: string]: null } & {
   opts: {
     is_expand: boolean;
     scope: string;
@@ -18,8 +18,9 @@ type SecretApiResponse = { [key: string]: null } & {
     };
   };
 };
+type SecretsApiResponse = Array<ApiSecretItem>;
 
-type SecretMonolithResponse = {
+type MonolithSecretItem = {
   id: string;
   name: string;
   value?: string;
@@ -28,27 +29,40 @@ type SecretMonolithResponse = {
   expand_in_step_inputs: boolean;
   exposed_for_pull_requests: boolean;
 };
+type SecretsMonolithResponse = Array<MonolithSecretItem>;
 
-type SecretMonolithUpdateRequest = Omit<SecretMonolithResponse, 'id' | 'scope'>;
+type SecretMonolithUpdateRequest = Omit<MonolithSecretItem, 'id' | 'scope'>;
 
 // TRANSFORMATIONS
-function fromApiResponse(secret: SecretApiResponse): Secret {
+function fromApiResponse(response: ApiSecretItem): Secret {
   return {
-    key: Object.keys(secret).find((key) => key !== 'opts') ?? '',
-    value: secret.value ?? undefined,
-    isExpand: Boolean(secret.opts?.is_expand),
-    isExpose: Boolean(secret.opts?.meta['bitrise.io']?.is_expose),
-    isProtected: Boolean(secret.opts?.meta['bitrise.io']?.is_protected),
+    key: Object.keys(response).find((key) => key !== 'opts') ?? '',
+    value: response.value ?? undefined,
+    isExpand: Boolean(response.opts?.is_expand),
+    isExpose: Boolean(response.opts?.meta['bitrise.io']?.is_expose),
+    isProtected: Boolean(response.opts?.meta['bitrise.io']?.is_protected),
+    isKeyChangeable: true,
+    scope: response.opts.scope,
+    isShared: response.opts.scope === 'workspace',
+    source: 'From Bitrise.io',
+    isEditing: false,
+    isSaved: true,
   };
 }
 
-function fromMonolithResponse(secret: SecretMonolithResponse): Secret {
+function fromMonolithResponse(response: MonolithSecretItem): Secret {
   return {
-    key: secret.name,
-    value: secret.value,
-    isExpand: secret.expand_in_step_inputs,
-    isExpose: secret.exposed_for_pull_requests,
-    isProtected: secret.is_protected,
+    key: response.name,
+    value: response.value,
+    isExpand: response.expand_in_step_inputs,
+    isExpose: response.exposed_for_pull_requests,
+    isProtected: response.is_protected,
+    isKeyChangeable: true,
+    scope: response.scope,
+    isShared: response.scope === 'workspace',
+    source: 'From Bitrise.io',
+    isEditing: false,
+    isSaved: true,
   };
 }
 
@@ -93,11 +107,11 @@ async function getSecrets({
   signal?: AbortSignal;
 }): Promise<Secret[]> {
   if (params.useApi) {
-    const response = await Client.get<SecretApiResponse[]>(getSecretFromApiPath(params.appSlug), { signal });
+    const response = await Client.get<SecretsApiResponse>(getSecretFromApiPath(params.appSlug), { signal });
     return response.map(fromApiResponse);
   }
 
-  const response = await Client.get<SecretMonolithResponse[]>(getSecretPath(params.appSlug), { signal });
+  const response = await Client.get<SecretsMonolithResponse>(getSecretPath(params.appSlug), { signal });
   return response.map(fromMonolithResponse);
 }
 
@@ -117,7 +131,7 @@ async function getSecretValue({
     return response.value;
   }
 
-  const response = await Client.get<SecretMonolithResponse>(getSecretItemPath(params), {
+  const response = await Client.get<SecretsMonolithResponse[number]>(getSecretItemPath(params), {
     signal,
   });
   return response.value;
@@ -129,7 +143,7 @@ function updateSecret({
   signal,
 }: {
   appSlug: string;
-  secret: SecretWithState;
+  secret: Secret;
   signal?: AbortSignal;
 }): Promise<Secret> {
   const opts: RequestInit = {
@@ -139,7 +153,6 @@ function updateSecret({
   if (secret.isSaved) {
     return Client.patch(getSecretItemPath({ appSlug, secretKey: secret.key }), opts);
   }
-
   return Client.post(getSecretPath(appSlug), opts);
 }
 
