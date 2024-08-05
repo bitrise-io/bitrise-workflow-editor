@@ -97,7 +97,7 @@ const WorkflowCard = ({
           )}
         </Box>
         {isEditable && (
-          <ButtonGroup ml="4" display="none" _groupHover={{ display: 'flex' }}>
+          <ButtonGroup ml="4" spacing="0" display="none" _groupHover={{ display: 'flex' }}>
             <ControlButton
               size="xs"
               iconName="PlusOpen"
