@@ -108,7 +108,7 @@ const WorkflowCard = ({
               <ControlButton
                 size="xs"
                 iconName="Trash"
-                aria-label={`Remove '${workflowId}' from '${parentWorkflowId}.${placement}'`}
+                aria-label="Remove"
                 onClick={() => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement)}
               />
             )}
