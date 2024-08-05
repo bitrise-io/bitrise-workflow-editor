@@ -41,7 +41,12 @@ const WorkflowsPage = ({ yml, onChange }: Props) => {
         <WorkflowConfigPanel />
       </Box>
 
-      <ChainWorkflowDrawer onChainWorkflow={noop} onClose={closeDialog} isOpen={isChainWorkflowDrawerOpen} />
+      <ChainWorkflowDrawer
+        workflowId={workflowId}
+        isOpen={isChainWorkflowDrawerOpen}
+        onClose={closeDialog}
+        onChainWorkflow={noop}
+      />
       <CreateWorkflowDialog onCreate={noop} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
       <DeleteWorkflowDialog onClose={closeDialog} isOpen={isDeleteWorkflowDialogOpen} />
 

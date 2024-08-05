@@ -9,7 +9,7 @@ import { Step } from '@/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type StepEditCallback = (workflowId: string, stepIndex: number) => void;
-type DeleteWorkflowCallback = (workflowId: string) => void;
+type WorkflowEditCallback = (workflowId: string) => void;
 
 type WorkflowCardProps = CardProps & {
   id: string;
@@ -19,10 +19,14 @@ type WorkflowCardProps = CardProps & {
   isEditable?: boolean;
   onAddStep?: StepEditCallback;
   onSelectStep?: StepEditCallback;
-  onDeleteWorkflow?: DeleteWorkflowCallback;
+  onChainWorkflow?: WorkflowEditCallback;
+  onDeleteWorkflow?: WorkflowEditCallback;
 };
 
-type WorkflowChainProps = Pick<WorkflowCardProps, 'id' | 'isEditable' | 'onSelectStep' | 'onAddStep'>;
+type WorkflowChainProps = Pick<
+  WorkflowCardProps,
+  'id' | 'isEditable' | 'onSelectStep' | 'onAddStep' | 'onChainWorkflow'
+>;
 
 const WorkflowCard = ({
   id,
@@ -32,6 +36,7 @@ const WorkflowCard = ({
   isEditable,
   onAddStep,
   onSelectStep,
+  onChainWorkflow,
   onDeleteWorkflow,
   ...props
 }: WorkflowCardProps) => {
@@ -72,6 +77,12 @@ const WorkflowCard = ({
           <ButtonGroup ml="4" display="none" _groupHover={{ display: 'flex' }}>
             <ControlButton
               size="xs"
+              iconName="PlusAdd"
+              onClick={() => onChainWorkflow?.(id)}
+              aria-label="Chain Workflows"
+            />
+            <ControlButton
+              size="xs"
               iconName="Trash"
               onClick={() => onDeleteWorkflow?.(id)}
               aria-label={isRoot ? `Delete '${id}' workflow` : `Remove '${id}' from the chain`}
@@ -82,7 +93,13 @@ const WorkflowCard = ({
       <Collapse in={isOpen} style={{ overflow: 'unset' }} unmountOnExit={false}>
         <Box display="flex" flexDir="column" gap="8" p="8">
           {isRoot && (
-            <BeforeRunWorkflows id={id} isEditable={isEditable} onAddStep={onAddStep} onSelectStep={onSelectStep} />
+            <BeforeRunWorkflows
+              id={id}
+              isEditable={isEditable}
+              onAddStep={onAddStep}
+              onSelectStep={onSelectStep}
+              onChainWorkflow={onChainWorkflow}
+            />
           )}
 
           {hasNoSteps && (
@@ -113,7 +130,13 @@ const WorkflowCard = ({
           })}
 
           {isRoot && (
-            <AfterRunWorkflows id={id} isEditable={isEditable} onAddStep={onAddStep} onSelectStep={onSelectStep} />
+            <AfterRunWorkflows
+              id={id}
+              isEditable={isEditable}
+              onAddStep={onAddStep}
+              onSelectStep={onSelectStep}
+              onChainWorkflow={onChainWorkflow}
+            />
           )}
         </Box>
       </Collapse>
