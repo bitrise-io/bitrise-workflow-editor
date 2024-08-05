@@ -6,8 +6,6 @@ import { checkIsConditionsUsed } from './TriggersPage.utils';
 import { FormItems, TriggerItem } from './TriggersPage.types';
 import RegexCheckbox from './RegexCheckbox';
 
-const getLabelText = (isRegex: boolean) => (isRegex ? 'Enter a regex pattern' : 'Enter a tag');
-
 type DialogProps = {
   currentTriggers: TriggerItem[];
   isOpen: boolean;
@@ -49,11 +47,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen, editedItem]);
 
-  const { conditions, pipelineable } = watch();
+  const { pipelineable } = watch();
 
   const conditionNumber: number = 0;
-
-  const { isRegex } = conditions[conditionNumber] || {};
 
   const isEditMode = !!editedItem;
 
@@ -62,6 +58,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
+      if (!newCondition.value) {
+        newCondition.value = '*';
+      }
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
@@ -77,19 +76,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
 
   const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
-  let hasEmptyCondition = false;
-  conditions.forEach(({ type, value }) => {
-    if (!type || !value) {
-      hasEmptyCondition = true;
-    }
-  });
-
-  const isSubmitDisabled = isPipelineableMissing || isConditionsUsed || hasEmptyCondition;
+  const isSubmitDisabled = isPipelineableMissing || isConditionsUsed;
 
   let submitTooltipLabel = 'Please select a pipeline or workflow.';
-  if (hasEmptyCondition) {
-    submitTooltipLabel = 'Please enter a tag.';
-  }
   if (isConditionsUsed) {
     submitTooltipLabel = 'You previously added this tag for another trigger. Please check and try again.';
   }
@@ -112,26 +101,22 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             Define a tag and select a Pipeline or Workflow for execution on Bitrise whenever the tag is pushed to your
             repository.
           </Text>
-          <Text marginBottom="16" textStyle="body/md/semibold">
-            Tag
-          </Text>
-          <RegexCheckbox
-            isChecked={isRegex}
-            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
-          />
+
+          <RegexCheckbox onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)} />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
               <Input
-                marginBottom="24"
+                marginBottom="4"
                 {...field}
-                isRequired
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
-                label={getLabelText(isRegex)}
                 placeholder="*"
               />
             )}
           />
+          <Text marginBottom="24" color="sys/neutral/base" textStyle="body/sm/regular">
+            If you leave it blank, Bitrise will start builds for any tag.
+          </Text>
           <Text color="text/primary" textStyle="body/md/semibold" marginBottom="4">
             Targeted Pipeline or Workflow
           </Text>
