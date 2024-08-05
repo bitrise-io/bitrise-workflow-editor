@@ -47,9 +47,9 @@ const AddTagTriggerDialog = (props: DialogProps) => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen, editedItem]);
 
-  const { pipelineable } = watch();
-
+  const { conditions, pipelineable } = watch();
   const conditionNumber: number = 0;
+  const { isRegex } = conditions[conditionNumber] || {};
 
   const isEditMode = !!editedItem;
 
@@ -102,7 +102,10 @@ const AddTagTriggerDialog = (props: DialogProps) => {
             repository.
           </Text>
 
-          <RegexCheckbox onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)} />
+          <RegexCheckbox
+            isChecked={isRegex}
+            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
+          />
           <Controller
             name={`conditions.${conditionNumber}.value`}
             render={({ field }) => (
