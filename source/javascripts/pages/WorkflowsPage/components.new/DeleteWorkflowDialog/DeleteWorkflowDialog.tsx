@@ -10,12 +10,12 @@ type Props = UseDisclosureProps & {
 
 const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps }: Props) => {
   const workflowIds = useWorkflowIds();
-  const [, setSelectedWorkflow] = useSelectedWorkflow();
   const { isOpen, onClose } = useDisclosure(disclosureProps);
+  const [selectedWorkflow, setSelectedWorkflow] = useSelectedWorkflow();
 
   const handleDelete = () => {
-    setSelectedWorkflow(workflowIds.find((id) => id !== workflowId));
-    onDeleteWorkflow(workflowId);
+    setSelectedWorkflow(workflowIds.find((id) => id !== selectedWorkflow.id));
+    onDeleteWorkflow(selectedWorkflow.id);
     onClose();
   };
 
@@ -23,7 +23,7 @@ const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps
     <Dialog isOpen={isOpen} title="Delete Workflow?" onClose={onClose}>
       <DialogBody display="flex" flexDir="column" gap="24">
         <Text>
-          Are you sure you want to delete <strong>{workflowId}</strong>?
+          Are you sure you want to delete <strong>{selectedWorkflow.id}</strong>?
         </Text>
         <List variant="unstyled" spacing="6">
           <ListItem iconSize="24" iconName="CloseSmall" iconColor="icon/negative">

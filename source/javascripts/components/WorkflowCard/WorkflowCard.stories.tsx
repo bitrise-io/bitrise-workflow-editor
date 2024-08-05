@@ -7,7 +7,7 @@ import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 export default {
   component: WorkflowCard,
   args: {
-    id: 'wf1',
+    workflowId: 'wf1',
     isExpanded: true,
   },
   argTypes: {
@@ -44,6 +44,6 @@ export const IsFixedEditable: Story = {
 
 export const Empty: Story = {
   args: {
-    id: 'empty',
+    workflowId: 'empty',
   },
 };

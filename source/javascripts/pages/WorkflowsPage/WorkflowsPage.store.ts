@@ -15,7 +15,7 @@ type Action = {
   closeDialog: VoidFunction;
   openChainWorkflowDialog: (workflowId: string) => void;
   openCreateWorkflowDialog: VoidFunction;
-  openDeleteWorkflowDialog: (workflowId: string) => void;
+  openDeleteWorkflowDialog: VoidFunction;
   openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
   openStepSelectorDrawer: (workflowId: string, stepIndex: number) => void;
 };
@@ -33,8 +33,8 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
   openCreateWorkflowDialog: () => {
     return set(() => ({ isDialogOpen: 'create-workflow' }));
   },
-  openDeleteWorkflowDialog: (workflowId: string) => {
-    return set(() => ({ workflowId, isDialogOpen: 'delete-workflow' }));
+  openDeleteWorkflowDialog: () => {
+    return set(() => ({ isDialogOpen: 'delete-workflow' }));
   },
   openStepConfigDrawer: (workflowId: string, stepIndex: number) => {
     return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-config-drawer' }));
