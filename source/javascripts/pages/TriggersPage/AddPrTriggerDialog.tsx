@@ -110,10 +110,21 @@ const ConditionCard = (props: ConditionCardProps) => {
                 isRequired
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
                 label={getLabelText(isRegex, type)}
-                placeholder="*"
+                placeholder={isRegex ? '.*' : '*'}
+                marginBottom="4"
               />
             )}
           />
+          {conditions[conditionNumber].type === 'pull_request_target_branch' && (
+            <Text color="sys/neutral/base" textStyle="body/sm/regular">
+              If you leave it blank, Bitrise will start builds for any target branch.
+            </Text>
+          )}
+          {conditions[conditionNumber].type === 'pull_request_source_branch' && (
+            <Text color="sys/neutral/base" textStyle="body/sm/regular">
+              If you leave it blank, Bitrise will start builds for any source branch.
+            </Text>
+          )}
         </>
       )}
     </Card>
@@ -179,6 +190,12 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
+      if (!newCondition.value) {
+        newCondition.value = '*';
+      }
+      if (isRegex) {
+        newCondition.value = '.*';
+      }
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
@@ -194,6 +211,8 @@ const AddPrTriggerDialog = (props: DialogProps) => {
   };
 
   const { conditions, pipelineable, isDraftPr } = watch();
+  const conditionNumber: number = 0;
+  const { isRegex } = conditions[conditionNumber] || {};
 
   let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
@@ -204,7 +223,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
-    if (!type || !value) {
+    if ((!(type === 'pull_request_target_branch' || type === 'pull_request_source_branch') && !value) || !type) {
       hasEmptyCondition = true;
     }
   });
