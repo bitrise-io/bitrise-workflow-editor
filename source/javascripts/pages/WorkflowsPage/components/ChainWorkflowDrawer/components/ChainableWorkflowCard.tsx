@@ -27,7 +27,7 @@ const ChainableWorkflowCard = ({ workflowId, onChainWorkflow }: Props) => {
         <Text textStyle="body/lg/semibold" mb="4" hasEllipsis>
           {workflowId}
         </Text>
-        <WorkflowUsedByText id={workflowId} />
+        <WorkflowUsedByText workflowId={workflowId} />
       </Box>
       <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>
         <Button

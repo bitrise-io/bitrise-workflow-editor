@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import TriggersPage from './TriggersPage';
 import { makeNotificationMetadataEndpoint } from '@/components/ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
+import TriggersPage from './TriggersPage';
 
 export default {
   component: TriggersPage,
@@ -10,7 +10,6 @@ export default {
     isWebsiteMode: false,
     pipelines: ['foo', 'bar', 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long'],
     workflows: ['foo', 'bar'],
-    setDiscard: console.log,
   },
   argTypes: {
     onTriggerMapChange: { type: 'function' },

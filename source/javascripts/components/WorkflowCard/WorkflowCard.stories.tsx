@@ -1,13 +1,13 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { mockYml } from '../../pages/PipelinesPage/PipelinesPage.mocks';
-import WorkflowCard from './WorkflowCard';
 import withQueryClientProvider from '@/utils/withQueryClientProvider';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+import { mockYml } from '../../pages/PipelinesPage/PipelinesPage.mocks';
+import WorkflowCard from './WorkflowCard';
 
 export default {
   component: WorkflowCard,
   args: {
-    id: 'wf1',
+    workflowId: 'wf1',
     isExpanded: true,
   },
   argTypes: {
@@ -44,6 +44,6 @@ export const IsFixedEditable: Story = {
 
 export const Empty: Story = {
   args: {
-    id: 'empty',
+    workflowId: 'empty',
   },
 };

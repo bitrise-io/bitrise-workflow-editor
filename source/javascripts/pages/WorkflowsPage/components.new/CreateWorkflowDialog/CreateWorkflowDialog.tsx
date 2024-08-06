@@ -1,9 +1,9 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 import { UseDisclosureProps } from '@chakra-ui/react';
+import { isNotEmpty, isUnique, WORKFLOW_NAME_PATTERN, WORKFLOW_NAME_REQUIRED } from '@/models/Workflow';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
-import { isNotEmpty, isUnique, WORKFLOW_NAME_PATTERN, WORKFLOW_NAME_REQUIRED } from '@/models/Workflow';
 
 type FormValues = {
   workflowId: string;

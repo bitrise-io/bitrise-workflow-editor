@@ -9,16 +9,15 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
 
 type Props = UseDisclosureProps & {
+  workflowId: string;
   onChainWorkflow: ChainWorkflowCallback;
 };
 
-const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => {
-  const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
+const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const form = useForm<SearchFormValues>({
@@ -27,7 +26,7 @@ const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => 
     },
   });
 
-  if (!selectedWorkflowId) {
+  if (!workflowId) {
     return null;
   }
 
@@ -53,7 +52,7 @@ const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => 
           <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
             <Box display="flex" flexDir="column" gap="16">
               <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-                Chain Workflows to '{selectedWorkflowId}'
+                Chain Workflows to '{workflowId}'
               </Text>
               <Text size="3">
                 Add Workflows before or after the Steps of the selected Workflow. Each linked Workflow executes on the
@@ -76,7 +75,7 @@ const ChainWorkflowDrawer = ({ onChainWorkflow, ...disclosureProps }: Props) => 
             </Box>
           </DrawerHeader>
           <DrawerBody flex="1" overflow="auto" mt="16">
-            <ChainableWorkflowList workflowId={selectedWorkflowId} onChainWorkflow={onChainWorkflow} />
+            <ChainableWorkflowList workflowId={workflowId} onChainWorkflow={onChainWorkflow} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

@@ -7,6 +7,7 @@ import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepository
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
 import useFeatureFlag from '../../hooks/useFeatureFlag';
+import { segmentTrack } from '../../utils/segmentTracking';
 
 type UpdateConfigurationDialogProps = {
   onClose: () => void;
@@ -52,6 +53,27 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
 
   const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
 
+  const onCopyClick = () => {
+    toast({
+      title: ' Copied to clipboard',
+      description:
+        'Commit the content of the current configuration YAML file to the project’s repository before updating the setting. ',
+      status: 'success',
+      isClosable: true,
+    });
+    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'update_configuration_yml_modal',
+    });
+  };
+
+  const onDownloadClick = () => {
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'update_configuration_yml_modal',
+    });
+  };
+
   return (
     <Dialog isOpen onClose={onClose} title="Update configuration YAML">
       <DialogBody>
@@ -75,21 +97,11 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
             width="fit-content"
             size="sm"
             leftIconName="Download"
+            onClick={onDownloadClick}
           >
             Download changed version
           </Button>
-          <CopyToClipboard
-            text={yml}
-            onCopy={() => {
-              toast({
-                title: ' Copied to clipboard',
-                description:
-                  'Commit the content of the current configuration YAML file to the project’s repository before updating the setting. ',
-                status: 'success',
-                isClosable: true,
-              });
-            }}
-          >
+          <CopyToClipboard text={yml} onCopy={onCopyClick}>
             <Button variant="tertiary" width="fit-content" size="sm" leftIconName="Duplicate">
               Copy changed configuration
             </Button>

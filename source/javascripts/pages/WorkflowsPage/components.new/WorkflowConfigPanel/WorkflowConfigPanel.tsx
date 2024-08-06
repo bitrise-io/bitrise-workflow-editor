@@ -12,7 +12,7 @@ const WorkflowConfigPanel = () => {
     <Box display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
       <Box px="24" py="16">
         <Text textStyle="heading/h3">{selectedWorkflowId}</Text>
-        <WorkflowUsedByText id={selectedWorkflowId} />
+        <WorkflowUsedByText workflowId={selectedWorkflowId} />
       </Box>
       <Tabs display="flex" flexDir="column" flex="1" minH={0}>
         <TabList px="8">

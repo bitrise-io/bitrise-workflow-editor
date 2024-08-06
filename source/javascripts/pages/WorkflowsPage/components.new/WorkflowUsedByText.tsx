@@ -13,11 +13,11 @@ const getUsedByText = (usedBy: string[]) => {
 };
 
 type Props = {
-  id: string;
+  workflowId: string;
 };
 
-const WorkflowUsedByText = ({ id }: Props) => {
-  const usedBy = useWorkflowUsedBy({ id });
+const WorkflowUsedByText = ({ workflowId }: Props) => {
+  const usedBy = useWorkflowUsedBy(workflowId);
 
   return (
     <Text textStyle="body/sm/regular" color="text/secondary">

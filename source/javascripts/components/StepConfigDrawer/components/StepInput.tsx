@@ -1,9 +1,9 @@
 import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
+import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import StepHelperText from './StepHelperText';
 import SensitiveBadge from './SensitiveBadge';
 import InsertSecretPopover from './InsertSecretPopover/InsertSecretPopover';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
-import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 
 type Props = Omit<AutoGrowableInputProps, 'helperText'> & {
   helperText?: string;

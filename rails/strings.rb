@@ -12,9 +12,6 @@ def strings
             datadog: {
                 apiKey: "pub3ee8559ad1bc8c3c8cd788bd71fe5995"
             },
-            segment: {
-                writeKey: "55iZpqNHYN37mfsfk9SOfKBv9GpGBBTv"
-            },
             ld: {
                 client_id: ENV['NODE_ENV'] == "development" ? "5e70774c8a726707851d2ffe" : "5e70774c8a726707851d2fff",
             }

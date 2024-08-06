@@ -1,5 +1,9 @@
 import { Box } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
+import { BitriseYml } from '@/models/BitriseYml';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import WorkflowConfigPanel from './components.new/WorkflowConfigPanel/WorkflowConfigPanel';
 import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
@@ -7,10 +11,6 @@ import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkf
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
-import { BitriseYml } from '@/models/BitriseYml';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = {
   yml: BitriseYml;
@@ -20,9 +20,11 @@ type Props = {
 const WorkflowsPageContent = () => {
   const { workflowId, stepIndex, isDialogOpen, closeDialog } = useWorkflowsPageStore();
 
-  const { createWorkflow } = useBitriseYmlStore(
+  const { createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
       createWorkflow: s.createWorkflow,
+      deleteWorkflow: s.deleteWorkflow,
+      addChainedWorkflow: s.addChainedWorkflow,
     })),
   );
 
@@ -49,9 +51,23 @@ const WorkflowsPageContent = () => {
         <WorkflowConfigPanel />
       </Box>
 
-      <ChainWorkflowDrawer onChainWorkflow={noop} onClose={closeDialog} isOpen={isChainWorkflowDrawerOpen} />
       <CreateWorkflowDialog onCreate={createWorkflow} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
-      <DeleteWorkflowDialog onClose={closeDialog} isOpen={isDeleteWorkflowDialogOpen} />
+
+      <ChainWorkflowDrawer
+        workflowId={workflowId}
+        isOpen={isChainWorkflowDrawerOpen}
+        onClose={closeDialog}
+        onChainWorkflow={addChainedWorkflow}
+      />
+
+      <CreateWorkflowDialog onCreate={noop} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
+
+      <DeleteWorkflowDialog
+        workflowId={workflowId}
+        isOpen={isDeleteWorkflowDialogOpen}
+        onClose={closeDialog}
+        onDeleteWorkflow={deleteWorkflow}
+      />
 
       <StepConfigDrawer {...{ workflowId, stepIndex }} onClose={closeDialog} isOpen={isStepConfigDrawerOpen} />
       <StepSelectorDrawer onStepSelected={noop} onClose={closeDialog} isOpen={isStepSelectorDrawerOpen} />

@@ -1,13 +1,13 @@
 import { CSSProperties, useMemo, useRef } from 'react';
 import { Box, Button, EmptyState, Notification } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
+import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 import useColumnCount from '../hooks/useColumnCount';
 import useVirtualizedItems from '../hooks/useVirtualizedItems';
 import { SearchFormValues, StepSelected } from '../StepDrawer.types';
 import useSearchSteps from '../hooks/useSearchSteps';
 import SkeletonRows from './SkeletonRows';
 import VirtualizedRow from './VirtualizedRow';
-import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 
 const InitialValues: SearchFormValues = {
   search: '',

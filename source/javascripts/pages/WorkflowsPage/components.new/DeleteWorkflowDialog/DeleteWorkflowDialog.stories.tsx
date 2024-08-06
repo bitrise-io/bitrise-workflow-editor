@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import { mockYml } from '../../WorkflowsPage.mocks';
 import DeleteWorkflowDialog from './DeleteWorkflowDialog';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 
 export default {
   component: DeleteWorkflowDialog,
