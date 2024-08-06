@@ -48,7 +48,7 @@ describe('BitriseYmlService', () => {
 
       const actualYml = BitriseYmlService.createWorkflow('wf1', sourceYml);
 
-      expect(actualYml).toStrictEqual(expectedYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
     it('should create a workflow based on an other workflow', () => {
@@ -67,7 +67,7 @@ describe('BitriseYmlService', () => {
 
       const actualYml = BitriseYmlService.createWorkflow('wf2', sourceYml, 'wf1');
 
-      expect(actualYml).toStrictEqual(expectedYml);
+      expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
 
