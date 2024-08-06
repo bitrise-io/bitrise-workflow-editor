@@ -74,6 +74,7 @@ const WorkflowCard = ({
         {!isFixed && (
           <ControlButton
             size="xs"
+            tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
             className="nopan"
             onClick={onToggle}
             iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
@@ -141,6 +142,7 @@ const WorkflowCard = ({
                 isEditable={isEditable}
                 onAddStep={onAddStep}
                 onSelectStep={onSelectStep}
+                onEditWorkflow={onEditWorkflow}
                 onChainWorkflow={onChainWorkflow}
               />
             );
@@ -191,6 +193,7 @@ const WorkflowCard = ({
                 isEditable={isEditable}
                 onAddStep={onAddStep}
                 onSelectStep={onSelectStep}
+                onEditWorkflow={onEditWorkflow}
                 onChainWorkflow={onChainWorkflow}
               />
             );
