@@ -2,10 +2,7 @@ import { Context } from "@datadog/browser-core";
 import { datadogLogs, HandlerType, Logger as DLogger, StatusType } from "@datadog/browser-logs";
 import { pick } from "underscore";
 
-import { WFEWindow } from "../typings/global";
 import { getAppSlug } from "./app-service";
-
-declare let window: WFEWindow;
 
 export interface Logger {
 	debug(message: string, ctx?: Record<string, string>): void;
@@ -28,7 +25,7 @@ class DataDogLoggerService implements Logger {
 	constructor(
 		{
 			name,
-			clientToken = window.DATADOG_API_KEY,
+			clientToken = window.datadogApiKey,
 			isAnalyticsOn = window.isAnalyticsOn,
 			level = StatusType.warn,
 		}: LoggerOptions,
@@ -74,7 +71,7 @@ window.datadogLogs = datadogLogs;
 
 const getDefaultTags = (): Context => {
 	const defaultTags = {
-		service: window.serviceName,
+		service: 'workflow-editor',
 		mode: window.mode,
 		appSlug: getAppSlug(),
 	};

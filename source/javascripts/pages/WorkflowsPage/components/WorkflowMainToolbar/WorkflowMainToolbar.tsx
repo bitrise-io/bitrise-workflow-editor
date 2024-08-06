@@ -13,7 +13,6 @@ import {
 
 import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 import RunWorkflowDialog from '@/components/RunWorkflowDialog/RunWorkflowDialog';
-import { useTrackingFunction } from '@/hooks/utils/useTrackingFunction';
 import { Workflow } from '@/models';
 
 type WorkflowMainToolbarProps = {
@@ -56,13 +55,7 @@ const WorkflowMainToolbar = ({
     ? `/organization/${organizationSlug}/credit_subscription/plan_selector_page`
     : undefined;
 
-  const trackDialogOpen = useTrackingFunction(() => ({
-    event: 'WFE - Run Workflow Dialog Opened',
-    payload: {},
-  }));
-
   const handleOpenRunWorkflowDialog = () => {
-    trackDialogOpen();
     onOpen();
   };
 
