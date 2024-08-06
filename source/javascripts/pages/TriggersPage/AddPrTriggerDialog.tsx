@@ -115,12 +115,12 @@ const ConditionCard = (props: ConditionCardProps) => {
               />
             )}
           />
-          {conditions[conditionNumber].type === 'pull_request_target_branch' && (
+          {type === 'pull_request_target_branch' && (
             <Text color="sys/neutral/base" textStyle="body/sm/regular">
               If you leave it blank, Bitrise will start builds for any target branch.
             </Text>
           )}
-          {conditions[conditionNumber].type === 'pull_request_source_branch' && (
+          {type === 'pull_request_source_branch' && (
             <Text color="sys/neutral/base" textStyle="body/sm/regular">
               If you leave it blank, Bitrise will start builds for any source branch.
             </Text>
@@ -193,7 +193,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
       if (!newCondition.value) {
         newCondition.value = '*';
       }
-      if (isRegex) {
+      if (newCondition.isRegex && !newCondition.value) {
         newCondition.value = '.*';
       }
       return newCondition;
