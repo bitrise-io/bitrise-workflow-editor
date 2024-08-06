@@ -19,6 +19,7 @@ import {
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
+import { segmentTrack } from '../../utils/segmentTracking';
 import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
 import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
@@ -118,6 +119,13 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   }
 
   const onValidateAndSave = () => {
+    const eventProps: any = {
+      yml_source: usesRepositoryYml ? 'bitrise' : 'git',
+    };
+    if (!usesRepositoryYml) {
+      eventProps.selected_yml_source = configurationSource;
+    }
+    segmentTrack('Validate And Save Configuration Yml Source Button Clicked', eventProps);
     if (configurationSource === 'git') {
       getAppConfigFromRepo();
     }
@@ -160,6 +168,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
       isClosable: true,
     });
     onUsesRepositoryYmlChangeSaved(usesRepositoryYml);
+    segmentTrack('Configuration Yml Source Successfully Changed Message Shown', {
+      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
+    });
   };
 
   const onCloseDialog = () => {
@@ -177,6 +188,27 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
   const isDialogDisabled = getAppConfigFromRepoLoading || updatePipelineConfigLoading || postAppConfigLoading;
 
   const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
+
+  const onCopyClick = () => {
+    toast({
+      title: ' Copied to clipboard',
+      description:
+        'Commit the content of the current configuration YAML file to the project’s repository before updating the setting. ',
+      status: 'success',
+      isClosable: true,
+    });
+    segmentTrack('Workflow Editor Copy Current Bitrise Yml Content Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'configuration_yml_source',
+    });
+  };
+
+  const onDownloadClick = () => {
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'configuration_yml_source',
+    });
+  };
 
   return (
     <Dialog isOpen={isOpen} onClose={onCloseDialog} title="Configuration YAML source">
@@ -291,21 +323,11 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                     leftIconName="Download"
                     width="fit-content"
                     size="sm"
+                    onClick={onDownloadClick}
                   >
                     Download current version
                   </Button>
-                  <CopyToClipboard
-                    text={yml}
-                    onCopy={() => {
-                      toast({
-                        title: ' Copied to clipboard',
-                        description:
-                          'Commit the content of the current configuration YAML file to the project’s repository before updating the setting. ',
-                        status: 'success',
-                        isClosable: true,
-                      });
-                    }}
-                  >
+                  <CopyToClipboard text={yml} onCopy={onCopyClick}>
                     <Button
                       variant="tertiary"
                       leftIconName="Duplicate"
