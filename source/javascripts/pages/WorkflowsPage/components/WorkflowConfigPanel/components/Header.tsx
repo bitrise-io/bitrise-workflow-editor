@@ -10,7 +10,7 @@ const Header = () => {
   return (
     <Box px="24" py="16">
       <Text textStyle="heading/h3">{workflowId}</Text>
-      <WorkflowUsedByText id={workflowId} />
+      <WorkflowUsedByText workflowId={workflowId} />
     </Box>
   );
 };

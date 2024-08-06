@@ -24,8 +24,8 @@ const WorkflowCanvasPanel = () => {
             aria-label="Manage Workflows"
           />
           <MenuList>
-            <MenuItem iconName="Link" onClick={openChainWorkflowDialog}>
-              Chain Workflow
+            <MenuItem iconName="Trash" onClick={openDeleteWorkflowDialog} isDanger>
+              Delete '{selectedWorkflowId}'
             </MenuItem>
           </MenuList>
         </Menu>
@@ -34,15 +34,14 @@ const WorkflowCanvasPanel = () => {
       </Box>
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
-          id={selectedWorkflowId}
+          workflowId={selectedWorkflowId}
           w={400}
           mx="auto"
-          isRoot
           isFixed
           isEditable
           onAddStep={openStepSelectorDrawer}
           onSelectStep={openStepConfigDrawer}
-          onDeleteWorkflow={openDeleteWorkflowDialog}
+          onChainWorkflow={openChainWorkflowDialog}
         />
       </Box>
     </Box>
