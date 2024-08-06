@@ -2,6 +2,42 @@ import { BitriseYml } from './BitriseYml';
 import BitriseYmlService from './BitriseYmlService';
 
 describe('BitriseYmlService', () => {
+  describe('createWorkflow', () => {
+    it('should create an empty workflow if base workflow is missing', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: {} },
+      };
+
+      const actualYml = BitriseYmlService.createWorkflow('wf1', sourceYml);
+
+      expect(actualYml).toStrictEqual(expectedYml);
+    });
+
+    it('should create a workflow based on an other workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { title: 'Workflow Title', steps: [{ 'script@1': {} }] } },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { title: 'Workflow Title', steps: [{ 'script@1': {} }] },
+          wf2: { title: 'Workflow Title', steps: [{ 'script@1': {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.createWorkflow('wf2', sourceYml, 'wf1');
+
+      expect(actualYml).toStrictEqual(expectedYml);
+    });
+  });
+
   describe('deleteWorkflow', () => {
     it('should remove a workflow in the whole yml completely', () => {
       const sourceYml: BitriseYml = {

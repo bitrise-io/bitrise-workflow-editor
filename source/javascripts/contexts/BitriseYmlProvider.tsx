@@ -15,6 +15,7 @@ export type BitriseYmlProviderState = {
   defaultMeta?: Meta;
 
   // Workflow related actions
+  createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   deleteWorkflow: (workflowId: string) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
@@ -29,6 +30,13 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
   return createStore<BitriseYmlProviderState>()((set) => ({
     yml,
     defaultMeta,
+    createWorkflow(workflowId, baseWorkflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
+        };
+      });
+    },
     deleteWorkflow(workflowId) {
       return set((state) => {
         return {

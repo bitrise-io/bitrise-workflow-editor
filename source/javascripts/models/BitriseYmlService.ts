@@ -1,4 +1,5 @@
 import omit from 'lodash/omit';
+import merge from 'lodash/merge';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
@@ -13,6 +14,17 @@ const isNotEmpty = <T>(v: T) => !isEmpty(v);
 const omitEmpty = <T>(o: Record<string, T>) => omitBy(o, isEmpty);
 const omitEmptyIfKeyNotExistsIn = <T>(o: Record<string, T>, keys: string[]) =>
   omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k));
+
+function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.workflows = {
+    ...copy.workflows,
+    ...{ [workflowId]: merge({}, baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {}) },
+  };
+
+  return copy;
+}
 
 function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -116,6 +128,7 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 }
 
 export default {
+  createWorkflow,
   deleteWorkflow,
   deleteChainedWorkflow,
 };
