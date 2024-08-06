@@ -1,5 +1,4 @@
 import omit from 'lodash/omit';
-import merge from 'lodash/merge';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
@@ -15,7 +14,7 @@ function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: st
 
   copy.workflows = {
     ...copy.workflows,
-    ...{ [workflowId]: merge({}, baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {}) },
+    ...{ [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {} },
   };
 
   return copy;
