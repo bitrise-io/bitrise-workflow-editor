@@ -9,6 +9,17 @@ import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
 import { Pipelines } from './Pipeline';
 import { TriggerMap } from './TriggerMap';
 
+function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.workflows = {
+    ...copy.workflows,
+    ...{ [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {} },
+  };
+
+  return copy;
+}
+
 function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -148,6 +159,7 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 }
 
 export default {
+  createWorkflow,
   deleteWorkflow,
   addChainedWorkflow,
   deleteChainedWorkflow,

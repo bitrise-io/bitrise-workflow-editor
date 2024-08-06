@@ -1,4 +1,4 @@
-import { useMemo, useState } from 'react';
+import { useMemo, useRef, useState } from 'react';
 import {
   Box,
   Button,
@@ -16,6 +16,7 @@ import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow
 
 const WorkflowSelector = () => {
   const workflowIds = useWorkflowIds();
+  const dropdownRef = useRef<HTMLButtonElement>(null);
   const { openCreateWorkflowDialog } = useWorkflowsPageStore();
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
@@ -47,67 +48,73 @@ const WorkflowSelector = () => {
     setDebouncedSearch(value);
   };
 
+  const onClickCreateWorkflowButton = () => {
+    openCreateWorkflowDialog();
+    dropdownRef.current?.click(); // NOTE: It closes the dropdown...
+  };
+
   return (
-    <Box flex="1" __css={{ '--dropdown-floating-max': '359px' }}>
-      <Dropdown
-        size="md"
-        value={selectedWorkflowId}
-        onChange={({ target: { value } }) => setSelectedWorkflow(value)}
-        search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
+    <Dropdown
+      flex="1"
+      size="md"
+      ref={dropdownRef}
+      dropdownMaxHeight="359px"
+      value={selectedWorkflowId}
+      onChange={({ target: { value } }) => setSelectedWorkflow(value)}
+      search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
+    >
+      {runnableWorkflows.map((id) => (
+        <DropdownOption key={id} value={id}>
+          {id}
+        </DropdownOption>
+      ))}
+
+      {hasUtilityWorkflows && (
+        <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
+          {utilityWorkflows.map((id) => (
+            <DropdownOption key={id} value={id}>
+              {id}
+            </DropdownOption>
+          ))}
+        </DropdownGroup>
+      )}
+
+      {hasNoSearchResults && (
+        <DropdownNoResultsFound>
+          <EmptyState
+            iconName="Magnifier"
+            backgroundColor="background/primary"
+            title="No Workflows are matching your filter"
+            description="Modify your search to get results"
+          />
+        </DropdownNoResultsFound>
+      )}
+
+      <Box
+        w="100%"
+        mt="8"
+        py="12"
+        mb="-12"
+        bottom="-12"
+        position="sticky"
+        borderTop="1px solid"
+        borderColor="border/regular"
+        backgroundColor="background/primary"
       >
-        {runnableWorkflows.map((id) => (
-          <DropdownOption key={id} value={id}>
-            {id}
-          </DropdownOption>
-        ))}
-
-        {hasUtilityWorkflows && (
-          <DropdownGroup label="utility workflows" labelProps={{ whiteSpace: 'nowrap' }}>
-            {utilityWorkflows.map((id) => (
-              <DropdownOption key={id} value={id}>
-                {id}
-              </DropdownOption>
-            ))}
-          </DropdownGroup>
-        )}
-
-        {hasNoSearchResults && (
-          <DropdownNoResultsFound>
-            <EmptyState
-              iconName="Magnifier"
-              backgroundColor="background/primary"
-              title="No Workflows are matching your filter"
-              description="Modify your search to get results"
-            />
-          </DropdownNoResultsFound>
-        )}
-
-        <Box
+        <Button
           w="100%"
-          mt="8"
-          py="12"
-          mb="-12"
-          bottom="-12"
-          position="sticky"
-          borderTop="1px solid"
-          borderColor="border/regular"
-          backgroundColor="background/primary"
+          border="none"
+          fontWeight="400"
+          borderRadius="0"
+          variant="secondary"
+          leftIconName="PlusAdd"
+          justifyContent="flex-start"
+          onClick={onClickCreateWorkflowButton}
         >
-          <Button
-            w="100%"
-            border="none"
-            fontWeight="400"
-            borderRadius="0"
-            variant="secondary"
-            leftIconName="PlusAdd"
-            justifyContent="flex-start"
-            onClick={openCreateWorkflowDialog}
-          >
-            Create Workflow
-          </Button>
-        </Box>
-      </Dropdown>
-    </Box>
+          Create Workflow
+        </Button>
+      </Box>
+    </Dropdown>
   );
 };
 

@@ -20,8 +20,9 @@ type Props = {
 const WorkflowsPageContent = () => {
   const { workflowId, stepIndex, isDialogOpen, closeDialog } = useWorkflowsPageStore();
 
-  const { deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
+  const { createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
+      createWorkflow: s.createWorkflow,
       deleteWorkflow: s.deleteWorkflow,
       addChainedWorkflow: s.addChainedWorkflow,
     })),
@@ -49,6 +50,8 @@ const WorkflowsPageContent = () => {
         <WorkflowCanvasPanel />
         <WorkflowConfigPanel />
       </Box>
+
+      <CreateWorkflowDialog onCreate={createWorkflow} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
 
       <ChainWorkflowDrawer
         workflowId={workflowId}
