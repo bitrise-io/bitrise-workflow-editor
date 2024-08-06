@@ -190,7 +190,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
-      if (!newCondition.value) {
+      if (!newCondition.isRegex && !newCondition.value) {
         newCondition.value = '*';
       }
       if (newCondition.isRegex && !newCondition.value) {
@@ -211,8 +211,6 @@ const AddPrTriggerDialog = (props: DialogProps) => {
   };
 
   const { conditions, pipelineable, isDraftPr } = watch();
-  const conditionNumber: number = 0;
-  const { isRegex } = conditions[conditionNumber] || {};
 
   let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 

@@ -177,7 +177,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
-      if (!newCondition.value) {
+      if (!newCondition.isRegex && !newCondition.value) {
         newCondition.value = '*';
       }
       if (newCondition.isRegex && !newCondition.value) {
@@ -198,8 +198,6 @@ const AddPushTriggerDialog = (props: DialogProps) => {
   };
 
   const { conditions, pipelineable } = watch();
-  const conditionNumber: number = 0;
-  const { isRegex } = conditions[conditionNumber] || {};
 
   const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 

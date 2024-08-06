@@ -10,7 +10,7 @@ export default {
     isWebsiteMode: false,
     pipelines: ['foo', 'bar', 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long'],
     workflows: ['foo', 'bar'],
-    setDiscard: console.log,
+    setDiscard: () => {},
   },
   argTypes: {
     onTriggerMapChange: { type: 'function' },
