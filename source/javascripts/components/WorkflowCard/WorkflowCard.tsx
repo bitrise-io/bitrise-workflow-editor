@@ -22,6 +22,7 @@ type WorkflowCardProps = CardProps & {
   isEditable?: boolean;
   onAddStep?: StepEditCallback;
   onSelectStep?: StepEditCallback;
+  onEditWorkflow?: WorkflowEditCallback;
   onChainWorkflow?: WorkflowEditCallback;
 };
 
@@ -46,6 +47,7 @@ const WorkflowCard = ({
   isEditable,
   onAddStep,
   onSelectStep,
+  onEditWorkflow,
   onChainWorkflow,
   ...props
 }: WorkflowCardProps) => {
@@ -61,12 +63,13 @@ const WorkflowCard = ({
     return null;
   }
 
+  const isRoot = !parentWorkflowId;
   const hasNoSteps = !workflow.steps?.length;
   const hasAfterRunWorkflows = Boolean(workflow.after_run?.length);
   const hasBeforeRunWorkflows = Boolean(workflow.before_run?.length);
 
   return (
-    <Card variant={!parentWorkflowId ? 'elevated' : 'outline'} {...props}>
+    <Card variant={isRoot ? 'elevated' : 'outline'} {...props}>
       <Box display="flex" alignItems="center" px="8" py="6" className="group">
         {!isFixed && (
           <ControlButton
@@ -82,17 +85,17 @@ const WorkflowCard = ({
             {workflow.title || workflowId}
           </Text>
 
-          {parentWorkflowId && (
+          {isRoot && (
+            <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+              {workflow.meta?.['bitrise.io']?.stack || 'Unknown stack'}
+            </Text>
+          )}
+
+          {!isRoot && (
             <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
               {placement}
               {' • '}
               {getUsedByText(workflowUsedBy)}
-            </Text>
-          )}
-
-          {!parentWorkflowId && (
-            <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-              {workflow.meta?.['bitrise.io']?.stack || 'Unknown stack'}
             </Text>
           )}
         </Box>
@@ -101,10 +104,19 @@ const WorkflowCard = ({
             <ControlButton
               size="xs"
               iconName="PlusOpen"
-              onClick={() => onChainWorkflow?.(workflowId)}
               aria-label="Chain Workflows"
+              onClick={() => onChainWorkflow?.(workflowId)}
             />
-            {chainedWorkflowIndex !== undefined && parentWorkflowId && placement && (
+            {!isRoot && (
+              <ControlButton
+                size="xs"
+                display="none" // NOTE: It should be visibe after WorkflowConfigDrawer implemented.
+                iconName="Settings"
+                aria-label="Edit Workflow"
+                onClick={() => onEditWorkflow?.(workflowId)}
+              />
+            )}
+            {!isRoot && chainedWorkflowIndex !== undefined && placement && (
               <ControlButton
                 size="xs"
                 iconName="Trash"
