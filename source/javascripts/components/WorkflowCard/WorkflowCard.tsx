@@ -1,12 +1,12 @@
 import { Fragment } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
-import AddStepButton from './components/AddStepButton';
-import useWorkflow from './hooks/useWorkflow';
 import StepCard from '@/components/StepCard/StepCard';
 import { Step } from '@/models/Step';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useAfterRunWorkflows, useBeforeRunWorkflows } from './hooks/useWorkflowChain';
+import AddStepButton from './components/AddStepButton';
+import useWorkflow from './hooks/useWorkflow';
 
 type StepEditCallback = (workflowId: string, stepIndex: number) => void;
 type DeleteWorkflowCallback = (workflowId: string) => void;

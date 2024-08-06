@@ -5,9 +5,9 @@ import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useS
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import { FormValues } from '../WorkflowConfigPanel.types';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, VALUE_IS_REQUIRED } from '@/models/EnvVar';
+import { FormValues } from '../WorkflowConfigPanel.types';
 
 const ButtonContent = () => {
   const {

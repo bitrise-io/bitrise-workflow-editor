@@ -11,10 +11,10 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 
-import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 import RunWorkflowDialog from '@/components/RunWorkflowDialog/RunWorkflowDialog';
 import { useTrackingFunction } from '@/hooks/utils/useTrackingFunction';
 import { Workflow } from '@/models';
+import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
 type WorkflowMainToolbarProps = {
   selectWorkflow: (workflow?: Workflow) => void;

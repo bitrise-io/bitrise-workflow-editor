@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import { mockYml } from '../../../../WorkflowsPage.mocks';
 import WorkflowSelector from './WorkflowSelector';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 
 type Story = StoryObj<typeof WorkflowSelector>;
 

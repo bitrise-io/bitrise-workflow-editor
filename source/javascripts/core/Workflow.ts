@@ -1,5 +1,5 @@
+import { WithId } from './WithId';
 import { BitriseYml, Meta } from './BitriseYml';
-import { WithId } from '@/core/WithId';
 
 type Workflows = Required<BitriseYml>['workflows'];
 type WorkflowObject = Workflows[string] & {

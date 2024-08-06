@@ -1,6 +1,6 @@
-import Client from './client';
 import { Stack } from '@/core/Stack';
 import { WithId } from '@/core/WithId';
+import Client from './client';
 
 // DTOs
 type AllStackInfoResponse = {

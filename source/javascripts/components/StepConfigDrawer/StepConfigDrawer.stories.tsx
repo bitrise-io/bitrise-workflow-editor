@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
+import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import StepConfigDrawer from './StepConfigDrawer';
 import { mockYml } from './StepConfigDrawer.mocks';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 
 type Story = StoryObj<typeof StepConfigDrawer>;
 

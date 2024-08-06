@@ -2,11 +2,11 @@ import './StepItem.scss';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { Text } from '@bitrise/bitkit';
+import { Step, WithBlockData } from '@/models';
 import StepBadge from '../StepBadge/StepBadge';
 import StepItemIcon from './StepItemIcon';
 import StepItemTitle from './StepItemTitle';
 import StepItemVersion from './StepItemVersion';
-import { Step, WithBlockData } from '@/models';
 
 const getWithBlockText = (withBlockData: WithBlockData): string => {
   let withBlockText = '';

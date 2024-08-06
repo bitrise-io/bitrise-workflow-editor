@@ -1,4 +1,7 @@
 import { Box } from '@bitrise/bitkit';
+import { BitriseYml } from '@/models/BitriseYml';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import WorkflowConfigPanel from './components.new/WorkflowConfigPanel/WorkflowConfigPanel';
 import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
@@ -6,9 +9,6 @@ import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkf
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
-import { BitriseYml } from '@/models/BitriseYml';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 
 type Props = {
   yml: BitriseYml;

@@ -1,5 +1,5 @@
+import { WithId } from './WithId';
 import { Workflow } from './Workflow';
-import { WithId } from '@/core/WithId';
 
 enum Maintainer {
   Bitrise = 'bitrise',

@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { mockYml } from '../../pages/PipelinesPage/PipelinesPage.mocks';
-import WorkflowCard from './WorkflowCard';
 import withQueryClientProvider from '@/utils/withQueryClientProvider';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+import { mockYml } from '../../pages/PipelinesPage/PipelinesPage.mocks';
+import WorkflowCard from './WorkflowCard';
 
 export default {
   component: WorkflowCard,

@@ -2,8 +2,8 @@ import { Fragment } from 'react';
 import { Divider } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 
-import StepInputComponent from './StepInput/StepInput';
 import { Variable } from '@/models';
+import StepInputComponent from './StepInput/StepInput';
 
 type Props = {
   inputs: Variable[];
