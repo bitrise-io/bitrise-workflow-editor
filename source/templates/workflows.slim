@@ -51,6 +51,8 @@
                       r-step-item[
                         workflow-index="workflowIndex"
                         step="step"
+                        display-name="step.displayName()"
+                        version="step.requestedVersion()"
                         has-version-update="workflowsCtrl.checkStepVersionUpdate(step)"
                         is-selected="step == workflowsCtrl.selectedStep && workflowIndex == workflowsCtrl.editedWorkflowIndex"
                         on-selected="workflowsCtrl.stepSelected"]
