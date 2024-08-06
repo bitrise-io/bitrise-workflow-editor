@@ -3,12 +3,12 @@ import { useShallow } from 'zustand/react/shallow';
 import maxSatisfying from 'semver/ranges/max-satisfying';
 import { useQuery } from '@tanstack/react-query';
 import merge from 'lodash/merge';
-import defaultIcon from '../../images/step/icon-default.svg';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { isGitStep, isLocalStep, isStepLib, normalizeStepVersion, parseStepCVS, Step } from '@/models/Step';
 import useAlgoliaStep from '@/hooks/useAlgoliaStep';
 import useAlgoliaStepInputs from '@/hooks/useAlgoliaStepInputs';
 import { Maintainer } from '@/models/Algolia';
+import defaultIcon from '../../images/step/icon-default.svg';
 
 type UseStepResult = {
   cvs: string;

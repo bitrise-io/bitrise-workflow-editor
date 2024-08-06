@@ -2,12 +2,12 @@ import omit from 'lodash/omit';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
+import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { BitriseYml } from './BitriseYml';
 import { Stages } from './Stage';
 import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
 import { Pipelines } from './Pipeline';
 import { TriggerMap } from './TriggerMap';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
 const isNotEmpty = <T>(v: T) => !isEmpty(v);
 const omitEmpty = <T>(o: Record<string, T>) => omitBy(o, isEmpty);

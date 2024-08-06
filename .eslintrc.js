@@ -72,4 +72,15 @@ module.exports = {
       },
     },
   ],
+  settings: {
+    'import/resolver': {
+      alias: {
+        map: [['@', './source/javascripts']],
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+      node: {
+        extensions: ['.js', '.jsx', '.ts', '.tsx'],
+      },
+    },
+  },
 };

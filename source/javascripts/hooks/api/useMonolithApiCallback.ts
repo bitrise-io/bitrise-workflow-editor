@@ -1,5 +1,5 @@
-import useFetchCallback, { FetchResponse } from './useFetchCallback';
 import getCookie from '@/utils/cookies';
+import useFetchCallback, { FetchResponse } from './useFetchCallback';
 
 export interface MonolithError {
   error_msg: string;

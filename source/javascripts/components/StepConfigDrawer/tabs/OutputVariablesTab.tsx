@@ -2,9 +2,9 @@ import { Fragment } from 'react';
 import { Box, Divider, IconButton, Input, Text } from '@bitrise/bitkit';
 import { useCopyToClipboard } from 'usehooks-ts';
 import { FormControl } from '@chakra-ui/react';
+import { StepOutputVariable } from '@/models';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from '../components/StepHelperText';
-import { StepOutputVariable } from '@/models';
 
 type ItemProps = {
   item: StepOutputVariable;

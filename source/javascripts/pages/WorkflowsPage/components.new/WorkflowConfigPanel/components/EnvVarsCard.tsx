@@ -5,7 +5,6 @@ import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useS
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import AutoGrowableInput from './AutoGrowableInput';
 import {
   EnvVar,
   transformEnvVarFromYml,
@@ -16,6 +15,7 @@ import {
   VALUE_IS_REQUIRED,
 } from '@/models/EnvVar';
 import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
+import AutoGrowableInput from './AutoGrowableInput';
 
 type FormValues = {
   envs: EnvVar[];

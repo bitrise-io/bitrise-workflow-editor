@@ -1,10 +1,10 @@
 import { Button, Dialog, DialogBody, DialogFooter, List, ListItem, Text } from '@bitrise/bitkit';
 import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
 import { useShallow } from 'zustand/react/shallow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 
 type Props = UseDisclosureProps & {};
 

@@ -1,9 +1,9 @@
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
-import { CreateSecretFormValues, HandlerFn } from '../types';
 import { isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, Secret, VALUE_IS_REQUIRED } from '@/models/Secret';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
+import { CreateSecretFormValues, HandlerFn } from '../types';
 
 type Props = {
   items: Secret[];

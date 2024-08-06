@@ -1,8 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import { Paths } from 'type-fest';
 import sortBy from 'lodash/sortBy';
-import useAlgolia from './useAlgolia';
 import { Step, StepInputOptions } from '@/models/Step';
+import useAlgolia from './useAlgolia';
 
 type AlgoliaStepInputsResponse = Partial<{
   readonly objectID: string;

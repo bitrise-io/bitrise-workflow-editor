@@ -1,6 +1,6 @@
 import { Box, Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
-import useNavigation from '../../../PipelinesPage/hooks/useNavigation';
 import { WithBlockData } from '@/models';
+import useNavigation from '../../../PipelinesPage/hooks/useNavigation';
 
 type WithBlockPanelProps = {
   stepDisplayName: string;
