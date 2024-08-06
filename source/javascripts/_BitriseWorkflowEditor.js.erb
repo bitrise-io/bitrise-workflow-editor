@@ -1,6 +1,5 @@
-window.serviceName = "workflow-editor";
+window.serviceVersion = "<%= ENV['wfe_version'] %>";
 window.datadogApiKey = "<%= data[:constants][:datadog][:apiKey] %>";
-window.segmentWriteKey = "<%= data[:constants][:segment][:writeKey] %>";
 window.isAnalyticsOn = <%= analytics? %>;
 window.mode = "<%= mode %>";
 
@@ -70,9 +69,8 @@ window.mode = "<%= mode %>";
   });
 
   BitriseWorkflowEditor
-    .constant("SERVICE_NAME", window.serviceName)
+    .constant("SERVICE_NAME", 'workflow-editor')
     .constant("DATADOG_API_KEY", window.datadogApiKey)
-    .constant("SEGMENT_WRITE_KEY", window.segmentWriteKey)
     .constant("IS_ANALYTICS", window.isAnalyticsOn);
 
   BitriseWorkflowEditor.config([

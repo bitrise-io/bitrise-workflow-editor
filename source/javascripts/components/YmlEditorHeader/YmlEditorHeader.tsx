@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import useFeatureFlag from '../../hooks/useFeatureFlag';
+import { segmentTrack } from '../../utils/segmentTracking';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
@@ -64,6 +65,20 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
 
   const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
 
+  const onYmlSourceChangeClick = () => {
+    onOpen();
+    segmentTrack('Change Configuration Yml Source Button Clicked', {
+      yml_source: usesRepositoryYml ? 'git' : 'bitrise',
+    });
+  };
+
+  const onDownloadClick = () => {
+    segmentTrack('Workflow Editor Download Yml Button Clicked', {
+      yml_source: 'bitrise',
+      source: 'yml_editor_header',
+    });
+  };
+
   return (
     <>
       <Box
@@ -78,7 +93,15 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           Configuration YAML
         </Text>
         {url && (
-          <Button as="a" href={url} leftIconName="Download" size="sm" target="_blank" variant="tertiary">
+          <Button
+            as="a"
+            href={url}
+            leftIconName="Download"
+            size="sm"
+            target="_blank"
+            variant="tertiary"
+            onClick={onDownloadClick}
+          >
             Download
           </Button>
         )}
@@ -89,7 +112,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
                 isDisabled={isChangeEnabled}
                 label="Upgrade to a Teams or Enterprise plan to be able to change the source to a Git repository."
               >
-                <Button isDisabled={!isChangeEnabled} onClick={onOpen} size="sm" variant="tertiary">
+                <Button isDisabled={!isChangeEnabled} onClick={onYmlSourceChangeClick} size="sm" variant="tertiary">
                   Change
                 </Button>
               </Tooltip>
