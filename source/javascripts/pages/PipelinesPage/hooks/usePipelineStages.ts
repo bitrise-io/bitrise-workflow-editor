@@ -1,8 +1,8 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
-import usePipelineSelector from './usePipelineSelector';
 import { Stage } from '@/models/Stage';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import usePipelineSelector from './usePipelineSelector';
 
 const usePipelineStages = () => {
   const { selectedPipeline } = usePipelineSelector();

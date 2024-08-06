@@ -1,9 +1,9 @@
 import { Box, Text } from '@bitrise/bitkit';
 import { NodeProps, Position } from 'reactflow';
+import { Stage } from '@/models/Stage';
 import { STAGE_WIDTH } from '../PipelinesPage.const';
 import WorkflowCard from '../../../components/WorkflowCard/WorkflowCard';
 import InvisibleHandle from './InvisibleHandle';
-import { Stage } from '@/models/Stage';
 
 type Props = NodeProps<Stage>;
 
@@ -17,7 +17,7 @@ const StageNode = ({ id, data: stage }: Props) => {
           {stage.workflows?.map((wf, i) => {
             const wfId = Object.keys(wf)[0];
             // eslint-disable-next-line react/no-array-index-key
-            return <WorkflowCard key={`${wfId}-${i}`} id={wfId} isRoot />;
+            return <WorkflowCard key={`${wfId}-${i}`} workflowId={wfId} />;
           })}
         </Box>
       </Box>

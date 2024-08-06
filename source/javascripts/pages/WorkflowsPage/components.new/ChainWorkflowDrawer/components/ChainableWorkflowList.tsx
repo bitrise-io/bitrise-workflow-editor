@@ -1,10 +1,10 @@
 import { useFormContext } from 'react-hook-form';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
 
+import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 import { ChainWorkflowCallback, InitialValues, SearchFormValues } from '../ChainWorkflowDrawer.types';
 import useSearchChainableWorkflows from '../hooks/useSearchChainableWorkflows';
 import ChainableWorkflowCard from './ChainableWorkflowCard';
-import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
 
 type Props = {
   workflowId: string;
@@ -52,7 +52,12 @@ const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
   return (
     <Box display="flex" flexDir="column" gap="12" maxH="100%" overflow="auto">
       {workflows.map((chainableId) => (
-        <ChainableWorkflowCard key={chainableId} workflowId={chainableId} onChainWorkflow={onChainWorkflow} />
+        <ChainableWorkflowCard
+          key={chainableId}
+          chainableWorkflowId={chainableId}
+          parentWorkflowId={workflowId}
+          onChainWorkflow={onChainWorkflow}
+        />
       ))}
     </Box>
   );

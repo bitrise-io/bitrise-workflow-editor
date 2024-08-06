@@ -1,6 +1,6 @@
 import { useQuery, UseQueryResult } from '@tanstack/react-query';
-import useAlgolia from './useAlgolia';
 import { AlgoliaStepResponse } from '@/models/Algolia';
+import useAlgolia from './useAlgolia';
 
 type Props = {
   id: string;

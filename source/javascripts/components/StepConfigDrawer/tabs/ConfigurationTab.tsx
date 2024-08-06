@@ -1,8 +1,8 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
+import { Step } from '@/models/Step';
 import StepInput from '../components/StepInput';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepInputGroup from '../components/StepInputGroup';
-import { Step } from '@/models/Step';
 
 function groupStepInputs(inputs?: Step['inputs']) {
   return inputs?.reduce<Record<string, Step['inputs']>>((groups, input) => {

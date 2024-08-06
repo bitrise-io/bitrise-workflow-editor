@@ -1,8 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useDisclosure } from '@bitrise/bitkit';
+import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 import ChainWorkflowDrawer from './ChainWorkflowDrawer';
 import { mockYml } from './ChainWorkflowDrawer.mocks';
-import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
 
 export default {
   component: ChainWorkflowDrawer,

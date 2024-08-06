@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { mockYml } from '@/pages/PipelinesPage/PipelinesPage.mocks';
 import WorkflowConfigPanel from './WorkflowConfigPanel';
 import { mockGetAllStackInfo, mockGetMachineTypeConfigs } from './WorkflowConfigPanel.mswMocks';
-import { mockYml } from '@/pages/PipelinesPage/PipelinesPage.mocks';
 
 export default {
   component: WorkflowConfigPanel,

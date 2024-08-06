@@ -2,17 +2,23 @@ import omit from 'lodash/omit';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
+import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { BitriseYml } from './BitriseYml';
 import { Stages } from './Stage';
 import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
 import { Pipelines } from './Pipeline';
 import { TriggerMap } from './TriggerMap';
-import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 
-const isNotEmpty = <T>(v: T) => !isEmpty(v);
-const omitEmpty = <T>(o: Record<string, T>) => omitBy(o, isEmpty);
-const omitEmptyIfKeyNotExistsIn = <T>(o: Record<string, T>, keys: string[]) =>
-  omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k));
+function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.workflows = {
+    ...copy.workflows,
+    ...{ [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {} },
+  };
+
+  return copy;
+}
 
 function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -68,6 +74,27 @@ function deleteChainedWorkflow(
   return copy;
 }
 
+function addChainedWorkflow(
+  chainableWorkflowId: string,
+  parentWorkflowId: string,
+  placement: Placement,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  const isValidPlacement = ['after_run', 'before_run'].includes(placement);
+  if (!(isValidPlacement && copy.workflows?.[parentWorkflowId] && copy.workflows?.[chainableWorkflowId])) {
+    return copy;
+  }
+
+  copy.workflows[parentWorkflowId][placement] = [
+    ...(copy.workflows[parentWorkflowId][placement] ?? []),
+    chainableWorkflowId,
+  ];
+
+  return copy;
+}
+
 function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
   return mapValues(workflows, (workflow) => {
     const workflowCopy = deepCloneSimpleObject(workflow);
@@ -81,6 +108,22 @@ function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {})
     return workflowCopy;
   });
 }
+
+// UTILITY FUNCTIONS
+
+function isNotEmpty<T>(v: T) {
+  return !isEmpty(v);
+}
+
+function omitEmpty<T>(o: Record<string, T>) {
+  return omitBy(o, isEmpty);
+}
+
+function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
+  return omitBy(o, (v, k) => isEmpty(v) && !keys.includes(k));
+}
+
+// PRIVATE FUNCTIONS
 
 function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stages {
   return mapValues(stages, (stage) => {
@@ -116,6 +159,8 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 }
 
 export default {
+  createWorkflow,
   deleteWorkflow,
+  addChainedWorkflow,
   deleteChainedWorkflow,
 };

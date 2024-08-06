@@ -11,9 +11,9 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 
-import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 import RunWorkflowDialog from '@/components/RunWorkflowDialog/RunWorkflowDialog';
 import { Workflow } from '@/models';
+import WorkflowSelector from '../WorkflowSelector/WorkflowSelector';
 
 type WorkflowMainToolbarProps = {
   selectWorkflow: (workflow?: Workflow) => void;

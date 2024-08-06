@@ -9,12 +9,12 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
+import { Secret } from '@/models/Secret';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
 import LoadingState from './components/LoadingState';
 import CreateSecret from './components/CreateSecret';
-import { Secret } from '@/models/Secret';
 
 type Props = {
   size: 'sm' | 'md';

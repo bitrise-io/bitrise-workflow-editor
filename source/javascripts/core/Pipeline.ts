@@ -1,5 +1,5 @@
+import { WithId } from './WithId';
 import { BitriseYml } from './BitriseYml';
-import { WithId } from '@/core/WithId';
 
 export type Pipelines = Required<BitriseYml>['pipelines'];
 export type PipelineObject = Pipelines[string];

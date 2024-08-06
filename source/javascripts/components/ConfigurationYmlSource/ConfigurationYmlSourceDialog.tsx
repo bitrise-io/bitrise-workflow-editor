@@ -18,8 +18,6 @@ import {
   useToast,
 } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { useFormattedYml } from '../common/RepoYmlStorageActions';
-import { segmentTrack } from '../../utils/segmentTracking';
 import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
 import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
@@ -27,6 +25,8 @@ import appConfigAsYml from '@/utils/appConfigAsYml';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { AppConfig } from '@/models/AppConfig';
 import DateFormatter from '@/utils/dateFormatter';
+import { segmentTrack } from '../../utils/segmentTracking';
+import { useFormattedYml } from '../common/RepoYmlStorageActions';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
   let action: NotificationProps['action'];

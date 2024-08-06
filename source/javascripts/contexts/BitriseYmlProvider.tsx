@@ -15,9 +15,15 @@ export type BitriseYmlProviderState = {
   defaultMeta?: Meta;
 
   // Workflow related actions
+  createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   deleteWorkflow: (workflowId: string) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
+    parentWorkflowId: string,
+    placement: ChainedWorkflowPlacement,
+  ) => void;
+  addChainedWorkflow: (
+    chainableWorkflowId: string,
     parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
@@ -29,6 +35,13 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
   return createStore<BitriseYmlProviderState>()((set) => ({
     yml,
     defaultMeta,
+    createWorkflow(workflowId, baseWorkflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
+        };
+      });
+    },
     deleteWorkflow(workflowId) {
       return set((state) => {
         return {
@@ -40,6 +53,13 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
       return set((state) => {
         return {
           yml: BitriseYmlService.deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement, state.yml),
+        };
+      });
+    },
+    addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement, state.yml),
         };
       });
     },

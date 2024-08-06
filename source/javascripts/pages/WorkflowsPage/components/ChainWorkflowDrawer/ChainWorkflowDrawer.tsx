@@ -9,10 +9,10 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
-import ChainableWorkflowList from './components/ChainableWorkflowList';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/models/BitriseYml';
+import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
+import ChainableWorkflowList from './components/ChainableWorkflowList';
 
 type Props = UseDisclosureProps & {
   workflowId: string;

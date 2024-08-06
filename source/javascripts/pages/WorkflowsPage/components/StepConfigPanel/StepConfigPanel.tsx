@@ -2,16 +2,16 @@ import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { useMutation } from '@tanstack/react-query';
-import StepConfiguration from './StepConfiguration';
-import StepOutputVariables from './StepOutputVariables';
-import StepProperties from './StepProperties';
-import EnvVarProvider from './components/InsertEnvVarPopover/EnvVarProvider';
-import SecretsProvider from './components/InsertSecretPopover/SecretsProvider';
 import StepBadge from '@/components/StepBadge/StepBadge';
 import { monolith } from '@/hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '@/models';
 import { Secret } from '@/models/Secret';
 import { EnvVar } from '@/models/EnvVar';
+import StepConfiguration from './StepConfiguration';
+import StepOutputVariables from './StepOutputVariables';
+import StepProperties from './StepProperties';
+import EnvVarProvider from './components/InsertEnvVarPopover/EnvVarProvider';
+import SecretsProvider from './components/InsertSecretPopover/SecretsProvider';
 
 type Props = {
   step: Step;
