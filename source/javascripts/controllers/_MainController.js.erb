@@ -560,15 +560,6 @@ import { safeDigest } from "@/services/react-compat";
                     .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
                     .then(function () {
 
-                      if (machineTypeUpdated) {
-                        const event = "Machine Type Changed - Stacks & Machines Tab";
-                        window.analytics && window.analytics.track(event, {
-                          machine_type_id: viewModel.dataToSave.meta["bitrise.io"].machine_type_id,
-                          user_slug: viewModel.currentUser ? viewModel.currentUser.slug : undefined,
-                          organization_slug: appService.appDetails.ownerData.type === "Organization" ? appService.appDetails.ownerData.slug : undefined
-                        });
-                      }
-
                       return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
                         ? reloadStack()
                         : $q.when();

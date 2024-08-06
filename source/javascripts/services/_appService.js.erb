@@ -298,7 +298,6 @@
             );
           })
           .then(function () {
-            trackSavedYMLChanges();
             appService.savedAppConfig = angular.copy(appService.appConfig);
             appService.hasTriggers =
               appService.savedAppConfig.trigger_map && appService.savedAppConfig.trigger_map.length > 0;
@@ -306,10 +305,6 @@
             appService.savedAppConfigYML = undefined;
           });
       };
-
-      function trackSavedYMLChanges() {
-        window.analytics && window.analytics.track("WFE - YML changes saved");
-      }
 
       appService.discardAppConfigChanges = function () {
         appService.appConfig = angular.copy(appService.savedAppConfig);
@@ -427,7 +422,6 @@
           deferredUserSavedYmlToRepository?.promise || requestService.postAppConfigYML(appService.appConfigYML, requestConfig);
 
         return promise.then(function (validationData) {
-          trackSavedYMLChanges();
           appService.appConfig = undefined;
           appService.savedAppConfig = undefined;
           appService.savedAppConfigYML = appService.appConfigYML;
