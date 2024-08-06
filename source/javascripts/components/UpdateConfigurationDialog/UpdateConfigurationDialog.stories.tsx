@@ -1,4 +1,4 @@
-import { Meta, StoryObj } from '@storybook/react/*';
+import { Meta, StoryObj } from '@storybook/react';
 import { getConfig, getConfigFailed } from '../ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
 import UpdateConfigurationDialog from './UpdateConfigurationDialog';
 

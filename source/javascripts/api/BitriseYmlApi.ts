@@ -1,6 +1,6 @@
 import { stringify } from 'yaml';
-import Client from './client';
 import { BitriseYml } from '@/core/BitriseYml';
+import Client from './client';
 
 // TRANSFORMATIONS
 function toBitriseYml(data: string): BitriseYml {

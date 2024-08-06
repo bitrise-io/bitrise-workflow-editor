@@ -22,13 +22,13 @@ import {
   TabPanels,
   TabPanel,
 } from '@bitrise/bitkit';
+import { Maintainer } from '@/models/Algolia';
+import { isUpgradeableStep } from '@/models/Step';
 import StepBadge from '../StepBadge/StepBadge';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
-import { Maintainer } from '@/models/Algolia';
-import { isUpgradeableStep } from '@/models/Step';
 
 type Props = UseDisclosureProps & {
   stepIndex: number;

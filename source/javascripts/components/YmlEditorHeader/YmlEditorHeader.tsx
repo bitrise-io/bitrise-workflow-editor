@@ -1,12 +1,12 @@
 import { useState } from 'react';
 import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure } from '@bitrise/bitkit';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
+import { AppConfig } from '@/models/AppConfig';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
 import useFeatureFlag from '../../hooks/useFeatureFlag';
 import { segmentTrack } from '../../utils/segmentTracking';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
-import { useUserMetaData } from '@/hooks/useUserMetaData';
-import { AppConfig } from '@/models/AppConfig';
 
 const GIT_METADATA_KEY = 'wfe_modular_yaml_git_notification_closed';
 const SPLIT_METADATA_ENTERPRISE_KEY = 'wfe_modular_yaml_enterprise_notification_closed';

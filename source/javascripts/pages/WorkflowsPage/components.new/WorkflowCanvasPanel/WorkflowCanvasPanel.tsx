@@ -1,9 +1,9 @@
 import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
+import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
-import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();

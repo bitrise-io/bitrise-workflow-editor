@@ -1,8 +1,8 @@
 import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
+import { Step } from '@/models/Step';
 import StepInput from './StepInput';
 import StepSelectInput from './StepSelectInput';
-import { Step } from '@/models/Step';
 
 type Props = {
   title?: string;

@@ -2,13 +2,13 @@ import { FormEventHandler, useEffect } from 'react';
 import { FormProvider, useForm, WatchObserver } from 'react-hook-form';
 import { Tab, TabList, TabPanels, Tabs } from '@bitrise/bitkit';
 import { PartialDeep } from 'type-fest';
+import { getAppSlug } from '@/services/app-service';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import { BitriseYml } from '@/models/BitriseYml';
 import Header from './components/Header';
 import { FormValues, WorkflowConfigTab } from './WorkflowConfigPanel.types';
 import PropertiesTabPanel from './components/PropertiesTabPanel';
 import ConfigurationTabPanel from './components/ConfigurationTabPanel';
-import { getAppSlug } from '@/services/app-service';
-import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/models/BitriseYml';
 
 type Props = {
   yml: BitriseYml;

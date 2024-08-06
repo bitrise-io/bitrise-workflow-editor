@@ -9,12 +9,12 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
+import { EnvVar } from '@/models/EnvVar';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
 import CreateEnvVar from './components/CreateEnvVar';
 import LoadingState from './components/LoadingState';
-import { EnvVar } from '@/models/EnvVar';
 
 type Props = {
   size: 'sm' | 'md';

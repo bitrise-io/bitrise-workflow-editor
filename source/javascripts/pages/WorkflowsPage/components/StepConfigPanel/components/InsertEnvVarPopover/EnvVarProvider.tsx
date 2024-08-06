@@ -1,6 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
-import { HandlerFn } from './types';
 import { EnvVar } from '@/models/EnvVar';
+import { HandlerFn } from './types';
 
 type State = {
   isLoading: boolean;
