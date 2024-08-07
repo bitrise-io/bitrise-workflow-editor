@@ -203,7 +203,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
-    if ((!(type === 'push_branch') && !value) || !type) {
+    if ((type !== 'push_branch' && !value) || !type) {
       hasEmptyCondition = true;
     }
   });
