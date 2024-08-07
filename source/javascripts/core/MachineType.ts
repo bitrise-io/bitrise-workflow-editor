@@ -1,7 +1,7 @@
-import StackService, { Stack } from '@/core/Stack';
-import { Meta } from '@/core/BitriseYml';
-import { Workflow } from '@/core/Workflow';
-import { WithId } from '@/core/WithId';
+import StackService, { Stack } from './Stack';
+import { Meta } from './BitriseYml';
+import { Workflow } from './Workflow';
+import { WithId } from './WithId';
 
 type MachineTypeObject = {
   name: string;

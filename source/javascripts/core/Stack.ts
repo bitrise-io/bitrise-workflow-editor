@@ -1,4 +1,4 @@
-import { WithId } from '@/core/WithId';
+import { WithId } from './WithId';
 
 type StackObject = {
   name: string;

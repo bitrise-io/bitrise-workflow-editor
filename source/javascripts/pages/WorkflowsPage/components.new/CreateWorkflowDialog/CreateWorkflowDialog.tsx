@@ -1,32 +1,34 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 import { UseDisclosureProps } from '@chakra-ui/react';
-import useWorkflowIds from '../../hooks/useWorkflowIds';
 import { isNotEmpty, isUnique, WORKFLOW_NAME_PATTERN, WORKFLOW_NAME_REQUIRED } from '@/models/Workflow';
+import useWorkflowIds from '../../hooks/useWorkflowIds';
+import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 
 type FormValues = {
-  name: string;
-  basedOn: string;
+  workflowId: string;
+  baseWorkflowId: string;
 };
 
 type Props = UseDisclosureProps & {
-  basedOn?: string;
-  onCreate: (data: FormValues) => void;
+  onCreate: (workflowId: string, baseWorkflowId?: string) => void;
 };
 
 const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
-  const { isOpen, onClose } = useDisclosure(disclosureProps);
   const workflowIds = useWorkflowIds();
+  const [, setSelectedWorkflow] = useSelectedWorkflow();
+  const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const {
-    register,
-    formState: { errors },
-    handleSubmit,
     reset,
+    register,
+    getValues,
+    handleSubmit,
+    formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
-      name: '',
-      basedOn: '',
+      workflowId: '',
+      baseWorkflowId: '',
     },
   });
 
@@ -35,28 +37,33 @@ const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
     reset();
   };
 
-  const handleCreate = handleSubmit((formData) => {
-    onCreate(formData);
+  const handleCreate = handleSubmit(({ workflowId, baseWorkflowId }) => {
+    onCreate(workflowId, baseWorkflowId);
     onClose();
-    reset();
   });
 
+  const handleCloseComplete = () => {
+    setSelectedWorkflow(getValues('workflowId'));
+    reset();
+  };
+
   return (
-    <Dialog title="Create Workflow" isOpen={isOpen} onClose={handleClose}>
+    <Dialog title="Create Workflow" isOpen={isOpen} onClose={handleClose} onCloseComplete={handleCloseComplete}>
       <DialogBody>
         <Box as="form" display="flex" flexDir="column" gap="24">
           <Input
+            autoFocus
             isRequired
             label="Name"
             placeholder="Workflow name"
-            errorText={errors.name?.message}
-            {...register('name', {
+            errorText={errors.workflowId?.message}
+            {...register('workflowId', {
               required: WORKFLOW_NAME_REQUIRED,
               pattern: WORKFLOW_NAME_PATTERN,
               validate: { isUnique: isUnique(workflowIds), isNotEmpty },
             })}
           />
-          <Select isRequired defaultValue="" label="Based on" {...register('basedOn')}>
+          <Select isRequired defaultValue="" label="Based on" {...register('baseWorkflowId')}>
             <option key="" value="">
               An empty workflow
             </option>

@@ -10,9 +10,9 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import { isStepLib } from '@/models/Step';
 import { getVersionRemark } from '@/utils/stepVersionUtil';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 const PropertiesTab = () => {
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();

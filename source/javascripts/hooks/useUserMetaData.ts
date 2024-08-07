@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
 import { useMutation } from '@tanstack/react-query';
-import { monolith } from './api/client';
 import useGetUserMetaData from '@/hooks/api/useGetUserMetaData';
+import { monolith } from './api/client';
 
 type MetadataResult = {
   value: boolean | null;

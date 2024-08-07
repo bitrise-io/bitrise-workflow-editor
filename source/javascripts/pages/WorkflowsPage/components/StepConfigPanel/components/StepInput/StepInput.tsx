@@ -3,14 +3,14 @@ import { Box, ButtonGroup, Dropdown, DropdownOption, DropdownProps, IconButton }
 import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
+import { Secret } from '@/models/Secret';
+import { EnvVar } from '@/models/EnvVar';
 import StepHelperText from '../StepHelperText';
 import InsertEnvVarPopover from '../InsertEnvVarPopover/InsertEnvVarPopover';
 import { useEnvironmentVariables } from '../InsertEnvVarPopover/EnvVarProvider';
 import { useSecrets } from '../InsertSecretPopover/SecretsProvider';
 import InsertSecretPopover from '../InsertSecretPopover/InsertSecretPopover';
 import StepInputLabel from './StepInputLabel';
-import { Secret } from '@/models/Secret';
-import { EnvVar } from '@/models/EnvVar';
 
 type CommonProps = {
   name: string;

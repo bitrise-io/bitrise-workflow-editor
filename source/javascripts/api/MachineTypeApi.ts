@@ -1,6 +1,6 @@
-import Client from './client';
 import { MachineType } from '@/core/MachineType';
 import { WithId } from '@/core/WithId';
+import Client from './client';
 
 // DTOs
 type MachineTypeConfigsResponse = {

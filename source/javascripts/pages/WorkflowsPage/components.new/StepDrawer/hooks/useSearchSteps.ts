@@ -2,10 +2,10 @@ import { useMemo } from 'react';
 import Fuse from 'fuse.js';
 import { useQuery } from '@tanstack/react-query';
 
+import { AlgoliaStepResponse } from '@/models/Algolia';
 import { fromAlgolia } from '../StepDrawer.utils';
 import { SearchFormValues, Step } from '../StepDrawer.types';
 import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
-import { AlgoliaStepResponse } from '@/models/Algolia';
 
 const useSearchSteps = ({ search, categories }: SearchFormValues) => {
   const { data: steps = [], isLoading, isError, refetch } = useAlgoliaSteps();

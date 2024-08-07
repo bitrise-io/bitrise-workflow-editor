@@ -32,12 +32,12 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
-import { useUserMetaData } from '@/hooks/useUserMetaData';
 
 type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 

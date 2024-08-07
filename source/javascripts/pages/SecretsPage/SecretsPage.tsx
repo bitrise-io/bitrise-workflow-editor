@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
 import { useMutation } from '@tanstack/react-query';
-import SecretCard from './SecretCard';
 import { Secret, SecretWithState } from '@/models';
 import { monolith } from '@/hooks/api/client';
+import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
   secrets: Secret[];

@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
+import { EnvVar } from '@/models/EnvVar';
 import { Mode } from '../../hooks/useMultiModePopover';
 import InsertEnvVarPopover from './InsertEnvVarPopover';
-import { EnvVar } from '@/models/EnvVar';
 
 const defaultEnvironmentVariables: EnvVar[] = [
   {
