@@ -62,8 +62,6 @@ const WorkflowsPageContent = () => {
         onChainWorkflow={addChainedWorkflow}
       />
 
-      <CreateWorkflowDialog onCreate={noop} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
-
       <DeleteWorkflowDialog
         workflowId={workflowId}
         isOpen={isDeleteWorkflowDialogOpen}
