@@ -1,4 +1,4 @@
-import { Box } from '@bitrise/bitkit';
+import { Box, Drawer } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { BitriseYml } from '@/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
@@ -30,18 +30,20 @@ const WorkflowsPageContent = () => {
 
   const {
     noop,
-    isChainWorkflowDrawerOpen,
-    isDeleteWorkflowDialogOpen,
-    isCreateWorkflowDialogOpen,
     isStepConfigDrawerOpen,
     isStepSelectorDrawerOpen,
+    isChainWorkflowDrawerOpen,
+    isCreateWorkflowDialogOpen,
+    isDeleteWorkflowDialogOpen,
+    isWorkflowConfigDrawerOpen,
   } = {
     noop: () => {},
+    isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
+    isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
     isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
     isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
-    isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
-    isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
+    isWorkflowConfigDrawerOpen: isDialogOpen === 'workflow-config-drawer',
   };
 
   return (
@@ -71,6 +73,10 @@ const WorkflowsPageContent = () => {
 
       <StepConfigDrawer {...{ workflowId, stepIndex }} onClose={closeDialog} isOpen={isStepConfigDrawerOpen} />
       <StepSelectorDrawer onStepSelected={noop} onClose={closeDialog} isOpen={isStepSelectorDrawerOpen} />
+
+      <Drawer title="Workflow Config Drawer" isOpen={isWorkflowConfigDrawerOpen} onClose={closeDialog}>
+        Not Implemented Yet
+      </Drawer>
     </>
   );
 };
