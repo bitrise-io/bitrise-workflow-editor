@@ -103,10 +103,16 @@ const ConditionCard = (props: ConditionCardProps) => {
                 isRequired
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
                 label={getLabelText(isRegex, type)}
-                placeholder="*"
+                placeholder={isRegex ? '.*' : '*'}
+                marginBottom="4"
               />
             )}
           />
+          {type === 'push_branch' && (
+            <Text color="sys/neutral/base" textStyle="body/sm/regular">
+              If you leave it blank, Bitrise will start builds for any push branch.
+            </Text>
+          )}
         </>
       )}
     </Card>
@@ -171,6 +177,12 @@ const AddPushTriggerDialog = (props: DialogProps) => {
     filteredData.conditions = data.conditions.map((condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
+      if (!newCondition.isRegex && !newCondition.value) {
+        newCondition.value = '*';
+      }
+      if (newCondition.isRegex && !newCondition.value) {
+        newCondition.value = '.*';
+      }
       return newCondition;
     });
     onSubmit(isEditMode ? 'edit' : 'add', filteredData as TriggerItem);
@@ -191,7 +203,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
-    if (!type || !value) {
+    if ((type !== 'push_branch' && !value) || !type) {
       hasEmptyCondition = true;
     }
   });
