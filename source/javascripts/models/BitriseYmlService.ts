@@ -9,6 +9,16 @@ import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
 import { Pipelines } from './Pipeline';
 import { TriggerMap } from './TriggerMap';
 
+function moveStep(workflowId: string, stepIndex: number, to: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    copy.workflows[workflowId].steps.splice(to, 0, copy.workflows[workflowId].steps.splice(stepIndex, 1)[0]);
+  }
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -95,20 +105,6 @@ function addChainedWorkflow(
   return copy;
 }
 
-function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
-  return mapValues(workflows, (workflow) => {
-    const workflowCopy = deepCloneSimpleObject(workflow);
-
-    workflowCopy.after_run = workflowCopy.after_run?.filter((id) => id !== workflowId);
-    workflowCopy.before_run = workflowCopy.before_run?.filter((id) => id !== workflowId);
-
-    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
-    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
-
-    return workflowCopy;
-  });
-}
-
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -124,6 +120,20 @@ function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
 }
 
 // PRIVATE FUNCTIONS
+
+function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.after_run = workflowCopy.after_run?.filter((id) => id !== workflowId);
+    workflowCopy.before_run = workflowCopy.before_run?.filter((id) => id !== workflowId);
+
+    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
+    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
+
+    return workflowCopy;
+  });
+}
 
 function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stages {
   return mapValues(stages, (stage) => {
@@ -159,6 +169,7 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 }
 
 export default {
+  moveStep,
   createWorkflow,
   deleteWorkflow,
   addChainedWorkflow,
