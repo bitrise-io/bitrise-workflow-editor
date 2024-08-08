@@ -10,7 +10,7 @@ require (
 	github.com/bitrise-io/depman v0.0.0-20190402141727-e5c92c35cd92
 	github.com/bitrise-io/envman v0.0.0-20240730123632-8066eeb61599
 	github.com/bitrise-io/go-utils v1.0.13
-	github.com/bitrise-io/stepman v0.0.0-20240705083635-ec8abbe0d555
+	github.com/bitrise-io/stepman v0.0.0-20240731124408-5b7e38abd0bf
 	github.com/gorilla/mux v1.8.1
 	github.com/spf13/cobra v1.8.1
 	github.com/stretchr/testify v1.9.0
@@ -19,7 +19,7 @@ require (
 
 require (
 	github.com/bitrise-io/go-steputils/v2 v2.0.0-alpha.28 // indirect
-	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.22
+	github.com/bitrise-io/go-utils/v2 v2.0.0-alpha.23
 	github.com/gofrs/uuid v4.4.0+incompatible // indirect
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 )
@@ -45,6 +45,7 @@ require (
 	github.com/go-git/gcfg v1.5.1-0.20230307220236-3a3c6141e376 // indirect
 	github.com/go-git/go-billy/v5 v5.5.0 // indirect
 	github.com/go-git/go-git/v5 v5.12.0 // indirect
+	github.com/gofrs/uuid/v5 v5.2.0 // indirect
 	github.com/gogo/protobuf v1.3.2 // indirect
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/google/uuid v1.3.0 // indirect
@@ -71,7 +72,7 @@ require (
 	golang.org/x/crypto v0.24.0 // indirect
 	golang.org/x/mod v0.16.0 // indirect
 	golang.org/x/net v0.22.0 // indirect
-	golang.org/x/sys v0.21.0 // indirect
+	golang.org/x/sys v0.22.0 // indirect
 	golang.org/x/term v0.21.0 // indirect
 	golang.org/x/tools v0.19.0 // indirect
 	gopkg.in/warnings.v0 v0.1.2 // indirect
