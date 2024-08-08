@@ -1,4 +1,4 @@
-import { Fragment, memo } from 'react';
+import { Fragment } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
@@ -226,4 +226,4 @@ const WorkflowCard = ({
   );
 };
 
-export default memo(WorkflowCard);
+export default WorkflowCard;

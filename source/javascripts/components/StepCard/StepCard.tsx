@@ -104,6 +104,7 @@ const StepCard = ({ workflowId, stepIndex, isDraggable, showSecondary = true, on
         p="8"
         gap="8"
         minW={0}
+        flex="1"
         as={isButton ? 'button' : 'div'}
         pl={isDraggable ? 0 : 8}
         onClick={onClick}
