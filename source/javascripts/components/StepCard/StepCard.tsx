@@ -74,13 +74,8 @@ const StepCard = ({ workflowId, stepIndex, isDraggable, showSecondary = true, on
       borderRadius="4"
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover', boxShadow: 'small' } : undefined}
-      style={{
-        zIndex: isActive ? 999 : 'auto',
-        transition: sortable.transition,
-        transform: CSS.Transform.toString(sortable.transform),
-        ...(isActive ? { borderColor: 'border/hover', boxShadow: 'small' } : {}),
-      }}
-      {...(isActive ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      {...(isActive ? { zIndex: 999, borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
     >
       {isDraggable && (
         <Box
