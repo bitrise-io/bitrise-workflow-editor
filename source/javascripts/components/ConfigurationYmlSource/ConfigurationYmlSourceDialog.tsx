@@ -93,7 +93,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
     appConfigFromRepo,
   } = useGetAppConfigFromRepoCallback(appSlug);
 
-  const { postAppConfig, postAppConfigStatus, postAppConfigLoading } = usePostAppConfigCallback(
+  const { postAppConfig, postAppConfigStatus, postAppConfigLoading, postAppConfigFailed } = usePostAppConfigCallback(
     appSlug,
     appConfigAsYml(appConfigFromRepo),
   );
@@ -385,6 +385,9 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
         )}
         {getAppConfigFromRepoFailed && (
           <ErrorNotification status={getAppConfigFromRepoStatus} message={getAppConfigFromRepoFailed?.error_msg} />
+        )}
+        {postAppConfigFailed && (
+          <ErrorNotification status={postAppConfigStatus} message={postAppConfigFailed?.error_msg} />
         )}
         {updatePipelineConfigStatus && updatePipelineConfigStatus !== 200 && (
           <ErrorNotification status={getAppConfigFromRepoStatus} message="Unknown error" />
