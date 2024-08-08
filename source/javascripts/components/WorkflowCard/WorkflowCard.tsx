@@ -1,6 +1,9 @@
 import { Fragment } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
+import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
+import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import StepCard from '@/components/StepCard/StepCard';
 import { Step } from '@/models/Step';
 import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
@@ -8,9 +11,11 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useWorkflowUsedBy from '@/pages/WorkflowsPage/hooks/useWorkflowUsedBy';
 import useWorkflow from './hooks/useWorkflow';
 import AddStepButton from './components/AddStepButton';
+import { getSortableStepId, getUsedByText, parseSortableStepId } from './WorkflowCard.utils';
 
 type StepEditCallback = (workflowId: string, stepIndex: number) => void;
 type WorkflowEditCallback = (workflowId: string) => void;
+type MoveStepCallback = (workflowId: string, stepIndex: number, to: number) => void;
 
 type WorkflowCardProps = CardProps & {
   workflowId: string;
@@ -21,20 +26,10 @@ type WorkflowCardProps = CardProps & {
   isExpanded?: boolean;
   isEditable?: boolean;
   onAddStep?: StepEditCallback;
+  onMoveStep?: MoveStepCallback;
   onSelectStep?: StepEditCallback;
   onEditWorkflow?: WorkflowEditCallback;
   onChainWorkflow?: WorkflowEditCallback;
-};
-
-const getUsedByText = (usedBy: string[]) => {
-  switch (usedBy.length) {
-    case 0:
-      return 'not used by other Workflow';
-    case 1:
-      return 'used by 1 Workflow';
-    default:
-      return `used by ${usedBy.length} Workflows`;
-  }
 };
 
 const WorkflowCard = ({
@@ -46,15 +41,32 @@ const WorkflowCard = ({
   isExpanded,
   isEditable,
   onAddStep,
+  onMoveStep,
   onSelectStep,
   onEditWorkflow,
   onChainWorkflow,
   ...props
 }: WorkflowCardProps) => {
   const workflow = useWorkflow(workflowId);
+  const sensors = useSensors(useSensor(PointerSensor));
   const workflowUsedBy = useWorkflowUsedBy(workflowId);
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded || isFixed });
   const deleteChainedWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteChainedWorkflow));
+
+  const sortableItemIdentifiers = (workflow?.steps ?? []).map((_, stepIndex) => {
+    return getSortableStepId(workflowId, stepIndex);
+  });
+
+  const isRoot = !parentWorkflowId;
+  const hasNoSteps = !workflow?.steps?.length;
+  const hasAfterRunWorkflows = !!workflow?.after_run?.length;
+  const hasBeforeRunWorkflows = !!workflow?.before_run?.length;
+
+  const handleMoveStep = (e: DragEndEvent) => {
+    const { stepIndex } = parseSortableStepId(e.active.id.toString());
+    const { stepIndex: to } = parseSortableStepId(e.over?.id.toString() || '');
+    onMoveStep?.(workflowId, stepIndex, to);
+  };
 
   if (!workflow) {
     // TODO: Missing mpty state
@@ -62,11 +74,6 @@ const WorkflowCard = ({
     console.warn(`Workflow '${workflowId}' is not found in yml!`);
     return null;
   }
-
-  const isRoot = !parentWorkflowId;
-  const hasNoSteps = !workflow.steps?.length;
-  const hasAfterRunWorkflows = Boolean(workflow.after_run?.length);
-  const hasBeforeRunWorkflows = Boolean(workflow.before_run?.length);
 
   return (
     <Card variant={isRoot ? 'elevated' : 'outline'} {...props}>
@@ -141,6 +148,7 @@ const WorkflowCard = ({
                 placement="before_run"
                 isEditable={isEditable}
                 onAddStep={onAddStep}
+                onMoveStep={onMoveStep}
                 onSelectStep={onSelectStep}
                 onEditWorkflow={onEditWorkflow}
                 onChainWorkflow={onChainWorkflow}
@@ -158,26 +166,39 @@ const WorkflowCard = ({
             </Card>
           )}
 
-          {workflow.steps?.map((s, stepIndex, steps) => {
-            const isLastStep = stepIndex === steps.length - 1;
-            const [cvs = ''] = Object.entries(s)[0] as [string, Step];
+          <Box display="flex" flexDir="column" gap="8">
+            <DndContext
+              sensors={sensors}
+              onDragEnd={handleMoveStep}
+              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+            >
+              <SortableContext items={sortableItemIdentifiers} strategy={verticalListSortingStrategy}>
+                {workflow?.steps?.map((s, stepIndex, steps) => {
+                  const isLastStep = stepIndex === steps.length - 1;
+                  const [cvs = ''] = Object.entries(s)[0] as [string, Step];
 
-            return (
-              // eslint-disable-next-line react/no-array-index-key
-              <Fragment key={`workflows[${workflowId}].steps[${stepIndex}][${cvs}]`}>
-                {isEditable && <AddStepButton onClick={() => onAddStep?.(workflowId, stepIndex)} my={-8} />}
-                <StepCard
-                  workflowId={workflowId}
-                  stepIndex={stepIndex}
-                  onClick={onSelectStep && (() => onSelectStep(workflowId, stepIndex))}
-                  showSecondary
-                />
-                {isEditable && isLastStep && (
-                  <AddStepButton onClick={() => onAddStep?.(workflowId, stepIndex + 1)} my={-8} />
-                )}
-              </Fragment>
-            );
-          })}
+                  return (
+                    // eslint-disable-next-line react/no-array-index-key
+                    <Fragment key={`workflows[${workflowId}].steps[${stepIndex}][${cvs}]`}>
+                      {isEditable && <AddStepButton onClick={() => onAddStep?.(workflowId, stepIndex)} my={-8} />}
+
+                      <StepCard
+                        showSecondary
+                        stepIndex={stepIndex}
+                        workflowId={workflowId}
+                        isDraggable={isEditable && !!onMoveStep}
+                        onClick={onSelectStep && (() => onSelectStep(workflowId, stepIndex))}
+                      />
+
+                      {isEditable && isLastStep && (
+                        <AddStepButton onClick={() => onAddStep?.(workflowId, stepIndex + 1)} my={-8} />
+                      )}
+                    </Fragment>
+                  );
+                })}
+              </SortableContext>
+            </DndContext>
+          </Box>
 
           {hasAfterRunWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
 
@@ -192,6 +213,7 @@ const WorkflowCard = ({
                 placement="after_run"
                 isEditable={isEditable}
                 onAddStep={onAddStep}
+                onMoveStep={onMoveStep}
                 onSelectStep={onSelectStep}
                 onEditWorkflow={onEditWorkflow}
                 onChainWorkflow={onChainWorkflow}

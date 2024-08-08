@@ -1,5 +1,7 @@
 import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
+import { useShallow } from 'zustand/react/shallow';
 import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
@@ -7,6 +9,7 @@ import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
+  const { moveStep } = useBitriseYmlStore(useShallow((s) => ({ moveStep: s.moveStep })));
 
   const {
     openStepConfigDrawer,
@@ -45,6 +48,7 @@ const WorkflowCanvasPanel = () => {
           mx="auto"
           isFixed
           isEditable
+          onMoveStep={moveStep}
           onAddStep={openStepSelectorDrawer}
           onSelectStep={openStepConfigDrawer}
           onEditWorkflow={openWorkflowConfigDrawer}
