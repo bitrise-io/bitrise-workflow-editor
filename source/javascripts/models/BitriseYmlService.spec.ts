@@ -35,6 +35,57 @@ const toMatchBitriseYml: MatcherFunction<[expected: BitriseYml]> = function m(ac
 expect.extend({ toMatchBitriseYml });
 
 describe('BitriseYmlService', () => {
+  describe('moveStep', () => {
+    it('should move step to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ deploy: {} }, { script: {} }, { clone: {} }] } },
+      };
+
+      const actualYml = BitriseYmlService.moveStep('wf1', 2, 0, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if workflow is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const actualYml = BitriseYmlService.moveStep('wf2', 2, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if step on is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const actualYml = BitriseYmlService.moveStep('wf1', 3, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if destination index is out of range', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const actualYml = BitriseYmlService.moveStep('wf1', 2, 3, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('createWorkflow', () => {
     it('should create an empty workflow if base workflow is missing', () => {
       const sourceYml: BitriseYml = {
