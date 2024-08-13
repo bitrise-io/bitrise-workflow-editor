@@ -84,6 +84,25 @@ function deleteChainedWorkflow(
   return copy;
 }
 
+function setChainedWorkflows(
+  workflowId: string,
+  placement: Placement,
+  chainedWorkflowIds: string[],
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows?.[workflowId]) {
+    if (isEmpty(chainedWorkflowIds)) {
+      delete copy.workflows[workflowId][placement];
+    } else {
+      copy.workflows[workflowId][placement] = chainedWorkflowIds;
+    }
+  }
+
+  return copy;
+}
+
 function addChainedWorkflow(
   chainableWorkflowId: string,
   parentWorkflowId: string,
@@ -173,5 +192,6 @@ export default {
   createWorkflow,
   deleteWorkflow,
   addChainedWorkflow,
+  setChainedWorkflows,
   deleteChainedWorkflow,
 };

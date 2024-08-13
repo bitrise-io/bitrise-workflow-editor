@@ -9,7 +9,14 @@ import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
-  const { moveStep } = useBitriseYmlStore(useShallow((s) => ({ moveStep: s.moveStep })));
+
+  const { moveStep, onSetChainedWorkflows, deleteChainedWorkflow } = useBitriseYmlStore(
+    useShallow((s) => ({
+      moveStep: s.moveStep,
+      onSetChainedWorkflows: s.setChainedWorkflows,
+      deleteChainedWorkflow: s.deleteChainedWorkflow,
+    })),
+  );
 
   const {
     openStepConfigDrawer,
@@ -20,7 +27,7 @@ const WorkflowCanvasPanel = () => {
   } = useWorkflowsPageStore();
 
   return (
-    <Box h="100%" display="flex" flexDir="column">
+    <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
         <WorkflowSelector />
 
@@ -43,16 +50,15 @@ const WorkflowCanvasPanel = () => {
       </Box>
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
-          workflowId={selectedWorkflowId}
-          w={400}
-          mx="auto"
-          isFixed
-          isEditable
+          id={selectedWorkflowId}
           onMoveStep={moveStep}
           onAddStep={openStepSelectorDrawer}
           onSelectStep={openStepConfigDrawer}
-          onEditWorkflow={openWorkflowConfigDrawer}
           onChainWorkflow={openChainWorkflowDialog}
+          onEditWorkflow={openWorkflowConfigDrawer}
+          onSetChainedWorkflows={onSetChainedWorkflows}
+          onDeleteChainedWorkflow={deleteChainedWorkflow}
+          containerProps={{ maxW: 400, marginX: 'auto' }}
         />
       </Box>
     </Box>
