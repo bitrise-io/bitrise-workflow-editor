@@ -37,11 +37,16 @@ const ChainedWorkflowCard = ({
   containerProps,
   ...callbacks
 }: Props) => {
-  const { onEditWorkflow, onChainWorkflow, onDeleteChainedWorkflow, onSetChainedWorkflows, ...stepCallbacks } =
-    callbacks;
+  const {
+    onEditWorkflowClick,
+    onChainedWorkflowsUpdate,
+    onAddChainedWorkflowClick,
+    onDeleteChainedWorkflowClick,
+    ...stepCallbacks
+  } = callbacks;
 
-  const isEditable = Boolean(onEditWorkflow || onChainWorkflow || onDeleteChainedWorkflow);
-  const isSortable = Boolean(onSetChainedWorkflows);
+  const isEditable = Boolean(onEditWorkflowClick || onAddChainedWorkflowClick || onDeleteChainedWorkflowClick);
+  const isSortable = Boolean(onChainedWorkflowsUpdate);
 
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
@@ -125,31 +130,31 @@ const ChainedWorkflowCard = ({
 
         {isEditable && (
           <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-            {onChainWorkflow && (
+            {onAddChainedWorkflowClick && (
               <ControlButton
                 size="xs"
                 display="none"
                 iconName="PlusOpen"
                 aria-label="Chain Workflows"
                 _groupHover={{ display: 'block' }}
-                onClick={() => onChainWorkflow(id)}
+                onClick={() => onAddChainedWorkflowClick(id)}
               />
             )}
-            {onEditWorkflow && (
+            {onEditWorkflowClick && (
               <ControlButton
                 size="xs"
-                // display="none" // NOTE: It should be visibe after WorkflowConfigDrawer implemented.
+                display="none" // NOTE: It should be visibe after WorkflowConfigDrawer implemented.
                 iconName="Settings"
                 aria-label="Edit Workflow"
-                onClick={() => onEditWorkflow(id)}
+                onClick={() => onEditWorkflowClick(id)}
               />
             )}
-            {onDeleteChainedWorkflow && (
+            {onDeleteChainedWorkflowClick && (
               <ControlButton
                 size="xs"
                 iconName="Trash"
                 aria-label="Remove"
-                onClick={() => onDeleteChainedWorkflow(index, parentWorkflowId, placement)}
+                onClick={() => onDeleteChainedWorkflowClick(index, parentWorkflowId, placement)}
               />
             )}
           </ButtonGroup>
@@ -160,15 +165,15 @@ const ChainedWorkflowCard = ({
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
             <ChainedWorkflowList
-              parentWorkflowId={id}
-              placement="before_run"
               key={`${id}->before_run`}
               {...callbacks}
+              placement="before_run"
+              parentWorkflowId={id}
             />
 
             <StepList {...stepCallbacks} workflowId={id} />
 
-            <ChainedWorkflowList parentWorkflowId={id} placement="after_run" key={`${id}->after_run`} {...callbacks} />
+            <ChainedWorkflowList key={`${id}->after_run`} {...callbacks} placement="after_run" parentWorkflowId={id} />
           </Box>
         </SortableWorkflowsContext>
       </Collapse>

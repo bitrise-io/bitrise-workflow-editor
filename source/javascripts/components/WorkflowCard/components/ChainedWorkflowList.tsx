@@ -42,10 +42,10 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
 }
 
 const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...callbacks }: Props) => {
-  const { onSetChainedWorkflows } = callbacks;
+  const { onChainedWorkflowsUpdate } = callbacks;
   const isAfterRun = placement === 'after_run';
   const isBeforeRun = placement === 'before_run';
-  const isSortable = Boolean(onSetChainedWorkflows);
+  const isSortable = Boolean(onChainedWorkflowsUpdate);
 
   const { droppableContainers, active, measureDroppableContainers } = useDndContext();
 
@@ -108,12 +108,12 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
           const currentOverIndex = items.findIndex((i) => i.uniqueId === overId);
           const currentActiveIndex = items.findIndex((i) => i.uniqueId === activeId);
           const updatedItems = arrayMove(items, currentActiveIndex, currentOverIndex).filter(Boolean);
-          onSetChainedWorkflows?.(parentWorkflowId, placement, getChainedWorkflowIds(updatedItems));
+          onChainedWorkflowsUpdate?.(parentWorkflowId, placement, getChainedWorkflowIds(updatedItems));
           return updatedItems;
         });
       }
     },
-    [findSortableItem, onSetChainedWorkflows, parentWorkflowId, placement],
+    [findSortableItem, onChainedWorkflowsUpdate, parentWorkflowId, placement],
   );
 
   useDndMonitor({

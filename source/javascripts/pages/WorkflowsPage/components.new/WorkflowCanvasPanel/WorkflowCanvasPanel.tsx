@@ -10,10 +10,10 @@ import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 const WorkflowCanvasPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
 
-  const { moveStep, onSetChainedWorkflows, deleteChainedWorkflow } = useBitriseYmlStore(
+  const { moveStep, setChainedWorkflows, deleteChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
       moveStep: s.moveStep,
-      onSetChainedWorkflows: s.setChainedWorkflows,
+      setChainedWorkflows: s.setChainedWorkflows,
       deleteChainedWorkflow: s.deleteChainedWorkflow,
     })),
   );
@@ -51,13 +51,13 @@ const WorkflowCanvasPanel = () => {
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
           id={selectedWorkflowId}
-          onMoveStep={moveStep}
-          onAddStep={openStepSelectorDrawer}
-          onSelectStep={openStepConfigDrawer}
-          onChainWorkflow={openChainWorkflowDialog}
-          onEditWorkflow={openWorkflowConfigDrawer}
-          onSetChainedWorkflows={onSetChainedWorkflows}
-          onDeleteChainedWorkflow={deleteChainedWorkflow}
+          onStepMove={moveStep}
+          onStepSelect={openStepConfigDrawer}
+          onAddStepClick={openStepSelectorDrawer}
+          onEditWorkflowClick={openWorkflowConfigDrawer}
+          onChainedWorkflowsUpdate={setChainedWorkflows}
+          onAddChainedWorkflowClick={openChainWorkflowDialog}
+          onDeleteChainedWorkflowClick={deleteChainedWorkflow}
           containerProps={{ maxW: 400, marginX: 'auto' }}
         />
       </Box>

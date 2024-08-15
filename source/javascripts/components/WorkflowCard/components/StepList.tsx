@@ -8,22 +8,19 @@ import { Steps } from '@/models/Step';
 import StepCard from '@/components/StepCard/StepCard';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { getSortableStepId, parseSortableStepId } from '../WorkflowCard.utils';
-import { StepEditCallback, MoveStepCallback } from '../WorkflowCard.types';
+import { WorkflowCardCallbacks } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
 
-type Props = {
+type Props = Pick<WorkflowCardCallbacks, 'onAddStepClick' | 'onStepMove' | 'onStepSelect'> & {
   workflowId: string;
   containerProps?: BoxProps;
-  onAddStep?: StepEditCallback;
-  onMoveStep?: MoveStepCallback;
-  onSelectStep?: StepEditCallback;
 };
 
 const getSortableIds = (workflowId: string, steps?: Steps) => {
   return steps?.map((_, index) => getSortableStepId(workflowId, index)) ?? [];
 };
 
-const StepList = ({ workflowId, containerProps, onAddStep, onMoveStep, onSelectStep }: Props) => {
+const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onStepSelect }: Props) => {
   const steps = useBitriseYmlStore(
     useShallow(({ yml }) => {
       return yml.workflows?.[workflowId]?.steps;
@@ -31,16 +28,16 @@ const StepList = ({ workflowId, containerProps, onAddStep, onMoveStep, onSelectS
   );
 
   const isEmpty = !steps?.length;
-  const isSortable = Boolean(onMoveStep);
+  const isSortable = Boolean(onStepMove);
   const sortableIds = useMemo(() => getSortableIds(workflowId, steps), [steps, workflowId]);
 
   const handleDragEnd = useCallback(
     (e: DragEndEvent) => {
       const { stepIndex } = parseSortableStepId(e.active.id.toString());
       const { stepIndex: to } = parseSortableStepId(e.over?.id.toString() || '');
-      onMoveStep?.(workflowId, stepIndex, to);
+      onStepMove?.(workflowId, stepIndex, to);
     },
-    [onMoveStep, workflowId],
+    [onStepMove, workflowId],
   );
 
   if (isEmpty) {
@@ -57,12 +54,12 @@ const StepList = ({ workflowId, containerProps, onAddStep, onMoveStep, onSelectS
     return (
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {sortableIds.map((sortableId, index) => {
-          const handleClickStepCard = onSelectStep && (() => onSelectStep(workflowId, index));
+          const handleStepSelect = onStepSelect && (() => onStepSelect(workflowId, index));
 
           return (
             <StepCard
               id={sortableId}
-              onClick={handleClickStepCard}
+              onClick={handleStepSelect}
               key={`${sortableId}->${Object.keys(steps[index])[0]}`}
               {...parseSortableStepId(sortableId)}
             />
@@ -78,19 +75,19 @@ const StepList = ({ workflowId, containerProps, onAddStep, onMoveStep, onSelectS
         <Box display="flex" flexDir="column" gap="8" {...containerProps}>
           {sortableIds.map((sortableId, index) => {
             const isLast = index === sortableIds.length - 1;
-            const handleClickAddStep = onAddStep && (() => onAddStep(workflowId, index + 1));
-            const handleClickStepCard = onSelectStep && (() => onSelectStep(workflowId, index));
+            const handleAddStepClick = onAddStepClick && (() => onAddStepClick(workflowId, index + 1));
+            const handleStepSelect = onStepSelect && (() => onStepSelect(workflowId, index));
 
             return (
               <Fragment key={`${sortableId}->${Object.keys(steps[index])[0]}`}>
-                <AddStepButton my={-8} zIndex={10} onClick={handleClickAddStep} />
+                <AddStepButton my={-8} zIndex={10} onClick={handleAddStepClick} />
                 <StepCard
                   id={sortableId}
                   isSortable={isSortable}
-                  onClick={handleClickStepCard}
+                  onClick={handleStepSelect}
                   {...parseSortableStepId(sortableId)}
                 />
-                {isLast && <AddStepButton my={-8} zIndex={10} onClick={handleClickAddStep} />}
+                {isLast && <AddStepButton my={-8} zIndex={10} onClick={handleAddStepClick} />}
               </Fragment>
             );
           })}

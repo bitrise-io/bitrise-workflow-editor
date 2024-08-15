@@ -1,27 +1,13 @@
 import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
 
-export type StepEditCallback = (workflowId: string, stepIndex: number) => void;
-export type WorkflowEditCallback = (workflowId: string) => void;
-export type MoveStepCallback = (workflowId: string, stepIndex: number, to: number) => void;
-export type DeleteChainedWorkflowCallback = (
-  chainedWorkflowIndex: number,
-  parentWorkflowId: string,
-  placement: Placement,
-) => void;
-export type MoveChainedWorkflowCallback = (
-  workflowId: string,
-  placement: Placement,
-  chainedWorkflowIds: string[],
-) => void;
-
 export type WorkflowCardCallbacks = {
-  onAddStep?: StepEditCallback;
-  onMoveStep?: MoveStepCallback;
-  onSelectStep?: StepEditCallback;
-  onEditWorkflow?: WorkflowEditCallback;
-  onChainWorkflow?: WorkflowEditCallback;
-  onSetChainedWorkflows?: MoveChainedWorkflowCallback;
-  onDeleteChainedWorkflow?: DeleteChainedWorkflowCallback;
+  onStepMove?: (workflowId: string, stepIndex: number, to: number) => void;
+  onStepSelect?: (workflowId: string, stepIndex: number) => void;
+  onChainedWorkflowsUpdate?: (workflowId: string, placement: Placement, chainedWorkflowIds: string[]) => void;
+  onAddStepClick?: (workflowId: string, stepIndex: number) => void;
+  onEditWorkflowClick?: (workflowId: string) => void;
+  onAddChainedWorkflowClick?: (workflowId: string) => void;
+  onDeleteChainedWorkflowClick?: (chainedWorkflowIndex: number, parentWorkflowId: string, placement: Placement) => void;
 };
 
 export type SortableWorkflowItem = {

@@ -13,8 +13,8 @@ type Props = WorkflowCardCallbacks & {
 };
 
 const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props) => {
-  const { onChainWorkflow, onAddStep, onMoveStep, onSelectStep } = callbacks;
-  const stepCallbacks = { onAddStep, onMoveStep, onSelectStep };
+  const { onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
+  const stepCallbacks = { onAddStepClick, onStepMove, onStepSelect };
 
   const containerRef = useRef(null);
   const workflow = useWorkflow(id);
@@ -50,14 +50,14 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
           </Text>
         </Box>
 
-        {onChainWorkflow && (
+        {onAddChainedWorkflowClick && (
           <ControlButton
             size="xs"
             display="none"
             iconName="PlusOpen"
             aria-label="Chain Workflows"
             _groupHover={{ display: 'block' }}
-            onClick={() => onChainWorkflow(id)}
+            onClick={() => onAddChainedWorkflowClick(id)}
           />
         )}
       </Box>
@@ -70,7 +70,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
               {...callbacks}
               placement="before_run"
               parentWorkflowId={id}
-              onChainWorkflow={onChainWorkflow}
+              onAddChainedWorkflowClick={onAddChainedWorkflowClick}
             />
 
             <StepList {...stepCallbacks} workflowId={id} />
@@ -80,7 +80,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
               {...callbacks}
               placement="after_run"
               parentWorkflowId={id}
-              onChainWorkflow={onChainWorkflow}
+              onAddChainedWorkflowClick={onAddChainedWorkflowClick}
             />
           </Box>
         </SortableWorkflowsContext>
