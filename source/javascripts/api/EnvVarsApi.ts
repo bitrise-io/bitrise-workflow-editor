@@ -1,14 +1,57 @@
 import { EnvVar } from '@/core/EnvVar';
 import Client from './client';
 
-const DEFAULT_OUTPUTS_PATH = '/api/app/:appSlug/default_step_outputs.json';
-const DEFAULT_OUTPUTS_PATH_LOCAL = '/api/default-outputs';
-
 enum Source {
   BitriseIO = 'bitrise.io',
   BitriseCLI = 'bitrise CLI',
   CodeSigning = 'code signing files',
 }
+
+type GetEnvVarsProps = { appSlug?: string; projectType?: 'xamarin'; signal?: AbortSignal };
+type GetEnvVarsStrictProps = { appSlug: string; projectType?: 'xamarin'; signal?: AbortSignal };
+
+type DefaultOutputsResponse = {
+  from_bitriseio?: Array<Record<string, null>>;
+  from_bitrise_cli: Array<Record<string, null>>;
+};
+
+type ProvProfilesResponse = {
+  prov_profile_documents: Array<{
+    id: string;
+    processed: boolean;
+    is_expose: boolean;
+    is_protected: boolean;
+    upload_file_name: string;
+  }>;
+};
+
+type CertificatesResponse = {
+  build_certificates: Array<{
+    id: string;
+    processed: boolean;
+    is_expose: boolean;
+    is_protected: boolean;
+    upload_file_name: string;
+    certificate_password: string;
+  }>;
+};
+
+type FileStorageDocumentsResponse = {
+  project_file_storage_documents: Array<{
+    id: string;
+    processed: boolean;
+    is_expose: boolean;
+    is_protected: boolean;
+    upload_file_name: string;
+    user_env_key: string;
+  }>;
+};
+
+const DEFAULT_OUTPUTS_PATH = '/api/app/:appSlug/default_step_outputs.json';
+const DEFAULT_OUTPUTS_PATH_LOCAL = '/api/default-outputs';
+const PROV_PROFILES_PATH = '/api/app/:appSlug/prov_profile_document/show.json';
+const CERTIFICATES_PATH = '/api/app/:appSlug/build_certificate/show.json';
+const FILE_STORAGE_DOCUMENTS_PATH = '/api/app/:appSlug/project_file_storage_document/show.json';
 
 const defaultEnvVar: EnvVar = {
   key: '',
@@ -17,25 +60,20 @@ const defaultEnvVar: EnvVar = {
   isExpand: true,
 };
 
-type GetEnvVarsProps = {
-  appSlug?: string;
-  signal?: AbortSignal;
-  projectType?: 'xamarin';
-};
-
-type GetEnvVarsStrictProps = {
-  appSlug: string;
-  signal?: AbortSignal;
-  projectType?: 'xamarin';
-};
-
-type DefaultOutputsResponse = {
-  from_bitriseio?: Array<Record<string, null>>;
-  from_bitrise_cli: Array<Record<string, null>>;
-};
-
 function getDefaultOutputsPath(appSlug?: string) {
   return appSlug ? DEFAULT_OUTPUTS_PATH.replace(':appSlug', appSlug) : DEFAULT_OUTPUTS_PATH_LOCAL;
+}
+
+function getProvProfilesPath(appSlug: string) {
+  return PROV_PROFILES_PATH.replace(':appSlug', appSlug);
+}
+
+function getCertificatesPath(appSlug: string) {
+  return CERTIFICATES_PATH.replace(':appSlug', appSlug);
+}
+
+function getFileStorageDocumentsPath(appSlug: string) {
+  return FILE_STORAGE_DOCUMENTS_PATH.replace(':appSlug', appSlug);
 }
 
 async function getDefaultOutputs({ appSlug, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
@@ -56,23 +94,7 @@ async function getDefaultOutputs({ appSlug, signal }: GetEnvVarsProps): Promise<
   return envVars;
 }
 
-const PROV_PROFILES_PATH = '/api/app/:appSlug/prov_profile_document/show.json';
-
-type ProvProfilesResponse = {
-  prov_profile_documents: Array<{
-    id: string;
-    processed: boolean;
-    is_expose: boolean;
-    is_protected: boolean;
-    upload_file_name: string;
-  }>;
-};
-
-function getProvProfilesPath(appSlug: string) {
-  return PROV_PROFILES_PATH.replace(':appSlug', appSlug);
-}
-
-async function getProvProfiles({ appSlug, signal, projectType }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
+async function getProvProfiles({ appSlug, projectType, signal }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
   const response = await Client.get<ProvProfilesResponse>(getProvProfilesPath(appSlug), {
     signal,
   });
@@ -90,24 +112,7 @@ async function getProvProfiles({ appSlug, signal, projectType }: GetEnvVarsStric
   return envVars;
 }
 
-const CERTIFICATES_PATH = '/api/app/:appSlug/build_certificate/show.json';
-
-type CertificatesResponse = {
-  build_certificates: Array<{
-    id: string;
-    processed: boolean;
-    is_expose: boolean;
-    is_protected: boolean;
-    upload_file_name: string;
-    certificate_password: string;
-  }>;
-};
-
-function getCertificatesPath(appSlug: string) {
-  return CERTIFICATES_PATH.replace(':appSlug', appSlug);
-}
-
-async function getCertificates({ appSlug, signal, projectType }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
+async function getCertificates({ appSlug, projectType, signal }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
   const response = await Client.get<CertificatesResponse>(getCertificatesPath(appSlug), {
     signal,
   });
@@ -127,7 +132,27 @@ async function getCertificates({ appSlug, signal, projectType }: GetEnvVarsStric
   return envVars;
 }
 
-async function getEnvVars({ appSlug, signal, projectType }: GetEnvVarsProps): Promise<EnvVar[]> {
+async function getFileStorageDocuments({ appSlug, signal }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
+  const response = await Client.get<FileStorageDocumentsResponse>(getFileStorageDocumentsPath(appSlug), {
+    signal,
+  });
+
+  const envVars: EnvVar[] = [];
+
+  response.project_file_storage_documents.forEach(({ user_env_key: key }) => {
+    envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_URL`, source: Source.CodeSigning });
+
+    if (key.startsWith('ANDROID_KEYSTORE')) {
+      envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_ALIAS`, source: Source.CodeSigning });
+      envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_PASSWORD`, source: Source.CodeSigning });
+      envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_PRIVATE_KEY_PASSWORD`, source: Source.CodeSigning });
+    }
+  });
+
+  return envVars;
+}
+
+async function getEnvVars({ appSlug, projectType, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
   const props = { appSlug, signal, projectType };
   const promises = [getDefaultOutputs(props)];
 
@@ -135,6 +160,7 @@ async function getEnvVars({ appSlug, signal, projectType }: GetEnvVarsProps): Pr
     const strictProps = { appSlug, signal, projectType };
     promises.push(getProvProfiles(strictProps));
     promises.push(getCertificates(strictProps));
+    promises.push(getFileStorageDocuments(strictProps));
   }
 
   return Promise.all(promises).then((results) => results.flatMap((v) => v));
