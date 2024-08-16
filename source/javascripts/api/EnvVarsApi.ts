@@ -7,8 +7,7 @@ enum Source {
   CodeSigning = 'code signing files',
 }
 
-type GetEnvVarsProps = { appSlug?: string; projectType?: 'xamarin'; signal?: AbortSignal };
-type GetEnvVarsStrictProps = { appSlug: string; projectType?: 'xamarin'; signal?: AbortSignal };
+type GetEnvVarsProps = { appSlug: string; projectType?: 'xamarin'; signal?: AbortSignal };
 
 type DefaultOutputsResponse = {
   from_bitriseio?: Array<Record<string, null>>;
@@ -76,7 +75,7 @@ function getFileStorageDocumentsPath(appSlug: string) {
   return FILE_STORAGE_DOCUMENTS_PATH.replace(':appSlug', appSlug);
 }
 
-async function getDefaultOutputs({ appSlug, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
+async function getDefaultOutputs({ appSlug, signal }: Partial<GetEnvVarsProps>): Promise<EnvVar[]> {
   const response = await Client.get<DefaultOutputsResponse>(getDefaultOutputsPath(appSlug), {
     signal,
   });
@@ -94,7 +93,7 @@ async function getDefaultOutputs({ appSlug, signal }: GetEnvVarsProps): Promise<
   return envVars;
 }
 
-async function getProvProfiles({ appSlug, projectType, signal }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
+async function getProvProfiles({ appSlug, projectType, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
   const response = await Client.get<ProvProfilesResponse>(getProvProfilesPath(appSlug), {
     signal,
   });
@@ -112,7 +111,7 @@ async function getProvProfiles({ appSlug, projectType, signal }: GetEnvVarsStric
   return envVars;
 }
 
-async function getCertificates({ appSlug, projectType, signal }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
+async function getCertificates({ appSlug, projectType, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
   const response = await Client.get<CertificatesResponse>(getCertificatesPath(appSlug), {
     signal,
   });
@@ -132,7 +131,7 @@ async function getCertificates({ appSlug, projectType, signal }: GetEnvVarsStric
   return envVars;
 }
 
-async function getFileStorageDocuments({ appSlug, signal }: GetEnvVarsStrictProps): Promise<EnvVar[]> {
+async function getFileStorageDocuments({ appSlug, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
   const response = await Client.get<FileStorageDocumentsResponse>(getFileStorageDocumentsPath(appSlug), {
     signal,
   });
@@ -152,15 +151,13 @@ async function getFileStorageDocuments({ appSlug, signal }: GetEnvVarsStrictProp
   return envVars;
 }
 
-async function getEnvVars({ appSlug, projectType, signal }: GetEnvVarsProps): Promise<EnvVar[]> {
-  const props = { appSlug, signal, projectType };
-  const promises = [getDefaultOutputs(props)];
+async function getEnvVars({ appSlug, projectType, signal }: Partial<GetEnvVarsProps>): Promise<EnvVar[]> {
+  const promises = [getDefaultOutputs({ appSlug, signal, projectType })];
 
   if (appSlug) {
-    const strictProps = { appSlug, signal, projectType };
-    promises.push(getProvProfiles(strictProps));
-    promises.push(getCertificates(strictProps));
-    promises.push(getFileStorageDocuments(strictProps));
+    promises.push(getProvProfiles({ appSlug, signal, projectType }));
+    promises.push(getCertificates({ appSlug, signal, projectType }));
+    promises.push(getFileStorageDocuments({ appSlug, signal, projectType }));
   }
 
   return Promise.all(promises).then((results) => results.flatMap((v) => v));
