@@ -1,11 +1,13 @@
-(function() {
+(function () {
     "use strict";
 
-    const CLIENT_SIDE_ID = '<%= data[:constants][:ld][:client_id] %>';
+    const CLIENT_SIDE_ID = window.parent.location.host === 'app.bitrise.io'
+        ? '5e70774c8a726707851d2fff'
+        : '5e70774c8a726707851d2ffe';
 
     angular
         .module("BitriseWorkflowEditor")
-        .service('launchDarklyService', function(requestService, appServiceUtil) {
+        .service('launchDarklyService', function (requestService, appServiceUtil) {
             const launchDarklyService = {};
             let client
 
