@@ -17,7 +17,7 @@ const StageNode = ({ id, data: stage }: Props) => {
           {stage.workflows?.map((wf, i) => {
             const wfId = Object.keys(wf)[0];
             // eslint-disable-next-line react/no-array-index-key
-            return <WorkflowCard key={`${wfId}-${i}`} workflowId={wfId} />;
+            return <WorkflowCard key={`${wfId}-${i}`} id={wfId} isCollapsable />;
           })}
         </Box>
       </Box>

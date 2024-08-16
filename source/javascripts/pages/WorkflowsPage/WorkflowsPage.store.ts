@@ -1,8 +1,5 @@
 import { create } from 'zustand';
 
-type StepEditCallback = (workflowId: string, stepIndex: number) => void;
-type WorkflowEditCallback = (workflowId: string) => void;
-
 type State = {
   stepIndex: number;
   workflowId: string;
@@ -16,13 +13,13 @@ type State = {
 };
 
 type Action = {
-  closeDialog: VoidFunction;
-  openCreateWorkflowDialog: VoidFunction;
-  openDeleteWorkflowDialog: VoidFunction;
-  openChainWorkflowDialog: WorkflowEditCallback;
-  openWorkflowConfigDrawer: WorkflowEditCallback;
-  openStepConfigDrawer: StepEditCallback;
-  openStepSelectorDrawer: StepEditCallback;
+  closeDialog: () => void;
+  openCreateWorkflowDialog: () => void;
+  openDeleteWorkflowDialog: () => void;
+  openChainWorkflowDialog: (workflowId: string) => void;
+  openWorkflowConfigDrawer: (workflowId: string) => void;
+  openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
+  openStepSelectorDrawer: (workflowId: string, stepIndex: number) => void;
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set) => ({
