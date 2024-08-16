@@ -13,7 +13,8 @@ def strings
                 apiKey: "pub3ee8559ad1bc8c3c8cd788bd71fe5995"
             },
             ld: {
-                client_id: ENV['NODE_ENV'] == "development" ? "5e70774c8a726707851d2ffe" : "5e70774c8a726707851d2fff",
+                client_id_production: "5e70774c8a726707851d2fff",
+                client_id_staging: "5e70774c8a726707851d2ffe"
             }
         },
         strings: {
