@@ -7,7 +7,11 @@ enum Source {
   CodeSigning = 'code signing files',
 }
 
-type GetEnvVarsProps = { appSlug: string; projectType?: 'xamarin'; signal?: AbortSignal };
+type GetEnvVarsProps = {
+  appSlug: string;
+  projectType?: 'xamarin';
+  signal?: AbortSignal;
+};
 
 type DefaultOutputsResponse = {
   from_bitriseio?: Array<Record<string, null>>;
