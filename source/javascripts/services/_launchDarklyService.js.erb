@@ -2,8 +2,8 @@
     "use strict";
 
     const CLIENT_SIDE_ID = window.parent.location.host === 'app.bitrise.io'
-        ? '5e70774c8a726707851d2fff'
-        : '5e70774c8a726707851d2ffe';
+        ? '<%= data[:constants][:ld][:client_id_production] %>'
+        : '<%= data[:constants][:ld][:client_id_staging] %>';
 
     angular
         .module("BitriseWorkflowEditor")
