@@ -15,6 +15,7 @@ import {
   VALUE_IS_REQUIRED,
 } from '@/models/EnvVar';
 import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
+import DragHandle from '@/components/DragHandle/DragHandle';
 import AutoGrowableInput from './AutoGrowableInput';
 
 type FormValues = {
@@ -40,19 +41,6 @@ const ButtonContent = () => {
         </Badge>
       )}
     </Box>
-  );
-};
-
-const DragHandleIcon = () => {
-  return (
-    <svg width="8" height="12" viewBox="0 0 8 12" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-      <circle cx="2" cy="2" r="1" />
-      <circle cx="6" cy="2" r="1" />
-      <circle cx="2" cy="6" r="1" />
-      <circle cx="6" cy="6" r="1" />
-      <circle cx="2" cy="10" r="1" />
-      <circle cx="6" cy="10" r="1" />
-    </svg>
   );
 };
 
@@ -92,21 +80,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
       zIndex={isActive ? 9999 : 'auto'}
       boxShadow={isActive ? 'medium' : undefined}
     >
-      <Box
-        p="8"
-        as="button"
-        cursor="grab"
-        display="flex"
-        alignItems="center"
-        ref={setActivatorNodeRef}
-        color={isActive ? 'icon/secondary' : 'icon/tertiary'}
-        background={isActive ? 'background/hover' : undefined}
-        _hover={{ background: 'background/hover', color: 'icon/secondary' }}
-        {...attributes}
-        {...listeners}
-      >
-        <DragHandleIcon />
-      </Box>
+      <DragHandle ref={setActivatorNodeRef} {...attributes} {...listeners} />
       <Box p="16" pl="8" display="flex" flexDir="column" gap="16" flex="1">
         <Box display="flex" alignItems="top" gap="8">
           <Input

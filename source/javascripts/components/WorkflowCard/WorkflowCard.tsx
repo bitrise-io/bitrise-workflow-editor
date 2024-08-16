@@ -1,84 +1,36 @@
-import { Fragment } from 'react';
-import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Icon, Text, useDisclosure } from '@bitrise/bitkit';
-import { useShallow } from 'zustand/react/shallow';
-import { DndContext, DragEndEvent, PointerSensor, useSensor, useSensors } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
-import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
-import StepCard from '@/components/StepCard/StepCard';
-import { Step } from '@/models/Step';
-import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useWorkflowUsedBy from '@/pages/WorkflowsPage/hooks/useWorkflowUsedBy';
+import { useRef } from 'react';
+import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import useWorkflow from './hooks/useWorkflow';
-import AddStepButton from './components/AddStepButton';
-import { getSortableStepId, getUsedByText, parseSortableStepId } from './WorkflowCard.utils';
+import StepList from './components/StepList';
+import ChainedWorkflowList from './components/ChainedWorkflowList';
+import { WorkflowCardCallbacks } from './WorkflowCard.types';
+import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
-type StepEditCallback = (workflowId: string, stepIndex: number) => void;
-type WorkflowEditCallback = (workflowId: string) => void;
-type MoveStepCallback = (workflowId: string, stepIndex: number, to: number) => void;
-
-type WorkflowCardProps = CardProps & {
-  workflowId: string;
-  parentWorkflowId?: string;
-  chainedWorkflowIndex?: number;
-  placement?: Placement;
-  isFixed?: boolean;
-  isExpanded?: boolean;
-  isEditable?: boolean;
-  onAddStep?: StepEditCallback;
-  onMoveStep?: MoveStepCallback;
-  onSelectStep?: StepEditCallback;
-  onEditWorkflow?: WorkflowEditCallback;
-  onChainWorkflow?: WorkflowEditCallback;
+type Props = WorkflowCardCallbacks & {
+  id: string;
+  isCollapsable?: boolean;
+  containerProps?: CardProps;
 };
 
-const WorkflowCard = ({
-  workflowId,
-  parentWorkflowId,
-  chainedWorkflowIndex,
-  placement,
-  isFixed,
-  isExpanded,
-  isEditable,
-  onAddStep,
-  onMoveStep,
-  onSelectStep,
-  onEditWorkflow,
-  onChainWorkflow,
-  ...props
-}: WorkflowCardProps) => {
-  const workflow = useWorkflow(workflowId);
-  const sensors = useSensors(useSensor(PointerSensor));
-  const workflowUsedBy = useWorkflowUsedBy(workflowId);
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: isExpanded || isFixed });
-  const deleteChainedWorkflow = useBitriseYmlStore(useShallow((s) => s.deleteChainedWorkflow));
+const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props) => {
+  const { onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
+  const stepCallbacks = { onAddStepClick, onStepMove, onStepSelect };
 
-  const sortableItemIdentifiers = (workflow?.steps ?? []).map((_, stepIndex) => {
-    return getSortableStepId(workflowId, stepIndex);
-  });
-
-  const isRoot = !parentWorkflowId;
-  const hasNoSteps = !workflow?.steps?.length;
-  const hasAfterRunWorkflows = !!workflow?.after_run?.length;
-  const hasBeforeRunWorkflows = !!workflow?.before_run?.length;
-
-  const handleMoveStep = (e: DragEndEvent) => {
-    const { stepIndex } = parseSortableStepId(e.active.id.toString());
-    const { stepIndex: to } = parseSortableStepId(e.over?.id.toString() || '');
-    onMoveStep?.(workflowId, stepIndex, to);
-  };
+  const containerRef = useRef(null);
+  const workflow = useWorkflow(id);
+  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
   if (!workflow) {
-    // TODO: Missing mpty state
+    // TODO: Missing empty state
     // eslint-disable-next-line no-console
-    console.warn(`Workflow '${workflowId}' is not found in yml!`);
+    console.warn(`Workflow '${id}' is not found in yml!`);
     return null;
   }
 
   return (
-    <Card variant={isRoot ? 'elevated' : 'outline'} {...props}>
-      <Box display="flex" alignItems="center" px="8" py="6" className="group">
-        {!isFixed && (
+    <Card borderRadius="8" variant="elevated" {...containerProps}>
+      <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
+        {isCollapsable && (
           <ControlButton
             size="xs"
             tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
@@ -88,139 +40,50 @@ const WorkflowCard = ({
             aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
           />
         )}
-        <Box ml="4" display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
+
+        <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <Text textStyle="body/md/semibold" hasEllipsis>
-            {workflow.title || workflowId}
+            {workflow.title || id}
           </Text>
-
-          {isRoot && (
-            <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-              {workflow.meta?.['bitrise.io']?.stack || 'Unknown stack'}
-            </Text>
-          )}
-
-          {!isRoot && (
-            <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-              {placement}
-              {' • '}
-              {getUsedByText(workflowUsedBy)}
-            </Text>
-          )}
+          <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
+            {workflow.meta?.['bitrise.io']?.stack || 'Unknown stack'}
+          </Text>
         </Box>
-        {isEditable && (
-          <ButtonGroup ml="4" spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-            <ControlButton
-              size="xs"
-              iconName="PlusOpen"
-              aria-label="Chain Workflows"
-              onClick={() => onChainWorkflow?.(workflowId)}
-            />
-            {!isRoot && (
-              <ControlButton
-                size="xs"
-                display="none" // NOTE: It should be visibe after WorkflowConfigDrawer implemented.
-                iconName="Settings"
-                aria-label="Edit Workflow"
-                onClick={() => onEditWorkflow?.(workflowId)}
-              />
-            )}
-            {!isRoot && chainedWorkflowIndex !== undefined && placement && (
-              <ControlButton
-                size="xs"
-                iconName="Trash"
-                aria-label="Remove"
-                onClick={() => deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement)}
-              />
-            )}
-          </ButtonGroup>
+
+        {onAddChainedWorkflowClick && (
+          <ControlButton
+            size="xs"
+            display="none"
+            iconName="PlusOpen"
+            aria-label="Chain Workflows"
+            _groupHover={{ display: 'block' }}
+            onClick={() => onAddChainedWorkflowClick(id)}
+          />
         )}
       </Box>
-      <Collapse in={isOpen} style={{ overflow: 'unset' }} unmountOnExit={false}>
-        <Box display="flex" flexDir="column" gap="8" p="8">
-          {workflow.before_run?.map((chainedWorkflowId, i) => {
-            return (
-              <WorkflowCard
-                // eslint-disable-next-line react/no-array-index-key
-                key={`before_run:${chainedWorkflowId}(${i})->${workflowId}`}
-                workflowId={chainedWorkflowId}
-                parentWorkflowId={workflowId}
-                chainedWorkflowIndex={i}
-                placement="before_run"
-                isEditable={isEditable}
-                onAddStep={onAddStep}
-                onMoveStep={onMoveStep}
-                onSelectStep={onSelectStep}
-                onEditWorkflow={onEditWorkflow}
-                onChainWorkflow={onChainWorkflow}
-              />
-            );
-          })}
 
-          {hasBeforeRunWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
+      <Collapse in={isOpen} unmountOnExit>
+        <SortableWorkflowsContext containerRef={containerRef}>
+          <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
+            <ChainedWorkflowList
+              key={`${id}->before_run`}
+              {...callbacks}
+              placement="before_run"
+              parentWorkflowId={id}
+              onAddChainedWorkflowClick={onAddChainedWorkflowClick}
+            />
 
-          {hasNoSteps && (
-            <Card variant="outline" backgroundColor="background/secondary" px="8" py="16" textAlign="center">
-              <Text textStyle="body/sm/regular" color="text/secondary">
-                This Workflow is empty.
-              </Text>
-            </Card>
-          )}
+            <StepList {...stepCallbacks} workflowId={id} />
 
-          <Box display="flex" flexDir="column" gap="8">
-            <DndContext
-              sensors={sensors}
-              onDragEnd={handleMoveStep}
-              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-            >
-              <SortableContext items={sortableItemIdentifiers} strategy={verticalListSortingStrategy}>
-                {workflow?.steps?.map((s, stepIndex, steps) => {
-                  const isLastStep = stepIndex === steps.length - 1;
-                  const [cvs = ''] = Object.entries(s)[0] as [string, Step];
-
-                  return (
-                    // eslint-disable-next-line react/no-array-index-key
-                    <Fragment key={`workflows[${workflowId}].steps[${stepIndex}][${cvs}]`}>
-                      {isEditable && <AddStepButton onClick={() => onAddStep?.(workflowId, stepIndex)} my={-8} />}
-
-                      <StepCard
-                        showSecondary
-                        stepIndex={stepIndex}
-                        workflowId={workflowId}
-                        isDraggable={isEditable && !!onMoveStep}
-                        onClick={onSelectStep && (() => onSelectStep(workflowId, stepIndex))}
-                      />
-
-                      {isEditable && isLastStep && (
-                        <AddStepButton onClick={() => onAddStep?.(workflowId, stepIndex + 1)} my={-8} />
-                      )}
-                    </Fragment>
-                  );
-                })}
-              </SortableContext>
-            </DndContext>
+            <ChainedWorkflowList
+              key={`${id}->after_run`}
+              {...callbacks}
+              placement="after_run"
+              parentWorkflowId={id}
+              onAddChainedWorkflowClick={onAddChainedWorkflowClick}
+            />
           </Box>
-
-          {hasAfterRunWorkflows && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
-
-          {workflow.after_run?.map((chainedWorkflowId, i) => {
-            return (
-              <WorkflowCard
-                // eslint-disable-next-line react/no-array-index-key
-                key={`after_run:${workflowId}->${chainedWorkflowId}(${i})`}
-                workflowId={chainedWorkflowId}
-                parentWorkflowId={workflowId}
-                chainedWorkflowIndex={i}
-                placement="after_run"
-                isEditable={isEditable}
-                onAddStep={onAddStep}
-                onMoveStep={onMoveStep}
-                onSelectStep={onSelectStep}
-                onEditWorkflow={onEditWorkflow}
-                onChainWorkflow={onChainWorkflow}
-              />
-            );
-          })}
-        </Box>
+        </SortableWorkflowsContext>
       </Collapse>
     </Card>
   );
