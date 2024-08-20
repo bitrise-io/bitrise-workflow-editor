@@ -35,6 +35,73 @@ const toMatchBitriseYml: MatcherFunction<[expected: BitriseYml]> = function m(ac
 expect.extend({ toMatchBitriseYml });
 
 describe('BitriseYmlService', () => {
+  describe('addStep', () => {
+    it('should add step to a given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { 'apk-info@1.4.6': {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const actualYml = BitriseYmlService.addStep('wf1', 'apk-info@1.4.6', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when workflow is not exists', () => {
+      it('should returns the original YML', () => {
+        const sourceYmlAndExpectedYml: BitriseYml = {
+          format_version: '',
+          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        };
+
+        const actualYml = BitriseYmlService.addStep('wf2', 'apk-info@1.4.6', 1, sourceYmlAndExpectedYml);
+
+        expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
+      });
+    });
+
+    describe('when the given index too high', () => {
+      it('should put the step to the end of the list', () => {
+        const sourceYml: BitriseYml = {
+          format_version: '',
+          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        };
+
+        const expectedYml: BitriseYml = {
+          format_version: '',
+          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }, { 'apk-info@1.4.6': {} }] } },
+        };
+
+        const actualYml = BitriseYmlService.addStep('wf1', 'apk-info@1.4.6', 10, sourceYml);
+
+        expect(actualYml).toMatchBitriseYml(expectedYml);
+      });
+    });
+
+    describe('when the given index too low', () => {
+      it('should put the step to the start of the list', () => {
+        const sourceYml: BitriseYml = {
+          format_version: '',
+          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        };
+
+        const expectedYml: BitriseYml = {
+          format_version: '',
+          workflows: { wf1: { steps: [{ 'apk-info@1.4.6': {} }, { script: {} }, { clone: {} }, { deploy: {} }] } },
+        };
+
+        const actualYml = BitriseYmlService.addStep('wf1', 'apk-info@1.4.6', -5, sourceYml);
+
+        expect(actualYml).toMatchBitriseYml(expectedYml);
+      });
+    });
+  });
+
   describe('moveStep', () => {
     it('should move step to the expected place', () => {
       const sourceYml: BitriseYml = {

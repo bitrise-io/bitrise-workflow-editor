@@ -62,7 +62,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
         )}
       </Box>
 
-      <Collapse in={isOpen} unmountOnExit>
+      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
             <ChainedWorkflowList

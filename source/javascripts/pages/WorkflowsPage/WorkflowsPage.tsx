@@ -18,10 +18,11 @@ type Props = {
 };
 
 const WorkflowsPageContent = () => {
-  const { workflowId, stepIndex, isDialogOpen, closeDialog } = useWorkflowsPageStore();
+  const { workflowId, stepIndex, isDialogOpen, closeDialog, openStepConfigDrawer } = useWorkflowsPageStore();
 
-  const { createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
+  const { addStep, createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
+      addStep: s.addStep,
       createWorkflow: s.createWorkflow,
       deleteWorkflow: s.deleteWorkflow,
       addChainedWorkflow: s.addChainedWorkflow,
@@ -29,7 +30,6 @@ const WorkflowsPageContent = () => {
   );
 
   const {
-    noop,
     isStepConfigDrawerOpen,
     isStepSelectorDrawerOpen,
     isChainWorkflowDrawerOpen,
@@ -37,13 +37,17 @@ const WorkflowsPageContent = () => {
     isDeleteWorkflowDialogOpen,
     isWorkflowConfigDrawerOpen,
   } = {
-    noop: () => {},
     isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
     isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
     isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
     isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
     isWorkflowConfigDrawerOpen: isDialogOpen === 'workflow-config-drawer',
+  };
+
+  const handleAddStep = (cvs: string) => {
+    addStep(workflowId, cvs, stepIndex);
+    openStepConfigDrawer(workflowId, stepIndex);
   };
 
   return (
@@ -70,7 +74,12 @@ const WorkflowsPageContent = () => {
       />
 
       <StepConfigDrawer {...{ workflowId, stepIndex }} onClose={closeDialog} isOpen={isStepConfigDrawerOpen} />
-      <StepSelectorDrawer onStepSelected={noop} onClose={closeDialog} isOpen={isStepSelectorDrawerOpen} />
+
+      <StepSelectorDrawer
+        onClose={closeDialog}
+        isOpen={isStepSelectorDrawerOpen}
+        onStepSelected={({ cvs }) => handleAddStep(cvs)}
+      />
 
       <Drawer title="Workflow Config Drawer" isOpen={isWorkflowConfigDrawerOpen} onClose={closeDialog}>
         Not Implemented Yet
