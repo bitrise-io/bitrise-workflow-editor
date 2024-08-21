@@ -62,7 +62,9 @@ const SortableWorkflowsContext = ({ children, containerRef }: Props) => {
       modifiers={[restrictToVerticalAxis, restrictToContainer]}
     >
       {children}
-      <DragOverlay>{activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} />}</DragOverlay>
+      <DragOverlay>
+        {activeItem && <ChainedWorkflowCard {...activeItem} onChainedWorkflowsUpdate={noop} isDragging />}
+      </DragOverlay>
     </DndContext>
   );
 };

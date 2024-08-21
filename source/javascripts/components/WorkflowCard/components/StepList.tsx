@@ -1,44 +1,75 @@
-import { Fragment, useCallback, useMemo } from 'react';
+import { Fragment, useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { Box, BoxProps, Card, Text } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent } from '@dnd-kit/core';
-import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
+import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
+import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useShallow } from 'zustand/react/shallow';
-import { Steps } from '@/models/Step';
-import StepCard from '@/components/StepCard/StepCard';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { getSortableStepId, parseSortableStepId } from '../WorkflowCard.utils';
-import { WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { SortableStepItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
+import StepCard from './StepCard';
 
 type Props = Pick<WorkflowCardCallbacks, 'onAddStepClick' | 'onStepMove' | 'onStepSelect'> & {
   workflowId: string;
   containerProps?: BoxProps;
 };
 
-const getSortableIds = (workflowId: string, steps?: Steps) => {
-  return steps?.map((_, index) => getSortableStepId(workflowId, index)) ?? [];
-};
+function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
+  return sortableItems.map((i) => i.uniqueId);
+}
 
 const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onStepSelect }: Props) => {
   const steps = useBitriseYmlStore(
     useShallow(({ yml }) => {
-      return yml.workflows?.[workflowId]?.steps;
+      return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
     }),
   );
 
-  const isEmpty = !steps?.length;
+  const initialSortableItems: SortableStepItem[] = useMemo(() => {
+    return steps.map((_, stepIndex) => ({
+      uniqueId: crypto.randomUUID(),
+      stepIndex,
+      workflowId,
+    }));
+  }, [steps, workflowId]);
+
+  const isEmpty = !steps.length;
   const isSortable = Boolean(onStepMove);
-  const sortableIds = useMemo(() => getSortableIds(workflowId, steps), [steps, workflowId]);
+
+  const [activeItem, setActiveItem] = useState<SortableStepItem>();
+  const [sortableItems, setSortableItems] = useState<SortableStepItem[]>(initialSortableItems);
+
+  const handleDragStart = useCallback((event: DragStartEvent) => {
+    setActiveItem(event.active.data.current as SortableStepItem);
+  }, []);
 
   const handleDragEnd = useCallback(
-    (e: DragEndEvent) => {
-      const { stepIndex } = parseSortableStepId(e.active.id.toString());
-      const { stepIndex: to } = parseSortableStepId(e.over?.id.toString() || '');
-      onStepMove?.(workflowId, stepIndex, to);
+    (event: DragEndEvent) => {
+      const overId = event.over?.id.toString();
+      const activeId = event.active.id.toString();
+
+      if (activeId && overId) {
+        const currentOverIndex = sortableItems.findIndex((i) => i.uniqueId === overId);
+        const currentActiveIndex = sortableItems.findIndex((i) => i.uniqueId === activeId);
+        setSortableItems(arrayMove(sortableItems, currentActiveIndex, currentOverIndex));
+        setTimeout(() => {
+          onStepMove?.(workflowId, currentActiveIndex, currentOverIndex);
+        }, defaultDropAnimation.duration);
+      }
+
+      setActiveItem(undefined);
     },
-    [onStepMove, workflowId],
+    [onStepMove, sortableItems, workflowId],
   );
+
+  const handleDragCancel = useCallback(() => {
+    setSortableItems(initialSortableItems);
+    setActiveItem(undefined);
+  }, [initialSortableItems]);
+
+  useLayoutEffect(() => {
+    setSortableItems(initialSortableItems);
+  }, [initialSortableItems]);
 
   if (isEmpty) {
     return (
@@ -53,48 +84,47 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
   if (!isSortable) {
     return (
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
-        {sortableIds.map((sortableId, index) => {
-          const handleStepSelect = onStepSelect && (() => onStepSelect(workflowId, index));
-
-          return (
-            <StepCard
-              id={sortableId}
-              onClick={handleStepSelect}
-              key={`${sortableId}->${Object.keys(steps[index])[0]}`}
-              {...parseSortableStepId(sortableId)}
-            />
-          );
+        {sortableItems.map((item) => {
+          const handleStepSelect = onStepSelect && (() => onStepSelect(item.workflowId, item.stepIndex));
+          return <StepCard key={item.uniqueId} onClick={handleStepSelect} {...item} />;
         })}
       </Box>
     );
   }
 
   return (
-    <DndContext onDragEnd={handleDragEnd} modifiers={[restrictToVerticalAxis, restrictToParentElement]}>
-      <SortableContext items={sortableIds} disabled={!isSortable} strategy={verticalListSortingStrategy}>
+    <DndContext
+      onDragEnd={handleDragEnd}
+      onDragStart={handleDragStart}
+      onDragCancel={handleDragCancel}
+      modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+    >
+      <SortableContext
+        disabled={!isSortable}
+        strategy={verticalListSortingStrategy}
+        items={getSortableItemUniqueIds(sortableItems)}
+      >
         <Box display="flex" flexDir="column" gap="8" {...containerProps}>
-          {sortableIds.map((sortableId, index) => {
-            const isLast = index === sortableIds.length - 1;
-            const handleStepSelect = onStepSelect && (() => onStepSelect(workflowId, index));
+          {sortableItems.map((item) => {
+            const isLast = item.stepIndex === sortableItems.length - 1;
 
             return (
-              <Fragment key={`${sortableId}->${Object.keys(steps[index])[0]}`}>
+              <Fragment key={item.stepIndex}>
                 <AddStepButton
                   my={-8}
                   zIndex={10}
-                  onClick={onAddStepClick && (() => onAddStepClick(workflowId, index))}
+                  onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))}
                 />
                 <StepCard
-                  id={sortableId}
-                  isSortable={isSortable}
-                  onClick={handleStepSelect}
-                  {...parseSortableStepId(sortableId)}
+                  {...item}
+                  isSortable
+                  onClick={onStepSelect && (() => onStepSelect(workflowId, item.stepIndex))}
                 />
                 {isLast && (
                   <AddStepButton
                     my={-8}
                     zIndex={10}
-                    onClick={onAddStepClick && (() => onAddStepClick(workflowId, index + 1))}
+                    onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex + 1))}
                   />
                 )}
               </Fragment>
@@ -102,6 +132,7 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
           })}
         </Box>
       </SortableContext>
+      <DragOverlay>{activeItem && <StepCard {...activeItem} isDragging isSortable />}</DragOverlay>
     </DndContext>
   );
 };

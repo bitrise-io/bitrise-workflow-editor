@@ -8,7 +8,7 @@ import DragHandle from '../../DragHandle/DragHandle';
 import useWorkflow from '../hooks/useWorkflow';
 import { getUsedByText } from '../WorkflowCard.utils';
 import useWorkflowUsedBy from '../hooks/useWorkflowUsedBy';
-import { WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
@@ -18,21 +18,17 @@ type Props = WorkflowCardCallbacks & {
   index: number;
   uniqueId: string;
   placement: Placement;
+  isDragging?: boolean;
   parentWorkflowId: string;
   containerProps?: CardProps;
 };
 
-/**
- * TODO
- *  use id as chainedWorkflowId
- *  add uniqueId as unique sortable id
- *  add index as chainedWorkflowIndex
- */
 const ChainedWorkflowCard = ({
   id,
   index,
   uniqueId,
   placement,
+  isDragging,
   parentWorkflowId,
   containerProps,
   ...callbacks
@@ -56,7 +52,13 @@ const ChainedWorkflowCard = ({
   const sortable = useSortable({
     id: uniqueId,
     disabled: !isSortable,
-    data: { id, index, placement, parentWorkflowId },
+    data: {
+      id,
+      index,
+      uniqueId,
+      placement,
+      parentWorkflowId,
+    } satisfies SortableWorkflowItem,
   });
 
   if (!workflow) {
@@ -94,6 +96,7 @@ const ChainedWorkflowCard = ({
       variant="outline"
       ref={sortable.setNodeRef}
       {...containerProps}
+      {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
       style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
     >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">

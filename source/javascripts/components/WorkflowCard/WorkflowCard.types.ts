@@ -17,3 +17,9 @@ export type SortableWorkflowItem = {
   placement: Placement;
   parentWorkflowId: string;
 };
+
+export type SortableStepItem = {
+  uniqueId: string;
+  stepIndex: number;
+  workflowId: string;
+};
