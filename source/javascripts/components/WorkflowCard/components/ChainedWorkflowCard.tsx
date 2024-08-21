@@ -52,7 +52,13 @@ const ChainedWorkflowCard = ({
   const sortable = useSortable({
     id: uniqueId,
     disabled: !isSortable,
-    data: { id, index, placement, parentWorkflowId },
+    data: {
+      id,
+      index,
+      uniqueId,
+      placement,
+      parentWorkflowId,
+    },
   });
 
   if (!workflow) {
@@ -158,7 +164,7 @@ const ChainedWorkflowCard = ({
         )}
       </Box>
 
-      <Collapse in={isOpen} unmountOnExit>
+      <Collapse in={isOpen} transitionEnd={{ enter: { overflow: 'visible' } }} unmountOnExit>
         <SortableWorkflowsContext containerRef={containerRef}>
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
             <ChainedWorkflowList

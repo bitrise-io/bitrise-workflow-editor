@@ -107,14 +107,26 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
         <Box display="flex" flexDir="column" gap="8" {...containerProps}>
           {sortableItems.map((item) => {
             const isLast = item.stepIndex === sortableItems.length - 1;
-            const handleAddStepClick = onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex + 1));
-            const handleStepSelect = onStepSelect && (() => onStepSelect(workflowId, item.stepIndex));
 
             return (
               <Fragment key={item.stepIndex}>
-                <AddStepButton my={-8} zIndex={10} onClick={handleAddStepClick} />
-                <StepCard {...item} onClick={handleStepSelect} isSortable />
-                {isLast && <AddStepButton my={-8} zIndex={10} onClick={handleAddStepClick} />}
+                <AddStepButton
+                  my={-8}
+                  zIndex={10}
+                  onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))}
+                />
+                <StepCard
+                  {...item}
+                  isSortable
+                  onClick={onStepSelect && (() => onStepSelect(workflowId, item.stepIndex))}
+                />
+                {isLast && (
+                  <AddStepButton
+                    my={-8}
+                    zIndex={10}
+                    onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex + 1))}
+                  />
+                )}
               </Fragment>
             );
           })}

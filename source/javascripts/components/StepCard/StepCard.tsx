@@ -24,7 +24,18 @@ const StepCard = ({
   onClick,
 }: StepCardProps) => {
   const step = useStep(workflowId, stepIndex);
-  const sortable = useSortable({ id: uniqueId, disabled: !isSortable, data: { uniqueId, workflowId, stepIndex } });
+
+  const sortable = useSortable({
+    id: uniqueId,
+    disabled: !isSortable,
+    data: {
+      uniqueId,
+      workflowId,
+      stepIndex,
+      isSortable,
+      showSecondary,
+    },
+  });
 
   const isButton = Boolean(onClick);
 
