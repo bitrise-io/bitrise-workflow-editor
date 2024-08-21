@@ -8,7 +8,7 @@ import DragHandle from '../../DragHandle/DragHandle';
 import useWorkflow from '../hooks/useWorkflow';
 import { getUsedByText } from '../WorkflowCard.utils';
 import useWorkflowUsedBy from '../hooks/useWorkflowUsedBy';
-import { WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
@@ -58,7 +58,7 @@ const ChainedWorkflowCard = ({
       uniqueId,
       placement,
       parentWorkflowId,
-    },
+    } satisfies SortableWorkflowItem,
   });
 
   if (!workflow) {

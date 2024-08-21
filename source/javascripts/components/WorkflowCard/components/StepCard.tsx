@@ -2,7 +2,8 @@ import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit'
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
-import DragHandle from '../DragHandle/DragHandle';
+import DragHandle from '@/components/DragHandle/DragHandle';
+import { SortableStepItem } from '../WorkflowCard.types';
 
 type StepCardProps = {
   uniqueId: string;
@@ -30,11 +31,9 @@ const StepCard = ({
     disabled: !isSortable,
     data: {
       uniqueId,
-      workflowId,
       stepIndex,
-      isSortable,
-      showSecondary,
-    },
+      workflowId,
+    } satisfies SortableStepItem,
   });
 
   const isButton = Boolean(onClick);

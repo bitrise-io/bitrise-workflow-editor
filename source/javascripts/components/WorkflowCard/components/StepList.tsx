@@ -4,10 +4,10 @@ import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartE
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useShallow } from 'zustand/react/shallow';
-import StepCard from '@/components/StepCard/StepCard';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { SortableStepItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
+import StepCard from './StepCard';
 
 type Props = Pick<WorkflowCardCallbacks, 'onAddStepClick' | 'onStepMove' | 'onStepSelect'> & {
   workflowId: string;
