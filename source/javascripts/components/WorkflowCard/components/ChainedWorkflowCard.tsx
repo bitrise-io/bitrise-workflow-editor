@@ -18,21 +18,17 @@ type Props = WorkflowCardCallbacks & {
   index: number;
   uniqueId: string;
   placement: Placement;
+  isDragging?: boolean;
   parentWorkflowId: string;
   containerProps?: CardProps;
 };
 
-/**
- * TODO
- *  use id as chainedWorkflowId
- *  add uniqueId as unique sortable id
- *  add index as chainedWorkflowIndex
- */
 const ChainedWorkflowCard = ({
   id,
   index,
   uniqueId,
   placement,
+  isDragging,
   parentWorkflowId,
   containerProps,
   ...callbacks
@@ -94,6 +90,7 @@ const ChainedWorkflowCard = ({
       variant="outline"
       ref={sortable.setNodeRef}
       {...containerProps}
+      {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
       style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
     >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">

@@ -1,9 +1,8 @@
 /* eslint-disable import/no-cycle */
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, BoxProps, Icon } from '@bitrise/bitkit';
-import { useDndContext, useDndMonitor } from '@dnd-kit/core';
-import uniqueId from 'lodash/uniqueId';
+import { useDndContext, useDndMonitor, defaultDropAnimation } from '@dnd-kit/core';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
@@ -30,7 +29,7 @@ function getSortableItem(placement: Placement, parentWorkflowId: string) {
     return {
       id,
       index,
-      uniqueId: uniqueId(),
+      uniqueId: crypto.randomUUID(),
       placement,
       parentWorkflowId,
     };
@@ -108,7 +107,11 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
           const currentOverIndex = items.findIndex((i) => i.uniqueId === overId);
           const currentActiveIndex = items.findIndex((i) => i.uniqueId === activeId);
           const updatedItems = arrayMove(items, currentActiveIndex, currentOverIndex).filter(Boolean);
-          onChainedWorkflowsUpdate?.(parentWorkflowId, placement, getChainedWorkflowIds(updatedItems));
+
+          setTimeout(() => {
+            onChainedWorkflowsUpdate?.(parentWorkflowId, placement, getChainedWorkflowIds(updatedItems));
+          }, defaultDropAnimation.duration);
+
           return updatedItems;
         });
       }
@@ -145,7 +148,7 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
     },
   });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     setSortableItems(initialSortableItems);
   }, [initialSortableItems]);
 
