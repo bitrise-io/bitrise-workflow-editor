@@ -2,25 +2,41 @@ import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit'
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
-import DragHandle from '../DragHandle/DragHandle';
+import DragHandle from '@/components/DragHandle/DragHandle';
+import { SortableStepItem } from '../WorkflowCard.types';
 
 type StepCardProps = {
-  id?: string;
+  uniqueId: string;
   stepIndex: number;
   workflowId: string;
   isSortable?: boolean;
+  isDragging?: boolean;
   showSecondary?: boolean;
   onClick?: VoidFunction;
 };
 
-const StepCard = ({ id, workflowId, stepIndex, isSortable, showSecondary = true, onClick }: StepCardProps) => {
-  const isButton = Boolean(onClick);
-  const sortableStepId = id ?? `${workflowId}->${stepIndex}`;
-
+const StepCard = ({
+  uniqueId,
+  workflowId,
+  stepIndex,
+  isSortable,
+  isDragging,
+  showSecondary = true,
+  onClick,
+}: StepCardProps) => {
   const step = useStep(workflowId, stepIndex);
-  const sortable = useSortable({ id: sortableStepId, disabled: !isSortable });
 
-  const isActive = sortable.active?.id === sortableStepId;
+  const sortable = useSortable({
+    id: uniqueId,
+    disabled: !isSortable,
+    data: {
+      uniqueId,
+      stepIndex,
+      workflowId,
+    } satisfies SortableStepItem,
+  });
+
+  const isButton = Boolean(onClick);
 
   if (!step) {
     return null;
@@ -43,6 +59,25 @@ const StepCard = ({ id, workflowId, stepIndex, isSortable, showSecondary = true,
     );
   }
 
+  if (sortable.isDragging) {
+    return (
+      <Box
+        height={50}
+        display="flex"
+        borderRadius="4"
+        border="1px dashed"
+        alignItems="center"
+        color="text/secondary"
+        justifyContent="center"
+        ref={sortable.setNodeRef}
+        textStyle="body/sm/regular"
+        borderColor="border/strong"
+        backgroundColor="background/secondary"
+        style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+      />
+    );
+  }
+
   return (
     <Card
       display="flex"
@@ -50,8 +85,8 @@ const StepCard = ({ id, workflowId, stepIndex, isSortable, showSecondary = true,
       className="group"
       borderRadius="4"
       ref={sortable.setNodeRef}
-      _hover={isButton ? { borderColor: 'border/hover', boxShadow: 'small' } : undefined}
-      {...(isActive ? { zIndex: 999, borderColor: 'border/hover', boxShadow: 'small' } : {})}
+      _hover={isButton ? { borderColor: 'border/hover' } : {}}
+      {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
       style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
     >
       {isSortable && (
