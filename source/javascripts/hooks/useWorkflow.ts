@@ -1,12 +1,12 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
-import { Workflow } from '@/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { Workflow } from '@/core/Workflow';
 
-const useWorkflow = (workflowId: string): Workflow | undefined => {
+const useWorkflow = (id: string): Workflow | undefined => {
   return useBitriseYmlStore(
     useShallow(({ yml, defaultMeta }) => {
-      const workflow = yml.workflows?.[workflowId];
+      const workflow = yml.workflows?.[id];
 
       if (!workflow) {
         return;
@@ -16,7 +16,7 @@ const useWorkflow = (workflowId: string): Workflow | undefined => {
         workflow.meta = merge({}, defaultMeta, workflow.meta);
       }
 
-      return workflow;
+      return { id, ...workflow } as Workflow;
     }),
   );
 };

@@ -1,6 +1,6 @@
 import { useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
-import useWorkflow from './hooks/useWorkflow';
+import useWorkflow from '@/hooks/useWorkflow';
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import { WorkflowCardCallbacks } from './WorkflowCard.types';

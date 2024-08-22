@@ -1,10 +1,10 @@
 import { useEffect, useMemo } from 'react';
 import { Box, Input, Textarea } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
-import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
+import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const PropertiesTab = () => {
-  const [{ id: name, summary = '', description = '' }] = useSelectedWorkflow();
+  const { id: name, summary = '', description = '' } = useWorkflowConfigContext();
   const defaultValues = useMemo(() => ({ name, summary, description }), [name, summary, description]);
 
   const { reset, trigger, register, formState } = useForm({

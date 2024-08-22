@@ -1,16 +1,18 @@
-import { Box, Drawer } from '@bitrise/bitkit';
+import { Box } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { BitriseYml } from '@/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import WorkflowConfigDrawer from '@/components/WorkflowConfig/WorkflowConfigDrawer';
+import WorkflowConfigPanel from '@/components/WorkflowConfig/WorkflowConfigPanel';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
-import WorkflowConfigPanel from './components.new/WorkflowConfigPanel/WorkflowConfigPanel';
 import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
+import useSelectedWorkflow from './hooks/useSelectedWorkflow';
 
 type Props = {
   yml: BitriseYml;
@@ -18,6 +20,7 @@ type Props = {
 };
 
 const WorkflowsPageContent = () => {
+  const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
   const { workflowId, stepIndex, isDialogOpen, closeDialog, openStepConfigDrawer } = useWorkflowsPageStore();
 
   const { addStep, createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
@@ -54,7 +57,8 @@ const WorkflowsPageContent = () => {
     <>
       <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
         <WorkflowCanvasPanel />
-        <WorkflowConfigPanel />
+        {/* NOTE: The key prop helps to reset the internal components state (eg.: Tabs, ExpandableCard) */}
+        <WorkflowConfigPanel key={selectedWorkflowId} workflowId={selectedWorkflowId} />
       </Box>
 
       <CreateWorkflowDialog onCreate={createWorkflow} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />
@@ -81,9 +85,7 @@ const WorkflowsPageContent = () => {
         onStepSelected={({ cvs }) => handleAddStep(cvs)}
       />
 
-      <Drawer title="Workflow Config Drawer" isOpen={isWorkflowConfigDrawerOpen} onClose={closeDialog}>
-        Not Implemented Yet
-      </Drawer>
+      <WorkflowConfigDrawer workflowId={workflowId} isOpen={isWorkflowConfigDrawerOpen} onClose={closeDialog} />
     </>
   );
 };

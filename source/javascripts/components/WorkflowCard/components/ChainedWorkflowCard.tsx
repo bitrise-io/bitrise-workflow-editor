@@ -4,8 +4,8 @@ import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDi
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
+import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '../../DragHandle/DragHandle';
-import useWorkflow from '../hooks/useWorkflow';
 import { getUsedByText } from '../WorkflowCard.utils';
 import useWorkflowUsedBy from '../hooks/useWorkflowUsedBy';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
@@ -136,17 +136,14 @@ const ChainedWorkflowCard = ({
             {onAddChainedWorkflowClick && (
               <ControlButton
                 size="xs"
-                display="none"
                 iconName="PlusOpen"
                 aria-label="Chain Workflows"
-                _groupHover={{ display: 'block' }}
                 onClick={() => onAddChainedWorkflowClick(id)}
               />
             )}
             {onEditWorkflowClick && (
               <ControlButton
                 size="xs"
-                display="none" // NOTE: It should be visibe after WorkflowConfigDrawer implemented.
                 iconName="Settings"
                 aria-label="Edit Workflow"
                 onClick={() => onEditWorkflowClick(id)}
