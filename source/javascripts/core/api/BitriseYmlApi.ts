@@ -1,24 +1,9 @@
-import { stringify } from 'yaml';
-import { BitriseYml } from '@/core/BitriseYml';
+import { BitriseYml, toJSON } from '@/core/models/BitriseYml';
 import Client from './client';
 
 // TRANSFORMATIONS
 function toBitriseYml(data: string): BitriseYml {
   return JSON.parse(data) as BitriseYml;
-}
-
-function toJSON(model: BitriseYml): string {
-  return JSON.stringify({
-    app_config_datastore_yaml: toYml(model),
-  });
-}
-
-function toYml(model?: BitriseYml): string {
-  if (!model) {
-    return '';
-  }
-
-  return `---\n${stringify(model)}`;
 }
 
 // API CALLS

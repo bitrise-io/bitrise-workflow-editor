@@ -1,5 +1,6 @@
 import { delay, http, HttpResponse } from 'msw';
-import { AlgoliaStepResponse, Maintainer } from '@/models/Algolia';
+import { AlgoliaStepResponse } from '@/core/api/StepApi';
+import { Maintainer } from '@/core/models/Step';
 
 export const MockSteps: AlgoliaStepResponse[] = [
   {
@@ -865,12 +866,12 @@ export const MockSteps: AlgoliaStepResponse[] = [
   },
 ];
 
-export const successful = http.post('*/1/indexes/steplib_steps/browse', async () => {
+export const getAllStepsSuccessful = http.post('*/1/indexes/steplib_steps/browse', async () => {
   await delay();
   return HttpResponse.json({ hits: Array.from(MockSteps) });
 });
 
-export const error = http.post('*/1/indexes/steplib_steps/browse', async () => {
+export const getAllStepsFailed = http.post('*/1/indexes/steplib_steps/browse', async () => {
   await delay();
   return new HttpResponse(null, {
     status: 500,

@@ -1,4 +1,4 @@
-import { YmlSettings } from '@/core/YmlSettings';
+import { YmlSettings } from '@/core/models/YmlSettings';
 import Client from './client';
 
 // DTOs

@@ -1,5 +1,16 @@
 import { delay, http, HttpResponse } from 'msw';
-import { configPath, notificationMetaDataPath, pipelineConfigPath } from '../../monolithApiRouteService';
+
+export const configPath = (appSlug: string): string => {
+  return `/api/app/${appSlug}/config`;
+};
+
+export const pipelineConfigPath = (appSlug: string): string => {
+  return `/app/${appSlug}/pipeline_config`;
+};
+
+export const notificationMetaDataPath = (): string => {
+  return `/me/profile/metadata.json`;
+};
 
 export const getConfig = () => {
   return http.get(configPath(':slug'), async () => {
@@ -47,31 +58,4 @@ export const postConfig = () => {
       status: 200,
     });
   });
-};
-
-type Context = {
-  value: boolean | null;
-};
-const InitialContext: Context = { value: null };
-export const getNotificationMetaData = (context: Context = InitialContext) => {
-  return http.get(notificationMetaDataPath(), async () => {
-    await delay();
-    return HttpResponse.json({ value: context.value }, { status: 200 });
-  });
-};
-
-export const putNotificationMetaData = (updatedValue: boolean, context: Context = InitialContext) => {
-  return http.put(notificationMetaDataPath(), async () => {
-    await delay();
-    context.value = updatedValue;
-    return new HttpResponse(null, {
-      status: 200,
-    });
-  });
-};
-
-export const makeNotificationMetadataEndpoint = () => {
-  const ctx: Context = InitialContext;
-
-  return [getNotificationMetaData(ctx), putNotificationMetaData(true, ctx)];
 };
