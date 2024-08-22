@@ -21,6 +21,7 @@ type Props = UseDisclosureProps & {
 
 const StepDrawer = ({ enabledStepIds, onStepSelected, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
+
   const form = useForm<SearchFormValues>({
     defaultValues: {
       search: '',
@@ -30,7 +31,7 @@ const StepDrawer = ({ enabledStepIds, onStepSelected, ...disclosureProps }: Prop
 
   return (
     <FormProvider {...form}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose}>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={form.reset}>
         <DrawerOverlay
           top="0px"
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
