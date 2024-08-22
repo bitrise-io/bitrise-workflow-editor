@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
 import { useMutation } from '@tanstack/react-query';
-import { Secret, SecretWithState } from '@/models';
+import { Secret, SecretWithState } from '@/core/models/Secret';
 import { monolith } from '@/hooks/api/client';
 import SecretCard from './SecretCard';
 

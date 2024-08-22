@@ -1,25 +1,16 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import maxSatisfying from 'semver/ranges/max-satisfying';
 import { useQuery } from '@tanstack/react-query';
 import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { isGitStep, isLocalStep, isStepLib, normalizeStepVersion, parseStepCVS, Step } from '@/models/Step';
-import useAlgoliaStep from '@/hooks/useAlgoliaStep';
-import useAlgoliaStepInputs from '@/hooks/useAlgoliaStepInputs';
-import { Maintainer } from '@/models/Algolia';
-import defaultIcon from '../../images/step/icon-default.svg';
+import { Step } from '@/core/models/Step';
+import { useAlgoliaStep, useAlgoliaStepInputs } from '@/hooks/useAlgolia';
+import CvsUtils from '@/core/utils/CvsUtils';
 
 type UseStepResult = {
   cvs: string;
   step?: Step;
-  icon?: string;
-  title?: string; // TODO: should be removed because confusing (use step.title instead)
-  isLoading?: boolean;
-  maintainer?: Maintainer;
-  selectedVersion?: string;
-  resolvedVersion?: string;
-  availableVersions?: string[];
+  isLoading: boolean;
 };
 
 const useStepFromYml = (workflowId: string, stepIndex: number): UseStepResult => {
@@ -28,56 +19,48 @@ const useStepFromYml = (workflowId: string, stepIndex: number): UseStepResult =>
       const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
 
       if (!stepObjectFromYml) {
-        return { cvs: '' };
+        return { cvs: '', isLoading: true };
       }
 
       const [cvs, step] = Object.entries(stepObjectFromYml)[0];
 
-      if (!isStepLib(cvs, step) && !isGitStep(cvs, step) && !isLocalStep(cvs, step)) {
-        return { cvs };
+      if (CvsUtils.isStepLibStep(cvs, step) || CvsUtils.isGitStep(cvs, step) || CvsUtils.isLocalStep(cvs, step)) {
+        return { cvs, step, isLoading: true };
       }
 
-      return { cvs, step };
+      return { cvs, isLoading: true };
     }),
   );
 };
 
 const useStepFromAlgolia = (cvs = ''): UseStepResult => {
-  const [id, version] = parseStepCVS(cvs);
-  const { data: info, isLoading: isLoadingInfo } = useAlgoliaStep({ id, enabled: Boolean(id && isStepLib(cvs)) });
-
-  const versions = info?.map((s) => s.version ?? '');
-  const latestVersion = info?.find((s) => s.is_latest)?.version;
-  const selectedVersion = normalizeStepVersion(version ?? '');
-  const resolvedVersion = !version ? latestVersion : maxSatisfying(versions ?? [], selectedVersion) || undefined;
-  const resolvedStepInfo = info?.find((s) => s.version === resolvedVersion);
+  const [id] = CvsUtils.parseStepCVS(cvs);
+  const { data: step, isLoading: isLoadingInfo } = useAlgoliaStep({
+    cvs,
+    enabled: Boolean(id && CvsUtils.isStepLibStep(cvs)),
+  });
 
   const { data: inputs, isLoading: isLoadingInputs } = useAlgoliaStepInputs({
-    cvs: resolvedStepInfo?.cvs ?? '',
-    enabled: Boolean(resolvedStepInfo?.cvs),
+    cvs: step?.info?.cvs || cvs,
+    enabled: Boolean(step?.info?.cvs),
   });
 
   return useMemo(() => {
     return {
-      selectedVersion,
-      resolvedVersion,
-      availableVersions: versions,
-      cvs: resolvedStepInfo?.cvs || cvs,
-      step: { ...resolvedStepInfo?.step, inputs },
+      cvs: step?.info?.cvs || cvs,
+      step: { ...step, inputs },
       isLoading: isLoadingInfo || isLoadingInputs,
-      maintainer: resolvedStepInfo?.info?.maintainer,
-      icon: resolvedStepInfo?.info?.asset_urls?.['icon.svg'] || resolvedStepInfo?.info?.asset_urls?.['icon.png'],
     };
-  }, [cvs, inputs, isLoadingInfo, isLoadingInputs, resolvedStepInfo, resolvedVersion, selectedVersion, versions]);
+  }, [cvs, inputs, isLoadingInfo, isLoadingInputs, step]);
 };
 
 const useStepFromLocalApi = (cvs = ''): UseStepResult => {
-  const [id, version] = parseStepCVS(cvs);
+  const [id, version] = CvsUtils.parseStepCVS(cvs);
 
   let library: string = '';
-  if (isLocalStep(cvs)) {
+  if (CvsUtils.isLocalStep(cvs)) {
     library = 'path';
-  } else if (isGitStep(cvs)) {
+  } else if (CvsUtils.isGitStep(cvs)) {
     library = 'git';
   }
 
@@ -89,7 +72,10 @@ const useStepFromLocalApi = (cvs = ''): UseStepResult => {
         signal,
         method: 'POST',
         body: JSON.stringify({ id, library, version }),
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
       });
 
       return (await response.json()) as {
@@ -104,11 +90,8 @@ const useStepFromLocalApi = (cvs = ''): UseStepResult => {
       cvs,
       isLoading,
       step: data?.step,
-      selectedVersion: version,
-      resolvedVersion: version,
-      icon: data?.info?.asset_urls?.['icon.svg'] || data?.info?.asset_urls?.['icon.png'],
     };
-  }, [cvs, isLoading, data, version]);
+  }, [cvs, isLoading, data]);
 };
 
 const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefined => {
@@ -122,7 +105,7 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
       return undefined;
     }
 
-    const stepDefaults = stepFromAlgolia?.step || stepFromLocalApi?.step;
+    const { info, versionInfo, ...stepDefaults } = stepFromAlgolia?.step || stepFromLocalApi?.step || {};
 
     const inputs = stepDefaults?.inputs?.map(({ opts, ...input }) => {
       const [inputName, defaultValue] = Object.entries(input)[0];
@@ -140,18 +123,7 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
     return {
       cvs,
       step: mergedStep,
-      title: mergedStep.title || cvs,
-      maintainer: stepFromAlgolia?.maintainer,
-      availableVersions: stepFromAlgolia?.availableVersions,
-      isLoading: stepFromAlgolia?.isLoading || stepFromLocalApi?.isLoading,
-      selectedVersion: stepFromAlgolia?.selectedVersion || stepFromLocalApi?.selectedVersion,
-      resolvedVersion: stepFromAlgolia?.resolvedVersion || stepFromLocalApi?.resolvedVersion,
-      icon:
-        mergedStep?.asset_urls?.['icon.svg'] ||
-        mergedStep?.asset_urls?.['icon.png'] ||
-        stepFromAlgolia?.icon ||
-        stepFromLocalApi?.icon ||
-        defaultIcon,
+      isLoading: Boolean(stepFromAlgolia?.isLoading || stepFromLocalApi?.isLoading),
     };
   }, [cvs, stepFromAlgolia, stepFromLocalApi, stepFromYml]);
 };

@@ -2,16 +2,18 @@ import { useEffect, useState } from 'react';
 import { Box, Collapse, Divider, Icon, Input, Link, MarkdownContent, Select, Text } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 
-import { OnStepChange, Step, StepVersionWithRemark } from '@/models';
+import { Step } from '@/models';
+import VersionUtils from '@/core/utils/VersionUtils';
 import { extractStepFields } from './StepConfigPanel.utils';
+import { OnStepChange } from './StepConfigPanel.types';
 
 type Props = {
   step: Step;
-  versionsWithRemarks: Array<StepVersionWithRemark>;
+  versions: string[];
   onChange: OnStepChange;
 };
 
-const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
+const StepProperties = ({ step, versions, onChange }: Props) => {
   const { name, version, sourceURL, summary, description, isLibraryStep } = extractStepFields(step);
   const [showMore, setShowMore] = useState(false);
 
@@ -52,10 +54,10 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
         isDisabled={!isLibraryStep}
         backgroundSize="none"
       >
-        {versionsWithRemarks.map(({ version: value, remark }) => {
+        {versions.map((v) => {
           return (
-            <option key={value} value={value || ''}>
-              {value || 'Always latest'} - {remark}
+            <option key={v} value={v || ''}>
+              {v ? `${v} - ${VersionUtils.getVersionRemark(v)}` : 'Always latest'}
             </option>
           );
         })}

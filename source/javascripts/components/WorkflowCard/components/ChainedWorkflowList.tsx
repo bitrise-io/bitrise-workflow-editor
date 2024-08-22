@@ -2,10 +2,10 @@
 import { useCallback, useLayoutEffect, useMemo, useState } from 'react';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { Box, BoxProps, Icon } from '@bitrise/bitkit';
-import { useDndContext, useDndMonitor, defaultDropAnimation } from '@dnd-kit/core';
+import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/core';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
@@ -68,7 +68,10 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
         return;
       }
 
-      return { ...(node.data.current as SortableWorkflowItem), uniqueId: node.id.toString() };
+      return {
+        ...(node.data.current as SortableWorkflowItem),
+        uniqueId: node.id.toString(),
+      };
     },
     [droppableContainers],
   );

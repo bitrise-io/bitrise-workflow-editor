@@ -19,13 +19,13 @@ import {
   Textarea,
   Toggletip,
 } from '@bitrise/bitkit';
-
 import { useForm } from 'react-hook-form';
 import { useMutation, useQuery } from '@tanstack/react-query';
-import { queryClient } from '../../utils/withQueryClientProvider';
-import { monolith } from '../../hooks/api/client';
-import useGetSecretValue from '../../hooks/api/useGetSecretValue';
-import { SecretWithState } from '../../models';
+
+import { SecretWithState } from '@/core/models/Secret';
+import { monolith } from '@/hooks/api/client';
+import useGetSecretValue from '@/hooks/api/useGetSecretValue';
+import { queryClient } from '@/utils/withQueryClientProvider';
 
 interface SecretCardProps extends CardProps {
   appSlug: string;
@@ -84,7 +84,9 @@ const SecretCard = (props: SecretCardProps) => {
     onSuccess(_data, newSecret) {
       resetSave();
       onSave(newSecret);
-      queryClient.invalidateQueries({ queryKey: ['app', appSlug, 'secret', secret.key] });
+      queryClient.invalidateQueries({
+        queryKey: ['app', appSlug, 'secret', secret.key],
+      });
     },
   });
 
@@ -103,7 +105,10 @@ const SecretCard = (props: SecretCardProps) => {
     setValue,
     formState: { errors },
   } = useForm<SecretWithState>({
-    values: { ...secret, value: secret.isEditing || isShown ? fetchedSecretValue || secret.value : '••••••••' },
+    values: {
+      ...secret,
+      value: secret.isEditing || isShown ? fetchedSecretValue || secret.value : '••••••••',
+    },
   });
 
   const showSecretValue = () => {
@@ -173,7 +178,15 @@ const SecretCard = (props: SecretCardProps) => {
     if (secret.isEditing) {
       return (
         <Textarea
-          sx={{ '& textarea': { minHeight: '40', height: '40', paddingTop: '8', paddingX: '11px', fontSize: '2' } }}
+          sx={{
+            '& textarea': {
+              minHeight: '40',
+              height: '40',
+              paddingTop: '8',
+              paddingX: '11px',
+              fontSize: '2',
+            },
+          }}
           {...register('value', { required: 'This field is required.' })}
         />
       );

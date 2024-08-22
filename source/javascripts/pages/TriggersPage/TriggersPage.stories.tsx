@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 
-import { makeNotificationMetadataEndpoint } from '@/components/ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
+import { makeNotificationMetadataEndpoint } from '@/core/api/UserApi.mswMocks';
 import TriggersPage from './TriggersPage';
 
 export default {

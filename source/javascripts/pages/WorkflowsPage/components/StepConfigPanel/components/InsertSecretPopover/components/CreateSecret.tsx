@@ -1,7 +1,9 @@
+import { useMemo } from 'react';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 
 import { useForm } from 'react-hook-form';
-import { isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, Secret, VALUE_IS_REQUIRED } from '@/models/Secret';
+import { Secret } from '@/core/models/Secret';
+import SecretService from '@/core/models/SecretService';
 import { CreateSecretFormValues, HandlerFn } from '../types';
 
 type Props = {
@@ -17,6 +19,7 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
     handleSubmit,
     reset,
   } = useForm<CreateSecretFormValues>();
+  const keys = useMemo(() => items.map((item) => item.key), [items]);
 
   const handleCancel = () => {
     onCancel();
@@ -41,12 +44,7 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter key"
             errorText={errors.key?.message}
             {...register('key', {
-              required: KEY_IS_REQUIRED,
-              pattern: KEY_PATTERN,
-              validate: {
-                isUnique: isKeyUnique(items.map((s) => s.key)),
-                isNotEmpty,
-              },
+              validate: (v) => SecretService.validateKey(v, keys),
             })}
           />
           <Text pt="14">=</Text>
@@ -57,8 +55,7 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter value"
             errorText={errors.value?.message}
             {...register('value', {
-              required: VALUE_IS_REQUIRED,
-              validate: { isNotEmpty },
+              validate: SecretService.validateValue,
             })}
           />
         </Box>

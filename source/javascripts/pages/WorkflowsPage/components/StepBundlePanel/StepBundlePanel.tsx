@@ -1,5 +1,5 @@
 import { Box, Notification, Text } from '@bitrise/bitkit';
-import useNavigation from '../../../PipelinesPage/hooks/useNavigation';
+import useNavigation from '@/hooks/useNavigation';
 
 type StepBundlePanelProps = {
   stepDisplayName: string;

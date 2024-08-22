@@ -1,4 +1,4 @@
-import { PipelineConfig } from '../../models/PipelineConfig';
+import { YmlSettings } from '@/core/models/YmlSettings';
 import useMonolithApiCallback, { MonolithError } from './useMonolithApiCallback';
 
 export interface FetchResponse {
@@ -16,7 +16,7 @@ export default function useUpdatePipelineConfigCallback(appSlug: string, usesRep
     failed: updatePipelineConfigFailed,
     call: updatePipelineConfig,
     reset: updatePipelineConfigReset,
-  } = useMonolithApiCallback<PipelineConfig>(`/app/${appSlug}/pipeline_config`, {
+  } = useMonolithApiCallback<YmlSettings>(`/app/${appSlug}/pipeline_config`, {
     method: 'PUT',
     body: JSON.stringify({
       uses_repository_yml: usesRepositoryYml,

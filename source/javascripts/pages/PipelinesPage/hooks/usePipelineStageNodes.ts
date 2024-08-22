@@ -1,5 +1,5 @@
 import { Node, Position } from 'reactflow';
-import { Stage } from '@/models/Stage';
+import { Stage } from '@/core/models/Stage';
 import { CANVAS_PADDING, ICON_STAGE_WIDTH, STAGE_GAP, STAGE_WIDTH } from '../PipelinesPage.const';
 import usePipelineStages from './usePipelineStages';
 

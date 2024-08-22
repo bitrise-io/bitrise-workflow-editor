@@ -2,10 +2,11 @@ import './StepItem.scss';
 import 'react-lazy-load-image-component/src/effects/blur.css';
 
 import { Text } from '@bitrise/bitkit';
-import { Step, WithBlockData } from '@/models';
-import StepBadge from '../StepBadge/StepBadge';
-import StepItemIcon from './StepItemIcon';
-import StepItemTitle from './StepItemTitle';
+import { LazyLoadImage } from 'react-lazy-load-image-component';
+import { WithBlockData } from '@/core/models/Step';
+import { Step } from '@/models';
+import defaultStepIcon from '../../../images/step/icon-default.svg';
+import StepBadge from '../StepBadge';
 import StepItemVersion from './StepItemVersion';
 
 const getWithBlockText = (withBlockData: WithBlockData): string => {
@@ -51,10 +52,16 @@ const StepItem = ({
       tabIndex={tabIndex(isSelected)}
       onClick={() => onSelected(step, workflowIndex)}
     >
-      <StepItemIcon iconUrl={step.iconURL()} />
+      <LazyLoadImage
+        wrapperProps={{ style: { flexShrink: 0 } }}
+        effect="blur"
+        src={step.iconURL() || defaultStepIcon}
+      />
       <span className="info">
         <strong>
-          <StepItemTitle displayName={displayName} />
+          <Text data-e2e-tag="step-item__title" className="title" hasEllipsis>
+            {displayName}
+          </Text>
           <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
         </strong>
         {version !== undefined && !step.isStepBundle() && !step.isWithBlock() && (
@@ -64,7 +71,7 @@ const StepItem = ({
             hasVersionUpdate={hasVersionUpdate}
           />
         )}
-        {!!step.isWithBlock() && step.withBlockData && (
+        {step.isWithBlock() && step.withBlockData && (
           <Text color={isSelected ? 'text/on-color' : 'text/secondary'} fontSize="13px" hasEllipsis>
             {getWithBlockText(step.withBlockData)}
           </Text>

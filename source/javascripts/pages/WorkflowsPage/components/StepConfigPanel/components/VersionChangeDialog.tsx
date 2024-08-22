@@ -1,11 +1,14 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
 
-type Props = {
-  isOpen: boolean;
+type ChangeProps = {
   isMajorChange: boolean;
   releaseNotesUrl?: string;
   removedInputs: Array<string>;
   newInputs: Array<string>;
+};
+
+type Props = ChangeProps & {
+  isOpen: boolean;
   onClose: VoidFunction;
 };
 
@@ -67,5 +70,7 @@ const VersionChangeDialog = ({
     </Dialog>
   );
 };
+
+export { ChangeProps };
 
 export default VersionChangeDialog;

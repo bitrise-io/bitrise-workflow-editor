@@ -1,9 +1,9 @@
 import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclosure } from '@bitrise/bitkit';
 import { UseDisclosureProps } from '@chakra-ui/react';
 import { useForm } from 'react-hook-form';
-import { isNotEmpty, isUnique, WORKFLOW_NAME_PATTERN, WORKFLOW_NAME_REQUIRED } from '@/models/Workflow';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import WorkflowService from '@/core/models/WorkflowService';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
 
 type FormValues = {
@@ -53,9 +53,7 @@ const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
             placeholder="Workflow name"
             errorText={errors.name?.message}
             {...register('name', {
-              required: WORKFLOW_NAME_REQUIRED,
-              pattern: WORKFLOW_NAME_PATTERN,
-              validate: { isUnique: isUnique(workflowIds), isNotEmpty },
+              validate: (v) => WorkflowService.validateName(v, workflowIds),
             })}
           />
           <Select isRequired defaultValue="" label="Based on" {...register('basedOn')}>

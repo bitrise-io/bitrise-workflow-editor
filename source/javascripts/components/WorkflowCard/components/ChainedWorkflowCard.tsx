@@ -3,11 +3,10 @@ import { useRef } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
-import useWorkflow from '@/hooks/useWorkflow';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+import useWorkflowUsedBy from '@/hooks/useWorkflowUsedBy';
 import DragHandle from '../../DragHandle/DragHandle';
 import { getUsedByText } from '../WorkflowCard.utils';
-import useWorkflowUsedBy from '../hooks/useWorkflowUsedBy';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
@@ -83,7 +82,10 @@ const ChainedWorkflowCard = ({
         borderColor="border/strong"
         backgroundColor="background/secondary"
         {...containerProps}
-        style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+        style={{
+          transition: sortable.transition,
+          transform: CSS.Transform.toString(sortable.transform),
+        }}
       >
         {id}
       </Box>
@@ -97,7 +99,10 @@ const ChainedWorkflowCard = ({
       ref={sortable.setNodeRef}
       {...containerProps}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+      style={{
+        transition: sortable.transition,
+        transform: CSS.Transform.toString(sortable.transform),
+      }}
     >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isSortable && (

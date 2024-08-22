@@ -3,11 +3,11 @@ import { UniqueIdentifier } from '@dnd-kit/core';
 export function getUsedByText(usedBy: string[]) {
   switch (usedBy.length) {
     case 0:
-      return 'not used by other Workflow';
+      return 'Not used by other Workflow';
     case 1:
-      return 'used by 1 Workflow';
+      return 'Used by 1 Workflow';
     default:
-      return `used by ${usedBy.length} Workflows`;
+      return `Used by ${usedBy.length} Workflows`;
   }
 }
 

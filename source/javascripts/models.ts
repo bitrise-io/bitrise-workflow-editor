@@ -1,33 +1,7 @@
+import { WithBlockData } from '@/core/models/Step';
+
 export type GetterSetter<T> = (value?: T) => T;
 export type Getter<T> = () => T;
-
-export interface StepCatalouge {
-  steps: Record<string, Map<string, Record<string, any>>>;
-  latestStepVersions: Record<string, string>;
-}
-
-export interface Workflow {
-  id: string;
-  steps: Array<Step>;
-  beforeRunWorkflows: (arg0: Array<Workflow>) => Array<Workflow>;
-  afterRunWorkflows: (arg0: Array<Workflow>) => Array<Workflow>;
-  workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
-}
-
-export type OnStepChange = (values: Partial<Record<string, unknown>>) => void;
-export type StepVersionWithRemark = { version: string; remark: string };
-
-export type VersionChangeDialogProps = {
-  isMajorChange: boolean;
-  releaseNotesUrl: string;
-  removedInputs: Array<string>;
-  newInputs: Array<string>;
-};
-
-export type WithBlockData = {
-  image: string;
-  services?: string[];
-};
 
 export interface Step {
   $$hashKey: string;
@@ -64,6 +38,19 @@ export interface Step {
   isWithBlock: Getter<boolean>;
 }
 
+export interface StepCatalouge {
+  steps: Record<string, Map<string, Record<string, any>>>;
+  latestStepVersions: Record<string, string>;
+}
+
+export interface Workflow {
+  id: string;
+  steps: Array<Step>;
+  beforeRunWorkflows: (arg0: Array<Workflow>) => Array<Workflow>;
+  afterRunWorkflows: (arg0: Array<Workflow>) => Array<Workflow>;
+  workflowChain: (arg0: Array<Workflow>) => Array<Workflow>;
+}
+
 export interface StepOutputVariable {
   key: string;
   title?: string;
@@ -87,20 +74,3 @@ export interface InputCategory {
   name: string;
   inputs: Variable[];
 }
-
-export type Secret = {
-  key: string;
-  value: string;
-  isProtected: boolean;
-  isExpand: boolean;
-  isExpose: boolean;
-  isKeyChangeable: boolean;
-  isSaved?: boolean;
-  isEditing?: boolean;
-  isShared?: boolean;
-};
-
-export type SecretWithState = Secret & {
-  isEditing: boolean;
-  isSaved?: boolean;
-};

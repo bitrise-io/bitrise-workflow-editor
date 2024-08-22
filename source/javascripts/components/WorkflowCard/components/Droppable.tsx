@@ -1,6 +1,6 @@
 import { Box, BoxProps } from '@bitrise/bitkit';
 import { useDroppable } from '@dnd-kit/core';
-import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import { SortableWorkflowItem } from '../WorkflowCard.types';
 
 type Props = {

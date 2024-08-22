@@ -1,8 +1,9 @@
 import { useContext } from 'react';
 import { useStore } from 'zustand';
-import { BitriseYmlContext, BitriseYmlProviderState } from '../contexts/BitriseYmlProvider';
+import { BitriseYmlContext } from '@/contexts/BitriseYmlProvider';
+import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
-const useBitriseYmlStore = <U>(selector: (state: BitriseYmlProviderState) => U) => {
+const useBitriseYmlStore = <U>(selector: (state: BitriseYmlStoreState) => U) => {
   const store = useContext(BitriseYmlContext);
 
   if (!store) {

@@ -1,4 +1,4 @@
-import { ChainedWorkflowPlacement } from '@/models/Workflow';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 
 export type SearchFormValues = {
   search: string;

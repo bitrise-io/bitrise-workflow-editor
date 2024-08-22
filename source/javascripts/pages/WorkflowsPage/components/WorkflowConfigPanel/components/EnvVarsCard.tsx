@@ -6,7 +6,7 @@ import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
-import { isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, VALUE_IS_REQUIRED } from '@/models/EnvVar';
+import EnvVarService from '@/core/models/EnvVarService';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import { FormValues } from '../WorkflowConfigPanel.types';
 
@@ -80,12 +80,11 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             placeholder="Enter key"
             errorText={errors.configuration?.envs?.[index]?.key?.message}
             {...register(`configuration.envs.${index}.key`, {
-              required: KEY_IS_REQUIRED,
-              pattern: KEY_PATTERN,
-              validate: {
-                isUnique: isKeyUnique(envVars.map((ev) => ev.key)),
-                isNotEmpty,
-              },
+              validate: (v) =>
+                EnvVarService.validateKey(
+                  v,
+                  envVars.map((ev) => ev.key),
+                ),
             })}
           />
           <Text color="text/tertiary" pt="8">
@@ -97,8 +96,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             formControlProps={{ flex: 1 }}
             errorText={errors.configuration?.envs?.[index]?.value?.message}
             {...register(`configuration.envs.${index}.value`, {
-              required: VALUE_IS_REQUIRED,
-              validate: { isNotEmpty },
+              validate: EnvVarService.validateValue,
               setValueAs: String,
             })}
           />

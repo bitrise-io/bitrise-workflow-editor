@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { useForm } from 'react-hook-form';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
-import { EnvVar, isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, VALUE_IS_REQUIRED } from '@/models/EnvVar';
+import { EnvVar } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/models/EnvVarService';
 import { CreateEnvVarFormValues, HandlerFn } from '../types';
 
 type Props = {
@@ -16,6 +18,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
     handleSubmit,
     reset,
   } = useForm<CreateEnvVarFormValues>();
+  const keys = useMemo(() => items.map((item) => item.key), [items]);
 
   const handleCancel = () => {
     onCancel();
@@ -40,12 +43,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter key"
             errorText={errors.key?.message}
             {...register('key', {
-              required: KEY_IS_REQUIRED,
-              pattern: KEY_PATTERN,
-              validate: {
-                isUnique: isKeyUnique(items.map((ev) => ev.key)),
-                isNotEmpty,
-              },
+              validate: (v) => EnvVarService.validateKey(v, keys),
             })}
           />
           <Text pt="14">=</Text>
@@ -56,8 +54,8 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter value"
             errorText={errors.value?.message}
             {...register('value', {
-              required: VALUE_IS_REQUIRED,
-              validate: { isNotEmpty },
+              validate: EnvVarService.validateValue,
+              setValueAs: String,
             })}
           />
         </Box>

@@ -1,8 +1,8 @@
 import 'reactflow/dist/style.css';
 import { Box } from '@bitrise/bitkit';
-import withQueryClientProvider from '../../utils/withQueryClientProvider';
-import { BitriseYml, Meta } from '../../models/BitriseYml';
-import BitriseYmlProvider from '../../contexts/BitriseYmlProvider';
+import { BitriseYml, Meta } from '@/core/models/BitriseYml';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import withQueryClientProvider from '@/utils/withQueryClientProvider';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
 import PipelinesEmptyState from './components/PipelinesEmptyState';

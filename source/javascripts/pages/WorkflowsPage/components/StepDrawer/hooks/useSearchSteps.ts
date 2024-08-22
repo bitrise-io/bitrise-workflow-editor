@@ -2,10 +2,8 @@ import { useMemo } from 'react';
 import Fuse from 'fuse.js';
 import { useQuery } from '@tanstack/react-query';
 
-import { AlgoliaStepResponse } from '@/models/Algolia';
-import { fromAlgolia } from '../StepDrawer.utils';
+import { useAlgoliaSteps } from '@/hooks/useAlgolia';
 import { SearchFormValues, Step } from '../StepDrawer.types';
-import useAlgoliaSteps from '../../../hooks/useAlgoliaSteps';
 
 const useSearchSteps = ({ search, categories }: SearchFormValues) => {
   const { data: steps = [], isLoading, isError, refetch } = useAlgoliaSteps();
@@ -13,9 +11,9 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
     const options = {
       keys: [
         { name: 'id', weight: 2 },
-        { name: 'step.title', weight: 3 },
-        { name: 'step.summary', weight: 0.5 },
-        { name: 'step.type_tags' },
+        { name: 'title', weight: 3 },
+        { name: 'summary', weight: 0.5 },
+        { name: 'type_tags' },
       ],
       threshold: 0.25,
       ignoreLocation: true,
@@ -39,9 +37,9 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
         const exp = {
           $or: [
             { $path: 'id', $val: term },
-            { $path: 'step.title', $val: term },
-            { $path: 'step.summary', $val: term },
-            { $path: 'step.description', $val: term },
+            { $path: 'title', $val: term },
+            { $path: 'summary', $val: term },
+            { $path: 'description', $val: term },
           ],
         };
         expressions.push(exp);
@@ -50,7 +48,7 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
       if (categories.length > 0) {
         const exp = {
           $or: categories.map((category) => ({
-            $path: 'step.type_tags',
+            $path: 'type_tags',
             // "'term" means to include the term in the value
             $val: `'${category}`,
           })),
@@ -59,13 +57,13 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
       }
 
       if (expressions.length > 0) {
-        const results = index.search<AlgoliaStepResponse>({
+        const results = index.search({
           $and: expressions,
         });
         items = results.map((result) => result.item);
       }
 
-      return items.map(fromAlgolia);
+      return items;
     },
   });
 

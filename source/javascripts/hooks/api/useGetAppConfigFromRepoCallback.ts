@@ -1,4 +1,4 @@
-import { AppConfig } from '../../models/AppConfig';
+import { AppConfig } from '@/core/AppConfig';
 import useMonolithApiCallback, { MonolithError } from './useMonolithApiCallback';
 
 export interface FetchResponse {

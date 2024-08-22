@@ -1,7 +1,7 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useDisclosure } from '@bitrise/bitkit';
+import { getAllStepsFailed, getAllStepsSuccessful } from '@/core/api/StepApi.mswMocks';
 import StepDrawer from './StepDrawer';
-import { error, successful } from './hooks/StepDrawer.mswMocks';
 
 export default {
   component: StepDrawer,
@@ -17,7 +17,7 @@ export default {
   },
   parameters: {
     msw: {
-      handlers: [successful],
+      handlers: [getAllStepsSuccessful],
     },
   },
 } as Meta<typeof StepDrawer>;
@@ -43,7 +43,7 @@ export const Controlled: StoryObj = {
 export const Error: StoryObj = {
   parameters: {
     msw: {
-      handlers: [error],
+      handlers: [getAllStepsFailed],
     },
   },
 };

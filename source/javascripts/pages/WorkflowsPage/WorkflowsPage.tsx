@@ -1,11 +1,11 @@
 import { Box } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import { BitriseYml } from '@/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowConfigDrawer from '@/components/WorkflowConfig/WorkflowConfigDrawer';
 import WorkflowConfigPanel from '@/components/WorkflowConfig/WorkflowConfigPanel';
+import StepConfigDrawer from './components.new/StepConfigDrawer/StepConfigDrawer';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';

@@ -4,16 +4,20 @@ import { Checkbox, Icon } from "@bitrise/bitkit";
 import Notification from "./components/Notification";
 import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
-import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import StepItem from "./components/StepItem/StepItem";
-import StepBadge from "./components/StepBadge/StepBadge";
+import StepBadge from "./components/StepBadge";
+import {
+  UpdateConfigurationDialog,
+  YmlEditor,
+  YmlEditorHeader,
+} from "@/pages/ConfigurationYamlPage";
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   DeleteWorkflowDialog,
+  StepBundlePanel,
   StepConfigPanel,
   StepDrawer,
-  StepBundlePanel,
   VersionChangeDialog,
   WithBlockPanel,
   WorkflowConfigPanel,
@@ -21,14 +25,10 @@ import {
   WorkflowSelector,
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
-import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import YmlEditor from "./components/YmlEditor/YmlEditor";
-
-import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
+import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
-import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
 import {
   PipelinesPage,
   SecretsPage,
@@ -77,15 +77,6 @@ angular
   .component(
     "rNotification",
     register(Notification, ["message", "title", "status"]),
-  )
-  .component(
-    "rNotificationMessageWithLink",
-    register(NotificationMessageWithLink, [
-      "message",
-      "type",
-      "linkUrl",
-      "linkText",
-    ]),
   )
   .component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
   .component("rRootComponent", react2angular(RootComponent))
@@ -204,7 +195,7 @@ angular
     register(Navigation, ["items", "activeItem", "onItemSelected"]),
   )
   .component(
-    "rStepConfig",
+    "rStepConfigPanel",
     register(StepConfigPanel, [
       "step",
       "tabId",
@@ -212,7 +203,7 @@ angular
       "secrets",
       "resolvedVersion",
       "hasVersionUpdate",
-      "versionsWithRemarks",
+      "versions",
       "inputCategories",
       "outputVariables",
       "onChange",
@@ -279,10 +270,7 @@ angular
     "rCreateWorkflowDialog",
     register(CreateWorkflowDialog, ["yml", "isOpen", "onClose", "onCreate"]),
   )
-  .component(
-    "rStepBundlePanel",
-    register(StepBundlePanel, ["stepDisplayName"]),
-  )
+  .component("rStepBundlePanel", register(StepBundlePanel, ["stepDisplayName"]))
   .component(
     "rWithBlockPanel",
     register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),

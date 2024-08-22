@@ -1,4 +1,4 @@
-import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 
 export type WorkflowCardCallbacks = {
   onStepMove?: (workflowId: string, stepIndex: number, to: number) => void;
