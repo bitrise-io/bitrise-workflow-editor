@@ -32,7 +32,7 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }
 
   return (
     <FormProvider {...form}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose}>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={() => form.reset()}>
         <DrawerOverlay
           top="0px"
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
