@@ -1,7 +1,6 @@
-import { safeDigest } from "@/services/react-compat";
+import {safeDigest} from "@/services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getVersionRemark } from "@/utils/stepVersionUtil";
-import { castEnvVarValueForYml } from '@/models/EnvVar';
+import {castEnvVarValueForYml} from '@/core/models/EnvVar';
 import {
   extractInputNames,
   extractReleaseNotesUrl
@@ -215,8 +214,8 @@ import semverDiff from 'semver/functions/diff'
         safeDigest($scope);
       }
 
-      viewModel.createReactWorkflow = ({ name, basedOn }) => {
-        const baseWorkflow = viewModel.workflows?.find(({ id }) => id === basedOn);
+      viewModel.createReactWorkflow = ({name, basedOn}) => {
+        const baseWorkflow = viewModel.workflows?.find(({id}) => id === basedOn);
         const createdWorkflow = new Workflow(name, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
 
         viewModel.workflows = [...viewModel.workflows, createdWorkflow];
@@ -504,7 +503,7 @@ import semverDiff from 'semver/functions/diff'
       viewModel.selectedStep = null;
       viewModel.selectedStepResolvedVersion = null;
       viewModel.selectedStepLatestVersion = null;
-      viewModel.selectedStepVersionsWithRemarks = null;
+      viewModel.selectedStepVersions = [];
       viewModel.selectedStepVersionChangeDialogProps = null;
       viewModel.shouldShowDescription = false;
       viewModel.stepOrderWorkflow;
@@ -631,7 +630,7 @@ import semverDiff from 'semver/functions/diff'
           viewModel.selectedStep = null;
           viewModel.selectedStepResolvedVersion = null;
           viewModel.selectedStepLatestVersion = null;
-          viewModel.selectedStepVersionsWithRemarks = [];
+          viewModel.selectedStepVersions = [];
           viewModel.selectedStepVersionChangeDialogProps = null;
           return;
         }
@@ -639,9 +638,7 @@ import semverDiff from 'semver/functions/diff'
         viewModel.selectedStep = step;
         viewModel.selectedStepResolvedVersion = stepSourceService.resolveRequestedStepVersion(step.requestedVersion(), step);
         viewModel.selectedStepLatestVersion = stepSourceService.latestVersion(step);
-        viewModel.selectedStepVersionsWithRemarks = stepSourceService.versionsOfStep(step)?.map((version) => ({
-          version, remark: getVersionRemark(version)
-        })) || [];
+        viewModel.selectedStepVersions = stepSourceService.versionsOfStep(step) || [];
         viewModel.selectedStepVersionChangeDialogProps = dialogProps;
       }
 
@@ -944,7 +941,7 @@ import semverDiff from 'semver/functions/diff'
       };
 
       viewModel.saveEnvVarFromReact = function (envVar) {
-        const variable = new Variable({ [envVar.key]: envVar.value }, Variable.defaultVariableConfig());
+        const variable = new Variable({[envVar.key]: envVar.value}, Variable.defaultVariableConfig());
 
         variable.isExpand(envVar.isExpand);
 
@@ -961,7 +958,7 @@ import semverDiff from 'semver/functions/diff'
       };
 
       viewModel.saveSecretFromReact = function (secret) {
-        const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
+        const variable = new Variable({[secret.key]: secret.value}, Variable.defaultVariableConfig());
 
         variable.isExpose(secret.isExpose);
         variable.isExpand(secret.isExpand);
@@ -1000,8 +997,8 @@ import semverDiff from 'semver/functions/diff'
           viewModel.editedWorkflow.machineType(undefined, newMachineType);
         }
 
-        viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
-          return { [key]: castEnvVarValueForYml(value), opts: { is_expand } };
+        viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
+          return {[key]: castEnvVarValueForYml(value), opts: {is_expand}};
         }));
 
         if (viewModel.editedWorkflow.id !== data.workflowId) {
@@ -1026,11 +1023,11 @@ import semverDiff from 'semver/functions/diff'
             configuration: {
               stackId: stack?.id || '',
               machineTypeId: machineType?.id || '',
-              envs: viewModel.editedWorkflow.envs()?.map(({ opts, ...env }) => {
+              envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
 
-                return { key, value, isExpand };
+                return {key, value, isExpand};
               })
             },
             properties: {
