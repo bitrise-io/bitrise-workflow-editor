@@ -14,9 +14,9 @@ import {
   KEY_PATTERN,
   VALUE_IS_REQUIRED,
 } from '@/models/EnvVar';
-import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import AutoGrowableInput from './AutoGrowableInput';
+import AutoGrowableInput from '@/components/AutoGrowableInput';
+import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 type FormValues = {
   envs: EnvVar[];
@@ -125,7 +125,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
 const EnvVarsCard = () => {
   const sensors = useSensors(useSensor(PointerSensor));
-  const [{ id: source, envs: envVarsFromYml }] = useSelectedWorkflow();
+  const { id: source, envs: envVarsFromYml } = useWorkflowConfigContext();
 
   const defaultValues = useMemo(() => {
     return {
