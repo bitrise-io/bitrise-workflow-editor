@@ -43,7 +43,10 @@ const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
   });
 
   const handleCloseComplete = () => {
-    setSelectedWorkflow(getValues('workflowId'));
+    const workflowId = getValues('workflowId');
+    if (workflowId) {
+      setSelectedWorkflow(workflowId);
+    }
     reset();
   };
 
