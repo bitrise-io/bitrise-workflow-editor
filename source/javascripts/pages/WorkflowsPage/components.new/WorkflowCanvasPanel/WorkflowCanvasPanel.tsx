@@ -3,7 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 

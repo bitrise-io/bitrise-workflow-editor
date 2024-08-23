@@ -1,6 +1,6 @@
 import { Box, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
-import { getUsedByText } from '@/components/WorkflowCard/WorkflowCard.utils';
+import WorkflowService from '@/core/models/WorkflowService';
 import useWorkflowUsedBy from '@/hooks/useWorkflowUsedBy';
 import { FormValues } from '../WorkflowConfigPanel.types';
 
@@ -13,7 +13,7 @@ const Header = () => {
     <Box px="24" py="16">
       <Text textStyle="heading/h3">{workflowId}</Text>
       <Text textStyle="body/sm/regular" color="text/secondary">
-        {getUsedByText(usedBy)}
+        {WorkflowService.getUsedByText(usedBy)}
       </Text>
     </Box>
   );

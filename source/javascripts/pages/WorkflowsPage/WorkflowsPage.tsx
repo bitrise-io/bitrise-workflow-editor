@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import WorkflowConfigDrawer from '@/components/WorkflowConfig/WorkflowConfigDrawer';
 import WorkflowConfigPanel from '@/components/WorkflowConfig/WorkflowConfigPanel';
 import StepConfigDrawer from './components.new/StepConfigDrawer/StepConfigDrawer';
@@ -12,7 +13,6 @@ import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkf
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
-import useSelectedWorkflow from './hooks/useSelectedWorkflow';
 
 type Props = {
   yml: BitriseYml;

@@ -12,7 +12,7 @@ import {
 import { useDebounceValue } from 'usehooks-ts';
 import useWorkflowIds from '@/pages/WorkflowsPage/hooks/useWorkflowIds';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
-import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 const WorkflowSelector = () => {
   const workflowIds = useWorkflowIds();

@@ -1,16 +1,5 @@
 import { UniqueIdentifier } from '@dnd-kit/core';
 
-export function getUsedByText(usedBy: string[]) {
-  switch (usedBy.length) {
-    case 0:
-      return 'Not used by other Workflow';
-    case 1:
-      return 'Used by 1 Workflow';
-    default:
-      return `Used by ${usedBy.length} Workflows`;
-  }
-}
-
 export function getSortableStepId(workflowId: string, stepIndex: number) {
   return `${workflowId}->${stepIndex}`;
 }

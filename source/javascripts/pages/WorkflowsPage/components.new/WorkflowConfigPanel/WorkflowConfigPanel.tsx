@@ -1,10 +1,10 @@
 import { Box, Tab, TabList, TabPanel, TabPanels, Tabs, Text } from '@bitrise/bitkit';
-import { getUsedByText } from '@/components/WorkflowCard/WorkflowCard.utils';
 import useWorkflowUsedBy from '@/hooks/useWorkflowUsedBy';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
-import { WorkflowConfigTab } from './WorkflowConfigPanel.types';
-import PropertiesTab from './tabs/PropertiesTab';
-import ConfigurationTab from './tabs/ConfigurationTab';
+import WorkflowService from '@/core/models/WorkflowService';
+import { WorkflowConfigTab } from '@/components/WorkflowConfig/WorkflowConfig.types';
+import PropertiesTab from '@/components/WorkflowConfig/tabs/PropertiesTab';
+import ConfigurationTab from '@/components/WorkflowConfig/tabs/ConfigurationTab';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 
 const WorkflowConfigPanel = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
@@ -15,7 +15,7 @@ const WorkflowConfigPanel = () => {
       <Box px="24" py="16">
         <Text textStyle="heading/h3">{selectedWorkflowId}</Text>
         <Text textStyle="body/sm/regular" color="text/secondary">
-          {getUsedByText(usedBy)}
+          {WorkflowService.getUsedByText(usedBy)}
         </Text>
       </Box>
       <Tabs display="flex" flexDir="column" flex="1" minH={0}>

@@ -1,6 +1,6 @@
 import { Button, Dialog, DialogBody, DialogFooter, List, ListItem, Text } from '@bitrise/bitkit';
 import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
 
 type Props = UseDisclosureProps & {

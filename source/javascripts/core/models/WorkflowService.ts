@@ -18,6 +18,17 @@ function validateName(workflowName: string, workflowNames?: string[]) {
   return true;
 }
 
+function getUsedByText(usedBy: string[]) {
+  switch (usedBy.length) {
+    case 0:
+      return 'Not used by other Workflow';
+    case 1:
+      return 'Used by 1 Workflow';
+    default:
+      return `Used by ${usedBy.length} Workflows`;
+  }
+}
+
 function getBeforeRunChain(workflows: Workflows, id: string): string[] {
   const ids = workflows?.[id]?.before_run ?? [];
 
@@ -104,6 +115,7 @@ function deleteAfterRun(workflow: Workflow, workflowId: string): Workflow {
 
 export default {
   validateName,
+  getUsedByText,
   getBeforeRunChain,
   getAfterRunChain,
   getWorkflowChain,

@@ -5,8 +5,9 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useWorkflowUsedBy from '@/hooks/useWorkflowUsedBy';
+import useWorkflow from '@/hooks/useWorkflow';
+import WorkflowService from '@/core/models/WorkflowService';
 import DragHandle from '../../DragHandle/DragHandle';
-import { getUsedByText } from '../WorkflowCard.utils';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
@@ -132,7 +133,7 @@ const ChainedWorkflowCard = ({
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {placement}
             {' • '}
-            {getUsedByText(workflowUsedBy)}
+            {WorkflowService.getUsedByText(workflowUsedBy)}
           </Text>
         </Box>
 

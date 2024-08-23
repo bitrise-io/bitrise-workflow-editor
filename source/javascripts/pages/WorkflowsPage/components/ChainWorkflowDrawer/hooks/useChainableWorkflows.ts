@@ -1,5 +1,5 @@
 import { useMemo } from 'react';
-import { useWorkflows } from '@/pages/WorkflowsPage/hooks/useWorkflows';
+import { useWorkflows } from '@/hooks/useWorkflows';
 import WorkflowService from '@/core/models/WorkflowService';
 
 type Props = {

@@ -1,7 +1,7 @@
 import { useMemo } from 'react';
-import useSearchParams from '@/hooks/useSearchParams';
 import { WithId, withId } from '@/core/utils/WithId';
 import { Workflow } from '@/core/models/Workflow';
+import useSearchParams from './useSearchParams';
 import { useWorkflows } from './useWorkflows';
 
 type UseSelectedWorkflowResult = [

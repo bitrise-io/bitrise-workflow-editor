@@ -2,8 +2,8 @@ import { Box, Button, Dialog, DialogBody, DialogFooter, Input, Select, useDisclo
 import { useForm } from 'react-hook-form';
 import { UseDisclosureProps } from '@chakra-ui/react';
 import WorkflowService from '@/core/models/WorkflowService';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import useWorkflowIds from '../../hooks/useWorkflowIds';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
 
 type FormValues = {
   workflowId: string;
