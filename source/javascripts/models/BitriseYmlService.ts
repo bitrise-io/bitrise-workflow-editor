@@ -100,6 +100,16 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   return copy;
 }
 
+function deleteWorkflows(workflowIds: string[], yml: BitriseYml): BitriseYml {
+  let copy = deepCloneSimpleObject(yml);
+
+  workflowIds.forEach((workflowId) => {
+    copy = deleteWorkflow(workflowId, copy);
+  });
+
+  return copy;
+}
+
 function deleteChainedWorkflow(
   chainedWorkflowIndex: number,
   parentWorkflowId: string,
@@ -276,6 +286,7 @@ export default {
   renameWorkflow,
   createWorkflow,
   deleteWorkflow,
+  deleteWorkflows,
   addChainedWorkflow,
   setChainedWorkflows,
   deleteChainedWorkflow,

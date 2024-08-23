@@ -11,17 +11,31 @@ import {
   UseDisclosureProps,
 } from '@chakra-ui/react';
 import { useDisclosure, Tabs, ButtonGroup, Button, TabPanels, TabPanel, Icon } from '@bitrise/bitkit';
-import WorkflowConfigProvider from './WorkflowConfig.context';
+import { useFormContext } from 'react-hook-form';
+import { useShallow } from 'zustand/react/shallow';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import WorkflowConfigProvider, { useWorkflowConfigContext } from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
-import { WorkflowConfigTab } from './WorkflowConfig.types';
+import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
+import useLockFormReset from './hooks/useLockFormReset';
 
 type Props = UseDisclosureProps & { workflowId: string };
 
 const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
+  useLockFormReset(false);
+
+  const form = useFormContext<FormValues>();
+  const { id } = useWorkflowConfigContext();
   const { isOpen, onClose } = useDisclosure(props);
+  const renameWorkflow = useBitriseYmlStore(useShallow((s) => s.renameWorkflow));
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
+
+  const handleSubmit = form.handleSubmit(({ properties }) => {
+    renameWorkflow(id, properties.name);
+    onClose();
+  });
 
   return (
     <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
@@ -69,7 +83,9 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
 
           <DrawerFooter p="32" boxShadow="large">
             <ButtonGroup spacing={16}>
-              <Button>Done</Button>
+              <Button type="submit" onClick={handleSubmit}>
+                Done
+              </Button>
               <Button variant="secondary" onClick={onClose}>
                 Cancel
               </Button>
