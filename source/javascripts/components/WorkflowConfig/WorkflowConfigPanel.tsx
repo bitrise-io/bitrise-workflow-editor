@@ -27,8 +27,8 @@ const WorkflowConfigPanelContent = ({ workflowId }: Props) => {
 
   const handleChange = form.handleSubmit(({ properties: { name, ...properties } }) => {
     lockFormReset();
-    renameWorkflow(name);
     updateWorkflow(workflowId, properties);
+    renameWorkflow(name);
   });
 
   return (
