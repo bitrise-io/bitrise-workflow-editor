@@ -57,7 +57,7 @@ const StepItem = ({
           <StepItemTitle displayName={displayName} />
           <StepBadge isOfficial={step.isOfficial()} isVerified={step.isVerified()} isDeprecated={step.isDeprecated()} />
         </strong>
-        {version !== undefined && (
+        {version !== undefined && !step.isStepBundle() && !step.isWithBlock() && (
           <StepItemVersion
             actualVersion={step.version}
             requestedVersion={version || ''}
