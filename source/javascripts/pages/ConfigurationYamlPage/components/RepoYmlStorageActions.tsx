@@ -4,7 +4,7 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 
 import { AppConfig } from '@/core/AppConfig';
 import useMonolithApiCallback from '@/hooks/api/useMonolithApiCallback';
-import appConfigAsYml from '@/utils/appConfigAsYml';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 
 type RepoYmlStorageActionsProps = {
   appConfig: AppConfig | string;
@@ -33,15 +33,11 @@ export const useFormattedYml = (appConfig: AppConfig): string => {
 
   // Set the js-yaml value as fallback, kick off format endpoint
   useEffect(() => {
-    const yaml = appConfigAsYml(appConfig);
+    const yaml = BitriseYmlApi.toYml(appConfig);
     setYml(yaml);
 
     if (typeof appConfig === 'object') {
-      formatAppConfigRef.current?.({
-        body: JSON.stringify({
-          app_config_datastore_yaml: yaml,
-        }),
-      });
+      formatAppConfigRef.current?.({ body: BitriseYmlApi.toJSON(yaml) });
     }
   }, [appConfig]);
 

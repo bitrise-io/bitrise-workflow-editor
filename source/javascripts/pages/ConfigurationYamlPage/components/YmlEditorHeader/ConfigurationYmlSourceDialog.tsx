@@ -25,7 +25,7 @@ import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { AppConfig } from '@/core/AppConfig';
 import DateFormatter from '@/utils/dateFormatter';
 import { segmentTrack } from '@/utils/segmentTracking';
-import { toYml } from '@/core/models/BitriseYml';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { useFormattedYml } from '../RepoYmlStorageActions';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
@@ -95,7 +95,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const { postAppConfig, postAppConfigStatus, postAppConfigLoading, postAppConfigFailed } = usePostAppConfigCallback(
     appSlug,
-    toYml(appConfigFromRepo),
+    BitriseYmlApi.toYml(appConfigFromRepo),
   );
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');

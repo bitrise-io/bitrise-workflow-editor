@@ -4,7 +4,7 @@ import sortBy from 'lodash/sortBy';
 import { Maintainer, Step, StepInputVariable, VariableOpts } from '@/core/models/Step';
 import CvsUtils from '@/core/utils/CvsUtils';
 import VersionUtils from '@/core/utils/VersionUtils';
-import defaultIcon from '../../images/step/icon-default.svg';
+import defaultIcon from '../../../images/step/icon-default.svg';
 
 const ALGOLIA_APP_ID = 'HI1538U2K4';
 const ALGOLIA_API_KEY = '708f890e859e7c44f309a1bbad3d2de8';

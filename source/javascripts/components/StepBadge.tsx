@@ -1,6 +1,6 @@
 import { Box, BoxProps, Icon, Tooltip } from '@bitrise/bitkit';
 
-import deprecatedIcon from '../../../images/step/badge-deprecated.svg';
+import deprecatedIcon from '../../images/step/icon-default.svg';
 
 type StepItemBadgeProps = BoxProps & {
   isOfficial?: boolean;

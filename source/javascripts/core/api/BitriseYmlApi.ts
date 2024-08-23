@@ -1,9 +1,28 @@
-import { BitriseYml, toJSON } from '@/core/models/BitriseYml';
-import Client from './client';
+import { stringify } from 'yaml';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import Client from './client'; // TRANSFORMATIONS
 
 // TRANSFORMATIONS
 function toBitriseYml(data: string): BitriseYml {
   return JSON.parse(data) as BitriseYml;
+}
+
+function toYml(model?: unknown): string {
+  if (!model) {
+    return '';
+  }
+
+  if (typeof model === 'string') {
+    return model;
+  }
+
+  return `---\n${stringify(model)}`;
+}
+
+function toJSON(model: unknown): string {
+  return JSON.stringify({
+    app_config_datastore_yaml: toYml(model),
+  });
 }
 
 // API CALLS
@@ -55,4 +74,6 @@ export default {
   getBitriseYml,
   getUpdateBitriseYmlPath: getBitriseYmlPath,
   updateBitriseYml,
+  toJSON,
+  toYml,
 };
