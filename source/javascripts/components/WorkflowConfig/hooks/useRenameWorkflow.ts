@@ -1,6 +1,5 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useCallback, useEffect, useRef } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import { useDebounceCallback } from 'usehooks-ts';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
@@ -8,60 +7,45 @@ import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 const useRenameWorkflow = () => {
   const { id } = useWorkflowConfigContext();
   const [, setSelectedWorkflow] = useSelectedWorkflow();
-  const [{ newWorkflowId, oldWorkflowId }, setState] = useState({ newWorkflowId: '', oldWorkflowId: '' });
 
-  const { workflows, createWorkflow, deleteWorkflow } = useBitriseYmlStore(
+  const currentWorkflowIdRef = useRef<string>(id);
+  const removableWorkflowIdsRef = useRef<string[]>([]);
+
+  const { workflows, renameWorkflow, createWorkflow, deleteWorkflow } = useBitriseYmlStore(
     useShallow((s) => {
       return {
         workflows: s.yml.workflows ?? {},
+        renameWorkflow: s.renameWorkflow,
         createWorkflow: s.createWorkflow,
         deleteWorkflow: s.deleteWorkflow,
       };
     }),
   );
 
-  const isOldWorkflowExists = useMemo(() => {
-    return Object.keys(workflows).includes(oldWorkflowId);
-  }, [workflows, oldWorkflowId]);
-
-  const isNewWorkflowExists = useMemo(() => {
-    return Object.keys(workflows).includes(newWorkflowId);
-  }, [workflows, newWorkflowId]);
-
-  const isNewWorkflowSelected = useMemo(() => {
-    return id === newWorkflowId;
-  }, [id, newWorkflowId]);
-
   useEffect(() => {
-    if (isOldWorkflowExists && isNewWorkflowExists) {
-      if (isNewWorkflowSelected) {
-        deleteWorkflow(oldWorkflowId);
-        setState({ oldWorkflowId: '', newWorkflowId: '' });
+    const isNewWorkflowExists = Object.keys(workflows).includes(currentWorkflowIdRef.current);
+
+    if (isNewWorkflowExists) {
+      if (id !== currentWorkflowIdRef.current) {
+        // setSelectedWorkflow(currentWorkflowIdRef.current);
       } else {
-        setSelectedWorkflow(newWorkflowId);
+        removableWorkflowIdsRef.current.forEach(deleteWorkflow);
+        removableWorkflowIdsRef.current = [];
       }
     }
-  }, [
-    deleteWorkflow,
-    isNewWorkflowExists,
-    isNewWorkflowSelected,
-    isOldWorkflowExists,
-    newWorkflowId,
-    oldWorkflowId,
-    setSelectedWorkflow,
-  ]);
+  }, [deleteWorkflow, setSelectedWorkflow, workflows, id]);
 
-  const renameWorkflow = useCallback(
-    (value: string) => {
-      if (!isNewWorkflowExists) {
-        setState({ oldWorkflowId: id, newWorkflowId: value });
-        createWorkflow(value, id);
+  return useCallback(
+    (newWorkflowId: string) => {
+      if (newWorkflowId !== currentWorkflowIdRef.current) {
+        removableWorkflowIdsRef.current.push(currentWorkflowIdRef.current);
+        renameWorkflow(currentWorkflowIdRef.current, newWorkflowId);
+        createWorkflow(currentWorkflowIdRef.current, newWorkflowId);
+        currentWorkflowIdRef.current = newWorkflowId;
       }
     },
-    [createWorkflow, id, isNewWorkflowExists],
+    [createWorkflow, renameWorkflow],
   );
-
-  return useDebounceCallback(renameWorkflow, 150);
 };
 
 export default useRenameWorkflow;

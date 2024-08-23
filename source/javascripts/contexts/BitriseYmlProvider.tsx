@@ -17,6 +17,7 @@ export type BitriseYmlProviderState = {
   // Workflow related actions
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
+  renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   deleteWorkflow: (workflowId: string) => void;
   deleteChainedWorkflow: (
@@ -49,6 +50,13 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
       return set((state) => {
         return {
           yml: BitriseYmlService.moveStep(workflowId, stepIndex, to, state.yml),
+        };
+      });
+    },
+    renameWorkflow(workflowId, newWorkflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.renameWorkflow(workflowId, newWorkflowId, state.yml),
         };
       });
     },

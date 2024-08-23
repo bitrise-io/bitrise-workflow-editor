@@ -31,6 +31,26 @@ function moveStep(workflowId: string, stepIndex: number, to: number, yml: Bitris
   return copy;
 }
 
+function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).map(([id, workflow]) => {
+        return [id === workflowId ? newWorkflowId : id, workflow];
+      }),
+    );
+
+    copy.workflows = renameWorkflowInChains(workflowId, newWorkflowId, copy.workflows);
+  }
+
+  if (copy.stages) copy.stages = renameWorkflowInStages(workflowId, newWorkflowId, copy.stages);
+  if (copy.pipelines) copy.pipelines = renameWorkflowInPipelines(workflowId, newWorkflowId, copy.pipelines);
+  if (copy.trigger_map) copy.trigger_map = renameWorkflowInTriggerMap(workflowId, newWorkflowId, copy.trigger_map);
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -152,6 +172,17 @@ function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
 
 // PRIVATE FUNCTIONS
 
+function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workflows: Workflows): Workflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.after_run = workflowCopy.after_run?.map((id) => (id === workflowId ? newWorkflowId : id));
+    workflowCopy.before_run = workflowCopy.before_run?.map((id) => (id === workflowId ? newWorkflowId : id));
+
+    return workflowCopy;
+  });
+}
+
 function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
   return mapValues(workflows, (workflow) => {
     const workflowCopy = deepCloneSimpleObject(workflow);
@@ -166,6 +197,22 @@ function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {})
   });
 }
 
+function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: Stages): Stages {
+  return mapValues(stages, (stage) => {
+    const stageCopy = deepCloneSimpleObject(stage);
+
+    stageCopy.workflows = stageCopy.workflows?.map((workflowObj) => {
+      return Object.fromEntries(
+        Object.entries(workflowObj).map(([id, workflow]) => {
+          return [id === workflowId ? newWorkflowId : id, workflow];
+        }),
+      );
+    });
+
+    return stageCopy;
+  });
+}
+
 function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stages {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
@@ -176,6 +223,18 @@ function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stag
     if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
 
     return stageCopy;
+  });
+}
+
+function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pipelines: Pipelines): Pipelines {
+  return mapValues(pipelines, (pipeline) => {
+    const pipelineCopy = deepCloneSimpleObject(pipeline);
+
+    pipelineCopy.stages = pipelineCopy.stages?.map((stagesObj) => {
+      return renameWorkflowInStages(workflowId, newWorkflowId, stagesObj);
+    });
+
+    return pipelineCopy;
   });
 }
 
@@ -195,6 +254,18 @@ function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = 
   });
 }
 
+function renameWorkflowInTriggerMap(workflowId: string, newWorkflowId: string, triggerMap: TriggerMap): TriggerMap {
+  return triggerMap.map((trigger) => {
+    const triggerCopy = deepCloneSimpleObject(trigger);
+
+    if (triggerCopy.workflow === workflowId) {
+      triggerCopy.workflow = newWorkflowId;
+    }
+
+    return triggerCopy;
+  });
+}
+
 function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap = []): TriggerMap {
   return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
 }
@@ -202,6 +273,7 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 export default {
   addStep,
   moveStep,
+  renameWorkflow,
   createWorkflow,
   deleteWorkflow,
   addChainedWorkflow,

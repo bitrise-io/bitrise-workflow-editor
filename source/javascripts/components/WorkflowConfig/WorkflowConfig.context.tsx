@@ -14,6 +14,7 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
   const value = useMemo(() => workflow ?? initialState, [workflow]);
 
   const form = useForm<FormValues>({
+    mode: 'all',
     defaultValues: {
       properties: {
         name: value.id,
