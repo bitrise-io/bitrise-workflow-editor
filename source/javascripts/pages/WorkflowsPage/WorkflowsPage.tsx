@@ -57,8 +57,7 @@ const WorkflowsPageContent = () => {
     <>
       <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
         <WorkflowCanvasPanel />
-        {/* NOTE: The key prop helps to reset the internal components state (eg.: Tabs, ExpandableCard) */}
-        <WorkflowConfigPanel key={selectedWorkflowId} workflowId={selectedWorkflowId} />
+        <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       </Box>
 
       <CreateWorkflowDialog onCreate={createWorkflow} onClose={closeDialog} isOpen={isCreateWorkflowDialogOpen} />

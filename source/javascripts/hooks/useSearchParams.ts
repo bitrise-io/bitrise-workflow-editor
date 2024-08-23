@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
+import isEqual from 'lodash/isEqual';
 
 export const getSearchParamsFromLocationHash = (): Record<string, string> => {
   return Object.fromEntries(new URLSearchParams(window.location.hash.split('?')[1] || ''));
@@ -14,20 +15,28 @@ const useSearchParams = () => {
   const [searchParams, setSearchParams] = useState(getSearchParamsFromLocationHash());
 
   useEffect(() => {
-    const listener = () => setSearchParams(getSearchParamsFromLocationHash());
+    const listener = () => {
+      setSearchParams((prevSearchParams) => {
+        const searchParamsFromHash = getSearchParamsFromLocationHash();
+
+        if (!isEqual(prevSearchParams, searchParamsFromHash)) {
+          return searchParamsFromHash;
+        }
+
+        return prevSearchParams;
+      });
+    };
+
     window.addEventListener('hashchange', listener);
+
     return () => window.removeEventListener('hashchange', listener);
   }, []);
 
-  const exposedSetSearchParams: typeof setSearchParams = useCallback((actionOrValue) => {
-    setSearchParams((prevSearchParams) => {
-      const newSearchParams = typeof actionOrValue === 'function' ? actionOrValue(prevSearchParams) : actionOrValue;
-      setSearchParamsInLocationHash(newSearchParams);
-      return newSearchParams;
-    });
-  }, []);
+  useEffect(() => {
+    setSearchParamsInLocationHash(searchParams);
+  }, [searchParams]);
 
-  return [searchParams, exposedSetSearchParams] as const;
+  return [searchParams, setSearchParams] as const;
 };
 
 export default useSearchParams;
