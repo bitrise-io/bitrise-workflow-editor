@@ -85,7 +85,7 @@ const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
 
           <DrawerFooter p="32" boxShadow="large">
             <ButtonGroup spacing={16}>
-              <Button type="submit" isDisabled={!form.formState.isDirty} onClick={handleSubmit}>
+              <Button isDisabled={!form.formState.isDirty} onClick={handleSubmit}>
                 Done
               </Button>
               <Button variant="secondary" onClick={onClose}>
