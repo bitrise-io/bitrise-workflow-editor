@@ -21,7 +21,7 @@ const useLockFormReset = (defaultLocked = true) => {
       locked.current = false;
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [id]);
+  }, [id, summary, description]);
 
   return () => {
     locked.current = true;

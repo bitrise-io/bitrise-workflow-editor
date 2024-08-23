@@ -14,7 +14,7 @@ import { useDisclosure, Tabs, ButtonGroup, Button, TabPanels, TabPanel, Icon } f
 import { useFormContext } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import WorkflowConfigProvider, { useWorkflowConfigContext } from './WorkflowConfig.context';
+import WorkflowConfigProvider from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
@@ -23,17 +23,19 @@ import useLockFormReset from './hooks/useLockFormReset';
 
 type Props = UseDisclosureProps & { workflowId: string };
 
-const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
+const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
   useLockFormReset(false);
 
   const form = useFormContext<FormValues>();
-  const { id } = useWorkflowConfigContext();
   const { isOpen, onClose } = useDisclosure(props);
-  const renameWorkflow = useBitriseYmlStore(useShallow((s) => s.renameWorkflow));
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
 
-  const handleSubmit = form.handleSubmit(({ properties }) => {
-    renameWorkflow(id, properties.name);
+  const renameWorkflow = useBitriseYmlStore(useShallow((s) => s.renameWorkflow));
+  const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
+
+  const handleSubmit = form.handleSubmit(({ properties: { name, ...properties } }) => {
+    updateWorkflow(workflowId, properties);
+    renameWorkflow(workflowId, name);
     onClose();
   });
 
@@ -83,7 +85,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
 
           <DrawerFooter p="32" boxShadow="large">
             <ButtonGroup spacing={16}>
-              <Button type="submit" onClick={handleSubmit}>
+              <Button type="submit" isDisabled={!form.formState.isDirty} onClick={handleSubmit}>
                 Done
               </Button>
               <Button variant="secondary" onClick={onClose}>
@@ -100,7 +102,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
 const WorkflowConfigDrawer = ({ workflowId, ...props }: Props) => {
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
-      <WorkflowConfigDrawerContent {...props} />
+      <WorkflowConfigDrawerContent workflowId={workflowId} {...props} />
     </WorkflowConfigProvider>
   );
 };

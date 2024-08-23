@@ -1,6 +1,8 @@
 import { TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
+import { useShallow } from 'zustand/react/shallow';
 import useSearchParams from '@/hooks/useSearchParams';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -13,18 +15,20 @@ type Props = {
   workflowId: string;
 };
 
-const WorkflowConfigPanelContent = () => {
+const WorkflowConfigPanelContent = ({ workflowId }: Props) => {
   const lockFormReset = useLockFormReset();
   const form = useFormContext<FormValues>();
   const [, setSearchParams] = useSearchParams();
+  const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
 
   const renameWorkflow = useRenameWorkflow((newWorkflowId) => {
     setSearchParams((searchParams) => ({ ...searchParams, workflow_id: newWorkflowId }));
   });
 
-  const handleChange = form.handleSubmit(({ properties }) => {
+  const handleChange = form.handleSubmit(({ properties: { name, ...properties } }) => {
     lockFormReset();
-    renameWorkflow(properties.name);
+    renameWorkflow(name);
+    updateWorkflow(workflowId, properties);
   });
 
   return (
@@ -45,7 +49,7 @@ const WorkflowConfigPanelContent = () => {
 const WorkflowConfigPanel = ({ workflowId, ...props }: Props) => {
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
-      <WorkflowConfigPanelContent {...props} />
+      <WorkflowConfigPanelContent workflowId={workflowId} {...props} />
     </WorkflowConfigProvider>
   );
 };

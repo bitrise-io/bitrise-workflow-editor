@@ -10,7 +10,7 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
 
   const oldWorkflowIdRef = useRef(selectedWorkflowId);
   const newWorkflowIdRef = useRef(selectedWorkflowId);
-  const removableWorkflowIdsRef = useRef([] as string[]);
+  const removableWorkflowIdsRef = useRef<string[]>([]);
 
   const workflows = useBitriseYmlStore(useShallow((s) => s.yml.workflows ?? {}));
   const renameWorkflow = useBitriseYmlStore(useShallow((s) => s.renameWorkflow));
@@ -43,9 +43,14 @@ const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
 
   const renameCallback = useCallback(
     (newWorkflowId: string) => {
-      removableWorkflowIdsRef.current = uniq([...removableWorkflowIdsRef.current, newWorkflowIdRef.current]);
+      removableWorkflowIdsRef.current =
+        newWorkflowIdRef.current === newWorkflowId
+          ? removableWorkflowIdsRef.current
+          : uniq([...removableWorkflowIdsRef.current, newWorkflowIdRef.current]);
+
       renameWorkflow(newWorkflowIdRef.current, newWorkflowId);
       createWorkflow(newWorkflowIdRef.current, newWorkflowId);
+
       newWorkflowIdRef.current = newWorkflowId;
     },
     [createWorkflow, renameWorkflow],

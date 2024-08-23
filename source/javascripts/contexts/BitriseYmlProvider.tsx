@@ -1,7 +1,7 @@
 import { ComponentType, createContext, PropsWithChildren, useEffect, useRef } from 'react';
 import { createStore } from 'zustand';
 import { BitriseYml, Meta } from '@/models/BitriseYml';
-import { ChainedWorkflowPlacement } from '@/models/Workflow';
+import { ChainedWorkflowPlacement, Workflow } from '@/models/Workflow';
 import BitriseYmlService from '@/models/BitriseYmlService';
 
 type BitriseYmlProviderProps = PropsWithChildren<{
@@ -18,6 +18,7 @@ export type BitriseYmlProviderState = {
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
+  updateWorkflow: (workflowId: string, workflow: Workflow) => void;
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   deleteWorkflow: (workflowId: string) => void;
   deleteWorkflows: (workflowIds: string[]) => void;
@@ -58,6 +59,13 @@ const createBitriseYmlStore = (yml: BitriseYml, defaultMeta?: Meta) => {
       return set((state) => {
         return {
           yml: BitriseYmlService.renameWorkflow(workflowId, newWorkflowId, state.yml),
+        };
+      });
+    },
+    updateWorkflow(workflowId, workflow) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflow(workflowId, workflow, state.yml),
         };
       });
     },

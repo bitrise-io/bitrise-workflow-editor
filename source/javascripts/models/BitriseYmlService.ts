@@ -5,7 +5,7 @@ import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { BitriseYml } from './BitriseYml';
 import { Stages } from './Stage';
-import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
+import { ChainedWorkflowPlacement as Placement, Workflow, Workflows } from './Workflow';
 import { Pipelines } from './Pipeline';
 import { TriggerMap } from './TriggerMap';
 
@@ -58,6 +58,22 @@ function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: st
     ...copy.workflows,
     ...{ [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {} },
   };
+
+  return copy;
+}
+
+function updateWorkflow(workflowId: string, workflow: Workflow, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  mapValues(workflow, (value: string, key: never) => {
+    if (copy.workflows?.[workflowId]) {
+      if (value) {
+        copy.workflows[workflowId][key] = value as never;
+      } else {
+        delete copy.workflows[workflowId][key];
+      }
+    }
+  });
 
   return copy;
 }
@@ -284,6 +300,7 @@ export default {
   addStep,
   moveStep,
   renameWorkflow,
+  updateWorkflow,
   createWorkflow,
   deleteWorkflow,
   deleteWorkflows,
