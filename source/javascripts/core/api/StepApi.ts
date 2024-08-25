@@ -1,8 +1,8 @@
 import algoliasearch from 'algoliasearch';
 import uniqBy from 'lodash/uniqBy';
-import { Maintainer, Step, StepObject } from '@/core/Step';
-import { withId } from '@/core/WithId';
-import defaultIcon from '../../images/step/icon-default.svg';
+import { Maintainer, Step, StepObject } from '@/core/models/Step';
+import { withId } from '@/core/models/WithId';
+import defaultIcon from '@/../images/step/icon-default.svg';
 
 const ALGOLIA_APP_ID = 'HI1538U2K4';
 const ALGOLIA_API_KEY = '708f890e859e7c44f309a1bbad3d2de8';

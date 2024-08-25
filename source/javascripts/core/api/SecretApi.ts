@@ -1,4 +1,4 @@
-import { Secret, SecretWithState } from '@/core/Secret'; // DTOs
+import { Secret, SecretWithState } from '@/core/models/Secret'; // DTOs
 import Client from './client';
 
 // DTOs

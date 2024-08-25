@@ -1,4 +1,4 @@
-import { EnvVar } from '@/core/EnvVar';
+import { EnvVar } from '@/core/models/EnvVar';
 import Client from './client';
 
 enum Source {
@@ -87,11 +87,19 @@ async function getDefaultOutputs({ appSlug, signal }: Partial<GetEnvVarsProps>):
   const envVars: EnvVar[] = [];
 
   response.from_bitrise_cli.forEach((envVarObj) => {
-    envVars.push({ ...defaultEnvVar, key: Object.keys(envVarObj)[0], source: Source.BitriseCLI });
+    envVars.push({
+      ...defaultEnvVar,
+      key: Object.keys(envVarObj)[0],
+      source: Source.BitriseCLI,
+    });
   });
 
   response.from_bitriseio?.forEach((envVarObj) => {
-    envVars.push({ ...defaultEnvVar, key: Object.keys(envVarObj)[0], source: Source.BitriseIO });
+    envVars.push({
+      ...defaultEnvVar,
+      key: Object.keys(envVarObj)[0],
+      source: Source.BitriseIO,
+    });
   });
 
   return envVars;
@@ -105,11 +113,19 @@ async function getProvProfiles({ appSlug, projectType, signal }: GetEnvVarsProps
   const envVars: EnvVar[] = [];
 
   if (response.prov_profile_documents.length > 0) {
-    envVars.push({ ...defaultEnvVar, key: 'BITRISE_PROVISION_URL', source: Source.CodeSigning });
+    envVars.push({
+      ...defaultEnvVar,
+      key: 'BITRISE_PROVISION_URL',
+      source: Source.CodeSigning,
+    });
   }
 
   if (projectType !== 'xamarin') {
-    envVars.push({ ...defaultEnvVar, key: 'BITRISE_DEFAULT_PROVISION_URL', source: Source.CodeSigning });
+    envVars.push({
+      ...defaultEnvVar,
+      key: 'BITRISE_DEFAULT_PROVISION_URL',
+      source: Source.CodeSigning,
+    });
   }
 
   return envVars;
@@ -123,13 +139,29 @@ async function getCertificates({ appSlug, projectType, signal }: GetEnvVarsProps
   const envVars: EnvVar[] = [];
 
   if (response.build_certificates.length > 0) {
-    envVars.push({ ...defaultEnvVar, key: 'BITRISE_CERTIFICATE_URL', source: Source.CodeSigning });
-    envVars.push({ ...defaultEnvVar, key: 'BITRISE_CERTIFICATE_PASSPHRASE', source: Source.CodeSigning });
+    envVars.push({
+      ...defaultEnvVar,
+      key: 'BITRISE_CERTIFICATE_URL',
+      source: Source.CodeSigning,
+    });
+    envVars.push({
+      ...defaultEnvVar,
+      key: 'BITRISE_CERTIFICATE_PASSPHRASE',
+      source: Source.CodeSigning,
+    });
   }
 
   if (projectType !== 'xamarin') {
-    envVars.push({ ...defaultEnvVar, key: 'BITRISE_DEFAULT_CERTIFICATE_URL', source: Source.CodeSigning });
-    envVars.push({ ...defaultEnvVar, key: 'BITRISE_DEFAULT_CERTIFICATE_PASSPHRASE', source: Source.CodeSigning });
+    envVars.push({
+      ...defaultEnvVar,
+      key: 'BITRISE_DEFAULT_CERTIFICATE_URL',
+      source: Source.CodeSigning,
+    });
+    envVars.push({
+      ...defaultEnvVar,
+      key: 'BITRISE_DEFAULT_CERTIFICATE_PASSPHRASE',
+      source: Source.CodeSigning,
+    });
   }
 
   return envVars;
@@ -143,12 +175,28 @@ async function getFileStorageDocuments({ appSlug, signal }: GetEnvVarsProps): Pr
   const envVars: EnvVar[] = [];
 
   response.project_file_storage_documents.forEach(({ user_env_key: key }) => {
-    envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_URL`, source: Source.CodeSigning });
+    envVars.push({
+      ...defaultEnvVar,
+      key: `BITRISEIO_${key}_URL`,
+      source: Source.CodeSigning,
+    });
 
     if (key.startsWith('ANDROID_KEYSTORE')) {
-      envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_ALIAS`, source: Source.CodeSigning });
-      envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_PASSWORD`, source: Source.CodeSigning });
-      envVars.push({ ...defaultEnvVar, key: `BITRISEIO_${key}_PRIVATE_KEY_PASSWORD`, source: Source.CodeSigning });
+      envVars.push({
+        ...defaultEnvVar,
+        key: `BITRISEIO_${key}_ALIAS`,
+        source: Source.CodeSigning,
+      });
+      envVars.push({
+        ...defaultEnvVar,
+        key: `BITRISEIO_${key}_PASSWORD`,
+        source: Source.CodeSigning,
+      });
+      envVars.push({
+        ...defaultEnvVar,
+        key: `BITRISEIO_${key}_PRIVATE_KEY_PASSWORD`,
+        source: Source.CodeSigning,
+      });
     }
   });
 

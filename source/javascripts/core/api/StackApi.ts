@@ -1,5 +1,5 @@
-import { Stack } from '@/core/Stack';
-import { WithId } from '@/core/WithId';
+import { Stack } from '@/core/models/Stack';
+import { WithId } from '@/core/models/WithId';
 import Client from './client';
 
 // DTOs

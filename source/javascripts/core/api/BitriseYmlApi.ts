@@ -1,5 +1,5 @@
 import { stringify } from 'yaml';
-import { BitriseYml } from '@/core/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import Client from './client';
 
 // TRANSFORMATIONS

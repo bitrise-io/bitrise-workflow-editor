@@ -1,5 +1,5 @@
-import { MachineType } from '@/core/MachineType';
-import { WithId } from '@/core/WithId';
+import { MachineType } from '@/core/models/MachineType';
+import { WithId } from '@/core/models/WithId';
 import Client from './client';
 
 // DTOs

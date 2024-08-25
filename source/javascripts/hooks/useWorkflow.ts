@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Workflow } from '@/core/Workflow';
+import { Workflow } from '@/core/models/Workflow';
 
 const useWorkflow = (id: string): Workflow | undefined => {
   return useBitriseYmlStore(
