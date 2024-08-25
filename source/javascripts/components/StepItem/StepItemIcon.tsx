@@ -1,6 +1,6 @@
 import { LazyLoadImage } from 'react-lazy-load-image-component';
 
-import defaultStepIcon from '../../../images/step/icon-default.svg';
+import defaultStepIcon from '@/../images/step/icon-default.svg';
 
 type StepItemIconProps = {
   iconUrl?: string;

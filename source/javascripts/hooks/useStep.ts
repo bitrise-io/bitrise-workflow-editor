@@ -8,7 +8,7 @@ import { isGitStep, isLocalStep, isStepLib, normalizeStepVersion, parseStepCVS, 
 import useAlgoliaStep from '@/hooks/useAlgoliaStep';
 import useAlgoliaStepInputs from '@/hooks/useAlgoliaStepInputs';
 import { Maintainer } from '@/models/Algolia';
-import defaultIcon from '../../images/step/icon-default.svg';
+import defaultIcon from '@/../images/step/icon-default.svg';
 
 type UseStepResult = {
   cvs: string;
@@ -44,7 +44,10 @@ const useStepFromYml = (workflowId: string, stepIndex: number): UseStepResult =>
 
 const useStepFromAlgolia = (cvs = ''): UseStepResult => {
   const [id, version] = parseStepCVS(cvs);
-  const { data: info, isLoading: isLoadingInfo } = useAlgoliaStep({ id, enabled: Boolean(id && isStepLib(cvs)) });
+  const { data: info, isLoading: isLoadingInfo } = useAlgoliaStep({
+    id,
+    enabled: Boolean(id && isStepLib(cvs)),
+  });
 
   const versions = info?.map((s) => s.version ?? '');
   const latestVersion = info?.find((s) => s.is_latest)?.version;
@@ -89,7 +92,10 @@ const useStepFromLocalApi = (cvs = ''): UseStepResult => {
         signal,
         method: 'POST',
         body: JSON.stringify({ id, library, version }),
-        headers: { 'Content-Type': 'application/json', Accept: 'application/json' },
+        headers: {
+          'Content-Type': 'application/json',
+          Accept: 'application/json',
+        },
       });
 
       return (await response.json()) as {
