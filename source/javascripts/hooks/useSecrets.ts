@@ -1,5 +1,5 @@
 import { DefaultError, useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query';
-import SecretApi from '@/api/SecretApi';
+import SecretApi from '@/core/api/SecretApi';
 import { Secret, SecretWithState } from '@/core/Secret';
 
 function getSecretsQueryKey(appSlug: string, useApi: boolean) {
