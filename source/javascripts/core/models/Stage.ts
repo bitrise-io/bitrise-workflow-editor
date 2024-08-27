@@ -1,8 +1,7 @@
-import { WithId } from './WithId';
 import { BitriseYml } from './BitriseYml';
 
 type Stages = Required<BitriseYml>['stages'];
-type StageObject = Stages[string];
-type Stage = WithId<StageObject>;
+type StageYmlObject = Stages[string];
+type Stage = { id: string; userValues: StageYmlObject };
 
-export { Stage, Stages, StageObject };
+export { Stage, Stages, StageYmlObject };
