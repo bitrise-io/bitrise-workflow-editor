@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Workflows } from '@/models/Workflow';
+import { Workflows } from '@/core/models/Workflow';
 
 export const useWorkflows = (): Workflows => {
-  return useBitriseYmlStore(useShallow(({ yml }) => yml.workflows ?? {}));
+  return useBitriseYmlStore(useShallow(({ yml }) => yml.workflows || {}));
 };

@@ -1,6 +1,7 @@
-import WorkflowService, { Workflows } from './Workflow';
+import { Workflows } from './Workflow';
+import WorkflowService from './WorkflowService';
 
-describe('workflow', () => {
+describe('WorkflowService', () => {
   describe('getBeforeRunChain', () => {
     it('should return an empty array when there are no workflows', () => {
       const id = 'wf-1';

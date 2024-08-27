@@ -9,14 +9,14 @@ const useWorkflow = (id: string): Workflow | undefined => {
       const workflow = yml.workflows?.[id];
 
       if (!workflow) {
-        return;
+        return undefined;
       }
 
       if (defaultMeta || workflow.meta) {
         workflow.meta = merge({}, defaultMeta, workflow.meta);
       }
 
-      return { id, ...workflow } as Workflow;
+      return { id, userValues: workflow };
     }),
   );
 };

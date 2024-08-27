@@ -1,24 +1,24 @@
 import { useMemo } from 'react';
 import useSearchParams from '@/hooks/useSearchParams';
-import { WithId, withId } from '@/models/WithId';
-import { Workflow } from '@/models/Workflow';
-import { useWorkflows } from './useWorkflows';
+import { Workflow, WorkflowYmlObject } from '@/core/models/Workflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
 type UseSelectedWorkflowResult = [
-  selectedWorkflow: WithId<Workflow>,
+  selectedWorkflow: Workflow,
   setSelectedWorkflow: (workflowId?: string | null) => void,
 ];
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   const workflows = useWorkflows();
-  const workflowIds = Object.keys(workflows);
   const [searchParams, setSearchParams] = useSearchParams();
-  const selectedWorkflowId = searchParams.workflow_id || workflowIds[0];
+  const selectedWorkflowId = searchParams.workflow_id;
 
   return useMemo(() => {
+    const workflowIds = Object.keys(workflows);
     const workflowEntries = Object.entries(workflows);
-    // TODO: Thinking about how to notice the users when workflow is not found by the given ID.
-    const selectedWorkflow = workflowEntries.find(([id]) => id === selectedWorkflowId) ?? ['', {}];
+
+    const selectedWorkflow = (workflowEntries.find(([id]) => id === selectedWorkflowId) ??
+      workflows[0]) as WorkflowYmlObject;
 
     const setSelectedWorkflow = (workflowId?: string | null) => {
       setSearchParams((oldSearchParams) => {
@@ -29,8 +29,8 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
       });
     };
 
-    return [withId(selectedWorkflow), setSelectedWorkflow];
-  }, [selectedWorkflowId, setSearchParams, workflowIds, workflows]);
+    return [{ id: selectedWorkflowId, userValues: selectedWorkflow }, setSelectedWorkflow];
+  }, [selectedWorkflowId, setSearchParams, workflows]);
 };
 
 export default useSelectedWorkflow;
