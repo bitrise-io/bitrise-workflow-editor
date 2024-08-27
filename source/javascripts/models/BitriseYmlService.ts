@@ -3,7 +3,7 @@ import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { BitriseYml } from './BitriseYml';
+import { BitriseYml, Meta } from './BitriseYml';
 import { Stages } from './Stage';
 import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
 import { Pipelines } from './Pipeline';
@@ -136,6 +136,32 @@ function addChainedWorkflow(
   return copy;
 }
 
+function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows?.[workflowId]) {
+    const newBitriseIO: Meta['bitrise.io'] = {};
+    if (stack !== '') {
+      newBitriseIO.stack = stack;
+    }
+    if (machineTypeId !== '') {
+      newBitriseIO.machine_type_id = machineTypeId;
+    }
+
+    if (Object.keys(newBitriseIO).length > 0) {
+      copy.workflows[workflowId].meta = {
+        'bitrise.io': newBitriseIO,
+      };
+    } else if (copy.workflows[workflowId].meta && copy.workflows[workflowId].meta['bitrise.io']) {
+      delete copy.workflows[workflowId].meta['bitrise.io'];
+    }
+  } else {
+    // TODO should we throw an error here?
+  }
+
+  return copy;
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -207,4 +233,5 @@ export default {
   addChainedWorkflow,
   setChainedWorkflows,
   deleteChainedWorkflow,
+  updateStackAndMachine,
 };

@@ -370,6 +370,135 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
+
+  describe('updateStackAndMachine', () => {
+    it('should add stack and machine definition to a given workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+                machine_type_id: 'my-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', 'my-stack', 'my-machine', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove stack definition if it is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+                machine_type_id: 'my-old-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                machine_type_id: 'my-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', 'my-machine', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove machine type definition if it is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-old-stack',
+                machine_type_id: 'my-old-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', 'my-stack', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove bitrise.io section if both stack and workflow config is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+                machine_type_id: 'my-old-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {},
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
 });
 
 declare module 'expect' {

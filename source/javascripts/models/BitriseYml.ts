@@ -568,5 +568,5 @@ export const bitriseYmlSchema = {
 
 export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
 export type Meta = Required<BitriseYml>['meta'] & {
-  'bitrise.io'?: { stack: string; machine_type_id: string };
+  'bitrise.io'?: { stack?: string; machine_type_id?: string };
 };
