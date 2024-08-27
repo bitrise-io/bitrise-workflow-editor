@@ -1,6 +1,7 @@
 import { RefObject, useCallback, useMemo } from 'react';
 import { useVirtualizer } from '@tanstack/react-virtual';
-import { Step, VirtualizedListItem } from '../StepDrawer.types';
+import { Step } from '@/core/models/Step';
+import { VirtualizedListItem } from '../StepDrawer.types';
 import { RowSizes } from '../StepDrawer.constants';
 import { createVirtualItemsGroup, getStepsByCategories } from '../StepDrawer.utils';
 
@@ -27,7 +28,7 @@ const useVirtualizedItems = ({
     const virtualItems: VirtualizedListItem[] = [];
     if (highlightedStepGroups && Object.keys(highlightedStepGroups).length > 0) {
       Object.entries(highlightedStepGroups).forEach(([category, stepIds]) => {
-        const groupSteps = steps.filter((step) => stepIds.has(step.id));
+        const groupSteps = steps.filter((step) => stepIds.has(step?.resolvedInfo?.id || ''));
         virtualItems.push(
           ...createVirtualItemsGroup({
             columns,

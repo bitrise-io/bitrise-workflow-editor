@@ -1,14 +1,10 @@
 import { useMemo } from 'react';
-import { useWorkflows } from '@/pages/WorkflowsPage/hooks/useWorkflows';
-import { extractChainableWorkflows } from '@/models/Workflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
+import WorkflowService from '@/core/models/WorkflowService';
 
-type Props = {
-  id: string;
-};
-
-const useChainableWorkflows = ({ id }: Props): string[] => {
+const useChainableWorkflows = (id: string): string[] => {
   const workflows = useWorkflows();
-  return useMemo(() => extractChainableWorkflows(workflows, id), [workflows, id]);
+  return useMemo(() => WorkflowService.getChainableWorkflows(workflows, id), [workflows, id]);
 };
 
 export default useChainableWorkflows;

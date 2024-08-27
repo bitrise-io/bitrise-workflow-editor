@@ -8,7 +8,7 @@ type Props = {
   search: string;
 };
 const useSearchChainableWorkflows = ({ id, search }: Props) => {
-  const workflows = useChainableWorkflows({ id });
+  const workflows = useChainableWorkflows(id);
   const index = useMemo(() => {
     return new Fuse(workflows);
   }, [workflows]);

@@ -1,5 +1,5 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/models/Secret';
 import { Mode } from '../../hooks/useMultiModePopover';
 import InsertSecretPopover from './InsertSecretPopover';
 

@@ -1,21 +1,21 @@
 import { Button, Dialog, DialogBody, DialogFooter, List, ListItem, Text } from '@bitrise/bitkit';
 import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
-import useWorkflowIds from '../../hooks/useWorkflowIds';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
 type Props = UseDisclosureProps & {
-  workflowId: string;
   onDeleteWorkflow: (workflowId: string) => void;
 };
 
-const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps }: Props) => {
-  const workflowIds = useWorkflowIds();
+const DeleteWorkflowDialog = ({ onDeleteWorkflow, ...disclosureProps }: Props) => {
+  const workflows = useWorkflows();
+  const workflowIds = Object.keys(workflows);
   const { isOpen, onClose } = useDisclosure(disclosureProps);
-  const [selectedWorkflow, setSelectedWorkflow] = useSelectedWorkflow();
+  const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();
 
   const handleDelete = () => {
-    setSelectedWorkflow(workflowIds.find((id) => id !== selectedWorkflow.id));
-    onDeleteWorkflow(selectedWorkflow.id);
+    setSelectedWorkflow(workflowIds.find((id) => id !== selectedWorkflowId));
+    onDeleteWorkflow(selectedWorkflowId);
     onClose();
   };
 
@@ -23,7 +23,7 @@ const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps
     <Dialog isOpen={isOpen} title="Delete Workflow?" onClose={onClose}>
       <DialogBody display="flex" flexDir="column" gap="24">
         <Text>
-          Are you sure you want to delete <strong>{selectedWorkflow.id}</strong>?
+          Are you sure you want to delete <strong>{selectedWorkflowId}</strong>?
         </Text>
         <List variant="unstyled" spacing="6">
           <ListItem iconSize="24" iconName="CloseSmall" iconColor="icon/negative">

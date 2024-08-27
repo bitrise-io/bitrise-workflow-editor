@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
-import { EnvVar } from '@/models/EnvVar';
+import { EnvVar } from '@/core/models/EnvVar';
 import { HandlerFn } from './types';
 
 type State = {

@@ -5,7 +5,6 @@ import { ColorProps } from '@chakra-ui/react';
 import StepBadge from '@/components/StepBadge/StepBadge';
 import defaultStepIcon from '@/../images/step/icon-default.svg';
 import useIsTruncated from '@/hooks/useIsTruncated';
-import { Step } from '../StepDrawer.types';
 
 const HoverStyles = {
   backgroundColor: 'inherit',
@@ -13,8 +12,16 @@ const HoverStyles = {
   boxShadow: 'small',
 };
 
-type Props = Step & {
+type Props = {
   cardProps?: CardProps;
+  icon: string;
+  title: string;
+  summary?: string;
+  description?: string;
+  version?: string;
+  isOfficial?: boolean;
+  isVerified?: boolean;
+  isDeprecated?: boolean;
   isDisabled?: boolean;
   onClick: () => void;
 };
@@ -35,7 +42,7 @@ const DrawerStepCard = ({
   const titleRef = useRef<HTMLParagraphElement>(null);
   const isTitleTruncated = useIsTruncated(titleRef);
   const getColor = useCallback((color: ColorProps['color']) => (isDisabled ? 'text/disabled' : color), [isDisabled]);
-  const detail = useMemo(() => summary || description.split('\n')[0], [summary, description]);
+  const detail = useMemo(() => summary || description?.split('\n')[0], [summary, description]);
 
   return (
     <Card

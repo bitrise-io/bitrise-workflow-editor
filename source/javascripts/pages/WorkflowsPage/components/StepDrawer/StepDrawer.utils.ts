@@ -1,39 +1,16 @@
 import capitalize from 'lodash/capitalize';
-import defaultIcon from '@/../images/step/icon-default.svg';
-import { AlgoliaStepResponse, Maintainer } from '@/models/Algolia';
-import { CategoryRowItem, Step, StepsRowItem, VirtualizedListItem } from './StepDrawer.types';
+import { Step } from '@/core/models/Step';
+import { CategoryRowItem, StepsRowItem, VirtualizedListItem } from './StepDrawer.types';
 
 export const isCategoryRow = (item: VirtualizedListItem): item is CategoryRowItem => item.type === 'category';
 export const isStepsRow = (item: VirtualizedListItem): item is StepsRowItem => item.type === 'steps';
 
 export const displayCategoryName = (category: string) => capitalize(category).replace('-', ' ');
 
-export const fromAlgolia = (response: AlgoliaStepResponse): Step => {
-  return {
-    id: response.id || '',
-    cvs: response.cvs || '',
-    icon:
-      response.step?.asset_urls?.['icon.svg'] ||
-      response.step?.asset_urls?.['icon.png'] ||
-      response.info?.asset_urls?.['icon.svg'] ||
-      response.info?.asset_urls?.['icon.png'] ||
-      defaultIcon,
-    title: response.step?.title || '',
-    summary: response.step?.summary || '',
-    description: response.step?.description || '',
-    version: response.version || '',
-    categories: response.step?.type_tags || [],
-    isOfficial: response.info?.maintainer === Maintainer.Bitrise || false,
-    isVerified: response.info?.maintainer === Maintainer.Verified || false,
-    isCommunity: response.info?.maintainer === Maintainer.Community || false,
-    isDeprecated: response.is_deprecated || false,
-  };
-};
-
 export const getStepsByCategories = (steps: Step[]) => {
   return steps.reduce(
     (acc, step) => {
-      step.categories.forEach((category) => {
+      step?.mergedValues?.type_tags?.forEach((category) => {
         acc[category] ||= [];
         acc[category].push(step);
       });
@@ -71,8 +48,9 @@ export const createVirtualItemsGroup = ({
 
     for (let i = 0; i < rows; i++) {
       const stepsInRow = steps.slice(i * columns, (i + 1) * columns).map((step) => {
-        const isDisabled = enabledStepIds && !enabledStepIds.has(step.id);
-        return { ...step, isDisabled };
+        const stepId = step?.resolvedInfo?.id || '';
+        const isDisabled = Boolean(enabledStepIds && stepId && !enabledStepIds.has(stepId));
+        return { id: stepId, step, isDisabled };
       });
       items.push({
         type: 'steps',

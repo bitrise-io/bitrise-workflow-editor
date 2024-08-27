@@ -1,6 +1,7 @@
 import { Box, Button, ButtonGroup, Card, Divider, Text } from '@bitrise/bitkit';
+import WorkflowService from '@/core/models/WorkflowService';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { ChainWorkflowCallback } from '../ChainWorkflowDrawer.types';
-import WorkflowUsedByText from '../../WorkflowUsedByText';
 
 type Props = {
   chainableWorkflowId: string;
@@ -9,6 +10,7 @@ type Props = {
 };
 
 const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainWorkflow }: Props) => {
+  const dependants = useDependantWorkflows(chainableWorkflowId);
   return (
     <Card
       className="group"
@@ -28,7 +30,9 @@ const ChainableWorkflowCard = ({ chainableWorkflowId, parentWorkflowId, onChainW
         <Text textStyle="body/lg/semibold" mb="4" hasEllipsis>
           {chainableWorkflowId}
         </Text>
-        <WorkflowUsedByText workflowId={chainableWorkflowId} />
+        <Text textStyle="body/sm/regular" color="text/secondary">
+          {WorkflowService.getUsedByText(dependants)}
+        </Text>
       </Box>
       <ButtonGroup flexShrink={0} display="none" _groupHover={{ display: 'inline-flex' }}>
         <Button

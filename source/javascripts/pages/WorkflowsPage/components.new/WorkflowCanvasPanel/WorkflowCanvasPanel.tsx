@@ -2,7 +2,7 @@ import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/
 import { useShallow } from 'zustand/react/shallow';
 import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';

@@ -1,14 +1,16 @@
 import { Box, BoxProps, SearchInput, SelectableTag, SelectableTagGroup } from '@bitrise/bitkit';
 import { Controller } from 'react-hook-form';
 
-import useStepCategories from '../hooks/useStepCategories';
+import { useAlgoliaSteps } from '@/hooks/useAlgolia';
+import stepService from '@/core/models/StepService';
 import { SearchFormValues } from '../StepDrawer.types';
 import { formValueToArray } from '../StepDrawer.utils';
 
 type Props = BoxProps;
 
 const StepFilter = (props: Props) => {
-  const categories = useStepCategories();
+  const { data: steps = [] } = useAlgoliaSteps();
+  const categories = stepService.getStepCategories(steps);
 
   return (
     <Box display="flex" flexDir="column" gap="16" {...props}>

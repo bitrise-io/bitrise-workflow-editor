@@ -1,22 +1,8 @@
+import { Step } from '@/core/models/Step';
+
 export type SearchFormValues = {
   search: string;
   categories: string[];
-};
-
-export type Step = {
-  id: string;
-  cvs: string;
-  icon: string;
-  title: string;
-  summary: string;
-  description: string;
-  version: string;
-  categories: string[];
-  isOfficial: boolean;
-  isVerified: boolean;
-  isCommunity: boolean;
-  isDeprecated: boolean;
-  isDisabled?: boolean;
 };
 
 export type CategoryRowItem = {
@@ -25,12 +11,18 @@ export type CategoryRowItem = {
   rows: number;
 };
 
+type StepItem = {
+  id: string;
+  step: Step;
+  isDisabled: boolean;
+};
+
 export type StepsRowItem = {
   type: 'steps';
   row: number;
   category?: string;
   columns: number;
-  steps: Step[];
+  steps: StepItem[];
 };
 
 export type VirtualizedListItem = CategoryRowItem | StepsRowItem;

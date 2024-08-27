@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
-import { EnvVar } from '@/models/EnvVar';
+import { EnvVar } from '@/core/models/EnvVar';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';

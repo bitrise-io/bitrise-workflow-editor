@@ -10,7 +10,7 @@ import {
   UseDisclosureProps,
 } from '@chakra-ui/react';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { BitriseYml } from '@/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
 

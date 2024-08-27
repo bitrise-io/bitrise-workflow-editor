@@ -1,18 +1,18 @@
 import { Box } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import { BitriseYml } from '@/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import StepConfigDrawer from '@/components/StepConfigDrawer/StepConfigDrawer';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowConfigDrawer from '@/components/WorkflowConfig/WorkflowConfigDrawer';
 import WorkflowConfigPanel from '@/components/WorkflowConfig/WorkflowConfigPanel';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
 import StepSelectorDrawer from './components.new/StepDrawer/StepDrawer';
-import useSelectedWorkflow from './hooks/useSelectedWorkflow';
 
 type Props = {
   yml: BitriseYml;
@@ -71,7 +71,6 @@ const WorkflowsPageContent = () => {
       />
 
       <DeleteWorkflowDialog
-        workflowId={workflowId}
         isOpen={isDeleteWorkflowDialogOpen}
         onClose={closeDialog}
         onDeleteWorkflow={deleteWorkflow}
