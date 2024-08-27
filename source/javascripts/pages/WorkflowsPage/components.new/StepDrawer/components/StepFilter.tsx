@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Box, BoxProps, SearchInput, SelectableTag, SelectableTagGroup } from '@bitrise/bitkit';
 import { Controller } from 'react-hook-form';
 
@@ -10,7 +11,7 @@ type Props = BoxProps;
 
 const StepFilter = (props: Props) => {
   const { data: steps = [] } = useAlgoliaSteps();
-  const categories = stepService.getStepCategories(steps);
+  const categories = useMemo(() => stepService.getStepCategories(steps), [steps]);
 
   return (
     <Box display="flex" flexDir="column" gap="16" {...props}>

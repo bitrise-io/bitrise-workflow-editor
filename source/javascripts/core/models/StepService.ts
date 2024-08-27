@@ -71,7 +71,7 @@ function getSelectableVersions(step?: Step): Array<{ value: string; label: strin
 }
 
 function getStepCategories(steps: Step[]): string[] {
-  return uniq(steps.flatMap((step) => step.userValues?.type_tags || [])).sort();
+  return uniq(steps.flatMap((step) => step.defaultValues?.type_tags || [])).sort();
 }
 
 export default {

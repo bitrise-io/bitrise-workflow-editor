@@ -10,7 +10,7 @@ export const displayCategoryName = (category: string) => capitalize(category).re
 export const getStepsByCategories = (steps: Step[]) => {
   return steps.reduce(
     (acc, step) => {
-      step?.mergedValues?.type_tags?.forEach((category) => {
+      step?.defaultValues?.type_tags?.forEach((category) => {
         acc[category] ||= [];
         acc[category].push(step);
       });

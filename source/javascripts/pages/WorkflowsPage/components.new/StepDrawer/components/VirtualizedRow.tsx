@@ -37,8 +37,8 @@ const VirtualizedRow = ({ item, style = {}, onStepSelected }: VirtualizedRowProp
             key={`${item.category}/${id}`}
             icon={step.resolvedInfo?.icon || defaultIcon}
             title={step.resolvedInfo?.title || id}
-            summary={step.mergedValues?.summary}
-            description={step.mergedValues?.description}
+            summary={step.defaultValues?.summary}
+            description={step.defaultValues?.description}
             version={step.resolvedInfo?.version}
             isOfficial={step.resolvedInfo?.isOfficial}
             isVerified={step.resolvedInfo?.isVerified}
