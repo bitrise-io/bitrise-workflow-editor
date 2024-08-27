@@ -1,5 +1,4 @@
 import { MachineType } from '@/core/models/MachineType';
-import { WithId } from '@/core/models/WithId';
 import Client from './client';
 
 // DTOs
@@ -24,33 +23,15 @@ type MachineTypeConfigsResponse = {
 type MachineTypeConfig = MachineTypeConfigsResponse['available_machine_type_configs'][string]['machine_types'][string];
 
 // TRANSFORMATIONS
-function toMachineType({
-  id,
-  os,
-  isDefaultForOs,
-  ...dto
-}: WithId<MachineTypeConfig> & {
-  os: string;
-  isDefaultForOs: boolean;
-}): MachineType {
-  const { name, cpu_count: cpuCount, cpu_description: cpuDesc, ram, credit_per_min: cost } = dto;
-  const label = `${name} ${cpuCount} @ ${cpuDesc} ${ram} (${cost} credits/min)`;
+function toMachineType({ id, ...config }: MachineTypeConfig & { id: string }): MachineType {
+  const { name, cpu_count: cpuCount, cpu_description: cpuDesc, ram, credit_per_min: creditCost } = config;
+  const label = `${name} ${cpuCount} @ ${cpuDesc} ${ram} (${creditCost} credits/min)`;
 
   return {
     id,
-    name: dto.name || id,
+    name: config.name || id,
     label,
-    os,
-    spec: {
-      cpu: {
-        chip: dto.chip,
-        count: dto.cpu_count,
-        description: dto.cpu_description,
-      },
-      ram: dto.ram,
-    },
-    creditCost: cost,
-    isDefaultForOs,
+    creditCost,
   };
 }
 
@@ -61,8 +42,6 @@ function toMachineTypeArray(response: MachineTypeConfigsResponse): MachineType[]
         toMachineType({
           id: machineId,
           ...machineConfig,
-          os,
-          isDefaultForOs: Boolean(osConfig[os].default_machine_type === machineId),
         }),
       );
     })
