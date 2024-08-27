@@ -15,17 +15,17 @@ const getUsedByText = (usedBy: string[]) => {
 };
 
 const WorkflowConfigHeader = () => {
-  const { id, title } = useWorkflowConfigContext();
-  const usedBy = useWorkflowUsedBy(id);
+  const result = useWorkflowConfigContext();
+  const dependants = useWorkflowUsedBy(result?.id || '');
 
   return (
     <>
       <Box px="24" py="16">
         <Text as="h3" textStyle="heading/h3">
-          {title || id}
+          {result?.userValues.title || result?.id || 'Workflow'}
         </Text>
         <Text textStyle="body/sm/regular" color="text/secondary">
-          {getUsedByText(usedBy)}
+          {getUsedByText(dependants)}
         </Text>
       </Box>
       <Box position="relative" mt="8">

@@ -1,6 +1,7 @@
 import { useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
+import { Workflow } from '@/core/models/Workflow';
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import { WorkflowCardCallbacks } from './WorkflowCard.types';
@@ -17,15 +18,17 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
   const stepCallbacks = { onAddStepClick, onStepMove, onStepSelect };
 
   const containerRef = useRef(null);
-  const workflow = useWorkflow(id);
+  const result = useWorkflow(id);
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
-  if (!workflow) {
+  if (!result) {
     // TODO: Missing empty state
     // eslint-disable-next-line no-console
     console.warn(`Workflow '${id}' is not found in yml!`);
     return null;
   }
+
+  const { userValues: workflow } = result || ({} as Workflow);
 
   return (
     <Card borderRadius="8" variant="elevated" {...containerProps}>

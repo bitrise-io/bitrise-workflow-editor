@@ -5,15 +5,8 @@ import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useS
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import {
-  EnvVar,
-  transformEnvVarFromYml,
-  isKeyUnique,
-  isNotEmpty,
-  KEY_IS_REQUIRED,
-  KEY_PATTERN,
-  VALUE_IS_REQUIRED,
-} from '@/models/EnvVar';
+import { EnvVar } from '@/core/models/EnvVar';
+import EnvVarService from '@/core/models/EnvVarService';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
@@ -91,12 +84,11 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             placeholder="Enter key"
             errorText={errors.envs?.[index]?.key?.message}
             {...register(`envs.${index}.key`, {
-              required: KEY_IS_REQUIRED,
-              pattern: KEY_PATTERN,
-              validate: {
-                isUnique: isKeyUnique(envVars.map((ev) => ev.key)),
-                isNotEmpty,
-              },
+              validate: (v) =>
+                EnvVarService.validateKey(
+                  v,
+                  envVars.map((env) => env.key),
+                ),
             })}
           />
           <Text color="text/tertiary" pt="8">
@@ -108,8 +100,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             formControlProps={{ flex: 1 }}
             errorText={errors.envs?.[index]?.value?.message}
             {...register(`envs.${index}.value`, {
-              required: VALUE_IS_REQUIRED,
-              validate: { isNotEmpty },
+              validate: EnvVarService.validateValue,
               setValueAs: String,
             })}
           />
@@ -125,15 +116,16 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
 const EnvVarsCard = () => {
   const sensors = useSensors(useSensor(PointerSensor));
-  const { id: source, envs: envVarsFromYml } = useWorkflowConfigContext();
+  const result = useWorkflowConfigContext();
 
   const defaultValues = useMemo(() => {
     return {
-      envs: (envVarsFromYml ?? []).map((env) => {
-        return transformEnvVarFromYml(env, source);
-      }),
+      envs:
+        result?.userValues?.envs?.map((env) => {
+          return EnvVarService.parseYmlEnvVar(env, result?.id);
+        }) || [],
     };
-  }, [envVarsFromYml, source]);
+  }, [result]);
 
   const { reset, trigger, ...form } = useForm<FormValues>({
     mode: 'all',
@@ -147,7 +139,7 @@ const EnvVarsCard = () => {
   });
 
   const handleAddNew = () => {
-    append({ source, key: '', value: '', isExpand: false });
+    append({ source: result?.id || '', key: '', value: '', isExpand: false });
   };
 
   const handleDragEnd = (e: DragEndEvent) => {

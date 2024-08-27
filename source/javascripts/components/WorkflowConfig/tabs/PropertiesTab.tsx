@@ -1,11 +1,18 @@
 import { useEffect, useMemo } from 'react';
-import { Box, Input, Textarea } from '@bitrise/bitkit';
+import { Box, Input, Text, Textarea } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
+import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const PropertiesTab = () => {
-  const { id: name, summary = '', description = '' } = useWorkflowConfigContext();
-  const defaultValues = useMemo(() => ({ name, summary, description }), [name, summary, description]);
+  const result = useWorkflowConfigContext();
+  const defaultValues = useMemo(() => {
+    return {
+      name: result?.userValues.title || '',
+      summary: result?.userValues.summary || '',
+      description: result?.userValues.description || '',
+    };
+  }, [result]);
 
   const { reset, trigger, register, formState } = useForm({
     mode: 'all',
@@ -22,6 +29,10 @@ const PropertiesTab = () => {
     trigger();
   }, [trigger, formState.defaultValues]);
 
+  if (!result) {
+    return <Text>Loading...</Text>;
+  }
+
   return (
     <Box as="form" gap="24" display="flex" flexDir="column">
       <Input
@@ -30,17 +41,7 @@ const PropertiesTab = () => {
         errorText={formState.errors.name?.message?.toString()}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
         {...register('name', {
-          required: {
-            value: true,
-            message: 'Name is required.',
-          },
-          validate: {
-            isNotEmpty: (value) => !!value.trim() || 'Name should not be empty.',
-          },
-          pattern: {
-            value: /^[a-zA-Z0-9_-]+$/i,
-            message: 'Name should contain letters, numbers, underscores & hyphens.',
-          },
+          validate: (v) => WorkflowService.validateName(v),
         })}
       />
       <Textarea label="Summary" {...register('summary')} />

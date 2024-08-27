@@ -10,30 +10,24 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
-import { isStepLib } from '@/models/Step';
-import { getVersionRemark } from '@/utils/stepVersionUtil';
+import StepService from '@/core/models/StepService';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 
 const PropertiesTab = () => {
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
-  const { cvs, step, title, availableVersions, selectedVersion } = useStepDrawerContext();
+  const { data, isLoading } = useStepDrawerContext();
+  const { cvs, mergedValues, resolvedInfo } = data ?? {};
 
-  const setOfSelectableVersions = new Set<string | null>([null, selectedVersion || null]);
-  availableVersions?.forEach((version) => {
-    const [major, minor] = version.split('.');
-    setOfSelectableVersions.add(`${major}.x.x`);
-    setOfSelectableVersions.add(`${major}.${minor}.x`);
-  });
+  // Todo loading state
+  if (isLoading) {
+    return <>Loading...</>;
+  }
 
-  const arrayOfSelectableVersions = Array.from(setOfSelectableVersions).sort().reverse();
-  const versionsWithRemarks = arrayOfSelectableVersions.map((version) => ({
-    version,
-    remark: version ? getVersionRemark(version) : '',
-  }));
+  const selectableVersions = StepService.getSelectableVersions(data);
 
   return (
     <Box display="flex" flexDirection="column" gap="24">
-      {step?.source_code_url && (
+      {mergedValues?.source_code_url && (
         <Link
           gap="4"
           display="flex"
@@ -43,26 +37,26 @@ const PropertiesTab = () => {
           alignItems="center"
           colorScheme="purple"
           rel="noreferrer noopener"
-          href={step?.source_code_url}
+          href={mergedValues?.source_code_url}
           isExternal
         >
           <Text>View source code</Text>
           <Icon name="OpenInBrowser" />
         </Link>
       )}
-      <Input defaultValue={title} type="text" label="Name" placeholder="Step name" isRequired />
+      <Input defaultValue={resolvedInfo?.title} type="text" label="Name" placeholder="Step name" isRequired />
       <Divider />
       <Select
         backgroundSize="none"
         label="Version updates"
-        isDisabled={!isStepLib(cvs)}
-        defaultValue={selectedVersion}
+        isDisabled={!StepService.isStepLibStep(cvs || '')}
+        defaultValue={resolvedInfo?.normalizedVersion || ''}
         isRequired
       >
-        {versionsWithRemarks?.map(({ version: value, remark }) => {
+        {selectableVersions?.map(({ value, label }) => {
           return (
-            <option key={value || ''} value={value || ''}>
-              {value ? `${value} - ${remark}` : 'Always latest'}
+            <option key={value} value={value}>
+              {label}
             </option>
           );
         })}
@@ -72,11 +66,11 @@ const PropertiesTab = () => {
         <Text size="2" fontWeight="600">
           Summary
         </Text>
-        {step?.summary && <MarkdownContent md={step.summary} />}
-        {step?.description && (
+        {mergedValues?.summary && <MarkdownContent md={mergedValues.summary} />}
+        {mergedValues?.description && (
           <>
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
-              <MarkdownContent md={step.description} />
+              <MarkdownContent md={mergedValues.description} />
             </Collapse>
             {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
             <Link

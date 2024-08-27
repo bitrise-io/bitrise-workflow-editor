@@ -3,6 +3,7 @@ import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import defaultIcon from '@/../images/step/icon-default.svg';
 import { SortableStepItem } from '../WorkflowCard.types';
 
 type StepCardProps = {
@@ -24,7 +25,7 @@ const StepCard = ({
   showSecondary = true,
   onClick,
 }: StepCardProps) => {
-  const step = useStep(workflowId, stepIndex);
+  const result = useStep(workflowId, stepIndex);
 
   const sortable = useSortable({
     id: uniqueId,
@@ -38,11 +39,12 @@ const StepCard = ({
 
   const isButton = Boolean(onClick);
 
-  if (!step) {
+  if (!result) {
     return null;
   }
 
-  const { cvs, isLoading, icon, title, selectedVersion } = step;
+  const { data, isLoading } = result;
+  const { cvs, resolvedInfo } = data ?? {};
 
   if (isLoading) {
     return (
@@ -73,7 +75,10 @@ const StepCard = ({
         textStyle="body/sm/regular"
         borderColor="border/strong"
         backgroundColor="background/secondary"
-        style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+        style={{
+          transition: sortable.transition,
+          transform: CSS.Transform.toString(sortable.transform),
+        }}
       />
     );
   }
@@ -87,7 +92,10 @@ const StepCard = ({
       ref={sortable.setNodeRef}
       _hover={isButton ? { borderColor: 'border/hover' } : {}}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+      style={{
+        transition: sortable.transition,
+        transform: CSS.Transform.toString(sortable.transform),
+      }}
     >
       {isSortable && (
         <DragHandle
@@ -103,19 +111,19 @@ const StepCard = ({
       <Box display="flex" p="8" gap="8" minW={0} flex="1" as={isButton ? 'button' : 'div'} onClick={onClick}>
         <Avatar
           size="32"
-          src={icon}
+          src={resolvedInfo?.icon || defaultIcon}
           variant="step"
           outline="1px solid"
-          name={title || cvs}
+          name={resolvedInfo?.title || cvs || ''}
           outlineColor="border/minimal"
         />
         <Box minW={0} textAlign="left">
           <Text textStyle="body/sm/regular" hasEllipsis>
-            {title}
+            {resolvedInfo?.title || cvs}
           </Text>
           {showSecondary && (
             <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-              {selectedVersion || 'Always latest'}
+              {resolvedInfo?.resolvedVersion || 'Always latest'}
             </Text>
           )}
         </Box>

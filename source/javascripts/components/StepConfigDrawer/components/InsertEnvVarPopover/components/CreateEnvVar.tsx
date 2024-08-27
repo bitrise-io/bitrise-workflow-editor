@@ -1,7 +1,8 @@
 import { useForm } from 'react-hook-form';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
-import { EnvVar, isKeyUnique, isNotEmpty, KEY_IS_REQUIRED, KEY_PATTERN, VALUE_IS_REQUIRED } from '@/models/EnvVar';
+import { EnvVar } from '@/core/models/EnvVar';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
+import EnvVarService from '@/core/models/EnvVarService';
 import { CreateEnvVarFormValues, HandlerFn } from '../types';
 
 type Props = {
@@ -41,12 +42,11 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter key"
             errorText={errors.key?.message}
             {...register('key', {
-              required: KEY_IS_REQUIRED,
-              pattern: KEY_PATTERN,
-              validate: {
-                isUnique: isKeyUnique(items.map((ev) => ev.key)),
-                isNotEmpty,
-              },
+              validate: (v) =>
+                EnvVarService.validateKey(
+                  v,
+                  items.map((item) => item.key),
+                ),
             })}
           />
           <Text pt="12">=</Text>
@@ -56,8 +56,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             formControlProps={{ flex: '1' }}
             errorText={errors.value?.message}
             {...register('value', {
-              required: VALUE_IS_REQUIRED,
-              validate: { isNotEmpty },
+              validate: (v) => EnvVarService.validateValue(v),
             })}
           />
         </Box>

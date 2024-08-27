@@ -9,21 +9,19 @@ import {
   UseDisclosureProps,
 } from '@chakra-ui/react';
 import {
-  useDisclosure,
-  Tabs,
-  TabList,
-  Tab,
-  Box,
   Avatar,
-  Text,
+  Box,
+  Button,
   ButtonGroup,
   IconButton,
-  Button,
-  TabPanels,
+  Tab,
+  TabList,
   TabPanel,
+  TabPanels,
+  Tabs,
+  Text,
+  useDisclosure,
 } from '@bitrise/bitkit';
-import { Maintainer } from '@/models/Algolia';
-import { isUpgradeableStep } from '@/models/Step';
 import StepBadge from '../StepBadge/StepBadge';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -38,9 +36,10 @@ type Props = UseDisclosureProps & {
 const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>('configuration');
-  const { step, icon, title, resolvedVersion, maintainer, availableVersions } = useStepDrawerContext();
+  const { data } = useStepDrawerContext();
+  const { mergedValues, resolvedInfo } = data ?? {};
 
-  const stepHasOutputVariables = (step?.outputs?.length ?? 0) > 0;
+  const stepHasOutputVariables = (mergedValues?.outputs?.length ?? 0) > 0;
 
   return (
     <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
@@ -71,8 +70,8 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
                 size="48"
-                src={icon}
-                name={title || ''}
+                src={resolvedInfo?.icon || ''}
+                name={resolvedInfo?.title || ''}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
@@ -82,24 +81,24 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
               <Box flex="1" minW={0}>
                 <Box display="flex" gap="4" alignItems="center">
                   <Text as="h3" textStyle="heading/h3" hasEllipsis>
-                    {title}
+                    {resolvedInfo?.title || ''}
                   </Text>
                   <StepBadge
-                    isOfficial={maintainer === Maintainer.Bitrise}
-                    isVerified={maintainer === Maintainer.Verified}
-                    isCommunity={maintainer === Maintainer.Community}
+                    isOfficial={resolvedInfo?.isOfficial}
+                    isVerified={resolvedInfo?.isVerified}
+                    isCommunity={resolvedInfo?.isCommunity}
                   />
                 </Box>
 
                 <Box h="20px" display="flex" gap="8" alignItems="center">
                   <Text textStyle="body/md/regular" color="text/secondary">
-                    {resolvedVersion}
+                    {resolvedInfo?.resolvedVersion}
                   </Text>
                 </Box>
               </Box>
 
               <ButtonGroup>
-                {isUpgradeableStep(resolvedVersion, availableVersions) && (
+                {resolvedInfo?.isUpgradable && (
                   <IconButton
                     size="sm"
                     iconName="ArrowUp"

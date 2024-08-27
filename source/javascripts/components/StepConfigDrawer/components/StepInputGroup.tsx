@@ -1,12 +1,12 @@
 import { Fragment } from 'react';
 import { Card, Divider, ExpandableCard, Text } from '@bitrise/bitkit';
-import { Step } from '@/models/Step';
+import { StepInputVariable } from '@/core/models/Step';
 import StepInput from './StepInput';
 import StepSelectInput from './StepSelectInput';
 
 type Props = {
   title?: string;
-  inputs?: Step['inputs'];
+  inputs?: StepInputVariable[];
 };
 
 const StepInputGroup = ({ title, inputs }: Props) => {

@@ -3,11 +3,11 @@ import { useRef } from 'react';
 import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { ChainedWorkflowPlacement as Placement } from '@/models/Workflow';
+import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useWorkflow from '@/hooks/useWorkflow';
-import DragHandle from '../../DragHandle/DragHandle';
-import { getUsedByText } from '../WorkflowCard.utils';
-import useWorkflowUsedBy from '../hooks/useWorkflowUsedBy';
+import DragHandle from '@/components/DragHandle/DragHandle';
+import WorkflowService from '@/core/models/WorkflowService';
+import useWorkflowDependants from '../hooks/useWorkflowDependants';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
@@ -44,9 +44,9 @@ const ChainedWorkflowCard = ({
   const isEditable = Boolean(onEditWorkflowClick || onAddChainedWorkflowClick || onDeleteChainedWorkflowClick);
   const isSortable = Boolean(onChainedWorkflowsUpdate);
 
-  const workflow = useWorkflow(id);
+  const result = useWorkflow(id);
   const containerRef = useRef(null);
-  const workflowUsedBy = useWorkflowUsedBy(id);
+  const dependants = useWorkflowDependants(id);
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
 
   const sortable = useSortable({
@@ -61,7 +61,7 @@ const ChainedWorkflowCard = ({
     } satisfies SortableWorkflowItem,
   });
 
-  if (!workflow) {
+  if (!result) {
     // TODO: Missing empty state
     // eslint-disable-next-line no-console
     console.warn(`Workflow '${id}' is not found in yml!`);
@@ -83,12 +83,17 @@ const ChainedWorkflowCard = ({
         borderColor="border/strong"
         backgroundColor="background/secondary"
         {...containerProps}
-        style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+        style={{
+          transition: sortable.transition,
+          transform: CSS.Transform.toString(sortable.transform),
+        }}
       >
         {id}
       </Box>
     );
   }
+
+  const { userValues: workflow } = result;
 
   return (
     <Card
@@ -97,7 +102,10 @@ const ChainedWorkflowCard = ({
       ref={sortable.setNodeRef}
       {...containerProps}
       {...(isDragging ? { borderColor: 'border/hover', boxShadow: 'small' } : {})}
-      style={{ transition: sortable.transition, transform: CSS.Transform.toString(sortable.transform) }}
+      style={{
+        transition: sortable.transition,
+        transform: CSS.Transform.toString(sortable.transform),
+      }}
     >
       <Box display="flex" alignItems="center" px="8" py="6" gap="4" className="group">
         {isSortable && (
@@ -127,7 +135,7 @@ const ChainedWorkflowCard = ({
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
             {placement}
             {' • '}
-            {getUsedByText(workflowUsedBy)}
+            {WorkflowService.getUsedByText(dependants)}
           </Text>
         </Box>
 
