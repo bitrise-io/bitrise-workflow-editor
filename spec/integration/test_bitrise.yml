@@ -26,37 +26,35 @@ trigger_map:
     workflow: wf2
   - pull_request_target_branch: "*"
     workflow: wf3
-step_bundles:
-  install_deps: {}
 pipelines:
   pl1:
     stages:
-      - st1: {}
+      - st1: { }
   pl2:
     stages:
-      - st1: {}
-      - st2: {}
+      - st1: { }
+      - st2: { }
   pl3:
     stages:
-      - st3: {}
-      - st2: {}
-      - st1: {}
+      - st3: { }
+      - st2: { }
+      - st1: { }
 stages:
   st1:
     workflows:
-      - wf1: {}
+      - wf1: { }
   st2:
     workflows:
-      - wf2: {}
-      - wf3: {}
+      - wf2: { }
+      - wf3: { }
   st3:
     workflows:
-      - wf1: {}
-      - wf2: {}
-      - wf3: {}
-      - wf4: {}
-      - wf5: {}
-      - wf6: {}
+      - wf1: { }
+      - wf2: { }
+      - wf3: { }
+      - wf4: { }
+      - wf5: { }
+      - wf6: { }
 workflows:
   wf1:
     envs:
@@ -87,8 +85,8 @@ workflows:
                 meta:
                   bitrise.io:
                     stack: osx-xcode-11.3.x
-      - activate-ssh-key: {}
-      - certificate-and-profile-installer@1.10.2: {}
+      - activate-ssh-key: { }
+      - certificate-and-profile-installer@1.10.2: { }
       - authenticate-host-with-netrc@0.9.4:
           inputs:
             - username: $username
@@ -109,17 +107,17 @@ workflows:
       - git-clone@4.0.17:
           inputs:
             - clone_depth: "0"
-      - cache-pull@2.1.3: {}
-      - cache-pull@2: {}
-      - authenticate-with-github-oauth@0: {}
-      - cache-pull@2.1: {}
+      - cache-pull@2.1.3: { }
+      - cache-pull@2: { }
+      - authenticate-with-github-oauth@0: { }
+      - cache-pull@2.1: { }
       - fastlane@2.6:
           title: Carthage Bootstrap
           asset_urls:
             icon.png: https://bitrise-steplib-collection.s3.amazonaws.com/steps/fastlane/assets/icon.png
           inputs:
             - lane: download_carthage_from_artifactory
-      - deploy-to-itunesconnect-application-loader: {}
+      - deploy-to-itunesconnect-application-loader: { }
       - fastlane-match@0.2:
           title: Fastlane Match Development
           inputs:
@@ -135,7 +133,7 @@ workflows:
       - virtual-device-testing-for-ios@0.9:
           inputs:
             - test_devices: iphonexsmax,12.1,en,portrait
-      - deploy-to-bitrise-io@1.7.1: {}
+      - deploy-to-bitrise-io@1.7.1: { }
       - cache-push@2:
           inputs:
             - ignore_check_on_paths: "!./Pods"
@@ -176,10 +174,10 @@ workflows:
                 set -x
 
                 # This step is referenced by git URL
-      - git::https://github.com/bitrise-steplib/steps-script@master: {}
+      - git::https://github.com/bitrise-steplib/steps-script@master: { }
       - git::https://github.com/bitrise-steplib/steps-script@master:
           title: ""
-      - path::./spec/integration/fixture/test_local_step: {}
+      - path::./spec/integration/fixture/test_local_step: { }
       - path::./spec/integration/fixture/test_local_step:
           title: A local step with overwritten title & input
           inputs:
@@ -227,23 +225,23 @@ workflows:
           is_expand: false
         project: vrbo
     steps:
-      - activate-ssh-key: {}
-      - git-clone@4.0.17: {}
-      - script@1: {}
+      - activate-ssh-key: { }
+      - git-clone@4.0.17: { }
+      - script@1: { }
   wf4:
     envs:
       - opts:
           is_expand: false
         project: testproject
     steps:
-      - script@1: {}
-      - path::./spec/integration/fixture/untitled_step: {}
+      - script@1: { }
+      - path::./spec/integration/fixture/untitled_step: { }
       - path::./spec/integration/fixture/test_local_step:
           summary: A local step with overwritten summary
           description: This local step has its description overwritten
           is_always_run: true
-      - path::./spec/integration/fixture/test_local_step: {}
-      - azure-devops-status@1: {}
+      - path::./spec/integration/fixture/test_local_step: { }
+      - azure-devops-status@1: { }
   wf5:
     envs:
       - opts:
@@ -253,7 +251,7 @@ workflows:
       - script@1:
           inputs:
             - content: "#!/usr/bin/env bash"
-      - xamarin-user-management: {}
+      - xamarin-user-management: { }
   wf6:
     envs:
       - opts:
@@ -264,8 +262,8 @@ workflows:
       - script@1:
           inputs:
             - content: "#!/usr/bin/env bash"
-      - xamarin-user-management: {}
-      - bundle::install_deps: {}
+      - xamarin-user-management: { }
+      - bundle::install_deps: { }
       - with:
           container: ruby
           services:
