@@ -74,7 +74,6 @@ import semverDiff from 'semver/functions/diff'
           });
       }));
 
-      viewModel.username = undefined;
       viewModel.buildTriggerToken = undefined;
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
@@ -100,8 +99,7 @@ import semverDiff from 'semver/functions/diff'
       };
 
       function loadAppAndUser() {
-        $q.all([requestService.getCurrentUserData(), requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([user, app, _planData]) {
-          viewModel.username = user?.username;
+        $q.all([requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([ app, _planData]) {
           viewModel.defaultBranch = app?.default_branch;
           viewModel.buildTriggerToken = app?.build_trigger_token;
           viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
@@ -271,7 +269,7 @@ import semverDiff from 'semver/functions/diff'
           branch: branch,
           workflow: viewModel.selectedWorkflow.id,
           triggerToken: viewModel.buildTriggerToken,
-          triggeredBy: viewModel.username
+          triggeredBy: window.parent?.globalProps?.user?.username
         }).then(function (data) {
           if (data.status === "ok" && data.build_url) {
             window.open(data.build_url, "_blank");

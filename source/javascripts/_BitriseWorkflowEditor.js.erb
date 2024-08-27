@@ -102,15 +102,4 @@ window.mode = "<%= mode %>";
   });
   <% end %>
   <% end %>
-
-  <% if mode == "website" %>
-  BitriseWorkflowEditor.run(function (requestService) {
-    if (!!window.analytics) {
-      requestService.getCurrentUserData()
-        .then(function (user) {
-          window.analytics && window.analytics.identity(user.dataId);
-        });
-    }
-  });
-  <% end %>
 })();

@@ -1020,7 +1020,6 @@ def strings
                 app_config_post: "/api/app/<app_slug>/config.json",
                 app_config_get: "/api/app/<app_slug>/config.json",
                 app_codesigndoc_script_get: "/api/app/<app_slug>/codesigndoc.json'",
-                current_user_get: "/me/profile.json",
                 product_tour_shown_get: "/api/app/<app_slug>/product_tour_shown",
                 current_user_beta_tags_get: "/me/profile/beta_tags.json",
                 current_user_metadata_get: "/me/profile/metadata.json?key=<metadata_key>",
