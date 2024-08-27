@@ -1,24 +1,25 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
-import { Stage } from '@/models/Stage';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { Stage, StageYmlObject } from '@/core/models/Stage';
 import usePipelineSelector from './usePipelineSelector';
 
-const usePipelineStages = () => {
+const usePipelineStages = (): Stage[] => {
   const { selectedPipeline } = usePipelineSelector();
 
   return useBitriseYmlStore(
     useShallow(({ yml }) => {
-      const pipelineStages: Stage[] = yml.pipelines?.[selectedPipeline].stages ?? [];
+      const pipelineStages: StageYmlObject[] = yml.pipelines?.[selectedPipeline].stages ?? [];
 
-      return Object.fromEntries(
-        pipelineStages.map((pipelineStageObj) => {
-          const stageId = Object.keys(pipelineStageObj)[0];
-          const stage = Object.values(pipelineStageObj)[0];
+      return pipelineStages.map((pipelineStageObj) => {
+        const stageId = Object.keys(pipelineStageObj)[0];
+        const stage = Object.values(pipelineStageObj)[0];
 
-          return [stageId, merge(yml.stages?.[stageId], stage) as Stage];
-        }),
-      );
+        return {
+          id: stageId,
+          userValues: merge({}, yml.stages?.[stageId], stage),
+        };
+      });
     }),
   );
 };
