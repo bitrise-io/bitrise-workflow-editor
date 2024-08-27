@@ -1,7 +1,7 @@
 import { Box, Button, ButtonGroup, Card, Divider, Text } from '@bitrise/bitkit';
-import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import WorkflowService from '@/core/models/WorkflowService';
-import { ChainWorkflowCallback } from '../ChainWorkflowDrawer.types';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
+import type { ChainWorkflowCallback } from '../ChainWorkflowDrawer';
 
 type Props = {
   workflowId: string;

@@ -35,7 +35,7 @@ const WorkflowSelector = ({
     const runnable: string[] = [];
 
     workflowIds.forEach((id) => {
-      if (id.toLowerCase().includes(debouncedSearch.toLowerCase())) {
+      if (id?.toLowerCase().includes(debouncedSearch?.toLowerCase())) {
         if (id.startsWith('_')) {
           utility.push(id);
         } else {

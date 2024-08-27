@@ -1,21 +1,21 @@
 import { ChangeEventHandler, LegacyRef, ReactNode, useRef } from 'react';
 import {
   Box,
-  Textarea,
-  FormLabel,
-  StyleProps,
   FormControl,
-  TextareaProps,
-  FormHelperText,
-  FormLabelProps,
-  FormErrorMessage,
   FormControlProps,
-  FormHelperTextProps,
+  FormErrorMessage,
   FormErrorMessageProps,
+  FormHelperText,
+  FormHelperTextProps,
+  FormLabel,
+  FormLabelProps,
+  StyleProps,
+  Textarea,
+  TextareaProps,
 } from '@chakra-ui/react';
 import { forwardRef } from '@bitrise/bitkit';
 
-export type AutoGrowableInputProps = TextareaProps & {
+type AutoGrowableInputProps = TextareaProps & {
   label?: ReactNode;
   badge?: ReactNode;
   errorText?: ReactNode;
@@ -103,4 +103,5 @@ const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
   );
 });
 
+export type { AutoGrowableInputProps };
 export default AutoGrowableInput;

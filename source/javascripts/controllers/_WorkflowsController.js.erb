@@ -99,7 +99,7 @@ import EnvVarService from "@/core/models/EnvVarService";
       };
 
       function loadAppAndUser() {
-        $q.all([requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([ app, _planData]) {
+        $q.all([requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([app, _planData]) {
           viewModel.defaultBranch = app?.default_branch;
           viewModel.buildTriggerToken = app?.build_trigger_token;
           viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
@@ -219,6 +219,7 @@ import EnvVarService from "@/core/models/EnvVarService";
 
         viewModel.workflows = [...viewModel.workflows, createdWorkflow];
         workflowSelectionService.rearrangeSelection(viewModel, createdWorkflow);
+        safeDigest($scope);
       }
 
       // Workflow delete
@@ -234,8 +235,8 @@ import EnvVarService from "@/core/models/EnvVarService";
         viewModel.showReactDeleteWorkflowDialog = false;
         safeDigest($scope);
       }
-
-      viewModel.deleteWorkflow = function (wfId) {
+      
+      viewModel.deleteReactWorkflow = function (wfId) {
         viewModel.workflows = viewModel.workflows.filter(function (workflow) {
           return workflow.id !== wfId;
         });

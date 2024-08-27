@@ -2,7 +2,7 @@ import { Avatar, Box, ButtonGroup, IconButton, Tab, TabList, Tabs, Text } from '
 import { TabPanel, TabPanels } from '@chakra-ui/react';
 
 import { useMutation } from '@tanstack/react-query';
-import StepBadge from '@/components/StepBadge/StepBadge';
+import StepBadge from '@/components/StepBadge';
 import { monolith } from '@/hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepVersionWithRemark } from '@/models';
 import { EnvVar } from '@/core/models/EnvVar';

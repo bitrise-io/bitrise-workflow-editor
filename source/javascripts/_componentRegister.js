@@ -5,15 +5,15 @@ import Notification from "./components/Notification";
 import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
-import StepItem from "./components/StepItem/StepItem";
-import StepBadge from "./components/StepBadge/StepBadge";
+import StepBadge from "./components/StepBadge";
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   DeleteWorkflowDialog,
-  StepConfigPanel,
-  StepDrawer,
   StepBundlePanel,
+  StepConfigPanel,
+  StepItem,
+  StepSelectorDrawer,
   VersionChangeDialog,
   WithBlockPanel,
   WorkflowConfigPanel,
@@ -24,7 +24,7 @@ import {
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 
-import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
+import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 import Header from "./components/Header";
 import Navigation from "./components/Navigation";
@@ -248,8 +248,8 @@ angular
     ]),
   )
   .component(
-    "rStepDrawer",
-    register(StepDrawer, [
+    "rStepSelectorDrawer",
+    register(StepSelectorDrawer, [
       "isOpen",
       "onClose",
       "allowedStepIds",
@@ -272,17 +272,19 @@ angular
       "workflowId",
       "isOpen",
       "onClose",
-      "onDelete",
+      "onDeleteWorkflow",
     ]),
   )
   .component(
     "rCreateWorkflowDialog",
-    register(CreateWorkflowDialog, ["yml", "isOpen", "onClose", "onCreate"]),
+    register(CreateWorkflowDialog, [
+      "yml",
+      "isOpen",
+      "onClose",
+      "onCreateWorkflow",
+    ]),
   )
-  .component(
-    "rStepBundlePanel",
-    register(StepBundlePanel, ["stepDisplayName"]),
-  )
+  .component("rStepBundlePanel", register(StepBundlePanel, ["stepDisplayName"]))
   .component(
     "rWithBlockPanel",
     register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),

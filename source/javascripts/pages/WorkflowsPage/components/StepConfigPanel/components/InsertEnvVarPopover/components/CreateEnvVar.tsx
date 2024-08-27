@@ -1,6 +1,7 @@
 import { useForm } from 'react-hook-form';
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 import { EnvVar } from '@/core/models/EnvVar';
+import AutoGrowableInput from '@/components/AutoGrowableInput';
 import EnvVarService from '@/core/models/EnvVarService';
 import { CreateEnvVarFormValues, HandlerFn } from '../types';
 
@@ -36,6 +37,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             autoFocus
             isRequired
             flex="1"
+            size="md"
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
@@ -44,16 +46,15 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
               validate: (v) =>
                 EnvVarService.validateKey(
                   v,
-                  items.map((i) => i.key),
+                  items.map((item) => item.key),
                 ),
             })}
           />
-          <Text pt="14">=</Text>
-          <Input
-            isRequired
-            flex="1"
+          <Text pt="12">=</Text>
+          <AutoGrowableInput
             aria-label="Value"
             placeholder="Enter value"
+            formControlProps={{ flex: '1' }}
             errorText={errors.value?.message}
             {...register('value', {
               validate: (v) => EnvVarService.validateValue(v),

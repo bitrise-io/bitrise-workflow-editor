@@ -1,12 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react';
-import { mockYml } from '@/pages/PipelinesPage/PipelinesPage.mocks';
+import { MockYml } from '@/core/models/BitriseYml.mocks';
 import WorkflowConfigPanel from './WorkflowConfigPanel';
 import { mockGetAllStackInfo, mockGetMachineTypeConfigs } from './WorkflowConfigPanel.mswMocks';
 
 export default {
   component: WorkflowConfigPanel,
   args: {
-    yml: mockYml,
+    yml: MockYml,
     appSlug: 'app-1',
     defaultValues: {
       workflowId: 'wf1',

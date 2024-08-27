@@ -11,10 +11,10 @@ type FormValues = {
 };
 
 type Props = UseDisclosureProps & {
-  onCreate: (workflowId: string, baseWorkflowId?: string) => void;
+  onCreateWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
 };
 
-const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
+const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
   const [, setSelectedWorkflow] = useSelectedWorkflow();
@@ -39,7 +39,7 @@ const CreateWorkflowDialog = ({ onCreate, ...disclosureProps }: Props) => {
   };
 
   const handleCreate = handleSubmit(({ workflowId, baseWorkflowId }) => {
-    onCreate(workflowId, baseWorkflowId);
+    onCreateWorkflow(workflowId, baseWorkflowId);
     onClose();
   });
 

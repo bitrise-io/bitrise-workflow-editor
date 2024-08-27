@@ -1,6 +1,6 @@
 import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
+import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import { isWebsiteMode } from '../../utils/isWebsiteMode';

@@ -104,7 +104,7 @@
       footer
         button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
         button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
-  r-step-drawer[
+  r-step-selector-drawer[
     is-open="workflowsCtrl.showReactStepDrawer"
     on-close="workflowsCtrl.closeReactStepDrawer"
     allowed-step-ids="appService.allowedStepIds"
@@ -129,11 +129,11 @@
     workflow-id="workflowsCtrl.selectedWorkflow.id"
     is-open="workflowsCtrl.showReactDeleteWorkflowDialog"
     on-close="workflowsCtrl.closeReactDeleteWorkflowDialog"
-    on-delete="workflowsCtrl.deleteWorkflow"
+    on-delete-workflow="workflowsCtrl.deleteReactWorkflow"
   ]
   r-create-workflow-dialog[
     yml="workflowsCtrl.yml"
     is-open="workflowsCtrl.showReactCreateWorkflowDialog"
     on-close="workflowsCtrl.closeReactCreateWorkflowDialog"
-    on-create="workflowsCtrl.createReactWorkflow"
+    on-create-workflow="workflowsCtrl.createReactWorkflow"
   ]

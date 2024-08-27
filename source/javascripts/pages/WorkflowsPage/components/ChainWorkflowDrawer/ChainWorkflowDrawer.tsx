@@ -11,8 +11,13 @@ import {
 } from '@chakra-ui/react';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
-import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
+
+type FormValues = {
+  search: string;
+};
+
+type ChainWorkflowCallback = (mode: 'before' | 'after', workflowId: string) => void;
 
 type Props = UseDisclosureProps & {
   workflowId: string;
@@ -22,9 +27,9 @@ type Props = UseDisclosureProps & {
 
 const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
-  const form = useForm<SearchFormValues>({
+  const form = useForm<FormValues>({
     defaultValues: {
-      ...InitialValues,
+      search: '',
     },
   });
 
@@ -35,7 +40,7 @@ const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosurePr
   return (
     <BitriseYmlProvider yml={yml}>
       <FormProvider {...form}>
-        <Drawer isFullHeight isOpen={isOpen} onClose={onClose}>
+        <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={() => form.reset()}>
           <DrawerOverlay
             top="0px"
             bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -64,7 +69,7 @@ const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosurePr
                 <Notification status="info" flexShrink="0">
                   Changes to a chained Workflow affect all other Workflows using it.
                 </Notification>
-                <Controller<SearchFormValues>
+                <Controller<FormValues>
                   name="search"
                   render={({ field: { ref, onChange, ...rest } }) => (
                     <SearchInput
@@ -87,4 +92,5 @@ const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosurePr
   );
 };
 
+export type { ChainWorkflowCallback, FormValues };
 export default ChainWorkflowDrawer;

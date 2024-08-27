@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { mockYml } from '../ChainWorkflowDrawer/ChainWorkflowDrawer.mocks';
+import { mockYml } from '../../WorkflowsPage.mocks';
 import CreateWorkflowDialog from './CreateWorkflowDialog';
 
 export default {
