@@ -95,47 +95,6 @@ import jsyaml from "js-yaml";
 
 			// Current User
 
-			requestService.getCurrentUserData = function(requestConfig) {
-				var requestURL;
-
-				switch (requestService.mode) {
-					case "website":
-						requestURL = "<%= webserver_path(data[:routes][:website][:current_user_get]) %>";
-
-						break;
-					case "cli":
-						return $q.reject(
-							new Error("<%= data[:strings][:request_service][:get_current_user_data][:not_website_mode_error] %>")
-						);
-				}
-
-				return $q(function(resolve, reject) {
-					$http.get(requestURL, requestConfig).then(
-						function(response) {
-							resolve({
-								username: response.data.username,
-								slug: response.data.slug,
-								email: response.data.email,
-								unconfirmedEmail: response.data.unconfirmed_email,
-								avatarURL: response.data.avatar_url,
-								showNewCodeSigningWizard: response.data.show_new_code_signing_wizard,
-								dataId: response.data.data_id,
-								tourShown: response.data.tour_shown,
-							});
-						},
-						function(response) {
-							reject(
-								errorFromResponse(
-									response,
-									"<%= data[:strings][:request_service][:get_current_user_data][:default_error] %>",
-									"<%= data[:strings][:request_service][:get_current_user_data][:error_prefix] %>"
-								)
-							);
-						}
-					);
-				});
-			};
-
 			requestService.getCurrentUserMetadata = function(metadataKey, requestConfig) {
 				var requestURL;
 
