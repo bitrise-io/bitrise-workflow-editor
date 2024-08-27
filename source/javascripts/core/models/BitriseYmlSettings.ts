@@ -1,4 +1,4 @@
-type YmlSettings = {
+type BitriseYmlSettings = {
   lastModified: string;
   lines: number;
   isYmlSplit: boolean;
@@ -6,4 +6,4 @@ type YmlSettings = {
   isModularYamlSupported: boolean;
 };
 
-export { YmlSettings };
+export { BitriseYmlSettings };
