@@ -1,5 +1,4 @@
 import { Stack } from '@/core/models/Stack';
-import { WithId } from '@/core/models/WithId';
 import Client from './client';
 
 // DTOs
@@ -20,8 +19,8 @@ type AllStackInfoResponse = {
 type StackInfo = AllStackInfoResponse['available_stacks'][string];
 
 // TRANSFORMATIONS
-function toStack({ id, ...dto }: WithId<StackInfo>): Stack {
-  const { title: name, available_machines: machineIds = [] } = dto;
+function toStack({ id, ...config }: StackInfo & { id: string }): Stack {
+  const { title: name, available_machines: machineIds = [] } = config;
 
   return {
     id,
