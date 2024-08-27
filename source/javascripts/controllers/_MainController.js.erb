@@ -115,7 +115,6 @@ import { safeDigest } from "@/services/react-compat";
       viewModel.initAppProgress = new Progress();
 
       viewModel.shouldAllowYMLMenuWithoutDiscard = false;
-      viewModel.currentUser;
       viewModel.lastWorkflowEditedDate;
 
       viewModel.isFirstBuildExperienceEnabled = false;
@@ -741,10 +740,6 @@ import { safeDigest } from "@/services/react-compat";
         logger.info("App start");
 
         appService.getAppConfig();
-
-        requestService.getCurrentUserData().then(function (response) {
-          viewModel.currentUser = response;
-        });
 
         $q(function (resolve, reject) {
           launchDarklyService.initialize().then(() => {
