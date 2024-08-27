@@ -8,6 +8,7 @@ export default {
   component: ChainWorkflowDrawer,
   args: {
     defaultIsOpen: true,
+    workflowId: 'wf-1',
   },
   argTypes: {
     defaultIsOpen: { control: 'boolean', type: 'boolean' },

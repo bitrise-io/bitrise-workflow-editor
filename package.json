@@ -113,6 +113,7 @@
     "@storybook/addon-interactions": "^8.2.1",
     "@storybook/addon-links": "^8.2.1",
     "@storybook/addon-onboarding": "^8.2.1",
+    "@storybook/addon-queryparams": "^7.0.1",
     "@storybook/addon-webpack5-compiler-swc": "^1.0.2",
     "@storybook/blocks": "^8.2.1",
     "@storybook/react": "^8.2.1",

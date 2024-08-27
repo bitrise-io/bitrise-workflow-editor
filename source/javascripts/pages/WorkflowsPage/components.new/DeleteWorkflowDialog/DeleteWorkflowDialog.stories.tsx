@@ -13,6 +13,11 @@ export default {
     onClose: { type: 'function' },
     onDelete: { type: 'function' },
   },
+  parameters: {
+    query: {
+      workflow_id: 'wf-1',
+    },
+  },
   decorators: (Story) => withBitriseYml(mockYml, Story),
 } as Meta<typeof DeleteWorkflowDialog>;
 
