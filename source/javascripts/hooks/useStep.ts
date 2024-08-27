@@ -1,139 +1,117 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import maxSatisfying from 'semver/ranges/max-satisfying';
-import { useQuery } from '@tanstack/react-query';
 import merge from 'lodash/merge';
+import { useQuery } from '@tanstack/react-query';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { isGitStep, isLocalStep, isStepLib, normalizeStepVersion, parseStepCVS, Step } from '@/models/Step';
-import useAlgoliaStep from '@/hooks/useAlgoliaStep';
-import useAlgoliaStepInputs from '@/hooks/useAlgoliaStepInputs';
-import { Maintainer } from '@/models/Algolia';
+import { useAlgoliaStepInputs } from '@/hooks/useAlgolia';
+import { Step, StepYmlObject } from '@/core/models/Step';
+import VersionUtils from '@/core/utils/VersionUtils';
+import StepService from '@/core/models/StepService';
+import StepApi from '@/core/api/StepApi';
 import defaultIcon from '@/../images/step/icon-default.svg';
 
 type UseStepResult = {
-  cvs: string;
-  step?: Step;
-  icon?: string;
-  title?: string; // TODO: should be removed because confusing (use step.title instead)
+  data?: Step;
   isLoading?: boolean;
-  maintainer?: Maintainer;
-  selectedVersion?: string;
-  resolvedVersion?: string;
-  availableVersions?: string[];
 };
 
-const useStepFromYml = (workflowId: string, stepIndex: number): UseStepResult => {
+function useStepFromYml(workflowId: string, stepIndex: number): UseStepResult {
   return useBitriseYmlStore(
     useShallow(({ yml }) => {
       const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
 
       if (!stepObjectFromYml) {
-        return { cvs: '' };
+        return { data: undefined };
       }
 
       const [cvs, step] = Object.entries(stepObjectFromYml)[0];
+      const [id, version = ''] = StepService.parseStepCVS(cvs);
 
-      if (!isStepLib(cvs, step) && !isGitStep(cvs, step) && !isLocalStep(cvs, step)) {
-        return { cvs };
+      if (!step) {
+        return { data: undefined };
       }
 
-      return { cvs, step };
+      // TODO handle step bundle and with group
+      if (StepService.isStepBundle(cvs, step) || StepService.isWithGroup(cvs, step)) {
+        return { data: { cvs, userValues: step as StepYmlObject } };
+      }
+
+      return {
+        data: {
+          cvs,
+          defaultValues: undefined, // The defaults are coming from the step.yml file loaded from the API
+          userValues: step as StepYmlObject,
+          mergedValues: undefined, // Will contain the merged values of the defaults and user values
+          resolvedInfo: {
+            cvs,
+            id,
+            title: StepService.resolveTitle(cvs, step),
+            icon: StepService.resolveIcon(step),
+            version,
+            normalizedVersion: VersionUtils.normalizeVersion(version) || version,
+          },
+        },
+      };
     }),
   );
-};
+}
 
-const useStepFromAlgolia = (cvs = ''): UseStepResult => {
-  const [id, version] = parseStepCVS(cvs);
-  const { data: info, isLoading: isLoadingInfo } = useAlgoliaStep({
-    id,
-    enabled: Boolean(id && isStepLib(cvs)),
+function useStepFromApi(cvs = ''): UseStepResult {
+  console.log('useStepFromApi', cvs);
+  const { data, isLoading: isLoadingStep } = useQuery({
+    queryKey: ['steps', { cvs }],
+    queryFn: () => StepApi.getStepByCvs(cvs),
+    enabled: Boolean(cvs),
   });
 
-  const versions = info?.map((s) => s.version ?? '');
-  const latestVersion = info?.find((s) => s.is_latest)?.version;
-  const selectedVersion = normalizeStepVersion(version ?? '');
-  const resolvedVersion = !version ? latestVersion : maxSatisfying(versions ?? [], selectedVersion) || undefined;
-  const resolvedStepInfo = info?.find((s) => s.version === resolvedVersion);
-
+  const { defaultValues, resolvedInfo } = data ?? {};
+  const resolvedCvs = resolvedInfo?.cvs || cvs;
   const { data: inputs, isLoading: isLoadingInputs } = useAlgoliaStepInputs({
-    cvs: resolvedStepInfo?.cvs ?? '',
-    enabled: Boolean(resolvedStepInfo?.cvs),
+    cvs: resolvedCvs,
+    enabled: Boolean(resolvedCvs && StepService.isStepLibStep(cvs)),
   });
 
   return useMemo(() => {
     return {
-      selectedVersion,
-      resolvedVersion,
-      availableVersions: versions,
-      cvs: resolvedStepInfo?.cvs || cvs,
-      step: { ...resolvedStepInfo?.step, inputs },
-      isLoading: isLoadingInfo || isLoadingInputs,
-      maintainer: resolvedStepInfo?.info?.maintainer,
-      icon: resolvedStepInfo?.info?.asset_urls?.['icon.svg'] || resolvedStepInfo?.info?.asset_urls?.['icon.png'],
+      data: { cvs, defaultValues: { ...defaultValues, inputs }, resolvedInfo },
+      isLoading: isLoadingStep || isLoadingInputs,
     };
-  }, [cvs, inputs, isLoadingInfo, isLoadingInputs, resolvedStepInfo, resolvedVersion, selectedVersion, versions]);
-};
-
-const useStepFromLocalApi = (cvs = ''): UseStepResult => {
-  const [id, version] = parseStepCVS(cvs);
-
-  let library: string = '';
-  if (isLocalStep(cvs)) {
-    library = 'path';
-  } else if (isGitStep(cvs)) {
-    library = 'git';
-  }
-
-  const { data, isLoading } = useQuery({
-    enabled: Boolean(id && library),
-    queryKey: ['/api/step-info', id, library, version],
-    queryFn: async ({ signal }) => {
-      const response = await fetch('/api/step-info', {
-        signal,
-        method: 'POST',
-        body: JSON.stringify({ id, library, version }),
-        headers: {
-          'Content-Type': 'application/json',
-          Accept: 'application/json',
-        },
-      });
-
-      return (await response.json()) as {
-        step?: Step;
-        info?: { asset_urls?: { [x: string]: string } };
-      };
-    },
-  });
-
-  return useMemo(() => {
-    return {
-      cvs,
-      isLoading,
-      step: data?.step,
-      selectedVersion: version,
-      resolvedVersion: version,
-      icon: data?.info?.asset_urls?.['icon.svg'] || data?.info?.asset_urls?.['icon.png'],
-    };
-  }, [cvs, isLoading, data, version]);
-};
+  }, [cvs, defaultValues, inputs, resolvedInfo, isLoadingStep, isLoadingInputs]);
+}
 
 const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefined => {
-  const { cvs, step: stepFromYml } = useStepFromYml(workflowId, stepIndex);
+  const { data: ymlData, isLoading: isLoadingYml } = useStepFromYml(workflowId, stepIndex);
+  const { cvs, userValues, resolvedInfo: ymlResolvedInfo } = ymlData ?? {};
+  const { data: apiData, isLoading: isLoadingApi } = useStepFromApi(cvs);
+  const { defaultValues, resolvedInfo: apiResolvedInfo } = apiData ?? {};
 
-  const stepFromAlgolia = useStepFromAlgolia(cvs);
-  const stepFromLocalApi = useStepFromLocalApi(cvs);
+  console.log(ymlData, apiData);
 
   return useMemo(() => {
     if (!cvs) {
-      return undefined;
+      return { data: undefined };
     }
 
-    const stepDefaults = stepFromAlgolia?.step || stepFromLocalApi?.step;
+    if (StepService.isStepBundle(cvs) || StepService.isWithGroup(cvs)) {
+      return {
+        data: {
+          cvs,
+          resolvedInfo: {
+            cvs,
+            id: cvs,
+            title: StepService.resolveTitle(cvs),
+            icon: defaultIcon,
+            version: '',
+            normalizedVersion: '',
+          },
+        },
+        isLoading: isLoadingYml || isLoadingApi,
+      };
+    }
 
-    const inputs = stepDefaults?.inputs?.map(({ opts, ...input }) => {
+    const inputs = defaultValues?.inputs?.map(({ opts, ...input }) => {
       const [inputName, defaultValue] = Object.entries(input)[0];
-
-      const inputFromYml = stepFromYml?.inputs?.find(({ opts: _, ...inputObjectFromYml }) => {
+      const inputFromYml = userValues?.inputs?.find(({ opts: _, ...inputObjectFromYml }) => {
         const inputNameFromYml = Object.keys(inputObjectFromYml)[0];
         return inputNameFromYml === inputName;
       });
@@ -141,25 +119,23 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
       return { opts, [inputName]: inputFromYml?.[inputName] ?? defaultValue };
     });
 
-    const mergedStep = { ...merge({}, stepDefaults, stepFromYml), inputs };
-
     return {
-      cvs,
-      step: mergedStep,
-      title: mergedStep.title || cvs,
-      maintainer: stepFromAlgolia?.maintainer,
-      availableVersions: stepFromAlgolia?.availableVersions,
-      isLoading: stepFromAlgolia?.isLoading || stepFromLocalApi?.isLoading,
-      selectedVersion: stepFromAlgolia?.selectedVersion || stepFromLocalApi?.selectedVersion,
-      resolvedVersion: stepFromAlgolia?.resolvedVersion || stepFromLocalApi?.resolvedVersion,
-      icon:
-        mergedStep?.asset_urls?.['icon.svg'] ||
-        mergedStep?.asset_urls?.['icon.png'] ||
-        stepFromAlgolia?.icon ||
-        stepFromLocalApi?.icon ||
-        defaultIcon,
+      data: {
+        cvs,
+        defaultValues,
+        userValues,
+        mergedValues: {
+          ...merge({}, defaultValues, userValues),
+          inputs,
+        },
+        resolvedInfo: {
+          ...ymlResolvedInfo,
+          ...apiResolvedInfo,
+        } as Step['resolvedInfo'],
+      },
+      isLoading: isLoadingYml || isLoadingApi,
     };
-  }, [cvs, stepFromAlgolia, stepFromLocalApi, stepFromYml]);
+  }, [apiResolvedInfo, cvs, defaultValues, isLoadingApi, isLoadingYml, userValues, ymlResolvedInfo]);
 };
 
 export default useStep;

@@ -64,13 +64,6 @@ export interface Step {
   isWithBlock: Getter<boolean>;
 }
 
-export interface StepOutputVariable {
-  key: string;
-  title?: string;
-  summary?: string;
-  description?: string;
-}
-
 export interface Variable {
   description: GetterSetter<string>;
   isDontChangeValue: GetterSetter<boolean>;

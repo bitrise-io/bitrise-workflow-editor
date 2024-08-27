@@ -1,5 +1,4 @@
-import { WithId } from './WithId';
-import { Workflow } from './Workflow';
+import { WorkflowYmlObject } from './Workflow';
 
 enum Maintainer {
   Bitrise = 'bitrise',
@@ -7,36 +6,90 @@ enum Maintainer {
   Community = 'community',
 }
 
-type Steps = Required<Workflow>['steps'];
-type StepObject = Extract<Steps[number][string], { website?: string }>;
-type Step = WithId<StepObject>;
-
-type StepInput = {
-  id: string;
+type Steps = Required<WorkflowYmlObject>['steps'];
+type StepYmlObject = Omit<
+  Extract<
+    Steps[number][string],
+    {
+      title?: string;
+      summary?: string;
+      description?: string;
+      website?: string;
+      type_tags?: string[];
+    }
+  >,
+  'inputs' | 'outputs'
+> & {
+  inputs?: StepInputVariable[];
+  outputs?: StepOutputVariable[];
+};
+type StepBundleYmlObject = Extract<Steps[number][string], { steps: StepYmlObject[] }>;
+type WithGroupYmlObject = Extract<
+  Steps[number][string],
+  {
+    container?: string;
+    services?: string[];
+    steps: StepYmlObject[];
+  }
+>;
+type StepLike = StepYmlObject | StepBundleYmlObject | WithGroupYmlObject;
+type Step = {
   cvs: string;
+  defaultValues?: StepYmlObject; // The defaults are coming from the step.yml file loaded from the API
+  userValues?: StepYmlObject; // The values are coming from the bitrise.yml file defined by the user
+  mergedValues?: StepYmlObject; // the merged values of the defaults and user values
+  resolvedInfo?: {
+    id: string;
+    cvs: string;
+    title: string;
+    icon: string;
+    version: string; // 2 || 2.1 || 2.1.6
+    normalizedVersion: string; // 2.x.x
+    resolvedVersion?: string; // 2.1.6
+    latestVersion?: string; // 2.1.9
+    versions?: string[];
+    isLatest?: boolean;
+    isUpgradable?: boolean;
+    isOfficial?: boolean;
+    isVerified?: boolean;
+    isCommunity?: boolean;
+    isDeprecated?: boolean;
+  };
+};
+type VariableOpts = Partial<{
+  title: string;
+  summary: string;
+  category: string;
+  description: string;
+  value_options: string[];
+  unset: boolean;
+  is_expand: boolean;
+  is_template: boolean;
+  is_required: boolean;
+  is_sensitive: boolean;
+  skip_if_empty: boolean;
+  is_dont_change_value: boolean;
+}>;
+
+type StepInputVariable = {
+  [key: string]: unknown;
+  opts?: VariableOpts;
 };
 
-export function parseStepCVS(cvs: string) {
-  const cleaned = cvs.replace(/^(git::|path::|git@)/g, '');
-  const parts = cleaned.split('@');
-  const id = parts[0].split('/').pop();
-  const version = parts.length > 1 ? parts.pop() : '';
+type StepOutputVariable = {
+  [key: string]: unknown;
+  opts?: VariableOpts;
+};
 
-  return [id, version] as const;
-}
-
-export function isStepLib(cvs: string) {
-  return /^(git::|path::|git@)/g.test(cvs) === false;
-}
-
-export function normalizeStepVersion(version: string) {
-  if (/^(\d+)(\.\d+)?$/g.test(version)) {
-    const match = version.split('.');
-    const major = match[0];
-    const minor = match[1] || 'x';
-    return `${major}.${minor}.x`;
-  }
-  return version;
-}
-
-export { Step, Steps, StepObject, Maintainer, StepInput };
+export {
+  Steps,
+  StepLike,
+  StepYmlObject,
+  StepBundleYmlObject,
+  WithGroupYmlObject,
+  Step,
+  StepInputVariable,
+  StepOutputVariable,
+  VariableOpts,
+  Maintainer,
+};
