@@ -7,22 +7,27 @@ function toBitriseYml(data: string): BitriseYml {
   return JSON.parse(data) as BitriseYml;
 }
 
-function toJSON(model: BitriseYml): string {
-  return JSON.stringify({
-    app_config_datastore_yaml: toYml(model),
-  });
-}
-
-function toYml(model?: BitriseYml): string {
+function toYml(model?: unknown): string {
   if (!model) {
     return '';
+  }
+
+  if (typeof model === 'string') {
+    return model;
   }
 
   return `---\n${stringify(model)}`;
 }
 
+function toJSON(model?: unknown): string {
+  return JSON.stringify({
+    app_config_datastore_yaml: toYml(model),
+  });
+}
+
 // API CALLS
 const BITRISE_YML_PATH = `/api/app/:appSlug/config`;
+const FORMAT_YML_PATH = `/api/cli/format`;
 
 function getBitriseYmlPath({ appSlug, readFromRepo = false }: { appSlug: string; readFromRepo?: boolean }): string {
   return `${BITRISE_YML_PATH.replace(':appSlug', appSlug)}${readFromRepo ? '?is_force_from_repo=1' : ''}`;
@@ -57,17 +62,21 @@ function updateBitriseYml({
   });
 }
 
-// const FORMAT_YML_PATH = `/api/cli/format`;
-//
-// function formattedYml({ yml: string }): string {
-//   return Client.post<string>(FORMAT_YML_PATH, {
-//     headers: { Accept: 'application/x-yaml, application/json' },
-//   });
-// }
+function formatYml(model: unknown): Promise<string> {
+  return Client.post<string>(FORMAT_YML_PATH, {
+    body: toJSON(model),
+    headers: {
+      Accept: 'application/x-yaml, application/json',
+    },
+  });
+}
 
 export default {
   getBitriseYmlPath,
   getBitriseYml,
   getUpdateBitriseYmlPath: getBitriseYmlPath,
   updateBitriseYml,
+  formatYml,
+  toYml,
+  toJSON,
 };

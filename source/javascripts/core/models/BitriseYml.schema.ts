@@ -1,6 +1,6 @@
 import type { JSONSchema } from 'json-schema-to-ts';
 
-export const bitriseYmlSchema = {
+export const BitriseYmlSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://json.schemastore.org/bitrise.json',
   $ref: '#/definitions/BitriseDataModel',

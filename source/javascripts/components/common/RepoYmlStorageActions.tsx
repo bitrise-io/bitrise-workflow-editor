@@ -2,9 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Box, Icon, Link, Notification, Text } from '@bitrise/bitkit';
 import CopyToClipboard from 'react-copy-to-clipboard';
 
-import useMonolithApiCallback from '../../hooks/api/useMonolithApiCallback';
-import { AppConfig } from '../../models/AppConfig';
-import appConfigAsYml from '../../utils/appConfigAsYml';
+import { AppConfig } from '@/models/AppConfig';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
+import useMonolithApiCallback from '@/hooks/api/useMonolithApiCallback';
 
 type RepoYmlStorageActionsProps = {
   appConfig: AppConfig | string;
@@ -33,7 +33,7 @@ export const useFormattedYml = (appConfig: AppConfig): string => {
 
   // Set the js-yaml value as fallback, kick off format endpoint
   useEffect(() => {
-    const yaml = appConfigAsYml(appConfig);
+    const yaml = BitriseYmlApi.toYml(appConfig);
     setYml(yaml);
 
     if (typeof appConfig === 'object') {
