@@ -1,18 +1,18 @@
 import { Box, Notification, Text } from '@bitrise/bitkit';
-import useNavigation from '../../../hooks/useNavigation';
+import useNavigation from '@/hooks/useNavigation';
 
 type StepBundlePanelProps = {
-  stepDisplayName: string;
+  bundleName: string;
 };
 
-const StepBundlePanel = ({ stepDisplayName }: StepBundlePanelProps) => {
+const StepBundlePanel = ({ bundleName }: StepBundlePanelProps) => {
   const { replace } = useNavigation();
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
       <Box as="header" px="24" pt="16">
         <Text as="h3" textStyle="heading/h3">
-          {stepDisplayName}
+          {bundleName}
         </Text>
       </Box>
       <Box padding="24">

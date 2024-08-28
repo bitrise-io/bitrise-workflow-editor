@@ -1,26 +1,24 @@
 import { Box, Input, Notification, TagsInput, Text } from '@bitrise/bitkit';
-import { WithBlockData } from '@/models';
-import useNavigation from '../../../hooks/useNavigation';
+import useNavigation from '@/hooks/useNavigation';
 
 type WithBlockPanelProps = {
-  stepDisplayName: string;
-  withBlockData: WithBlockData;
+  groupName: string;
+  imageName: string;
+  services: string[];
 };
 
-const WithBlockPanel = ({ stepDisplayName, withBlockData }: WithBlockPanelProps) => {
-  const { image, services } = withBlockData;
-
+const WithBlockPanel = ({ groupName, imageName, services }: WithBlockPanelProps) => {
   const { replace } = useNavigation();
 
   return (
     <Box display="flex" flexDirection="column" gap="8">
       <Box as="header" px="24" pt="16">
         <Text as="h3" textStyle="heading/h3">
-          {stepDisplayName}
+          {groupName}
         </Text>
       </Box>
       <Box padding="24">
-        {!!image && <Input isReadOnly label="Image" isRequired marginBlockEnd="24" value={image} />}
+        {!!imageName && <Input isReadOnly label="Image" isRequired marginBlockEnd="24" value={imageName} />}
         {services && services.length > 0 && (
           <TagsInput
             isReadOnly

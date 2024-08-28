@@ -1,6 +1,6 @@
 import { Box, Button, Select } from '@bitrise/bitkit';
+import useNavigation from '@/hooks/useNavigation';
 import usePipelineSelector from '../hooks/usePipelineSelector';
-import useNavigation from '../../../hooks/useNavigation';
 
 const PipelinesHeader = () => {
   const { replace } = useNavigation();

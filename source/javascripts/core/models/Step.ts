@@ -31,7 +31,7 @@ type WithGroupYmlObject = Extract<
     services?: string[];
     steps: StepYmlObject[];
   }
->;
+> & { image?: string };
 type StepLike = StepYmlObject | StepBundleYmlObject | WithGroupYmlObject;
 type Step = {
   cvs: string;
@@ -71,15 +71,13 @@ type VariableOpts = Partial<{
   is_dont_change_value: boolean;
 }>;
 
-type StepInputVariable = {
+type StepVariable = {
   [key: string]: unknown;
   opts?: VariableOpts;
 };
 
-type StepOutputVariable = {
-  [key: string]: unknown;
-  opts?: VariableOpts;
-};
+type StepInputVariable = StepVariable;
+type StepOutputVariable = StepVariable;
 
 export {
   Steps,
@@ -88,6 +86,7 @@ export {
   StepBundleYmlObject,
   WithGroupYmlObject,
   Step,
+  StepVariable,
   StepInputVariable,
   StepOutputVariable,
   VariableOpts,

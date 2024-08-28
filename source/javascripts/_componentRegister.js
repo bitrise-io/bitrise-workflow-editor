@@ -1,28 +1,26 @@
 import { react2angular } from "@bitrise/react2angular";
 import { Checkbox, Icon } from "@bitrise/bitkit";
 
-import Notification from "./components/Notification";
+import Header from "./components/Header";
 import InfoTooltip from "./components/InfoTooltip";
-import Toggle from "./components/Toggle";
+import Navigation from "./components/Navigation";
+import Notification from "./components/Notification";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import StepBadge from "./components/StepBadge";
-import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import YmlEditor from "./components/YmlEditor/YmlEditor";
-import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
-import { RootComponent, withRootProvider } from "./utils/withRootProvider";
-import Header from "./components/Header";
-import Navigation from "./components/Navigation";
+import Toggle from "./components/Toggle";
 import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
+import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
+import YmlEditor from "./components/YmlEditor/YmlEditor";
+import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   DeleteWorkflowDialog,
-  StepBundlePanel,
   StepConfigPanel,
   StepItem,
   VersionChangeDialog,
-  WithBlockPanel,
   WorkflowConfigPanel,
   WorkflowSelector,
   WorkflowToolbar,
@@ -34,7 +32,9 @@ import {
   WorkflowsPage,
 } from "@/pages";
 import {
+  StepBundlePanel,
   StepSelectorDrawer,
+  WithBlockPanel,
   WorkflowEmptyState,
 } from "@/components/unified-editor";
 
@@ -286,8 +286,8 @@ angular
       "onCreateWorkflow",
     ]),
   )
-  .component("rStepBundlePanel", register(StepBundlePanel, ["stepDisplayName"]))
+  .component("rStepBundlePanel", register(StepBundlePanel, ["bundleName"]))
   .component(
     "rWithBlockPanel",
-    register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),
+    register(WithBlockPanel, ["groupName", "imageName", "services"]),
   );

@@ -1,7 +1,7 @@
 import algoliasearch from 'algoliasearch';
 import uniqBy from 'lodash/uniqBy';
 import sortBy from 'lodash/sortBy';
-import { Maintainer, Step, StepInputVariable, StepYmlObject, VariableOpts } from '@/core/models/Step';
+import { Maintainer, Step, StepInputVariable, StepVariable, StepYmlObject, VariableOpts } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import StepService from '@/core/models/StepService';
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -45,7 +45,7 @@ type AlgoliaStepInputResponse = {
 // TRANSFORMATIONS
 function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: string[] = []): Step | undefined {
   const [, version] = StepService.parseStepCVS(cvs);
-  if (!response.id || !response.cvs || !response.step) {
+  if (!response.id) {
     return undefined;
   }
 
@@ -59,7 +59,7 @@ function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: s
     mergedValues: undefined, // The merged values of the defaults and user values
     resolvedInfo: {
       id: response.id,
-      cvs: response.cvs,
+      cvs: response.cvs || cvs,
       title: StepService.resolveTitle(cvs, response.step),
       icon: StepService.resolveIcon(response.step, response.info) || defaultIcon,
       versions,
@@ -78,13 +78,13 @@ function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: s
   };
 }
 
-function toStepInput(response: AlgoliaStepInputResponse): StepInputVariable | undefined {
+function toStepVariable(response: AlgoliaStepInputResponse): StepVariable | undefined {
   if (!response) {
     return undefined;
   }
 
-  const { opts, cvs, is_latest: isLatest, objectID, order, ...input } = response;
-  return { opts, ...input };
+  const { opts, cvs, is_latest: isLatest, objectID, order, ...variable } = response;
+  return { opts, ...variable };
 }
 
 // API CALLS
@@ -169,9 +169,7 @@ async function getLocalStepByCvs(cvs: string): Promise<Step | undefined> {
     body: JSON.stringify({ id, version, library: 'path' }),
   });
 
-  const model = toStep(cvs, result);
-  console.log('getLocalStepByCvs', result, model);
-  return model;
+  return toStep(cvs, result);
 }
 
 async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable[]> {
@@ -182,7 +180,7 @@ async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable
     filters: `cvs:${cvs}`,
   });
 
-  return sortBy(results, 'order').map(toStepInput).filter(Boolean) as StepInputVariable[];
+  return sortBy(results, 'order').map(toStepVariable).filter(Boolean) as StepInputVariable[];
 }
 
 export { AlgoliaStepResponse, AlgoliaStepInputResponse, StepInfo };

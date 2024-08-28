@@ -57,7 +57,6 @@ function useStepFromYml(workflowId: string, stepIndex: number): UseStepResult {
 }
 
 function useStepFromApi(cvs = ''): UseStepResult {
-  console.log('useStepFromApi', cvs);
   const { data, isLoading: isLoadingStep } = useQuery({
     queryKey: ['steps', { cvs }],
     queryFn: () => StepApi.getStepByCvs(cvs),
@@ -66,17 +65,24 @@ function useStepFromApi(cvs = ''): UseStepResult {
 
   const { defaultValues, resolvedInfo } = data ?? {};
   const resolvedCvs = resolvedInfo?.cvs || cvs;
-  const { data: inputs, isLoading: isLoadingInputs } = useAlgoliaStepInputs({
+  const { data: apiInputs, isLoading: isLoadingInputs } = useAlgoliaStepInputs({
     cvs: resolvedCvs,
     enabled: Boolean(resolvedCvs && StepService.isStepLibStep(cvs)),
   });
 
   return useMemo(() => {
     return {
-      data: { cvs, defaultValues: { ...defaultValues, inputs }, resolvedInfo },
+      data: {
+        cvs,
+        defaultValues: {
+          ...defaultValues,
+          inputs: apiInputs || defaultValues?.inputs || [],
+        },
+        resolvedInfo,
+      },
       isLoading: isLoadingStep || isLoadingInputs,
     };
-  }, [cvs, defaultValues, inputs, resolvedInfo, isLoadingStep, isLoadingInputs]);
+  }, [cvs, defaultValues, apiInputs, resolvedInfo, isLoadingStep, isLoadingInputs]);
 }
 
 const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefined => {
@@ -84,8 +90,6 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
   const { cvs, userValues, resolvedInfo: ymlResolvedInfo } = ymlData ?? {};
   const { data: apiData, isLoading: isLoadingApi } = useStepFromApi(cvs);
   const { defaultValues, resolvedInfo: apiResolvedInfo } = apiData ?? {};
-
-  console.log(ymlData, apiData);
 
   return useMemo(() => {
     if (!cvs) {
@@ -118,6 +122,8 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
 
       return { opts, [inputName]: inputFromYml?.[inputName] ?? defaultValue };
     });
+
+    console.log(cvs, inputs);
 
     return {
       data: {

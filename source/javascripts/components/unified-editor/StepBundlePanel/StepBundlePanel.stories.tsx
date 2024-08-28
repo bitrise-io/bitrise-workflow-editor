@@ -7,6 +7,6 @@ export default {
 
 export const StepBundle: StoryObj<typeof StepBundlePanel> = {
   args: {
-    stepDisplayName: 'Step bundle: install_deps',
+    bundleName: 'Step bundle: install_deps',
   },
 };
