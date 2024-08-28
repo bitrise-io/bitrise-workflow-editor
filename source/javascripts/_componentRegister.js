@@ -6,6 +6,14 @@ import InfoTooltip from "./components/InfoTooltip";
 import Toggle from "./components/Toggle";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
 import StepBadge from "./components/StepBadge";
+import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import YmlEditor from "./components/YmlEditor/YmlEditor";
+import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
+import { RootComponent, withRootProvider } from "./utils/withRootProvider";
+import Header from "./components/Header";
+import Navigation from "./components/Navigation";
+import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
+
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
@@ -13,28 +21,22 @@ import {
   StepBundlePanel,
   StepConfigPanel,
   StepItem,
-  StepSelectorDrawer,
   VersionChangeDialog,
   WithBlockPanel,
   WorkflowConfigPanel,
-  WorkflowEmptyState,
   WorkflowSelector,
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
-import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import YmlEditor from "./components/YmlEditor/YmlEditor";
-
-import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
-import { RootComponent, withRootProvider } from "./utils/withRootProvider";
-import Header from "./components/Header";
-import Navigation from "./components/Navigation";
-import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
 import {
   PipelinesPage,
   SecretsPage,
   TriggersPage,
   WorkflowsPage,
 } from "@/pages";
+import {
+  StepSelectorDrawer,
+  WorkflowEmptyState,
+} from "@/components/unified-editor";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -252,8 +254,8 @@ angular
     register(StepSelectorDrawer, [
       "isOpen",
       "onClose",
-      "allowedStepIds",
-      "onStepSelected",
+      "enabledSteps",
+      "onSelectStep",
     ]),
   )
   .component(

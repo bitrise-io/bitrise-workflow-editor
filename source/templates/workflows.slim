@@ -107,8 +107,8 @@
   r-step-selector-drawer[
     is-open="workflowsCtrl.showReactStepDrawer"
     on-close="workflowsCtrl.closeReactStepDrawer"
-    allowed-step-ids="appService.allowedStepIds"
-    on-step-selected="workflowsCtrl.handleInsertStepAtIndexFromReact"
+    enabled-steps="appService.allowedStepIds"
+    on-select-step="workflowsCtrl.handleInsertStepAtIndexFromReact"
   ]
   r-chain-workflow-drawer[
     workflow-id="workflowsCtrl.selectedWorkflow.id"

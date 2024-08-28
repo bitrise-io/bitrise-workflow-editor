@@ -235,7 +235,7 @@ import EnvVarService from "@/core/models/EnvVarService";
         viewModel.showReactDeleteWorkflowDialog = false;
         safeDigest($scope);
       }
-      
+
       viewModel.deleteReactWorkflow = function (wfId) {
         viewModel.workflows = viewModel.workflows.filter(function (workflow) {
           return workflow.id !== wfId;
@@ -604,12 +604,12 @@ import EnvVarService from "@/core/models/EnvVarService";
       }
 
       viewModel.handleInsertStepAtIndexFromReact = function (step) {
-        if (viewModel.newStepDrawerAddStepIndex === undefined || !step.id || !step.cvs) {
+        if (viewModel.newStepDrawerAddStepIndex === undefined || !step.cvs) {
           return;
         }
 
         const insertIndex = viewModel.newStepDrawerAddStepIndex;
-        stepSourceService.loadStepVersions(step.id).then(function () {
+        stepSourceService.loadStepVersions(step.resolvedInfo.id).then(function () {
           var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
           insertStepAtIndexCallback(stepToAdd, insertIndex);
         });

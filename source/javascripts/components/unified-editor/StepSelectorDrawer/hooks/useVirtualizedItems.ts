@@ -11,7 +11,7 @@ type Props = {
   hideCategoryNames: boolean;
   selectedCategories: string[];
   steps: Step[];
-  enabledStepIds?: Set<string>;
+  enabledSteps?: Set<string>;
   highlightedStepGroups?: Record<string, Set<string>>;
 };
 
@@ -21,7 +21,7 @@ const useVirtualizedItems = ({
   hideCategoryNames,
   selectedCategories,
   steps,
-  enabledStepIds,
+  enabledSteps,
   highlightedStepGroups,
 }: Props) => {
   const items = useMemo(() => {
@@ -33,7 +33,7 @@ const useVirtualizedItems = ({
           ...createVirtualItemsGroup({
             columns,
             category,
-            enabledStepIds,
+            enabledSteps,
             steps: groupSteps,
           }),
         );
@@ -45,7 +45,7 @@ const useVirtualizedItems = ({
         ...createVirtualItemsGroup({
           columns,
           category: 'Matching steps',
-          enabledStepIds,
+          enabledSteps,
           steps,
         }),
       );
@@ -58,7 +58,7 @@ const useVirtualizedItems = ({
               ...createVirtualItemsGroup({
                 columns,
                 category,
-                enabledStepIds,
+                enabledSteps,
                 steps: categorySteps,
               }),
             );
@@ -69,7 +69,7 @@ const useVirtualizedItems = ({
     }
 
     return virtualItems;
-  }, [columns, enabledStepIds, highlightedStepGroups, selectedCategories, hideCategoryNames, steps]);
+  }, [columns, enabledSteps, highlightedStepGroups, selectedCategories, hideCategoryNames, steps]);
 
   const getItemKey = useCallback(
     (idx: number) => {

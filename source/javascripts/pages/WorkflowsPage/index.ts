@@ -1,4 +1,3 @@
-import { StepSelectorDrawer, WorkflowEmptyState } from '@/components/unified-editor'; // New components which can be used in Angular as is
 import StepBundlePanel from '@/components/unified-editor/StepBundlePanel/StepBundlePanel';
 import WithBlockPanel from '@/components/unified-editor/WithBlockPanel/WithBlockPanel';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
@@ -16,8 +15,6 @@ export {
   WorkflowToolbar,
   WorkflowConfigPanel,
   StepConfigPanel,
-  WorkflowEmptyState,
-  StepSelectorDrawer,
   StepItem,
   ChainWorkflowDrawer,
   CreateWorkflowDialog,

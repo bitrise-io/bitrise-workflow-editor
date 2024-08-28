@@ -15,11 +15,11 @@ const InitialValues: SearchFormValues = {
 };
 
 type Props = {
-  enabledStepIds?: Set<string>;
+  enabledSteps?: Set<string>;
   onSelectStep: SelectStepHandlerFn;
 };
 
-const StepList = ({ enabledStepIds, onSelectStep }: Props) => {
+const StepList = ({ enabledSteps, onSelectStep }: Props) => {
   const listRef = useRef<HTMLDivElement>(null);
   const columns = useColumnCount({ ref: listRef });
   const { reset, watch } = useFormContext<SearchFormValues>();
@@ -29,8 +29,8 @@ const StepList = ({ enabledStepIds, onSelectStep }: Props) => {
   });
   const { data: steps = [], isLoading, isError, refetch: onRetry } = useSearchSteps(formValues);
   const highlightedStepGroups = useMemo(
-    () => (enabledStepIds ? { 'Allowed steps': enabledStepIds } : undefined),
-    [enabledStepIds],
+    () => (enabledSteps ? { 'Allowed steps': enabledSteps } : undefined),
+    [enabledSteps],
   );
 
   const {
@@ -42,7 +42,7 @@ const StepList = ({ enabledStepIds, onSelectStep }: Props) => {
     hideCategoryNames: Boolean(formValues.search),
     selectedCategories: formValues.categories,
     steps,
-    enabledStepIds,
+    enabledSteps,
     highlightedStepGroups,
   });
 
