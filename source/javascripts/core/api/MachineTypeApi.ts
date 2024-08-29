@@ -29,7 +29,7 @@ function toMachineType({ id, ...config }: MachineTypeConfig & { id: string }): M
 
   return {
     id,
-    name: config.name || id,
+    name: name || id,
     label,
     creditCost,
   };

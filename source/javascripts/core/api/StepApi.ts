@@ -4,7 +4,6 @@ import sortBy from 'lodash/sortBy';
 import { Maintainer, Step, StepInputVariable, StepVariable, StepYmlObject, VariableOpts } from '@/core/models/Step';
 import VersionUtils from '@/core/utils/VersionUtils';
 import StepService from '@/core/models/StepService';
-import defaultIcon from '@/../images/step/icon-default.svg';
 import Client from '@/core/api/client';
 
 const ALGOLIA_APP_ID = 'HI1538U2K4';
@@ -61,7 +60,7 @@ function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: s
       id: response.id,
       cvs: response.cvs || cvs,
       title: StepService.resolveTitle(cvs, response.step),
-      icon: StepService.resolveIcon(response.step, response.info) || defaultIcon,
+      icon: StepService.resolveIcon(response.step, response.info),
       versions,
       version: version || '',
       normalizedVersion:

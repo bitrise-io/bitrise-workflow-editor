@@ -1,11 +1,10 @@
 import { useMemo } from 'react';
 import { useShallow } from 'zustand/react/shallow';
-import merge from 'lodash/merge';
 import { useQuery } from '@tanstack/react-query';
+import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useAlgoliaStepInputs } from '@/hooks/useAlgolia';
 import { Step, StepYmlObject } from '@/core/models/Step';
-import VersionUtils from '@/core/utils/VersionUtils';
 import StepService from '@/core/models/StepService';
 import StepApi from '@/core/api/StepApi';
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -25,7 +24,6 @@ function useStepFromYml(workflowId: string, stepIndex: number): UseStepResult {
       }
 
       const [cvs, step] = Object.entries(stepObjectFromYml)[0];
-      const [id, version = ''] = StepService.parseStepCVS(cvs);
 
       if (!step) {
         return { data: undefined };
@@ -39,17 +37,7 @@ function useStepFromYml(workflowId: string, stepIndex: number): UseStepResult {
       return {
         data: {
           cvs,
-          defaultValues: undefined, // The defaults are coming from the step.yml file loaded from the API
           userValues: step as StepYmlObject,
-          mergedValues: undefined, // Will contain the merged values of the defaults and user values
-          resolvedInfo: {
-            cvs,
-            id,
-            title: StepService.resolveTitle(cvs, step),
-            icon: StepService.resolveIcon(step),
-            version,
-            normalizedVersion: VersionUtils.normalizeVersion(version) || version,
-          },
         },
       };
     }),
@@ -87,9 +75,9 @@ function useStepFromApi(cvs = ''): UseStepResult {
 
 const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefined => {
   const { data: ymlData, isLoading: isLoadingYml } = useStepFromYml(workflowId, stepIndex);
-  const { cvs, userValues, resolvedInfo: ymlResolvedInfo } = ymlData ?? {};
+  const { cvs, userValues } = ymlData ?? {};
   const { data: apiData, isLoading: isLoadingApi } = useStepFromApi(cvs);
-  const { defaultValues, resolvedInfo: apiResolvedInfo } = apiData ?? {};
+  const { defaultValues, resolvedInfo } = apiData ?? {};
 
   return useMemo(() => {
     if (!cvs) {
@@ -123,25 +111,17 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
       return { opts, [inputName]: inputFromYml?.[inputName] ?? defaultValue };
     });
 
-    console.log(cvs, inputs);
-
     return {
       data: {
         cvs,
         defaultValues,
         userValues,
-        mergedValues: {
-          ...merge({}, defaultValues, userValues),
-          inputs,
-        },
-        resolvedInfo: {
-          ...ymlResolvedInfo,
-          ...apiResolvedInfo,
-        } as Step['resolvedInfo'],
+        mergedValues: merge({}, defaultValues, userValues, { inputs }),
+        resolvedInfo,
       },
       isLoading: isLoadingYml || isLoadingApi,
     };
-  }, [apiResolvedInfo, cvs, defaultValues, isLoadingApi, isLoadingYml, userValues, ymlResolvedInfo]);
+  }, [resolvedInfo, cvs, defaultValues, isLoadingApi, isLoadingYml, userValues]);
 };
 
 export default useStep;

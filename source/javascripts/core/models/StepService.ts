@@ -2,6 +2,7 @@ import uniq from 'lodash/uniq';
 import { Step, StepBundleYmlObject, Steps, StepYmlObject, WithGroupYmlObject } from '@/core/models/Step';
 import type { StepInfo } from '@/core/api/StepApi';
 import VersionUtils from '@/core/utils/VersionUtils';
+import defaultIcon from '@/../images/step/icon-default.svg';
 
 function parseStepCVS(cvs: string) {
   const cleaned = cvs.replace(/^(git::|path::|bundle::|with)/g, '');
@@ -50,7 +51,7 @@ function resolveIcon(step?: StepYmlObject, info?: StepInfo): string {
     step?.asset_urls?.['icon.png'] ||
     info?.asset_urls?.['icon.svg'] ||
     info?.asset_urls?.['icon.png'] ||
-    ''
+    defaultIcon
   );
 }
 

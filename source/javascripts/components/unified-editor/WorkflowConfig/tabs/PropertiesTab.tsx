@@ -2,9 +2,12 @@ import { useEffect, useMemo } from 'react';
 import { Box, Input, Text, Textarea } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
 import WorkflowService from '@/core/models/WorkflowService';
+import { useWorkflows } from '@/hooks/useWorkflows';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const PropertiesTab = () => {
+  const workflows = useWorkflows();
+  const wofkflowIds = Object.keys(workflows);
   const result = useWorkflowConfigContext();
   const defaultValues = useMemo(() => {
     return {
@@ -41,7 +44,7 @@ const PropertiesTab = () => {
         errorText={formState.errors.name?.message?.toString()}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
         {...register('name', {
-          validate: (v) => WorkflowService.validateName(v),
+          validate: (v) => WorkflowService.validateName(v, wofkflowIds),
         })}
       />
       <Textarea label="Summary" {...register('summary')} />

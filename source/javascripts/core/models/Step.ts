@@ -41,8 +41,8 @@ type Step = {
   resolvedInfo?: {
     id: string;
     cvs: string;
-    title: string;
     icon: string;
+    title?: string; // This is the only overridable field
     version: string; // 2 || 2.1 || 2.1.6
     normalizedVersion: string; // 2.x.x
     resolvedVersion?: string; // 2.1.6

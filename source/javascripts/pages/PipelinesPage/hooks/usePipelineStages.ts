@@ -1,7 +1,7 @@
 import { useShallow } from 'zustand/react/shallow';
 import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Stage, StageYmlObject } from '@/core/models/Stage';
+import { PipelinesStages, Stage } from '@/core/models/Stage';
 import usePipelineSelector from './usePipelineSelector';
 
 const usePipelineStages = (): Stage[] => {
@@ -9,15 +9,20 @@ const usePipelineStages = (): Stage[] => {
 
   return useBitriseYmlStore(
     useShallow(({ yml }) => {
-      const pipelineStages: StageYmlObject[] = yml.pipelines?.[selectedPipeline].stages ?? [];
+      const pipelineStages: PipelinesStages = yml.pipelines?.[selectedPipeline].stages ?? [];
 
       return pipelineStages.map((pipelineStageObj) => {
         const stageId = Object.keys(pipelineStageObj)[0];
         const stage = Object.values(pipelineStageObj)[0];
+        // eslint-disable-next-line @typescript-eslint/naming-convention
+        const { abort_on_fail, should_always_run } = stage;
 
         return {
           id: stageId,
-          userValues: merge({}, yml.stages?.[stageId], stage),
+          userValues: merge({}, yml.stages?.[stageId], {
+            abort_on_fail,
+            should_always_run,
+          }),
         };
       });
     }),
