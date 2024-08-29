@@ -213,9 +213,9 @@ import EnvVarService from "@/core/models/EnvVarService";
         safeDigest($scope);
       }
 
-      viewModel.createReactWorkflow = ({name, basedOn}) => {
-        const baseWorkflow = viewModel.workflows?.find(({id}) => id === basedOn);
-        const createdWorkflow = new Workflow(name, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
+      viewModel.createReactWorkflow = (workflowId, baseWorkflowId) => {
+        const baseWorkflow = viewModel.workflows?.find(({id}) => id === baseWorkflowId);
+        const createdWorkflow = new Workflow(workflowId, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
 
         viewModel.workflows = [...viewModel.workflows, createdWorkflow];
         workflowSelectionService.rearrangeSelection(viewModel, createdWorkflow);
