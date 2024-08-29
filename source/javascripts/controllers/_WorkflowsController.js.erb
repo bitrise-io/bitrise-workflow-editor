@@ -732,7 +732,7 @@ import EnvVarService from "@/core/models/EnvVarService";
       // Step version
 
       function changeStepToVersion(step, version) {
-        if (!step || version === step.requestedVersion()) {
+        if (!step || step.isLocal() || version === step.requestedVersion()) {
           return;
         }
 

@@ -1,5 +1,6 @@
 import { Input, TabPanel, Textarea } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
+import WorkflowService from '@/core/models/WorkflowService';
 import { FormValues, WorkflowConfigTab } from '../WorkflowConfigPanel.types';
 
 const PropertiesTabPanel = () => {
@@ -15,17 +16,7 @@ const PropertiesTabPanel = () => {
         label="Name"
         errorText={errors.workflowId?.message?.toString()}
         {...register('workflowId', {
-          required: {
-            value: true,
-            message: 'Name is required.',
-          },
-          validate: {
-            isNotEmpty: (value) => !!value.trim() || 'Name should not be empty.',
-          },
-          pattern: {
-            value: /^[a-zA-Z0-9_-]+$/i,
-            message: 'Name should contain letters, numbers, underscores & hyphens.',
-          },
+          validate: (v) => WorkflowService.validateName(v),
         })}
       />
       <Textarea label="Summary" {...register('properties.summary')} />
