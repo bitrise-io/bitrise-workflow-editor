@@ -1,8 +1,20 @@
 type MachineType = {
   id: string;
   name: string;
-  label: string;
+  specs: {
+    cpu: {
+      chip: string;
+      cpuCount: string;
+      cpuDescription: string;
+    };
+    ram: string;
+  };
   creditCost: number;
 };
 
-export { MachineType };
+type MachineTypeOption = {
+  value: string;
+  label: string;
+};
+
+export { MachineType, MachineTypeOption };

@@ -1,5 +1,5 @@
 import { MachineType } from '@/core/models/MachineType';
-import Client from './client';
+import Client from './client'; // DTOs
 
 // DTOs
 type MachineTypeConfigsResponse = {
@@ -24,21 +24,27 @@ type MachineTypeConfig = MachineTypeConfigsResponse['available_machine_type_conf
 
 // TRANSFORMATIONS
 function toMachineType({ id, ...config }: MachineTypeConfig & { id: string }): MachineType {
-  const { name, cpu_count: cpuCount, cpu_description: cpuDesc, ram, credit_per_min: creditCost } = config;
-  const label = `${name} ${cpuCount} @ ${cpuDesc} ${ram} (${creditCost} credits/min)`;
+  const { name, chip, cpu_count: cpuCount, cpu_description: cpuDesc, ram, credit_per_min: creditCost } = config;
 
   return {
     id,
     name: name || id,
-    label,
+    specs: {
+      cpu: {
+        chip,
+        cpuCount,
+        cpuDescription: cpuDesc,
+      },
+      ram,
+    },
     creditCost,
   };
 }
 
 function toMachineTypeArray(response: MachineTypeConfigsResponse): MachineType[] {
-  return Object.entries(response)
-    .flatMap(([os, osConfig]) => {
-      return Object.entries(osConfig[os].machine_types).map(([machineId, machineConfig]) =>
+  return Object.entries(response.available_machine_type_configs)
+    .flatMap(([_os, osConfig]) => {
+      return Object.entries(osConfig.machine_types).map(([machineId, machineConfig]) =>
         toMachineType({
           id: machineId,
           ...machineConfig,

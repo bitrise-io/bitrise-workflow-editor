@@ -4,4 +4,9 @@ type Stack = {
   machineTypes: string[];
 };
 
-export { Stack };
+type StackOption = {
+  value: string;
+  label: string;
+};
+
+export { Stack, StackOption };

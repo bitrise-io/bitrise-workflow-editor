@@ -1,5 +1,5 @@
 import { Stack } from '@/core/models/Stack';
-import Client from './client';
+import Client from './client'; // DTOs
 
 // DTOs
 type AllStackInfoResponse = {
@@ -29,15 +29,6 @@ function toStack({ id, ...config }: StackInfo & { id: string }): Stack {
   };
 }
 
-function toStackArray(response: AllStackInfoResponse): Stack[] {
-  return Object.entries(response.available_stacks).map<Stack>(([id, stack]) =>
-    toStack({
-      id,
-      ...stack,
-    }),
-  );
-}
-
 // API CALLS
 const GET_STACKS_PATH = `/app/:appSlug/all_stack_info`;
 
@@ -49,7 +40,12 @@ async function getStacks({ appSlug, signal }: { appSlug: string; signal?: AbortS
   const response = await Client.get<AllStackInfoResponse>(getStacksPath(appSlug), {
     signal,
   });
-  return toStackArray(response);
+  return Object.entries(response.available_stacks).map<Stack>(([id, stack]) =>
+    toStack({
+      id,
+      ...stack,
+    }),
+  );
 }
 
 export default {

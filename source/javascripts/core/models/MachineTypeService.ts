@@ -7,16 +7,12 @@ function getMachineById(machines: MachineType[], id?: string): MachineType | und
   return machines.find((m) => m.id === id);
 }
 
-function hasStackOnMachine(stack: Stack, machineId: string): boolean {
-  return stack.machineTypes.includes(machineId);
-}
-
 function getMachinesOfStack(machines: MachineType[], stack?: Stack): MachineType[] {
   if (!stack) {
-    return machines;
+    return [];
   }
 
-  return machines.filter((m) => hasStackOnMachine(stack, m.id));
+  return machines.filter((m) => stack.machineTypes.includes(m.id));
 }
 
 function getMachineFromMeta(machines: MachineType[], meta?: Meta): MachineType | undefined {
@@ -26,10 +22,6 @@ function getMachineFromMeta(machines: MachineType[], meta?: Meta): MachineType |
 
   const machineId = meta['bitrise.io']?.machine_type_id;
   return getMachineById(machines, machineId);
-}
-
-function getDefaultMachineOfProject(machines: MachineType[], meta: Meta): MachineType | undefined {
-  return getMachineFromMeta(machines, meta);
 }
 
 function getMachineOfWorkflow({
@@ -42,21 +34,63 @@ function getMachineOfWorkflow({
   meta: Meta;
 }): MachineType | undefined {
   const workflowMachine = getMachineFromMeta(machines, workflow.meta);
-  return workflowMachine || getDefaultMachineOfProject(machines, meta);
+  return workflowMachine || getMachineFromMeta(machines, meta);
+}
+
+// Machine type selection depends on whether the requested machine type is available on the selected stack
+function selectMachineType(
+  selectableMachines: MachineType[],
+  selectedMachineTypeId: string,
+  defaultMachineTypeId: string,
+  isSelectionDisabled: boolean,
+): MachineType | undefined {
+  if (isSelectionDisabled) {
+    return undefined;
+  }
+
+  // - If the selected machine type is available, returns the selectedMachineTypeId, and the corresponding machine
+  const requestedMachine = getMachineById(selectableMachines, selectedMachineTypeId);
+  if (requestedMachine) {
+    return requestedMachine;
+  }
+
+  // - If the selected machine type is not available, but the default machine type is available, returns '' and the default machine
+  const defaultMachine = getMachineById(selectableMachines, defaultMachineTypeId);
+  if (defaultMachine) {
+    return { ...defaultMachine, id: '' };
+  }
+
+  // - If the both the selected machine type and the default machine type are not available, returns the first selectable machine's id and the first selectable machine
+  const firstMachine = selectableMachines[0];
+  if (firstMachine) {
+    return firstMachine;
+  }
+
+  return undefined;
 }
 
 function toMachineOption(machine: MachineType) {
+  const {
+    name,
+    specs: {
+      cpu: { cpuCount, cpuDescription },
+      ram,
+    },
+    creditCost,
+  } = machine;
+  const label = `${name} ${cpuCount} @ ${cpuDescription} ${ram} (${creditCost} credits/min)`;
+
   return {
     value: machine.id,
-    name: machine.name || machine.id,
-    label: machine.label,
+    label,
   };
 }
 
 export default {
   getMachineById,
   getMachinesOfStack,
-  getDefaultMachineOfProject,
+  getMachineFromMeta,
   getMachineOfWorkflow,
+  selectMachineType,
   toMachineOption,
 };
