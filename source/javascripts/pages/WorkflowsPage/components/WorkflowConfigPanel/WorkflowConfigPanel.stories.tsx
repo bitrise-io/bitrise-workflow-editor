@@ -1,7 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
+import { getAllStacks } from '@/core/api/StackApi.mswMocks';
+import { getAllMachineTypes } from '@/core/api/MachineTypeApi.mswMocks';
 import WorkflowConfigPanel from './WorkflowConfigPanel';
-import { mockGetAllStackInfo, mockGetMachineTypeConfigs } from './WorkflowConfigPanel.mswMocks';
 
 export default {
   component: WorkflowConfigPanel,
@@ -26,7 +27,7 @@ export default {
   },
   parameters: {
     msw: {
-      handlers: [mockGetAllStackInfo(), mockGetMachineTypeConfigs()],
+      handlers: [getAllStacks(), getAllMachineTypes()],
     },
   },
 } as Meta<typeof WorkflowConfigPanel>;

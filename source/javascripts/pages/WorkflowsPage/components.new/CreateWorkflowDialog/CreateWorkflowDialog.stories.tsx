@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
-import { mockYml } from '../../WorkflowsPage.mocks';
+import { MockYml } from '@/core/models/BitriseYml.mocks';
 import CreateWorkflowDialog from './CreateWorkflowDialog';
 
 export default {
@@ -15,7 +15,7 @@ export default {
   },
   decorators: [
     (Story) => (
-      <BitriseYmlProvider yml={mockYml}>
+      <BitriseYmlProvider yml={MockYml}>
         <Story />
       </BitriseYmlProvider>
     ),

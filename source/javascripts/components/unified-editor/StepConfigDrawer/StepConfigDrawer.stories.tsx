@@ -1,8 +1,8 @@
 import { useState } from 'react';
 import { Meta, StoryObj } from '@storybook/react';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
+import { MockYml } from '@/core/models/BitriseYml.mocks';
 import StepConfigDrawer from './StepConfigDrawer';
-import { mockYml } from './StepConfigDrawer.mocks';
 
 type Story = StoryObj<typeof StepConfigDrawer>;
 
@@ -24,7 +24,7 @@ const meta: Meta<typeof StepConfigDrawer> = {
     },
   },
   decorators: [
-    (Story) => withBitriseYml(mockYml, Story),
+    (Story) => withBitriseYml(MockYml, Story),
     (Story, { args }) => {
       // eslint-disable-next-line react-hooks/rules-of-hooks
       const [isOpen, setIsOpen] = useState(args.isOpen);

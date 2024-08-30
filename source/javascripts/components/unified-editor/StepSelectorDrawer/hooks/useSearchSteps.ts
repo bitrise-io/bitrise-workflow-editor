@@ -28,7 +28,7 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
     enabled: !isLoading,
     staleTime: Infinity,
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
-    queryKey: ['drawer', 'steps', search, categories],
+    queryKey: ['steps', { search, categories }],
     queryFn: async () => {
       let items = steps || ([] as Step[]);
       const expressions = [];
