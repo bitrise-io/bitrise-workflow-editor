@@ -14,7 +14,7 @@ const useLockFormReset = (defaultLocked = true) => {
         properties: {
           name: workflow?.id ?? '',
           summary: workflow?.userValues?.summary ?? '',
-          description: workflow?.userValues?.summary ?? '',
+          description: workflow?.userValues?.description ?? '',
         },
       });
     } else {

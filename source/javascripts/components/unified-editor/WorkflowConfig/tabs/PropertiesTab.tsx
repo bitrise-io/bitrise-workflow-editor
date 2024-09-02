@@ -6,8 +6,10 @@ import { FormValues } from '../WorkflowConfig.types';
 
 const PropertiesTab = () => {
   const workflows = useWorkflows();
-  const wofkflowIds = Object.keys(workflows);
-  const { register, formState } = useFormContext<FormValues>();
+  const { register, formState, watch } = useFormContext<FormValues>();
+  const originalName = formState.defaultValues?.properties?.name;
+  const currentName = watch('properties.name');
+  const wofkflowIds = Object.keys(workflows).filter((id) => id !== originalName && id !== currentName);
 
   return (
     <Box gap="24" display="flex" flexDir="column">

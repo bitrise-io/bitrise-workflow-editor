@@ -6,17 +6,20 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 
 const useRenameWorkflow = (onChange?: (newWorkflowId: string) => void) => {
-  const context = useWorkflowConfigContext();
-  const selectedWorkflowId = context?.id ?? '';
+  const { id: selectedWorkflowId } = useWorkflowConfigContext() ?? { id: '' };
 
   const oldWorkflowIdRef = useRef(selectedWorkflowId);
   const newWorkflowIdRef = useRef(selectedWorkflowId);
   const removableWorkflowIdsRef = useRef<string[]>([]);
 
   const workflows = useBitriseYmlStore(useShallow((s) => s.yml.workflows ?? {}));
-  const renameWorkflow = useBitriseYmlStore(useShallow((s) => s.renameWorkflow));
-  const createWorkflow = useBitriseYmlStore(useShallow((s) => s.createWorkflow));
-  const deleteWorkflows = useBitriseYmlStore(useShallow((s) => s.deleteWorkflows));
+  const { createWorkflow, renameWorkflow, deleteWorkflows } = useBitriseYmlStore(
+    useShallow((s) => ({
+      createWorkflow: s.createWorkflow,
+      renameWorkflow: s.renameWorkflow,
+      deleteWorkflows: s.deleteWorkflows,
+    })),
+  );
 
   useEffect(() => {
     newWorkflowIdRef.current = selectedWorkflowId;

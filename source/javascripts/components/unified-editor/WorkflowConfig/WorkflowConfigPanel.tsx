@@ -20,9 +20,11 @@ const WorkflowConfigPanelContent = ({ workflowId }: Props) => {
   const form = useFormContext<FormValues>();
   const [, setSearchParams] = useSearchParams();
   const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
-
   const renameWorkflow = useRenameWorkflow((newWorkflowId) => {
-    setSearchParams((searchParams) => ({ ...searchParams, workflow_id: newWorkflowId }));
+    setSearchParams((searchParams) => ({
+      ...searchParams,
+      workflow_id: newWorkflowId,
+    }));
   });
 
   const handleChange = form.handleSubmit(({ properties: { name, ...properties } }) => {

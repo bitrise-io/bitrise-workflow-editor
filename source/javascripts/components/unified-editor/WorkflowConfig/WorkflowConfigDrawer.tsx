@@ -10,7 +10,7 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import { useDisclosure, Tabs, ButtonGroup, Button, TabPanels, TabPanel, Icon } from '@bitrise/bitkit';
+import { Button, ButtonGroup, Icon, TabPanel, TabPanels, Tabs, useDisclosure } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -27,17 +27,27 @@ const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
   useLockFormReset(false);
 
   const form = useFormContext<FormValues>();
+  const hasChanges = form.formState.isDirty;
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
 
-  const renameWorkflow = useBitriseYmlStore(useShallow((s) => s.renameWorkflow));
-  const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
+  const { renameWorkflow, updateWorkflow } = useBitriseYmlStore(
+    useShallow((s) => ({
+      renameWorkflow: s.renameWorkflow,
+      updateWorkflow: s.updateWorkflow,
+    })),
+  );
 
   const handleSubmit = form.handleSubmit(({ properties: { name, ...properties } }) => {
     updateWorkflow(workflowId, properties);
     renameWorkflow(workflowId, name);
     onClose();
   });
+
+  const handleCloseComplete = () => {
+    setSelectedTab(WorkflowConfigTab.CONFIGURATION);
+    form.reset();
+  };
 
   return (
     <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
@@ -46,7 +56,9 @@ const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
         isOpen={isOpen}
         onClose={onClose}
         autoFocus={false}
-        onCloseComplete={() => setSelectedTab(WorkflowConfigTab.CONFIGURATION)}
+        closeOnEsc={!hasChanges}
+        closeOnOverlayClick={!hasChanges}
+        onCloseComplete={handleCloseComplete}
       >
         <DrawerOverlay
           top={0}
@@ -85,7 +97,7 @@ const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
 
           <DrawerFooter p="32" boxShadow="large">
             <ButtonGroup spacing={16}>
-              <Button isDisabled={!form.formState.isDirty} onClick={handleSubmit}>
+              <Button isDisabled={!hasChanges} onClick={handleSubmit}>
                 Done
               </Button>
               <Button variant="secondary" onClick={onClose}>
