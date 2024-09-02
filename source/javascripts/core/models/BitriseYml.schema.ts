@@ -1,6 +1,6 @@
 import type { JSONSchema } from 'json-schema-to-ts';
 
-export const BitriseYmlSchema = {
+const BitriseYmlSchema = {
   $schema: 'http://json-schema.org/draft-07/schema#',
   $id: 'https://json.schemastore.org/bitrise.json',
   $ref: '#/definitions/BitriseDataModel',
@@ -562,7 +562,4 @@ export const BitriseYmlSchema = {
   },
 } as const satisfies JSONSchema;
 
-export type BitriseYml = FromSchema<typeof bitriseYmlSchema>;
-export type Meta = Required<BitriseYml>['meta'] & {
-  'bitrise.io'?: { stack?: string; machine_type_id?: string };
-};
+export { BitriseYmlSchema };

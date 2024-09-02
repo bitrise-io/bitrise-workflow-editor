@@ -1,6 +1,6 @@
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { Secret } from '@/core/models/Secret';
 import Client from './client';
-import { Secret } from '@/core/Secret';
 
 // DTOs
 type SecretApiValueResponse = {
