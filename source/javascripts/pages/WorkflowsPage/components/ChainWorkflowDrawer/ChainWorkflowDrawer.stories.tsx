@@ -1,14 +1,14 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { useDisclosure } from '@bitrise/bitkit';
+import { ChainableMockYml } from '@/core/models/BitriseYml.mocks';
 import ChainWorkflowDrawer from './ChainWorkflowDrawer';
-import { mockYml } from './ChainWorkflowDrawer.mocks';
 
 export default {
   component: ChainWorkflowDrawer,
   args: {
-    yml: mockYml,
-    workflowId: 'wf-1',
     defaultIsOpen: true,
+    workflowId: 'wf-1',
+    yml: ChainableMockYml,
   },
   argTypes: {
     workflowId: { type: 'string' },
@@ -21,11 +21,7 @@ export default {
   },
 } as Meta<typeof ChainWorkflowDrawer>;
 
-export const Default: StoryObj = {
-  args: {
-    workflowId: 'wf-1',
-  },
-};
+export const Default: StoryObj = {};
 
 export const Empty: StoryObj = {
   args: {

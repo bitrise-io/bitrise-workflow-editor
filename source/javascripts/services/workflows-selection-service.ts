@@ -15,7 +15,10 @@ type WorkflowViewModel = {
   selectedWorkflow?: Workflow;
   workflows: Array<Workflow>;
   editedWorkflow?: Workflow;
-  editWorkflowAtIndex: (arg0: number | null, shouldTransformEditedWorkflowToReact?: boolean) => void;
+  editWorkflowAtIndex: (
+    arg0: number | null,
+    shouldTransformEditedWorkflowToReact?: boolean,
+  ) => void;
   stepSelected: (
     arg0: Step | undefined,
     wfIndex: number | undefined,
@@ -112,7 +115,7 @@ export class WorkflowsSelectionService {
       this.verifySelectedIndex(
         this.store.lastSelectedStepIndex,
         editedWorkflow?.steps,
-        this.store.checkLastSelectedstep,
+        this.store.checkLastSelectedStep,
       )
     ) {
       const step = editedWorkflow?.steps[this.store.lastSelectedStepIndex];
@@ -191,7 +194,10 @@ export class WorkflowsSelectionService {
       );
     }
 
-    viewModel.editWorkflowAtIndex(editedIndex, viewModel.editedWorkflow?.id !== editedId);
+    viewModel.editWorkflowAtIndex(
+      editedIndex,
+      viewModel.editedWorkflow?.id !== editedId,
+    );
   };
 }
 

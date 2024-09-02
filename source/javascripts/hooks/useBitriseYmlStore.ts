@@ -1,8 +1,9 @@
 import { useContext } from 'react';
 import { useStore } from 'zustand';
-import { BitriseYmlContext, BitriseYmlProviderState } from '../contexts/BitriseYmlProvider';
+import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
+import { BitriseYmlContext } from '@/contexts/BitriseYmlProvider';
 
-const useBitriseYmlStore = <U>(selector: (state: BitriseYmlProviderState) => U) => {
+function useBitriseYmlStore<U>(selector: (state: BitriseYmlStoreState) => U) {
   const store = useContext(BitriseYmlContext);
 
   if (!store) {
@@ -10,6 +11,6 @@ const useBitriseYmlStore = <U>(selector: (state: BitriseYmlProviderState) => U) 
   }
 
   return useStore(store, selector);
-};
+}
 
 export default useBitriseYmlStore;

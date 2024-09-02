@@ -85,9 +85,9 @@
                   app-slug="appService.appDetails.slug"
                 ]
               div[ng-if="workflowsCtrl.selectedStep.isStepBundle()"]
-                r-step-bundle-panel[step-display-name="workflowsCtrl.selectedStep.displayName()"]
+                r-step-bundle-panel[bundle-name="workflowsCtrl.selectedStep.displayName()"]
               div[ng-if="workflowsCtrl.selectedStep.isWithBlock()"]
-                r-with-block-panel[step-display-name="workflowsCtrl.selectedStep.displayName()" with-block-data="workflowsCtrl.selectedStep.withBlockData"]
+                r-with-block-panel[group-name="workflowsCtrl.selectedStep.displayName()" image-name="workflowsCtrl.selectedStep.withBlockData.image" services="workflowsCtrl.selectedStep.withBlockData.services"]
           section.workflow[ng-if='!workflowsCtrl.selectedStep && (workflowsCtrl.editedWorkflow && workflowsCtrl.yml)']
             r-workflow-config-panel[
               yml="workflowsCtrl.yml"
@@ -104,11 +104,11 @@
       footer
         button.done[ng-click="workflowsCtrl.rearrangeWorkflowsFinished()"] == data[:strings][:workflows][:rearrange][:done]
         button.cancel[ng-click="workflowsCtrl.rearrangeWorkflowsPopup.isVisible = false"] == data[:strings][:workflows][:rearrange][:cancel]
-  r-step-drawer[
+  r-step-selector-drawer[
     is-open="workflowsCtrl.showReactStepDrawer"
     on-close="workflowsCtrl.closeReactStepDrawer"
-    allowed-step-ids="appService.allowedStepIds"
-    on-step-selected="workflowsCtrl.handleInsertStepAtIndexFromReact"
+    enabled-steps="appService.allowedStepIds"
+    on-select-step="workflowsCtrl.handleInsertStepAtIndexFromReact"
   ]
   r-chain-workflow-drawer[
     workflow-id="workflowsCtrl.selectedWorkflow.id"
@@ -129,11 +129,11 @@
     workflow-id="workflowsCtrl.selectedWorkflow.id"
     is-open="workflowsCtrl.showReactDeleteWorkflowDialog"
     on-close="workflowsCtrl.closeReactDeleteWorkflowDialog"
-    on-delete="workflowsCtrl.deleteWorkflow"
+    on-delete-workflow="workflowsCtrl.deleteReactWorkflow"
   ]
   r-create-workflow-dialog[
     yml="workflowsCtrl.yml"
     is-open="workflowsCtrl.showReactCreateWorkflowDialog"
     on-close="workflowsCtrl.closeReactCreateWorkflowDialog"
-    on-create="workflowsCtrl.createReactWorkflow"
+    on-create-workflow="workflowsCtrl.createReactWorkflow"
   ]

@@ -1,5 +1,5 @@
 import { Button, EmptyState } from '@bitrise/bitkit';
-import useNavigation from '../hooks/useNavigation';
+import useNavigation from '@/hooks/useNavigation';
 
 const PipelinesEmptyState = () => {
   const { replace } = useNavigation();

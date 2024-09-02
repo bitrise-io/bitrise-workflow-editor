@@ -1,12 +1,12 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
+import { MockYml } from '@/core/models/BitriseYml.mocks';
 import PipelinesPage from './PipelinesPage';
-import { mockYml } from './PipelinesPage.mocks';
 
 export default {
   component: PipelinesPage,
   args: {
-    yml: mockYml,
+    yml: MockYml,
   },
   parameters: {
     layout: 'fullscreen',

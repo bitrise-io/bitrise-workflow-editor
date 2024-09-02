@@ -1,14 +1,14 @@
 import { useCallback } from 'react';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { Pipeline } from '@/models/Pipeline';
-import useSearchParams from '../../../hooks/useSearchParams';
+import { PipelineYmlObject } from '@/core/models/Pipeline';
+import useSearchParams from '@/hooks/useSearchParams';
 
 const usePipelineSelector = () => {
   const options = useBitriseYmlStore(
     useShallow(({ yml }) => {
       return Object.fromEntries(
-        Object.entries<Pipeline>(yml.pipelines ?? {}).map(([pipelineKey, pipeline]) => {
+        Object.entries<PipelineYmlObject>(yml.pipelines ?? {}).map(([pipelineKey, pipeline]) => {
           return [pipelineKey, pipeline.title || pipelineKey];
         }),
       );

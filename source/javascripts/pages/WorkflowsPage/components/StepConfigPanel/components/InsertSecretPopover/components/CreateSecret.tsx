@@ -1,7 +1,7 @@
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
 import { useForm } from 'react-hook-form';
-import { Secret } from '@/core/Secret';
-import SecretService from '@/core/SecretService';
+import { Secret } from '@/core/models/Secret';
+import SecretService from '@/core/models/SecretService';
 import { CreateSecretFormValues, HandlerFn } from '../types';
 
 type Props = {
@@ -41,9 +41,11 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter key"
             errorText={errors.key?.message}
             {...register('key', {
-              required: SecretService.KEY_IS_REQUIRED,
-              pattern: SecretService.KEY_PATTERN,
-              validate: SecretService.validateKey(items.map((item) => item.key)),
+              validate: (v) =>
+                SecretService.validateKey(
+                  v,
+                  items.map((i) => i.key),
+                ),
             })}
           />
           <Text pt="14">=</Text>
@@ -54,7 +56,6 @@ const CreateSecret = ({ items, onCreate, onCancel }: Props) => {
             placeholder="Enter value"
             errorText={errors.value?.message}
             {...register('value', {
-              required: SecretService.VALUE_IS_REQUIRED,
               validate: SecretService.validateValue,
             })}
           />

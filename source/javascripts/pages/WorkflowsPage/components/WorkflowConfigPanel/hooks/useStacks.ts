@@ -1,14 +1,11 @@
 import { useQuery } from '@tanstack/react-query';
-import { getAllStackInfoQueryOptions } from '../services/getAllStackInfo';
+import StackApi from '@/core/api/StackApi';
 
-type Props = {
-  appSlug: string;
-};
-
-const useStacks = ({ appSlug }: Props) => {
+const useStacks = ({ appSlug }: { appSlug: string }) => {
   return useQuery({
     enabled: !!appSlug,
-    ...getAllStackInfoQueryOptions(appSlug),
+    queryKey: ['stacks', { appSlug }],
+    queryFn: ({ signal }) => StackApi.getStacks({ appSlug, signal }),
     staleTime: Infinity,
   });
 };

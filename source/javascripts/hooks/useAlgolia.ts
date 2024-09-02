@@ -1,17 +1,30 @@
-import { useMemo } from 'react';
-import algoliasearch from 'algoliasearch';
+import { useQuery } from '@tanstack/react-query';
+import StepApi from '@/core/api/StepApi';
 
-const useAlgolia = () => {
-  return useMemo(() => {
-    const client = algoliasearch('HI1538U2K4', '708f890e859e7c44f309a1bbad3d2de8');
-    const algoliaStepsClient = client.initIndex('steplib_steps');
-    const algoliaInputsClient = client.initIndex('steplib_inputs');
+function useAlgoliaSteps() {
+  return useQuery({
+    queryKey: ['algolia-steps'],
+    queryFn: () => StepApi.getAlgoliaSteps(),
+    staleTime: Infinity,
+  });
+}
 
-    return {
-      algoliaStepsClient,
-      algoliaInputsClient,
-    };
-  }, []);
-};
+function useAlgoliaStep({ cvs, enabled = true }: { cvs: string; enabled?: boolean }) {
+  return useQuery({
+    queryKey: ['algolia-steps', { cvs }],
+    queryFn: () => StepApi.getAlgoliaStepByCvs(cvs),
+    enabled: Boolean(cvs && enabled),
+    staleTime: Infinity,
+  });
+}
 
-export default useAlgolia;
+function useAlgoliaStepInputs({ cvs, enabled = true }: { cvs: string; enabled?: boolean }) {
+  return useQuery({
+    queryKey: ['algolia-steps', { cvs }, 'inputs'] as const,
+    queryFn: () => StepApi.getAlgoliaStepInputsByCvs(cvs),
+    enabled: Boolean(cvs && enabled),
+    staleTime: Infinity,
+  });
+}
+
+export { useAlgoliaSteps, useAlgoliaStep, useAlgoliaStepInputs };

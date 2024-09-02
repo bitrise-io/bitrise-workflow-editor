@@ -62,13 +62,7 @@ export interface Step {
   requestedVersion: Getter<string | null>;
   isStepBundle: Getter<boolean>;
   isWithBlock: Getter<boolean>;
-}
-
-export interface StepOutputVariable {
-  key: string;
-  title?: string;
-  summary?: string;
-  description?: string;
+  isLocal: Getter<boolean>;
 }
 
 export interface Variable {

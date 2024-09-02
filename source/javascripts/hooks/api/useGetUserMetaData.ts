@@ -2,12 +2,17 @@ import { useQuery, UseQueryOptions } from '@tanstack/react-query';
 
 type QueryOpts<T> = Omit<UseQueryOptions<T>, 'queryKey' | 'queryFn'>;
 
+const MetadataUrl = `/me/profile/metadata.json?key=:key`;
+
+function getMetadataUrlFor(key: string) {
+  return MetadataUrl.replace(':key', key);
+}
+
 export default function useGetUserMetaData<T>(key: string, options?: QueryOpts<T>) {
-  const url = `/me/profile/metadata.json?key=${key}`;
   return useQuery<T>({
-    queryKey: ['metadata', key, url],
+    queryKey: ['metadata', { key }],
     queryFn: async () => {
-      const response = await fetch(url);
+      const response = await fetch(getMetadataUrlFor(key));
       return (await response.json()) as T;
     },
     ...options,

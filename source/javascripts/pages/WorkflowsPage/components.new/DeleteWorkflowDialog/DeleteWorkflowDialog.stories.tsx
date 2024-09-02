@@ -1,6 +1,6 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { withBitriseYml } from '@/contexts/BitriseYmlProvider';
-import { mockYml } from '../../WorkflowsPage.mocks';
+import { MockYml } from '@/core/models/BitriseYml.mocks';
 import DeleteWorkflowDialog from './DeleteWorkflowDialog';
 
 export default {
@@ -13,7 +13,12 @@ export default {
     onClose: { type: 'function' },
     onDelete: { type: 'function' },
   },
-  decorators: (Story) => withBitriseYml(mockYml, Story),
+  parameters: {
+    query: {
+      workflow_id: 'wf-1',
+    },
+  },
+  decorators: (Story) => withBitriseYml(MockYml, Story),
 } as Meta<typeof DeleteWorkflowDialog>;
 
 export const Default: StoryObj = {};

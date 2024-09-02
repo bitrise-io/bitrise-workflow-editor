@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
-import { Secret } from '@/core/Secret';
+import { Secret } from '@/core/models/Secret';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';

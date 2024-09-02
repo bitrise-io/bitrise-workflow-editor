@@ -1,9 +1,9 @@
 import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
+import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import RuntimeUtils from '@/core/utils/RuntimeUtils'; // DTOs
-import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 

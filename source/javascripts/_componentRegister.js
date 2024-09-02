@@ -1,40 +1,42 @@
 import { react2angular } from "@bitrise/react2angular";
 import { Checkbox, Icon } from "@bitrise/bitkit";
 
-import Notification from "./components/Notification";
+import Header from "./components/Header";
 import InfoTooltip from "./components/InfoTooltip";
-import Toggle from "./components/Toggle";
+import Navigation from "./components/Navigation";
+import Notification from "./components/Notification";
 import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
-import StepItem from "./components/StepItem/StepItem";
-import StepBadge from "./components/StepBadge/StepBadge";
+import StepBadge from "./components/StepBadge";
+import Toggle from "./components/Toggle";
+import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
+import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
+import YmlEditor from "./components/YmlEditor/YmlEditor";
+import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import { RootComponent, withRootProvider } from "./utils/withRootProvider";
+
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
   DeleteWorkflowDialog,
   StepConfigPanel,
-  StepDrawer,
-  StepBundlePanel,
+  StepItem,
   VersionChangeDialog,
-  WithBlockPanel,
   WorkflowConfigPanel,
-  WorkflowEmptyState,
   WorkflowSelector,
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
-import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import YmlEditor from "./components/YmlEditor/YmlEditor";
-
-import WorkflowRecipesInfoBanner from "./components/workflow-recipes/WorkflowRecipesInfoBanner/WorkflowRecipesInfoBanner";
-import { RootComponent, withRootProvider } from "./utils/withRootProvider";
-import Header from "./components/Header";
-import Navigation from "./components/Navigation";
-import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
 import {
   PipelinesPage,
   SecretsPage,
   TriggersPage,
   WorkflowsPage,
 } from "@/pages";
+import {
+  StepBundlePanel,
+  StepSelectorDrawer,
+  WithBlockPanel,
+  WorkflowEmptyState,
+} from "@/components/unified-editor";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -248,12 +250,12 @@ angular
     ]),
   )
   .component(
-    "rStepDrawer",
-    register(StepDrawer, [
+    "rStepSelectorDrawer",
+    register(StepSelectorDrawer, [
       "isOpen",
       "onClose",
-      "allowedStepIds",
-      "onStepSelected",
+      "enabledSteps",
+      "onSelectStep",
     ]),
   )
   .component(
@@ -272,18 +274,20 @@ angular
       "workflowId",
       "isOpen",
       "onClose",
-      "onDelete",
+      "onDeleteWorkflow",
     ]),
   )
   .component(
     "rCreateWorkflowDialog",
-    register(CreateWorkflowDialog, ["yml", "isOpen", "onClose", "onCreate"]),
+    register(CreateWorkflowDialog, [
+      "yml",
+      "isOpen",
+      "onClose",
+      "onCreateWorkflow",
+    ]),
   )
-  .component(
-    "rStepBundlePanel",
-    register(StepBundlePanel, ["stepDisplayName"]),
-  )
+  .component("rStepBundlePanel", register(StepBundlePanel, ["bundleName"]))
   .component(
     "rWithBlockPanel",
-    register(WithBlockPanel, ["stepDisplayName", "withBlockData"]),
+    register(WithBlockPanel, ["groupName", "imageName", "services"]),
   );
