@@ -12,11 +12,14 @@ import { TriggerMap } from './TriggerMap';
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (copy.workflows?.[workflowId]) {
-    const steps = copy.workflows[workflowId].steps ?? [];
-    steps.splice(to, 0, { [cvs]: {} });
-    copy.workflows[workflowId].steps = steps;
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
   }
+
+  const steps = copy.workflows[workflowId].steps ?? [];
+  steps.splice(to, 0, { [cvs]: {} });
+  copy.workflows[workflowId].steps = steps;
 
   return copy;
 }
@@ -24,9 +27,12 @@ function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): 
 function moveStep(workflowId: string, stepIndex: number, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
-    copy.workflows[workflowId].steps.splice(to, 0, copy.workflows[workflowId].steps.splice(stepIndex, 1)[0]);
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
   }
+
+  copy.workflows[workflowId].steps.splice(to, 0, copy.workflows[workflowId].steps.splice(stepIndex, 1)[0]);
 
   return copy;
 }
@@ -36,7 +42,9 @@ function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: st
 
   copy.workflows = {
     ...copy.workflows,
-    ...{ [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {} },
+    ...{
+      [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {},
+    },
   };
 
   return copy;
@@ -57,25 +65,33 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   copy.workflows = deleteWorkflowFromChains(workflowId, copy.workflows);
 
   // Remove the whole `workflows` section in the YML if empty
-  if (isEmpty(copy.workflows)) delete copy.workflows;
+  if (isEmpty(copy.workflows)) {
+    delete copy.workflows;
+  }
 
   // Remove workflow from `stages` section of the YML
   copy.stages = omitEmpty(deleteWorkflowFromStages(workflowId, copy.stages));
 
   // Remove the whole `stages` section in the YML if empty
-  if (isEmpty(copy.stages)) delete copy.stages;
+  if (isEmpty(copy.stages)) {
+    delete copy.stages;
+  }
 
   // Remove workflow from `pipelines` section of the YML
   copy.pipelines = omitEmpty(deleteWorkflowFromPipelines(workflowId, copy.pipelines, copy.stages));
 
   // Remove the whole `pipelines` section in the YML if empty
-  if (isEmpty(copy.pipelines)) delete copy.pipelines;
+  if (isEmpty(copy.pipelines)) {
+    delete copy.pipelines;
+  }
 
   // Remove triggers what referencing to the workflow
   copy.trigger_map = deleteWorkflowFromTriggerMap(workflowId, copy.trigger_map);
 
   // Remove the whole `trigger_map` section in the YML if empty
-  if (isEmpty(copy.trigger_map)) delete copy.trigger_map;
+  if (isEmpty(copy.trigger_map)) {
+    delete copy.trigger_map;
+  }
 
   return copy;
 }
@@ -88,9 +104,21 @@ function deleteChainedWorkflow(
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (copy.workflows?.[parentWorkflowId]?.[placement]?.[chainedWorkflowIndex]) {
-    copy.workflows[parentWorkflowId][placement].splice(chainedWorkflowIndex, 1);
-    if (!copy.workflows[parentWorkflowId][placement].length) delete copy.workflows[parentWorkflowId][placement];
+  // If the parent workflow or chained placement is missing in the YML just return the YML
+  if (!copy.workflows?.[parentWorkflowId]?.[placement]) {
+    return copy;
+  }
+
+  // If the placement is not valid, return the YML
+  if (!['before_run', 'after_run'].includes(placement)) {
+    return copy;
+  }
+
+  copy.workflows[parentWorkflowId][placement].splice(chainedWorkflowIndex, 1);
+
+  // If the chained placement is empty, remove it
+  if (isEmpty(copy.workflows[parentWorkflowId][placement])) {
+    delete copy.workflows[parentWorkflowId][placement];
   }
 
   return copy;
@@ -104,12 +132,22 @@ function setChainedWorkflows(
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (copy.workflows?.[workflowId]) {
-    if (isEmpty(chainedWorkflowIds)) {
-      delete copy.workflows[workflowId][placement];
-    } else {
-      copy.workflows[workflowId][placement] = chainedWorkflowIds;
-    }
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  // If the placement is not valid, return the YML
+  if (!['before_run', 'after_run'].includes(placement)) {
+    return copy;
+  }
+
+  // Set the chained workflows
+  copy.workflows[workflowId][placement] = chainedWorkflowIds;
+
+  // If the chained placement is empty, remove it
+  if (copy.workflows[workflowId][placement]) {
+    delete copy.workflows[workflowId][placement];
   }
 
   return copy;
@@ -123,8 +161,13 @@ function addChainedWorkflow(
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  const isValidPlacement = ['after_run', 'before_run'].includes(placement);
-  if (!(isValidPlacement && copy.workflows?.[parentWorkflowId] && copy.workflows?.[chainableWorkflowId])) {
+  // If the parent workflow or chainable workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[parentWorkflowId] || !copy.workflows?.[chainableWorkflowId]) {
+    return copy;
+  }
+
+  // If the placement is not valid, return the YML
+  if (!['after_run', 'before_run'].includes(placement)) {
     return copy;
   }
 
