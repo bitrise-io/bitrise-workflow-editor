@@ -57,14 +57,6 @@ function updateBitriseYml({
   });
 }
 
-// const FORMAT_YML_PATH = `/api/cli/format`;
-//
-// function formattedYml({ yml: string }): string {
-//   return Client.post<string>(FORMAT_YML_PATH, {
-//     headers: { Accept: 'application/x-yaml, application/json' },
-//   });
-// }
-
 export default {
   getBitriseYmlPath,
   getBitriseYml,

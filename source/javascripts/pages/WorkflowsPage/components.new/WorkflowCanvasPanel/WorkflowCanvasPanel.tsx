@@ -2,8 +2,8 @@ import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/
 import { useShallow } from 'zustand/react/shallow';
 import WorkflowCard from '@/components/WorkflowCard/WorkflowCard';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import RuntimeUtils from '@/core/utils/RuntimeUtils'; // DTOs
 import useSelectedWorkflow from '../../hooks/useSelectedWorkflow';
-import { isWebsiteMode } from '../../utils/isWebsiteMode';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
@@ -46,7 +46,9 @@ const WorkflowCanvasPanel = () => {
           </MenuList>
         </Menu>
 
-        {isWebsiteMode() && <IconButton iconName="Play" aria-label="Run Workflow" size="md" variant="secondary" />}
+        {RuntimeUtils.isWebsiteMode() && (
+          <IconButton iconName="Play" aria-label="Run Workflow" size="md" variant="secondary" />
+        )}
       </Box>
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard

@@ -3,7 +3,7 @@ import { Box, ButtonGroup, Dropdown, DropdownOption, DropdownProps, IconButton }
 import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 import { EnvVar } from '@/models/EnvVar';
 import StepHelperText from '../StepHelperText';
 import InsertEnvVarPopover from '../InsertEnvVarPopover/InsertEnvVarPopover';

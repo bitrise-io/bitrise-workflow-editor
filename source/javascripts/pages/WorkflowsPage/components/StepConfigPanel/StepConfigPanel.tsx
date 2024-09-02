@@ -5,7 +5,7 @@ import { useMutation } from '@tanstack/react-query';
 import StepBadge from '@/components/StepBadge/StepBadge';
 import { monolith } from '@/hooks/api/client';
 import { InputCategory, OnStepChange, Step, StepOutputVariable, StepVersionWithRemark } from '@/models';
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 import { EnvVar } from '@/models/EnvVar';
 import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';

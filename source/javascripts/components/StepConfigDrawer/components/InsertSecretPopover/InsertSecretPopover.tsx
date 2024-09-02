@@ -9,7 +9,7 @@ import {
   PopoverTrigger,
   Portal,
 } from '@chakra-ui/react';
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
@@ -28,7 +28,9 @@ type Props = {
 };
 
 const filterPredicate = (item: Secret, filter: string): boolean =>
-  item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
+  Boolean(
+    item.key.toUpperCase().includes(filter.toUpperCase()) || item.source?.toUpperCase().includes(filter.toUpperCase()),
+  );
 
 const InsertSecretPopover = ({
   size,
@@ -120,7 +122,7 @@ const InsertSecretPopover = ({
                       >
                         <Text textStyle="code/lg">${ev.key}</Text>
                         <Text textStyle="body/sm/regular" color="text/secondary">
-                          From {ev.source}
+                          {ev.source}
                         </Text>
                       </ListItem>
                     ))}
