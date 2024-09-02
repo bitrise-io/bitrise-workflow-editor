@@ -1,6 +1,6 @@
 import { DefaultError, useMutation, UseMutationOptions, useQuery, UseQueryOptions } from '@tanstack/react-query';
 import SecretApi from '@/api/SecretApi';
-import { Secret, SecretWithState } from '@/core/Secret';
+import { Secret } from '@/core/Secret';
 
 function getSecretsQueryKey(appSlug: string, useApi: boolean) {
   return ['app', appSlug, 'secrets', { useApi }];
@@ -66,9 +66,9 @@ function useUpdateSecret({
   options,
 }: {
   appSlug: string;
-  options?: Omit<UseMutationOptions<Secret, DefaultError, SecretWithState>, 'mutationFn'>;
+  options?: Omit<UseMutationOptions<Secret, DefaultError, Secret>, 'mutationFn'>;
 }) {
-  return useMutation<Secret, DefaultError, SecretWithState>({
+  return useMutation<Secret, DefaultError, Secret>({
     mutationFn: (secret) => SecretApi.updateSecret({ appSlug, secret }),
     ...options,
   });

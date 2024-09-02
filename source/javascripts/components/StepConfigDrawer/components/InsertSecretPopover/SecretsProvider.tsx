@@ -1,5 +1,5 @@
 import { createContext, PropsWithChildren, useContext, useMemo, useState } from 'react';
-import { Secret } from '@/models/Secret';
+import { Secret } from '@/core/Secret';
 import { HandlerFn } from './types';
 
 type State = {

@@ -106,16 +106,6 @@ async function getStepById({ id, latestOnly }: { id: string; latestOnly?: boolea
   return results.map(toStep).filter(Boolean)[0];
 }
 
-// async function getStepInputsById({ id }: { id: string }) {
-//   const { inputsClient } = getAlgoliaClients();
-//   const results: AlgoliaStepInputDTO[] = [];
-//   await inputsClient.browseObjects<AlgoliaStepDTO>({
-//     batch: (batch) => results.push(...batch),
-//     filters: `id:${id} AND is_latest:true`,
-//   });
-//   return results.map(toStepInput).filter(Boolean) as StepInput[];
-// }
-
 export default {
   getAllSteps,
   getStepById,
