@@ -21,11 +21,11 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
 import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
-import appConfigAsYml from '@/utils/appConfigAsYml';
 import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { AppConfig } from '@/models/AppConfig';
 import DateFormatter from '@/utils/dateFormatter';
-import { segmentTrack } from '../../utils/segmentTracking';
+import { segmentTrack } from '@/utils/segmentTracking';
+import BitriseYmlApi from '@/core/api/BitriseYmlApi';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
 
 const ErrorNotification = ({ status, message }: { status?: number; message: string }) => {
@@ -95,7 +95,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const { postAppConfig, postAppConfigStatus, postAppConfigLoading, postAppConfigFailed } = usePostAppConfigCallback(
     appSlug,
-    appConfigAsYml(appConfigFromRepo),
+    BitriseYmlApi.toYml(appConfigFromRepo),
   );
 
   const [configurationSource, setConfigurationSource] = useState<'bitrise' | 'git'>('git');

@@ -2,9 +2,13 @@ import { useFormContext } from 'react-hook-form';
 import { Box, Button, EmptyState } from '@bitrise/bitkit';
 
 import useDebouncedFormValues from '@/hooks/useDebouncedFormValues';
-import { ChainWorkflowCallback, InitialValues, SearchFormValues } from '../ChainWorkflowDrawer.types';
-import useSearchChainableWorkflows from '../hooks/useSearchChainableWorkflows';
+import { useChainableWorkflows } from '@/hooks/useChainableWorkflows';
+import type { ChainWorkflowCallback, FormValues } from '../ChainWorkflowDrawer';
 import ChainableWorkflowCard from './ChainableWorkflowCard';
+
+const InitialValues: FormValues = {
+  search: '',
+};
 
 type Props = {
   workflowId: string;
@@ -12,12 +16,12 @@ type Props = {
 };
 
 const ChainableWorkflowList = ({ workflowId, onChainWorkflow }: Props) => {
-  const { reset, watch } = useFormContext<SearchFormValues>();
+  const { reset, watch } = useFormContext<FormValues>();
   const formValues = useDebouncedFormValues({
     watch,
     initialValues: InitialValues,
   });
-  const { data: workflows = [] } = useSearchChainableWorkflows({
+  const { data: workflows = [] } = useChainableWorkflows({
     id: workflowId,
     search: formValues.search,
   });

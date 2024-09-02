@@ -9,8 +9,18 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import { ChainWorkflowCallback, InitialValues, SearchFormValues } from './ChainWorkflowDrawer.types';
+import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
 import ChainableWorkflowList from './components/ChainableWorkflowList';
+
+type FormValues = {
+  search: string;
+};
+
+type ChainWorkflowCallback = (
+  chainableWorkflowId: string,
+  parentWorkflowId: string,
+  placement: ChainedWorkflowPlacement,
+) => void;
 
 type Props = UseDisclosureProps & {
   workflowId: string;
@@ -19,10 +29,9 @@ type Props = UseDisclosureProps & {
 
 const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
-
-  const form = useForm<SearchFormValues>({
+  const form = useForm<FormValues>({
     defaultValues: {
-      ...InitialValues,
+      search: '',
     },
   });
 
@@ -61,7 +70,7 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }
               <Notification status="info" flexShrink="0">
                 Changes to a chained Workflow affect all other Workflows using it.
               </Notification>
-              <Controller<SearchFormValues>
+              <Controller<FormValues>
                 name="search"
                 render={({ field: { ref, onChange, ...rest } }) => (
                   <SearchInput
@@ -83,4 +92,5 @@ const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }
   );
 };
 
+export { ChainWorkflowCallback, FormValues };
 export default ChainWorkflowDrawer;

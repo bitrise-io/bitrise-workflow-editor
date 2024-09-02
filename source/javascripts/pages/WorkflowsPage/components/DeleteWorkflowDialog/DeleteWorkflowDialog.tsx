@@ -3,14 +3,14 @@ import { useDisclosure, UseDisclosureProps } from '@chakra-ui/react';
 
 type Props = UseDisclosureProps & {
   workflowId: string;
-  onDelete: (id: string) => void;
+  onDeleteWorkflow: (workflowId: string) => void;
 };
 
-const DeleteWorkflowDialog = ({ workflowId, onDelete, ...disclosureProps }: Props) => {
+const DeleteWorkflowDialog = ({ workflowId, onDeleteWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
 
   const handleDelete = () => {
-    onDelete(workflowId);
+    onDeleteWorkflow(workflowId);
     onClose();
   };
 
@@ -34,7 +34,7 @@ const DeleteWorkflowDialog = ({ workflowId, onDelete, ...disclosureProps }: Prop
         <Text textStyle="body/lg/semibold">This action cannot be undone after the YML is saved.</Text>
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" onClick={() => onClose()}>
+        <Button variant="secondary" onClick={onClose}>
           Cancel
         </Button>
         <Button isDanger onClick={handleDelete}>

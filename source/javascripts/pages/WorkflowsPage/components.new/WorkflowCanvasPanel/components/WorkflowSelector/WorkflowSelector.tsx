@@ -10,12 +10,13 @@ import {
   EmptyState,
 } from '@bitrise/bitkit';
 import { useDebounceValue } from 'usehooks-ts';
-import useWorkflowIds from '@/pages/WorkflowsPage/hooks/useWorkflowIds';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
-import useSelectedWorkflow from '@/pages/WorkflowsPage/hooks/useSelectedWorkflow';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useWorkflows } from '@/hooks/useWorkflows';
 
 const WorkflowSelector = () => {
-  const workflowIds = useWorkflowIds();
+  const workflows = useWorkflows();
+  const workflowIds = Object.keys(workflows);
   const dropdownRef = useRef<HTMLButtonElement>(null);
   const { openCreateWorkflowDialog } = useWorkflowsPageStore();
   const [{ id: selectedWorkflowId }, setSelectedWorkflow] = useSelectedWorkflow();

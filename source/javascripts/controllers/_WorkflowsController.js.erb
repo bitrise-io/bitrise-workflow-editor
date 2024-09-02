@@ -1,12 +1,12 @@
-import { safeDigest } from "@/services/react-compat";
+import {safeDigest} from "@/services/react-compat";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getVersionRemark } from "@/utils/stepVersionUtil";
-import { castEnvVarValueForYml } from '@/models/EnvVar';
+import VersionUtils from "@/core/utils/VersionUtils";
 import {
   extractInputNames,
   extractReleaseNotesUrl
 } from "@/pages/WorkflowsPage/components/StepConfigPanel/StepConfigPanel.utils";
 import semverDiff from 'semver/functions/diff'
+import EnvVarService from "@/core/models/EnvVarService";
 
 (function () {
   "use strict";
@@ -74,7 +74,6 @@ import semverDiff from 'semver/functions/diff'
           });
       }));
 
-      viewModel.username = undefined;
       viewModel.buildTriggerToken = undefined;
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
@@ -100,8 +99,7 @@ import semverDiff from 'semver/functions/diff'
       };
 
       function loadAppAndUser() {
-        $q.all([requestService.getCurrentUserData(), requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([user, app, _planData]) {
-          viewModel.username = user?.username;
+        $q.all([requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([app, _planData]) {
           viewModel.defaultBranch = app?.default_branch;
           viewModel.buildTriggerToken = app?.build_trigger_token;
           viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
@@ -215,12 +213,13 @@ import semverDiff from 'semver/functions/diff'
         safeDigest($scope);
       }
 
-      viewModel.createReactWorkflow = ({ name, basedOn }) => {
-        const baseWorkflow = viewModel.workflows?.find(({ id }) => id === basedOn);
-        const createdWorkflow = new Workflow(name, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
+      viewModel.createReactWorkflow = (workflowId, baseWorkflowId) => {
+        const baseWorkflow = viewModel.workflows?.find(({id}) => id === baseWorkflowId);
+        const createdWorkflow = new Workflow(workflowId, baseWorkflow ? angular.copy(baseWorkflow.workflowConfig) : {});
 
         viewModel.workflows = [...viewModel.workflows, createdWorkflow];
         workflowSelectionService.rearrangeSelection(viewModel, createdWorkflow);
+        safeDigest($scope);
       }
 
       // Workflow delete
@@ -237,7 +236,7 @@ import semverDiff from 'semver/functions/diff'
         safeDigest($scope);
       }
 
-      viewModel.deleteWorkflow = function (wfId) {
+      viewModel.deleteReactWorkflow = function (wfId) {
         viewModel.workflows = viewModel.workflows.filter(function (workflow) {
           return workflow.id !== wfId;
         });
@@ -271,7 +270,7 @@ import semverDiff from 'semver/functions/diff'
           branch: branch,
           workflow: viewModel.selectedWorkflow.id,
           triggerToken: viewModel.buildTriggerToken,
-          triggeredBy: viewModel.username
+          triggeredBy: window.parent?.globalProps?.user?.username
         }).then(function (data) {
           if (data.status === "ok" && data.build_url) {
             window.open(data.build_url, "_blank");
@@ -605,12 +604,12 @@ import semverDiff from 'semver/functions/diff'
       }
 
       viewModel.handleInsertStepAtIndexFromReact = function (step) {
-        if (viewModel.newStepDrawerAddStepIndex === undefined || !step.id || !step.cvs) {
+        if (viewModel.newStepDrawerAddStepIndex === undefined || !step.cvs) {
           return;
         }
 
         const insertIndex = viewModel.newStepDrawerAddStepIndex;
-        stepSourceService.loadStepVersions(step.id).then(function () {
+        stepSourceService.loadStepVersions(step.resolvedInfo.id).then(function () {
           var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
           insertStepAtIndexCallback(stepToAdd, insertIndex);
         });
@@ -640,7 +639,7 @@ import semverDiff from 'semver/functions/diff'
         viewModel.selectedStepResolvedVersion = stepSourceService.resolveRequestedStepVersion(step.requestedVersion(), step);
         viewModel.selectedStepLatestVersion = stepSourceService.latestVersion(step);
         viewModel.selectedStepVersionsWithRemarks = stepSourceService.versionsOfStep(step)?.map((version) => ({
-          version, remark: getVersionRemark(version)
+          version, remark: VersionUtils.getVersionRemark(version)
         })) || [];
         viewModel.selectedStepVersionChangeDialogProps = dialogProps;
       }
@@ -733,7 +732,7 @@ import semverDiff from 'semver/functions/diff'
       // Step version
 
       function changeStepToVersion(step, version) {
-        if (!step || version === step.requestedVersion()) {
+        if (!step || step.isLocal() || version === step.requestedVersion()) {
           return;
         }
 
@@ -944,7 +943,7 @@ import semverDiff from 'semver/functions/diff'
       };
 
       viewModel.saveEnvVarFromReact = function (envVar) {
-        const variable = new Variable({ [envVar.key]: envVar.value }, Variable.defaultVariableConfig());
+        const variable = new Variable({[envVar.key]: envVar.value}, Variable.defaultVariableConfig());
 
         variable.isExpand(envVar.isExpand);
 
@@ -961,7 +960,7 @@ import semverDiff from 'semver/functions/diff'
       };
 
       viewModel.saveSecretFromReact = function (secret) {
-        const variable = new Variable({ [secret.key]: secret.value }, Variable.defaultVariableConfig());
+        const variable = new Variable({[secret.key]: secret.value}, Variable.defaultVariableConfig());
 
         variable.isExpose(secret.isExpose);
         variable.isExpand(secret.isExpand);
@@ -1000,8 +999,8 @@ import semverDiff from 'semver/functions/diff'
           viewModel.editedWorkflow.machineType(undefined, newMachineType);
         }
 
-        viewModel.editedWorkflow.envs(data.configuration.envs.map(({ key, value, isExpand: is_expand }) => {
-          return { [key]: castEnvVarValueForYml(value), opts: { is_expand } };
+        viewModel.editedWorkflow.envs(data.configuration.envs.map(({key, value, isExpand: is_expand}) => {
+          return {[key]: EnvVarService.toYmlValue(value), opts: {is_expand}};
         }));
 
         if (viewModel.editedWorkflow.id !== data.workflowId) {
@@ -1026,11 +1025,11 @@ import semverDiff from 'semver/functions/diff'
             configuration: {
               stackId: stack?.id || '',
               machineTypeId: machineType?.id || '',
-              envs: viewModel.editedWorkflow.envs()?.map(({ opts, ...env }) => {
+              envs: viewModel.editedWorkflow.envs()?.map(({opts, ...env}) => {
                 const [key, value] = Object.entries(angular.copy(env))[0];
                 const isExpand = opts?.is_expand ?? true;
 
-                return { key, value, isExpand };
+                return {key, value, isExpand};
               })
             },
             properties: {

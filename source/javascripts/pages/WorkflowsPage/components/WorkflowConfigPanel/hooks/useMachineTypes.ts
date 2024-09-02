@@ -1,5 +1,5 @@
 import { useQuery } from '@tanstack/react-query';
-import { getMachineTypeConfigsQueryOptions } from '../services/getMachineTypeConfigs';
+import MachineTypeApi from '@/core/api/MachineTypeApi';
 
 type Props = {
   appSlug: string;
@@ -8,7 +8,8 @@ type Props = {
 const useMachineTypes = ({ appSlug, canChangeMachineType }: Props) => {
   return useQuery({
     enabled: !!(appSlug && canChangeMachineType),
-    ...getMachineTypeConfigsQueryOptions(appSlug),
+    queryKey: ['machineTypes', { appSlug }],
+    queryFn: ({ signal }) => MachineTypeApi.getMachineTypes({ appSlug, signal }),
     staleTime: Infinity,
   });
 };
