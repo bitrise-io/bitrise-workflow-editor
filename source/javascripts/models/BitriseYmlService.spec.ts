@@ -39,12 +39,18 @@ describe('BitriseYmlService', () => {
     it('should add step to a given index', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
       };
 
       const expectedYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ script: {} }, { 'apk-info@1.4.6': {} }, { clone: {} }, { deploy: {} }] } },
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { 'apk-info@1.4.6': {} }, { clone: {} }, { deploy: {} }],
+          },
+        },
       };
 
       const actualYml = BitriseYmlService.addStep('wf1', 'apk-info@1.4.6', 1, sourceYml);
@@ -56,7 +62,9 @@ describe('BitriseYmlService', () => {
       it('should returns the original YML', () => {
         const sourceYmlAndExpectedYml: BitriseYml = {
           format_version: '',
-          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+          workflows: {
+            wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+          },
         };
 
         const actualYml = BitriseYmlService.addStep('wf2', 'apk-info@1.4.6', 1, sourceYmlAndExpectedYml);
@@ -69,12 +77,18 @@ describe('BitriseYmlService', () => {
       it('should put the step to the end of the list', () => {
         const sourceYml: BitriseYml = {
           format_version: '',
-          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+          workflows: {
+            wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+          },
         };
 
         const expectedYml: BitriseYml = {
           format_version: '',
-          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }, { 'apk-info@1.4.6': {} }] } },
+          workflows: {
+            wf1: {
+              steps: [{ script: {} }, { clone: {} }, { deploy: {} }, { 'apk-info@1.4.6': {} }],
+            },
+          },
         };
 
         const actualYml = BitriseYmlService.addStep('wf1', 'apk-info@1.4.6', 10, sourceYml);
@@ -87,12 +101,18 @@ describe('BitriseYmlService', () => {
       it('should put the step to the start of the list', () => {
         const sourceYml: BitriseYml = {
           format_version: '',
-          workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+          workflows: {
+            wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+          },
         };
 
         const expectedYml: BitriseYml = {
           format_version: '',
-          workflows: { wf1: { steps: [{ 'apk-info@1.4.6': {} }, { script: {} }, { clone: {} }, { deploy: {} }] } },
+          workflows: {
+            wf1: {
+              steps: [{ 'apk-info@1.4.6': {} }, { script: {} }, { clone: {} }, { deploy: {} }],
+            },
+          },
         };
 
         const actualYml = BitriseYmlService.addStep('wf1', 'apk-info@1.4.6', -5, sourceYml);
@@ -106,12 +126,16 @@ describe('BitriseYmlService', () => {
     it('should move step to the expected place', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
       };
 
       const expectedYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ deploy: {} }, { script: {} }, { clone: {} }] } },
+        workflows: {
+          wf1: { steps: [{ deploy: {} }, { script: {} }, { clone: {} }] },
+        },
       };
 
       const actualYml = BitriseYmlService.moveStep('wf1', 2, 0, sourceYml);
@@ -122,7 +146,9 @@ describe('BitriseYmlService', () => {
     it('should return the original BitriseYml if workflow is not exist', () => {
       const sourceAndExpectedYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
       };
 
       const actualYml = BitriseYmlService.moveStep('wf2', 2, 0, sourceAndExpectedYml);
@@ -133,7 +159,9 @@ describe('BitriseYmlService', () => {
     it('should return the original BitriseYml if step on is not exist', () => {
       const sourceAndExpectedYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
       };
 
       const actualYml = BitriseYmlService.moveStep('wf1', 3, 0, sourceAndExpectedYml);
@@ -144,7 +172,9 @@ describe('BitriseYmlService', () => {
     it('should return the original BitriseYml if destination index is out of range', () => {
       const sourceAndExpectedYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] } },
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
       };
 
       const actualYml = BitriseYmlService.moveStep('wf1', 2, 3, sourceAndExpectedYml);
@@ -172,7 +202,9 @@ describe('BitriseYmlService', () => {
     it('should create a workflow based on an other workflow', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
-        workflows: { wf1: { title: 'Workflow Title', steps: [{ 'script@1': {} }] } },
+        workflows: {
+          wf1: { title: 'Workflow Title', steps: [{ 'script@1': {} }] },
+        },
       };
 
       const expectedYml: BitriseYml = {
@@ -310,7 +342,11 @@ describe('BitriseYmlService', () => {
 
           const expectedYml: BitriseYml = {
             format_version: '',
-            workflows: { wf1: { [placement]: ['wf2', 'wf3'] }, wf2: {}, wf3: {} },
+            workflows: {
+              wf1: { [placement]: ['wf2', 'wf3'] },
+              wf2: {},
+              wf3: {},
+            },
           };
 
           const actualYml = BitriseYmlService.addChainedWorkflow('wf3', 'wf1', placement, sourceYml);
@@ -370,12 +406,143 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
+
+  describe('updateStackAndMachine', () => {
+    it('should add stack and machine definition to a given workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+                machine_type_id: 'my-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', 'my-stack', 'my-machine', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove stack definition if it is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+                machine_type_id: 'my-old-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                machine_type_id: 'my-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', 'my-machine', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove machine type definition if it is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-old-stack',
+                machine_type_id: 'my-old-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+              },
+            },
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', 'my-stack', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove bitrise.io section if both stack and workflow config is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+            meta: {
+              'bitrise.io': {
+                stack: 'my-stack',
+                machine_type_id: 'my-old-machine',
+              },
+            },
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
 });
 
 declare module 'expect' {
   interface AsymmetricMatchers {
     toMatchBitriseYml(expected: BitriseYml): void;
   }
+
   interface Matchers<R> {
     toMatchBitriseYml(expected: BitriseYml): R;
   }
