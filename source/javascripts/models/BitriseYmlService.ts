@@ -139,25 +139,36 @@ function addChainedWorkflow(
 function updateStackAndMachine(workflowId: string, stack: string, machineTypeId: string, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (copy.workflows?.[workflowId]) {
-    const newBitriseIO: Meta['bitrise.io'] = {};
-    if (stack !== '') {
-      newBitriseIO.stack = stack;
-    }
-    if (machineTypeId !== '') {
-      newBitriseIO.machine_type_id = machineTypeId;
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  // If both stack and machineTypeID are missing, remove the bitrise.io meta overrides
+  if (!stack && !machineTypeId) {
+    copy.workflows[workflowId].meta = omit(copy.workflows[workflowId].meta, 'bitrise.io');
+
+    // If the meta is empty, remove it
+    if (isEmpty(copy.workflows[workflowId].meta)) {
+      delete copy.workflows[workflowId].meta;
     }
 
-    if (Object.keys(newBitriseIO).length > 0) {
-      copy.workflows[workflowId].meta = {
-        'bitrise.io': newBitriseIO,
-      };
-    } else if (copy.workflows[workflowId].meta && copy.workflows[workflowId].meta['bitrise.io']) {
-      delete copy.workflows[workflowId].meta['bitrise.io'];
-    }
-  } else {
-    // TODO should we throw an error here?
+    return copy;
   }
+
+  const newBitriseIO: Meta['bitrise.io'] = {};
+  if (stack) {
+    newBitriseIO.stack = stack;
+  }
+
+  if (machineTypeId) {
+    newBitriseIO.machine_type_id = machineTypeId;
+  }
+
+  copy.workflows[workflowId].meta = {
+    ...(copy.workflows[workflowId].meta ?? {}),
+    'bitrise.io': newBitriseIO,
+  };
 
   return copy;
 }
