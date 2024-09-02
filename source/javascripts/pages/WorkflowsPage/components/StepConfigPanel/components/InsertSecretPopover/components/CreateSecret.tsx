@@ -1,5 +1,4 @@
 import { Box, Button, ButtonGroup, Checkbox, Input, Text } from '@bitrise/bitkit';
-
 import { useForm } from 'react-hook-form';
 import { Secret } from '@/core/models/Secret';
 import SecretService from '@/core/models/SecretService';
