@@ -1,4 +1,4 @@
-import { WorkflowYmlObject } from '@/core/models/Workflow';
+import { WorkflowYmlObject } from './Workflow';
 
 type EnvVar = {
   key: string;

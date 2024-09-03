@@ -281,12 +281,7 @@ function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: Bitris
     return copy;
   }
 
-  copy.workflows[workflowId].envs = [
-    ...(copy.workflows[workflowId].envs ?? []),
-    // TODO: can BitriseYmlService depend to EnvVarService?
-    // { [envVar.key]: EnvVarService.toYmlValue(envVar.value), opts: { is_expand: envVar.isExpand } },
-    envVar,
-  ];
+  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
 
   return copy;
 }
