@@ -26,6 +26,7 @@ type BitriseYmlStoreState = {
   ) => void;
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
+  cloneStep: (workflowId: string, stepIndex: number) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -101,6 +102,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.moveStep(workflowId, stepIndex, to, state.yml),
+        };
+      });
+    },
+    cloneStep(workflowId, stepIndex) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.cloneStep(workflowId, stepIndex, state.yml),
         };
       });
     },
