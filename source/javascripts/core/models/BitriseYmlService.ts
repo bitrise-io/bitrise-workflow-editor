@@ -285,6 +285,9 @@ function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workf
     workflowCopy.after_run = workflowCopy.after_run?.map((id) => (id === workflowId ? newWorkflowId : id));
     workflowCopy.before_run = workflowCopy.before_run?.map((id) => (id === workflowId ? newWorkflowId : id));
 
+    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
+    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
+
     return workflowCopy;
   });
 }
@@ -315,6 +318,8 @@ function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stage
       );
     });
 
+    if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
+
     return stageCopy;
   });
 }
@@ -339,6 +344,8 @@ function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pi
     pipelineCopy.stages = pipelineCopy.stages?.map((stagesObj) => {
       return renameWorkflowInStages(workflowId, newWorkflowId, stagesObj);
     });
+
+    if (isEmpty(pipelineCopy.stages)) delete pipelineCopy.stages;
 
     return pipelineCopy;
   });
