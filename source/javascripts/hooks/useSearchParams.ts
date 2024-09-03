@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useState } from 'react';
+import { Dispatch, SetStateAction, useCallback, useLayoutEffect, useState } from 'react';
 
 export const getSearchParamsFromLocationHash = (): Record<string, string> => {
   return Object.fromEntries(new URLSearchParams(window.location.hash.split('?')[1] || ''));
@@ -13,18 +13,14 @@ export const setSearchParamsInLocationHash = (newSearchParams: Record<string, st
 const useSearchParams = () => {
   const [searchParams, setSearchParams] = useState(getSearchParamsFromLocationHash());
 
-  useEffect(() => {
+  const exposedSetSearchParams: Dispatch<SetStateAction<Record<string, string>>> = useCallback((value) => {
+    setSearchParamsInLocationHash(typeof value === 'function' ? value(getSearchParamsFromLocationHash()) : value);
+  }, []);
+
+  useLayoutEffect(() => {
     const listener = () => setSearchParams(getSearchParamsFromLocationHash());
     window.addEventListener('hashchange', listener);
     return () => window.removeEventListener('hashchange', listener);
-  }, []);
-
-  const exposedSetSearchParams: typeof setSearchParams = useCallback((actionOrValue) => {
-    setSearchParams((prevSearchParams) => {
-      const newSearchParams = typeof actionOrValue === 'function' ? actionOrValue(prevSearchParams) : actionOrValue;
-      setSearchParamsInLocationHash(newSearchParams);
-      return newSearchParams;
-    });
   }, []);
 
   return [searchParams, exposedSetSearchParams] as const;

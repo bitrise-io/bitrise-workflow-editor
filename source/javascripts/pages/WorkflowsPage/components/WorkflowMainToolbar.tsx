@@ -16,37 +16,37 @@ import { Workflow } from '@/models';
 import WorkflowSelector from './WorkflowSelector/WorkflowSelector';
 
 type WorkflowMainToolbarProps = {
-  selectWorkflow: (workflow?: Workflow) => void;
-  workflows: Workflow[];
-  selectedWorkflow?: Workflow;
+  organizationSlug?: string;
   defaultBranch: string;
   uniqueStepCount: number;
   uniqueStepLimit?: number;
+  workflows: Workflow[];
+  selectedWorkflow?: Workflow;
+  selectWorkflow: (workflow?: Workflow) => void;
+  createWorkflow: VoidFunction;
+  chainWorkflow: VoidFunction;
+  deleteSelectedWorkflow: VoidFunction;
+  rearrangeWorkflows: VoidFunction;
   canRunWorkflow: boolean;
   isRunWorkflowDisabled: boolean;
-  onAddNewWorkflow: VoidFunction;
-  onOpenChainWorkflowDialog: VoidFunction;
-  onRearrangeWorkflow: VoidFunction;
-  onDeleteSelectedWorkflow: VoidFunction;
-  onRunWorkflow: (branch: string) => void;
-  organizationSlug?: string;
+  runWorkflow: (branch: string) => void;
 };
 
 const WorkflowMainToolbar = ({
+  organizationSlug,
   defaultBranch,
-  canRunWorkflow,
-  isRunWorkflowDisabled,
-  selectedWorkflow,
-  workflows,
-  selectWorkflow,
-  onAddNewWorkflow,
-  onOpenChainWorkflowDialog,
-  onRearrangeWorkflow,
-  onDeleteSelectedWorkflow,
-  onRunWorkflow,
   uniqueStepCount,
   uniqueStepLimit,
-  organizationSlug,
+  workflows,
+  selectedWorkflow,
+  selectWorkflow,
+  createWorkflow,
+  chainWorkflow,
+  deleteSelectedWorkflow,
+  rearrangeWorkflows,
+  canRunWorkflow,
+  isRunWorkflowDisabled,
+  runWorkflow,
 }: WorkflowMainToolbarProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure();
   const showStepLimit = typeof uniqueStepLimit === 'number';
@@ -76,7 +76,7 @@ const WorkflowMainToolbar = ({
               containerProps={{ flex: 1 }}
               selectedWorkflowId={selectedWorkflow.id}
               workflowIds={workflows.map(({ id }) => id)}
-              onClickCreateWorkflowButton={onAddNewWorkflow}
+              onCreateWorkflow={createWorkflow}
               onSelectWorkflowId={(workflowId) => selectWorkflow(workflows.find(({ id }) => id === workflowId))}
             />
           )}
@@ -91,17 +91,17 @@ const WorkflowMainToolbar = ({
                 aria-label="Manage Workflows"
               />
               <MenuList>
-                <MenuItem iconName="Link" onClick={() => onOpenChainWorkflowDialog()}>
+                <MenuItem iconName="Link" onClick={chainWorkflow}>
                   Chain Workflow
                 </MenuItem>
                 <MenuItem
                   iconName="Request"
                   isDisabled={selectedWorkflow.workflowChain(workflows).length === 1}
-                  onClick={onRearrangeWorkflow}
+                  onClick={rearrangeWorkflows}
                 >
                   Reorder Workflow chain
                 </MenuItem>
-                <MenuItem iconName="Trash" onClick={onDeleteSelectedWorkflow} isDanger>
+                <MenuItem iconName="Trash" onClick={deleteSelectedWorkflow} isDanger>
                   Delete `{selectedWorkflow.id}`
                 </MenuItem>
               </MenuList>
@@ -147,7 +147,7 @@ const WorkflowMainToolbar = ({
           isOpen={isOpen}
           onClose={onClose}
           defaultBranch={defaultBranch}
-          onAction={(branch) => onRunWorkflow(branch)}
+          onAction={(branch) => runWorkflow(branch)}
         />
       )}
     </>

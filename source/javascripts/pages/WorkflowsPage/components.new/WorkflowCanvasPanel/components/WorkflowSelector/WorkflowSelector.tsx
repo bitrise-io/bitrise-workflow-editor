@@ -49,7 +49,7 @@ const WorkflowSelector = () => {
     setDebouncedSearch(value);
   };
 
-  const onClickCreateWorkflowButton = () => {
+  const onCreateWorkflow = () => {
     openCreateWorkflowDialog();
     dropdownRef.current?.click(); // NOTE: It closes the dropdown...
   };
@@ -110,7 +110,7 @@ const WorkflowSelector = () => {
           variant="secondary"
           leftIconName="PlusAdd"
           justifyContent="flex-start"
-          onClick={onClickCreateWorkflowButton}
+          onClick={onCreateWorkflow}
         >
           Create Workflow
         </Button>

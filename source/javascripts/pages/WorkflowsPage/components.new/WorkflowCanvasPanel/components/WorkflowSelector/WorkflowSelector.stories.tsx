@@ -9,7 +9,7 @@ const meta: Meta<typeof WorkflowSelector> = {
   component: WorkflowSelector,
   args: {},
   argTypes: {
-    onClickCreateWorkflowButton: {
+    onCreateWorkflow: {
       type: 'function',
     },
   },

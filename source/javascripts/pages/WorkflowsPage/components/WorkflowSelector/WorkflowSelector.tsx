@@ -17,7 +17,7 @@ type Props = {
   containerProps?: BoxProps;
   selectedWorkflowId: string;
   onSelectWorkflowId: (workflowId?: string | null) => void;
-  onClickCreateWorkflowButton: VoidFunction;
+  onCreateWorkflow: VoidFunction;
 };
 
 const WorkflowSelector = ({
@@ -25,7 +25,7 @@ const WorkflowSelector = ({
   containerProps,
   selectedWorkflowId,
   onSelectWorkflowId,
-  onClickCreateWorkflowButton,
+  onCreateWorkflow,
 }: Props) => {
   const [search, setSearch] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useDebounceValue('', 100);
@@ -109,7 +109,7 @@ const WorkflowSelector = ({
             variant="secondary"
             leftIconName="PlusAdd"
             justifyContent="flex-start"
-            onClick={onClickCreateWorkflowButton}
+            onClick={onCreateWorkflow}
           >
             Create Workflow
           </Button>

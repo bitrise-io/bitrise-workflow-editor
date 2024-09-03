@@ -1,18 +1,18 @@
 import { Box, Tab, TabList, Text } from '@bitrise/bitkit';
 import WorkflowService from '@/core/models/WorkflowService';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-import useWorkflowUsedBy from '../hooks/useWorkflowUsedBy';
 import { WorkflowConfigTab } from '../WorkflowConfig.types';
 
 const WorkflowConfigHeader = () => {
-  const result = useWorkflowConfigContext();
-  const dependants = useWorkflowUsedBy(result?.id || '');
+  const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
+  const dependants = useDependantWorkflows(id);
 
   return (
     <>
       <Box px="24" py="16">
         <Text as="h3" textStyle="heading/h3">
-          {result?.userValues.title || result?.id || 'Workflow'}
+          {userValues?.title || id || 'Workflow'}
         </Text>
         <Text textStyle="body/sm/regular" color="text/secondary">
           {WorkflowService.getUsedByText(dependants)}

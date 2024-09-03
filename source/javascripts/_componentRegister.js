@@ -22,7 +22,6 @@ import {
   StepItem,
   VersionChangeDialog,
   WorkflowConfigPanel,
-  WorkflowSelector,
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
 import {
@@ -117,15 +116,6 @@ angular
     ]),
   )
   .component(
-    "rWorkflowSelector",
-    register(WorkflowSelector, [
-      "selectedWorkflow",
-      "workflows",
-      "selectWorkflow",
-      "renameWorkflowConfirmed",
-    ]),
-  )
-  .component(
     "rYmlEditorHeader",
     register(YmlEditorHeader, [
       "url",
@@ -150,22 +140,20 @@ angular
   .component(
     "rWorkflowToolbar",
     register(WorkflowToolbar, [
+      "organizationSlug",
       "defaultBranch",
-      "canRunWorkflow",
-      "isRunWorkflowDisabled",
-      "selectedWorkflow",
-      "workflows",
-      "selectWorkflow",
-      "renameWorkflowConfirmed",
-      "onAddNewWorkflow",
-      "onOpenChainWorkflowDialog",
-      "onRearrangeWorkflow",
-      "onDeleteSelectedWorkflow",
-      "onRunWorkflow",
       "uniqueStepCount",
       "uniqueStepLimit",
-      "organizationSlug",
-      "hideWorkflowRecepiesLink",
+      "workflows",
+      "selectedWorkflow",
+      "selectWorkflow",
+      "createWorkflow",
+      "chainWorkflow",
+      "deleteSelectedWorkflow",
+      "rearrangeWorkflows",
+      "canRunWorkflow",
+      "isRunWorkflowDisabled",
+      "runWorkflow",
     ]),
   )
   .component(

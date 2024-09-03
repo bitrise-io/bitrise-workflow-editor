@@ -184,6 +184,73 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('renameWorkflow', () => {
+    it('should be rename an existing workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { stages: [{ st1: {} }] },
+          pl2: { stages: [{ st2: { workflows: [{ wf2: {} }] } }] },
+        },
+        stages: {
+          st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf2: {} }] },
+        },
+        workflows: {
+          wf1: { before_run: ['wf2'], after_run: ['wf2'] },
+          wf2: {},
+        },
+        trigger_map: [{ workflow: 'wf1' }, { workflow: 'wf2' }],
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        pipelines: {
+          pl1: { stages: [{ st1: {} }] },
+          pl2: { stages: [{ st2: { workflows: [{ wf3: {} }] } }] },
+        },
+        stages: {
+          st1: { workflows: [{ wf1: {} }] },
+          st2: { workflows: [{ wf3: {} }] },
+        },
+        workflows: {
+          wf1: { before_run: ['wf3'], after_run: ['wf3'] },
+          wf3: {},
+        },
+        trigger_map: [{ workflow: 'wf1' }, { workflow: 'wf3' }],
+      };
+
+      const actualYml = BitriseYmlService.renameWorkflow('wf2', 'wf3', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when workflow does not exists', () => {
+      it('should return the original yml', () => {
+        const sourceAndExpectedYml: BitriseYml = {
+          format_version: '',
+          pipelines: {
+            pl1: { stages: [{ st1: {} }] },
+            pl2: { stages: [{ st2: { workflows: [{ wf2: {} }] } }] },
+          },
+          stages: {
+            st1: { workflows: [{ wf1: {} }] },
+            st2: { workflows: [{ wf2: {} }] },
+          },
+          workflows: {
+            wf1: { before_run: ['wf2'], after_run: ['wf2'] },
+            wf2: {},
+          },
+          trigger_map: [{ workflow: 'wf1' }, { workflow: 'wf2' }],
+        };
+
+        const actualYml = BitriseYmlService.renameWorkflow('wf3', 'wf4', sourceAndExpectedYml);
+
+        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      });
+    });
+  });
+
   describe('createWorkflow', () => {
     it('should create an empty workflow if base workflow is missing', () => {
       const sourceYml: BitriseYml = {
@@ -219,6 +286,37 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.createWorkflow('wf2', sourceYml, 'wf1');
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('updateWorkflow', () => {
+    it('should be update the given workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { title: 'title', summary: 'summary' } },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: { summary: 'summary', description: 'description' } },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflow('wf1', { title: '', description: 'description' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    describe('when workflow does not exists', () => {
+      it('should return the original yml', () => {
+        const sourceAndExpectedYml: BitriseYml = {
+          format_version: '',
+          workflows: { wf1: { title: 'title', summary: 'summary' } },
+        };
+
+        const actualYml = BitriseYmlService.updateWorkflow('wf2', { description: 'description' }, sourceAndExpectedYml);
+
+        expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      });
     });
   });
 
@@ -309,6 +407,24 @@ describe('BitriseYmlService', () => {
       };
 
       const actualYml = BitriseYmlService.deleteWorkflow('wf1', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('deleteWorkflows', () => {
+    it('should remove the given workflows', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf1: {}, wf2: {}, wf3: {} },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: { wf2: {} },
+      };
+
+      const actualYml = BitriseYmlService.deleteWorkflows(['wf1', 'wf3'], sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });

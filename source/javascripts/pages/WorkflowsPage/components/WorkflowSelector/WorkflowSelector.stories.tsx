@@ -22,7 +22,7 @@ const meta: Meta<typeof WorkflowSelector> = {
     onSelectWorkflowId: {
       type: 'function',
     },
-    onClickCreateWorkflowButton: {
+    onCreateWorkflow: {
       type: 'function',
     },
   },

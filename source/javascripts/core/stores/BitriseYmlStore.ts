@@ -1,6 +1,6 @@
 import { createStore, StoreApi } from 'zustand';
 import { BitriseYml, Meta } from '@/core/models/BitriseYml';
-import { ChainedWorkflowPlacement } from '@/core/models/Workflow';
+import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/models/BitriseYmlService';
 
 type BitriseYmlStoreState = {
@@ -9,13 +9,16 @@ type BitriseYmlStoreState = {
 
   // Workflow related actions
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
+  renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
+  updateWorkflow: (workflowId: string, workflow: WorkflowYmlObject) => void;
   deleteWorkflow: (workflowId: string) => void;
+  deleteWorkflows: (workflowIds: string[]) => void;
+  setChainedWorkflows: (workflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) => void;
   addChainedWorkflow: (
     chainableWorkflowId: string,
     parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
-  setChainedWorkflows: (workflowId: string, placement: ChainedWorkflowPlacement, chainedWorkflowIds: string[]) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
     parentWorkflowId: string,
@@ -31,6 +34,62 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
   return createStore<BitriseYmlStoreState>()((set) => ({
     yml,
     defaultMeta,
+    createWorkflow(workflowId, baseWorkflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
+        };
+      });
+    },
+    renameWorkflow(workflowId, newWorkflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.renameWorkflow(workflowId, newWorkflowId, state.yml),
+        };
+      });
+    },
+    updateWorkflow(workflowId, workflow) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflow(workflowId, workflow, state.yml),
+        };
+      });
+    },
+    deleteWorkflow(workflowId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deleteWorkflow(workflowId, state.yml),
+        };
+      });
+    },
+    deleteWorkflows(workflowIds) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deleteWorkflows(workflowIds, state.yml),
+        };
+      });
+    },
+    setChainedWorkflows(workflowId, placement, chainedWorkflowIds) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.setChainedWorkflows(workflowId, placement, chainedWorkflowIds, state.yml),
+        };
+      });
+    },
+    addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement, state.yml),
+        };
+      });
+    },
+    deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement, state.yml),
+        };
+      });
+    },
     addStep(workflowId, cvs, to) {
       return set((state) => {
         return {
@@ -42,41 +101,6 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.moveStep(workflowId, stepIndex, to, state.yml),
-        };
-      });
-    },
-    createWorkflow(workflowId, baseWorkflowId) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.createWorkflow(workflowId, state.yml, baseWorkflowId),
-        };
-      });
-    },
-    deleteWorkflow(workflowId) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.deleteWorkflow(workflowId, state.yml),
-        };
-      });
-    },
-    deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement, state.yml),
-        };
-      });
-    },
-    addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement, state.yml),
-        };
-      });
-    },
-    setChainedWorkflows(workflowId, placement, chainedWorkflowIds) {
-      return set((state) => {
-        return {
-          yml: BitriseYmlService.setChainedWorkflows(workflowId, placement, chainedWorkflowIds, state.yml),
         };
       });
     },

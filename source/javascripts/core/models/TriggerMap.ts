@@ -1,6 +1,6 @@
 import { BitriseYml } from './BitriseYml';
 
-type TriggerMap = Required<BitriseYml>['trigger_map'];
-type Trigger = TriggerMap[number];
+type TriggerMapYml = Required<BitriseYml>['trigger_map'];
+type TriggerYmlObject = TriggerMapYml[number];
 
-export { TriggerMap, Trigger };
+export { TriggerMapYml, TriggerYmlObject };
