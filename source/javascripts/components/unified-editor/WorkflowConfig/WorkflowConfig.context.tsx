@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useMemo } from 'react';
+import { createContext, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useWorkflow from '@/hooks/useWorkflow';
 import { Workflow } from '@/core/models/Workflow';
@@ -9,21 +9,23 @@ const Context = createContext<State>(undefined);
 
 type Props = PropsWithChildren<{ workflowId: string }>;
 const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
-  const workflow = useWorkflow(workflowId);
-  const value = useMemo(() => workflow, [workflow]);
-  const form = useForm<FormValues>({
-    mode: 'all',
-    defaultValues: {
+  const wf = useWorkflow(workflowId);
+  const workflow = useMemo(() => wf, [wf]);
+  const form = useForm<FormValues>({ mode: 'all' });
+
+  useEffect(() => {
+    form.reset({
       properties: {
-        name: value?.id ?? '',
-        summary: value?.userValues.summary ?? '',
-        description: value?.userValues?.description ?? '',
+        name: workflow?.id,
+        summary: workflow?.userValues?.summary || '',
+        description: workflow?.userValues?.description || '',
       },
-    },
-  });
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workflow?.id, workflow?.userValues?.summary, workflow?.userValues?.description]);
 
   return (
-    <Context.Provider value={value}>
+    <Context.Provider value={workflow}>
       <FormProvider {...form}>{children}</FormProvider>
     </Context.Provider>
   );

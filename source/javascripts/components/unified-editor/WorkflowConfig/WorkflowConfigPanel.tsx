@@ -9,15 +9,10 @@ import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigProvider from './WorkflowConfig.context';
 import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
 import useRenameWorkflow from './hooks/useRenameWorkflow';
-import useLockFormReset from './hooks/useLockFormReset';
 
-type Props = {
-  workflowId: string;
-};
-
-const WorkflowConfigPanelContent = ({ workflowId }: Props) => {
-  const lockFormReset = useLockFormReset();
+const WorkflowConfigPanelContent = () => {
   const form = useFormContext<FormValues>();
+  const originalName = form.formState.defaultValues?.properties?.name ?? '';
   const [, setSearchParams] = useSearchParams();
   const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
   const renameWorkflow = useRenameWorkflow((newWorkflowId) => {
@@ -28,8 +23,7 @@ const WorkflowConfigPanelContent = ({ workflowId }: Props) => {
   });
 
   const handleChange = form.handleSubmit(({ properties: { name, ...properties } }) => {
-    lockFormReset();
-    updateWorkflow(workflowId, properties);
+    updateWorkflow(originalName, properties);
     renameWorkflow(name);
   });
 
@@ -48,10 +42,14 @@ const WorkflowConfigPanelContent = ({ workflowId }: Props) => {
   );
 };
 
-const WorkflowConfigPanel = ({ workflowId, ...props }: Props) => {
+type Props = {
+  workflowId: string;
+};
+
+const WorkflowConfigPanel = ({ workflowId }: Props) => {
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
-      <WorkflowConfigPanelContent workflowId={workflowId} {...props} />
+      <WorkflowConfigPanelContent />
     </WorkflowConfigProvider>
   );
 };

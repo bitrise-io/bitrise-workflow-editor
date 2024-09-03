@@ -57,7 +57,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
           <ControlButton
             size="xs"
             display="none"
-            iconName="PlusOpen"
+            iconName="Link"
             aria-label="Chain Workflows"
             _groupHover={{ display: 'block' }}
             onClick={() => onAddChainedWorkflowClick(id)}

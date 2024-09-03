@@ -144,7 +144,7 @@ const ChainedWorkflowCard = ({
             {onAddChainedWorkflowClick && (
               <ControlButton
                 size="xs"
-                iconName="PlusOpen"
+                iconName="Link"
                 aria-label="Chain Workflows"
                 onClick={() => onAddChainedWorkflowClick(id)}
               />

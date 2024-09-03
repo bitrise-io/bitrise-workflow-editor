@@ -19,14 +19,12 @@ import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
-import useLockFormReset from './hooks/useLockFormReset';
 
 type Props = UseDisclosureProps & { workflowId: string };
 
-const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
-  useLockFormReset(false);
-
+const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
   const form = useFormContext<FormValues>();
+  const originalName = form.formState.defaultValues?.properties?.name ?? '';
   const hasChanges = form.formState.isDirty;
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
@@ -39,8 +37,8 @@ const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
   );
 
   const handleSubmit = form.handleSubmit(({ properties: { name, ...properties } }) => {
-    updateWorkflow(workflowId, properties);
-    renameWorkflow(workflowId, name);
+    updateWorkflow(originalName, properties);
+    renameWorkflow(originalName, name);
     onClose();
   });
 
@@ -114,7 +112,7 @@ const WorkflowConfigDrawerContent = ({ workflowId, ...props }: Props) => {
 const WorkflowConfigDrawer = ({ workflowId, ...props }: Props) => {
   return (
     <WorkflowConfigProvider workflowId={workflowId}>
-      <WorkflowConfigDrawerContent workflowId={workflowId} {...props} />
+      <WorkflowConfigDrawerContent {...props} />
     </WorkflowConfigProvider>
   );
 };
