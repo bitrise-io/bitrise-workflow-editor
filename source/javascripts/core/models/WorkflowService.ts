@@ -90,12 +90,16 @@ function getChainableWorkflows(workflows: Workflows, id: string): string[] {
 }
 
 function getDependantWorkflows(workflows: Workflows, id: string): string[] {
+  if (!workflows?.[id]) {
+    return [];
+  }
+
   const workflowChains = getAllWorkflowChains(workflows);
-  return Object.entries(workflowChains).reduce<string[]>((usedByWorkflows, [workflowId, chain]) => {
+  return Object.entries(workflowChains).reduce<string[]>((dependants, [workflowId, chain]) => {
     if (chain.includes(id) && id !== workflowId) {
-      return [...usedByWorkflows, workflowId];
+      return [...dependants, workflowId];
     }
-    return usedByWorkflows;
+    return dependants;
   }, []);
 }
 

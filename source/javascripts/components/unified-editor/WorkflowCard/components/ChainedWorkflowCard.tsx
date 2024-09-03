@@ -7,7 +7,7 @@ import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
-import useWorkflowDependants from '../hooks/useWorkflowDependants';
+import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
@@ -46,7 +46,7 @@ const ChainedWorkflowCard = ({
 
   const result = useWorkflow(id);
   const containerRef = useRef(null);
-  const dependants = useWorkflowDependants(id);
+  const dependants = useDependantWorkflows(id);
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
 
   const sortable = useSortable({
@@ -144,7 +144,7 @@ const ChainedWorkflowCard = ({
             {onAddChainedWorkflowClick && (
               <ControlButton
                 size="xs"
-                iconName="PlusOpen"
+                iconName="Link"
                 aria-label="Chain Workflows"
                 onClick={() => onAddChainedWorkflowClick(id)}
               />

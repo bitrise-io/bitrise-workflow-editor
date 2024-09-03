@@ -4,10 +4,10 @@ import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { BitriseYml, Meta } from './BitriseYml';
-import { Stages } from './Stage';
-import { ChainedWorkflowPlacement as Placement, Workflows } from './Workflow';
-import { Pipelines } from './Pipeline';
-import { TriggerMap } from './TriggerMap';
+import { StagesYml } from './Stage';
+import { TriggerMapYml } from './TriggerMap';
+import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
+import { PipelinesYml } from './Pipeline';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -37,6 +37,26 @@ function moveStep(workflowId: string, stepIndex: number, to: number, yml: Bitris
   return copy;
 }
 
+function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).map(([id, workflow]) => {
+        return [id === workflowId ? newWorkflowId : id, workflow];
+      }),
+    );
+
+    copy.workflows = renameWorkflowInChains(workflowId, newWorkflowId, copy.workflows);
+  }
+
+  if (copy.stages) copy.stages = renameWorkflowInStages(workflowId, newWorkflowId, copy.stages);
+  if (copy.pipelines) copy.pipelines = renameWorkflowInPipelines(workflowId, newWorkflowId, copy.pipelines);
+  if (copy.trigger_map) copy.trigger_map = renameWorkflowInTriggerMap(workflowId, newWorkflowId, copy.trigger_map);
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -46,6 +66,22 @@ function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: st
       [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {},
     },
   };
+
+  return copy;
+}
+
+function updateWorkflow(workflowId: string, workflow: WorkflowYmlObject, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  mapValues(workflow, (value: string, key: never) => {
+    if (copy.workflows?.[workflowId]) {
+      if (value) {
+        copy.workflows[workflowId][key] = value as never;
+      } else {
+        delete copy.workflows[workflowId][key];
+      }
+    }
+  });
 
   return copy;
 }
@@ -92,6 +128,16 @@ function deleteWorkflow(workflowId: string, yml: BitriseYml): BitriseYml {
   if (isEmpty(copy.trigger_map)) {
     delete copy.trigger_map;
   }
+
+  return copy;
+}
+
+function deleteWorkflows(workflowIds: string[], yml: BitriseYml): BitriseYml {
+  let copy = deepCloneSimpleObject(yml);
+
+  workflowIds.forEach((workflowId) => {
+    copy = deleteWorkflow(workflowId, copy);
+  });
 
   return copy;
 }
@@ -232,6 +278,20 @@ function omitEmptyIfKeyNotExistsIn<T>(o: Record<string, T>, keys: string[]) {
 
 // PRIVATE FUNCTIONS
 
+function renameWorkflowInChains(workflowId: string, newWorkflowId: string, workflows: Workflows): Workflows {
+  return mapValues(workflows, (workflow) => {
+    const workflowCopy = deepCloneSimpleObject(workflow);
+
+    workflowCopy.after_run = workflowCopy.after_run?.map((id) => (id === workflowId ? newWorkflowId : id));
+    workflowCopy.before_run = workflowCopy.before_run?.map((id) => (id === workflowId ? newWorkflowId : id));
+
+    if (isEmpty(workflowCopy.after_run)) delete workflowCopy.after_run;
+    if (isEmpty(workflowCopy.before_run)) delete workflowCopy.before_run;
+
+    return workflowCopy;
+  });
+}
+
 function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {}): Workflows {
   return mapValues(workflows, (workflow) => {
     const workflowCopy = deepCloneSimpleObject(workflow);
@@ -246,7 +306,25 @@ function deleteWorkflowFromChains(workflowId: string, workflows: Workflows = {})
   });
 }
 
-function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stages {
+function renameWorkflowInStages(workflowId: string, newWorkflowId: string, stages: StagesYml): StagesYml {
+  return mapValues(stages, (stage) => {
+    const stageCopy = deepCloneSimpleObject(stage);
+
+    stageCopy.workflows = stageCopy.workflows?.map((workflowObj) => {
+      return Object.fromEntries(
+        Object.entries(workflowObj).map(([id, workflow]) => {
+          return [id === workflowId ? newWorkflowId : id, workflow];
+        }),
+      );
+    });
+
+    if (isEmpty(stageCopy.workflows)) delete stageCopy.workflows;
+
+    return stageCopy;
+  });
+}
+
+function deleteWorkflowFromStages(workflowId: string, stages: StagesYml = {}): StagesYml {
   return mapValues(stages, (stage) => {
     const stageCopy = deepCloneSimpleObject(stage);
 
@@ -259,7 +337,25 @@ function deleteWorkflowFromStages(workflowId: string, stages: Stages = {}): Stag
   });
 }
 
-function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = {}, stages: Stages = {}): Pipelines {
+function renameWorkflowInPipelines(workflowId: string, newWorkflowId: string, pipelines: PipelinesYml): PipelinesYml {
+  return mapValues(pipelines, (pipeline) => {
+    const pipelineCopy = deepCloneSimpleObject(pipeline);
+
+    pipelineCopy.stages = pipelineCopy.stages?.map((stagesObj) => {
+      return renameWorkflowInStages(workflowId, newWorkflowId, stagesObj);
+    });
+
+    if (isEmpty(pipelineCopy.stages)) delete pipelineCopy.stages;
+
+    return pipelineCopy;
+  });
+}
+
+function deleteWorkflowFromPipelines(
+  workflowId: string,
+  pipelines: PipelinesYml = {},
+  stages: StagesYml = {},
+): PipelinesYml {
   const stageIds = Object.keys(stages);
 
   return mapValues(pipelines, (pipeline) => {
@@ -275,15 +371,34 @@ function deleteWorkflowFromPipelines(workflowId: string, pipelines: Pipelines = 
   });
 }
 
-function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap = []): TriggerMap {
+function renameWorkflowInTriggerMap(
+  workflowId: string,
+  newWorkflowId: string,
+  triggerMap: TriggerMapYml,
+): TriggerMapYml {
+  return triggerMap.map((trigger) => {
+    const triggerCopy = deepCloneSimpleObject(trigger);
+
+    if (triggerCopy.workflow === workflowId) {
+      triggerCopy.workflow = newWorkflowId;
+    }
+
+    return triggerCopy;
+  });
+}
+
+function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMapYml = []): TriggerMapYml {
   return triggerMap.filter((trigger) => trigger.workflow !== workflowId);
 }
 
 export default {
   addStep,
   moveStep,
+  renameWorkflow,
+  updateWorkflow,
   createWorkflow,
   deleteWorkflow,
+  deleteWorkflows,
   addChainedWorkflow,
   setChainedWorkflows,
   deleteChainedWorkflow,

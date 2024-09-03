@@ -1,6 +1,5 @@
 import StepBundlePanel from '@/components/unified-editor/StepBundlePanel/StepBundlePanel';
 import WithBlockPanel from '@/components/unified-editor/WithBlockPanel/WithBlockPanel';
-import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 import WorkflowToolbar from './components/WorkflowMainToolbar';
 import WorkflowConfigPanel from './components/WorkflowConfigPanel/WorkflowConfigPanel';
 import ChainWorkflowDrawer from './components/ChainWorkflowDrawer/ChainWorkflowDrawer';
@@ -11,7 +10,6 @@ import CreateWorkflowDialog from './components/CreateWorkflowDialog/CreateWorkfl
 import StepItem from './components/StepItem/StepItem';
 
 export {
-  WorkflowSelector,
   WorkflowToolbar,
   WorkflowConfigPanel,
   StepConfigPanel,

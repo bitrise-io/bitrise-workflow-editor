@@ -278,10 +278,6 @@ import EnvVarService from "@/core/models/EnvVarService";
         }, function (error) {
           console.log(error);
         });
-      };
-
-      viewModel.runWorkflowWithDigest = function (branch) {
-        viewModel.runWorkflow(branch);
         safeDigest($scope);
       };
 
@@ -355,12 +351,7 @@ import EnvVarService from "@/core/models/EnvVarService";
 
       viewModel.openRearrangeWorkflowsPopup = function () {
         viewModel.rearrangeWorkflowsPopup.isVisible = true;
-      };
-
-      viewModel.openRearrangeWorkflowsPopupWithDigest = function () {
-        $timeout(function () {
-          viewModel.openRearrangeWorkflowsPopup();
-        }, 0);
+        safeDigest($scope);
       };
 
       viewModel.rearrangeWorkflowsPopup.beforeAppearCallback = function () {
@@ -392,12 +383,6 @@ import EnvVarService from "@/core/models/EnvVarService";
       };
 
       // Workflow rename
-
-      viewModel.confirmRenameWorkflowWithDigest = function (workflow, newWorkflowID) {
-        $timeout(function () {
-          viewModel.renameWorkflowConfirmed(workflow, newWorkflowID);
-        }, 0);
-      };
 
       viewModel.renameWorkflowConfirmed = function (workflow, newWorkflowID, shouldSelect = true) {
         var oldWorkflowID = workflow.id;
@@ -456,15 +441,9 @@ import EnvVarService from "@/core/models/EnvVarService";
       viewModel.editedWorkflow;
       viewModel.editedWorkflowIndex;
 
-
-      viewModel.selectWorkflowWithDigest = function (workflow) {
-        $timeout(function () {
-          viewModel.selectWorkflow(workflow);
-        }, 0);
-      };
-
       viewModel.selectWorkflow = function (workflow) {
         workflowSelectionService.rearrangeSelection(viewModel, workflow);
+        safeDigest($scope);
       };
 
       viewModel.editWorkflowAtIndex = function (workflowIndex, shouldTransformEditedWorkflowToReact = true) {
