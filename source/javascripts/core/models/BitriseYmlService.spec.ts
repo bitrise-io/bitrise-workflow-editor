@@ -438,7 +438,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             before_run: ['too', 'baz'],
           },
         },
@@ -448,7 +447,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             before_run: ['too', 'baz'],
             after_run: ['foo', 'bar'],
           },
@@ -489,7 +487,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             before_run: ['foo', 'bar'],
             after_run: ['bar'],
           },
@@ -500,7 +497,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             after_run: ['bar'],
           },
         },
@@ -523,6 +519,26 @@ describe('BitriseYmlService', () => {
         const actualYml = BitriseYmlService.setChainedWorkflows(
           'wf2',
           'after_run',
+          ['foo', 'bar'],
+          sourceYmlAndExpectedYml,
+        );
+
+        expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
+      });
+    });
+
+    describe('when placement is not correct', () => {
+      it('should return the original YML', () => {
+        const sourceYmlAndExpectedYml: BitriseYml = {
+          format_version: '',
+          workflows: {
+            wf1: {},
+          },
+        };
+
+        const actualYml = BitriseYmlService.setChainedWorkflows(
+          'wf2',
+          'after_runs' as ChainedWorkflowPlacement,
           ['foo', 'bar'],
           sourceYmlAndExpectedYml,
         );
