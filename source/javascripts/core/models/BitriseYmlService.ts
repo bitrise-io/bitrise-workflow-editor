@@ -287,6 +287,30 @@ function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: Bitris
   return copy;
 }
 
+function deleteWorkflowEnvVar(workflowId: string, index: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs.splice(index, 1);
+
+  return copy;
+}
+
+function moveWorkflowEnvVar(workflowId: string, from: number, to: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.envs?.[from]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs.splice(to, 0, copy.workflows[workflowId].envs.splice(from, 1)[0]);
+
+  return copy;
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -430,4 +454,6 @@ export default {
   updateStackAndMachine,
   appendWorkflowEnvVar,
   updateWorkflowEnvVar,
+  deleteWorkflowEnvVar,
+  moveWorkflowEnvVar,
 };
