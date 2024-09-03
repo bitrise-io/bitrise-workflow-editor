@@ -61,6 +61,7 @@ function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseY
 function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
+  // If the workflow or step is missing in the YML just return the YML
   if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
     return copy;
   }
@@ -68,6 +69,24 @@ function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bitr
   const clonedIndex = stepIndex + 1;
   const clonedStep = copy.workflows[workflowId].steps[stepIndex];
   copy.workflows[workflowId].steps.splice(clonedIndex, 0, clonedStep);
+
+  return copy;
+}
+
+function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].steps.splice(stepIndex, 1);
+
+  // If the steps are empty, remove it
+  if (isEmpty(copy.workflows[workflowId].steps)) {
+    delete copy.workflows[workflowId].steps;
+  }
 
   return copy;
 }
@@ -434,13 +453,14 @@ export default {
   addStep,
   moveStep,
   cloneStep,
+  deleteStep,
+  createWorkflow,
   renameWorkflow,
   updateWorkflow,
-  createWorkflow,
   deleteWorkflow,
   deleteWorkflows,
-  addChainedWorkflow,
   setChainedWorkflows,
+  addChainedWorkflow,
   deleteChainedWorkflow,
   updateStackAndMachine,
   appendWorkflowEnvVar,
