@@ -137,6 +137,7 @@ function setChainedWorkflows(
     return copy;
   }
 
+  // Do we need this? Typescript should prevent this.
   // If the placement is not valid, return the YML
   if (!['before_run', 'after_run'].includes(placement)) {
     return copy;
@@ -146,7 +147,7 @@ function setChainedWorkflows(
   copy.workflows[workflowId][placement] = chainedWorkflowIds;
 
   // If the chained placement is empty, remove it
-  if (copy.workflows[workflowId][placement]) {
+  if (copy.workflows[workflowId][placement].length === 0) {
     delete copy.workflows[workflowId][placement];
   }
 
@@ -166,6 +167,7 @@ function addChainedWorkflow(
     return copy;
   }
 
+  // Do we need this? Typescript should prevent this.
   // If the placement is not valid, return the YML
   if (!['after_run', 'before_run'].includes(placement)) {
     return copy;
