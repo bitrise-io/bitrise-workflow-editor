@@ -1,7 +1,7 @@
 import semver, { gtr } from 'semver';
 
-const MINOR_AND_PATCH_UPDATES = /\d+\.\d+\.x/;
-const PATCH_UPDATES_ONLY = /\d+\.x\.x/;
+const MINOR_AND_PATCH_UPDATES = /\d+\.x\.x/;
+const PATCH_UPDATES_ONLY = /\d+\.\d+\.x/;
 
 function normalizeVersion(version?: string) {
   if (!version) {
