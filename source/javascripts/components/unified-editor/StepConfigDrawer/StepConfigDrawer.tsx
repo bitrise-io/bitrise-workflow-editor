@@ -35,13 +35,18 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const { workflowId, stepIndex, data: step } = useStepDrawerContext();
   const { mergedValues, resolvedInfo } = step ?? {};
 
-  const { cloneStep } = useBitriseYmlStore((s) => ({
+  const { cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
     // upgradeStep: s.upgradeStep,
     cloneStep: s.cloneStep,
-    // deleteStep: s.deleteStep,
+    deleteStep: s.deleteStep,
   }));
 
   const handleSave = () => {
+    onClose();
+  };
+
+  const handleDelete = () => {
+    deleteStep(workflowId, stepIndex);
     onClose();
   };
 
@@ -123,6 +128,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   iconName="MinusRemove"
                   aria-label="Remove this step"
                   isDanger
+                  onClick={handleDelete}
                 />
               </ButtonGroup>
             </Box>
