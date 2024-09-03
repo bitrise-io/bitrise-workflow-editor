@@ -1,6 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from '@jest/globals';
 import type { MatcherFunction } from 'expect';
+import { EnvVarYml } from './EnvVar';
 import { BitriseYml } from './BitriseYml';
 import BitriseYmlService from './BitriseYmlService';
 import { ChainedWorkflowPlacement } from './Workflow';
@@ -860,6 +861,145 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', '', sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('appendWorkflowEnvVar', () => {
+    const newEnv: EnvVarYml = {
+      FOO: 'bar',
+      opts: {
+        is_expand: true,
+      },
+    };
+    it('should add the envs with the new EnvVar to the workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ FOO: 'bar', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendWorkflowEnvVar('wf1', newEnv, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should expand the envs with the new EnvVar', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ abc: 'def', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { abc: 'def', opts: { is_expand: true } },
+              { FOO: 'bar', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendWorkflowEnvVar('wf1', newEnv, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('updateWorkflowEnvVar', () => {
+    it('should update the env at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ FOO: 'bar', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const updatedEnvVar: EnvVarYml = {
+        updated: 'updated-bar',
+        opts: {
+          is_expand: false,
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ updated: 'updated-bar', opts: { is_expand: false } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVar('wf1', 0, updatedEnvVar, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('returns the original if the workflow is missing', () => {
+      const sourceYmlAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ abc: 'def', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVar(
+        'wf2',
+        0,
+        {
+          key: 'updated',
+          value: 'updated-bar',
+          isExpand: false,
+          source: '',
+        },
+        sourceYmlAndExpectedYml,
+      );
+      expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
+    });
+
+    it('returns the original if the index is out of bound', () => {
+      const sourceYmlAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ abc: 'def', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVar(
+        'wf1',
+        1,
+        {
+          key: 'updated',
+          value: 'updated-bar',
+          isExpand: false,
+          source: '',
+        },
+        sourceYmlAndExpectedYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
     });
   });
 });

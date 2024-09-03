@@ -3,6 +3,7 @@ import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
+import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
@@ -262,6 +263,30 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   return copy;
 }
 
+function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs[index] = envVar;
+
+  return copy;
+}
+
+function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
+
+  return copy;
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -403,4 +428,6 @@ export default {
   setChainedWorkflows,
   deleteChainedWorkflow,
   updateStackAndMachine,
+  appendWorkflowEnvVar,
+  updateWorkflowEnvVar,
 };

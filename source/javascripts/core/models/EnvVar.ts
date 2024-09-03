@@ -1,3 +1,5 @@
+import { WorkflowYmlObject } from './Workflow';
+
 type EnvVar = {
   key: string;
   value: string;
@@ -5,4 +7,10 @@ type EnvVar = {
   isExpand: boolean;
 };
 
-export { EnvVar };
+type EnvVarYml = Required<WorkflowYmlObject>['envs'][number] & {
+  opts?: {
+    is_expand?: boolean;
+  };
+};
+
+export { EnvVar, EnvVarYml };
