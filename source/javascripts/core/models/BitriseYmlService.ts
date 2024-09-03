@@ -147,7 +147,7 @@ function setChainedWorkflows(
   copy.workflows[workflowId][placement] = chainedWorkflowIds;
 
   // If the chained placement is empty, remove it
-  if (copy.workflows[workflowId][placement].length === 0) {
+  if (isEmpty(copy.workflows[workflowId][placement])) {
     delete copy.workflows[workflowId][placement];
   }
 

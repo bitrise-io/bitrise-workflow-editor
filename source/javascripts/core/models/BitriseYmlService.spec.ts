@@ -413,7 +413,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             after_run: ['too', 'baz'],
           },
         },
@@ -423,7 +422,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             after_run: ['too', 'baz'],
             before_run: ['foo', 'bar'],
           },
@@ -467,7 +465,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             after_run: ['too', 'baz'],
           },
         },
@@ -477,7 +474,6 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ script: {} }, { clone: {} }, { deploy: {} }],
             after_run: ['foo', 'bar'],
           },
         },
@@ -520,7 +516,7 @@ describe('BitriseYmlService', () => {
         const sourceYmlAndExpectedYml: BitriseYml = {
           format_version: '',
           workflows: {
-            wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+            wf1: {},
           },
         };
 
