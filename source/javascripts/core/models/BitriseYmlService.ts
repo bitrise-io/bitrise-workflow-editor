@@ -3,8 +3,7 @@ import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { EnvVar } from '@/core/models/EnvVar';
-import EnvVarService from '@/core/models/EnvVarService';
+import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
@@ -264,31 +263,29 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   return copy;
 }
 
-function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVar, yml: BitriseYml): BitriseYml {
+function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   if (!copy.workflows?.[workflowId]?.envs?.[index]) {
     return copy;
   }
 
-  copy.workflows[workflowId].envs[index] = {
-    [envVar.key]: EnvVarService.toYmlValue(envVar.value),
-    opts: { is_expand: envVar.isExpand },
-  };
+  copy.workflows[workflowId].envs[index] = envVar;
 
   return copy;
 }
-function appendWorkflowEnvVar(workflowID: string, envVar: EnvVar, yml: BitriseYml): BitriseYml {
+function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
-  if (!copy.workflows?.[workflowID]) {
+  if (!copy.workflows?.[workflowId]) {
     return copy;
   }
 
-  copy.workflows[workflowID].envs = [
-    ...(copy.workflows[workflowID].envs ?? []),
+  copy.workflows[workflowId].envs = [
+    ...(copy.workflows[workflowId].envs ?? []),
     // TODO: can BitriseYmlService depend to EnvVarService?
-    { [envVar.key]: EnvVarService.toYmlValue(envVar.value), opts: { is_expand: envVar.isExpand } },
+    // { [envVar.key]: EnvVarService.toYmlValue(envVar.value), opts: { is_expand: envVar.isExpand } },
+    envVar,
   ];
 
   return copy;

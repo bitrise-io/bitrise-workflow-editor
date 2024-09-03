@@ -1,7 +1,7 @@
 // eslint-disable-next-line import/no-extraneous-dependencies
 import { expect } from '@jest/globals';
 import type { MatcherFunction } from 'expect';
-import { EnvVar } from '@/core/models/EnvVar';
+import { EnvVarYml } from './EnvVar';
 import { BitriseYml } from './BitriseYml';
 import BitriseYmlService from './BitriseYmlService';
 import { ChainedWorkflowPlacement } from './Workflow';
@@ -865,11 +865,11 @@ describe('BitriseYmlService', () => {
   });
 
   describe('appendWorkflowEnvVar', () => {
-    const newEnv: EnvVar = {
-      key: 'FOO',
-      value: 'bar',
-      isExpand: true,
-      source: '',
+    const newEnv: EnvVarYml = {
+      FOO: 'bar',
+      opts: {
+        is_expand: true,
+      },
     };
     it('should add the envs with the new EnvVar to the workflow', () => {
       const sourceYml: BitriseYml = {
@@ -932,11 +932,11 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const updatedEnvVar: EnvVar = {
-        key: 'updated',
-        value: 'updated-bar',
-        isExpand: false,
-        source: '',
+      const updatedEnvVar: EnvVarYml = {
+        updated: 'updated-bar',
+        opts: {
+          is_expand: false,
+        },
       };
 
       const expectedYml: BitriseYml = {
