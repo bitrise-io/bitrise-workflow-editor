@@ -274,6 +274,7 @@ function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarY
 
   return copy;
 }
+
 function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
