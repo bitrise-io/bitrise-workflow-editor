@@ -58,6 +58,20 @@ function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseY
   return copy;
 }
 
+function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const clonedIndex = stepIndex + 1;
+  const clonedStep = copy.workflows[workflowId].steps[stepIndex];
+  copy.workflows[workflowId].steps.splice(clonedIndex, 0, clonedStep);
+
+  return copy;
+}
+
 function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: string): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -419,6 +433,7 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 export default {
   addStep,
   moveStep,
+  cloneStep,
   renameWorkflow,
   updateWorkflow,
   createWorkflow,

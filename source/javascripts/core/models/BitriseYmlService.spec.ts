@@ -251,6 +251,56 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('cloneStep', () => {
+    it('should clone a step to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { clone: {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStep('wf1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if workflow is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStep('wf2', 1, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if step on is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStep('wf1', 5, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('createWorkflow', () => {
     it('should create an empty workflow if base workflow is missing', () => {
       const sourceYml: BitriseYml = {
