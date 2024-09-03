@@ -73,6 +73,26 @@ function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bitr
   return copy;
 }
 
+function upgradeStep(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].steps = copy.workflows[workflowId].steps.map((step, index) => {
+    if (index === stepIndex) {
+      const [oldCvs, values] = Object.entries(step)[0];
+      const newCvs = oldCvs.includes('@') ? oldCvs.replace(/@.*/, `@${version}`) : `${oldCvs}@${version}`;
+      return { [newCvs]: values };
+    }
+    return step;
+  });
+
+  return copy;
+}
+
 function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -453,6 +473,7 @@ export default {
   addStep,
   moveStep,
   cloneStep,
+  upgradeStep,
   deleteStep,
   createWorkflow,
   renameWorkflow,

@@ -301,6 +301,80 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('upgradeStep', () => {
+    it('should upgrade the step version at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@1.0.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@2.1.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.upgradeStep('wf1', 1, '2.1.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should append version if the step does not have one', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { 'clone@2.0.0': {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.upgradeStep('wf1', 1, '2.0.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.upgradeStep('wf2', 1, '2.0.0', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the step does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.upgradeStep('wf1', 3, '2.0.0', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
   describe('deleteStep', () => {
     it('should delete the step at the given index', () => {
       const sourceYml: BitriseYml = {
