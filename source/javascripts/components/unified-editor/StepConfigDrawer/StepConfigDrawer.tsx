@@ -24,6 +24,8 @@ import {
 } from '@bitrise/bitkit';
 import StepBadge from '@/components/StepBadge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import defaultIcon from '@/../images/step/icon-default.svg';
+import VersionUtils from '@/core/utils/VersionUtils';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
@@ -35,8 +37,8 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const { workflowId, stepIndex, data: step } = useStepDrawerContext();
   const { mergedValues, resolvedInfo } = step ?? {};
 
-  const { cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
-    // upgradeStep: s.upgradeStep,
+  const { changeStepVersion, cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
+    changeStepVersion: s.changeStepVersion,
     cloneStep: s.cloneStep,
     deleteStep: s.deleteStep,
   }));
@@ -79,8 +81,8 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
                 size="48"
-                src={resolvedInfo?.icon || ''}
-                name={resolvedInfo?.title || ''}
+                src={resolvedInfo?.icon || defaultIcon}
+                name={resolvedInfo?.title || 'Step'}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
@@ -101,7 +103,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
 
                 <Box h="20px" display="flex" gap="8" alignItems="center">
                   <Text textStyle="body/md/regular" color="text/secondary">
-                    {resolvedInfo?.resolvedVersion}
+                    {resolvedInfo?.resolvedVersion || 'Always latest'}
                   </Text>
                 </Box>
               </Box>
@@ -113,6 +115,13 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                     iconName="ArrowUp"
                     variant="secondary"
                     aria-label="Update to latest step version"
+                    onClick={() =>
+                      changeStepVersion(
+                        workflowId,
+                        stepIndex,
+                        VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''),
+                      )
+                    }
                   />
                 )}
                 <IconButton
