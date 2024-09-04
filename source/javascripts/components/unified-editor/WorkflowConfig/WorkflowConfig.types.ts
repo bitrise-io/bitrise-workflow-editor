@@ -9,4 +9,8 @@ export type FormValues = {
     summary: string;
     description: string;
   };
+  configuration: {
+    stackId: string;
+    machineTypeId: string;
+  };
 };

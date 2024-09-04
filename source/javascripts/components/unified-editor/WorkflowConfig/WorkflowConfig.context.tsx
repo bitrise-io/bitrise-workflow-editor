@@ -20,9 +20,13 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
         summary: workflow?.userValues?.summary || '',
         description: workflow?.userValues?.description || '',
       },
+      configuration: {
+        stackId: workflow?.userValues.meta?.['bitrise.io']?.stack || '',
+        machineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id || '',
+      },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workflow?.id, workflow?.userValues?.summary, workflow?.userValues?.description]);
+  }, [workflow?.id]);
 
   return (
     <Context.Provider value={workflow}>
