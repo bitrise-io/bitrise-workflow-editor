@@ -43,7 +43,7 @@ type AlgoliaStepInputResponse = {
 
 // TRANSFORMATIONS
 function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: string[] = []): Step | undefined {
-  const [, version] = StepService.parseStepCVS(cvs);
+  const { version } = StepService.parseStepCVS(cvs);
   if (!response.id) {
     return undefined;
   }
@@ -64,7 +64,7 @@ function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: s
       versions,
       version: version || '',
       normalizedVersion:
-        VersionUtils.normalizeVersion(version) || VersionUtils.normalizeVersion(response.version) || '',
+        VersionUtils.normalizeVersion(response.version) || VersionUtils.normalizeVersion(version) || '',
       resolvedVersion: response.version || '',
       latestVersion,
       isLatest: Boolean(response.is_latest),
@@ -111,7 +111,10 @@ async function getAlgoliaSteps(): Promise<Step[]> {
 
 async function getStepByCvs(cvs: string): Promise<Step | undefined> {
   if (StepService.isStepLibStep(cvs)) {
-    // TODO implement custom steplib steps
+    if (StepService.isCustomStepLibStep(cvs)) {
+      return getCustomStepByCvs(cvs);
+    }
+
     return getAlgoliaStepByCvs(cvs);
   }
 
@@ -127,7 +130,7 @@ async function getStepByCvs(cvs: string): Promise<Step | undefined> {
 }
 
 async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
-  const [id, version] = StepService.parseStepCVS(cvs);
+  const { id, version } = StepService.parseStepCVS(cvs);
   const { stepsClient } = getAlgoliaClients();
   const results: AlgoliaStepResponse[] = [];
   await stepsClient.browseObjects<AlgoliaStepResponse>({
@@ -146,13 +149,26 @@ async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
   );
 }
 
+async function getCustomStepByCvs(cvs: string): Promise<Step | undefined> {
+  if (!/https?:\/\//.test(cvs)) {
+    return undefined;
+  }
+
+  const { id, version } = StepService.parseStepCVS(cvs);
+
+  // Todo: implement fetching steps with custom steplib url
+  return toStep(cvs, { id, version });
+}
+
 async function getDirectGitStepByCvs(cvs: string): Promise<Step | undefined> {
   if (!StepService.isGitStep(cvs)) {
     return undefined;
   }
 
-  // Todo: implement direct git steps
-  return undefined;
+  const { id, version } = StepService.parseStepCVS(cvs);
+
+  // Todo: implement fetching direct git steps from the git repository
+  return toStep(cvs, { id, version });
 }
 
 async function getLocalStepByCvs(cvs: string): Promise<Step | undefined> {
@@ -160,7 +176,7 @@ async function getLocalStepByCvs(cvs: string): Promise<Step | undefined> {
     return undefined;
   }
 
-  const [id, version = ''] = StepService.parseStepCVS(cvs);
+  const { id, version } = StepService.parseStepCVS(cvs);
   const result = await Client.post<{
     step: StepYmlObject;
     info?: StepInfo;
