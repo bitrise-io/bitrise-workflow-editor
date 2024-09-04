@@ -14,8 +14,8 @@ type ButtonContentProps = {
 };
 const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentProps) => {
   return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" mr="16">
-      <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
+    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" mr="16" minW={0}>
+      <Box display="flex" flexDir="column" alignItems="flex-start" minW={0}>
         <Text textStyle="body/lg/semibold">Stack & Machine</Text>
         <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
           {[stackName, machineTypeName].filter(Boolean).join(' • ')}
@@ -71,26 +71,30 @@ const StackAndMachineCard = () => {
     isMachineTypeSelectorDisabled,
   );
   const isLoading = isStacksLoading || isMachinesLoading;
+  const isInvalidStackSelected = stackId && stacks.every((s) => s.id !== stackId);
+  const isInvalidMachineSelected = machineTypeId && machines.every((m) => m.id !== machineTypeId);
 
   useEffect(() => {
-    if (selectedStack && stackId !== selectedStack.id) {
-      setValue('configuration.stackId', selectedStack.id);
-    }
-  }, [stackId, selectedStack, setValue]);
-
-  useEffect(() => {
-    if (isMachineTypeSelectorDisabled) {
+    if (isLoading) {
       return;
     }
 
-    if (selectedMachine && machineTypeId !== selectedMachine.id) {
-      setValue('configuration.machineTypeId', selectedMachine.id);
+    const stack = StackService.selectStack(stacks, stackId, defaultStackId);
+    if (isMachineTypeSelectorDisabled) {
+      setValue('configuration.machineTypeId', '');
+    } else if (stack?.machineTypes.length && !stack.machineTypes.includes(machineTypeId) && !isInvalidMachineSelected) {
+      setValue('configuration.machineTypeId', !stackId || stackId === defaultStackId ? '' : stack.machineTypes[0]);
     }
-  }, [isMachineTypeSelectorDisabled, setValue, machineTypeId, selectedMachine]);
-
-  if (!appSlug) {
-    return null;
-  }
+  }, [
+    stacks,
+    stackId,
+    setValue,
+    isLoading,
+    machineTypeId,
+    defaultStackId,
+    isInvalidMachineSelected,
+    isMachineTypeSelectorDisabled,
+  ]);
 
   return (
     <ExpandableCard
@@ -100,11 +104,11 @@ const StackAndMachineCard = () => {
     >
       <Box display="flex" flexDir="column" gap="24">
         <Select
-          label="Stack"
-          value={selectedStack?.id}
-          {...register('configuration.stackId')}
           isRequired
+          label="Stack"
           isLoading={isLoading}
+          errorText={isInvalidStackSelected ? 'Invalid stack' : undefined}
+          {...register('configuration.stackId')}
         >
           <option value="">Default ({defaultStack?.name})</option>
           {stackOptions.map(({ value, label }) => (
@@ -112,13 +116,14 @@ const StackAndMachineCard = () => {
               {label}
             </option>
           ))}
+          {isInvalidStackSelected && <option value={stackId}>{stackId}</option>}
         </Select>
         <Select
           isRequired
           label="Machine type"
           isLoading={isLoading}
           isDisabled={isMachineTypeSelectorDisabled}
-          value={selectedMachine?.id}
+          errorText={isInvalidMachineSelected ? 'Invalid machine type' : undefined}
           {...register('configuration.machineTypeId')}
         >
           {isDedicatedMachine && <option value="">Dedicated Machine</option>}
@@ -133,6 +138,7 @@ const StackAndMachineCard = () => {
               ))}
             </>
           )}
+          {isInvalidMachineSelected && <option value={machineTypeId}>{machineTypeId}</option>}
         </Select>
       </Box>
     </ExpandableCard>

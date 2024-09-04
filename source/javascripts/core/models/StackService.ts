@@ -5,7 +5,17 @@ function getOsOfStack(stack: Stack): string {
 }
 
 function getStackById(stacks: Stack[], id: string): Stack | undefined {
-  return stacks.find((stack) => stack.id === id);
+  if (!id) {
+    return;
+  }
+
+  return (
+    stacks.find((stack) => stack.id === id) ?? {
+      id,
+      name: id,
+      machineTypes: [],
+    }
+  );
 }
 
 function selectStack(stacks: Stack[], stackId: string, defaultStackId: string): Stack | undefined {

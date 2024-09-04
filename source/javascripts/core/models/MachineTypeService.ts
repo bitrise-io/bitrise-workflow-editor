@@ -54,7 +54,17 @@ function selectMachineType(
     return requestedMachine;
   }
 
-  // - If the selected machine type is not available, but the default machine type is available, returns '' and the default machine
+  // - If the selected machine type is not available, but not empty that means there it an invalid machine type in the YML
+  if (selectedMachineTypeId) {
+    return {
+      creditCost: 0,
+      id: selectedMachineTypeId,
+      name: selectedMachineTypeId,
+      specs: { cpu: { chip: '', cpuCount: '', cpuDescription: '' }, ram: '' },
+    };
+  }
+
+  // - If the selected machine type is empty, but the default machine type is available, returns '' and the default machine
   const defaultMachine = getMachineById(selectableMachines, defaultMachineTypeId);
   if (defaultMachine) {
     return { ...defaultMachine, id: '' };
