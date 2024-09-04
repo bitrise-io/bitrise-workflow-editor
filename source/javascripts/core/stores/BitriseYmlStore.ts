@@ -27,7 +27,7 @@ type BitriseYmlStoreState = {
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   cloneStep: (workflowId: string, stepIndex: number) => void;
-  upgradeStep: (workflowId: string, stepIndex: number, version: string) => void;
+  changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, stepIndex: number) => void;
 };
 
@@ -114,10 +114,10 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
-    upgradeStep: (workflowId, stepIndex, version) => {
+    changeStepVersion: (workflowId, stepIndex, version) => {
       return set((state) => {
         return {
-          yml: BitriseYmlService.upgradeStep(workflowId, stepIndex, version, state.yml),
+          yml: BitriseYmlService.changeStepVersion(workflowId, stepIndex, version, state.yml),
         };
       });
     },

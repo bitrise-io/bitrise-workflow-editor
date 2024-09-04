@@ -3,6 +3,7 @@ import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
+import StepService from '@/core/models/StepService';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
@@ -73,7 +74,7 @@ function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bitr
   return copy;
 }
 
-function upgradeStep(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
+function changeStepVersion(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
   const copy = deepCloneSimpleObject(yml);
 
   // If the workflow or step is missing in the YML just return the YML
@@ -83,8 +84,8 @@ function upgradeStep(workflowId: string, stepIndex: number, version: string, yml
 
   copy.workflows[workflowId].steps = copy.workflows[workflowId].steps.map((step, index) => {
     if (index === stepIndex) {
-      const [oldCvs, values] = Object.entries(step)[0];
-      const newCvs = oldCvs.includes('@') ? oldCvs.replace(/@.*/, `@${version}`) : `${oldCvs}@${version}`;
+      const [cvs, values] = Object.entries(step)[0];
+      const newCvs = StepService.createStepCVS(cvs, version);
       return { [newCvs]: values };
     }
     return step;
@@ -473,7 +474,7 @@ export default {
   addStep,
   moveStep,
   cloneStep,
-  upgradeStep,
+  changeStepVersion,
   deleteStep,
   createWorkflow,
   renameWorkflow,

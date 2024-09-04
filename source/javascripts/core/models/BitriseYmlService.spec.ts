@@ -301,7 +301,7 @@ describe('BitriseYmlService', () => {
     });
   });
 
-  describe('upgradeStep', () => {
+  describe('changeStepVersion', () => {
     it('should upgrade the step version at the given index', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
@@ -321,7 +321,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.upgradeStep('wf1', 1, '2.1.0', sourceYml);
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 1, '2.1.0', sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -343,7 +343,31 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.upgradeStep('wf1', 1, '2.0.0', sourceYml);
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 1, '2.0.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove the step version is empty string is given', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@1.0.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { clone: {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 1, '', sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -356,7 +380,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.upgradeStep('wf2', 1, '2.0.0', sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.changeStepVersion('wf2', 1, '2.0.0', sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
@@ -369,7 +393,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.upgradeStep('wf1', 3, '2.0.0', sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 3, '2.0.0', sourceAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
