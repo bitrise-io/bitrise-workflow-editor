@@ -263,18 +263,6 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   return copy;
 }
 
-function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].envs[index] = envVar;
-
-  return copy;
-}
-
 function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -287,14 +275,14 @@ function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: Bitris
   return copy;
 }
 
-function deleteWorkflowEnvVar(workflowId: string, index: number, yml: BitriseYml): BitriseYml {
+function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   if (!copy.workflows?.[workflowId]?.envs?.[index]) {
     return copy;
   }
 
-  copy.workflows[workflowId].envs.splice(index, 1);
+  copy.workflows[workflowId].envs[index] = envVar;
 
   return copy;
 }
@@ -307,6 +295,18 @@ function moveWorkflowEnvVar(workflowId: string, from: number, to: number, yml: B
   }
 
   copy.workflows[workflowId].envs.splice(to, 0, copy.workflows[workflowId].envs.splice(from, 1)[0]);
+
+  return copy;
+}
+
+function deleteWorkflowEnvVar(workflowId: string, index: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs.splice(index, 1);
 
   return copy;
 }
@@ -454,6 +454,6 @@ export default {
   updateStackAndMachine,
   appendWorkflowEnvVar,
   updateWorkflowEnvVar,
-  deleteWorkflowEnvVar,
   moveWorkflowEnvVar,
+  deleteWorkflowEnvVar,
 };

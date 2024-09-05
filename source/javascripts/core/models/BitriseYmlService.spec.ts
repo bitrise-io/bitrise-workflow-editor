@@ -170,17 +170,24 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
 
-    it('should return the original BitriseYml if destination index is out of range', () => {
-      const sourceAndExpectedYml: BitriseYml = {
+    it('should move the step to the bound if destination is out of range', () => {
+      const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
           wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
         },
       };
 
-      const actualYml = BitriseYmlService.moveStep('wf1', 2, 3, sourceAndExpectedYml);
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ clone: {} }, { deploy: {} }, { script: {} }] },
+        },
+      };
 
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.moveStep('wf1', 0, 4, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
 
@@ -1003,6 +1010,110 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('moveWorkflowEnvVar', () => {
+    it('should move envVar to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO3: 'bar3', opts: { is_expand: true } },
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 2, 0, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf2', 2, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if source is out of range', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 3, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should move the env to the bound if destination is out of range', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 1, 4, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
   describe('deleteWorkflowEnvVar', () => {
     it('should delete the env at the given index', () => {
       const sourceYml: BitriseYml = {
@@ -1058,97 +1169,6 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.deleteWorkflowEnvVar('wf1', 1, sourceYmlAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
-    });
-  });
-
-  describe('moveWorkflowEnvVar', () => {
-    it('should move envVar to the expected place', () => {
-      const sourceYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            envs: [
-              { FOO: 'bar', opts: { is_expand: false } },
-              { FOO2: 'bar2', opts: { is_expand: true } },
-              { FOO3: 'bar3', opts: { is_expand: true } },
-            ],
-          },
-        },
-      };
-
-      const expectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            envs: [
-              { FOO3: 'bar3', opts: { is_expand: true } },
-              { FOO: 'bar', opts: { is_expand: false } },
-              { FOO2: 'bar2', opts: { is_expand: true } },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 2, 0, sourceYml);
-
-      expect(actualYml).toMatchBitriseYml(expectedYml);
-    });
-
-    it('should return the original BitriseYml if workflow does not exist', () => {
-      const sourceAndExpectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            envs: [
-              { FOO: 'bar', opts: { is_expand: false } },
-              { FOO2: 'bar2', opts: { is_expand: true } },
-              { FOO3: 'bar3', opts: { is_expand: true } },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf2', 2, 0, sourceAndExpectedYml);
-
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-    });
-
-    it('should return the original BitriseYml if from is out of range', () => {
-      const sourceAndExpectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            envs: [
-              { FOO: 'bar', opts: { is_expand: false } },
-              { FOO2: 'bar2', opts: { is_expand: true } },
-              { FOO3: 'bar3', opts: { is_expand: true } },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 3, 0, sourceAndExpectedYml);
-
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
-    });
-
-    it('should return the original BitriseYml if destination to is out of range', () => {
-      const sourceAndExpectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            envs: [
-              { FOO: 'bar', opts: { is_expand: false } },
-              { FOO2: 'bar2', opts: { is_expand: true } },
-              { FOO3: 'bar3', opts: { is_expand: true } },
-            ],
-          },
-        },
-      };
-
-      const actualYml = BitriseYmlService.moveStep('wf1', 2, 3, sourceAndExpectedYml);
-
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
   });
 });
