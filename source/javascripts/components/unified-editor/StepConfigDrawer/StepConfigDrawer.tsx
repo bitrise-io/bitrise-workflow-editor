@@ -13,6 +13,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Icon,
   IconButton,
   Tab,
   TabList,
@@ -23,33 +24,53 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import StepBadge from '@/components/StepBadge';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import defaultIcon from '@/../images/step/icon-default.svg';
+import VersionUtils from '@/core/utils/VersionUtils';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
 import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 
-type Props = UseDisclosureProps & {
-  stepIndex: number;
-  workflowId: string;
-};
-
 const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>('configuration');
-  const { data } = useStepDrawerContext();
-  const { mergedValues, resolvedInfo } = data ?? {};
+  const { workflowId, stepIndex, data: step } = useStepDrawerContext();
+  const { mergedValues, resolvedInfo } = step ?? {};
+
+  const { changeStepVersion, cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
+    changeStepVersion: s.changeStepVersion,
+    cloneStep: s.cloneStep,
+    deleteStep: s.deleteStep,
+  }));
+
+  const handleSave = () => {
+    onClose();
+  };
+
+  const handleUpdateStep = () => {
+    changeStepVersion(workflowId, stepIndex, VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''));
+  };
+
+  const handleCloneStep = () => {
+    cloneStep(workflowId, stepIndex);
+    onClose();
+  };
+
+  const handleDelete = () => {
+    deleteStep(workflowId, stepIndex);
+    onClose();
+  };
+
+  const handleCloseComplete = () => {
+    setSelectedTab('configuration');
+  };
 
   const stepHasOutputVariables = (mergedValues?.outputs?.length ?? 0) > 0;
 
   return (
     <Tabs tabId={selectedTab} onChange={(_, tabId) => setSelectedTab(tabId)}>
-      <Drawer
-        isFullHeight
-        isOpen={isOpen}
-        onClose={onClose}
-        autoFocus={false}
-        onCloseComplete={() => setSelectedTab('configuration')}
-      >
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} autoFocus={false} onCloseComplete={handleCloseComplete}>
         <DrawerOverlay
           top={0}
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
@@ -70,8 +91,8 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
                 size="48"
-                src={resolvedInfo?.icon || ''}
-                name={resolvedInfo?.title || ''}
+                src={resolvedInfo?.icon || defaultIcon}
+                name={resolvedInfo?.title || 'Step'}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
@@ -90,10 +111,17 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   />
                 </Box>
 
-                <Box h="20px" display="flex" gap="8" alignItems="center">
-                  <Text textStyle="body/md/regular" color="text/secondary">
-                    {resolvedInfo?.resolvedVersion}
-                  </Text>
+                <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
+                  <Text>{resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
+                  {resolvedInfo?.isUpgradable && (
+                    <>
+                      <Icon size="16" marginInlineStart="8" name="StepUpgrade" />
+                      <Text textStyle="body/sm/regular" cursor="pointer" onClick={handleUpdateStep}>
+                        Newer version available
+                        {resolvedInfo?.latestVersion ? `: ${resolvedInfo.latestVersion}` : ''}
+                      </Text>
+                    </>
+                  )}
                 </Box>
               </Box>
 
@@ -104,15 +132,23 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                     iconName="ArrowUp"
                     variant="secondary"
                     aria-label="Update to latest step version"
+                    onClick={handleUpdateStep}
                   />
                 )}
-                <IconButton size="sm" variant="secondary" iconName="Duplicate" aria-label="Clone this step" />
+                <IconButton
+                  size="sm"
+                  variant="secondary"
+                  iconName="Duplicate"
+                  aria-label="Clone this step"
+                  onClick={handleCloneStep}
+                />
                 <IconButton
                   size="sm"
                   variant="secondary"
                   iconName="MinusRemove"
                   aria-label="Remove this step"
                   isDanger
+                  onClick={handleDelete}
                 />
               </ButtonGroup>
             </Box>
@@ -141,7 +177,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
           </DrawerBody>
           <DrawerFooter p="32" boxShadow="large">
             <ButtonGroup spacing={16}>
-              <Button>Done</Button>
+              <Button onClick={handleSave}>Done</Button>
               <Button variant="secondary" onClick={onClose}>
                 Cancel
               </Button>
@@ -151,6 +187,11 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
       </Drawer>
     </Tabs>
   );
+};
+
+type Props = UseDisclosureProps & {
+  workflowId: string;
+  stepIndex: number;
 };
 
 const StepConfigDrawer = ({ workflowId, stepIndex, ...disclosureProps }: Props) => {

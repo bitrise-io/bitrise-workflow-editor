@@ -3,7 +3,7 @@ function isWebsiteMode() {
 }
 
 function isLocalMode() {
-  return process.env.MODE?.toLowerCase() === 'cli';
+  return !isWebsiteMode();
 }
 
 export default {

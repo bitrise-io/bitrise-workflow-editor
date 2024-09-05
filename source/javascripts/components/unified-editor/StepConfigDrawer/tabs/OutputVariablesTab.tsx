@@ -21,6 +21,7 @@ const OutputVariablesTab = () => {
       {mergedValues?.outputs?.map(({ opts, ...output }, index) => {
         const isLast = index === (mergedValues?.outputs?.length ?? 0) - 1;
         const [key] = Object.entries(output)[0];
+        const variable = `$${key}`;
 
         return (
           <Fragment key={key}>
@@ -29,14 +30,14 @@ const OutputVariablesTab = () => {
                 <Input
                   type="text"
                   label={opts?.title || 'Output variable'}
-                  value={key}
+                  value={variable}
                   isReadOnly
                   rightAddon={
                     <IconButton
                       variant="secondary"
                       iconName="Duplicate"
                       aria-label="Copy variable name"
-                      onClick={() => copy(key)}
+                      onClick={() => copy(variable)}
                     />
                   }
                   rightAddonPlacement="inside"
