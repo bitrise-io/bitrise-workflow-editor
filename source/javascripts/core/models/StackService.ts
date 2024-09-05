@@ -5,24 +5,22 @@ function getOsOfStack(stack: Stack): string {
 }
 
 function getStackById(stacks: Stack[], id: string): Stack | undefined {
-  if (!id) {
-    return;
-  }
-
-  return (
-    stacks.find((stack) => stack.id === id) ?? {
-      id,
-      name: id,
-      machineTypes: [],
-    }
-  );
+  return stacks.find((stack) => stack.id === id);
 }
 
 function selectStack(stacks: Stack[], stackId: string, defaultStackId: string): Stack | undefined {
+  // - If YML contains a valid stack
   const selectedStack = getStackById(stacks, stackId);
   if (selectedStack) {
     return selectedStack;
   }
+
+  // - If YML contains an invalid stack
+  if (stackId) {
+    return { id: stackId, name: stackId, machineTypes: [] };
+  }
+
+  // - If YMl not contains stack info, but default stack is available
   const defaultStack = getStackById(stacks, defaultStackId);
   if (defaultStack) {
     return { ...defaultStack, id: '' };
