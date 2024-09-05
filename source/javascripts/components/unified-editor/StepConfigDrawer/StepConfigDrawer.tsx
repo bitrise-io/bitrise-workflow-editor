@@ -54,6 +54,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
 
   const handleCloneStep = () => {
     cloneStep(workflowId, stepIndex);
+    onClose();
   };
 
   const handleDelete = () => {
