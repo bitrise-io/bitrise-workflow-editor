@@ -116,7 +116,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   {resolvedInfo?.isUpgradable && (
                     <>
                       <Icon size="16" marginInlineStart="8" name="StepUpgrade" />
-                      <Text textStyle="body/sm/regular" onClick={handleUpdateStep}>
+                      <Text textStyle="body/sm/regular" cursor="pointer" onClick={handleUpdateStep}>
                         Newer version available
                         {resolvedInfo?.latestVersion ? `: ${resolvedInfo.latestVersion}` : ''}
                       </Text>
