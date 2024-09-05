@@ -2,6 +2,7 @@ import omit from 'lodash/omit';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
+import mapKeys from 'lodash/mapKeys';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import { EnvVarYml } from './EnvVar';
@@ -82,14 +83,12 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
     return copy;
   }
 
-  copy.workflows[workflowId].steps = copy.workflows[workflowId].steps.map((step, index) => {
-    if (index === stepIndex) {
-      const [cvs, values] = Object.entries(step)[0];
-      const newCvs = StepService.createStepCVS(cvs, version);
-      return { [newCvs]: values };
-    }
-    return step;
-  });
+  copy.workflows[workflowId].steps[stepIndex] = mapKeys(
+    copy.workflows[workflowId].steps[stepIndex],
+    (_: any, cvs: string) => {
+      return StepService.createStepCVS(cvs, version);
+    },
+  );
 
   return copy;
 }
