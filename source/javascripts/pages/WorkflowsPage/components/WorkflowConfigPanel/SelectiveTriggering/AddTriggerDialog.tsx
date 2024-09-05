@@ -1,6 +1,6 @@
 import { useEffect, useMemo } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, Text, Tooltip } from '@bitrise/bitkit';
-import { useFieldArray, useForm } from 'react-hook-form';
+import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { FormItems, PushConditionType, TriggerItem } from '../../../../TriggersPage/TriggersPage.types';
 import { ConditionCard } from '../../../../TriggersPage/AddPushTriggerDialog';
 import { checkIsConditionsUsed } from '../../../../TriggersPage/TriggersPage.utils';
@@ -50,7 +50,7 @@ const AddTriggerDialog = (props: AddTriggerDialogProps) => {
     reset(defaultValues);
   }, [reset, defaultValues, isOpen, editedItem]);
 
-  const { conditions } = watch();
+  const conditions = watch('conditions') || [];
 
   const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
@@ -96,55 +96,57 @@ const AddTriggerDialog = (props: AddTriggerDialogProps) => {
   };
 
   return (
-    <Dialog
-      as="form"
-      isOpen={isOpen}
-      onClose={onFormCancel}
-      title={isEditMode ? 'Edit trigger' : 'Add push trigger'}
-      maxWidth="480"
-      onSubmit={handleSubmit(onFormSubmit)}
-    >
-      <DialogBody>
-        <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-          Set up the trigger conditions that should all be met to execute the WORKFLOW NAME Workflow.{' '}
-        </Text>
-        {fields.map((item, index) => {
-          return (
-            <ConditionCard conditionNumber={index} key={item.id}>
-              {index > 0 && (
-                <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
-                  Remove
-                </Button>
-              )}
-            </ConditionCard>
-          );
-        })}
-        <Button
-          variant="secondary"
-          leftIconName="PlusAdd"
-          width="100%"
-          onClick={onAppend}
-          isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
-        >
-          Add condition
-        </Button>
-      </DialogBody>
-      <DialogFooter>
-        <Button onClick={onFormCancel} variant="tertiary" marginInlineEnd="auto">
-          Cancel
-        </Button>
-        <Tooltip
-          isDisabled={!isConditionsUsed && !hasEmptyCondition}
-          label={
-            isConditionsUsed
-              ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
-              : 'Please fill all conditions.'
-          }
-        >
-          <Button type="submit">Add trigger</Button>
-        </Tooltip>
-      </DialogFooter>
-    </Dialog>
+    <FormProvider {...formMethods}>
+      <Dialog
+        as="form"
+        isOpen={isOpen}
+        onClose={onFormCancel}
+        title={isEditMode ? 'Edit trigger' : 'Add push trigger'}
+        maxWidth="480"
+        onSubmit={handleSubmit(onFormSubmit)}
+      >
+        <DialogBody>
+          <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
+            Set up the trigger conditions that should all be met to execute the WORKFLOW NAME Workflow.{' '}
+          </Text>
+          {fields.map((item, index) => {
+            return (
+              <ConditionCard conditionNumber={index} key={item.id}>
+                {index > 0 && (
+                  <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
+                    Remove
+                  </Button>
+                )}
+              </ConditionCard>
+            );
+          })}
+          <Button
+            variant="secondary"
+            leftIconName="PlusAdd"
+            width="100%"
+            onClick={onAppend}
+            isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
+          >
+            Add condition
+          </Button>
+        </DialogBody>
+        <DialogFooter>
+          <Button onClick={onFormCancel} variant="tertiary" marginInlineEnd="auto">
+            Cancel
+          </Button>
+          <Tooltip
+            isDisabled={!isConditionsUsed && !hasEmptyCondition}
+            label={
+              isConditionsUsed
+                ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
+                : 'Please fill all conditions.'
+            }
+          >
+            <Button type="submit">Add trigger</Button>
+          </Tooltip>
+        </DialogFooter>
+      </Dialog>
+    </FormProvider>
   );
 };
 
