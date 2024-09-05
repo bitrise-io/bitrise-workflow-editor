@@ -1,11 +1,9 @@
 import { useState } from 'react';
 import { Button, ExpandableCard, Link, Notification, TabPanel, Text, useDisclosure } from '@bitrise/bitkit';
 import { WorkflowConfigTab } from '../WorkflowConfigPanel.types';
-import AddPushTriggerDialog from '../../../../TriggersPage/AddPushTriggerDialog';
-import AddPrTriggerDialog from '../../../../TriggersPage/AddPrTriggerDialog';
-import AddTagTriggerDialog from '../../../../TriggersPage/AddTagTriggerDialog';
 import { FinalTriggerItem, TriggersPageProps, convertTriggerMapToItems } from '../../../../TriggersPage/TriggersPage';
 import { SourceType, TriggerItem } from '../../../../TriggersPage/TriggersPage.types';
+import AddTriggerDialog from '../SelectiveTriggering/AddTriggerDialog';
 
 const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
   const triggerMap: FinalTriggerItem[] = Object.values(triggers)
@@ -117,31 +115,11 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
           Add tag trigger
         </Button>
       </ExpandableCard>
-      <AddPushTriggerDialog
+      <AddTriggerDialog
         currentTriggers={triggers.push}
         onClose={onCloseDialog}
         isOpen={isPushTriggerDialogOpen}
         onSubmit={onTriggersChange}
-        editedItem={editedItem}
-        pipelines={pipelines}
-        workflows={workflows}
-      />
-      <AddPrTriggerDialog
-        currentTriggers={triggers.pull_request}
-        isOpen={isPrTriggerDialogOpen}
-        onClose={onCloseDialog}
-        onSubmit={onTriggersChange}
-        editedItem={editedItem}
-        pipelines={pipelines}
-        workflows={workflows}
-      />
-      <AddTagTriggerDialog
-        currentTriggers={triggers.tag}
-        isOpen={isTagTriggerDialogOpen}
-        onClose={onCloseDialog}
-        onSubmit={onTriggersChange}
-        pipelines={pipelines}
-        workflows={workflows}
         editedItem={editedItem}
       />
     </TabPanel>

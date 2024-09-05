@@ -44,7 +44,7 @@ const getLabelText = (isRegex: boolean, type: PushConditionType): string => {
   return LABEL_MAP[type];
 };
 
-type ConditionCardProps = {
+export type ConditionCardProps = {
   children: ReactNode;
   conditionNumber: number;
 };
@@ -55,7 +55,7 @@ const OPTIONS_MAP: Record<PushConditionType, string> = {
   changed_files: 'File change',
 };
 
-const ConditionCard = (props: ConditionCardProps) => {
+export const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
