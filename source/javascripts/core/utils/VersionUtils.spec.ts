@@ -2,8 +2,8 @@ import VersionUtils from './VersionUtils';
 
 describe('VersionUtils', () => {
   describe('normalizeVersion', () => {
-    it('should normalize version with major.minor.patch', () => {
-      expect(VersionUtils.normalizeVersion('1.2.3')).toBe('1.2.x');
+    it('should return the exact version as is', () => {
+      expect(VersionUtils.normalizeVersion('1.2.3')).toBe('1.2.3');
     });
 
     it('should normalize version with major.minor', () => {

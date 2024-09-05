@@ -9,7 +9,11 @@ function normalizeVersion(version?: string) {
     return '';
   }
 
-  if (/^\d+(\.\d+)*$/g.test(version)) {
+  if (EXACT_VERSION.test(version)) {
+    return version;
+  }
+
+  if (/^\d+(\.\d+)?$/g.test(version)) {
     const match = version.split('.');
     const major = match[0];
     const minor = match[1] || 'x';
