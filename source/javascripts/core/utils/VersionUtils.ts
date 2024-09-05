@@ -51,14 +51,12 @@ function getNormalizedVersions(versions?: string[]): string[] {
   });
 }
 
-function resolveVersion(
-  version: string | undefined,
-  opts: {
-    latestVersion: string;
-    availableVersions?: string[];
-  },
-) {
-  const { latestVersion, availableVersions = [] } = opts;
+function resolveVersion(version: string | undefined, availableVersions: string[] = []) {
+  if (availableVersions.length === 0) {
+    return version || '';
+  }
+
+  const latestVersion = semver.sort([...availableVersions]).pop();
 
   if (!version) {
     return latestVersion;
@@ -68,8 +66,7 @@ function resolveVersion(
     return version;
   }
 
-  const normalizedVersion = normalizeVersion(version) || latestVersion;
-
+  const normalizedVersion = normalizeVersion(version) || latestVersion || '*';
   return semver.maxSatisfying(availableVersions, normalizedVersion);
 }
 

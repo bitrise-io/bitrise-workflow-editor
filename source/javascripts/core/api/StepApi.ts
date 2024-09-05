@@ -138,14 +138,8 @@ async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
     filters: `id:${id}`,
   });
   const availableVersions = results.map((step) => step.version).filter(Boolean) as string[];
-  const latestVersion = results[0].latest_version_number;
   return (results.map((step) => toStep(cvs, step, availableVersions)).filter(Boolean) as Step[]).find(
-    ({ resolvedInfo }) =>
-      resolvedInfo?.resolvedVersion ===
-      VersionUtils.resolveVersion(version, {
-        latestVersion,
-        availableVersions,
-      }),
+    ({ resolvedInfo }) => resolvedInfo?.resolvedVersion === VersionUtils.resolveVersion(version, availableVersions),
   );
 }
 

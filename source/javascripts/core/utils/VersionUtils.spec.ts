@@ -72,75 +72,35 @@ describe('VersionUtils', () => {
 
   describe('resolveVersion', () => {
     it('should return exact version, if exact version is given', () => {
-      expect(
-        VersionUtils.resolveVersion('1.2.3', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('1.2.3');
+      expect(VersionUtils.resolveVersion('1.2.3', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('1.2.3');
     });
 
     it('should return the max satisfying version if major.minor is given', () => {
-      expect(
-        VersionUtils.resolveVersion('1.2', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('1.2.7');
+      expect(VersionUtils.resolveVersion('1.2', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('1.2.7');
     });
 
     it('should return the max satisfying version if major.minor.x is given', () => {
-      expect(
-        VersionUtils.resolveVersion('1.2.x', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('1.2.7');
+      expect(VersionUtils.resolveVersion('1.2.x', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('1.2.7');
     });
 
     it('should return the max satisfying version if only major is given', () => {
-      expect(
-        VersionUtils.resolveVersion('1', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('1.3.0');
+      expect(VersionUtils.resolveVersion('1', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('1.3.0');
     });
 
     it('should return the max satisfying version if major.x is given', () => {
-      expect(
-        VersionUtils.resolveVersion('1.x', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('1.3.0');
+      expect(VersionUtils.resolveVersion('1.x', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('1.3.0');
     });
 
     it('should return the max satisfying version if major.x.x is given', () => {
-      expect(
-        VersionUtils.resolveVersion('1.x.x', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('1.3.0');
+      expect(VersionUtils.resolveVersion('1.x.x', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('1.3.0');
     });
 
     it('should return the latest version if version is undefined', () => {
-      expect(
-        VersionUtils.resolveVersion(undefined, {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('2.0.0');
+      expect(VersionUtils.resolveVersion(undefined, ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('2.0.0');
     });
 
     it('should return the latest version if version is empty string', () => {
-      expect(
-        VersionUtils.resolveVersion('', {
-          latestVersion: '2.0.0',
-          availableVersions: ['1.2.3', '1.2.7', '1.3.0', '2.0.0'],
-        }),
-      ).toBe('2.0.0');
+      expect(VersionUtils.resolveVersion('', ['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe('2.0.0');
     });
   });
 
