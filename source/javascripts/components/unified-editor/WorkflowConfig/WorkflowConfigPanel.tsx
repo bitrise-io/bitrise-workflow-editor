@@ -14,7 +14,14 @@ const WorkflowConfigPanelContent = () => {
   const form = useFormContext<FormValues>();
   const originalName = form.formState.defaultValues?.properties?.name ?? '';
   const [, setSearchParams] = useSearchParams();
-  const updateWorkflow = useBitriseYmlStore(useShallow((s) => s.updateWorkflow));
+
+  const { updateWorkflow, updateStackAndMachine } = useBitriseYmlStore(
+    useShallow((s) => ({
+      updateWorkflow: s.updateWorkflow,
+      updateStackAndMachine: s.updateStackAndMachine,
+    })),
+  );
+
   const renameWorkflow = useRenameWorkflow((newWorkflowId) => {
     setSearchParams((searchParams) => ({
       ...searchParams,
@@ -22,10 +29,13 @@ const WorkflowConfigPanelContent = () => {
     }));
   });
 
-  const handleChange = form.handleSubmit(({ properties: { name, ...properties } }) => {
-    updateWorkflow(originalName, properties);
-    renameWorkflow(name);
-  });
+  const handleChange = form.handleSubmit(
+    ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId } }) => {
+      updateStackAndMachine(originalName, stackId, machineTypeId);
+      updateWorkflow(originalName, properties);
+      renameWorkflow(name);
+    },
+  );
 
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">

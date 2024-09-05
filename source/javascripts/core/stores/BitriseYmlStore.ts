@@ -19,6 +19,7 @@ type BitriseYmlStoreState = {
     parentWorkflowId: string,
     placement: ChainedWorkflowPlacement,
   ) => void;
+  updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
     parentWorkflowId: string,
@@ -80,6 +81,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.addChainedWorkflow(chainableWorkflowId, parentWorkflowId, placement, state.yml),
+        };
+      });
+    },
+    updateStackAndMachine(workflowId, stack, machineTypeId) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStackAndMachine(workflowId, stack, machineTypeId, state.yml),
         };
       });
     },
