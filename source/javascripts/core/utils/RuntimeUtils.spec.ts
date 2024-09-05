@@ -1,6 +1,22 @@
 import RuntimeUtils from './RuntimeUtils';
 
 describe('RuntimeUtils', () => {
+  let originalMode: string | undefined;
+
+  beforeAll(() => {
+    // Save the original process.env.MODE value
+    originalMode = process.env.MODE;
+  });
+
+  afterAll(() => {
+    // Restore the original process.env.MODE value
+    if (originalMode === undefined) {
+      delete process.env.MODE;
+    } else {
+      process.env.MODE = originalMode;
+    }
+  });
+
   describe('isWebsiteMode', () => {
     it('should return true if MODE is website', () => {
       process.env.MODE = 'website';
