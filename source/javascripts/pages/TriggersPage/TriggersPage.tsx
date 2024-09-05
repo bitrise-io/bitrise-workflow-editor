@@ -39,7 +39,7 @@ import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
 
-type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
+export type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
 
 const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
   const triggerMap: FinalTriggerItem[] = Object.values(triggers)
@@ -77,7 +77,7 @@ const getSourceType = (triggerKeys: string[], type?: SourceType): SourceType => 
   return 'pull_request';
 };
 
-const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<SourceType, TriggerItem[]> => {
+export const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<SourceType, TriggerItem[]> => {
   const triggers: Record<SourceType, TriggerItem[]> = {
     pull_request: [],
     push: [],
@@ -127,7 +127,7 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
 
-type TriggersPageProps = {
+export type TriggersPageProps = {
   integrationsUrl?: string;
   isWebsiteMode: boolean;
   onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;

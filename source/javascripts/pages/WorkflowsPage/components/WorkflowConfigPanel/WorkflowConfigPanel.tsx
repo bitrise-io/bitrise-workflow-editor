@@ -9,6 +9,7 @@ import Header from './components/Header';
 import { FormValues, WorkflowConfigTab } from './WorkflowConfigPanel.types';
 import PropertiesTabPanel from './components/PropertiesTabPanel';
 import ConfigurationTabPanel from './components/ConfigurationTabPanel';
+import TriggersTabPanel from './components/TriggersTabPanel';
 
 type Props = {
   yml: BitriseYml;
@@ -52,10 +53,12 @@ const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, yml, default
           <TabList px="8">
             <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
             <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
+            <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>
           </TabList>
           <TabPanels>
             <ConfigurationTabPanel />
             <PropertiesTabPanel />
+            <TriggersTabPanel />
           </TabPanels>
         </Tabs>
       </form>
