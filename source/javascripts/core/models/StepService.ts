@@ -38,8 +38,9 @@ function parseStepCVS(
   if (/^git::/g.test(cvs)) {
     return { library: 'git', id: id.replace('.git', ''), version };
   }
+
   // Example: https://github.com/bitrise-io/bitrise-steplib.git::script@1
-  // Example: https://github.com/foo/bar-steplib.git::steo@1
+  // Example: https://github.com/foo/bar-steplib.git::step@1
   if (/^https?:\/\/.+::(.+)/g.test(cvs)) {
     const [library, stepId] = source.split('::');
     return { library, id: stepId, version };
