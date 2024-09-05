@@ -1,8 +1,7 @@
 import { useState } from 'react';
 import { Box, Button, Dialog, DialogBody, DialogFooter, EmptyState, Link, Notification, Text } from '@bitrise/bitkit';
-import { useMutation } from '@tanstack/react-query';
-import { Secret, SecretWithState } from '@/models';
-import { monolith } from '@/hooks/api/client';
+import { Secret } from '@/core/models/Secret';
+import { useDeleteSecret } from '@/hooks/useSecrets';
 import SecretCard from './SecretCard';
 
 type SecretsPageProps = {
@@ -32,11 +31,13 @@ const SecretsPage = (props: SecretsPageProps) => {
     isError: deleteError,
     isPending: deleteLoading,
     reset: resetDelete,
-  } = useMutation({
-    mutationFn: (key: string) => monolith.delete(`/apps/${appSlug}/secrets/${key}`),
-    onSuccess(_resp, key) {
-      resetDelete();
-      afterDelete(key);
+  } = useDeleteSecret({
+    appSlug,
+    options: {
+      onSuccess: (_, key) => {
+        resetDelete();
+        afterDelete(key);
+      },
     },
   });
 
@@ -44,7 +45,7 @@ const SecretsPage = (props: SecretsPageProps) => {
     .filter((secret) => secret.isShared)
     .map((secret) => ({ ...secret, isEditing: false, isSaved: true }));
 
-  const [appSecretList, setAppSecretList] = useState<SecretWithState[]>(
+  const [appSecretList, setAppSecretList] = useState<Secret[]>(
     secrets.filter((s) => !s.isShared).map((secret) => ({ ...secret, isEditing: false, isSaved: true })),
   );
 
@@ -82,7 +83,7 @@ const SecretsPage = (props: SecretsPageProps) => {
     setDeleteId(null);
   };
 
-  const handleSave = (changedSecret: SecretWithState) => {
+  const handleSave = (changedSecret: Secret) => {
     const newAppSecretList = appSecretList.map((secret) => {
       return !secret.isSaved || secret.key === changedSecret.key
         ? { ...changedSecret, isEditing: false, isSaved: true }
@@ -104,7 +105,6 @@ const SecretsPage = (props: SecretsPageProps) => {
         isExpose: false,
         isKeyChangeable: false,
         isShared: false,
-
         isEditing: true,
         isSaved: false,
       },
