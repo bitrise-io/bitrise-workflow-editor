@@ -2,7 +2,9 @@ import omit from 'lodash/omit';
 import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
+import mapKeys from 'lodash/mapKeys';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
+import StepService from '@/core/models/StepService';
 import { EnvVarYml } from './EnvVar';
 import { BitriseYml, Meta } from './BitriseYml';
 import { StagesYml } from './Stage';
@@ -54,6 +56,57 @@ function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseY
   if (copy.stages) copy.stages = renameWorkflowInStages(workflowId, newWorkflowId, copy.stages);
   if (copy.pipelines) copy.pipelines = renameWorkflowInPipelines(workflowId, newWorkflowId, copy.pipelines);
   if (copy.trigger_map) copy.trigger_map = renameWorkflowInTriggerMap(workflowId, newWorkflowId, copy.trigger_map);
+
+  return copy;
+}
+
+function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const clonedIndex = stepIndex + 1;
+  const clonedStep = copy.workflows[workflowId].steps[stepIndex];
+  copy.workflows[workflowId].steps.splice(clonedIndex, 0, clonedStep);
+
+  return copy;
+}
+
+function changeStepVersion(workflowId: string, stepIndex: number, version: string, yml: BitriseYml) {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].steps[stepIndex] = mapKeys(
+    copy.workflows[workflowId].steps[stepIndex],
+    (_: any, cvs: string) => {
+      return StepService.createStepCVS(cvs, version);
+    },
+  );
+
+  return copy;
+}
+
+function deleteStep(workflowId: string, stepIndex: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].steps.splice(stepIndex, 1);
+
+  // If the steps are empty, remove it
+  if (isEmpty(copy.workflows[workflowId].steps)) {
+    delete copy.workflows[workflowId].steps;
+  }
 
   return copy;
 }
@@ -263,6 +316,18 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   return copy;
 }
 
+function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
+
+  return copy;
+}
+
 function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -275,14 +340,26 @@ function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarY
   return copy;
 }
 
-function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+function moveWorkflowEnvVar(workflowId: string, from: number, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.workflows?.[workflowId]) {
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.envs?.[from]) {
     return copy;
   }
 
-  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
+  copy.workflows[workflowId].envs.splice(to, 0, copy.workflows[workflowId].envs.splice(from, 1)[0]);
+
+  return copy;
+}
+
+function deleteWorkflowEnvVar(workflowId: string, index: number, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs.splice(index, 1);
 
   return copy;
 }
@@ -419,15 +496,20 @@ function deleteWorkflowFromTriggerMap(workflowId: string, triggerMap: TriggerMap
 export default {
   addStep,
   moveStep,
+  cloneStep,
+  changeStepVersion,
+  deleteStep,
+  createWorkflow,
   renameWorkflow,
   updateWorkflow,
-  createWorkflow,
   deleteWorkflow,
   deleteWorkflows,
-  addChainedWorkflow,
   setChainedWorkflows,
+  addChainedWorkflow,
   deleteChainedWorkflow,
   updateStackAndMachine,
   appendWorkflowEnvVar,
   updateWorkflowEnvVar,
+  moveWorkflowEnvVar,
+  deleteWorkflowEnvVar,
 };

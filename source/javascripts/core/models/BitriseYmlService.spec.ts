@@ -170,17 +170,24 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
     });
 
-    it('should return the original BitriseYml if destination index is out of range', () => {
-      const sourceAndExpectedYml: BitriseYml = {
+    it('should move the step to the bound if destination is out of range', () => {
+      const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
           wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
         },
       };
 
-      const actualYml = BitriseYmlService.moveStep('wf1', 2, 3, sourceAndExpectedYml);
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ clone: {} }, { deploy: {} }, { script: {} }] },
+        },
+      };
 
-      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+      const actualYml = BitriseYmlService.moveStep('wf1', 0, 4, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
 
@@ -248,6 +255,222 @@ describe('BitriseYmlService', () => {
 
         expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
       });
+    });
+  });
+
+  describe('cloneStep', () => {
+    it('should clone a step to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { clone: {} }, { clone: {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStep('wf1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if workflow is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStep('wf2', 1, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if step on is not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.cloneStep('wf1', 5, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
+  describe('changeStepVersion', () => {
+    it('should upgrade the step version at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@1.0.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@2.1.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 1, '2.1.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should append version if the step does not have one', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ script: {} }, { 'clone@2.0.0': {} }, { deploy: {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 1, '2.0.0', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove the step version is empty string is given', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { 'clone@1.0.0': {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'script@1.0.0': {} }, { clone: {} }, { 'deploy@1.0.0': {} }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 1, '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersion('wf2', 1, '2.0.0', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the step does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.changeStepVersion('wf1', 3, '2.0.0', sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+  });
+
+  describe('deleteStep', () => {
+    it('should delete the step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStep('wf1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStep('wf2', 1, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original YML if the step does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }, { clone: {} }, { deploy: {} }] },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStep('wf1', 3, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should remove the steps property if it becomes empty after deletion', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: { steps: [{ script: {} }] },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteStep('wf1', 0, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
 
@@ -998,6 +1221,168 @@ describe('BitriseYmlService', () => {
         },
         sourceYmlAndExpectedYml,
       );
+
+      expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
+    });
+  });
+
+  describe('moveWorkflowEnvVar', () => {
+    it('should move envVar to the expected place', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO3: 'bar3', opts: { is_expand: true } },
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 2, 0, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original BitriseYml if workflow does not exist', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf2', 2, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should return the original BitriseYml if source is out of range', () => {
+      const sourceAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 3, 0, sourceAndExpectedYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceAndExpectedYml);
+    });
+
+    it('should move the env to the bound if destination is out of range', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO3: 'bar3', opts: { is_expand: true } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.moveWorkflowEnvVar('wf1', 1, 4, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('deleteWorkflowEnvVar', () => {
+    it('should delete the env at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { FOO: 'bar', opts: { is_expand: false } },
+              { FOO2: 'bar2', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ FOO: 'bar', opts: { is_expand: false } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteWorkflowEnvVar('wf1', 1, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('returns the original if the workflow is missing', () => {
+      const sourceYmlAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ abc: 'def', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteWorkflowEnvVar('wf2', 0, sourceYmlAndExpectedYml);
+      expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
+    });
+
+    it('returns the original if the index is out of bound', () => {
+      const sourceYmlAndExpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ abc: 'def', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.deleteWorkflowEnvVar('wf1', 1, sourceYmlAndExpectedYml);
 
       expect(actualYml).toMatchBitriseYml(sourceYmlAndExpectedYml);
     });
