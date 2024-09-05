@@ -13,6 +13,7 @@ import {
   Box,
   Button,
   ButtonGroup,
+  Icon,
   IconButton,
   Tab,
   TabList,
@@ -45,6 +46,14 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
 
   const handleSave = () => {
     onClose();
+  };
+
+  const handleUpdateStep = () => {
+    changeStepVersion(workflowId, stepIndex, VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''));
+  };
+
+  const handleCloneStep = () => {
+    cloneStep(workflowId, stepIndex);
   };
 
   const handleDelete = () => {
@@ -101,10 +110,17 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   />
                 </Box>
 
-                <Box h="20px" display="flex" gap="8" alignItems="center">
-                  <Text textStyle="body/md/regular" color="text/secondary">
-                    {resolvedInfo?.resolvedVersion || 'Always latest'}
-                  </Text>
+                <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
+                  <Text>{resolvedInfo?.resolvedVersion || 'Always latest'}</Text>
+                  {resolvedInfo?.isUpgradable && (
+                    <>
+                      <Icon size="16" marginInlineStart="8" name="StepUpgrade" />
+                      <Text textStyle="body/sm/regular" onClick={handleUpdateStep}>
+                        Newer version available
+                        {resolvedInfo?.latestVersion ? `: ${resolvedInfo.latestVersion}` : ''}
+                      </Text>
+                    </>
+                  )}
                 </Box>
               </Box>
 
@@ -115,13 +131,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                     iconName="ArrowUp"
                     variant="secondary"
                     aria-label="Update to latest step version"
-                    onClick={() =>
-                      changeStepVersion(
-                        workflowId,
-                        stepIndex,
-                        VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''),
-                      )
-                    }
+                    onClick={handleUpdateStep}
                   />
                 )}
                 <IconButton
@@ -129,7 +139,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   variant="secondary"
                   iconName="Duplicate"
                   aria-label="Clone this step"
-                  onClick={() => cloneStep(workflowId, stepIndex)}
+                  onClick={handleCloneStep}
                 />
                 <IconButton
                   size="sm"
