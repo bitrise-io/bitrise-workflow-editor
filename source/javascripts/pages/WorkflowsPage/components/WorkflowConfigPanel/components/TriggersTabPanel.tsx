@@ -31,9 +31,9 @@ const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): 
 };
 
 const TriggersTabPanel = (props: TriggersPageProps) => {
-  const { workflows, pipelines } = props;
+  const { workflows, pipelines, triggerMap, onTriggerMapChange } = props;
 
-  const [editedItem, setEditedItem] = useState();
+  const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
   const [triggers, setTriggers] = useState<Record<SourceType, TriggerItem[]>>(
     convertTriggerMapToItems(triggerMap || []),
   );

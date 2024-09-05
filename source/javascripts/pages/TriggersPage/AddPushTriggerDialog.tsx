@@ -221,10 +221,8 @@ const AddPushTriggerDialog = (props: DialogProps) => {
         onSubmit={handleSubmit(onFormSubmit)}
       >
         <DialogBody>
-          <Box marginBottom="24">
-            <ProgressIndicator variant="horizontal" stages={dialogStages} activeStageIndex={activeStageIndex} />
-          </Box>
-          <Divider marginBottom="24" />
+          <ProgressIndicator variant="horizontal" stages={dialogStages} activeStageIndex={activeStageIndex} />
+          <Divider marginY="24" />
           {activeStageIndex === 0 ? (
             <>
               <Text color="text/primary" textStyle="heading/h3" marginBottom="4">
