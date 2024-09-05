@@ -64,26 +64,14 @@ const StackAndMachineCard = () => {
   const isInvalidMachineSelected = machineTypeId && machines.every((m) => m.id !== machineTypeId);
 
   useEffect(() => {
-    if (isLoading || isMachineTypeSelectorDisabled || isInvalidMachineSelected) {
+    if (isLoading || isMachineTypeSelectorDisabled) {
       return;
     }
 
-    const isDefaultStackSelected = !stackId || stackId === defaultStackId;
-    const isMachineAvailableOnStack = selectedStack?.machineTypes.includes(machineTypeId);
-
-    if (machineTypeId && !isMachineAvailableOnStack) {
-      setValue('configuration.machineTypeId', isDefaultStackSelected ? '' : selectedStack?.machineTypes[0] || '');
+    if (machineTypeId !== selectedMachine?.id) {
+      setValue('configuration.machineTypeId', selectedMachine?.id || '');
     }
-  }, [
-    stackId,
-    setValue,
-    isLoading,
-    machineTypeId,
-    defaultStackId,
-    isInvalidMachineSelected,
-    selectedStack?.machineTypes,
-    isMachineTypeSelectorDisabled,
-  ]);
+  }, [isLoading, isMachineTypeSelectorDisabled, machineTypeId, selectedMachine?.id, setValue]);
 
   return (
     <ExpandableCard
