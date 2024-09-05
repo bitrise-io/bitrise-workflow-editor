@@ -1,3 +1,5 @@
+import { PartialDeep } from 'type-fest';
+import merge from 'lodash/merge';
 import { Stack } from '@/core/models/Stack';
 import { Meta } from '@/core/models/BitriseYml';
 import { WorkflowYmlObject } from '@/core/models/Workflow';
@@ -37,6 +39,17 @@ function getMachineOfWorkflow({
   return workflowMachine || getMachineFromMeta(machines, meta);
 }
 
+function createMachineType(machineType: PartialDeep<MachineType>): MachineType {
+  const baseMachineType: MachineType = {
+    id: '',
+    name: '',
+    creditCost: 0,
+    specs: { cpu: { chip: '', cpuCount: '', cpuDescription: '' }, ram: '' },
+  };
+
+  return merge({}, baseMachineType, machineType);
+}
+
 // Machine type selection depends on whether the requested machine type is available on the selected stack
 function selectMachineType(
   selectableMachines: MachineType[],
@@ -45,7 +58,7 @@ function selectMachineType(
   isSelectionDisabled: boolean,
 ): MachineType | undefined {
   if (isSelectionDisabled) {
-    return undefined;
+    return createMachineType({ id: selectedMachineTypeId });
   }
 
   // - If the selected machine type is available, returns the selectedMachineTypeId, and the corresponding machine
@@ -54,20 +67,15 @@ function selectMachineType(
     return requestedMachine;
   }
 
-  // - If the selected machine type is not available, but not empty that means there it an invalid machine type in the YML
+  // - If the selected machine type is not available, but not empty that means there is an invalid machine type in the YML
   if (selectedMachineTypeId) {
-    return {
-      creditCost: 0,
-      id: selectedMachineTypeId,
-      name: selectedMachineTypeId,
-      specs: { cpu: { chip: '', cpuCount: '', cpuDescription: '' }, ram: '' },
-    };
+    return createMachineType({ id: selectedMachineTypeId, name: selectedMachineTypeId });
   }
 
   // - If the selected machine type is empty, but the default machine type is available, returns '' and the default machine
   const defaultMachine = getMachineById(selectableMachines, defaultMachineTypeId);
   if (defaultMachine) {
-    return { ...defaultMachine, id: '' };
+    return createMachineType({ ...defaultMachine, id: '' });
   }
 
   // - If the both the selected machine type and the default machine type are not available, returns the first selectable machine's id and the first selectable machine

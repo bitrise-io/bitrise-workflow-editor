@@ -64,24 +64,24 @@ const StackAndMachineCard = () => {
   const isInvalidMachineSelected = machineTypeId && machines.every((m) => m.id !== machineTypeId);
 
   useEffect(() => {
-    if (isLoading) {
+    if (isLoading || isMachineTypeSelectorDisabled || isInvalidMachineSelected) {
       return;
     }
 
-    const stack = StackService.selectStack(stacks, stackId, defaultStackId);
-    if (isMachineTypeSelectorDisabled) {
-      setValue('configuration.machineTypeId', '');
-    } else if (stack?.machineTypes.length && !stack.machineTypes.includes(machineTypeId) && !isInvalidMachineSelected) {
-      setValue('configuration.machineTypeId', !stackId || stackId === defaultStackId ? '' : stack.machineTypes[0]);
+    const isDefaultStackSelected = !stackId || stackId === defaultStackId;
+    const isMachineAvailableOnStack = selectedStack?.machineTypes.includes(machineTypeId);
+
+    if (machineTypeId && !isMachineAvailableOnStack) {
+      setValue('configuration.machineTypeId', isDefaultStackSelected ? '' : selectedStack?.machineTypes[0] || '');
     }
   }, [
-    stacks,
     stackId,
     setValue,
     isLoading,
     machineTypeId,
     defaultStackId,
     isInvalidMachineSelected,
+    selectedStack?.machineTypes,
     isMachineTypeSelectorDisabled,
   ]);
 
@@ -112,12 +112,13 @@ const StackAndMachineCard = () => {
           label="Machine type"
           isLoading={isLoading}
           isDisabled={isMachineTypeSelectorDisabled}
-          errorText={isInvalidMachineSelected ? 'Invalid machine type' : undefined}
+          errorText={isInvalidMachineSelected && !isMachineTypeSelectorDisabled ? 'Invalid machine type' : undefined}
           {...register('configuration.machineTypeId')}
         >
-          {hasDedicatedMachine && <option value="">Dedicated Machine</option>}
-          {hasSelfHostedRunner && <option value="">Self-hosted Runner</option>}
-          {!hasDedicatedMachine && !hasSelfHostedRunner && (
+          {hasDedicatedMachine && <option value={machineTypeId}>Dedicated Machine</option>}
+          {hasSelfHostedRunner && <option value={machineTypeId}>Self-hosted Runner</option>}
+
+          {!isMachineTypeSelectorDisabled && (
             <>
               {defaultMachine && <option value="">Default ({defaultMachine.name})</option>}
               {machineTypeOptions.map(({ value, label }) => (
@@ -125,9 +126,9 @@ const StackAndMachineCard = () => {
                   {label}
                 </option>
               ))}
+              {isInvalidMachineSelected && <option value={machineTypeId}>{machineTypeId}</option>}
             </>
           )}
-          {isInvalidMachineSelected && <option value={machineTypeId}>{machineTypeId}</option>}
         </Select>
       </Box>
     </ExpandableCard>
