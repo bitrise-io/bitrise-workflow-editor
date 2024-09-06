@@ -8,9 +8,10 @@ import {
   convertTriggerMapToItems,
 } from '../SelectiveTriggering/SelectiveTriggeringFunctions';
 import { useUserMetaData } from '../../../../../hooks/useUserMetaData';
+import NewTriggerCard from '../SelectiveTriggering/NewTriggerCard';
 
 const TriggersTabPanel = (props: TriggersPageProps) => {
-  const { workflows, pipelines, triggerMap, onTriggerMapChange, isWebsiteMode } = props;
+  const { workflowId, pipelines, triggerMap, onTriggerMapChange, isWebsiteMode } = props;
 
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
   const [triggers, setTriggers] = useState<Record<SourceType, TriggerItem[]>>(
@@ -69,6 +70,8 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
         </Notification>
       )}
       <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>} marginBlockStart="24">
+        {triggers.push.length > 0 &&
+          triggers.push.map((triggerItem) => <NewTriggerCard key={triggerItem.id} triggerItem={triggerItem} />)}
         <Button variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add push trigger
         </Button>
@@ -89,7 +92,7 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
         isOpen={isOpen}
         onSubmit={onTriggersChange}
         editedItem={editedItem}
-        workflows={workflows}
+        workflowId={workflowId}
       />
     </TabPanel>
   );

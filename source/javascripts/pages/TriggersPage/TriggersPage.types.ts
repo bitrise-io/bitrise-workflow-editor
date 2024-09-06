@@ -1,3 +1,5 @@
+import { TypeIconName } from '@bitrise/bitkit';
+
 export type TagConditionType = 'tag';
 
 export type PushConditionType = 'push_branch' | 'commit_message' | 'changed_files';
@@ -50,4 +52,27 @@ export type TriggersPageProps = {
   setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
   triggerMap?: FinalTriggerItem[];
   workflows: string[];
+  workflowId?: string;
+};
+
+export const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, TypeIconName> = {
+  push_branch: 'Branch',
+  commit_message: 'Commit',
+  changed_files: 'Doc',
+  pull_request_source_branch: 'Pull',
+  pull_request_target_branch: 'Pull',
+  pull_request_label: 'Tag',
+  pull_request_comment: 'Chat',
+  tag: 'Tag',
+};
+
+export const toolTip: Record<PushConditionType | PrConditionType | TagConditionType, string> = {
+  push_branch: 'Push branch',
+  commit_message: 'Commit message',
+  changed_files: 'File change',
+  pull_request_source_branch: 'Source branch',
+  pull_request_target_branch: 'Target branch',
+  pull_request_label: 'PR label',
+  pull_request_comment: 'PR comment',
+  tag: 'Tag',
 };

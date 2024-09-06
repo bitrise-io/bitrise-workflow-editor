@@ -58,7 +58,17 @@ const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, yml, default
           <TabPanels>
             <ConfigurationTabPanel />
             <PropertiesTabPanel />
-            <TriggersTabPanel />
+            <TriggersTabPanel
+              isWebsiteMode={false}
+              onTriggerMapChange={() => {
+                console.log('onTriggerMapChange');
+              }}
+              pipelines={[]}
+              setDiscard={() => {
+                console.log('setDiscard');
+              }}
+              workflows={[]}
+            />
           </TabPanels>
         </Tabs>
       </form>

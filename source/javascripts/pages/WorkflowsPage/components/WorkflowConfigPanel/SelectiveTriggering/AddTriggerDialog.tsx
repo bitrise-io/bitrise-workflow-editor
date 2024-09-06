@@ -11,11 +11,11 @@ type AddTriggerDialogProps = {
   onClose: () => void;
   onSubmit: (action: 'add' | 'edit', trigger: TriggerItem) => void;
   editedItem?: TriggerItem;
-  workflows: string[];
+  workflowId: string;
 };
 
 const AddTriggerDialog = (props: AddTriggerDialogProps) => {
-  const { isOpen, onClose, currentTriggers, onSubmit, editedItem, workflows } = props;
+  const { isOpen, onClose, currentTriggers, onSubmit, editedItem, workflowId } = props;
 
   const defaultValues: FormItems = useMemo(() => {
     return {
@@ -108,7 +108,7 @@ const AddTriggerDialog = (props: AddTriggerDialogProps) => {
       >
         <DialogBody>
           <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-            Set up the trigger conditions that should all be met to execute the {workflows} Workflow.{' '}
+            Set up the trigger conditions that should all be met to execute the {workflowId} Workflow.{' '}
           </Text>
           {fields.map((item, index) => {
             return (
