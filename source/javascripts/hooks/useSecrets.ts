@@ -61,7 +61,7 @@ function useDeleteSecret({
   });
 }
 
-function useUpdateSecret({
+function useUpsertSecret({
   appSlug,
   options,
 }: {
@@ -69,9 +69,9 @@ function useUpdateSecret({
   options?: Omit<UseMutationOptions<Secret, DefaultError, Secret>, 'mutationFn'>;
 }) {
   return useMutation<Secret, DefaultError, Secret>({
-    mutationFn: (secret) => SecretApi.updateSecret({ appSlug, secret }),
+    mutationFn: (secret) => SecretApi.upsertSecret({ appSlug, secret }),
     ...options,
   });
 }
 
-export { useSecrets, useSecretValue, useDeleteSecret, useUpdateSecret };
+export { useSecrets, useSecretValue, useDeleteSecret, useUpsertSecret };
