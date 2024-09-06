@@ -97,6 +97,10 @@ const StackAndMachineCard = () => {
     }
   }, [shouldUpdateMachineType, selectedMachineType.id, setValue]);
 
+  if (!appSlug) {
+    return null;
+  }
+
   return (
     <ExpandableCard
       buttonContent={
