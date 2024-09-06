@@ -1,9 +1,10 @@
-import { useEffect } from 'react';
+import { useEffect, useMemo } from 'react';
 import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import useStacks from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/hooks/useStacks';
 import useMachineTypes from '@/pages/WorkflowsPage/components/WorkflowConfigPanel/hooks/useMachineTypes';
-import StackAndMachineService from '@/core/models/StackAndMachineService';
+import StackService from '@/core/models/StackService';
+import MachineTypeService from '@/core/models/MachineTypeService';
 import { FormValues } from '../WorkflowConfigPanel.types';
 
 type ButtonContentProps = {
@@ -13,8 +14,8 @@ type ButtonContentProps = {
 };
 const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentProps) => {
   return (
-    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" mr="16" minW={0}>
-      <Box display="flex" flexDir="column" alignItems="flex-start" minW={0}>
+    <Box display="flex" flex="1" alignItems="center" justifyContent="space-between" mr="16">
+      <Box display="flex" flexDir="column" alignItems="flex-start" minW="0">
         <Text textStyle="body/lg/semibold">Stack & Machine</Text>
         <Text textStyle="body/md/regular" color="text/secondary" hasEllipsis>
           {[stackName, machineTypeName].filter(Boolean).join(' • ')}
@@ -30,7 +31,7 @@ const ButtonContent = ({ stackName, machineTypeName, isDefault }: ButtonContentP
 };
 
 const StackAndMachineCard = () => {
-  const { watch, register, setValue, formState } = useFormContext<FormValues>();
+  const { watch, register, setValue } = useFormContext<FormValues>();
 
   const [appSlug = '', defaultStackId, defaultMachineTypeId, stackId, machineTypeId, canChangeMachineType] = watch([
     'appSlug',
@@ -41,85 +42,51 @@ const StackAndMachineCard = () => {
     'isMachineTypeSelectorAvailable',
   ]);
 
+  const isDefault = !stackId && !machineTypeId;
+  const isDedicatedMachine = !canChangeMachineType;
+  const isSelfHostedRunner = !defaultMachineTypeId;
+  const isMachineTypeSelectorDisabled = isDedicatedMachine || isSelfHostedRunner;
+
   const { isLoading: isStacksLoading, data: stacks = [] } = useStacks({
     appSlug,
   });
+
+  // All stack is selectable all the time
+  const defaultStack = StackService.getStackById(stacks, defaultStackId);
+  const selectedStack = StackService.selectStack(stacks, stackId, defaultStackId);
+  const stackOptions = useMemo(() => stacks.map(StackService.toStackOption), [stacks]);
 
   const { isLoading: isMachinesLoading, data: machines = [] } = useMachineTypes({
     appSlug,
     canChangeMachineType,
   });
 
-  const isDedicatedMachine = !canChangeMachineType;
-  const isSelfHostedRunner = !defaultMachineTypeId;
+  const selectableMachines = MachineTypeService.getMachinesOfStack(machines, selectedStack);
+  const machineTypeOptions = selectableMachines.map(MachineTypeService.toMachineOption);
+  const defaultMachine = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
+  const selectedMachine = MachineTypeService.selectMachineType(
+    selectableMachines,
+    machineTypeId,
+    defaultMachineTypeId,
+    isMachineTypeSelectorDisabled,
+  );
   const isLoading = isStacksLoading || isMachinesLoading;
-  const isStackSelectorTouched = Boolean(
-    formState.dirtyFields.configuration?.stackId || formState.touchedFields.configuration?.stackId,
-  );
-  const isMachineTypeSelectorTouched = Boolean(
-    formState.dirtyFields.configuration?.machineTypeId || formState.touchedFields.configuration?.machineTypeId,
-  );
-
-  const {
-    selectedStack,
-    availableStackOptions,
-    isInvalidInitialStack,
-    selectedMachineType,
-    availableMachineTypeOptions,
-    isInvalidInitialMachineType,
-    isMachineTypeSelectionDisabled,
-  } = StackAndMachineService.selectStackAndMachine({
-    defaultStackId,
-    defaultMachineId: defaultMachineTypeId,
-    availableStacks: stacks,
-    availableMachineTypes: machines,
-    hasDedicatedMachine: isDedicatedMachine,
-    hasSelfHostedRunner: isSelfHostedRunner,
-    selectedStackId: stackId,
-    selectedMachineTypeId: machineTypeId,
-    initialStackId: formState.defaultValues?.configuration?.stackId ?? '',
-    initialMachineTypeId: formState.defaultValues?.configuration?.machineTypeId ?? '',
-    isStackSelectorTouched,
-    isMachineTypeSelectorTouched,
-  });
-
-  const isDefault = !selectedStack.id && !selectedMachineType.id;
-  const shouldUpdateMachineType =
-    isStackSelectorTouched && !isLoading && !isMachineTypeSelectionDisabled && !isInvalidInitialMachineType;
-
-  useEffect(() => {
-    if (shouldUpdateMachineType) {
-      setValue('configuration.machineTypeId', selectedMachineType.id, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-    }
-  }, [shouldUpdateMachineType, selectedMachineType.id, setValue]);
 
   useEffect(() => {
     if (selectedStack && stackId !== selectedStack.id) {
-      setValue('configuration.stackId', selectedStack.id, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
+      setValue('configuration.stackId', selectedStack.id);
     }
   }, [stackId, selectedStack, setValue]);
 
   useEffect(() => {
-    if (isMachineTypeSelectionDisabled) {
+    if (isMachineTypeSelectorDisabled) {
       return;
     }
 
-    if (machineTypeId !== selectedMachineType.id) {
-      setValue('configuration.machineTypeId', selectedMachineType.id, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
+    if (selectedMachine && machineTypeId !== selectedMachine.id) {
+      setValue('configuration.machineTypeId', selectedMachine.id);
     }
-  }, [isMachineTypeSelectionDisabled, machineTypeId, selectedMachineType, setValue]);
+  }, [isMachineTypeSelectorDisabled, setValue, machineTypeId, selectedMachine]);
 
   if (!appSlug) {
     return null;
@@ -128,22 +95,19 @@ const StackAndMachineCard = () => {
   return (
     <ExpandableCard
       buttonContent={
-        <ButtonContent
-          isDefault={isDefault}
-          stackName={selectedStack.name}
-          machineTypeName={selectedMachineType.name}
-        />
+        <ButtonContent stackName={selectedStack?.name} machineTypeName={selectedMachine?.name} isDefault={isDefault} />
       }
     >
       <Box display="flex" flexDir="column" gap="24">
         <Select
-          isRequired
           label="Stack"
-          isLoading={isLoading}
-          errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
+          value={selectedStack?.id}
           {...register('configuration.stackId')}
+          isRequired
+          isLoading={isLoading}
         >
-          {availableStackOptions.map(({ value, label }) => (
+          <option value="">Default ({defaultStack?.name})</option>
+          {stackOptions.map(({ value, label }) => (
             <option key={value} value={value}>
               {label}
             </option>
@@ -153,15 +117,22 @@ const StackAndMachineCard = () => {
           isRequired
           label="Machine type"
           isLoading={isLoading}
-          isDisabled={isMachineTypeSelectionDisabled}
-          errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
+          isDisabled={isMachineTypeSelectorDisabled}
+          value={selectedMachine?.id}
           {...register('configuration.machineTypeId')}
         >
-          {availableMachineTypeOptions.map(({ value, label }) => (
-            <option key={value} value={value}>
-              {label}
-            </option>
-          ))}
+          {isDedicatedMachine && <option value="">Dedicated Machine</option>}
+          {isSelfHostedRunner && <option value="">Self-hosted Runner</option>}
+          {!isDedicatedMachine && !isSelfHostedRunner && (
+            <>
+              {defaultMachine && <option value="">Default ({defaultMachine.name})</option>}
+              {machineTypeOptions.map(({ value, label }) => (
+                <option key={value} value={value}>
+                  {label}
+                </option>
+              ))}
+            </>
+          )}
         </Select>
       </Box>
     </ExpandableCard>
