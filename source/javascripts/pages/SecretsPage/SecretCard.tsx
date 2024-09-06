@@ -22,7 +22,7 @@ import {
 
 import { useForm } from 'react-hook-form';
 import { useQueryClient } from '@tanstack/react-query';
-import { useSecretValue, useUpdateSecret } from '@/hooks/useSecrets';
+import { useSecretValue, useUpsertSecret } from '@/hooks/useSecrets';
 import { Secret } from '@/core/models/Secret';
 
 interface SecretCardProps extends CardProps {
@@ -63,7 +63,7 @@ const SecretCard = (props: SecretCardProps) => {
     isError: saveError,
     isPending: saveLoading,
     reset: resetSave,
-  } = useUpdateSecret({
+  } = useUpsertSecret({
     appSlug,
     options: {
       onSuccess(_, newSecret) {
