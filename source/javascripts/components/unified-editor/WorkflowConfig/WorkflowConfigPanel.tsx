@@ -1,6 +1,8 @@
+import { useEffect } from 'react';
 import { TabPanel, TabPanels, Tabs } from '@bitrise/bitkit';
-import { useFormContext } from 'react-hook-form';
+import { useFormContext, useWatch } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
+import omit from 'lodash/omit';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
@@ -12,8 +14,9 @@ import useRenameWorkflow from './hooks/useRenameWorkflow';
 
 const WorkflowConfigPanelContent = () => {
   const form = useFormContext<FormValues>();
-  const originalName = form.formState.defaultValues?.properties?.name ?? '';
   const [, setSearchParams] = useSearchParams();
+  const formValues = useWatch({ control: form.control });
+  const originalName = form.formState.defaultValues?.properties?.name ?? '';
 
   const { updateWorkflow, updateStackAndMachine } = useBitriseYmlStore(
     useShallow((s) => ({
@@ -29,18 +32,29 @@ const WorkflowConfigPanelContent = () => {
     }));
   });
 
-  const handleChange = form.handleSubmit(
-    ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId } }) => {
-      updateStackAndMachine(originalName, stackId, machineTypeId);
-      updateWorkflow(originalName, properties);
-      renameWorkflow(name);
-    },
-  );
+  useEffect(() => {
+    if (originalName) {
+      const { configuration, properties } = formValues;
+
+      if (configuration) {
+        const { stackId = '', machineTypeId = '' } = configuration;
+        updateStackAndMachine(originalName, stackId, machineTypeId);
+      }
+
+      if (properties) {
+        updateWorkflow(originalName, omit(properties, 'name'));
+      }
+
+      if (properties?.name) {
+        renameWorkflow(properties.name);
+      }
+    }
+  }, [formValues, originalName, renameWorkflow, updateStackAndMachine, updateWorkflow]);
 
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
       <WorkflowConfigHeader />
-      <TabPanels as="form" flex="1" minH="0" onChange={handleChange} onSubmit={handleChange}>
+      <TabPanels flex="1" minH="0">
         <TabPanel id={WorkflowConfigTab.CONFIGURATION} p="24" overflowY="auto" h="100%">
           <ConfigurationTab />
         </TabPanel>

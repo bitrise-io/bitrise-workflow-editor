@@ -15,11 +15,6 @@ function selectStack(stacks: Stack[], stackId: string, defaultStackId: string): 
     return selectedStack;
   }
 
-  // - If YML contains an invalid stack
-  if (stackId) {
-    return { id: stackId, name: stackId, machineTypes: [] };
-  }
-
   // - If YMl not contains stack info, but default stack is available
   const defaultStack = getStackById(stacks, defaultStackId);
   if (defaultStack) {
