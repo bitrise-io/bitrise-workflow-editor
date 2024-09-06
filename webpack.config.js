@@ -172,7 +172,7 @@ module.exports = {
     rules: [
       /* --- Javascript & TypeScript --- */
       {
-        test: /\.(stories|mswMocks)\.tsx?$/i,
+        test: /\.(stories|mswMocks?|mocks?)\.tsx?$/i,
         use: 'ignore-loader',
       },
       {

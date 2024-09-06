@@ -29,18 +29,22 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
 
-  const { renameWorkflow, updateWorkflow } = useBitriseYmlStore(
+  const { renameWorkflow, updateWorkflow, updateStackAndMachine } = useBitriseYmlStore(
     useShallow((s) => ({
       renameWorkflow: s.renameWorkflow,
       updateWorkflow: s.updateWorkflow,
+      updateStackAndMachine: s.updateStackAndMachine,
     })),
   );
 
-  const handleSubmit = form.handleSubmit(({ properties: { name, ...properties } }) => {
-    updateWorkflow(originalName, properties);
-    renameWorkflow(originalName, name);
-    onClose();
-  });
+  const handleSubmit = form.handleSubmit(
+    ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId } }) => {
+      updateStackAndMachine(originalName, stackId, machineTypeId);
+      updateWorkflow(originalName, properties);
+      renameWorkflow(originalName, name);
+      onClose();
+    },
+  );
 
   const handleCloseComplete = () => {
     setSelectedTab(WorkflowConfigTab.CONFIGURATION);

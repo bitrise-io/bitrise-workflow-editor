@@ -1,6 +1,8 @@
 import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
+import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+import { getAppSlug } from '@/services/app-service.mock';
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;
@@ -12,6 +14,7 @@ const meta: Meta<typeof WorkflowsPage> = {
   },
   parameters: {
     layout: 'fullscreen',
+    msw: { handlers: [getStacksAndMachines()] },
   },
   argTypes: {
     onChange: {
@@ -25,15 +28,38 @@ const meta: Meta<typeof WorkflowsPage> = {
   ),
 };
 
-export const CliMode: Story = {
+const cliStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'cli';
   },
 };
 
-export const WebsiteMode: Story = {
+const websiteStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'website';
+    getAppSlug.mockReturnValue(crypto.randomUUID());
+  },
+};
+
+export const CliMode: Story = {
+  ...cliStory,
+};
+
+export const WebsiteMode: Story = {
+  ...websiteStory,
+};
+
+export const DedicatedMachine: Story = {
+  ...websiteStory,
+  parameters: {
+    msw: { handlers: [getStacksAndMachines({ hasDedicatedMachine: true })] },
+  },
+};
+
+export const SelfHostedRunner: Story = {
+  ...websiteStory,
+  parameters: {
+    msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
   },
 };
 

@@ -64,13 +64,14 @@ const MockYml: BitriseYml = {
       ],
       meta: {
         'bitrise.io': {
-          stack: 'Ubuntu 20.04',
-          machine_type_id: 'Standard',
+          stack: 'stack-0',
+          machine_type_id: 'machine-1',
         },
       },
     },
     wf2: {
       steps: [{ 'save-cache@1.2.0': {} }, { 'script@1.1.5': {} }, { 'restore-cache@2.4.0': {} }],
+      meta: { 'bitrise.io': { stack: 'stack-invalid', machine_type_id: 'machine-invalid' } },
     },
     wf3: {
       before_run: ['_utility1'],
@@ -85,6 +86,7 @@ const MockYml: BitriseYml = {
       ],
       after_run: ['_utility2'],
       envs: [{ '!TEST': 'hello', opts: { is_expand: true } }],
+      meta: { 'bitrise.io': { machine_type_id: 'machine-invalid' } },
     },
     _utility1: {
       steps: [{ 'git-clone@8': { outputs: [{ title: 'Output' }] } }],
@@ -96,8 +98,8 @@ const MockYml: BitriseYml = {
   },
   meta: {
     'bitrise.io': {
-      stack: 'MacOS NextGen',
-      machine_type_id: 'M4 MAX Pro',
+      stack: 'stack-1',
+      machine_type_id: 'machine-2',
     },
   },
 };
