@@ -97,6 +97,30 @@ const StackAndMachineCard = () => {
     }
   }, [shouldUpdateMachineType, selectedMachineType.id, setValue]);
 
+  useEffect(() => {
+    if (selectedStack && stackId !== selectedStack.id) {
+      setValue('configuration.stackId', selectedStack.id, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+  }, [stackId, selectedStack, setValue]);
+
+  useEffect(() => {
+    if (isMachineTypeSelectionDisabled) {
+      return;
+    }
+
+    if (machineTypeId !== selectedMachineType.id) {
+      setValue('configuration.machineTypeId', selectedMachineType.id, {
+        shouldDirty: true,
+        shouldTouch: true,
+        shouldValidate: true,
+      });
+    }
+  }, [isMachineTypeSelectionDisabled, machineTypeId, selectedMachineType, setValue]);
+
   if (!appSlug) {
     return null;
   }
