@@ -2,6 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getAllStacks } from '@/core/api/StackApi.mswMocks';
 import { getAllMachineTypes } from '@/core/api/MachineTypeApi.mswMocks';
+import { makeNotificationMetadataEndpoint } from '../../../../components/ConfigurationYmlSource/ConfigurationYmlSource.mswMocks';
 import WorkflowConfigPanel from './WorkflowConfigPanel';
 
 export default {
@@ -27,7 +28,7 @@ export default {
   },
   parameters: {
     msw: {
-      handlers: [getAllStacks(), getAllMachineTypes()],
+      handlers: [getAllStacks(), getAllMachineTypes(), ...makeNotificationMetadataEndpoint()],
     },
   },
 } as Meta<typeof WorkflowConfigPanel>;

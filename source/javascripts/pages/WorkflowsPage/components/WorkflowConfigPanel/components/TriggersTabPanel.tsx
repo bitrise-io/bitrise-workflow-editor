@@ -7,9 +7,10 @@ import {
   convertItemsToTriggerMap,
   convertTriggerMapToItems,
 } from '../SelectiveTriggering/SelectiveTriggeringFunctions';
+import { useUserMetaData } from '../../../../../hooks/useUserMetaData';
 
 const TriggersTabPanel = (props: TriggersPageProps) => {
-  const { workflows, pipelines, triggerMap, onTriggerMapChange } = props;
+  const { workflows, pipelines, triggerMap, onTriggerMapChange, isWebsiteMode } = props;
 
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
   const [triggers, setTriggers] = useState<Record<SourceType, TriggerItem[]>>(
@@ -22,6 +23,11 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
     onClose();
     setEditedItem(undefined);
   };
+
+  const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
+    key: 'selective_triggering_notification_closed',
+    enabled: isWebsiteMode,
+  });
 
   const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
     const newTriggers = { ...triggers };
@@ -50,17 +56,19 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
 
   return (
     <TabPanel id={WorkflowConfigTab.TRIGGERS}>
-      <Notification status="info" marginY="24">
-        <Text textStyle="heading/h4">Workflow based triggers</Text>
-        <Text>
-          Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
-          Workflows or Pipelines.{' '}
-          <Link href="https://devcenter.bitrise.io/" isUnderlined>
-            Learn more
-          </Link>
-        </Text>
-      </Notification>
-      <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
+      {isNotificationVisible && (
+        <Notification status="info" onClose={closeNotification} marginBlockStart="24">
+          <Text textStyle="heading/h4">Workflow based triggers</Text>
+          <Text>
+            Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
+            Workflows or Pipelines.{' '}
+            <Link href="https://devcenter.bitrise.io/" isUnderlined>
+              Learn more
+            </Link>
+          </Text>
+        </Notification>
+      )}
+      <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>} marginBlockStart="24">
         <Button variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add push trigger
         </Button>
