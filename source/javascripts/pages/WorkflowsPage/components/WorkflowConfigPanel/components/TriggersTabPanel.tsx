@@ -1,32 +1,12 @@
 import { useState } from 'react';
 import { Button, ExpandableCard, Link, Notification, TabPanel, Text, useDisclosure } from '@bitrise/bitkit';
 import { WorkflowConfigTab } from '../WorkflowConfigPanel.types';
-import { FinalTriggerItem, TriggersPageProps, convertTriggerMapToItems } from '../../../../TriggersPage/TriggersPage';
-import { SourceType, TriggerItem } from '../../../../TriggersPage/TriggersPage.types';
+import { SourceType, TriggerItem, TriggersPageProps } from '../../../../TriggersPage/TriggersPage.types';
 import AddTriggerDialog from '../SelectiveTriggering/AddTriggerDialog';
-
-const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
-  const triggerMap: FinalTriggerItem[] = Object.values(triggers)
-    .flat()
-    .map((trigger) => {
-      const finalItem: FinalTriggerItem = {};
-      trigger.conditions.forEach(({ isRegex, type, value }) => {
-        finalItem[type] = isRegex ? { regex: value } : value;
-      });
-      if (!trigger.isActive) {
-        finalItem.enabled = false;
-      }
-      if (trigger.source === 'pull_request' && !trigger.isDraftPr) {
-        finalItem.draft_pull_request_enabled = false;
-      }
-      finalItem.type = trigger.source;
-      const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
-      finalItem[pipelinableType] = pipelinableName;
-      return finalItem;
-    });
-
-  return triggerMap;
-};
+import {
+  convertItemsToTriggerMap,
+  convertTriggerMapToItems,
+} from '../SelectiveTriggering/SelectiveTriggeringFunctions';
 
 const TriggersTabPanel = (props: TriggersPageProps) => {
   const { workflows, pipelines, triggerMap, onTriggerMapChange } = props;
@@ -36,24 +16,10 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
     convertTriggerMapToItems(triggerMap || []),
   );
 
-  const {
-    isOpen: isPushTriggerDialogOpen,
-    onOpen: openPushTriggerDialog,
-    onClose: closePushTriggerDialog,
-  } = useDisclosure();
-
-  const { isOpen: isPrTriggerDialogOpen, onOpen: openPrTriggerDialog, onClose: closePrTriggerDialog } = useDisclosure();
-
-  const {
-    isOpen: isTagTriggerDialogOpen,
-    onOpen: openTagTriggerDialog,
-    onClose: closeTagTriggerDialog,
-  } = useDisclosure();
+  const { isOpen, onOpen, onClose } = useDisclosure();
 
   const onCloseDialog = () => {
-    closePushTriggerDialog();
-    closePrTriggerDialog();
-    closeTagTriggerDialog();
+    onClose();
     setEditedItem(undefined);
   };
 
@@ -73,19 +39,13 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
     onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
   };
 
-  const onPushTriggerEdit = (trigger: TriggerItem) => {
+  const onEdit = (trigger: TriggerItem) => {
     setEditedItem(trigger);
-    openPushTriggerDialog();
+    onOpen();
   };
 
-  const onPrTriggerEdit = (trigger: TriggerItem) => {
-    setEditedItem(trigger);
-    openPrTriggerDialog();
-  };
-
-  const onTagTriggerEdit = (trigger: TriggerItem) => {
-    setEditedItem(trigger);
-    openTagTriggerDialog();
+  const handleOpen = () => {
+    onOpen();
   };
 
   return (
@@ -101,26 +61,27 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
         </Text>
       </Notification>
       <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
-        <Button variant="secondary" onClick={openPushTriggerDialog} leftIconName="PlusAdd">
+        <Button variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add push trigger
         </Button>
       </ExpandableCard>
       <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>} marginY="12">
-        <Button variant="secondary" onClick={openPrTriggerDialog} leftIconName="PlusAdd">
+        <Button variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add pull request trigger
         </Button>
       </ExpandableCard>
       <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
-        <Button variant="secondary" onClick={openTagTriggerDialog} leftIconName="PlusAdd">
+        <Button variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add tag trigger
         </Button>
       </ExpandableCard>
       <AddTriggerDialog
         currentTriggers={triggers.push}
         onClose={onCloseDialog}
-        isOpen={isPushTriggerDialogOpen}
+        isOpen={isOpen}
         onSubmit={onTriggersChange}
         editedItem={editedItem}
+        workflows={workflows}
       />
     </TabPanel>
   );

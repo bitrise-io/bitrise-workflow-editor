@@ -39,3 +39,15 @@ export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   isDraftPr?: boolean;
   isActive: boolean;
 }
+
+export type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
+
+export type TriggersPageProps = {
+  integrationsUrl?: string;
+  isWebsiteMode: boolean;
+  onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
+  pipelines: string[];
+  setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
+  triggerMap?: FinalTriggerItem[];
+  workflows: string[];
+};
