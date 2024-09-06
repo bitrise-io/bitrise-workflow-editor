@@ -85,7 +85,7 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
 
   copy.workflows[workflowId].steps[stepIndex] = mapKeys(
     copy.workflows[workflowId].steps[stepIndex],
-    (_: any, cvs: string) => {
+    (_, cvs: string) => {
       return StepService.createStepCVS(cvs, version);
     },
   );

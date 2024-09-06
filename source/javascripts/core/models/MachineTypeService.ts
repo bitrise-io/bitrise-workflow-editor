@@ -54,7 +54,7 @@ function selectMachineType(
     return requestedMachine;
   }
 
-  // - If the selected machine type is not available, but the default machine type is available, returns '' and the default machine
+  // - If the selected machine type is empty, but the default machine type is available, returns '' and the default machine
   const defaultMachine = getMachineById(selectableMachines, defaultMachineTypeId);
   if (defaultMachine) {
     return { ...defaultMachine, id: '' };

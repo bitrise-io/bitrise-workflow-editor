@@ -9,10 +9,13 @@ function getStackById(stacks: Stack[], id: string): Stack | undefined {
 }
 
 function selectStack(stacks: Stack[], stackId: string, defaultStackId: string): Stack | undefined {
+  // - If YML contains a valid stack
   const selectedStack = getStackById(stacks, stackId);
   if (selectedStack) {
     return selectedStack;
   }
+
+  // - If YMl not contains stack info, but default stack is available
   const defaultStack = getStackById(stacks, defaultStackId);
   if (defaultStack) {
     return { ...defaultStack, id: '' };
