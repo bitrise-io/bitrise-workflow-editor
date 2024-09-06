@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
+import { createContext, PropsWithChildren, useContext, useLayoutEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useWorkflow from '@/hooks/useWorkflow';
 import { Workflow } from '@/core/models/Workflow';
@@ -13,7 +13,7 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
   const workflow = useMemo(() => wf, [wf]);
   const form = useForm<FormValues>({ mode: 'all' });
 
-  useEffect(() => {
+  useLayoutEffect(() => {
     form.reset({
       properties: {
         name: workflow?.id,
