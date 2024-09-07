@@ -12,6 +12,7 @@ import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
 import { PipelinesYml } from './Pipeline';
+import { StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -72,6 +73,34 @@ function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bitr
   const clonedIndex = stepIndex + 1;
   const clonedStep = copy.workflows[workflowId].steps[stepIndex];
   copy.workflows[workflowId].steps.splice(clonedIndex, 0, clonedStep);
+
+  return copy;
+}
+
+function updateStep(
+  workflowId: string,
+  stepIndex: number,
+  step: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const [cvs, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0];
+
+  mapValues(step, (value: string, key: never) => {
+    if (value) {
+      stepYmlObject[key] = value as never;
+    } else {
+      delete stepYmlObject[key];
+    }
+  });
+
+  copy.workflows[workflowId].steps[stepIndex] = { [cvs]: stepYmlObject };
 
   return copy;
 }
@@ -487,6 +516,7 @@ export default {
   addStep,
   moveStep,
   cloneStep,
+  updateStep,
   changeStepVersion,
   deleteStep,
   createWorkflow,

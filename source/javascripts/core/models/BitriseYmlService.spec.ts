@@ -307,6 +307,92 @@ describe('BitriseYmlService', () => {
     });
   });
 
+  describe('updateStep', () => {
+    it('should update the step at the given index', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'old title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'new title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: 'new title' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete the step property if it is empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'old title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'step-id@1.0.0': { source_code_url: 'https://source.code' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: '' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should return the original YML if the workflow or step does not exist', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'step-id@1.0.0': { title: 'old title' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStep('wf2', 0, { title: 'new title' }, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(sourceYml);
+    });
+  });
+
   describe('changeStepVersion', () => {
     it('should upgrade the step version at the given index', () => {
       const sourceYml: BitriseYml = {
