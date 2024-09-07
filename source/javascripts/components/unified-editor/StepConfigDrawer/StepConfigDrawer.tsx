@@ -8,6 +8,7 @@ import {
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
+import semver from 'semver';
 import {
   Avatar,
   Box,
@@ -53,7 +54,14 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   }));
 
   const handleUpdateStep = () => {
-    changeStepVersion(workflowId, stepIndex, VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''));
+    const updatedVersion = semver
+      .major(VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''))
+      .toString();
+    form.setValue('properties.version', updatedVersion, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
   };
 
   const handleCloneStep = () => {
