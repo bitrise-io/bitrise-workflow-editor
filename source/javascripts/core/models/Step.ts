@@ -38,24 +38,26 @@ type Step = {
   defaultValues?: StepYmlObject; // The defaults are coming from the step.yml file loaded from the API
   userValues?: StepYmlObject; // The values are coming from the bitrise.yml file defined by the user
   mergedValues?: StepYmlObject; // the merged values of the defaults and user values
-  resolvedInfo?: {
-    id: string;
-    cvs: string;
-    icon?: string;
-    title?: string;
-    version: string; // 2 || 2.1 || 2.1.6
-    normalizedVersion: string; // 2.x.x
-    resolvedVersion?: string; // 2.1.6
-    latestVersion?: string; // 2.1.9
-    versions?: string[];
-    isLatest?: boolean;
-    isUpgradable?: boolean;
-    isOfficial?: boolean;
-    isVerified?: boolean;
-    isCommunity?: boolean;
-    isDeprecated?: boolean;
-  };
+  resolvedInfo?: ResolvedStepInfo;
 };
+
+type ResolvedStepInfo = Partial<{
+  id: string;
+  title: string;
+  icon: string;
+  version: string; // 2 || 2.1 || 2.1.6
+  normalizedVersion: string; // 2.x.x
+  resolvedVersion: string; // 2.1.6
+  latestVersion: string; // 2.1.9
+  versions: string[]; // ['2.1.6', '2.1.7', '2.1.8', '2.1.9']
+  isLatest: boolean;
+  isUpgradable: boolean;
+  isOfficial: boolean;
+  isVerified: boolean;
+  isCommunity: boolean;
+  isDeprecated: boolean;
+}>;
+
 type VariableOpts = Partial<{
   title: string;
   summary: string;
@@ -86,6 +88,7 @@ export {
   StepBundleYmlObject,
   WithGroupYmlObject,
   Step,
+  ResolvedStepInfo,
   StepVariable,
   StepInputVariable,
   StepOutputVariable,
