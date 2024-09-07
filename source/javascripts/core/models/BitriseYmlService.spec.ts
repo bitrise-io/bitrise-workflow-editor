@@ -341,12 +341,12 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: 'new title' }, sourceYml);
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: 'new title' }, {}, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
-    it('should delete the step property if it is empty', () => {
+    it('should delete the property if the new value is empty', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
         workflows: {
@@ -372,7 +372,44 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: '' }, sourceYml);
+      const actualYml = BitriseYmlService.updateStep('wf1', 0, { title: '' }, {}, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should delete the property if it is the default value', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [
+              {
+                'step-id@1.0.0': {
+                  title: 'default title',
+                  source_code_url: 'https://source.code',
+                },
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            steps: [{ 'step-id@1.0.0': { source_code_url: 'https://source.code' } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateStep(
+        'wf1',
+        0,
+        { title: 'default title' },
+        { title: 'default title' },
+        sourceYml,
+      );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
@@ -387,7 +424,7 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const actualYml = BitriseYmlService.updateStep('wf2', 0, { title: 'new title' }, sourceYml);
+      const actualYml = BitriseYmlService.updateStep('wf2', 0, { title: 'new title' }, {}, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(sourceYml);
     });

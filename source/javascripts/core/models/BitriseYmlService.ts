@@ -80,7 +80,8 @@ function cloneStep(workflowId: string, stepIndex: number, yml: BitriseYml): Bitr
 function updateStep(
   workflowId: string,
   stepIndex: number,
-  step: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
   yml: BitriseYml,
 ): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -92,10 +93,10 @@ function updateStep(
 
   const [cvs, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0];
 
-  mapValues(step, (value: string, key: never) => {
-    if (value) {
-      stepYmlObject[key] = value as never;
-    } else {
+  mapValues(newValues, (value: string, key: never) => {
+    stepYmlObject[key] = value as never;
+
+    if (value === '' || value === undefined || value === null || value === defaultValues[key]) {
       delete stepYmlObject[key];
     }
   });
