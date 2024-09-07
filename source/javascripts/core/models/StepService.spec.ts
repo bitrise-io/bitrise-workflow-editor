@@ -463,6 +463,30 @@ describe('StepService', () => {
       ]);
     });
 
+    it('should return the exact step version', () => {
+      const step = {
+        cvs: 'script@1',
+        resolvedInfo: {
+          cvs: 'script@1',
+          id: 'script',
+          version: '1.1.0',
+          icon: '',
+          normalizedVersion: '1.1.0',
+          versions: ['1.0.0', '1.1.0', '2.0.0', '2.2.2'],
+        },
+      };
+      expect(StepService.getSelectableVersions(step)).toStrictEqual([
+        { value: '', label: 'Always latest' },
+        { value: '2.2.x', label: '2.2.x - Patch updates only' },
+        { value: '2.0.x', label: '2.0.x - Patch updates only' },
+        { value: '2.x.x', label: '2.x.x - Minor and patch updates' },
+        { value: '1.1.x', label: '1.1.x - Patch updates only' },
+        { value: '1.0.x', label: '1.0.x - Patch updates only' },
+        { value: '1.x.x', label: '1.x.x - Minor and patch updates' },
+        { value: '1.1.0', label: '1.1.0 - Version in bitrise.yml' },
+      ]);
+    });
+
     it('should return "Always latest" if no versions are available', () => {
       const step = {
         cvs: 'script',

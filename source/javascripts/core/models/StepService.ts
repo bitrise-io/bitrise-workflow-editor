@@ -128,6 +128,12 @@ function getSelectableVersions(step?: Step): Array<{ value: string; label: strin
       })),
     );
   }
+  if (step?.resolvedInfo?.version && /\d+\.\d+\.\d+/g.test(step.resolvedInfo.version)) {
+    results.push({
+      value: step.resolvedInfo.version,
+      label: `${step.resolvedInfo.version} - ${VersionUtils.getVersionRemark(step.resolvedInfo.version)}`,
+    });
+  }
 
   return results;
 }

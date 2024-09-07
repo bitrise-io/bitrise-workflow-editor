@@ -15,13 +15,8 @@ function groupStepInputs(inputs?: StepInputVariable[]) {
 }
 
 const ConfigurationTab = () => {
-  const { data, isLoading } = useStepDrawerContext();
+  const { data } = useStepDrawerContext();
   const { mergedValues } = data ?? {};
-
-  // TODO loading state
-  if (isLoading) {
-    return <>Loading...</>;
-  }
 
   return (
     <Box display="flex" flexDir="column" gap="12">

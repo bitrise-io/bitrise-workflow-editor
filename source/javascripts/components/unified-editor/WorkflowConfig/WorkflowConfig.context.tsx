@@ -18,8 +18,8 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
     form.reset({
       properties: {
         name: workflow?.id,
-        summary: workflow?.userValues?.summary || '',
-        description: workflow?.userValues?.description || '',
+        summary: workflow?.userValues?.summary ?? '',
+        description: workflow?.userValues?.description ?? '',
       },
       configuration: {
         stackId: workflow?.userValues.meta?.['bitrise.io']?.stack || '',
