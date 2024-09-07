@@ -39,7 +39,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const [selectedTab, setSelectedTab] = useState<string | undefined>(StepConfigTab.CONFIGURATION);
 
   const { workflowId, stepIndex, data: step } = useStepDrawerContext();
-  const { mergedValues, resolvedInfo = {} } = step ?? {};
+  const { mergedValues, defaultValues, resolvedInfo = {} } = step ?? {};
   const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
 
   const form = useFormContext<FormValues>();
@@ -66,11 +66,13 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
     onClose();
   };
 
-  const handleSave = form.handleSubmit(({ properties: { name, version } }) => {
-    updateStep(workflowId, stepIndex, { title: name });
-    changeStepVersion(workflowId, stepIndex, version);
-    onClose();
-  });
+  const handleSave = form.handleSubmit(
+    ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if } }) => {
+      updateStep(workflowId, stepIndex, { title: name, is_always_run, is_skippable, run_if }, defaultValues || {});
+      changeStepVersion(workflowId, stepIndex, version);
+      onClose();
+    },
+  );
 
   const handleCloseComplete = () => {
     setSelectedTab(StepConfigTab.CONFIGURATION);

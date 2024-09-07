@@ -31,6 +31,11 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
 
   useEffect(() => {
     form.reset({
+      configuration: {
+        is_always_run: result.data?.mergedValues?.is_always_run ?? false,
+        is_skippable: result.data?.mergedValues?.is_skippable ?? false,
+        run_if: result.data?.mergedValues?.run_if ?? '',
+      },
       properties: {
         name: result.data?.resolvedInfo?.title ?? '',
         version: result.data?.resolvedInfo?.normalizedVersion ?? '',
