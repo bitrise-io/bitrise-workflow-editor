@@ -158,7 +158,7 @@ angular
   )
   .component(
     "rWorkflowEmptyState",
-    register(WorkflowEmptyState, ["onAddWorkflow"]),
+    register(WorkflowEmptyState, ["onCreateWorkflow"]),
   )
   .component(
     "rWorkflowRecipesInfoBanner",

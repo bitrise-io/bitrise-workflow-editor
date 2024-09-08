@@ -1,4 +1,4 @@
-import WorkflowEmptyState from '../WorkflowEmptyState';
+import WorkflowEmptyState from './WorkflowEmptyState';
 import RunWorkflowDialog from './RunWorkflowDialog/RunWorkflowDialog';
 import StepConfigDrawer from './StepConfigDrawer/StepConfigDrawer';
 import StepSelectorDrawer from './StepSelectorDrawer/StepSelectorDrawer';

@@ -7,6 +7,7 @@ import {
   StepSelectorDrawer,
   WorkflowConfigDrawer,
   WorkflowConfigPanel,
+  WorkflowEmptyState,
 } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
@@ -23,7 +24,8 @@ type Props = {
 
 const WorkflowsPageContent = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
-  const { workflowId, stepIndex, isDialogOpen, closeDialog, openStepConfigDrawer } = useWorkflowsPageStore();
+  const { workflowId, stepIndex, isDialogOpen, closeDialog, openCreateWorkflowDialog, openStepConfigDrawer } =
+    useWorkflowsPageStore();
 
   const { addStep, createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
@@ -54,6 +56,19 @@ const WorkflowsPageContent = () => {
     addStep(workflowId, cvs, stepIndex);
     openStepConfigDrawer(workflowId, stepIndex);
   };
+
+  if (!selectedWorkflowId) {
+    return (
+      <Box h="100%" display="grid" gridTemplateRows="100%">
+        <WorkflowEmptyState onCreateWorkflow={openCreateWorkflowDialog} />
+        <CreateWorkflowDialog
+          isOpen={isCreateWorkflowDialogOpen}
+          onClose={closeDialog}
+          onCreateWorkflow={createWorkflow}
+        />
+      </Box>
+    );
+  }
 
   return (
     <>

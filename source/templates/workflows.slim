@@ -9,7 +9,7 @@
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
       r-workflow-empty-state[
-        on-add-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
+        on-create-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
       ]
     .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
