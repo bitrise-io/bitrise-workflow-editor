@@ -25,7 +25,7 @@ const ConfigurationTab = () => {
     <Box display="flex" flexDir="column" gap="12">
       <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">When to run</Text>}>
         <Box display="flex">
-          <Text flex="1">Run if previous Step(s) failed</Text>
+          <Text flex="1">Run even if previous Step(s) failed</Text>
           <Controller
             control={form.control}
             name="configuration.is_always_run"
@@ -34,7 +34,7 @@ const ConfigurationTab = () => {
         </Box>
         <Divider my="24" />
         <Box display="flex">
-          <Text flex="1">Continue build even if this Step failed</Text>
+          <Text flex="1">Continue build even if this Step fails</Text>
           <Controller
             control={form.control}
             name="configuration.is_skippable"
