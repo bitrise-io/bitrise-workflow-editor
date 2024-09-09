@@ -59,7 +59,7 @@ const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, yml, default
             <ConfigurationTabPanel />
             <PropertiesTabPanel />
             <TriggersTabPanel
-              isWebsiteMode={false}
+              isWebsiteMode
               onTriggerMapChange={() => {
                 console.log('onTriggerMapChange');
               }}

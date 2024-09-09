@@ -83,5 +83,26 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
   });
   return triggers;
 };
+const createOnTriggersChange = (
+  triggers: Record<SourceType, TriggerItem[]>,
+  setTriggers: React.Dispatch<React.SetStateAction<Record<SourceType, TriggerItem[]>>>,
+  onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void,
+) => {
+  return (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
+    const newTriggers = { ...triggers };
+    if (action === 'add') {
+      newTriggers[trigger.source].push(trigger);
+    }
+    if (action === 'remove') {
+      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
+    }
+    if (action === 'edit') {
+      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
+      newTriggers[trigger.source][index] = trigger;
+    }
+    setTriggers(newTriggers);
+    onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
+  };
+};
 
-export { convertItemsToTriggerMap, convertTriggerMapToItems, getSourceType };
+export { convertItemsToTriggerMap, convertTriggerMapToItems, getSourceType, createOnTriggersChange };

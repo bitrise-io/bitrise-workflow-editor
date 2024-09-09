@@ -3,10 +3,7 @@ import { Button, ExpandableCard, Link, Notification, TabPanel, Text, useDisclosu
 import { WorkflowConfigTab } from '../WorkflowConfigPanel.types';
 import { SourceType, TriggerItem, TriggersPageProps } from '../../../../TriggersPage/TriggersPage.types';
 import AddTriggerDialog from '../SelectiveTriggering/AddTriggerDialog';
-import {
-  convertItemsToTriggerMap,
-  convertTriggerMapToItems,
-} from '../SelectiveTriggering/SelectiveTriggeringFunctions';
+import { convertTriggerMapToItems, createOnTriggersChange } from '../SelectiveTriggering/SelectiveTriggeringFunctions';
 import { useUserMetaData } from '../../../../../hooks/useUserMetaData';
 import NewTriggerCard from '../SelectiveTriggering/NewTriggerCard';
 
@@ -30,21 +27,7 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
     enabled: isWebsiteMode,
   });
 
-  const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
-    const newTriggers = { ...triggers };
-    if (action === 'add') {
-      newTriggers[trigger.source].push(trigger);
-    }
-    if (action === 'remove') {
-      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
-    }
-    if (action === 'edit') {
-      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
-      newTriggers[trigger.source][index] = trigger;
-    }
-    setTriggers(newTriggers);
-    onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
-  };
+  const onTriggersChange = createOnTriggersChange(triggers, setTriggers, onTriggerMapChange);
 
   const onEdit = (trigger: TriggerItem) => {
     setEditedItem(trigger);

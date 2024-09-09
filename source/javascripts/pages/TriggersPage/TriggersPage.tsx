@@ -35,6 +35,7 @@ import { useUserMetaData } from '@/hooks/useUserMetaData';
 import {
   convertItemsToTriggerMap,
   convertTriggerMapToItems,
+  createOnTriggersChange,
 } from '../WorkflowsPage/components/WorkflowConfigPanel/SelectiveTriggering/SelectiveTriggeringFunctions';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
@@ -86,21 +87,7 @@ const TriggersPage = (props: TriggersPageProps) => {
     setEditedItem(undefined);
   };
 
-  const onTriggersChange = (action: 'add' | 'remove' | 'edit', trigger: TriggerItem) => {
-    const newTriggers = { ...triggers };
-    if (action === 'add') {
-      newTriggers[trigger.source].push(trigger);
-    }
-    if (action === 'remove') {
-      newTriggers[trigger.source] = triggers[trigger.source].filter(({ id }) => id !== trigger.id);
-    }
-    if (action === 'edit') {
-      const index = triggers[trigger.source].findIndex(({ id }) => id === trigger.id);
-      newTriggers[trigger.source][index] = trigger;
-    }
-    setTriggers(newTriggers);
-    onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
-  };
+  const onTriggersChange = createOnTriggersChange(triggers, setTriggers, onTriggerMapChange);
 
   const onPushTriggerEdit = (trigger: TriggerItem) => {
     setEditedItem(trigger);
