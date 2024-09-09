@@ -11,7 +11,6 @@ type StacksAndMachinesResponse = {
   available_stacks: {
     [stackId: string]: {
       title: string;
-      available_machines?: string[];
     };
   };
   available_machines: {
@@ -24,6 +23,7 @@ type StacksAndMachinesResponse = {
           cpu_count: string;
           credit_per_min: number;
           cpu_description: string;
+          available_on_stacks: string[];
         };
       };
     };
@@ -43,14 +43,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
 
   const availableStacks: Stack[] = [];
   const availableMachineTypes: MachineType[] = [];
-
-  mapValues(response.available_stacks, ({ title, available_machines = [] }, id) => {
-    availableStacks.push({
-      id,
-      name: title,
-      machineTypes: available_machines,
-    });
-  });
+  const availableMachineTypesForStacks = new Map<string, Set<string>>();
 
   mapValues(response.available_machines, (os) => {
     mapValues(os.machine_types, (machine, id) => {
@@ -67,6 +60,22 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
           },
         },
       });
+
+      machine.available_on_stacks.forEach((stackId) => {
+        if (!availableMachineTypesForStacks.has(stackId)) {
+          availableMachineTypesForStacks.set(stackId, new Set());
+        }
+
+        availableMachineTypesForStacks.get(stackId)?.add(id);
+      });
+    });
+  });
+
+  mapValues(response.available_stacks, ({ title }, id) => {
+    availableStacks.push({
+      id,
+      name: title,
+      machineTypes: Array.from(availableMachineTypesForStacks.get(id) ?? []),
     });
   });
 

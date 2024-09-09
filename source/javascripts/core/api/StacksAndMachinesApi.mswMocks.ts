@@ -18,15 +18,12 @@ export const getStacksAndMachines = (options?: Options) => {
       available_stacks: {
         'stack-0': {
           title: 'Stack 0',
-          available_machines: ['machine-0', 'machine-1'],
         },
         'stack-1': {
           title: 'Stack 1',
-          available_machines: ['machine-2', 'machine-3'],
         },
         'stack-2': {
           title: 'Stack 2',
-          available_machines: ['machine-0', 'machine-1', 'machine-2', 'machine-3'],
         },
       },
       available_machines: {
@@ -39,6 +36,7 @@ export const getStacksAndMachines = (options?: Options) => {
               credit_per_min: 2,
               name: 'Machine 0',
               ram: '4 GB RAM',
+              available_on_stacks: ['stack-0', 'stack-2'],
             },
             'machine-1': {
               chip: 'apple',
@@ -47,6 +45,7 @@ export const getStacksAndMachines = (options?: Options) => {
               credit_per_min: 4,
               name: 'Machine 1',
               ram: '8 GB RAM',
+              available_on_stacks: ['stack-0', 'stack-2'],
             },
           },
         },
@@ -59,6 +58,7 @@ export const getStacksAndMachines = (options?: Options) => {
               credit_per_min: 8,
               name: 'Machine 2',
               ram: '12 GB RAM',
+              available_on_stacks: ['stack-1', 'stack-2'],
             },
             'machine-3': {
               chip: 'intel',
@@ -67,6 +67,7 @@ export const getStacksAndMachines = (options?: Options) => {
               credit_per_min: 16,
               name: 'Machine 3',
               ram: '16 GB RAM',
+              available_on_stacks: ['stack-1', 'stack-2'],
             },
           },
         },
