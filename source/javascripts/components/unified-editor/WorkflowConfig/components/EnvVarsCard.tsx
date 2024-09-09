@@ -91,7 +91,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             const updatedChecked = defaultChecked === undefined ? currentChecked || defaultChecked : currentChecked;
 
             setValue(`configuration.envs.${index}.isExpand`, updatedChecked, {
-              shouldDirty: true,
+              shouldDirty: defaultChecked !== updatedChecked,
               shouldTouch: true,
               shouldValidate: true,
             });
