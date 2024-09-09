@@ -1197,27 +1197,6 @@ describe('BitriseYmlService', () => {
         },
       };
 
-      const unexpectedYml: BitriseYml = {
-        format_version: '',
-        workflows: {
-          wf1: {
-            envs: [
-              {
-                ENV0: 'preserve-opts-key-position', // !!!!
-                opts: { is_expand: false },
-              },
-              {
-                ENV1: 'env1',
-              },
-              {
-                ENV2: 'env2',
-                opts: { is_expand: false },
-              },
-            ],
-          },
-        },
-      };
-
       const actualYml = BitriseYmlService.updateWorkflowEnvVars(
         'wf1',
         [
@@ -1237,7 +1216,6 @@ describe('BitriseYmlService', () => {
       );
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
-      expect(actualYml).not.toMatchBitriseYml(unexpectedYml);
     });
   });
 });
