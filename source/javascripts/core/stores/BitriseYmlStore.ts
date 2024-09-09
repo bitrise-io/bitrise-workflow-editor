@@ -2,6 +2,7 @@ import { createStore, StoreApi } from 'zustand';
 import { BitriseYml, Meta } from '@/core/models/BitriseYml';
 import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/models/BitriseYmlService';
+import { EnvVarYml } from '../models/EnvVar';
 
 type BitriseYmlStoreState = {
   yml: BitriseYml;
@@ -20,6 +21,7 @@ type BitriseYmlStoreState = {
     placement: ChainedWorkflowPlacement,
   ) => void;
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
+  updateWorkflowEnvVars: (workflowId: string, envVars: EnvVarYml[]) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
     parentWorkflowId: string,
@@ -91,6 +93,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateStackAndMachine(workflowId, stack, machineTypeId, state.yml),
+        };
+      });
+    },
+    updateWorkflowEnvVars(workflowId, envVars) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflowEnvVars(workflowId, envVars, state.yml),
         };
       });
     },

@@ -14,6 +14,8 @@ import { Button, ButtonGroup, Icon, TabPanel, TabPanels, Tabs, useDisclosure } f
 import { useFormContext } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import EnvVarService from '@/core/models/EnvVarService';
+import { EnvVar } from '@/core/models/EnvVar';
 import WorkflowConfigProvider from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -24,24 +26,28 @@ type Props = UseDisclosureProps & { workflowId: string };
 
 const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
   const form = useFormContext<FormValues>();
-  const originalName = form.formState.defaultValues?.properties?.name ?? '';
   const hasChanges = form.formState.isDirty;
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
 
-  const { renameWorkflow, updateWorkflow, updateStackAndMachine } = useBitriseYmlStore(
+  const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
+
+  const { renameWorkflow, updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars } = useBitriseYmlStore(
     useShallow((s) => ({
       renameWorkflow: s.renameWorkflow,
       updateWorkflow: s.updateWorkflow,
       updateStackAndMachine: s.updateStackAndMachine,
+      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
     })),
   );
 
   const handleSubmit = form.handleSubmit(
-    ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId } }) => {
-      updateStackAndMachine(originalName, stackId, machineTypeId);
-      updateWorkflow(originalName, properties);
-      renameWorkflow(originalName, name);
+    ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId, envs } }) => {
+      const ymlCompatibleEnvVars = envs.map((env) => EnvVarService.parseEnvVar(env as EnvVar));
+      updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
+      updateWorkflowEnvVars(defaultWorkflowId, ymlCompatibleEnvVars);
+      updateWorkflow(defaultWorkflowId, properties);
+      renameWorkflow(defaultWorkflowId, name);
       onClose();
     },
   );

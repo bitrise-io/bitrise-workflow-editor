@@ -5,6 +5,8 @@ import { useShallow } from 'zustand/react/shallow';
 import omit from 'lodash/omit';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import EnvVarService from '@/core/models/EnvVarService';
+import { EnvVar } from '@/core/models/EnvVar';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -16,12 +18,13 @@ const WorkflowConfigPanelContent = () => {
   const form = useFormContext<FormValues>();
   const [, setSearchParams] = useSearchParams();
   const formValues = useWatch({ control: form.control });
-  const originalName = form.formState.defaultValues?.properties?.name ?? '';
+  const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
 
-  const { updateWorkflow, updateStackAndMachine } = useBitriseYmlStore(
+  const { updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars } = useBitriseYmlStore(
     useShallow((s) => ({
       updateWorkflow: s.updateWorkflow,
       updateStackAndMachine: s.updateStackAndMachine,
+      updateWorkflowEnvVars: s.updateWorkflowEnvVars,
     })),
   );
 
@@ -33,23 +36,26 @@ const WorkflowConfigPanelContent = () => {
   });
 
   useEffect(() => {
-    if (originalName) {
+    if (defaultWorkflowId) {
       const { configuration, properties } = formValues;
 
       if (configuration) {
-        const { stackId = '', machineTypeId = '' } = configuration;
-        updateStackAndMachine(originalName, stackId, machineTypeId);
+        const { stackId = '', machineTypeId = '', envs = [] } = configuration;
+        const ymlCompatibleEnvVars = envs.map((env) => EnvVarService.parseEnvVar(env as EnvVar));
+
+        updateWorkflowEnvVars(defaultWorkflowId, ymlCompatibleEnvVars);
+        updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
       }
 
       if (properties) {
-        updateWorkflow(originalName, omit(properties, 'name'));
+        updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
       }
 
       if (properties?.name) {
         renameWorkflow(properties.name);
       }
     }
-  }, [formValues, originalName, renameWorkflow, updateStackAndMachine, updateWorkflow]);
+  }, [formValues, defaultWorkflowId, renameWorkflow, updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars]);
 
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">

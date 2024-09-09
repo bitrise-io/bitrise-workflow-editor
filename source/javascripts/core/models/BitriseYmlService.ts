@@ -3,6 +3,7 @@ import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import mapKeys from 'lodash/mapKeys';
+import isEqual from 'lodash/isEqual';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import { EnvVarYml } from './EnvVar';
@@ -364,6 +365,43 @@ function deleteWorkflowEnvVar(workflowId: string, index: number, yml: BitriseYml
   return copy;
 }
 
+function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs = envVars.map((newEnvVar, i) => {
+    const oldEnvVar = copy.workflows?.[workflowId]?.envs?.[i] as EnvVarYml;
+
+    if (!oldEnvVar) {
+      return newEnvVar;
+    }
+
+    const { opts: oo, ...oldEnvVarKeyValue } = oldEnvVar;
+    const { opts: no, ...newEnvVarKeyValue } = newEnvVar;
+
+    if (!isEqual(oldEnvVarKeyValue, newEnvVarKeyValue)) {
+      return newEnvVar;
+    }
+
+    if (newEnvVar.opts?.is_expand === undefined) {
+      delete oldEnvVar.opts;
+    } else {
+      oldEnvVar.opts = { is_expand: newEnvVar.opts.is_expand };
+    }
+
+    return oldEnvVar;
+  });
+
+  if (isEmpty(copy.workflows[workflowId].envs)) {
+    delete copy.workflows[workflowId].envs;
+  }
+
+  return copy;
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -512,4 +550,5 @@ export default {
   updateWorkflowEnvVar,
   moveWorkflowEnvVar,
   deleteWorkflowEnvVar,
+  updateWorkflowEnvVars,
 };

@@ -58,6 +58,9 @@ workflows:
     - TEST: test
       opts:
         is_expand: false
+    - HELLO: WORLD
+      opts:
+        is_expand: true
     steps:
     - github-status@2.4.0:
         inputs:
