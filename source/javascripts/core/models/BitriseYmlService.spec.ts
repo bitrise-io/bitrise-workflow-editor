@@ -1085,6 +1085,161 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
   });
+
+  describe('updateWorkflowEnvVars', () => {
+    it('should add workflow envs if workflow has no envs before', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ ENV0: 'env0' }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVars('wf1', [{ ENV0: 'env0' }], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should remove workflow envs field when the updated envs are empty', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ ENV0: 'env0' }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {},
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVars('wf1', [], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should update existing workflow envs', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ ENV0: 'env0' }, { ENV1: 'env1' }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ ENV0: 'env0' }, { ENV1: 'envX' }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVars('wf1', [{ ENV0: 'env0' }, { ENV1: 'envX' }], sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should set and keep the existing position of the opts fields', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              {
+                opts: { is_expand: true },
+                ENV0: 'preserve-opts-key-position',
+              },
+              {
+                ENV1: 'env1',
+              },
+              {
+                ENV2: 'env2',
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              {
+                opts: { is_expand: false },
+                ENV0: 'preserve-opts-key-position',
+              },
+              {
+                ENV1: 'env1',
+              },
+              {
+                ENV2: 'env2',
+                opts: { is_expand: false },
+              },
+            ],
+          },
+        },
+      };
+
+      const unexpectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              {
+                ENV0: 'preserve-opts-key-position', // !!!!
+                opts: { is_expand: false },
+              },
+              {
+                ENV1: 'env1',
+              },
+              {
+                ENV2: 'env2',
+                opts: { is_expand: false },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVars(
+        'wf1',
+        [
+          {
+            ENV0: 'preserve-opts-key-position',
+            opts: { is_expand: false }, // NOTE: Opts position is different here, but the service can keep the order of keys!
+          },
+          {
+            ENV1: 'env1',
+          },
+          {
+            ENV2: 'env2',
+            opts: { is_expand: false },
+          },
+        ],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+      expect(actualYml).not.toMatchBitriseYml(unexpectedYml);
+    });
+  });
 });
 
 declare module 'expect' {
