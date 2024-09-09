@@ -1,5 +1,5 @@
 import { Fragment, useCallback, useLayoutEffect, useMemo, useState } from 'react';
-import { Box, BoxProps, Card, Text } from '@bitrise/bitkit';
+import { Box, BoxProps, Button, EmptyState } from '@bitrise/bitkit';
 import { defaultDropAnimation, DndContext, DragEndEvent, DragOverlay, DragStartEvent } from '@dnd-kit/core';
 import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
@@ -73,11 +73,21 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
 
   if (isEmpty) {
     return (
-      <Card variant="outline" backgroundColor="background/secondary" px="8" py="16" textAlign="center">
-        <Text textStyle="body/sm/regular" color="text/secondary">
-          This Workflow is empty.
-        </Text>
-      </Card>
+      <EmptyState
+        title="Add Steps or chain Workflows"
+        description="Add Steps from the library or modularize by Workflow chaining."
+        style={{ padding: 12 }}
+      >
+        <Button
+          variant="secondary"
+          size="md"
+          leftIconName="PlusAdd"
+          alignSelf="stretch"
+          onClick={() => onAddStepClick?.(workflowId, 0)}
+        >
+          Add Step
+        </Button>
+      </EmptyState>
     );
   }
 

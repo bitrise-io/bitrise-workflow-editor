@@ -1,5 +1,15 @@
 import { useRef } from 'react';
-import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import {
+  Box,
+  Button,
+  Card,
+  CardProps,
+  Collapse,
+  ControlButton,
+  EmptyState,
+  Text,
+  useDisclosure,
+} from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
 import { Workflow } from '@/core/models/Workflow';
 import StepList from './components/StepList';
@@ -14,7 +24,7 @@ type Props = WorkflowCardCallbacks & {
 };
 
 const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props) => {
-  const { onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
+  const { onCreateWorkflow, onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
   const stepCallbacks = { onAddStepClick, onStepMove, onStepSelect };
 
   const containerRef = useRef(null);
@@ -22,10 +32,11 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
   if (!result) {
-    // TODO: Missing empty state
-    // eslint-disable-next-line no-console
-    console.warn(`Workflow '${id}' is not found in yml!`);
-    return null;
+    return (
+      <EmptyState title={`Workflow '${id}' is not found in yml!`}>
+        <Button onClick={() => onCreateWorkflow?.()}>Create Workflow</Button>
+      </EmptyState>
+    );
   }
 
   const { userValues: workflow } = result || ({} as Workflow);
