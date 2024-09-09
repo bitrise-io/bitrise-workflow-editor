@@ -47,9 +47,6 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
     transform: CSS.Translate.toString(transform),
   };
 
-  // NOTE: Default value doesn't apply because the ref connected to the FormControl instead the Checkbox component in Bitkit
-  // const { ref: isExpandRef, ...isExpandProps } = register(`configuration.envs.${index}.isExpand`);
-
   return (
     <Box
       ref={setNodeRef}
