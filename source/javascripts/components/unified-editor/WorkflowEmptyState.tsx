@@ -7,7 +7,7 @@ type Props = {
 const WorkflowEmptyState = ({ onCreateWorkflow }: Props) => (
   <EmptyState
     iconName="Workflow"
-    title="Your Workflows will appear here"
+    title="Your Workflow will appear here"
     description="It looks like you haven't set up any Workflows. Create your first Workflow to automate your CI/CD pipeline."
   >
     <Button leftIconName="PlusAdd" variant="secondary" onClick={onCreateWorkflow}>

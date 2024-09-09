@@ -73,7 +73,7 @@ const WorkflowsPageContent = () => {
   return (
     <>
       <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
-        <WorkflowCanvasPanel />
+        <WorkflowCanvasPanel workflowId={selectedWorkflowId} />
         <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       </Box>
 
