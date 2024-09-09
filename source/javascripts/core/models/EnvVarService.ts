@@ -1,4 +1,4 @@
-import { EnvVar } from './EnvVar';
+import { EnvVar, EnvVarYml } from './EnvVar';
 
 function validateKey(key?: string, keys?: string[]) {
   if (!key || !String(key).trim()) {
@@ -24,12 +24,12 @@ function validateValue(value?: string) {
   return true;
 }
 
-function parseYmlEnvVar({ opts, ...env }: { [key: string]: any }, source = ''): EnvVar {
+function parseYmlEnvVar({ opts, ...env }: EnvVarYml, source = ''): EnvVar {
   return {
     source,
     key: Object.keys(env)[0],
-    value: Object.values(env)[0],
-    isExpand: Boolean(opts?.is_expand),
+    value: String(Object.values(env)[0]),
+    isExpand: opts?.is_expand !== undefined ? Boolean(opts.is_expand) : undefined,
   };
 }
 
@@ -47,9 +47,20 @@ function toYmlValue(value: unknown) {
   return value;
 }
 
+function parseEnvVar(envVar: EnvVar): EnvVarYml {
+  let envVarYml = { [envVar.key]: toYmlValue(envVar.value) };
+
+  if (envVar.isExpand !== undefined) {
+    envVarYml = { ...envVarYml, opts: { is_expand: Boolean(envVar.isExpand) } };
+  }
+
+  return envVarYml;
+}
+
 export default {
   validateKey,
   validateValue,
   parseYmlEnvVar,
+  parseEnvVar,
   toYmlValue,
 };

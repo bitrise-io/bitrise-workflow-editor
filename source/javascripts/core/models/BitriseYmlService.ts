@@ -3,6 +3,7 @@ import omitBy from 'lodash/omitBy';
 import isEmpty from 'lodash/isEmpty';
 import mapValues from 'lodash/mapValues';
 import mapKeys from 'lodash/mapKeys';
+import isEqual from 'lodash/isEqual';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import StepService from '@/core/models/StepService';
 import { EnvVarYml } from './EnvVar';
@@ -316,50 +317,39 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   return copy;
 }
 
-function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
   if (!copy.workflows?.[workflowId]) {
     return copy;
   }
 
-  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
+  copy.workflows[workflowId].envs = envVars.map((newEnvVar, i) => {
+    const oldEnvVar = copy.workflows?.[workflowId]?.envs?.[i] as EnvVarYml;
 
-  return copy;
-}
+    if (!oldEnvVar) {
+      return newEnvVar;
+    }
 
-function updateWorkflowEnvVar(workflowId: string, index: number, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
+    const { opts: oo, ...oldEnvVarKeyValue } = oldEnvVar;
+    const { opts: no, ...newEnvVarKeyValue } = newEnvVar;
 
-  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
-    return copy;
+    if (!isEqual(oldEnvVarKeyValue, newEnvVarKeyValue)) {
+      return newEnvVar;
+    }
+
+    if (newEnvVar.opts?.is_expand === undefined) {
+      delete oldEnvVar.opts;
+    } else {
+      oldEnvVar.opts = { is_expand: newEnvVar.opts.is_expand };
+    }
+
+    return oldEnvVar;
+  });
+
+  if (isEmpty(copy.workflows[workflowId].envs)) {
+    delete copy.workflows[workflowId].envs;
   }
-
-  copy.workflows[workflowId].envs[index] = envVar;
-
-  return copy;
-}
-
-function moveWorkflowEnvVar(workflowId: string, from: number, to: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-  // If the workflow or step is missing in the YML just return the YML
-  if (!copy.workflows?.[workflowId]?.envs?.[from]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].envs.splice(to, 0, copy.workflows[workflowId].envs.splice(from, 1)[0]);
-
-  return copy;
-}
-
-function deleteWorkflowEnvVar(workflowId: string, index: number, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (!copy.workflows?.[workflowId]?.envs?.[index]) {
-    return copy;
-  }
-
-  copy.workflows[workflowId].envs.splice(index, 1);
 
   return copy;
 }
@@ -508,8 +498,5 @@ export default {
   addChainedWorkflow,
   deleteChainedWorkflow,
   updateStackAndMachine,
-  appendWorkflowEnvVar,
-  updateWorkflowEnvVar,
-  moveWorkflowEnvVar,
-  deleteWorkflowEnvVar,
+  updateWorkflowEnvVars,
 };
