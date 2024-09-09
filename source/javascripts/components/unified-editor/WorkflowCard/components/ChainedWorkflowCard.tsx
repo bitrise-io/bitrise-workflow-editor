@@ -1,6 +1,17 @@
 /* eslint-disable import/no-cycle */
 import { useRef } from 'react';
-import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
+import {
+  Box,
+  Button,
+  ButtonGroup,
+  Card,
+  CardProps,
+  Collapse,
+  ControlButton,
+  EmptyState,
+  Text,
+  useDisclosure,
+} from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
@@ -34,6 +45,7 @@ const ChainedWorkflowCard = ({
   ...callbacks
 }: Props) => {
   const {
+    onAddStepClick,
     onEditWorkflowClick,
     onChainedWorkflowsUpdate,
     onAddChainedWorkflowClick,
@@ -62,10 +74,13 @@ const ChainedWorkflowCard = ({
   });
 
   if (!result) {
-    // TODO: Missing empty state
-    // eslint-disable-next-line no-console
-    console.warn(`Workflow '${id}' is not found in yml!`);
-    return null;
+    return (
+      <EmptyState title="" description="There are no Steps.">
+        <Button size="md" onClick={() => onAddStepClick?.(id, 0)}>
+          Add Step
+        </Button>
+      </EmptyState>
+    );
   }
 
   if (sortable.isDragging) {
