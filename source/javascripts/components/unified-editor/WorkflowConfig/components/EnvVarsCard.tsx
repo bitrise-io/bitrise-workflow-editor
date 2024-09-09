@@ -106,7 +106,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
 const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
-  const { control, formState } = useFormContext<FormValues>();
+  const { control, formState, watch } = useFormContext<FormValues>();
   const { fields, append, remove, move, replace } = useFieldArray({ name: 'configuration.envs', control });
 
   const handleAddNew = () => {
@@ -123,6 +123,8 @@ const EnvVarsCard = () => {
   useEffect(() => {
     replace((formState.defaultValues?.configuration?.envs ?? []) as EnvVar[]);
   }, [formState.defaultValues?.configuration?.envs, replace]);
+
+  watch('configuration.envs');
 
   return (
     <ExpandableCard buttonContent={<ButtonContent />}>
