@@ -39,12 +39,16 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(StepConfigTab.CONFIGURATION);
 
-  const { workflowId, stepIndex, data: step } = useStepDrawerContext();
-  const { mergedValues, defaultValues, resolvedInfo = {} } = step ?? {};
-  const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
-
   const form = useFormContext<FormValues>();
   const hasChanges = form.formState.isDirty;
+
+  const { workflowId, stepIndex, data } = useStepDrawerContext();
+  const { mergedValues, defaultValues, resolvedInfo } = data ?? {};
+  const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
+
+  const [formTitleValue, formVersionValue] = form.watch(['properties.name', 'properties.version']);
+  const isUpgradable = VersionUtils.hasVersionUpgrade(formVersionValue, resolvedInfo?.versions);
+  const currentResolvedVersion = VersionUtils.resolveVersion(formVersionValue, resolvedInfo?.versions);
 
   const { changeStepVersion, updateStep, cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
     changeStepVersion: s.changeStepVersion,
@@ -54,9 +58,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   }));
 
   const handleUpdateStep = () => {
-    const updatedVersion = semver
-      .major(VersionUtils.normalizeVersion(step?.resolvedInfo?.latestVersion ?? ''))
-      .toString();
+    const updatedVersion = VersionUtils.normalizeVersion(semver.major(resolvedInfo?.latestVersion ?? '').toString());
     form.setValue('properties.version', updatedVersion, {
       shouldDirty: true,
       shouldTouch: true,
@@ -118,8 +120,8 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
                 size="48"
-                src={resolvedInfo.icon || defaultIcon}
-                name={resolvedInfo.title || 'Step'}
+                src={resolvedInfo?.icon || defaultIcon}
+                name={formTitleValue}
                 variant="step"
                 borderWidth="1px"
                 borderStyle="solid"
@@ -129,23 +131,23 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
               <Box flex="1" minW={0}>
                 <Box display="flex" gap="4" alignItems="center">
                   <Text as="h3" textStyle="heading/h3" hasEllipsis>
-                    {resolvedInfo.title}
+                    {formTitleValue}
                   </Text>
                   <StepBadge
-                    isOfficial={resolvedInfo.isOfficial}
-                    isVerified={resolvedInfo.isVerified}
-                    isCommunity={resolvedInfo.isCommunity}
+                    isOfficial={resolvedInfo?.isOfficial}
+                    isVerified={resolvedInfo?.isVerified}
+                    isCommunity={resolvedInfo?.isCommunity}
                   />
                 </Box>
 
                 <Box display="flex" textStyle="body/md/regular" color="text/secondary" alignItems="center">
-                  <Text>{resolvedInfo.resolvedVersion || 'Always latest'}</Text>
-                  {resolvedInfo.isUpgradable && (
+                  <Text>{currentResolvedVersion || 'Always latest'}</Text>
+                  {isUpgradable && (
                     <>
                       <Icon size="16" marginInlineStart="8" name="StepUpgrade" />
                       <Text textStyle="body/sm/regular" cursor="pointer" onClick={handleUpdateStep}>
                         Newer version available
-                        {resolvedInfo.latestVersion ? `: ${resolvedInfo.latestVersion}` : ''}
+                        {resolvedInfo?.latestVersion ? `: ${resolvedInfo?.latestVersion}` : ''}
                       </Text>
                     </>
                   )}
@@ -153,7 +155,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
               </Box>
 
               <ButtonGroup>
-                {resolvedInfo.isUpgradable && (
+                {isUpgradable && (
                   <IconButton
                     size="sm"
                     iconName="ArrowUp"

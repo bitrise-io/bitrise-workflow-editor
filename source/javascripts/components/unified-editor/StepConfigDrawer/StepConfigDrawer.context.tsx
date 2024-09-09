@@ -42,7 +42,7 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [result.data?.resolvedInfo?.title, result.data?.resolvedInfo?.normalizedVersion]);
+  }, [workflowId, stepIndex]);
   return (
     <Context.Provider value={stepData}>
       <FormProvider {...form}>{children}</FormProvider>

@@ -51,7 +51,6 @@ type ResolvedStepInfo = Partial<{
   latestVersion: string; // 2.1.9
   versions: string[]; // ['2.1.6', '2.1.7', '2.1.8', '2.1.9']
   isLatest: boolean;
-  isUpgradable: boolean;
   isOfficial: boolean;
   isVerified: boolean;
   isCommunity: boolean;

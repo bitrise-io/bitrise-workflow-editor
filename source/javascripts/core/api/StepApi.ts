@@ -60,7 +60,6 @@ function toStep(
   const latestVersion = response.latest_version_number || VersionUtils.resolveVersion('', versions) || '';
   const isLatest = Boolean(response.is_latest);
   const isDeprecated = Boolean(response.is_deprecated);
-  const isUpgradable = VersionUtils.hasVersionUpgrade(response.version, versions);
   const isOfficial = Boolean(response.info?.maintainer === Maintainer.Bitrise && !isDeprecated);
   const isVerified = Boolean(response.info?.maintainer === Maintainer.Verified && !isDeprecated);
   const isCommunity = Boolean(response.info?.maintainer === Maintainer.Community && !isDeprecated);
@@ -78,7 +77,6 @@ function toStep(
       resolvedVersion,
       latestVersion,
       isLatest,
-      isUpgradable,
       isDeprecated,
       isOfficial,
       isVerified,
