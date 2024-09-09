@@ -1131,6 +1131,61 @@ describe('BitriseYmlService', () => {
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
 
+    it('should remove workflow env field', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              {
+                ENV0: 'env0',
+              },
+              {
+                ENV1: 'env1',
+              },
+              {
+                opts: { is_expand: true },
+                ENV2: 'env2',
+              },
+            ],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              {
+                ENV0: 'env0',
+              },
+              {
+                ENV2: 'env2',
+                opts: { is_expand: true },
+              },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.updateWorkflowEnvVars(
+        'wf1',
+        [
+          {
+            ENV0: 'env0',
+          },
+          {
+            ENV2: 'env2',
+            opts: { is_expand: true },
+          },
+        ],
+        sourceYml,
+      );
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
     it('should update existing workflow envs', () => {
       const sourceYml: BitriseYml = {
         format_version: '',
