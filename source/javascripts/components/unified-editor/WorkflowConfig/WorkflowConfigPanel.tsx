@@ -5,7 +5,6 @@ import { useShallow } from 'zustand/react/shallow';
 import omit from 'lodash/omit';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import EnvVarService from '@/core/models/EnvVarService';
 import { EnvVar } from '@/core/models/EnvVar';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
@@ -41,9 +40,7 @@ const WorkflowConfigPanelContent = () => {
 
       if (configuration) {
         const { stackId = '', machineTypeId = '', envs = [] } = configuration;
-        const ymlCompatibleEnvVars = envs.map((env) => EnvVarService.parseEnvVar(env as EnvVar));
-
-        updateWorkflowEnvVars(defaultWorkflowId, ymlCompatibleEnvVars);
+        updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
         updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
       }
 

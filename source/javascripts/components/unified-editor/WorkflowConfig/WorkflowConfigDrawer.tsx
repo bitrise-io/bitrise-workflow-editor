@@ -14,8 +14,6 @@ import { Button, ButtonGroup, Icon, TabPanel, TabPanels, Tabs, useDisclosure } f
 import { useFormContext } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import EnvVarService from '@/core/models/EnvVarService';
-import { EnvVar } from '@/core/models/EnvVar';
 import WorkflowConfigProvider from './WorkflowConfig.context';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -43,9 +41,8 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
 
   const handleSubmit = form.handleSubmit(
     ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId, envs } }) => {
-      const ymlCompatibleEnvVars = envs.map((env) => EnvVarService.parseEnvVar(env as EnvVar));
       updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
-      updateWorkflowEnvVars(defaultWorkflowId, ymlCompatibleEnvVars);
+      updateWorkflowEnvVars(defaultWorkflowId, envs);
       updateWorkflow(defaultWorkflowId, properties);
       renameWorkflow(defaultWorkflowId, name);
       onClose();
