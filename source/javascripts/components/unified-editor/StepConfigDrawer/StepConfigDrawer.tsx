@@ -84,6 +84,10 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
     },
   );
 
+  const handleCancel = () => {
+    onClose();
+  };
+
   const handleCloseComplete = () => {
     setSelectedTab(StepConfigTab.CONFIGURATION);
     form.reset();
@@ -209,7 +213,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
               <Button isDisabled={!hasChanges} onClick={handleSave}>
                 Done
               </Button>
-              <Button variant="secondary" onClick={onClose}>
+              <Button variant="secondary" onClick={handleCancel}>
                 Cancel
               </Button>
             </ButtonGroup>

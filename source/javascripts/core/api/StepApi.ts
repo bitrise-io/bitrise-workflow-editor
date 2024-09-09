@@ -146,7 +146,9 @@ async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
     filters: `id:${id}`,
   });
   const availableVersions = results.map((step) => step.version).filter(Boolean) as string[];
-  const inputs = await getAlgoliaStepInputsByCvs(cvs);
+  const resolvedVersion = VersionUtils.resolveVersion(version, availableVersions) || '';
+
+  const inputs = await getAlgoliaStepInputsByCvs(StepService.createStepCVS(id, resolvedVersion));
   const steps = results
     .map((step) => {
       const result = toStep(cvs, step, availableVersions);

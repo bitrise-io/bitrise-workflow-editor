@@ -27,7 +27,11 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
   workflowId: '',
   isDialogOpen: undefined,
   closeDialog: () => {
-    return set(() => ({ stepIndex: -1, workflowId: '', isDialogOpen: undefined }));
+    return set(() => ({
+      stepIndex: -1,
+      workflowId: '',
+      isDialogOpen: undefined,
+    }));
   },
   openCreateWorkflowDialog: () => {
     return set(() => ({ isDialogOpen: 'create-workflow' }));
@@ -42,9 +46,17 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
     return set(() => ({ workflowId, isDialogOpen: 'workflow-config-drawer' }));
   },
   openStepConfigDrawer: (workflowId, stepIndex) => {
-    return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-config-drawer' }));
+    return set(() => ({
+      workflowId,
+      stepIndex,
+      isDialogOpen: 'step-config-drawer',
+    }));
   },
   openStepSelectorDrawer: (workflowId, stepIndex) => {
-    return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-selector-drawer' }));
+    return set(() => ({
+      workflowId,
+      stepIndex,
+      isDialogOpen: 'step-selector-drawer',
+    }));
   },
 }));
