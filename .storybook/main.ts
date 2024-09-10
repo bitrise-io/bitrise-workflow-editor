@@ -56,7 +56,6 @@ const config: StorybookConfig = {
       ...resolve,
       alias: {
         ...alias,
-        "@/services/app-service": path.resolve(__dirname, "../source/javascripts/services/app-service.mock.ts"),
         "@": path.resolve(__dirname, "../source/javascripts"),
       },
     };

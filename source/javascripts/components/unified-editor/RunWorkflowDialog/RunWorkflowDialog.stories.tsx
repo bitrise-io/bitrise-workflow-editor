@@ -13,20 +13,11 @@ export default {
     isOpen: { type: 'boolean', control: { type: 'boolean' } },
     onClose: { type: 'function' },
   },
-  before: () => {
-    window.parent.pageProps = {
-      project: {
-        slug: 'asd-123',
-        name: 'Mock Project',
-        defaultBranch: 'main',
-      },
-    };
-  },
 } as Meta<typeof RunWorkflowDialog>;
 
 export const Default = {
   parameters: {
-    msw: { handlers: [BuildApiMocks.startBuild('success')] },
+    msw: [BuildApiMocks.startBuild('success')],
   },
 };
 
