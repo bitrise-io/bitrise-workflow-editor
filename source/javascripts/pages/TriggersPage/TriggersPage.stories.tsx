@@ -11,6 +11,8 @@ export default {
     pipelines: ['foo', 'bar', 'ci-test-long-name-example-with-potential-truncat-foooooooooo-very-long'],
     workflows: ['foo', 'bar'],
     setDiscard: () => {},
+    hasWorkspace: true,
+    workflowId: 'Workflow1',
   },
   argTypes: {
     onTriggerMapChange: { type: 'function' },
@@ -50,4 +52,8 @@ export const TriggersPageWithTriggerMap: StoryObj<typeof TriggersPage> = {
       },
     ],
   },
+};
+
+export const NewWorkspace: StoryObj<typeof TriggersPage> = {
+  args: { hasWorkspace: false },
 };

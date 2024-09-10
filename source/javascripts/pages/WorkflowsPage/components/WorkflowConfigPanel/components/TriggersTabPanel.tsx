@@ -54,7 +54,13 @@ const TriggersTabPanel = (props: TriggersPageProps) => {
       )}
       <ExpandableCard buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>} marginBlockStart="24">
         {triggers.push.length > 0 &&
-          triggers.push.map((triggerItem) => <NewTriggerCard key={triggerItem.id} triggerItem={triggerItem} />)}
+          triggers.push.map((triggerItem) => (
+            <NewTriggerCard
+              key={triggerItem.id}
+              triggerItem={triggerItem}
+              onRemove={(trigger) => onTriggersChange('remove', trigger)}
+            />
+          ))}
         <Button variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add push trigger
         </Button>

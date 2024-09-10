@@ -37,6 +37,7 @@ import {
   convertTriggerMapToItems,
   createOnTriggersChange,
 } from '../WorkflowsPage/components/WorkflowConfigPanel/SelectiveTriggering/SelectiveTriggeringFunctions';
+import SelectiveTriggers from '../WorkflowsPage/components/WorkflowConfigPanel/SelectiveTriggering/SelectiveTriggers';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
@@ -47,7 +48,17 @@ const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notifi
 const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
 
 const TriggersPage = (props: TriggersPageProps) => {
-  const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+  const {
+    integrationsUrl,
+    isWebsiteMode,
+    onTriggerMapChange,
+    pipelines,
+    triggerMap,
+    setDiscard,
+    workflows,
+    hasWorkspace,
+    workflowId,
+  } = props;
 
   const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useUserMetaData({
     key: TRIGGERS_CONFIGURED_METADATA_KEY,
@@ -141,13 +152,20 @@ const TriggersPage = (props: TriggersPageProps) => {
     }
   };
 
-  return (
+  return hasWorkspace ? (
     <>
+      <SelectiveTriggers
+        gitEvents={{
+          push: [],
+          tag: [],
+          pull_request: [],
+        }}
+      />
       <Text as="h2" textStyle="heading/h2" marginBottom="4">
-        Triggers
+        Legacy triggers
       </Text>
       <Text color="text/secondary">
-        Triggers help you start builds automatically.{' '}
+        A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.{' '}
         <Link
           colorScheme="purple"
           href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
@@ -397,6 +415,15 @@ const TriggersPage = (props: TriggersPageProps) => {
         editedItem={editedItem}
       />
     </>
+  ) : (
+    <SelectiveTriggers
+      workflowId={workflowId}
+      gitEvents={{
+        push: [],
+        tag: [],
+        pull_request: [],
+      }}
+    />
   );
 };
 

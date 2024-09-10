@@ -14,6 +14,12 @@ const NewTriggerCard = (props: NewTriggerCardProps) => {
   const { isOverlay, triggerItem, onRemove, onEdit, onActiveChange, ...rest } = props;
   const { conditions, pipelineable, isDraftPr, isActive } = triggerItem;
 
+  const handleRemove = () => {
+    if (onRemove) {
+      onRemove(triggerItem);
+    }
+  };
+
   return (
     <Box
       borderBottom="1px solid"
@@ -54,7 +60,7 @@ const NewTriggerCard = (props: NewTriggerCardProps) => {
           <MenuItem as="a" href="/edit-trigger" iconName="Pencil">
             Edit trigger
           </MenuItem>
-          <MenuItem as="a" href="/delete-trigger" iconName="Trash" isDanger>
+          <MenuItem as="a" href="/delete-trigger" iconName="Trash" isDanger onClick={handleRemove}>
             Delete trigger
           </MenuItem>
         </MenuList>

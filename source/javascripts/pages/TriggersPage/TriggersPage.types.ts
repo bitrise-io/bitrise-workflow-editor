@@ -53,6 +53,7 @@ export type TriggersPageProps = {
   triggerMap?: FinalTriggerItem[];
   workflows: string[];
   workflowId?: string;
+  hasWorkspace?: boolean;
 };
 
 export const iconMap: Record<PushConditionType | PrConditionType | TagConditionType, TypeIconName> = {
