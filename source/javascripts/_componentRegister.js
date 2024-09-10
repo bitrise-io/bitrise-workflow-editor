@@ -158,7 +158,7 @@ angular
   )
   .component(
     "rWorkflowEmptyState",
-    register(WorkflowEmptyState, ["onAddWorkflow"]),
+    register(WorkflowEmptyState, ["onCreateWorkflow"]),
   )
   .component(
     "rWorkflowRecipesInfoBanner",
@@ -213,7 +213,6 @@ angular
       "onLoadSecrets",
       "onCreateEnvVar",
       "onLoadEnvVars",
-      "appSlug",
       "secretsWriteNew",
     ]),
   )

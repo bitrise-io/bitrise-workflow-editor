@@ -1,4 +1,5 @@
-import WorkflowEmptyState from '../WorkflowEmptyState';
+import WorkflowEmptyState from './WorkflowEmptyState';
+import CreateWorkflowDialog from './CreateWorkflowDialog/CreateWorkflowDialog';
 import RunWorkflowDialog from './RunWorkflowDialog/RunWorkflowDialog';
 import StepConfigDrawer from './StepConfigDrawer/StepConfigDrawer';
 import StepSelectorDrawer from './StepSelectorDrawer/StepSelectorDrawer';
@@ -9,6 +10,7 @@ import StepBundlePanel from './StepBundlePanel/StepBundlePanel';
 import WithBlockPanel from './WithBlockPanel/WithBlockPanel';
 
 export {
+  CreateWorkflowDialog,
   RunWorkflowDialog,
   StepBundlePanel,
   StepConfigDrawer,
