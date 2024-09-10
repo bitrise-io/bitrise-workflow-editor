@@ -23,11 +23,11 @@ type Action = {
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set) => ({
-  stepIndex: 0,
+  stepIndex: -1,
   workflowId: '',
   isDialogOpen: undefined,
   closeDialog: () => {
-    return set(() => ({ isDialogOpen: undefined }));
+    return set(() => ({ stepIndex: -1, workflowId: '', isDialogOpen: undefined }));
   },
   openCreateWorkflowDialog: () => {
     return set(() => ({ isDialogOpen: 'create-workflow' }));
