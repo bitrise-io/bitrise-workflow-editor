@@ -73,11 +73,7 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
 
   if (isEmpty) {
     return (
-      <EmptyState
-        title="Add Steps or chain Workflows"
-        description="Add Steps from the library or modularize by Workflow chaining."
-        style={{ padding: 12 }}
-      >
+      <EmptyState title="" description="There are no Steps" style={{ padding: 12 }}>
         <Button
           variant="secondary"
           size="md"

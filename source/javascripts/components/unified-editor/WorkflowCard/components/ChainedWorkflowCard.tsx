@@ -1,17 +1,6 @@
 /* eslint-disable import/no-cycle */
 import { useRef } from 'react';
-import {
-  Box,
-  Button,
-  ButtonGroup,
-  Card,
-  CardProps,
-  Collapse,
-  ControlButton,
-  EmptyState,
-  Text,
-  useDisclosure,
-} from '@bitrise/bitkit';
+import { Box, ButtonGroup, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
@@ -74,13 +63,7 @@ const ChainedWorkflowCard = ({
   });
 
   if (!result) {
-    return (
-      <EmptyState title="" description="There are no Steps.">
-        <Button size="md" onClick={() => onAddStepClick?.(id, 0)}>
-          Add Step
-        </Button>
-      </EmptyState>
-    );
+    return null;
   }
 
   if (sortable.isDragging) {

@@ -19,8 +19,8 @@ type UseSelectedWorkflowResult = [
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   const toast = useToast();
-  const workflows = useWorkflows();
   const [searchParams, setSearchParams] = useSearchParams();
+  const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
 
   useEffect(() => {
