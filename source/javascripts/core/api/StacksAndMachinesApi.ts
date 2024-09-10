@@ -16,6 +16,7 @@ type StacksAndMachinesResponse = {
   };
   available_machines: {
     [osId: string]: {
+      default_machine_type: string;
       machine_types: {
         [machineTypeId: string]: {
           ram: string;
@@ -43,6 +44,7 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
 
   const availableStacks: Stack[] = [];
   const availableMachineTypes: MachineType[] = [];
+  const defaultMachineTypeIdOfOSs: { [key: string]: string } = {};
 
   mapValues(response.available_stacks, ({ title, available_machines = [] }, id) => {
     availableStacks.push({
@@ -52,8 +54,10 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
     });
   });
 
-  mapValues(response.available_machines, (os) => {
-    mapValues(os.machine_types, (machine, id) => {
+  mapValues(response.available_machines, ({ machine_types, default_machine_type }, os) => {
+    defaultMachineTypeIdOfOSs[os] = default_machine_type;
+
+    mapValues(machine_types, (machine, id) => {
       availableMachineTypes.push({
         id,
         name: machine.name,
@@ -71,12 +75,13 @@ async function getStacksAndMachines({ appSlug, signal }: { appSlug: string; sign
   });
 
   return {
-    hasSelfHostedRunner: response.has_self_hosted_runner,
-    hasDedicatedMachine: response.has_dedicated_machine,
-    defaultStackId: response.default_stack_id,
-    defaultMachineId: response.default_machine_id,
     availableStacks,
     availableMachineTypes,
+    defaultMachineTypeIdOfOSs,
+    defaultStackId: response.default_stack_id,
+    defaultMachineTypeId: response.default_machine_id,
+    hasDedicatedMachine: response.has_dedicated_machine,
+    hasSelfHostedRunner: response.has_self_hosted_runner,
   };
 }
 

@@ -64,14 +64,13 @@ const MockYml: BitriseYml = {
       ],
       meta: {
         'bitrise.io': {
-          stack: 'stack-0',
-          machine_type_id: 'machine-1',
+          stack: 'osx-stack',
         },
       },
     },
     wf2: {
       steps: [{ 'save-cache@1.2.0': {} }, { 'script@1.1.5': {} }, { 'restore-cache@2.4.0': {} }],
-      meta: { 'bitrise.io': { stack: 'stack-invalid', machine_type_id: 'machine-invalid' } },
+      meta: { 'bitrise.io': { stack: 'invalid-stack', machine_type_id: 'invalid-machine' } },
     },
     wf3: {
       before_run: ['_utility1'],
@@ -86,7 +85,7 @@ const MockYml: BitriseYml = {
       ],
       after_run: ['_utility2'],
       envs: [{ '!TEST': 'hello', opts: { is_expand: true } }],
-      meta: { 'bitrise.io': { machine_type_id: 'machine-invalid' } },
+      meta: { 'bitrise.io': { machine_type_id: 'invalid-machine' } },
     },
     _utility1: {
       steps: [{ 'git-clone@8': { outputs: [{ title: 'Output' }] } }],
@@ -98,7 +97,7 @@ const MockYml: BitriseYml = {
   },
   meta: {
     'bitrise.io': {
-      stack: 'stack-1',
+      stack: 'linux-stack',
       machine_type_id: 'machine-2',
     },
   },
