@@ -23,10 +23,11 @@ import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
 type Props = UseDisclosureProps & { workflowId: string };
 
 const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
-  const form = useFormContext<FormValues>();
-  const hasChanges = form.formState.isDirty;
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
+
+  const form = useFormContext<FormValues>();
+  const hasChanges = form.formState.isDirty;
 
   const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
 

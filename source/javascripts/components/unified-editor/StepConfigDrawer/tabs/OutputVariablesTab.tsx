@@ -7,13 +7,8 @@ import StepHelperText from '../components/StepHelperText';
 
 const OutputVariablesTab = () => {
   const [, copy] = useCopyToClipboard();
-  const { data, isLoading } = useStepDrawerContext();
+  const { data } = useStepDrawerContext();
   const { mergedValues } = data ?? {};
-
-  // TODO loading state
-  if (isLoading) {
-    return <>Loading...</>;
-  }
 
   return (
     <Box display="flex" flexDirection="column" gap="24">

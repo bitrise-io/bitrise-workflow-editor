@@ -42,37 +42,45 @@ type AlgoliaStepInputResponse = {
 };
 
 // TRANSFORMATIONS
-function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: string[] = []): Step | undefined {
-  const { version } = StepService.parseStepCVS(cvs);
+function toStep(
+  cvs: string,
+  response: Partial<AlgoliaStepResponse>,
+  versions: string[] = [],
+): Required<Pick<Step, 'cvs' | 'defaultValues' | 'resolvedInfo'>> | undefined {
+  const { version = '' } = StepService.parseStepCVS(cvs);
   if (!response.id) {
     return undefined;
   }
 
-  const latestVersion = response.latest_version_number || '';
+  const title = StepService.resolveTitle(response.cvs || cvs, response.step);
+  const icon = StepService.resolveIcon(response.step, response.info);
+  const normalizedVersion =
+    VersionUtils.normalizeVersion(version) ?? VersionUtils.normalizeVersion(response.version) ?? '';
+  const resolvedVersion = response.version ?? VersionUtils.resolveVersion(version, versions) ?? '';
+  const latestVersion = response.latest_version_number || VersionUtils.resolveVersion('', versions) || '';
+  const isLatest = Boolean(response.is_latest);
   const isDeprecated = Boolean(response.is_deprecated);
+  const isOfficial = Boolean(response.info?.maintainer === Maintainer.Bitrise && !isDeprecated);
+  const isVerified = Boolean(response.info?.maintainer === Maintainer.Verified && !isDeprecated);
+  const isCommunity = Boolean(response.info?.maintainer === Maintainer.Community && !isDeprecated);
 
   return {
-    cvs,
-    defaultValues: response.step,
-    userValues: undefined, // The values are coming from the bitrise.yml file defined by the user
-    mergedValues: undefined, // The merged values of the defaults and user values
+    cvs: response.cvs || cvs,
+    defaultValues: response.step ?? {},
     resolvedInfo: {
       id: response.id,
-      cvs: response.cvs || cvs,
-      title: StepService.resolveTitle(cvs, response.step),
-      icon: StepService.resolveIcon(response.step, response.info),
+      title,
+      icon,
       versions,
-      version: version || '',
-      normalizedVersion:
-        VersionUtils.normalizeVersion(response.version) || VersionUtils.normalizeVersion(version) || '',
-      resolvedVersion: response.version || '',
+      version,
+      normalizedVersion,
+      resolvedVersion,
       latestVersion,
-      isLatest: Boolean(response.is_latest),
-      isUpgradable: VersionUtils.hasVersionUpgrade(response.version, versions),
+      isLatest,
       isDeprecated,
-      isOfficial: Boolean(response.info?.maintainer === Maintainer.Bitrise && !isDeprecated),
-      isVerified: Boolean(response.info?.maintainer === Maintainer.Verified && !isDeprecated),
-      isCommunity: Boolean(response.info?.maintainer === Maintainer.Community && !isDeprecated),
+      isOfficial,
+      isVerified,
+      isCommunity,
     },
   };
 }
@@ -138,7 +146,19 @@ async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
     filters: `id:${id}`,
   });
   const availableVersions = results.map((step) => step.version).filter(Boolean) as string[];
-  return (results.map((step) => toStep(cvs, step, availableVersions)).filter(Boolean) as Step[]).find(
+  const resolvedVersion = VersionUtils.resolveVersion(version, availableVersions) || '';
+
+  const inputs = await getAlgoliaStepInputsByCvs(StepService.createStepCVS(id, resolvedVersion));
+  const steps = results
+    .map((step) => {
+      const result = toStep(cvs, step, availableVersions);
+      if (result) {
+        result.defaultValues.inputs = inputs;
+      }
+      return result;
+    })
+    .filter(Boolean) as Step[];
+  return steps?.find(
     ({ resolvedInfo }) => resolvedInfo?.resolvedVersion === VersionUtils.resolveVersion(version, availableVersions),
   );
 }
