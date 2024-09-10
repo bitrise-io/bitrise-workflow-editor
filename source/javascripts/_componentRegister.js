@@ -213,7 +213,6 @@ angular
       "onLoadSecrets",
       "onCreateEnvVar",
       "onLoadEnvVars",
-      "appSlug",
       "secretsWriteNew",
     ]),
   )

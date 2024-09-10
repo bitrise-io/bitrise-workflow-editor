@@ -81,7 +81,6 @@
                   on-create-env-var="workflowsCtrl.saveEnvVarFromReact"
                   on-load-env-vars="insertVariableCtrl.initForReact(null, workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
                   secrets-write-new="mainCtrl.appSecretsWriteNew"
-                  app-slug="appService.appDetails.slug"
                 ]
               div[ng-if="workflowsCtrl.selectedStep.isStepBundle()"]
                 r-step-bundle-panel[bundle-name="workflowsCtrl.selectedStep.displayName()"]

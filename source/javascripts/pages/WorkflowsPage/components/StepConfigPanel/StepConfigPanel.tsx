@@ -8,6 +8,7 @@ import { InputCategory, OnStepChange, Step, StepVersionWithRemark } from '@/mode
 import { EnvVar } from '@/core/models/EnvVar';
 import { Secret } from '@/core/models/Secret';
 import { StepOutputVariable } from '@/core/models/Step';
+import WindowUtils from '@/core/utils/WindowUtils';
 import StepConfiguration from './StepConfiguration';
 import StepOutputVariables from './StepOutputVariables';
 import StepProperties from './StepProperties';
@@ -30,7 +31,6 @@ type Props = {
   onLoadSecrets: () => Promise<Secret[]>;
   onCreateEnvVar: (envVar: EnvVar) => void;
   onLoadEnvVars: () => Promise<EnvVar[]>;
-  appSlug: string;
   secretsWriteNew: boolean;
 };
 
@@ -50,9 +50,9 @@ const StepConfigPanel = ({
   onLoadSecrets,
   onCreateEnvVar,
   onLoadEnvVars,
-  appSlug,
   secretsWriteNew,
 }: Props): JSX.Element => {
+  const appSlug = WindowUtils.appSlug() ?? '';
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
   const { mutate } = useMutation({
     mutationFn: (secret: Secret) =>

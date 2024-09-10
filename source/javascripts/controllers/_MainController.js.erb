@@ -1,6 +1,7 @@
 import _ from "underscore";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { safeDigest } from "@/services/react-compat";
+import {safeDigest} from "@/services/react-compat";
+import WindowUtils from "@/core/utils/WindowUtils";
 
 (function () {
   "use strict";
@@ -38,7 +39,7 @@ import { safeDigest } from "@/services/react-compat";
       viewModel.isUpdateConfigurationDialogOpen = false;
       viewModel.appConfigYML = undefined;
       viewModel.defaultBranch = "";
-			viewModel.gitRepoSlug = "";
+      viewModel.gitRepoSlug = "";
       viewModel.appDetails;
       viewModel.showSharedSecrets = false;
       viewModel.menus = _.compact([
@@ -337,7 +338,7 @@ import { safeDigest } from "@/services/react-compat";
           );
         }).then(
           function () {
-            logger.setTags({ menuID: menu.id });
+            logger.setTags({menuID: menu.id});
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -566,7 +567,7 @@ import { safeDigest } from "@/services/react-compat";
                     .then(resolve, reject);
                 case "yml":
                   viewModel.appConfigYML = appService.appConfigYML;
-                                    return appService
+                  return appService
                     .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
                     .then(function () {
                       return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
@@ -750,7 +751,7 @@ import { safeDigest } from "@/services/react-compat";
 
             switch (requestService.mode) {
               case "website":
-                requestService.appSlug = appServiceUtil.getAppSlug();
+                requestService.appSlug = WindowUtils.appSlug();
 
                 if (!requestService.appSlug) {
                   return reject("No app slug specified.");

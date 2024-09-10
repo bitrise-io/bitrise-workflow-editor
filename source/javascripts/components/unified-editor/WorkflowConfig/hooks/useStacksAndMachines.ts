@@ -1,9 +1,9 @@
 import { useQuery } from '@tanstack/react-query';
+import WindowUtils from '@/core/utils/WindowUtils';
 import StacksAndMachinesApi from '@/core/api/StacksAndMachinesApi';
-import { getAppSlug } from '@/services/app-service';
 
 const useStacksAndMachines = () => {
-  const appSlug = getAppSlug() ?? '';
+  const appSlug = WindowUtils.appSlug() ?? '';
 
   return useQuery({
     enabled: Boolean(appSlug),
