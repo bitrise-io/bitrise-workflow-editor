@@ -22,6 +22,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const {
     openStepConfigDrawer,
     openStepSelectorDrawer,
+    openRunWorkflowDialog,
     openChainWorkflowDialog,
     openDeleteWorkflowDialog,
     openWorkflowConfigDrawer,
@@ -48,7 +49,13 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
         </Menu>
 
         {RuntimeUtils.isWebsiteMode() && (
-          <IconButton iconName="Play" aria-label="Run Workflow" size="md" variant="secondary" />
+          <IconButton
+            iconName="Play"
+            aria-label="Run Workflow"
+            size="md"
+            variant="secondary"
+            onClick={() => openRunWorkflowDialog(workflowId)}
+          />
         )}
       </Box>
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
