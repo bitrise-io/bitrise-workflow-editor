@@ -27,6 +27,10 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
   }, [result, workflowId, stepIndex]);
 
   useEffect(() => {
+    if (result.isLoading) {
+      return;
+    }
+
     form.reset({
       configuration: {
         is_always_run: result?.data?.mergedValues?.is_always_run ?? false,
@@ -39,7 +43,7 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [workflowId, stepIndex]);
+  }, [workflowId, stepIndex, result.isLoading]);
   return (
     <Context.Provider value={value}>
       <FormProvider {...form}>{children}</FormProvider>
