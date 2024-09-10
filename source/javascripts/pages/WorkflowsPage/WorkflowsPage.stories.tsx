@@ -30,17 +30,25 @@ const meta: Meta<typeof WorkflowsPage> = {
 const cliStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'cli';
-    window.pageProps = undefined;
+    window.parent.pageProps = undefined;
   },
 };
 
 const websiteStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'website';
-    window.pageProps = {
+    window.parent.pageProps = {
+      abilities: {
+        canRunBuilds: true,
+      },
+      limits: {
+        uniqueStepLimit: undefined,
+      },
       project: {
         slug: 'asd-123',
         name: 'Mock Project',
+        defaultBranch: 'main',
+        buildTriggerToken: 'bt-1',
       },
     };
   },

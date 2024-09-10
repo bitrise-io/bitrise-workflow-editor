@@ -15,20 +15,16 @@
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
         .steps-container
           r-workflow-toolbar.react-toolbar[
-            organization-slug="appService.appDetails.ownerData.slug"
-            default-branch="workflowsCtrl.defaultBranch"
-            unique-step-count="workflowsCtrl.uniqueStepCount"
-            unique-step-limit="workflowsCtrl.uniqueStepLimit"
             workflows="workflowsCtrl.workflows"
             selected-workflow="workflowsCtrl.selectedWorkflow"
             select-workflow="workflowsCtrl.selectWorkflow"
             create-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
             chain-workflow="workflowsCtrl.openReactChainWorkflowDrawer"
-            delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
+            delete-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
             rearrange-workflows="workflowsCtrl.openRearrangeWorkflowsPopup"
+            unique-step-count="workflowsCtrl.uniqueStepCount"
             can-run-workflow="workflowsCtrl.canRunWorkflow"
             is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
-            run-workflow="workflowsCtrl.runWorkflow"
           ]
           section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30" id="steps-container"]
             header.workflow-header.with-flow-decoration
