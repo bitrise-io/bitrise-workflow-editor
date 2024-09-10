@@ -2,7 +2,6 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getAppSlug } from '@/services/app-service.mock';
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;
@@ -31,13 +30,19 @@ const meta: Meta<typeof WorkflowsPage> = {
 const cliStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'cli';
+    window.pageProps = undefined;
   },
 };
 
 const websiteStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'website';
-    getAppSlug.mockReturnValue(crypto.randomUUID());
+    window.pageProps = {
+      project: {
+        slug: 'asd-123',
+        name: 'Mock Project',
+      },
+    };
   },
 };
 

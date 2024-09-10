@@ -1,6 +1,5 @@
 import merge from 'lodash/merge';
 import { AnalyticsBrowser } from '@segment/analytics-next';
-import { getAppSlug } from '@/services/app-service';
 
 const { globalProps, dataLayer } = window.parent || {};
 
@@ -55,7 +54,7 @@ type SegmentEventContext = {
 };
 
 const baseProperties: SegmentEventProperties = {
-  app_slug: getAppSlug() || '',
+  app_slug: window.pageProps?.project?.slug ?? '',
   event_schema_version: 1,
   event_scope: 'user',
   event_type: 'interaction',

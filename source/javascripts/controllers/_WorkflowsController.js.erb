@@ -94,21 +94,15 @@ import EnvVarService from "@/core/models/EnvVarService";
         });
 
         if (requestService.isWebsiteMode()) {
-          loadAppAndUser();
+          viewModel.defaultBranch = window.pageProps?.project?.defaultBranch ?? ''
+          viewModel.buildTriggerToken = window.pageProps?.project?.buildTriggerToken ?? '';
+          viewModel.uniqueStepLimit = window.pageProps?.limits?.uniqueStepLimit ?? '';
+          updateCanRunWorkflow(viewModel.selectedWorkflow);
         }
       };
 
-      function loadAppAndUser() {
-        $q.all([requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([app, _planData]) {
-          viewModel.defaultBranch = app?.default_branch;
-          viewModel.buildTriggerToken = app?.build_trigger_token;
-          viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
-          updateCanRunWorkflow(app?.build_trigger_token, viewModel.selectedWorkflow);
-        });
-      }
-
-      function updateCanRunWorkflow(buildTriggerToken, workflow) {
-        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && !isUtilityWorkflow(workflow);
+      function updateCanRunWorkflow(workflow) {
+        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(viewModel.buildTriggerToken) && !isUtilityWorkflow(workflow);
       }
 
       function isUtilityWorkflow(workflow) {
@@ -188,7 +182,7 @@ import EnvVarService from "@/core/models/EnvVarService";
         return viewModel.selectedWorkflow;
       }, function (selectedWorkflow) {
         viewModel.renamedWorkflow = null;
-        updateCanRunWorkflow(viewModel.buildTriggerToken, selectedWorkflow);
+        updateCanRunWorkflow(selectedWorkflow);
 
         if (!selectedWorkflow) {
           return;

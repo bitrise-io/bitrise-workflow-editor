@@ -30,7 +30,6 @@ type Props = {
   onLoadSecrets: () => Promise<Secret[]>;
   onCreateEnvVar: (envVar: EnvVar) => void;
   onLoadEnvVars: () => Promise<EnvVar[]>;
-  appSlug: string;
   secretsWriteNew: boolean;
 };
 
@@ -50,9 +49,9 @@ const StepConfigPanel = ({
   onLoadSecrets,
   onCreateEnvVar,
   onLoadEnvVars,
-  appSlug,
   secretsWriteNew,
 }: Props): JSX.Element => {
+  const appSlug = window.pageProps?.project?.slug ?? '';
   const showOutputVariables = step.isConfigured() && outputVariables.length > 0;
   const { mutate } = useMutation({
     mutationFn: (secret: Secret) =>

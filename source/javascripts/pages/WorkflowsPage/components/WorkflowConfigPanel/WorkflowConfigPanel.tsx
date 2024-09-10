@@ -2,7 +2,6 @@ import { FormEventHandler, useEffect } from 'react';
 import { FormProvider, useForm, WatchObserver } from 'react-hook-form';
 import { Tab, TabList, TabPanels, Tabs } from '@bitrise/bitkit';
 import { PartialDeep } from 'type-fest';
-import { getAppSlug } from '@/services/app-service';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import Header from './components/Header';
@@ -17,7 +16,12 @@ type Props = {
   onChange: (data: FormValues) => void;
 };
 
-const WorkflowConfigPanel = ({ appSlug = getAppSlug() || undefined, yml, defaultValues, onChange }: Props) => {
+const WorkflowConfigPanel = ({
+  appSlug = window.pageProps?.project?.slug || undefined,
+  yml,
+  defaultValues,
+  onChange,
+}: Props) => {
   const form = useForm<FormValues>({
     mode: 'all',
     defaultValues: {

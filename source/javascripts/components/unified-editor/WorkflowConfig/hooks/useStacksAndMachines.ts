@@ -1,9 +1,8 @@
 import { useQuery } from '@tanstack/react-query';
 import StacksAndMachinesApi from '@/core/api/StacksAndMachinesApi';
-import { getAppSlug } from '@/services/app-service';
 
 const useStacksAndMachines = () => {
-  const appSlug = getAppSlug() ?? '';
+  const appSlug = window.pageProps?.project?.slug ?? '';
 
   return useQuery({
     enabled: Boolean(appSlug),
