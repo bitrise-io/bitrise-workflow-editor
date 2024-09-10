@@ -44,73 +44,78 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
           Learn more
         </Link>
       </Text>
-      <EmptyState
-        iconName="Trigger"
-        title="An overview of your target based triggers will appear here"
-        maxHeight="208"
-        marginBlockEnd="24"
-      >
-        <Text marginBlockStart="8">
-          Start configuring triggers directly in your Workflow or Pipeline settings. With this method, a single Git
-          event can execute multiple Workflows or Pipelines.{' '}
-          <Link
-            colorScheme="purple"
-            href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-          >
-            Learn more
-          </Link>
-        </Text>
-      </EmptyState>
-      <SearchInput
-        onChange={() => {}}
-        maxWidth="320"
-        marginBlockEnd="16"
-        placeholder="Filter by target, type or condition"
-      />
-      <TableContainer>
-        <Table>
-          <Thead>
-            <Tr>
-              <Th>Target</Th>
-              <Th>Type</Th>
-              <Th>Conditions</Th>
-              <Th />
-            </Tr>
-          </Thead>
-          <Tbody>
-            <Tr>
-              <Td>
-                <Text>A</Text>
-                <Text textStyle="body/md/regular" color="text/secondary">
-                  {workflowId ? 'Workflow' : 'Pipeline'}
-                </Text>
-              </Td>
-              <Td>B</Td>
-              <Td>C</Td>
-              <Td>
-                {workflowId && (
-                  <IconButton
-                    aria-label="Edit trigger"
-                    iconName="Settings"
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {}}
-                  />
-                )}
-                {pipelines && (
-                  <IconButton
-                    aria-label="Edit in YAML"
-                    iconName="Code"
-                    size="sm"
-                    variant="secondary"
-                    onClick={() => {}}
-                  />
-                )}
-              </Td>
-            </Tr>
-          </Tbody>
-        </Table>
-      </TableContainer>
+      {gitEvents ? (
+        <>
+          <SearchInput
+            onChange={() => {}}
+            maxWidth="320"
+            marginBlockEnd="16"
+            placeholder="Filter by target, type or condition"
+          />
+          <TableContainer marginBlockEnd="24">
+            <Table>
+              <Thead>
+                <Tr>
+                  <Th>Target</Th>
+                  <Th>Type</Th>
+                  <Th>Conditions</Th>
+                  <Th />
+                </Tr>
+              </Thead>
+              <Tbody>
+                <Tr>
+                  <Td>
+                    <Text>A</Text>
+                    <Text textStyle="body/md/regular" color="text/secondary">
+                      {workflowId ? 'Workflow' : 'Pipeline'}
+                    </Text>
+                  </Td>
+                  <Td>B</Td>
+                  <Td>C</Td>
+                  <Td>
+                    {workflowId && (
+                      <IconButton
+                        aria-label="Edit trigger"
+                        iconName="Settings"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {}}
+                      />
+                    )}
+                    {pipelines && (
+                      <IconButton
+                        aria-label="Edit in YAML"
+                        iconName="Code"
+                        size="sm"
+                        variant="secondary"
+                        onClick={() => {}}
+                      />
+                    )}
+                  </Td>
+                </Tr>
+              </Tbody>
+            </Table>
+          </TableContainer>
+        </>
+      ) : (
+        <EmptyState
+          iconName="Trigger"
+          title="An overview of your target based triggers will appear here"
+          maxHeight="208"
+          marginBlockEnd="24"
+        >
+          <Text marginBlockStart="8">
+            Start configuring triggers directly in your Workflow or Pipeline settings. With this method, a single Git
+            event can execute multiple Workflows or Pipelines.{' '}
+            <Link
+              colorScheme="purple"
+              href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+            >
+              Learn more
+            </Link>
+          </Text>
+        </EmptyState>
+      )}
     </>
   );
 };
