@@ -7,11 +7,12 @@ import {
   StepSelectorDrawer,
   WorkflowConfigDrawer,
   WorkflowConfigPanel,
+  WorkflowEmptyState,
 } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import CreateWorkflowDialog from '@/components/unified-editor/CreateWorkflowDialog/CreateWorkflowDialog';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
-import CreateWorkflowDialog from './components.new/CreateWorkflowDialog/CreateWorkflowDialog';
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
 import DeleteWorkflowDialog from './components.new/DeleteWorkflowDialog/DeleteWorkflowDialog';
@@ -23,7 +24,8 @@ type Props = {
 
 const WorkflowsPageContent = () => {
   const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
-  const { workflowId, stepIndex, isDialogOpen, closeDialog, openStepConfigDrawer } = useWorkflowsPageStore();
+  const { workflowId, stepIndex, isDialogOpen, closeDialog, openCreateWorkflowDialog, openStepConfigDrawer } =
+    useWorkflowsPageStore();
 
   const { addStep, createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
@@ -55,10 +57,23 @@ const WorkflowsPageContent = () => {
     openStepConfigDrawer(workflowId, stepIndex);
   };
 
+  if (!selectedWorkflowId) {
+    return (
+      <Box h="100%" display="grid" gridTemplateRows="100%">
+        <WorkflowEmptyState onCreateWorkflow={openCreateWorkflowDialog} />
+        <CreateWorkflowDialog
+          isOpen={isCreateWorkflowDialogOpen}
+          onClose={closeDialog}
+          onCreateWorkflow={createWorkflow}
+        />
+      </Box>
+    );
+  }
+
   return (
     <>
       <Box h="100%" display="grid" gridTemplateColumns="1fr minmax(0px, 1024px)" gridTemplateRows="100%">
-        <WorkflowCanvasPanel />
+        <WorkflowCanvasPanel workflowId={selectedWorkflowId} />
         <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       </Box>
 

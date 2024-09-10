@@ -5,6 +5,7 @@ export type WorkflowCardCallbacks = {
   onStepSelect?: (workflowId: string, stepIndex: number) => void;
   onChainedWorkflowsUpdate?: (workflowId: string, placement: Placement, chainedWorkflowIds: string[]) => void;
   onAddStepClick?: (workflowId: string, stepIndex: number) => void;
+  onCreateWorkflow?: () => void;
   onEditWorkflowClick?: (workflowId: string) => void;
   onAddChainedWorkflowClick?: (workflowId: string) => void;
   onDeleteChainedWorkflowClick?: (chainedWorkflowIndex: number, parentWorkflowId: string, placement: Placement) => void;

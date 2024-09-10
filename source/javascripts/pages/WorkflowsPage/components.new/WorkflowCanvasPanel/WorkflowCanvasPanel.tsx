@@ -2,14 +2,15 @@ import { Box, IconButton, Menu, MenuButton, MenuItem, MenuList } from '@bitrise/
 import { useShallow } from 'zustand/react/shallow';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
-const WorkflowCanvasPanel = () => {
-  const [{ id: selectedWorkflowId }] = useSelectedWorkflow();
+type Props = {
+  workflowId: string;
+};
 
+const WorkflowCanvasPanel = ({ workflowId }: Props) => {
   const { moveStep, setChainedWorkflows, deleteChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
       moveStep: s.moveStep,
@@ -41,7 +42,7 @@ const WorkflowCanvasPanel = () => {
           />
           <MenuList>
             <MenuItem iconName="Trash" onClick={openDeleteWorkflowDialog} isDanger>
-              Delete '{selectedWorkflowId}'
+              Delete '{workflowId}'
             </MenuItem>
           </MenuList>
         </Menu>
@@ -52,7 +53,7 @@ const WorkflowCanvasPanel = () => {
       </Box>
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
-          id={selectedWorkflowId}
+          id={workflowId}
           onStepMove={moveStep}
           onStepSelect={openStepConfigDrawer}
           onAddStepClick={openStepSelectorDrawer}
