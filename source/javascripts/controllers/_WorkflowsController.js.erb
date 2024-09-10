@@ -7,6 +7,7 @@ import {
 } from "@/pages/WorkflowsPage/components/StepConfigPanel/StepConfigPanel.utils";
 import semverDiff from 'semver/functions/diff'
 import EnvVarService from "@/core/models/EnvVarService";
+import WindowUtils from "@/core/utils/WindowUtils";
 
 (function () {
   "use strict";
@@ -94,9 +95,10 @@ import EnvVarService from "@/core/models/EnvVarService";
         });
 
         if (requestService.isWebsiteMode()) {
-          viewModel.defaultBranch = window.pageProps?.project?.defaultBranch ?? ''
-          viewModel.buildTriggerToken = window.pageProps?.project?.buildTriggerToken ?? '';
-          viewModel.uniqueStepLimit = window.pageProps?.limits?.uniqueStepLimit ?? '';
+          var pageProps = WindowUtils.pageProps();
+          viewModel.defaultBranch = pageProps?.project?.defaultBranch ?? ''
+          viewModel.buildTriggerToken = pageProps?.project?.buildTriggerToken ?? '';
+          viewModel.uniqueStepLimit = pageProps?.limits?.uniqueStepLimit ?? '';
           updateCanRunWorkflow(viewModel.selectedWorkflow);
         }
       };
@@ -264,7 +266,7 @@ import EnvVarService from "@/core/models/EnvVarService";
           branch: branch,
           workflow: viewModel.selectedWorkflow.id,
           triggerToken: viewModel.buildTriggerToken,
-          triggeredBy: window.parent?.globalProps?.user?.username
+          triggeredBy: WindowUtils.globalProps()?.user?.username,
         }).then(function (data) {
           if (data.status === "ok" && data.build_url) {
             window.open(data.build_url, "_blank");
