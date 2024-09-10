@@ -34,6 +34,7 @@ const ChainedWorkflowCard = ({
   ...callbacks
 }: Props) => {
   const {
+    onAddStepClick,
     onEditWorkflowClick,
     onChainedWorkflowsUpdate,
     onAddChainedWorkflowClick,
@@ -62,9 +63,6 @@ const ChainedWorkflowCard = ({
   });
 
   if (!result) {
-    // TODO: Missing empty state
-    // eslint-disable-next-line no-console
-    console.warn(`Workflow '${id}' is not found in yml!`);
     return null;
   }
 

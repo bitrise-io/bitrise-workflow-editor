@@ -119,6 +119,13 @@ function resolveIcon(step?: StepYmlObject, info?: StepInfo): string {
 function getSelectableVersions(step?: Step): Array<{ value: string; label: string }> {
   const results = [{ value: '', label: 'Always latest' }];
 
+  if (step?.resolvedInfo?.version && /\d+\.\d+\.\d+/g.test(step.resolvedInfo.version)) {
+    results.push({
+      value: step.resolvedInfo.version,
+      label: `${step.resolvedInfo.version} - ${VersionUtils.getVersionRemark(step.resolvedInfo.version)}`,
+    });
+  }
+
   const versions = step?.resolvedInfo?.versions;
   if (versions) {
     results.push(

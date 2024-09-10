@@ -26,12 +26,34 @@ declare global {
 
     dataLayer?: object[];
     globalProps?: {
+      user: {
+        slug: string;
+        username: string;
+      };
+      account: {
+        slug: string;
+        name: string;
+      };
       env: {
         SEGMENT_JS_WRITE_KEY_NEW: string;
       };
       featureFlags?: {
         user: { [s: string]: unknown };
         account: { [s: string]: unknown };
+      };
+    };
+    pageProps?: {
+      abilities?: {
+        canRunBuilds: boolean;
+      };
+      limits?: {
+        uniqueStepLimit?: number;
+      };
+      project?: {
+        slug: string;
+        name: string;
+        defaultBranch?: string;
+        buildTriggerToken?: string;
       };
     };
   }

@@ -1,49 +1,43 @@
+import WindowUtils from "@/core/utils/WindowUtils";
 (function () {
-    "use strict";
+  "use strict";
 
-    const CLIENT_SIDE_ID = window.parent.location.host === 'app.bitrise.io'
-        ? '<%= data[:constants][:ld][:client_id_production] %>'
-        : '<%= data[:constants][:ld][:client_id_staging] %>';
+  const CLIENT_SIDE_ID = window.parent.location.host === 'app.bitrise.io'
+    ? '<%= data[:constants][:ld][:client_id_production] %>'
+    : '<%= data[:constants][:ld][:client_id_staging] %>';
 
-    angular
-        .module("BitriseWorkflowEditor")
-        .service('launchDarklyService', function (requestService, appServiceUtil) {
-            const launchDarklyService = {};
-            let client
+  angular
+    .module("BitriseWorkflowEditor")
+    .service('launchDarklyService', function (requestService, appServiceUtil) {
+      const launchDarklyService = {};
+      let client
 
-            launchDarklyService.initialize = async () => {
-                if (!requestService.isWebsiteMode()) {
-                    return;
-                }
+      launchDarklyService.initialize = async () => {
+        if (!requestService.isWebsiteMode()) {
+          return;
+        }
 
-                if (!client) {
-                    const [LDClient, app] = await Promise.all([
-                        import('launchdarkly-js-client-sdk'),
-                        requestService.getApp(appServiceUtil.getAppSlug())
-                    ]);
+        if (!client) {
+          const [LDClient] = await Promise.all([import('launchdarkly-js-client-sdk')]);
+          const key = `org-${WindowUtils.globalProps()?.account?.slug}`;
+          client = LDClient.initialize(CLIENT_SIDE_ID, {key});
+        }
 
-                    const key = app.owner_type === 'Organization' ? `org-${app.owner_slug}` : app.owner_slug;
+        await client.waitUntilReady();
+      };
 
-                    client = LDClient.initialize(CLIENT_SIDE_ID, {
-                        key,
-                    });
-                }
+      launchDarklyService.variation = (featureFlagKey, defaultValue = false) => {
+        if (window.localFeatureFlags[featureFlagKey] !== undefined) {
+          return window.localFeatureFlags[featureFlagKey];
+        }
 
-                await client.waitUntilReady();
-            };
+        if (!requestService.isWebsiteMode()) {
+          return defaultValue;
+        }
 
-            launchDarklyService.variation = (featureFlagKey, defaultValue = false) => {
-                if (window.localFeatureFlags[featureFlagKey] !== undefined) {
-                    return window.localFeatureFlags[featureFlagKey];
-                }
+        return client.variation(featureFlagKey, defaultValue);
+      };
 
-                if (!requestService.isWebsiteMode()) {
-                    return defaultValue;
-                }
-
-                return client.variation(featureFlagKey, defaultValue);
-            };
-
-            return launchDarklyService;
-        });
+      return launchDarklyService;
+    });
 })();

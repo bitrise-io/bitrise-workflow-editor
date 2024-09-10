@@ -3,18 +3,15 @@ import { useShallow } from 'zustand/react/shallow';
 import { useQuery } from '@tanstack/react-query';
 import merge from 'lodash/merge';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { useAlgoliaStepInputs } from '@/hooks/useAlgolia';
 import { Step, StepYmlObject } from '@/core/models/Step';
 import StepService from '@/core/models/StepService';
 import StepApi from '@/core/api/StepApi';
-import defaultIcon from '@/../images/step/icon-default.svg';
 
-type UseStepResult = {
-  data?: Step;
-  isLoading?: boolean;
+type YmlStepResult = {
+  data?: Required<Pick<Step, 'cvs' | 'userValues'>>;
 };
 
-function useStepFromYml(workflowId: string, stepIndex: number): UseStepResult {
+function useStepFromYml(workflowId: string, stepIndex: number): YmlStepResult {
   return useBitriseYmlStore(
     useShallow(({ yml }) => {
       const stepObjectFromYml = yml.workflows?.[workflowId]?.steps?.[stepIndex];
@@ -44,18 +41,16 @@ function useStepFromYml(workflowId: string, stepIndex: number): UseStepResult {
   );
 }
 
-function useStepFromApi(cvs = ''): UseStepResult {
+type ApiStepResult = {
+  data?: Required<Pick<Step, 'cvs' | 'defaultValues' | 'resolvedInfo'>>;
+  isLoading: boolean;
+};
+
+function useStepFromApi(cvs = ''): ApiStepResult {
   const { data, isLoading: isLoadingStep } = useQuery({
     queryKey: ['steps', { cvs }],
     queryFn: () => StepApi.getStepByCvs(cvs),
     enabled: Boolean(cvs),
-  });
-
-  const { defaultValues, resolvedInfo } = data ?? {};
-  const resolvedCvs = resolvedInfo?.cvs || cvs;
-  const { data: apiInputs, isLoading: isLoadingInputs } = useAlgoliaStepInputs({
-    cvs: resolvedCvs,
-    enabled: Boolean(resolvedCvs && StepService.isStepLibStep(cvs)),
   });
 
   return useMemo(() => {
@@ -63,41 +58,46 @@ function useStepFromApi(cvs = ''): UseStepResult {
       data: {
         cvs,
         defaultValues: {
-          ...defaultValues,
-          inputs: apiInputs || defaultValues?.inputs || [],
+          ...(data?.defaultValues ?? {}),
+          inputs: data?.defaultValues?.inputs || [],
         },
-        resolvedInfo,
+        resolvedInfo: data?.resolvedInfo ?? {},
       },
-      isLoading: isLoadingStep || isLoadingInputs,
+      isLoading: isLoadingStep,
     };
-  }, [cvs, defaultValues, apiInputs, resolvedInfo, isLoadingStep, isLoadingInputs]);
+  }, [cvs, data, isLoadingStep]);
 }
 
-const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefined => {
-  const { data: ymlData, isLoading: isLoadingYml } = useStepFromYml(workflowId, stepIndex);
-  const { cvs, userValues } = ymlData ?? {};
+type UseStepResult = {
+  data?: Step;
+  isLoading?: boolean;
+};
+
+const useStep = (workflowId: string, stepIndex: number): UseStepResult => {
+  const { data: ymlData } = useStepFromYml(workflowId, stepIndex);
+  const cvs = ymlData?.cvs ?? '';
+
   const { data: apiData, isLoading: isLoadingApi } = useStepFromApi(cvs);
-  const { defaultValues, resolvedInfo } = apiData ?? {};
 
   return useMemo(() => {
+    const userValues = ymlData?.userValues ?? {};
+    const defaultValues = apiData?.defaultValues ?? {};
+    const resolvedInfo = apiData?.resolvedInfo ?? {};
+
     if (!cvs) {
-      return { data: undefined };
+      return { data: undefined, isLoading: false };
     }
 
     if (StepService.isStepBundle(cvs) || StepService.isWithGroup(cvs)) {
       return {
         data: {
           cvs,
-          resolvedInfo: {
-            cvs,
-            id: cvs,
-            title: StepService.resolveTitle(cvs),
-            icon: defaultIcon,
-            version: '',
-            normalizedVersion: '',
-          },
+          defaultValues: {},
+          userValues,
+          mergedValues: {},
+          resolvedInfo: {},
         },
-        isLoading: isLoadingYml || isLoadingApi,
+        isLoading: isLoadingApi,
       };
     }
 
@@ -117,11 +117,14 @@ const useStep = (workflowId: string, stepIndex: number): UseStepResult | undefin
         defaultValues,
         userValues,
         mergedValues: merge({}, defaultValues, userValues, { inputs }),
-        resolvedInfo,
+        resolvedInfo: {
+          ...resolvedInfo,
+          title: userValues?.title || resolvedInfo?.title || cvs,
+        },
       },
-      isLoading: isLoadingYml || isLoadingApi,
+      isLoading: isLoadingApi,
     };
-  }, [resolvedInfo, cvs, defaultValues, isLoadingApi, isLoadingYml, userValues]);
+  }, [cvs, ymlData, apiData, isLoadingApi]);
 };
 
 export default useStep;
