@@ -12,6 +12,7 @@ import {
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import CreateWorkflowDialog from '@/components/unified-editor/CreateWorkflowDialog/CreateWorkflowDialog';
+import useEnvVars from '@/components/unified-editor/StepConfigDrawer/hooks/useEnvVars';
 import WorkflowCanvasPanel from './components.new/WorkflowCanvasPanel/WorkflowCanvasPanel';
 import ChainWorkflowDrawer from './components.new/ChainWorkflowDrawer/ChainWorkflowDrawer';
 import { useWorkflowsPageStore } from './WorkflowsPage.store';
@@ -35,6 +36,8 @@ const WorkflowsPageContent = () => {
       addChainedWorkflow: s.addChainedWorkflow,
     })),
   );
+
+  useEnvVars(workflowId, stepIndex);
 
   const {
     isStepConfigDrawerOpen,
