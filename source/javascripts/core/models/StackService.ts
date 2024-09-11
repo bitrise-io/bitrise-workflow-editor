@@ -1,7 +1,7 @@
 import { Stack, StackOption } from '@/core/models/Stack';
 
 function getOsOfStack(stack: Stack): string {
-  return stack.name.split('-')[0];
+  return stack.id.split('-')[0];
 }
 
 function getStackById(stacks: Stack[], id: string): Stack | undefined {
