@@ -106,7 +106,8 @@ const useStepOutputEnvVars = (workflowId: string) => {
       queryKey: ['steps', { cvs }],
       queryFn: async () => {
         const step = await StepApi.getStepByCvs(cvs);
-        return step?.defaultValues?.outputs?.map((env) => EnvVarService.parseYmlEnvVar(env)) ?? [];
+        const source = step?.resolvedInfo?.title || step?.resolvedInfo?.id || step?.cvs;
+        return step?.defaultValues?.outputs?.map((env) => EnvVarService.parseYmlEnvVar(env, source)) ?? [];
       },
     })),
     combine: (result) => {
