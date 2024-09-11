@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useMemo } from 'react';
 import { Badge, Box, ExpandableCard, Select, Text } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
@@ -33,53 +33,43 @@ const StackAndMachineCard = () => {
   const { register, formState, watch, setValue } = useFormContext<FormValues>();
   const [selectedStackId, selectedMachineTypeId] = watch(['configuration.stackId', 'configuration.machineTypeId']);
 
-  const isStackSelectorTouched = Boolean(
-    formState.dirtyFields.configuration?.stackId || formState.touchedFields.configuration?.stackId,
-  );
-
-  const isMachineTypeSelectorTouched = Boolean(
-    formState.dirtyFields.configuration?.machineTypeId || formState.touchedFields.configuration?.machineTypeId,
-  );
-
-  const {
-    selectedStack,
-    availableStackOptions,
-    isInvalidInitialStack,
-    selectedMachineType,
-    availableMachineTypeOptions,
-    isInvalidInitialMachineType,
-    isMachineTypeSelectionDisabled,
-  } = StackAndMachineService.selectStackAndMachine({
-    ...data,
+  const selectStackAndMachineProps = useMemo(() => {
+    return {
+      ...data,
+      selectedStackId,
+      selectedMachineTypeId,
+      initialStackId: formState.defaultValues?.configuration?.stackId ?? '',
+      initialMachineTypeId: formState.defaultValues?.configuration?.machineTypeId ?? '',
+    };
+  }, [
+    data,
     selectedStackId,
     selectedMachineTypeId,
-    initialStackId: formState.defaultValues?.configuration?.stackId ?? '',
-    initialMachineTypeId: formState.defaultValues?.configuration?.machineTypeId ?? '',
-    isStackSelectorTouched,
-    isMachineTypeSelectorTouched,
-  });
+    formState.defaultValues?.configuration?.stackId,
+    formState.defaultValues?.configuration?.machineTypeId,
+  ]);
 
-  const isDefault = !selectedStack.id && !selectedMachineType.id;
-  const shouldUpdateMachineType =
-    isStackSelectorTouched && !isLoading && !isMachineTypeSelectionDisabled && !isInvalidInitialMachineType;
+  const result = useMemo(() => {
+    const { selectedMachineType, ...rest } = StackAndMachineService.selectStackAndMachine(selectStackAndMachineProps);
 
-  useEffect(() => {
-    if (shouldUpdateMachineType) {
-      setValue('configuration.machineTypeId', selectedMachineType.id, {
-        shouldDirty: true,
-        shouldTouch: true,
-        shouldValidate: true,
-      });
-    }
-  }, [shouldUpdateMachineType, selectedMachineType.id, setValue]);
+    setValue('configuration.machineTypeId', selectedMachineType.id, {
+      shouldDirty: true,
+      shouldTouch: true,
+      shouldValidate: true,
+    });
+
+    return { selectedMachineType, ...rest };
+  }, [selectStackAndMachineProps, setValue]);
+
+  const isDefault = !result.selectedStack.id && !result.selectedMachineType.id;
 
   return (
     <ExpandableCard
       buttonContent={
         <ButtonContent
           isDefault={isDefault}
-          stackName={selectedStack.name}
-          machineTypeName={selectedMachineType.name}
+          stackName={result.selectedStack.name}
+          machineTypeName={result.selectedMachineType.name}
         />
       }
     >
@@ -88,10 +78,10 @@ const StackAndMachineCard = () => {
           isRequired
           label="Stack"
           isLoading={isLoading}
-          errorText={isInvalidInitialStack ? 'Invalid stack' : undefined}
+          errorText={result.isInvalidInitialStack ? 'Invalid stack' : undefined}
           {...register('configuration.stackId')}
         >
-          {availableStackOptions.map(({ value, label }) => (
+          {result.availableStackOptions.map(({ value, label }) => (
             <option key={value} value={value}>
               {label}
             </option>
@@ -101,11 +91,11 @@ const StackAndMachineCard = () => {
           isRequired
           label="Machine type"
           isLoading={isLoading}
-          isDisabled={isMachineTypeSelectionDisabled}
-          errorText={isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
+          isDisabled={result.isMachineTypeSelectionDisabled}
+          errorText={result.isInvalidInitialMachineType ? 'Invalid machine type' : undefined}
           {...register('configuration.machineTypeId')}
         >
-          {availableMachineTypeOptions.map(({ value, label }) => (
+          {result.availableMachineTypeOptions.map(({ value, label }) => (
             <option key={value} value={value}>
               {label}
             </option>

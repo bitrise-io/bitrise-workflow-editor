@@ -13,46 +13,41 @@ import {
 
 import { RunWorkflowDialog } from '@/components/unified-editor';
 import { Workflow } from '@/models';
+import WindowUtils from '@/core/utils/WindowUtils';
 import WorkflowSelector from './WorkflowSelector/WorkflowSelector';
 
 type WorkflowMainToolbarProps = {
-  organizationSlug?: string;
-  defaultBranch: string;
-  uniqueStepCount: number;
-  uniqueStepLimit?: number;
   workflows: Workflow[];
   selectedWorkflow?: Workflow;
   selectWorkflow: (workflow?: Workflow) => void;
   createWorkflow: VoidFunction;
   chainWorkflow: VoidFunction;
-  deleteSelectedWorkflow: VoidFunction;
+  deleteWorkflow: VoidFunction;
   rearrangeWorkflows: VoidFunction;
+  uniqueStepCount: number;
   canRunWorkflow: boolean;
   isRunWorkflowDisabled: boolean;
-  runWorkflow: (branch: string) => void;
 };
 
 const WorkflowMainToolbar = ({
-  organizationSlug,
-  defaultBranch,
-  uniqueStepCount,
-  uniqueStepLimit,
   workflows,
   selectedWorkflow,
   selectWorkflow,
   createWorkflow,
   chainWorkflow,
-  deleteSelectedWorkflow,
+  deleteWorkflow,
   rearrangeWorkflows,
+  uniqueStepCount,
   canRunWorkflow,
   isRunWorkflowDisabled,
-  runWorkflow,
 }: WorkflowMainToolbarProps): JSX.Element => {
   const { isOpen, onOpen, onClose } = useDisclosure();
+  const workspaceSlug = WindowUtils.workspaceSlug();
+  const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
   const showStepLimit = typeof uniqueStepLimit === 'number';
   const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
-  const upgradeLink = organizationSlug
-    ? `/organization/${organizationSlug}/credit_subscription/plan_selector_page`
+  const upgradeLink = workspaceSlug
+    ? `/organization/${workspaceSlug}/credit_subscription/plan_selector_page`
     : undefined;
 
   const handleOpenRunWorkflowDialog = () => {
@@ -101,7 +96,7 @@ const WorkflowMainToolbar = ({
                 >
                   Reorder Workflow chain
                 </MenuItem>
-                <MenuItem iconName="Trash" onClick={deleteSelectedWorkflow} isDanger>
+                <MenuItem iconName="Trash" onClick={deleteWorkflow} isDanger>
                   Delete `{selectedWorkflow.id}`
                 </MenuItem>
               </MenuList>
@@ -141,15 +136,7 @@ const WorkflowMainToolbar = ({
         )}
       </Box>
 
-      {selectedWorkflow && (
-        <RunWorkflowDialog
-          workflowId={selectedWorkflow?.id}
-          isOpen={isOpen}
-          onClose={onClose}
-          defaultBranch={defaultBranch}
-          onAction={(branch) => runWorkflow(branch)}
-        />
-      )}
+      {selectedWorkflow && <RunWorkflowDialog workflowId={selectedWorkflow?.id} isOpen={isOpen} onClose={onClose} />}
     </>
   );
 };

@@ -13,24 +13,25 @@ export const getStacksAndMachines = (options?: Options) => {
     return HttpResponse.json({
       has_dedicated_machine: Boolean(options?.hasDedicatedMachine),
       has_self_hosted_runner: Boolean(options?.hasSelfHostedRunner),
-      default_stack_id: 'stack-1',
+      default_stack_id: 'linux-stack',
       default_machine_id: 'machine-3',
       available_stacks: {
-        'stack-0': {
-          title: 'Stack 0',
+        'osx-stack': {
+          title: 'OSX Stack',
           available_machines: ['machine-0', 'machine-1'],
         },
-        'stack-1': {
-          title: 'Stack 1',
+        'linux-stack': {
+          title: 'Linux Stack',
           available_machines: ['machine-2', 'machine-3'],
         },
-        'stack-2': {
-          title: 'Stack 2',
+        'mixed-stack': {
+          title: 'Mixed Stack',
           available_machines: ['machine-0', 'machine-1', 'machine-2', 'machine-3'],
         },
       },
       available_machines: {
         osx: {
+          default_machine_type: 'machine-1',
           machine_types: {
             'machine-0': {
               chip: 'apple',
@@ -51,6 +52,7 @@ export const getStacksAndMachines = (options?: Options) => {
           },
         },
         linux: {
+          default_machine_type: 'machine-2',
           machine_types: {
             'machine-2': {
               chip: 'intel',
