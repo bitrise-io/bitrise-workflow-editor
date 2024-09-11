@@ -117,17 +117,17 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
       result.availableMachineTypeOptions.push({ label: initialMachineTypeId, value: initialMachineTypeId });
     } else if (selectedMachineType) {
       result.selectedMachineType = selectedMachineType;
-    } else if (!defaultMachineType && defaultMachineTypeOfOS) {
-      result.selectedMachineType = { ...defaultMachineTypeOfOS, id: '' };
     } else if (defaultMachineType) {
       result.selectedMachineType = { ...defaultMachineType, id: '' };
+    } else if (defaultMachineTypeOfOS) {
+      result.selectedMachineType = { ...defaultMachineTypeOfOS, id: '' };
     }
 
-    if (!defaultMachineType && defaultMachineTypeOfOS) {
-      const defaultMachineTypeOption = { label: `Default (${defaultMachineTypeOfOS.name})`, value: '' };
-      result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
-    } else if (defaultMachineType) {
+    if (defaultMachineType) {
       const defaultMachineTypeOption = { label: `Default (${defaultMachineType.name})`, value: '' };
+      result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
+    } else if (defaultMachineTypeOfOS) {
+      const defaultMachineTypeOption = { label: `Default (${defaultMachineTypeOfOS.name})`, value: '' };
       result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
     }
   }

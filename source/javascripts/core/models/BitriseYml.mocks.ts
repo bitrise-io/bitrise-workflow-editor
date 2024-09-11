@@ -98,7 +98,7 @@ const MockYml: BitriseYml = {
   meta: {
     'bitrise.io': {
       stack: 'linux-stack',
-      machine_type_id: 'machine-2',
+      machine_type_id: 'machine-3',
     },
   },
 };
