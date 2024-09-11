@@ -1,3 +1,7 @@
+function dataLayer() {
+  return window.parent.dataLayer;
+}
+
 function globalProps() {
   return window.parent.globalProps;
 }
@@ -10,4 +14,29 @@ function appSlug() {
   return pageProps()?.project?.slug ?? null;
 }
 
-export default { globalProps, pageProps, appSlug };
+function workspaceSlug() {
+  return globalProps()?.account?.slug ?? null;
+}
+
+function userSlug() {
+  return globalProps()?.user?.slug;
+}
+
+function project() {
+  return pageProps()?.project;
+}
+
+function limits() {
+  return pageProps()?.limits;
+}
+
+export default {
+  dataLayer,
+  globalProps,
+  pageProps,
+  appSlug,
+  workspaceSlug,
+  userSlug,
+  project,
+  limits,
+};

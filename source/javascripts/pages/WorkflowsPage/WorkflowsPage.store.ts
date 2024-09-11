@@ -5,6 +5,7 @@ type State = {
   workflowId: string;
   isDialogOpen?:
     | 'chain-workflow'
+    | 'run-workflow'
     | 'create-workflow'
     | 'delete-workflow'
     | 'step-config-drawer'
@@ -16,6 +17,7 @@ type Action = {
   closeDialog: () => void;
   openCreateWorkflowDialog: () => void;
   openDeleteWorkflowDialog: () => void;
+  openRunWorkflowDialog: (workflowId: string) => void;
   openChainWorkflowDialog: (workflowId: string) => void;
   openWorkflowConfigDrawer: (workflowId: string) => void;
   openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
@@ -38,6 +40,9 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
   },
   openDeleteWorkflowDialog: () => {
     return set(() => ({ isDialogOpen: 'delete-workflow' }));
+  },
+  openRunWorkflowDialog: (workflowId) => {
+    return set(() => ({ workflowId, isDialogOpen: 'run-workflow' }));
   },
   openChainWorkflowDialog: (workflowId) => {
     return set(() => ({ workflowId, isDialogOpen: 'chain-workflow' }));

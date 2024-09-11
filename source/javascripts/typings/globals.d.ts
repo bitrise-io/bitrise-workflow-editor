@@ -34,7 +34,7 @@ declare global {
         slug: string;
         name: string;
       };
-      env: {
+      env?: {
         SEGMENT_JS_WRITE_KEY_NEW: string;
       };
       featureFlags?: {

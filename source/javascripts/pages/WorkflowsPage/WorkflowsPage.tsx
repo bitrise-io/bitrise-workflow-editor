@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import {
+  RunWorkflowDialog,
   StepConfigDrawer,
   StepSelectorDrawer,
   WorkflowConfigDrawer,
@@ -40,6 +41,7 @@ const WorkflowsPageContent = () => {
     isStepConfigDrawerOpen,
     isStepSelectorDrawerOpen,
     isChainWorkflowDrawerOpen,
+    isRunWorkflowDialogOpen,
     isCreateWorkflowDialogOpen,
     isDeleteWorkflowDialogOpen,
     isWorkflowConfigDrawerOpen,
@@ -47,6 +49,7 @@ const WorkflowsPageContent = () => {
     isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
     isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
     isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
+    isRunWorkflowDialogOpen: isDialogOpen === 'run-workflow',
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
     isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
     isWorkflowConfigDrawerOpen: isDialogOpen === 'workflow-config-drawer',
@@ -76,6 +79,8 @@ const WorkflowsPageContent = () => {
         <WorkflowCanvasPanel workflowId={selectedWorkflowId} />
         <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       </Box>
+
+      <RunWorkflowDialog isOpen={isRunWorkflowDialogOpen} onClose={closeDialog} workflowId={workflowId} />
 
       <CreateWorkflowDialog
         isOpen={isCreateWorkflowDialogOpen}

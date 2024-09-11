@@ -1,22 +1,40 @@
 import { useState } from 'react';
-import { Button, Dialog, DialogBody, DialogFooter, Input } from '@bitrise/bitkit';
+import { Button, Dialog, DialogBody, DialogFooter, Input, useToast } from '@bitrise/bitkit';
 import { DialogProps } from '@bitrise/bitkit/src/Components/Dialog/Dialog';
+import WindowUtils from '@/core/utils/WindowUtils';
+import useStartBuild from './useStartBuild';
 
 type RunWorkflowDialogProps = Pick<DialogProps, 'isOpen' | 'onClose'> & {
   workflowId: string;
-  defaultBranch: string;
-  onAction: (branch: string) => void;
 };
 
-const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflowId, onAction }: RunWorkflowDialogProps) => {
-  const [branch, setBranch] = useState(defaultBranch);
+const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogProps) => {
+  const [branch, setBranch] = useState(WindowUtils.pageProps()?.project?.defaultBranch || '');
+  const toast = useToast();
+  const { mutate: startBuild } = useStartBuild();
 
   const handleAction = () => {
     if (!branch) {
       return;
     }
-    onAction(branch);
-    onClose();
+    startBuild(
+      { workflowId, branch },
+      {
+        onSuccess: (data) => {
+          if (data.build_url) {
+            onClose();
+            window.open(data.build_url, '_blank');
+          }
+        },
+        onError: (error) => {
+          toast({
+            status: 'error',
+            title: 'Failed to start build',
+            description: error.message,
+          });
+        },
+      },
+    );
   };
 
   return (
@@ -24,7 +42,7 @@ const RunWorkflowDialog = ({ isOpen, onClose, defaultBranch, workflowId, onActio
       title={`Run "${workflowId}"`}
       isOpen={isOpen}
       onClose={onClose}
-      onCloseComplete={() => setBranch(defaultBranch)}
+      onCloseComplete={() => setBranch(WindowUtils.pageProps()?.project?.defaultBranch || '')}
     >
       <DialogBody>
         <Input

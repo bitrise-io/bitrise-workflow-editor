@@ -140,20 +140,16 @@ angular
   .component(
     "rWorkflowToolbar",
     register(WorkflowToolbar, [
-      "organizationSlug",
-      "defaultBranch",
-      "uniqueStepCount",
-      "uniqueStepLimit",
       "workflows",
       "selectedWorkflow",
       "selectWorkflow",
       "createWorkflow",
       "chainWorkflow",
-      "deleteSelectedWorkflow",
+      "deleteWorkflow",
       "rearrangeWorkflows",
+      "uniqueStepCount",
       "canRunWorkflow",
       "isRunWorkflowDisabled",
-      "runWorkflow",
     ]),
   )
   .component(
