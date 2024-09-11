@@ -30,19 +30,8 @@ const meta: Meta<typeof WorkflowsPage> = {
 const cliStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'cli';
-    window.pageProps = undefined;
-  },
-};
-
-const websiteStory: Story = {
-  beforeEach: () => {
-    process.env.MODE = 'website';
-    window.pageProps = {
-      project: {
-        slug: 'asd-123',
-        name: 'Mock Project',
-      },
-    };
+    window.parent.globalProps = undefined;
+    window.parent.pageProps = undefined;
   },
 };
 
@@ -50,19 +39,15 @@ export const CliMode: Story = {
   ...cliStory,
 };
 
-export const WebsiteMode: Story = {
-  ...websiteStory,
-};
+export const WebsiteMode: Story = {};
 
 export const DedicatedMachine: Story = {
-  ...websiteStory,
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasDedicatedMachine: true })] },
   },
 };
 
 export const SelfHostedRunner: Story = {
-  ...websiteStory,
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
   },

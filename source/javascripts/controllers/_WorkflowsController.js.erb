@@ -98,7 +98,6 @@ import WindowUtils from "@/core/utils/WindowUtils";
           var pageProps = WindowUtils.pageProps();
           viewModel.defaultBranch = pageProps?.project?.defaultBranch ?? ''
           viewModel.buildTriggerToken = pageProps?.project?.buildTriggerToken ?? '';
-          viewModel.uniqueStepLimit = pageProps?.limits?.uniqueStepLimit ?? '';
           updateCanRunWorkflow(viewModel.selectedWorkflow);
         }
       };
@@ -259,22 +258,6 @@ import WindowUtils from "@/core/utils/WindowUtils";
         }
 
         workflowSelectionService.rearrangeSelection(viewModel);
-      };
-
-      viewModel.runWorkflow = function (branch) {
-        requestService.startBuild({
-          branch: branch,
-          workflow: viewModel.selectedWorkflow.id,
-          triggerToken: viewModel.buildTriggerToken,
-          triggeredBy: WindowUtils.globalProps()?.user?.username,
-        }).then(function (data) {
-          if (data.status === "ok" && data.build_url) {
-            window.open(data.build_url, "_blank");
-          }
-        }, function (error) {
-          console.log(error);
-        });
-        safeDigest($scope);
       };
 
       function workflowChainHierarchy(workflow) {
@@ -524,13 +507,14 @@ import WindowUtils from "@/core/utils/WindowUtils";
           workflow.workflowConfig.steps.push(wrappedUserStepConfig);
         });
 
-        if (workflow.workflowConfig.steps.length == 0) {
+        if (workflow.workflowConfig.steps.length === 0) {
           delete workflow.workflowConfig["steps"];
         }
       }
 
       function updateUniqueCount() {
-        if (!requestService.isWebsiteMode() || typeof (appService?.ownerPlanData?.uniqueStepLimit) !== "number") {
+        const uniqueStepLimit = WindowUtils?.limits()?.uniqueStepLimit;
+        if (!requestService.isWebsiteMode() || typeof uniqueStepLimit !== "number") {
           return;
         }
 
@@ -544,7 +528,6 @@ import WindowUtils from "@/core/utils/WindowUtils";
         });
 
         viewModel.uniqueStepCount = allowedStepIds.size;
-        var uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
         var hasReachedLimit = viewModel.uniqueStepCount >= uniqueStepLimit;
         appService.allowedStepIds = hasReachedLimit ? allowedStepIds : undefined;
       }
