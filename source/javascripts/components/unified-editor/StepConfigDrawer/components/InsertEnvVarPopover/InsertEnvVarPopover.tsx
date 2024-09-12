@@ -10,8 +10,10 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { EnvVar } from '@/core/models/EnvVar';
+import useEnvVars from '@/hooks/useEnvVars';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
+import { useStepDrawerContext } from '../../StepConfigDrawer.context';
 import { HandlerFn } from './types';
 import CreateEnvVar from './components/CreateEnvVar';
 import LoadingState from './components/LoadingState';
@@ -20,9 +22,6 @@ type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  isLoading?: boolean;
-  environmentVariables: EnvVar[];
-  onOpen: VoidFunction;
   onCreate: HandlerFn;
   onSelect: HandlerFn;
 };
@@ -30,35 +29,28 @@ type Props = {
 const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
-const InsertEnvVarPopover = ({
-  size,
-  environmentVariables,
-  onOpen,
-  onCreate,
-  onSelect,
-  isLoading,
-  isOpen: initialIsOpen,
-  mode: initialMode,
-}: Props) => {
+const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+  const { workflowId } = useStepDrawerContext();
+  const { isLoading, envs } = useEnvVars(workflowId);
+
   const {
-    isMode,
-    switchTo,
     isOpen,
+    filteredItems,
     open,
     close,
-    filteredItems,
+    isMode,
+    switchTo,
     getCreateFormProps,
     getActionListProps,
-    getActionListItemProps,
     getFilterInputProps,
+    getActionListItemProps,
   } = useMultiModePopover({
-    isOpen: initialIsOpen,
+    items: envs,
     mode: initialMode,
-    items: environmentVariables,
-    filterPredicate,
-    onOpen,
-    onCreate,
+    isOpen: initialIsOpen,
     onSelect,
+    onCreate,
+    filterPredicate,
   });
 
   return (

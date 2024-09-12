@@ -44,13 +44,7 @@ const StepSelectInput = forwardRef(
           )}
         </Dropdown>
         <Box pt="24">
-          <InsertEnvVarPopover
-            size="md"
-            environmentVariables={[]}
-            onOpen={console.log}
-            onCreate={console.log}
-            onSelect={console.log}
-          />
+          <InsertEnvVarPopover size="md" onCreate={console.log} onSelect={console.log} />
         </Box>
       </Box>
     );
