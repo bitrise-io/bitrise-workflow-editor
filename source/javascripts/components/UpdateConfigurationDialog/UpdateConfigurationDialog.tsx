@@ -6,7 +6,6 @@ import YmlNotFoundInRepositoryError from '../common/notifications/YmlNotFoundInR
 import YmlInRepositoryInvalidError from '../common/notifications/YmlInRepositoryInvalidError';
 import { useFormattedYml } from '../common/RepoYmlStorageActions';
 import { AppConfig } from '../../models/AppConfig';
-import useFeatureFlag from '../../hooks/useFeatureFlag';
 import { segmentTrack } from '../../utils/segmentTracking';
 
 type UpdateConfigurationDialogProps = {
@@ -50,8 +49,6 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
   const yml = useFormattedYml(appConfig);
 
   const toast = useToast();
-
-  const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
 
   const onCopyClick = () => {
     toast({
@@ -107,14 +104,10 @@ const UpdateConfigurationDialog = (props: UpdateConfigurationDialogProps) => {
             </Button>
           </CopyToClipboard>
         </Box>
-        {isModularYAMLMentionsEnabled && (
-          <>
-            <Text textStyle="heading/h4" marginBlockEnd="4">
-              Using multiple configuration files
-            </Text>
-            <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
-          </>
-        )}
+        <Text textStyle="heading/h4" marginBlockEnd="4">
+          Using multiple configuration files
+        </Text>
+        <Text>You need to re-create the changes in the relevant configuration file on your Git repository.</Text>
         {getAppConfigFromRepoFailed && renderError()}
       </DialogBody>
       <DialogFooter>
