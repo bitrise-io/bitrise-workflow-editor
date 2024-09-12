@@ -1,4 +1,15 @@
-import { Box, CardProps, IconButton, Menu, MenuButton, MenuItem, MenuList, Tag, Text, Tooltip } from '@bitrise/bitkit';
+import {
+  Box,
+  CardProps,
+  ControlButton,
+  Menu,
+  MenuButton,
+  MenuItem,
+  MenuList,
+  Tag,
+  Text,
+  Tooltip,
+} from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
 import { TriggerItem, toolTip, iconMap } from '../../../../TriggersPage/TriggersPage.types';
 
@@ -48,14 +59,7 @@ const NewTriggerCard = (props: NewTriggerCardProps) => {
         ))}
       </Box>
       <Menu placement="bottom-end">
-        <MenuButton
-          aria-label="Open menu"
-          as={IconButton}
-          iconName="MoreVertical"
-          isTooltipDisabled
-          size="sm"
-          variant="tertiary"
-        />
+        <MenuButton aria-label="Open menu" as={ControlButton} iconName="MoreVertical" isTooltipDisabled size="sm" />
         <MenuList>
           <MenuItem as="a" href="/edit-trigger" iconName="Pencil">
             Edit trigger
