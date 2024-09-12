@@ -12,7 +12,7 @@ import WorkflowService from '@/core/models/WorkflowService';
 
 const useDefaultEnvVars = () => {
   const appSlug = WindowUtils.appSlug() ?? '';
-  const projectType = useBitriseYmlStore(useShallow((s) => s.yml.project_type)) as never;
+  const projectType = useBitriseYmlStore(useShallow((s) => s.yml.project_type));
 
   return useQuery({
     enabled: Boolean(appSlug),

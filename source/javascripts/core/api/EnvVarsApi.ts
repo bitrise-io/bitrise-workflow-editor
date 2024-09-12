@@ -9,7 +9,7 @@ enum Source {
 
 type GetEnvVarsProps = {
   appSlug: string;
-  projectType?: 'xamarin';
+  projectType?: string;
   signal?: AbortSignal;
 };
 
