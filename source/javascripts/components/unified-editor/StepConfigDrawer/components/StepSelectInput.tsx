@@ -12,8 +12,8 @@ type Props = DropdownProps<string | null> & {
 };
 
 const StepSelectInput = forwardRef(
-  ({ label, options, isSensitive, isDisabled, helper, helperText, defaultValue, ...props }: Props, ref) => {
-    const [value, setValue] = useState(props.value ?? defaultValue);
+  ({ label, options, isSensitive, isDisabled, helper, helperText, ...props }: Props, ref) => {
+    const [value, setValue] = useState(props.value ?? props.defaultValue);
 
     const handleChange: DropdownProps<string | null>['onChange'] = (e) => {
       props.onChange?.(e);
@@ -27,12 +27,13 @@ const StepSelectInput = forwardRef(
     return (
       <Box display="flex" gap="8">
         <Dropdown
+          {...props}
           ref={ref}
           flex="1"
           size="md"
           value={value}
           search={false}
-          defaultValue={defaultValue}
+          onChange={handleChange}
           label={
             label && (
               <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
@@ -43,8 +44,6 @@ const StepSelectInput = forwardRef(
           }
           readOnly={isSensitive || isDisabled}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
-          {...props}
-          onChange={handleChange}
         >
           {options.map((option) => {
             return (
