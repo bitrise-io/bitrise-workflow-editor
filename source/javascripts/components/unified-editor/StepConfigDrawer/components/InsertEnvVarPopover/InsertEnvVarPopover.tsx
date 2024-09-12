@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, IconButton, Text } from '@bitrise/bitkit';
 import {
   List,
@@ -11,9 +12,9 @@ import {
 } from '@chakra-ui/react';
 import { EnvVar } from '@/core/models/EnvVar';
 import useEnvVars from '@/hooks/useEnvVars';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
-import { useStepDrawerContext } from '../../StepConfigDrawer.context';
 import { HandlerFn } from './types';
 import CreateEnvVar from './components/CreateEnvVar';
 import LoadingState from './components/LoadingState';
@@ -30,8 +31,9 @@ const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
 const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
-  const { workflowId } = useStepDrawerContext();
-  const { isLoading, envs } = useEnvVars(workflowId);
+  const [{ id }] = useSelectedWorkflow();
+  const [shouldLoadEnvs, setShouldLoadEnvs] = useState(Boolean(initialIsOpen));
+  const { isLoading, envs } = useEnvVars(id, shouldLoadEnvs);
 
   const {
     isOpen,
@@ -51,6 +53,8 @@ const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
     onSelect,
     onCreate,
     filterPredicate,
+    onOpen: () => setShouldLoadEnvs(true),
+    onClose: () => setShouldLoadEnvs(false),
   });
 
   return (

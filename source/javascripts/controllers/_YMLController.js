@@ -65,6 +65,15 @@ import { safeDigest } from "../services/react-compat";
           }
         });
 
+        $scope.$watch(
+          function() {
+            return appService.appConfigYML;
+          },
+          function() {
+            viewModel.appConfigYML = appService.appConfigYML;
+          }
+        );
+
         $scope.$on(
           "$destroy",
           $rootScope.$on("MainController::changesDiscarded", function () {

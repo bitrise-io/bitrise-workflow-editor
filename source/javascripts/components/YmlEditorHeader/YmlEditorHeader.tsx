@@ -3,7 +3,6 @@ import { Box, Button, DataWidget, DataWidgetItem, Text, Tooltip, useDisclosure }
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import { AppConfig } from '@/models/AppConfig';
 import ConfigurationYmlSourceDialog from '../ConfigurationYmlSource/ConfigurationYmlSourceDialog';
-import useFeatureFlag from '../../hooks/useFeatureFlag';
 import { segmentTrack } from '../../utils/segmentTracking';
 import SplitNotification from './SplitNotification';
 import GitNotification from './GitNotification';
@@ -62,8 +61,6 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
   }
 
   const isChangeEnabled = repositoryYmlAvailable || initialUsesRepositoryYml === true;
-
-  const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
 
   const onYmlSourceChangeClick = () => {
     onOpen();
@@ -127,7 +124,7 @@ const YmlEditorHeader = (props: YmlEditorHeaderProps) => {
           </DataWidget>
         )}
       </Box>
-      {isModularYAMLMentionsEnabled && isSplitNotiVisible && (
+      {isSplitNotiVisible && (
         <SplitNotification modularYamlSupported={modularYamlSupported} lines={lines} onClose={closeSplitNoti} />
       )}
       {isGitNotiVisible && <GitNotification onClose={closeGitNoti} />}

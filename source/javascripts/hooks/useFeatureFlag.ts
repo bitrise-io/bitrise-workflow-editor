@@ -1,6 +1,5 @@
 const defaultValues = {
   'enable-wfe-pipeline-viewer': false,
-  'enable-modular-yaml-mentions': false,
 };
 
 type FeatureFlags = typeof defaultValues;
