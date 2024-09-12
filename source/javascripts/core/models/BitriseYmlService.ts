@@ -12,7 +12,7 @@ import { StagesYml } from './Stage';
 import { TriggerMapYml } from './TriggerMap';
 import { ChainedWorkflowPlacement as Placement, Workflows, WorkflowYmlObject } from './Workflow';
 import { PipelinesYml } from './Pipeline';
-import { StepYmlObject } from './Step';
+import { StepInputVariable, StepYmlObject } from './Step';
 
 function addStep(workflowId: string, cvs: string, to: number, yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
@@ -38,26 +38,6 @@ function moveStep(workflowId: string, stepIndex: number, to: number, yml: Bitris
   }
 
   copy.workflows[workflowId].steps.splice(to, 0, copy.workflows[workflowId].steps.splice(stepIndex, 1)[0]);
-
-  return copy;
-}
-
-function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseYml): BitriseYml {
-  const copy = deepCloneSimpleObject(yml);
-
-  if (copy.workflows) {
-    copy.workflows = Object.fromEntries(
-      Object.entries(copy.workflows).map(([id, workflow]) => {
-        return [id === workflowId ? newWorkflowId : id, workflow];
-      }),
-    );
-
-    copy.workflows = renameWorkflowInChains(workflowId, newWorkflowId, copy.workflows);
-  }
-
-  if (copy.stages) copy.stages = renameWorkflowInStages(workflowId, newWorkflowId, copy.stages);
-  if (copy.pipelines) copy.pipelines = renameWorkflowInPipelines(workflowId, newWorkflowId, copy.pipelines);
-  if (copy.trigger_map) copy.trigger_map = renameWorkflowInTriggerMap(workflowId, newWorkflowId, copy.trigger_map);
 
   return copy;
 }
@@ -96,7 +76,7 @@ function updateStep(
   mapValues(newValues, (value: string, key: never) => {
     stepYmlObject[key] = value as never;
 
-    if (value === '' || value === undefined || value === null || value === defaultValues[key]) {
+    if (!value || value === defaultValues[key]) {
       delete stepYmlObject[key];
     }
   });
@@ -120,6 +100,53 @@ function changeStepVersion(workflowId: string, stepIndex: number, version: strin
       return StepService.createStepCVS(cvs, version);
     },
   );
+
+  return copy;
+}
+
+function updateStepInputs(
+  workflowId: string,
+  stepIndex: number,
+  inputs: StepInputVariable[],
+  defaultInputs: StepInputVariable[],
+  yml: BitriseYml,
+) {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow or step is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]?.steps?.[stepIndex]) {
+    return copy;
+  }
+
+  const [cvs, stepYmlObject] = Object.entries(copy.workflows?.[workflowId]?.steps?.[stepIndex])[0] as [
+    string,
+    StepYmlObject,
+  ];
+
+  stepYmlObject.inputs = defaultInputs.reduce((acc, defaultInput) => {
+    const defaultKeyValue = omit(defaultInput, 'opts');
+    if (!defaultKeyValue) return acc;
+
+    const [inputName] = Object.entries(defaultKeyValue)[0];
+
+    const newInput = inputs.find((i) => Object.keys(i).includes(inputName));
+    if (!newInput) return acc;
+
+    const opts = stepYmlObject.inputs?.find((i) => Object.keys(i).includes(inputName))?.opts;
+
+    const inputObject = StepService.toYmlInput(inputName, newInput[inputName], defaultInput[inputName], opts);
+    if (inputObject) {
+      acc.push(inputObject as StepInputVariable);
+    }
+
+    return acc;
+  }, [] as StepInputVariable[]);
+
+  if (isEmpty(stepYmlObject.inputs)) {
+    delete stepYmlObject.inputs;
+  }
+
+  copy.workflows[workflowId].steps[stepIndex] = { [cvs]: stepYmlObject };
 
   return copy;
 }
@@ -151,6 +178,26 @@ function createWorkflow(workflowId: string, yml: BitriseYml, baseWorkflowId?: st
       [workflowId]: baseWorkflowId ? (copy.workflows?.[baseWorkflowId] ?? {}) : {},
     },
   };
+
+  return copy;
+}
+
+function renameWorkflow(workflowId: string, newWorkflowId: string, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (copy.workflows) {
+    copy.workflows = Object.fromEntries(
+      Object.entries(copy.workflows).map(([id, workflow]) => {
+        return [id === workflowId ? newWorkflowId : id, workflow];
+      }),
+    );
+
+    copy.workflows = renameWorkflowInChains(workflowId, newWorkflowId, copy.workflows);
+  }
+
+  if (copy.stages) copy.stages = renameWorkflowInStages(workflowId, newWorkflowId, copy.stages);
+  if (copy.pipelines) copy.pipelines = renameWorkflowInPipelines(workflowId, newWorkflowId, copy.pipelines);
+  if (copy.trigger_map) copy.trigger_map = renameWorkflowInTriggerMap(workflowId, newWorkflowId, copy.trigger_map);
 
   return copy;
 }
@@ -519,6 +566,7 @@ export default {
   cloneStep,
   updateStep,
   changeStepVersion,
+  updateStepInputs,
   deleteStep,
   createWorkflow,
   renameWorkflow,

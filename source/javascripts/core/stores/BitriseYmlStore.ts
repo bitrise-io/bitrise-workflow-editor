@@ -2,7 +2,7 @@ import { createStore, StoreApi } from 'zustand';
 import { BitriseYml, Meta } from '@/core/models/BitriseYml';
 import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/models/BitriseYmlService';
-import { StepYmlObject } from '@/core/models/Step';
+import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
 import { EnvVar } from '../models/EnvVar';
 import EnvVarService from '../models/EnvVarService';
 
@@ -37,6 +37,12 @@ type BitriseYmlStoreState = {
     stepIndex: number,
     newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
     defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  ) => void;
+  updateStepInputs: (
+    workflowId: string,
+    stepIndex: number,
+    inputs: StepInputVariable[],
+    defaultInputs: StepInputVariable[],
   ) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, stepIndex: number) => void;
@@ -143,6 +149,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateStep(workflowId, stepIndex, newValues, defaultValues, state.yml),
+        };
+      });
+    },
+    updateStepInputs: (workflowId, stepIndex, inputs, defaultInputs) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepInputs(workflowId, stepIndex, inputs, defaultInputs, state.yml),
         };
       });
     },

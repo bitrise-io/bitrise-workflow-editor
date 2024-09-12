@@ -1,5 +1,14 @@
 import uniq from 'lodash/uniq';
-import { Step, StepBundleYmlObject, Steps, StepYmlObject, WithGroupYmlObject } from '@/core/models/Step';
+import isEmpty from 'lodash/isEmpty';
+import {
+  Step,
+  StepBundleYmlObject,
+  StepInputVariable,
+  Steps,
+  StepYmlObject,
+  VariableOpts,
+  WithGroupYmlObject,
+} from '@/core/models/Step';
 import type { StepInfo } from '@/core/api/StepApi';
 import VersionUtils from '@/core/utils/VersionUtils';
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -143,6 +152,31 @@ function getStepCategories(steps: Step[]): string[] {
   return uniq(steps.flatMap((step) => step.defaultValues?.type_tags || [])).sort();
 }
 
+function toYmlInput(
+  name: string,
+  newValue: unknown,
+  defaultValue: unknown,
+  opts?: VariableOpts,
+): StepInputVariable | undefined {
+  if (!newValue) {
+    return undefined;
+  }
+
+  if (newValue === defaultValue) {
+    return undefined;
+  }
+
+  if (typeof defaultValue === 'boolean' && ['true', 'false'].includes(String(newValue))) {
+    return { [name]: Boolean(newValue), ...(!isEmpty(opts) ? { opts } : {}) };
+  }
+
+  if (typeof defaultValue === 'number' && !Number.isNaN(Number(newValue))) {
+    return { [name]: Number(newValue), ...(!isEmpty(opts) ? { opts } : {}) };
+  }
+
+  return { [name]: newValue, ...(!isEmpty(opts) ? { opts } : {}) };
+}
+
 export default {
   parseStepCVS,
   createStepCVS,
@@ -157,4 +191,5 @@ export default {
   resolveIcon,
   getSelectableVersions,
   getStepCategories,
+  toYmlInput,
 };
