@@ -1,6 +1,10 @@
 import { ChangeEventHandler, FocusEventHandler, useState } from 'react';
 import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
+import { useShallow } from 'zustand/react/shallow';
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { EnvVar } from '@/core/models/EnvVar';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepHelperText from './StepHelperText';
 import SensitiveBadge from './SensitiveBadge';
 import InsertSecretPopover from './InsertSecretPopover/InsertSecretPopover';
@@ -19,8 +23,10 @@ type CursorPosition = {
 };
 
 const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText, helper, ...props }: Props, ref) => {
+  const { workflowId } = useStepDrawerContext();
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
   const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
+  const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
 
   const handleBlur: FocusEventHandler<HTMLTextAreaElement> = (e) => {
     props.onBlur?.(e);
@@ -39,6 +45,11 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
     const { start, end } = cursorPosition ?? { start: 0, end: value.length };
     setValue(`${value.slice(0, start)}$${key}${value.slice(end)}`);
     setCursorPosition({ start, end: end + `$${key}`.length });
+  };
+
+  const handleCreateEnvVar = (envVar: EnvVar) => {
+    appendWorkflowEnvVar(workflowId, envVar);
+    handleInsertVariable(envVar.key);
   };
 
   return (
@@ -68,7 +79,11 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
             />
           )}
           {!isSensitive && (
-            <InsertEnvVarPopover size="sm" onCreate={console.log} onSelect={({ key }) => handleInsertVariable(key)} />
+            <InsertEnvVarPopover
+              size="sm"
+              onCreate={handleCreateEnvVar}
+              onSelect={({ key }) => handleInsertVariable(key)}
+            />
           )}
         </ButtonGroup>
       )}

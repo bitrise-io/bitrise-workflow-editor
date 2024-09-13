@@ -4,6 +4,7 @@ import type { MatcherFunction } from 'expect';
 import { BitriseYml } from './BitriseYml';
 import BitriseYmlService from './BitriseYmlService';
 import { ChainedWorkflowPlacement } from './Workflow';
+import { EnvVarYml } from './EnvVar';
 
 const toMatchBitriseYml: MatcherFunction<[expected: BitriseYml]> = function m(actual, expected) {
   const objectsAreEquals = this.equals(actual, expected, undefined, true);
@@ -1474,6 +1475,63 @@ describe('BitriseYmlService', () => {
       };
 
       const actualYml = BitriseYmlService.updateStackAndMachine('wf1', '', '', sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+  });
+
+  describe('appendWorkflowEnvVar', () => {
+    const newEnv: EnvVarYml = {
+      FOO: 'bar',
+      opts: {
+        is_expand: true,
+      },
+    };
+    it('should add the envs with the new EnvVar to the workflow', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {},
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ FOO: 'bar', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendWorkflowEnvVar('wf1', newEnv, sourceYml);
+
+      expect(actualYml).toMatchBitriseYml(expectedYml);
+    });
+
+    it('should expand the envs with the new EnvVar', () => {
+      const sourceYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [{ abc: 'def', opts: { is_expand: true } }],
+          },
+        },
+      };
+
+      const expectedYml: BitriseYml = {
+        format_version: '',
+        workflows: {
+          wf1: {
+            envs: [
+              { abc: 'def', opts: { is_expand: true } },
+              { FOO: 'bar', opts: { is_expand: true } },
+            ],
+          },
+        },
+      };
+
+      const actualYml = BitriseYmlService.appendWorkflowEnvVar('wf1', newEnv, sourceYml);
 
       expect(actualYml).toMatchBitriseYml(expectedYml);
     });
