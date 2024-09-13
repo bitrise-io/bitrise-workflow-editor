@@ -355,7 +355,7 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                 </Text>
                 <Text textStyle="body/md/regular" color="text/secondary">
                   <Link
-                    href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
+                    href="https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html"
                     colorScheme="purple"
                     isExternal
                   >
