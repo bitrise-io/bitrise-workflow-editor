@@ -42,11 +42,10 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
         name: result?.data?.resolvedInfo?.title ?? '',
         version: result?.data?.resolvedInfo?.normalizedVersion ?? '',
       },
-      inputs:
-        result?.data?.mergedValues?.inputs?.reduce(
-          (acc, input) => Object.assign(acc, omit(input, 'opts')),
-          {} as Record<string, unknown>,
-        ) ?? {},
+      inputs: (result?.data?.mergedValues?.inputs?.map((input) => omit(input, 'opts')) ?? {}) as Record<
+        string,
+        unknown
+      >,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflowId, stepIndex, result.isLoading]);
