@@ -53,6 +53,7 @@ export interface Step {
   iconURL: GetterSetter<string>;
   runIf: GetterSetter<string>;
   isAlwaysRun: GetterSetter<boolean>;
+  isSkippable: GetterSetter<boolean>;
   isConfigured: Getter<boolean>;
   isVerified: Getter<boolean>;
   isOfficial: Getter<boolean>;
