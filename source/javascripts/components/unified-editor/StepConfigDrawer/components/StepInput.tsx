@@ -1,5 +1,6 @@
-import { ChangeEventHandler, FocusEventHandler, useState } from 'react';
+import { FocusEventHandler, useState } from 'react';
 import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
+import { useFormContext } from 'react-hook-form';
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import StepHelperText from './StepHelperText';
 import SensitiveBadge from './SensitiveBadge';
@@ -19,8 +20,8 @@ type CursorPosition = {
 };
 
 const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText, helper, ...props }: Props, ref) => {
+  const { getValues, setValue } = useFormContext();
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
-  const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
 
   const handleBlur: FocusEventHandler<HTMLTextAreaElement> = (e) => {
     props.onBlur?.(e);
@@ -30,24 +31,21 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
     });
   };
 
-  const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    props.onChange?.(e);
-    setValue(e.currentTarget.value);
-  };
-
   const handleInsertVariable = (key: string) => {
+    const name = props.name ?? '';
+    const value = String(getValues(name) ?? '');
     const { start, end } = cursorPosition ?? { start: 0, end: value.length };
-    setValue(`${value.slice(0, start)}$${key}${value.slice(end)}`);
+    const newValue = `${value.slice(0, start)}$${key}${value.slice(end)}`;
+
     setCursorPosition({ start, end: end + `$${key}`.length });
+    setValue(name, newValue, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
   };
 
   return (
     <AutoGrowableInput
-      {...props}
       ref={ref}
-      value={value}
+      {...props}
       onBlur={handleBlur}
-      onChange={handleChange}
       fontFamily="monospace"
       isDisabled={isSensitive || isDisabled}
       badge={isSensitive ? <SensitiveBadge /> : undefined}
