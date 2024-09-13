@@ -1,5 +1,6 @@
 import { createContext, PropsWithChildren, useContext, useEffect, useMemo } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
+import omit from 'lodash/omit';
 import useStep from '@/hooks/useStep';
 import { FormValues } from './StepConfigDrawer.types';
 
@@ -41,6 +42,10 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
         name: result?.data?.resolvedInfo?.title ?? '',
         version: result?.data?.resolvedInfo?.normalizedVersion ?? '',
       },
+      inputs: (result?.data?.mergedValues?.inputs?.map((input) => omit(input, 'opts')) ?? {}) as Record<
+        string,
+        unknown
+      >,
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [workflowId, stepIndex, result.isLoading]);

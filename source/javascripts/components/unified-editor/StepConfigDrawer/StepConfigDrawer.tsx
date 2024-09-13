@@ -50,9 +50,10 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const isUpgradable = VersionUtils.hasVersionUpgrade(formVersionValue, resolvedInfo?.versions);
   const currentResolvedVersion = VersionUtils.resolveVersion(formVersionValue, resolvedInfo?.versions);
 
-  const { changeStepVersion, updateStep, cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
+  const { changeStepVersion, updateStep, updateStepInputs, cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
     changeStepVersion: s.changeStepVersion,
     updateStep: s.updateStep,
+    updateStepInputs: s.updateStepInputs,
     cloneStep: s.cloneStep,
     deleteStep: s.deleteStep,
   }));
@@ -77,8 +78,13 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   };
 
   const handleSave = form.handleSubmit(
-    ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if } }) => {
+    ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if }, inputs }) => {
       updateStep(workflowId, stepIndex, { title: name, is_always_run, is_skippable, run_if }, defaultValues || {});
+
+      const newInputs = Object.entries(inputs).map(([key, value]) => ({
+        [`${key}`]: value,
+      }));
+      updateStepInputs(workflowId, stepIndex, newInputs, defaultValues?.inputs || []);
       changeStepVersion(workflowId, stepIndex, version);
       onClose();
     },

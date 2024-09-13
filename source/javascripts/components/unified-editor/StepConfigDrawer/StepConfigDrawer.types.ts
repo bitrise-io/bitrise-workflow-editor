@@ -14,4 +14,5 @@ export type FormValues = {
     name: string;
     version: string;
   };
+  inputs: Record<string, unknown>;
 };
