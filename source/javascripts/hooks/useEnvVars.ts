@@ -10,12 +10,13 @@ import WindowUtils from '@/core/utils/WindowUtils';
 import StepApi from '@/core/api/StepApi';
 import WorkflowService from '@/core/models/WorkflowService';
 
-const useDefaultEnvVars = () => {
+const useDefaultEnvVars = (enabled: boolean) => {
   const appSlug = WindowUtils.appSlug() ?? '';
   const projectType = useBitriseYmlStore(useShallow((s) => s.yml.project_type));
 
   return useQuery({
-    enabled: Boolean(appSlug),
+    enabled,
+    initialData: [],
     queryKey: ['default-env-vars', appSlug, projectType],
     queryFn: ({ signal }) => EnvVarsApi.getEnvVars({ appSlug, projectType, signal }),
   });
@@ -53,7 +54,7 @@ const useWorkflowLevelEnvVars = (workflowId: string) => {
   );
 };
 
-const useStepLevelEnvVars = (workflowId: string) => {
+const useStepLevelEnvVars = (workflowId: string, enabled: boolean) => {
   const cvss = useBitriseYmlStore(
     useShallow((s) => {
       const cvsSet = new Set<string>();
@@ -68,28 +69,25 @@ const useStepLevelEnvVars = (workflowId: string) => {
         });
       });
 
-      return Array.from(cvsSet);
+      return Array.from(cvsSet).filter(Boolean);
     }),
   );
 
   return useQueries({
     queries: cvss.map((cvs) => ({
-      enabled: Boolean(cvs),
+      enabled,
       queryKey: ['steps', { cvs }],
-      queryFn: async () => {
-        const step = await StepApi.getStepByCvs(cvs);
-        const source = step?.resolvedInfo?.title || step?.resolvedInfo?.id || cvs;
-        const envs = step?.defaultValues?.outputs?.map((env) => EnvVarService.parseYmlEnvVar(env, source));
-        return (envs ?? []) as EnvVar[];
-      },
+      queryFn: () => StepApi.getStepByCvs(cvs),
     })),
     combine: (result) => {
       const envVarMap = new Map<string, EnvVar>();
       const isLoading = result.some((r) => r.isLoading);
 
       if (!isLoading) {
-        result.forEach((r) => {
-          r.data?.forEach((env) => {
+        result.forEach(({ data: step }) => {
+          const source = step?.resolvedInfo?.title || step?.resolvedInfo?.id || step?.cvs || '';
+          step?.defaultValues?.outputs?.forEach((ymlEnvVar) => {
+            const env = EnvVarService.parseYmlEnvVar(ymlEnvVar, source);
             envVarMap.set(env.key, env);
           });
         });
@@ -107,12 +105,12 @@ const useStepLevelEnvVars = (workflowId: string) => {
  * TODO: Load the env vars from each previous workflows and steps only
  * TODO: Handle step bundles and with groups as well
  */
-const useEnvVars = (workflowId: string) => {
+const useEnvVars = (workflowId: string, enabled: boolean) => {
   const envVarMap = new Map<string, EnvVar>();
   const appLevelEnvVars = useAppLevelEnvVars();
   const workflowLevelEnvVars = useWorkflowLevelEnvVars(workflowId);
-  const { data: defaultEnvVars, isLoading: isLoadingDefaultEnvVars } = useDefaultEnvVars();
-  const { data: stepLevelEnvVars, isLoading: isLoadingStepLevelEnvVars } = useStepLevelEnvVars(workflowId);
+  const { data: defaultEnvVars, isLoading: isLoadingDefaultEnvVars } = useDefaultEnvVars(enabled);
+  const { data: stepLevelEnvVars, isLoading: isLoadingStepLevelEnvVars } = useStepLevelEnvVars(workflowId, enabled);
 
   const isLoading = isLoadingDefaultEnvVars || isLoadingStepLevelEnvVars;
 
