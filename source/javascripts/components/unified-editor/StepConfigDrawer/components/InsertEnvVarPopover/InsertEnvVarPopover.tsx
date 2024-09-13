@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, IconButton, Text } from '@bitrise/bitkit';
 import {
   List,
@@ -10,6 +11,8 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { EnvVar } from '@/core/models/EnvVar';
+import useEnvVars from '@/hooks/useEnvVars';
+import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
@@ -20,9 +23,6 @@ type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  isLoading?: boolean;
-  environmentVariables: EnvVar[];
-  onOpen: VoidFunction;
   onCreate: HandlerFn;
   onSelect: HandlerFn;
 };
@@ -30,35 +30,31 @@ type Props = {
 const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
-const InsertEnvVarPopover = ({
-  size,
-  environmentVariables,
-  onOpen,
-  onCreate,
-  onSelect,
-  isLoading,
-  isOpen: initialIsOpen,
-  mode: initialMode,
-}: Props) => {
+const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+  const [{ id }] = useSelectedWorkflow();
+  const [shouldLoadEnvs, setShouldLoadEnvs] = useState(Boolean(initialIsOpen));
+  const { isLoading, envs } = useEnvVars(id, shouldLoadEnvs);
+
   const {
-    isMode,
-    switchTo,
     isOpen,
+    filteredItems,
     open,
     close,
-    filteredItems,
+    isMode,
+    switchTo,
     getCreateFormProps,
     getActionListProps,
-    getActionListItemProps,
     getFilterInputProps,
+    getActionListItemProps,
   } = useMultiModePopover({
-    isOpen: initialIsOpen,
+    items: envs,
     mode: initialMode,
-    items: environmentVariables,
-    filterPredicate,
-    onOpen,
-    onCreate,
+    isOpen: initialIsOpen,
     onSelect,
+    onCreate,
+    filterPredicate,
+    onOpen: () => setShouldLoadEnvs(true),
+    onClose: () => setShouldLoadEnvs(false),
   });
 
   return (

@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 import StepHelperText from './StepHelperText';
@@ -11,15 +12,28 @@ type Props = DropdownProps<string | null> & {
 };
 
 const StepSelectInput = forwardRef(
-  ({ label, options, isSensitive, isDisabled, helper, helperText, defaultValue, ...props }: Props, ref) => {
+  ({ label, options, isSensitive, isDisabled, helper, helperText, ...props }: Props, ref) => {
+    const [value, setValue] = useState(props.value ?? props.defaultValue);
+
+    const handleChange: DropdownProps<string | null>['onChange'] = (e) => {
+      props.onChange?.(e);
+      setValue(e.target.value);
+    };
+
+    const handleInsertVariable = (key: string) => {
+      setValue(`$${key}`);
+    };
+
     return (
       <Box display="flex" gap="8">
         <Dropdown
+          {...props}
           ref={ref}
           flex="1"
           size="md"
+          value={value}
           search={false}
-          defaultValue={defaultValue}
+          onChange={handleChange}
           label={
             label && (
               <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
@@ -30,7 +44,6 @@ const StepSelectInput = forwardRef(
           }
           readOnly={isSensitive || isDisabled}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
-          {...props}
         >
           {options.map((option) => {
             return (
@@ -39,18 +52,12 @@ const StepSelectInput = forwardRef(
               </DropdownOption>
             );
           })}
-          {defaultValue && options.every((optionValue) => optionValue !== defaultValue) && (
-            <DropdownOption value={defaultValue}>{defaultValue}</DropdownOption>
+          {value && options.every((optionValue) => optionValue !== value) && (
+            <DropdownOption value={value}>{value}</DropdownOption>
           )}
         </Dropdown>
         <Box pt="24">
-          <InsertEnvVarPopover
-            size="md"
-            environmentVariables={[]}
-            onOpen={console.log}
-            onCreate={console.log}
-            onSelect={console.log}
-          />
+          <InsertEnvVarPopover size="md" onCreate={console.log} onSelect={({ key }) => handleInsertVariable(key)} />
         </Box>
       </Box>
     );

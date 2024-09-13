@@ -874,6 +874,11 @@ import WindowUtils from "@/core/utils/WindowUtils";
             return;
           }
 
+          if (key === "is_skippable") {
+            viewModel.selectedStep.isSkippable(Boolean(value));
+            return;
+          }
+
           viewModel.inputCategoriesOfSelectedStep.forEach((category) => {
             category.inputs.forEach((variable) => {
               if (variable.key() === key) {
