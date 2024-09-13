@@ -50,8 +50,13 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
           buttonContent={<Text fontWeight="demiBold">When to run</Text>}
         >
           <Box display="flex">
-            <Text flex="1">Run if previous Step(s) failed</Text>
+            <Text flex="1">Run even if previous Steps failed</Text>
             <Toggle {...form.register('is_always_run')} defaultChecked={step.isAlwaysRun()} />
+          </Box>
+          <Divider my="24" />
+          <Box display="flex">
+            <Text flex="1">Continue build even if this Step fails</Text>
+            <Toggle {...form.register('is_skippable')} defaultChecked={step.isSkippable()} />
           </Box>
           <Divider my="24" />
           <StepInput
