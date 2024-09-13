@@ -573,7 +573,7 @@ describe('BitriseYmlService', () => {
         format_version: '',
         workflows: {
           wf1: {
-            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: true }] } }, { test: {} }],
+            steps: [{ clone: {} }, { script: { inputs: [{ is_debug: false }] } }, { test: {} }],
           },
         },
       };
@@ -581,8 +581,8 @@ describe('BitriseYmlService', () => {
       const actualYml = BitriseYmlService.updateStepInputs(
         'wf1',
         1,
-        [{ is_debug: 'true' }],
-        [{ is_debug: false }],
+        [{ is_debug: 'false' }],
+        [{ is_debug: true }],
         sourceYml,
       );
 

@@ -167,7 +167,10 @@ function toYmlInput(
   }
 
   if (typeof defaultValue === 'boolean' && ['true', 'false'].includes(String(newValue))) {
-    return { [name]: Boolean(newValue), ...(!isEmpty(opts) ? { opts } : {}) };
+    return {
+      [name]: String(newValue) === 'true',
+      ...(!isEmpty(opts) ? { opts } : {}),
+    };
   }
 
   if (typeof defaultValue === 'number' && !Number.isNaN(Number(newValue))) {
