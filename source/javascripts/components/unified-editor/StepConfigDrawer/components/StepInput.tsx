@@ -56,14 +56,7 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
         <ButtonGroup size="sm" spacing="4" top="4" right="4" position="absolute">
           {isClearable && <IconButton size="sm" iconName="CloseSmall" variant="tertiary" aria-label="Clear" />}
           {isSensitive && (
-            <InsertSecretPopover
-              size="sm"
-              secrets={[]}
-              isLoading={false}
-              onCreate={console.log}
-              onSelect={console.log}
-              onOpen={() => console.log('Load secrets')}
-            />
+            <InsertSecretPopover size="sm" onCreate={console.log} onSelect={({ key }) => handleInsertVariable(key)} />
           )}
           {!isSensitive && (
             <InsertEnvVarPopover size="sm" onCreate={console.log} onSelect={({ key }) => handleInsertVariable(key)} />
