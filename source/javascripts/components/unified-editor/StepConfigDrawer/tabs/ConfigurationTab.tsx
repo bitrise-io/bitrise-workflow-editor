@@ -1,8 +1,8 @@
 import { Box, Divider, ExpandableCard, Text, Toggle } from '@bitrise/bitkit';
 import { Controller, useFormContext } from 'react-hook-form';
 import { StepInputVariable } from '@/core/models/Step';
-import { useStepDrawerContext } from '@/components/unified-editor/StepConfigDrawer/StepConfigDrawer.context';
 import StepInput from '../components/StepInput';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import StepInputGroup from '../components/StepInputGroup';
 import { FormValues } from '../StepConfigDrawer.types';
 
@@ -49,8 +49,8 @@ const ConfigurationTab = () => {
         />
       </ExpandableCard>
 
-      {Object.entries(groupStepInputs(mergedValues?.inputs) ?? {}).map(([title, groupInputs]) => {
-        return <StepInputGroup key={title} title={title} inputs={groupInputs} />;
+      {Object.entries(groupStepInputs(mergedValues?.inputs) ?? {}).map(([title, inputs]) => {
+        return <StepInputGroup key={title} title={title} inputs={inputs} />;
       })}
     </Box>
   );
