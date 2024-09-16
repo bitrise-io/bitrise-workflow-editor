@@ -2,7 +2,7 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getSecrets } from '@/core/api/SecretApi.mswMocks';
+import { getSecretsFromApi, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
 import {
   getCertificates,
   getProvProfiles,
@@ -22,9 +22,9 @@ const meta: Meta<typeof WorkflowsPage> = {
     layout: 'fullscreen',
     msw: {
       handlers: [
-        getSecrets(),
         getCertificates(),
         getProvProfiles(),
+        getSecretsFromApi(),
         getStacksAndMachines(),
         getFileStorageDocuments(),
         getDefaultOutputs(':appSlug'),
@@ -46,13 +46,13 @@ const meta: Meta<typeof WorkflowsPage> = {
 const cliStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'cli';
-    window.parent.globalProps = undefined;
     window.parent.pageProps = undefined;
+    window.parent.globalProps = undefined;
   },
   parameters: {
     layout: 'fullscreen',
     msw: {
-      handlers: [getSecrets(), getDefaultOutputs(), getStacksAndMachines()],
+      handlers: [getSecretsFromLocal(), getDefaultOutputs(), getStacksAndMachines()],
     },
   },
 };
