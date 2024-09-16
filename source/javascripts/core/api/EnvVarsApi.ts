@@ -215,6 +215,12 @@ async function getEnvVars({ appSlug, projectType, signal }: Partial<GetEnvVarsPr
   return Promise.all(promises).then((results) => results.flatMap((v) => v));
 }
 
+export type { DefaultOutputsResponse, ProvProfilesResponse, CertificatesResponse, FileStorageDocumentsResponse };
+
 export default {
   getEnvVars,
+  getProvProfilesPath,
+  getCertificatesPath,
+  getDefaultOutputsPath,
+  getFileStorageDocumentsPath,
 };

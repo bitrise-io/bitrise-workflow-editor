@@ -1,5 +1,6 @@
-import { ChangeEventHandler, FocusEventHandler, useState } from 'react';
+import { FocusEventHandler, useState } from 'react';
 import { ButtonGroup, forwardRef, IconButton } from '@bitrise/bitkit';
+import { useFormContext } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import AutoGrowableInput, { AutoGrowableInputProps } from '@/components/AutoGrowableInput';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -24,8 +25,8 @@ type CursorPosition = {
 
 const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText, helper, ...props }: Props, ref) => {
   const { workflowId } = useStepDrawerContext();
+  const { getValues, setValue } = useFormContext();
   const [cursorPosition, setCursorPosition] = useState<CursorPosition>();
-  const [value, setValue] = useState(String(props.value ?? props.defaultValue ?? ''));
   const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
 
   const handleBlur: FocusEventHandler<HTMLTextAreaElement> = (e) => {
@@ -36,15 +37,14 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
     });
   };
 
-  const handleChange: ChangeEventHandler<HTMLTextAreaElement> = (e) => {
-    props.onChange?.(e);
-    setValue(e.currentTarget.value);
-  };
-
   const handleInsertVariable = (key: string) => {
+    const name = props.name ?? '';
+    const value = String(getValues(name) ?? '');
     const { start, end } = cursorPosition ?? { start: 0, end: value.length };
-    setValue(`${value.slice(0, start)}$${key}${value.slice(end)}`);
+    const newValue = `${value.slice(0, start)}$${key}${value.slice(end)}`;
+
     setCursorPosition({ start, end: end + `$${key}`.length });
+    setValue(name, newValue, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
   };
 
   const handleCreateEnvVar = (envVar: EnvVar) => {
@@ -54,11 +54,9 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
 
   return (
     <AutoGrowableInput
-      {...props}
       ref={ref}
-      value={value}
+      {...props}
       onBlur={handleBlur}
-      onChange={handleChange}
       fontFamily="monospace"
       isDisabled={isSensitive || isDisabled}
       badge={isSensitive ? <SensitiveBadge /> : undefined}
@@ -69,14 +67,7 @@ const StepInput = forwardRef(({ isClearable, isSensitive, isDisabled, helperText
         <ButtonGroup size="sm" spacing="4" top="4" right="4" position="absolute">
           {isClearable && <IconButton size="sm" iconName="CloseSmall" variant="tertiary" aria-label="Clear" />}
           {isSensitive && (
-            <InsertSecretPopover
-              size="sm"
-              secrets={[]}
-              isLoading={false}
-              onCreate={console.log}
-              onSelect={console.log}
-              onOpen={() => console.log('Load secrets')}
-            />
+            <InsertSecretPopover size="sm" onCreate={console.log} onSelect={({ key }) => handleInsertVariable(key)} />
           )}
           {!isSensitive && (
             <InsertEnvVarPopover

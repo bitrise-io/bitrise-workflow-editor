@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useFormContext } from 'react-hook-form';
 import { EnvVar } from '@/core/models/EnvVar';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 import StepHelperText from './StepHelperText';
@@ -18,16 +18,14 @@ type Props = DropdownProps<string | null> & {
 const StepSelectInput = forwardRef(
   ({ label, options, isSensitive, isDisabled, helper, helperText, ...props }: Props, ref) => {
     const { workflowId } = useStepDrawerContext();
-    const [value, setValue] = useState(props.value ?? props.defaultValue);
+    const { watch, setValue } = useFormContext();
     const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
 
-    const handleChange: DropdownProps<string | null>['onChange'] = (e) => {
-      props.onChange?.(e);
-      setValue(e.target.value);
-    };
+    const name = props.name ?? '';
+    const value = String(watch(name));
 
     const handleInsertVariable = (key: string) => {
-      setValue(`$${key}`);
+      setValue(name, `$${key}`, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
     };
 
     const handleCreateEnvVar = (envVar: EnvVar) => {
@@ -38,13 +36,12 @@ const StepSelectInput = forwardRef(
     return (
       <Box display="flex" gap="8">
         <Dropdown
-          {...props}
           ref={ref}
+          {...props}
           flex="1"
           size="md"
           value={value}
           search={false}
-          onChange={handleChange}
           label={
             label && (
               <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">

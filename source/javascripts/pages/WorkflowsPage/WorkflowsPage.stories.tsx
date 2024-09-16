@@ -2,6 +2,13 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
+import { getSecrets } from '@/core/api/SecretApi.mswMocks';
+import {
+  getCertificates,
+  getProvProfiles,
+  getDefaultOutputs,
+  getFileStorageDocuments,
+} from '@/core/api/EnvVarsApi.mswMocks';
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;
@@ -13,7 +20,16 @@ const meta: Meta<typeof WorkflowsPage> = {
   },
   parameters: {
     layout: 'fullscreen',
-    msw: { handlers: [getStacksAndMachines()] },
+    msw: {
+      handlers: [
+        getSecrets(),
+        getCertificates(),
+        getProvProfiles(),
+        getStacksAndMachines(),
+        getFileStorageDocuments(),
+        getDefaultOutputs(':appSlug'),
+      ],
+    },
   },
   argTypes: {
     onChange: {
@@ -32,6 +48,12 @@ const cliStory: Story = {
     process.env.MODE = 'cli';
     window.parent.globalProps = undefined;
     window.parent.pageProps = undefined;
+  },
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: [getSecrets(), getDefaultOutputs(), getStacksAndMachines()],
+    },
   },
 };
 

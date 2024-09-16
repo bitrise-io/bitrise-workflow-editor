@@ -13,6 +13,8 @@ import {
 import { EnvVar } from '@/core/models/EnvVar';
 import useEnvVars from '@/hooks/useEnvVars';
 import useSelectedWorkflow from '@/hooks/useSelectedWorkflow';
+import { useSecrets } from '@/hooks/useSecrets';
+import WindowUtils from '@/core/utils/WindowUtils';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
@@ -31,9 +33,18 @@ const filterPredicate = (item: EnvVar, filter: string): boolean =>
   item.key.toUpperCase().includes(filter.toUpperCase()) || item.source.toUpperCase().includes(filter.toUpperCase());
 
 const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+  const appSlug = WindowUtils.appSlug() ?? '';
   const [{ id }] = useSelectedWorkflow();
-  const [shouldLoadEnvs, setShouldLoadEnvs] = useState(Boolean(initialIsOpen));
-  const { isLoading, envs } = useEnvVars(id, shouldLoadEnvs);
+  const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
+  const { isLoading: isLoadingEnvVars, envs } = useEnvVars(id, shouldLoadVars);
+  const { isLoading: isLoadingSecrets, data: secrets = [] } = useSecrets({
+    appSlug,
+    options: { enabled: shouldLoadVars && Boolean(appSlug) },
+  });
+
+  const isLoading = isLoadingEnvVars || isLoadingSecrets;
+  const items = [...envs, ...secrets] as EnvVar[];
+  items.sort((a, b) => a.key.localeCompare(b.key));
 
   const {
     isOpen,
@@ -47,14 +58,14 @@ const InsertEnvVarPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
     getFilterInputProps,
     getActionListItemProps,
   } = useMultiModePopover({
-    items: envs,
+    items,
     mode: initialMode,
     isOpen: initialIsOpen,
     onSelect,
     onCreate,
     filterPredicate,
-    onOpen: () => setShouldLoadEnvs(true),
-    onClose: () => setShouldLoadEnvs(false),
+    onOpen: () => setShouldLoadVars(true),
+    onClose: () => setShouldLoadVars(false),
   });
 
   return (
