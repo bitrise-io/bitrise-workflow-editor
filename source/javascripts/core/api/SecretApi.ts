@@ -19,7 +19,10 @@ type ApiSecretItem = { [key: string]: unknown } & {
     };
   };
 };
-type SecretsApiResponse = Array<ApiSecretItem>;
+
+type SecretsApiResponse = {
+  envs: Array<ApiSecretItem>;
+};
 
 type MonolithSecretItem = {
   id: string;
@@ -123,6 +126,10 @@ function getSecretItemPath({ appSlug, secretKey }: { appSlug: string; secretKey:
   return SECRET_ITEM_PATH.replace(':appSlug', appSlug).replace(':secretKey', secretKey);
 }
 
+function getSecretLocalPath() {
+  return SECRETS_LOCAL_PATH;
+}
+
 async function getSecrets({
   signal,
   ...params
@@ -134,7 +141,7 @@ async function getSecrets({
   if (RuntimeUtils.isWebsiteMode()) {
     if (params.useApi) {
       const response = await Client.get<SecretsApiResponse>(getSecretFromApiPath(params.appSlug), { signal });
-      return response.map(fromApiResponse);
+      return response.envs.map(fromApiResponse);
     }
 
     const response = await Client.get<SecretsMonolithResponse>(getSecretPath(params.appSlug), { signal });
@@ -142,9 +149,10 @@ async function getSecrets({
   }
 
   // CLI mode: Call local endpoint
-  const response = await Client.get<SecretsLocalResponse>(SECRETS_LOCAL_PATH, {
+  const response = await Client.get<SecretsLocalResponse>(getSecretLocalPath(), {
     signal,
   });
+
   return response.map(fromLocalResponse);
 }
 
@@ -213,7 +221,7 @@ function deleteSecret({
   return Client.del(getSecretItemPath(params), { signal });
 }
 
-export type { SecretsMonolithResponse };
+export type { SecretsMonolithResponse, SecretsApiResponse, SecretsLocalResponse };
 
 export default {
   getSecrets,
@@ -221,4 +229,6 @@ export default {
   updateSecret,
   deleteSecret,
   getSecretPath,
+  getSecretLocalPath,
+  getSecretFromApiPath,
 };
