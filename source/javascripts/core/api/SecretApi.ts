@@ -39,7 +39,9 @@ type SecretMonolithUpdateRequest = Omit<MonolithSecretItem, 'id' | 'scope'>;
 
 type LocalSecretItem = ApiSecretItem;
 
-type SecretsLocalResponse = Array<LocalSecretItem>;
+type SecretsLocalResponse = {
+  envs: Array<LocalSecretItem>;
+};
 
 // TRANSFORMATIONS
 function fromApiResponse(response: ApiSecretItem): Secret {
@@ -153,7 +155,7 @@ async function getSecrets({
     signal,
   });
 
-  return response.map(fromLocalResponse);
+  return response.envs.map(fromLocalResponse);
 }
 
 async function getSecretValue({
@@ -183,7 +185,7 @@ async function getSecretValue({
   return Promise.reject(new Error('Getting secret environment value is only available in website mode'));
 }
 
-function updateSecret({
+async function updateSecret({
   appSlug,
   secret,
   signal,
@@ -199,15 +201,29 @@ function updateSecret({
     };
 
     if (secret.isSaved) {
-      return Client.patch(getSecretItemPath({ appSlug, secretKey: secret.key }), opts);
+      return Client.patch<MonolithSecretItem>(getSecretItemPath({ appSlug, secretKey: secret.key }), opts).then(
+        fromMonolithResponse,
+      );
     }
-    return Client.post(getSecretPath(appSlug), opts);
+
+    return Client.post<MonolithSecretItem>(getSecretPath(appSlug), opts).then(fromMonolithResponse);
   }
 
-  return Client.post(SECRETS_LOCAL_PATH, {
-    body: JSON.stringify(toLocalUpdateRequest(secret)),
+  const secrets = await getSecrets({ appSlug, signal });
+  const secretIndex = secrets.findIndex(({ key }) => key === secret.key);
+
+  if (secretIndex > -1) {
+    secrets[secretIndex] = secret;
+  } else {
+    secrets.push(secret);
+  }
+
+  await Client.post(getSecretLocalPath(), {
+    body: JSON.stringify({ envs: secrets.map(toLocalUpdateRequest) }),
     signal,
   });
+
+  return secret;
 }
 
 function deleteSecret({
