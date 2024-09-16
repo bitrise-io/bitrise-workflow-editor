@@ -67,33 +67,35 @@ export const getSecretsFromLocal = () => {
   return http.get(SecretApi.getSecretLocalPath(), async () => {
     await delay();
 
-    return HttpResponse.json([
-      {
-        SECRET_FROM_LOCAL: '',
-        opts: {
-          scope: 'app',
-          is_expand: false,
-          meta: {
-            'bitrise.io': {
-              is_expose: false,
-              is_protected: false,
+    return HttpResponse.json({
+      envs: [
+        {
+          SECRET_FROM_LOCAL: '',
+          opts: {
+            scope: 'app',
+            is_expand: false,
+            meta: {
+              'bitrise.io': {
+                is_expose: false,
+                is_protected: false,
+              },
             },
           },
         },
-      },
-      {
-        TOP_SECRET_FROM_LOCAL: '',
-        opts: {
-          scope: 'workspace',
-          is_expand: false,
-          meta: {
-            'bitrise.io': {
-              is_expose: false,
-              is_protected: false,
+        {
+          TOP_SECRET_FROM_LOCAL: '',
+          opts: {
+            scope: 'workspace',
+            is_expand: false,
+            meta: {
+              'bitrise.io': {
+                is_expose: false,
+                is_protected: false,
+              },
             },
           },
         },
-      },
-    ] satisfies SecretsLocalResponse);
+      ],
+    } satisfies SecretsLocalResponse);
   });
 };

@@ -24,13 +24,13 @@ const StepSelectInput = forwardRef(
     const name = props.name ?? '';
     const value = String(watch(name));
 
-    const handleInsertVariable = (key: string) => {
+    const insertVariable = (key: string) => {
       setValue(name, `$${key}`, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
     };
 
-    const handleCreateEnvVar = (envVar: EnvVar) => {
+    const createEnvVar = (envVar: EnvVar) => {
       appendWorkflowEnvVar(workflowId, envVar);
-      handleInsertVariable(envVar.key);
+      insertVariable(envVar.key);
     };
 
     return (
@@ -65,11 +65,7 @@ const StepSelectInput = forwardRef(
           )}
         </Dropdown>
         <Box pt="24">
-          <InsertEnvVarPopover
-            size="md"
-            onCreate={handleCreateEnvVar}
-            onSelect={({ key }) => handleInsertVariable(key)}
-          />
+          <InsertEnvVarPopover size="md" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
         </Box>
       </Box>
     );
