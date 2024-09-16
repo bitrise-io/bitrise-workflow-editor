@@ -394,6 +394,18 @@ function updateStackAndMachine(workflowId: string, stack: string, machineTypeId:
   return copy;
 }
 
+function appendWorkflowEnvVar(workflowId: string, envVar: EnvVarYml, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].envs = [...(copy.workflows[workflowId].envs ?? []), envVar];
+
+  return copy;
+}
+
 function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: BitriseYml): BitriseYml {
   const copy = deepCloneSimpleObject(yml);
 
@@ -577,5 +589,6 @@ export default {
   addChainedWorkflow,
   deleteChainedWorkflow,
   updateStackAndMachine,
+  appendWorkflowEnvVar,
   updateWorkflowEnvVars,
 };

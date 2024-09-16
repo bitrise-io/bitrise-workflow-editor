@@ -23,6 +23,7 @@ type BitriseYmlStoreState = {
     placement: ChainedWorkflowPlacement,
   ) => void;
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
+  appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
   updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
@@ -107,6 +108,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateStackAndMachine(workflowId, stack, machineTypeId, state.yml),
+        };
+      });
+    },
+    appendWorkflowEnvVar(workflowId, envVar) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.appendWorkflowEnvVar(workflowId, EnvVarService.parseEnvVar(envVar), state.yml),
         };
       });
     },
