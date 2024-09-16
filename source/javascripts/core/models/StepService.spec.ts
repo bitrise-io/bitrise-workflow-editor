@@ -520,4 +520,173 @@ describe('StepService', () => {
       expect(StepService.getStepCategories([])).toEqual([]);
     });
   });
+
+  describe('getInputNames', () => {
+    it('should return an empty array if step has no inputs', () => {
+      const step = { defaultValues: {} } as Step;
+      const result = StepService.getInputNames(step);
+      expect(result).toEqual([]);
+    });
+
+    it('should return input names excluding "opts"', () => {
+      const step = {
+        defaultValues: {
+          inputs: [{ input1: 'value1', opts: {} }, { input2: 'value2' }, { opts: {} }, { input3: 'value3' }],
+        },
+      } as Step;
+      const result = StepService.getInputNames(step);
+      expect(result).toEqual(['input1', 'input2', 'input3']);
+    });
+  });
+
+  describe('calculateChange', () => {
+    it('returns no changes if oldStep or newStep is missing', () => {
+      expect(StepService.calculateChange(undefined, {} as Step)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+      expect(StepService.calculateChange({} as Step, undefined)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+    });
+
+    it('returns no changes if step IDs are different', () => {
+      const oldStep = { cvs: 'script@1' } as Step;
+      const newStep = { cvs: 'other-script@1' } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'step-id',
+      });
+    });
+
+    it('returns no changes if versions are the same', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+    });
+
+    it('returns no changes if the inputs are the same', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.2.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+    });
+
+    it('returns changes if the inputs changed', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.2.0' },
+        defaultValues: {
+          inputs: [{ input1: 'value1' }, { input2: 'value2' }, { input3: 'value3' }],
+        },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: ['input3'],
+        change: 'inputs',
+      });
+    });
+
+    it('returns changes if major versions change', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '2.0.0' },
+        defaultValues: { inputs: [{ input2: 'value2' }, { input3: 'value3' }] },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: ['input1'],
+        newInputs: ['input3'],
+        change: 'major',
+      });
+    });
+  });
+
+  describe('toYmlInput', () => {
+    it('should return undefined if the new value is empty', () => {
+      const result = StepService.toYmlInput('is_debug', '', false);
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if the new value is the same as the default value', () => {
+      let result = StepService.toYmlInput('is_debug', true, true);
+      expect(result).toBeUndefined();
+
+      result = StepService.toYmlInput('is_debug', 1, 1);
+      expect(result).toBeUndefined();
+
+      result = StepService.toYmlInput('is_debug', 'yes', 'yes');
+      expect(result).toBeUndefined();
+    });
+
+    it('should return a boolean input if the new value is a boolean string', () => {
+      let result = StepService.toYmlInput('is_debug', 'true', false);
+      expect(result).toEqual({ is_debug: true });
+
+      result = StepService.toYmlInput('is_debug', 'false', false);
+      expect(result).toEqual({ is_debug: false });
+    });
+
+    it('should return a number input if the new value is a numeric string', () => {
+      let result = StepService.toYmlInput('timeout', '0', 10);
+      expect(result).toEqual({ timeout: 0 });
+
+      result = StepService.toYmlInput('timeout', '1', 10);
+      expect(result).toEqual({ timeout: 1 });
+
+      result = StepService.toYmlInput('timeout', '30', 10);
+      expect(result).toEqual({ timeout: 30 });
+    });
+
+    it('should return a string input if the new value is a non-numeric, non-boolean string', () => {
+      const result = StepService.toYmlInput('name', 'new_name', 'old_name');
+      expect(result).toEqual({ name: 'new_name' });
+    });
+
+    it('should include opts if provided and not empty', () => {
+      const opts = { is_required: true };
+      const result = StepService.toYmlInput('name', 'new_name', 'old_name', opts);
+      expect(result).toEqual({ name: 'new_name', opts });
+    });
+
+    it('should not include opts if provided and empty', () => {
+      const opts = {};
+      const result = StepService.toYmlInput('name', 'new_name', 'old_name', opts);
+      expect(result).toEqual({ name: 'new_name' });
+    });
+  });
 });
