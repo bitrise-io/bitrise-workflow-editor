@@ -34,7 +34,6 @@ const ChainedWorkflowCard = ({
   ...callbacks
 }: Props) => {
   const {
-    onAddStepClick,
     onEditWorkflowClick,
     onChainedWorkflowsUpdate,
     onAddChainedWorkflowClick,
