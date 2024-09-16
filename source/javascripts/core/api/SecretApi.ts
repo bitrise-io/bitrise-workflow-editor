@@ -49,7 +49,7 @@ function fromApiResponse(response: ApiSecretItem): Secret {
     isKeyChangeable: true,
     scope: response.opts?.scope,
     isShared: response.opts?.scope === 'workspace',
-    source: 'From Bitrise.io',
+    source: 'Bitrise.io',
     isEditing: false,
     isSaved: true,
   };
@@ -65,7 +65,7 @@ function fromMonolithResponse(response: MonolithSecretItem): Secret {
     isKeyChangeable: true,
     scope: response.scope,
     isShared: response.scope === 'workspace',
-    source: 'From Bitrise.io',
+    source: 'Bitrise.io',
     isEditing: false,
     isSaved: true,
   };
@@ -213,9 +213,12 @@ function deleteSecret({
   return Client.del(getSecretItemPath(params), { signal });
 }
 
+export type { SecretsMonolithResponse };
+
 export default {
   getSecrets,
   getSecretValue,
   updateSecret,
   deleteSecret,
+  getSecretPath,
 };
