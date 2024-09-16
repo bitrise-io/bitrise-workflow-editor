@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react';
-import { Box, Button, Dialog, DialogBody, DialogFooter, Link, ProgressBitbot, Tag, Text } from '@bitrise/bitkit';
+import { Box, Button, Dialog, DialogBody, DialogFooter, Link, Tag, Text } from '@bitrise/bitkit';
 import { useQuery } from '@tanstack/react-query';
 import StepApi from '@/core/api/StepApi';
 import StepService from '@/core/models/StepService';
@@ -52,7 +52,7 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
           {context}
           {sourceUrl && (
             <>
-              {' Please check the '}
+              {'Please check the '}
               <Link href={sourceUrl} isExternal colorScheme="purple">
                 release notes
               </Link>
@@ -60,7 +60,6 @@ const VersionChangedDialog = ({ cvs, oldVersion, newVersion }: Props) => {
             </>
           )}
         </Text>
-        {(isOldStepLoading || isNewStepLoading) && <ProgressBitbot content="Calculating version differences..." />}
         {newInputs.length > 0 && (
           <>
             <Text textStyle="body/lg/semibold">New inputs</Text>
