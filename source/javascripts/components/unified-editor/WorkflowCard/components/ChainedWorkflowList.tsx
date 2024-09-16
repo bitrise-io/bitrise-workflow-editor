@@ -51,14 +51,11 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
 
   const { droppableContainers, active, measureDroppableContainers } = useDndContext();
 
-  const chainedWorkflowIds = useBitriseYmlStore(
+  const validChainedWorkflowIds = useBitriseYmlStore(
     useShallow(({ yml }) => {
-      return yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+      const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+      return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
     }),
-  );
-  const validChainedWorkflowIds = useMemo(
-    () => chainedWorkflowIds.filter((id) => workflowIds.includes(id)),
-    [chainedWorkflowIds, workflowIds],
   );
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {
