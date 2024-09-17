@@ -50,7 +50,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
             aria-label={
               WorkflowService.isUtilityWorkflow(workflowId) ? "Utility workflows can't be run" : 'Run Workflow'
             }
-            tooltipProps={{ 'aria-label': "Utility workflows can't be run" }}
+            tooltipProps={{
+              'aria-label': WorkflowService.isUtilityWorkflow(workflowId)
+                ? "Utility workflows can't be run"
+                : 'Run Workflow',
+            }}
             isDisabled={WorkflowService.isUtilityWorkflow(workflowId)}
             onClick={() => openRunWorkflowDialog(workflowId)}
           />
