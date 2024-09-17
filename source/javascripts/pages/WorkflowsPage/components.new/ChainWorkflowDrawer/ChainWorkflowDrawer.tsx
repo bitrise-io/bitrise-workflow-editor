@@ -29,19 +29,11 @@ type Props = UseDisclosureProps & {
 
 const ChainWorkflowDrawer = ({ workflowId, onChainWorkflow, ...disclosureProps }: Props) => {
   const { isOpen, onClose } = useDisclosure(disclosureProps);
-  const form = useForm<FormValues>({
-    defaultValues: {
-      search: '',
-    },
-  });
-
-  if (!workflowId) {
-    return null;
-  }
+  const form = useForm<FormValues>({ defaultValues: { search: '' } });
 
   return (
     <FormProvider {...form}>
-      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={() => form.reset()}>
+      <Drawer isFullHeight isOpen={isOpen} onClose={onClose} onCloseComplete={form.reset}>
         <DrawerOverlay
           top="0px"
           bg="linear-gradient(to left, rgba(0, 0, 0, 0.22) 0%, rgba(0, 0, 0, 0) 60%, rgba(0, 0, 0, 0) 100%);"
