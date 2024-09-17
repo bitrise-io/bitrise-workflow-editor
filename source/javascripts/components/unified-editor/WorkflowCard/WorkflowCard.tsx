@@ -21,7 +21,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
 
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
-  const stacksAndMachines = useStacksAndMachines();
+  const { data: stacksAndMachines } = useStacksAndMachines();
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
   if (!workflow) {
