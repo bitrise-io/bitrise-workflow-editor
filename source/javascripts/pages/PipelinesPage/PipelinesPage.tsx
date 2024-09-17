@@ -1,7 +1,7 @@
 import 'reactflow/dist/style.css';
 import { Box } from '@bitrise/bitkit';
 import withQueryClientProvider from '@/utils/withQueryClientProvider';
-import { BitriseYml, Meta } from '@/core/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import PipelinesHeader from './components/PipelinesHeader';
 import PipelinesCanvas from './components/PipelinesCanvas';
@@ -9,10 +9,9 @@ import PipelinesEmptyState from './components/PipelinesEmptyState';
 
 type Props = {
   yml: BitriseYml;
-  defaultMeta?: Meta;
 };
 
-const PipelinesPage = ({ yml, defaultMeta }: Props) => {
+const PipelinesPage = ({ yml }: Props) => {
   if (!yml) {
     return null;
   }
@@ -20,7 +19,7 @@ const PipelinesPage = ({ yml, defaultMeta }: Props) => {
   const hasPipelines = Object.keys(yml.pipelines || {}).length > 0;
 
   return (
-    <BitriseYmlProvider yml={yml} defaultMeta={defaultMeta}>
+    <BitriseYmlProvider yml={yml}>
       <Box display="flex" flexDir="column" h="100%">
         <PipelinesHeader />
         {hasPipelines ? <PipelinesCanvas /> : <PipelinesEmptyState />}
