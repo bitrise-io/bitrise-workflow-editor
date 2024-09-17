@@ -3,6 +3,7 @@ import { useShallow } from 'zustand/react/shallow';
 import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import WorkflowService from '@/core/models/WorkflowService';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
@@ -46,8 +47,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
             size="md"
             iconName="Play"
             variant="secondary"
-            aria-label="Run Workflow"
-            tooltipProps={{ 'aria-label': 'Run Workflow' }}
+            aria-label={
+              WorkflowService.isUtilityWorkflow(workflowId) ? "Utility workflows can't be run" : 'Run Workflow'
+            }
+            tooltipProps={{ 'aria-label': "Utility workflows can't be run" }}
+            isDisabled={WorkflowService.isUtilityWorkflow(workflowId)}
             onClick={() => openRunWorkflowDialog(workflowId)}
           />
         )}
