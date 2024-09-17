@@ -123,6 +123,7 @@ const ChainedWorkflowCard = ({
           onClick={onToggle}
           iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
           aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+          tooltipProps={{ 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details` }}
         />
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
@@ -143,6 +144,7 @@ const ChainedWorkflowCard = ({
                 size="xs"
                 iconName="Link"
                 aria-label="Chain Workflows"
+                tooltipProps={{ 'aria-label': 'Chain Workflows' }}
                 onClick={() => onAddChainedWorkflowClick(id)}
               />
             )}
@@ -151,6 +153,7 @@ const ChainedWorkflowCard = ({
                 size="xs"
                 iconName="Settings"
                 aria-label="Edit Workflow"
+                tooltipProps={{ 'aria-label': 'Edit Workflow' }}
                 onClick={() => onEditWorkflowClick(id)}
               />
             )}
@@ -159,6 +162,7 @@ const ChainedWorkflowCard = ({
                 size="xs"
                 iconName="Trash"
                 aria-label="Remove"
+                tooltipProps={{ 'aria-label': 'Remove' }}
                 onClick={() => onDeleteChainedWorkflowClick(index, parentWorkflowId, placement)}
               />
             )}

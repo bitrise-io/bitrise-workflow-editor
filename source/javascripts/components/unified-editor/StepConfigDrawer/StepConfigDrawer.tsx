@@ -171,6 +171,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                     iconName="ArrowUp"
                     variant="secondary"
                     aria-label="Update to latest step version"
+                    tooltipProps={{ 'aria-label': 'Update to latest step version' }}
                     onClick={handleUpdateStep}
                   />
                 )}
@@ -179,14 +180,16 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   variant="secondary"
                   iconName="Duplicate"
                   aria-label="Clone this step"
+                  tooltipProps={{ 'aria-label': 'Clone this step' }}
                   onClick={handleCloneStep}
                 />
                 <IconButton
+                  isDanger
                   size="sm"
                   variant="secondary"
                   iconName="MinusRemove"
                   aria-label="Remove this step"
-                  isDanger
+                  tooltipProps={{ 'aria-label': 'Remove this step' }}
                   onClick={handleDelete}
                 />
               </ButtonGroup>

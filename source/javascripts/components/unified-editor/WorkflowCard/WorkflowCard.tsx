@@ -47,6 +47,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
             onClick={onToggle}
             iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
             aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+            tooltipProps={{ 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details` }}
           />
         )}
 
@@ -65,6 +66,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
             display="none"
             iconName="Link"
             aria-label="Chain Workflows"
+            tooltipProps={{ 'aria-label': 'Chain Workflows' }}
             _groupHover={{ display: 'block' }}
             onClick={() => onAddChainedWorkflowClick(id)}
           />
