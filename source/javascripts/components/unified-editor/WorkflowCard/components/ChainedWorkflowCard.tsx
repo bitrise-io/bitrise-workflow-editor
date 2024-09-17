@@ -47,7 +47,7 @@ const ChainedWorkflowCard = ({
   const result = useWorkflow(id);
   const containerRef = useRef(null);
   const dependants = useDependantWorkflows(id);
-  const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: false });
+  const { isOpen, onToggle, onOpen } = useDisclosure({ defaultIsOpen: false });
 
   const sortable = useSortable({
     id: uniqueId,
@@ -145,7 +145,10 @@ const ChainedWorkflowCard = ({
                 iconName="Link"
                 aria-label="Chain Workflows"
                 tooltipProps={{ 'aria-label': 'Chain Workflows' }}
-                onClick={() => onAddChainedWorkflowClick(id)}
+                onClick={() => {
+                  onOpen();
+                  onAddChainedWorkflowClick(id);
+                }}
               />
             )}
             {onEditWorkflowClick && (
