@@ -1,4 +1,9 @@
 import { Box, Dropdown, DropdownOption, DropdownProps, forwardRef } from '@bitrise/bitkit';
+import { useShallow } from 'zustand/react/shallow';
+import { useFormContext } from 'react-hook-form';
+import { EnvVar } from '@/core/models/EnvVar';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 import StepHelperText from './StepHelperText';
 import SensitiveBadge from './SensitiveBadge';
@@ -11,15 +16,32 @@ type Props = DropdownProps<string | null> & {
 };
 
 const StepSelectInput = forwardRef(
-  ({ label, options, isSensitive, isDisabled, helper, helperText, defaultValue, ...props }: Props, ref) => {
+  ({ label, options, isSensitive, isDisabled, helper, helperText, ...props }: Props, ref) => {
+    const { workflowId } = useStepDrawerContext();
+    const { watch, setValue } = useFormContext();
+    const appendWorkflowEnvVar = useBitriseYmlStore(useShallow((s) => s.appendWorkflowEnvVar));
+
+    const name = props.name ?? '';
+    const value = String(watch(name));
+
+    const insertVariable = (key: string) => {
+      setValue(name, `$${key}`, { shouldDirty: true, shouldTouch: true, shouldValidate: true });
+    };
+
+    const createEnvVar = (envVar: EnvVar) => {
+      appendWorkflowEnvVar(workflowId, envVar);
+      insertVariable(envVar.key);
+    };
+
     return (
       <Box display="flex" gap="8">
         <Dropdown
           ref={ref}
+          {...props}
           flex="1"
           size="md"
+          value={value}
           search={false}
-          defaultValue={defaultValue}
           label={
             label && (
               <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
@@ -30,7 +52,6 @@ const StepSelectInput = forwardRef(
           }
           readOnly={isSensitive || isDisabled}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
-          {...props}
         >
           {options.map((option) => {
             return (
@@ -39,18 +60,12 @@ const StepSelectInput = forwardRef(
               </DropdownOption>
             );
           })}
-          {defaultValue && options.every((optionValue) => optionValue !== defaultValue) && (
-            <DropdownOption value={defaultValue}>{defaultValue}</DropdownOption>
+          {value && options.every((optionValue) => optionValue !== value) && (
+            <DropdownOption value={value}>{value}</DropdownOption>
           )}
         </Dropdown>
         <Box pt="24">
-          <InsertEnvVarPopover
-            size="md"
-            environmentVariables={[]}
-            onOpen={console.log}
-            onCreate={console.log}
-            onSelect={console.log}
-          />
+          <InsertEnvVarPopover size="md" onCreate={createEnvVar} onSelect={({ key }) => insertVariable(key)} />
         </Box>
       </Box>
     );

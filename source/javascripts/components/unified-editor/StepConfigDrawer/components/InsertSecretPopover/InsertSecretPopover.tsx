@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import { Button, IconButton, Text } from '@bitrise/bitkit';
 import {
   List,
@@ -10,6 +11,8 @@ import {
   Portal,
 } from '@chakra-ui/react';
 import { Secret } from '@/core/models/Secret';
+import WindowUtils from '@/core/utils/WindowUtils';
+import { useSecrets } from '@/hooks/useSecrets';
 import useMultiModePopover, { Mode } from '../../hooks/useMultiModePopover';
 import FilterInput from '../FilterInput/FilterInput';
 import { HandlerFn } from './types';
@@ -20,9 +23,6 @@ type Props = {
   size: 'sm' | 'md';
   isOpen?: boolean;
   mode?: Mode;
-  isLoading?: boolean;
-  secrets: Secret[];
-  onOpen: VoidFunction;
   onCreate: HandlerFn;
   onSelect: HandlerFn;
 };
@@ -32,41 +32,47 @@ const filterPredicate = (item: Secret, filter: string): boolean =>
     item.key.toUpperCase().includes(filter.toUpperCase()) || item.source?.toUpperCase().includes(filter.toUpperCase()),
   );
 
-const InsertSecretPopover = ({
-  size,
-  secrets,
-  onOpen,
-  onCreate,
-  onSelect,
-  isLoading,
-  isOpen: initialIsOpen,
-  mode: initialMode,
-}: Props) => {
+const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, mode: initialMode }: Props) => {
+  const appSlug = WindowUtils.appSlug() ?? '';
+  const [shouldLoadVars, setShouldLoadVars] = useState(Boolean(initialIsOpen));
+  const { isLoading, data: secrets = [] } = useSecrets({
+    appSlug,
+    useApi: true,
+    options: { enabled: shouldLoadVars },
+  });
+
   const {
-    isMode,
-    switchTo,
     isOpen,
+    filteredItems,
     open,
     close,
-    filteredItems,
+    isMode,
+    switchTo,
     getCreateFormProps,
     getActionListProps,
-    getActionListItemProps,
     getFilterInputProps,
+    getActionListItemProps,
   } = useMultiModePopover({
-    isOpen: initialIsOpen,
-    mode: initialMode,
     items: secrets,
-    filterPredicate,
-    onOpen,
+    mode: initialMode,
+    isOpen: initialIsOpen,
     onCreate,
     onSelect,
+    filterPredicate,
+    onOpen: () => setShouldLoadVars(true),
+    onClose: () => setShouldLoadVars(false),
   });
 
   return (
     <Popover isLazy isOpen={isOpen} onOpen={open} onClose={close} returnFocusOnClose={false} placement="bottom-end">
       <PopoverTrigger>
-        <IconButton size={size} variant="secondary" aria-label="Insert secret" iconName="Dollars" />
+        <IconButton
+          size={size}
+          iconName="Dollars"
+          variant="secondary"
+          aria-label="Insert secret"
+          tooltipProps={{ 'aria-label': 'Insert secret' }}
+        />
       </PopoverTrigger>
       <Portal>
         <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">

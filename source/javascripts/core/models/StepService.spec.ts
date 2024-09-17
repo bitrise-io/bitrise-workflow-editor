@@ -463,6 +463,30 @@ describe('StepService', () => {
       ]);
     });
 
+    it('should return the exact step version', () => {
+      const step = {
+        cvs: 'script@1',
+        resolvedInfo: {
+          cvs: 'script@1',
+          id: 'script',
+          version: '1.1.0',
+          icon: '',
+          normalizedVersion: '1.1.0',
+          versions: ['1.0.0', '1.1.0', '2.0.0', '2.2.2'],
+        },
+      };
+      expect(StepService.getSelectableVersions(step)).toStrictEqual([
+        { value: '', label: 'Always latest' },
+        { value: '1.1.0', label: '1.1.0 - Version in bitrise.yml' },
+        { value: '2.2.x', label: '2.2.x - Patch updates only' },
+        { value: '2.0.x', label: '2.0.x - Patch updates only' },
+        { value: '2.x.x', label: '2.x.x - Minor and patch updates' },
+        { value: '1.1.x', label: '1.1.x - Patch updates only' },
+        { value: '1.0.x', label: '1.0.x - Patch updates only' },
+        { value: '1.x.x', label: '1.x.x - Minor and patch updates' },
+      ]);
+    });
+
     it('should return "Always latest" if no versions are available', () => {
       const step = {
         cvs: 'script',
@@ -494,6 +518,175 @@ describe('StepService', () => {
 
     it('should return an empty array if no categories are available', () => {
       expect(StepService.getStepCategories([])).toEqual([]);
+    });
+  });
+
+  describe('getInputNames', () => {
+    it('should return an empty array if step has no inputs', () => {
+      const step = { defaultValues: {} } as Step;
+      const result = StepService.getInputNames(step);
+      expect(result).toEqual([]);
+    });
+
+    it('should return input names excluding "opts"', () => {
+      const step = {
+        defaultValues: {
+          inputs: [{ input1: 'value1', opts: {} }, { input2: 'value2' }, { opts: {} }, { input3: 'value3' }],
+        },
+      } as Step;
+      const result = StepService.getInputNames(step);
+      expect(result).toEqual(['input1', 'input2', 'input3']);
+    });
+  });
+
+  describe('calculateChange', () => {
+    it('returns no changes if oldStep or newStep is missing', () => {
+      expect(StepService.calculateChange(undefined, {} as Step)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+      expect(StepService.calculateChange({} as Step, undefined)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+    });
+
+    it('returns no changes if step IDs are different', () => {
+      const oldStep = { cvs: 'script@1' } as Step;
+      const newStep = { cvs: 'other-script@1' } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'step-id',
+      });
+    });
+
+    it('returns no changes if versions are the same', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+    });
+
+    it('returns no changes if the inputs are the same', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.2.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: [],
+        change: 'none',
+      });
+    });
+
+    it('returns changes if the inputs changed', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.2.0' },
+        defaultValues: {
+          inputs: [{ input1: 'value1' }, { input2: 'value2' }, { input3: 'value3' }],
+        },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: ['input3'],
+        change: 'inputs',
+      });
+    });
+
+    it('returns changes if major versions change', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '2.0.0' },
+        defaultValues: { inputs: [{ input2: 'value2' }, { input3: 'value3' }] },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: ['input1'],
+        newInputs: ['input3'],
+        change: 'major',
+      });
+    });
+  });
+
+  describe('toYmlInput', () => {
+    it('should return undefined if the new value is empty', () => {
+      const result = StepService.toYmlInput('is_debug', '', false);
+      expect(result).toBeUndefined();
+    });
+
+    it('should return undefined if the new value is the same as the default value', () => {
+      let result = StepService.toYmlInput('is_debug', true, true);
+      expect(result).toBeUndefined();
+
+      result = StepService.toYmlInput('is_debug', 1, 1);
+      expect(result).toBeUndefined();
+
+      result = StepService.toYmlInput('is_debug', 'yes', 'yes');
+      expect(result).toBeUndefined();
+    });
+
+    it('should return a boolean input if the new value is a boolean string', () => {
+      let result = StepService.toYmlInput('is_debug', 'true', false);
+      expect(result).toEqual({ is_debug: true });
+
+      result = StepService.toYmlInput('is_debug', 'false', false);
+      expect(result).toEqual({ is_debug: false });
+    });
+
+    it('should return a number input if the new value is a numeric string', () => {
+      let result = StepService.toYmlInput('timeout', '0', 10);
+      expect(result).toEqual({ timeout: 0 });
+
+      result = StepService.toYmlInput('timeout', '1', 10);
+      expect(result).toEqual({ timeout: 1 });
+
+      result = StepService.toYmlInput('timeout', '30', 10);
+      expect(result).toEqual({ timeout: 30 });
+    });
+
+    it('should return a string input if the new value is a non-numeric, non-boolean string', () => {
+      const result = StepService.toYmlInput('name', 'new_name', 'old_name');
+      expect(result).toEqual({ name: 'new_name' });
+    });
+
+    it('should include opts if provided and not empty', () => {
+      const opts = { is_required: true };
+      const result = StepService.toYmlInput('name', 'new_name', 'old_name', opts);
+      expect(result).toEqual({ name: 'new_name', opts });
+    });
+
+    it('should not include opts if provided and empty', () => {
+      const opts = {};
+      const result = StepService.toYmlInput('name', 'new_name', 'old_name', opts);
+      expect(result).toEqual({ name: 'new_name' });
     });
   });
 });

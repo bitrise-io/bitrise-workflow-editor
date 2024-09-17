@@ -59,7 +59,7 @@ function resolveVersion(version: string | undefined, availableVersions: string[]
   const latestVersion = semver.sort([...availableVersions]).pop();
 
   if (!version) {
-    return latestVersion;
+    return latestVersion ?? '';
   }
 
   if (EXACT_VERSION.test(version)) {
@@ -67,7 +67,7 @@ function resolveVersion(version: string | undefined, availableVersions: string[]
   }
 
   const normalizedVersion = normalizeVersion(version) || latestVersion || '*';
-  return semver.maxSatisfying(availableVersions, normalizedVersion);
+  return semver.maxSatisfying(availableVersions, normalizedVersion) ?? '';
 }
 
 function hasVersionUpgrade(resolvedVersion?: string, availableVersions?: string[]) {

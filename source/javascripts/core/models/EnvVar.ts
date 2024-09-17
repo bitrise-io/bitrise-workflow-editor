@@ -4,7 +4,7 @@ type EnvVar = {
   key: string;
   value: string;
   source: string;
-  isExpand: boolean;
+  isExpand?: boolean;
 };
 
 type EnvVarYml = Required<WorkflowYmlObject>['envs'][number] & {

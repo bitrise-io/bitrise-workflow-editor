@@ -2,6 +2,9 @@ import { createStore, StoreApi } from 'zustand';
 import { BitriseYml, Meta } from '@/core/models/BitriseYml';
 import { ChainedWorkflowPlacement, WorkflowYmlObject } from '@/core/models/Workflow';
 import BitriseYmlService from '@/core/models/BitriseYmlService';
+import { StepInputVariable, StepYmlObject } from '@/core/models/Step';
+import { EnvVar } from '../models/EnvVar';
+import EnvVarService from '../models/EnvVarService';
 
 type BitriseYmlStoreState = {
   yml: BitriseYml;
@@ -20,6 +23,8 @@ type BitriseYmlStoreState = {
     placement: ChainedWorkflowPlacement,
   ) => void;
   updateStackAndMachine: (workflowId: string, stack: string, machineTypeId: string) => void;
+  appendWorkflowEnvVar: (workflowId: string, envVar: EnvVar) => void;
+  updateWorkflowEnvVars: (workflowId: string, envVars: EnvVar[]) => void;
   deleteChainedWorkflow: (
     chainedWorkflowIndex: number,
     parentWorkflowId: string,
@@ -28,6 +33,18 @@ type BitriseYmlStoreState = {
   addStep: (workflowId: string, cvs: string, to: number) => void;
   moveStep: (workflowId: string, stepIndex: number, to: number) => void;
   cloneStep: (workflowId: string, stepIndex: number) => void;
+  updateStep: (
+    workflowId: string,
+    stepIndex: number,
+    newValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+    defaultValues: Omit<StepYmlObject, 'inputs' | 'outputs'>,
+  ) => void;
+  updateStepInputs: (
+    workflowId: string,
+    stepIndex: number,
+    inputs: StepInputVariable[],
+    defaultInputs: StepInputVariable[],
+  ) => void;
   changeStepVersion: (workflowId: string, stepIndex: number, version: string) => void;
   deleteStep: (workflowId: string, stepIndex: number) => void;
 };
@@ -94,6 +111,20 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
         };
       });
     },
+    appendWorkflowEnvVar(workflowId, envVar) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.appendWorkflowEnvVar(workflowId, EnvVarService.parseEnvVar(envVar), state.yml),
+        };
+      });
+    },
+    updateWorkflowEnvVars(workflowId, envVars) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflowEnvVars(workflowId, envVars.map(EnvVarService.parseEnvVar), state.yml),
+        };
+      });
+    },
     deleteChainedWorkflow(chainedWorkflowIndex, parentWorkflowId, placement) {
       return set((state) => {
         return {
@@ -119,6 +150,20 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.cloneStep(workflowId, stepIndex, state.yml),
+        };
+      });
+    },
+    updateStep: (workflowId, stepIndex, newValues, defaultValues) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStep(workflowId, stepIndex, newValues, defaultValues, state.yml),
+        };
+      });
+    },
+    updateStepInputs: (workflowId, stepIndex, inputs, defaultInputs) => {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateStepInputs(workflowId, stepIndex, inputs, defaultInputs, state.yml),
         };
       });
     },

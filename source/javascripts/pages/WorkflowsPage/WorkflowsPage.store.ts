@@ -5,6 +5,7 @@ type State = {
   workflowId: string;
   isDialogOpen?:
     | 'chain-workflow'
+    | 'run-workflow'
     | 'create-workflow'
     | 'delete-workflow'
     | 'step-config-drawer'
@@ -16,6 +17,7 @@ type Action = {
   closeDialog: () => void;
   openCreateWorkflowDialog: () => void;
   openDeleteWorkflowDialog: () => void;
+  openRunWorkflowDialog: (workflowId: string) => void;
   openChainWorkflowDialog: (workflowId: string) => void;
   openWorkflowConfigDrawer: (workflowId: string) => void;
   openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
@@ -23,17 +25,24 @@ type Action = {
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set) => ({
-  stepIndex: 0,
+  stepIndex: -1,
   workflowId: '',
   isDialogOpen: undefined,
   closeDialog: () => {
-    return set(() => ({ isDialogOpen: undefined }));
+    return set(() => ({
+      stepIndex: -1,
+      workflowId: '',
+      isDialogOpen: undefined,
+    }));
   },
   openCreateWorkflowDialog: () => {
     return set(() => ({ isDialogOpen: 'create-workflow' }));
   },
   openDeleteWorkflowDialog: () => {
     return set(() => ({ isDialogOpen: 'delete-workflow' }));
+  },
+  openRunWorkflowDialog: (workflowId) => {
+    return set(() => ({ workflowId, isDialogOpen: 'run-workflow' }));
   },
   openChainWorkflowDialog: (workflowId) => {
     return set(() => ({ workflowId, isDialogOpen: 'chain-workflow' }));
@@ -42,9 +51,17 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
     return set(() => ({ workflowId, isDialogOpen: 'workflow-config-drawer' }));
   },
   openStepConfigDrawer: (workflowId, stepIndex) => {
-    return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-config-drawer' }));
+    return set(() => ({
+      workflowId,
+      stepIndex,
+      isDialogOpen: 'step-config-drawer',
+    }));
   },
   openStepSelectorDrawer: (workflowId, stepIndex) => {
-    return set(() => ({ workflowId, stepIndex, isDialogOpen: 'step-selector-drawer' }));
+    return set(() => ({
+      workflowId,
+      stepIndex,
+      isDialogOpen: 'step-selector-drawer',
+    }));
   },
 }));

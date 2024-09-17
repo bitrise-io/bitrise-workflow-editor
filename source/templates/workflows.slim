@@ -9,26 +9,22 @@
   .content[ng-if="workflowsCtrl.loadWorkflowsProgress.isIdle"]
     div[ng-if="workflowsCtrl.selectedWorkflowChain.length === 0" ng-style="{ padding: '32px'}"]
       r-workflow-empty-state[
-        on-add-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
+        on-create-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
       ]
     .workflows[ng-init="workflowsCtrl.getAvailableHeightForWorkflows()" ng-if="workflowsCtrl.selectedWorkflowChain.length > 0"]
       .workflows-container[ng-show="workflowsCtrl.shouldShowWorkflowsContent" ng-style="{'max-height': workflowsCtrl.workflowsHeight + 'px', 'min-height': workflowsCtrl.workflowsHeight + 'px'}"]
         .steps-container
           r-workflow-toolbar.react-toolbar[
-            organization-slug="appService.appDetails.ownerData.slug"
-            default-branch="workflowsCtrl.defaultBranch"
-            unique-step-count="workflowsCtrl.uniqueStepCount"
-            unique-step-limit="workflowsCtrl.uniqueStepLimit"
             workflows="workflowsCtrl.workflows"
             selected-workflow="workflowsCtrl.selectedWorkflow"
             select-workflow="workflowsCtrl.selectWorkflow"
             create-workflow="workflowsCtrl.openReactCreateWorkflowDialog"
             chain-workflow="workflowsCtrl.openReactChainWorkflowDrawer"
-            delete-selected-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
+            delete-workflow="workflowsCtrl.openReactDeleteWorkflowDialog"
             rearrange-workflows="workflowsCtrl.openRearrangeWorkflowsPopup"
+            unique-step-count="workflowsCtrl.uniqueStepCount"
             can-run-workflow="workflowsCtrl.canRunWorkflow"
             is-run-workflow-disabled="mainCtrl.hasUnsavedChanges()"
-            run-workflow="workflowsCtrl.runWorkflow"
           ]
           section.workflow[ng-repeat="workflowChainLink in workflowsCtrl.selectedWorkflowChain" workflow-index-setter="{{ workflowIndex = $index }}" ng-init="workflow = workflowChainLink.workflow" ng-class="{'edited': workflowIndex == workflowsCtrl.editedWorkflowIndex, 'selected': workflow == workflowsCtrl.selectedWorkflow}" ng-attr-scroll-target="{{ workflowIndex == workflowsCtrl.editedWorkflowIndex ? '' : undefined }}" scroll-padding="30" id="steps-container"]
             header.workflow-header.with-flow-decoration
@@ -81,7 +77,6 @@
                   on-create-env-var="workflowsCtrl.saveEnvVarFromReact"
                   on-load-env-vars="insertVariableCtrl.initForReact(null, workflowsCtrl.workflows, workflowsCtrl.selectedWorkflow, workflowsCtrl.selectedStep)"
                   secrets-write-new="mainCtrl.appSecretsWriteNew"
-                  app-slug="appService.appDetails.slug"
                 ]
               div[ng-if="workflowsCtrl.selectedStep.isStepBundle()"]
                 r-step-bundle-panel[bundle-name="workflowsCtrl.selectedStep.displayName()"]

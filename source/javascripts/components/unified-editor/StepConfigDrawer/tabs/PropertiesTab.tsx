@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import {
   Box,
   Collapse,
@@ -10,24 +11,31 @@ import {
   Text,
   useDisclosure,
 } from '@bitrise/bitkit';
+import { useFormContext } from 'react-hook-form';
 import StepService from '@/core/models/StepService';
+import VersionUtils from '@/core/utils/VersionUtils';
+import VersionChangedDialog from '@/components/unified-editor/VersionChangedDialog/VersionChangedDialog';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
+import { FormValues } from '../StepConfigDrawer.types';
 
 const PropertiesTab = () => {
   const { isOpen: showMore, onToggle: toggleShowMore } = useDisclosure();
-  const { data, isLoading } = useStepDrawerContext();
-  const { cvs, mergedValues, resolvedInfo } = data ?? {};
-
-  // Todo loading state
-  if (isLoading) {
-    return <>Loading...</>;
-  }
+  const form = useFormContext<FormValues>();
+  const { data, workflowId, stepIndex, isLoading } = useStepDrawerContext();
+  const { cvs = '', mergedValues, resolvedInfo } = data ?? {};
+  const { source_code_url: sourceUrl, summary, description } = mergedValues ?? {};
+  const oldVersion = useMemo(() => {
+    if (isLoading) return '';
+    return resolvedInfo?.resolvedVersion ?? '';
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [workflowId, stepIndex, isLoading, resolvedInfo?.resolvedVersion]);
+  const newVersion = VersionUtils.resolveVersion(form.watch('properties.version'), resolvedInfo?.versions);
 
   const selectableVersions = StepService.getSelectableVersions(data);
 
   return (
     <Box display="flex" flexDirection="column" gap="24">
-      {mergedValues?.source_code_url && (
+      {sourceUrl && (
         <Link
           gap="4"
           display="flex"
@@ -37,20 +45,26 @@ const PropertiesTab = () => {
           alignItems="center"
           colorScheme="purple"
           rel="noreferrer noopener"
-          href={mergedValues?.source_code_url}
+          href={sourceUrl}
           isExternal
         >
           <Text>View source code</Text>
           <Icon name="OpenInBrowser" />
         </Link>
       )}
-      <Input defaultValue={resolvedInfo?.title} type="text" label="Name" placeholder="Step name" isRequired />
+      <Input
+        type="text"
+        label="Name"
+        placeholder="Step name"
+        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+        {...form.register('properties.name')}
+      />
       <Divider />
       <Select
         backgroundSize="none"
         label="Version updates"
         isDisabled={!StepService.isStepLibStep(cvs || '')}
-        defaultValue={resolvedInfo?.normalizedVersion || ''}
+        {...form.register('properties.version')}
         isRequired
       >
         {selectableVersions?.map(({ value, label }) => {
@@ -66,11 +80,11 @@ const PropertiesTab = () => {
         <Text size="2" fontWeight="600">
           Summary
         </Text>
-        {mergedValues?.summary && <MarkdownContent md={mergedValues.summary} />}
-        {mergedValues?.description && (
+        {summary && <MarkdownContent md={summary} />}
+        {description && (
           <>
             <Collapse in={showMore} transition={{ enter: { duration: 0.2 }, exit: { duration: 0.2 } }}>
-              <MarkdownContent md={mergedValues.description} />
+              <MarkdownContent md={description} />
             </Collapse>
             {/* eslint-disable-next-line jsx-a11y/anchor-is-valid */}
             <Link
@@ -85,6 +99,7 @@ const PropertiesTab = () => {
           </>
         )}
       </Box>
+      <VersionChangedDialog cvs={cvs} oldVersion={oldVersion} newVersion={newVersion} />
     </Box>
   );
 };

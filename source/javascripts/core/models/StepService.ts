@@ -1,5 +1,18 @@
 import uniq from 'lodash/uniq';
-import { Step, StepBundleYmlObject, Steps, StepYmlObject, WithGroupYmlObject } from '@/core/models/Step';
+import isEmpty from 'lodash/isEmpty';
+import find from 'lodash/find';
+import keys from 'lodash/keys';
+import compact from 'lodash/compact';
+import semver from 'semver';
+import {
+  Step,
+  StepBundleYmlObject,
+  StepInputVariable,
+  Steps,
+  StepYmlObject,
+  VariableOpts,
+  WithGroupYmlObject,
+} from '@/core/models/Step';
 import type { StepInfo } from '@/core/api/StepApi';
 import VersionUtils from '@/core/utils/VersionUtils';
 import defaultIcon from '@/../images/step/icon-default.svg';
@@ -119,6 +132,13 @@ function resolveIcon(step?: StepYmlObject, info?: StepInfo): string {
 function getSelectableVersions(step?: Step): Array<{ value: string; label: string }> {
   const results = [{ value: '', label: 'Always latest' }];
 
+  if (step?.resolvedInfo?.version && /\d+\.\d+\.\d+/g.test(step.resolvedInfo.version)) {
+    results.push({
+      value: step.resolvedInfo.version,
+      label: `${step.resolvedInfo.version} - ${VersionUtils.getVersionRemark(step.resolvedInfo.version)}`,
+    });
+  }
+
   const versions = step?.resolvedInfo?.versions;
   if (versions) {
     results.push(
@@ -136,6 +156,87 @@ function getStepCategories(steps: Step[]): string[] {
   return uniq(steps.flatMap((step) => step.defaultValues?.type_tags || [])).sort();
 }
 
+function getInputNames(step?: Step): string[] {
+  if (!step?.defaultValues?.inputs) {
+    return [];
+  }
+
+  return compact(step.defaultValues.inputs.map((inputObj) => find(keys(inputObj), (k) => k !== 'opts')));
+}
+
+function calculateChange(
+  oldStep: Step | undefined,
+  newStep: Step | undefined,
+): {
+  newInputs: string[];
+  removedInputs: string[];
+  change: 'major' | 'inputs' | 'step-id' | 'none';
+} {
+  const noChange = {
+    newInputs: [],
+    removedInputs: [],
+    change: 'none' as const,
+  };
+
+  if (!oldStep || !newStep) {
+    return noChange;
+  }
+
+  const { id: oldId } = parseStepCVS(oldStep.cvs);
+  const { id: newId } = parseStepCVS(newStep.cvs);
+
+  if (oldId !== newId) {
+    return { ...noChange, change: 'step-id' };
+  }
+
+  const oldVersion = oldStep?.resolvedInfo?.resolvedVersion;
+  const newVersion = newStep?.resolvedInfo?.resolvedVersion;
+  const versionChange = oldVersion && newVersion && semver.diff(oldVersion, newVersion);
+
+  if (!versionChange) {
+    return noChange;
+  }
+
+  const oldStepInputs = getInputNames(oldStep);
+  const newStepInputs = getInputNames(newStep);
+  const removedInputs = oldStepInputs.filter((name) => !newStepInputs.includes(name));
+  const newInputs = newStepInputs.filter((name) => !oldStepInputs.includes(name));
+  const hasInputChanged = removedInputs.length > 0 || newInputs.length > 0;
+
+  if (!hasInputChanged && versionChange !== 'major') {
+    return noChange;
+  }
+
+  return {
+    removedInputs,
+    newInputs,
+    change: versionChange === 'major' ? 'major' : 'inputs',
+  };
+}
+
+function toYmlInput(
+  name: string,
+  newValue: unknown,
+  defaultValue: unknown,
+  opts?: VariableOpts,
+): StepInputVariable | undefined {
+  if (!newValue || newValue === defaultValue) {
+    return undefined;
+  }
+
+  const result = { [name]: newValue, ...(!isEmpty(opts) ? { opts } : {}) };
+
+  if (typeof defaultValue === 'boolean' && ['true', 'false'].includes(String(newValue))) {
+    return { ...result, [name]: String(newValue) === 'true' };
+  }
+
+  if (typeof defaultValue === 'number' && !Number.isNaN(Number(newValue))) {
+    return { ...result, [name]: Number(newValue) };
+  }
+
+  return result;
+}
+
 export default {
   parseStepCVS,
   createStepCVS,
@@ -150,4 +251,7 @@ export default {
   resolveIcon,
   getSelectableVersions,
   getStepCategories,
+  getInputNames,
+  calculateChange,
+  toYmlInput,
 };

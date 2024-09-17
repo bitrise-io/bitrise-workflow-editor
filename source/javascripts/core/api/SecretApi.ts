@@ -19,7 +19,10 @@ type ApiSecretItem = { [key: string]: unknown } & {
     };
   };
 };
-type SecretsApiResponse = Array<ApiSecretItem>;
+
+type SecretsApiResponse = {
+  envs: Array<ApiSecretItem>;
+};
 
 type MonolithSecretItem = {
   id: string;
@@ -36,7 +39,9 @@ type SecretMonolithUpdateRequest = Omit<MonolithSecretItem, 'id' | 'scope'>;
 
 type LocalSecretItem = ApiSecretItem;
 
-type SecretsLocalResponse = Array<LocalSecretItem>;
+type SecretsLocalResponse = {
+  envs: Array<LocalSecretItem>;
+};
 
 // TRANSFORMATIONS
 function fromApiResponse(response: ApiSecretItem): Secret {
@@ -49,7 +54,7 @@ function fromApiResponse(response: ApiSecretItem): Secret {
     isKeyChangeable: true,
     scope: response.opts?.scope,
     isShared: response.opts?.scope === 'workspace',
-    source: 'From Bitrise.io',
+    source: 'Bitrise.io',
     isEditing: false,
     isSaved: true,
   };
@@ -65,7 +70,7 @@ function fromMonolithResponse(response: MonolithSecretItem): Secret {
     isKeyChangeable: true,
     scope: response.scope,
     isShared: response.scope === 'workspace',
-    source: 'From Bitrise.io',
+    source: 'Bitrise.io',
     isEditing: false,
     isSaved: true,
   };
@@ -123,6 +128,10 @@ function getSecretItemPath({ appSlug, secretKey }: { appSlug: string; secretKey:
   return SECRET_ITEM_PATH.replace(':appSlug', appSlug).replace(':secretKey', secretKey);
 }
 
+function getSecretLocalPath() {
+  return SECRETS_LOCAL_PATH;
+}
+
 async function getSecrets({
   signal,
   ...params
@@ -134,7 +143,7 @@ async function getSecrets({
   if (RuntimeUtils.isWebsiteMode()) {
     if (params.useApi) {
       const response = await Client.get<SecretsApiResponse>(getSecretFromApiPath(params.appSlug), { signal });
-      return response.map(fromApiResponse);
+      return response.envs.map(fromApiResponse);
     }
 
     const response = await Client.get<SecretsMonolithResponse>(getSecretPath(params.appSlug), { signal });
@@ -142,10 +151,11 @@ async function getSecrets({
   }
 
   // CLI mode: Call local endpoint
-  const response = await Client.get<SecretsLocalResponse>(SECRETS_LOCAL_PATH, {
+  const response = await Client.get<SecretsLocalResponse>(getSecretLocalPath(), {
     signal,
   });
-  return response.map(fromLocalResponse);
+
+  return response.envs.map(fromLocalResponse);
 }
 
 async function getSecretValue({
@@ -175,7 +185,7 @@ async function getSecretValue({
   return Promise.reject(new Error('Getting secret environment value is only available in website mode'));
 }
 
-function updateSecret({
+async function updateSecret({
   appSlug,
   secret,
   signal,
@@ -191,15 +201,29 @@ function updateSecret({
     };
 
     if (secret.isSaved) {
-      return Client.patch(getSecretItemPath({ appSlug, secretKey: secret.key }), opts);
+      return Client.patch<MonolithSecretItem>(getSecretItemPath({ appSlug, secretKey: secret.key }), opts).then(
+        fromMonolithResponse,
+      );
     }
-    return Client.post(getSecretPath(appSlug), opts);
+
+    return Client.post<MonolithSecretItem>(getSecretPath(appSlug), opts).then(fromMonolithResponse);
   }
 
-  return Client.post(SECRETS_LOCAL_PATH, {
-    body: JSON.stringify(toLocalUpdateRequest(secret)),
+  const secrets = await getSecrets({ appSlug, signal });
+  const secretIndex = secrets.findIndex(({ key }) => key === secret.key);
+
+  if (secretIndex > -1) {
+    secrets[secretIndex] = secret;
+  } else {
+    secrets.push(secret);
+  }
+
+  await Client.post(getSecretLocalPath(), {
+    body: JSON.stringify({ envs: secrets.map(toLocalUpdateRequest) }),
     signal,
   });
+
+  return secret;
 }
 
 function deleteSecret({
@@ -213,9 +237,14 @@ function deleteSecret({
   return Client.del(getSecretItemPath(params), { signal });
 }
 
+export type { SecretsMonolithResponse, SecretsApiResponse, SecretsLocalResponse };
+
 export default {
   getSecrets,
   getSecretValue,
   updateSecret,
   deleteSecret,
+  getSecretPath,
+  getSecretLocalPath,
+  getSecretFromApiPath,
 };

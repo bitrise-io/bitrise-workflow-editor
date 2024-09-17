@@ -1,27 +1,22 @@
-import { CSSProperties, useEffect, useMemo } from 'react';
-import { FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
+import { CSSProperties, useEffect } from 'react';
+import { useFieldArray, useFormContext } from 'react-hook-form';
 import { Badge, Box, Button, Checkbox, ControlButton, ExpandableCard, Input, Text } from '@bitrise/bitkit';
-import { DndContext, DragEndEvent, PointerSensor, pointerWithin, useSensor, useSensors } from '@dnd-kit/core';
+import { DndContext, DragEndEvent, pointerWithin } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import { EnvVar } from '@/core/models/EnvVar';
 import EnvVarService from '@/core/models/EnvVarService';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
+import { EnvVar } from '@/core/models/EnvVar';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
-
-type FormValues = {
-  envs: EnvVar[];
-};
+import { FormValues } from '../WorkflowConfig.types';
 
 const ButtonContent = () => {
-  const {
-    formState: { errors },
-  } = useFormContext<FormValues>();
+  const { formState } = useFormContext<FormValues>();
 
   const numberOfErrors =
-    errors.envs?.reduce?.((total, env) => {
+    formState.errors.configuration?.envs?.reduce?.((total, env) => {
       return total + Number(Boolean(env?.isExpand)) + Number(Boolean(env?.key)) + Number(Boolean(env?.value));
     }, 0) ?? 0;
 
@@ -38,13 +33,7 @@ const ButtonContent = () => {
 };
 
 const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemove: (index: number) => void }) => {
-  const {
-    watch,
-    register,
-    formState: { errors },
-  } = useFormContext<FormValues>();
-
-  const envVars = watch('envs', []).filter((_, idx) => idx !== index);
+  const { register, formState, watch, setValue } = useFormContext<FormValues>();
   const { attributes, listeners, active, transform, transition, setNodeRef, setActivatorNodeRef } = useSortable({ id });
 
   const handleRemove = () => {
@@ -57,9 +46,6 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
     transition,
     transform: CSS.Translate.toString(transform),
   };
-
-  // NOTE: Default value doesn't apply because the ref connected to the FormControl instead the Checkbox component in Bitkit
-  const { ref: isExpandRef, ...isExpandProps } = register(`envs.${index}.isExpand`);
 
   return (
     <Box
@@ -82,14 +68,8 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
-            errorText={errors.envs?.[index]?.key?.message}
-            {...register(`envs.${index}.key`, {
-              validate: (v) =>
-                EnvVarService.validateKey(
-                  v,
-                  envVars.map((env) => env.key),
-                ),
-            })}
+            errorText={formState.errors.configuration?.envs?.[index]?.key?.message}
+            {...register(`configuration.envs.${index}.key`, { validate: (v) => EnvVarService.validateKey(v) })}
           />
           <Text color="text/tertiary" pt="8">
             =
@@ -98,15 +78,33 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             aria-label="Value"
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
-            errorText={errors.envs?.[index]?.value?.message}
-            {...register(`envs.${index}.value`, {
-              validate: EnvVarService.validateValue,
-              setValueAs: String,
-            })}
+            errorText={formState.errors.configuration?.envs?.[index]?.value?.message}
+            {...register(`configuration.envs.${index}.value`, { validate: EnvVarService.validateValue })}
           />
-          <ControlButton onClick={handleRemove} iconName="MinusRemove" aria-label="Remove" size="md" ml="8" isDanger />
+          <ControlButton
+            ml="8"
+            size="md"
+            aria-label="Remove"
+            onClick={handleRemove}
+            iconName="MinusRemove"
+            tooltipProps={{ 'aria-label': 'Remove' }}
+            isDanger
+          />
         </Box>
-        <Checkbox inputRef={isExpandRef} {...isExpandProps}>
+        <Checkbox
+          isChecked={Boolean(watch(`configuration.envs.${index}.isExpand`))}
+          onChange={(e) => {
+            const currentChecked = e.target.checked;
+            const defaultChecked = formState.defaultValues?.configuration?.envs?.[index]?.isExpand;
+            const updatedChecked = defaultChecked === undefined ? currentChecked || defaultChecked : currentChecked;
+
+            setValue(`configuration.envs.${index}.isExpand`, updatedChecked, {
+              shouldDirty: defaultChecked !== updatedChecked,
+              shouldTouch: true,
+              shouldValidate: true,
+            });
+          }}
+        >
           Replace variables in inputs
         </Checkbox>
       </Box>
@@ -115,31 +113,12 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 };
 
 const EnvVarsCard = () => {
-  const sensors = useSensors(useSensor(PointerSensor));
-  const result = useWorkflowConfigContext();
-
-  const defaultValues = useMemo(() => {
-    return {
-      envs:
-        result?.userValues?.envs?.map((env) => {
-          return EnvVarService.parseYmlEnvVar(env, result?.id);
-        }) || [],
-    };
-  }, [result]);
-
-  const { reset, trigger, ...form } = useForm<FormValues>({
-    mode: 'all',
-    defaultValues,
-    shouldUnregister: true,
-  });
-
-  const { fields, append, remove, move } = useFieldArray({
-    name: 'envs',
-    control: form.control,
-  });
+  const workflow = useWorkflowConfigContext();
+  const { control, formState, watch } = useFormContext<FormValues>();
+  const { fields, append, remove, move, replace } = useFieldArray({ name: 'configuration.envs', control });
 
   const handleAddNew = () => {
-    append({ source: result?.id || '', key: '', value: '', isExpand: false });
+    append({ source: workflow?.id || '', key: '', value: '', isExpand: false });
   };
 
   const handleDragEnd = (e: DragEndEvent) => {
@@ -149,42 +128,35 @@ const EnvVarsCard = () => {
     );
   };
 
-  // NOTE: Reset form default values when the selected workflow was changed.
   useEffect(() => {
-    reset(defaultValues);
-  }, [reset, defaultValues]);
+    replace((formState.defaultValues?.configuration?.envs ?? []) as EnvVar[]);
+  }, [formState.defaultValues?.configuration?.envs, replace]);
 
-  // NOTE: Trigger form validation when the selected workflow was changed.
-  useEffect(() => {
-    trigger();
-  }, [trigger, form.formState.defaultValues]);
+  watch('configuration.envs');
 
   return (
-    <FormProvider reset={reset} trigger={trigger} {...form}>
-      <ExpandableCard buttonContent={<ButtonContent />}>
-        <Box m="-16" width="auto">
-          <Box>
-            <DndContext
-              sensors={sensors}
-              onDragEnd={handleDragEnd}
-              collisionDetection={pointerWithin} // NOTE: This is the only one that works when EnvVar has dozens of lines... :/
-              modifiers={[restrictToVerticalAxis, restrictToParentElement]}
-            >
-              <SortableContext items={fields.map(({ id }) => id)} strategy={verticalListSortingStrategy}>
-                {fields.map((field, index) => (
-                  <EnvVarCard key={field.id} id={field.id} index={index} onRemove={remove} />
-                ))}
-              </SortableContext>
-            </DndContext>
-          </Box>
-          <Box px="32" py="24">
-            <Button onClick={handleAddNew} leftIconName="PlusAdd" size="md" variant="secondary">
-              Add new
-            </Button>
-          </Box>
+    <ExpandableCard buttonContent={<ButtonContent />}>
+      <Box m="-16" width="auto">
+        <Box>
+          <DndContext
+            onDragEnd={handleDragEnd}
+            collisionDetection={pointerWithin} // NOTE: This is the only one that works when EnvVar has dozens of lines... :/
+            modifiers={[restrictToVerticalAxis, restrictToParentElement]}
+          >
+            <SortableContext items={fields.map(({ id }) => id)} strategy={verticalListSortingStrategy}>
+              {fields.map((field, index) => (
+                <EnvVarCard key={field.id} id={field.id} index={index} onRemove={remove} />
+              ))}
+            </SortableContext>
+          </DndContext>
         </Box>
-      </ExpandableCard>
-    </FormProvider>
+        <Box px="32" py="24">
+          <Button onClick={handleAddNew} leftIconName="PlusAdd" size="md" variant="secondary">
+            Add new
+          </Button>
+        </Box>
+      </Box>
+    </ExpandableCard>
   );
 };
 

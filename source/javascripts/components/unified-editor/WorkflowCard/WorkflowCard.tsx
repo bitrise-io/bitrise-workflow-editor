@@ -1,7 +1,9 @@
 import { useRef } from 'react';
 import { Box, Card, CardProps, Collapse, ControlButton, Text, useDisclosure } from '@bitrise/bitkit';
 import useWorkflow from '@/hooks/useWorkflow';
-import { Workflow } from '@/core/models/Workflow';
+import StackAndMachineService from '@/core/models/StackAndMachineService';
+import WorkflowEmptyState from '../WorkflowEmptyState';
+import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
 import { WorkflowCardCallbacks } from './WorkflowCard.types';
@@ -14,21 +16,25 @@ type Props = WorkflowCardCallbacks & {
 };
 
 const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props) => {
-  const { onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
+  const { onCreateWorkflow, onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
   const stepCallbacks = { onAddStepClick, onStepMove, onStepSelect };
 
+  const workflow = useWorkflow(id);
   const containerRef = useRef(null);
-  const result = useWorkflow(id);
+  const stacksAndMachines = useStacksAndMachines();
   const { isOpen, onToggle } = useDisclosure({ defaultIsOpen: !isCollapsable });
 
-  if (!result) {
-    // TODO: Missing empty state
-    // eslint-disable-next-line no-console
-    console.warn(`Workflow '${id}' is not found in yml!`);
-    return null;
+  if (!workflow) {
+    return <WorkflowEmptyState onCreateWorkflow={() => onCreateWorkflow?.()} />;
   }
 
-  const { userValues: workflow } = result || ({} as Workflow);
+  const { selectedStack: stack } = StackAndMachineService.selectStackAndMachine({
+    ...stacksAndMachines,
+    initialStackId: workflow.userValues.meta?.['bitrise.io']?.stack || '',
+    selectedStackId: workflow.userValues.meta?.['bitrise.io']?.stack || '',
+    initialMachineTypeId: '',
+    selectedMachineTypeId: '',
+  });
 
   return (
     <Card borderRadius="8" variant="elevated" {...containerProps}>
@@ -41,15 +47,16 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
             onClick={onToggle}
             iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
             aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
+            tooltipProps={{ 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details` }}
           />
         )}
 
         <Box display="flex" flexDir="column" alignItems="flex-start" justifyContent="center" flex="1" minW={0}>
           <Text textStyle="body/md/semibold" hasEllipsis>
-            {workflow.title || id}
+            {workflow.userValues.title || id}
           </Text>
           <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>
-            {workflow.meta?.['bitrise.io']?.stack || 'Unknown stack'}
+            {stack.name || 'Unknown stack'}
           </Text>
         </Box>
 
@@ -59,6 +66,7 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
             display="none"
             iconName="Link"
             aria-label="Chain Workflows"
+            tooltipProps={{ 'aria-label': 'Chain Workflows' }}
             _groupHover={{ display: 'block' }}
             onClick={() => onAddChainedWorkflowClick(id)}
           />

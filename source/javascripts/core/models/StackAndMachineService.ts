@@ -11,8 +11,6 @@ type SelectStackAndMachineProps = Partial<Awaited<ReturnType<typeof StacksAndMac
   selectedStackId: string;
   initialMachineTypeId: string;
   selectedMachineTypeId: string;
-  isStackSelectorTouched: boolean;
-  isMachineTypeSelectorTouched: boolean;
 };
 
 type SelectStackAndMachineResult = {
@@ -25,7 +23,17 @@ type SelectStackAndMachineResult = {
   isMachineTypeSelectionDisabled: boolean;
 };
 
-function createMachineType(override: PartialDeep<MachineType>): MachineType {
+function createStack(override?: PartialDeep<Stack>): Stack {
+  const base: Stack = {
+    id: '',
+    name: '',
+    machineTypes: [],
+  };
+
+  return merge({}, base, override);
+}
+
+function createMachineType(override?: PartialDeep<MachineType>): MachineType {
   const base: MachineType = {
     id: '',
     name: '',
@@ -42,89 +50,89 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     initialStackId,
     selectedStackId,
     availableStacks = [],
-    isStackSelectorTouched,
-    defaultMachineId = '',
+    defaultMachineTypeId = '',
+    defaultMachineTypeIdOfOSs = {},
     initialMachineTypeId,
     selectedMachineTypeId,
     availableMachineTypes = [],
-    isMachineTypeSelectorTouched,
     hasDedicatedMachine,
     hasSelfHostedRunner,
   } = props;
 
+  const result: SelectStackAndMachineResult = {
+    selectedStack: createStack(),
+    selectedMachineType: createMachineType(),
+    availableStackOptions: availableStacks.map(StackService.toStackOption),
+    availableMachineTypeOptions: availableMachineTypes.map(MachineTypeService.toMachineOption),
+    isInvalidInitialStack: false,
+    isInvalidInitialMachineType: false,
+    isMachineTypeSelectionDisabled: Boolean(hasDedicatedMachine || hasSelfHostedRunner),
+  };
+
   const initialStack = StackService.getStackById(availableStacks, initialStackId);
   const defaultStack = StackService.getStackById(availableStacks, defaultStackId);
-  const isInvalidInitialStack = !isStackSelectorTouched && !!initialStackId && !initialStack;
+  const selectedStack = StackService.getStackById(availableStacks, selectedStackId);
 
-  let selectedStack: Stack = { id: initialStackId, name: initialStackId, machineTypes: [] };
-  let availableStackOptions = availableStacks.map(StackService.toStackOption);
+  const isAnotherStackSelected = initialStackId !== selectedStackId;
+  const isInvalidInitialStack = !!initialStackId && !initialStack && !isAnotherStackSelected;
 
-  if (isStackSelectorTouched) {
-    selectedStack = StackService.selectStack(availableStacks, selectedStackId, defaultStackId) ?? selectedStack;
-  } else if (initialStackId) {
-    selectedStack = initialStack ?? selectedStack;
+  if (isInvalidInitialStack) {
+    result.selectedStack = createStack({ id: initialStackId, name: initialStackId });
+    result.isInvalidInitialStack = isInvalidInitialStack;
+    result.availableStackOptions.push({ label: initialStackId, value: initialStackId });
+  } else if (selectedStack) {
+    result.selectedStack = selectedStack;
   } else if (defaultStack) {
-    selectedStack = { ...defaultStack, id: '' };
+    result.selectedStack = { ...defaultStack, id: '' };
   }
 
   if (defaultStack) {
-    availableStackOptions = [{ value: '', label: `Default (${defaultStack.name})` }, ...availableStackOptions];
+    const defaultStackOption = { label: `Default (${defaultStack.name})`, value: '' };
+    result.availableStackOptions = [defaultStackOption, ...result.availableStackOptions];
   }
-
-  if (isInvalidInitialStack) {
-    availableStackOptions = [...availableStackOptions, { value: initialStackId, label: initialStackId }];
-  }
-
-  const isMachineTypeSelectionDisabled = Boolean(hasDedicatedMachine || hasSelfHostedRunner);
-  const selectableMachineTypes = MachineTypeService.getMachinesOfStack(availableMachineTypes, selectedStack);
-  const initialMachineType = MachineTypeService.getMachineById(availableMachineTypes, initialMachineTypeId);
-  const defaultMachineType = MachineTypeService.getMachineById(selectableMachineTypes, defaultMachineId);
-  const isInvalidInitialMachineType =
-    !isMachineTypeSelectorTouched && !!initialMachineTypeId && !initialMachineType && !isMachineTypeSelectionDisabled;
-
-  let selectedMachineType = createMachineType({ id: initialMachineTypeId, name: initialMachineTypeId });
-  let availableMachineTypeOptions = selectableMachineTypes.map(MachineTypeService.toMachineOption);
 
   if (hasDedicatedMachine) {
-    selectedMachineType = createMachineType({ id: initialMachineTypeId, name: 'Dedicated machine' });
-    availableMachineTypeOptions = [{ value: initialMachineTypeId, label: 'Dedicated machine' }];
+    result.availableMachineTypeOptions = [{ label: 'Dedicated machine', value: '' }];
   } else if (hasSelfHostedRunner) {
-    selectedMachineType = createMachineType({ id: initialMachineTypeId, name: 'Self-hosted runner' });
-    availableMachineTypeOptions = [{ value: initialMachineTypeId, label: 'Self-hosted runner' }];
-  } else if (isMachineTypeSelectorTouched) {
-    selectedMachineType =
-      MachineTypeService.selectMachineType(selectableMachineTypes, selectedMachineTypeId, defaultMachineId, false) ??
-      selectedMachineType;
-  } else if (initialMachineTypeId) {
-    selectedMachineType =
-      MachineTypeService.getMachineById(selectableMachineTypes, initialMachineTypeId) ?? selectedMachineType;
-  } else if (defaultMachineType) {
-    selectedMachineType = { ...defaultMachineType, id: '' };
+    result.availableMachineTypeOptions = [{ label: 'Self-hosted runner', value: '' }];
+  } else {
+    const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
+
+    const initialMachineType = MachineTypeService.getMachineById(availableMachineTypes, initialMachineTypeId);
+    const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
+    const selectedMachineType = MachineTypeService.getMachineById(selectableMachines, selectedMachineTypeId);
+
+    const selectedStackOS = StackService.getOsOfStack(result.selectedStack);
+    const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
+    const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
+
+    const isAnotherMachineTypeSelected = initialMachineTypeId !== selectedMachineTypeId;
+    const isInvalidInitialMachineType = !!initialMachineTypeId && !initialMachineType && !isAnotherMachineTypeSelected;
+
+    result.availableMachineTypeOptions = selectableMachines.map(MachineTypeService.toMachineOption);
+
+    if (isInvalidInitialMachineType) {
+      result.selectedMachineType = createMachineType({ id: initialMachineTypeId, name: initialMachineTypeId });
+      result.isInvalidInitialMachineType = isInvalidInitialMachineType;
+      result.availableMachineTypeOptions.push({ label: initialMachineTypeId, value: initialMachineTypeId });
+    } else if (selectedMachineType) {
+      result.selectedMachineType = selectedMachineType;
+    } else if (defaultMachineType) {
+      result.selectedMachineType = { ...defaultMachineType, id: '' };
+    } else if (defaultMachineTypeOfOS) {
+      result.selectedMachineType = { ...defaultMachineTypeOfOS, id: '' };
+    }
+
+    if (defaultMachineType) {
+      const defaultMachineTypeOption = { label: `Default (${defaultMachineType.name})`, value: '' };
+      result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
+    } else if (defaultMachineTypeOfOS) {
+      const defaultMachineTypeOption = { label: `Default (${defaultMachineTypeOfOS.name})`, value: '' };
+      result.availableMachineTypeOptions = [defaultMachineTypeOption, ...result.availableMachineTypeOptions];
+    }
   }
 
-  if (!isMachineTypeSelectionDisabled && defaultMachineType) {
-    availableMachineTypeOptions = [
-      { value: '', label: `Default (${defaultMachineType.name})` },
-      ...availableMachineTypeOptions,
-    ];
-  }
-
-  if (isInvalidInitialMachineType) {
-    availableMachineTypeOptions = [
-      ...availableMachineTypeOptions,
-      { value: initialMachineTypeId, label: initialMachineTypeId },
-    ];
-  }
-
-  return {
-    selectedStack,
-    availableStackOptions,
-    isInvalidInitialStack,
-    selectedMachineType,
-    availableMachineTypeOptions,
-    isInvalidInitialMachineType,
-    isMachineTypeSelectionDisabled,
-  };
+  return result;
 }
 
-export default { selectStackAndMachine };
+export default { selectStackAndMachine, createMachineType };

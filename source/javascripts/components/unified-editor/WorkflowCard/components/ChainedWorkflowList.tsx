@@ -6,6 +6,7 @@ import { defaultDropAnimation, useDndContext, useDndMonitor } from '@dnd-kit/cor
 import { useShallow } from 'zustand/react/shallow';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useWorkflows } from '@/hooks/useWorkflows';
 import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
@@ -45,18 +46,21 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
   const isAfterRun = placement === 'after_run';
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
+  const workflows = useWorkflows();
+  const workflowIds = useMemo(() => Object.keys(workflows), [workflows]);
 
   const { droppableContainers, active, measureDroppableContainers } = useDndContext();
 
-  const chainedWorkflowIds = useBitriseYmlStore(
+  const validChainedWorkflowIds = useBitriseYmlStore(
     useShallow(({ yml }) => {
-      return yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+      const chainedWorkflowIds = yml.workflows?.[parentWorkflowId]?.[placement] ?? [];
+      return chainedWorkflowIds.filter((id) => workflowIds.includes(id));
     }),
   );
 
   const initialSortableItems: SortableWorkflowItem[] = useMemo(() => {
-    return chainedWorkflowIds.map(getSortableItem(placement, parentWorkflowId));
-  }, [chainedWorkflowIds, parentWorkflowId, placement]);
+    return validChainedWorkflowIds.map(getSortableItem(placement, parentWorkflowId));
+  }, [validChainedWorkflowIds, parentWorkflowId, placement]);
 
   const [sortableItems, setSortableItems] = useState<SortableWorkflowItem[]>(initialSortableItems);
 

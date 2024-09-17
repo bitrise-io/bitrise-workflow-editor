@@ -1,12 +1,8 @@
 import merge from 'lodash/merge';
 import { AnalyticsBrowser } from '@segment/analytics-next';
-import { getAppSlug } from '@/services/app-service';
+import WindowUtils from '@/core/utils/WindowUtils';
 
-const { globalProps, dataLayer } = window.parent || {};
-
-const { account, user }: any = globalProps || {};
-
-const segmentKey = globalProps?.env.SEGMENT_JS_WRITE_KEY_NEW || '';
+const segmentKey = WindowUtils.globalProps()?.env?.SEGMENT_JS_WRITE_KEY_NEW || '';
 let segmentAnalytics: AnalyticsBrowser;
 
 if (segmentKey) {
@@ -27,8 +23,8 @@ if (segmentKey) {
     },
   );
 
-  if (user?.slug) {
-    segmentAnalytics.identify(user.slug);
+  if (WindowUtils.userSlug()) {
+    segmentAnalytics.identify(WindowUtils.userSlug());
   }
 }
 
@@ -55,7 +51,7 @@ type SegmentEventContext = {
 };
 
 const baseProperties: SegmentEventProperties = {
-  app_slug: getAppSlug() || '',
+  app_slug: WindowUtils.appSlug() ?? '',
   event_schema_version: 1,
   event_scope: 'user',
   event_type: 'interaction',
@@ -67,11 +63,11 @@ const baseProperties: SegmentEventProperties = {
   source_service_name: 'workflow-editor',
   source_service_version: window.serviceVersion,
   tracking_type: 'client_side',
-  workspace_slug: account?.slug || '',
+  workspace_slug: WindowUtils.workspaceSlug() ?? '',
 };
 
 const baseContext: SegmentEventContext = {
-  workspace_slug: account?.slug || '',
+  workspace_slug: WindowUtils.workspaceSlug() ?? '',
 };
 
 export const segmentTrack = (
@@ -85,8 +81,8 @@ export const segmentTrack = (
 
     segmentAnalytics?.track(eventName, mergedProps, mergedContext);
 
-    if (dataLayer) {
-      dataLayer.push({
+    if (WindowUtils.dataLayer()) {
+      WindowUtils.dataLayer()?.push({
         event: eventName,
         ...mergedProps,
       });

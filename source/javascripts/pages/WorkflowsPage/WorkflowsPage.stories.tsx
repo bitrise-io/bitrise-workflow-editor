@@ -2,7 +2,13 @@ import { Meta, StoryObj } from '@storybook/react';
 import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
-import { getAppSlug } from '@/services/app-service.mock';
+import { getSecretsFromApi, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import {
+  getCertificates,
+  getProvProfiles,
+  getDefaultOutputs,
+  getFileStorageDocuments,
+} from '@/core/api/EnvVarsApi.mswMocks';
 import WorkflowsPage from './WorkflowsPage';
 
 type Story = StoryObj<typeof WorkflowsPage>;
@@ -14,7 +20,16 @@ const meta: Meta<typeof WorkflowsPage> = {
   },
   parameters: {
     layout: 'fullscreen',
-    msw: { handlers: [getStacksAndMachines()] },
+    msw: {
+      handlers: [
+        getCertificates(),
+        getProvProfiles(),
+        getSecretsFromApi(),
+        getStacksAndMachines(),
+        getFileStorageDocuments(),
+        getDefaultOutputs(':appSlug'),
+      ],
+    },
   },
   argTypes: {
     onChange: {
@@ -31,13 +46,14 @@ const meta: Meta<typeof WorkflowsPage> = {
 const cliStory: Story = {
   beforeEach: () => {
     process.env.MODE = 'cli';
+    window.parent.pageProps = undefined;
+    window.parent.globalProps = undefined;
   },
-};
-
-const websiteStory: Story = {
-  beforeEach: () => {
-    process.env.MODE = 'website';
-    getAppSlug.mockReturnValue(crypto.randomUUID());
+  parameters: {
+    layout: 'fullscreen',
+    msw: {
+      handlers: [getSecretsFromLocal(), getDefaultOutputs(), getStacksAndMachines()],
+    },
   },
 };
 
@@ -45,19 +61,15 @@ export const CliMode: Story = {
   ...cliStory,
 };
 
-export const WebsiteMode: Story = {
-  ...websiteStory,
-};
+export const WebsiteMode: Story = {};
 
 export const DedicatedMachine: Story = {
-  ...websiteStory,
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasDedicatedMachine: true })] },
   },
 };
 
 export const SelfHostedRunner: Story = {
-  ...websiteStory,
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasSelfHostedRunner: true })] },
   },

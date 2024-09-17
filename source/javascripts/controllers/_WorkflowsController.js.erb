@@ -7,6 +7,7 @@ import {
 } from "@/pages/WorkflowsPage/components/StepConfigPanel/StepConfigPanel.utils";
 import semverDiff from 'semver/functions/diff'
 import EnvVarService from "@/core/models/EnvVarService";
+import WindowUtils from "@/core/utils/WindowUtils";
 
 (function () {
   "use strict";
@@ -94,21 +95,15 @@ import EnvVarService from "@/core/models/EnvVarService";
         });
 
         if (requestService.isWebsiteMode()) {
-          loadAppAndUser();
+          var pageProps = WindowUtils.pageProps();
+          viewModel.defaultBranch = pageProps?.project?.defaultBranch ?? ''
+          viewModel.buildTriggerToken = pageProps?.project?.buildTriggerToken ?? '';
+          updateCanRunWorkflow(viewModel.selectedWorkflow);
         }
       };
 
-      function loadAppAndUser() {
-        $q.all([requestService.getApp(appServiceUtil.getAppSlug()), appService.getOwnerPlanData(),]).then(function ([app, _planData]) {
-          viewModel.defaultBranch = app?.default_branch;
-          viewModel.buildTriggerToken = app?.build_trigger_token;
-          viewModel.uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
-          updateCanRunWorkflow(app?.build_trigger_token, viewModel.selectedWorkflow);
-        });
-      }
-
-      function updateCanRunWorkflow(buildTriggerToken, workflow) {
-        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(buildTriggerToken) && !isUtilityWorkflow(workflow);
+      function updateCanRunWorkflow(workflow) {
+        viewModel.canRunWorkflow = requestService.isWebsiteMode() && Boolean(viewModel.buildTriggerToken) && !isUtilityWorkflow(workflow);
       }
 
       function isUtilityWorkflow(workflow) {
@@ -188,7 +183,7 @@ import EnvVarService from "@/core/models/EnvVarService";
         return viewModel.selectedWorkflow;
       }, function (selectedWorkflow) {
         viewModel.renamedWorkflow = null;
-        updateCanRunWorkflow(viewModel.buildTriggerToken, selectedWorkflow);
+        updateCanRunWorkflow(selectedWorkflow);
 
         if (!selectedWorkflow) {
           return;
@@ -263,22 +258,6 @@ import EnvVarService from "@/core/models/EnvVarService";
         }
 
         workflowSelectionService.rearrangeSelection(viewModel);
-      };
-
-      viewModel.runWorkflow = function (branch) {
-        requestService.startBuild({
-          branch: branch,
-          workflow: viewModel.selectedWorkflow.id,
-          triggerToken: viewModel.buildTriggerToken,
-          triggeredBy: window.parent?.globalProps?.user?.username
-        }).then(function (data) {
-          if (data.status === "ok" && data.build_url) {
-            window.open(data.build_url, "_blank");
-          }
-        }, function (error) {
-          console.log(error);
-        });
-        safeDigest($scope);
       };
 
       function workflowChainHierarchy(workflow) {
@@ -528,13 +507,14 @@ import EnvVarService from "@/core/models/EnvVarService";
           workflow.workflowConfig.steps.push(wrappedUserStepConfig);
         });
 
-        if (workflow.workflowConfig.steps.length == 0) {
+        if (workflow.workflowConfig.steps.length === 0) {
           delete workflow.workflowConfig["steps"];
         }
       }
 
       function updateUniqueCount() {
-        if (!requestService.isWebsiteMode() || typeof (appService?.ownerPlanData?.uniqueStepLimit) !== "number") {
+        const uniqueStepLimit = WindowUtils?.limits()?.uniqueStepLimit;
+        if (!requestService.isWebsiteMode() || typeof uniqueStepLimit !== "number") {
           return;
         }
 
@@ -548,7 +528,6 @@ import EnvVarService from "@/core/models/EnvVarService";
         });
 
         viewModel.uniqueStepCount = allowedStepIds.size;
-        var uniqueStepLimit = appService.ownerPlanData?.uniqueStepLimit;
         var hasReachedLimit = viewModel.uniqueStepCount >= uniqueStepLimit;
         appService.allowedStepIds = hasReachedLimit ? allowedStepIds : undefined;
       }
@@ -892,6 +871,11 @@ import EnvVarService from "@/core/models/EnvVarService";
 
           if (key === "is_always_run") {
             viewModel.selectedStep.isAlwaysRun(Boolean(value));
+            return;
+          }
+
+          if (key === "is_skippable") {
+            viewModel.selectedStep.isSkippable(Boolean(value));
             return;
           }
 

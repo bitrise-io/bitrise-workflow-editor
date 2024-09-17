@@ -21,7 +21,6 @@ import CopyToClipboard from 'react-copy-to-clipboard';
 import useGetAppConfigFromRepoCallback from '@/hooks/api/useGetAppConfigFromRepoCallback';
 import useUpdatePipelineConfigCallback from '@/hooks/api/useUpdatePipelineConfigCallback';
 import usePostAppConfigCallback from '@/hooks/api/usePostAppConfigCallback';
-import useFeatureFlag from '@/hooks/useFeatureFlag';
 import { AppConfig } from '@/models/AppConfig';
 import DateFormatter from '@/utils/dateFormatter';
 import { segmentTrack } from '@/utils/segmentTracking';
@@ -187,8 +186,6 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
 
   const isDialogDisabled = getAppConfigFromRepoLoading || updatePipelineConfigLoading || postAppConfigLoading;
 
-  const isModularYAMLMentionsEnabled = useFeatureFlag('enable-modular-yaml-mentions');
-
   const onCopyClick = () => {
     toast({
       title: ' Copied to clipboard',
@@ -258,18 +255,16 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
             >
               <Radio
                 helperText={
-                  isModularYAMLMentionsEnabled ? (
-                    <>
-                      Multiple configuration files will be merged into a single file.{' '}
-                      <Link
-                        href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
-                        colorScheme="purple"
-                        isExternal
-                      >
-                        Learn more
-                      </Link>
-                    </>
-                  ) : undefined
+                  <>
+                    Multiple configuration files will be merged into a single file.{' '}
+                    <Link
+                      href="https://devcenter.bitrise.io/builds/bitrise-yml-online/"
+                      colorScheme="purple"
+                      isExternal
+                    >
+                      Learn more
+                    </Link>
+                  </>
                 }
                 marginBlockEnd="12"
                 value="git"
@@ -353,28 +348,26 @@ const ConfigurationYmlSourceDialog = (props: ConfigurationYmlSourceDialogProps) 
                   </Link>
                 </Text>
               </ListItem>
-              {isModularYAMLMentionsEnabled && (
-                <ListItem>
-                  Split up your configuration{' '}
-                  <Text as="span" color="text/secondary">
-                    (optional)
+              <ListItem>
+                Split up your configuration{' '}
+                <Text as="span" color="text/secondary">
+                  (optional)
+                </Text>
+                <Text textStyle="body/md/regular" color="text/secondary">
+                  <Link
+                    href="https://devcenter.bitrise.io/en/builds/configuration-yaml/modular-yaml-configuration.html"
+                    colorScheme="purple"
+                    isExternal
+                  >
+                    Follow this guide
+                  </Link>{' '}
+                  to split up your configuration into smaller, more manageable files. This feature is only available for
+                  Workspaces on{' '}
+                  <Text as="span" textStyle="body/md/semibold">
+                    Enterprise plan.
                   </Text>
-                  <Text textStyle="body/md/regular" color="text/secondary">
-                    <Link
-                      href="https://devcenter.bitrise.io/en/builds/yaml-configuration/modular-yaml-configuration.html"
-                      colorScheme="purple"
-                      isExternal
-                    >
-                      Follow this guide
-                    </Link>{' '}
-                    to split up your configuration into smaller, more manageable files. This feature is only available
-                    for Workspaces on{' '}
-                    <Text as="span" textStyle="body/md/semibold">
-                      Enterprise plan.
-                    </Text>
-                  </Text>
-                </ListItem>
-              )}
+                </Text>
+              </ListItem>
             </List>
           </>
         )}
