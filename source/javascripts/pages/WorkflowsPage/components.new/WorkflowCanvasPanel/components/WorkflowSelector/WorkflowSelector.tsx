@@ -60,6 +60,7 @@ const WorkflowSelector = () => {
       size="md"
       ref={dropdownRef}
       dropdownMaxHeight="359px"
+      formLabel={selectedWorkflowId ?? 'Select a Workflow'}
       value={selectedWorkflowId}
       onChange={({ target: { value } }) => setSelectedWorkflow(value)}
       search={<DropdownSearch placeholder="Filter by name..." value={search} onChange={onSearchChange} />}
