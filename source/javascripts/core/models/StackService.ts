@@ -8,6 +8,10 @@ function getStackById(stacks: Stack[], id: string): Stack | undefined {
   return stacks.find((stack) => stack.id === id);
 }
 
+function isSelfHosted(stack: Stack) {
+  return stack.id.startsWith('agent');
+}
+
 function selectStack(stacks: Stack[], stackId: string, defaultStackId: string): Stack | undefined {
   // - If YML contains a valid stack
   const selectedStack = getStackById(stacks, stackId);
@@ -32,8 +36,9 @@ function toStackOption(stack: Stack): StackOption {
 }
 
 export default {
+  selectStack,
   getOsOfStack,
   getStackById,
-  selectStack,
+  isSelfHosted,
   toStackOption,
 };

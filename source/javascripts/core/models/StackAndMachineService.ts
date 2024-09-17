@@ -56,7 +56,6 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     selectedMachineTypeId,
     availableMachineTypes = [],
     hasDedicatedMachine,
-    hasSelfHostedRunner,
   } = props;
 
   const result: SelectStackAndMachineResult = {
@@ -66,7 +65,7 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     availableMachineTypeOptions: availableMachineTypes.map(MachineTypeService.toMachineOption),
     isInvalidInitialStack: false,
     isInvalidInitialMachineType: false,
-    isMachineTypeSelectionDisabled: Boolean(hasDedicatedMachine || hasSelfHostedRunner),
+    isMachineTypeSelectionDisabled: false,
   };
 
   const initialStack = StackService.getStackById(availableStacks, initialStackId);
@@ -92,9 +91,8 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
   }
 
   if (hasDedicatedMachine) {
-    result.availableMachineTypeOptions = [{ label: 'Dedicated machine', value: '' }];
-  } else if (hasSelfHostedRunner) {
-    result.availableMachineTypeOptions = [{ label: 'Self-hosted runner', value: '' }];
+    result.isMachineTypeSelectionDisabled = true;
+    result.availableMachineTypeOptions = [{ label: 'Dedicated Machine', value: '' }];
   } else {
     const selectableMachines = MachineTypeService.getMachinesOfStack(availableMachineTypes, result.selectedStack);
 
@@ -106,10 +104,14 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
     const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
 
+    const isSelfHostedPoolSelected = StackService.isSelfHosted(result.selectedStack);
     const isAnotherMachineTypeSelected = initialMachineTypeId !== selectedMachineTypeId;
     const isInvalidInitialMachineType = !!initialMachineTypeId && !initialMachineType && !isAnotherMachineTypeSelected;
 
-    result.availableMachineTypeOptions = selectableMachines.map(MachineTypeService.toMachineOption);
+    result.isMachineTypeSelectionDisabled = isSelfHostedPoolSelected;
+    result.availableMachineTypeOptions = isSelfHostedPoolSelected
+      ? [{ label: 'Self-Hosted Runner', value: '' }]
+      : selectableMachines.map(MachineTypeService.toMachineOption);
 
     if (isInvalidInitialMachineType) {
       result.selectedMachineType = createMachineType({ id: initialMachineTypeId, name: initialMachineTypeId });
