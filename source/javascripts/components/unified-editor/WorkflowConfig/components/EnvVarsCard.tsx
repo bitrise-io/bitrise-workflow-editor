@@ -81,7 +81,15 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             errorText={formState.errors.configuration?.envs?.[index]?.value?.message}
             {...register(`configuration.envs.${index}.value`, { validate: EnvVarService.validateValue })}
           />
-          <ControlButton onClick={handleRemove} iconName="MinusRemove" aria-label="Remove" size="md" ml="8" isDanger />
+          <ControlButton
+            ml="8"
+            size="md"
+            aria-label="Remove"
+            onClick={handleRemove}
+            iconName="MinusRemove"
+            tooltipProps={{ 'aria-label': 'Remove' }}
+            isDanger
+          />
         </Box>
         <Checkbox
           isChecked={Boolean(watch(`configuration.envs.${index}.isExpand`))}

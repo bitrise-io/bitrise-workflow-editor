@@ -66,7 +66,13 @@ const InsertSecretPopover = ({ size, onCreate, onSelect, isOpen: initialIsOpen, 
   return (
     <Popover isLazy isOpen={isOpen} onOpen={open} onClose={close} returnFocusOnClose={false} placement="bottom-end">
       <PopoverTrigger>
-        <IconButton size={size} variant="secondary" aria-label="Insert secret" iconName="Dollars" />
+        <IconButton
+          size={size}
+          iconName="Dollars"
+          variant="secondary"
+          aria-label="Insert secret"
+          tooltipProps={{ 'aria-label': 'Insert secret' }}
+        />
       </PopoverTrigger>
       <Portal>
         <PopoverContent backgroundColor="white" width="25rem" maxW="25rem" padding="16">

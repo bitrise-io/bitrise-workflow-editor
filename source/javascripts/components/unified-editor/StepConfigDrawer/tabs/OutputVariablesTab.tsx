@@ -32,6 +32,7 @@ const OutputVariablesTab = () => {
                       variant="secondary"
                       iconName="Duplicate"
                       aria-label="Copy variable name"
+                      tooltipProps={{ 'aria-label': 'Copy variable name' }}
                       onClick={() => copy(variable)}
                     />
                   }

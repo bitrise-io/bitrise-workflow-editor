@@ -40,6 +40,7 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
             variant="secondary"
             iconName="MoreVertical"
             aria-label="Manage Workflows"
+            tooltipProps={{ 'aria-label': 'Manage Workflows' }}
           />
           <MenuList>
             <MenuItem iconName="Trash" onClick={openDeleteWorkflowDialog} isDanger>
@@ -50,10 +51,11 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
         {RuntimeUtils.isWebsiteMode() && (
           <IconButton
-            iconName="Play"
-            aria-label="Run Workflow"
             size="md"
+            iconName="Play"
             variant="secondary"
+            aria-label="Run Workflow"
+            tooltipProps={{ 'aria-label': 'Run Workflow' }}
             onClick={() => openRunWorkflowDialog(workflowId)}
           />
         )}
