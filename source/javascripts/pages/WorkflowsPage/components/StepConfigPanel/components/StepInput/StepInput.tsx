@@ -1,6 +1,15 @@
 import { ComponentProps, FocusEventHandler, MouseEventHandler, ReactNode, useState } from 'react';
-import { Box, ButtonGroup, Dropdown, DropdownOption, DropdownProps, IconButton } from '@bitrise/bitkit';
-import { FormControl, FormErrorMessage, forwardRef, Select, Textarea } from '@chakra-ui/react';
+import {
+  Box,
+  ButtonGroup,
+  Dropdown,
+  DropdownOption,
+  DropdownProps,
+  IconButton,
+  Select,
+  Textarea,
+} from '@bitrise/bitkit';
+import { FormControl, FormErrorMessage, forwardRef } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
 import { EnvVar } from '@/core/models/EnvVar';
@@ -155,7 +164,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
           errorText={errorText}
           onChange={handleOnDropdownChange}
           readOnly={isSensitive || isDisabled}
-          label={<StepInputLabel isSensitive={isSensitive}>{label}</StepInputLabel>}
+          label={label}
           helperText={<StepHelperText summary={helperSummary} details={helperDetails} />}
         >
           {rest.options.map((optionValue) => (

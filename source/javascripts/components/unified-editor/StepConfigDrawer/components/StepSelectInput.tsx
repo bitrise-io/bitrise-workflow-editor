@@ -6,7 +6,6 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useStepDrawerContext } from '../StepConfigDrawer.context';
 import InsertEnvVarPopover from './InsertEnvVarPopover/InsertEnvVarPopover';
 import StepHelperText from './StepHelperText';
-import SensitiveBadge from './SensitiveBadge';
 
 type Props = DropdownProps<string | null> & {
   options: string[];
@@ -42,14 +41,7 @@ const StepSelectInput = forwardRef(
           size="md"
           value={value}
           search={false}
-          label={
-            label && (
-              <Box mb="4" display="flex" alignItems="flex-end" justifyContent="space-between">
-                <span>{label}</span>
-                {isSensitive && <SensitiveBadge />}
-              </Box>
-            )
-          }
+          label={label}
           readOnly={isSensitive || isDisabled}
           helperText={helper ? <StepHelperText {...helper} /> : helperText}
         >

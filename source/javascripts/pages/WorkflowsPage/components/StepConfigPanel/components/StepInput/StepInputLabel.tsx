@@ -18,7 +18,7 @@ const StepInputLabel = ({ children, isSensitive }: Props) => {
           requiredIndicator={null}
           optionalIndicator={
             <Text as="span" color="neutral.40" fontSize="2" fontWeight="normal" marginLeft="4px">
-              (Optional)
+              (optional)
             </Text>
           }
         >

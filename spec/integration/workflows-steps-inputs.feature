@@ -55,7 +55,7 @@ Feature: Workflow steps inputs
   Scenario: Required Input
     When I click on "First step"
     Then I should see "GitHub auth token" in "First Sensitive Form Control Label"
-      And I should not see "Optional" in "First Sensitive Form Control Label"
+      And I should not see "optional" in "First Sensitive Form Control Label"
       And "First Sensitive Form Control Badge" should "be visible"
 
   Scenario: Inserting Variable into a selected place
