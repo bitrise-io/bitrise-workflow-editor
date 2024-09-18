@@ -18,6 +18,14 @@ function validateName(workflowName: string, workflowNames?: string[]) {
   return true;
 }
 
+function sanitizeName(value: string) {
+  return value.replace(/[^a-zA-Z0-9_.-]/g, '').trim();
+}
+
+function isUtilityWorkflow(workflowId: string) {
+  return Boolean(workflowId?.startsWith('_'));
+}
+
 function getUsedByText(usedBy: string[]) {
   switch (usedBy.length) {
     case 0:
@@ -103,12 +111,10 @@ function getDependantWorkflows(workflows: Workflows, id: string): string[] {
   }, []);
 }
 
-function isUtilityWorkflow(workflowId: string) {
-  return Boolean(workflowId?.startsWith('_'));
-}
-
 export default {
   validateName,
+  sanitizeName,
+  isUtilityWorkflow,
   getUsedByText,
   getBeforeRunChain,
   getAfterRunChain,
@@ -116,5 +122,4 @@ export default {
   getAllWorkflowChains,
   getChainableWorkflows,
   getDependantWorkflows,
-  isUtilityWorkflow,
 };
