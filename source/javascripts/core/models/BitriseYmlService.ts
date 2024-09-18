@@ -443,6 +443,14 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
   return copy;
 }
 
+function updateTriggerMap(newTriggerMap: TriggerMapYml, yml: BitriseYml): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  copy.trigger_map = newTriggerMap;
+
+  return copy;
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -589,6 +597,7 @@ export default {
   addChainedWorkflow,
   deleteChainedWorkflow,
   updateStackAndMachine,
+  updateTriggerMap,
   appendWorkflowEnvVar,
   updateWorkflowEnvVars,
 };

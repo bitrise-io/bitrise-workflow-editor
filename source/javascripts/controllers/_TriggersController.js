@@ -1,42 +1,31 @@
+import {safeDigest} from "@/services/react-compat";
+
 (function() {
 	"use strict";
 
 	angular
 		.module("BitriseWorkflowEditor")
-		.controller("TriggersController", function($scope, $rootScope, $location, appService, Progress, Trigger, launchDarklyService, requestService) {
+		.controller("TriggersController", function($rootScope, $scope, appService) {
 			var viewModel = this;
-			viewModel.pipelines = appService.appConfig.pipelines ? Object.keys(appService.appConfig.pipelines) : [];
-			viewModel.workflows = Object.keys(appService.appConfig.workflows).filter(function(workflowID) {
-				return !workflowID.startsWith('_');
-			});
-			viewModel.triggerMap = appService.appConfig.trigger_map;
-			viewModel.isWebsiteMode = requestService.mode === 'website';
+			viewModel.yml = null;
 
-			viewModel.originalTriggerMap = appService.appConfig.trigger_map;
-			viewModel.integrationsUrl = appService.appDetails ? '/app/' + appService.appDetails.slug + '/settings/integrations?tab=webhooks' : '';
+			viewModel.init = function () {
+				viewModel.yml = appService.appConfig;
+			};
+
+			viewModel.onChangeYml = (yml) => {
+				appService.appConfig = yml;
+				safeDigest($rootScope);
+			}
 
 			$scope.$on(
 				"$destroy",
 				$rootScope.$on("MainController::changesDiscarded", function() {
-					appService.appConfig.trigger_map = viewModel.originalTriggerMap;
-					viewModel.onDiscard(viewModel.originalTriggerMap);
+					safeDigest($scope);
+					viewModel.init();
 				})
 			);
 
-			$scope.$on(
-				"$destroy",
-				$rootScope.$on("MainController::savedFinishedWithSuccess", function() {
-					viewModel.originalTriggerMap = appService.appConfig.trigger_map;
-				})
-			);
-
-			viewModel.setDiscard = function(onDiscard) {
-				viewModel.onDiscard = onDiscard;
-			}
-
-			viewModel.onTriggerMapChange = function(triggerMap) {
-				appService.appConfig.trigger_map = triggerMap;
-				$scope.$apply();
-			};
+			viewModel.init();
 		});
 })();

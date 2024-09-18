@@ -1,5 +1,5 @@
 /* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
 import isObject from 'lodash/isObject';
 import {
   Button,
@@ -31,21 +31,26 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
+import { useShallow } from 'zustand/react/shallow';
 import { restrictToParentElement, restrictToVerticalAxis, restrictToWindowEdges } from '@dnd-kit/modifiers';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
+import WindowUtils from '@/core/utils/WindowUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
+import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
 
-type FinalTriggerItem = Record<string, boolean | string | { regex: string }>;
-
-const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): FinalTriggerItem[] => {
-  const triggerMap: FinalTriggerItem[] = Object.values(triggers)
+const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): TriggerMapYml => {
+  const triggerMap: TriggerMapYml = Object.values(triggers)
     .flat()
     .map((trigger) => {
-      const finalItem: FinalTriggerItem = {};
+      const finalItem: TriggerYmlObject = {};
       trigger.conditions.forEach(({ isRegex, type, value }) => {
         finalItem[type] = isRegex ? { regex: value } : value;
       });
@@ -57,7 +62,7 @@ const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): 
       }
       finalItem.type = trigger.source;
       const [pipelinableType, pipelinableName] = trigger.pipelineable.split('#');
-      finalItem[pipelinableType] = pipelinableName;
+      finalItem[pipelinableType as 'workflow' | 'pipeline'] = pipelinableName;
       return finalItem;
     });
 
@@ -77,14 +82,15 @@ const getSourceType = (triggerKeys: string[], type?: SourceType): SourceType => 
   return 'pull_request';
 };
 
-const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<SourceType, TriggerItem[]> => {
+const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<SourceType, TriggerItem[]> => {
   const triggers: Record<SourceType, TriggerItem[]> = {
     pull_request: [],
     push: [],
     tag: [],
   };
+
   triggerMap.forEach((trigger) => {
-    const triggerKeys = Object.keys(trigger);
+    const triggerKeys = Object.keys(trigger) as (keyof TriggerYmlObject)[];
     const source = getSourceType(triggerKeys, trigger.type as SourceType);
     const finalItem: TriggerItem = {
       conditions: [],
@@ -127,18 +133,28 @@ const convertTriggerMapToItems = (triggerMap: FinalTriggerItem[]): Record<Source
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 const ORDER_NOTIFICATION_METADATA_KEY = 'wfe_triggers_order_notification_closed';
 
-type TriggersPageProps = {
-  integrationsUrl?: string;
-  isWebsiteMode: boolean;
-  onTriggerMapChange: (triggerMap: FinalTriggerItem[]) => void;
-  pipelines: string[];
-  setDiscard: (fn: (triggerMap: FinalTriggerItem[]) => void) => void;
-  triggerMap?: FinalTriggerItem[];
-  workflows: string[];
+type TriggersPageContentProps = {
+  yml: BitriseYml;
 };
 
-const TriggersPage = (props: TriggersPageProps) => {
-  const { integrationsUrl, isWebsiteMode, onTriggerMapChange, pipelines, triggerMap, setDiscard, workflows } = props;
+const TriggersPageContent = (props: TriggersPageContentProps) => {
+  const { yml } = props;
+
+  const appSlug = WindowUtils.appSlug() ?? '';
+  const isWebsiteMode = RuntimeUtils.isWebsiteMode();
+
+  const pipelines = yml.pipelines ? Object.keys(yml.pipelines) : [];
+  const workflows = yml.workflows ? Object.keys(yml.workflows).filter((workflowID) => !workflowID.startsWith('_')) : [];
+
+  const triggerMap = yml.trigger_map;
+
+  const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
+
+  const { updateTriggerMap } = useBitriseYmlStore(
+    useShallow((s) => ({
+      updateTriggerMap: s.updateTriggerMap,
+    })),
+  );
 
   const { isVisible: isWebhookNotificationOpen, close: closeWebhookNotification } = useUserMetaData({
     key: TRIGGERS_CONFIGURED_METADATA_KEY,
@@ -191,7 +207,7 @@ const TriggersPage = (props: TriggersPageProps) => {
       newTriggers[trigger.source][index] = trigger;
     }
     setTriggers(newTriggers);
-    onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
+    updateTriggerMap(convertItemsToTriggerMap(newTriggers));
   };
 
   const onPushTriggerEdit = (trigger: TriggerItem) => {
@@ -208,12 +224,6 @@ const TriggersPage = (props: TriggersPageProps) => {
     setEditedItem(trigger);
     openTagTriggerDialog();
   };
-
-  useEffect(() => {
-    setDiscard((originalTriggerMap) => {
-      setTriggers(convertTriggerMapToItems(originalTriggerMap || []));
-    });
-  }, [setDiscard]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -242,7 +252,7 @@ const TriggersPage = (props: TriggersPageProps) => {
       };
       setActiveId(null);
       setTriggers(newTriggers);
-      onTriggerMapChange(convertItemsToTriggerMap(newTriggers));
+      updateTriggerMap(convertItemsToTriggerMap(newTriggers));
     }
   };
 
@@ -502,6 +512,19 @@ const TriggersPage = (props: TriggersPageProps) => {
         editedItem={editedItem}
       />
     </>
+  );
+};
+
+type Props = {
+  onChange: (yml: BitriseYml) => void;
+  yml: BitriseYml;
+};
+
+const TriggersPage = ({ onChange, yml }: Props) => {
+  return (
+    <BitriseYmlProvider yml={yml} onChange={onChange}>
+      <TriggersPageContent yml={yml} />
+    </BitriseYmlProvider>
   );
 };
 

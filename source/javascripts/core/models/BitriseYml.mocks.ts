@@ -132,4 +132,22 @@ const ChainableMockYml: BitriseYml = {
   },
 };
 
-export { MockYml, ChainableMockYml };
+const MockYmlWithTriggers: BitriseYml = {
+  ...MockYml,
+  trigger_map: [
+    {
+      workflow: 'wf1',
+      push_branch: 'master',
+    },
+    {
+      workflow: 'wf2',
+      push_branch: 'release',
+    },
+    {
+      workflow: 'wf3',
+      pull_request_target_branch: '*',
+    },
+  ],
+};
+
+export { MockYml, ChainableMockYml, MockYmlWithTriggers };
