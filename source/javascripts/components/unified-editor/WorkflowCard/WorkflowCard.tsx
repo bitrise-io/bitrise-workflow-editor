@@ -16,8 +16,24 @@ type Props = WorkflowCardCallbacks & {
 };
 
 const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props) => {
-  const { onCreateWorkflow, onAddChainedWorkflowClick, onAddStepClick, onStepMove, onStepSelect } = callbacks;
-  const stepCallbacks = { onAddStepClick, onStepMove, onStepSelect };
+  const {
+    onCreateWorkflow,
+    onAddChainedWorkflowClick,
+    onAddStepClick,
+    onStepMove,
+    onStepSelect,
+    onUpgradeStep,
+    onCloneStep,
+    onDeleteStep,
+  } = callbacks;
+  const stepCallbacks = {
+    onAddStepClick,
+    onStepMove,
+    onStepSelect,
+    onUpgradeStep,
+    onCloneStep,
+    onDeleteStep,
+  };
 
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
@@ -47,7 +63,9 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
             onClick={onToggle}
             iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
             aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
-            tooltipProps={{ 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details` }}
+            tooltipProps={{
+              'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details`,
+            }}
           />
         )}
 

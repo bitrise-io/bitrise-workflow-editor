@@ -12,13 +12,17 @@ type Props = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
-  const { moveStep, setChainedWorkflows, deleteChainedWorkflow } = useBitriseYmlStore(
-    useShallow((s) => ({
-      moveStep: s.moveStep,
-      setChainedWorkflows: s.setChainedWorkflows,
-      deleteChainedWorkflow: s.deleteChainedWorkflow,
-    })),
-  );
+  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, deleteChainedWorkflow } =
+    useBitriseYmlStore(
+      useShallow((s) => ({
+        moveStep: s.moveStep,
+        setChainedWorkflows: s.setChainedWorkflows,
+        deleteChainedWorkflow: s.deleteChainedWorkflow,
+        upgradeStep: s.changeStepVersion,
+        cloneStep: s.cloneStep,
+        deleteStep: s.deleteStep,
+      })),
+    );
 
   const {
     openStepConfigDrawer,
@@ -66,6 +70,9 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onStepMove={moveStep}
           onStepSelect={openStepConfigDrawer}
           onAddStepClick={openStepSelectorDrawer}
+          onUpgradeStep={upgradeStep}
+          onCloneStep={cloneStep}
+          onDeleteStep={deleteStep}
           onEditWorkflowClick={openWorkflowConfigDrawer}
           onChainedWorkflowsUpdate={setChainedWorkflows}
           onAddChainedWorkflowClick={openChainWorkflowDialog}
