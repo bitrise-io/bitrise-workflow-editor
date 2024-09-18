@@ -540,6 +540,44 @@ describe('StepService', () => {
   });
 
   describe('calculateChange', () => {
+    it('returns changes if major versions change', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '2.0.0' },
+        defaultValues: { inputs: [{ input2: 'value2' }, { input3: 'value3' }] },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: ['input1'],
+        newInputs: ['input3'],
+        change: 'major',
+      });
+    });
+
+    it('returns changes if the inputs changed', () => {
+      const oldStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.0.0' },
+        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+      } as Step;
+      const newStep = {
+        cvs: 'script@1',
+        resolvedInfo: { resolvedVersion: '1.2.0' },
+        defaultValues: {
+          inputs: [{ input1: 'value1' }, { input2: 'value2' }, { input3: 'value3' }],
+        },
+      } as Step;
+      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
+        removedInputs: [],
+        newInputs: ['input3'],
+        change: 'inputs',
+      });
+    });
+
     it('returns no changes if oldStep or newStep is missing', () => {
       expect(StepService.calculateChange(undefined, {} as Step)).toEqual({
         removedInputs: [],
@@ -597,41 +635,19 @@ describe('StepService', () => {
       });
     });
 
-    it('returns changes if the inputs changed', () => {
+    it('returns no changes if the versions are not semver version', () => {
       const oldStep = {
         cvs: 'script@1',
-        resolvedInfo: { resolvedVersion: '1.0.0' },
-        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
+        resolvedInfo: { resolvedVersion: 'master' },
       } as Step;
       const newStep = {
         cvs: 'script@1',
-        resolvedInfo: { resolvedVersion: '1.2.0' },
-        defaultValues: {
-          inputs: [{ input1: 'value1' }, { input2: 'value2' }, { input3: 'value3' }],
-        },
+        resolvedInfo: { resolvedVersion: 'master' },
       } as Step;
       expect(StepService.calculateChange(oldStep, newStep)).toEqual({
         removedInputs: [],
-        newInputs: ['input3'],
-        change: 'inputs',
-      });
-    });
-
-    it('returns changes if major versions change', () => {
-      const oldStep = {
-        cvs: 'script@1',
-        resolvedInfo: { resolvedVersion: '1.0.0' },
-        defaultValues: { inputs: [{ input1: 'value1' }, { input2: 'value2' }] },
-      } as Step;
-      const newStep = {
-        cvs: 'script@1',
-        resolvedInfo: { resolvedVersion: '2.0.0' },
-        defaultValues: { inputs: [{ input2: 'value2' }, { input3: 'value3' }] },
-      } as Step;
-      expect(StepService.calculateChange(oldStep, newStep)).toEqual({
-        removedInputs: ['input1'],
-        newInputs: ['input3'],
-        change: 'major',
+        newInputs: [],
+        change: 'none',
       });
     });
   });
