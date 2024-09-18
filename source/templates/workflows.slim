@@ -1,4 +1,4 @@
-.workflows-page[ng-if="mainCtrl.enableNewWorkflowsPage" ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init()"]
+.workflows-page[ng-if="mainCtrl.enableNewWorkflowsPage" ng-controller="WorkflowsController as workflowsCtrl" ng-init="workflowsCtrl.init(true)"]
   r-workflows-page[
     yml="workflowsCtrl.yml"
     on-change="workflowsCtrl.onChangeYml"
