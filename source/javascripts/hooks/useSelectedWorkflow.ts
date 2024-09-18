@@ -1,4 +1,4 @@
-import { useEffect, useMemo } from 'react';
+import { useCallback, useEffect, useMemo } from 'react';
 import { useToast } from '@bitrise/bitkit';
 import useSearchParams from '@/hooks/useSearchParams';
 import { Workflow } from '@/core/models/Workflow';
@@ -23,6 +23,24 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
 
+  const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
+  const selectedWorkflow = useMemo(() => workflows[selectedWorkflowId], [selectedWorkflowId, workflows]);
+
+  const setSelectedWorkflow = useCallback(
+    (workflowId?: string | null) => {
+      setSearchParams((oldSearchParams) => {
+        const newSearchParams = { ...oldSearchParams };
+        if (workflowId) {
+          newSearchParams.workflow_id = selectValidWorkflowId(workflowIds, workflowId);
+        } else {
+          delete newSearchParams.workflow_id;
+        }
+        return newSearchParams;
+      });
+    },
+    [workflowIds, setSearchParams],
+  );
+
   useEffect(() => {
     if (workflowIds.length === 0) {
       return;
@@ -35,31 +53,20 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
         description: 'Showing the first workflow instead.',
       });
     }
+    // Only check if the query param changes
+    // Otherwise the toast will show up when workflowIds change (for example, a workflow is added, deleted, reordered)
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [searchParams.workflow_id]);
 
-  return useMemo(() => {
-    const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
-    const selectedWorkflow = workflows[selectedWorkflowId];
-
-    const setSelectedWorkflow = (workflowId?: string | null) => {
-      setSearchParams((oldSearchParams) => {
-        const newSearchParams = { ...oldSearchParams };
-        if (workflowId) {
-          newSearchParams.workflow_id = selectValidWorkflowId(workflowIds, workflowId);
-        } else {
-          delete newSearchParams.workflow_id;
-        }
-        return newSearchParams;
-      });
-    };
-
-    if (searchParams.workflow_id !== selectedWorkflowId) {
+  useEffect(() => {
+    if (searchParams.workflow_id && selectedWorkflowId && searchParams.workflow_id !== selectedWorkflowId) {
       setSelectedWorkflow(selectedWorkflowId);
     }
+  }, [searchParams.workflow_id, selectedWorkflowId, setSelectedWorkflow]);
 
+  return useMemo(() => {
     return [{ id: selectedWorkflowId, userValues: selectedWorkflow }, setSelectedWorkflow];
-  }, [searchParams.workflow_id, setSearchParams, workflowIds, workflows]);
+  }, [selectedWorkflow, selectedWorkflowId, setSelectedWorkflow]);
 };
 
 export default useSelectedWorkflow;
