@@ -16,7 +16,7 @@ type StringOrRegex =
       regex: string;
     };
 
-type PipelineableTriggerItem = (
+export type PipelineableTriggerItem = (
   | {
       changed_files?: StringOrRegex;
       commit_message?: StringOrRegex;

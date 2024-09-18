@@ -46,6 +46,7 @@ import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
 import { getPipelineableTriggers } from './TriggersPage.utils';
+import SelectiveTriggers from './SelectiveTriggers';
 
 const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): TriggerMapYml => {
   const triggerMap: TriggerMapYml = Object.values(triggers)
@@ -140,7 +141,7 @@ type TriggersPageContentProps = {
 
 const TriggersPageContent = (props: TriggersPageContentProps) => {
   const { yml } = props;
-  console.log(yml);
+  // console.log(yml);
 
   const appSlug = WindowUtils.appSlug() ?? '';
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
@@ -151,7 +152,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
   const triggerMap = yml.trigger_map;
 
   const pipelineableTriggers = getPipelineableTriggers(yml);
-  console.log(pipelineableTriggers);
+  console.log('pipelineableTriggers', pipelineableTriggers);
   // pipelineableTriggers.forEach((trigger) => {});
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
@@ -264,8 +265,9 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
 
   return (
     <>
+      <SelectiveTriggers pipelineableTriggers={pipelineableTriggers} />
       <Text as="h2" textStyle="heading/h2" marginBottom="4">
-        Triggers
+        Legacy triggers
       </Text>
       <Text color="text/secondary">
         Triggers help you start builds automatically.{' '}
