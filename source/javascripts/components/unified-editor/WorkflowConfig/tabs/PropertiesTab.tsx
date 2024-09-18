@@ -6,10 +6,19 @@ import { FormValues } from '../WorkflowConfig.types';
 
 const PropertiesTab = () => {
   const workflows = useWorkflows();
-  const { register, formState, watch } = useFormContext<FormValues>();
+  const { register, formState, watch, setValue } = useFormContext<FormValues>();
   const originalName = formState.defaultValues?.properties?.name;
   const currentName = watch('properties.name');
   const wofkflowIds = Object.keys(workflows).filter((id) => id !== originalName && id !== currentName);
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const filteredValue = WorkflowService.sanitizeName(event.target.value);
+    setValue('properties.name', filteredValue, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
 
   return (
     <Box gap="24" display="flex" flexDir="column">
@@ -19,6 +28,7 @@ const PropertiesTab = () => {
         errorText={formState.errors.properties?.name?.message}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
         {...register('properties.name', {
+          onChange: handleNameChange,
           validate: (v) => WorkflowService.validateName(v, wofkflowIds),
         })}
       />
