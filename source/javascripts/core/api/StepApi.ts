@@ -54,7 +54,7 @@ function toStep(
 
   const title = StepService.resolveTitle(response.cvs || cvs, response.step);
   const icon = StepService.resolveIcon(response.step, response.info);
-  const normalizedVersion = VersionUtils.normalizeVersion(version) || VersionUtils.normalizeVersion(response.version);
+  const normalizedVersion = VersionUtils.normalizeVersion(version);
   const resolvedVersion = response.version || VersionUtils.resolveVersion(version, versions);
   const latestVersion = response.latest_version_number || VersionUtils.resolveVersion('', versions);
   const isLatest = Boolean(response.is_latest);
