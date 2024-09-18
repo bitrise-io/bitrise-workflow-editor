@@ -83,6 +83,18 @@ function hasVersionUpgrade(version?: string, availableVersions?: string[]) {
   return availableVersions.some((otherVersion) => semver.gt(otherVersion, resolvedVersion));
 }
 
+function latestMajor(versions?: string[]): number | undefined {
+  if (!versions || versions.length === 0) {
+    return undefined;
+  }
+
+  const major = versions?.reduce((acc, version) => {
+    const v = semver.valid(version) ? semver.major(version) : -1;
+    return Math.max(acc, v);
+  }, -1);
+  return major >= 0 ? major : undefined;
+}
+
 const getVersionRemark = (version: string) => {
   if (EXACT_VERSION.test(version)) {
     return 'Version in bitrise.yml';
@@ -106,5 +118,6 @@ export default {
   getNormalizedVersions,
   resolveVersion,
   hasVersionUpgrade,
+  latestMajor,
   getVersionRemark,
 };

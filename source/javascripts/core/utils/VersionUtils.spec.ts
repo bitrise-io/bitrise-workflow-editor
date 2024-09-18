@@ -150,6 +150,24 @@ describe('VersionUtils', () => {
     });
   });
 
+  describe('latestMajor', () => {
+    it('should return the latest major version', () => {
+      expect(VersionUtils.latestMajor(['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe(2);
+    });
+
+    it('should return undefined if non-semver versions are given', () => {
+      expect(VersionUtils.latestMajor(['master', 'latest'])).toBeUndefined();
+    });
+
+    it('should return undefined if no versions are given', () => {
+      expect(VersionUtils.latestMajor([])).toBeUndefined();
+    });
+
+    it('should return undefined if versions is undefined', () => {
+      expect(VersionUtils.latestMajor(undefined)).toBeUndefined();
+    });
+  });
+
   describe('getVersionRemark', () => {
     it('should return "Version in bitrise.yml" for exact versions', () => {
       expect(VersionUtils.getVersionRemark('1.2.3')).toBe('Version in bitrise.yml');
