@@ -2,6 +2,77 @@ import { Workflows } from './Workflow';
 import WorkflowService from './WorkflowService';
 
 describe('WorkflowService', () => {
+  describe('validateName', () => {
+    it('returns true if workflow name is valid and no other names are provided', () => {
+      const result = WorkflowService.validateName('valid-name_123');
+      expect(result).toBe(true);
+    });
+
+    it('returns true if workflow name is valid and unique', () => {
+      const result = WorkflowService.validateName('valid-name_123', ['otherName']);
+      expect(result).toBe(true);
+    });
+
+    it('returns error message if workflow name is empty', () => {
+      const result = WorkflowService.validateName('');
+      expect(result).toBe('Workflow name is required');
+    });
+
+    it('returns error message if workflow name contains invalid characters', () => {
+      const result = WorkflowService.validateName('invalid@name!');
+      expect(result).toBe('Workflow name must only contain letters, numbers, dashes, underscores or periods');
+    });
+
+    it('returns error message if workflow name is not unique', () => {
+      const result = WorkflowService.validateName('duplicateName', ['duplicateName']);
+      expect(result).toBe('Workflow name should be unique.');
+    });
+  });
+
+  describe('sanitizeName', () => {
+    it('returns the same name if it contains only valid characters', () => {
+      const name = 'valid.name-123';
+      const result = WorkflowService.sanitizeName(name);
+      expect(result).toBe('valid.name-123');
+    });
+
+    it('removes invalid characters from the name', () => {
+      const name = '@name!';
+      const result = WorkflowService.sanitizeName(name);
+      expect(result).toBe('name');
+    });
+
+    it('removes spaces from the name', () => {
+      const name = ' name with spaces ';
+      const result = WorkflowService.sanitizeName(name);
+      expect(result).toBe('namewithspaces');
+    });
+
+    it('returns an empty string if the name contains only invalid characters', () => {
+      const name = '@!#$%^&*()';
+      const result = WorkflowService.sanitizeName(name);
+      expect(result).toBe('');
+    });
+  });
+
+  describe('isUtilityWorkflow', () => {
+    it('should return true when the workflow starts with "_"', () => {
+      const workflowId = '_utility';
+
+      const result = WorkflowService.isUtilityWorkflow(workflowId);
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false otherwise', () => {
+      const workflowId = 'wf-1';
+
+      const result = WorkflowService.isUtilityWorkflow(workflowId);
+
+      expect(result).toBe(false);
+    });
+  });
+
   describe('getBeforeRunChain', () => {
     it('should return an empty array when there are no workflows', () => {
       const id = 'wf-1';
@@ -552,24 +623,6 @@ describe('WorkflowService', () => {
       const result = WorkflowService.getDependantWorkflows(workflows, id);
 
       expect(result).toEqual(['wf-2', 'wf-3', 'wf-4', 'wf-5', 'wf-6']);
-    });
-  });
-
-  describe('isUtilityWorkflow', () => {
-    it('should return true when the workflow starts with "_"', () => {
-      const workflowId = '_utility';
-
-      const result = WorkflowService.isUtilityWorkflow(workflowId);
-
-      expect(result).toBe(true);
-    });
-
-    it('should return false otherwise', () => {
-      const workflowId = 'wf-1';
-
-      const result = WorkflowService.isUtilityWorkflow(workflowId);
-
-      expect(result).toBe(false);
     });
   });
 });
