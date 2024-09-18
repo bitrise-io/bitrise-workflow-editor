@@ -5,11 +5,9 @@ import { DndContext, DragEndEvent, pointerWithin } from '@dnd-kit/core';
 import { SortableContext, useSortable, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { CSS } from '@dnd-kit/utilities';
-import { useShallow } from 'zustand/react/shallow';
 import EnvVarService from '@/core/models/EnvVarService';
 import AutoGrowableInput from '@/components/AutoGrowableInput';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import { FormValues } from '../WorkflowConfig.types';
@@ -118,16 +116,6 @@ const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
   const { control, formState } = useFormContext<FormValues>();
   const { fields, append, remove, move, replace } = useFieldArray({ control, name: 'configuration.envs' });
-
-  const envs = useBitriseYmlStore(
-    useShallow((s) => {
-      if (!workflow?.id) {
-        return [];
-      }
-
-      return (s.yml.workflows?.[workflow.id]?.envs ?? []).map((env) => EnvVarService.parseYmlEnvVar(env, workflow.id));
-    }),
-  );
 
   const handleAddNew = () => {
     append({ source: workflow?.id || '', key: '', value: '', isExpand: false });
