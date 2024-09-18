@@ -152,7 +152,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
 
   const pipelineableTriggers = getPipelineableTriggers(yml);
   console.log(pipelineableTriggers);
-  pipelineableTriggers.forEach((trigger) => {});
+  // pipelineableTriggers.forEach((trigger) => {});
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 
