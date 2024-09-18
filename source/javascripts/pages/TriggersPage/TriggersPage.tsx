@@ -140,6 +140,7 @@ type TriggersPageContentProps = {
 
 const TriggersPageContent = (props: TriggersPageContentProps) => {
   const { yml } = props;
+  console.log(yml);
 
   const appSlug = WindowUtils.appSlug() ?? '';
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
@@ -149,7 +150,9 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
 
   const triggerMap = yml.trigger_map;
 
-  console.log(getPipelineableTriggers(yml));
+  const pipelineableTriggers = getPipelineableTriggers(yml);
+  console.log(pipelineableTriggers);
+  pipelineableTriggers.forEach((trigger) => {});
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 

@@ -10,13 +10,46 @@ export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger
   return isUsed;
 };
 
+type StringOrRegex =
+  | string
+  | {
+      regex: string;
+    };
+
+type PipelineableTriggerItem = (
+  | {
+      changed_files?: StringOrRegex;
+      commit_message?: StringOrRegex;
+      comment?: StringOrRegex;
+      draft_enabled?: boolean;
+      label?: StringOrRegex;
+      source_branch?: StringOrRegex;
+      target_branch?: StringOrRegex;
+      type: 'pull_request';
+    }
+  | {
+      branch?: StringOrRegex;
+      changed_files?: StringOrRegex;
+      commit_message?: StringOrRegex;
+      type: 'push';
+    }
+  | {
+      tag?: StringOrRegex;
+      type: 'tag';
+    }
+) & {
+  enabled?: boolean;
+  id: string;
+  pipelineableType: 'pipeline' | 'workflow';
+};
+
 const looper = (
-  id: string,
-  pipelineableType: 'pipeline' | 'workflow',
-  type: 'pull_request' | 'push' | 'tag',
+  id: PipelineableTriggerItem['id'],
+  pipelineableType: PipelineableTriggerItem['pipelineableType'],
+  type: PipelineableTriggerItem['type'],
   array?: any[],
 ) => {
-  const triggerItems: any[] = [];
+  const triggerItems: PipelineableTriggerItem[] = [];
   if (array?.length) {
     (array as any[]).forEach((trigger) => {
       triggerItems.push({
@@ -31,7 +64,7 @@ const looper = (
 };
 
 export const getPipelineableTriggers = (yml: BitriseYml) => {
-  let triggerItems: any[] = [];
+  let triggerItems: PipelineableTriggerItem[] = [];
   if (yml.pipelines) {
     Object.entries(yml.pipelines).forEach(([id, p]) => {
       if (p.triggers) {
