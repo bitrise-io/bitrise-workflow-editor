@@ -28,6 +28,9 @@ pipelines:
   pl1:
     stages:
     - st1: {}
+    triggers:
+      push:
+      - branch: main
   pl2:
     stages:
     - st1: {}
@@ -268,6 +271,10 @@ workflows:
     - TEST: 123
       opts:
         is_expand: false
+    triggers:
+      push:
+      - branch: main
+        enabled: false
   wf7:
     summary: Seventh workflow
     description: Last, but not least important workflow
@@ -281,6 +288,19 @@ workflows:
         container: ruby
         services:
         - postgres
+    triggers:
+      push:
+      - branch: main
+        enabled: false
+      tag:
+      - name:
+          regex: '^\d\.\d\.\d$'
+      pull_request:
+      - target_branch: 'main'
+        comment: "[workflow: deploy]"
+      - comment: "[workflow: deploy]"
+      - commit_message:
+          regex: '.*\[workflow: deploy\].*'
 step_bundles:
   install_deps:
     envs:

@@ -45,6 +45,7 @@ import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
 import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
+import { getPipelineableTriggers } from './TriggersPage.utils';
 
 const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): TriggerMapYml => {
   const triggerMap: TriggerMapYml = Object.values(triggers)
@@ -147,6 +148,8 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
   const workflows = yml.workflows ? Object.keys(yml.workflows).filter((workflowID) => !workflowID.startsWith('_')) : [];
 
   const triggerMap = yml.trigger_map;
+
+  console.log(getPipelineableTriggers(yml));
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 

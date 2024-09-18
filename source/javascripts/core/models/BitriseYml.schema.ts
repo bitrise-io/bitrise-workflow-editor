@@ -255,6 +255,9 @@ const BitriseYmlSchema = {
           },
           type: 'array',
         },
+        triggers: {
+          type: 'object',
+        },
       },
       additionalProperties: false,
       type: 'object',
@@ -553,6 +556,9 @@ const BitriseYmlSchema = {
               additionalProperties: true,
             },
           },
+          type: 'object',
+        },
+        triggers: {
           type: 'object',
         },
       },
