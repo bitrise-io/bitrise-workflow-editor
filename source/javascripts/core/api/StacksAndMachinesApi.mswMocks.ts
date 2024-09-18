@@ -10,25 +10,33 @@ export const getStacksAndMachines = (options?: Options) => {
   return http.get(StacksAndMachinesApi.getStacksAndMachinesPath(':appSlug'), async () => {
     await delay();
 
+    const availableStacks: Record<string, { title: string; available_machines?: string[] }> = {
+      'osx-stack': {
+        title: 'OSX Stack',
+        available_machines: ['machine-0', 'machine-1'],
+      },
+      'linux-stack': {
+        title: 'Linux Stack',
+        available_machines: ['machine-2', 'machine-3'],
+      },
+      'mixed-stack': {
+        title: 'Mixed Stack',
+        available_machines: ['machine-0', 'machine-1', 'machine-2', 'machine-3'],
+      },
+    };
+
+    if (options?.hasSelfHostedRunner) {
+      availableStacks['agent-pool-stack'] = {
+        title: 'Self-Hosted Runner: First Pool',
+      };
+    }
+
     return HttpResponse.json({
       has_dedicated_machine: Boolean(options?.hasDedicatedMachine),
       has_self_hosted_runner: Boolean(options?.hasSelfHostedRunner),
       default_stack_id: 'linux-stack',
       default_machine_id: 'machine-3',
-      available_stacks: {
-        'osx-stack': {
-          title: 'OSX Stack',
-          available_machines: ['machine-0', 'machine-1'],
-        },
-        'linux-stack': {
-          title: 'Linux Stack',
-          available_machines: ['machine-2', 'machine-3'],
-        },
-        'mixed-stack': {
-          title: 'Mixed Stack',
-          available_machines: ['machine-0', 'machine-1', 'machine-2', 'machine-3'],
-        },
-      },
+      available_stacks: availableStacks,
       available_machines: {
         osx: {
           default_machine_type: 'machine-1',

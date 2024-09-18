@@ -1,4 +1,4 @@
-import { Workflows, WorkflowYmlObject } from '@/core/models/Workflow';
+import { Workflows } from '@/core/models/Workflow';
 
 const WORKFLOW_NAME_REGEX = /^[A-Za-z0-9-_.]+$/;
 
@@ -103,18 +103,8 @@ function getDependantWorkflows(workflows: Workflows, id: string): string[] {
   }, []);
 }
 
-function deleteBeforeRun(workflow: WorkflowYmlObject, workflowId: string): WorkflowYmlObject {
-  return {
-    ...workflow,
-    before_run: workflow.before_run?.filter((chainedWorkflowId: string) => chainedWorkflowId !== workflowId),
-  };
-}
-
-function deleteAfterRun(workflow: WorkflowYmlObject, workflowId: string): WorkflowYmlObject {
-  return {
-    ...workflow,
-    after_run: workflow.after_run?.filter((chainedWorkflowId: string) => chainedWorkflowId !== workflowId),
-  };
+function isUtilityWorkflow(workflowId: string) {
+  return Boolean(workflowId?.startsWith('_'));
 }
 
 export default {
@@ -126,6 +116,5 @@ export default {
   getAllWorkflowChains,
   getChainableWorkflows,
   getDependantWorkflows,
-  deleteBeforeRun,
-  deleteAfterRun,
+  isUtilityWorkflow,
 };
