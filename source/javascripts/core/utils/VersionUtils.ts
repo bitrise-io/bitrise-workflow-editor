@@ -1,4 +1,4 @@
-import semver, { gtr } from 'semver';
+import semver from 'semver';
 
 const EXACT_VERSION = /\d+\.\d+\.\d+/;
 const MINOR_AND_PATCH_UPDATES = /\d+\.x\.x/;
@@ -70,12 +70,17 @@ function resolveVersion(version: string | undefined, availableVersions: string[]
   return semver.maxSatisfying(availableVersions, normalizedVersion) ?? '';
 }
 
-function hasVersionUpgrade(resolvedVersion?: string, availableVersions?: string[]) {
-  if (!availableVersions || !resolvedVersion) {
+function hasVersionUpgrade(version?: string, availableVersions?: string[]) {
+  if (!version || !availableVersions || availableVersions.length === 0) {
     return false;
   }
 
-  return availableVersions.some((possibleVersion) => gtr(possibleVersion, resolvedVersion));
+  const resolvedVersion = resolveVersion(version, availableVersions);
+  if (!semver.valid(resolvedVersion)) {
+    return false;
+  }
+
+  return availableVersions.some((otherVersion) => semver.gt(otherVersion, resolvedVersion));
 }
 
 const getVersionRemark = (version: string) => {
