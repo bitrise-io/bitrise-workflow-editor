@@ -35,7 +35,7 @@ const WorkflowConfigPanelContent = () => {
   });
 
   useEffect(() => {
-    if (defaultWorkflowId) {
+    if (defaultWorkflowId && form.formState.isValid) {
       const { configuration, properties } = formValues;
 
       if (configuration) {
@@ -52,7 +52,15 @@ const WorkflowConfigPanelContent = () => {
         renameWorkflow(properties.name);
       }
     }
-  }, [formValues, defaultWorkflowId, renameWorkflow, updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars]);
+  }, [
+    formValues,
+    defaultWorkflowId,
+    form.formState.isValid,
+    renameWorkflow,
+    updateWorkflow,
+    updateStackAndMachine,
+    updateWorkflowEnvVars,
+  ]);
 
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
