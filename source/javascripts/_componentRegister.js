@@ -69,7 +69,7 @@ angular
       "planSelectorPageUrl",
     ]),
   )
-  .component("rPipelinesPage", register(PipelinesPage, ["yml", "defaultMeta"]))
+  .component("rPipelinesPage", register(PipelinesPage, ["yml"]))
   .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]));
 
 // Components

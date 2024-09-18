@@ -554,4 +554,22 @@ describe('WorkflowService', () => {
       expect(result).toEqual(['wf-2', 'wf-3', 'wf-4', 'wf-5', 'wf-6']);
     });
   });
+
+  describe('isUtilityWorkflow', () => {
+    it('should return true when the workflow starts with "_"', () => {
+      const workflowId = '_utility';
+
+      const result = WorkflowService.isUtilityWorkflow(workflowId);
+
+      expect(result).toBe(true);
+    });
+
+    it('should return false otherwise', () => {
+      const workflowId = 'wf-1';
+
+      const result = WorkflowService.isUtilityWorkflow(workflowId);
+
+      expect(result).toBe(false);
+    });
+  });
 });
