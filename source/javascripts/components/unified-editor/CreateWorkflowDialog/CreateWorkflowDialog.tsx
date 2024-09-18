@@ -25,6 +25,7 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
     register,
     getValues,
     handleSubmit,
+    setValue,
     formState: { errors },
   } = useForm<FormValues>({
     defaultValues: {
@@ -32,6 +33,15 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
       baseWorkflowId: '',
     },
   });
+
+  const handleNameChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const filteredValue = WorkflowService.sanitizeName(event.target.value);
+    setValue('workflowId', filteredValue, {
+      shouldValidate: true,
+      shouldDirty: true,
+      shouldTouch: true,
+    });
+  };
 
   const handleClose = () => {
     onClose();
@@ -63,6 +73,7 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
             errorText={errors.workflowId?.message}
             inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             {...register('workflowId', {
+              onChange: handleNameChange,
               validate: (v) => WorkflowService.validateName(v, workflowIds),
             })}
           />
