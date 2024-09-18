@@ -1,4 +1,4 @@
-import { createContext, PropsWithChildren, useContext, useLayoutEffect, useMemo } from 'react';
+import { createContext, PropsWithChildren, useContext, useLayoutEffect } from 'react';
 import { FormProvider, useForm } from 'react-hook-form';
 import useWorkflow from '@/hooks/useWorkflow';
 import { Workflow } from '@/core/models/Workflow';
@@ -10,8 +10,7 @@ const Context = createContext<State>(undefined);
 
 type Props = PropsWithChildren<{ workflowId: string }>;
 const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
-  const wf = useWorkflow(workflowId);
-  const workflow = useMemo(() => wf, [wf]);
+  const workflow = useWorkflow(workflowId);
   const form = useForm<FormValues>({ mode: 'all' });
 
   useLayoutEffect(() => {
@@ -24,7 +23,7 @@ const WorkflowConfigProvider = ({ workflowId, children }: Props) => {
       configuration: {
         stackId: workflow?.userValues.meta?.['bitrise.io']?.stack || '',
         machineTypeId: workflow?.userValues.meta?.['bitrise.io']?.machine_type_id || '',
-        envs: workflow?.userValues.envs?.map((env) => EnvVarService.parseYmlEnvVar(env)) ?? [],
+        envs: workflow?.userValues.envs?.map((env) => EnvVarService.parseYmlEnvVar(env, workflow.id)) ?? [],
       },
     });
     // eslint-disable-next-line react-hooks/exhaustive-deps
