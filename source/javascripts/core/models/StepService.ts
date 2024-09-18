@@ -191,6 +191,11 @@ function calculateChange(
 
   const oldVersion = oldStep?.resolvedInfo?.resolvedVersion;
   const newVersion = newStep?.resolvedInfo?.resolvedVersion;
+
+  if (!semver.valid(oldVersion) || !semver.valid(newVersion)) {
+    return noChange;
+  }
+
   const versionChange = oldVersion && newVersion && semver.diff(oldVersion, newVersion);
 
   if (!versionChange) {

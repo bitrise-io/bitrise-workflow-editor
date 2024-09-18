@@ -9,7 +9,10 @@ import { SortableStepItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 
-type Props = Pick<WorkflowCardCallbacks, 'onAddStepClick' | 'onStepMove' | 'onStepSelect'> & {
+type Props = Pick<
+  WorkflowCardCallbacks,
+  'onAddStepClick' | 'onStepMove' | 'onStepSelect' | 'onUpgradeStep' | 'onCloneStep' | 'onDeleteStep'
+> & {
   workflowId: string;
   containerProps?: BoxProps;
 };
@@ -18,12 +21,13 @@ function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onStepSelect }: Props) => {
+const StepList = ({ workflowId, containerProps, ...callbacks }: Props) => {
   const steps = useBitriseYmlStore(
     useShallow(({ yml }) => {
       return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
     }),
   );
+  const { onAddStepClick, onStepMove, onStepSelect, ...actions } = callbacks;
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -91,8 +95,7 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
     return (
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {sortableItems.map((item) => {
-          const handleStepSelect = onStepSelect && (() => onStepSelect(item.workflowId, item.stepIndex));
-          return <StepCard key={item.uniqueId} onClick={handleStepSelect} {...item} />;
+          return <StepCard key={item.uniqueId} {...item} {...actions} onClick={onStepSelect} />;
         })}
       </Box>
     );
@@ -121,11 +124,7 @@ const StepList = ({ workflowId, containerProps, onAddStepClick, onStepMove, onSt
                   zIndex={10}
                   onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))}
                 />
-                <StepCard
-                  {...item}
-                  isSortable
-                  onClick={onStepSelect && (() => onStepSelect(workflowId, item.stepIndex))}
-                />
+                <StepCard {...item} {...actions} isSortable onClick={onStepSelect} />
                 {isLast && (
                   <AddStepButton
                     my={-8}
