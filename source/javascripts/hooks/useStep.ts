@@ -51,6 +51,7 @@ function useStepFromApi(cvs = ''): ApiStepResult {
     queryKey: ['steps', { cvs }],
     queryFn: () => StepApi.getStepByCvs(cvs),
     enabled: Boolean(cvs),
+    staleTime: Infinity,
   });
 
   return useMemo(() => {
