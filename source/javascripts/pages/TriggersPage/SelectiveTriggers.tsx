@@ -21,6 +21,12 @@ type SelectiveTriggersProps = {
 const SelectiveTriggers = (props: SelectiveTriggersProps) => {
   const { pipelineableTriggers } = props;
 
+  //   const form = useForm({
+  //     defaultValues: {
+  //       search: '',
+  //     },
+  //   });
+
   const TYPE_MAP: Record<PipelineableTriggerItem['type'], string> = {
     push: 'Push',
     pull_request: 'Pull request',
@@ -42,6 +48,21 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
           Learn more
         </Link>
       </Text>
+      {/* <FormProvider {...form}>
+        <Controller
+          name="search"
+          render={({ field: { ref, onChange, ...rest } }) => (
+            <SearchInput
+              inputRef={ref}
+              placeholder="Filter by target, type or condition"
+              onChange={(value) => onChange({ target: { value } })}
+              maxWidth="320"
+              marginBlockEnd="16"
+              {...rest}
+            />
+          )}
+        />
+      </FormProvider> */}
       <SearchInput
         onChange={() => {}}
         maxWidth="320"
@@ -52,9 +73,11 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
         <Table>
           <Thead>
             <Tr>
-              <Th>Target</Th>
-              <Th>Type</Th>
-              <Th>Conditions</Th>
+              <Th isSortable={pipelineableTriggers.length > 1} onSortClick={() => {}} sortedBy="ascending">
+                Target
+              </Th>
+              <Th isSortable={pipelineableTriggers.length > 1}>Type</Th>
+              <Th isSortable>Conditions</Th>
               <Th />
             </Tr>
           </Thead>
