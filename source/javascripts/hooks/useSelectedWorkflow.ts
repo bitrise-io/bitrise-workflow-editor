@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import { useToast } from '@bitrise/bitkit';
 import useSearchParams from '@/hooks/useSearchParams';
 import { Workflow } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -18,7 +17,6 @@ type UseSelectedWorkflowResult = [
 ];
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
-  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
@@ -40,23 +38,6 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
     },
     [workflowIds, setSearchParams],
   );
-
-  useEffect(() => {
-    if (workflowIds.length === 0) {
-      return;
-    }
-
-    if (searchParams.workflow_id && !workflowIds.includes(searchParams.workflow_id)) {
-      toast({
-        status: 'warning',
-        title: `Workflow ${searchParams.workflow_id} not found`,
-        description: 'Showing the first workflow instead.',
-      });
-    }
-    // Only check if the query param changes
-    // Otherwise the toast will show up when workflowIds change (for example, a workflow is added, deleted, reordered)
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.workflow_id]);
 
   useEffect(() => {
     if (searchParams.workflow_id !== selectedWorkflowId) {
