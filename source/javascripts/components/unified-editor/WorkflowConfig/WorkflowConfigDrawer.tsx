@@ -87,7 +87,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
           </DrawerCloseButton>
 
           <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
-            <WorkflowConfigHeader />
+            <WorkflowConfigHeader variant="drawer" />
           </DrawerHeader>
 
           <DrawerBody p="24" flex="1" overflowY="auto">
