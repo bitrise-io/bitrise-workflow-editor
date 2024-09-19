@@ -41,6 +41,7 @@ const CreateEnvVar = ({ items, onCreate, onCancel }: Props) => {
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
+            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.key?.message}
             {...register('key', {
               validate: (v) =>
