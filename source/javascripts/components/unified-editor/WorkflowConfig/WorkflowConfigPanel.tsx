@@ -68,7 +68,7 @@ const WorkflowConfigPanelContent = () => {
 
   return (
     <Tabs display="flex" flexDir="column" borderLeft="1px solid" borderColor="border/regular">
-      <WorkflowConfigHeader />
+      <WorkflowConfigHeader variant="panel" />
       <TabPanels flex="1" minH="0">
         <TabPanel id={WorkflowConfigTab.CONFIGURATION} p="24" overflowY="auto" h="100%">
           <ConfigurationTab />

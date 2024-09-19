@@ -5,10 +5,16 @@ import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import { WorkflowConfigTab } from '../WorkflowConfig.types';
 
-const WorkflowConfigHeader = () => {
+type Props = {
+  variant: 'panel' | 'drawer';
+};
+
+const WorkflowConfigHeader = ({ variant }: Props) => {
   const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
   const dependants = useDependantWorkflows(id);
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
+
+  const shouldShowDeleteButton = variant === 'panel';
 
   return (
     <>
@@ -21,15 +27,17 @@ const WorkflowConfigHeader = () => {
             {WorkflowService.getUsedByText(dependants)}
           </Text>
         </Box>
-        <IconButton
-          isDanger
-          size="md"
-          variant="secondary"
-          iconName="Trash"
-          aria-label={`Delete '${id}'`}
-          tooltipProps={{ 'aria-label': `Delete '${id}'` }}
-          onClick={openDeleteWorkflowDialog}
-        />
+        {shouldShowDeleteButton && (
+          <IconButton
+            isDanger
+            size="md"
+            variant="secondary"
+            iconName="Trash"
+            aria-label={`Delete '${id}'`}
+            tooltipProps={{ 'aria-label': `Delete '${id}'` }}
+            onClick={openDeleteWorkflowDialog}
+          />
+        )}
       </Box>
       <Box position="relative" mt="8">
         <TabList paddingX="8">
