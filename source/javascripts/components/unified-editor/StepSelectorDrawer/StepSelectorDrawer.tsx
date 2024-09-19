@@ -46,10 +46,10 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: 
           top="0px"
           display="flex"
           flexDir="column"
-          maxWidth={['100%', '50%']}
-          borderRadius={[0, 12]}
-          margin={[0, 32]}
+          margin={[0, 24]}
           boxShadow="large"
+          borderRadius={[0, 12]}
+          maxWidth={['100%', '50%']}
         >
           <DrawerCloseButton size="md">
             <Icon name="CloseSmall" />
@@ -71,7 +71,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: 
                 mt={16}
                 status="warning"
                 alignSelf="flex-end"
-                action={{ label: 'Upgrade', href: upgradeLink, target: '_blank', rel: 'noreferrer noopener' }}
+                action={{
+                  label: 'Upgrade',
+                  href: upgradeLink,
+                  target: '_blank',
+                  rel: 'noreferrer noopener',
+                }}
               >
                 <Text size="3" fontWeight="bold">
                   You cannot add a new Step now
