@@ -265,11 +265,10 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
 
   return (
     <>
-      <SelectiveTriggers pipelineableTriggers={pipelineableTriggers} />
-      <Text as="h2" textStyle="heading/h2" marginBottom="4">
-        Legacy triggers
+      <Text as="h2" textStyle="heading/h2" marginBlockEnd="4">
+        Triggers
       </Text>
-      <Text color="text/secondary">
+      <Text color="text/secondary" marginBlockEnd="32">
         Triggers help you start builds automatically.{' '}
         <Link
           colorScheme="purple"
@@ -284,12 +283,26 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
           status="info"
           onClose={closeWebhookNotification}
           action={{ href: integrationsUrl, label: 'Set up webhooks' }}
-          marginTop="32"
+          marginY="32"
         >
           <Text fontWeight="bold">Configure webhooks</Text>
           <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>
       )}
+      <SelectiveTriggers pipelineableTriggers={pipelineableTriggers} />
+      <Text as="h3" textStyle="heading/h3" marginBottom="4">
+        Legacy triggers
+      </Text>
+      <Text color="text/secondary">
+        Triggers help you start builds automatically.{' '}
+        <Link
+          colorScheme="purple"
+          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+          isExternal
+        >
+          Learn more
+        </Link>
+      </Text>
       <Tabs marginTop="24" marginBottom="24">
         <TabList>
           <Tab id="push">Push</Tab>
