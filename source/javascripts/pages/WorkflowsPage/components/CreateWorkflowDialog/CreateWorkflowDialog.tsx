@@ -55,6 +55,7 @@ const CreateWorkflowDialog = ({ onCreateWorkflow, ...disclosureProps }: Props) =
             isRequired
             label="Name"
             placeholder="Workflow name"
+            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.workflowId?.message}
             {...register('workflowId', {
               validate: (v) => WorkflowService.validateName(v, workflowIds),
