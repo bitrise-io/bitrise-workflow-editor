@@ -745,6 +745,8 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
         logger.info("App start");
 
+        viewModel.isWebsiteMode = requestService.isWebsiteMode();
+
         appService.getAppConfig();
 
         $q(function (resolve, reject) {

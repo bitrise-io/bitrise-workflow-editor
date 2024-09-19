@@ -183,6 +183,7 @@ angular
       "isSaveInProgress",
       "onDiscardClick",
       "isDiscardDisabled",
+      "isWebsiteMode",
     ]),
   )
   .component(
