@@ -59,7 +59,7 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
   }, [searchParams.workflow_id]);
 
   useEffect(() => {
-    if (searchParams.workflow_id && selectedWorkflowId && searchParams.workflow_id !== selectedWorkflowId) {
+    if (searchParams.workflow_id !== selectedWorkflowId) {
       setSelectedWorkflow(selectedWorkflowId);
     }
   }, [searchParams.workflow_id, selectedWorkflowId, setSelectedWorkflow]);
