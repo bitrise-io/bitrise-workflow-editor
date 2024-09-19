@@ -1,4 +1,6 @@
+import { useState } from 'react';
 import {
+  ControlButton,
   EmptyState,
   Link,
   SearchInput,
@@ -10,7 +12,6 @@ import {
   Th,
   Thead,
   Tr,
-  IconButton,
 } from '@bitrise/bitkit';
 import { PipelineableTriggerItem } from './TriggersPage.utils';
 
@@ -20,18 +21,24 @@ type SelectiveTriggersProps = {
 
 const SelectiveTriggers = (props: SelectiveTriggersProps) => {
   const { pipelineableTriggers } = props;
-
-  //   const form = useForm({
-  //     defaultValues: {
-  //       search: '',
-  //     },
-  //   });
+  const [filterString, setFilterString] = useState('');
 
   const TYPE_MAP: Record<PipelineableTriggerItem['type'], string> = {
     push: 'Push',
     pull_request: 'Pull request',
     tag: 'Tag',
   };
+
+  const filteredItems = pipelineableTriggers.filter((item) => {
+    const lowerCaseFilterString = filterString.toLowerCase();
+    const matchingValues = Object.values(item).filter((value) => {
+      if (typeof value === 'string' && value.toLowerCase().includes(lowerCaseFilterString)) {
+        return true;
+      }
+      return false;
+    });
+    return matchingValues.length > 0 || TYPE_MAP[item.type].toLowerCase().includes(lowerCaseFilterString);
+  });
 
   return pipelineableTriggers.length > 0 ? (
     <>
@@ -48,23 +55,9 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
           Learn more
         </Link>
       </Text>
-      {/* <FormProvider {...form}>
-        <Controller
-          name="search"
-          render={({ field: { ref, onChange, ...rest } }) => (
-            <SearchInput
-              inputRef={ref}
-              placeholder="Filter by target, type or condition"
-              onChange={(value) => onChange({ target: { value } })}
-              maxWidth="320"
-              marginBlockEnd="16"
-              {...rest}
-            />
-          )}
-        />
-      </FormProvider> */}
       <SearchInput
-        onChange={() => {}}
+        onChange={setFilterString}
+        value={filterString}
         maxWidth="320"
         marginBlockEnd="16"
         placeholder="Filter by target, type or condition"
@@ -82,9 +75,9 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
             </Tr>
           </Thead>
           <Tbody>
-            {pipelineableTriggers.map((trigger) => {
+            {filteredItems.map((trigger) => {
               return (
-                <Tr>
+                <Tr key={JSON.stringify(trigger)}>
                   <Td>
                     <Text>{trigger.id}</Text>
                     <Text textStyle="body/md/regular" color="text/secondary">
@@ -111,22 +104,10 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
                   </Td>
                   <Td display="flex" justifyContent="flex-end" alignItems="center">
                     {trigger.pipelineableType === 'workflow' && (
-                      <IconButton
-                        aria-label="Edit trigger"
-                        iconName="Settings"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {}}
-                      />
+                      <ControlButton aria-label="Edit trigger" iconName="Settings" onClick={() => {}} />
                     )}
                     {trigger.pipelineableType === 'pipeline' && (
-                      <IconButton
-                        aria-label="Edit in YAML"
-                        iconName="Code"
-                        size="sm"
-                        variant="secondary"
-                        onClick={() => {}}
-                      />
+                      <ControlButton aria-label="Edit in YAML" iconName="Code" onClick={() => {}} />
                     )}
                   </Td>
                 </Tr>
