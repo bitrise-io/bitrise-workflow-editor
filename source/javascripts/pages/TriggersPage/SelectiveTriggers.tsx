@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { AriaAttributes, useState } from 'react';
 import {
   ControlButton,
   EmptyState,
@@ -22,6 +22,10 @@ type SelectiveTriggersProps = {
 const SelectiveTriggers = (props: SelectiveTriggersProps) => {
   const { pipelineableTriggers } = props;
   const [filterString, setFilterString] = useState('');
+  const [sortProps, setSortProps] = useState<{ direction: AriaAttributes['aria-sort']; condition: 'id' | 'type' }>({
+    direction: 'ascending',
+    condition: 'id',
+  });
 
   const TYPE_MAP: Record<PipelineableTriggerItem['type'], string> = {
     push: 'Push',
@@ -38,6 +42,16 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
       return false;
     });
     return matchingValues.length > 0 || TYPE_MAP[item.type].toLowerCase().includes(lowerCaseFilterString);
+  });
+
+  filteredItems.sort((a, b) => {
+    if (a[sortProps.condition] > b[sortProps.condition]) {
+      return sortProps.direction === 'ascending' ? 1 : -1;
+    }
+    if (a[sortProps.condition] < b[sortProps.condition]) {
+      return sortProps.direction === 'ascending' ? -1 : 1;
+    }
+    return 0;
   });
 
   return pipelineableTriggers.length > 0 ? (
@@ -66,11 +80,25 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
         <Table>
           <Thead>
             <Tr>
-              <Th isSortable={pipelineableTriggers.length > 1} onSortClick={() => {}} sortedBy="ascending">
+              <Th
+                isSortable
+                onSortClick={(sortDirection) => {
+                  setSortProps({ direction: sortDirection, condition: 'id' });
+                }}
+                sortedBy={sortProps.condition === 'id' ? sortProps.direction : undefined}
+              >
                 Target
               </Th>
-              <Th isSortable={pipelineableTriggers.length > 1}>Type</Th>
-              <Th isSortable>Conditions</Th>
+              <Th
+                isSortable
+                onSortClick={(sortDirection) => {
+                  setSortProps({ direction: sortDirection, condition: 'type' });
+                }}
+                sortedBy={sortProps.condition === 'type' ? sortProps.direction : undefined}
+              >
+                Type
+              </Th>
+              <Th>Conditions</Th>
               <Th />
             </Tr>
           </Thead>
