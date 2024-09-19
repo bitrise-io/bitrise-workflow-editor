@@ -1,4 +1,4 @@
-import { Icon, Text, useDisclosure } from '@bitrise/bitkit';
+import { Box, Icon, Notification, Tag, Text, useDisclosure } from '@bitrise/bitkit';
 import {
   Drawer,
   DrawerBody,
@@ -10,6 +10,7 @@ import {
 } from '@chakra-ui/react';
 
 import { FormProvider, useForm } from 'react-hook-form';
+import WindowUtils from '@/core/utils/WindowUtils';
 import { SearchFormValues, SelectStepHandlerFn } from './StepSelectorDrawer.types';
 import StepFilter from './components/StepFilter';
 import StepList from './components/StepList';
@@ -27,6 +28,12 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: 
       categories: [],
     },
   });
+
+  const uniqueStepCount = enabledSteps?.size ?? -1;
+  const uniqueStepLimit = WindowUtils.limits()?.uniqueStepLimit;
+  const showStepLimit = typeof uniqueStepLimit === 'number';
+  const stepLimitReached = uniqueStepLimit && uniqueStepCount >= uniqueStepLimit;
+  const upgradeLink = `/organization/${WindowUtils.workspaceSlug()}/credit_subscription/plan_selector_page`;
 
   return (
     <FormProvider {...form}>
@@ -48,13 +55,36 @@ const StepSelectorDrawer = ({ enabledSteps, onSelectStep, ...disclosureProps }: 
             <Icon name="CloseSmall" />
           </DrawerCloseButton>
           <DrawerHeader color="inherit" textTransform="inherit" fontWeight="inherit">
-            <Text as="h3" textStyle="heading/h3" fontWeight="bold">
-              Add Step
-            </Text>
+            <Box display="flex" gap="12">
+              <Text as="h3" textStyle="heading/h3" fontWeight="bold">
+                Add Step
+              </Text>
+              {showStepLimit && (
+                <Tag size="sm">
+                  {uniqueStepCount}/{uniqueStepLimit} Steps used
+                </Tag>
+              )}
+            </Box>
+
+            {stepLimitReached && (
+              <Notification
+                mt={16}
+                status="warning"
+                alignSelf="flex-end"
+                action={{ label: 'Upgrade', href: upgradeLink, target: '_blank', rel: 'noreferrer noopener' }}
+              >
+                <Text size="3" fontWeight="bold">
+                  You cannot add a new Step now
+                </Text>
+                Your team has already reached the {uniqueStepLimit} unique Steps per project limit included in your
+                current plan. To add more Steps, upgrade your plan.
+              </Notification>
+            )}
+
             <StepFilter my={16} />
           </DrawerHeader>
           <DrawerBody flex="1" overflow="auto">
-            <StepList enabledSteps={enabledSteps} onSelectStep={onSelectStep} />
+            <StepList enabledSteps={stepLimitReached ? enabledSteps : undefined} onSelectStep={onSelectStep} />
           </DrawerBody>
         </DrawerContent>
       </Drawer>

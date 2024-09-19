@@ -443,6 +443,32 @@ function updateWorkflowEnvVars(workflowId: string, envVars: EnvVarYml[], yml: Bi
   return copy;
 }
 
+function getUniqueStepIds(yml: BitriseYml) {
+  const ids = new Set<string>();
+
+  mapValues(yml.workflows, (workflow) => {
+    workflow.steps?.forEach((stepLikeObject) => {
+      mapValues(stepLikeObject, (stepLike, cvsLike) => {
+        if (StepService.isStep(cvsLike, stepLike)) {
+          const { id } = StepService.parseStepCVS(cvsLike, yml.default_step_lib_source);
+          ids.add(id);
+        }
+
+        if (StepService.isStepBundle(cvsLike, stepLike) || StepService.isWithGroup(cvsLike, stepLike)) {
+          stepLike.steps.forEach((stepObj) => {
+            mapValues(stepObj, (_, cvs) => {
+              const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source);
+              ids.add(id);
+            });
+          });
+        }
+      });
+    });
+  });
+
+  return Array.from(ids);
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -577,6 +603,7 @@ export default {
   moveStep,
   cloneStep,
   updateStep,
+  getUniqueStepIds,
   changeStepVersion,
   updateStepInputs,
   deleteStep,
@@ -585,8 +612,8 @@ export default {
   updateWorkflow,
   deleteWorkflow,
   deleteWorkflows,
-  setChainedWorkflows,
   addChainedWorkflow,
+  setChainedWorkflows,
   deleteChainedWorkflow,
   updateStackAndMachine,
   appendWorkflowEnvVar,
