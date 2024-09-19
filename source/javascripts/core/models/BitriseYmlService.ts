@@ -455,7 +455,7 @@ function getUniqueStepIds(yml: BitriseYml) {
         }
 
         if (StepService.isStepBundle(cvsLike, stepLike) || StepService.isWithGroup(cvsLike, stepLike)) {
-          stepLike.steps.forEach((stepObj) => {
+          stepLike.steps?.forEach((stepObj) => {
             mapValues(stepObj, (_, cvs) => {
               const { id } = StepService.parseStepCVS(cvs, yml.default_step_lib_source);
               ids.add(id);
