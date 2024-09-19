@@ -1,19 +1,20 @@
-import { Avatar, Box, Card, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
+import { Avatar, Box, ButtonGroup, Card, ControlButton, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import useStep from '@/hooks/useStep';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
-import { SortableStepItem } from '../WorkflowCard.types';
+import VersionUtils from '@/core/utils/VersionUtils';
+import { SortableStepItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
 
-type StepCardProps = {
+type StepCardProps = Pick<WorkflowCardCallbacks, 'onUpgradeStep' | 'onCloneStep' | 'onDeleteStep'> & {
   uniqueId: string;
   stepIndex: number;
   workflowId: string;
   isSortable?: boolean;
   isDragging?: boolean;
   showSecondary?: boolean;
-  onClick?: VoidFunction;
+  onClick?: WorkflowCardCallbacks['onStepSelect'];
 };
 
 const StepCard = ({
@@ -24,6 +25,9 @@ const StepCard = ({
   isDragging,
   showSecondary = true,
   onClick,
+  onUpgradeStep,
+  onCloneStep,
+  onDeleteStep,
 }: StepCardProps) => {
   const result = useStep(workflowId, stepIndex);
 
@@ -45,6 +49,9 @@ const StepCard = ({
 
   const { data, isLoading } = result;
   const { cvs, resolvedInfo } = data ?? {};
+  const isUpgradable =
+    onUpgradeStep && VersionUtils.hasVersionUpgrade(resolvedInfo?.normalizedVersion, resolvedInfo?.versions);
+  const latestMajor = VersionUtils.latestMajor(resolvedInfo?.versions)?.toString() ?? '';
 
   if (isLoading) {
     return (
@@ -83,6 +90,8 @@ const StepCard = ({
     );
   }
 
+  const handleClick = isButton ? () => onClick?.(workflowId, stepIndex) : undefined;
+
   return (
     <Card
       display="flex"
@@ -108,7 +117,7 @@ const StepCard = ({
         />
       )}
 
-      <Box display="flex" p="8" gap="8" minW={0} flex="1" as={isButton ? 'button' : 'div'} onClick={onClick}>
+      <Box display="flex" p="8" gap="8" minW={0} flex="1" as={isButton ? 'button' : 'div'} onClick={handleClick}>
         <Avatar
           size="32"
           src={resolvedInfo?.icon || defaultIcon}
@@ -117,7 +126,7 @@ const StepCard = ({
           name={resolvedInfo?.title || cvs || ''}
           outlineColor="border/minimal"
         />
-        <Box minW={0} textAlign="left">
+        <Box minW={0} textAlign="left" flex="1">
           <Text textStyle="body/sm/regular" hasEllipsis>
             {resolvedInfo?.title || cvs}
           </Text>
@@ -127,6 +136,52 @@ const StepCard = ({
             </Text>
           )}
         </Box>
+        <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
+          {isUpgradable && (
+            <ControlButton
+              size="xs"
+              display="none"
+              iconName="ArrowUp"
+              colorScheme="orange"
+              aria-label="Update to latest step version"
+              tooltipProps={{ 'aria-label': 'Update to latest step version' }}
+              _groupHover={{ display: 'block' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onUpgradeStep?.(workflowId, stepIndex, latestMajor ?? '');
+              }}
+            />
+          )}
+          {onCloneStep && (
+            <ControlButton
+              size="xs"
+              display="none"
+              iconName="Duplicate"
+              aria-label="Clone this step"
+              tooltipProps={{ 'aria-label': 'Clone this step' }}
+              _groupHover={{ display: 'block' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onCloneStep(workflowId, stepIndex);
+              }}
+            />
+          )}
+          {onDeleteStep && (
+            <ControlButton
+              isDanger
+              size="xs"
+              display="none"
+              iconName="MinusRemove"
+              aria-label="Remove this step"
+              tooltipProps={{ 'aria-label': 'Remove this step' }}
+              _groupHover={{ display: 'block' }}
+              onClick={(e) => {
+                e.stopPropagation();
+                onDeleteStep(workflowId, stepIndex);
+              }}
+            />
+          )}
+        </ButtonGroup>
       </Box>
     </Card>
   );

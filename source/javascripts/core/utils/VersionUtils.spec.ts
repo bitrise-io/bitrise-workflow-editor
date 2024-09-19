@@ -105,12 +105,28 @@ describe('VersionUtils', () => {
   });
 
   describe('hasVersionUpgrade', () => {
-    it('should return true if a higher version is available', () => {
+    it('should return true if a higher version is available for pinned version', () => {
       expect(VersionUtils.hasVersionUpgrade('1.2.3', ['1.2.2', '1.2.3', '1.2.4'])).toBe(true);
     });
 
-    it('should return false if no higher version is available', () => {
+    it('should return true if a higher major or minor version is available for major.minor pinned version', () => {
+      expect(VersionUtils.hasVersionUpgrade('1.2', ['1.2.2', '1.2.3', '1.2.4', '1.3.0'])).toBe(true);
+    });
+
+    it('should return true if a higher major version is available for major pinned version', () => {
+      expect(VersionUtils.hasVersionUpgrade('1', ['1.2.2', '1.2.3', '1.2.4', '2.0.0'])).toBe(true);
+    });
+
+    it('should return false if no higher version is available for pinned version', () => {
       expect(VersionUtils.hasVersionUpgrade('1.2.3', ['1.2.2', '1.2.3'])).toBe(false);
+    });
+
+    it('should return false if no higher major or minor version is available for major.minor pinned version', () => {
+      expect(VersionUtils.hasVersionUpgrade('1.2', ['1.2.2', '1.2.3', '1.2.4'])).toBe(false);
+    });
+
+    it('should return false if no higher major version is available for major pinned version', () => {
+      expect(VersionUtils.hasVersionUpgrade('1', ['1.2.2', '1.2.3', '1.2.4'])).toBe(false);
     });
 
     it('should return false if only lower versions are available', () => {
@@ -127,6 +143,28 @@ describe('VersionUtils', () => {
 
     it('should return false if resolvedVersion is ""', () => {
       expect(VersionUtils.hasVersionUpgrade('', ['1.2.2', '1.2.3', '1.2.4'])).toBe(false);
+    });
+
+    it('should return false for non-semver version', () => {
+      expect(VersionUtils.hasVersionUpgrade('master', ['1.2.2', '1.2.3', '1.2.4'])).toBe(false);
+    });
+  });
+
+  describe('latestMajor', () => {
+    it('should return the latest major version', () => {
+      expect(VersionUtils.latestMajor(['1.2.3', '1.2.7', '1.3.0', '2.0.0'])).toBe(2);
+    });
+
+    it('should return undefined if non-semver versions are given', () => {
+      expect(VersionUtils.latestMajor(['master', 'latest'])).toBeUndefined();
+    });
+
+    it('should return undefined if no versions are given', () => {
+      expect(VersionUtils.latestMajor([])).toBeUndefined();
+    });
+
+    it('should return undefined if versions is undefined', () => {
+      expect(VersionUtils.latestMajor(undefined)).toBeUndefined();
     });
   });
 

@@ -1,14 +1,20 @@
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
+import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
 export type WorkflowCardCallbacks = {
-  onStepMove?: (workflowId: string, stepIndex: number, to: number) => void;
-  onStepSelect?: (workflowId: string, stepIndex: number) => void;
-  onChainedWorkflowsUpdate?: (workflowId: string, placement: Placement, chainedWorkflowIds: string[]) => void;
+  // Step related actions
   onAddStepClick?: (workflowId: string, stepIndex: number) => void;
+  onStepSelect?: (workflowId: string, stepIndex: number) => void;
+  onStepMove?: BitriseYmlStoreState['moveStep'];
+  onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
+  onCloneStep?: BitriseYmlStoreState['cloneStep'];
+  onDeleteStep?: BitriseYmlStoreState['deleteStep'];
+  // Workflow related actions
   onCreateWorkflow?: () => void;
   onEditWorkflowClick?: (workflowId: string) => void;
   onAddChainedWorkflowClick?: (workflowId: string) => void;
-  onDeleteChainedWorkflowClick?: (chainedWorkflowIndex: number, parentWorkflowId: string, placement: Placement) => void;
+  onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
+  onDeleteChainedWorkflowClick?: BitriseYmlStoreState['deleteChainedWorkflow'];
 };
 
 export type SortableWorkflowItem = {

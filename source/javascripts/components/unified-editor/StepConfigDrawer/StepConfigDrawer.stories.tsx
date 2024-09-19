@@ -19,8 +19,8 @@ const meta: Meta<typeof StepConfigDrawer> = {
     },
     stepIndex: {
       control: 'inline-radio',
-      options: ['git-clone', 'script'],
-      mapping: { 'git-clone': 0, script: 1 },
+      options: ['active-ssh-key', 'git-clone'],
+      mapping: { 'active-ssh-key': 0, 'git-clone': 1 },
     },
   },
   decorators: [

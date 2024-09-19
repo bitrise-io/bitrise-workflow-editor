@@ -114,8 +114,8 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
 const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
-  const { control, formState, watch } = useFormContext<FormValues>();
-  const { fields, append, remove, move, replace } = useFieldArray({ name: 'configuration.envs', control });
+  const { control, formState } = useFormContext<FormValues>();
+  const { fields, append, remove, move, replace } = useFieldArray({ control, name: 'configuration.envs' });
 
   const handleAddNew = () => {
     append({ source: workflow?.id || '', key: '', value: '', isExpand: false });
@@ -132,7 +132,16 @@ const EnvVarsCard = () => {
     replace((formState.defaultValues?.configuration?.envs ?? []) as EnvVar[]);
   }, [formState.defaultValues?.configuration?.envs, replace]);
 
-  watch('configuration.envs');
+  // TODO: Make it better!
+  useEffect(() => {
+    const listener = (event: CustomEvent<EnvVar>) => {
+      append(event.detail);
+    };
+
+    window.addEventListener('workflow::envs::created' as never, listener);
+
+    return () => window.removeEventListener('workflow::envs::created' as never, listener);
+  }, [append]);
 
   return (
     <ExpandableCard buttonContent={<ButtonContent />}>

@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Drawer,
   DrawerBody,
+  DrawerCloseButton,
   DrawerContent,
   DrawerFooter,
   DrawerHeader,
@@ -15,7 +16,6 @@ import {
   Button,
   ButtonGroup,
   Icon,
-  IconButton,
   Tab,
   TabList,
   TabPanel,
@@ -50,12 +50,10 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
   const isUpgradable = VersionUtils.hasVersionUpgrade(formVersionValue, resolvedInfo?.versions);
   const currentResolvedVersion = VersionUtils.resolveVersion(formVersionValue, resolvedInfo?.versions);
 
-  const { changeStepVersion, updateStep, updateStepInputs, cloneStep, deleteStep } = useBitriseYmlStore((s) => ({
+  const { changeStepVersion, updateStep, updateStepInputs } = useBitriseYmlStore((s) => ({
     changeStepVersion: s.changeStepVersion,
     updateStep: s.updateStep,
     updateStepInputs: s.updateStepInputs,
-    cloneStep: s.cloneStep,
-    deleteStep: s.deleteStep,
   }));
 
   const handleUpdateStep = () => {
@@ -65,16 +63,6 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
       shouldTouch: true,
       shouldValidate: true,
     });
-  };
-
-  const handleCloneStep = () => {
-    cloneStep(workflowId, stepIndex);
-    onClose();
-  };
-
-  const handleDelete = () => {
-    deleteStep(workflowId, stepIndex);
-    onClose();
   };
 
   const handleSave = form.handleSubmit(
@@ -126,6 +114,10 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
           borderRadius={[0, 12]}
           maxWidth={['100%', '50%']}
         >
+          <DrawerCloseButton size="md">
+            <Icon name="CloseSmall" />
+          </DrawerCloseButton>
+
           <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
             <Box display="flex" px="24" pt="24" gap="16">
               <Avatar
@@ -163,36 +155,6 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
                   )}
                 </Box>
               </Box>
-
-              <ButtonGroup>
-                {isUpgradable && (
-                  <IconButton
-                    size="sm"
-                    iconName="ArrowUp"
-                    variant="secondary"
-                    aria-label="Update to latest step version"
-                    tooltipProps={{ 'aria-label': 'Update to latest step version' }}
-                    onClick={handleUpdateStep}
-                  />
-                )}
-                <IconButton
-                  size="sm"
-                  variant="secondary"
-                  iconName="Duplicate"
-                  aria-label="Clone this step"
-                  tooltipProps={{ 'aria-label': 'Clone this step' }}
-                  onClick={handleCloneStep}
-                />
-                <IconButton
-                  isDanger
-                  size="sm"
-                  variant="secondary"
-                  iconName="MinusRemove"
-                  aria-label="Remove this step"
-                  tooltipProps={{ 'aria-label': 'Remove this step' }}
-                  onClick={handleDelete}
-                />
-              </ButtonGroup>
             </Box>
             <Box position="relative" mt="8">
               <TabList paddingX="8">

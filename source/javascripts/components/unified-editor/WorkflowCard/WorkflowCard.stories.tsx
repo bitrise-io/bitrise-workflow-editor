@@ -13,8 +13,11 @@ export default {
   argTypes: {
     onStepMove: { type: 'function' },
     onStepSelect: { type: 'function' },
-    onChainedWorkflowsUpdate: { type: 'function' },
     onAddStepClick: { type: 'function' },
+    onUpgradeStep: { type: 'function' },
+    onCloneStep: { type: 'function' },
+    onDeleteStep: { type: 'function' },
+    onChainedWorkflowsUpdate: { type: 'function' },
     onEditWorkflowClick: { type: 'function' },
     onAddChainedWorkflowClick: { type: 'function' },
     onDeleteChainedWorkflowClick: { type: 'function' },

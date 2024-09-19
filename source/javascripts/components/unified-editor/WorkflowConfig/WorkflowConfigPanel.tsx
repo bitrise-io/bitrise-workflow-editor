@@ -14,10 +14,10 @@ import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
 import useRenameWorkflow from './hooks/useRenameWorkflow';
 
 const WorkflowConfigPanelContent = () => {
-  const form = useFormContext<FormValues>();
+  const formValues = useWatch<FormValues>();
   const [, setSearchParams] = useSearchParams();
-  const formValues = useWatch({ control: form.control });
-  const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
+  const { trigger, formState } = useFormContext<FormValues>();
+  const defaultWorkflowId = formState.defaultValues?.properties?.name ?? '';
 
   const { updateWorkflow, updateStackAndMachine, updateWorkflowEnvVars } = useBitriseYmlStore(
     useShallow((s) => ({
@@ -35,27 +35,31 @@ const WorkflowConfigPanelContent = () => {
   });
 
   useEffect(() => {
-    if (defaultWorkflowId && form.formState.isValid) {
-      const { configuration, properties } = formValues;
+    if (defaultWorkflowId) {
+      trigger().then((isValid) => {
+        if (isValid) {
+          const { configuration, properties } = formValues;
 
-      if (configuration) {
-        const { stackId = '', machineTypeId = '', envs = [] } = configuration;
-        updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
-        updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
-      }
+          if (configuration) {
+            const { stackId = '', machineTypeId = '', envs = [] } = configuration;
+            updateWorkflowEnvVars(defaultWorkflowId, envs as EnvVar[]);
+            updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
+          }
 
-      if (properties) {
-        updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
-      }
+          if (properties) {
+            updateWorkflow(defaultWorkflowId, omit(properties, 'name'));
+          }
 
-      if (properties?.name) {
-        renameWorkflow(properties.name);
-      }
+          if (properties?.name) {
+            renameWorkflow(properties.name);
+          }
+        }
+      });
     }
   }, [
+    trigger,
     formValues,
     defaultWorkflowId,
-    form.formState.isValid,
     renameWorkflow,
     updateWorkflow,
     updateStackAndMachine,
