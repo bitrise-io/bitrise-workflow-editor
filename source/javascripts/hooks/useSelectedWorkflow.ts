@@ -1,5 +1,4 @@
-import { useEffect, useMemo } from 'react';
-import { useToast } from '@bitrise/bitkit';
+import { useCallback, useEffect, useMemo } from 'react';
 import useSearchParams from '@/hooks/useSearchParams';
 import { Workflow } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
@@ -18,31 +17,15 @@ type UseSelectedWorkflowResult = [
 ];
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
-  const toast = useToast();
   const [searchParams, setSearchParams] = useSearchParams();
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
 
-  useEffect(() => {
-    if (workflowIds.length === 0) {
-      return;
-    }
+  const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
+  const selectedWorkflow = useMemo(() => workflows[selectedWorkflowId], [selectedWorkflowId, workflows]);
 
-    if (searchParams.workflow_id && !workflowIds.includes(searchParams.workflow_id)) {
-      toast({
-        status: 'warning',
-        title: `Workflow ${searchParams.workflow_id} not found`,
-        description: 'Showing the first workflow instead.',
-      });
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams.workflow_id]);
-
-  return useMemo(() => {
-    const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
-    const selectedWorkflow = workflows[selectedWorkflowId];
-
-    const setSelectedWorkflow = (workflowId?: string | null) => {
+  const setSelectedWorkflow = useCallback(
+    (workflowId?: string | null) => {
       setSearchParams((oldSearchParams) => {
         const newSearchParams = { ...oldSearchParams };
         if (workflowId) {
@@ -52,14 +35,19 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
         }
         return newSearchParams;
       });
-    };
+    },
+    [workflowIds, setSearchParams],
+  );
 
+  useEffect(() => {
     if (searchParams.workflow_id !== selectedWorkflowId) {
       setSelectedWorkflow(selectedWorkflowId);
     }
+  }, [searchParams.workflow_id, selectedWorkflowId, setSelectedWorkflow]);
 
+  return useMemo(() => {
     return [{ id: selectedWorkflowId, userValues: selectedWorkflow }, setSelectedWorkflow];
-  }, [searchParams.workflow_id, setSearchParams, workflowIds, workflows]);
+  }, [selectedWorkflow, selectedWorkflowId, setSelectedWorkflow]);
 };
 
 export default useSelectedWorkflow;

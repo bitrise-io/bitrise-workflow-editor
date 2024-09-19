@@ -79,14 +79,20 @@ import WindowUtils from "@/core/utils/WindowUtils";
       viewModel.defaultBranch = undefined;
       viewModel.canRunWorkflow = false;
 
-      viewModel.init = function () {
+      viewModel.init = function (forReact = false) {
         workflowSelectionStore.disable();
 
         viewModel.yml = appService.appConfig;
 
+        if (forReact) {
+          return;
+        }
+
         loadWorkflows().then(function () {
-          workflowSelectionService.restoreSelection(viewModel);
-          workflowSelectionStore.enable();
+          if (restoreSelection) {
+            workflowSelectionService.restoreSelection(viewModel);
+            workflowSelectionStore.enable();
+          }
         }).then(() => {
           var queryParams = new URLSearchParams(window.location.search);
           if (queryParams.has("add-workflow")) {
