@@ -25,8 +25,8 @@ const PropertiesTab = () => {
       <Input
         isRequired
         label="Name"
-        errorText={formState.errors.properties?.name?.message}
         inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+        errorText={formState.errors.properties?.name?.message}
         {...register('properties.name', {
           onChange: handleNameChange,
           validate: (v) => WorkflowService.validateName(v, wofkflowIds),

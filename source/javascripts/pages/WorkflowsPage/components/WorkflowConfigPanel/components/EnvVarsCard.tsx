@@ -78,6 +78,7 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
+            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={errors.configuration?.envs?.[index]?.key?.message}
             {...register(`configuration.envs.${index}.key`, {
               validate: (v) =>

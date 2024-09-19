@@ -46,11 +46,12 @@ const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogPro
     >
       <DialogBody>
         <Input
+          autoFocus
           isRequired
           label="Branch"
           placeholder="your-branch"
-          type="text"
           isDisabled={isPending}
+          inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           value={branch}
           onChange={(event) => setBranch(event.target.value)}
         />

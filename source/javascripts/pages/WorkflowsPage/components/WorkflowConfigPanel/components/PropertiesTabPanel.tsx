@@ -14,6 +14,7 @@ const PropertiesTabPanel = () => {
       <Input
         isRequired
         label="Name"
+        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
         errorText={errors.workflowId?.message?.toString()}
         {...register('workflowId', {
           validate: (v) => WorkflowService.validateName(v),

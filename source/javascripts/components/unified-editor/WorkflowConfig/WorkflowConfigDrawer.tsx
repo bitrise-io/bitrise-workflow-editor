@@ -76,7 +76,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
           padding={0}
           display="flex"
           flexDir="column"
-          margin={[0, 32]}
+          margin={[0, 24]}
           overflow="hidden"
           boxShadow="large"
           borderRadius={[0, 12]}
