@@ -117,7 +117,16 @@ const StepCard = ({
         />
       )}
 
-      <Box display="flex" p="8" gap="8" minW={0} flex="1" as={isButton ? 'button' : 'div'} onClick={handleClick}>
+      <Box
+        display="flex"
+        paddingInline="8"
+        paddingBlock="4"
+        gap="8"
+        minW={0}
+        flex="1"
+        as={isButton ? 'button' : 'div'}
+        onClick={handleClick}
+      >
         <Avatar
           size="32"
           src={resolvedInfo?.icon || defaultIcon}
