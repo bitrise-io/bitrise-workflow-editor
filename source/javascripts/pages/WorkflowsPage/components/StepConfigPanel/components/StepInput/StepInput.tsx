@@ -213,7 +213,6 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
             }}
           >
             <Textarea
-              data-1p-ignore
               ref={ref}
               {...rest}
               rows={1}
@@ -224,6 +223,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
               gridArea="1 / 1 / 2 / 2"
               isDisabled={isSensitive || isDisabled}
               placeholder={isSensitive ? 'Add secret' : 'Enter value'}
+              data-1p-ignore
             />
           </Box>
 

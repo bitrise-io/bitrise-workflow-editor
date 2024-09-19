@@ -43,7 +43,14 @@ const StepProperties = ({ step, versionsWithRemarks, onChange }: Props) => {
           <Icon name="OpenInBrowser" />
         </Link>
       )}
-      <Input {...register('properties.name')} type="text" label="Name" placeholder="Step name" isRequired />
+      <Input
+        isRequired
+        type="text"
+        label="Name"
+        placeholder="Step name"
+        inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+        {...register('properties.name')}
+      />
       <Divider />
       {isLibraryStep && (
         <>

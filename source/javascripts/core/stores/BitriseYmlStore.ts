@@ -11,6 +11,8 @@ type BitriseYmlStoreState = {
   yml: BitriseYml;
   defaultMeta?: Meta;
 
+  getUniqueStepIds: () => string[];
+
   // Workflow related actions
   createWorkflow: (workflowId: string, baseWorkflowId?: string) => void;
   renameWorkflow: (workflowId: string, newWorkflowId: string) => void;
@@ -54,9 +56,12 @@ type BitriseYmlStoreState = {
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
 
 function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
-  return createStore<BitriseYmlStoreState>()((set) => ({
+  return createStore<BitriseYmlStoreState>()((set, get) => ({
     yml,
     defaultMeta,
+    getUniqueStepIds() {
+      return BitriseYmlService.getUniqueStepIds(get().yml);
+    },
     createWorkflow(workflowId, baseWorkflowId) {
       return set((state) => {
         return {

@@ -63,6 +63,12 @@ export const CliMode: Story = {
 
 export const WebsiteMode: Story = {};
 
+export const UniqueStepLimit: Story = {
+  beforeEach: () => {
+    window.parent.pageProps = { ...window.parent.pageProps, limits: { uniqueStepLimit: 17 } };
+  },
+};
+
 export const DedicatedMachine: Story = {
   parameters: {
     msw: { handlers: [getStacksAndMachines({ hasDedicatedMachine: true })] },

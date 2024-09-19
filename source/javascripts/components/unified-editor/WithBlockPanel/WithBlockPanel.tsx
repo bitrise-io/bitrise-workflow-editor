@@ -18,7 +18,16 @@ const WithBlockPanel = ({ groupName, imageName, services }: WithBlockPanelProps)
         </Text>
       </Box>
       <Box padding="24">
-        {!!imageName && <Input isReadOnly label="Image" isRequired marginBlockEnd="24" value={imageName} />}
+        {!!imageName && (
+          <Input
+            isRequired
+            isReadOnly
+            label="Image"
+            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
+            marginBlockEnd="24"
+            value={imageName}
+          />
+        )}
         {services && services.length > 0 && (
           <TagsInput
             isReadOnly

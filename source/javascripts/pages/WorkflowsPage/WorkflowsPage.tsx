@@ -28,28 +28,31 @@ const WorkflowsPageContent = () => {
   const { workflowId, stepIndex, isDialogOpen, closeDialog, openCreateWorkflowDialog, openStepConfigDrawer } =
     useWorkflowsPageStore();
 
-  const { addStep, createWorkflow, deleteWorkflow, addChainedWorkflow } = useBitriseYmlStore(
+  const { addStep, createWorkflow, deleteWorkflow, getUniqueStepIds, addChainedWorkflow } = useBitriseYmlStore(
     useShallow((s) => ({
       addStep: s.addStep,
       createWorkflow: s.createWorkflow,
       deleteWorkflow: s.deleteWorkflow,
+      getUniqueStepIds: s.getUniqueStepIds,
       addChainedWorkflow: s.addChainedWorkflow,
     })),
   );
 
   const {
+    enabledSteps,
     isStepConfigDrawerOpen,
+    isRunWorkflowDialogOpen,
     isStepSelectorDrawerOpen,
     isChainWorkflowDrawerOpen,
-    isRunWorkflowDialogOpen,
     isCreateWorkflowDialogOpen,
     isDeleteWorkflowDialogOpen,
     isWorkflowConfigDrawerOpen,
   } = {
+    enabledSteps: new Set(getUniqueStepIds()),
     isStepConfigDrawerOpen: isDialogOpen === 'step-config-drawer',
+    isRunWorkflowDialogOpen: isDialogOpen === 'run-workflow',
     isStepSelectorDrawerOpen: isDialogOpen === 'step-selector-drawer',
     isChainWorkflowDrawerOpen: isDialogOpen === 'chain-workflow',
-    isRunWorkflowDialogOpen: isDialogOpen === 'run-workflow',
     isCreateWorkflowDialogOpen: isDialogOpen === 'create-workflow',
     isDeleteWorkflowDialogOpen: isDialogOpen === 'delete-workflow',
     isWorkflowConfigDrawerOpen: isDialogOpen === 'workflow-config-drawer',
@@ -80,7 +83,7 @@ const WorkflowsPageContent = () => {
         <WorkflowConfigPanel workflowId={selectedWorkflowId} />
       </Box>
 
-      <RunWorkflowDialog isOpen={isRunWorkflowDialogOpen} onClose={closeDialog} workflowId={workflowId} />
+      <RunWorkflowDialog workflowId={workflowId} isOpen={isRunWorkflowDialogOpen} onClose={closeDialog} />
 
       <CreateWorkflowDialog
         isOpen={isCreateWorkflowDialogOpen}
@@ -101,11 +104,17 @@ const WorkflowsPageContent = () => {
         onDeleteWorkflow={deleteWorkflow}
       />
 
-      <StepConfigDrawer {...{ workflowId, stepIndex }} onClose={closeDialog} isOpen={isStepConfigDrawerOpen} />
+      <StepConfigDrawer
+        workflowId={workflowId}
+        stepIndex={stepIndex}
+        isOpen={isStepConfigDrawerOpen}
+        onClose={closeDialog}
+      />
 
       <StepSelectorDrawer
-        onClose={closeDialog}
+        enabledSteps={enabledSteps}
         isOpen={isStepSelectorDrawerOpen}
+        onClose={closeDialog}
         onSelectStep={({ cvs }) => handleAddStep(cvs)}
       />
 
