@@ -5,12 +5,11 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   UseDisclosureProps,
 } from '@chakra-ui/react';
-import { Button, ButtonGroup, Icon, TabPanel, TabPanels, Tabs, useDisclosure } from '@bitrise/bitkit';
+import { Icon, TabPanel, TabPanels, Tabs, useDisclosure, useToast } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
@@ -23,11 +22,11 @@ import { FormValues, WorkflowConfigTab } from './WorkflowConfig.types';
 type Props = UseDisclosureProps & { workflowId: string };
 
 const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
+  const toast = useToast();
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(WorkflowConfigTab.CONFIGURATION);
 
   const form = useFormContext<FormValues>();
-  const hasChanges = form.formState.isDirty;
 
   const defaultWorkflowId = form.formState.defaultValues?.properties?.name ?? '';
 
@@ -40,7 +39,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
     })),
   );
 
-  const handleSubmit = form.handleSubmit(
+  const saveAndClose = form.handleSubmit(
     ({ properties: { name, ...properties }, configuration: { stackId, machineTypeId, envs } }) => {
       updateStackAndMachine(defaultWorkflowId, stackId, machineTypeId);
       updateWorkflowEnvVars(defaultWorkflowId, envs);
@@ -49,6 +48,22 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
       onClose();
     },
   );
+
+  const handleClose = () => {
+    form.trigger().then((isValid) => {
+      if (!isValid) {
+        toast({
+          status: 'error',
+          title: 'Invalid Workflow configuration',
+          description: 'Please check the configuration and try again.',
+          isClosable: true,
+        });
+        return;
+      }
+
+      saveAndClose();
+    });
+  };
 
   const handleCloseComplete = () => {
     setSelectedTab(WorkflowConfigTab.CONFIGURATION);
@@ -60,10 +75,8 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
       <Drawer
         isFullHeight
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         autoFocus={false}
-        closeOnEsc={!hasChanges}
-        closeOnOverlayClick={!hasChanges}
         onCloseComplete={handleCloseComplete}
       >
         <DrawerOverlay
@@ -100,17 +113,6 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
               </TabPanel>
             </TabPanels>
           </DrawerBody>
-
-          <DrawerFooter p="32" boxShadow="large">
-            <ButtonGroup spacing={16}>
-              <Button isDisabled={!hasChanges} onClick={handleSubmit}>
-                Done
-              </Button>
-              <Button variant="secondary" onClick={onClose}>
-                Cancel
-              </Button>
-            </ButtonGroup>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </Tabs>
