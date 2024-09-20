@@ -1,6 +1,8 @@
 import _ from "underscore";
+import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import {safeDigest} from "@/services/react-compat";
+import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
+import { safeDigest } from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 
 (function () {
@@ -343,7 +345,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
           );
         }).then(
           function () {
-            logger.setTags({menuID: menu.id});
+            logger.setTags({ menuID: menu.id });
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -856,11 +858,20 @@ import WindowUtils from "@/core/utils/WindowUtils";
         });
       };
 
-      window.addEventListener('navigation.replace', (e) => {
+      window.parent.addEventListener('navigation.replace', (e) => {
         const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
 
         if (menu) {
           viewModel.menuSelected(menu);
+        }
+      });
+
+      window.parent.addEventListener('hashchange', () => {
+        const oldSearchParams = $location.search();
+        const newSearchParams = getSearchParamsFromLocationHash();
+
+        if (!isEqual(oldSearchParams, newSearchParams)) {
+          $location.search(newSearchParams).replace();
         }
       });
     });
