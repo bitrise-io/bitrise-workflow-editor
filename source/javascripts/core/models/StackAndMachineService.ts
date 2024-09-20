@@ -100,7 +100,9 @@ function selectStackAndMachine(props: SelectStackAndMachineProps): SelectStackAn
     const defaultMachineType = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeId);
     const selectedMachineType = MachineTypeService.getMachineById(selectableMachines, selectedMachineTypeId);
 
-    const selectedStackOS = StackService.getOsOfStack(result.selectedStack);
+    const selectedStackOS = StackService.getOsOfStack(
+      !result.selectedStack.id && defaultStack ? defaultStack : result.selectedStack,
+    );
     const defaultMachineTypeIdOfOS = defaultMachineTypeIdOfOSs[selectedStackOS];
     const defaultMachineTypeOfOS = MachineTypeService.getMachineById(selectableMachines, defaultMachineTypeIdOfOS);
 
