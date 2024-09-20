@@ -11,6 +11,7 @@ _bin/
 .vscode
 .eslintcache
 coverage/
+storybook-static/
 
 node_modules
 spec/integration/cypress/videos
