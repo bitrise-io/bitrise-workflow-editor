@@ -13,8 +13,11 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
+import { isObject } from 'lodash';
 import useNavigation from '../../../hooks/useNavigation';
 import { PipelineableTriggerItem } from '../TriggersPage.utils';
+import { Condition, ConditionType } from '../TriggersPage.types';
+import TriggerConditions from './TriggerConditions';
 
 type SelectiveTriggersProps = {
   pipelineableTriggers: PipelineableTriggerItem[];
@@ -22,6 +25,7 @@ type SelectiveTriggersProps = {
 
 const SelectiveTriggers = (props: SelectiveTriggersProps) => {
   const { pipelineableTriggers } = props;
+
   const [filterString, setFilterString] = useState('');
   const [sortProps, setSortProps] = useState<{ direction: AriaAttributes['aria-sort']; condition: 'id' | 'type' }>({
     direction: 'ascending',
@@ -95,9 +99,18 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
               </Thead>
               <Tbody>
                 {filteredItems.map((trigger) => {
-                  // const conditions = [];
-                  Object.keys(trigger).forEach((key) => {
+                  const conditions: Condition[] = [];
+                  const triggerKeys = Object.keys(trigger) as (keyof PipelineableTriggerItem)[];
+                  triggerKeys.forEach((key) => {
                     console.log(key);
+                    if (!['enabled', 'id', 'pipelineableType', 'type', 'draft_enabled'].includes(key)) {
+                      const isRegex = isObject(trigger[key]);
+                      conditions.push({
+                        isRegex,
+                        type: key as ConditionType,
+                        value: isRegex ? (trigger[key] as any).regex : (trigger[key] as string),
+                      });
+                    }
                   });
                   return (
                     <Tr key={JSON.stringify(trigger)}>
@@ -109,7 +122,12 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
                         </Text>
                       </Td>
                       <Td>{TYPE_MAP[trigger.type]}</Td>
-                      <Td>Conditioooons</Td>
+                      <Td>
+                        <TriggerConditions
+                          conditions={conditions}
+                          isDraftPr={trigger.type === 'pull_request' && trigger.draft_enabled}
+                        />
+                      </Td>
                       <Td display="flex" justifyContent="flex-end" alignItems="center">
                         {trigger.pipelineableType === 'workflow' && (
                           <ControlButton

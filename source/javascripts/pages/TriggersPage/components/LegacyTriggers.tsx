@@ -161,12 +161,13 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
         Legacy triggers
       </Text>
       <Text color="text/secondary">
-        Triggers help you start builds automatically.{' '}
+        A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.
         <Link
           colorScheme="purple"
           href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
+          {' '}
           Learn more
         </Link>
       </Text>
