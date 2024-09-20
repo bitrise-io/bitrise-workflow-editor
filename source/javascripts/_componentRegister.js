@@ -1,5 +1,5 @@
-import { react2angular } from "@bitrise/react2angular";
-import { Checkbox, Icon } from "@bitrise/bitkit";
+import {react2angular} from "@bitrise/react2angular";
+import {Checkbox, Icon} from "@bitrise/bitkit";
 
 import Header from "./components/Header";
 import InfoTooltip from "./components/InfoTooltip";
@@ -12,7 +12,8 @@ import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/Up
 import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import { RootComponent, withRootProvider } from "./utils/withRootProvider";
+import DiffEditorDialog from "@/components/DiffEditor/DiffEditorDialog";
+import {RootComponent, withRootProvider} from "./utils/withRootProvider";
 
 import {
   ChainWorkflowDrawer,
@@ -24,18 +25,8 @@ import {
   WorkflowConfigPanel,
   WorkflowToolbar,
 } from "@/pages/WorkflowsPage";
-import {
-  PipelinesPage,
-  SecretsPage,
-  TriggersPage,
-  WorkflowsPage,
-} from "@/pages";
-import {
-  StepBundlePanel,
-  StepSelectorDrawer,
-  WithBlockPanel,
-  WorkflowEmptyState,
-} from "@/components/unified-editor";
+import {PipelinesPage, SecretsPage, TriggersPage, WorkflowsPage,} from "@/pages";
+import {StepBundlePanel, StepSelectorDrawer, WithBlockPanel, WorkflowEmptyState,} from "@/components/unified-editor";
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -178,12 +169,25 @@ angular
       "appPath",
       "workspacePath",
       "workflowsAndPipelinesPath",
+      "isDiffEditorEnabled",
+      "onDiffClick",
+      'isDiffDisabled',
       "onSaveClick",
       "isSaveDisabled",
       "isSaveInProgress",
       "onDiscardClick",
       "isDiscardDisabled",
       "isWebsiteMode",
+    ]),
+  )
+  .component(
+    "rDiffDialog",
+    register(DiffEditorDialog, [
+      "isOpen",
+      "onClose",
+      "originalText",
+      "modifiedText",
+      "onChange",
     ]),
   )
   .component(
