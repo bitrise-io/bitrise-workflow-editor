@@ -17,7 +17,7 @@ import {
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
-import { Condition, FormItems, PushConditionType, TriggerItem } from './TriggersPage.types';
+import { Condition, FormItems, LegacyPushConditionType, TriggerItem } from './TriggersPage.types';
 import { checkIsConditionsUsed } from './TriggersPage.utils';
 import RegexCheckbox from './RegexCheckbox';
 
@@ -31,13 +31,13 @@ type DialogProps = {
   workflows: string[];
 };
 
-const LABEL_MAP: Record<PushConditionType, string> = {
+const LABEL_MAP: Record<LegacyPushConditionType, string> = {
   push_branch: 'Push branch',
   commit_message: 'Commit message',
   changed_files: 'Path',
 };
 
-const getLabelText = (isRegex: boolean, type: PushConditionType): string => {
+const getLabelText = (isRegex: boolean, type: LegacyPushConditionType): string => {
   if (isRegex) {
     return 'Regex pattern';
   }
@@ -49,7 +49,7 @@ type ConditionCardProps = {
   conditionNumber: number;
 };
 
-const OPTIONS_MAP: Record<PushConditionType, string> = {
+const OPTIONS_MAP: Record<LegacyPushConditionType, string> = {
   push_branch: 'Push branch',
   commit_message: 'Commit message',
   changed_files: 'File change',

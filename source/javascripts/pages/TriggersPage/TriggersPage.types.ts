@@ -1,8 +1,10 @@
 export type TagConditionType = 'tag';
 
-export type PushConditionType = 'push_branch' | 'commit_message' | 'changed_files';
+export type LegacyPushConditionType = 'push_branch' | 'commit_message' | 'changed_files';
 
-export type PrConditionType =
+export type PushConditionType = 'branch' | 'commit_message' | 'changed_files';
+
+export type LegacyPrConditionType =
   | 'pull_request_source_branch'
   | 'pull_request_target_branch'
   | 'pull_request_label'
@@ -10,11 +12,21 @@ export type PrConditionType =
   | 'commit_message'
   | 'changed_files';
 
+export type PrConditionType =
+  | 'source_branch'
+  | 'target_branch'
+  | 'label'
+  | 'comment'
+  | 'commit_message'
+  | 'changed_files';
+
+export type LegacyConditionType = LegacyPushConditionType | LegacyPrConditionType | TagConditionType;
+
 export type ConditionType = PushConditionType | PrConditionType | TagConditionType;
 
 export type Condition = {
   isRegex: boolean;
-  type: ConditionType;
+  type: ConditionType | LegacyConditionType;
   value: string;
   id?: string;
 };
@@ -33,7 +45,7 @@ export type TriggerItem = {
 export interface FormItems extends Omit<TriggerItem, 'conditions'> {
   conditions: {
     isRegex: boolean;
-    type?: ConditionType | '';
+    type?: ConditionType | LegacyConditionType | '';
     value: string;
   }[];
   isDraftPr?: boolean;

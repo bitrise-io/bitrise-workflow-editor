@@ -44,9 +44,9 @@ import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
 import TriggerCard from './TriggerCard';
-import { ConditionType, SourceType, TriggerItem } from './TriggersPage.types';
+import { ConditionType, LegacyConditionType, SourceType, TriggerItem } from './TriggersPage.types';
 import { getPipelineableTriggers } from './TriggersPage.utils';
-import SelectiveTriggers from './SelectiveTriggers';
+import SelectiveTriggers from './components/SelectiveTriggers';
 
 const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): TriggerMapYml => {
   const triggerMap: TriggerMapYml = Object.values(triggers)
@@ -54,7 +54,7 @@ const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): 
     .map((trigger) => {
       const finalItem: TriggerYmlObject = {};
       trigger.conditions.forEach(({ isRegex, type, value }) => {
-        finalItem[type] = isRegex ? { regex: value } : value;
+        finalItem[type as LegacyConditionType] = isRegex ? { regex: value } : value;
       });
       if (!trigger.isActive) {
         finalItem.enabled = false;

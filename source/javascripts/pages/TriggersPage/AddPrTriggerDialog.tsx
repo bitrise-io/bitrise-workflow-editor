@@ -18,7 +18,7 @@ import {
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
-import { Condition, FormItems, PrConditionType, TriggerItem } from './TriggersPage.types';
+import { Condition, FormItems, LegacyPrConditionType, TriggerItem } from './TriggersPage.types';
 import { checkIsConditionsUsed } from './TriggersPage.utils';
 import RegexCheckbox from './RegexCheckbox';
 
@@ -32,7 +32,7 @@ type DialogProps = {
   workflows: string[];
 };
 
-const LABEL_MAP: Record<PrConditionType, string> = {
+const LABEL_MAP: Record<LegacyPrConditionType, string> = {
   pull_request_target_branch: 'Enter a target branch',
   pull_request_source_branch: 'Enter a source branch',
   pull_request_label: 'Enter a label',
@@ -41,7 +41,7 @@ const LABEL_MAP: Record<PrConditionType, string> = {
   changed_files: 'Enter a path',
 };
 
-const getLabelText = (isRegex: boolean, type: PrConditionType): string => {
+const getLabelText = (isRegex: boolean, type: LegacyPrConditionType): string => {
   if (isRegex) {
     return 'Enter a regex pattern';
   }
@@ -53,7 +53,7 @@ type ConditionCardProps = {
   conditionNumber: number;
 };
 
-const OPTIONS_MAP: Record<PrConditionType, string> = {
+const OPTIONS_MAP: Record<LegacyPrConditionType, string> = {
   pull_request_target_branch: 'Target branch',
   pull_request_source_branch: 'Source branch',
   pull_request_label: 'PR label',
