@@ -9,10 +9,11 @@ type Props = {
   isSaveInProgress: boolean;
   onDiscardClick: () => void;
   isDiscardDisabled: boolean;
+  isWebsiteMode: boolean;
 };
 
 const Header = ({
-  appName = 'App Name',
+  appName = '',
   appPath = '/app',
   workspacePath = '/workspace',
   onSaveClick,
@@ -20,10 +21,9 @@ const Header = ({
   isSaveInProgress,
   onDiscardClick,
   isDiscardDisabled,
+  isWebsiteMode,
 }: Props) => {
   const { isMobile } = useResponsive();
-
-  const isBreadcrumbVisible = appName && appPath && workspacePath;
 
   return (
     <Box
@@ -31,29 +31,26 @@ const Header = ({
       display="flex"
       flexDir={['column', 'row']}
       alignItems={['flex-start', 'center']}
-      justifyContent={isBreadcrumbVisible ? 'space-between' : 'flex-end'}
+      justifyContent="space-between"
       gap="16"
       borderBottom="1px solid"
       borderColor="separator.primary"
       paddingInline={32}
       paddingBlock={24}
     >
-      {isBreadcrumbVisible &&
-        (isMobile ? (
-          <Breadcrumb hasSeparatorBeforeFirst>
-            <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-          </Breadcrumb>
-        ) : (
-          <Breadcrumb>
-            <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
-            <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>
-            <BreadcrumbLink isCurrentPage>
-              <Text id="away" textStyle="body/lg/semibold">
-                Workflow Editor
-              </Text>
-            </BreadcrumbLink>
-          </Breadcrumb>
-        ))}
+      <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
+        {isWebsiteMode && workspacePath && !isMobile && (
+          <BreadcrumbLink href={workspacePath}>Bitrise CI</BreadcrumbLink>
+        )}
+        {isWebsiteMode && appPath && appName && <BreadcrumbLink href={appPath}>{appName}</BreadcrumbLink>}
+        {(!isWebsiteMode || !isMobile) && (
+          <BreadcrumbLink isCurrentPage>
+            <Text id="away" textStyle="body/lg/semibold">
+              Workflow Editor
+            </Text>
+          </BreadcrumbLink>
+        )}
+      </Breadcrumb>
 
       <Box
         display="flex"

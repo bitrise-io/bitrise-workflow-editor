@@ -11,7 +11,7 @@ type RunWorkflowDialogProps = Pick<DialogProps, 'isOpen' | 'onClose'> & {
 const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogProps) => {
   const [branch, setBranch] = useState(WindowUtils.pageProps()?.project?.defaultBranch || '');
   const toast = useToast();
-  const { mutate: startBuild } = useStartBuild();
+  const { mutate: startBuild, isPending } = useStartBuild();
 
   const handleAction = () => {
     if (!branch) {
@@ -46,20 +46,27 @@ const RunWorkflowDialog = ({ isOpen, onClose, workflowId }: RunWorkflowDialogPro
     >
       <DialogBody>
         <Input
+          autoFocus
           isRequired
           label="Branch"
           placeholder="your-branch"
-          type="text"
-          autoComplete="on"
+          isDisabled={isPending}
+          inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
           value={branch}
           onChange={(event) => setBranch(event.target.value)}
         />
       </DialogBody>
       <DialogFooter>
-        <Button variant="secondary" aria-label="Cancel" onClick={onClose}>
+        <Button variant="secondary" aria-label="Cancel" isDisabled={isPending} onClick={onClose}>
           Cancel
         </Button>
-        <Button aria-label="Run Workflow" rightIconName="OpenInBrowser" isDisabled={!branch} onClick={handleAction}>
+        <Button
+          aria-label="Run Workflow"
+          rightIconName="OpenInBrowser"
+          isDisabled={!branch}
+          isLoading={isPending}
+          onClick={handleAction}
+        >
           Run Workflow
         </Button>
       </DialogFooter>

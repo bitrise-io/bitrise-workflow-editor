@@ -28,6 +28,7 @@ const StepSelectInput = forwardRef(
     };
 
     const createEnvVar = (envVar: EnvVar) => {
+      window.dispatchEvent(new CustomEvent('workflow::envs::created', { detail: envVar }));
       appendWorkflowEnvVar(workflowId, envVar);
       insertVariable(envVar.key);
     };

@@ -76,7 +76,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
           padding={0}
           display="flex"
           flexDir="column"
-          margin={[0, 32]}
+          margin={[0, 24]}
           overflow="hidden"
           boxShadow="large"
           borderRadius={[0, 12]}
@@ -87,7 +87,7 @@ const WorkflowConfigDrawerContent = (props: UseDisclosureProps) => {
           </DrawerCloseButton>
 
           <DrawerHeader color="initial" textTransform="initial" fontWeight="initial">
-            <WorkflowConfigHeader />
+            <WorkflowConfigHeader variant="drawer" />
           </DrawerHeader>
 
           <DrawerBody p="24" flex="1" overflowY="auto">

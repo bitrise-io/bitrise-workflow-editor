@@ -1,5 +1,6 @@
-import "@/typings/globals.d.ts";
+import "../source/javascripts/typings/globals.d.ts";
 
+import React from "react";
 import { Provider } from "@bitrise/bitkit";
 import type { Preview } from "@storybook/react";
 import { initialize, mswLoader } from "msw-storybook-addon";
@@ -18,6 +19,7 @@ const queryClient = new QueryClient({
 
 const preview: Preview = {
   beforeEach: () => {
+    queryClient.clear();
     process.env.MODE = "website";
     window.parent.globalProps = {
       user: {

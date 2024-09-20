@@ -68,8 +68,11 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             aria-label="Key"
             leftIconName="Dollars"
             placeholder="Enter key"
+            inputRef={(ref) => ref?.setAttribute('data-1p-ignore', '')}
             errorText={formState.errors.configuration?.envs?.[index]?.key?.message}
-            {...register(`configuration.envs.${index}.key`, { validate: (v) => EnvVarService.validateKey(v) })}
+            {...register(`configuration.envs.${index}.key`, {
+              validate: (v) => EnvVarService.validateKey(v),
+            })}
           />
           <Text color="text/tertiary" pt="8">
             =
@@ -79,7 +82,9 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
             placeholder="Enter value"
             formControlProps={{ flex: 1 }}
             errorText={formState.errors.configuration?.envs?.[index]?.value?.message}
-            {...register(`configuration.envs.${index}.value`, { validate: EnvVarService.validateValue })}
+            {...register(`configuration.envs.${index}.value`, {
+              validate: EnvVarService.validateValue,
+            })}
           />
           <ControlButton
             ml="8"
@@ -114,8 +119,11 @@ const EnvVarCard = ({ id, index, onRemove }: { id: string; index: number; onRemo
 
 const EnvVarsCard = () => {
   const workflow = useWorkflowConfigContext();
-  const { control, formState, watch } = useFormContext<FormValues>();
-  const { fields, append, remove, move, replace } = useFieldArray({ name: 'configuration.envs', control });
+  const { control, formState } = useFormContext<FormValues>();
+  const { fields, append, remove, move, replace } = useFieldArray({
+    control,
+    name: 'configuration.envs',
+  });
 
   const handleAddNew = () => {
     append({ source: workflow?.id || '', key: '', value: '', isExpand: false });
@@ -132,7 +140,16 @@ const EnvVarsCard = () => {
     replace((formState.defaultValues?.configuration?.envs ?? []) as EnvVar[]);
   }, [formState.defaultValues?.configuration?.envs, replace]);
 
-  watch('configuration.envs');
+  // TODO: Make it better!
+  useEffect(() => {
+    const listener = (event: CustomEvent<EnvVar>) => {
+      append(event.detail);
+    };
+
+    window.addEventListener('workflow::envs::created' as never, listener);
+
+    return () => window.removeEventListener('workflow::envs::created' as never, listener);
+  }, [append]);
 
   return (
     <ExpandableCard buttonContent={<ButtonContent />}>

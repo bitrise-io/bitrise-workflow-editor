@@ -12,20 +12,23 @@ type Props = {
 };
 
 const WorkflowCanvasPanel = ({ workflowId }: Props) => {
-  const { moveStep, setChainedWorkflows, deleteChainedWorkflow } = useBitriseYmlStore(
-    useShallow((s) => ({
-      moveStep: s.moveStep,
-      setChainedWorkflows: s.setChainedWorkflows,
-      deleteChainedWorkflow: s.deleteChainedWorkflow,
-    })),
-  );
+  const { moveStep, upgradeStep, cloneStep, deleteStep, setChainedWorkflows, deleteChainedWorkflow } =
+    useBitriseYmlStore(
+      useShallow((s) => ({
+        moveStep: s.moveStep,
+        setChainedWorkflows: s.setChainedWorkflows,
+        deleteChainedWorkflow: s.deleteChainedWorkflow,
+        upgradeStep: s.changeStepVersion,
+        cloneStep: s.cloneStep,
+        deleteStep: s.deleteStep,
+      })),
+    );
 
   const {
     openStepConfigDrawer,
     openStepSelectorDrawer,
     openRunWorkflowDialog,
     openChainWorkflowDialog,
-    openDeleteWorkflowDialog,
     openWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
@@ -33,15 +36,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
         <WorkflowSelector />
-        <IconButton
-          isDanger
-          size="md"
-          variant="secondary"
-          iconName="Trash"
-          aria-label={`Delete '${workflowId}'`}
-          tooltipProps={{ 'aria-label': `Delete '${workflowId}'` }}
-          onClick={openDeleteWorkflowDialog}
-        />
         {RuntimeUtils.isWebsiteMode() && (
           <IconButton
             size="md"
@@ -66,6 +60,9 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
           onStepMove={moveStep}
           onStepSelect={openStepConfigDrawer}
           onAddStepClick={openStepSelectorDrawer}
+          onUpgradeStep={upgradeStep}
+          onCloneStep={cloneStep}
+          onDeleteStep={deleteStep}
           onEditWorkflowClick={openWorkflowConfigDrawer}
           onChainedWorkflowsUpdate={setChainedWorkflows}
           onAddChainedWorkflowClick={openChainWorkflowDialog}

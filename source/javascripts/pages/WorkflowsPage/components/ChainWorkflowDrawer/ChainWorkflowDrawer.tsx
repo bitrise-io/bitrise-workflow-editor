@@ -49,10 +49,10 @@ const ChainWorkflowDrawer = ({ workflowId, yml, onChainWorkflow, ...disclosurePr
             top="0px"
             display="flex"
             flexDir="column"
-            maxWidth={['100%', '50%']}
-            borderRadius={[0, 12]}
-            margin={[0, 32]}
+            margin={[0, 24]}
             boxShadow="large"
+            borderRadius={[0, 12]}
+            maxWidth={['100%', '50%']}
           >
             <DrawerCloseButton size="md">
               <Icon name="CloseSmall" />

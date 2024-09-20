@@ -54,28 +54,28 @@ import WindowUtils from "@/core/utils/WindowUtils";
           id: "pipelines",
           title: "Pipelines",
           path: "pipelines",
-          possibleURLParameterKeys: ["pipeline"],
+          possibleURLParameterKeys: ["pipeline", "workflow_id"],
           cssClass: "pipelines"
         },
         {
           id: "secrets",
           title: "<%= data[:strings][:main][:menus][:secrets] %>",
           path: "<%= data[:routes][:endpoints][:secrets] %>",
-          possibleURLParameterKeys: [],
+          possibleURLParameterKeys: ["workflow_id"],
           cssClass: "secrets"
         },
         {
           id: "env-vars",
           title: "<%= data[:strings][:main][:menus][:env_vars] %>",
           path: "<%= data[:routes][:endpoints][:env_vars] %>",
-          possibleURLParameterKeys: [],
+          possibleURLParameterKeys: ["workflow_id"],
           cssClass: "env-vars"
         },
         {
           id: "triggers",
           title: "<%= data[:strings][:main][:menus][:triggers] %>",
           path: "<%= data[:routes][:endpoints][:triggers] %>",
-          possibleURLParameterKeys: ["trigger_type"],
+          possibleURLParameterKeys: ["trigger_type", "workflow_id"],
           cssClass: "triggers"
         },
         requestService.mode == "website"
@@ -83,7 +83,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
             id: "stack",
             title: "<%= data[:strings][:main][:menus][:stack] %>",
             path: "<%= data[:routes][:endpoints][:stack] %>",
-            possibleURLParameterKeys: [],
+            possibleURLParameterKeys: ["workflow_id"],
             cssClass: "stack"
           }
           : null,
@@ -92,7 +92,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
             id: "licenses",
             title: "<%= data[:strings][:main][:menus][:licenses] %>",
             path: "<%= data[:routes][:endpoints][:licenses] %>",
-            possibleURLParameterKeys: [],
+            possibleURLParameterKeys: ["workflow_id"],
             cssClass: "hidden"
           }
           : null,
@@ -100,7 +100,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
           id: "yml",
           title: "<%= data[:strings][:main][:menus][:yml] %>",
           path: "<%= data[:routes][:endpoints][:yml] %>",
-          possibleURLParameterKeys: [],
+          possibleURLParameterKeys: ["workflow_id"],
           cssClass: "yml",
           divided: true
         }
@@ -744,6 +744,8 @@ import WindowUtils from "@/core/utils/WindowUtils";
         viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
 
         logger.info("App start");
+
+        viewModel.isWebsiteMode = requestService.isWebsiteMode();
 
         appService.getAppConfig();
 
