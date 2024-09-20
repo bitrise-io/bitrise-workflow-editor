@@ -12,7 +12,10 @@ type Props = {
 };
 
 const StepInputGroup = ({ title, inputs }: Props) => {
-  const { register } = useFormContext<FormValues>();
+  const {
+    register,
+    formState: { errors },
+  } = useFormContext<FormValues>();
 
   const content = (
     <>
@@ -32,7 +35,8 @@ const StepInputGroup = ({ title, inputs }: Props) => {
                 options={opts?.value_options ?? []}
                 isSensitive={opts?.is_sensitive}
                 isDisabled={opts?.is_dont_change_value}
-                {...register(`inputs.${name}`)}
+                errorText={errors?.inputs?.[name]?.message}
+                {...register(`inputs.${name}`, { required: opts?.is_required && `${name} is required` })}
               />
             )}
 
@@ -43,7 +47,8 @@ const StepInputGroup = ({ title, inputs }: Props) => {
                 isRequired={opts?.is_required}
                 isSensitive={opts?.is_sensitive}
                 isDisabled={opts?.is_dont_change_value}
-                {...register(`inputs.${name}`)}
+                errorText={errors?.inputs?.[name]?.message}
+                {...register(`inputs.${name}`, { required: opts?.is_required && `${name} is required` })}
               />
             )}
           </Fragment>
