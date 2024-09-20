@@ -6,7 +6,11 @@ import type { Preview } from "@storybook/react";
 import { initialize, mswLoader } from "msw-storybook-addon";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 
-initialize();
+initialize({
+  serviceWorker: {
+    url: './mockServiceWorker.js',
+  },
+});
 
 const queryClient = new QueryClient({
   defaultOptions: {
