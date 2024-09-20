@@ -158,13 +158,18 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
               break;
             case "workflows":
-            case "env-vars":
-            case "triggers":
-              if (viewModel.enableNewWorkflowsPage && viewModel.currentMenu.id === "workflows") {
-                appService.getAppConfig().then(resolve, reject);
+              if (viewModel.enableNewWorkflowsPage) {
+                var loadPromises = [appService.getAppConfig()];
+                if (requestService.isWebsiteMode()) {
+                  loadPromises.push(appService.getPipelineConfig());
+                }
+
+                $q.all(loadPromises).then(resolve, reject);
+
                 break;
               }
-
+            case "env-vars":
+            case "triggers":
               var loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(Stack.getAll());
