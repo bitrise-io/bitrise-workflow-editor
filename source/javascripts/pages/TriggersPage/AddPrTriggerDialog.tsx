@@ -62,7 +62,7 @@ const OPTIONS_MAP: Record<LegacyPrConditionType, string> = {
   changed_files: 'File change',
 };
 
-const ConditionCard = (props: ConditionCardProps) => {
+export const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();

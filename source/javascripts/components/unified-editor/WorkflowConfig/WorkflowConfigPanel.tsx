@@ -6,6 +6,7 @@ import omit from 'lodash/omit';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
+import TriggersTabPanel from '../../../pages/TriggersPage/components/TriggersTabPanel';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';
@@ -75,6 +76,9 @@ const WorkflowConfigPanelContent = () => {
         </TabPanel>
         <TabPanel id={WorkflowConfigTab.PROPERTIES} p="24" overflowY="auto" h="100%">
           <PropertiesTab />
+        </TabPanel>
+        <TabPanel id={WorkflowConfigTab.TRIGGERS} p="24" overflowY="auto" h="100%">
+          <TriggersTabPanel />
         </TabPanel>
       </TabPanels>
     </Tabs>
