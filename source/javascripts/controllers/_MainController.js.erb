@@ -152,6 +152,10 @@ import {segmentTrack} from "@/utils/segmentTracking";
             appService.appConfig = changedAppConfig;
             safeDigest($rootScope);
           } catch (e) {
+            segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+              tab_name: viewModel.currentMenu.id,
+              source: 'diff'
+            });
             Popup.showErrorPopup("Invalid YAML change", e.message);
           }
         }
@@ -649,7 +653,8 @@ import {segmentTrack} from "@/utils/segmentTracking";
                 viewModel.saveProgress.reset();
                 $rootScope.$emit("MainController::savedFinishedWithError");
                 segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
-                  tab_name: viewModel.currentMenu.id
+                  tab_name: viewModel.currentMenu.id,
+                  source: 'save'
                 });
                 Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
