@@ -1,4 +1,4 @@
-import { stringify } from 'yaml';
+import { parse, stringify } from 'yaml';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import Client from './client';
 
@@ -23,6 +23,14 @@ function toJSON(model?: unknown): string {
   return JSON.stringify({
     app_config_datastore_yaml: toYml(model),
   });
+}
+
+function fromYml(yml: string): unknown {
+  if (!yml) {
+    return {};
+  }
+
+  return parse(yml);
 }
 
 // API CALLS
@@ -77,6 +85,7 @@ export default {
   getUpdateBitriseYmlPath: getBitriseYmlPath,
   updateBitriseYml,
   formatYml,
+  fromYml,
   toYml,
   toJSON,
 };

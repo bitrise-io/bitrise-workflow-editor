@@ -5,7 +5,7 @@ type YmlEditorProps = {
   isLoading?: boolean;
   readonly: boolean;
   yml: string;
-  onChange: VoidFunction;
+  onChange: (changedText?: string) => void;
 };
 const YmlEditor = ({ isLoading, readonly, yml, onChange }: YmlEditorProps) => {
   const defaultSchema = {

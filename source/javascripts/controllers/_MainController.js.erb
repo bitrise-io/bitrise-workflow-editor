@@ -1,9 +1,10 @@
 import _ from "underscore";
 import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
-import { getSearchParamsFromLocationHash } from "@/hooks/useSearchParams";
-import { safeDigest } from "@/services/react-compat";
+import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
+import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
+import BitriseYmlApi from "@/core/api/BitriseYmlApi";
 
 (function () {
   "use strict";
@@ -121,6 +122,35 @@ import WindowUtils from "@/core/utils/WindowUtils";
       viewModel.lastWorkflowEditedDate;
 
       viewModel.isFirstBuildExperienceEnabled = false;
+
+      viewModel.isDiffEditorEnabled = false;
+      viewModel.isDiffDialogOpen = false;
+      viewModel.originalYaml = "";
+      viewModel.modifiedYaml = "";
+
+      viewModel.openDiffDialog = function () {
+        viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
+        viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
+        viewModel.isDiffDialogOpen = true;
+        safeDigest($rootScope);
+      }
+
+      viewModel.closeDiffDialog = function () {
+        viewModel.isDiffDialogOpen = false;
+        viewModel.originalYaml = "";
+        viewModel.modifiedYaml = "";
+        safeDigest($rootScope);
+      }
+
+      viewModel.saveDiffChanges = function (changedYaml) {
+        try {
+          const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
+          appService.appConfig = changedAppConfig;
+          safeDigest($rootScope);
+        } catch (e) {
+          Popup.showErrorPopup("Invalid YAML change", e.message);
+        }
+      }
 
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
         $timeout(function () {
@@ -350,7 +380,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
           );
         }).then(
           function () {
-            logger.setTags({ menuID: menu.id });
+            logger.setTags({menuID: menu.id});
 
             _.each(_.without(viewModel.menus, menu), function (aMenu) {
               _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
@@ -634,6 +664,14 @@ import WindowUtils from "@/core/utils/WindowUtils";
         return true;
       };
 
+      viewModel.isDiscardEnabled = function () {
+        return viewModel.isSaveEnabled();
+      }
+
+      viewModel.isDiffEnabled = function () {
+        return viewModel.isSaveEnabled();
+      }
+
       $(document).on("keydown", function (event) {
         if ((event.ctrlKey || event.metaKey) && event.which == 83) {
           event.preventDefault();
@@ -762,6 +800,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
             viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
             viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
             viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
+            viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
 
             switch (requestService.mode) {
               case "website":
