@@ -17,7 +17,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           display: 'block',
         }}
       />
-      <Tooltip label="Add step" aria-label="Add step">
+      <Tooltip label="Add Step" aria-label="Add Step">
         <Box
           w={20}
           h={20}
@@ -26,7 +26,7 @@ const AddStepButton = ({ onClick, ...props }: Props) => {
           top="calc(50% - 10px)"
           left="calc(50% - 10px)"
           onClick={onClick}
-          aria-label="Add step"
+          aria-label="Add Step"
           display="none"
           alignItems="center"
           justifyContent="center"
