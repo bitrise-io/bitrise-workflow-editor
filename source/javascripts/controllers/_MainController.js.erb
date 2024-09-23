@@ -133,6 +133,9 @@ import {segmentTrack} from "@/utils/segmentTracking";
         viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
         viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
         viewModel.isDiffDialogOpen = true;
+        segmentTrack("Workflow Editor Diff Button Clicked", {
+          tab_name: viewModel.currentMenu.id
+        });
         safeDigest($rootScope);
       }
 
