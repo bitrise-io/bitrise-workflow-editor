@@ -143,9 +143,13 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
       }
 
       viewModel.saveDiffChanges = function (changedYaml) {
-        const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
-        appService.appConfig = changedAppConfig;
-        safeDigest($rootScope);
+        try {
+          const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
+          appService.appConfig = changedAppConfig;
+          safeDigest($rootScope);
+        } catch (e) {
+          Popup.showErrorPopup("Invalid YAML change", e.message);
+        }
       }
 
       $scope.$on("$locationChangeSuccess", function (event, next, current) {

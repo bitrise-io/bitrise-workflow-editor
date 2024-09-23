@@ -26,11 +26,7 @@ const DiffEditorComponent = ({ originalText, modifiedText, language = 'yaml', on
       loading={<ProgressBitbot />}
       onMount={handleEditorDidMount}
       theme="vs-dark"
-      options={{
-        renderSideBySide: true,
-        renderWhitespace: 'all',
-        wordWrap: 'on',
-      }}
+      options={{ renderWhitespace: 'all' }}
     />
   );
 };
