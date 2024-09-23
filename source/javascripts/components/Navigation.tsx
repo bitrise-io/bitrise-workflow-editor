@@ -9,6 +9,7 @@ import {
   SidebarItemLabel,
   TypeIconName,
 } from '@bitrise/bitkit';
+import { segmentTrack } from '@/utils/segmentTracking';
 
 type Item = {
   id: string;
@@ -102,7 +103,14 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
       </SidebarContainer>
       <SidebarFooter>
         <SidebarDivider />
-        <WorkflowRecepiesItem href="https://github.com/bitrise-io/workflow-recipes">
+        <WorkflowRecepiesItem
+          href="https://github.com/bitrise-io/workflow-recipes"
+          onClick={() =>
+            segmentTrack('Workflow Editor Workflow Recipes Button Clicked', {
+              source: '',
+            })
+          }
+        >
           <SidebarItemIcon name="Doc" />
           <SidebarItemLabel>Workflow Recipes</SidebarItemLabel>
         </WorkflowRecepiesItem>
