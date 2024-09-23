@@ -80,6 +80,7 @@ export const segmentTrack = (
     const mergedContext = merge({}, baseContext, eventContext || {});
 
     segmentAnalytics?.track(eventName, mergedProps, mergedContext);
+    console.debug('Segment event:', eventName, mergedProps, mergedContext);
 
     if (WindowUtils.dataLayer()) {
       WindowUtils.dataLayer()?.push({
