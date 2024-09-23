@@ -22,7 +22,7 @@ const ButtonContent = () => {
 
   return (
     <Box display="flex" gap="8">
-      <Text textStyle="body/lg/semibold">EnvVars</Text>
+      <Text textStyle="body/lg/semibold">Env Vars</Text>
       {!!numberOfErrors && (
         <Badge variant="bold" colorScheme="negative">
           {numberOfErrors}
