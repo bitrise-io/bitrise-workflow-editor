@@ -2,7 +2,7 @@
   "author": "Bitrise",
   "license": "MIT",
   "name": "bitrise-workflow-editor",
-  "version": "1.3.535",
+  "version": "1.3.544",
   "description": "Bitrise workflow editor",
   "homepage": "https://github.com/bitrise-io/bitrise-workflow-editor#readme",
   "repository": {
@@ -33,7 +33,7 @@
     "start:base": "concurrently \"npm:start:dev\" \"DEV=true ./_scripts/run_api.sh 4000\"",
     "start": "NODE_ENV=development MODE=CLI npm run start:base",
     "start:website": "NODE_ENV=development MODE=WEBSITE PUBLIC_URL_ROOT=http://localhost:4000 npm run start:base",
-    "build-storybook": "storybook build",
+    "build-storybook": "storybook build -c .storybook",
     "storybook": "storybook dev -p 6006",
     "test": "karma start spec/karma.conf.js",
     "test:jest": "jest",

@@ -29,7 +29,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     openStepSelectorDrawer,
     openRunWorkflowDialog,
     openChainWorkflowDialog,
-    openDeleteWorkflowDialog,
     openWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
 
@@ -37,15 +36,6 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
       <Box p="12" display="flex" gap="12" bg="background/primary" borderBottom="1px solid" borderColor="border/regular">
         <WorkflowSelector />
-        <IconButton
-          isDanger
-          size="md"
-          variant="secondary"
-          iconName="Trash"
-          aria-label={`Delete '${workflowId}'`}
-          tooltipProps={{ 'aria-label': `Delete '${workflowId}'` }}
-          onClick={openDeleteWorkflowDialog}
-        />
         {RuntimeUtils.isWebsiteMode() && (
           <IconButton
             size="md"

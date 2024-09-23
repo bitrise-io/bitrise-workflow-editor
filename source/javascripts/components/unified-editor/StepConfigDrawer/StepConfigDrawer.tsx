@@ -4,7 +4,6 @@ import {
   DrawerBody,
   DrawerCloseButton,
   DrawerContent,
-  DrawerFooter,
   DrawerHeader,
   DrawerOverlay,
   UseDisclosureProps,
@@ -13,8 +12,6 @@ import semver from 'semver';
 import {
   Avatar,
   Box,
-  Button,
-  ButtonGroup,
   Icon,
   Tab,
   TabList,
@@ -23,6 +20,7 @@ import {
   Tabs,
   Text,
   useDisclosure,
+  useToast,
 } from '@bitrise/bitkit';
 import { useFormContext } from 'react-hook-form';
 import StepBadge from '@/components/StepBadge';
@@ -36,12 +34,11 @@ import OutputVariablesTab from './tabs/OutputVariablesTab';
 import StepConfigDrawerProvider, { useStepDrawerContext } from './StepConfigDrawer.context';
 
 const StepConfigDrawerContent = (props: UseDisclosureProps) => {
+  const toast = useToast();
   const { isOpen, onClose } = useDisclosure(props);
   const [selectedTab, setSelectedTab] = useState<string | undefined>(StepConfigTab.CONFIGURATION);
 
   const form = useFormContext<FormValues>();
-  const hasChanges = form.formState.isDirty;
-
   const { workflowId, stepIndex, data } = useStepDrawerContext();
   const { mergedValues, defaultValues, resolvedInfo } = data ?? {};
   const stepHasOutputVariables = Boolean(mergedValues?.outputs?.length ?? 0);
@@ -65,7 +62,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
     });
   };
 
-  const handleSave = form.handleSubmit(
+  const saveAndClose = form.handleSubmit(
     ({ properties: { name, version }, configuration: { is_always_run, is_skippable, run_if }, inputs }) => {
       updateStep(workflowId, stepIndex, { title: name, is_always_run, is_skippable, run_if }, defaultValues || {});
 
@@ -78,8 +75,20 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
     },
   );
 
-  const handleCancel = () => {
-    onClose();
+  const handleClose = () => {
+    form.trigger().then((isValid) => {
+      if (!isValid) {
+        toast({
+          status: 'error',
+          title: 'Invalid Step configuration',
+          description: 'Please check the configuration and try again.',
+          isClosable: true,
+        });
+        return;
+      }
+
+      saveAndClose();
+    });
   };
 
   const handleCloseComplete = () => {
@@ -92,10 +101,8 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
       <Drawer
         isFullHeight
         isOpen={isOpen}
-        onClose={onClose}
+        onClose={handleClose}
         autoFocus={false}
-        closeOnEsc={!hasChanges}
-        closeOnOverlayClick={!hasChanges}
         onCloseComplete={handleCloseComplete}
       >
         <DrawerOverlay
@@ -108,7 +115,7 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
           padding={0}
           display="flex"
           flexDir="column"
-          margin={[0, 32]}
+          margin={[0, 24]}
           overflow="hidden"
           boxShadow="large"
           borderRadius={[0, 12]}
@@ -179,16 +186,6 @@ const StepConfigDrawerContent = (props: UseDisclosureProps) => {
               )}
             </TabPanels>
           </DrawerBody>
-          <DrawerFooter p="32" boxShadow="large">
-            <ButtonGroup spacing={16}>
-              <Button isDisabled={!hasChanges} onClick={handleSave}>
-                Done
-              </Button>
-              <Button variant="secondary" onClick={handleCancel}>
-                Cancel
-              </Button>
-            </ButtonGroup>
-          </DrawerFooter>
         </DrawerContent>
       </Drawer>
     </Tabs>

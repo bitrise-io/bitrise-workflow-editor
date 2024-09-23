@@ -1,7 +1,10 @@
 import _ from "underscore";
+import isEqual from "lodash/isEqual";
 import datadogRumCustomTiming from "../utils/datadogCustomRumTiming.ts";
+import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
 import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
+import BitriseYmlApi from "@/core/api/BitriseYmlApi";
 
 (function () {
   "use strict";
@@ -120,6 +123,35 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
       viewModel.isFirstBuildExperienceEnabled = false;
 
+      viewModel.isDiffEditorEnabled = false;
+      viewModel.isDiffDialogOpen = false;
+      viewModel.originalYaml = "";
+      viewModel.modifiedYaml = "";
+
+      viewModel.openDiffDialog = function () {
+        viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
+        viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
+        viewModel.isDiffDialogOpen = true;
+        safeDigest($rootScope);
+      }
+
+      viewModel.closeDiffDialog = function () {
+        viewModel.isDiffDialogOpen = false;
+        viewModel.originalYaml = "";
+        viewModel.modifiedYaml = "";
+        safeDigest($rootScope);
+      }
+
+      viewModel.saveDiffChanges = function (changedYaml) {
+        try {
+          const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
+          appService.appConfig = changedAppConfig;
+          safeDigest($rootScope);
+        } catch (e) {
+          Popup.showErrorPopup("Invalid YAML change", e.message);
+        }
+      }
+
       $scope.$on("$locationChangeSuccess", function (event, next, current) {
         $timeout(function () {
           viewModel.changeMenuProgress.success();
@@ -156,13 +188,18 @@ import WindowUtils from "@/core/utils/WindowUtils";
 
               break;
             case "workflows":
-            case "env-vars":
-            case "triggers":
-              if (viewModel.enableNewWorkflowsPage && viewModel.currentMenu.id === "workflows") {
-                appService.getAppConfig().then(resolve, reject);
+              if (viewModel.enableNewWorkflowsPage) {
+                var loadPromises = [appService.getAppConfig()];
+                if (requestService.isWebsiteMode()) {
+                  loadPromises.push(appService.getPipelineConfig());
+                }
+
+                $q.all(loadPromises).then(resolve, reject);
+
                 break;
               }
-
+            case "env-vars":
+            case "triggers":
               var loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(Stack.getAll());
@@ -627,6 +664,14 @@ import WindowUtils from "@/core/utils/WindowUtils";
         return true;
       };
 
+      viewModel.isDiscardEnabled = function () {
+        return viewModel.isSaveEnabled();
+      }
+
+      viewModel.isDiffEnabled = function () {
+        return viewModel.isSaveEnabled();
+      }
+
       $(document).on("keydown", function (event) {
         if ((event.ctrlKey || event.metaKey) && event.which == 83) {
           event.preventDefault();
@@ -755,6 +800,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
             viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
             viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
             viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
+            viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
 
             switch (requestService.mode) {
               case "website":
@@ -856,11 +902,20 @@ import WindowUtils from "@/core/utils/WindowUtils";
         });
       };
 
-      window.addEventListener('navigation.replace', (e) => {
+      window.parent.addEventListener('navigation.replace', (e) => {
         const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
 
         if (menu) {
           viewModel.menuSelected(menu);
+        }
+      });
+
+      window.parent.addEventListener('hashchange', () => {
+        const oldSearchParams = $location.search();
+        const newSearchParams = getSearchParamsFromLocationHash();
+
+        if (!isEqual(oldSearchParams, newSearchParams)) {
+          $location.search(newSearchParams).replace();
         }
       });
     });

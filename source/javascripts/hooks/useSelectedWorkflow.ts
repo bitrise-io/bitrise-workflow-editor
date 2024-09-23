@@ -1,14 +1,15 @@
 import { useCallback, useEffect, useMemo } from 'react';
-import useSearchParams from '@/hooks/useSearchParams';
+import omit from 'lodash/omit';
 import { Workflow } from '@/core/models/Workflow';
 import { useWorkflows } from '@/hooks/useWorkflows';
+import useSearchParams from './useSearchParams';
 
 function selectValidWorkflowId(workflowIds: string[], requestedId?: string | null): string {
   if (requestedId && workflowIds.includes(requestedId)) {
     return requestedId;
   }
-
-  return workflowIds[0];
+  const runnableWorkflowIds = workflowIds.filter((id) => !id.startsWith('_'));
+  return runnableWorkflowIds.length ? runnableWorkflowIds[0] : workflowIds[0];
 }
 
 type UseSelectedWorkflowResult = [
@@ -17,23 +18,26 @@ type UseSelectedWorkflowResult = [
 ];
 
 const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
-  const [searchParams, setSearchParams] = useSearchParams();
   const workflows = useWorkflows();
   const workflowIds = Object.keys(workflows);
-
+  const [searchParams, setSearchParams] = useSearchParams();
   const selectedWorkflowId = selectValidWorkflowId(workflowIds, searchParams.workflow_id);
-  const selectedWorkflow = useMemo(() => workflows[selectedWorkflowId], [selectedWorkflowId, workflows]);
+
+  const selectedWorkflow = useMemo(() => {
+    return {
+      id: selectedWorkflowId,
+      userValues: workflows[selectedWorkflowId],
+    };
+  }, [selectedWorkflowId, workflows]);
 
   const setSelectedWorkflow = useCallback(
     (workflowId?: string | null) => {
       setSearchParams((oldSearchParams) => {
-        const newSearchParams = { ...oldSearchParams };
-        if (workflowId) {
-          newSearchParams.workflow_id = selectValidWorkflowId(workflowIds, workflowId);
-        } else {
-          delete newSearchParams.workflow_id;
+        if (!workflowId) {
+          return omit(oldSearchParams, 'workflow_id');
         }
-        return newSearchParams;
+
+        return { ...oldSearchParams, workflow_id: selectValidWorkflowId(workflowIds, workflowId) };
       });
     },
     [workflowIds, setSearchParams],
@@ -45,9 +49,7 @@ const useSelectedWorkflow = (): UseSelectedWorkflowResult => {
     }
   }, [searchParams.workflow_id, selectedWorkflowId, setSelectedWorkflow]);
 
-  return useMemo(() => {
-    return [{ id: selectedWorkflowId, userValues: selectedWorkflow }, setSelectedWorkflow];
-  }, [selectedWorkflow, selectedWorkflowId, setSelectedWorkflow]);
+  return useMemo(() => [selectedWorkflow, setSelectedWorkflow], [selectedWorkflow, setSelectedWorkflow]);
 };
 
 export default useSelectedWorkflow;

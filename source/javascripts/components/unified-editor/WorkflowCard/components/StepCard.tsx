@@ -55,9 +55,9 @@ const StepCard = ({
 
   if (isLoading) {
     return (
-      <Card p="8" display="flex" variant="outline" borderRadius="4" alignItems="center">
-        {isSortable && <DragHandle ml="-8" my="-8" alignSelf="stretch" isDisabled />}
-        <Skeleton display="flex" alignItems="center" gap="8" isActive>
+      <Card display="flex" variant="outline" borderRadius="4" alignItems="center">
+        {isSortable && <DragHandle alignSelf="stretch" isDisabled />}
+        <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
           <SkeletonBox height="32" width="32" borderRadius="4" />
           <Box display="flex" flexDir="column" gap="4">
             <SkeletonBox height="14" width="250px" />
@@ -71,7 +71,7 @@ const StepCard = ({
   if (sortable.isDragging) {
     return (
       <Box
-        height={50}
+        height={42}
         display="flex"
         borderRadius="4"
         border="1px dashed"
@@ -108,7 +108,6 @@ const StepCard = ({
     >
       {isSortable && (
         <DragHandle
-          mr="-8"
           withGroupHover
           borderLeftRadius="4"
           ref={sortable.setActivatorNodeRef}
@@ -117,7 +116,16 @@ const StepCard = ({
         />
       )}
 
-      <Box display="flex" p="8" gap="8" minW={0} flex="1" as={isButton ? 'button' : 'div'} onClick={handleClick}>
+      <Box
+        p="4"
+        pl={isSortable ? 0 : 4}
+        gap="8"
+        flex="1"
+        minW={0}
+        display="flex"
+        as={isButton ? 'button' : 'div'}
+        onClick={handleClick}
+      >
         <Avatar
           size="32"
           src={resolvedInfo?.icon || defaultIcon}
@@ -126,6 +134,7 @@ const StepCard = ({
           name={resolvedInfo?.title || cvs || ''}
           outlineColor="border/minimal"
         />
+
         <Box minW={0} textAlign="left" flex="1">
           <Text textStyle="body/sm/regular" hasEllipsis>
             {resolvedInfo?.title || cvs}
@@ -136,52 +145,55 @@ const StepCard = ({
             </Text>
           )}
         </Box>
-        <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
-          {isUpgradable && (
-            <ControlButton
-              size="xs"
-              display="none"
-              iconName="ArrowUp"
-              colorScheme="orange"
-              aria-label="Update to latest step version"
-              tooltipProps={{ 'aria-label': 'Update to latest step version' }}
-              _groupHover={{ display: 'block' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onUpgradeStep?.(workflowId, stepIndex, latestMajor ?? '');
-              }}
-            />
-          )}
-          {onCloneStep && (
-            <ControlButton
-              size="xs"
-              display="none"
-              iconName="Duplicate"
-              aria-label="Clone this step"
-              tooltipProps={{ 'aria-label': 'Clone this step' }}
-              _groupHover={{ display: 'block' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onCloneStep(workflowId, stepIndex);
-              }}
-            />
-          )}
-          {onDeleteStep && (
-            <ControlButton
-              isDanger
-              size="xs"
-              display="none"
-              iconName="MinusRemove"
-              aria-label="Remove this step"
-              tooltipProps={{ 'aria-label': 'Remove this step' }}
-              _groupHover={{ display: 'block' }}
-              onClick={(e) => {
-                e.stopPropagation();
-                onDeleteStep(workflowId, stepIndex);
-              }}
-            />
-          )}
-        </ButtonGroup>
+
+        {Boolean(isUpgradable || onCloneStep || onDeleteStep) && (
+          <ButtonGroup spacing="0" display="none" _groupHover={{ display: 'flex' }}>
+            {isUpgradable && (
+              <ControlButton
+                size="xs"
+                display="none"
+                iconName="ArrowUp"
+                colorScheme="orange"
+                aria-label="Update to latest step version"
+                tooltipProps={{ 'aria-label': 'Update to latest step version' }}
+                _groupHover={{ display: 'block' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onUpgradeStep?.(workflowId, stepIndex, latestMajor ?? '');
+                }}
+              />
+            )}
+            {onCloneStep && (
+              <ControlButton
+                size="xs"
+                display="none"
+                iconName="Duplicate"
+                aria-label="Clone this step"
+                tooltipProps={{ 'aria-label': 'Clone this step' }}
+                _groupHover={{ display: 'block' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onCloneStep(workflowId, stepIndex);
+                }}
+              />
+            )}
+            {onDeleteStep && (
+              <ControlButton
+                isDanger
+                size="xs"
+                display="none"
+                iconName="MinusRemove"
+                aria-label="Remove this step"
+                tooltipProps={{ 'aria-label': 'Remove this step' }}
+                _groupHover={{ display: 'block' }}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  onDeleteStep(workflowId, stepIndex);
+                }}
+              />
+            )}
+          </ButtonGroup>
+        )}
       </Box>
     </Card>
   );

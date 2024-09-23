@@ -4,6 +4,9 @@ type Props = {
   appName: string;
   appPath: string;
   workspacePath: string;
+  isDiffEditorEnabled: boolean;
+  onDiffClick: () => void;
+  isDiffDisabled: boolean;
   onSaveClick: () => void;
   isSaveDisabled: boolean;
   isSaveInProgress: boolean;
@@ -16,6 +19,9 @@ const Header = ({
   appName = '',
   appPath = '/app',
   workspacePath = '/workspace',
+  isDiffEditorEnabled,
+  onDiffClick,
+  isDiffDisabled,
   onSaveClick,
   isSaveDisabled,
   isSaveInProgress,
@@ -59,6 +65,11 @@ const Header = ({
         alignSelf={['stretch', 'flex-end']}
         justifyContent="stretch"
       >
+        {isDiffEditorEnabled && (
+          <Button size="sm" className="diff" variant="secondary" onClick={onDiffClick} isDisabled={isDiffDisabled}>
+            Show diff
+          </Button>
+        )}
         <Button
           isDanger
           size="sm"

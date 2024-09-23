@@ -12,6 +12,7 @@ import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/Up
 import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
 import YmlEditor from "./components/YmlEditor/YmlEditor";
 import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
+import DiffEditorDialog from "@/components/DiffEditor/DiffEditorDialog";
 import { RootComponent, withRootProvider } from "./utils/withRootProvider";
 
 import {
@@ -173,12 +174,25 @@ angular
       "appPath",
       "workspacePath",
       "workflowsAndPipelinesPath",
+      "isDiffEditorEnabled",
+      "onDiffClick",
+      "isDiffDisabled",
       "onSaveClick",
       "isSaveDisabled",
       "isSaveInProgress",
       "onDiscardClick",
       "isDiscardDisabled",
       "isWebsiteMode",
+    ]),
+  )
+  .component(
+    "rDiffDialog",
+    register(DiffEditorDialog, [
+      "isOpen",
+      "onClose",
+      "originalText",
+      "modifiedText",
+      "onChange",
     ]),
   )
   .component(
