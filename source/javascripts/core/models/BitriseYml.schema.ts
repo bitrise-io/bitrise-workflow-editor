@@ -559,6 +559,17 @@ const BitriseYmlSchema = {
           type: 'object',
         },
         triggers: {
+          properties: {
+            pull_request: {
+              type: 'array',
+            },
+            push: {
+              type: 'array',
+            },
+            tag: {
+              type: 'array',
+            },
+          },
           type: 'object',
         },
       },

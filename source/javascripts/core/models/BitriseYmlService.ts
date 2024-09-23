@@ -477,6 +477,23 @@ function getUniqueStepIds(yml: BitriseYml) {
   return Array.from(ids);
 }
 
+function updateWorkflowTriggers(
+  workflowId: string,
+  triggers: WorkflowYmlObject['triggers'],
+  yml: BitriseYml,
+): BitriseYml {
+  const copy = deepCloneSimpleObject(yml);
+
+  // If the workflow is missing in the YML just return the YML
+  if (!copy.workflows?.[workflowId]) {
+    return copy;
+  }
+
+  copy.workflows[workflowId].triggers = triggers;
+
+  return copy;
+}
+
 // UTILITY FUNCTIONS
 
 function isNotEmpty<T>(v: T) {
@@ -627,4 +644,5 @@ export default {
   updateTriggerMap,
   appendWorkflowEnvVar,
   updateWorkflowEnvVars,
+  updateWorkflowTriggers,
 };

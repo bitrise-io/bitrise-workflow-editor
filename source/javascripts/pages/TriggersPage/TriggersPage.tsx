@@ -21,8 +21,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
   const appSlug = WindowUtils.appSlug() ?? '';
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
-  const pipelineableTriggers = getPipelineableTriggers(yml);
-  console.log('pipelineableTriggers', pipelineableTriggers);
+  const pipelineableTriggers = getPipelineableTriggers(yml).allTriggers;
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 

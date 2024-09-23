@@ -99,10 +99,10 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
               </Thead>
               <Tbody>
                 {filteredItems.map((trigger) => {
+                  // TODO kozos utilba
                   const conditions: Condition[] = [];
                   const triggerKeys = Object.keys(trigger) as (keyof PipelineableTriggerItem)[];
                   triggerKeys.forEach((key) => {
-                    console.log(key);
                     if (!['enabled', 'id', 'pipelineableType', 'type', 'draft_enabled'].includes(key)) {
                       const isRegex = isObject(trigger[key]);
                       conditions.push({

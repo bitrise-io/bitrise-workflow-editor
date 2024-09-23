@@ -15,22 +15,22 @@ app:
       is_expand: false
   - SLACK_WEBHOOK: https://tempuri.org
 trigger_map:
-- type: pull_request
-  workflow: wf3
-  pull_request_target_branch: '*'
 - type: push
   workflow: wf1
   push_branch: master
 - type: push
   workflow: wf2
   push_branch: release
+- type: pull_request
+  workflow: wf3
+  pull_request_target_branch: '*'
 pipelines:
   pl1:
-    stages:
-    - st1: {}
     triggers:
       push:
       - branch: main
+    stages:
+    - st1: {}
   pl2:
     stages:
     - st1: {}
@@ -264,6 +264,10 @@ workflows:
   wf6:
     summary: this is a short summary
     description: I don't know what to write here
+    triggers:
+      push:
+      - enabled: false
+        branch: main
     envs:
     - WF_NAME: wf6
       opts:
@@ -271,13 +275,21 @@ workflows:
     - TEST: 123
       opts:
         is_expand: false
-    triggers:
-      push:
-      - branch: main
-        enabled: false
   wf7:
     summary: Seventh workflow
     description: Last, but not least important workflow
+    triggers:
+      push:
+      - enabled: false
+        branch: main
+      pull_request:
+      - target_branch: main
+        comment: '[workflow: deploy]'
+      - commit_message:
+          regex: '.*\[workflow: deploy\].*'
+      tag:
+      - name:
+          regex: ^\d\.\d\.\d$
     steps:
     - script@1:
         inputs:
@@ -288,19 +300,6 @@ workflows:
         container: ruby
         services:
         - postgres
-    triggers:
-      push:
-      - branch: main
-        enabled: false
-      tag:
-      - name:
-          regex: '^\d\.\d\.\d$'
-      pull_request:
-      - target_branch: 'main'
-        comment: "[workflow: deploy]"
-      - comment: "[workflow: deploy]"
-      - commit_message:
-          regex: '.*\[workflow: deploy\].*'
 step_bundles:
   install_deps:
     envs:
