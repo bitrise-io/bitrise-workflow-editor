@@ -16,7 +16,7 @@ function toYml(model?: unknown): string {
     return model;
   }
 
-  return `---\n${stringify(model, { version: '1.1' })}`;
+  return `---\n${stringify(model, { version: '1.1', aliasDuplicateObjects: false })}`;
 }
 
 function toJSON(model?: unknown): string {
