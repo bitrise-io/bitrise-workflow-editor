@@ -42,7 +42,7 @@ const Header = ({
       borderBottom="1px solid"
       borderColor="separator.primary"
       paddingInline={32}
-      paddingBlock={24}
+      paddingBlock={16}
     >
       <Breadcrumb hasSeparatorBeforeFirst={isMobile}>
         {isWebsiteMode && workspacePath && !isMobile && (
@@ -60,10 +60,10 @@ const Header = ({
 
       <Box
         display="flex"
-        flexDir={['column', 'row']}
-        gap={[8, 16]}
-        alignSelf={['stretch', 'flex-end']}
+        gap="8"
         justifyContent="stretch"
+        flexDir={['column', 'row']}
+        alignSelf={['stretch', 'flex-end']}
       >
         {isDiffEditorEnabled && (
           <Button size="sm" className="diff" variant="secondary" onClick={onDiffClick} isDisabled={isDiffDisabled}>
