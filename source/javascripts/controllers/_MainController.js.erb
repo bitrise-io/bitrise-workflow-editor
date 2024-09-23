@@ -13,931 +13,937 @@ import {segmentTrack} from "@/utils/segmentTracking";
   angular
     .module("BitriseWorkflowEditor")
     .controller("MainController", function (
-      $scope,
-      $rootScope,
-      $q,
-      $location,
-      $timeout,
-      $cookies,
-      requestService,
-      appService,
-      stringService,
-      dateService,
-      osService,
-      Progress,
-      Popup,
-      Stack,
-      appServiceUtil,
-      logger,
-      MachineType,
-      launchDarklyService
-    ) {
-      var viewModel = this;
+        $scope,
+        $rootScope,
+        $q,
+        $location,
+        $timeout,
+        $cookies,
+        requestService,
+        appService,
+        stringService,
+        dateService,
+        osService,
+        Progress,
+        Popup,
+        Stack,
+        appServiceUtil,
+        logger,
+        MachineType,
+        launchDarklyService
+      ) {
+        var viewModel = this;
 
-      var originalOnbeforeunloadHandler = window.onbeforeunload;
+        var originalOnbeforeunloadHandler = window.onbeforeunload;
 
-      $scope.appService = appService;
-      $scope.requestService = requestService;
-      $scope.osService = osService;
+        $scope.appService = appService;
+        $scope.requestService = requestService;
+        $scope.osService = osService;
 
-      viewModel.isUpdateConfigurationDialogOpen = false;
-      viewModel.appConfigYML = undefined;
-      viewModel.defaultBranch = "";
-      viewModel.gitRepoSlug = "";
-      viewModel.appDetails;
-      viewModel.showSharedSecrets = false;
-      viewModel.menus = _.compact([
-        {
-          id: "workflows",
-          title: "<%= data[:strings][:main][:menus][:workflows] %>",
-          path: "<%= data[:routes][:endpoints][:workflows] %>",
-          possibleURLParameterKeys: ["workflow_id"],
-          cssClass: "workflows"
-        },
-        {
-          id: "pipelines",
-          title: "Pipelines",
-          path: "pipelines",
-          possibleURLParameterKeys: ["pipeline", "workflow_id"],
-          cssClass: "pipelines"
-        },
-        {
-          id: "secrets",
-          title: "<%= data[:strings][:main][:menus][:secrets] %>",
-          path: "<%= data[:routes][:endpoints][:secrets] %>",
-          possibleURLParameterKeys: ["workflow_id"],
-          cssClass: "secrets"
-        },
-        {
-          id: "env-vars",
-          title: "<%= data[:strings][:main][:menus][:env_vars] %>",
-          path: "<%= data[:routes][:endpoints][:env_vars] %>",
-          possibleURLParameterKeys: ["workflow_id"],
-          cssClass: "env-vars"
-        },
-        {
-          id: "triggers",
-          title: "<%= data[:strings][:main][:menus][:triggers] %>",
-          path: "<%= data[:routes][:endpoints][:triggers] %>",
-          possibleURLParameterKeys: ["trigger_type", "workflow_id"],
-          cssClass: "triggers"
-        },
-        requestService.mode == "website"
-          ? {
-            id: "stack",
-            title: "<%= data[:strings][:main][:menus][:stack] %>",
-            path: "<%= data[:routes][:endpoints][:stack] %>",
+        viewModel.isUpdateConfigurationDialogOpen = false;
+        viewModel.appConfigYML = undefined;
+        viewModel.defaultBranch = "";
+        viewModel.gitRepoSlug = "";
+        viewModel.appDetails;
+        viewModel.showSharedSecrets = false;
+        viewModel.menus = _.compact([
+          {
+            id: "workflows",
+            title: "<%= data[:strings][:main][:menus][:workflows] %>",
+            path: "<%= data[:routes][:endpoints][:workflows] %>",
             possibleURLParameterKeys: ["workflow_id"],
-            cssClass: "stack"
-          }
-          : null,
-        requestService.mode == "website"
-          ? {
-            id: "licenses",
-            title: "<%= data[:strings][:main][:menus][:licenses] %>",
-            path: "<%= data[:routes][:endpoints][:licenses] %>",
+            cssClass: "workflows"
+          },
+          {
+            id: "pipelines",
+            title: "Pipelines",
+            path: "pipelines",
+            possibleURLParameterKeys: ["pipeline", "workflow_id"],
+            cssClass: "pipelines"
+          },
+          {
+            id: "secrets",
+            title: "<%= data[:strings][:main][:menus][:secrets] %>",
+            path: "<%= data[:routes][:endpoints][:secrets] %>",
             possibleURLParameterKeys: ["workflow_id"],
-            cssClass: "hidden"
+            cssClass: "secrets"
+          },
+          {
+            id: "env-vars",
+            title: "<%= data[:strings][:main][:menus][:env_vars] %>",
+            path: "<%= data[:routes][:endpoints][:env_vars] %>",
+            possibleURLParameterKeys: ["workflow_id"],
+            cssClass: "env-vars"
+          },
+          {
+            id: "triggers",
+            title: "<%= data[:strings][:main][:menus][:triggers] %>",
+            path: "<%= data[:routes][:endpoints][:triggers] %>",
+            possibleURLParameterKeys: ["trigger_type", "workflow_id"],
+            cssClass: "triggers"
+          },
+          requestService.mode == "website"
+            ? {
+              id: "stack",
+              title: "<%= data[:strings][:main][:menus][:stack] %>",
+              path: "<%= data[:routes][:endpoints][:stack] %>",
+              possibleURLParameterKeys: ["workflow_id"],
+              cssClass: "stack"
+            }
+            : null,
+          requestService.mode == "website"
+            ? {
+              id: "licenses",
+              title: "<%= data[:strings][:main][:menus][:licenses] %>",
+              path: "<%= data[:routes][:endpoints][:licenses] %>",
+              possibleURLParameterKeys: ["workflow_id"],
+              cssClass: "hidden"
+            }
+            : null,
+          {
+            id: "yml",
+            title: "<%= data[:strings][:main][:menus][:yml] %>",
+            path: "<%= data[:routes][:endpoints][:yml] %>",
+            possibleURLParameterKeys: ["workflow_id"],
+            cssClass: "yml",
+            divided: true
           }
-          : null,
-        {
-          id: "yml",
-          title: "<%= data[:strings][:main][:menus][:yml] %>",
-          path: "<%= data[:routes][:endpoints][:yml] %>",
-          possibleURLParameterKeys: ["workflow_id"],
-          cssClass: "yml",
-          divided: true
-        }
-      ]);
-      viewModel.menuProgress = new Progress();
-      viewModel.currentMenu;
-      viewModel.tourIds = ["menu-nav", "workflow-main-toolbar", "steps-container"];
+        ]);
+        viewModel.menuProgress = new Progress();
+        viewModel.currentMenu;
+        viewModel.tourIds = ["menu-nav", "workflow-main-toolbar", "steps-container"];
 
 
-      viewModel.loadDataProgress = new Progress();
-      viewModel.saveProgress = new Progress();
-      viewModel.changeMenuProgress = new Progress();
-      viewModel.initAppProgress = new Progress();
+        viewModel.loadDataProgress = new Progress();
+        viewModel.saveProgress = new Progress();
+        viewModel.changeMenuProgress = new Progress();
+        viewModel.initAppProgress = new Progress();
 
-      viewModel.shouldAllowYMLMenuWithoutDiscard = false;
-      viewModel.lastWorkflowEditedDate;
+        viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+        viewModel.lastWorkflowEditedDate;
 
-      viewModel.isFirstBuildExperienceEnabled = false;
+        viewModel.isFirstBuildExperienceEnabled = false;
 
-      viewModel.isDiffEditorEnabled = false;
-      viewModel.isDiffDialogOpen = false;
-      viewModel.originalYaml = "";
-      viewModel.modifiedYaml = "";
-
-      viewModel.openDiffDialog = function () {
-        viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
-        viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
-        viewModel.isDiffDialogOpen = true;
-        segmentTrack("Workflow Editor Diff Button Clicked", {
-          tab_name: viewModel.currentMenu.id
-        });
-        safeDigest($rootScope);
-      }
-
-      viewModel.closeDiffDialog = function () {
+        viewModel.isDiffEditorEnabled = false;
         viewModel.isDiffDialogOpen = false;
         viewModel.originalYaml = "";
         viewModel.modifiedYaml = "";
-        safeDigest($rootScope);
-      }
 
-      viewModel.saveDiffChanges = function (changedYaml) {
-        try {
-          const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
-          appService.appConfig = changedAppConfig;
+        viewModel.openDiffDialog = function () {
+          viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
+          viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
+          viewModel.isDiffDialogOpen = true;
+          segmentTrack("Workflow Editor Diff Button Clicked", {
+            tab_name: viewModel.currentMenu.id
+          });
           safeDigest($rootScope);
-        } catch (e) {
-          Popup.showErrorPopup("Invalid YAML change", e.message);
         }
-      }
 
-      $scope.$on("$locationChangeSuccess", function (event, next, current) {
-        $timeout(function () {
-          viewModel.changeMenuProgress.success();
-          if (window !== window.parent && window.parent && next !== current) {
-            window.parent.location.hash = new URL(next).hash;
+        viewModel.closeDiffDialog = function () {
+          viewModel.isDiffDialogOpen = false;
+          viewModel.originalYaml = "";
+          viewModel.modifiedYaml = "";
+          safeDigest($rootScope);
+        }
+
+        viewModel.saveDiffChanges = function (changedYaml) {
+          try {
+            const changedAppConfig = BitriseYmlApi.fromYml(changedYaml);
+            appService.appConfig = changedAppConfig;
+            safeDigest($rootScope);
+          } catch (e) {
+            Popup.showErrorPopup("Invalid YAML change", e.message);
           }
-        }, 0);
-      });
+        }
 
-      function selectInitialMenu() {
-        var initialMenu = _.find(viewModel.menus, function (aMenu) {
-          return "/" + aMenu.path == $location.path();
+        $scope.$on("$locationChangeSuccess", function (event, next, current) {
+          $timeout(function () {
+            viewModel.changeMenuProgress.success();
+            if (window !== window.parent && window.parent && next !== current) {
+              window.parent.location.hash = new URL(next).hash;
+            }
+          }, 0);
         });
-        if (!initialMenu || !viewModel.isMenuEnabled(initialMenu)) {
-          initialMenu = _.find(viewModel.menus, function (menu) {
-            return viewModel.isMenuEnabled(menu);
+
+        function selectInitialMenu() {
+          var initialMenu = _.find(viewModel.menus, function (aMenu) {
+            return "/" + aMenu.path == $location.path();
+          });
+          if (!initialMenu || !viewModel.isMenuEnabled(initialMenu)) {
+            initialMenu = _.find(viewModel.menus, function (menu) {
+              return viewModel.isMenuEnabled(menu);
+            });
+          }
+
+          viewModel.menuSelected(initialMenu);
+        }
+
+        function load() {
+          viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+
+          $q(function (resolve, reject) {
+            switch (viewModel.currentMenu.id) {
+              case "pipelines":
+                appService.getAppConfig().then(() => {
+                  if (requestService.isWebsiteMode()) {
+                    return Stack.getAll().then(appService.getStackAndDockerImage);
+                  }
+                }).then(resolve, reject);
+
+                break;
+              case "workflows":
+                if (viewModel.enableNewWorkflowsPage) {
+                  var loadPromises = [appService.getAppConfig()];
+                  if (requestService.isWebsiteMode()) {
+                    loadPromises.push(appService.getPipelineConfig());
+                  }
+
+                  $q.all(loadPromises).then(resolve, reject);
+
+                  break;
+                }
+              case "env-vars":
+              case "triggers":
+                var loadPromises = [appService.getAppConfig()];
+                if (requestService.isWebsiteMode()) {
+                  loadPromises.push(Stack.getAll());
+                  loadPromises.push(appService.getPipelineConfig());
+                  loadPromises.push(launchDarklyService.initialize());
+                }
+                var loadPromise = $q.all(loadPromises);
+                if (requestService.isWebsiteMode()) {
+                  loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
+                    if (appService.appDetails.isMachineTypeSelectorAvailable) {
+                      return MachineType.getAll().then(appService.getDefaultMachineType);
+                    }
+                  });
+                }
+
+                loadPromise.then(
+                  function () {
+                    $q(function (deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
+                      if (appService.appConfigHasDeprecatedTriggerMap()) {
+                        appService.updateDeprecatedTriggerMap();
+
+                        Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", [
+                          "<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>",
+                          "<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
+                        ])
+                          .then(function () {
+                            return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                              ? $q.when()
+                              : viewModel.save({source: "deprecated_trigger_map_update"});
+                          })
+                          .then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
+                      } else {
+                        deprecatedTriggerCheckResolve();
+                      }
+                    }).then(
+                      function () {
+                        resolve();
+                      },
+                      function (error) {
+                        reject(error);
+                      }
+                    );
+                  },
+                  function (error) {
+                    reject(error);
+                  }
+                );
+
+                break;
+              case "licenses":
+                var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
+
+                var loadPromise = $q.all(loadPromises);
+
+                loadPromise.then(
+                  function () {
+                    resolve();
+                  },
+                  function (error) {
+                    reject(error);
+                  }
+                );
+
+                break;
+              case "code-signing":
+                resolve();
+              case "secrets":
+                appService.getSecrets().then(resolve, reject);
+
+                break;
+              case "stack":
+                appService.getAppConfigYML();
+                $q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll()])
+                  .then(appService.getStackAndDockerImage)
+                  .then(function () {
+                    if (appService.appDetails.isMachineTypeSelectorAvailable) {
+                      return MachineType.getAll().then(appService.getDefaultMachineType);
+                    }
+                  })
+                  .then(resolve, reject);
+
+                break;
+              case "yml":
+                appService.getAppConfigYML().then(
+                  function () {
+                    resolve();
+                  },
+                  function (response) {
+                    if (response.bitriseYml) {
+                      reject(response.error);
+                    } else {
+                      reject(response);
+                    }
+                  }
+                );
+
+                break;
+            }
+          }).then(
+            function () {
+              viewModel.loadDataProgress.success();
+            },
+            function (error) {
+              viewModel.loadDataProgress.error(error);
+
+              viewModel.shouldAllowYMLMenuWithoutDiscard = true;
+            }
+          );
+        }
+
+        viewModel.menuSelected = function (menu) {
+          if (menu === viewModel.currentMenu) {
+            return;
+          }
+
+          viewModel.menuProgress.start("Loading, wait a sec...");
+
+          var shouldCallLoadAfterMenuChange = true;
+
+          $q(function (resolve, reject) {
+            if (!viewModel.currentMenu) {
+              resolve();
+
+              return;
+            }
+
+            var menuIDsByHandledSource = [["workflows", "pipelines", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
+
+            if (
+              _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
+                return _.contains(menuIDsOfSource, viewModel.currentMenu.id);
+              }) ==
+              _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
+                return _.contains(menuIDsOfSource, menu.id);
+              })
+            ) {
+              shouldCallLoadAfterMenuChange = false;
+
+              resolve();
+
+              return;
+            }
+
+            cleanupMenu();
+
+            if (!viewModel.hasUnsavedChanges()) {
+              resolve();
+
+              return;
+            }
+
+            if (viewModel.shouldAllowYMLMenuWithoutDiscard) {
+              viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+
+              resolve();
+
+              return;
+            }
+
+            segmentTrack("Workflow Editor Unsaved Changes Popup Shown", {
+              tab_name: viewModel.currentMenu.id
+            });
+
+            Popup.showConfirmPopup(
+              "<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>",
+              "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>",
+              "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
+              "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
+              function () {
+                viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
+                  function () {
+                    resolve();
+                  },
+                  function (error) {
+                    reject();
+                  }
+                );
+              },
+              function () {
+                reject();
+              }
+            );
+          }).then(
+            function () {
+              logger.setTags({menuID: menu.id});
+
+              _.each(_.without(viewModel.menus, menu), function (aMenu) {
+                _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
+                  if (!_.contains(menu.possibleURLParameterKeys, aMenuURLParameterKey)) {
+                    $location.search(aMenuURLParameterKey, null).replace();
+                  }
+                });
+              });
+
+              var isInitialSelection = !viewModel.currentMenu;
+              if (isInitialSelection && requestService.mode == "website") {
+                history.pushState(
+                  {
+                    eventID: "backButtonPressedOnInitialWorkflowEditorPage"
+                  },
+                  ""
+                );
+              }
+
+              viewModel.currentMenu = menu;
+              if ($location.path() != "/" + menu.path) {
+                $location.path("/" + menu.path).replace();
+              }
+
+              if (!isInitialSelection) {
+                viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
+              }
+
+              if (shouldCallLoadAfterMenuChange) {
+                load();
+              }
+
+              viewModel.menuProgress.success();
+              segmentTrack("Workflow Editor Tab Displayed", {
+                tab_name: menu.id,
+                is_default_tab: isInitialSelection,
+                yml_source: appService?.pipelineConfig?.usesRepositoryYml ? "git" : "bitrise"
+              });
+              datadogRumCustomTiming("wfe", "topNavigation");
+            },
+            function () {
+              viewModel.menuProgress.reset();
+            }
+          );
+        };
+
+        $scope.$on("$routeChangeError", function (event, current, previous, rejection) {
+          viewModel.menuProgress.error(new Error("<%= data[:strings][:main][:load_menu_progress][:load_error] %>"));
+          logger.error(rejection);
+        });
+
+        viewModel.isDiscardSaveAvailable = function () {
+          if (!viewModel.currentMenu) {
+            return undefined;
+          }
+
+          switch (viewModel.currentMenu.id) {
+            case "secrets":
+            case "code-signing":
+              return false;
+            default:
+              return true;
+          }
+        };
+
+        function cleanupMenu() {
+          if (viewModel.currentMenu?.id == "secrets") {
+            $rootScope.$emit("MainController::cleanupMenu");
+          }
+        }
+
+        viewModel.hasUnsavedChanges = function () {
+          if (!viewModel.currentMenu) {
+            return undefined;
+          }
+
+          switch (viewModel.currentMenu.id) {
+            case "workflows":
+            case "env-vars":
+            case "triggers":
+              return appService.appConfigHasUnsavedChanges();
+            case "secrets":
+              return appService.secretsHaveUnsavedChanges();
+            case "stack":
+              return (
+                appService.appConfigHasUnsavedChanges() ||
+                appService.stackHasUnsavedChanges() ||
+                appService.defaultMachineTypeHasUnsavedChanges() ||
+                appService.rollbackVersionHasUnsavedChanges()
+              );
+            case "licenses":
+              return appService.appConfigHasUnsavedChanges();
+            case "yml":
+              return appService.appConfigYMLHasUnsavedChanges();
+          }
+        };
+
+        window.onload = function () {
+          if (requestService.mode == "cli") {
+            requestService.cancelAPIConnectionClose();
+          }
+        };
+
+        window.onbeforeunload = function (event) {
+          cleanupMenu();
+
+          if (viewModel.hasUnsavedChanges()) {
+            return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
+          }
+
+          if (originalOnbeforeunloadHandler) {
+            originalOnbeforeunloadHandler(event);
+          }
+        };
+
+        window.onpopstate = function (event) {
+          if (event.state && event.state.eventID == "backButtonPressedOnInitialWorkflowEditorPage") {
+            window.location.replace();
+
+            return;
+          }
+        };
+
+        viewModel.closeUpdateConfigurationDialog = function () {
+          $timeout(function () {
+            viewModel.isUpdateConfigurationDialogOpen = false;
+          }, 0);
+
+          viewModel.deferredUserSavedYmlToRepository.reject();
+        };
+
+        viewModel.onSaveToRepoComplete = function () {
+          $timeout(function () {
+            viewModel.closeUpdateConfigurationDialog();
+          }, 1500);
+
+          viewModel.deferredUserSavedYmlToRepository.resolve();
+        };
+
+        function reloadAppConfig() {
+          viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+          return appService.getAppConfig(true).then(function () {
+            viewModel.loadDataProgress.reset();
           });
         }
 
-        viewModel.menuSelected(initialMenu);
-      }
-
-      function load() {
-        viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-
-        $q(function (resolve, reject) {
-          switch (viewModel.currentMenu.id) {
-            case "pipelines":
-              appService.getAppConfig().then(() => {
-                if (requestService.isWebsiteMode()) {
-                  return Stack.getAll().then(appService.getStackAndDockerImage);
-                }
-              }).then(resolve, reject);
-
-              break;
-            case "workflows":
-              if (viewModel.enableNewWorkflowsPage) {
-                var loadPromises = [appService.getAppConfig()];
-                if (requestService.isWebsiteMode()) {
-                  loadPromises.push(appService.getPipelineConfig());
-                }
-
-                $q.all(loadPromises).then(resolve, reject);
-
-                break;
-              }
-            case "env-vars":
-            case "triggers":
-              var loadPromises = [appService.getAppConfig()];
-              if (requestService.isWebsiteMode()) {
-                loadPromises.push(Stack.getAll());
-                loadPromises.push(appService.getPipelineConfig());
-                loadPromises.push(launchDarklyService.initialize());
-              }
-              var loadPromise = $q.all(loadPromises);
-              if (requestService.isWebsiteMode()) {
-                loadPromise = loadPromise.then(appService.getStackAndDockerImage).then(() => {
-                  if (appService.appDetails.isMachineTypeSelectorAvailable) {
-                    return MachineType.getAll().then(appService.getDefaultMachineType);
-                  }
-                });
-              }
-
-              loadPromise.then(
-                function () {
-                  $q(function (deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
-                    if (appService.appConfigHasDeprecatedTriggerMap()) {
-                      appService.updateDeprecatedTriggerMap();
-
-                      Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", [
-                        "<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>",
-                        "<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
-                      ])
-                        .then(function () {
-                          return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                            ? $q.when()
-                            : viewModel.save({source: "deprecated_trigger_map_update"});
-                        })
-                        .then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
-                    } else {
-                      deprecatedTriggerCheckResolve();
-                    }
-                  }).then(
-                    function () {
-                      resolve();
-                    },
-                    function (error) {
-                      reject(error);
-                    }
-                  );
-                },
-                function (error) {
-                  reject(error);
-                }
-              );
-
-              break;
-            case "licenses":
-              var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
-
-              var loadPromise = $q.all(loadPromises);
-
-              loadPromise.then(
-                function () {
-                  resolve();
-                },
-                function (error) {
-                  reject(error);
-                }
-              );
-
-              break;
-            case "code-signing":
-              resolve();
-            case "secrets":
-              appService.getSecrets().then(resolve, reject);
-
-              break;
-            case "stack":
-              appService.getAppConfigYML();
-              $q.all([appService.getAppConfig(), appService.getPipelineConfig(), Stack.getAll()])
-                .then(appService.getStackAndDockerImage)
-                .then(function () {
-                  if (appService.appDetails.isMachineTypeSelectorAvailable) {
-                    return MachineType.getAll().then(appService.getDefaultMachineType);
-                  }
-                })
-                .then(resolve, reject);
-
-              break;
-            case "yml":
-              appService.getAppConfigYML().then(
-                function () {
-                  resolve();
-                },
-                function (response) {
-                  if (response.bitriseYml) {
-                    reject(response.error);
-                  } else {
-                    reject(response);
-                  }
-                }
-              );
-
-              break;
-          }
-        }).then(
-          function () {
-            viewModel.loadDataProgress.success();
-          },
-          function (error) {
-            viewModel.loadDataProgress.error(error);
-
-            viewModel.shouldAllowYMLMenuWithoutDiscard = true;
-          }
-        );
-      }
-
-      viewModel.menuSelected = function (menu) {
-        if (menu === viewModel.currentMenu) {
-          return;
+        function reloadStack() {
+          viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+          return appService
+            .getAppConfig(true)
+            .then(function () {
+              appService.getStackAndDockerImage(true);
+            })
+            .then(function () {
+              viewModel.loadDataProgress.reset();
+            });
         }
 
-        viewModel.menuProgress.start("Loading, wait a sec...");
+        function reloadAppConfigYML() {
+          viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+          return appService.getAppConfigYML(true).then(function () {
+            viewModel.loadDataProgress.reset();
+          });
+        }
 
-        var shouldCallLoadAfterMenuChange = true;
+        function updateLastWorkflowMetadata() {
+          const appSlug = appService.appDetails.slug;
+          const dateToday = new Date().toString();
 
-        $q(function (resolve, reject) {
-          if (!viewModel.currentMenu) {
-            resolve();
+          requestService.updateCurrentUserMetadata({
+            "last_workflow_edited_date": dateToday,
+            "last_workflow_edited_app": appSlug
+          })
+            .then(function () {
+              viewModel.lastWorkflowEditedDate = dateToday;
+            });
+        }
 
-            return;
+        viewModel.getDataToSave = function () {
+          return viewModel.dataToSave;
+        };
+
+        viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
+          if (shouldReturnPromise === undefined) {
+            shouldReturnPromise = false;
           }
 
-          var menuIDsByHandledSource = [["workflows", "pipelines", "env-vars", "triggers"], ["secrets"], ["stack"], ["licenses"], ["yml"]];
+          viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
 
-          if (
-            _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
-              return _.contains(menuIDsOfSource, viewModel.currentMenu.id);
-            }) ==
-            _.find(menuIDsByHandledSource, function (menuIDsOfSource) {
-              return _.contains(menuIDsOfSource, menu.id);
-            })
-          ) {
-            shouldCallLoadAfterMenuChange = false;
+          segmentTrack("Workflow Editor Save Button Clicked", {
+            tab_name: viewModel.currentMenu.id,
+            source: source,
+          });
 
-            resolve();
-
-            return;
+          if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
+            viewModel.deferredUserSavedYmlToRepository = $q.defer();
+            viewModel.deferredUserSavedYmlToRepository.promise.finally(undefined, function (signal) {
+              if (signal === 'open-update-configuration-dialog') {
+                viewModel.isUpdateConfigurationDialogOpen = true;
+              }
+            });
           }
 
-          cleanupMenu();
+          var promise = $q
+            .all([
+              $q(function (resolve, reject) {
+                switch (viewModel.currentMenu.id) {
+                  case "workflows":
+                  case "env-vars":
+                  case "triggers":
+                  case "licenses":
+                    viewModel.dataToSave = appService.appConfig;
+                    return appService
+                      .saveAppConfig(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
+                      .then(function () {
+                        return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                          ? reloadAppConfig()
+                          : $q.when();
+                      })
+                      .then(resolve, reject);
+                  case "secrets":
+                    return appService.saveSecrets(viewModel.appSecretsWriteNew).then(resolve, reject);
+                  case "stack":
+                    viewModel.dataToSave = appService.appConfig;
+                    var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
+
+                    return appService
+                      .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
+                      .then(function () {
+
+                        return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                          ? reloadStack()
+                          : $q.when();
+                      })
+                      .then(resolve, reject);
+                  case "yml":
+                    viewModel.appConfigYML = appService.appConfigYML;
+                    return appService
+                      .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
+                      .then(function () {
+                        return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
+                          ? reloadAppConfigYML()
+                          : $q.when();
+                      })
+                      .then(resolve, reject);
+                }
+              }),
+              $timeout(function () {
+              }, dateService.defaultSaveDelayDurationInMilliseconds)
+            ])
+            .then(
+              function () {
+                viewModel.saveProgress.reset();
+                $rootScope.$emit("MainController::savedFinishedWithSuccess");
+                updateLastWorkflowMetadata();
+              },
+              function (error) {
+                viewModel.saveProgress.reset();
+                $rootScope.$emit("MainController::savedFinishedWithError");
+                segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+                  tab_name: viewModel.currentMenu.id
+                });
+                Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
+
+                if (shouldReturnPromise) {
+                  return $q.reject(error);
+                }
+              }
+            )
+          ;
+
+          if (shouldReturnPromise) {
+            return promise;
+          }
+        };
+
+        viewModel.isSaveEnabled = function () {
+          if (!viewModel.menuProgress.isIdle) {
+            return false;
+          }
+
+          if (viewModel.loadDataProgress.isInProgress) {
+            return false;
+          }
+
+          if (viewModel.saveProgress.isInProgress) {
+            return false;
+          }
 
           if (!viewModel.hasUnsavedChanges()) {
-            resolve();
-
-            return;
+            return false;
           }
 
-          if (viewModel.shouldAllowYMLMenuWithoutDiscard) {
-            viewModel.shouldAllowYMLMenuWithoutDiscard = false;
+          return true;
+        };
 
-            resolve();
+        viewModel.isDiscardEnabled = function () {
+          return viewModel.isSaveEnabled();
+        }
 
-            return;
+        viewModel.isDiffEnabled = function () {
+          return viewModel.isSaveEnabled();
+        }
+
+        $(document).on("keydown", function (event) {
+          if ((event.ctrlKey || event.metaKey) && event.which == 83) {
+            event.preventDefault();
+
+            if (viewModel.isSaveEnabled()) {
+              viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
+            }
+
+            return false;
           }
+        });
 
-          segmentTrack("Workflow Editor Unsaved Changes Popup Shown", {
+        viewModel.discardChangesSelected = function () {
+          segmentTrack("Workflow Editor Discard Button Clicked", {
             tab_name: viewModel.currentMenu.id
           });
 
-          Popup.showConfirmPopup(
-            "<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>",
-            "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>",
-            "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
-            "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
-            function () {
-              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
-                function () {
-                  resolve();
-                },
-                function (error) {
-                  reject();
-                }
-              );
-            },
-            function () {
-              reject();
-            }
-          );
-        }).then(
-          function () {
-            logger.setTags({menuID: menu.id});
+          switch (viewModel.currentMenu.id) {
+            case "workflows":
+            case "env-vars":
+            case "triggers":
+              appService.discardAppConfigChanges();
 
-            _.each(_.without(viewModel.menus, menu), function (aMenu) {
-              _.each(aMenu.possibleURLParameterKeys, function (aMenuURLParameterKey) {
-                if (!_.contains(menu.possibleURLParameterKeys, aMenuURLParameterKey)) {
-                  $location.search(aMenuURLParameterKey, null).replace();
-                }
-              });
-            });
+              break;
+            case "secrets":
+              appService.discardSecretsChanges();
 
-            var isInitialSelection = !viewModel.currentMenu;
-            if (isInitialSelection && requestService.mode == "website") {
-              history.pushState(
-                {
-                  eventID: "backButtonPressedOnInitialWorkflowEditorPage"
-                },
-                ""
-              );
-            }
+              break;
+            case "licenses":
+              appService.discardAppConfigChanges();
 
-            viewModel.currentMenu = menu;
-            if ($location.path() != "/" + menu.path) {
-              $location.path("/" + menu.path).replace();
-            }
+              break;
+            case "stack":
+              appService.discardAppConfigChanges();
+              appService.discardStackChanges();
+              appService.discardDefaultMachineTypeChanges();
 
-            if (!isInitialSelection) {
-              viewModel.changeMenuProgress.start("<%= data[:strings][:main][:load_menu_progress][:loading] %>");
-            }
+            case "yml":
+              appService.discardAppConfigYMLChanges();
 
-            if (shouldCallLoadAfterMenuChange) {
-              load();
-            }
-
-            viewModel.menuProgress.success();
-            segmentTrack("Workflow Editor Tab Displayed", {
-              tab_name: menu.id,
-              is_default_tab: isInitialSelection,
-              yml_source: appService?.pipelineConfig?.usesRepositoryYml ? "git" : "bitrise"
-            });
-            datadogRumCustomTiming("wfe", "topNavigation");
-          },
-          function () {
-            viewModel.menuProgress.reset();
-          }
-        );
-      };
-
-      $scope.$on("$routeChangeError", function (event, current, previous, rejection) {
-        viewModel.menuProgress.error(new Error("<%= data[:strings][:main][:load_menu_progress][:load_error] %>"));
-        logger.error(rejection);
-      });
-
-      viewModel.isDiscardSaveAvailable = function () {
-        if (!viewModel.currentMenu) {
-          return undefined;
-        }
-
-        switch (viewModel.currentMenu.id) {
-          case "secrets":
-          case "code-signing":
-            return false;
-          default:
-            return true;
-        }
-      };
-
-      function cleanupMenu() {
-        if (viewModel.currentMenu?.id == "secrets") {
-          $rootScope.$emit("MainController::cleanupMenu");
-        }
-      }
-
-      viewModel.hasUnsavedChanges = function () {
-        if (!viewModel.currentMenu) {
-          return undefined;
-        }
-
-        switch (viewModel.currentMenu.id) {
-          case "workflows":
-          case "env-vars":
-          case "triggers":
-            return appService.appConfigHasUnsavedChanges();
-          case "secrets":
-            return appService.secretsHaveUnsavedChanges();
-          case "stack":
-            return (
-              appService.appConfigHasUnsavedChanges() ||
-              appService.stackHasUnsavedChanges() ||
-              appService.defaultMachineTypeHasUnsavedChanges() ||
-              appService.rollbackVersionHasUnsavedChanges()
-            );
-          case "licenses":
-            return appService.appConfigHasUnsavedChanges();
-          case "yml":
-            return appService.appConfigYMLHasUnsavedChanges();
-        }
-      };
-
-      window.onload = function () {
-        if (requestService.mode == "cli") {
-          requestService.cancelAPIConnectionClose();
-        }
-      };
-
-      window.onbeforeunload = function (event) {
-        cleanupMenu();
-
-        if (viewModel.hasUnsavedChanges()) {
-          return "<%= data[:strings][:main][:tab_close_confirm_message] %>";
-        }
-
-        if (originalOnbeforeunloadHandler) {
-          originalOnbeforeunloadHandler(event);
-        }
-      };
-
-      window.onpopstate = function (event) {
-        if (event.state && event.state.eventID == "backButtonPressedOnInitialWorkflowEditorPage") {
-          window.location.replace();
-
-          return;
-        }
-      };
-
-      viewModel.closeUpdateConfigurationDialog = function () {
-        $timeout(function () {
-          viewModel.isUpdateConfigurationDialogOpen = false;
-        }, 0);
-
-        viewModel.deferredUserSavedYmlToRepository.reject();
-      };
-
-      viewModel.onSaveToRepoComplete = function () {
-        $timeout(function () {
-          viewModel.closeUpdateConfigurationDialog();
-        }, 1500);
-
-        viewModel.deferredUserSavedYmlToRepository.resolve();
-      };
-
-      function reloadAppConfig() {
-        viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-        return appService.getAppConfig(true).then(function () {
-          viewModel.loadDataProgress.reset();
-        });
-      }
-
-      function reloadStack() {
-        viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-        return appService
-          .getAppConfig(true)
-          .then(function () {
-            appService.getStackAndDockerImage(true);
-          })
-          .then(function () {
-            viewModel.loadDataProgress.reset();
-          });
-      }
-
-      function reloadAppConfigYML() {
-        viewModel.loadDataProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-        return appService.getAppConfigYML(true).then(function () {
-          viewModel.loadDataProgress.reset();
-        });
-      }
-
-      function updateLastWorkflowMetadata() {
-        const appSlug = appService.appDetails.slug;
-        const dateToday = new Date().toString();
-
-        requestService.updateCurrentUserMetadata({
-          "last_workflow_edited_date": dateToday,
-          "last_workflow_edited_app": appSlug
-        })
-          .then(function () {
-            viewModel.lastWorkflowEditedDate = dateToday;
-          });
-      }
-
-      viewModel.getDataToSave = function () {
-        return viewModel.dataToSave;
-      };
-
-      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
-        if (shouldReturnPromise === undefined) {
-          shouldReturnPromise = false;
-        }
-
-        viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
-
-        segmentTrack("Workflow Editor Save Button Clicked", {
-          tab_name: viewModel.currentMenu.id,
-          source: source,
-        });
-
-        if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
-          viewModel.deferredUserSavedYmlToRepository = $q.defer();
-          viewModel.deferredUserSavedYmlToRepository.promise.finally(undefined, function (signal) {
-            if (signal === 'open-update-configuration-dialog') {
-              viewModel.isUpdateConfigurationDialogOpen = true;
-            }
-          });
-        }
-
-        var promise = $q
-          .all([
-            $q(function (resolve, reject) {
-              switch (viewModel.currentMenu.id) {
-                case "workflows":
-                case "env-vars":
-                case "triggers":
-                case "licenses":
-                  viewModel.dataToSave = appService.appConfig;
-                  return appService
-                    .saveAppConfig(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
-                    .then(function () {
-                      return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                        ? reloadAppConfig()
-                        : $q.when();
-                    })
-                    .then(resolve, reject);
-                case "secrets":
-                  return appService.saveSecrets(viewModel.appSecretsWriteNew).then(resolve, reject);
-                case "stack":
-                  viewModel.dataToSave = appService.appConfig;
-                  var machineTypeUpdated = appService.defaultMachineTypeHasUnsavedChanges();
-
-                  return appService
-                    .saveStackAndDockerImage(viewModel.deferredUserSavedYmlToRepository, viewModel.currentMenu.id)
-                    .then(function () {
-
-                      return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                        ? reloadStack()
-                        : $q.when();
-                    })
-                    .then(resolve, reject);
-                case "yml":
-                  viewModel.appConfigYML = appService.appConfigYML;
-                  return appService
-                    .saveAppConfigYML(viewModel.deferredUserSavedYmlToRepository)
-                    .then(function () {
-                      return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                        ? reloadAppConfigYML()
-                        : $q.when();
-                    })
-                    .then(resolve, reject);
-              }
-            }),
-            $timeout(function () {
-            }, dateService.defaultSaveDelayDurationInMilliseconds)
-          ])
-          .then(
-            function () {
-              viewModel.saveProgress.reset();
-              $rootScope.$emit("MainController::savedFinishedWithSuccess");
-              updateLastWorkflowMetadata();
-            },
-            function (error) {
-              viewModel.saveProgress.reset();
-              $rootScope.$emit("MainController::savedFinishedWithError");
-              Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
-
-              if (shouldReturnPromise) {
-                return $q.reject(error);
-              }
-            }
-          );
-
-        if (shouldReturnPromise) {
-          return promise;
-        }
-      };
-
-      viewModel.isSaveEnabled = function () {
-        if (!viewModel.menuProgress.isIdle) {
-          return false;
-        }
-
-        if (viewModel.loadDataProgress.isInProgress) {
-          return false;
-        }
-
-        if (viewModel.saveProgress.isInProgress) {
-          return false;
-        }
-
-        if (!viewModel.hasUnsavedChanges()) {
-          return false;
-        }
-
-        return true;
-      };
-
-      viewModel.isDiscardEnabled = function () {
-        return viewModel.isSaveEnabled();
-      }
-
-      viewModel.isDiffEnabled = function () {
-        return viewModel.isSaveEnabled();
-      }
-
-      $(document).on("keydown", function (event) {
-        if ((event.ctrlKey || event.metaKey) && event.which == 83) {
-          event.preventDefault();
-
-          if (viewModel.isSaveEnabled()) {
-            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
+              break;
           }
 
-          return false;
-        }
-      });
+          $rootScope.$emit("MainController::changesDiscarded");
+          safeDigest($scope);
+        };
 
-      viewModel.discardChangesSelected = function () {
-        segmentTrack("Workflow Editor Discard Button Clicked", {
-          tab_name: viewModel.currentMenu.id
-        });
-
-        switch (viewModel.currentMenu.id) {
-          case "workflows":
-          case "env-vars":
-          case "triggers":
-            appService.discardAppConfigChanges();
-
-            break;
-          case "secrets":
-            appService.discardSecretsChanges();
-
-            break;
-          case "licenses":
-            appService.discardAppConfigChanges();
-
-            break;
-          case "stack":
-            appService.discardAppConfigChanges();
-            appService.discardStackChanges();
-            appService.discardDefaultMachineTypeChanges();
-
-          case "yml":
-            appService.discardAppConfigYMLChanges();
-
-            break;
-        }
-
-        $rootScope.$emit("MainController::changesDiscarded");
-        safeDigest($scope);
-      };
-
-      viewModel.selectMenuByID = function (menuID) {
-        var selectedMenu = _.find(viewModel.menus, {
-          id: menuID
-        });
-
-        if (!selectedMenu) {
-          selectedMenu = _.find(viewModel.menus, {
-            id: "workflows"
+        viewModel.selectMenuByID = function (menuID) {
+          var selectedMenu = _.find(viewModel.menus, {
+            id: menuID
           });
-        }
 
-        viewModel.menuSelected(selectedMenu);
-      };
+          if (!selectedMenu) {
+            selectedMenu = _.find(viewModel.menus, {
+              id: "workflows"
+            });
+          }
 
-      viewModel.breadCrumbsAccountPath = function () {
-        if (
-          !appService.appDetails ||
-          appService.appDetails.ownerData === undefined ||
-          appService.appDetails.ownerData.slug === undefined
-        ) {
-          return undefined;
-        }
+          viewModel.menuSelected(selectedMenu);
+        };
 
-        if (appService.appDetails.ownerData.type == "User") {
-          if (appService.appDetails.isCurrentUserOwner) {
-            return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?only_direct=true";
-          } else {
+        viewModel.breadCrumbsAccountPath = function () {
+          if (
+            !appService.appDetails ||
+            appService.appDetails.ownerData === undefined ||
+            appService.appDetails.ownerData.slug === undefined
+          ) {
+            return undefined;
+          }
+
+          if (appService.appDetails.ownerData.type == "User") {
+            if (appService.appDetails.isCurrentUserOwner) {
+              return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?only_direct=true";
+            } else {
+              return (
+                "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?user_slug=" +
+                appService.appDetails.ownerData.slug
+              );
+            }
+          }
+
+          if (appService.appDetails.ownerData.type == "Organization") {
             return (
-              "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?user_slug=" +
+              "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?organization_slug=" +
               appService.appDetails.ownerData.slug
             );
           }
-        }
+        };
 
-        if (appService.appDetails.ownerData.type == "Organization") {
-          return (
-            "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>#?organization_slug=" +
-            appService.appDetails.ownerData.slug
-          );
-        }
-      };
-
-      viewModel.workspaceSecretsPath = function () {
-        return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workspace_secrets_path]) %>", {
-          workspace_slug: appService.appDetails?.ownerData?.slug
-        });
-      };
-
-      viewModel.workspacePlanSelectorPath = function () {
-        return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workspace_plan_selector_path]) %>", {
-          workspace_slug: appService.appDetails?.ownerData?.slug
-        });
-      };
-
-      viewModel.dashboardPath = function () {
-        return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>";
-      };
-
-      viewModel.appPath = function () {
-        return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_path]) %>", {
-          app_slug: appService.appDetails?.slug
-        });
-      };
-
-      viewModel.appCodeSigningPath = function () {
-        return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_setting_code_signing]) %>", {
-          app_slug: appService.appDetails?.slug
-        });
-      };
-
-      viewModel.init = function () {
-        viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
-
-        logger.info("App start");
-
-        viewModel.isWebsiteMode = requestService.isWebsiteMode();
-
-        appService.getAppConfig();
-
-        $q(function (resolve, reject) {
-          launchDarklyService.initialize().then(() => {
-            viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
-            viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
-            viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
-            viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
-            viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
-
-            switch (requestService.mode) {
-              case "website":
-                requestService.appSlug = WindowUtils.appSlug();
-
-                if (!requestService.appSlug) {
-                  return reject("No app slug specified.");
-                }
-
-                requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
-                  viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
-                }).finally(() => {
-                  appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
-                });
-
-                break;
-              case "cli":
-                resolve();
-
-                break;
-            }
+        viewModel.workspaceSecretsPath = function () {
+          return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workspace_secrets_path]) %>", {
+            workspace_slug: appService.appDetails?.ownerData?.slug
           });
-        }).then(
-          function () {
-            if (requestService.mode == "website") {
-              viewModel.defaultBranch = appService.appDetails.defaultBranch;
-              viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
-            }
-            if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
-              var stackMenu = _.find(viewModel.menus, {
-                id: "stack"
-              });
-              stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
-            }
+        };
 
-            if (requestService.mode == "website" && appService.appDetails.isCurrentUserIsOrgOwner) {
-              var licensesMenu = _.find(viewModel.menus, {
-                id: "licenses"
-              });
-              licensesMenu.cssClass = "licenses";
-            }
+        viewModel.workspacePlanSelectorPath = function () {
+          return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workspace_plan_selector_path]) %>", {
+            workspace_slug: appService.appDetails?.ownerData?.slug
+          });
+        };
 
-            appService.getOwnerPlanData().then(function () {
-              viewModel.showSharedSecrets = Boolean(appService.ownerPlanData?.sharedResourcesAvailable);
+        viewModel.dashboardPath = function () {
+          return "<%= webserver_path(data[:routes][:website][:dashboard_path]) %>";
+        };
 
+        viewModel.appPath = function () {
+          return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_path]) %>", {
+            app_slug: appService.appDetails?.slug
+          });
+        };
+
+        viewModel.appCodeSigningPath = function () {
+          return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:app_setting_code_signing]) %>", {
+            app_slug: appService.appDetails?.slug
+          });
+        };
+
+        viewModel.init = function () {
+          viewModel.initAppProgress.start("<%= data[:strings][:main][:load_progress][:loading] %>");
+
+          logger.info("App start");
+
+          viewModel.isWebsiteMode = requestService.isWebsiteMode();
+
+          appService.getAppConfig();
+
+          $q(function (resolve, reject) {
+            launchDarklyService.initialize().then(() => {
+              viewModel.isFirstBuildExperienceEnabled = launchDarklyService.variation("enable-first-build-experience");
+              viewModel.workspaceSecretsEnabled = launchDarklyService.variation("workspace-secrets");
+              viewModel.appSecretsWriteNew = launchDarklyService.variation("wfe-app-secrets-write-new");
+              viewModel.enableNewWorkflowsPage = launchDarklyService.variation("enable-new-wfe-workflows-page");
+              viewModel.isDiffEditorEnabled = launchDarklyService.variation("enable-wfe-diff-editor");
+
+              switch (requestService.mode) {
+                case "website":
+                  requestService.appSlug = WindowUtils.appSlug();
+
+                  if (!requestService.appSlug) {
+                    return reject("No app slug specified.");
+                  }
+
+                  requestService.getCurrentUserMetadata("last_workflow_edited_date").then((lastWFEDateMetadataResp) => {
+                    viewModel.lastWorkflowEditedDate = lastWFEDateMetadataResp;
+                  }).finally(() => {
+                    appService.getAppDetails().then(appService.getOrgBetaTags).then(resolve, reject);
+                  });
+
+                  break;
+                case "cli":
+                  resolve();
+
+                  break;
+              }
             });
+          }).then(
+            function () {
+              if (requestService.mode == "website") {
+                viewModel.defaultBranch = appService.appDetails.defaultBranch;
+                viewModel.gitRepoSlug = appService.appDetails.gitRepoSlug;
+              }
+              if (requestService.mode == "website" && appService.appDetails.isMachineTypeSelectorAvailable) {
+                var stackMenu = _.find(viewModel.menus, {
+                  id: "stack"
+                });
+                stackMenu.title = "<%= data[:strings][:main][:menus][:stacks_and_machines] %>";
+              }
 
-            viewModel.initAppProgress.success();
-          },
-          function (error) {
-            viewModel.initAppProgress.error(error);
-          }
-        ).then(function () {
-          selectInitialMenu();
-        });
-      };
+              if (requestService.mode == "website" && appService.appDetails.isCurrentUserIsOrgOwner) {
+                var licensesMenu = _.find(viewModel.menus, {
+                  id: "licenses"
+                });
+                licensesMenu.cssClass = "licenses";
+              }
 
-      viewModel.shouldShowMenuBar = function () {
-        if (requestService.mode == "cli") {
-          return true;
-        }
+              appService.getOwnerPlanData().then(function () {
+                viewModel.showSharedSecrets = Boolean(appService.ownerPlanData?.sharedResourcesAvailable);
 
-        return appService.appDetails !== undefined;
-      };
+              });
 
-      viewModel.isTabEnabledForMenu = function (menu) {
-        if (menu && menu.id === "yml") {
-          return true;
-        }
+              viewModel.initAppProgress.success();
+            },
+            function (error) {
+              viewModel.initAppProgress.error(error);
+            }
+          ).then(function () {
+            selectInitialMenu();
+          });
+        };
 
-        if (menu && menu.id === "stack") {
-          if (viewModel.loadDataProgress.statusMessage == "<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>") {
+        viewModel.shouldShowMenuBar = function () {
+          if (requestService.mode == "cli") {
             return true;
           }
-        }
 
-        return viewModel.initAppProgress.isIdle && viewModel.loadDataProgress.isIdle;
-      };
+          return appService.appDetails !== undefined;
+        };
 
-      viewModel.isMenuEnabled = function (menu) {
-        if (viewModel.menuProgress.isInProgress || viewModel.saveProgress.isInProgress) {
-          return false;
-        }
+        viewModel.isTabEnabledForMenu = function (menu) {
+          if (menu && menu.id === "yml") {
+            return true;
+          }
 
-        return viewModel.isTabEnabledForMenu(menu);
-      };
+          if (menu && menu.id === "stack") {
+            if (viewModel.loadDataProgress.statusMessage == "<%= data[:strings][:machine_type][:invalid_set_in_bitrise_yml_meta] %>") {
+              return true;
+            }
+          }
 
-      viewModel.appOwnerNameWithPlaceholder = function () {
-        return appService.appDetails?.ownerData?.name || "Unknown owner";
-      };
+          return viewModel.initAppProgress.isIdle && viewModel.loadDataProgress.isIdle;
+        };
 
-      viewModel.appNameWithPlaceholder = function () {
-        return appService.appDetails?.title || "Unknown app";
-      };
+        viewModel.isMenuEnabled = function (menu) {
+          if (viewModel.menuProgress.isInProgress || viewModel.saveProgress.isInProgress) {
+            return false;
+          }
 
-      viewModel.workflowsAndPipelinesPath = function () {
-        return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workflows_and_pipelines]) %>", {
-          app_slug: appService.appDetails?.slug || ""
+          return viewModel.isTabEnabledForMenu(menu);
+        };
+
+        viewModel.appOwnerNameWithPlaceholder = function () {
+          return appService.appDetails?.ownerData?.name || "Unknown owner";
+        };
+
+        viewModel.appNameWithPlaceholder = function () {
+          return appService.appDetails?.title || "Unknown app";
+        };
+
+        viewModel.workflowsAndPipelinesPath = function () {
+          return stringService.stringReplacedWithParameters("<%= webserver_path(data[:routes][:website][:workflows_and_pipelines]) %>", {
+            app_slug: appService.appDetails?.slug || ""
+          });
+        };
+
+        window.parent.addEventListener('navigation.replace', (e) => {
+          const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
+
+          if (menu) {
+            viewModel.menuSelected(menu);
+          }
         });
-      };
 
-      window.parent.addEventListener('navigation.replace', (e) => {
-        const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
+        window.parent.addEventListener('hashchange', () => {
+          const oldSearchParams = $location.search();
+          const newSearchParams = getSearchParamsFromLocationHash();
 
-        if (menu) {
-          viewModel.menuSelected(menu);
-        }
-      });
-
-      window.parent.addEventListener('hashchange', () => {
-        const oldSearchParams = $location.search();
-        const newSearchParams = getSearchParamsFromLocationHash();
-
-        if (!isEqual(oldSearchParams, newSearchParams)) {
-          $location.search(newSearchParams).replace();
-        }
-      });
-    });
+          if (!isEqual(oldSearchParams, newSearchParams)) {
+            $location.search(newSearchParams).replace();
+          }
+        });
+      }
+    )
+  ;
 })();
