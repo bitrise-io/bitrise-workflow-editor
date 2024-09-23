@@ -13,10 +13,8 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import { isObject } from 'lodash';
 import useNavigation from '../../../hooks/useNavigation';
-import { PipelineableTriggerItem } from '../TriggersPage.utils';
-import { Condition, ConditionType } from '../TriggersPage.types';
+import { getConditionList, PipelineableTriggerItem } from '../TriggersPage.utils';
 import TriggerConditions from './TriggerConditions';
 
 type SelectiveTriggersProps = {
@@ -98,51 +96,36 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
                 </Tr>
               </Thead>
               <Tbody>
-                {filteredItems.map((trigger) => {
-                  // TODO kozos utilba
-                  const conditions: Condition[] = [];
-                  const triggerKeys = Object.keys(trigger) as (keyof PipelineableTriggerItem)[];
-                  triggerKeys.forEach((key) => {
-                    if (!['enabled', 'id', 'pipelineableType', 'type', 'draft_enabled'].includes(key)) {
-                      const isRegex = isObject(trigger[key]);
-                      conditions.push({
-                        isRegex,
-                        type: key as ConditionType,
-                        value: isRegex ? (trigger[key] as any).regex : (trigger[key] as string),
-                      });
-                    }
-                  });
-                  return (
-                    <Tr key={JSON.stringify(trigger)}>
-                      <Td>
-                        <Text>{trigger.id}</Text>
-                        <Text textStyle="body/md/regular" color="text/secondary">
-                          {trigger.pipelineableType === 'workflow' && 'Workflow'}
-                          {trigger.pipelineableType === 'pipeline' && 'Pipeline'}
-                        </Text>
-                      </Td>
-                      <Td>{TYPE_MAP[trigger.type]}</Td>
-                      <Td>
-                        <TriggerConditions
-                          conditions={conditions}
-                          isDraftPr={trigger.type === 'pull_request' && trigger.draft_enabled}
+                {filteredItems.map((trigger) => (
+                  <Tr key={JSON.stringify(trigger)}>
+                    <Td>
+                      <Text>{trigger.id}</Text>
+                      <Text textStyle="body/md/regular" color="text/secondary">
+                        {trigger.pipelineableType === 'workflow' && 'Workflow'}
+                        {trigger.pipelineableType === 'pipeline' && 'Pipeline'}
+                      </Text>
+                    </Td>
+                    <Td>{TYPE_MAP[trigger.type]}</Td>
+                    <Td>
+                      <TriggerConditions
+                        conditions={getConditionList(trigger)}
+                        isDraftPr={trigger.type === 'pull_request' && trigger.draft_enabled}
+                      />
+                    </Td>
+                    <Td display="flex" justifyContent="flex-end" alignItems="center">
+                      {trigger.pipelineableType === 'workflow' && (
+                        <ControlButton
+                          aria-label="Edit trigger"
+                          iconName="Settings"
+                          onClick={() => replace('/workflows')}
                         />
-                      </Td>
-                      <Td display="flex" justifyContent="flex-end" alignItems="center">
-                        {trigger.pipelineableType === 'workflow' && (
-                          <ControlButton
-                            aria-label="Edit trigger"
-                            iconName="Settings"
-                            onClick={() => replace('/workflows')}
-                          />
-                        )}
-                        {trigger.pipelineableType === 'pipeline' && (
-                          <ControlButton aria-label="Edit in YAML" iconName="Code" onClick={() => replace('/yml')} />
-                        )}
-                      </Td>
-                    </Tr>
-                  );
-                })}
+                      )}
+                      {trigger.pipelineableType === 'pipeline' && (
+                        <ControlButton aria-label="Edit in YAML" iconName="Code" onClick={() => replace('/yml')} />
+                      )}
+                    </Td>
+                  </Tr>
+                ))}
               </Tbody>
             </Table>
           </TableContainer>

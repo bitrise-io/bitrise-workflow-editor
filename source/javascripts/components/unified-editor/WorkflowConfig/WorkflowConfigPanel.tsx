@@ -6,7 +6,7 @@ import omit from 'lodash/omit';
 import useSearchParams from '@/hooks/useSearchParams';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { EnvVar } from '@/core/models/EnvVar';
-import TriggersTabPanel from '../../../pages/TriggersPage/components/TriggersTabPanel';
+import TriggersTabPanel from '../../../pages/WorkflowsPage/components/WorkflowConfigPanel/components/TriggersTabPanel';
 import WorkflowConfigHeader from './components/WorkflowConfigHeader';
 import ConfigurationTab from './tabs/ConfigurationTab';
 import PropertiesTab from './tabs/PropertiesTab';

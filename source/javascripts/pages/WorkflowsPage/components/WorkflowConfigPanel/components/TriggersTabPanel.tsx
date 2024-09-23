@@ -1,4 +1,3 @@
-import { useMemo } from 'react';
 import {
   Box,
   Button,
@@ -12,17 +11,18 @@ import {
   useDisclosure,
 } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
+import { isEqual } from 'lodash';
 import { WorkflowYmlObject } from '@/core/models/Workflow';
-import { useUserMetaData } from '../../../hooks/useUserMetaData';
-import { WorkflowConfigTab } from '../../../components/unified-editor/WorkflowConfig/WorkflowConfig.types';
-import RuntimeUtils from '../../../core/utils/RuntimeUtils';
-import { useWorkflowConfigContext } from '../../../components/unified-editor/WorkflowConfig/WorkflowConfig.context';
-import { getConditionList, PipelineableTriggerItem } from '../TriggersPage.utils';
-import deepCloneSimpleObject from '../../../utils/deepCloneSimpleObject';
-import { SourceType } from '../TriggersPage.types';
-import useBitriseYmlStore from '../../../hooks/useBitriseYmlStore';
-import AddTriggerDialog from './AddTriggerDialog';
-import TriggerConditions from './TriggerConditions';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { WorkflowConfigTab } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.types';
+import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
+import { getConditionList, PipelineableTriggerItem } from '../../../../TriggersPage/TriggersPage.utils';
+import { SourceType } from '../../../../TriggersPage/TriggersPage.types';
+import AddTriggerDialog from '../../../../TriggersPage/components/AddTriggerDialog';
+import TriggerConditions from '../../../../TriggersPage/components/TriggerConditions';
 
 type TriggerItemProps = {
   onDeleteClick: () => void;
@@ -76,19 +76,10 @@ const TriggersTabPanel = () => {
     })),
   );
 
-  const triggers: WorkflowYmlObject['triggers'] = useMemo(() => {
-    const decoratedTriggers: WorkflowYmlObject['triggers'] = deepCloneSimpleObject(workflow?.userValues.triggers) || {};
-    decoratedTriggers.push = decoratedTriggers.push?.map((trigger: any) => ({ ...trigger, id: crypto.randomUUID() }));
-    decoratedTriggers.pull_request = decoratedTriggers.pull_request?.map((trigger: any) => ({
-      ...trigger,
-      id: crypto.randomUUID(),
-    }));
-    decoratedTriggers.tag = decoratedTriggers.tag?.map((trigger: any) => ({ ...trigger, id: crypto.randomUUID() }));
-    return decoratedTriggers;
-  }, [workflow?.userValues.triggers]);
+  const triggers: WorkflowYmlObject['triggers'] = deepCloneSimpleObject(workflow?.userValues.triggers) || {};
 
-  const onTriggerDelete = (id: string, type: SourceType) => {
-    triggers[type] = triggers[type]?.filter((t: any) => t.id !== id);
+  const onTriggerDelete = (trigger: any, type: SourceType) => {
+    triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
@@ -107,8 +98,8 @@ const TriggersTabPanel = () => {
         </Notification>
       )}
       <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
-        {triggers?.push?.map((trigger: any) => (
-          <TriggerItem key={trigger.id} onDeleteClick={() => onTriggerDelete(trigger.id, 'push')} trigger={trigger} />
+        {triggers.push?.map((trigger: any) => (
+          <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'push')} trigger={trigger} />
         ))}
         <Button margin="24" size="md" variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add push trigger
@@ -119,20 +110,16 @@ const TriggersTabPanel = () => {
         buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>}
         marginY="12"
       >
-        {triggers?.pull_request?.map((trigger: any) => (
-          <TriggerItem
-            key={trigger.id}
-            onDeleteClick={() => onTriggerDelete(trigger.id, 'pull_request')}
-            trigger={trigger}
-          />
+        {triggers.pull_request?.map((trigger: any) => (
+          <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')} trigger={trigger} />
         ))}
         <Button margin="24" size="md" variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add pull request trigger
         </Button>
       </ExpandableCard>
       <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
-        {triggers?.tag?.map((trigger: any) => (
-          <TriggerItem key={trigger.id} onDeleteClick={() => onTriggerDelete(trigger.id, 'tag')} trigger={trigger} />
+        {triggers.tag?.map((trigger: any) => (
+          <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'tag')} trigger={trigger} />
         ))}
         <Button margin="24" size="md" variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
           Add tag trigger
