@@ -695,6 +695,10 @@ import {segmentTrack} from "@/utils/segmentTracking";
       });
 
       viewModel.discardChangesSelected = function () {
+        segmentTrack("Workflow Editor Discard Button Clicked", {
+          tab_name: viewModel.currentMenu.id
+        });
+
         switch (viewModel.currentMenu.id) {
           case "workflows":
           case "env-vars":
