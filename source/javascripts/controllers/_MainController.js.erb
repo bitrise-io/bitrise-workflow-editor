@@ -5,6 +5,7 @@ import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
 import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
+import {segmentTrack} from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -414,7 +415,11 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
             }
 
             viewModel.menuProgress.success();
-
+            segmentTrack("Workflow Editor Tab Displayed", {
+              tab_name: menu.id,
+              is_default_tab: isInitialSelection,
+              yml_source: appService?.pipelineConfig?.usesRepositoryYml ? "git" : "bitrise"
+            });
             datadogRumCustomTiming("wfe", "topNavigation");
           },
           function () {
