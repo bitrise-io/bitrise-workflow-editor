@@ -136,6 +136,9 @@ const track = RuntimeUtils.isWebsiteMode() ? segmentTrack : console.log;
         viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
         viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
         viewModel.isDiffDialogOpen = true;
+        track("Workflow Editor Diff Button Clicked", {
+          tab_name: viewModel.currentMenu.id
+        });
         safeDigest($rootScope);
       }
 
