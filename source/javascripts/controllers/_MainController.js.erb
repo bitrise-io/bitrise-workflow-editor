@@ -363,6 +363,10 @@ import {segmentTrack} from "@/utils/segmentTracking";
             return;
           }
 
+          segmentTrack("Workflow Editor Unsaved Changes Popup Shown", {
+            tab_name: viewModel.currentMenu.id
+          });
+
           Popup.showConfirmPopup(
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>",
