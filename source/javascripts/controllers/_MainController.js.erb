@@ -232,7 +232,7 @@ const track = RuntimeUtils.isWebsiteMode() ? segmentTrack : console.log;
                         .then(function () {
                           return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
                             ? $q.when()
-                            : viewModel.save();
+                            : viewModel.save({source: "deprecated_trigger_map_update"});
                         })
                         .then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
                     } else {
@@ -369,7 +369,7 @@ const track = RuntimeUtils.isWebsiteMode() ? segmentTrack : console.log;
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save(true).then(
+              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
                 function () {
                   resolve();
                 },
@@ -567,12 +567,17 @@ const track = RuntimeUtils.isWebsiteMode() ? segmentTrack : console.log;
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function (shouldReturnPromise) {
+      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
 
         viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+        track("Workflow Editor Save Button Clicked", {
+          tab_name: viewModel.currentMenu.id,
+          source: source,
+        });
 
         if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
           viewModel.deferredUserSavedYmlToRepository = $q.defer();
@@ -685,7 +690,7 @@ const track = RuntimeUtils.isWebsiteMode() ? segmentTrack : console.log;
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save();
+            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
           }
 
           return false;
