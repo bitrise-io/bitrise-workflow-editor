@@ -27,6 +27,44 @@ import {
 } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '../../../../TriggersPage/components/SelectiveTriggers/AddTrigger';
 
+const OPTIONS_MAP: Record<SourceType, Record<string, string>> = {
+  push: {
+    branch: 'Push branch',
+    commit_message: 'Commit message',
+    changed_files: 'File change',
+  },
+  pull_request: {
+    target_branch: 'Target branch',
+    source_branch: 'Source branch',
+    label: 'PR label',
+    comment: 'PR comment',
+    commit_message: 'Commit message',
+    changed_files: 'File change',
+  },
+  tag: {
+    tag: 'Tag',
+  },
+};
+
+const LABELS_MAP: Record<SourceType, Record<string, string>> = {
+  push: {
+    branch: 'Push branch',
+    commit_message: 'Enter a commit message',
+    changed_files: 'Enter a path',
+  },
+  pull_request: {
+    target_branch: 'Enter a target branch',
+    source_branch: 'Enter a source branch',
+    label: 'Enter a label',
+    comment: 'Enter a comment',
+    commit_message: 'Enter a commit message',
+    changed_files: 'Enter a path',
+  },
+  tag: {
+    tag: 'Enter a tag',
+  },
+};
+
 type TriggerItemProps = {
   onDeleteClick: () => void;
   trigger: PipelineableTriggerItem;
@@ -58,8 +96,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 };
 
 const TriggersTabPanel = () => {
-  const [isAddTriggerClicked, setIsAddTriggerClicked] = useState(false);
-  const [triggerType, setTriggerType] = useState<SourceType | null>(null);
+  const [triggerType, setTriggerType] = useState<SourceType | undefined>(undefined);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -82,8 +119,19 @@ const TriggersTabPanel = () => {
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  return isAddTriggerClicked ? (
-    <AddTrigger workflowId={workflow?.id} onSubmit={} triggerType={triggerType} />
+  const onSubmit = () => {};
+
+  return triggerType !== undefined ? (
+    <AddTrigger
+      workflowId={workflow?.id}
+      onSubmit={onSubmit}
+      triggerType={triggerType}
+      onCancel={() => {
+        setTriggerType(undefined);
+      }}
+      optionsMap={OPTIONS_MAP[triggerType]}
+      labelsMap={LABELS_MAP[triggerType]}
+    />
   ) : (
     <TabPanel id={WorkflowConfigTab.TRIGGERS}>
       {isNotificationVisible && (
@@ -108,7 +156,6 @@ const TriggersTabPanel = () => {
           variant="secondary"
           leftIconName="PlusAdd"
           onClick={() => {
-            setIsAddTriggerClicked(true);
             setTriggerType('push');
           }}
         >
@@ -129,7 +176,6 @@ const TriggersTabPanel = () => {
           variant="secondary"
           leftIconName="PlusAdd"
           onClick={() => {
-            setIsAddTriggerClicked(true);
             setTriggerType('pull_request');
           }}
         >
@@ -146,7 +192,6 @@ const TriggersTabPanel = () => {
           variant="secondary"
           leftIconName="PlusAdd"
           onClick={() => {
-            setIsAddTriggerClicked(true);
             setTriggerType('tag');
           }}
         >

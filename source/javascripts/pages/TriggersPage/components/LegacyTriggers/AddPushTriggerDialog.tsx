@@ -1,25 +1,23 @@
-import { ReactNode, useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import {
   Box,
   Button,
-  Card,
   DefinitionTooltip,
   Dialog,
   DialogBody,
   DialogFooter,
   Divider,
-  Input,
   ProgressIndicator,
   ProgressIndicatorProps,
   Select,
   Text,
   Tooltip,
 } from '@bitrise/bitkit';
-import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
+import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-form';
 
-import { Condition, FormItems, LegacyPushConditionType, TriggerItem } from '../TriggersPage/TriggersPage.types';
-import RegexCheckbox from '../SelectiveTriggers/RegexCheckbox';
+import { FormItems, LegacyPushConditionType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
+import ConditionCard from '../SelectiveTriggers/ConditionCard';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
@@ -31,92 +29,16 @@ type DialogProps = {
   workflows: string[];
 };
 
-const LABEL_MAP: Record<LegacyPushConditionType, string> = {
+const LABELS_MAP: Record<LegacyPushConditionType, string> = {
   push_branch: 'Push branch',
-  commit_message: 'Commit message',
-  changed_files: 'Path',
-};
-
-const getLabelText = (isRegex: boolean, type: LegacyPushConditionType): string => {
-  if (isRegex) {
-    return 'Regex pattern';
-  }
-  return LABEL_MAP[type];
-};
-
-type ConditionCardProps = {
-  children: ReactNode;
-  conditionNumber: number;
+  commit_message: 'Enter a commit message',
+  changed_files: 'Enter a path',
 };
 
 const OPTIONS_MAP: Record<LegacyPushConditionType, string> = {
   push_branch: 'Push branch',
   commit_message: 'Commit message',
   changed_files: 'File change',
-};
-
-const ConditionCard = (props: ConditionCardProps) => {
-  const { children, conditionNumber } = props;
-  const { control, watch, setValue } = useFormContext();
-  const { conditions } = watch();
-  const { isRegex, type } = conditions[conditionNumber] || {};
-
-  return (
-    <Card key={conditionNumber} marginBottom="16" padding="16px 16px 24px 16px">
-      <Box display="flex" justifyContent="space-between" alignItems="center" marginBottom="12">
-        <Text textStyle="heading/h5">Condition {conditionNumber + 1}</Text>
-        {children}
-      </Box>
-      <Controller
-        name={`conditions.${conditionNumber}.type`}
-        control={control}
-        render={({ field }) => (
-          <Select marginBottom="16" placeholder="Select a condition type" {...field}>
-            {Object.entries(OPTIONS_MAP).map(([optionType, text]) => {
-              const isConditionTypeUsed = conditions.some((condition: Condition) => condition.type === optionType);
-              const isTypeOfCurrentCard = optionType === conditions[conditionNumber].type;
-
-              if (isConditionTypeUsed && !isTypeOfCurrentCard) {
-                return undefined;
-              }
-
-              return (
-                <option key={optionType} value={optionType}>
-                  {text}
-                </option>
-              );
-            })}
-          </Select>
-        )}
-      />
-      {!!type && (
-        <>
-          <RegexCheckbox
-            isChecked={isRegex}
-            onChange={(e) => setValue(`conditions.${conditionNumber}.isRegex`, e.target.checked)}
-          />
-          <Controller
-            name={`conditions.${conditionNumber}.value`}
-            render={({ field }) => (
-              <Input
-                {...field}
-                isRequired
-                onChange={(e) => field.onChange(e.target.value.trimStart())}
-                label={getLabelText(isRegex, type)}
-                placeholder={isRegex ? '.*' : '*'}
-                marginBottom="4"
-              />
-            )}
-          />
-          {type === 'push_branch' && (
-            <Text color="sys/neutral/base" textStyle="body/sm/regular">
-              If you leave it blank, Bitrise will start builds for any push branch.
-            </Text>
-          )}
-        </>
-      )}
-    </Card>
-  );
 };
 
 const AddPushTriggerDialog = (props: DialogProps) => {
@@ -239,7 +161,7 @@ const AddPushTriggerDialog = (props: DialogProps) => {
               </Text>
               {fields.map((item, index) => {
                 return (
-                  <ConditionCard conditionNumber={index} key={item.id}>
+                  <ConditionCard conditionNumber={index} key={item.id} optionsMap={OPTIONS_MAP} labelsMap={LABELS_MAP}>
                     {index > 0 && (
                       <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
                         Remove

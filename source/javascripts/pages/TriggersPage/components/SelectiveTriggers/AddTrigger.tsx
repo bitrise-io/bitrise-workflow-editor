@@ -1,22 +1,19 @@
 import { Button, Text } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { ConditionCard } from '../LegacyTriggers/AddPrTriggerDialog';
 import { SourceType } from '../TriggersPage/TriggersPage.types';
+import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
   workflowId?: string;
   triggerType: SourceType;
   onSubmit: (trigger: any) => void;
+  onCancel: () => void;
+  optionsMap: Record<string, string>;
+  labelsMap: Record<string, string>;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { onSubmit, triggerType, workflowId } = props;
-
-  const OPTIONS_MAP: Record<string, string> = {
-    push_branch: 'Push branch',
-    commit_message: 'Commit message',
-    changed_files: 'File change',
-  };
+  const { labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
 
   const formMethods = useForm({
     defaultValues: {
@@ -30,7 +27,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     },
   });
 
-  const { control, handleSubmit } = formMethods;
+  const { control, handleSubmit, reset } = formMethods;
 
   const { append, fields, remove } = useFieldArray({
     control,
@@ -46,6 +43,7 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   const onFormSubmit = (data: any) => {
+    console.log('data', data);
     const filteredData = data;
     filteredData.conditions = data.conditions.map((condition: any) => {
       const newCondition = { ...condition };
@@ -70,39 +68,48 @@ const AddTrigger = (props: AddTriggerProps) => {
     title = 'Add tag trigger';
   }
 
+  const handleCancel = () => {
+    reset();
+    onCancel();
+  };
+
   return (
     <FormProvider {...formMethods}>
-      <Text textStyle="heading/h3" marginBlockEnd="8">
-        {title}
-      </Text>
-      <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
-        Set up the trigger conditions that should all be met to execute the {workflowId} Workflow.
-      </Text>
-      {fields.map((item, index) => {
-        return (
-          <ConditionCard conditionNumber={index} key={item.id}>
-            {index > 0 && (
-              <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
-                Remove
-              </Button>
-            )}
-          </ConditionCard>
-        );
-      })}
-      <Button
-        variant="secondary"
-        leftIconName="PlusAdd"
-        width="100%"
-        onClick={onAppend}
-        isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
-        marginBlockEnd="56"
-      >
-        Add condition
-      </Button>
-      <Button onSubmit={handleSubmit(onFormSubmit)} marginInlineEnd="16">
-        Add trigger
-      </Button>
-      <Button variant="tertiary">Cancel</Button>
+      <form onSubmit={handleSubmit(onFormSubmit)}>
+        <Text textStyle="heading/h3" marginBlockEnd="8">
+          {title}
+        </Text>
+        <Text textStyle="body/lg/regular" color="text/secondary" marginBlockEnd="24">
+          Set up the trigger conditions that should all be met to execute the {workflowId} Workflow.
+        </Text>
+        {fields.map((item, index) => {
+          return (
+            <ConditionCard conditionNumber={index} key={item.id} optionsMap={optionsMap} labelsMap={labelsMap}>
+              {index > 0 && (
+                <Button leftIconName="MinusRemove" onClick={() => remove(index)} size="sm" variant="tertiary">
+                  Remove
+                </Button>
+              )}
+            </ConditionCard>
+          );
+        })}
+        <Button
+          variant="secondary"
+          leftIconName="PlusAdd"
+          width="100%"
+          onClick={onAppend}
+          isDisabled={fields.length >= Object.keys(optionsMap).length}
+          marginBlockEnd="56"
+        >
+          Add condition
+        </Button>
+        <Button type="submit" marginInlineEnd="16">
+          Add trigger
+        </Button>
+        <Button variant="tertiary" onClick={handleCancel}>
+          Cancel
+        </Button>
+      </form>
     </FormProvider>
   );
 };
