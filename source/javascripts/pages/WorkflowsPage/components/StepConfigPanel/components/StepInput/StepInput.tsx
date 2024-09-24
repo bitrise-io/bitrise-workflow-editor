@@ -1,4 +1,4 @@
-import { ComponentProps, FocusEventHandler, MouseEventHandler, ReactNode, useState } from 'react';
+import { ComponentProps, FocusEventHandler, MouseEventHandler, ReactNode, useEffect, useRef, useState } from 'react';
 import {
   Box,
   ButtonGroup,
@@ -9,7 +9,7 @@ import {
   Select,
   Textarea,
 } from '@bitrise/bitkit';
-import { FormControl, FormErrorMessage, forwardRef } from '@chakra-ui/react';
+import { FormControl, FormErrorMessage, forwardRef, useMergeRefs } from '@chakra-ui/react';
 import { useFormContext } from 'react-hook-form';
 
 import { EnvVar } from '@/core/models/EnvVar';
@@ -52,6 +52,15 @@ function isTextareaInput(props: Props): props is TextareaProps {
 }
 
 const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) => {
+  const textAreaRef = useRef<HTMLTextAreaElement>(null);
+  const mergedTextAreaRef = useMergeRefs(ref, textAreaRef);
+
+  useEffect(() => {
+    if (textAreaRef.current) {
+      textAreaRef.current.querySelector('textarea')?.setAttribute('style', 'height: 100%');
+    }
+  }, []);
+
   const { label, isRequired, isDisabled, isSensitive, helperSummary, helperDetails, ...rest } = props;
 
   const {
@@ -213,7 +222,7 @@ const StepInput = forwardRef<Props, 'textarea' | 'select'>((props: Props, ref) =
             }}
           >
             <Textarea
-              ref={ref}
+              ref={mergedTextAreaRef}
               {...rest}
               rows={1}
               resize="none"
