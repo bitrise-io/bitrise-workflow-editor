@@ -1,5 +1,5 @@
 import { isObject } from 'lodash';
-import { TriggerMapYml, TriggerYmlObject } from '../../core/models/TriggerMap';
+import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
 import { SourceType, TriggerItem, LegacyConditionType, ConditionType } from './TriggersPage.types';
 
 const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): TriggerMapYml => {

@@ -3,13 +3,12 @@ import {
   Box,
   Button,
   Card,
-  Checkbox,
+  DefinitionTooltip,
   Dialog,
   DialogBody,
   DialogFooter,
   Divider,
   Input,
-  Link,
   ProgressIndicator,
   ProgressIndicatorProps,
   Select,
@@ -18,9 +17,9 @@ import {
 } from '@bitrise/bitkit';
 import { Controller, FormProvider, useFieldArray, useForm, useFormContext } from 'react-hook-form';
 
-import { Condition, FormItems, LegacyPrConditionType, TriggerItem } from './TriggersPage.types';
-import { checkIsConditionsUsed } from './TriggersPage.utils';
-import RegexCheckbox from './RegexCheckbox';
+import { Condition, FormItems, LegacyPushConditionType, TriggerItem } from '../TriggersPage/TriggersPage.types';
+import RegexCheckbox from '../SelectiveTriggers/RegexCheckbox';
+import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
@@ -32,18 +31,15 @@ type DialogProps = {
   workflows: string[];
 };
 
-const LABEL_MAP: Record<LegacyPrConditionType, string> = {
-  pull_request_target_branch: 'Enter a target branch',
-  pull_request_source_branch: 'Enter a source branch',
-  pull_request_label: 'Enter a label',
-  pull_request_comment: 'Enter a comment',
-  commit_message: 'Enter a commit message',
-  changed_files: 'Enter a path',
+const LABEL_MAP: Record<LegacyPushConditionType, string> = {
+  push_branch: 'Push branch',
+  commit_message: 'Commit message',
+  changed_files: 'Path',
 };
 
-const getLabelText = (isRegex: boolean, type: LegacyPrConditionType): string => {
+const getLabelText = (isRegex: boolean, type: LegacyPushConditionType): string => {
   if (isRegex) {
-    return 'Enter a regex pattern';
+    return 'Regex pattern';
   }
   return LABEL_MAP[type];
 };
@@ -53,16 +49,13 @@ type ConditionCardProps = {
   conditionNumber: number;
 };
 
-const OPTIONS_MAP: Record<LegacyPrConditionType, string> = {
-  pull_request_target_branch: 'Target branch',
-  pull_request_source_branch: 'Source branch',
-  pull_request_label: 'PR label',
-  pull_request_comment: 'PR comment',
+const OPTIONS_MAP: Record<LegacyPushConditionType, string> = {
+  push_branch: 'Push branch',
   commit_message: 'Commit message',
   changed_files: 'File change',
 };
 
-export const ConditionCard = (props: ConditionCardProps) => {
+const ConditionCard = (props: ConditionCardProps) => {
   const { children, conditionNumber } = props;
   const { control, watch, setValue } = useFormContext();
   const { conditions } = watch();
@@ -115,14 +108,9 @@ export const ConditionCard = (props: ConditionCardProps) => {
               />
             )}
           />
-          {type === 'pull_request_target_branch' && (
+          {type === 'push_branch' && (
             <Text color="sys/neutral/base" textStyle="body/sm/regular">
-              If you leave it blank, Bitrise will start builds for any target branch.
-            </Text>
-          )}
-          {type === 'pull_request_source_branch' && (
-            <Text color="sys/neutral/base" textStyle="body/sm/regular">
-              If you leave it blank, Bitrise will start builds for any source branch.
+              If you leave it blank, Bitrise will start builds for any push branch.
             </Text>
           )}
         </>
@@ -131,7 +119,7 @@ export const ConditionCard = (props: ConditionCardProps) => {
   );
 };
 
-const AddPrTriggerDialog = (props: DialogProps) => {
+const AddPushTriggerDialog = (props: DialogProps) => {
   const { currentTriggers, isOpen, onClose, pipelines, onSubmit, editedItem, workflows } = props;
   const [activeStageIndex, setActiveStageIndex] = useState<0 | 1>(0);
 
@@ -150,14 +138,13 @@ const AddPrTriggerDialog = (props: DialogProps) => {
       conditions: [
         {
           isRegex: false,
-          type: 'pull_request_target_branch',
+          type: 'push_branch',
           value: '',
         },
       ],
       id: crypto.randomUUID(),
       pipelineable: '',
-      source: 'pull_request',
-      isDraftPr: true,
+      source: 'push',
       isActive: true,
       ...editedItem,
     };
@@ -168,7 +155,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     defaultValues,
   });
 
-  const { control, formState, reset, handleSubmit, watch, setValue } = formMethods;
+  const { control, reset, handleSubmit, watch } = formMethods;
 
   useEffect(() => {
     reset(defaultValues);
@@ -210,18 +197,13 @@ const AddPrTriggerDialog = (props: DialogProps) => {
     });
   };
 
-  const { conditions, pipelineable, isDraftPr } = watch();
+  const { conditions, pipelineable } = watch();
 
-  let isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
-
-  // Because draft PR checkbox is a condition
-  if (formState.dirtyFields.isDraftPr) {
-    isConditionsUsed = false;
-  }
+  const isConditionsUsed = checkIsConditionsUsed(currentTriggers, watch() as TriggerItem);
 
   let hasEmptyCondition = false;
   conditions.forEach(({ type, value }) => {
-    if ((!(type === 'pull_request_target_branch' || type === 'pull_request_source_branch') && !value) || !type) {
+    if ((type !== 'push_branch' && !value) || !type) {
       hasEmptyCondition = true;
     }
   });
@@ -234,7 +216,7 @@ const AddPrTriggerDialog = (props: DialogProps) => {
         as="form"
         isOpen={isOpen}
         onClose={onFormCancel}
-        title={isEditMode ? 'Edit trigger' : 'Add pull request trigger'}
+        title={isEditMode ? 'Edit trigger' : 'Add push trigger'}
         maxWidth="480"
         onSubmit={handleSubmit(onFormSubmit)}
       >
@@ -250,9 +232,9 @@ const AddPrTriggerDialog = (props: DialogProps) => {
               </Text>
               <Text color="text/secondary" marginBottom="24">
                 Configure the{' '}
-                <Tooltip label="Configure the conditions that should all be met to execute the targeted Pipeline or Workflow.">
+                <DefinitionTooltip label="Configure the conditions that should all be met to execute the targeted Pipeline or Workflow.">
                   conditions
-                </Tooltip>{' '}
+                </DefinitionTooltip>{' '}
                 that should all be met to execute the targeted Pipeline or Workflow.
               </Text>
               {fields.map((item, index) => {
@@ -271,30 +253,11 @@ const AddPrTriggerDialog = (props: DialogProps) => {
                 variant="secondary"
                 leftIconName="PlusAdd"
                 width="100%"
-                marginBottom="24"
                 onClick={onAppend}
                 isDisabled={fields.length >= Object.keys(OPTIONS_MAP).length}
               >
                 Add condition
               </Button>
-              <Checkbox
-                isChecked={isDraftPr}
-                helperText={
-                  <>
-                    Supported for GitHub and GitLab.{' '}
-                    <Link
-                      colorScheme="purple"
-                      href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html#triggering-builds-from-draft-prs"
-                      isExternal
-                    >
-                      Learn more
-                    </Link>
-                  </>
-                }
-                onChange={(e) => setValue(`isDraftPr`, e.target.checked)}
-              >
-                Include draft pull requests
-              </Checkbox>
             </>
           ) : (
             <>
@@ -372,4 +335,4 @@ const AddPrTriggerDialog = (props: DialogProps) => {
   );
 };
 
-export default AddPrTriggerDialog;
+export default AddPushTriggerDialog;

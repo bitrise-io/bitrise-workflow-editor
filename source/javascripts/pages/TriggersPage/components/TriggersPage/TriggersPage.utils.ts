@@ -1,7 +1,7 @@
 import isEqual from 'lodash/isEqual';
 import { isObject } from 'lodash';
-import { BitriseYml } from '../../core/models/BitriseYml';
-import { Condition, ConditionType, TriggerItem } from './TriggersPage.types';
+import { BitriseYml } from '../../../../core/models/BitriseYml';
+import { TriggerItem, Condition, ConditionType } from './TriggersPage.types';
 
 export const checkIsConditionsUsed = (currentTriggers: TriggerItem[], newTrigger: TriggerItem) => {
   let isUsed = false;

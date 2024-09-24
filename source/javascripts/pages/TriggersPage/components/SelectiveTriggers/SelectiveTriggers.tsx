@@ -13,8 +13,8 @@ import {
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import useNavigation from '../../../hooks/useNavigation';
-import { getConditionList, PipelineableTriggerItem } from '../TriggersPage.utils';
+import useNavigation from '../../../../hooks/useNavigation';
+import { PipelineableTriggerItem, getConditionList } from '../TriggersPage/TriggersPage.utils';
 import TriggerConditions from './TriggerConditions';
 
 type SelectiveTriggersProps = {

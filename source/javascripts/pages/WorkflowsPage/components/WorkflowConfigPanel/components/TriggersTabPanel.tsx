@@ -8,7 +8,6 @@ import {
   OverflowMenuItem,
   TabPanel,
   Text,
-  useDisclosure,
 } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { isEqual } from 'lodash';
@@ -19,10 +18,12 @@ import { WorkflowConfigTab } from '@/components/unified-editor/WorkflowConfig/Wo
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { getConditionList, PipelineableTriggerItem } from '../../../../TriggersPage/TriggersPage.utils';
-import { SourceType } from '../../../../TriggersPage/TriggersPage.types';
-import AddTriggerDialog from '../../../../TriggersPage/components/AddTriggerDialog';
-import TriggerConditions from '../../../../TriggersPage/components/TriggerConditions';
+import { SourceType } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.types';
+import TriggerConditions from '../../../../TriggersPage/components/SelectiveTriggers/TriggerConditions';
+import {
+  PipelineableTriggerItem,
+  getConditionList,
+} from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
 
 type TriggerItemProps = {
   onDeleteClick: () => void;
@@ -56,12 +57,6 @@ const TriggerItem = (props: TriggerItemProps) => {
 
 const TriggersTabPanel = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-
-  const { isOpen, onOpen, onClose } = useDisclosure();
-
-  const onCloseDialog = () => {
-    onClose();
-  };
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
     key: 'wfe_selective_triggering_notification_closed',
@@ -101,7 +96,7 @@ const TriggersTabPanel = () => {
         {triggers.push?.map((trigger: any) => (
           <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'push')} trigger={trigger} />
         ))}
-        <Button margin="24" size="md" variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
+        <Button margin="24" size="md" variant="secondary" leftIconName="PlusAdd">
           Add push trigger
         </Button>
       </ExpandableCard>
@@ -113,7 +108,7 @@ const TriggersTabPanel = () => {
         {triggers.pull_request?.map((trigger: any) => (
           <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')} trigger={trigger} />
         ))}
-        <Button margin="24" size="md" variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
+        <Button margin="24" size="md" variant="secondary" leftIconName="PlusAdd">
           Add pull request trigger
         </Button>
       </ExpandableCard>
@@ -121,11 +116,10 @@ const TriggersTabPanel = () => {
         {triggers.tag?.map((trigger: any) => (
           <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'tag')} trigger={trigger} />
         ))}
-        <Button margin="24" size="md" variant="secondary" onClick={onOpen} leftIconName="PlusAdd">
+        <Button margin="24" size="md" variant="secondary" leftIconName="PlusAdd">
           Add tag trigger
         </Button>
       </ExpandableCard>
-      <AddTriggerDialog onClose={onCloseDialog} isOpen={isOpen} />
     </TabPanel>
   );
 };

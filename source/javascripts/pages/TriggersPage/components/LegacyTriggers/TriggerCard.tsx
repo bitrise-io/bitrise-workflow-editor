@@ -2,8 +2,8 @@ import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from 
 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
-import { TriggerItem } from './TriggersPage.types';
-import TriggerConditions from './components/TriggerConditions';
+import { TriggerItem } from '../TriggersPage/TriggersPage.types';
+import TriggerConditions from '../SelectiveTriggers/TriggerConditions';
 
 interface TriggerCardProps extends CardProps {
   isOverlay?: boolean;

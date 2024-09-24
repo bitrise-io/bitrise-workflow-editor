@@ -31,16 +31,16 @@ import {
   verticalListSortingStrategy,
 } from '@dnd-kit/sortable';
 import { useShallow } from 'zustand/react/shallow';
-import TriggerCard from '../TriggerCard';
-import { useUserMetaData } from '../../../hooks/useUserMetaData';
-import { SourceType, TriggerItem } from '../TriggersPage.types';
-import { convertItemsToTriggerMap, convertTriggerMapToItems } from '../TriggersPageFunctions';
-import RuntimeUtils from '../../../core/utils/RuntimeUtils';
-import useBitriseYmlStore from '../../../hooks/useBitriseYmlStore';
-import AddPrTriggerDialog from '../AddPrTriggerDialog';
-import AddPushTriggerDialog from '../AddPushTriggerDialog';
-import AddTagTriggerDialog from '../AddTagTriggerDialog';
-import { BitriseYml } from '../../../core/models/BitriseYml';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
+import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
+import { useUserMetaData } from '@/hooks/useUserMetaData';
+import { SourceType, TriggerItem } from '../TriggersPage/TriggersPage.types';
+import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPageFunctions';
+import AddPrTriggerDialog from './AddPrTriggerDialog';
+import AddPushTriggerDialog from './AddPushTriggerDialog';
+import AddTagTriggerDialog from './AddTagTriggerDialog';
+import TriggerCard from './TriggerCard';
 
 type LegacyTriggersProps = {
   yml: BitriseYml;

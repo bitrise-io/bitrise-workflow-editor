@@ -1,6 +1,6 @@
 import { Box, Tag, Text, Tooltip, TypeIconName } from '@bitrise/bitkit';
 import { Fragment } from 'react/jsx-runtime';
-import { Condition, ConditionType, LegacyConditionType } from '../TriggersPage.types';
+import { Condition, ConditionType, LegacyConditionType } from '../TriggersPage/TriggersPage.types';
 
 type TriggerConditionsProps = {
   conditions: Condition[];
