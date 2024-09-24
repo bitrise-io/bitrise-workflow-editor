@@ -156,7 +156,7 @@
         return $q(function (resolve, reject) {
           var errors = [];
 
-          if (
+          if (_.any &&
             _.any(variables, function (aVariable) {
               return !Variable.isValidKey(aVariable.key(), shouldKeysBeUnique ? variables : null);
             })
@@ -168,7 +168,7 @@
             }
           }
 
-          if (
+          if (_.any &&
             _.any(variables, function (aVariable) {
               return !Variable.isValidValue(aVariable.value(), shouldValuesBeNotEmpty);
             })
@@ -188,34 +188,6 @@
         return _.any(appService.appConfig.trigger_map, function (aTriggerConfig) {
           return aTriggerConfig.pattern !== undefined;
         });
-      };
-
-      appService.updateDeprecatedTriggerMap = function () {
-        var updatedTriggerMap = [];
-        _.each(appService.appConfig.trigger_map, function (aTriggerConfig) {
-          if (aTriggerConfig.pattern === undefined) {
-            updatedTriggerMap.push(aTriggerConfig);
-
-            return;
-          }
-
-          var pushTriggerConfig = {
-            workflow: aTriggerConfig.workflow,
-            push_branch: aTriggerConfig.pattern
-          };
-          updatedTriggerMap.push(pushTriggerConfig);
-
-          if (aTriggerConfig.is_pull_request_allowed) {
-            var pullRequestTriggerConfig = {
-              workflow: aTriggerConfig.workflow,
-              pull_request_source_branch: aTriggerConfig.pattern,
-              pull_request_target_branch: "*"
-            };
-            updatedTriggerMap.push(pullRequestTriggerConfig);
-          }
-        });
-
-        appService.appConfig.trigger_map = updatedTriggerMap;
       };
 
       appService.saveAppConfig = function (deferredUserSavedYmlToRepository, tabOpenDuringSave, requestConfig) {

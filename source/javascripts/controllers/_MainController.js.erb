@@ -199,7 +199,6 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
                 break;
               }
             case "env-vars":
-            case "triggers":
               var loadPromises = [appService.getAppConfig()];
               if (requestService.isWebsiteMode()) {
                 loadPromises.push(Stack.getAll());
@@ -217,37 +216,28 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
 
               loadPromise.then(
                 function () {
-                  $q(function (deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject) {
-                    if (appService.appConfigHasDeprecatedTriggerMap()) {
-                      appService.updateDeprecatedTriggerMap();
-
-                      Popup.showNoticePopup("<%= data[:strings][:triggers][:update_deprecated_popup][:title] %>", [
-                        "<%= data[:strings][:triggers][:update_deprecated_popup][:details_1] %>",
-                        "<%= replaced_string(data[:strings][:triggers][:update_deprecated_popup][:details_2], [data[:routes][:blog][:new_triggers]])%>"
-                      ])
-                        .then(function () {
-                          return requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml
-                            ? $q.when()
-                            : viewModel.save();
-                        })
-                        .then(deprecatedTriggerCheckResolve, deprecatedTriggerCheckReject);
-                    } else {
-                      deprecatedTriggerCheckResolve();
-                    }
-                  }).then(
-                    function () {
-                      resolve();
-                    },
-                    function (error) {
-                      reject(error);
-                    }
-                  );
+                  resolve();
                 },
                 function (error) {
                   reject(error);
                 }
               );
+              break;
+            case "triggers":
+              var loadPromises = [appService.getAppConfig()];
+              if (requestService.isWebsiteMode()) {
+                loadPromises.push(appService.getPipelineConfig());
+              }
+              var loadPromise = $q.all(loadPromises);
 
+              loadPromise.then(
+                function () {
+                  resolve();
+                },
+                function (error) {
+                  reject(error);
+                }
+              );
               break;
             case "licenses":
               var loadPromises = [appService.getAppConfig(), appService.getPipelineConfig(), appService.getPublicApiToken()];
