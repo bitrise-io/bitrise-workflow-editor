@@ -58,7 +58,7 @@ const ConditionCard = (props: ConditionCardProps) => {
             render={({ field }) => (
               <Input
                 {...field}
-                isRequired
+                isRequired={type !== 'target_branch' && type !== 'source_branch'}
                 onChange={(e) => field.onChange(e.target.value.trimStart())}
                 label={labelText}
                 placeholder={isRegex ? '.*' : '*'}

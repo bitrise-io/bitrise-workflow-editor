@@ -101,93 +101,112 @@ const TriggersTabPanel = () => {
     })),
   );
 
-  const triggers: WorkflowYmlObject['triggers'] = deepCloneSimpleObject(workflow?.userValues.triggers) || {};
+  const triggers: WorkflowYmlObject['triggers'] = deepCloneSimpleObject(workflow?.userValues.triggers || {});
 
   const onTriggerDelete = (trigger: any, type: SourceType) => {
     triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  const onSubmit = () => {};
+  const onSubmit = (trigger: any) => {
+    if (triggerType !== undefined) {
+      if (!Array.isArray(triggers[triggerType])) {
+        triggers[triggerType] = [];
+      }
+      triggers[triggerType].push(trigger);
+      updateWorkflowTriggers(workflow?.id || '', triggers);
+    }
+    setTriggerType(undefined);
+  };
 
-  return triggerType !== undefined ? (
-    <AddTrigger
-      workflowId={workflow?.id}
-      onSubmit={onSubmit}
-      triggerType={triggerType}
-      onCancel={() => {
-        setTriggerType(undefined);
-      }}
-      optionsMap={OPTIONS_MAP[triggerType]}
-      labelsMap={LABELS_MAP[triggerType]}
-    />
-  ) : (
-    <Box padding="24">
-      {isNotificationVisible && (
-        <Notification status="info" onClose={closeNotification} marginBlockEnd="24">
-          <Text textStyle="heading/h4">Workflow based triggers</Text>
-          <Text>
-            Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
-            Workflows or Pipelines.{' '}
-            <Link href="https://devcenter.bitrise.io/" isUnderlined>
-              Learn more
-            </Link>
-          </Text>
-        </Notification>
+  const areTriggersEnabled = true;
+
+  return (
+    <>
+      {triggerType !== undefined && (
+        <AddTrigger
+          workflowId={workflow?.id}
+          onSubmit={onSubmit}
+          triggerType={triggerType}
+          onCancel={() => {
+            setTriggerType(undefined);
+          }}
+          optionsMap={OPTIONS_MAP[triggerType]}
+          labelsMap={LABELS_MAP[triggerType]}
+          areTriggersEnabled={areTriggersEnabled}
+        />
       )}
-      <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
-        {triggers.push?.map((trigger: any) => (
-          <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'push')} trigger={trigger} />
-        ))}
-        <Button
-          margin="24"
-          size="md"
-          variant="secondary"
-          leftIconName="PlusAdd"
-          onClick={() => {
-            setTriggerType('push');
-          }}
+      <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
+        {isNotificationVisible && (
+          <Notification status="info" onClose={closeNotification} marginBlockEnd="24">
+            <Text textStyle="heading/h4">Workflow based triggers</Text>
+            <Text>
+              Set up triggers directly in your Workflows or Pipelines. This way a single Git event can trigger multiple
+              Workflows or Pipelines.{' '}
+              <Link href="https://devcenter.bitrise.io/" isUnderlined>
+                Learn more
+              </Link>
+            </Text>
+          </Notification>
+        )}
+        <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
+          {triggers.push?.map((trigger: any) => (
+            <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'push')} trigger={trigger} />
+          ))}
+          <Button
+            margin="24"
+            size="md"
+            variant="secondary"
+            leftIconName="PlusAdd"
+            onClick={() => {
+              setTriggerType('push');
+            }}
+          >
+            Add push trigger
+          </Button>
+        </ExpandableCard>
+        <ExpandableCard
+          padding="0"
+          buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>}
+          marginY="12"
         >
-          Add push trigger
-        </Button>
-      </ExpandableCard>
-      <ExpandableCard
-        padding="0"
-        buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>}
-        marginY="12"
-      >
-        {triggers.pull_request?.map((trigger: any) => (
-          <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')} trigger={trigger} />
-        ))}
-        <Button
-          margin="24"
-          size="md"
-          variant="secondary"
-          leftIconName="PlusAdd"
-          onClick={() => {
-            setTriggerType('pull_request');
-          }}
-        >
-          Add pull request trigger
-        </Button>
-      </ExpandableCard>
-      <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
-        {triggers.tag?.map((trigger: any) => (
-          <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'tag')} trigger={trigger} />
-        ))}
-        <Button
-          margin="24"
-          size="md"
-          variant="secondary"
-          leftIconName="PlusAdd"
-          onClick={() => {
-            setTriggerType('tag');
-          }}
-        >
-          Add tag trigger
-        </Button>
-      </ExpandableCard>
-    </Box>
+          {triggers.pull_request?.map((trigger: any) => (
+            <TriggerItem
+              key={trigger}
+              onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
+              trigger={trigger}
+            />
+          ))}
+          <Button
+            margin="24"
+            size="md"
+            variant="secondary"
+            leftIconName="PlusAdd"
+            onClick={() => {
+              setTriggerType('pull_request');
+            }}
+          >
+            Add pull request trigger
+          </Button>
+        </ExpandableCard>
+        <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
+          {triggers.tag?.map((trigger: any) => (
+            <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'tag')} trigger={trigger} />
+          ))}
+          <Button
+            margin="24"
+            size="md"
+            variant="secondary"
+            leftIconName="PlusAdd"
+            onClick={() => {
+              setTriggerType('tag');
+            }}
+          >
+            Add tag trigger
+          </Button>
+        </ExpandableCard>
+      </Box>
+    </>
   );
 };
 

@@ -1,6 +1,6 @@
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { ConditionType, FormItems, SourceType } from '../TriggersPage/TriggersPage.types';
+import { Condition, ConditionType, FormItems, SourceType } from '../TriggersPage/TriggersPage.types';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
@@ -10,10 +10,11 @@ type AddTriggerProps = {
   onCancel: () => void;
   optionsMap: Record<ConditionType, string>;
   labelsMap: Record<string, string>;
+  areTriggersEnabled: boolean;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
+  const { areTriggersEnabled, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
 
   const formMethods = useForm<FormItems>({
     defaultValues: {
@@ -45,9 +46,8 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   const onFormSubmit = (data: any) => {
-    console.log('data', data);
     const filteredData = data;
-    filteredData.conditions = data.conditions.map((condition: any) => {
+    filteredData.conditions = data.conditions.map((condition: Condition) => {
       const newCondition = { ...condition };
       newCondition.value = newCondition.value.trim();
       if (!newCondition.isRegex && !newCondition.value) {
@@ -58,7 +58,22 @@ const AddTrigger = (props: AddTriggerProps) => {
       }
       return newCondition;
     });
-    onSubmit(filteredData);
+
+    const newTrigger: any = {};
+    filteredData.conditions.forEach((condition: Condition) => {
+      const value = condition.isRegex ? { regex: condition.value } : condition.value;
+      newTrigger[condition.type] = value;
+    });
+
+    if (data.isDraftPr) {
+      newTrigger.draft_enabled = true;
+    }
+
+    if (areTriggersEnabled === false) {
+      newTrigger.enabled = false;
+    }
+
+    onSubmit(newTrigger);
   };
 
   let title;
