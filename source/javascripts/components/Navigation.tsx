@@ -107,7 +107,7 @@ const Navigation = ({ items, activeItem, onItemSelected }: Props) => {
           href="https://github.com/bitrise-io/workflow-recipes"
           onClick={() =>
             segmentTrack('Workflow Editor Workflow Recipes Button Clicked', {
-              source: '',
+              source: 'menu_bar_workflow_recipes_button',
             })
           }
         >
