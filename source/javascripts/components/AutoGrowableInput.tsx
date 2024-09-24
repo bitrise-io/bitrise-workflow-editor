@@ -35,7 +35,7 @@ const styleProps: StyleProps = {
   whiteSpace: 'preserve nowrap',
 };
 
-const AutoGrowableInput = forwardRef<AutoGrowableInputProps, 'textarea'>((props: AutoGrowableInputProps, ref) => {
+const AutoGrowableInput = forwardRef((props: AutoGrowableInputProps, ref) => {
   const containerRef = useRef<HTMLDivElement>();
 
   const {

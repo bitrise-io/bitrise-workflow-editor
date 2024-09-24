@@ -27,10 +27,8 @@ const StepInputList = ({ inputs }: Props) => {
               })}
               label={input.title()}
               options={input.valueOptions()}
-              helper={{
-                summary: input.summary(),
-                details: input.description(),
-              }}
+              helperSummary={input.summary()}
+              helperDetails={input.description()}
               isRequired={input.isRequired()}
               isSensitive={input.isSensitive()}
               isDisabled={input.isDontChangeValue()}
