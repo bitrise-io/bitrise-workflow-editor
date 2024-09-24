@@ -62,10 +62,8 @@ const StepConfiguration = ({ step, inputCategories, onChange }: StepConfiguratio
           <StepInput
             {...form.register('run_if')}
             label="Additional run conditions"
-            helper={{
-              summary:
-                "Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer to Env Vars and more, see the [docs for details](https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html).",
-            }}
+            helperSummary="Enter any valid **Go template** - the Step will only run if it evaluates to `true`, otherwise it won't run. You can refer
+          to Env Vars and more, see the [docs for details](https://devcenter.bitrise.io/en/steps-and-workflows/introduction-to-steps/enabling-or-disabling-a-step-conditionally.html)."
           />
         </ExpandableCard>
 
