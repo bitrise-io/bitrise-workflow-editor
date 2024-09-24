@@ -1,21 +1,10 @@
 import { useState } from 'react';
-import {
-  Box,
-  Button,
-  ExpandableCard,
-  Link,
-  Notification,
-  OverflowMenu,
-  OverflowMenuItem,
-  TabPanel,
-  Text,
-} from '@bitrise/bitkit';
+import { Box, Button, ExpandableCard, Link, Notification, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { isEqual } from 'lodash';
 import { WorkflowYmlObject } from '@/core/models/Workflow';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { WorkflowConfigTab } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.types';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
@@ -133,7 +122,7 @@ const TriggersTabPanel = () => {
       labelsMap={LABELS_MAP[triggerType]}
     />
   ) : (
-    <TabPanel id={WorkflowConfigTab.TRIGGERS}>
+    <Box padding="24">
       {isNotificationVisible && (
         <Notification status="info" onClose={closeNotification} marginBlockEnd="24">
           <Text textStyle="heading/h4">Workflow based triggers</Text>
@@ -198,7 +187,7 @@ const TriggersTabPanel = () => {
           Add tag trigger
         </Button>
       </ExpandableCard>
-    </TabPanel>
+    </Box>
   );
 };
 

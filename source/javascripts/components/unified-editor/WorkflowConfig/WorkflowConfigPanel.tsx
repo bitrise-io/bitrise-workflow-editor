@@ -77,7 +77,7 @@ const WorkflowConfigPanelContent = () => {
         <TabPanel id={WorkflowConfigTab.PROPERTIES} p="24" overflowY="auto" h="100%">
           <PropertiesTab />
         </TabPanel>
-        <TabPanel id={WorkflowConfigTab.TRIGGERS} p="24" overflowY="auto" h="100%">
+        <TabPanel id={WorkflowConfigTab.TRIGGERS} overflowY="auto" h="100%">
           <TriggersTabPanel />
         </TabPanel>
       </TabPanels>

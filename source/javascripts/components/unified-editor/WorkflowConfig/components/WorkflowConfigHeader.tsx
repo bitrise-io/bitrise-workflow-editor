@@ -15,6 +15,7 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
 
   const shouldShowDeleteButton = variant === 'panel';
+  const shouldShowTriggersTab = variant === 'panel';
 
   return (
     <>
@@ -43,7 +44,7 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
         <TabList paddingX="8">
           <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
           <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
-          <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>
+          {shouldShowTriggersTab && <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>}
         </TabList>
       </Box>
     </>
