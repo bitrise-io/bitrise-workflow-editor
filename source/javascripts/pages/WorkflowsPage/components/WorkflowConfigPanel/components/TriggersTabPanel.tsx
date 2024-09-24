@@ -1,3 +1,4 @@
+import { useState } from 'react';
 import {
   Box,
   Button,
@@ -24,6 +25,7 @@ import {
   PipelineableTriggerItem,
   getConditionList,
 } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
+import AddTrigger from '../../../../TriggersPage/components/SelectiveTriggers/AddTrigger';
 
 type TriggerItemProps = {
   onDeleteClick: () => void;
@@ -56,6 +58,8 @@ const TriggerItem = (props: TriggerItemProps) => {
 };
 
 const TriggersTabPanel = () => {
+  const [isAddTriggerClicked, setIsAddTriggerClicked] = useState(false);
+  const [triggerType, setTriggerType] = useState<SourceType | null>(null);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -78,7 +82,9 @@ const TriggersTabPanel = () => {
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  return (
+  return isAddTriggerClicked ? (
+    <AddTrigger workflowId={workflow?.id} onSubmit={} triggerType={triggerType} />
+  ) : (
     <TabPanel id={WorkflowConfigTab.TRIGGERS}>
       {isNotificationVisible && (
         <Notification status="info" onClose={closeNotification} marginBlockEnd="24">
@@ -96,7 +102,16 @@ const TriggersTabPanel = () => {
         {triggers.push?.map((trigger: any) => (
           <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'push')} trigger={trigger} />
         ))}
-        <Button margin="24" size="md" variant="secondary" leftIconName="PlusAdd">
+        <Button
+          margin="24"
+          size="md"
+          variant="secondary"
+          leftIconName="PlusAdd"
+          onClick={() => {
+            setIsAddTriggerClicked(true);
+            setTriggerType('push');
+          }}
+        >
           Add push trigger
         </Button>
       </ExpandableCard>
@@ -108,7 +123,16 @@ const TriggersTabPanel = () => {
         {triggers.pull_request?.map((trigger: any) => (
           <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')} trigger={trigger} />
         ))}
-        <Button margin="24" size="md" variant="secondary" leftIconName="PlusAdd">
+        <Button
+          margin="24"
+          size="md"
+          variant="secondary"
+          leftIconName="PlusAdd"
+          onClick={() => {
+            setIsAddTriggerClicked(true);
+            setTriggerType('pull_request');
+          }}
+        >
           Add pull request trigger
         </Button>
       </ExpandableCard>
@@ -116,7 +140,16 @@ const TriggersTabPanel = () => {
         {triggers.tag?.map((trigger: any) => (
           <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'tag')} trigger={trigger} />
         ))}
-        <Button margin="24" size="md" variant="secondary" leftIconName="PlusAdd">
+        <Button
+          margin="24"
+          size="md"
+          variant="secondary"
+          leftIconName="PlusAdd"
+          onClick={() => {
+            setIsAddTriggerClicked(true);
+            setTriggerType('tag');
+          }}
+        >
           Add tag trigger
         </Button>
       </ExpandableCard>

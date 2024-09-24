@@ -248,7 +248,6 @@ const AddPushTriggerDialog = (props: DialogProps) => {
                   </ConditionCard>
                 );
               })}
-
               <Button
                 variant="secondary"
                 leftIconName="PlusAdd"
