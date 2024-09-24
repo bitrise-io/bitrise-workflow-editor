@@ -7,7 +7,6 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import LegacyTriggers from '../LegacyTriggers/LegacyTriggers';
 import SelectiveTriggers from '../SelectiveTriggers/SelectiveTriggers';
-import { getPipelineableTriggers } from './TriggersPage.utils';
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
@@ -20,8 +19,6 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
 
   const appSlug = WindowUtils.appSlug() ?? '';
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
-
-  const pipelineableTriggers = getPipelineableTriggers(yml).allTriggers;
 
   const integrationsUrl = appSlug ? `/app/${appSlug}/settings/integrations?tab=webhooks` : '';
 
@@ -56,7 +53,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
           <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>
       )}
-      <SelectiveTriggers pipelineableTriggers={pipelineableTriggers} />
+      <SelectiveTriggers yml={yml} />
       <LegacyTriggers yml={yml} />
     </>
   );

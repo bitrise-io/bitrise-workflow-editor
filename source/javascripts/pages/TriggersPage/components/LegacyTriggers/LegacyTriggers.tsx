@@ -35,7 +35,7 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
-import { SourceType, TriggerItem } from '../TriggersPage/TriggersPage.types';
+import { TriggerType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPageFunctions';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
@@ -55,7 +55,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
   const triggerMap = yml.trigger_map;
 
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [triggers, setTriggers] = useState<Record<SourceType, TriggerItem[]>>(
+  const [triggers, setTriggers] = useState<Record<TriggerType, TriggerItem[]>>(
     convertTriggerMapToItems(triggerMap || []),
   );
   const [editedItem, setEditedItem] = useState<TriggerItem | undefined>();
@@ -123,7 +123,7 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     setActiveId(active.id as string);
   };
 
-  const handleDragEnd = (event: DragEndEvent, type: SourceType) => {
+  const handleDragEnd = (event: DragEndEvent, type: TriggerType) => {
     const { active, over } = event;
     const items = triggers[type];
 
@@ -167,7 +167,6 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
           href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
           isExternal
         >
-          {' '}
           Learn more
         </Link>
       </Text>

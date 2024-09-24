@@ -31,13 +31,13 @@ export type Condition = {
   id?: string;
 };
 
-export type SourceType = 'push' | 'pull_request' | 'tag';
+export type TriggerType = 'push' | 'pull_request' | 'tag';
 
 export type TriggerItem = {
   conditions: Condition[];
   pipelineable: string;
   id: string;
-  source: SourceType;
+  source: TriggerType;
   isDraftPr?: boolean;
   isActive: boolean;
 };

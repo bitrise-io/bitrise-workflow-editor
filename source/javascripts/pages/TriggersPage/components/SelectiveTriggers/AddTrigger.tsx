@@ -1,11 +1,11 @@
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
-import { Condition, ConditionType, FormItems, SourceType } from '../TriggersPage/TriggersPage.types';
+import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
   workflowId?: string;
-  triggerType: SourceType;
+  triggerType: TriggerType;
   onSubmit: (trigger: any) => void;
   onCancel: () => void;
   optionsMap: Record<ConditionType, string>;

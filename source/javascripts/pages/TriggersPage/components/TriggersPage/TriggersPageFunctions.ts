@@ -1,8 +1,8 @@
 import { isObject } from 'lodash';
 import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
-import { SourceType, TriggerItem, LegacyConditionType, ConditionType } from './TriggersPage.types';
+import { TriggerType, TriggerItem, LegacyConditionType, ConditionType } from './TriggersPage.types';
 
-const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): TriggerMapYml => {
+const convertItemsToTriggerMap = (triggers: Record<TriggerType, TriggerItem[]>): TriggerMapYml => {
   const triggerMap: TriggerMapYml = Object.values(triggers)
     .flat()
     .map((trigger) => {
@@ -25,7 +25,7 @@ const convertItemsToTriggerMap = (triggers: Record<SourceType, TriggerItem[]>): 
   return triggerMap;
 };
 
-const getSourceType = (triggerKeys: string[], type?: SourceType): SourceType => {
+const getSourceType = (triggerKeys: string[], type?: TriggerType): TriggerType => {
   if (type) {
     return type;
   }
@@ -38,8 +38,8 @@ const getSourceType = (triggerKeys: string[], type?: SourceType): SourceType => 
   return 'pull_request';
 };
 
-const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<SourceType, TriggerItem[]> => {
-  const triggers: Record<SourceType, TriggerItem[]> = {
+const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<TriggerType, TriggerItem[]> => {
+  const triggers: Record<TriggerType, TriggerItem[]> = {
     pull_request: [],
     push: [],
     tag: [],
@@ -47,7 +47,7 @@ const convertTriggerMapToItems = (triggerMap: TriggerMapYml): Record<SourceType,
 
   triggerMap.forEach((trigger) => {
     const triggerKeys = Object.keys(trigger) as (keyof TriggerYmlObject)[];
-    const source = getSourceType(triggerKeys, trigger.type as SourceType);
+    const source = getSourceType(triggerKeys, trigger.type as TriggerType);
     const finalItem: TriggerItem = {
       conditions: [],
       pipelineable: trigger.workflow as string,

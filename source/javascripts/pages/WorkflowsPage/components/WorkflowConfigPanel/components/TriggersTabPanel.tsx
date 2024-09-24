@@ -8,15 +8,15 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
-import { SourceType } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.types';
+import { TriggerType } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.types';
 import TriggerConditions from '../../../../TriggersPage/components/SelectiveTriggers/TriggerConditions';
 import {
-  PipelineableTriggerItem,
+  DecoratedPipelineableTriggerItem,
   getConditionList,
 } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '../../../../TriggersPage/components/SelectiveTriggers/AddTrigger';
 
-const OPTIONS_MAP: Record<SourceType, Record<string, string>> = {
+const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
     branch: 'Push branch',
     commit_message: 'Commit message',
@@ -35,7 +35,7 @@ const OPTIONS_MAP: Record<SourceType, Record<string, string>> = {
   },
 };
 
-const LABELS_MAP: Record<SourceType, Record<string, string>> = {
+const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {
     branch: 'Push branch',
     commit_message: 'Enter a commit message',
@@ -56,7 +56,7 @@ const LABELS_MAP: Record<SourceType, Record<string, string>> = {
 
 type TriggerItemProps = {
   onDeleteClick: () => void;
-  trigger: PipelineableTriggerItem;
+  trigger: DecoratedPipelineableTriggerItem;
 };
 
 const TriggerItem = (props: TriggerItemProps) => {
@@ -85,7 +85,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 };
 
 const TriggersTabPanel = () => {
-  const [triggerType, setTriggerType] = useState<SourceType | undefined>(undefined);
+  const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -103,7 +103,7 @@ const TriggersTabPanel = () => {
 
   const triggers: WorkflowYmlObject['triggers'] = deepCloneSimpleObject(workflow?.userValues.triggers || {});
 
-  const onTriggerDelete = (trigger: any, type: SourceType) => {
+  const onTriggerDelete = (trigger: any, type: TriggerType) => {
     triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };

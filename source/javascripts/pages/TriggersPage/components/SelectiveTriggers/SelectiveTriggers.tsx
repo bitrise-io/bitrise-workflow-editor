@@ -4,38 +4,46 @@ import {
   EmptyState,
   Link,
   SearchInput,
+  Table,
   TableContainer,
+  Tbody,
   Td,
   Text,
-  Table,
-  Tbody,
   Th,
   Thead,
   Tr,
 } from '@bitrise/bitkit';
-import useNavigation from '../../../../hooks/useNavigation';
-import { PipelineableTriggerItem, getConditionList } from '../TriggersPage/TriggersPage.utils';
+import { BitriseYml } from '@/core/models/BitriseYml';
+import useNavigation from '@/hooks/useNavigation';
+import { getConditionList, getPipelineableTriggers } from '../TriggersPage/TriggersPage.utils';
+import { TriggerType } from '../TriggersPage/TriggersPage.types';
 import TriggerConditions from './TriggerConditions';
 
+const TYPE_MAP: Record<TriggerType, string> = {
+  push: 'Push',
+  pull_request: 'Pull request',
+  tag: 'Tag',
+};
+
 type SelectiveTriggersProps = {
-  pipelineableTriggers: PipelineableTriggerItem[];
+  yml: BitriseYml;
 };
 
 const SelectiveTriggers = (props: SelectiveTriggersProps) => {
-  const { pipelineableTriggers } = props;
+  const { yml } = props;
 
-  const [filterString, setFilterString] = useState('');
-  const [sortProps, setSortProps] = useState<{ direction: AriaAttributes['aria-sort']; condition: 'id' | 'type' }>({
-    direction: 'ascending',
-    condition: 'id',
-  });
   const { replace } = useNavigation();
 
-  const TYPE_MAP: Record<PipelineableTriggerItem['type'], string> = {
-    push: 'Push',
-    pull_request: 'Pull request',
-    tag: 'Tag',
-  };
+  const [filterString, setFilterString] = useState('');
+  const [sortProps, setSortProps] = useState<{
+    direction: AriaAttributes['aria-sort'];
+    condition: 'pipelineableId' | 'type';
+  }>({
+    direction: 'ascending',
+    condition: 'pipelineableId',
+  });
+
+  const pipelineableTriggers = getPipelineableTriggers(yml);
 
   const filteredItems = pipelineableTriggers.filter((item) => {
     const lowerCaseFilterString = filterString.toLowerCase();
@@ -58,6 +66,8 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
     return 0;
   });
 
+  console.log(pipelineableTriggers);
+
   return (
     <>
       {pipelineableTriggers.length > 0 ? (
@@ -76,9 +86,9 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
                   <Th
                     isSortable
                     onSortClick={(sortDirection) => {
-                      setSortProps({ direction: sortDirection, condition: 'id' });
+                      setSortProps({ direction: sortDirection, condition: 'pipelineableId' });
                     }}
-                    sortedBy={sortProps.condition === 'id' ? sortProps.direction : undefined}
+                    sortedBy={sortProps.condition === 'pipelineableId' ? sortProps.direction : undefined}
                   >
                     Target
                   </Th>
@@ -99,18 +109,14 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
                 {filteredItems.map((trigger) => (
                   <Tr key={JSON.stringify(trigger)}>
                     <Td>
-                      <Text>{trigger.id}</Text>
+                      <Text>{trigger.pipelineableId}</Text>
                       <Text textStyle="body/md/regular" color="text/secondary">
-                        {trigger.pipelineableType === 'workflow' && 'Workflow'}
-                        {trigger.pipelineableType === 'pipeline' && 'Pipeline'}
+                        {trigger.pipelineableType === 'workflow' ? 'Workflow' : 'Pipeline'}
                       </Text>
                     </Td>
                     <Td>{TYPE_MAP[trigger.type]}</Td>
                     <Td>
-                      <TriggerConditions
-                        conditions={getConditionList(trigger)}
-                        isDraftPr={trigger.type === 'pull_request' && trigger.draft_enabled}
-                      />
+                      <TriggerConditions conditions={getConditionList(trigger)} isDraftPr={trigger.draft_enabled} />
                     </Td>
                     <Td display="flex" justifyContent="flex-end" alignItems="center">
                       {trigger.pipelineableType === 'workflow' && (
