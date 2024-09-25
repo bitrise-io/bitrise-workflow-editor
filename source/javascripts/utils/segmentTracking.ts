@@ -1,6 +1,7 @@
 import merge from 'lodash/merge';
 import { AnalyticsBrowser } from '@segment/analytics-next';
 import WindowUtils from '@/core/utils/WindowUtils';
+import RuntimeUtils from '@/core/utils/RuntimeUtils';
 
 const segmentKey = WindowUtils.globalProps()?.env?.SEGMENT_JS_WRITE_KEY_NEW || '';
 let segmentAnalytics: AnalyticsBrowser;
@@ -75,10 +76,11 @@ export const segmentTrack = (
   eventProps?: Partial<SegmentEventProperties>,
   eventContext?: Partial<SegmentEventContext>,
 ) => {
-  if (segmentAnalytics) {
-    const mergedProps = merge({}, baseProperties, eventProps || {});
-    const mergedContext = merge({}, baseContext, eventContext || {});
+  const mergedProps = merge({}, baseProperties, eventProps || {});
+  const mergedContext = merge({}, baseContext, eventContext || {});
+  console.debug('Tracking event:', eventName, mergedProps, mergedContext);
 
+  if (RuntimeUtils.isWebsiteMode() && segmentAnalytics) {
     segmentAnalytics?.track(eventName, mergedProps, mergedContext);
 
     if (WindowUtils.dataLayer()) {
