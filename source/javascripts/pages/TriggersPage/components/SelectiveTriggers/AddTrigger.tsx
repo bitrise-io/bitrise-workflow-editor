@@ -11,10 +11,11 @@ type AddTriggerProps = {
   optionsMap: Record<ConditionType, string>;
   labelsMap: Record<string, string>;
   areTriggersEnabled: boolean;
+  isEditMode: boolean;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { areTriggersEnabled, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
+  const { areTriggersEnabled, isEditMode, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
 
   const formMethods = useForm<FormItems>({
     defaultValues: {
@@ -77,7 +78,9 @@ const AddTrigger = (props: AddTriggerProps) => {
   };
 
   let title;
-  if (triggerType === 'push') {
+  if (isEditMode) {
+    title = 'Edit trigger';
+  } else if (triggerType === 'push') {
     title = 'Add push trigger';
   } else if (triggerType === 'pull_request') {
     title = 'Add pull request trigger';

@@ -1,5 +1,15 @@
 import { useState } from 'react';
-import { Box, Button, ExpandableCard, Link, Notification, OverflowMenu, OverflowMenuItem, Text } from '@bitrise/bitkit';
+import {
+  Box,
+  Button,
+  Checkbox,
+  ExpandableCard,
+  Link,
+  Notification,
+  OverflowMenu,
+  OverflowMenuItem,
+  Text,
+} from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { isEqual } from 'lodash';
 import { WorkflowYmlObject } from '@/core/models/Workflow';
@@ -55,12 +65,13 @@ const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
 };
 
 type TriggerItemProps = {
+  onTriggerEdit: () => void;
   onDeleteClick: () => void;
   trigger: DecoratedPipelineableTriggerItem;
 };
 
 const TriggerItem = (props: TriggerItemProps) => {
-  const { onDeleteClick, trigger } = props;
+  const { onDeleteClick, onTriggerEdit, trigger } = props;
   return (
     <Box
       padding="24"
@@ -75,7 +86,9 @@ const TriggerItem = (props: TriggerItemProps) => {
         isDraftPr={trigger.type === 'pull_request' && trigger.draft_enabled}
       />
       <OverflowMenu>
-        <OverflowMenuItem leftIconName="Pencil">Edit trigger</OverflowMenuItem>
+        <OverflowMenuItem leftIconName="Pencil" onClick={onTriggerEdit}>
+          Edit trigger
+        </OverflowMenuItem>
         <OverflowMenuItem isDanger leftIconName="Trash" onClick={onDeleteClick}>
           Delete trigger
         </OverflowMenuItem>
@@ -86,6 +99,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 
 const TriggersTabPanel = () => {
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
+  const [isEditMode, setIsEditMode] = useState(false);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -108,6 +122,46 @@ const TriggersTabPanel = () => {
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
+  const onTriggerEdit = () => {
+    setIsEditMode(true);
+  };
+
+  const exampleTriggers = {
+    push: [
+      {
+        branch: 'main',
+        enabled: false,
+      },
+    ],
+    tag: [
+      {
+        name: {
+          regex: '^\\d\\.\\d\\.\\d$',
+        },
+      },
+    ],
+    pull_request: [
+      {
+        comment: '[workflow: deploy]',
+      },
+      {
+        commit_message: {
+          regex: '.*\\[workflow: deploy\\].*',
+        },
+      },
+    ],
+  };
+
+  let enabledTriggers = true;
+  Object.entries(exampleTriggers).forEach((type) => {
+    type.forEach((obj: any) => {
+      if (obj.enabled === 'false') {
+        enabledTriggers = false;
+      }
+    });
+  });
+  const [triggersActive, setTriggersActive] = useState(enabledTriggers);
+
   const onSubmit = (trigger: any) => {
     if (triggerType !== undefined) {
       if (!Array.isArray(triggers[triggerType])) {
@@ -123,7 +177,7 @@ const TriggersTabPanel = () => {
 
   return (
     <>
-      {triggerType !== undefined && (
+      {(triggerType !== undefined || (isEditMode && triggerType !== undefined)) && (
         <AddTrigger
           workflowId={workflow?.id}
           onSubmit={onSubmit}
@@ -134,6 +188,7 @@ const TriggersTabPanel = () => {
           optionsMap={OPTIONS_MAP[triggerType]}
           labelsMap={LABELS_MAP[triggerType]}
           areTriggersEnabled={areTriggersEnabled}
+          isEditMode={isEditMode}
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
@@ -149,9 +204,24 @@ const TriggersTabPanel = () => {
             </Text>
           </Notification>
         )}
+        <Checkbox
+          helperText="When unchecked and saved, none of the triggers below will execute a build."
+          isChecked={triggersActive}
+          onChange={() => {
+            setTriggersActive((prevState) => !prevState);
+          }}
+          marginBlockEnd="24"
+        >
+          Active
+        </Checkbox>
         <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
           {triggers.push?.map((trigger: any) => (
-            <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'push')} trigger={trigger} />
+            <TriggerItem
+              key={trigger}
+              onDeleteClick={() => onTriggerDelete(trigger, 'push')}
+              trigger={trigger}
+              onTriggerEdit={onTriggerEdit}
+            />
           ))}
           <Button
             margin="24"
@@ -174,6 +244,7 @@ const TriggersTabPanel = () => {
             <TriggerItem
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
+              onTriggerEdit={onTriggerEdit}
               trigger={trigger}
             />
           ))}
@@ -191,7 +262,12 @@ const TriggersTabPanel = () => {
         </ExpandableCard>
         <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
           {triggers.tag?.map((trigger: any) => (
-            <TriggerItem key={trigger} onDeleteClick={() => onTriggerDelete(trigger, 'tag')} trigger={trigger} />
+            <TriggerItem
+              key={trigger}
+              onDeleteClick={() => onTriggerDelete(trigger, 'tag')}
+              trigger={trigger}
+              onTriggerEdit={onTriggerEdit}
+            />
           ))}
           <Button
             margin="24"
