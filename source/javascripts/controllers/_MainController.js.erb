@@ -5,6 +5,7 @@ import {getSearchParamsFromLocationHash} from "@/hooks/useSearchParams";
 import {safeDigest} from "@/services/react-compat";
 import WindowUtils from "@/core/utils/WindowUtils";
 import BitriseYmlApi from "@/core/api/BitriseYmlApi";
+import {segmentTrack} from "@/utils/segmentTracking";
 
 (function () {
   "use strict";
@@ -132,6 +133,9 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
         viewModel.originalYaml = BitriseYmlApi.toYml(appService.savedAppConfig);
         viewModel.modifiedYaml = BitriseYmlApi.toYml(appService.appConfig);
         viewModel.isDiffDialogOpen = true;
+        segmentTrack("Workflow Editor Diff Button Clicked", {
+          tab_name: viewModel.currentMenu.id
+        });
         safeDigest($rootScope);
       }
 
@@ -148,6 +152,10 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
           appService.appConfig = changedAppConfig;
           safeDigest($rootScope);
         } catch (e) {
+          segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+            tab_name: viewModel.currentMenu.id,
+            source: 'diff'
+          });
           Popup.showErrorPopup("Invalid YAML change", e.message);
         }
       }
@@ -349,13 +357,17 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
             return;
           }
 
+          segmentTrack("Workflow Editor Unsaved Changes Popup Shown", {
+            tab_name: viewModel.currentMenu.id
+          });
+
           Popup.showConfirmPopup(
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:title] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:details] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:save] %>",
             "<%= data[:strings][:main][:confirm_tab_change_save_popup][:cancel] %>",
             function () {
-              viewModel.save(true).then(
+              viewModel.save({shouldReturnPromise: true, source: "unsaved_changes_save_button"}).then(
                 function () {
                   resolve();
                 },
@@ -404,7 +416,11 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
             }
 
             viewModel.menuProgress.success();
-
+            segmentTrack("Workflow Editor Tab Displayed", {
+              tab_name: menu.id,
+              is_default_tab: isInitialSelection,
+              yml_source: appService?.pipelineConfig?.usesRepositoryYml ? "git" : "bitrise"
+            });
             datadogRumCustomTiming("wfe", "topNavigation");
           },
           function () {
@@ -549,12 +565,17 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
         return viewModel.dataToSave;
       };
 
-      viewModel.save = function (shouldReturnPromise) {
+      viewModel.save = function ({shouldReturnPromise, source = 'save_changes_button'}) {
         if (shouldReturnPromise === undefined) {
           shouldReturnPromise = false;
         }
 
         viewModel.saveProgress.start("<%= data[:strings][:main][:load_progress][:saving] %>");
+
+        segmentTrack("Workflow Editor Save Button Clicked", {
+          tab_name: viewModel.currentMenu.id,
+          source: source,
+        });
 
         if (requestService.isWebsiteMode() && appService.pipelineConfig.usesRepositoryYml) {
           viewModel.deferredUserSavedYmlToRepository = $q.defer();
@@ -621,13 +642,18 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
             function (error) {
               viewModel.saveProgress.reset();
               $rootScope.$emit("MainController::savedFinishedWithError");
+              segmentTrack('Workflow Editor Invalid Yml Popup Shown', {
+                tab_name: viewModel.currentMenu.id,
+                source: 'save'
+              });
               Popup.showErrorPopup("<%= data[:strings][:main][:load_progress][:save_error] %>", error.message);
 
               if (shouldReturnPromise) {
                 return $q.reject(error);
               }
             }
-          );
+          )
+        ;
 
         if (shouldReturnPromise) {
           return promise;
@@ -667,7 +693,7 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
           event.preventDefault();
 
           if (viewModel.isSaveEnabled()) {
-            viewModel.save();
+            viewModel.save({source: 'save_changes_keyboard_shortcut_pressed'});
           }
 
           return false;
@@ -675,6 +701,10 @@ import BitriseYmlApi from "@/core/api/BitriseYmlApi";
       });
 
       viewModel.discardChangesSelected = function () {
+        segmentTrack("Workflow Editor Discard Button Clicked", {
+          tab_name: viewModel.currentMenu.id
+        });
+
         switch (viewModel.currentMenu.id) {
           case "workflows":
           case "env-vars":
