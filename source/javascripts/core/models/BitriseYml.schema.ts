@@ -87,6 +87,7 @@ const BitriseYmlSchema = {
         meta: {
           patternProperties: {
             '.*': {
+              type: 'object',
               additionalProperties: true,
             },
           },
@@ -121,6 +122,20 @@ const BitriseYmlSchema = {
             },
           },
           type: 'object',
+        },
+        step_bundles: {
+          patternProperties: {
+            '.*': {
+              $ref: '#/definitions/StepBundleModel',
+            },
+          },
+          type: 'object',
+        },
+        includes: {
+          items: {
+            $ref: '#/definitions/IncludeItemModel',
+          },
+          type: 'array',
         },
       },
       additionalProperties: false,
@@ -216,6 +231,7 @@ const BitriseYmlSchema = {
       items: {
         patternProperties: {
           '.*': {
+            type: 'object',
             additionalProperties: true,
           },
         },
@@ -243,6 +259,9 @@ const BitriseYmlSchema = {
         },
         description: {
           type: 'string',
+        },
+        triggers: {
+          $ref: '#/definitions/TriggersModel',
         },
         stages: {
           items: {
@@ -371,6 +390,7 @@ const BitriseYmlSchema = {
         meta: {
           patternProperties: {
             '.*': {
+              type: 'object',
               additionalProperties: true,
             },
           },
@@ -381,6 +401,90 @@ const BitriseYmlSchema = {
         },
         outputs: {
           $ref: '#/definitions/EnvModel',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    TriggersModel: {
+      properties: {
+        push: {
+          items: {
+            $ref: '#/definitions/PushTriggerModel',
+          },
+          type: 'array',
+        },
+        pull_request: {
+          items: {
+            $ref: '#/definitions/PullrequestTriggerModel',
+          },
+          type: 'array',
+        },
+        tag: {
+          items: {
+            $ref: '#/definitions/TagTriggerModel',
+          },
+          type: 'array',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    PushTriggerModel: {
+      properties: {
+        enabled: {
+          type: 'boolean',
+        },
+        branch: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        commit_message: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        changed_files: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    PullrequestTriggerModel: {
+      properties: {
+        enabled: {
+          type: 'boolean',
+        },
+        draft_enabled: {
+          type: 'boolean',
+        },
+        source_branch: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        target_branch: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        label: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        comment: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        commit_message: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+        changed_files: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    TagTriggerModel: {
+      properties: {
+        enabled: {
+          type: 'boolean',
+        },
+        name: {
+          oneOf: [{ $ref: '#/definitions/TriggerMapItemModelRegexCondition' }, { type: 'string' }],
         },
       },
       additionalProperties: false,
@@ -417,7 +521,7 @@ const BitriseYmlSchema = {
         },
       },
       additionalProperties: false,
-      type: 'object',
+      // type: 'object',
     },
     TriggerMapItemModel: {
       properties: {
@@ -518,6 +622,9 @@ const BitriseYmlSchema = {
         description: {
           type: 'string',
         },
+        triggers: {
+          $ref: '#/definitions/TriggersModel',
+        },
         before_run: {
           items: {
             type: 'string',
@@ -536,6 +643,9 @@ const BitriseYmlSchema = {
         steps: {
           items: {
             patternProperties: {
+              '^bundle::.+': {
+                $ref: '#/definitions/StepBundleOverrideModel',
+              },
               '^with$': {
                 $ref: '#/definitions/WithModel',
               },
@@ -550,10 +660,63 @@ const BitriseYmlSchema = {
         meta: {
           patternProperties: {
             '.*': {
+              type: 'object',
               additionalProperties: true,
             },
           },
           type: 'object',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    StepBundleModel: {
+      properties: {
+        envs: {
+          $ref: '#/definitions/EnvModel',
+        },
+        steps: {
+          items: {
+            patternProperties: {
+              '.*': {
+                $ref: '#/definitions/StepModel',
+              },
+            },
+            type: 'object',
+          },
+          type: 'array',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    StepBundleOverrideModel: {
+      properties: {
+        envs: {
+          $ref: '#/definitions/EnvModel',
+        },
+      },
+      additionalProperties: false,
+      type: 'object',
+    },
+    IncludeItemModel: {
+      required: ['path'],
+      properties: {
+        path: {
+          type: 'string',
+          minLength: 1,
+        },
+        repository: {
+          type: 'string',
+        },
+        branch: {
+          type: 'string',
+        },
+        commit: {
+          type: 'string',
+        },
+        tag: {
+          type: 'string',
         },
       },
       additionalProperties: false,
