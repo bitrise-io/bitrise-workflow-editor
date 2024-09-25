@@ -99,7 +99,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 
 const TriggersTabPanel = () => {
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
-  const [isEditMode, setIsEditMode] = useState(false);
+  const [editedItem, setIsEditedItem] = useState();
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -149,7 +149,7 @@ const TriggersTabPanel = () => {
   };
 
   let enabledTriggers = true;
-  Object.entries(exampleTriggers).forEach((type) => {
+  Object.entries(triggers).forEach((type) => {
     type.forEach((obj: any) => {
       if (obj.enabled === 'false') {
         enabledTriggers = false;
@@ -173,7 +173,7 @@ const TriggersTabPanel = () => {
 
   return (
     <>
-      {(triggerType !== undefined || (isEditMode && triggerType !== undefined)) && (
+      {triggerType !== undefined && (
         <AddTrigger
           workflowId={workflow?.id}
           onSubmit={onSubmit}
@@ -184,7 +184,7 @@ const TriggersTabPanel = () => {
           optionsMap={OPTIONS_MAP[triggerType]}
           labelsMap={LABELS_MAP[triggerType]}
           areTriggersEnabled={areTriggersEnabled}
-          isEditMode={isEditMode}
+          editedItem={editedItem}
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
@@ -217,7 +217,7 @@ const TriggersTabPanel = () => {
               onDeleteClick={() => onTriggerDelete(trigger, 'push')}
               trigger={trigger}
               onTriggerEdit={() => {
-                setIsEditMode(true);
+                setIsEditedItem(trigger);
                 setTriggerType('push');
               }}
             />
@@ -244,7 +244,7 @@ const TriggersTabPanel = () => {
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
               onTriggerEdit={() => {
-                setIsEditMode(true);
+                setIsEditedItem(trigger);
                 setTriggerType('pull_request');
               }}
               trigger={trigger}
@@ -269,7 +269,7 @@ const TriggersTabPanel = () => {
               onDeleteClick={() => onTriggerDelete(trigger, 'tag')}
               trigger={trigger}
               onTriggerEdit={() => {
-                setIsEditMode(true);
+                setIsEditedItem(trigger);
                 setTriggerType('tag');
               }}
             />

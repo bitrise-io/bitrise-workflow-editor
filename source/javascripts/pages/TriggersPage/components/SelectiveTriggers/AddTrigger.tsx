@@ -11,11 +11,11 @@ type AddTriggerProps = {
   optionsMap: Record<ConditionType, string>;
   labelsMap: Record<string, string>;
   areTriggersEnabled: boolean;
-  isEditMode: boolean;
+  editedItem: any;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { areTriggersEnabled, isEditMode, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
+  const { areTriggersEnabled, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
 
   const formMethods = useForm<FormItems>({
     defaultValues: {
@@ -77,7 +77,7 @@ const AddTrigger = (props: AddTriggerProps) => {
     onSubmit(newTrigger);
   };
 
-  const title = isEditMode
+  const title = editedItem
     ? `Edit ${triggerType.replace('_', ' ')} trigger`
     : `Add ${triggerType.replace('_', ' ')} trigger`;
 
