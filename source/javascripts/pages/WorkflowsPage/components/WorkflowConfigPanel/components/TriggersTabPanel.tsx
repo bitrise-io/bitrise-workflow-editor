@@ -122,10 +122,6 @@ const TriggersTabPanel = () => {
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  const onTriggerEdit = () => {
-    setIsEditMode(true);
-  };
-
   const exampleTriggers = {
     push: [
       {
@@ -220,7 +216,10 @@ const TriggersTabPanel = () => {
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'push')}
               trigger={trigger}
-              onTriggerEdit={onTriggerEdit}
+              onTriggerEdit={() => {
+                setIsEditMode(true);
+                setTriggerType('push');
+              }}
             />
           ))}
           <Button
@@ -244,7 +243,10 @@ const TriggersTabPanel = () => {
             <TriggerItem
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
-              onTriggerEdit={onTriggerEdit}
+              onTriggerEdit={() => {
+                setIsEditMode(true);
+                setTriggerType('pull_request');
+              }}
               trigger={trigger}
             />
           ))}
@@ -266,7 +268,10 @@ const TriggersTabPanel = () => {
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'tag')}
               trigger={trigger}
-              onTriggerEdit={onTriggerEdit}
+              onTriggerEdit={() => {
+                setIsEditMode(true);
+                setTriggerType('tag');
+              }}
             />
           ))}
           <Button

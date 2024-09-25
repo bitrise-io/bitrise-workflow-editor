@@ -77,16 +77,9 @@ const AddTrigger = (props: AddTriggerProps) => {
     onSubmit(newTrigger);
   };
 
-  let title;
-  if (isEditMode) {
-    title = 'Edit trigger';
-  } else if (triggerType === 'push') {
-    title = 'Add push trigger';
-  } else if (triggerType === 'pull_request') {
-    title = 'Add pull request trigger';
-  } else if (triggerType === 'tag') {
-    title = 'Add tag trigger';
-  }
+  const title = isEditMode
+    ? `Edit ${triggerType.replace('_', ' ')} trigger`
+    : `Add ${triggerType.replace('_', ' ')} trigger`;
 
   const handleCancel = () => {
     reset();
