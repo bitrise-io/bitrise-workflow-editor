@@ -23,6 +23,7 @@ import TriggerConditions from '../../../../TriggersPage/components/SelectiveTrig
 import {
   DecoratedPipelineableTriggerItem,
   getConditionList,
+  PipelineableTriggerItem,
 } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '../../../../TriggersPage/components/SelectiveTriggers/AddTrigger';
 
@@ -68,10 +69,12 @@ type TriggerItemProps = {
   onTriggerEdit: () => void;
   onDeleteClick: () => void;
   trigger: DecoratedPipelineableTriggerItem;
+  triggerType: TriggerType;
 };
 
 const TriggerItem = (props: TriggerItemProps) => {
-  const { onDeleteClick, onTriggerEdit, trigger } = props;
+  const { onDeleteClick, onTriggerEdit, trigger, triggerType } = props;
+  const conditions = getConditionList(trigger);
   return (
     <Box
       padding="24"
@@ -81,10 +84,7 @@ const TriggerItem = (props: TriggerItemProps) => {
       gap="16"
       justifyContent="space-between"
     >
-      <TriggerConditions
-        conditions={getConditionList(trigger)}
-        isDraftPr={trigger.type === 'pull_request' && trigger.draft_enabled}
-      />
+      <TriggerConditions conditions={conditions} isDraftPr={triggerType === 'pull_request' && trigger.draft_enabled} />
       <OverflowMenu>
         <OverflowMenuItem leftIconName="Pencil" onClick={onTriggerEdit}>
           Edit trigger
@@ -99,7 +99,7 @@ const TriggerItem = (props: TriggerItemProps) => {
 
 const TriggersTabPanel = () => {
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
-  const [editedItem, setIsEditedItem] = useState();
+  const [editedItem, setIsEditedItem] = useState<PipelineableTriggerItem | undefined>(undefined);
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -122,31 +122,31 @@ const TriggersTabPanel = () => {
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
 
-  const exampleTriggers = {
-    push: [
-      {
-        branch: 'main',
-        enabled: false,
-      },
-    ],
-    tag: [
-      {
-        name: {
-          regex: '^\\d\\.\\d\\.\\d$',
-        },
-      },
-    ],
-    pull_request: [
-      {
-        comment: '[workflow: deploy]',
-      },
-      {
-        commit_message: {
-          regex: '.*\\[workflow: deploy\\].*',
-        },
-      },
-    ],
-  };
+  // const exampleTriggers = {
+  //   push: [
+  //     {
+  //       branch: 'main',
+  //       enabled: false,
+  //     },
+  //   ],
+  //   tag: [
+  //     {
+  //       name: {
+  //         regex: '^\\d\\.\\d\\.\\d$',
+  //       },
+  //     },
+  //   ],
+  //   pull_request: [
+  //     {
+  //       comment: '[workflow: deploy]',
+  //     },
+  //     {
+  //       commit_message: {
+  //         regex: '.*\\[workflow: deploy\\].*',
+  //       },
+  //     },
+  //   ],
+  // };
 
   let enabledTriggers = true;
   Object.entries(triggers).forEach((type) => {
@@ -158,15 +158,21 @@ const TriggersTabPanel = () => {
   });
   const [triggersActive, setTriggersActive] = useState(enabledTriggers);
 
-  const onSubmit = (trigger: any) => {
+  const onSubmit = (trigger: PipelineableTriggerItem) => {
     if (triggerType !== undefined) {
       if (!Array.isArray(triggers[triggerType])) {
         triggers[triggerType] = [];
       }
-      triggers[triggerType].push(trigger);
+      if (editedItem) {
+        triggers[triggerType].push(trigger);
+      } else {
+        triggers[triggerType].push(trigger);
+      }
+
       updateWorkflowTriggers(workflow?.id || '', triggers);
     }
     setTriggerType(undefined);
+    setIsEditedItem(undefined);
   };
 
   const areTriggersEnabled = true;
@@ -180,6 +186,7 @@ const TriggersTabPanel = () => {
           triggerType={triggerType}
           onCancel={() => {
             setTriggerType(undefined);
+            setIsEditedItem(undefined);
           }}
           optionsMap={OPTIONS_MAP[triggerType]}
           labelsMap={LABELS_MAP[triggerType]}
@@ -216,6 +223,7 @@ const TriggersTabPanel = () => {
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'push')}
               trigger={trigger}
+              triggerType="push"
               onTriggerEdit={() => {
                 setIsEditedItem(trigger);
                 setTriggerType('push');
@@ -242,6 +250,7 @@ const TriggersTabPanel = () => {
           {triggers.pull_request?.map((trigger: any) => (
             <TriggerItem
               key={trigger}
+              triggerType="pull_request"
               onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
               onTriggerEdit={() => {
                 setIsEditedItem(trigger);
@@ -267,6 +276,7 @@ const TriggersTabPanel = () => {
             <TriggerItem
               key={trigger}
               onDeleteClick={() => onTriggerDelete(trigger, 'tag')}
+              triggerType="tag"
               trigger={trigger}
               onTriggerEdit={() => {
                 setIsEditedItem(trigger);

@@ -1,6 +1,8 @@
+import { useMemo } from 'react';
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
 import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
+import { getConditionList, PipelineableTriggerItem } from '../TriggersPage/TriggersPage.utils';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
@@ -11,21 +13,29 @@ type AddTriggerProps = {
   optionsMap: Record<ConditionType, string>;
   labelsMap: Record<string, string>;
   areTriggersEnabled: boolean;
-  editedItem: any;
+  editedItem?: PipelineableTriggerItem;
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
   const { areTriggersEnabled, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
 
+  const defaultConditions = useMemo(() => {
+    if (editedItem) {
+      return getConditionList(editedItem);
+    }
+    return [
+      {
+        type: Object.keys(optionsMap)[0] as ConditionType,
+        value: '',
+        isRegex: false,
+      },
+    ];
+  }, [editedItem, optionsMap]);
+
   const formMethods = useForm<FormItems>({
     defaultValues: {
-      conditions: [
-        {
-          type: Object.keys(optionsMap)[0] as ConditionType,
-          value: '',
-          isRegex: false,
-        },
-      ],
+      conditions: defaultConditions,
+      isDraftPr: !!editedItem?.draft_enabled || true,
     },
   });
 
@@ -157,7 +167,7 @@ const AddTrigger = (props: AddTriggerProps) => {
             }
           >
             <Button type="submit" isDisabled={isConditionsUsed || hasEmptyCondition}>
-              Add trigger
+              {editedItem ? 'Apply changes' : 'Add trigger'}
             </Button>
           </Tooltip>
           <Button variant="tertiary" onClick={handleCancel}>
