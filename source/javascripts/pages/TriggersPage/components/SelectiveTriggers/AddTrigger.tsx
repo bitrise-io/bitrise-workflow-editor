@@ -1,23 +1,35 @@
 import { useMemo } from 'react';
 import { Box, Button, ButtonGroup, Checkbox, Link, Text, Tooltip } from '@bitrise/bitkit';
 import { FormProvider, useFieldArray, useForm } from 'react-hook-form';
+import { isEqual } from 'lodash';
 import { Condition, ConditionType, FormItems, TriggerType } from '../TriggersPage/TriggersPage.types';
-import { getConditionList, PipelineableTriggerItem } from '../TriggersPage/TriggersPage.utils';
+import { getConditionList, TargetBasedTriggerItem } from '../TriggersPage/TriggersPage.utils';
 import ConditionCard from './ConditionCard';
 
 type AddTriggerProps = {
   workflowId?: string;
   triggerType: TriggerType;
-  onSubmit: (trigger: any) => void;
+  onSubmit: (trigger: TargetBasedTriggerItem) => void;
   onCancel: () => void;
   optionsMap: Record<ConditionType, string>;
   labelsMap: Record<string, string>;
   areTriggersEnabled: boolean;
-  editedItem?: PipelineableTriggerItem;
+  editedItem?: TargetBasedTriggerItem;
+  currentTriggers: TargetBasedTriggerItem[];
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const { areTriggersEnabled, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
+  const {
+    areTriggersEnabled,
+    currentTriggers,
+    editedItem,
+    labelsMap,
+    onCancel,
+    onSubmit,
+    optionsMap,
+    triggerType,
+    workflowId,
+  } = props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -87,6 +99,14 @@ const AddTrigger = (props: AddTriggerProps) => {
     onSubmit(newTrigger);
   };
 
+  let isSameTriggerExist = false;
+  currentTriggers.forEach((trigger) => {
+    console.log(getConditionList(trigger), conditions);
+    if (isEqual(getConditionList(trigger), conditions)) {
+      isSameTriggerExist = true;
+    }
+  });
+
   const title = editedItem
     ? `Edit ${triggerType.replace('_', ' ')} trigger`
     : `Add ${triggerType.replace('_', ' ')} trigger`;
@@ -102,8 +122,6 @@ const AddTrigger = (props: AddTriggerProps) => {
       hasEmptyCondition = true;
     }
   });
-
-  const isConditionsUsed = false;
 
   return (
     <FormProvider {...formMethods}>
@@ -159,14 +177,14 @@ const AddTrigger = (props: AddTriggerProps) => {
         </Box>
         <ButtonGroup spacing="16" padding="24" paddingBlockStart="32" marginBlockStart="auto">
           <Tooltip
-            isDisabled={!isConditionsUsed && !hasEmptyCondition}
+            isDisabled={!isSameTriggerExist && !hasEmptyCondition}
             label={
-              isConditionsUsed
+              isSameTriggerExist
                 ? 'You previously added the same set of conditions for another trigger. Please check and try again.'
                 : 'Please fill all conditions.'
             }
           >
-            <Button type="submit" isDisabled={isConditionsUsed || hasEmptyCondition}>
+            <Button type="submit" isDisabled={isSameTriggerExist || hasEmptyCondition}>
               {editedItem ? 'Apply changes' : 'Add trigger'}
             </Button>
           </Tooltip>

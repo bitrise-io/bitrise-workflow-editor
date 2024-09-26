@@ -13,7 +13,6 @@ import {
 } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
 import { isEqual } from 'lodash';
-import { WorkflowYmlObject } from '@/core/models/Workflow';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
@@ -22,9 +21,9 @@ import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { TriggerType } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.types';
 import TriggerConditions from '../../../../TriggersPage/components/SelectiveTriggers/TriggerConditions';
 import {
-  DecoratedPipelineableTriggerItem,
   getConditionList,
-  PipelineableTriggerItem,
+  TargetBasedTriggerItem,
+  TargetBasedTriggers,
 } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
 import AddTrigger from '../../../../TriggersPage/components/SelectiveTriggers/AddTrigger';
 
@@ -69,7 +68,7 @@ const LABELS_MAP: Record<TriggerType, Record<string, string>> = {
 type TriggerItemProps = {
   onTriggerEdit: () => void;
   onDeleteClick: () => void;
-  trigger: DecoratedPipelineableTriggerItem;
+  trigger: TargetBasedTriggerItem;
   triggerType: TriggerType;
 };
 
@@ -100,7 +99,9 @@ const TriggerItem = (props: TriggerItemProps) => {
 
 const TriggersTabPanel = () => {
   const [triggerType, setTriggerType] = useState<TriggerType | undefined>(undefined);
-  const [editedItem, setIsEditedItem] = useState<PipelineableTriggerItem | undefined>(undefined);
+  const [editedItem, setEditedItem] = useState<{ index: number; trigger: TargetBasedTriggerItem } | undefined>(
+    undefined,
+  );
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
@@ -116,9 +117,11 @@ const TriggersTabPanel = () => {
     })),
   );
 
-  const triggers: WorkflowYmlObject['triggers'] = deepCloneSimpleObject(workflow?.userValues.triggers || {});
+  const triggers: TargetBasedTriggers = deepCloneSimpleObject(
+    (workflow?.userValues.triggers as TargetBasedTriggers) || {},
+  );
 
-  const onTriggerDelete = (trigger: any, type: TriggerType) => {
+  const onTriggerDelete = (trigger: TargetBasedTriggerItem, type: TriggerType) => {
     triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
@@ -159,13 +162,13 @@ const TriggersTabPanel = () => {
   });
   const [triggersActive, setTriggersActive] = useState(enabledTriggers);
 
-  const onSubmit = (trigger: PipelineableTriggerItem) => {
+  const onSubmit = (trigger: TargetBasedTriggerItem) => {
     if (triggerType !== undefined) {
       if (!Array.isArray(triggers[triggerType])) {
         triggers[triggerType] = [];
       }
       if (editedItem) {
-        triggers[triggerType].push(trigger);
+        triggers[triggerType][editedItem.index] = trigger;
       } else {
         triggers[triggerType].push(trigger);
       }
@@ -173,7 +176,7 @@ const TriggersTabPanel = () => {
       updateWorkflowTriggers(workflow?.id || '', triggers);
     }
     setTriggerType(undefined);
-    setIsEditedItem(undefined);
+    setEditedItem(undefined);
   };
 
   const areTriggersEnabled = true;
@@ -187,12 +190,13 @@ const TriggersTabPanel = () => {
           triggerType={triggerType}
           onCancel={() => {
             setTriggerType(undefined);
-            setIsEditedItem(undefined);
+            setEditedItem(undefined);
           }}
           optionsMap={OPTIONS_MAP[triggerType]}
           labelsMap={LABELS_MAP[triggerType]}
           areTriggersEnabled={areTriggersEnabled}
-          editedItem={editedItem}
+          editedItem={editedItem?.trigger}
+          currentTriggers={triggers[triggerType]}
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
@@ -220,14 +224,14 @@ const TriggersTabPanel = () => {
           </Checkbox>
         </Card>
         <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
-          {triggers.push?.map((trigger: any) => (
+          {(triggers.push as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
             <TriggerItem
-              key={trigger}
+              key={JSON.stringify(trigger)}
               onDeleteClick={() => onTriggerDelete(trigger, 'push')}
               trigger={trigger}
               triggerType="push"
               onTriggerEdit={() => {
-                setIsEditedItem(trigger);
+                setEditedItem({ trigger, index });
                 setTriggerType('push');
               }}
             />
@@ -249,18 +253,20 @@ const TriggersTabPanel = () => {
           buttonContent={<Text textStyle="body/lg/semibold">Pull request triggers</Text>}
           marginY="12"
         >
-          {triggers.pull_request?.map((trigger: any) => (
-            <TriggerItem
-              key={trigger}
-              triggerType="pull_request"
-              onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
-              onTriggerEdit={() => {
-                setIsEditedItem(trigger);
-                setTriggerType('pull_request');
-              }}
-              trigger={trigger}
-            />
-          ))}
+          {(triggers.pull_request as TargetBasedTriggerItem[])?.map(
+            (trigger: TargetBasedTriggerItem, index: number) => (
+              <TriggerItem
+                key={JSON.stringify(trigger)}
+                triggerType="pull_request"
+                onDeleteClick={() => onTriggerDelete(trigger, 'pull_request')}
+                onTriggerEdit={() => {
+                  setEditedItem({ trigger, index });
+                  setTriggerType('pull_request');
+                }}
+                trigger={trigger}
+              />
+            ),
+          )}
           <Button
             margin="24"
             size="md"
@@ -274,14 +280,14 @@ const TriggersTabPanel = () => {
           </Button>
         </ExpandableCard>
         <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Tag triggers</Text>}>
-          {triggers.tag?.map((trigger: any) => (
+          {(triggers.tag as TargetBasedTriggerItem[])?.map((trigger: TargetBasedTriggerItem, index: number) => (
             <TriggerItem
-              key={trigger}
+              key={JSON.stringify(trigger)}
               onDeleteClick={() => onTriggerDelete(trigger, 'tag')}
               triggerType="tag"
               trigger={trigger}
               onTriggerEdit={() => {
-                setIsEditedItem(trigger);
+                setEditedItem({ trigger, index });
                 setTriggerType('tag');
               }}
             />
