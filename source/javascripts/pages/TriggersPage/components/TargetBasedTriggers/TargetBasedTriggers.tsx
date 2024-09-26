@@ -25,11 +25,11 @@ const TYPE_MAP: Record<TriggerType, string> = {
   tag: 'Tag',
 };
 
-type SelectiveTriggersProps = {
+type TargetBasedTriggersProps = {
   yml: BitriseYml;
 };
 
-const SelectiveTriggers = (props: SelectiveTriggersProps) => {
+const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
   const { yml } = props;
 
   const { replace } = useNavigation();
@@ -159,4 +159,4 @@ const SelectiveTriggers = (props: SelectiveTriggersProps) => {
   );
 };
 
-export default SelectiveTriggers;
+export default TargetBasedTriggers;

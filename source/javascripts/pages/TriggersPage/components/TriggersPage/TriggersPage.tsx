@@ -6,7 +6,7 @@ import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import LegacyTriggers from '../LegacyTriggers/LegacyTriggers';
-import SelectiveTriggers from '../SelectiveTriggers/SelectiveTriggers';
+import TargetBasedTriggers from '../TargetBasedTriggers/TargetBasedTriggers';
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
@@ -53,7 +53,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
           <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>
       )}
-      <SelectiveTriggers yml={yml} />
+      <TargetBasedTriggers yml={yml} />
       <LegacyTriggers yml={yml} />
     </>
   );

@@ -19,13 +19,13 @@ import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowCo
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import deepCloneSimpleObject from '@/utils/deepCloneSimpleObject';
 import { TriggerType } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.types';
-import TriggerConditions from '../../../../TriggersPage/components/SelectiveTriggers/TriggerConditions';
+import TriggerConditions from '../../../../TriggersPage/components/TargetBasedTriggers/TriggerConditions';
 import {
   getConditionList,
   TargetBasedTriggerItem,
   TargetBasedTriggers,
 } from '../../../../TriggersPage/components/TriggersPage/TriggersPage.utils';
-import AddTrigger from '../../../../TriggersPage/components/SelectiveTriggers/AddTrigger';
+import AddTrigger from '../../../../TriggersPage/components/TargetBasedTriggers/AddTrigger';
 
 const OPTIONS_MAP: Record<TriggerType, Record<string, string>> = {
   push: {

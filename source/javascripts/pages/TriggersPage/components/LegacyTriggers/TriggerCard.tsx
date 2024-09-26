@@ -3,7 +3,7 @@ import { Box, CardProps, Checkbox, DraggableCard, Icon, IconButton, Text } from 
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { TriggerItem } from '../TriggersPage/TriggersPage.types';
-import TriggerConditions from '../SelectiveTriggers/TriggerConditions';
+import TriggerConditions from '../TargetBasedTriggers/TriggerConditions';
 
 interface TriggerCardProps extends CardProps {
   isOverlay?: boolean;

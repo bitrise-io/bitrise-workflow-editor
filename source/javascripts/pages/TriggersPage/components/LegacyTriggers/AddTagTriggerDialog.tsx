@@ -2,7 +2,7 @@ import { useEffect, useMemo } from 'react';
 import { Button, Dialog, DialogBody, DialogFooter, Input, Select, Text, Tooltip } from '@bitrise/bitkit';
 import { Controller, FormProvider, useForm } from 'react-hook-form';
 import { FormItems, TriggerItem } from '../TriggersPage/TriggersPage.types';
-import RegexCheckbox from '../SelectiveTriggers/RegexCheckbox';
+import RegexCheckbox from '../TargetBasedTriggers/RegexCheckbox';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
 
 type DialogProps = {

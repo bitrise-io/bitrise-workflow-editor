@@ -17,7 +17,7 @@ import { Controller, FormProvider, useFieldArray, useForm } from 'react-hook-for
 
 import { FormItems, LegacyPushConditionType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { checkIsConditionsUsed } from '../TriggersPage/TriggersPage.utils';
-import ConditionCard from '../SelectiveTriggers/ConditionCard';
+import ConditionCard from '../TargetBasedTriggers/ConditionCard';
 
 type DialogProps = {
   currentTriggers: TriggerItem[];
