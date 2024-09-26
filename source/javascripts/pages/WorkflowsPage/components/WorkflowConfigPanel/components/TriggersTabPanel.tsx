@@ -2,6 +2,7 @@ import { useState } from 'react';
 import {
   Box,
   Button,
+  Card,
   Checkbox,
   ExpandableCard,
   Link,
@@ -207,16 +208,17 @@ const TriggersTabPanel = () => {
             </Text>
           </Notification>
         )}
-        <Checkbox
-          helperText="When unchecked and saved, none of the triggers below will execute a build."
-          isChecked={triggersActive}
-          onChange={() => {
-            setTriggersActive((prevState) => !prevState);
-          }}
-          marginBlockEnd="24"
-        >
-          Active
-        </Checkbox>
+        <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
+          <Checkbox
+            helperText="When unchecked and saved, none of the triggers below will execute a build."
+            isChecked={triggersActive}
+            onChange={() => {
+              setTriggersActive((prevState) => !prevState);
+            }}
+          >
+            Active
+          </Checkbox>
+        </Card>
         <ExpandableCard padding="0" buttonContent={<Text textStyle="body/lg/semibold">Push triggers</Text>}>
           {triggers.push?.map((trigger: any) => (
             <TriggerItem
