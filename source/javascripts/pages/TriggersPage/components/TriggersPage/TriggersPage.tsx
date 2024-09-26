@@ -7,6 +7,7 @@ import { BitriseYml } from '@/core/models/BitriseYml';
 import BitriseYmlProvider from '@/contexts/BitriseYmlProvider';
 import LegacyTriggers from '../LegacyTriggers/LegacyTriggers';
 import TargetBasedTriggers from '../TargetBasedTriggers/TargetBasedTriggers';
+import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 
 const TRIGGERS_CONFIGURED_METADATA_KEY = 'wfe_triggers_configure_webhooks_notification_closed';
 
@@ -26,6 +27,8 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
     key: TRIGGERS_CONFIGURED_METADATA_KEY,
     enabled: isWebsiteMode,
   });
+
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   return (
     <>
@@ -53,7 +56,7 @@ const TriggersPageContent = (props: TriggersPageContentProps) => {
           <Text>Enable Bitrise to interact with third-party services and are necessary for triggers to work.</Text>
         </Notification>
       )}
-      <TargetBasedTriggers yml={yml} />
+      {isTargetBasedTriggersEnabled && <TargetBasedTriggers yml={yml} />}
       <LegacyTriggers yml={yml} />
     </>
   );

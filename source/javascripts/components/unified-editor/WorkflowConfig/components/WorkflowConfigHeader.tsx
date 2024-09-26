@@ -4,6 +4,7 @@ import useDependantWorkflows from '@/hooks/useDependantWorkflows';
 import { useWorkflowsPageStore } from '@/pages/WorkflowsPage/WorkflowsPage.store';
 import { useWorkflowConfigContext } from '../WorkflowConfig.context';
 import { WorkflowConfigTab } from '../WorkflowConfig.types';
+import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 
 type Props = {
   variant: 'panel' | 'drawer';
@@ -13,9 +14,10 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
   const { id, userValues } = useWorkflowConfigContext() ?? { id: '' };
   const dependants = useDependantWorkflows(id);
   const { openDeleteWorkflowDialog } = useWorkflowsPageStore();
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
 
   const shouldShowDeleteButton = variant === 'panel';
-  const shouldShowTriggersTab = variant === 'panel';
+  const shouldShowTriggersTab = variant === 'panel' && isTargetBasedTriggersEnabled;
 
   return (
     <>

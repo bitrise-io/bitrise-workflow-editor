@@ -37,6 +37,7 @@ import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import { TriggerType, TriggerItem } from '../TriggersPage/TriggersPage.types';
 import { convertTriggerMapToItems, convertItemsToTriggerMap } from '../TriggersPage/TriggersPageFunctions';
+import useFeatureFlag from '../../../../hooks/useFeatureFlag';
 import AddPrTriggerDialog from './AddPrTriggerDialog';
 import AddPushTriggerDialog from './AddPushTriggerDialog';
 import AddTagTriggerDialog from './AddTagTriggerDialog';
@@ -155,21 +156,28 @@ const LegacyTriggers = (props: LegacyTriggersProps) => {
     setEditedItem(trigger);
     openTagTriggerDialog();
   };
+
+  const isTargetBasedTriggersEnabled = useFeatureFlag('enable-target-based-triggers');
+
   return (
     <>
-      <Text as="h3" textStyle="heading/h3" marginBottom="4">
-        Legacy triggers
-      </Text>
-      <Text color="text/secondary">
-        A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.
-        <Link
-          colorScheme="purple"
-          href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
-          isExternal
-        >
-          Learn more
-        </Link>
-      </Text>
+      {isTargetBasedTriggersEnabled && (
+        <>
+          <Text as="h3" textStyle="heading/h3" marginBottom="4">
+            Legacy triggers
+          </Text>
+          <Text color="text/secondary">
+            A project-based trigger map. When a Git event occurs, only the first matching trigger will be executed.
+            <Link
+              colorScheme="purple"
+              href="https://devcenter.bitrise.io/en/builds/starting-builds/triggering-builds-automatically.html"
+              isExternal
+            >
+              Learn more
+            </Link>
+          </Text>
+        </>
+      )}
       <Tabs marginTop="24" marginBottom="24">
         <TabList>
           <Tab id="push">Push</Tab>

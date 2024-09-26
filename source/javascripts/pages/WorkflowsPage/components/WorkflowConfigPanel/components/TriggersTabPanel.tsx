@@ -105,7 +105,7 @@ const TriggersTabPanel = () => {
   const isWebsiteMode = RuntimeUtils.isWebsiteMode();
 
   const { isVisible: isNotificationVisible, close: closeNotification } = useUserMetaData({
-    key: 'wfe_selective_triggering_notification_closed',
+    key: 'wfe_target_based_triggering_notification_closed',
     enabled: isWebsiteMode,
   });
 
