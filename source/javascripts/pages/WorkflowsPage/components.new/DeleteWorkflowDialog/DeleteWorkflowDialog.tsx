@@ -32,7 +32,7 @@ const DeleteWorkflowDialog = ({ onDeleteWorkflow, ...disclosureProps }: Props) =
           <ListItem iconSize="24" iconName="CloseSmall" iconColor="icon/negative">
             Dependent automated tasks, builds and deployments will stop functioning.
           </ListItem>
-          <ListItem iconSize="24" iconName="Tick" iconColor="icon/positive">
+          <ListItem iconSize="24" iconName="Check" iconColor="icon/positive">
             Historical build logs will remain accessible.
           </ListItem>
         </List>
