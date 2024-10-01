@@ -7,14 +7,16 @@ import { useShallow } from 'zustand/react/shallow';
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflows } from '@/hooks/useWorkflows';
-import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
 import ChainedWorkflowCard from './ChainedWorkflowCard';
 import Droppable from './Droppable';
 
-type Props = WorkflowCardCallbacks & {
+type Props = {
   placement: Placement;
   parentWorkflowId: string;
   containerProps?: BoxProps;
+  workflowActions?: WorkflowActions;
+  stepActions?: StepActions;
 };
 
 function anotherPlacement(placement: Placement): Placement {
@@ -41,8 +43,14 @@ function getSortableItemUniqueIds(sortableItems: SortableWorkflowItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...callbacks }: Props) => {
-  const { onChainedWorkflowsUpdate } = callbacks;
+const ChainedWorkflowList = ({
+  placement,
+  containerProps,
+  parentWorkflowId,
+  workflowActions = {},
+  stepActions = {},
+}: Props) => {
+  const { onChainedWorkflowsUpdate } = workflowActions;
   const isAfterRun = placement === 'after_run';
   const isBeforeRun = placement === 'before_run';
   const isSortable = Boolean(onChainedWorkflowsUpdate);
@@ -189,7 +197,12 @@ const ChainedWorkflowList = ({ placement, containerProps, parentWorkflowId, ...c
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {isAfterRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
         {sortableItems.map((item) => (
-          <ChainedWorkflowCard key={item.uniqueId} {...item} {...callbacks} />
+          <ChainedWorkflowCard
+            key={item.uniqueId}
+            {...item}
+            workflowActions={workflowActions}
+            stepActions={stepActions}
+          />
         ))}
         {isBeforeRun && <Icon name="ArrowDown" size="16" color="icon/tertiary" alignSelf="center" />}
       </Box>

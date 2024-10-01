@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { Avatar, Box, ButtonGroup, Card, ControlButton, Skeleton, SkeletonBox, Text } from '@bitrise/bitkit';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
@@ -5,16 +6,18 @@ import useStep from '@/hooks/useStep';
 import defaultIcon from '@/../images/step/icon-default.svg';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import VersionUtils from '@/core/utils/VersionUtils';
-import { SortableStepItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { Step } from '@/core/models/Step';
+import StepService from '@/core/models/StepService';
+import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 
-type StepCardProps = Pick<WorkflowCardCallbacks, 'onUpgradeStep' | 'onCloneStep' | 'onDeleteStep'> & {
+type StepCardProps = {
   uniqueId: string;
-  stepIndex: number;
   workflowId: string;
+  stepIndex: number;
   isSortable?: boolean;
   isDragging?: boolean;
   showSecondary?: boolean;
-  onClick?: WorkflowCardCallbacks['onStepSelect'];
+  actions?: StepActions;
 };
 
 const StepCard = ({
@@ -24,12 +27,10 @@ const StepCard = ({
   isSortable,
   isDragging,
   showSecondary = true,
-  onClick,
-  onUpgradeStep,
-  onCloneStep,
-  onDeleteStep,
+  actions = {},
 }: StepCardProps) => {
   const result = useStep(workflowId, stepIndex);
+  const { onStepSelect, onUpgradeStep, onCloneStep, onDeleteStep } = actions;
 
   const sortable = useSortable({
     id: uniqueId,
@@ -41,14 +42,23 @@ const StepCard = ({
     } satisfies SortableStepItem,
   });
 
-  const isButton = Boolean(onClick);
+  const stepVariant = useMemo(() => {
+    if (StepService.isWithGroup(result?.data?.cvs || '')) {
+      return 'with-group';
+    }
+    if (StepService.isStepBundle(result?.data?.cvs || '')) {
+      return 'step-bundle';
+    }
+    return 'step';
+  }, [result?.data?.cvs]);
 
   if (!result) {
     return null;
   }
 
   const { data, isLoading } = result;
-  const { cvs, resolvedInfo } = data ?? {};
+  const { cvs, title, icon } = data ?? {};
+  const resolvedInfo = (data as Step)?.resolvedInfo;
   const isUpgradable =
     onUpgradeStep && VersionUtils.hasVersionUpgrade(resolvedInfo?.normalizedVersion, resolvedInfo?.versions);
   const latestMajor = VersionUtils.latestMajor(resolvedInfo?.versions)?.toString() ?? '';
@@ -60,8 +70,8 @@ const StepCard = ({
         <Skeleton display="flex" alignItems="center" gap="8" p="4" pl={isSortable ? 0 : 4} isActive>
           <SkeletonBox height="32" width="32" borderRadius="4" />
           <Box display="flex" flexDir="column" gap="4">
-            <SkeletonBox height="14" width="250px" />
-            {showSecondary && <SkeletonBox height="14" width="100px" />}
+            <SkeletonBox height="14" width="150px" />
+            {showSecondary && <SkeletonBox height="14" width="75px" />}
           </Box>
         </Skeleton>
       </Card>
@@ -90,7 +100,8 @@ const StepCard = ({
     );
   }
 
-  const handleClick = isButton ? () => onClick?.(workflowId, stepIndex) : undefined;
+  const isButton = Boolean(onStepSelect);
+  const handleClick = isButton ? () => onStepSelect?.(workflowId, stepIndex, stepVariant) : undefined;
 
   return (
     <Card
@@ -128,16 +139,16 @@ const StepCard = ({
       >
         <Avatar
           size="32"
-          src={resolvedInfo?.icon || defaultIcon}
+          src={icon || defaultIcon}
           variant="step"
           outline="1px solid"
-          name={resolvedInfo?.title || cvs || ''}
+          name={title || cvs || ''}
           outlineColor="border/minimal"
         />
 
         <Box minW={0} textAlign="left" flex="1">
           <Text textStyle="body/sm/regular" hasEllipsis>
-            {resolvedInfo?.title || cvs}
+            {title || cvs || ''}
           </Text>
           {showSecondary && (
             <Text textStyle="body/sm/regular" color="text/secondary" hasEllipsis>

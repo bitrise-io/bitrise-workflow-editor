@@ -1,20 +1,22 @@
 import { ChainedWorkflowPlacement as Placement } from '@/core/models/Workflow';
 import { BitriseYmlStoreState } from '@/core/stores/BitriseYmlStore';
 
-export type WorkflowCardCallbacks = {
-  // Step related actions
-  onAddStepClick?: (workflowId: string, stepIndex: number) => void;
-  onStepSelect?: (workflowId: string, stepIndex: number) => void;
-  onStepMove?: BitriseYmlStoreState['moveStep'];
-  onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
-  onCloneStep?: BitriseYmlStoreState['cloneStep'];
-  onDeleteStep?: BitriseYmlStoreState['deleteStep'];
-  // Workflow related actions
+export type WorkflowActions = {
   onCreateWorkflow?: () => void;
   onEditWorkflowClick?: (workflowId: string) => void;
   onAddChainedWorkflowClick?: (workflowId: string) => void;
   onChainedWorkflowsUpdate?: BitriseYmlStoreState['setChainedWorkflows'];
   onDeleteChainedWorkflowClick?: BitriseYmlStoreState['deleteChainedWorkflow'];
+};
+
+export type StepVariant = 'with-group' | 'step-bundle' | 'step';
+export type StepActions = {
+  onAddStepClick?: (workflowId: string, stepIndex: number) => void;
+  onStepSelect?: (workflowId: string, stepIndex: number, variant: StepVariant) => void;
+  onStepMove?: BitriseYmlStoreState['moveStep'];
+  onUpgradeStep?: BitriseYmlStoreState['changeStepVersion'];
+  onCloneStep?: BitriseYmlStoreState['cloneStep'];
+  onDeleteStep?: BitriseYmlStoreState['deleteStep'];
 };
 
 export type SortableWorkflowItem = {

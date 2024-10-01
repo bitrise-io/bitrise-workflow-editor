@@ -5,29 +5,27 @@ import { arrayMove, SortableContext, verticalListSortingStrategy } from '@dnd-ki
 import { restrictToParentElement, restrictToVerticalAxis } from '@dnd-kit/modifiers';
 import { useShallow } from 'zustand/react/shallow';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
-import { SortableStepItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { SortableStepItem, StepActions } from '../WorkflowCard.types';
 import AddStepButton from './AddStepButton';
 import StepCard from './StepCard';
 
-type Props = Pick<
-  WorkflowCardCallbacks,
-  'onAddStepClick' | 'onStepMove' | 'onStepSelect' | 'onUpgradeStep' | 'onCloneStep' | 'onDeleteStep'
-> & {
+type Props = {
   workflowId: string;
   containerProps?: BoxProps;
+  stepActions?: StepActions;
 };
 
 function getSortableItemUniqueIds(sortableItems: SortableStepItem[]) {
   return sortableItems.map((i) => i.uniqueId);
 }
 
-const StepList = ({ workflowId, containerProps, ...callbacks }: Props) => {
+const StepList = ({ workflowId, containerProps, stepActions }: Props) => {
   const steps = useBitriseYmlStore(
     useShallow(({ yml }) => {
       return (yml.workflows?.[workflowId]?.steps ?? []).map((s) => JSON.stringify(s));
     }),
   );
-  const { onAddStepClick, onStepMove, onStepSelect, ...actions } = callbacks;
+  const { onAddStepClick, onStepMove, ...actions } = stepActions ?? {};
 
   const initialSortableItems: SortableStepItem[] = useMemo(() => {
     return steps.map((_, stepIndex) => ({
@@ -95,7 +93,7 @@ const StepList = ({ workflowId, containerProps, ...callbacks }: Props) => {
     return (
       <Box display="flex" flexDir="column" gap="8" {...containerProps}>
         {sortableItems.map((item) => {
-          return <StepCard key={item.uniqueId} {...item} {...actions} onClick={onStepSelect} />;
+          return <StepCard key={item.uniqueId} {...item} actions={actions} />;
         })}
       </Box>
     );
@@ -124,7 +122,7 @@ const StepList = ({ workflowId, containerProps, ...callbacks }: Props) => {
                   zIndex={10}
                   onClick={onAddStepClick && (() => onAddStepClick(workflowId, item.stepIndex))}
                 />
-                <StepCard {...item} {...actions} isSortable onClick={onStepSelect} />
+                <StepCard {...item} isSortable actions={actions} />
                 {isLast && (
                   <AddStepButton
                     my={-8}
