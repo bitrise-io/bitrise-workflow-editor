@@ -8,12 +8,13 @@ import {
   Step,
   StepBundleYmlObject,
   StepInputVariable,
+  StepLikeYmlObject,
   Steps,
   StepYmlObject,
   VariableOpts,
   WithGroupYmlObject,
 } from '@/core/models/Step';
-import type { StepInfo } from '@/core/api/StepApi';
+import type { StepApiResult, StepInfo } from '@/core/api/StepApi';
 import VersionUtils from '@/core/utils/VersionUtils';
 import defaultIcon from '@/../images/step/icon-default.svg';
 
@@ -103,7 +104,7 @@ function isWithGroup(cvs: string, _step?: Steps[number][string]): _step is WithG
   return /^with$/g.test(cvs);
 }
 
-function resolveTitle(cvs: string, step?: StepYmlObject): string {
+function resolveTitle(cvs: string, step?: Steps[number][string]): string {
   if (isStepBundle(cvs, step)) {
     return `Step bundle: ${cvs.replace('bundle::', '')}`;
   }
@@ -119,7 +120,11 @@ function resolveTitle(cvs: string, step?: StepYmlObject): string {
   return id.split('/').pop() || id;
 }
 
-function resolveIcon(step?: StepYmlObject, info?: StepInfo): string {
+function resolveIcon(cvs: string, step?: StepLikeYmlObject, info?: StepInfo): string {
+  if (isWithGroup(cvs, step) || isStepBundle(cvs, step)) {
+    return defaultIcon;
+  }
+
   return (
     step?.asset_urls?.['icon.svg'] ||
     step?.asset_urls?.['icon.png'] ||
@@ -152,11 +157,11 @@ function getSelectableVersions(step?: Step): Array<{ value: string; label: strin
   return results;
 }
 
-function getStepCategories(steps: Step[]): string[] {
-  return uniq(steps.flatMap((step) => step.defaultValues?.type_tags || [])).sort();
+function getStepCategories(steps: StepApiResult[] | Step[]): string[] {
+  return uniq(steps.flatMap((step) => step?.defaultValues?.type_tags || [])).sort();
 }
 
-function getInputNames(step?: Step): string[] {
+function getInputNames(step?: StepApiResult): string[] {
   if (!step?.defaultValues?.inputs) {
     return [];
   }
@@ -165,8 +170,8 @@ function getInputNames(step?: Step): string[] {
 }
 
 function calculateChange(
-  oldStep: Step | undefined,
-  newStep: Step | undefined,
+  oldStep: StepApiResult | undefined,
+  newStep: StepApiResult | undefined,
 ): {
   newInputs: string[];
   removedInputs: string[];

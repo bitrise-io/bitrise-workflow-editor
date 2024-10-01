@@ -2,13 +2,16 @@ import { createContext, PropsWithChildren, useContext, useEffect, useMemo } from
 import { FormProvider, useForm } from 'react-hook-form';
 import omit from 'lodash/omit';
 import useStep from '@/hooks/useStep';
+import { Step } from '@/core/models/Step';
 import { FormValues } from './StepConfigDrawer.types';
 
 type Props = { workflowId: string; stepIndex: number };
 type State = {
   workflowId: string;
   stepIndex: number;
-} & ReturnType<typeof useStep>;
+  isLoading: boolean;
+  data?: Step;
+};
 
 const initialState: State = {
   data: undefined,
@@ -24,7 +27,7 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
 
   const value = useMemo<State>(() => {
     if (!result) return initialState;
-    return { workflowId, stepIndex, ...result };
+    return { workflowId, stepIndex, ...result } as State;
   }, [result, workflowId, stepIndex]);
 
   useEffect(() => {
@@ -32,17 +35,18 @@ const StepConfigDrawerProvider = ({ children, workflowId, stepIndex }: PropsWith
       return;
     }
 
+    const step = result.data as Step;
     form.reset({
       configuration: {
-        is_always_run: result?.data?.mergedValues?.is_always_run ?? false,
-        is_skippable: result?.data?.mergedValues?.is_skippable ?? false,
-        run_if: result?.data?.mergedValues?.run_if ?? '',
+        is_always_run: step?.mergedValues?.is_always_run ?? false,
+        is_skippable: step?.mergedValues?.is_skippable ?? false,
+        run_if: step?.mergedValues?.run_if ?? '',
       },
       properties: {
-        name: result?.data?.resolvedInfo?.title ?? '',
-        version: result?.data?.resolvedInfo?.normalizedVersion ?? '',
+        name: step?.title ?? '',
+        version: step?.resolvedInfo?.normalizedVersion ?? '',
       },
-      inputs: result.data?.mergedValues?.inputs?.reduce((acc, input) => {
+      inputs: step?.mergedValues?.inputs?.reduce((acc, input) => {
         return { ...acc, ...omit(input, 'opts') };
       }, {}),
     });
