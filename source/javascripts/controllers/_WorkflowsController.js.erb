@@ -573,7 +573,7 @@ import WindowUtils from "@/core/utils/WindowUtils";
         }
 
         const insertIndex = viewModel.newStepDrawerAddStepIndex;
-        stepSourceService.loadStepVersions(step.resolvedInfo.id).then(function () {
+        stepSourceService.loadStepVersions(step.id).then(function () {
           var stepToAdd = stepSourceService.stepFromCVS(step.cvs);
           insertStepAtIndexCallback(stepToAdd, insertIndex);
         });
