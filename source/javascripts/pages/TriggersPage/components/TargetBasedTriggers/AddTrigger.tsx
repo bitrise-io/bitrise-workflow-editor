@@ -13,23 +13,12 @@ type AddTriggerProps = {
   onCancel: () => void;
   optionsMap: Record<ConditionType, string>;
   labelsMap: Record<string, string>;
-  areTriggersEnabled: boolean;
   editedItem?: TargetBasedTriggerItem;
   currentTriggers: TargetBasedTriggerItem[];
 };
 
 const AddTrigger = (props: AddTriggerProps) => {
-  const {
-    areTriggersEnabled,
-    currentTriggers,
-    editedItem,
-    labelsMap,
-    onCancel,
-    onSubmit,
-    optionsMap,
-    triggerType,
-    workflowId,
-  } = props;
+  const { currentTriggers, editedItem, labelsMap, onCancel, onSubmit, optionsMap, triggerType, workflowId } = props;
 
   const defaultConditions = useMemo(() => {
     if (editedItem) {
@@ -90,10 +79,6 @@ const AddTrigger = (props: AddTriggerProps) => {
 
     if (data.isDraftPr) {
       newTrigger.draft_enabled = true;
-    }
-
-    if (areTriggersEnabled === false) {
-      newTrigger.enabled = false;
     }
 
     onSubmit(newTrigger);

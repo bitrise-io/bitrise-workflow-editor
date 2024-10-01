@@ -52,6 +52,7 @@ type BitriseYmlStoreState = {
   deleteStep: (workflowId: string, stepIndex: number) => void;
   updateTriggerMap: (newTriggerMap: TriggerMapYml) => void;
   updateWorkflowTriggers: (workflowId: string, triggers: WorkflowYmlObject['triggers']) => void;
+  updateWorkflowTriggersEnabled: (workflowId: string, isEnabled: boolean) => void;
 };
 
 type BitriseYmlStore = StoreApi<BitriseYmlStoreState>;
@@ -200,6 +201,13 @@ function create(yml: BitriseYml, defaultMeta?: Meta): BitriseYmlStore {
       return set((state) => {
         return {
           yml: BitriseYmlService.updateWorkflowTriggers(workflowId, triggers, state.yml),
+        };
+      });
+    },
+    updateWorkflowTriggersEnabled(workflowId, isEnabled) {
+      return set((state) => {
+        return {
+          yml: BitriseYmlService.updateWorkflowTriggersEnabled(workflowId, isEnabled, state.yml),
         };
       });
     },

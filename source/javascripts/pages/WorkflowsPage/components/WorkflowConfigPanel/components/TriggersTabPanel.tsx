@@ -111,9 +111,10 @@ const TriggersTabPanel = () => {
 
   const workflow = useWorkflowConfigContext();
 
-  const { updateWorkflowTriggers } = useBitriseYmlStore(
+  const { updateWorkflowTriggers, updateWorkflowTriggersEnabled } = useBitriseYmlStore(
     useShallow((s) => ({
       updateWorkflowTriggers: s.updateWorkflowTriggers,
+      updateWorkflowTriggersEnabled: s.updateWorkflowTriggersEnabled,
     })),
   );
 
@@ -125,42 +126,6 @@ const TriggersTabPanel = () => {
     triggers[type] = triggers[type]?.filter((t: any) => !isEqual(trigger, t));
     updateWorkflowTriggers(workflow?.id || '', triggers);
   };
-
-  // const exampleTriggers = {
-  //   push: [
-  //     {
-  //       branch: 'main',
-  //       enabled: false,
-  //     },
-  //   ],
-  //   tag: [
-  //     {
-  //       name: {
-  //         regex: '^\\d\\.\\d\\.\\d$',
-  //       },
-  //     },
-  //   ],
-  //   pull_request: [
-  //     {
-  //       comment: '[workflow: deploy]',
-  //     },
-  //     {
-  //       commit_message: {
-  //         regex: '.*\\[workflow: deploy\\].*',
-  //       },
-  //     },
-  //   ],
-  // };
-
-  let enabledTriggers = true;
-  Object.entries(triggers).forEach((type) => {
-    type.forEach((obj: any) => {
-      if (obj.enabled === 'false') {
-        enabledTriggers = false;
-      }
-    });
-  });
-  const [triggersActive, setTriggersActive] = useState(enabledTriggers);
 
   const onSubmit = (trigger: TargetBasedTriggerItem) => {
     if (triggerType !== undefined) {
@@ -179,8 +144,6 @@ const TriggersTabPanel = () => {
     setEditedItem(undefined);
   };
 
-  const areTriggersEnabled = true;
-
   return (
     <>
       {triggerType !== undefined && (
@@ -194,7 +157,6 @@ const TriggersTabPanel = () => {
           }}
           optionsMap={OPTIONS_MAP[triggerType]}
           labelsMap={LABELS_MAP[triggerType]}
-          areTriggersEnabled={areTriggersEnabled}
           editedItem={editedItem?.trigger}
           currentTriggers={triggers[triggerType]}
         />
@@ -215,9 +177,9 @@ const TriggersTabPanel = () => {
         <Card paddingY="16" paddingX="24" marginBlockEnd="24" variant="outline">
           <Checkbox
             helperText="When unchecked and saved, none of the triggers below will execute a build."
-            isChecked={triggersActive}
+            isChecked={triggers.enabled !== false}
             onChange={() => {
-              setTriggersActive((prevState) => !prevState);
+              updateWorkflowTriggersEnabled(workflow?.id || '', triggers.enabled === false);
             }}
           >
             Active

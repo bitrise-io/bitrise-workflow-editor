@@ -30,7 +30,7 @@ export type TargetBasedTriggerItem = {
   tag?: StringOrRegex;
 };
 
-export type TargetBasedTriggers = Record<TriggerType, TargetBasedTriggerItem[]>;
+export type TargetBasedTriggers = Record<TriggerType, TargetBasedTriggerItem[]> & { enabled?: boolean };
 export interface DecoratedPipelineableTriggerItem extends TargetBasedTriggerItem {
   pipelineableId: string;
   pipelineableType: 'pipeline' | 'workflow';
