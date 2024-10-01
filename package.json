@@ -46,6 +46,7 @@
     "e2e:feature:step-inputs": "cypress run --spec spec/integration/workflows-steps-inputs.feature",
     "e2e:feature:step-details": "cypress run --spec spec/integration/workflows-steps-details.feature",
     "generate-theme-types": "chakra-cli tokens node_modules/@bitrise/bitkit/src/theme.ts",
+    "generate-schema-types": "curl -s https://json.schemastore.org/bitrise.json | quicktype -s schema -t BitriseYml -o source/javascripts/core/models/BitriseYml.types.ts --prefer-types --just-types && eslint --quiet --fix source/javascripts/core/models/BitriseYml.types.ts",
     "prepare": "husky"
   },
   "cypress-cucumber-preprocessor": {
@@ -91,6 +92,7 @@
     "monaco-yaml": "^5.2.2",
     "ng-showdown": "^1.1.0",
     "prop-types": "^15.8.1",
+    "quicktype": "^23.0.170",
     "react": "^18.3.1",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^18.3.1",
