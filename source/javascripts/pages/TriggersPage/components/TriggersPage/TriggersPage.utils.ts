@@ -1,5 +1,5 @@
 import isEqual from 'lodash/isEqual';
-import { isObject } from 'lodash';
+import isObject from 'lodash/isObject';
 import { BitriseYml } from '../../../../core/models/BitriseYml';
 import { TriggerItem, Condition, ConditionType, TriggerType } from './TriggersPage.types';
 

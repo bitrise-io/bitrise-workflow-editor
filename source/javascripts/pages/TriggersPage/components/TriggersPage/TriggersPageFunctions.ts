@@ -1,4 +1,4 @@
-import { isObject } from 'lodash';
+import isObject from 'lodash/isObject';
 import { TriggerMapYml, TriggerYmlObject } from '@/core/models/TriggerMap';
 import { TriggerType, TriggerItem, LegacyConditionType, ConditionType } from './TriggersPage.types';
 

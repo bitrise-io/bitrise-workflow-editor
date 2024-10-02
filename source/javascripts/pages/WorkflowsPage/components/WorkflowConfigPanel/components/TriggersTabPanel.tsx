@@ -12,7 +12,7 @@ import {
   Text,
 } from '@bitrise/bitkit';
 import { useShallow } from 'zustand/react/shallow';
-import { isEqual } from 'lodash';
+import isEqual from 'lodash/isEqual';
 import { useUserMetaData } from '@/hooks/useUserMetaData';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import { useWorkflowConfigContext } from '@/components/unified-editor/WorkflowConfig/WorkflowConfig.context';
@@ -158,7 +158,7 @@ const TriggersTabPanel = () => {
           optionsMap={OPTIONS_MAP[triggerType]}
           labelsMap={LABELS_MAP[triggerType]}
           editedItem={editedItem?.trigger}
-          currentTriggers={triggers[triggerType]}
+          currentTriggers={triggers[triggerType] || []}
         />
       )}
       <Box padding="24" display={triggerType !== undefined ? 'none' : 'block'}>
