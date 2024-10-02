@@ -42,13 +42,11 @@ const WorkflowConfigHeader = ({ variant }: Props) => {
           />
         )}
       </Box>
-      <Box position="relative" mt="8">
-        <TabList paddingX="8">
-          <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
-          <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
-          {shouldShowTriggersTab && <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>}
-        </TabList>
-      </Box>
+      <TabList paddingX="8" position="relative" mt="8">
+        <Tab id={WorkflowConfigTab.CONFIGURATION}>Configuration</Tab>
+        <Tab id={WorkflowConfigTab.PROPERTIES}>Properties</Tab>
+        {shouldShowTriggersTab && <Tab id={WorkflowConfigTab.TRIGGERS}>Triggers</Tab>}
+      </TabList>
     </>
   );
 };

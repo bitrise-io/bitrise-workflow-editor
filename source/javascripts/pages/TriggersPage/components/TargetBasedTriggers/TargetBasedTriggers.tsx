@@ -123,7 +123,9 @@ const TargetBasedTriggers = (props: TargetBasedTriggersProps) => {
                         <ControlButton
                           aria-label="Edit trigger"
                           iconName="Settings"
-                          onClick={() => replace('/workflows')}
+                          onClick={() =>
+                            replace('/workflows', { workflow_id: trigger.pipelineableId, tab: 'triggers' })
+                          }
                         />
                       )}
                       {trigger.pipelineableType === 'pipeline' && (

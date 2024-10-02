@@ -51,7 +51,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
           id: "workflows",
           title: "<%= data[:strings][:main][:menus][:workflows] %>",
           path: "<%= data[:routes][:endpoints][:workflows] %>",
-          possibleURLParameterKeys: ["workflow_id"],
+          possibleURLParameterKeys: ["workflow_id", "tab"],
           cssClass: "workflows"
         },
         {
@@ -308,7 +308,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
         );
       }
 
-      viewModel.menuSelected = function (menu) {
+      viewModel.menuSelected = function (menu, params) {
         if (menu === viewModel.currentMenu) {
           return;
         }
@@ -404,7 +404,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
 
             viewModel.currentMenu = menu;
             if ($location.path() != "/" + menu.path) {
-              $location.path("/" + menu.path).replace();
+              $location.path("/" + menu.path).search(params).replace();
             }
 
             if (!isInitialSelection) {
@@ -926,7 +926,7 @@ import {segmentTrack} from "@/utils/segmentTracking";
         const menu = viewModel.menus.find(m => `/${m.path}` === e.detail.path);
 
         if (menu) {
-          viewModel.menuSelected(menu);
+          viewModel.menuSelected(menu, e.detail.params);
         }
       });
 

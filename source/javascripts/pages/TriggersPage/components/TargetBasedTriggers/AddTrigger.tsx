@@ -36,7 +36,7 @@ const AddTrigger = (props: AddTriggerProps) => {
   const formMethods = useForm<FormItems>({
     defaultValues: {
       conditions: defaultConditions,
-      isDraftPr: !!editedItem?.draft_enabled || true,
+      isDraftPr: editedItem?.draft_enabled !== false,
     },
   });
 
@@ -77,8 +77,10 @@ const AddTrigger = (props: AddTriggerProps) => {
       newTrigger[condition.type] = value;
     });
 
-    if (data.isDraftPr) {
-      newTrigger.draft_enabled = true;
+    if (!data.isDraftPr) {
+      newTrigger.draft_enabled = false;
+    } else {
+      delete newTrigger.draft_enabled;
     }
 
     onSubmit(newTrigger);
@@ -86,7 +88,6 @@ const AddTrigger = (props: AddTriggerProps) => {
 
   let isSameTriggerExist = false;
   currentTriggers.forEach((trigger) => {
-    console.log(getConditionList(trigger), conditions);
     if (isEqual(getConditionList(trigger), conditions)) {
       isSameTriggerExist = true;
     }
