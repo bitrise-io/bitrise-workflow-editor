@@ -4,6 +4,7 @@ import { useQuery } from '@tanstack/react-query';
 
 import { useAlgoliaSteps } from '@/hooks/useAlgolia';
 import { Step } from '@/core/models/Step';
+import { StepApiResult } from '@/core/api/StepApi';
 import { SearchFormValues } from '../StepSelectorDrawer.types';
 
 const useSearchSteps = ({ search, categories }: SearchFormValues) => {
@@ -11,8 +12,8 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
   const index = useMemo(() => {
     const options = {
       keys: [
-        { name: 'resolvedInfo.id', weight: 2 },
-        { name: 'resolvedInfo.title', weight: 3 },
+        { name: 'id', weight: 2 },
+        { name: 'title', weight: 3 },
         { name: 'defaultValues.summary', weight: 0.5 },
         { name: 'defaultValues.type_tags' },
       ],
@@ -30,15 +31,15 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
     // eslint-disable-next-line @tanstack/query/exhaustive-deps
     queryKey: ['steps', { search, categories }],
     queryFn: async () => {
-      let items = steps || ([] as Step[]);
+      let items = steps || ([] as StepApiResult[]);
       const expressions = [];
 
       if (search) {
         const term = search.trim().toLowerCase();
         const exp = {
           $or: [
-            { $path: 'resolvedInfo.id', $val: term },
-            { $path: 'resolvedInfo.title', $val: term },
+            { $path: 'id', $val: term },
+            { $path: 'title', $val: term },
             { $path: 'defaultValues.summary', $val: term },
           ],
         };
@@ -57,7 +58,7 @@ const useSearchSteps = ({ search, categories }: SearchFormValues) => {
       }
 
       if (expressions.length > 0) {
-        const results = index.search<Step>({
+        const results = index.search<StepApiResult>({
           $and: expressions,
         });
         items = results.map((result) => result.item);

@@ -35,8 +35,8 @@ const VirtualizedRow = ({ item, style = {}, onSelectStep }: VirtualizedRowProps)
         {item.steps.map(({ id, step, isDisabled }) => (
           <DrawerStepCard
             key={`${item.category}/${id}`}
-            icon={step.resolvedInfo?.icon || defaultIcon}
-            title={step.resolvedInfo?.title || id}
+            icon={step?.icon || defaultIcon}
+            title={step?.title || id}
             summary={step.defaultValues?.summary}
             description={step.defaultValues?.description}
             version={step.resolvedInfo?.version}

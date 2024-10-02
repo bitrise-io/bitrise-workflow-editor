@@ -8,12 +8,12 @@ import useWorkflow from '@/hooks/useWorkflow';
 import DragHandle from '@/components/DragHandle/DragHandle';
 import WorkflowService from '@/core/models/WorkflowService';
 import useDependantWorkflows from '@/hooks/useDependantWorkflows';
-import { SortableWorkflowItem, WorkflowCardCallbacks } from '../WorkflowCard.types';
+import { SortableWorkflowItem, StepActions, WorkflowActions } from '../WorkflowCard.types';
 import ChainedWorkflowList from './ChainedWorkflowList';
 import StepList from './StepList';
 import SortableWorkflowsContext from './SortableWorkflowsContext';
 
-type Props = WorkflowCardCallbacks & {
+type Props = {
   id: string;
   index: number;
   uniqueId: string;
@@ -21,6 +21,8 @@ type Props = WorkflowCardCallbacks & {
   isDragging?: boolean;
   parentWorkflowId: string;
   containerProps?: CardProps;
+  workflowActions?: WorkflowActions;
+  stepActions?: StepActions;
 };
 
 const ChainedWorkflowCard = ({
@@ -31,15 +33,11 @@ const ChainedWorkflowCard = ({
   isDragging,
   parentWorkflowId,
   containerProps,
-  ...callbacks
+  workflowActions = {},
+  stepActions = {},
 }: Props) => {
-  const {
-    onEditWorkflowClick,
-    onChainedWorkflowsUpdate,
-    onAddChainedWorkflowClick,
-    onDeleteChainedWorkflowClick,
-    ...stepCallbacks
-  } = callbacks;
+  const { onEditWorkflowClick, onChainedWorkflowsUpdate, onAddChainedWorkflowClick, onDeleteChainedWorkflowClick } =
+    workflowActions;
 
   const isEditable = Boolean(onEditWorkflowClick || onAddChainedWorkflowClick || onDeleteChainedWorkflowClick);
   const isSortable = Boolean(onChainedWorkflowsUpdate);
@@ -121,6 +119,7 @@ const ChainedWorkflowCard = ({
           tabIndex={-1} // NOTE: Without this, the tooltip always appears when closing any drawers on the Workflows page.
           className="nopan"
           onClick={onToggle}
+          isDisabled={isDragging}
           iconName={isOpen ? 'ChevronUp' : 'ChevronDown'}
           aria-label={`${isOpen ? 'Collapse' : 'Expand'} workflow details`}
           tooltipProps={{ 'aria-label': `${isOpen ? 'Collapse' : 'Expand'} workflow details` }}
@@ -178,14 +177,21 @@ const ChainedWorkflowCard = ({
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
             <ChainedWorkflowList
               key={`${id}->before_run`}
-              {...callbacks}
               placement="before_run"
               parentWorkflowId={id}
+              workflowActions={workflowActions}
+              stepActions={stepActions}
             />
 
-            <StepList {...stepCallbacks} workflowId={id} />
+            <StepList workflowId={id} stepActions={stepActions} />
 
-            <ChainedWorkflowList key={`${id}->after_run`} {...callbacks} placement="after_run" parentWorkflowId={id} />
+            <ChainedWorkflowList
+              key={`${id}->after_run`}
+              placement="after_run"
+              parentWorkflowId={id}
+              workflowActions={workflowActions}
+              stepActions={stepActions}
+            />
           </Box>
         </SortableWorkflowsContext>
       </Collapse>

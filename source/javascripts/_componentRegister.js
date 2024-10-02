@@ -1,20 +1,20 @@
-import { react2angular } from "@bitrise/react2angular";
-import { Checkbox, Icon } from "@bitrise/bitkit";
+import { react2angular } from '@bitrise/react2angular';
+import { Checkbox, Icon } from '@bitrise/bitkit';
 
-import Header from "./components/Header";
-import InfoTooltip from "./components/InfoTooltip";
-import Navigation from "./components/Navigation";
-import Notification from "./components/Notification";
-import NotificationMessageWithLink from "./components/NotificationMessageWithLink";
-import StepBadge from "./components/StepBadge";
-import Toggle from "./components/Toggle";
-import UpdateConfigurationDialog from "./components/UpdateConfigurationDialog/UpdateConfigurationDialog";
-import WorkflowRecipesInfoBanner from "./components/WorkflowRecipesInfoBanner";
-import YmlEditor from "./components/YmlEditor/YmlEditor";
-import YmlEditorHeader from "./components/YmlEditorHeader/YmlEditorHeader";
-import DiffEditorDialog from "@/components/DiffEditor/DiffEditorDialog";
-import { RootComponent, withRootProvider } from "./utils/withRootProvider";
-
+import Header from './components/Header';
+import InfoTooltip from './components/InfoTooltip';
+import Navigation from './components/Navigation';
+import Notification from './components/Notification';
+import NotificationMessageWithLink from './components/NotificationMessageWithLink';
+import StepBadge from './components/StepBadge';
+import Toggle from './components/Toggle';
+import UpdateConfigurationDialog from './components/UpdateConfigurationDialog/UpdateConfigurationDialog';
+import WorkflowRecipesInfoBanner from './components/WorkflowRecipesInfoBanner';
+import YmlEditor from './components/YmlEditor/YmlEditor';
+import YmlEditorHeader from './components/YmlEditorHeader/YmlEditorHeader';
+import DiffEditorDialog from './components/DiffEditor/DiffEditorDialog';
+import { StepBundlePanel, StepSelectorDrawer, WithGroupPanel, WorkflowEmptyState } from './components/unified-editor';
+import { RootComponent, withRootProvider } from './utils/withRootProvider';
 import {
   ChainWorkflowDrawer,
   CreateWorkflowDialog,
@@ -24,19 +24,8 @@ import {
   VersionChangeDialog,
   WorkflowConfigPanel,
   WorkflowToolbar,
-} from "@/pages/WorkflowsPage";
-import {
-  PipelinesPage,
-  SecretsPage,
-  TriggersPage,
-  WorkflowsPage,
-} from "@/pages";
-import {
-  StepBundlePanel,
-  StepSelectorDrawer,
-  WithBlockPanel,
-  WorkflowEmptyState,
-} from "@/components/unified-editor";
+} from './pages/WorkflowsPage';
+import { PipelinesPage, SecretsPage, TriggersPage, WorkflowsPage } from './pages';
 
 function register(component, props, injects) {
   return react2angular(withRootProvider(component), props, injects);
@@ -44,248 +33,175 @@ function register(component, props, injects) {
 
 // Page components
 angular
-  .module("BitriseWorkflowEditor")
+  .module('BitriseWorkflowEditor')
   .component(
-    "rTriggersPage",
+    'rTriggersPage',
     register(TriggersPage, [
-      "onTriggerMapChange",
-      "pipelines",
-      "triggerMap",
-      "setDiscard",
-      "workflows",
-      "isWebsiteMode",
-      "integrationsUrl",
+      'onTriggerMapChange',
+      'pipelines',
+      'triggerMap',
+      'setDiscard',
+      'workflows',
+      'isWebsiteMode',
+      'integrationsUrl',
     ]),
   )
   .component(
-    "rSecretsPage",
+    'rSecretsPage',
     register(SecretsPage, [
-      "secrets",
-      "secretsWriteNew",
-      "onSecretsChange",
-      "getSecretValue",
-      "appSlug",
-      "secretSettingsUrl",
-      "sharedSecretsAvailable",
-      "planSelectorPageUrl",
+      'secrets',
+      'secretsWriteNew',
+      'onSecretsChange',
+      'getSecretValue',
+      'appSlug',
+      'secretSettingsUrl',
+      'sharedSecretsAvailable',
+      'planSelectorPageUrl',
     ]),
   )
-  .component("rPipelinesPage", register(PipelinesPage, ["yml"]))
-  .component("rWorkflowsPage", register(WorkflowsPage, ["yml", "onChange"]));
+  .component('rPipelinesPage', register(PipelinesPage, ['yml']))
+  .component('rWorkflowsPage', register(WorkflowsPage, ['yml', 'onChange']));
 
 // Components
 angular
-  .module("BitriseWorkflowEditor")
+  .module('BitriseWorkflowEditor')
+  .component('rNotification', register(Notification, ['message', 'title', 'status']))
   .component(
-    "rNotification",
-    register(Notification, ["message", "title", "status"]),
+    'rNotificationMessageWithLink',
+    register(NotificationMessageWithLink, ['message', 'type', 'linkUrl', 'linkText']),
   )
+  .component('rCheckbox', register(Checkbox, ['children', 'isDisabled']))
+  .component('rRootComponent', react2angular(RootComponent))
+  .component('rIcon', register(Icon, ['name', 'textColor', 'size']))
   .component(
-    "rNotificationMessageWithLink",
-    register(NotificationMessageWithLink, [
-      "message",
-      "type",
-      "linkUrl",
-      "linkText",
-    ]),
-  )
-  .component("rCheckbox", register(Checkbox, ["children", "isDisabled"]))
-  .component("rRootComponent", react2angular(RootComponent))
-  .component("rIcon", register(Icon, ["name", "textColor", "size"]))
-  .component(
-    "rStepItem",
+    'rStepItem',
     register(StepItem, [
-      "workflowIndex",
-      "step",
-      "displayName",
-      "version",
-      "hasVersionUpdate",
-      "isSelected",
-      "onSelected",
+      'workflowIndex',
+      'step',
+      'displayName',
+      'version',
+      'hasVersionUpdate',
+      'isSelected',
+      'onSelected',
     ]),
   )
-  .component("rStepItemBadge", register(StepBadge, ["step"]))
+  .component('rStepItemBadge', register(StepBadge, ['step']))
   .component(
-    "rUpdateConfigurationDialog",
+    'rUpdateConfigurationDialog',
     register(UpdateConfigurationDialog, [
-      "onClose",
-      "appSlug",
-      "getDataToSave",
-      "onComplete",
-      "defaultBranch",
-      "gitRepoSlug",
+      'onClose',
+      'appSlug',
+      'getDataToSave',
+      'onComplete',
+      'defaultBranch',
+      'gitRepoSlug',
     ]),
   )
   .component(
-    "rYmlEditorHeader",
+    'rYmlEditorHeader',
     register(YmlEditorHeader, [
-      "url",
-      "initialUsesRepositoryYml",
-      "appSlug",
-      "appConfig",
-      "onUsesRepositoryYmlChangeSaved",
-      "repositoryYmlAvailable",
-      "isWebsiteMode",
-      "defaultBranch",
-      "gitRepoSlug",
-      "lines",
-      "split",
-      "modularYamlSupported",
-      "lastModified",
+      'url',
+      'initialUsesRepositoryYml',
+      'appSlug',
+      'appConfig',
+      'onUsesRepositoryYmlChangeSaved',
+      'repositoryYmlAvailable',
+      'isWebsiteMode',
+      'defaultBranch',
+      'gitRepoSlug',
+      'lines',
+      'split',
+      'modularYamlSupported',
+      'lastModified',
     ]),
   )
+  .component('rYmlEditor', register(YmlEditor, ['yml', 'readonly', 'onChange', 'isLoading']))
   .component(
-    "rYmlEditor",
-    register(YmlEditor, ["yml", "readonly", "onChange", "isLoading"]),
-  )
-  .component(
-    "rWorkflowToolbar",
+    'rWorkflowToolbar',
     register(WorkflowToolbar, [
-      "workflows",
-      "selectedWorkflow",
-      "selectWorkflow",
-      "createWorkflow",
-      "chainWorkflow",
-      "deleteWorkflow",
-      "rearrangeWorkflows",
-      "uniqueStepCount",
-      "canRunWorkflow",
-      "isRunWorkflowDisabled",
+      'workflows',
+      'selectedWorkflow',
+      'selectWorkflow',
+      'createWorkflow',
+      'chainWorkflow',
+      'deleteWorkflow',
+      'rearrangeWorkflows',
+      'uniqueStepCount',
+      'canRunWorkflow',
+      'isRunWorkflowDisabled',
     ]),
   )
+  .component('rWorkflowEmptyState', register(WorkflowEmptyState, ['onCreateWorkflow']))
+  .component('rWorkflowRecipesInfoBanner', register(WorkflowRecipesInfoBanner, []))
+  .component('rInfoTooltip', register(InfoTooltip, ['label']))
+  .component('rToggle', register(Toggle, ['tooltipLabel', 'isDisabled', 'isChecked', 'onChange', 'listItemId']))
   .component(
-    "rWorkflowEmptyState",
-    register(WorkflowEmptyState, ["onCreateWorkflow"]),
-  )
-  .component(
-    "rWorkflowRecipesInfoBanner",
-    register(WorkflowRecipesInfoBanner, []),
-  )
-  .component("rInfoTooltip", register(InfoTooltip, ["label"]))
-  .component(
-    "rToggle",
-    register(Toggle, [
-      "tooltipLabel",
-      "isDisabled",
-      "isChecked",
-      "onChange",
-      "listItemId",
-    ]),
-  )
-  .component(
-    "rHeader",
+    'rHeader',
     register(Header, [
-      "appName",
-      "appPath",
-      "workspacePath",
-      "workflowsAndPipelinesPath",
-      "isDiffEditorEnabled",
-      "onDiffClick",
-      "isDiffDisabled",
-      "onSaveClick",
-      "isSaveDisabled",
-      "isSaveInProgress",
-      "onDiscardClick",
-      "isDiscardDisabled",
-      "isWebsiteMode",
+      'appName',
+      'appPath',
+      'workspacePath',
+      'workflowsAndPipelinesPath',
+      'isDiffEditorEnabled',
+      'onDiffClick',
+      'isDiffDisabled',
+      'onSaveClick',
+      'isSaveDisabled',
+      'isSaveInProgress',
+      'onDiscardClick',
+      'isDiscardDisabled',
+      'isWebsiteMode',
     ]),
   )
   .component(
-    "rDiffDialog",
-    register(DiffEditorDialog, [
-      "isOpen",
-      "onClose",
-      "originalText",
-      "modifiedText",
-      "onChange",
-    ]),
+    'rDiffDialog',
+    register(DiffEditorDialog, ['isOpen', 'onClose', 'originalText', 'modifiedText', 'onChange']),
   )
+  .component('rNavigation', register(Navigation, ['items', 'activeItem', 'onItemSelected']))
   .component(
-    "rNavigation",
-    register(Navigation, ["items", "activeItem", "onItemSelected"]),
-  )
-  .component(
-    "rStepConfig",
+    'rStepConfig',
     register(StepConfigPanel, [
-      "step",
-      "tabId",
-      "environmentVariables",
-      "secrets",
-      "resolvedVersion",
-      "hasVersionUpdate",
-      "versionsWithRemarks",
-      "inputCategories",
-      "outputVariables",
-      "onChange",
-      "onClone",
-      "onRemove",
-      "onChangeTabId",
-      "onCreateSecret",
-      "onLoadSecrets",
-      "onCreateEnvVar",
-      "onLoadEnvVars",
-      "secretsWriteNew",
+      'step',
+      'tabId',
+      'environmentVariables',
+      'secrets',
+      'resolvedVersion',
+      'hasVersionUpdate',
+      'versionsWithRemarks',
+      'inputCategories',
+      'outputVariables',
+      'onChange',
+      'onClone',
+      'onRemove',
+      'onChangeTabId',
+      'onCreateSecret',
+      'onLoadSecrets',
+      'onCreateEnvVar',
+      'onLoadEnvVars',
+      'secretsWriteNew',
     ]),
   )
   .component(
-    "rVersionChangeDialog",
+    'rVersionChangeDialog',
     register(VersionChangeDialog, [
-      "isOpen",
-      "onClose",
-      "isMajorChange",
-      "newInputs",
-      "removedInputs",
-      "releaseNotesUrl",
+      'isOpen',
+      'onClose',
+      'isMajorChange',
+      'newInputs',
+      'removedInputs',
+      'releaseNotesUrl',
     ]),
   )
+  .component('rWorkflowConfigPanel', register(WorkflowConfigPanel, ['appSlug', 'yml', 'defaultValues', 'onChange']))
+  .component('rStepSelectorDrawer', register(StepSelectorDrawer, ['isOpen', 'onClose', 'enabledSteps', 'onSelectStep']))
   .component(
-    "rWorkflowConfigPanel",
-    register(WorkflowConfigPanel, [
-      "appSlug",
-      "yml",
-      "defaultValues",
-      "onChange",
-    ]),
+    'rChainWorkflowDrawer',
+    register(ChainWorkflowDrawer, ['workflowId', 'yml', 'isOpen', 'onClose', 'onChainWorkflow']),
   )
   .component(
-    "rStepSelectorDrawer",
-    register(StepSelectorDrawer, [
-      "isOpen",
-      "onClose",
-      "enabledSteps",
-      "onSelectStep",
-    ]),
+    'rDeleteWorkflowDialog',
+    register(DeleteWorkflowDialog, ['workflowId', 'isOpen', 'onClose', 'onDeleteWorkflow']),
   )
-  .component(
-    "rChainWorkflowDrawer",
-    register(ChainWorkflowDrawer, [
-      "workflowId",
-      "yml",
-      "isOpen",
-      "onClose",
-      "onChainWorkflow",
-    ]),
-  )
-  .component(
-    "rDeleteWorkflowDialog",
-    register(DeleteWorkflowDialog, [
-      "workflowId",
-      "isOpen",
-      "onClose",
-      "onDeleteWorkflow",
-    ]),
-  )
-  .component(
-    "rCreateWorkflowDialog",
-    register(CreateWorkflowDialog, [
-      "yml",
-      "isOpen",
-      "onClose",
-      "onCreateWorkflow",
-    ]),
-  )
-  .component("rStepBundlePanel", register(StepBundlePanel, ["bundleName"]))
-  .component(
-    "rWithBlockPanel",
-    register(WithBlockPanel, ["groupName", "imageName", "services"]),
-  );
+  .component('rCreateWorkflowDialog', register(CreateWorkflowDialog, ['yml', 'isOpen', 'onClose', 'onCreateWorkflow']))
+  .component('rStepBundlePanel', register(StepBundlePanel, ['bundleName']))
+  .component('rWithGroupPanel', register(WithGroupPanel, ['groupName', 'imageName', 'services']));

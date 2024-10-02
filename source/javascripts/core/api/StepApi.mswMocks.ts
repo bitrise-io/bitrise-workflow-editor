@@ -876,11 +876,37 @@ function getAlgoliaSteps({ status }: { status: 'success' | 'error' }) {
       case 'error':
       default:
         return new HttpResponse(null, {
-          status: 500,
-          statusText: 'Internal Server Error',
+          status: 404,
+          statusText: 'Not Found',
         });
     }
   });
 }
 
-export default { getAlgoliaSteps };
+function getLocalStep({ status }: { status: 'success' | 'error' }) {
+  return http.post<never, { id: string }>('*/api/step-info', async ({ request }) => {
+    const requestData = await request.json();
+    await delay();
+
+    switch (status) {
+      case 'success':
+        return HttpResponse.json(
+          {
+            id: requestData.id,
+            title: requestData.id,
+            inputs: [{ company: 'Bitrise' }],
+          },
+          { status: 200 },
+        );
+
+      case 'error':
+      default:
+        return new HttpResponse(null, {
+          status: 404,
+          statusText: 'Not Found',
+        });
+    }
+  });
+}
+
+export default { getAlgoliaSteps, getLocalStep };

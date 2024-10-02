@@ -26,6 +26,7 @@ export default {
     onChange: { action: 'onChange' },
   },
   render: (args: any) => {
+    // eslint-disable-next-line react-hooks/rules-of-hooks
     const { isOpen, onOpen, onClose } = useDisclosure();
 
     return (

@@ -4,37 +4,21 @@ import useWorkflow from '@/hooks/useWorkflow';
 import StackAndMachineService from '@/core/models/StackAndMachineService';
 import WorkflowEmptyState from '../WorkflowEmptyState';
 import useStacksAndMachines from '../WorkflowConfig/hooks/useStacksAndMachines';
+import { StepActions, WorkflowActions } from './WorkflowCard.types';
 import StepList from './components/StepList';
 import ChainedWorkflowList from './components/ChainedWorkflowList';
-import { WorkflowCardCallbacks } from './WorkflowCard.types';
 import SortableWorkflowsContext from './components/SortableWorkflowsContext';
 
-type Props = WorkflowCardCallbacks & {
+type Props = {
   id: string;
   isCollapsable?: boolean;
   containerProps?: CardProps;
+  workflowActions?: WorkflowActions;
+  stepActions?: StepActions;
 };
 
-const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props) => {
-  const {
-    onCreateWorkflow,
-    onAddChainedWorkflowClick,
-    onAddStepClick,
-    onStepMove,
-    onStepSelect,
-    onUpgradeStep,
-    onCloneStep,
-    onDeleteStep,
-  } = callbacks;
-  const stepCallbacks = {
-    onAddStepClick,
-    onStepMove,
-    onStepSelect,
-    onUpgradeStep,
-    onCloneStep,
-    onDeleteStep,
-  };
-
+const WorkflowCard = ({ id, isCollapsable, containerProps, workflowActions = {}, stepActions = {} }: Props) => {
+  const { onCreateWorkflow, onAddChainedWorkflowClick } = workflowActions;
   const workflow = useWorkflow(id);
   const containerRef = useRef(null);
   const { data: stacksAndMachines } = useStacksAndMachines();
@@ -96,20 +80,20 @@ const WorkflowCard = ({ id, isCollapsable, containerProps, ...callbacks }: Props
           <Box display="flex" flexDir="column" gap="8" p="8" ref={containerRef}>
             <ChainedWorkflowList
               key={`${id}->before_run`}
-              {...callbacks}
               placement="before_run"
               parentWorkflowId={id}
-              onAddChainedWorkflowClick={onAddChainedWorkflowClick}
+              workflowActions={workflowActions}
+              stepActions={stepActions}
             />
 
-            <StepList {...stepCallbacks} workflowId={id} />
+            <StepList workflowId={id} stepActions={stepActions} />
 
             <ChainedWorkflowList
               key={`${id}->after_run`}
-              {...callbacks}
               placement="after_run"
               parentWorkflowId={id}
-              onAddChainedWorkflowClick={onAddChainedWorkflowClick}
+              workflowActions={workflowActions}
+              stepActions={stepActions}
             />
           </Box>
         </SortableWorkflowsContext>

@@ -43,7 +43,7 @@ export const createVirtualItemsGroup = ({ columns, category, enabledSteps, steps
 
     for (let i = 0; i < rows; i++) {
       const stepsInRow = steps.slice(i * columns, (i + 1) * columns).map((step) => {
-        const stepId = step?.resolvedInfo?.id || '';
+        const stepId = step?.id || '';
         const isDisabled = Boolean(enabledSteps && !enabledSteps.has(stepId));
         return { id: stepId, step, isDisabled };
       });

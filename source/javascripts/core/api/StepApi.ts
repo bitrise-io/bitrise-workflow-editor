@@ -11,7 +11,7 @@ const ALGOLIA_API_KEY = '708f890e859e7c44f309a1bbad3d2de8';
 const ALGOLIA_STEPLIB_STEPS_INDEX = 'steplib_steps';
 const ALGOLIA_STEPLIB_INPUTS_INDEX = 'steplib_inputs';
 
-// DTOs
+// TYPES
 type AlgoliaStepResponse = {
   readonly objectID: string;
   id: string;
@@ -41,19 +41,17 @@ type AlgoliaStepInputResponse = {
   [key: string]: unknown;
 };
 
+type StepApiResult = Required<Omit<Step, 'userValues' | 'mergedValues'>> | undefined;
+
 // TRANSFORMATIONS
-function toStep(
-  cvs: string,
-  response: Partial<AlgoliaStepResponse>,
-  versions: string[] = [],
-): Required<Pick<Step, 'cvs' | 'defaultValues' | 'resolvedInfo'>> | undefined {
-  const { version = '' } = StepService.parseStepCVS(cvs);
+function toStep(cvs: string, response: Partial<AlgoliaStepResponse>, versions: string[] = []): StepApiResult {
+  const { id, version = '' } = StepService.parseStepCVS(cvs);
   if (!response.id) {
     return undefined;
   }
 
   const title = StepService.resolveTitle(response.cvs || cvs, response.step);
-  const icon = StepService.resolveIcon(response.step, response.info);
+  const icon = StepService.resolveIcon(cvs, response.step, response.info);
   const normalizedVersion = VersionUtils.normalizeVersion(version);
   const resolvedVersion = response.version || VersionUtils.resolveVersion(version, versions);
   const latestVersion = response.latest_version_number || VersionUtils.resolveVersion('', versions);
@@ -65,11 +63,11 @@ function toStep(
 
   return {
     cvs: response.cvs || cvs,
+    id: response.id || id,
+    title,
+    icon,
     defaultValues: response.step ?? {},
     resolvedInfo: {
-      id: response.id,
-      title,
-      icon,
       versions,
       version,
       normalizedVersion,
@@ -104,7 +102,7 @@ function getAlgoliaClients() {
   };
 }
 
-async function getAlgoliaSteps(): Promise<Step[]> {
+async function getAlgoliaSteps(): Promise<StepApiResult[]> {
   const { stepsClient } = getAlgoliaClients();
   const results: Array<AlgoliaStepResponse> = [];
   await stepsClient.browseObjects<AlgoliaStepResponse>({
@@ -113,10 +111,10 @@ async function getAlgoliaSteps(): Promise<Step[]> {
   });
   return uniqBy(results, 'id')
     .map((step) => toStep(step.cvs, step))
-    .filter(Boolean) as Step[];
+    .filter(Boolean) as StepApiResult[];
 }
 
-async function getStepByCvs(cvs: string): Promise<Step | undefined> {
+async function getStepByCvs(cvs: string): Promise<StepApiResult | undefined> {
   if (StepService.isStepLibStep(cvs)) {
     if (StepService.isCustomStepLibStep(cvs)) {
       return getCustomStepByCvs(cvs);
@@ -136,7 +134,7 @@ async function getStepByCvs(cvs: string): Promise<Step | undefined> {
   return undefined;
 }
 
-async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
+async function getAlgoliaStepByCvs(cvs: string): Promise<StepApiResult | undefined> {
   const { id, version } = StepService.parseStepCVS(cvs);
   const { stepsClient } = getAlgoliaClients();
   const results: AlgoliaStepResponse[] = [];
@@ -156,13 +154,13 @@ async function getAlgoliaStepByCvs(cvs: string): Promise<Step | undefined> {
       }
       return result;
     })
-    .filter(Boolean) as Step[];
+    .filter(Boolean) as StepApiResult[];
   return steps?.find(
-    ({ resolvedInfo }) => resolvedInfo?.resolvedVersion === VersionUtils.resolveVersion(version, availableVersions),
+    (step) => step?.resolvedInfo?.resolvedVersion === VersionUtils.resolveVersion(version, availableVersions),
   );
 }
 
-async function getCustomStepByCvs(cvs: string): Promise<Step | undefined> {
+async function getCustomStepByCvs(cvs: string): Promise<StepApiResult | undefined> {
   if (!/https?:\/\//.test(cvs)) {
     return undefined;
   }
@@ -173,7 +171,7 @@ async function getCustomStepByCvs(cvs: string): Promise<Step | undefined> {
   return toStep(cvs, { id, version });
 }
 
-async function getDirectGitStepByCvs(cvs: string): Promise<Step | undefined> {
+async function getDirectGitStepByCvs(cvs: string): Promise<StepApiResult | undefined> {
   if (!StepService.isGitStep(cvs)) {
     return undefined;
   }
@@ -184,7 +182,7 @@ async function getDirectGitStepByCvs(cvs: string): Promise<Step | undefined> {
   return toStep(cvs, { id, version });
 }
 
-async function getLocalStepByCvs(cvs: string): Promise<Step | undefined> {
+async function getLocalStepByCvs(cvs: string): Promise<StepApiResult | undefined> {
   if (!StepService.isLocalStep(cvs)) {
     return undefined;
   }
@@ -211,7 +209,7 @@ async function getAlgoliaStepInputsByCvs(cvs: string): Promise<StepInputVariable
   return sortBy(results, 'order').map(toStepVariable).filter(Boolean) as StepInputVariable[];
 }
 
-export { AlgoliaStepResponse, AlgoliaStepInputResponse, StepInfo };
+export { AlgoliaStepResponse, AlgoliaStepInputResponse, StepInfo, StepApiResult };
 
 export default {
   getAlgoliaSteps,

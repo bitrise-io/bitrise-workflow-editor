@@ -4,6 +4,7 @@ import { WorkflowCard } from '@/components/unified-editor';
 import useBitriseYmlStore from '@/hooks/useBitriseYmlStore';
 import RuntimeUtils from '@/core/utils/RuntimeUtils';
 import WorkflowService from '@/core/models/WorkflowService';
+import { StepActions } from '@/components/unified-editor/WorkflowCard/WorkflowCard.types';
 import { useWorkflowsPageStore } from '../../WorkflowsPage.store';
 import WorkflowSelector from './components/WorkflowSelector/WorkflowSelector';
 
@@ -26,11 +27,27 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
 
   const {
     openStepConfigDrawer,
+    openWithGroupConfigDrawer,
+    openStepBundleDrawer,
     openStepSelectorDrawer,
     openRunWorkflowDialog,
     openChainWorkflowDialog,
     openWorkflowConfigDrawer,
   } = useWorkflowsPageStore();
+
+  const openStepLikeDrawer: StepActions['onStepSelect'] = (wfId, stepIndex, variant) => {
+    switch (variant) {
+      case 'with-group':
+        openWithGroupConfigDrawer(wfId, stepIndex);
+        break;
+      case 'step-bundle':
+        openStepBundleDrawer(wfId, stepIndex);
+        break;
+      default:
+        openStepConfigDrawer(wfId, stepIndex);
+        break;
+    }
+  };
 
   return (
     <Box h="100%" display="flex" flexDir="column" minW={[256, 320, 400]}>
@@ -57,16 +74,20 @@ const WorkflowCanvasPanel = ({ workflowId }: Props) => {
       <Box flex="1" overflowY="auto" p="16" bg="background/secondary">
         <WorkflowCard
           id={workflowId}
-          onStepMove={moveStep}
-          onStepSelect={openStepConfigDrawer}
-          onAddStepClick={openStepSelectorDrawer}
-          onUpgradeStep={upgradeStep}
-          onCloneStep={cloneStep}
-          onDeleteStep={deleteStep}
-          onEditWorkflowClick={openWorkflowConfigDrawer}
-          onChainedWorkflowsUpdate={setChainedWorkflows}
-          onAddChainedWorkflowClick={openChainWorkflowDialog}
-          onDeleteChainedWorkflowClick={deleteChainedWorkflow}
+          workflowActions={{
+            onEditWorkflowClick: openWorkflowConfigDrawer,
+            onChainedWorkflowsUpdate: setChainedWorkflows,
+            onAddChainedWorkflowClick: openChainWorkflowDialog,
+            onDeleteChainedWorkflowClick: deleteChainedWorkflow,
+          }}
+          stepActions={{
+            onStepMove: moveStep,
+            onStepSelect: openStepLikeDrawer,
+            onAddStepClick: openStepSelectorDrawer,
+            onUpgradeStep: upgradeStep,
+            onCloneStep: cloneStep,
+            onDeleteStep: deleteStep,
+          }}
           containerProps={{ maxW: 400, marginX: 'auto' }}
         />
       </Box>

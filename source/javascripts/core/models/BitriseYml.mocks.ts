@@ -19,7 +19,6 @@ const MockYml: BitriseYml = {
     },
   },
   workflows: {
-    empty: {},
     wf1: {
       steps: [
         { 'activate-ssh-key': {} },
@@ -50,8 +49,28 @@ const MockYml: BitriseYml = {
           'chuck-norris': {},
         },
         {
+          with: {
+            container: 'ruby:3.2',
+            services: ['postgres', 'redis'],
+            steps: [{ 'script@1': {} }, { 'script@1': {} }],
+          },
+        },
+        {
+          'bundle::install_deps': {
+            title: 'Bundled steps',
+            steps: [{ 'script@1': {} }, { 'script@1': {} }],
+          },
+        },
+        {
           'path::./spec/integration/fixture/test_local_step': {},
         },
+        {
+          'path::./spec/integration/fixture/test_local_step': {
+            title: 'A local step with overwritten title',
+            inputs: [{ company_name: 'Bitrise 2' }],
+          },
+        },
+        { 'path::./spec/integration/fixture/test_local_step': { title: '' } },
         {
           'git::https://github.com/bitrise-steplib/steps-deploy-to-bitrise-io': {},
         },
@@ -86,6 +105,28 @@ const MockYml: BitriseYml = {
       after_run: ['_utility2'],
       envs: [{ '!TEST': 'hello', opts: { is_expand: true } }],
       meta: { 'bitrise.io': { machine_type_id: 'invalid-machine' } },
+    },
+    empty: {},
+    'with-group': {
+      steps: [
+        {
+          with: {
+            container: 'ruby:3.2',
+            services: ['postgres', 'redis'],
+            steps: [{ 'script@1': {} }, { 'script@1': {} }],
+          },
+        },
+      ],
+    },
+    'step-bundle': {
+      steps: [
+        {
+          'bundle::install_deps': {
+            title: 'Bundled steps',
+            steps: [{ 'script@1': {} }, { 'script@1': {} }],
+          },
+        },
+      ],
     },
     _utility1: {
       steps: [{ 'git-clone@8': { outputs: [{ title: 'Output' }] } }],

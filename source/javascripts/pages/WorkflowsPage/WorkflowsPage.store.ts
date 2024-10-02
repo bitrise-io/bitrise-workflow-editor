@@ -10,7 +10,9 @@ type State = {
     | 'delete-workflow'
     | 'step-config-drawer'
     | 'step-selector-drawer'
-    | 'workflow-config-drawer';
+    | 'workflow-config-drawer'
+    | 'with-group-drawer'
+    | 'step-bundle-drawer';
 };
 
 type Action = {
@@ -22,6 +24,8 @@ type Action = {
   openWorkflowConfigDrawer: (workflowId: string) => void;
   openStepConfigDrawer: (workflowId: string, stepIndex: number) => void;
   openStepSelectorDrawer: (workflowId: string, stepIndex: number) => void;
+  openWithGroupConfigDrawer: (workflowId: string, stepIndex: number) => void;
+  openStepBundleDrawer: (workflowId: string, stepIndex: number) => void;
 };
 
 export const useWorkflowsPageStore = create<State & Action>((set) => ({
@@ -62,6 +66,20 @@ export const useWorkflowsPageStore = create<State & Action>((set) => ({
       workflowId,
       stepIndex,
       isDialogOpen: 'step-selector-drawer',
+    }));
+  },
+  openWithGroupConfigDrawer: (workflowId, stepIndex) => {
+    return set(() => ({
+      workflowId,
+      stepIndex,
+      isDialogOpen: 'with-group-drawer',
+    }));
+  },
+  openStepBundleDrawer: (workflowId, stepIndex) => {
+    return set(() => ({
+      workflowId,
+      stepIndex,
+      isDialogOpen: 'step-bundle-drawer',
     }));
   },
 }));

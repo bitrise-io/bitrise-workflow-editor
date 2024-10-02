@@ -3,11 +3,12 @@ import { Box } from '@bitrise/bitkit';
 import { MockYml } from '@/core/models/BitriseYml.mocks';
 import { getStacksAndMachines } from '@/core/api/StacksAndMachinesApi.mswMocks';
 import { getSecretsFromApi, getSecretsFromLocal } from '@/core/api/SecretApi.mswMocks';
+import StepApiMocks from '@/core/api/StepApi.mswMocks';
 import {
   getCertificates,
-  getProvProfiles,
   getDefaultOutputs,
   getFileStorageDocuments,
+  getProvProfiles,
 } from '@/core/api/EnvVarsApi.mswMocks';
 import WorkflowsPage from './WorkflowsPage';
 
@@ -22,6 +23,7 @@ const meta: Meta<typeof WorkflowsPage> = {
     layout: 'fullscreen',
     msw: {
       handlers: [
+        StepApiMocks.getLocalStep({ status: 'success' }),
         getCertificates(),
         getProvProfiles(),
         getSecretsFromApi(),
@@ -52,7 +54,12 @@ const cliStory: Story = {
   parameters: {
     layout: 'fullscreen',
     msw: {
-      handlers: [getSecretsFromLocal(), getDefaultOutputs(), getStacksAndMachines()],
+      handlers: [
+        StepApiMocks.getLocalStep({ status: 'success' }),
+        getSecretsFromLocal(),
+        getDefaultOutputs(),
+        getStacksAndMachines(),
+      ],
     },
   },
 };

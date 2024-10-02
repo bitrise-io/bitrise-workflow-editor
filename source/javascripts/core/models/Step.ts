@@ -32,19 +32,38 @@ type WithGroupYmlObject = Extract<
     steps: StepYmlObject[];
   }
 > & { image?: string };
-type StepLike = StepYmlObject | StepBundleYmlObject | WithGroupYmlObject;
+type StepLikeYmlObject = StepYmlObject | StepBundleYmlObject | WithGroupYmlObject;
+
 type Step = {
   cvs: string;
-  defaultValues?: StepYmlObject; // The defaults are coming from the step.yml file loaded from the API
-  userValues?: StepYmlObject; // The values are coming from the bitrise.yml file defined by the user
-  mergedValues?: StepYmlObject; // the merged values of the defaults and user values
-  resolvedInfo?: ResolvedStepInfo;
-};
-
-type ResolvedStepInfo = Partial<{
   id: string;
   title: string;
   icon: string;
+  defaultValues?: StepYmlObject; // The defaults are coming from the step.yml file loaded from the API
+  userValues: StepYmlObject; // The values are coming from the bitrise.yml file defined by the user
+  mergedValues: StepYmlObject; // the merged values of the defaults and user values
+  resolvedInfo: ResolvedStepInfo;
+};
+
+type WithGroup = {
+  cvs: string;
+  id: string;
+  title: string;
+  icon: string;
+  userValues: WithGroupYmlObject;
+};
+
+type StepBundle = {
+  cvs: string;
+  id: string;
+  title: string;
+  icon: string;
+  userValues: StepBundleYmlObject;
+};
+
+type StepLike = Step | WithGroup | StepBundle;
+
+type ResolvedStepInfo = Partial<{
   version: string; // 2 || 2.1 || 2.1.6
   normalizedVersion: string; // 2.x.x
   resolvedVersion: string; // 2.1.6
@@ -82,11 +101,14 @@ type StepOutputVariable = StepVariable;
 
 export {
   Steps,
-  StepLike,
+  StepLikeYmlObject,
   StepYmlObject,
   StepBundleYmlObject,
   WithGroupYmlObject,
   Step,
+  StepLike,
+  WithGroup,
+  StepBundle,
   ResolvedStepInfo,
   StepVariable,
   StepInputVariable,
